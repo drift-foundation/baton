@@ -1,0 +1,200 @@
+{
+  "claim": 182326,
+  "checks": [
+    {
+      "path": "evidence/qualification-fixture.py",
+      "sha256": "5854895e7c1519a85df95057663e00139a18f2f2d0c3953dfca19316cdcab910",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/qualification-fixture.py",
+      "sha256": "5854895e7c1519a85df95057663e00139a18f2f2d0c3953dfca19316cdcab910",
+      "matches": true
+    },
+    {
+      "path": "candidate-180078/qualification-fixture.py",
+      "sha256": "72875394cb4b958919db48a019a99de076ee5cab526b51a1c2278ae0c7e49e94",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_contract.py",
+      "sha256": "d6443e55b70c8a65480cc8f19ced56cce18d0030bf56a95f705f13d662075927",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/qualification_contract.py",
+      "sha256": "d6443e55b70c8a65480cc8f19ced56cce18d0030bf56a95f705f13d662075927",
+      "matches": true
+    },
+    {
+      "path": "candidate-180078/qualification_contract.py",
+      "sha256": "0efe61f528ce4c691b85fa336967d1f85bd32241ffd686c73305f7d36e3281d1",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_worker.py",
+      "sha256": "2bbc7e663a662da2f0d29f0e31b9b01741cb328801c77db0d5466ab33ce5a9ce",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/qualification_worker.py",
+      "sha256": "2bbc7e663a662da2f0d29f0e31b9b01741cb328801c77db0d5466ab33ce5a9ce",
+      "matches": true
+    },
+    {
+      "path": "candidate-180078/qualification_worker.py",
+      "sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "matches": true
+    },
+    {
+      "path": "evidence/test_qualification.py",
+      "sha256": "cba1f4af6a240df1d243f354ee323cbb122d46acc405226e4f4496a11889ef03",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/test_qualification.py",
+      "sha256": "cba1f4af6a240df1d243f354ee323cbb122d46acc405226e4f4496a11889ef03",
+      "matches": true
+    },
+    {
+      "path": "candidate-180078/test_qualification.py",
+      "sha256": "108a7b67474e427ff4e76b635811e73ceb0487a692de88ac8ab69f7866ba0f22",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification-manifest.json",
+      "sha256": "3b0020baf600335d6e7f2d999f6b01e70507e4c515a8c3c7ee4f8a3e24824bde",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/qualification-manifest.json",
+      "sha256": "3b0020baf600335d6e7f2d999f6b01e70507e4c515a8c3c7ee4f8a3e24824bde",
+      "matches": true
+    },
+    {
+      "path": "candidate-180078/qualification-manifest.json",
+      "sha256": "5e789f4e3115b5eb9a7623772adf0a17aac3e45135afaa65bc11a35eb30e951f",
+      "matches": true
+    },
+    {
+      "path": "evidence/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-180078/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "OPERATOR-178579.md",
+      "sha256": "3b65a7362f7952fbcb1766a9df15c5590380db03dfb5c53ad0bf2fbd704b3b5e",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/OPERATOR-178579.md",
+      "sha256": "3b65a7362f7952fbcb1766a9df15c5590380db03dfb5c53ad0bf2fbd704b3b5e",
+      "matches": true
+    },
+    {
+      "path": "candidate-180078/OPERATOR-178579.md",
+      "sha256": "fe63a4f11a3a3b7ea480d70e2a72793ed8f90cc9fab1bee62214ede80c4d6589",
+      "matches": true
+    }
+  ],
+  "all_hashes_match": true,
+  "results": [
+    {
+      "case": "symlinked-projects-parent",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "observed_before": "0o600",
+      "observed_after": "0o640",
+      "observed_mode_changed": true,
+      "same_uid_synthetic_fixture": true
+    },
+    {
+      "case": "project-swapped-after-descriptor-check",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "observed_before": "0o600",
+      "observed_after": "0o640",
+      "observed_mode_changed": true,
+      "same_uid_synthetic_fixture": true
+    },
+    {
+      "case": "foreign-session",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "observed_before": "0o600",
+      "observed_after": "0o640",
+      "observed_mode_changed": true,
+      "same_uid_synthetic_fixture": true
+    },
+    {
+      "case": "nested-session",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "observed_before": "0o600",
+      "observed_after": "0o640",
+      "observed_mode_changed": true,
+      "same_uid_synthetic_fixture": true
+    },
+    {
+      "case": "credential-shaped-entry",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "observed_before": "0o600",
+      "observed_after": "0o640",
+      "observed_mode_changed": true,
+      "same_uid_synthetic_fixture": true
+    },
+    {
+      "case": "hardlinked-session",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "observed_before": "0o600",
+      "observed_after": "0o640",
+      "observed_mode_changed": true,
+      "same_uid_synthetic_fixture": true
+    },
+    {
+      "case": "coverage-EACCES-projection",
+      "failure_code": "state-coverage-incomplete",
+      "failure_detail": {
+        "step": "source-inventory",
+        "category": "known-refusal",
+        "errno": "none"
+      },
+      "input_errno": "EACCES",
+      "canary_leaked": false
+    }
+  ],
+  "seconds": 0.0010939929634332657,
+  "source_unchanged": true,
+  "method": "same-UID synthetic temporary trees; only HOME/GROUP and the exact race/error seam patched; no credentials/live roots/models/engine",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]"
+}

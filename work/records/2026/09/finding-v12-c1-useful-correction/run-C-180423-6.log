@@ -1,0 +1,17 @@
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... ERROR
+
+======================================================================
+ERROR: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 15, in test_useful_correction_reaches_managed_target
+    artifact = world.run_scenario()
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 354, in run_scenario
+    apply_launch = apply_runtime.operations._worker._adopted({"attempt_id": apply_attempt, "job_id": "job-a"}).document
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'document'
+
+----------------------------------------------------------------------
+Ran 1 test in 2.674s
+
+FAILED (errors=1)

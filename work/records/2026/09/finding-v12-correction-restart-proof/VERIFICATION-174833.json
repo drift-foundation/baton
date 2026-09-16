@@ -1,0 +1,180 @@
+{
+  "claim": 174833,
+  "scope": "focused deterministic A only; no actual engine/provider calls",
+  "measured_seconds": 7.511480546992971,
+  "runs": [
+    {
+      "run": "1",
+      "status": 0,
+      "seconds": 0.41402038000524044,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ]
+    },
+    {
+      "run": "2",
+      "status": 1,
+      "seconds": 0.36400706198764965,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ]
+    },
+    {
+      "run": "3",
+      "status": 1,
+      "seconds": 0.3639745019900147,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ]
+    },
+    {
+      "run": "4",
+      "status": 1,
+      "seconds": 0.5642051610047929,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ]
+    },
+    {
+      "run": "5",
+      "status": 1,
+      "seconds": 0.41410402400651947,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context.Finalization"
+      ]
+    },
+    {
+      "run": "6",
+      "status": 0,
+      "seconds": 0.41391444200417027,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context.Finalization"
+      ]
+    },
+    {
+      "run": "7",
+      "status": 1,
+      "seconds": 0.26391817099647596,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context.Restoration"
+      ]
+    },
+    {
+      "run": "8",
+      "status": 1,
+      "seconds": 0.2638125449884683,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context.Restoration"
+      ]
+    },
+    {
+      "run": "9",
+      "status": 1,
+      "seconds": 0.31398373597767204,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context.Restoration"
+      ]
+    },
+    {
+      "run": "10",
+      "status": 1,
+      "seconds": 0.31384937700931914,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context.Restoration"
+      ]
+    },
+    {
+      "run": "11",
+      "status": 0,
+      "seconds": 0.36390091400244273,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context.Restoration"
+      ]
+    },
+    {
+      "run": "12",
+      "status": 0,
+      "seconds": 0.41394236401538365,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context.Restoration",
+        "tests.manager.test_provider_context.Admission"
+      ]
+    },
+    {
+      "run": "13",
+      "status": 0,
+      "seconds": 0.8145182240114082,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ]
+    },
+    {
+      "run": "14",
+      "status": 0,
+      "seconds": 1.0645292880071793,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ]
+    },
+    {
+      "run": "15",
+      "status": 0,
+      "seconds": 1.164800356986234,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ]
+    }
+  ],
+  "environment": {
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "dependencies": {
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "referencing": "0.37.0",
+      "attrs": "26.1.0",
+      "rpds-py": "2026.6.3"
+    }
+  },
+  "final_pass": {
+    "run": "15",
+    "count": 41,
+    "seconds": 1.164800356986234
+  }
+}

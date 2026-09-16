@@ -1,0 +1,536 @@
+{
+ "probes": [
+  {
+   "probe": "artifact-exact-only",
+   "file": "qualification_contract.py",
+   "reverts": "the second accepted form is gone",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+    "test_both_constants_are_accepted_with_and_without_their_final_lf",
+    "test_changed_code_still_refuses_at_the_second_turn",
+    "test_the_controller_never_rewrites_the_workspace",
+    "test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours"
+   ]
+  },
+  {
+   "probe": "artifact-strip",
+   "file": "qualification_contract.py",
+   "reverts": "general whitespace tolerance instead of one newline",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+    "test_both_constants_are_accepted_with_and_without_their_final_lf",
+    "test_no_strip_or_normalization_was_introduced",
+    "test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours",
+    "test_the_relaxation_is_exactly_one_newline_wide"
+   ]
+  },
+  {
+   "probe": "no-consistency-guard",
+   "file": "qualification_contract.py",
+   "reverts": "a forged terminal record is no longer refused",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm",
+    "test_a_malformed_preserved_observation_is_refused",
+    "test_a_terminal_record_that_contradicts_its_own_diagnostics_refuses",
+    "test_contradictory_cardinality_is_refused_at_the_arm",
+    "test_malformed_terminal_json_is_named_not_unclassified",
+    "test_the_validators_refuse_malformed_json_rather_than_raising"
+   ]
+  },
+  {
+   "probe": "membership-not-identity",
+   "file": "qualification_contract.py",
+   "reverts": "a truthy integer passes as a boolean",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_truthy_integer_is_not_a_boolean"
+   ]
+  },
+  {
+   "probe": "constant-as-observed",
+   "file": "qualification-fixture.py",
+   "reverts": "the export labels a constant as the observed artifact",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+    "test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused"
+   ]
+  },
+  {
+   "probe": "refuse-before-record-turn-2",
+   "file": "qualification-fixture.py",
+   "reverts": "a refused second-turn record no longer survives the refusal",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_refused_artifact_is_recorded_before_it_is_refused",
+    "test_a_token_written_without_its_newline_still_refuses",
+    "test_changed_code_still_refuses_at_the_second_turn"
+   ]
+  },
+  {
+   "probe": "refuse-before-record",
+   "file": "qualification-fixture.py",
+   "reverts": "the observed record no longer survives a refusal",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused"
+   ]
+  },
+  {
+   "probe": "no-cardinality-bounds",
+   "file": "qualification_contract.py",
+   "reverts": "the old range check: a singleton may report any in-range count",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_shape_cannot_claim_a_cardinality_it_excludes",
+    "test_contradictory_cardinality_is_refused_at_the_arm"
+   ]
+  },
+  {
+   "probe": "no-overflow-rule",
+   "file": "qualification_contract.py",
+   "reverts": "overflow may be claimed by any shape at any count",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_contradictory_cardinality_is_refused_at_the_arm",
+    "test_overflow_belongs_only_to_the_shapes_that_can_overflow"
+   ]
+  },
+  {
+   "probe": "no-usage-member-rule",
+   "file": "qualification_contract.py",
+   "reverts": "a modelUsage diagnostic about an absent member is admitted",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_diagnostic_about_an_absent_member_is_a_contradiction",
+    "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm"
+   ]
+  },
+  {
+   "probe": "no-model-member-rule",
+   "file": "qualification_contract.py",
+   "reverts": "a model diagnostic about an absent member is admitted",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_diagnostic_about_an_absent_member_is_a_contradiction",
+    "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm"
+   ]
+  },
+  {
+   "probe": "no-expected-key-rule",
+   "file": "qualification_contract.py",
+   "reverts": "the expected-key flag need not match its shape",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_contradictory_cardinality_is_refused_at_the_arm",
+    "test_the_expected_key_flag_must_match_its_shape"
+   ]
+  },
+  {
+   "probe": "identity-back-to-consumed",
+   "file": "qualification-fixture.py",
+   "reverts": "a consumed run identity is reachable again",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_manifest_naming_another_identity_is_refused",
+    "test_audit_never_uses_engine_or_credentials",
+    "test_the_consumed_roots_are_never_addressable_by_the_running_code",
+    "test_the_identity_is_not_a_consumed_one",
+    "test_the_manifest_declares_exactly_the_roots_the_code_would_take",
+    "test_the_three_roots_are_one_identity_and_distinct"
+   ]
+  },
+  {
+   "probe": "identity-back-to-the-first-consumed",
+   "file": "qualification-fixture.py",
+   "reverts": "the first consumed run identity is reachable again",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_manifest_naming_another_identity_is_refused",
+    "test_audit_never_uses_engine_or_credentials",
+    "test_the_consumed_roots_are_never_addressable_by_the_running_code",
+    "test_the_identity_is_not_a_consumed_one",
+    "test_the_manifest_declares_exactly_the_roots_the_code_would_take",
+    "test_the_three_roots_are_one_identity_and_distinct"
+   ]
+  },
+  {
+   "probe": "identity-back-to-the-third-consumed",
+   "file": "qualification-fixture.py",
+   "reverts": "the third consumed run identity is reachable again",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_manifest_naming_another_identity_is_refused",
+    "test_audit_never_uses_engine_or_credentials",
+    "test_the_consumed_roots_are_never_addressable_by_the_running_code",
+    "test_the_identity_is_not_a_consumed_one",
+    "test_the_manifest_declares_exactly_the_roots_the_code_would_take",
+    "test_the_three_roots_are_one_identity_and_distinct"
+   ]
+  },
+  {
+   "probe": "identity-back-to-the-fourth-consumed",
+   "file": "qualification-fixture.py",
+   "reverts": "the fourth consumed run identity is reachable again",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_manifest_naming_another_identity_is_refused",
+    "test_audit_never_uses_engine_or_credentials",
+    "test_the_consumed_roots_are_never_addressable_by_the_running_code",
+    "test_the_identity_is_not_a_consumed_one",
+    "test_the_manifest_declares_exactly_the_roots_the_code_would_take",
+    "test_the_three_roots_are_one_identity_and_distinct"
+   ]
+  },
+  {
+   "probe": "no-declared-root-check",
+   "file": "qualification-fixture.py",
+   "reverts": "an approved manifest may declare an identity the code does not take",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_manifest_naming_another_identity_is_refused",
+    "test_the_export_root_is_derived_in_exactly_one_place"
+   ]
+  },
+  {
+   "probe": "export-root-pinned-not-derived",
+   "file": "qualification-fixture.py",
+   "reverts": "the export root stops following ROOT and is derived from another operand",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_refused_reservation_leaves_no_half_taken_identity",
+    "test_audit_never_uses_engine_or_credentials",
+    "test_each_fixed_root_refuses_before_any_admission",
+    "test_the_export_root_follows_a_patched_root",
+    "test_the_export_root_is_derived_in_exactly_one_place",
+    "test_the_manifest_declares_exactly_the_roots_the_code_would_take",
+    "test_the_three_roots_are_one_identity_and_distinct"
+   ]
+  },
+  {
+   "probe": "publish-in-any-turn",
+   "file": "qualification_worker.py",
+   "reverts": "P1a stops being turn-1 only and would aim at the restored 0o660 copy",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+    "test_a_refused_artifact_is_recorded_before_it_is_refused",
+    "test_a_token_written_without_its_newline_still_refuses",
+    "test_changed_code_still_refuses_at_the_second_turn",
+    "test_exact_bytes_still_record_an_observed_digest_of_their_own",
+    "test_missing_model_is_a_qualification_failure_even_if_restoration_works",
+    "test_the_export_carries_why_a_model_did_not_qualify",
+    "test_the_observed_mismatch_is_resolved_end_to_end",
+    "test_the_published_home_is_collected_and_the_run_qualifies",
+    "test_turn_two_publishes_nothing_and_the_restored_copy_stands",
+    "test_two_turn_trace_reconstructs_only_the_subset_and_keeps_token_private"
+   ]
+  },
+  {
+   "probe": "publish-without-uid-check",
+   "file": "qualification_worker.py",
+   "reverts": "an object owned by another uid may be relaxed",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_wrong_uid_object_refuses_on_its_own",
+    "test_ownership_and_type_branches_are_distinguishable"
+   ]
+  },
+  {
+   "probe": "publish-without-gid-check",
+   "file": "qualification_worker.py",
+   "reverts": "an object outside the workspace group may be relaxed",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_manager_owned_object_refuses_and_changes_nothing",
+    "test_ownership_and_type_branches_are_distinguishable"
+   ]
+  },
+  {
+   "probe": "tolerate-unlistable-directory",
+   "file": "qualification_contract.py",
+   "reverts": "an unlistable directory stops refusing, making the absence claims vacuous",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_blocked_directory_names_its_step_and_errno",
+    "test_an_unenterable_directory_refuses_rather_than_reporting_absence",
+    "test_the_coverage_refusal_keeps_the_errno_it_was_raised_for"
+   ]
+  },
+  {
+   "probe": "tolerate-unstattable-entry",
+   "file": "qualification_contract.py",
+   "reverts": "an unstattable entry stops refusing -- a valid synthetic regression, not the observed operator result",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_an_unstattable_entry_refuses_too",
+    "test_the_stat_seam_carries_its_cause_too"
+   ]
+  },
+  {
+   "probe": "accept-unreadable-selected",
+   "file": "qualification_contract.py",
+   "reverts": "an unreadable selected session is promoted",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_an_unreadable_selected_session_refuses"
+   ]
+  },
+  {
+   "probe": "no-failure-detail",
+   "file": "qualification-fixture.py",
+   "reverts": "the closed triple stops naming the step and kind",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_blocked_directory_names_its_step_and_errno",
+    "test_every_collection_step_reports_its_own_closed_triple"
+   ]
+  },
+  {
+   "probe": "publish-follows-ancestors",
+   "file": "qualification_worker.py",
+   "reverts": "a symlinked ancestor is followed out of the home again",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_type_swapped_after_its_check_cannot_be_followed"
+   ]
+  },
+  {
+   "probe": "publish-allows-aliases",
+   "file": "qualification_worker.py",
+   "reverts": "a hardlinked session is chmodded through its alias",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_hardlinked_session_refuses_before_any_mode_change",
+    "test_each_publication_branch_names_its_own_check"
+   ]
+  },
+  {
+   "probe": "survey-reopens-by-path",
+   "file": "qualification_worker.py",
+   "reverts": "the targets are reopened by path instead of being the surveyed descriptors",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_blocked_directory_names_its_step_and_errno",
+    "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm",
+    "test_a_directory_the_runtime_does_not_own_is_not_published",
+    "test_a_hardlinked_session_refuses_before_any_mode_change",
+    "test_a_manager_owned_object_refuses_and_changes_nothing",
+    "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+    "test_a_refused_artifact_is_recorded_before_it_is_refused",
+    "test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused",
+    "test_a_terminal_record_that_contradicts_its_own_diagnostics_refuses",
+    "test_a_token_written_without_its_newline_still_refuses",
+    "test_a_wrong_uid_object_refuses_on_its_own",
+    "test_changed_code_still_refuses_at_the_second_turn",
+    "test_contradictory_cardinality_is_refused_at_the_arm",
+    "test_each_publication_branch_names_its_own_check",
+    "test_every_collection_step_reports_its_own_closed_triple",
+    "test_exact_bytes_still_record_an_observed_digest_of_their_own",
+    "test_malformed_terminal_json_is_named_not_unclassified",
+    "test_missing_model_is_a_qualification_failure_even_if_restoration_works",
+    "test_ownership_and_type_branches_are_distinguishable",
+    "test_publishing_in_turn_two_refuses",
+    "test_the_controller_never_rewrites_the_workspace",
+    "test_the_expected_credential_link_is_checked_and_never_opened",
+    "test_the_export_carries_why_a_model_did_not_qualify",
+    "test_the_observed_mismatch_is_resolved_end_to_end",
+    "test_the_published_home_is_collected_and_the_run_qualifies",
+    "test_the_published_home_is_traversable_by_a_group_member_only",
+    "test_the_real_worker_observes_then_publishes",
+    "test_the_remaining_operations_carry_their_check_and_errno",
+    "test_the_target_metadata_read_carries_its_check_and_errno",
+    "test_turn_one_publishes_traversal_and_not_contents",
+    "test_two_turn_trace_reconstructs_only_the_subset_and_keeps_token_private"
+   ]
+  },
+  {
+   "probe": "survey-not-home-wide",
+   "file": "qualification_worker.py",
+   "reverts": "the survey descends only the projects chain again",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_type_swapped_after_its_check_cannot_be_followed",
+    "test_an_unselected_invalid_type_anywhere_refuses",
+    "test_forbidden_layouts_refuse_and_change_nothing",
+    "test_turn_one_publishes_traversal_and_not_contents"
+   ]
+  },
+  {
+   "probe": "publish-skips-the-survey",
+   "file": "qualification_worker.py",
+   "reverts": "a foreign or nested session publishes before it is refused",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_each_publication_branch_names_its_own_check",
+    "test_forbidden_layouts_refuse_and_change_nothing",
+    "test_the_publication_diagnostic_exports_nothing_private"
+   ]
+  },
+  {
+   "probe": "publish-skips-credential-shape",
+   "file": "qualification_worker.py",
+   "reverts": "a credential-shaped entry publishes before it is refused",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_failure_before_the_provider_answers_preserves_nothing",
+    "test_a_malformed_preserved_observation_is_refused",
+    "test_a_publication_failure_preserves_the_observation_it_already_had",
+    "test_a_valid_observation_still_survives_on_the_failure_path",
+    "test_capture_refusal_never_widens_the_subset_or_retries",
+    "test_each_publication_branch_names_its_own_check",
+    "test_forbidden_layouts_refuse_and_change_nothing",
+    "test_malformed_terminal_json_is_named_not_unclassified",
+    "test_the_real_worker_preserves_its_observation_through_a_publication_failure"
+   ]
+  },
+  {
+   "probe": "coverage-drops-the-cause",
+   "file": "qualification_contract.py",
+   "reverts": "the coverage refusal throws away the errno it was raised for",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_blocked_directory_names_its_step_and_errno",
+    "test_the_coverage_refusal_keeps_the_errno_it_was_raised_for"
+   ]
+  },
+  {
+   "probe": "cause-without-a-relationship",
+   "file": "qualification_contract.py",
+   "reverts": "an os-error may claim to have wrapped a cause",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_the_projection_boundary_refuses_malformed_details"
+   ]
+  },
+  {
+   "probe": "publication-without-a-check",
+   "file": "qualification_worker.py",
+   "reverts": "a publication refusal stops naming which check it failed",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_publication_failure_preserves_the_observation_it_already_had",
+    "test_each_publication_branch_names_its_own_check",
+    "test_the_real_worker_preserves_its_observation_through_a_publication_failure"
+   ]
+  },
+  {
+   "probe": "publication-loses-the-errno",
+   "file": "qualification_worker.py",
+   "reverts": "an operation failure stops carrying its errno category",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_an_operation_failure_carries_its_errno"
+   ]
+  },
+  {
+   "probe": "observe-after-publishing",
+   "file": "qualification_worker.py",
+   "reverts": "run183114's ordering returns: a publication failure discards the observation",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_the_real_worker_preserves_its_observation_through_a_publication_failure"
+   ]
+  },
+  {
+   "probe": "drop-the-preserved-observation",
+   "file": "qualification_worker.py",
+   "reverts": "the observation is made and then thrown away",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_the_real_worker_preserves_its_observation_through_a_publication_failure"
+   ]
+  },
+  {
+   "probe": "accept-a-forged-observation",
+   "file": "qualification-fixture.py",
+   "reverts": "a preserved observation is no longer validated at all",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_canary_in_any_terminal_field_is_refused_on_both_paths",
+    "test_a_malformed_preserved_observation_is_refused",
+    "test_malformed_terminal_json_is_named_not_unclassified"
+   ]
+  },
+  {
+   "probe": "failure-path-shorter-validator",
+   "file": "qualification-fixture.py",
+   "reverts": "the failure path gets its own shorter validator again",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_canary_in_any_terminal_field_is_refused_on_both_paths",
+    "test_a_malformed_preserved_observation_is_refused",
+    "test_malformed_terminal_json_is_named_not_unclassified"
+   ]
+  },
+  {
+   "probe": "publication-untyped",
+   "file": "qualification_contract.py",
+   "reverts": "an unhashable check or errno raises out of the validator instead of being refused",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_the_publication_boundary_refuses_malformed_diagnostics"
+   ]
+  },
+  {
+   "probe": "target-metadata-unwrapped",
+   "file": "qualification_worker.py",
+   "reverts": "the target metadata read escapes as unclassified with a null diagnostic",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_the_target_metadata_read_carries_its_check_and_errno"
+   ]
+  },
+  {
+   "probe": "terminal-sets-before-types",
+   "file": "qualification_contract.py",
+   "reverts": "an unhashable member raises out of valid_terminal instead of being refused",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_malformed_terminal_json_is_named_not_unclassified",
+    "test_the_validators_refuse_malformed_json_rather_than_raising"
+   ]
+  },
+  {
+   "probe": "diagnostics-untyped",
+   "file": "qualification_contract.py",
+   "reverts": "an unhashable model diagnostic raises out of consistent instead of being refused",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_malformed_terminal_json_is_named_not_unclassified",
+    "test_the_validators_refuse_malformed_json_rather_than_raising"
+   ]
+  },
+  {
+   "probe": "publish-only-the-two-objects",
+   "file": "qualification_worker.py",
+   "reverts": "only one directory is published again, so whole-HOME coverage still fails",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_turn_one_publishes_traversal_and_not_contents"
+   ]
+  },
+  {
+   "probe": "publish-file-contents-too",
+   "file": "qualification_worker.py",
+   "reverts": "objects that are not runtime-owned directories are published",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_a_directory_the_runtime_does_not_own_is_not_published"
+   ]
+  },
+  {
+   "probe": "no-directory-bound",
+   "file": "qualification_worker.py",
+   "reverts": "the retained directory descriptors are unbounded",
+   "exit_code": 1,
+   "failing_tests": [
+    "test_too_many_directories_refuse_before_any_mode_change"
+   ]
+  }
+ ],
+ "note": "each probe reverts one guard in an isolated copy; every probe must fail"
+}

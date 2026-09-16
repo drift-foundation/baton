@@ -1,0 +1,145 @@
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... ERROR
+
+======================================================================
+ERROR: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 15, in test_useful_correction_reaches_managed_target
+    artifact = world.run_scenario()
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 224, in run_scenario
+    self.until(held, "implementation", "completed")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 186, in until
+    report = self.tick(held)
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 181, in tick
+    self.trace.record(self.tick_count, "observe", outcome="observed", evidence=digest(report))
+                                                                               ~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 198, in digest
+    return "sha256:" + hashlib.sha256(canonical_bytes(value)).hexdigest()
+                                      ~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 194, in canonical_bytes
+    return canonical_text(value).encode("utf-8")
+           ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 100, in canonical_text
+    return _canonical_text(value, 0)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 183, in _canonical_text
+    return "{" + ",".join(
+                 ~~~~~~~~^
+        f"{json.dumps(name, ensure_ascii=False)}:"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{_canonical_text(value[name], _depth + 1)}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        for name in names) + "}"
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 185, in <genexpr>
+    f"{_canonical_text(value[name], _depth + 1)}"
+       ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 159, in _canonical_text
+    return "[" + ",".join(_canonical_text(entry, _depth + 1)
+                 ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          for entry in value) + "]"
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 159, in <genexpr>
+    return "[" + ",".join(_canonical_text(entry, _depth + 1)
+                          ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 183, in _canonical_text
+    return "{" + ",".join(
+                 ~~~~~~~~^
+        f"{json.dumps(name, ensure_ascii=False)}:"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{_canonical_text(value[name], _depth + 1)}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        for name in names) + "}"
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 185, in <genexpr>
+    f"{_canonical_text(value[name], _depth + 1)}"
+       ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 183, in _canonical_text
+    return "{" + ",".join(
+                 ~~~~~~~~^
+        f"{json.dumps(name, ensure_ascii=False)}:"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{_canonical_text(value[name], _depth + 1)}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        for name in names) + "}"
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 185, in <genexpr>
+    f"{_canonical_text(value[name], _depth + 1)}"
+       ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 183, in _canonical_text
+    return "{" + ",".join(
+                 ~~~~~~~~^
+        f"{json.dumps(name, ensure_ascii=False)}:"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{_canonical_text(value[name], _depth + 1)}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        for name in names) + "}"
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 185, in <genexpr>
+    f"{_canonical_text(value[name], _depth + 1)}"
+       ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 183, in _canonical_text
+    return "{" + ",".join(
+                 ~~~~~~~~^
+        f"{json.dumps(name, ensure_ascii=False)}:"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{_canonical_text(value[name], _depth + 1)}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        for name in names) + "}"
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 185, in <genexpr>
+    f"{_canonical_text(value[name], _depth + 1)}"
+       ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 183, in _canonical_text
+    return "{" + ",".join(
+                 ~~~~~~~~^
+        f"{json.dumps(name, ensure_ascii=False)}:"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{_canonical_text(value[name], _depth + 1)}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        for name in names) + "}"
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 185, in <genexpr>
+    f"{_canonical_text(value[name], _depth + 1)}"
+       ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 183, in _canonical_text
+    return "{" + ",".join(
+                 ~~~~~~~~^
+        f"{json.dumps(name, ensure_ascii=False)}:"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{_canonical_text(value[name], _depth + 1)}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        for name in names) + "}"
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 185, in <genexpr>
+    f"{_canonical_text(value[name], _depth + 1)}"
+       ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 183, in _canonical_text
+    return "{" + ",".join(
+                 ~~~~~~~~^
+        f"{json.dumps(name, ensure_ascii=False)}:"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{_canonical_text(value[name], _depth + 1)}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        for name in names) + "}"
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 185, in <genexpr>
+    f"{_canonical_text(value[name], _depth + 1)}"
+       ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 113, in _canonical_text
+    _refuse(
+    ~~~~~~~^
+        f"the document nests deeper than the frozen limit of {MAX_DEPTH}; "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"a shape this boundary refuses to own may not acquire a digest "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"either")
+        ^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 60, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the document nests deeper than the frozen limit of 8; a shape this boundary refuses to own may not acquire a digest either
+
+----------------------------------------------------------------------
+Ran 1 test in 0.408s
+
+FAILED (errors=1)

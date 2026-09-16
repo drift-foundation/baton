@@ -1,0 +1,132 @@
+{
+  "R1": {
+    "also": "valid_publication checked membership before type, so an unhashable check or errno raised TypeError out of the validator instead of being refused by it; types are checked first now",
+    "correction": "one c.valid_terminal used by both paths",
+    "defect": "the failure path carried a SHORTER COPY of the terminal validator, leaving type, subtype, is_error, session_matches, unknown_member_hashes and api_error_status unchecked on that path only -- a canary in any of the six was refused on the normal path and exported on the failure path, six of six. The run still failed and no second arm was admitted, so a closed-export defect rather than a false qualification; the export is still the product.",
+    "tests": [
+      "test_a_canary_in_any_terminal_field_is_refused_on_both_paths -- six fields x two paths, paired, because the defect was that the two paths disagreed",
+      "test_a_valid_observation_still_survives_on_the_failure_path -- the correction must not throw the good case out with the bad",
+      "test_the_publication_boundary_refuses_malformed_diagnostics, extended with list, dict and None values"
+    ]
+  },
+  "R2": {
+    "correction": "reports the new target-metadata check with its closed errno",
+    "defect": "the target's own fstat in _mutable had no wrapper, so EACCES/EIO/ENOENT escaped as unclassified with a null publication diagnostic -- the one operation in the publication path still able to lose its own cause",
+    "tests": [
+      "test_the_target_metadata_read_carries_its_check_and_errno (EACCES/EIO/ENOENT)",
+      "test_the_remaining_operations_carry_their_check_and_errno (home-open, chmod)",
+      "test_a_child_open_failure_names_the_open_check"
+    ]
+  },
+  "claim": 183267,
+  "corrects": {
+    "review": "review-2026-09-16T03-18-48Z.md",
+    "sha256": "d8c5eca0ef7231d64b635565b4e4aa9f9a7e5c7223fb2d72c6cf91b370a693e2",
+    "withheld_manifest": "c5b325cd3b083b0ba5fd8952c48bbd27ff1efa67e0e27c326434e95c35901cc6"
+  },
+  "does_not_recover": "run183114's cause; that export cannot identify the branch",
+  "files": [
+    {
+      "base_sha256": "3a5f867334fd91fadee18cfee0ee1ec3df99233ef48cb6ebd7bc8dbf79693325",
+      "candidate_sha256": "a43d0347d16f1deff6a5f7e69348efff7426a86ec736f361bdad8b6f1ede1545",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-183267/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "2f9cac7b6b0ddbf48ad8e98a4ceba177acbc9533b2bc3346983b39feba78f84b",
+      "candidate_sha256": "1cc7c7b2c2ec354801d0a54135def0305d5e254e56b74c5ab9208c347698b829",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-183267/qualification_contract.py"
+    },
+    {
+      "base_sha256": "aeec34fea71387fa06804ca0b1c41a1e78fa260a5b71f981b5454c47c8dc81ab",
+      "candidate_sha256": "29a9ea21ae0f3fdb9e2fdd0c54e48d3326c5343aa3857f1baca4f719b312492d",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-183267/qualification_worker.py"
+    },
+    {
+      "base_sha256": "66f729618f2b0ffc5411fc1df457db263c814e63bcdb3fd5b45f3a66fb463af9",
+      "candidate_sha256": "3c4f808ed2606ad7b7315dbdac42b73bc31cc085558494e95da24f80660a9a7c",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-183267/test_qualification.py"
+    },
+    {
+      "base_sha256": "c5b325cd3b083b0ba5fd8952c48bbd27ff1efa67e0e27c326434e95c35901cc6",
+      "candidate_sha256": "157b7bb839ec5bcc5ee16bf5800c6d60600de377eb0bf956c3ee3f117ee5e8f0",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-183267/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-183267/verify-offline.py"
+    },
+    {
+      "base_sha256": "47ff787563a8d14478745cfd06e648252bbc3f5de1089c36ca589fe317c1b245",
+      "candidate_sha256": "e843c0b561cb470901d4d8fcdb9fda84eb8bde742476f126125552b03230fbe1",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-183267/OPERATOR-178579.md"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.3638996609952301,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "854731072e3774e87313c03eb4afbdc9283243565fd6e24797f468a3175b239d",
+    "manifest_sha256": "157b7bb839ec5bcc5ee16bf5800c6d60600de377eb0bf956c3ee3f117ee5e8f0",
+    "pid": 3766153,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "manifest_sha256": "157b7bb839ec5bcc5ee16bf5800c6d60600de377eb0bf956c3ee3f117ee5e8f0",
+  "not_done": [
+    "live run",
+    "private-tree inspection",
+    "fresh identity",
+    "consumed-root repair",
+    "production enabling",
+    "product-source edits",
+    "version-control operations"
+  ],
+  "operator_packet_sha256": "e843c0b561cb470901d4d8fcdb9fda84eb8bde742476f126125552b03230fbe1",
+  "preserved": [
+    "retained descriptors and before-mutation refusal",
+    "turn-2 restored 0o660",
+    "the strict model, artifact and continuity acceptance",
+    "the image and the run limits",
+    "a valid observation still surviving on the failure path",
+    "all three consumed identities"
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "realigned": "no-consistency-guard and accept-a-forged-observation targeted lines that the shared validator replaced; both were moved to where the guard now lives rather than dropped",
+    "total": 39
+  },
+  "tests": {
+    "after": 114,
+    "before": 109,
+    "outcome": "OK"
+  },
+  "work": "W177936"
+}

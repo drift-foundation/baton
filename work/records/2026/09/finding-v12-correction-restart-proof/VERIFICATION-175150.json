@@ -1,0 +1,84 @@
+{
+  "claim": 175150,
+  "runs": [
+    {
+      "claim": 175150,
+      "run": "1",
+      "at": "2026-09-15T04:49:11.042715+00:00",
+      "seconds": 2.1652564060059376,
+      "status": 0,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ],
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "before": {
+        "v12/python/src/baton_v12/worker_manager/provider_context.py": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+        "v12/python/src/baton_v12/worker_manager/context_delivery.py": "83338e4d27515967be87985e555aaec69433d8df93a96fbe5b64dcf00b08a3d8",
+        "v12/python/tests/manager/test_provider_context.py": "4a2fba6ee3288d1f88664084fca7be427e8c7ab91b015924a4b7f20e211ad72a",
+        "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+      },
+      "after": {
+        "v12/python/src/baton_v12/worker_manager/provider_context.py": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+        "v12/python/src/baton_v12/worker_manager/context_delivery.py": "83338e4d27515967be87985e555aaec69433d8df93a96fbe5b64dcf00b08a3d8",
+        "v12/python/tests/manager/test_provider_context.py": "4a2fba6ee3288d1f88664084fca7be427e8c7ab91b015924a4b7f20e211ad72a",
+        "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+      }
+    },
+    {
+      "claim": 175150,
+      "run": "2",
+      "at": "2026-09-15T04:50:44.598267+00:00",
+      "seconds": 2.31541494501289,
+      "status": 0,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ],
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "before": {
+        "v12/python/src/baton_v12/worker_manager/provider_context.py": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+        "v12/python/src/baton_v12/worker_manager/context_delivery.py": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+        "v12/python/tests/manager/test_provider_context.py": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+        "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+      },
+      "after": {
+        "v12/python/src/baton_v12/worker_manager/provider_context.py": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+        "v12/python/src/baton_v12/worker_manager/context_delivery.py": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+        "v12/python/tests/manager/test_provider_context.py": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+        "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+      }
+    }
+  ],
+  "new_measured_seconds": 4.480671351018827,
+  "prior_author_seconds": 7.511480546992971,
+  "cumulative_author_seconds": 11.992151898011798,
+  "prior_reviewer_seconds": 1.4286432359949686,
+  "final_tests": 68,
+  "qualification": "Focused real temporary owners/files with simulated provider/runtime/Authority/custodian boundaries; no live execution.",
+  "artifacts": {
+    "verify-175150.py": "aa45b7e84a190d5eb66459ebc4fbbb8f7b53ea5cd804e5b3bde5b3915a53d2d2",
+    "run-175150-1.log": "fcc9ab515391a44e18264a154f80f8f52856abd8b1a43e94993afaf8ab36bb27",
+    "run-175150-1.json": "845c9650d61b4b733e04318360b6996dac7112d6dfb1f435cde6ed0c8c93520a",
+    "run-175150-2.log": "0aea4ce3c6af52468581b0ccda89ba3e00f12d2ae5cf9c76673cb3407d813ac7",
+    "run-175150-2.json": "df550efadca029971794beb5d2e61d760d0d99d2ceaa1b4bf869439d8c514306"
+  }
+}

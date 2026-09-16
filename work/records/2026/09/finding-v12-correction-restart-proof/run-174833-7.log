@@ -1,0 +1,59 @@
+test_actual_correction_admits_a_fresh_copy_with_the_same_conversation (tests.manager.test_provider_context.Restoration.test_actual_correction_admits_a_fresh_copy_with_the_same_conversation) ... ERROR
+test_competing_restore_refusal_does_not_consume_incumbent_finalization (tests.manager.test_provider_context.Restoration.test_competing_restore_refusal_does_not_consume_incumbent_finalization) ... ERROR
+
+======================================================================
+ERROR: test_actual_correction_admits_a_fresh_copy_with_the_same_conversation (tests.manager.test_provider_context.Restoration.test_actual_correction_admits_a_fresh_copy_with_the_same_conversation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 370, in test_actual_correction_admits_a_fresh_copy_with_the_same_conversation
+    first, first_attempt = self.correction()
+                           ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 191, in correction
+    self.settle()
+    ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 173, in settle
+    discharge = discharge_quiescence_gate(self.control, self.port, attempt_id=self.attempt_id, retention_policy_digest=profile()["retention_policy_digest"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1423, in discharge_quiescence_gate
+    answered = port.satisfy_gate(expect["work_ref"]["work_id"], operation_id,
+                                 gate, evidence)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 358, in satisfy_gate
+    performing({"work_id": work_id, "operation_id": operation_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                "gate": gate, "evidence": evidence}),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_offers.py", line 140, in satisfy_gate
+    raise ContractRefusal(
+        "refused", "precondition",
+        "that gate is not the one holding this Work")
+baton_v12.contracts.errors.ContractRefusal: that gate is not the one holding this Work
+
+======================================================================
+ERROR: test_competing_restore_refusal_does_not_consume_incumbent_finalization (tests.manager.test_provider_context.Restoration.test_competing_restore_refusal_does_not_consume_incumbent_finalization)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 384, in test_competing_restore_refusal_does_not_consume_incumbent_finalization
+    first, first_attempt = self.correction(finalize=False)
+                           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 191, in correction
+    self.settle()
+    ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 173, in settle
+    discharge = discharge_quiescence_gate(self.control, self.port, attempt_id=self.attempt_id, retention_policy_digest=profile()["retention_policy_digest"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1423, in discharge_quiescence_gate
+    answered = port.satisfy_gate(expect["work_ref"]["work_id"], operation_id,
+                                 gate, evidence)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 358, in satisfy_gate
+    performing({"work_id": work_id, "operation_id": operation_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                "gate": gate, "evidence": evidence}),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_offers.py", line 140, in satisfy_gate
+    raise ContractRefusal(
+        "refused", "precondition",
+        "that gate is not the one holding this Work")
+baton_v12.contracts.errors.ContractRefusal: that gate is not the one holding this Work
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.066s
+
+FAILED (errors=2)

@@ -1,0 +1,8 @@
+test_actual_sealer_labels_even_a_json_file_directory_as_octet_stream (__main__.ReceiptMediaConflict.test_actual_sealer_labels_even_a_json_file_directory_as_octet_stream) ... ok
+test_proposed_artifact_media_amendment_resolves_only_this_check (__main__.ReceiptMediaConflict.test_proposed_artifact_media_amendment_resolves_only_this_check) ... ok
+test_selected_json_only_declaration_refuses_the_actual_sealer_answer (__main__.ReceiptMediaConflict.test_selected_json_only_declaration_refuses_the_actual_sealer_answer) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

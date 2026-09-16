@@ -1,0 +1,152 @@
+{
+  "R1": {
+    "correction": "private_file gained an explicit `writable` operand; the reconstructed per-use state is created 0660, every other object keeps 0640/0600",
+    "finding": "reconstructed session file was manager-owned 0640; runtime 65532 had read and no write",
+    "unchanged_objects": [
+      "credential slot copy",
+      "request document",
+      "immutable source generation",
+      "manager-private files"
+    ]
+  },
+  "R2": {
+    "correction": "run, volatile and export are reserved exclusively before any controller, credential or engine admission; a refused reservation unwinds what it took and never repairs a foreign path",
+    "finding": "the export root was created after both live turns, so an existing one refused only once the fixed identity had been consumed"
+  },
+  "claim": 178875,
+  "corrects": {
+    "review": "review-2026-09-15T14-36-52Z.md",
+    "sha256": "e1107c43c598da0e8f9b20ca2679efa7ecc8b7c8b4df0709eb972c40de92a231",
+    "submitted_candidate_manifest": "26a0f74254f88d49e02420c05b242c3349dc6b30b567666928be7290019ded2f"
+  },
+  "files": [
+    {
+      "base_sha256": "c6452893afeb58163420aef3a4da46852e316aa919924d2bbb984f6a85bb1748",
+      "candidate_sha256": "9d81715885219362987583170a4e557b85bd45bb6c04dbe3e48c3f2f86b81ba6",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-178875/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "badef0f1a0cea800b6be91fba85848360d9c1762ecfa4c7b9cc16b3f6a6022a7",
+      "candidate_sha256": "badef0f1a0cea800b6be91fba85848360d9c1762ecfa4c7b9cc16b3f6a6022a7",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-178875/qualification_contract.py"
+    },
+    {
+      "base_sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "candidate_sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-178875/qualification_worker.py"
+    },
+    {
+      "base_sha256": "ab8fb86bd32dd421519f8f7b32348a3dafd6b1419436d551b724c8aeee7a6578",
+      "candidate_sha256": "a7d645e939d6d3621ff749bdf0bd54a7b32ac512fe0d3b6bd723aa2d1a4d626f",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-178875/test_qualification.py"
+    },
+    {
+      "base_sha256": "26a0f74254f88d49e02420c05b242c3349dc6b30b567666928be7290019ded2f",
+      "candidate_sha256": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-178875/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-178875/verify-offline.py"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.2638512429839466,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "1a2ec13fc1f61a5b3e7e7aefa39136fe8062a63e0548c970f61996b467a67615",
+    "manifest_sha256": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+    "pid": 3621356,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "g7": "image 979f11d5 remains the qualification-only selection",
+  "g8": "--max-turns not composed",
+  "manifest_sha256": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+  "not_done": [
+    "live execution",
+    "engine",
+    "model",
+    "credential use",
+    "image build or pull",
+    "product edits",
+    "broad suites",
+    "baseline repair",
+    "version-control operations"
+  ],
+  "owner_selection": 178872,
+  "probe_harness_note": "A first batch run mis-attributed probe 2's failures to probe 1. Cause found rather than worked around: the two patched variants are byte-identical in LENGTH and landed in the same mtime second, so Python's source cache -- validated on mtime and size -- served the previous probe's bytecode. Every probe above was re-run with __pycache__ removed and -B, and each then failed exactly where it should.",
+  "reversal_probes": [
+    {
+      "confirmed": true,
+      "failing_tests": [
+        "test_effective_access_distinguishes_the_two_roles",
+        "test_the_reconstructed_working_copy_is_group_writable"
+      ],
+      "guard": "R1: the reconstructed working copy is group-writable"
+    },
+    {
+      "confirmed": true,
+      "failing_tests": [
+        "test_effective_access_distinguishes_the_two_roles",
+        "test_manager_inputs_stay_read_only_for_the_runtime"
+      ],
+      "guard": "R1: the manager inputs stay read-only for the runtime"
+    },
+    {
+      "confirmed": true,
+      "failing_tests": [
+        "test_a_refused_reservation_leaves_no_half_taken_identity",
+        "test_each_fixed_root_refuses_before_any_admission"
+      ],
+      "guard": "R2: the export root is reserved before admission"
+    },
+    {
+      "confirmed": true,
+      "failing_tests": [
+        "test_a_refused_reservation_leaves_no_half_taken_identity"
+      ],
+      "guard": "R2: a refused reservation unwinds what it took"
+    }
+  ],
+  "still_unqualified": [
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6"
+  ],
+  "tests": {
+    "added": 7,
+    "after": 29,
+    "before": 22,
+    "outcome": "OK"
+  },
+  "work": "W177936"
+}

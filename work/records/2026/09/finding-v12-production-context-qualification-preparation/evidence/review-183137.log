@@ -1,0 +1,157 @@
+test_arbitrary_exception_text_is_not_a_diagnostic (__main__.Contract.test_arbitrary_exception_text_is_not_a_diagnostic) ... ok
+test_argv_and_environment_are_the_selected_one_shot_contract (__main__.Contract.test_argv_and_environment_are_the_selected_one_shot_contract) ... ok
+test_parser_refuses_duplicate_nonfinite_truncated_and_oversized_records (__main__.Contract.test_parser_refuses_duplicate_nonfinite_truncated_and_oversized_records) ... ok
+test_private_values_and_unknown_names_are_not_exported (__main__.Contract.test_private_values_and_unknown_names_are_not_exported) ... ok
+test_resume_requires_consumed_positive_shutdown (__main__.Contract.test_resume_requires_consumed_positive_shutdown) ... ok
+test_session_model_success_are_observed_and_never_filled_in (__main__.Contract.test_session_model_success_are_observed_and_never_filled_in) ... ok
+test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm (__main__.Controller.test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm)
+The fourth reproduced record: `modelUsage` reported as the singleton ... ok
+test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed (__main__.Controller.test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed)
+THE CASE THAT FAILED FOR REAL. Run179075 wrote the expected 38 bytes ... ok
+test_a_refused_artifact_is_recorded_before_it_is_refused (__main__.Controller.test_a_refused_artifact_is_recorded_before_it_is_refused)
+The observed digest survives the refusal, which is the whole point: ... ok
+test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused (__main__.Controller.test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused)
+RUN179075'S OWN SHAPE. That export carried a failure code and no ... ok
+test_a_terminal_record_that_contradicts_its_own_diagnostics_refuses (__main__.Controller.test_a_terminal_record_that_contradicts_its_own_diagnostics_refuses)
+A forged or drifted record cannot claim a qualified model while its ... ok
+test_a_token_written_without_its_newline_still_refuses (__main__.Controller.test_a_token_written_without_its_newline_still_refuses)
+continuity.txt DID NOT MOVE. Its contract is the token plus one ... ok
+test_audit_never_uses_engine_or_credentials (__main__.Controller.test_audit_never_uses_engine_or_credentials) ... ok
+test_capture_refusal_never_widens_the_subset_or_retries (__main__.Controller.test_capture_refusal_never_widens_the_subset_or_retries)
+R2 moved this refusal EARLIER. A credential-shaped entry used to be ... ok
+test_changed_code_still_refuses_at_the_second_turn (__main__.Controller.test_changed_code_still_refuses_at_the_second_turn)
+The relaxation is one newline wide. A different multiplier is the ... ok
+test_contradictory_cardinality_is_refused_at_the_arm (__main__.Controller.test_contradictory_cardinality_is_refused_at_the_arm)
+R1, review 2026-09-15T15-39-27Z. Each of these reached `qualified` ... ok
+test_exact_bytes_still_record_an_observed_digest_of_their_own (__main__.Controller.test_exact_bytes_still_record_an_observed_digest_of_their_own) ... ok
+test_existing_run_marker_refuses_before_any_engine_or_credential_use (__main__.Controller.test_existing_run_marker_refuses_before_any_engine_or_credential_use) ... ok
+test_foreign_nonce_is_never_stopped_or_removed (__main__.Controller.test_foreign_nonce_is_never_stopped_or_removed) ... ok
+test_lost_create_answer_is_recovered_by_exact_name_and_nonce (__main__.Controller.test_lost_create_answer_is_recovered_by_exact_name_and_nonce) ... ok
+test_missing_model_is_a_qualification_failure_even_if_restoration_works (__main__.Controller.test_missing_model_is_a_qualification_failure_even_if_restoration_works) ... ok
+test_the_controller_never_rewrites_the_workspace (__main__.Controller.test_the_controller_never_rewrites_the_workspace)
+No repair. A refused artifact is left exactly as the provider wrote ... ok
+test_the_export_carries_why_a_model_did_not_qualify (__main__.Controller.test_the_export_carries_why_a_model_did_not_qualify) ... ok
+test_two_turn_trace_reconstructs_only_the_subset_and_keeps_token_private (__main__.Controller.test_two_turn_trace_reconstructs_only_the_subset_and_keeps_token_private) ... ok
+test_uncertain_cleanup_retains_the_owned_credential (__main__.Controller.test_uncertain_cleanup_retains_the_owned_credential) ... ok
+test_unconfirmed_stop_cannot_start_replacement_or_release_credential (__main__.Controller.test_unconfirmed_stop_cannot_start_replacement_or_release_credential) ... ok
+test_ambiguous_projects_and_missing_session_do_not_widen_selection (__main__.Files.test_ambiguous_projects_and_missing_session_do_not_widen_selection) ... ok
+test_bad_credential_and_link_types_refuse_before_contents (__main__.Files.test_bad_credential_and_link_types_refuse_before_contents) ... ok
+test_credential_target_is_never_opened (__main__.Files.test_credential_target_is_never_opened) ... ok
+test_entry_and_byte_limits_are_enforced (__main__.Files.test_entry_and_byte_limits_are_enforced) ... ok
+test_subset_uses_observed_project_key_and_only_expected_session_file (__main__.Files.test_subset_uses_observed_project_key_and_only_expected_session_file) ... ok
+test_bounded_pipe_uses_a_deterministic_local_process_and_reaps_it (__main__.ProviderPipe.test_bounded_pipe_uses_a_deterministic_local_process_and_reaps_it) ... ok
+test_output_overflow_and_timeout_reap_the_owned_process (__main__.ProviderPipe.test_output_overflow_and_timeout_reap_the_owned_process) ... ok
+test_a_diagnostic_about_an_absent_member_is_a_contradiction (__main__.TheArtifactAndModelCorrection.test_a_diagnostic_about_an_absent_member_is_a_contradiction)
+`missing` means the known member was absent and every other ... ok
+test_a_shape_cannot_claim_a_cardinality_it_excludes (__main__.TheArtifactAndModelCorrection.test_a_shape_cannot_claim_a_cardinality_it_excludes)
+The R1 defect, held directly. The old guard checked that each member ... ok
+test_a_truthy_integer_is_not_a_boolean (__main__.TheArtifactAndModelCorrection.test_a_truthy_integer_is_not_a_boolean)
+`1 in (None, True, False)` is true in Python, so the validation is ... ok
+test_absent_object_fields_must_stay_absent (__main__.TheArtifactAndModelCorrection.test_absent_object_fields_must_stay_absent)
+Wrong-type and missing `modelUsage` get neither invented keys nor ... ok
+test_acceptance_did_not_move_a_single_case (__main__.TheArtifactAndModelCorrection.test_acceptance_did_not_move_a_single_case)
+The diagnostics explain; they do not qualify. A mixed object holding ... ok
+test_both_constants_are_accepted_with_and_without_their_final_lf (__main__.TheArtifactAndModelCorrection.test_both_constants_are_accepted_with_and_without_their_final_lf) ... ok
+test_every_observed_model_shape_has_its_own_diagnosis (__main__.TheArtifactAndModelCorrection.test_every_observed_model_shape_has_its_own_diagnosis) ... ok
+test_every_shape_reports_exactly_the_cardinality_it_can_have (__main__.TheArtifactAndModelCorrection.test_every_shape_reports_exactly_the_cardinality_it_can_have)
+0/1/2/8/9 keys, with and without the expected key, plus absent and ... ok
+test_key_counts_are_bounded_with_an_explicit_overflow_flag (__main__.TheArtifactAndModelCorrection.test_key_counts_are_bounded_with_an_explicit_overflow_flag) ... ok
+test_malformed_container_types_are_refused (__main__.TheArtifactAndModelCorrection.test_malformed_container_types_are_refused) ... ok
+test_no_model_name_value_or_payload_ever_reaches_the_export (__main__.TheArtifactAndModelCorrection.test_no_model_name_value_or_payload_ever_reaches_the_export) ... ok
+test_no_strip_or_normalization_was_introduced (__main__.TheArtifactAndModelCorrection.test_no_strip_or_normalization_was_introduced)
+Source-level, because the excluded implementations are the risk: a ... ok
+test_overflow_belongs_only_to_the_shapes_that_can_overflow (__main__.TheArtifactAndModelCorrection.test_overflow_belongs_only_to_the_shapes_that_can_overflow)
+`capped` means the count was CLAMPED, so it can only appear at the ... ok
+test_the_expected_key_flag_must_match_its_shape (__main__.TheArtifactAndModelCorrection.test_the_expected_key_flag_must_match_its_shape)
+A valid boolean in the wrong place. The identity check catches `1`; ... ok
+test_the_four_possibilities_run179075_could_not_tell_apart_are_now_distinct (__main__.TheArtifactAndModelCorrection.test_the_four_possibilities_run179075_could_not_tell_apart_are_now_distinct)
+THE POINT OF PART B. That export reported `actual_model: null` and ... ok
+test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours (__main__.TheArtifactAndModelCorrection.test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours) ... ok
+test_the_prompts_delimit_the_bytes_and_state_the_optional_newline (__main__.TheArtifactAndModelCorrection.test_the_prompts_delimit_the_bytes_and_state_the_optional_newline)
+Wording is not acceptance -- a prompt cannot guarantee compliance -- ... ok
+test_the_relaxation_is_exactly_one_newline_wide (__main__.TheArtifactAndModelCorrection.test_the_relaxation_is_exactly_one_newline_wide)
+Every one of these was legal under no reading of the selection, and ... ok
+test_the_shape_table_covers_the_whole_declared_vocabulary (__main__.TheArtifactAndModelCorrection.test_the_shape_table_covers_the_whole_declared_vocabulary)
+The validator is a table; a diagnostic added to the vocabulary ... ok
+test_the_token_record_carries_no_digest_of_the_private_token (__main__.TheArtifactAndModelCorrection.test_the_token_record_carries_no_digest_of_the_private_token) ... ok
+test_a_decoy_swapped_in_at_the_end_of_the_survey_is_not_reached (__main__.TheCollectionCustodyCorrection.test_a_decoy_swapped_in_at_the_end_of_the_survey_is_not_reached)
+R1's remaining hole, review 2026-09-16T02-11-27Z. The survey used to ... ok
+test_a_hardlinked_session_refuses_before_any_mode_change (__main__.TheCollectionCustodyCorrection.test_a_hardlinked_session_refuses_before_any_mode_change)
+R1's alias: a chmod reaches every link, and the manager's later ... ok
+test_a_manager_owned_object_refuses_and_changes_nothing (__main__.TheCollectionCustodyCorrection.test_a_manager_owned_object_refuses_and_changes_nothing)
+Ownership is checked through the descriptor that would be changed. ... ok
+test_a_special_file_substitution_cannot_hang_the_open (__main__.TheCollectionCustodyCorrection.test_a_special_file_substitution_cannot_hang_the_open)
+O_NONBLOCK: a FIFO where the session is expected would otherwise ... ok
+test_a_swap_between_check_and_open_cannot_redirect_the_change (__main__.TheCollectionCustodyCorrection.test_a_swap_between_check_and_open_cannot_redirect_the_change)
+R1's race: the session used to be reopened by PATHNAME after its ... ok
+test_a_symlink_in_either_position_refuses (__main__.TheCollectionCustodyCorrection.test_a_symlink_in_either_position_refuses) ... ok
+test_a_symlinked_ancestor_cannot_reach_outside_the_home (__main__.TheCollectionCustodyCorrection.test_a_symlinked_ancestor_cannot_reach_outside_the_home)
+R1's first observation: O_NOFOLLOW on the final component leaves the ... ok
+test_a_type_swapped_after_its_check_cannot_be_followed (__main__.TheCollectionCustodyCorrection.test_a_type_swapped_after_its_check_cannot_be_followed)
+What O_NOFOLLOW is actually for, now that lstat screens types first. ... ok
+test_a_wrong_uid_object_refuses_on_its_own (__main__.TheCollectionCustodyCorrection.test_a_wrong_uid_object_refuses_on_its_own)
+The existing manager-owned test varies GID. Ownership is two ... ok
+test_an_ambiguous_or_missing_selection_refuses_and_relaxes_nothing (__main__.TheCollectionCustodyCorrection.test_an_ambiguous_or_missing_selection_refuses_and_relaxes_nothing) ... ok
+test_an_unenterable_directory_refuses_rather_than_reporting_absence (__main__.TheCollectionCustodyCorrection.test_an_unenterable_directory_refuses_rather_than_reporting_absence)
+THE D1 REGRESSION TEST. The hidden directory CONTAINS a foreign ... ok
+test_an_unlisted_errno_collapses_and_a_refusal_never_carries_one (__main__.TheCollectionCustodyCorrection.test_an_unlisted_errno_collapses_and_a_refusal_never_carries_one) ... ok
+test_an_unreadable_non_selected_file_is_recorded_and_the_run_continues (__main__.TheCollectionCustodyCorrection.test_an_unreadable_non_selected_file_is_recorded_and_the_run_continues) ... ok
+test_an_unreadable_selected_session_refuses (__main__.TheCollectionCustodyCorrection.test_an_unreadable_selected_session_refuses) ... ok
+test_an_unselected_invalid_type_anywhere_refuses (__main__.TheCollectionCustodyCorrection.test_an_unselected_invalid_type_anywhere_refuses)
+R2: the survey ignored types outside the projects chain, so an extra ... ok
+test_an_unstattable_entry_refuses_too (__main__.TheCollectionCustodyCorrection.test_an_unstattable_entry_refuses_too)
+A valid ADDITIONAL synthetic regression, not the observed operator ... ok
+test_every_failure_kind_has_its_own_closed_category (__main__.TheCollectionCustodyCorrection.test_every_failure_kind_has_its_own_closed_category) ... ok
+test_forbidden_layouts_refuse_and_change_nothing (__main__.TheCollectionCustodyCorrection.test_forbidden_layouts_refuse_and_change_nothing)
+R2. Each of these used to publish and move the selected file ... ok
+test_the_coverage_refusal_keeps_the_errno_it_was_raised_for (__main__.TheCollectionCustodyCorrection.test_the_coverage_refusal_keeps_the_errno_it_was_raised_for)
+R3, at the ACTUAL inventory seam and with different causes, so the ... ok
+test_the_deliberate_exclusion_stays_distinguishable (__main__.TheCollectionCustodyCorrection.test_the_deliberate_exclusion_stays_distinguishable) ... ok
+test_the_eight_steps_are_exactly_the_reviews (__main__.TheCollectionCustodyCorrection.test_the_eight_steps_are_exactly_the_reviews) ... ok
+test_the_expected_credential_link_is_checked_and_never_opened (__main__.TheCollectionCustodyCorrection.test_the_expected_credential_link_is_checked_and_never_opened)
+The one credential-shaped name that must survive the survey. ... ok
+test_the_projection_boundary_refuses_malformed_details (__main__.TheCollectionCustodyCorrection.test_the_projection_boundary_refuses_malformed_details) ... ok
+test_the_stat_seam_carries_its_cause_too (__main__.TheCollectionCustodyCorrection.test_the_stat_seam_carries_its_cause_too)
+Not mocked: a real 0o600 directory is READABLE, so scandir succeeds ... ok
+test_turn_one_opens_exactly_two_objects (__main__.TheCollectionCustodyCorrection.test_turn_one_opens_exactly_two_objects) ... ok
+test_turn_two_publishes_nothing_and_the_restored_copy_stands (__main__.TheCollectionCustodyCorrection.test_turn_two_publishes_nothing_and_the_restored_copy_stands)
+THE D2 REGRESSION TEST. Revision 1 of the proposal aimed a chmod at ... ok
+test_a_refused_reservation_leaves_no_half_taken_identity (__main__.TheCorrectedCustodyAndPreflight.test_a_refused_reservation_leaves_no_half_taken_identity)
+Partial reservation unwinds. A refusal that left one of the three ... ok
+test_each_fixed_root_refuses_before_any_admission (__main__.TheCorrectedCustodyAndPreflight.test_each_fixed_root_refuses_before_any_admission)
+A CASE PER ROOT, not only the run marker. The export root used to be ... ok
+test_effective_access_distinguishes_the_two_roles (__main__.TheCorrectedCustodyAndPreflight.test_effective_access_distinguishes_the_two_roles)
+EFFECTIVE ACCESS FOR THE SELECTED OWNER/GROUP RELATIONSHIP, which is ... ok
+test_manager_inputs_stay_read_only_for_the_runtime (__main__.TheCorrectedCustodyAndPreflight.test_manager_inputs_stay_read_only_for_the_runtime)
+THE OTHER HALF, and the one that must not move. The credential slot ... ok
+test_only_the_restored_state_is_created_writable (__main__.TheCorrectedCustodyAndPreflight.test_only_the_restored_state_is_created_writable)
+Source-level: exactly one call site asks for the writable mode, and ... ok
+test_the_reconstructed_working_copy_is_group_writable (__main__.TheCorrectedCustodyAndPreflight.test_the_reconstructed_working_copy_is_group_writable)
+The runtime holds the workspace group as a supplementary group, so ... ok
+test_the_reservation_precedes_the_controller_in_source_order (__main__.TheCorrectedCustodyAndPreflight.test_the_reservation_precedes_the_controller_in_source_order)
+Source order, because the defect was an ordering one: the export ... ok
+test_a_blocked_directory_names_its_step_and_errno (__main__.TheCorrectionEndToEnd.test_a_blocked_directory_names_its_step_and_errno)
+Not a pass -- a REFUSAL, which the proposal says plainly is the ... ok
+test_an_unpublished_home_refuses_at_the_arm (__main__.TheCorrectionEndToEnd.test_an_unpublished_home_refuses_at_the_arm) ... ok
+test_every_collection_step_reports_its_own_closed_triple (__main__.TheCorrectionEndToEnd.test_every_collection_step_reports_its_own_closed_triple)
+Not a vocabulary assertion: each failure is injected at the actual ... ok
+test_publishing_in_turn_two_refuses (__main__.TheCorrectionEndToEnd.test_publishing_in_turn_two_refuses)
+Turn 2's home is manager-reconstructed; a worker claiming to have ... ok
+test_the_published_home_is_collected_and_the_run_qualifies (__main__.TheCorrectionEndToEnd.test_the_published_home_is_collected_and_the_run_qualifies) ... ok
+test_a_manifest_naming_another_identity_is_refused (__main__.TheFreshRunIdentity.test_a_manifest_naming_another_identity_is_refused)
+Each declared root on its own, plus the identity string. ... ok
+test_the_consumed_roots_are_never_addressable_by_the_running_code (__main__.TheFreshRunIdentity.test_the_consumed_roots_are_never_addressable_by_the_running_code)
+Preservation is the point: no run can reach, repair or reset the ... ok
+test_the_export_root_follows_a_patched_root (__main__.TheFreshRunIdentity.test_the_export_root_follows_a_patched_root)
+Tests patch ROOT to a temporary directory; the derived export root ... ok
+test_the_export_root_is_derived_in_exactly_one_place (__main__.TheFreshRunIdentity.test_the_export_root_is_derived_in_exactly_one_place)
+A second copy of the derivation is how the declared export root and ... ok
+test_the_identity_is_not_a_consumed_one (__main__.TheFreshRunIdentity.test_the_identity_is_not_a_consumed_one) ... ok
+test_the_manifest_declares_exactly_the_roots_the_code_would_take (__main__.TheFreshRunIdentity.test_the_manifest_declares_exactly_the_roots_the_code_would_take)
+Without this the manifest's root fields are decorative: an approved ... ok
+test_the_three_roots_are_one_identity_and_distinct (__main__.TheFreshRunIdentity.test_the_three_roots_are_one_identity_and_distinct) ... ok
+
+----------------------------------------------------------------------
+Ran 98 tests in 0.258s
+
+OK

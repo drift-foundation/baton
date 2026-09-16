@@ -1,0 +1,139 @@
+{
+  "claim": 183316,
+  "corrects": {
+    "already_verified_by_that_review": [
+      "the original six-field leak is fixed",
+      "R2 target-metadata diagnostics are fixed"
+    ],
+    "review": "review-2026-09-16T03-26-33Z.md",
+    "sha256": "f571965d5f908827c805de0ed8cf0f5d7def1e5e5f817ab98515cb0b845b5ec4",
+    "withheld_manifest": "157b7bb839ec5bcc5ee16bf5800c6d60600de377eb0bf956c3ee3f117ee5e8f0"
+  },
+  "defect": {
+    "correction": "element and diagnostic types are checked before any set construction or membership test, in both predicates",
+    "eight_cases": [
+      "members=[dict]",
+      "members=[null]",
+      "model_fields=[dict]",
+      "model_fields=[int]",
+      "model_diagnostic=list",
+      "model_diagnostic=null",
+      "model_usage_diagnostic=dict",
+      "model_usage_diagnostic=null"
+    ],
+    "self_assessment": "the SAME fault I fixed in valid_publication last turn and did not carry across -- the fix-the-case-not-the-class mistake this review cycle has now caught in me three times",
+    "severity": "diagnostic completeness, not a renewed leak or false qualification: no canary was exported and no second arm was admitted. But a failure the export cannot name is what this cycle exists to remove.",
+    "what": "valid_terminal built sets from unvalidated members/model_fields elements and consistent compared untyped model diagnostics by membership, so an unhashable element or diagnostic raised TypeError OUT OF the validator and surfaced as unclassified -- the normal path never said terminal-record-values and the preserved path never said worker-failure-shape"
+  },
+  "does_not_recover": "run183114's cause; that export cannot identify the branch",
+  "files": [
+    {
+      "base_sha256": "a43d0347d16f1deff6a5f7e69348efff7426a86ec736f361bdad8b6f1ede1545",
+      "candidate_sha256": "a43d0347d16f1deff6a5f7e69348efff7426a86ec736f361bdad8b6f1ede1545",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-183316/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "1cc7c7b2c2ec354801d0a54135def0305d5e254e56b74c5ab9208c347698b829",
+      "candidate_sha256": "e0fbb3e428940a21054afe4d295556d721b2bdf1a4922c33773b40bed135df39",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-183316/qualification_contract.py"
+    },
+    {
+      "base_sha256": "29a9ea21ae0f3fdb9e2fdd0c54e48d3326c5343aa3857f1baca4f719b312492d",
+      "candidate_sha256": "29a9ea21ae0f3fdb9e2fdd0c54e48d3326c5343aa3857f1baca4f719b312492d",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-183316/qualification_worker.py"
+    },
+    {
+      "base_sha256": "3c4f808ed2606ad7b7315dbdac42b73bc31cc085558494e95da24f80660a9a7c",
+      "candidate_sha256": "52d0d2692299b332b99cdf0496b95bcffeefbe9f10dd79c9cb8d324ae7ed5420",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-183316/test_qualification.py"
+    },
+    {
+      "base_sha256": "157b7bb839ec5bcc5ee16bf5800c6d60600de377eb0bf956c3ee3f117ee5e8f0",
+      "candidate_sha256": "d101f1ec1c3dac410e0551cb5beaf2ed60cf0ecce21aca33674e3da233eba7fa",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-183316/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-183316/verify-offline.py"
+    },
+    {
+      "base_sha256": "e843c0b561cb470901d4d8fcdb9fda84eb8bde742476f126125552b03230fbe1",
+      "candidate_sha256": "7bdbcfbc33c33dd44d9a6fc8e905dcf3f80141dd4065f96b4136dd00a33d4fdd",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-183316/OPERATOR-178579.md"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.3637980869971216,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "c1737fd911c182b06b5bc1569fb25ddbd41203934689b943b5fb4c4f1417a224",
+    "manifest_sha256": "d101f1ec1c3dac410e0551cb5beaf2ed60cf0ecce21aca33674e3da233eba7fa",
+    "pid": 3767596,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "manifest_sha256": "d101f1ec1c3dac410e0551cb5beaf2ed60cf0ecce21aca33674e3da233eba7fa",
+  "not_done": [
+    "live run",
+    "private-tree inspection",
+    "fresh identity",
+    "consumed-root repair",
+    "production enabling",
+    "product-source edits",
+    "version-control operations"
+  ],
+  "operator_packet_sha256": "7bdbcfbc33c33dd44d9a6fc8e905dcf3f80141dd4065f96b4136dd00a33d4fdd",
+  "preserved": [
+    "the verified six-field refusal",
+    "the list/dict/null publication refusals",
+    "the actual worker.main EACCES/EIO/ENOENT target-metadata causes",
+    "a valid retained observation surviving on the failure path",
+    "the failed-arm and no-second-turn gates",
+    "retained descriptors and before-mutation refusal",
+    "turn-2 restored 0o660",
+    "the strict model/artifact/continuity acceptance, the image and the run limits",
+    "all three consumed identities"
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "total": 41
+  },
+  "tests": {
+    "after": 116,
+    "before": 114,
+    "outcome": "OK"
+  },
+  "tests_added": [
+    "test_malformed_terminal_json_is_named_not_unclassified -- eight shapes x both paths, paired",
+    "test_the_validators_refuse_malformed_json_rather_than_raising -- both predicates must say no, not raise"
+  ],
+  "work": "W177936"
+}

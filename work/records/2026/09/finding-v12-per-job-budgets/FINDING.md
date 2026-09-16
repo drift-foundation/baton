@@ -1589,3 +1589,77 @@ final checks; no separate environment project absent a concrete setup problem.
 No live provider/farm run or new verification allowance is implied. This criterion
 is reflected in the transferred v2 design. Spending and all candidate bytes remain
 as recorded by research161207; separation resets or transfers neither budget.
+
+## 2026-09-15T03:45:58Z — prerequisite complete; one focused test correction
+
+**Confirmed:** W161230 closed satisfying174613 and W156162 was claimed174632.
+The prior waiting/prerequisite-not-implemented status is superseded. Complete
+current handoffs/discussion and bound record were read before review execution.
+Review `review-2026-09-15T03-45-58Z.md` records the current evidence mapping and
+exact next correction; `review-evidence-174632.json` binds the observed bytes.
+
+**Observed:** pinned Python3.13.7/jsonschema4.26.0 run of the three execution_limits
+modules plus Job-store tests produced253 tests:252 pass, one failure in
+tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery.
+test_a_migrated_job_with_no_limits_row_still_answers. Its preserved generation0
+host-boundary assertion passes; its following schema5 assertion fails against6.
+This matches previously classified W170387 row56. Return through baton.bug for
+that sole test-path correction and affected-case rerun, then baton.feat review.
+Preserve genuine migration/default coverage. Standing test authority suffices;
+no product change or separate owner test approval is requested.
+
+**Scope clarification:** accepted W161230 preparation/recovery/apply evidence is
+reused; current33-path accepted chain and final deployment document match.
+Owner rulings in managed-preparation-recovery FINDING2026-09-14T22:18:02Z,
+22:25:29Z,22:32:06Z and22:33:45Z explicitly classify expanded managed failure,
+limit/two-Job, partial-delivery and shutdown coverage as v13/unproved and retain
+visible manual recovery for uncertain starts. Those later v12 rulings supersede
+reading the old consumer recovery/isolation requirement as a mandate to rebuild
+that deferred matrix. They do not erase earlier evidence or known concrete
+defects. This review demonstrated no new budget implementation defect and grants
+no live-provider/OCI certification or full-feature/import sign-off.
+
+New measured execution44.307999097014545s, normal subprocess exit1, process group
+gone. Reviewer measured total192.04221964701173s. Historical author246runs
+2530.5844189850177s plus4unknown activities preserved; ordinary read time remains
+unmeasured. Standing no-cumulative-gate policy applies. No implementation,
+PROGRESS or Git mutation by reviewer; PLAN now names the bounded next action.
+
+### 2026-09-15T03:48:18Z — correction routing
+
+Pass174731 returned the incomplete item through baton.bug as policy requires;
+canonical detail confirms that endpoint is reviewer-owned. Claim174733 completed
+that triage without further implementation or verification. The review's sole
+test correction now routes to baton.impl, with return to baton.feat. This is
+normal endpoint routing, not a CLI defect or additional acceptance requirement;
+all evidence and spending above remain unchanged.
+
+## 2026-09-15T03:54:40Z — independent retained-scope acceptance
+
+Reviewer174782 accepts candidate174738, manifest SHA256
+1181863ca52453709dd0bbe354b45edee41187cec5d8e76bbdca37149a0f4502, and the retained
+W156162 v12 outcome. Review `review-2026-09-15T03-54-40Z.md` and evidence
+review-evidence-174782.json bind the result. The sole correction uses schema>=5
+while preserving the actual legacy-generation/default assertion; exact prior
+bytes reconstruct to66b1954e... and current candidate matches ea7257f4...,
+225429 bytes/0664. Other observed paths are unchanged. This supersedes the
+pending correction and withheld retained-scope acceptance in review174632.
+
+Independent6-test class passes in pinned Python3.13.7/jsonschema4.26.0,
+0.21377338099409826s, normal exit/group gone. Reuse prior252 passes and accepted
+W161230 managed evidence, retaining the historical253-test failed run honestly.
+The author numeric mutation tests an expected current-default-plus1 (300!=301),
+not legacy-versus-current generation selection by itself; dedicated generation
+coverage supplies the latter. The comment plus assertion diff and this narrower
+mutation meaning are recorded without requiring an editorial-only cycle.
+
+Reviewer measured total192.25599302800583s; author250 measured runs
+2531.283201341037s plus historical unknowns. Reported author pre-edit reproduction
+has no separate measured ledger row; no duration is fabricated. Standing ordinary
+verification policy applies. No product/test/PROGRESS/Git edits by reviewer.
+
+Return baton.ops for owner completion disposition. Manual recovery for uncertain
+starts and explicitly deferred v13/unproved expanded causal/limit/two-Job,
+partial-delivery and shutdown coverage remain as recorded in review174632 and
+the prerequisite; no actual OCI/live-provider certification or broad-suite pass.
+This is the retained technical outcome, not acceptance of deferred coverage.

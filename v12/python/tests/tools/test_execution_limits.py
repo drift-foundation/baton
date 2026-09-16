@@ -4464,7 +4464,16 @@ class TheJobOwnerAnswersOneBoundaryWithoutADelivery(
                                         "host_verification"),
             limits.GENERATIONS[limits.LEGACY_GENERATION][
                 "host_verification"])
-        self.assertEqual(schema.SCHEMA_VERSION, 5)
+        # THE PIN IS A FLOOR, NOT AN EQUALITY, and the difference is the
+        # point. This Work's migration introduced version 5, and the fact worth
+        # holding is that a Job admitted BEFORE it still resolves through
+        # generation 0 -- which is what the assertion above proves. Pinning the
+        # exact number made every later unrelated migration fail this case:
+        # W170387 moved the Job Manager schema to 6 and broke it here while the
+        # compatibility it guards was untouched. A floor keeps the meaning --
+        # the legacy path is exercised at or after the version that created it
+        # -- without re-breaking on the next migration.
+        self.assertGreaterEqual(schema.SCHEMA_VERSION, 5)
 
     def test_a_boundary_this_build_does_not_own_is_refused(self):
         with self.assertRaises(Exception) as caught:

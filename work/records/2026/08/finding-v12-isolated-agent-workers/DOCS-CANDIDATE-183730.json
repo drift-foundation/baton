@@ -1,0 +1,27 @@
+{
+  "work": "W2",
+  "claim": 183730,
+  "owner": 183727,
+  "path": "v12/python/DEPLOYMENT.md",
+  "base_sha256": "5dc34d45d5b098baca7318df305f96bc02275cd3ecaaa9a20e0f4758a641c7a5",
+  "sha256": "b732978ed1e5ee9e9e059b3fd40ed3b54f79a43866df0c1150d5bb340074d920",
+  "base_snapshot": "work/records/2026/08/finding-v12-isolated-agent-workers/base-docs-183730/v12/python/DEPLOYMENT.md",
+  "snapshot": "work/records/2026/08/finding-v12-isolated-agent-workers/candidate-docs-183730/v12/python/DEPLOYMENT.md",
+  "target_mode": "0o664",
+  "custody_mode": "0o444",
+  "proposal_sha256": "825027b4dbb2c7370c2fa8d8b035fbb2ad64c360a72d848bb20fe793efeb9a93",
+  "insertion_sha256": "6fea36f629840fc52cfb4cd1d60879a826330939223e88cd22dd72b33b87c4ed",
+  "insertion_bytes": 3069,
+  "insertion_lines": 46,
+  "offset": 95862,
+  "first_line": 1686,
+  "checks": {
+    "exact_base": true,
+    "unique_anchors": true,
+    "exact_prepared_insertion": true,
+    "surrounding_bytes_unchanged": true,
+    "target_mode_unchanged": true
+  },
+  "static_edit_check_seconds": 0.0006227369885891676,
+  "runtime_tests_seconds": 0
+}

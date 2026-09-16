@@ -1,0 +1,9 @@
+test_ordinary_delegation_binds_both_roles_to_the_same_submitted_input (__main__.PacketConflict.test_ordinary_delegation_binds_both_roles_to_the_same_submitted_input) ... ok
+test_removing_the_receipt_from_review_changes_the_required_input_identity (__main__.PacketConflict.test_removing_the_receipt_from_review_changes_the_required_input_identity) ... ok
+test_required_receipt_cannot_be_reported_missing_by_review (__main__.PacketConflict.test_required_receipt_cannot_be_reported_missing_by_review) ... ok
+test_the_shared_review_workload_has_no_context_receipt_output (__main__.PacketConflict.test_the_shared_review_workload_has_no_context_receipt_output) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK

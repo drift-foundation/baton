@@ -1,0 +1,42 @@
+test_a_replaced_root_link_never_counts_foreign_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_root_link_never_counts_foreign_activity) ... ok
+test_a_directory_replaced_before_scanning_cannot_redirect_the_scan (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_directory_replaced_before_scanning_cannot_redirect_the_scan) ... ok
+test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) ... ok
+test_a_blocked_publisher_is_abandoned_within_its_bound (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_a_blocked_publisher_is_abandoned_within_its_bound)
+A DIAGNOSTIC MAY NOT GATE THE TURN. A wedged observer is abandoned ... ok
+test_repeated_stops_keep_the_live_thread_handle_and_store (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_repeated_stops_keep_the_live_thread_handle_and_store) ... ok
+test_the_serving_loops_runtime_read_enqueues_and_reads_no_file (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_the_serving_loops_runtime_read_enqueues_and_reads_no_file)
+THE HOOK IS AN ASSIGNMENT. `refresh_runtime` already runs per tick ... FAIL
+
+======================================================================
+FAIL: test_the_serving_loops_runtime_read_enqueues_and_reads_no_file (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_the_serving_loops_runtime_read_enqueues_and_reads_no_file)
+THE HOOK IS AN ASSIGNMENT. `refresh_runtime` already runs per tick
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 4147, in test_the_serving_loops_runtime_read_enqueues_and_reads_no_file
+    operations._worker.refresh_runtime(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        {"attempt_id": stage["attempt_id"]})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 2014, in refresh_runtime
+    roots = workspaces.assignment_workspace(
+        self.group, self.given["workspace_storage"], attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1552, in assignment_workspace
+    root = _real(storage, "the manager's workspace storage")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py", line 1136, in _real
+    return os.path.realpath(path)
+           ~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1228, in _execute_mock_call
+    raise effect
+AssertionError: resolved
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.118s
+
+FAILED (failures=1)
+{"elapsed_seconds": 2.307750509993639, "errors": [], "failures": ["tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_the_serving_loops_runtime_read_enqueues_and_reads_no_file"], "live_threads": [], "mode": "regressions", "tests": 6}

@@ -1,0 +1,56 @@
+{
+  "work": "W161234",
+  "claim": 174833,
+  "author": "baton.tuner",
+  "status": "awaiting-independent-review",
+  "independent_acceptance": false,
+  "selection_event": 174829,
+  "selection_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/FIRST-IMPLEMENTATION-174751.md",
+  "selection_sha256": "1d4fc920b2aec5920b1f55e543934f0d4a20153af6a422581ae7c7209794f5fb",
+  "files": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "base_exists": false,
+      "sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "bytes": 32950,
+      "lines": 503,
+      "target_mode": "0664",
+      "candidate_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/src/baton_v12/worker_manager/provider_context.py"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "base_exists": false,
+      "sha256": "6c881fcf56eaa80b799f2e6387ed13cb0f3c8f41055bb88ea464581b5af1bb80",
+      "bytes": 24254,
+      "lines": 494,
+      "target_mode": "0664",
+      "candidate_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/src/baton_v12/worker_manager/context_delivery.py"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context.py",
+      "base_exists": false,
+      "sha256": "f3a6239bd98ffb9355a6e96ced0013a61c44e1e21a3c1c338667755bcd485758",
+      "bytes": 32433,
+      "lines": 512,
+      "target_mode": "0664",
+      "candidate_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/tests/manager/test_provider_context.py"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context_delivery.py",
+      "base_exists": false,
+      "sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "bytes": 5245,
+      "lines": 114,
+      "target_mode": "0664",
+      "candidate_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/tests/manager/test_provider_context_delivery.py"
+    }
+  ],
+  "patch_sha256": "564503f009acc5b74c0903959a81d271602ec75f70a0ee98b131872d409b1f6f",
+  "verification_sha256": "7702e3c1f87354f95b5efbeaca6f6b82a63594b7b74898af2badf49c7899a6ce",
+  "measured_seconds": 7.511480546992971,
+  "static": {
+    "ast_parse": true,
+    "new_file_whitespace": true
+  },
+  "remaining": "Independent A candidate review; B/C serving and complete proofs; separate production provider qualification. No whole-Work completion."
+}

@@ -1,0 +1,10 @@
+test_exact_context_free_integration_declaration_is_accepted (tests.tools.test_single_worker.OptionalIntegrationContextDeclaration.test_exact_context_free_integration_declaration_is_accepted) ... ok
+test_reserved_declaration_variants_remain_refused (tests.tools.test_single_worker.OptionalIntegrationContextDeclaration.test_reserved_declaration_variants_remain_refused) ... ok
+test_delivered_context_and_context_schema_refuse_before_work (tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary.test_delivered_context_and_context_schema_refuse_before_work) ... ok
+test_exact_optional_absence_publishes_completion (tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary.test_exact_optional_absence_publishes_completion) ... ok
+test_present_or_physically_produced_receipt_never_publishes (tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary.test_present_or_physically_produced_receipt_never_publishes) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.069s
+
+OK

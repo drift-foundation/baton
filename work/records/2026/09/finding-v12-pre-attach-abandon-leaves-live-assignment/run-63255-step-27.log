@@ -1,0 +1,23 @@
+........................................................................................................................................................................................................................................................................................................................F.................................................
+======================================================================
+FAIL: test_a_requested_start_refuses_the_pre_attach_fence (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_requested_start_refuses_the_pre_attach_fence)
+THE RACE, in the order where the start won.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_dogfood_operator.py", line 7585, in test_a_requested_start_refuses_the_pre_attach_fence
+    self.assertNotEqual(
+    ~~~~~~~~~~~~~~~~~~~^
+        store._connection.execute(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "SELECT execution_runtime FROM attempts "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "WHERE runtime_attempt_id = ?",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            (given["attempt_id"],)).fetchone()[0], "not-started")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'not-started' == 'not-started'
+
+----------------------------------------------------------------------
+Ran 362 tests in 4.092s
+
+FAILED (failures=1)

@@ -1,0 +1,76 @@
+{
+  "claim": 174974,
+  "work": "W63255",
+  "manifest_sha256": "1b5f4250a96eed05631a460cc902d8a3608254257512e2efafff5882ddac603f",
+  "before": {
+    "baton:v12/python/src/baton_v12/worker_manager/intake.py": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+    "baton:v12/python/src/baton_v12/worker_manager/__init__.py": "cce4b68650b5f73c0fa1b17f8ddb16f354c45c35df8e6f983594834307b36f29",
+    "baton:v12/python/tools/dogfood_operator.py": "04f4a60d13f2dcf3e60da99fba58debce875e9286c2a0ded0a2e1f6c01ae36ad",
+    "baton:v12/python/tests/tools/test_dogfood_operator.py": "f050e9cff2e99b6b450e8177da1941edc0f4ee671dfb9b3adc0382b5c1523cea"
+  },
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.26.0",
+  "head": "3700408ce82d855a59ef2018a8831be735f15e11",
+  "snapshot_rows": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/intake.py",
+      "checkpoint_base_sha256": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+      "candidate_sha256": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+      "same_as_checkpoint": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/__init__.py",
+      "checkpoint_base_sha256": "cce4b68650b5f73c0fa1b17f8ddb16f354c45c35df8e6f983594834307b36f29",
+      "candidate_sha256": "cce4b68650b5f73c0fa1b17f8ddb16f354c45c35df8e6f983594834307b36f29",
+      "same_as_checkpoint": true
+    },
+    {
+      "path": "baton:v12/python/tools/dogfood_operator.py",
+      "checkpoint_base_sha256": "335033111fffba338cc606cebbfe2470279b7786228e04f121610f0ceec1ba6b",
+      "candidate_sha256": "04f4a60d13f2dcf3e60da99fba58debce875e9286c2a0ded0a2e1f6c01ae36ad",
+      "same_as_checkpoint": false
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_dogfood_operator.py",
+      "checkpoint_base_sha256": "bfdb8bc7535e75be99ed49880bc33c9e087486becfc673e94552d84cbcd75068",
+      "candidate_sha256": "f050e9cff2e99b6b450e8177da1941edc0f4ee671dfb9b3adc0382b5c1523cea",
+      "same_as_checkpoint": false
+    }
+  ],
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-pre-attach-abandon-leaves-live-assignment/review-focus-174974.py",
+    "-v",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_interruption_after_the_fence_resumes_one_authority_effect",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_fence_adopts_the_declarations_own_operation_and_reason",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_pre_attach_abandonment_resolves_and_releases_the_assignment",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_changed_reason_collides_and_never_fences_again",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_original_reason_replays_one_durable_declaration",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_fence_that_did_not_fence_leaves_everything_unresolved",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_documented_command_fences_a_pre_attach_assignment",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_abandonment_wins_and_a_public_start_can_no_longer_pass",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_interruption_after_the_intent_resumes_the_same_fence",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_resource_refusal_after_the_fence_keeps_it_and_then_retries",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_wrong_participant_refuses_before_any_fence_or_cleanup",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_ending_decides_nothing_about_output_or_custody",
+    "tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_requested_start_refuses_the_pre_attach_fence",
+    "tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_every_assignment_member_refuses_with_nothing_touched"
+  ],
+  "exit": 0,
+  "group_gone": true,
+  "elapsed_seconds": 0.4638527100032661,
+  "after": {
+    "baton:v12/python/src/baton_v12/worker_manager/intake.py": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+    "baton:v12/python/src/baton_v12/worker_manager/__init__.py": "cce4b68650b5f73c0fa1b17f8ddb16f354c45c35df8e6f983594834307b36f29",
+    "baton:v12/python/tools/dogfood_operator.py": "04f4a60d13f2dcf3e60da99fba58debce875e9286c2a0ded0a2e1f6c01ae36ad",
+    "baton:v12/python/tests/tools/test_dogfood_operator.py": "f050e9cff2e99b6b450e8177da1941edc0f4ee671dfb9b3adc0382b5c1523cea"
+  },
+  "unchanged": true,
+  "prior_reviewer_seconds": 9.284168758953456,
+  "reviewer_measured_seconds": 9.748021468956722,
+  "author_manifest_ledger": {
+    "rows": 25,
+    "seconds": 164.13770943402778
+  }
+}

@@ -1,0 +1,10 @@
+test_identical_revised_code_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_identical_revised_code_is_rejected) ... ok
+test_missing_or_forged_changes_requested_verdict_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_missing_or_forged_changes_requested_verdict_is_rejected) ... ok
+test_reviewer_context_or_writable_line_access_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_reviewer_context_or_writable_line_access_is_rejected) ... ok
+test_target_receipt_naming_original_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_target_receipt_naming_original_is_rejected) ... ok
+test_unexecuted_or_wrong_byte_verifier_is_rejected (tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence.test_unexecuted_or_wrong_byte_verifier_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.841s
+
+OK

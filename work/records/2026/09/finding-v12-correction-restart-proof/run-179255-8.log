@@ -1,0 +1,77 @@
+test_actual_changes_requested_review_restores_only_fresh_implementation_use (tests.manager.test_claude_context.RestoredCorrectionBoundary.test_actual_changes_requested_review_restores_only_fresh_implementation_use) ... ok
+test_current_authority_change_between_preparation_and_start_refuses (tests.manager.test_claude_context.ServingBinding.test_current_authority_change_between_preparation_and_start_refuses) ... ok
+test_real_composition_binds_exact_task_prompt_argv_and_adoption (tests.manager.test_claude_context.ServingBinding.test_real_composition_binds_exact_task_prompt_argv_and_adoption) ... ok
+test_committed_context_does_not_bypass_missing_retained_receipt (tests.manager.test_claude_context.ServingEnding.test_committed_context_does_not_bypass_missing_retained_receipt) ... ok
+test_failed_runtime_removal_keeps_context_and_ending_unsettled (tests.manager.test_claude_context.ServingEnding.test_failed_runtime_removal_keeps_context_and_ending_unsettled) ... ok
+test_missing_optional_answer_cannot_finalize_implementation (tests.manager.test_claude_context.ServingEnding.test_missing_optional_answer_cannot_finalize_implementation) ... ok
+test_reopen_after_context_commit_before_settlement (tests.manager.test_claude_context.ServingEnding.test_reopen_after_context_commit_before_settlement) ... ok
+test_reopen_after_publication_before_context_commit (tests.manager.test_claude_context.ServingEnding.test_reopen_after_publication_before_context_commit) ... ok
+test_reopen_before_generation_publication (tests.manager.test_claude_context.ServingEnding.test_reopen_before_generation_publication) ... ok
+test_retained_changed_bytes_block_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_changed_bytes_block_reopened_ending) ... ok
+test_retained_extra_entry_blocks_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_extra_entry_blocks_reopened_ending) ... ok
+test_retained_link_blocks_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_link_blocks_reopened_ending) ... ok
+test_retained_missing_file_blocks_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_missing_file_blocks_reopened_ending) ... ok
+test_sealed_duplicate_json_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_duplicate_json_is_not_context_evidence) ... ok
+test_sealed_foreign_receipt_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_foreign_receipt_is_not_context_evidence) ... ok
+test_sealed_legacy_receipt_cannot_downgrade_serving_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_legacy_receipt_cannot_downgrade_serving_evidence) ... ok
+test_sealed_malformed_json_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_malformed_json_is_not_context_evidence) ... ok
+test_sealed_wrong_filename_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_wrong_filename_is_not_context_evidence) ... ok
+test_worker_extra_entries_cannot_pass_collection (tests.manager.test_claude_context.ServingEnding.test_worker_extra_entries_cannot_pass_collection) ... ok
+test_worker_link_cannot_pass_collection (tests.manager.test_claude_context.ServingEnding.test_worker_link_cannot_pass_collection) ... ok
+test_worker_oversized_receipt_cannot_pass_collection (tests.manager.test_claude_context.ServingEnding.test_worker_oversized_receipt_cannot_pass_collection) ... ok
+test_duplicate_exchange_cannot_call_the_provider_again (tests.manager.test_claude_context.WorkerInvocation.test_duplicate_exchange_cannot_call_the_provider_again) ... ok
+test_duplicate_terminal_keys_are_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_duplicate_terminal_keys_are_unhealthy) ... ok
+test_intent_before_child_loss_never_reinvokes_the_use (tests.manager.test_claude_context.WorkerInvocation.test_intent_before_child_loss_never_reinvokes_the_use) ... ok
+test_missing_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_missing_terminal_is_unhealthy) ... ok
+test_oversized_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_oversized_terminal_is_unhealthy) ... ok
+test_partial_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_partial_terminal_is_unhealthy) ... ok
+test_real_worker_retains_measured_receipt_and_finalizes_before_settlement (tests.manager.test_claude_context.WorkerInvocation.test_real_worker_retains_measured_receipt_and_finalizes_before_settlement) ... ok
+test_status_zero_with_error_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_error_is_unhealthy) ... ok
+test_status_zero_with_wrong_model_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_wrong_model_is_unhealthy) ... ok
+test_status_zero_with_wrong_uuid_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_wrong_uuid_is_unhealthy) ... ok
+test_adoption_cannot_drop_original_binding (tests.manager.test_launch.TheContextLaunchIsClosed.test_adoption_cannot_drop_original_binding) ... ok
+test_closed_version_refuses_omission_extra_and_downgrade (tests.manager.test_launch.TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade) ... ok
+test_owner_launch_and_worker_reader_agree (tests.manager.test_launch.TheContextLaunchIsClosed.test_owner_launch_and_worker_reader_agree) ... ok
+test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) ... ok
+test_exact_root_and_fixed_target_exclude_storage_and_generation (tests.manager.test_oci.TheContextMountIsAnExactUse.test_exact_root_and_fixed_target_exclude_storage_and_generation) ... ok
+test_observation_refuses_changed_or_missing_context_mount (tests.manager.test_oci.TheContextMountIsAnExactUse.test_observation_refuses_changed_or_missing_context_mount) ... ok
+test_untyped_wrong_purpose_and_both_overlap_directions_refuse (tests.manager.test_oci.TheContextMountIsAnExactUse.test_untyped_wrong_purpose_and_both_overlap_directions_refuse) ... ok
+test_actual_child_environment_verifier_and_public_outputs_exclude_private_state (tests.manager.test_claude_agent.TheContextEnvironmentRemainsPrivate.test_actual_child_environment_verifier_and_public_outputs_exclude_private_state) ... ok
+test_injected_context_is_unknown_for_activity_even_on_initial_open (tests.manager.test_claude_agent.TheContextEnvironmentRemainsPrivate.test_injected_context_is_unknown_for_activity_even_on_initial_open) ... ok
+test_exact_reserved_declaration_rejects_stale_media_and_other_shapes (tests.tools.test_single_worker.TheContextConfigurationIsRequiredAndClosed.test_exact_reserved_declaration_rejects_stale_media_and_other_shapes) ... ok
+test_legacy_implementation_cannot_silently_omit_context (tests.tools.test_single_worker.TheContextConfigurationIsRequiredAndClosed.test_legacy_implementation_cannot_silently_omit_context) ... ok
+test_another_job_owner_cannot_supply_the_context_attempt (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_another_job_owner_cannot_supply_the_context_attempt) ... ERROR
+test_another_roles_root_cannot_overlap_context_storage (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_another_roles_root_cannot_overlap_context_storage) ... ok
+test_context_preflight_requires_the_preconfigured_profile (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_context_preflight_requires_the_preconfigured_profile) ... ok
+test_live_handle_reopen_observes_without_duplicate_start_or_binding (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_live_handle_reopen_observes_without_duplicate_start_or_binding) ... ERROR
+
+======================================================================
+ERROR: test_another_job_owner_cannot_supply_the_context_attempt (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_another_job_owner_cannot_supply_the_context_attempt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 98, in test_another_job_owner_cannot_supply_the_context_attempt
+    other = JobStore.open(os.path.join(self.case.root, "foreign-jobs.sqlite3"), authority_uuid=job.authority_uuid, incarnation="other-job-owner", clock=lambda: fixtures.NOW)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 236, in open
+    store._now()
+    ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 673, in _now
+    return boundaries.instant(self._clock(),
+                              ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 98, in <lambda>
+    other = JobStore.open(os.path.join(self.case.root, "foreign-jobs.sqlite3"), authority_uuid=job.authority_uuid, incarnation="other-job-owner", clock=lambda: fixtures.NOW)
+                                                                                                                                                                ^^^^^^^^
+NameError: name 'fixtures' is not defined
+
+======================================================================
+ERROR: test_live_handle_reopen_observes_without_duplicate_start_or_binding (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_live_handle_reopen_observes_without_duplicate_start_or_binding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 80, in test_live_handle_reopen_observes_without_duplicate_start_or_binding
+    sweep(job, composed, now=fixtures.NOW)
+                             ^^^^^^^^
+NameError: name 'fixtures' is not defined
+
+----------------------------------------------------------------------
+Ran 46 tests in 11.919s
+
+FAILED (errors=2)

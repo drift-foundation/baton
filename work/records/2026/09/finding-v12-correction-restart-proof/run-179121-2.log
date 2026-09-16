@@ -1,0 +1,40 @@
+test_real_composition_binds_exact_task_prompt_argv_and_adoption (tests.manager.test_claude_context.ServingBinding.test_real_composition_binds_exact_task_prompt_argv_and_adoption) ... FAIL
+test_real_worker_retains_measured_receipt_and_finalizes_before_settlement (tests.manager.test_claude_context.WorkerInvocation.test_real_worker_retains_measured_receipt_and_finalizes_before_settlement) ... FAIL
+
+======================================================================
+FAIL: test_real_composition_binds_exact_task_prompt_argv_and_adoption (tests.manager.test_claude_context.ServingBinding.test_real_composition_binds_exact_task_prompt_argv_and_adoption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 119, in test_real_composition_binds_exact_task_prompt_argv_and_adoption
+    job, control, composed, attempt, roots = self.started()
+                                             ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 106, in started
+    self.drive(job, composed, "implementation", "waiting")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2628, in drive
+    self.fail(f"the {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states(job, composed)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the implementation stage never reached 'waiting': {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+
+======================================================================
+FAIL: test_real_worker_retains_measured_receipt_and_finalizes_before_settlement (tests.manager.test_claude_context.WorkerInvocation.test_real_worker_retains_measured_receipt_and_finalizes_before_settlement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 130, in test_real_worker_retains_measured_receipt_and_finalizes_before_settlement
+    held = self.implemented()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2862, in implemented
+    self.drive(job, composed, "implementation", "waiting")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2628, in drive
+    self.fail(f"the {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states(job, composed)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the implementation stage never reached 'waiting': {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.441s
+
+FAILED (failures=2)

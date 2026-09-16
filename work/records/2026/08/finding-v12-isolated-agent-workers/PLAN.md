@@ -1,4 +1,146 @@
+# Current — usable-v12 readiness signed off by owner183808
+
+[done] Slawomir approved the selected minimum release in T2 message183808,
+2026-09-16T04:47:44Z: new context-free isolated attempts through fixed configured
+workers, preserving explicit recovery holds, lineage and independent acceptance.
+Readiness review-2026-09-16T04-14-53Z.md and documentation acceptance
+review-2026-09-16T04-43-55Z.md are complete. No readiness decision remains pending
+for this scope; older awaiting-signoff blocks below are superseded.
+
+W177936 remains parked optional/unqualified production session reuse. W2 remains
+open with historical children; v11 remains the coordination authority.
+Next separately selected action may be bounded independent development Jobs
+through v12. No deployment, specific Job or additional live run is authorized
+merely by this signoff. Preserve all prior evidence and broader limitations.
+
+# Current — documentation independently accepted; owner readiness decision remains
+
+[done review, claim183767] review-2026-09-16T04-43-55Z.md accepts the exact
+published manual candidate b732978ed1e5ee9e9e059b3fd40ed3b54f79a43866df0c1150d5bb340074d920.
+DOCS-REVIEW-EVIDENCE-183767.json records 22 passing static hash checks and exact
+byte/diff reconstruction; no runtime tests. No documentation correction remains.
+Return accepted completion to baton.ops for the explicit bounded owner readiness
+decision. This supersedes the pending review instructions below, preserving
+their history. The readiness recommendation remains distinct from owner signoff.
+W177936 remains parked, optional and unqualified. W2 stays open with its five
+historical children; v11 remains the sole coordination authority.
+
+# Current — documentation published; independent review pending
+
+[done implementation, claim183730] The exact owner183727 insertion is in
+v12/python/DEPLOYMENT.md at candidate SHA256
+b732978ed1e5ee9e9e059b3fd40ed3b54f79a43866df0c1150d5bb340074d920.
+Read DOCS-HANDOFF-183730.md, DOCS-CANDIDATE-183730.json and
+DOCS-EVIDENCE-183730.json. Static byte/mode/anchor checks and diff-check pass;
+no runtime tests. Pass baton.feat for independent documentation review.
+Ordinary corrections return tuner; accepted completion or concrete blocker
+returns ops. This supersedes in-progress and pending publication instructions
+below. Owner readiness signoff is still a distinct remaining action; W2 stays
+open with historical children. W177936 is parked, optional and unqualified.
+
+# Current — owner183727 documentation publication, claim183730
+
+[in progress] Publish only the exact insertion in DEPLOYMENT-PROPOSED-183574.md
+onto the revalidated manual base recorded in BASE-DOCS-183730.json. Preserve
+surrounding bytes and the fresh-attempt ruling. Then baton.feat independently
+reviews the exact documentation candidate; ordinary corrections return tuner,
+accepted completion or concrete blocker returns ops. No runtime verification.
+
+The readiness recommendation remains a recommendation; final owner signoff is
+not recorded by this task. W177936 is parked at183661, optional/unqualified.
+W2 stays open with historical children. This supersedes the pending publication
+assignment and pending W177936 ledger disposition below, preserving history.
+
+# Current — minimum recovery is fresh isolated attempts; reuse deferred
+
+Owner confirmed 2026-09-16T04:07:24.167298+00:00; OWNER-FRESH-ATTEMPT-RECOVERY-20260916.md is authoritative.
+W177936 is optional deferred production session reuse, not a minimum-release
+gate. Preserve its unfinished status/evidence and safely release its active
+handler. Earlier mandatory-reuse wording below is explicitly superseded.
+
+Assessment complete under claim183574: review-2026-09-16T04-14-53Z.md recommends
+usable-v12 readiness for new context-free attempts through fixed configured
+workers, reusing separately accepted fresh recovery, managed integration,
+parallel-Job and monitor evidence. No additional runtime execution or product
+correction is proposed. Historical C1/C2 context-enabled proof remains distinct.
+Next baton.ops: record the bounded readiness decision, route the exact insertion
+in DEPLOYMENT-PROPOSED-183574.md through existing documentation ownership, and
+apply the selected W177936 deferral. W177936 released to feat at183579 and is
+unclaimed; candidate183524 remains unreviewed, not accepted by this assessment.
+No tests/live runs/product edits or broad re-certification in this assessment.
+All five direct ledger providers are closed satisfying. Formal historical-child
+closure stays separate from usable-v12 readiness.
+
 # Plan
+
+## 2026-09-15 — usable-v12 scope audit, snapshot178702
+
+Owner asks what remains in W2 and directs that non-essential work not accumulate. Canonical W2 has two open direct providers: W161234 and W61599. W161230, W156162 and W63255 are closed satisfying. This dated audit supersedes older outstanding-provider counts and already-completed next-action wording; it does not rewrite historical evidence or alter claims/dependencies.
+
+- W161234: finish selected B context serving/restoration, then C useful correction through reviewed import and counted durable reopen. A and architecture are accepted; B is selected to tuner by178645 after W61599 shared-file release178644. The preparation plan's older awaiting-release text is historical. No repeat architecture review or broad restart/stress matrix.
+- W177936 supports W161234: tuner currently prepares the selected small qualification fixture. The remaining real-provider question is one-shot restoration from the selected credential-free saved-state subset; reuse existing CLI/help, restore and Docker group-access evidence. Proposed two-turn run remains180s per turn/600s total, with no performance or broad provider campaign. Fixture execution is not yet selected.
+- W61599: producer correction178427 independently accepted and owner accepted178644. Only minimal viewer consumer connection remains. W177937 is active with Claude preparing exact consumer paths; W61599 is assigned tuner, blocked on this packet. Preserve unknown/stale and historical counts; no producer redesign or rich viewer expansion.
+- W177938: Claude's queued preparation supports existing C acceptance; it is not a separate product feature or an extra release gate. Reuse applicable evidence and produce the concrete execution/acceptance packet, not another architecture or general certification project.
+
+No new Work is created by this audit. Baseline suite failures, broad stress/performance, advanced scheduling/operator replacement, remote/Podman coverage, richer TUI/logs and backlog migration stay outside the selected v12 delivery path. No repeated full suites or historical-cost reconstruction. W2's historical children remain preserved; their umbrella closure is not a minimum-release prerequisite. Once the two selected outcomes have reviewed evidence, record usable-v12 readiness and select bounded v13 Jobs through v12 without copying coordination authority.
+
+Assessment: the current assignments map to existing required outcomes; this is not a claim that every implementation detail is minimal. Convergence remains the risk. Keep remaining packets/verification proportional, use the existing handoffs, and reject speculative new release gates. No candidate acceptance, execution authorization beyond existing owner selections, or assertion of current production readiness is made by this audit.
+
+## 2026-09-15 — owner confirms the usable-v12 delivery path
+
+Slawomir confirmed the path: "yes that's the path. We need to be on the other side to finally benefit from the new model where we can begin work on v13". The immediate objective is usable v12, with its parallel development Jobs enabling subsequent v13 work.
+
+Current delivery sequence:
+
+1. Complete W61599 focused independent review, preserving the owner instruction to defer unrelated baseline suite failures.
+2. Complete W161234 required context reuse and useful correction/restart proof. Tuner implements after Claude preparation and the independently reviewed W61599 shared-file release, using the accepted architecture and concrete B/C packets.
+3. Connect the minimal read-only monitor and establish readiness for actual use, including the narrow production qualification facts that remain necessary.
+
+Preparation must shorten this path. Classify findings by whether they concretely prevent this usable release; defer unrelated baseline repairs and broader hardening to W165786 after readiness. Preserve execution correctness, isolation and honest reviewed result collection; do not manufacture success or add speculative release gates. Do not repeat accepted architecture reviews or broad suites merely because work changes hands.
+
+After readiness, use v12 parallel Jobs for small bounded v13 tasks. Keep v11 as the current coordination authority during preparation; no backlog copying or unselected authority cutover. This usable-release objective does not falsely close W2 while its historical open children remain. Record readiness explicitly against the selected minimum outcome.
+
+## 2026-09-15 — Claude prepares; tuner implements downstream work
+
+Slawomir added "tuner can do the work" after assigning the preparation packets to Claude. The working division is Claude for W177936/W177937/W177938 preparation and baton.tuner for downstream implementation once the concrete packet is selected and required inputs/file ownership are ready. This clarifies the prior assignment; it does not move the three preparation Works back to tuner. Each preparation handoff must recommend the exact tuner execution scope and evidence references. W161234 B still follows W61599 independently reviewed shared-file release. Preparation-only authority remains unchanged; this role selection is not a claim, an unbounded implementation assignment or authorization for a live qualification experiment.
+
+## 2026-09-15 — owner reassigns all three preparation packets to Claude
+
+Slawomir subsequently directed: "let's have Claude work on the prep-work, claude is nearly done with her work and she can jump on that". This explicitly supersedes the Codex/tuner assignments in the preceding three-packet selection. Assign W177936, W177937 and W177938 to baton.claude, serially after the current W61599 implementation handoff: production context qualification first, viewer activity connection second, final correction/restart C proof packet third. Do not interrupt or release Claude's W61599 claim. If W61599 returns for an in-scope correction, complete that release work before further preparation. Codex remains available for independent reviews.
+
+The preparation-only scope, durable dossier ownership and acceptance boundaries remain unchanged. No implementation, tests, live provider/actual engine execution or production enabling is added. W161234 B still awaits W61599's independently reviewed shared-file release. Priority selects qualification ahead of the other two; the two remaining low-priority items retain their creation order and explicit serial instruction.
+
+## 2026-09-15 — owner selects the next three parallel preparation packets
+
+Slawomir confirmed "I agree with the plan": production context qualification preparation to Codex; viewer activity connection preparation to tuner; final correction/restart C proof preparation to tuner after viewer preparation. These are dossier-only tasks for existing W2 outcomes. Incoming release candidate reviews/completion take priority. No tests, implementation, live providers, actual engine runs or deployment are selected by this preparation approval.
+
+- 2b077949-W177936 — V12: Prepare production context qualification packet; baton.codex. Record: baton:work/records/2026/09/finding-v12-production-context-qualification-preparation/.
+- 2b077949-W177937 — V12: Prepare viewer activity connection; baton.tuner. Record: baton:work/records/2026/09/finding-v12-viewer-activity-connection-preparation/.
+- 2b077949-W177938 — V12: Prepare final correction and restart proof packet; baton.tuner. Record: baton:work/records/2026/09/finding-v12-correction-restart-final-proof-preparation/.
+
+W61599 retains shared serving files first; W161234 B implementation consumes its independently reviewed final candidate and ownership release. Accepted A and architecture stand; the B packet is prepared, while B/C execution and production qualification remain unfinished. These packets add no release blocker edges or architecture-review cycle. The concrete remaining experiment or implementation will be selected from their completed evidence. Each worker owns only its new dossier; this index is the durable path for later consumers.
+
+## Current scheduling — owner-approved reviewer throughput, 2026-09-15
+
+Leave Codex's current W156162 execution intact; prioritize W61599 next for focused
+design review. Return W63255's explicitly incomplete authorized work directly to
+Claude for full completion before independent review. Tuner prepares W161234's
+first implementation packet against its accepted design and completed W161230,
+without product edits/tests. Defer W174357's v13 review outside Codex's queue.
+These decisions are pinned in the respective owning FINDING/PLAN records.
+No extra contexts or acceptance waiver. Complete selected outcomes, or hand off
+a concrete decision blocker; known authorized remaining work should continue
+without partial review loops. Canonical claims/routing remain authoritative.
+
+## Current release amendment — owner 2026-09-15
+
+W103525's remaining certification and operator replacement are assigned to v13
+by the latest FINDING ruling. W174357's existing design review is nonblocking
+v13 pre-work. This supersedes their immediate-release scheduling below and in
+RELEASE-NEXT-ACTIONS-2026-09-15.md. Preserve accepted scheduling evidence and
+W103525's parked identity. Owner removed W2-on-W103525 at174710, verified in
+snapshot174711. W161230 is closed; the four open direct release providers are W161234,
+W156162, W61599 and W63255. No other dependency or product scope changes.
 
 ## Current release preparation — owner direction 2026-09-15
 
@@ -895,3 +1037,16 @@ whose prerequisites have closed are actionable.
     disposition. Preserve isolation, authorized writes, exact evidence binding,
     independent review and honest results. See FINDING.md, "Minimal safe
     standalone critical path", and W110772's current FINDING/PLAN direction.
+
+
+## 2026-09-15 — owner defers reported pre-existing suite failures until post-v12
+
+After W61599 implementation handoff178359, Slawomir directed: "the so called 'preexisting' failures need to be addressed in post-v12 era, where we have speedy access to parallel work. I don't want to burn time on them now".
+
+Record the baseline failure backlog under W165786 for bounded parallel work after v12 readiness. W61599's ACTIVITY-IMPLEMENTATION-177898.md reports baseline7259 tests/89 failures-errors and candidate7333 tests/88 failures-errors, with the remaining set reported unchanged from baseline. These are author-reported classifications, not an independent certification or a green suite. Preserve the existing results, failure identifiers/log locators where already available, and the exact baseline/candidate context. Do not spend current release time repairing those baseline failures, reconstructing broad suite history, or repeating full suites merely to investigate them.
+
+The active W61599 reviewer should use existing evidence and focused checks of the changed behavior and any concrete suspected introduced regression. Candidate acceptance does not require fixing unrelated baseline failures. Report a concretely demonstrated defect in selected v12 execution separately; do not call a new regression pre-existing to waive it, or use speculative classification concerns to launch a baseline cleanup campaign. This ruling narrows current verification/repair scope, not truthful result reporting or independent acceptance.
+
+After readiness, W165786 will decompose surviving failures into small Jobs with explicit file ownership, prioritization and acceptance, reusing v12 parallel execution. Reuse existing defect Works when identified; no new implementation/backlog copies or release-gate edges are created now. The downstream consumer must revalidate the surviving failures then rather than treating this snapshot as current indefinitely.
+
+Evidence: baton:work/records/2026/09/finding-live-worker-log-observability/ACTIVITY-IMPLEMENTATION-177898.md, section8; PROGRESS.md claim177898; W61599 pass178359. This explicit post-v12 repair selection supersedes any interpretation that the baseline suite must be made green before W61599/W2 can proceed. W161234 and the already-selected required v12 outcomes remain independently accountable.

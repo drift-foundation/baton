@@ -86,3 +86,25 @@ exact four permitted regions. No runtime/code/test changes selected. This
 supersedes the initial blocked/no-document-edit setup as the current next action,
 not the historical decisions. Independent documentation review and applicable
 owner completion remain due; no umbrella/dependent release or whole-suite pass.
+
+## 2026-09-15T03:21:13Z — final independent documentation and selected-outcome acceptance
+
+Reviewer claim174513 accepts documentation candidate174420, SHA256
+92dec1df4ab2decac190458f17bfa77ec2a1d44d53ab426e1ea2e1f5b1adfc07;
+sole path baton:v12/python/DEPLOYMENT.md final SHA256
+5dc34d45d5b098baca7318df305f96bc02275cd3ecaaa9a20e0f4758a641c7a5,
+regular0664. `review-2026-09-15T03-21-13Z.md` and
+`review-evidence-174513.json` record exact patch reconstruction, four permitted
+regions, unchanged deadline suffix, all56 historical snapshots/3 manifests and
+33 effective source/test paths still matching. No runtime executions; prior
+accepted evidence is reused without double-counting costs.
+
+This supersedes documentation-pending as the current outcome: the selected
+complete managed flow and its documentation are independently accepted and
+recommended satisfying for W170387. Applicable owner closure remains due.
+W161230 meets its full selected outcome subject to the recorded reductions and
+limitations; no exhaustive, whole-suite, OCI/live or remote certification is
+inferred. BASELINE-CLASSIFICATION-174271.md, its still-red cases, parked W129838,
+manual unknown-start recovery and unproved v13 cases remain effective evidence.
+Return baton.ops for child and subsequent canonical umbrella/dependent
+disposition; no dependency edits or parent closure by this review.

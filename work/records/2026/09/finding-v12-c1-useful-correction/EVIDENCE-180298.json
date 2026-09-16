@@ -1,0 +1,130 @@
+{
+  "claim": 180298,
+  "owner": 180294,
+  "work": "W180245",
+  "state": "incomplete; additional accepted-B worker scope required",
+  "changed": [
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "base_sha256": "e0dc7a466c184f3e72ace320045f26a5e14af7874f855f8d7cd83e56d283506c",
+      "sha256": "fcb73a55c9c8ef5e98509a5165f96e49eeb81ab377f9095339c347c589afb6c8",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/partial-180298/v12/python/tests/tools/correction_restart_trace.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "base_sha256": "2ae66976951d9afd43e994daaf214aaf6e6f2c95f80b43449626ac8460da5110",
+      "sha256": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/partial-180298/v12/python/src/baton_v12/integration/reconciliation.py"
+    },
+    {
+      "path": "v12/python/tests/integration/test_managed_storage.py",
+      "base_sha256": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+      "sha256": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "mode": "0o644",
+      "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/partial-180298/v12/python/tests/integration/test_managed_storage.py"
+    }
+  ],
+  "unchanged_selected": [
+    "v12/python/tests/tools/test_correction_restart.py",
+    "v12/python/tests/tools/test_managed_preparation.py",
+    "v12/python/tests/tools/test_managed_apply.py"
+  ],
+  "read_only_inputs_match": true,
+  "runs": [
+    {
+      "run": "1",
+      "selectors": [
+        "tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements"
+      ],
+      "seconds": 0.8167775840265676,
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "2",
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "seconds": 2.818057983997278,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "3",
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "seconds": 2.7185990340076387,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "4",
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "seconds": 2.7678978530166205,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "5",
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "seconds": 2.718248772987863,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "6",
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "seconds": 2.719010409025941,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "7",
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "seconds": 2.718223506992217,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    }
+  ],
+  "new_author_seconds": 17.276815144054126,
+  "cumulative_author_seconds": 179.28393344706274,
+  "prior_reviewer_seconds": 93.48170357503113,
+  "artifacts": {
+    "BASE-180298.json": "371b6dca521634a7c9548920832cedec79021bd7d9af4fea76932d9055571ea0",
+    "OBSERVATION-180298.json": "f3fb4daa062d98946890c278e2f5207c76bc01cdc04830db43e46a7e5476ca2d",
+    "partial-180298.patch": "60bda59b0f1fe392769e9d032370f8ee3f38dd430ad4b3d49c6d1e2b465be543",
+    "run-C-180298-1.json": "043c0a2c692b9659090ecff6c569faab7068fb6dd6a6374769cf167d90af3976",
+    "run-C-180298-1.log": "383fabf057bd02f3353a3a8c7d7c0fd327a183bc32e7bdb4b003491121c8a15e",
+    "run-C-180298-2.json": "193eac1b87ba741614dd76f9c56a3a0bf94f035a128f5b00bc34b314d628e60f",
+    "run-C-180298-2.log": "2045c6abde0e2ae0477c6a0a0f060e3ea870d58b14227d1c3793df2fcdb1a284",
+    "run-C-180298-3.json": "f80dc760d7ddb4c004bd56c1b355a2ffe0f7a6c801750acc1620712d0af8f689",
+    "run-C-180298-3.log": "f1551229c353d643bea79162086f4744ab312073d2d05209a212fa21a1d51bab",
+    "run-C-180298-4.json": "aa1e952e4cc1a28a86038b77f14391dab0fe893d33bdde055a14b4c6afc9353a",
+    "run-C-180298-4.log": "6fd5069d8d6388d9a211005bd5928e6cacfd7db21074adae3b64f14b6022abe4",
+    "run-C-180298-5.json": "16486245c11c12dc3d6d75ecfbc74c03bec30ecd002e5bdd7342d2ace6d3c3e0",
+    "run-C-180298-5.log": "c1e078a10130c1301dceab7ccc9547ad4e8ea32fa83666f608447d3bd227513d",
+    "run-C-180298-6.json": "0b21073fe61c1ed2db13ff18ecf39d550afa26837845c71df860fab5e741b0f7",
+    "run-C-180298-6.log": "0a158370629e5aec2c2eaa4c6d7d4643697b7f9e307a6d043281e7dc35a6ca5f",
+    "run-C-180298-7.json": "bd220eb43ee178bf81292035433daca3656f22636518b97b617ab02660ab5bea",
+    "run-C-180298-7.log": "a0cfd7ef6323aeb71320042e96f0cd5ec355b1b9ff6c6b748f40ccb5261d3629",
+    "verify-180298.py": "8131d2edff142c4c5be932c4ee86ffef63a4c553276a7a5052b4f5b3e396a571"
+  }
+}

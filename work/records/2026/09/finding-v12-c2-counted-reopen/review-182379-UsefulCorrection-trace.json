@@ -1,0 +1,3648 @@
+{
+  "accepted": {
+    "stage_id": "job-a/review",
+    "job_id": "job-a",
+    "kind": "review",
+    "episode": 2,
+    "offer_id": "offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+    "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+    "work_id": "0000000a-W1",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.reviewer",
+      "generation": 4
+    },
+    "intent": "ending.intent:job-a/review:2",
+    "evidence": {
+      "result_id": "result-attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+      "manifest_digest": "sha256:dd08be4efc0b7ed701fb8d522937532b0d08d4bdaf3d1858c81a2ce02351e696",
+      "receipt_digest": "sha256:3bc74715c06349451cbb9fc61bcd1375cb35cf19d8940b8363aeb431d7f303c2",
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "gate_discharge": "runtime-quiescence:4",
+      "outcome": "accepted",
+      "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348"
+    }
+  },
+  "accepted_verdict": {
+    "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+    "attachment_id": "review-784423dae81a5953bd340296d07b8f0c9962d18391444775b28b9876a781340a",
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "review_assignment_generation": 4,
+    "reviewer_worker_id": "review-worker",
+    "reviewer_participant": "baton.reviewer",
+    "reviewer_principal": "principal:baton.reviewer",
+    "disposition": "accepted",
+    "checkpoint_digest": "sha256:5d82b8193aa8c9a0f154689fbde206dc6420d0ff249461c30a42707c9d72c6b2",
+    "revision": 2,
+    "base_object": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+    "head_object": "b72ad6525739898c7aaa0b54a51085364a21e789",
+    "tree_object": "e09ce7780adf98089bca406002bee5f152c99cf7",
+    "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+    "review_result": {
+      "artifacts": [
+        {
+          "artifact_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605:findings",
+          "bytes": 153,
+          "content_digest": "sha256:067a2b501e41224385b9fcf1e2c55abc127a0eeec05afaea952204b89096fc49",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/custody/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/findings",
+          "media_type": "application/octet-stream",
+          "output_name": "findings"
+        },
+        {
+          "artifact_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605:logs",
+          "bytes": 410,
+          "content_digest": "sha256:1b0378bbf212ddd4ade26417914af9bc19b552114bc73d8361f555f78d91cd9b",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/custody/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/logs",
+          "media_type": "application/octet-stream",
+          "output_name": "logs"
+        }
+      ],
+      "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+      "disposition": "completed",
+      "freeze_operation_id": "output.freeze:3c2b2deab1e9a31b647604a46efd66ea75fb63d5e1a28c99afba35df18152e8b",
+      "frozen_at": "2026-09-02T00:00:00.000Z",
+      "manifest_digest": "sha256:dd08be4efc0b7ed701fb8d522937532b0d08d4bdaf3d1858c81a2ce02351e696",
+      "result_id": "result-attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605"
+    },
+    "review_result_digest": "sha256:dfaa29e227497985ed5043facf55ffdb4f920d281bfbf989141a29f88af6f300",
+    "review_fence": {
+      "fenced": {
+        "assignment": {
+          "generation": 4,
+          "participant": "baton.reviewer",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "cause": "cancelled",
+        "fenced": true,
+        "gate": "runtime-quiescence:4",
+        "phase": "block"
+      },
+      "intent": {
+        "assignment": {
+          "generation": 4,
+          "participant": "baton.reviewer",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "authority_operation_id": "authority.finalize-quiescent:3c2b2deab1e9a31b647604a46efd66ea75fb63d5e1a28c99afba35df18152e8b",
+        "decision": "finalized",
+        "reason": "independent checkpoint review completed",
+        "runtime_id": "runtime-single-4",
+        "worker_disposition": "completed"
+      }
+    },
+    "review_fence_digest": "sha256:4dc18c77081ef753ea3b3aeea99fbb0eb6d3aaa71f15a9a96aa06574d95a70f2",
+    "recorded_at": "2026-09-02T00:00:00.000Z"
+  },
+  "reviews": [
+    {
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "implementation_attempt": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "assignment": {
+        "runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "participant": "baton.reviewer",
+        "generation": 2,
+        "principal": "principal:baton.reviewer",
+        "effective_scope": "scope:deployment"
+      },
+      "launch": {
+        "schema": "baton.worker-launch/3",
+        "session": "session-6c666d5e9287c125c95ddb01",
+        "contract": "v12-assignment-1",
+        "role": "review",
+        "transport": "baton.worker-exchange/1",
+        "job_execution": {
+          "job_id": "job-a",
+          "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "job_input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+          "job_policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "runtime_input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+          "runtime_policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "execution_limits": {
+            "units": "seconds",
+            "scope": "per-invocation",
+            "compatibility_generation": 1,
+            "requested": {},
+            "boundaries": {
+              "host_verification": {
+                "seconds": 300,
+                "origin": "compatibility",
+                "setting": "verification_command_seconds",
+                "default_seconds": 300
+              },
+              "integration_verification": {
+                "seconds": 1800,
+                "origin": "compatibility",
+                "setting": "verification_command_seconds",
+                "default_seconds": 1800
+              },
+              "ordinary_verification": {
+                "seconds": 900,
+                "origin": "compatibility",
+                "setting": "verification_command_seconds",
+                "default_seconds": 900
+              },
+              "provider_turn": {
+                "seconds": 3600,
+                "origin": "compatibility",
+                "setting": "provider_turn_seconds",
+                "default_seconds": 3600
+              }
+            }
+          },
+          "execution_limits_digest": "sha256:8c3d02c02ab9d9d744de17658018d7c00eceea8428419f8b9ae3ca52e27fb099"
+        }
+      },
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/inputs",
+          "target": "/input",
+          "readonly": true
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/workspace",
+          "target": "/output",
+          "readonly": false
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/credentials/credentials/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/api",
+          "target": "/run/baton/credentials/api",
+          "readonly": true
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/launch.json",
+          "target": "/run/baton/launch.json",
+          "readonly": true
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/command",
+          "target": "/run/baton/exchange/command",
+          "readonly": true
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/events",
+          "target": "/run/baton/exchange/events",
+          "readonly": false
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+          "target": "/input/source",
+          "readonly": true
+        }
+      ],
+      "producer_workspace": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "private_context_root": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/private-contexts",
+      "source_revision": "ec200d8236104e34fdb05844ab3fa7aef5b6cacd",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a"
+    },
+    {
+      "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+      "implementation_attempt": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "assignment": {
+        "runtime_attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "participant": "baton.reviewer",
+        "generation": 4,
+        "principal": "principal:baton.reviewer",
+        "effective_scope": "scope:deployment"
+      },
+      "launch": {
+        "schema": "baton.worker-launch/3",
+        "session": "session-23e888c24fc30ad6f642decd",
+        "contract": "v12-assignment-1",
+        "role": "review",
+        "transport": "baton.worker-exchange/1",
+        "job_execution": {
+          "job_id": "job-a",
+          "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "job_input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+          "job_policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "runtime_input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+          "runtime_policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "execution_limits": {
+            "units": "seconds",
+            "scope": "per-invocation",
+            "compatibility_generation": 1,
+            "requested": {},
+            "boundaries": {
+              "host_verification": {
+                "seconds": 300,
+                "origin": "compatibility",
+                "setting": "verification_command_seconds",
+                "default_seconds": 300
+              },
+              "integration_verification": {
+                "seconds": 1800,
+                "origin": "compatibility",
+                "setting": "verification_command_seconds",
+                "default_seconds": 1800
+              },
+              "ordinary_verification": {
+                "seconds": 900,
+                "origin": "compatibility",
+                "setting": "verification_command_seconds",
+                "default_seconds": 900
+              },
+              "provider_turn": {
+                "seconds": 3600,
+                "origin": "compatibility",
+                "setting": "provider_turn_seconds",
+                "default_seconds": 3600
+              }
+            }
+          },
+          "execution_limits_digest": "sha256:8c3d02c02ab9d9d744de17658018d7c00eceea8428419f8b9ae3ca52e27fb099"
+        }
+      },
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/inputs",
+          "target": "/input",
+          "readonly": true
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/workspace",
+          "target": "/output",
+          "readonly": false
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/credentials/credentials/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/api",
+          "target": "/run/baton/credentials/api",
+          "readonly": true
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/launch.json",
+          "target": "/run/baton/launch.json",
+          "readonly": true
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/command",
+          "target": "/run/baton/exchange/command",
+          "readonly": true
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/events",
+          "target": "/run/baton/exchange/events",
+          "readonly": false
+        },
+        {
+          "type": "bind",
+          "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+          "target": "/input/source",
+          "readonly": true
+        }
+      ],
+      "producer_workspace": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "private_context_root": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/private-contexts",
+      "source_revision": "b72ad6525739898c7aaa0b54a51085364a21e789",
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c"
+    }
+  ],
+  "final": {
+    "stage": {
+      "stage_id": "job-a/integration",
+      "job_id": "job-a",
+      "ordinal": 2,
+      "kind": "integration",
+      "work_id": "0000000a-W1",
+      "profile_name": "reference",
+      "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "depends_on": "[{\"job_id\": \"job-a\", \"kind\": \"review\"}]"
+    },
+    "episode": {
+      "stage_id": "job-a/integration",
+      "episode": 1,
+      "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "opened_at": "2026-09-02T00:00:00.000Z",
+      "incarnation": "correction-0",
+      "ended_state": null,
+      "ended_revision": null,
+      "ended_at": null
+    },
+    "attempt": {
+      "stage_id": "job-a/integration",
+      "job_id": "job-a",
+      "ordinal": 2,
+      "kind": "integration",
+      "work_id": "0000000a-W1",
+      "profile_name": "reference",
+      "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "depends_on": "[{\"job_id\": \"job-a\", \"kind\": \"review\"}]",
+      "episode": 1,
+      "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+    },
+    "history": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "opened_at": "2026-09-02T00:00:00.000Z",
+        "incarnation": "correction-0",
+        "ended_state": null,
+        "ended_revision": null,
+        "ended_at": null
+      }
+    ],
+    "observed": {
+      "claimed_by": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "runtime": {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "runtime_id": "runtime-single-9",
+        "execution_runtime": "destroyed",
+        "cleanup": "retained",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          },
+          "participant": "baton.integrator",
+          "generation": 5
+        }
+      },
+      "activity": {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "bytes_observed": null,
+        "observed_at": null
+      },
+      "output": {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "result_id": "result-attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "disposition": "completed",
+        "manifest_digest": "sha256:33ab1992423459a2a3f9b6314ac5fdfdd4d3bfa6d279258c2be7f44af6f276e8",
+        "freeze_operation_id": "output.freeze:c908654c091f51a548213a3086603facf10d03b404ccb7390431556effb4fd08",
+        "frozen_at": "2026-09-02T00:00:00.000Z",
+        "artifacts": [
+          {
+            "output_name": "findings",
+            "artifact_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0:findings",
+            "media_type": "application/octet-stream",
+            "bytes": 420,
+            "content_digest": "sha256:679de7974a1c208219c0ba9b996d9c2bb005ad9fff894e40d0389b767b2a4426",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/custody/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/findings"
+          }
+        ]
+      },
+      "start_failure": null,
+      "preparation_failure": null,
+      "exchange": null,
+      "integration": {
+        "schema": "baton.v12.integration-stage-observation/1",
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          },
+          "participant": "baton.integrator",
+          "generation": 5
+        },
+        "state": "completed",
+        "completion": {
+          "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "source_proposal_id": "integration-driver.proposal:43de69a24f9cbacfa33da5a8d416a23894f31a437cb2a912c68f3b1b21a39d85",
+          "result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "integration_receipt_id": "managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "entry_id": "managed-entry:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "lease_id": "managed-lease:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "fence": 1,
+          "handoff_operation_id": "managed-integration-handoff:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "to_route": "rview",
+          "runtime_id": "runtime-single-9",
+          "execution_runtime": "destroyed"
+        }
+      }
+    },
+    "receipts": {
+      "admit": {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "act": "admit",
+        "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "performed",
+        "detail": "{\"canonical_state\": \"committed\", \"refusal\": null, \"result\": {\"expires_at\": \"2026-09-02T00:02:00.000Z\", \"issued_at\": \"2026-09-02T00:00:00.000Z\", \"offer_id\": \"offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\", \"participant\": \"baton.integrator\", \"runtime_attempt_id\": \"attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\", \"verifier\": \"sha256:6449c898382e14ce5d5063a046de63a2cd64ee167209215213d97597cd200509\", \"work_id\": \"0000000a-W1\"}, \"settled_at\": \"2026-09-02T00:00:00.000Z\"}",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "incarnation": "correction-0"
+      },
+      "claim": {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "act": "claim",
+        "operation_id": "offer.settle:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "performed",
+        "detail": "{\"canonical_state\": \"committed\", \"refusal\": null, \"result\": {\"assignment\": {\"generation\": 5, \"participant\": \"baton.integrator\", \"work_ref\": {\"authority_uuid\": \"0000000a000000000000000000000000\", \"work_id\": \"0000000a-W1\"}}, \"claim_event\": 11, \"decision\": {\"effective_scope\": \"scope:deployment\", \"endpoint\": \"baton.integrator\", \"grant\": \"direct\", \"policy_generation\": 13, \"principal\": \"principal:baton.integrator\", \"role\": \"integration\"}, \"offer_id\": \"offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\", \"state\": \"claimed\"}, \"settled_at\": \"2026-09-02T00:00:00.000Z\"}",
+        "recorded_at": "2026-09-02T00:00:00.000Z",
+        "incarnation": "correction-0"
+      }
+    },
+    "ending": null,
+    "managed_failure": null,
+    "state": "completed"
+  },
+  "apply": {
+    "launch": {
+      "contract": "v12-assignment-1",
+      "job_execution": {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "execution_limits": {
+          "boundaries": {
+            "host_verification": {
+              "default_seconds": 300,
+              "origin": "compatibility",
+              "seconds": 300,
+              "setting": "verification_command_seconds"
+            },
+            "integration_verification": {
+              "default_seconds": 1800,
+              "origin": "compatibility",
+              "seconds": 1800,
+              "setting": "verification_command_seconds"
+            },
+            "ordinary_verification": {
+              "default_seconds": 900,
+              "origin": "compatibility",
+              "seconds": 900,
+              "setting": "verification_command_seconds"
+            },
+            "provider_turn": {
+              "default_seconds": 3600,
+              "origin": "compatibility",
+              "seconds": 3600,
+              "setting": "provider_turn_seconds"
+            }
+          },
+          "compatibility_generation": 1,
+          "requested": {},
+          "scope": "per-invocation",
+          "units": "seconds"
+        },
+        "execution_limits_digest": "sha256:8c3d02c02ab9d9d744de17658018d7c00eceea8428419f8b9ae3ca52e27fb099",
+        "job_id": "job-a",
+        "job_input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+        "job_policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "runtime_input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+        "runtime_policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "role": "integration",
+      "schema": "baton.worker-launch/3",
+      "session": "session-ee8db3a0bb6bc0d87067886b",
+      "transport": "baton.worker-exchange/1"
+    },
+    "mounts": [
+      {
+        "type": "bind",
+        "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/inputs",
+        "target": "/input",
+        "readonly": true
+      },
+      {
+        "type": "bind",
+        "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/workspace",
+        "target": "/output",
+        "readonly": false
+      },
+      {
+        "type": "bind",
+        "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/credentials/credentials/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/claude",
+        "target": "/run/baton/credentials/claude",
+        "readonly": true
+      },
+      {
+        "type": "bind",
+        "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/launch.json",
+        "target": "/run/baton/launch.json",
+        "readonly": true
+      },
+      {
+        "type": "bind",
+        "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/command",
+        "target": "/run/baton/exchange/command",
+        "readonly": true
+      },
+      {
+        "type": "bind",
+        "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/events",
+        "target": "/run/baton/exchange/events",
+        "readonly": false
+      },
+      {
+        "type": "bind",
+        "source": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/state/managed-results/2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/apply-input",
+        "target": "/input/source",
+        "readonly": true
+      }
+    ],
+    "manifest": {
+      "assignment_ref": {
+        "generation": 5,
+        "participant": "baton.integrator",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "completion_manifest_digest": "sha256:cc6cf2151d887c6c36c634e2bdf5a7125b9c709b6bc251f6cd01469317a9622e",
+      "created_at": "2026-09-02T00:00:00.000Z",
+      "disposition": "completed",
+      "evidence": [],
+      "extensions": {},
+      "freeze_operation": {
+        "operation_id": "output.freeze:c908654c091f51a548213a3086603facf10d03b404ccb7390431556effb4fd08",
+        "signature_digest": "sha256:1d385828e1276eea247efc4214c56bee9a04fef957ddd6e747b7f8acfd7b9470"
+      },
+      "input_manifest_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+      "manager_observed_at": "2026-09-02T00:00:00.000Z",
+      "manifest_digest": "sha256:33ab1992423459a2a3f9b6314ac5fdfdd4d3bfa6d279258c2be7f44af6f276e8",
+      "manifest_id": "result-attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "outputs": [
+        {
+          "artifact": {
+            "artifact_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0:findings",
+            "bytes": 420,
+            "content_digest": "sha256:679de7974a1c208219c0ba9b996d9c2bb005ad9fff894e40d0389b767b2a4426",
+            "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/custody/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/findings",
+            "media_type": "application/octet-stream"
+          },
+          "content_manifest": {
+            "entries": [
+              {
+                "bytes": 420,
+                "content_digest": "sha256:4894c53b51791c823713a519d3e782e436d183dc183e1a1b9c4a2493fa0cab49",
+                "path": "managed-apply.json"
+              }
+            ],
+            "entry_count": 1,
+            "total_bytes": 420,
+            "tree_digest": "sha256:679de7974a1c208219c0ba9b996d9c2bb005ad9fff894e40d0389b767b2a4426"
+          },
+          "name": "findings",
+          "result_metadata": {},
+          "status": "present",
+          "type": "directory-result"
+        },
+        {
+          "artifact": null,
+          "content_manifest": null,
+          "name": "logs",
+          "result_metadata": {},
+          "status": "missing-optional",
+          "type": "directory-result"
+        },
+        {
+          "artifact": null,
+          "content_manifest": null,
+          "name": "proposal",
+          "result_metadata": {},
+          "status": "missing-optional",
+          "type": "git-change-proposal"
+        },
+        {
+          "artifact": null,
+          "content_manifest": null,
+          "name": "provider-context-receipt",
+          "result_metadata": {},
+          "status": "missing-optional",
+          "type": "directory-result"
+        }
+      ],
+      "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "result_id": "result-attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "schema": "baton.worker-manifest/result",
+      "version": {
+        "major": 1,
+        "minor": 0
+      }
+    },
+    "receipt_path_exists": false
+  },
+  "publication": {
+    "publication_id": "publication:sha256:7893dc7dcaa8e67973805da771c1105a49822baa60390d99b902283c97a2b9d5",
+    "operation_id": "result.managed:publication:sha256:7893dc7dcaa8e67973805da771c1105a49822baa60390d99b902283c97a2b9d5",
+    "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "phase": "apply",
+    "canonical_target_id": "target-1",
+    "entry_id": "managed-entry:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "lease_id": "managed-lease:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "fence": 1,
+    "admitted_old_revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+    "imported_revision": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+    "content_digest": "sha256:33ab1992423459a2a3f9b6314ac5fdfdd4d3bfa6d279258c2be7f44af6f276e8",
+    "derived_proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "settlement": {
+      "imported_paths": [],
+      "verification": {
+        "candidate": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+        "command": [
+          "python3",
+          "harness.py"
+        ],
+        "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+        "request_digest": "sha256:5529fd1a0550759ed60a389e409a9096dbd46a44647923291167331ef5f63d10",
+        "schema": "baton.v12.managed-apply-report/1",
+        "seconds": 300,
+        "status": 0,
+        "tag": null,
+        "tree": "e09ce7780adf98089bca406002bee5f152c99cf7",
+        "unchanged": true
+      }
+    },
+    "state": "settled",
+    "recorded_at": "2026-09-02T00:00:00.000Z"
+  },
+  "publication_receipt": {
+    "object": "45f9532ee418f4360f8126f8713ba2623ae9067a",
+    "reference": "refs/baton/integration/publications/4bc40689732d96ae9d99204c9dc1619a31118cd57569074a01b2fecf06fea7dc",
+    "document": {
+      "apply": {
+        "result": {
+          "assignment": {
+            "generation": 5,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "canonical_target_id": "target-1",
+          "collected": {
+            "disposition": "completed",
+            "manifest_digest": "sha256:33ab1992423459a2a3f9b6314ac5fdfdd4d3bfa6d279258c2be7f44af6f276e8",
+            "result_id": "result-attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+          },
+          "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "phase": "apply",
+          "report": {
+            "completed": [
+              {
+                "name": "post-import",
+                "status": 0
+              }
+            ],
+            "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "kind": "measured",
+            "not_run": [],
+            "phase": "apply",
+            "schema": "baton.v12.managed-integration-report/1",
+            "status": 0,
+            "tag": null
+          },
+          "schema": "baton.v12.managed-integration-result/1"
+        },
+        "task": {
+          "assignment": {
+            "generation": 5,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "canonical_target_id": "target-1",
+          "commands": [
+            "post-import"
+          ],
+          "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "execution_limits": {
+            "boundaries": {
+              "host_verification": {
+                "default_seconds": 300,
+                "origin": "compatibility",
+                "seconds": 300,
+                "setting": "verification_command_seconds"
+              },
+              "integration_verification": {
+                "default_seconds": 1800,
+                "origin": "compatibility",
+                "seconds": 1800,
+                "setting": "verification_command_seconds"
+              },
+              "ordinary_verification": {
+                "default_seconds": 900,
+                "origin": "compatibility",
+                "seconds": 900,
+                "setting": "verification_command_seconds"
+              },
+              "provider_turn": {
+                "default_seconds": 3600,
+                "origin": "compatibility",
+                "seconds": 3600,
+                "setting": "provider_turn_seconds"
+              }
+            },
+            "compatibility_generation": 1,
+            "requested": {},
+            "scope": "per-invocation",
+            "units": "seconds"
+          },
+          "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+          "input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "parent": {
+            "collected_digest": "sha256:99c99d2df3dd9535836915b5f778a0081bcaf85ac2bac302fe921aff95e89e5e",
+            "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+          },
+          "phase": "apply",
+          "schema": "baton.v12.managed-integration-task/1",
+          "task_digest": "sha256:3d0ee84b4655f94eff4858e087d353ff5fac40d8d2e3ecb00dfc4b8f4e116e37"
+        }
+      },
+      "authorization": {
+        "approved": true,
+        "canonical_target_id": "target-1",
+        "content_digest": "sha256:33ab1992423459a2a3f9b6314ac5fdfdd4d3bfa6d279258c2be7f44af6f276e8",
+        "derived_proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "derived_result_digest": "sha256:23407790b8b1bd72502479f087e520f07be2baf2eb96c4906c7479f01dacaf4b",
+        "derived_result_id": "derived-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "schema": "baton.v12.managed-authorization/1"
+      },
+      "entry_id": "managed-entry:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "exclusion": {
+        "assignment": {
+          "generation": 5,
+          "participant": "baton.integrator",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "content_digest": "sha256:33ab1992423459a2a3f9b6314ac5fdfdd4d3bfa6d279258c2be7f44af6f276e8",
+        "excluded": true,
+        "runtime_id": "runtime-single-9",
+        "schema": "baton.v12.managed-exclusion/1",
+        "start_operation_id": "runtime.start:66b7ec2c5054540d889e49670dcb04d19f1d1dc7f60796776ab8204afe92e081"
+      },
+      "fence": 1,
+      "lease_id": "managed-lease:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "preparation": {
+        "result": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            }
+          },
+          "canonical_target_id": "target-1",
+          "collected": {
+            "disposition": "completed",
+            "manifest_digest": "sha256:99c99d2df3dd9535836915b5f778a0081bcaf85ac2bac302fe921aff95e89e5e",
+            "result_id": "result-prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+          },
+          "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "phase": "prepare",
+          "report": {
+            "completed": [
+              {
+                "name": "combined",
+                "status": 0
+              },
+              {
+                "name": "base",
+                "status": 1
+              },
+              {
+                "name": "isolated",
+                "status": 0
+              }
+            ],
+            "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+            "kind": "measured",
+            "not_run": [],
+            "phase": "prepare",
+            "schema": "baton.v12.managed-integration-report/1",
+            "status": 1,
+            "tag": null
+          },
+          "schema": "baton.v12.managed-integration-result/1"
+        },
+        "task": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            }
+          },
+          "canonical_target_id": "target-1",
+          "commands": [
+            "combined",
+            "base",
+            "isolated"
+          ],
+          "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "execution_limits": {
+            "boundaries": {
+              "host_verification": {
+                "default_seconds": 300,
+                "origin": "compatibility",
+                "seconds": 300,
+                "setting": "verification_command_seconds"
+              },
+              "integration_verification": {
+                "default_seconds": 1800,
+                "origin": "compatibility",
+                "seconds": 1800,
+                "setting": "verification_command_seconds"
+              },
+              "ordinary_verification": {
+                "default_seconds": 900,
+                "origin": "compatibility",
+                "seconds": 900,
+                "setting": "verification_command_seconds"
+              },
+              "provider_turn": {
+                "default_seconds": 3600,
+                "origin": "compatibility",
+                "seconds": 3600,
+                "setting": "provider_turn_seconds"
+              }
+            },
+            "compatibility_generation": 1,
+            "requested": {},
+            "scope": "per-invocation",
+            "units": "seconds"
+          },
+          "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+          "input_digest": "sha256:18e8180abfd4786cac886ec40cf4d89ec4031e5b6b152899497ebad80f000282",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "parent": null,
+          "phase": "prepare",
+          "schema": "baton.v12.managed-integration-task/1",
+          "task_digest": "sha256:35a801d12e0fd8fe0b595d78304e2f33ec542e28727cec3f703c8a443610e9ce"
+        }
+      },
+      "publication": {
+        "admitted_old_revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+        "canonical_target_id": "target-1",
+        "content_digest": "sha256:33ab1992423459a2a3f9b6314ac5fdfdd4d3bfa6d279258c2be7f44af6f276e8",
+        "derived_proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "imported_revision": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+        "publication_id": "publication:sha256:7893dc7dcaa8e67973805da771c1105a49822baa60390d99b902283c97a2b9d5"
+      },
+      "reference": "refs/heads/main",
+      "repository": {
+        "device": 66306,
+        "git_common_dir": "/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/target.git",
+        "inode": 48106485
+      },
+      "schema": "baton.v12.local-target-receipt/1"
+    }
+  },
+  "judgments": {
+    "verification": {
+      "receipt_id": "judgment-5507152236993adc0f182cb31774729b7bc7245f25adee83d3f94a102be1304a",
+      "kind": "verification",
+      "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "actor": "baton.verifier",
+      "disposition": "passed",
+      "candidate_digest": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+      "target": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+      "policy_generation": null,
+      "recorded_at": "2026-09-16T00:48:37.098Z",
+      "decision": {
+        "endpoint": "baton.verifier",
+        "principal": "principal:baton.verifier",
+        "effective_scope": "scope:deployment",
+        "role": "verify",
+        "grant": "direct",
+        "policy_generation": 13
+      }
+    },
+    "review": {
+      "receipt_id": "judgment-8cb7b0013334c0bf6c6441b4cf611a92939d7e8bd4cfa64d700f551dbf2fd945",
+      "kind": "review",
+      "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "actor": "baton.approver-review",
+      "disposition": "accepted",
+      "candidate_digest": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+      "target": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+      "policy_generation": null,
+      "recorded_at": "2026-09-16T00:48:37.099Z",
+      "decision": {
+        "endpoint": "baton.approver-review",
+        "principal": "principal:baton.approver-review",
+        "effective_scope": "scope:deployment",
+        "role": "review",
+        "grant": "direct",
+        "policy_generation": 13
+      }
+    },
+    "approval": {
+      "receipt_id": "judgment-9ce0b1784f059e2f1d19f4067a34c2fb848d740db98df4d937ec324ece94411c",
+      "kind": "approval",
+      "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "actor": "baton.approver",
+      "disposition": "approved",
+      "candidate_digest": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+      "target": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+      "policy_generation": 13,
+      "recorded_at": "2026-09-16T00:48:37.100Z",
+      "decision": {
+        "endpoint": "baton.approver",
+        "principal": "principal:baton.approver",
+        "effective_scope": "scope:deployment",
+        "role": "approve",
+        "grant": "direct",
+        "policy_generation": 13
+      }
+    }
+  },
+  "schema": "baton.v12.correction-restart-trace/1",
+  "scheduler": {
+    "schema": "baton.v12.scheduler-trace/1",
+    "scenario": {
+      "schema": "baton.v12.scheduler-trace-scenario/1",
+      "name": "useful-correction",
+      "jobs": [
+        {
+          "job_id": "job-a",
+          "input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+          "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "test_scope": [
+            "v12/python/tests/job_manager"
+          ],
+          "terminal_policy": "report-and-hold",
+          "stages": [
+            {
+              "kind": "implementation",
+              "work_id": "0000000a-W1",
+              "profile_name": "reference",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "depends_on": []
+            },
+            {
+              "kind": "review",
+              "work_id": "0000000a-W1",
+              "profile_name": "reference",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "depends_on": [
+                {
+                  "job_id": "job-a",
+                  "kind": "implementation"
+                }
+              ]
+            },
+            {
+              "kind": "integration",
+              "work_id": "0000000a-W1",
+              "profile_name": "reference",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "depends_on": [
+                {
+                  "job_id": "job-a",
+                  "kind": "review"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "workers": [],
+      "ticks": 100,
+      "reopen_at": null,
+      "order": [],
+      "completions": {},
+      "resolved_principals": {},
+      "note": {
+        "provider": "deterministic local process",
+        "engine": "simulated OCI",
+        "boundary": "C1 useful correction; no reopen"
+      }
+    },
+    "scenario_digest": "sha256:65d6216281b1e06ec26346218e7f8522a2e7a516a6aabf3d36318058f8bf58d2",
+    "environment": {
+      "python": "3.13.7",
+      "implementation": "CPython",
+      "jsonschema_resolved": "4.26.0",
+      "jsonschema_pinned": "4.26.0",
+      "jsonschema_conformant": true,
+      "unobserved_fields": [
+        "runtime_id",
+        "session_id"
+      ],
+      "sources": {
+        "v12/python/src/baton_v12/job_manager/scheduler.py": "sha256:4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+        "v12/python/src/baton_v12/job_manager/projection.py": "sha256:f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+        "v12/python/src/baton_v12/job_manager/manager.py": "sha256:f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+        "v12/python/src/baton_v12/job_manager/submission.py": "sha256:204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1",
+        "v12/python/tests/job_manager/fixtures.py": "sha256:439a21f71a859bd4aa00092aa6bc8018d6c614825acd0a886c1e0853f91fc434",
+        "v12/python/tests/job_manager/test_scheduling.py": "sha256:d61e968e11dd6bd8904631b577f25ceafc9e231b811294ea7f81ae681e88b03e",
+        "v12/python/tests/tools/scheduler_trace.py": "sha256:fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+        "v12/python/tests/tools/test_scheduler_trace.py": "sha256:a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+        "v12/python/tools/stage_execution.py": "sha256:34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+        "v12/python/tools/single_worker.py": "sha256:6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+        "v12/python/tests/tools/test_stage_execution.py": "sha256:86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+        "v12/python/src/baton_v12/worker_manager/attempts.py": "sha256:1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+        "v12/python/src/baton_v12/worker_manager/review_cycles.py": "sha256:0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b"
+      }
+    },
+    "records": [
+      {
+        "tick": 1,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:1198bca9284aab642e43e2f79a0d7d7812ff49502af2547c05a5b21e8d40f610",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 2,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:c147ef62430eab4c595d70f48b3a0ebfb71a54d618eefa7d8daf9b7f4e2de831",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 3,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:ec0e326523d41fd319cd09496650137558be7f5a7a555ac0f25c0400d474980e",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 4,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:0a0d5bed6349274878e3c5e1c3644e5b2dd0a3e5f92f08e8de62207cead43e93",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 5,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:4f45a143a843c46b53715663a58e370b771d0f242ca72179b2de9e8c1dbe351d",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 6,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:4e142c122cddc868ebeef752454e413e397b13c4bcda38c5d07de21ce3411024",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 7,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:3a282ecb98c49da67633f44a4926705f7b2059385c17762239a6cfdc31a4017c",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 8,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:0f2fd30ca9c56dc90dec00c3f9ed53ec828d361d75743d71e8475078e1aa25b2",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 9,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:b91a565c6e09d28b656b07a66f89d0eef63c21f70edf2aaaf9dcb0fe9b06d7f1",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 10,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:44ab347a778db2470d33de47cc7514e52f188a021c7bf498b7caf34489fbc81e",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 11,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:d1c0dc4e2204d65e777948b30a3133189f82bfc7926402eef9c402d2abcc1904",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 12,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:35f3b4b0e2ff9e55316c20596e432312727e593d7a2b3e56df12f4ee0e04dab4",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 13,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:937c52ac229f0ab3970781cead79c29ba040db84206b27e27e7069e0eee41d3b",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 14,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 15,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 16,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 17,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 18,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 19,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:2b29af9769dd205ed8780c306df1e8210791618a6143613d3da035fee184fb38",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 20,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:050962a8c6f044bd089f384665e640a818112a7543a3d96c76e92909f3858099",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 21,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:dbedfaa34e5dd32feb78f83ed1c8eba567c062996729a3a53ba2bf309bb7c94b",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 22,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:845616a841f296d3518f64ebe56223e15c365f98df5111694ae3749b12a959cd",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 23,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:e65215a28ba47fd90e52f2f547a9177dc60e6a2769ed5fa3f651d2996ef349c0",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      }
+    ],
+    "authorization_references": {},
+    "assignment_references": {},
+    "result_references": {},
+    "gaps": []
+  },
+  "initial": {
+    "content": {
+      "scale.py": {
+        "text": "def scale(value):\n    return value * 2\n",
+        "digest": "sha256:83827dc5504d80c34c6cb9f9a9aabf7153836960493c7f71413bc9ea88d20f3a"
+      },
+      "harness.py": {
+        "text": "from scale import scale\nassert scale(7) == 14\nassert scale(-2) == -4\nprint('verified multiplier 2')\n",
+        "digest": "sha256:a7839d701bf4784ea5ace235fed46343b47b0e9854198878aa53bd192fa95473"
+      }
+    },
+    "binding": {
+      "argv_digest": "sha256:1be122edcaf38548761ec436468854bd4578e75feab9b623b40747a219eeb86d",
+      "argv_policy_digest": "sha256:19ddb1ba068487202f1d80c28b1dc68a0760f13cc53f7ae8336459e05de0f167",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "cli_build": "deterministic-claude-layout",
+      "context_id": "context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a",
+      "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "delivery_digest": "sha256:d0d5efca145bebbbda2f6d3936a32639315c479b5c60f678b3ccf1ce10ad5643",
+      "environment_policy_digest": "sha256:22c5b6d5c9d853dedcdabdb9da554de43300f6a7243f8d822dcabdaa9cc9ab69",
+      "generation": 0,
+      "generation_digest": null,
+      "invocation_binding_digest": "sha256:fa2a66c125e4b825dd847b2bcc7308acb6429412083c62b60ef38281e2f75072",
+      "invocation_id": "context-invocation-6650908154d1b4eaa56b70c5e3242b30858a9b32f233c627a4a18232e70102b7",
+      "mode": "open",
+      "model": "deterministic-model",
+      "profile_digest": "sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c",
+      "prompt_digest": "sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba",
+      "reported_model": "deterministic-model",
+      "schema": "baton.provider-context-delivery/1",
+      "task_digest": "sha256:3d0ee84b4655f94eff4858e087d353ff5fac40d8d2e3ecb00dfc4b8f4e116e37",
+      "use_id": "context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103"
+    },
+    "receipt_bytes": "{\"argv_digest\":\"sha256:1be122edcaf38548761ec436468854bd4578e75feab9b623b40747a219eeb86d\",\"attempt_id\":\"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571\",\"cli_build\":\"deterministic-claude-layout\",\"complete\":true,\"context_id\":\"context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a\",\"conversation_id\":\"2fdb09ab-8452-575a-a293-0726abeac436\",\"delivery_digest\":\"sha256:d0d5efca145bebbbda2f6d3936a32639315c479b5c60f678b3ccf1ce10ad5643\",\"input_digest\":\"sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983\",\"invocation_binding_digest\":\"sha256:fa2a66c125e4b825dd847b2bcc7308acb6429412083c62b60ef38281e2f75072\",\"invocation_id\":\"context-invocation-6650908154d1b4eaa56b70c5e3242b30858a9b32f233c627a4a18232e70102b7\",\"mode\":\"open\",\"model\":\"deterministic-model\",\"observed_conversation_id\":\"2fdb09ab-8452-575a-a293-0726abeac436\",\"observed_model\":\"deterministic-model\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"profile_digest\":\"sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c\",\"prompt_digest\":\"sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba\",\"schema\":\"baton.provider-context-receipt/2\",\"status\":0,\"task_digest\":\"sha256:3d0ee84b4655f94eff4858e087d353ff5fac40d8d2e3ecb00dfc4b8f4e116e37\",\"terminal\":\"success\",\"use_id\":\"context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103\"}",
+    "receipt": {
+      "argv_digest": "sha256:1be122edcaf38548761ec436468854bd4578e75feab9b623b40747a219eeb86d",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "cli_build": "deterministic-claude-layout",
+      "complete": true,
+      "context_id": "context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a",
+      "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "delivery_digest": "sha256:d0d5efca145bebbbda2f6d3936a32639315c479b5c60f678b3ccf1ce10ad5643",
+      "input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+      "invocation_binding_digest": "sha256:fa2a66c125e4b825dd847b2bcc7308acb6429412083c62b60ef38281e2f75072",
+      "invocation_id": "context-invocation-6650908154d1b4eaa56b70c5e3242b30858a9b32f233c627a4a18232e70102b7",
+      "mode": "open",
+      "model": "deterministic-model",
+      "observed_conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "observed_model": "deterministic-model",
+      "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "profile_digest": "sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c",
+      "prompt_digest": "sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba",
+      "schema": "baton.provider-context-receipt/2",
+      "status": 0,
+      "task_digest": "sha256:3d0ee84b4655f94eff4858e087d353ff5fac40d8d2e3ecb00dfc4b8f4e116e37",
+      "terminal": "success",
+      "use_id": "context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103"
+    },
+    "receipt_digest": "sha256:5c06b6c6d419ce10493d6a94b2013ce7efd6ac7aa96d2c7d2feaf10d2b3fb2a5",
+    "receipt_entry": {
+      "bytes": 1437,
+      "content_digest": "sha256:5c06b6c6d419ce10493d6a94b2013ce7efd6ac7aa96d2c7d2feaf10d2b3fb2a5",
+      "path": "receipt.json"
+    },
+    "assignment": {
+      "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "participant": "baton.claude",
+      "generation": 1,
+      "principal": "principal:baton.claude",
+      "effective_scope": "scope:deployment"
+    },
+    "settlement": {
+      "stage_id": "job-a/implementation",
+      "job_id": "job-a",
+      "kind": "implementation",
+      "episode": 1,
+      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "work_id": "0000000a-W1",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      },
+      "intent": "ending.intent:job-a/implementation:1",
+      "evidence": {
+        "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "manifest_digest": "sha256:534d83dc74430f70dfd845cf944467a4c04d6d3a8660a39063eff507dd9d85dd",
+        "receipt_digest": "sha256:220c29d9ccab0bca31c29ec09acb233e5684bf498f1bf0e26f30c71d76a705cc",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "gate_discharge": "runtime-quiescence:1"
+      }
+    },
+    "checkpoint": {
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "revision": 1,
+      "profile_name": "git",
+      "state": "frozen",
+      "evidence": {
+        "base": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+        "head": "ec200d8236104e34fdb05844ab3fa7aef5b6cacd",
+        "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+        "paths": [
+          "harness.py",
+          "scale.py"
+        ],
+        "profile": "git",
+        "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+        "tree": "398848d3f6911d6a4c04e613cb02268e8e4f87f1"
+      },
+      "checkpoint_digest": "sha256:da6e1bf7115b29a250faaa7f539401826199afc1e96098470aa42fd271ea3717",
+      "base_object": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+      "head_object": "ec200d8236104e34fdb05844ab3fa7aef5b6cacd",
+      "tree_object": "398848d3f6911d6a4c04e613cb02268e8e4f87f1",
+      "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+      "reference_name": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+      "fence": {
+        "fenced": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:1",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "authority_operation_id": "authority.finalize-quiescent:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+          "decision": "finalized",
+          "reason": "review checkpoint writer completed",
+          "runtime_id": "runtime-single-1",
+          "worker_disposition": "completed"
+        }
+      },
+      "fence_digest": "sha256:8424ff63e6239681629226cfa56e84c9c519b14489da36f571375ae64d454fe9",
+      "prepared_at": "2026-09-02T00:00:00.000Z",
+      "frozen_at": "2026-09-02T00:00:00.000Z"
+    }
+  },
+  "revised": {
+    "content": {
+      "scale.py": {
+        "text": "def scale(value):\n    return value * 3\n",
+        "digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81"
+      },
+      "harness.py": {
+        "text": "from scale import scale\nassert scale(7) == 21\nassert scale(-2) == -6\nprint('verified multiplier 3')\n",
+        "digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd"
+      }
+    },
+    "binding": {
+      "argv_digest": "sha256:eb7b480f06830b3350f7210fcb1152bbb054237bbe173219008e046faeabf955",
+      "argv_policy_digest": "sha256:19ddb1ba068487202f1d80c28b1dc68a0760f13cc53f7ae8336459e05de0f167",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "cli_build": "deterministic-claude-layout",
+      "context_id": "context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a",
+      "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "delivery_digest": "sha256:71a8aaf7a130ac3a2711c9247e145d3571f28062fa6d1bcd22436cfa665a262b",
+      "environment_policy_digest": "sha256:22c5b6d5c9d853dedcdabdb9da554de43300f6a7243f8d822dcabdaa9cc9ab69",
+      "generation": 1,
+      "generation_digest": "sha256:bc52dc77a6e538ff336e062062ab8fb0b90f83aa2a8036c6e23a88548f7229ad",
+      "invocation_binding_digest": "sha256:a7d296c70a3d48a63656bd8ce4b9d707f37355b8a0bb2c2233d8a9e0cf844aac",
+      "invocation_id": "context-invocation-2e2fcc950492bd28c04cf088bd78eca6522c02abacd8bd378ca00c5459309763",
+      "mode": "restore",
+      "model": "deterministic-model",
+      "profile_digest": "sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c",
+      "prompt_digest": "sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba",
+      "reported_model": "deterministic-model",
+      "schema": "baton.provider-context-delivery/1",
+      "task_digest": "sha256:3d0ee84b4655f94eff4858e087d353ff5fac40d8d2e3ecb00dfc4b8f4e116e37",
+      "use_id": "context-use-94ea913b150b0d0b9a4f7b7580709ded6546a34f4d632444dc8d1d09f55b77fb"
+    },
+    "receipt_bytes": "{\"argv_digest\":\"sha256:eb7b480f06830b3350f7210fcb1152bbb054237bbe173219008e046faeabf955\",\"attempt_id\":\"attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\"cli_build\":\"deterministic-claude-layout\",\"complete\":true,\"context_id\":\"context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a\",\"conversation_id\":\"2fdb09ab-8452-575a-a293-0726abeac436\",\"delivery_digest\":\"sha256:71a8aaf7a130ac3a2711c9247e145d3571f28062fa6d1bcd22436cfa665a262b\",\"input_digest\":\"sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983\",\"invocation_binding_digest\":\"sha256:a7d296c70a3d48a63656bd8ce4b9d707f37355b8a0bb2c2233d8a9e0cf844aac\",\"invocation_id\":\"context-invocation-2e2fcc950492bd28c04cf088bd78eca6522c02abacd8bd378ca00c5459309763\",\"mode\":\"restore\",\"model\":\"deterministic-model\",\"observed_conversation_id\":\"2fdb09ab-8452-575a-a293-0726abeac436\",\"observed_model\":\"deterministic-model\",\"policy_digest\":\"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\"profile_digest\":\"sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c\",\"prompt_digest\":\"sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba\",\"schema\":\"baton.provider-context-receipt/2\",\"status\":0,\"task_digest\":\"sha256:3d0ee84b4655f94eff4858e087d353ff5fac40d8d2e3ecb00dfc4b8f4e116e37\",\"terminal\":\"success\",\"use_id\":\"context-use-94ea913b150b0d0b9a4f7b7580709ded6546a34f4d632444dc8d1d09f55b77fb\"}",
+    "receipt": {
+      "argv_digest": "sha256:eb7b480f06830b3350f7210fcb1152bbb054237bbe173219008e046faeabf955",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "cli_build": "deterministic-claude-layout",
+      "complete": true,
+      "context_id": "context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a",
+      "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "delivery_digest": "sha256:71a8aaf7a130ac3a2711c9247e145d3571f28062fa6d1bcd22436cfa665a262b",
+      "input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+      "invocation_binding_digest": "sha256:a7d296c70a3d48a63656bd8ce4b9d707f37355b8a0bb2c2233d8a9e0cf844aac",
+      "invocation_id": "context-invocation-2e2fcc950492bd28c04cf088bd78eca6522c02abacd8bd378ca00c5459309763",
+      "mode": "restore",
+      "model": "deterministic-model",
+      "observed_conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "observed_model": "deterministic-model",
+      "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "profile_digest": "sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c",
+      "prompt_digest": "sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba",
+      "schema": "baton.provider-context-receipt/2",
+      "status": 0,
+      "task_digest": "sha256:3d0ee84b4655f94eff4858e087d353ff5fac40d8d2e3ecb00dfc4b8f4e116e37",
+      "terminal": "success",
+      "use_id": "context-use-94ea913b150b0d0b9a4f7b7580709ded6546a34f4d632444dc8d1d09f55b77fb"
+    },
+    "receipt_digest": "sha256:1dde05c32b69d9c98fab119154f328dc49e7cad8b84e5adefca952a169bc2b64",
+    "receipt_entry": {
+      "bytes": 1440,
+      "content_digest": "sha256:1dde05c32b69d9c98fab119154f328dc49e7cad8b84e5adefca952a169bc2b64",
+      "path": "receipt.json"
+    },
+    "assignment": {
+      "runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "participant": "baton.claude",
+      "generation": 3,
+      "principal": "principal:baton.claude",
+      "effective_scope": "scope:deployment"
+    },
+    "settlement": {
+      "stage_id": "job-a/implementation",
+      "job_id": "job-a",
+      "kind": "implementation",
+      "episode": 2,
+      "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "work_id": "0000000a-W1",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 3
+      },
+      "intent": "ending.intent:job-a/implementation:2",
+      "evidence": {
+        "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "manifest_digest": "sha256:27eee764e3d2132a4fd89dedb95797401b5f61000665795b43353230a24b47f8",
+        "receipt_digest": "sha256:11c8cc9ab0aa352da187896ae23b638d0a600ee619c89ee6ae8a00bd8b03b7d7",
+        "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+        "gate_discharge": "runtime-quiescence:3"
+      }
+    },
+    "checkpoint": {
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "writer_id": "writer-bd646428cb9b289c405472b6cd59d8031cfe7708ecf4082c875bd6c01aff7534",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "revision": 2,
+      "profile_name": "git",
+      "state": "frozen",
+      "evidence": {
+        "base": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+        "head": "b72ad6525739898c7aaa0b54a51085364a21e789",
+        "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+        "paths": [
+          "harness.py",
+          "scale.py"
+        ],
+        "profile": "git",
+        "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/2",
+        "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+      },
+      "checkpoint_digest": "sha256:5d82b8193aa8c9a0f154689fbde206dc6420d0ff249461c30a42707c9d72c6b2",
+      "base_object": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+      "head_object": "b72ad6525739898c7aaa0b54a51085364a21e789",
+      "tree_object": "e09ce7780adf98089bca406002bee5f152c99cf7",
+      "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+      "reference_name": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/2",
+      "fence": {
+        "fenced": {
+          "assignment": {
+            "generation": 3,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:3",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": {
+            "generation": 3,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "authority_operation_id": "authority.finalize-quiescent:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+          "decision": "finalized",
+          "reason": "review checkpoint writer completed",
+          "runtime_id": "runtime-single-3",
+          "worker_disposition": "completed"
+        }
+      },
+      "fence_digest": "sha256:ee8ee3cbbf5e69d25befda20d70f39bb2633bd768a953c16136e63f3e924048f",
+      "prepared_at": "2026-09-02T00:00:00.000Z",
+      "frozen_at": "2026-09-02T00:00:00.000Z"
+    }
+  },
+  "correction": {
+    "stage_id": "job-a/review",
+    "job_id": "job-a",
+    "kind": "review",
+    "episode": 1,
+    "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "work_id": "0000000a-W1",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.reviewer",
+      "generation": 2
+    },
+    "intent": "ending.intent:job-a/review:1",
+    "evidence": {
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "manifest_digest": "sha256:07bfeb9cf5e70842500f94a37e1190b4141a44c157f7460d782628c092fdbeaf",
+      "receipt_digest": "sha256:faa56abd96276d36eb52e1f9f2af1a4e9608677366ca75256df33e88e1dc7c85",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "gate_discharge": "runtime-quiescence:2",
+      "outcome": "correction",
+      "routed": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a"
+    }
+  },
+  "verdict": {
+    "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a",
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "review_assignment_generation": 2,
+    "reviewer_worker_id": "review-worker",
+    "reviewer_participant": "baton.reviewer",
+    "reviewer_principal": "principal:baton.reviewer",
+    "disposition": "changes-requested",
+    "checkpoint_digest": "sha256:da6e1bf7115b29a250faaa7f539401826199afc1e96098470aa42fd271ea3717",
+    "revision": 1,
+    "base_object": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+    "head_object": "ec200d8236104e34fdb05844ab3fa7aef5b6cacd",
+    "tree_object": "398848d3f6911d6a4c04e613cb02268e8e4f87f1",
+    "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+    "review_result": {
+      "artifacts": [
+        {
+          "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+          "bytes": 162,
+          "content_digest": "sha256:65e320c8e1793be393c6eaf41bc1c0bf929f3b6ab528755316419df32ee3917f",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/findings",
+          "media_type": "application/octet-stream",
+          "output_name": "findings"
+        },
+        {
+          "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs",
+          "bytes": 419,
+          "content_digest": "sha256:2dd1a81e8a8c684b7b3ce3e1637c51ac46a64fec1aa76713fd75a7a7b8ccfd21",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/logs",
+          "media_type": "application/octet-stream",
+          "output_name": "logs"
+        }
+      ],
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "disposition": "completed",
+      "freeze_operation_id": "output.freeze:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+      "frozen_at": "2026-09-02T00:00:00.000Z",
+      "manifest_digest": "sha256:07bfeb9cf5e70842500f94a37e1190b4141a44c157f7460d782628c092fdbeaf",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+    },
+    "review_result_digest": "sha256:174264bc55fbae00e3158dca3c11ba0899056795717a222c2244f0039daa4bfb",
+    "review_fence": {
+      "fenced": {
+        "assignment": {
+          "generation": 2,
+          "participant": "baton.reviewer",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "cause": "cancelled",
+        "fenced": true,
+        "gate": "runtime-quiescence:2",
+        "phase": "block"
+      },
+      "intent": {
+        "assignment": {
+          "generation": 2,
+          "participant": "baton.reviewer",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "authority_operation_id": "authority.finalize-quiescent:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+        "decision": "finalized",
+        "reason": "independent checkpoint review completed",
+        "runtime_id": "runtime-single-2",
+        "worker_disposition": "completed"
+      }
+    },
+    "review_fence_digest": "sha256:4c2a752935888d9fc8e9beb670b06ca55569386d425d13f999a497ebd65deaa2",
+    "recorded_at": "2026-09-02T00:00:00.000Z"
+  },
+  "review_assignment": {
+    "runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "participant": "baton.reviewer",
+    "generation": 2,
+    "principal": "principal:baton.reviewer",
+    "effective_scope": "scope:deployment"
+  },
+  "final_counters": {
+    "provider": [
+      {
+        "argv": [
+          "claude",
+          "--print",
+          "--dangerously-skip-permissions",
+          "--output-format",
+          "json",
+          "--model",
+          "deterministic-model",
+          "--session-id",
+          "2fdb09ab-8452-575a-a293-0726abeac436",
+          "Add focused coverage for the composed line.\n\nYou are working in a private copy of the source tree, which is the current working directory. Edit files here directly.\nWhen you are done, the following command will be run from this directory and must pass:\n  python3 harness.py\n"
+        ],
+        "argv_digest": "sha256:1be122edcaf38548761ec436468854bd4578e75feab9b623b40747a219eeb86d",
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+        "invocation_id": "context-invocation-6650908154d1b4eaa56b70c5e3242b30858a9b32f233c627a4a18232e70102b7",
+        "pid": 30,
+        "restored": false,
+        "role": "implementation",
+        "selector": "--session-id",
+        "use_id": "context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103"
+      },
+      {
+        "argv": [
+          "claude",
+          "--print",
+          "--dangerously-skip-permissions",
+          "--output-format",
+          "json",
+          "You are reviewing a change on a read-only source tree at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-attempt-9e96/source. Do not modify anything there, and do not attempt to build, commit or edit it.\n\nThe change was made to satisfy these requirements:\n\nAdd focused coverage for the composed line.\n\nAssess whether the change at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-attempt-9e96/source meets them. Report only checks you actually substantiated by reading the tree; the task names the command\n  python3 harness.py\nbut naming it is not evidence that it passed, and you must not report it as passing unless you ran it yourself.\n\nWhen you are done, write your decision to review-report.json as a JSON object with exactly these three members:\n  \"schema\": \"baton.review-report/1\"\n  \"verdict\": one of accepted, changes-requested, rejected\n  \"findings\": non-empty text explaining the verdict\nWrite nothing else to that path and write no other file.\n"
+        ],
+        "argv_digest": "sha256:759b67ca0294a5d662009caea8cd1da3322c7cc4abc06cfd65a40ade5bb520bf",
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 83,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      },
+      {
+        "argv": [
+          "claude",
+          "--print",
+          "--dangerously-skip-permissions",
+          "--output-format",
+          "json",
+          "--model",
+          "deterministic-model",
+          "--resume",
+          "2fdb09ab-8452-575a-a293-0726abeac436",
+          "Add focused coverage for the composed line.\n\nYou are working in a private copy of the source tree, which is the current working directory. Edit files here directly.\nWhen you are done, the following command will be run from this directory and must pass:\n  python3 harness.py\n"
+        ],
+        "argv_digest": "sha256:eb7b480f06830b3350f7210fcb1152bbb054237bbe173219008e046faeabf955",
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+        "invocation_id": "context-invocation-2e2fcc950492bd28c04cf088bd78eca6522c02abacd8bd378ca00c5459309763",
+        "pid": 104,
+        "restored": true,
+        "role": "implementation",
+        "selector": "--resume",
+        "use_id": "context-use-94ea913b150b0d0b9a4f7b7580709ded6546a34f4d632444dc8d1d09f55b77fb"
+      },
+      {
+        "argv": [
+          "claude",
+          "--print",
+          "--dangerously-skip-permissions",
+          "--output-format",
+          "json",
+          "You are reviewing a change on a read-only source tree at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-attempt-8e00/source. Do not modify anything there, and do not attempt to build, commit or edit it.\n\nThe change was made to satisfy these requirements:\n\nAdd focused coverage for the composed line.\n\nAssess whether the change at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-attempt-8e00/source meets them. Report only checks you actually substantiated by reading the tree; the task names the command\n  python3 harness.py\nbut naming it is not evidence that it passed, and you must not report it as passing unless you ran it yourself.\n\nWhen you are done, write your decision to review-report.json as a JSON object with exactly these three members:\n  \"schema\": \"baton.review-report/1\"\n  \"verdict\": one of accepted, changes-requested, rejected\n  \"findings\": non-empty text explaining the verdict\nWrite nothing else to that path and write no other file.\n"
+        ],
+        "argv_digest": "sha256:c39ae8c09c882b19205be3ad2011d043299abbf3af4bf2e4a28b7b0238a5d2fd",
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 157,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      },
+      {
+        "argv": [
+          "claude",
+          "--print",
+          "--dangerously-skip-permissions",
+          "--output-format",
+          "json",
+          "You are reviewing a change on a read-only source tree at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed/source. Do not modify anything there, and do not attempt to build, commit or edit it.\n\nThe change was made to satisfy these requirements:\n\nJudge the derived candidate: verification. Read /input/judgment.json for the exact result, policy generation and causal evidence. Inspect the read-only source and return the ordinary review report; accept only if this judgment is satisfied.\n\nAssess whether the change at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed/source meets them. Report only checks you actually substantiated by reading the tree; the task names the command\n  python3 harness.py\nbut naming it is not evidence that it passed, and you must not report it as passing unless you ran it yourself.\n\nWhen you are done, write your decision to review-report.json as a JSON object with exactly these three members:\n  \"schema\": \"baton.review-report/1\"\n  \"verdict\": one of accepted, changes-requested, rejected\n  \"findings\": non-empty text explaining the verdict\nWrite nothing else to that path and write no other file.\n"
+        ],
+        "argv_digest": "sha256:78ece65e70344a060712e1627151a20d91ed58f4f25cb247a9b43ae6d3c55c6f",
+        "attempt_id": "judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 253,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      },
+      {
+        "argv": [
+          "claude",
+          "--print",
+          "--dangerously-skip-permissions",
+          "--output-format",
+          "json",
+          "You are reviewing a change on a read-only source tree at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231/source. Do not modify anything there, and do not attempt to build, commit or edit it.\n\nThe change was made to satisfy these requirements:\n\nJudge the derived candidate: review. Read /input/judgment.json for the exact result, policy generation and causal evidence. Inspect the read-only source and return the ordinary review report; accept only if this judgment is satisfied.\n\nAssess whether the change at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231/source meets them. Report only checks you actually substantiated by reading the tree; the task names the command\n  python3 harness.py\nbut naming it is not evidence that it passed, and you must not report it as passing unless you ran it yourself.\n\nWhen you are done, write your decision to review-report.json as a JSON object with exactly these three members:\n  \"schema\": \"baton.review-report/1\"\n  \"verdict\": one of accepted, changes-requested, rejected\n  \"findings\": non-empty text explaining the verdict\nWrite nothing else to that path and write no other file.\n"
+        ],
+        "argv_digest": "sha256:7905d8b2dee114e43a58eb6b835a97f9065e8a736191ff8b5c1e14a3efbc3065",
+        "attempt_id": "judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 263,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      },
+      {
+        "argv": [
+          "claude",
+          "--print",
+          "--dangerously-skip-permissions",
+          "--output-format",
+          "json",
+          "You are reviewing a change on a read-only source tree at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6/source. Do not modify anything there, and do not attempt to build, commit or edit it.\n\nThe change was made to satisfy these requirements:\n\nJudge the derived candidate: approval. Read /input/judgment.json for the exact result, policy generation and causal evidence. Inspect the read-only source and return the ordinary review report; accept only if this judgment is satisfied.\n\nAssess whether the change at /home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/mounted-judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6/source meets them. Report only checks you actually substantiated by reading the tree; the task names the command\n  python3 harness.py\nbut naming it is not evidence that it passed, and you must not report it as passing unless you ran it yourself.\n\nWhen you are done, write your decision to review-report.json as a JSON object with exactly these three members:\n  \"schema\": \"baton.review-report/1\"\n  \"verdict\": one of accepted, changes-requested, rejected\n  \"findings\": non-empty text explaining the verdict\nWrite nothing else to that path and write no other file.\n"
+        ],
+        "argv_digest": "sha256:c41610ae11bafdbdffb4e64760b1e2a6a60ab6d0257edd18de5772bba3db968a",
+        "attempt_id": "judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 273,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      }
+    ],
+    "engine": [
+      {
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "operation_operand": "baton-runtime.start-50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+        "argv": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "baton-runtime.start-50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b",
+          "--interactive",
+          "--cap-drop",
+          "ALL",
+          "--security-opt",
+          "no-new-privileges",
+          "--security-opt",
+          "label=disable",
+          "--user",
+          "65532:65532",
+          "--read-only",
+          "--network",
+          "none",
+          "--pids-limit",
+          "512",
+          "--memory",
+          "2g",
+          "--cpus",
+          "2",
+          "--tmpfs",
+          "/tmp:rw,noexec,nosuid,nodev,size=64m",
+          "--tmpfs",
+          "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+          "--group-add",
+          "1000",
+          "--label",
+          "baton.v12.runtime_attempt_id=attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "--label",
+          "baton.v12.authority_uuid=0000000a000000000000000000000000",
+          "--label",
+          "baton.v12.work_id=0000000a-W1",
+          "--label",
+          "baton.v12.participant=baton.claude",
+          "--label",
+          "baton.v12.generation=1",
+          "--label",
+          "baton.v12.principal=principal:baton.claude",
+          "--label",
+          "baton.v12.effective_scope=scope:deployment",
+          "--label",
+          "baton.v12.profile_digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "--label",
+          "baton.v12.policy_digest=sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "--label",
+          "baton.v12.adapter_digest=sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/inputs,target=/input,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout,target=/output,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/credentials/credentials/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/api,target=/run/baton/credentials/api,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/launch.json,target=/run/baton/launch.json,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/command,target=/run/baton/exchange/command,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/events,target=/run/baton/exchange/events,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/source,target=/input/source,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/private-contexts/context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a/uses/context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103,target=/run/baton/context,readonly=false",
+          "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        ],
+        "argv_digest": "sha256:247d9d4602ac92d12d0c53dae48847e13fd8e9b84b21dfedaba7f9b925d574a7",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.claude",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.claude",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "operation_operand": "baton-runtime.start-61ea11ed46abfdc6ace70e427d011b651e000e2d7ddf3f18bc9c32148e2da483",
+        "argv": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "baton-runtime.start-61ea11ed46abfdc6ace70e427d011b651e000e2d7ddf3f18bc9c32148e2da483",
+          "--interactive",
+          "--cap-drop",
+          "ALL",
+          "--security-opt",
+          "no-new-privileges",
+          "--security-opt",
+          "label=disable",
+          "--user",
+          "65532:65532",
+          "--read-only",
+          "--network",
+          "none",
+          "--pids-limit",
+          "512",
+          "--memory",
+          "2g",
+          "--cpus",
+          "2",
+          "--tmpfs",
+          "/tmp:rw,noexec,nosuid,nodev,size=64m",
+          "--tmpfs",
+          "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+          "--group-add",
+          "1000",
+          "--label",
+          "baton.v12.runtime_attempt_id=attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "--label",
+          "baton.v12.authority_uuid=0000000a000000000000000000000000",
+          "--label",
+          "baton.v12.work_id=0000000a-W1",
+          "--label",
+          "baton.v12.participant=baton.reviewer",
+          "--label",
+          "baton.v12.generation=2",
+          "--label",
+          "baton.v12.principal=principal:baton.reviewer",
+          "--label",
+          "baton.v12.effective_scope=scope:deployment",
+          "--label",
+          "baton.v12.profile_digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "--label",
+          "baton.v12.policy_digest=sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "--label",
+          "baton.v12.adapter_digest=sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/inputs,target=/input,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/workspace,target=/output,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/credentials/credentials/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/api,target=/run/baton/credentials/api,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/launch.json,target=/run/baton/launch.json,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/command,target=/run/baton/exchange/command,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/events,target=/run/baton/exchange/events,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout,target=/input/source,readonly=true",
+          "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        ],
+        "argv_digest": "sha256:0b32b8210e7191baff74ecc0c78f96062e54bc7df7993ba47b144e586f05c016",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.reviewer",
+          "baton.v12.generation": "2",
+          "baton.v12.principal": "principal:baton.reviewer",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "operation_operand": "baton-runtime.start-7bd829dfb7f03c454b6299a557d21f52dfd7c95254b010b24339b30b2b9e203d",
+        "argv": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "baton-runtime.start-7bd829dfb7f03c454b6299a557d21f52dfd7c95254b010b24339b30b2b9e203d",
+          "--interactive",
+          "--cap-drop",
+          "ALL",
+          "--security-opt",
+          "no-new-privileges",
+          "--security-opt",
+          "label=disable",
+          "--user",
+          "65532:65532",
+          "--read-only",
+          "--network",
+          "none",
+          "--pids-limit",
+          "512",
+          "--memory",
+          "2g",
+          "--cpus",
+          "2",
+          "--tmpfs",
+          "/tmp:rw,noexec,nosuid,nodev,size=64m",
+          "--tmpfs",
+          "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+          "--group-add",
+          "1000",
+          "--label",
+          "baton.v12.runtime_attempt_id=attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "--label",
+          "baton.v12.authority_uuid=0000000a000000000000000000000000",
+          "--label",
+          "baton.v12.work_id=0000000a-W1",
+          "--label",
+          "baton.v12.participant=baton.claude",
+          "--label",
+          "baton.v12.generation=3",
+          "--label",
+          "baton.v12.principal=principal:baton.claude",
+          "--label",
+          "baton.v12.effective_scope=scope:deployment",
+          "--label",
+          "baton.v12.profile_digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "--label",
+          "baton.v12.policy_digest=sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "--label",
+          "baton.v12.adapter_digest=sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa/inputs,target=/input,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout,target=/output,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/credentials/credentials/attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa/api,target=/run/baton/credentials/api,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa/launch.json,target=/run/baton/launch.json,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa/command,target=/run/baton/exchange/command,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa/events,target=/run/baton/exchange/events,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/source,target=/input/source,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/private-contexts/context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a/uses/context-use-94ea913b150b0d0b9a4f7b7580709ded6546a34f4d632444dc8d1d09f55b77fb,target=/run/baton/context,readonly=false",
+          "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        ],
+        "argv_digest": "sha256:9b00a52b4909d016bb4e7eada35e9cf9fd2a9bdd33d63d6a86373daed8035d64",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.claude",
+          "baton.v12.generation": "3",
+          "baton.v12.principal": "principal:baton.claude",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "operation_operand": "baton-runtime.start-bb56a53ed26ebf75070245101a2b00e9956f5dc385d113c86c3554bdde20eb69",
+        "argv": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "baton-runtime.start-bb56a53ed26ebf75070245101a2b00e9956f5dc385d113c86c3554bdde20eb69",
+          "--interactive",
+          "--cap-drop",
+          "ALL",
+          "--security-opt",
+          "no-new-privileges",
+          "--security-opt",
+          "label=disable",
+          "--user",
+          "65532:65532",
+          "--read-only",
+          "--network",
+          "none",
+          "--pids-limit",
+          "512",
+          "--memory",
+          "2g",
+          "--cpus",
+          "2",
+          "--tmpfs",
+          "/tmp:rw,noexec,nosuid,nodev,size=64m",
+          "--tmpfs",
+          "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+          "--group-add",
+          "1000",
+          "--label",
+          "baton.v12.runtime_attempt_id=attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "--label",
+          "baton.v12.authority_uuid=0000000a000000000000000000000000",
+          "--label",
+          "baton.v12.work_id=0000000a-W1",
+          "--label",
+          "baton.v12.participant=baton.reviewer",
+          "--label",
+          "baton.v12.generation=4",
+          "--label",
+          "baton.v12.principal=principal:baton.reviewer",
+          "--label",
+          "baton.v12.effective_scope=scope:deployment",
+          "--label",
+          "baton.v12.profile_digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "--label",
+          "baton.v12.policy_digest=sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "--label",
+          "baton.v12.adapter_digest=sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/inputs,target=/input,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/workspace,target=/output,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/credentials/credentials/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/api,target=/run/baton/credentials/api,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/launch.json,target=/run/baton/launch.json,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/command,target=/run/baton/exchange/command,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/events,target=/run/baton/exchange/events,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout,target=/input/source,readonly=true",
+          "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        ],
+        "argv_digest": "sha256:be7ce25ea7e02b8133327edbee666e0ea6e933f23e0c63af30ee44b1e35bac36",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.reviewer",
+          "baton.v12.generation": "4",
+          "baton.v12.principal": "principal:baton.reviewer",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+        "operation_operand": "baton-runtime.start-34c434b9436d24d88de123f3f8720ee21bf0f9916624f9ba07d95b26853a1a3e",
+        "argv": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "baton-runtime.start-34c434b9436d24d88de123f3f8720ee21bf0f9916624f9ba07d95b26853a1a3e",
+          "--interactive",
+          "--cap-drop",
+          "ALL",
+          "--security-opt",
+          "no-new-privileges",
+          "--security-opt",
+          "label=disable",
+          "--user",
+          "65532:65532",
+          "--read-only",
+          "--network",
+          "none",
+          "--pids-limit",
+          "512",
+          "--memory",
+          "2g",
+          "--cpus",
+          "2",
+          "--tmpfs",
+          "/tmp:rw,noexec,nosuid,nodev,size=64m",
+          "--tmpfs",
+          "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+          "--group-add",
+          "1000",
+          "--label",
+          "baton.v12.runtime_attempt_id=prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "--label",
+          "baton.v12.authority_uuid=0000000a000000000000000000000000",
+          "--label",
+          "baton.v12.work_id=0000000a-W47984398722361",
+          "--label",
+          "baton.v12.participant=baton.integrator",
+          "--label",
+          "baton.v12.generation=1",
+          "--label",
+          "baton.v12.principal=principal:baton.integrator",
+          "--label",
+          "baton.v12.effective_scope=scope:deployment",
+          "--label",
+          "baton.v12.profile_digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "--label",
+          "baton.v12.policy_digest=sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "--label",
+          "baton.v12.adapter_digest=sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/inputs,target=/input,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/workspace,target=/output,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/credentials/credentials/prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/claude,target=/run/baton/credentials/claude,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/launch.json,target=/run/baton/launch.json,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/command,target=/run/baton/exchange/command,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/events,target=/run/baton/exchange/events,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/state/integration/integration-bundles/integration-attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0,target=/input/source,readonly=true",
+          "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        ],
+        "argv_digest": "sha256:952135e942f418353291bc357d1a34468a01fa84acd20ec04f1569025bfb6ba0",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W47984398722361",
+          "baton.v12.participant": "baton.integrator",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.integrator",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed",
+        "operation_operand": "baton-runtime.start-bacfe25da74aa6ec5022ff803e58c593d8d1a7de518c22a06e111110db369135",
+        "argv": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "baton-runtime.start-bacfe25da74aa6ec5022ff803e58c593d8d1a7de518c22a06e111110db369135",
+          "--interactive",
+          "--cap-drop",
+          "ALL",
+          "--security-opt",
+          "no-new-privileges",
+          "--security-opt",
+          "label=disable",
+          "--user",
+          "65532:65532",
+          "--read-only",
+          "--network",
+          "none",
+          "--pids-limit",
+          "512",
+          "--memory",
+          "2g",
+          "--cpus",
+          "2",
+          "--tmpfs",
+          "/tmp:rw,noexec,nosuid,nodev,size=64m",
+          "--tmpfs",
+          "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+          "--group-add",
+          "1000",
+          "--label",
+          "baton.v12.runtime_attempt_id=judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed",
+          "--label",
+          "baton.v12.authority_uuid=0000000a000000000000000000000000",
+          "--label",
+          "baton.v12.work_id=0000000a-W3",
+          "--label",
+          "baton.v12.participant=baton.verifier",
+          "--label",
+          "baton.v12.generation=1",
+          "--label",
+          "baton.v12.principal=principal:baton.verifier",
+          "--label",
+          "baton.v12.effective_scope=scope:deployment",
+          "--label",
+          "baton.v12.profile_digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "--label",
+          "baton.v12.policy_digest=sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "--label",
+          "baton.v12.adapter_digest=sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed/inputs,target=/input,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed/workspace,target=/output,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-verification-credential_home/credentials/judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed/api,target=/run/baton/credentials/api,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-verification-launch_home/judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed/launch.json,target=/run/baton/launch.json,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-verification-launch_home/judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed/command,target=/run/baton/exchange/command,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-verification-launch_home/judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed/events,target=/run/baton/exchange/events,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/state/result-judgments/2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/source,target=/input/source,readonly=true",
+          "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        ],
+        "argv_digest": "sha256:475d3edfc7ba2bd79a3d23cd8a6975ef7ffcc09399540b40248f27aeb04f10de",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "judgment-b6b4dfe36edd1c53dd32b59fbb791709f8ec32b56ee0791c5b8756baa13e5fed",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W3",
+          "baton.v12.participant": "baton.verifier",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.verifier",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231",
+        "operation_operand": "baton-runtime.start-d003fb0ff04530c3f98cb4ba61d72c95c7b43e8894ac7ea3220a669d8d7aff76",
+        "argv": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "baton-runtime.start-d003fb0ff04530c3f98cb4ba61d72c95c7b43e8894ac7ea3220a669d8d7aff76",
+          "--interactive",
+          "--cap-drop",
+          "ALL",
+          "--security-opt",
+          "no-new-privileges",
+          "--security-opt",
+          "label=disable",
+          "--user",
+          "65532:65532",
+          "--read-only",
+          "--network",
+          "none",
+          "--pids-limit",
+          "512",
+          "--memory",
+          "2g",
+          "--cpus",
+          "2",
+          "--tmpfs",
+          "/tmp:rw,noexec,nosuid,nodev,size=64m",
+          "--tmpfs",
+          "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+          "--group-add",
+          "1000",
+          "--label",
+          "baton.v12.runtime_attempt_id=judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231",
+          "--label",
+          "baton.v12.authority_uuid=0000000a000000000000000000000000",
+          "--label",
+          "baton.v12.work_id=0000000a-W4",
+          "--label",
+          "baton.v12.participant=baton.approver-review",
+          "--label",
+          "baton.v12.generation=1",
+          "--label",
+          "baton.v12.principal=principal:baton.approver-review",
+          "--label",
+          "baton.v12.effective_scope=scope:deployment",
+          "--label",
+          "baton.v12.profile_digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "--label",
+          "baton.v12.policy_digest=sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "--label",
+          "baton.v12.adapter_digest=sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231/inputs,target=/input,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231/workspace,target=/output,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-review-credential_home/credentials/judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231/api,target=/run/baton/credentials/api,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-review-launch_home/judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231/launch.json,target=/run/baton/launch.json,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-review-launch_home/judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231/command,target=/run/baton/exchange/command,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-review-launch_home/judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231/events,target=/run/baton/exchange/events,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/state/result-judgments/2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/source,target=/input/source,readonly=true",
+          "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        ],
+        "argv_digest": "sha256:b7504e20ada82e511352d68bab65223664f59ab7b048b89e17d5e610058473db",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "judgment-0c4097a86e8cfaf06d208afea4b3fddc8610372defc59b9752587a544d227231",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W4",
+          "baton.v12.participant": "baton.approver-review",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.approver-review",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6",
+        "operation_operand": "baton-runtime.start-ea33bbcc88ca6d3d091d6af2df339e24b8b4805ec0bae50daf49d51dd1a53b80",
+        "argv": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "baton-runtime.start-ea33bbcc88ca6d3d091d6af2df339e24b8b4805ec0bae50daf49d51dd1a53b80",
+          "--interactive",
+          "--cap-drop",
+          "ALL",
+          "--security-opt",
+          "no-new-privileges",
+          "--security-opt",
+          "label=disable",
+          "--user",
+          "65532:65532",
+          "--read-only",
+          "--network",
+          "none",
+          "--pids-limit",
+          "512",
+          "--memory",
+          "2g",
+          "--cpus",
+          "2",
+          "--tmpfs",
+          "/tmp:rw,noexec,nosuid,nodev,size=64m",
+          "--tmpfs",
+          "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+          "--group-add",
+          "1000",
+          "--label",
+          "baton.v12.runtime_attempt_id=judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6",
+          "--label",
+          "baton.v12.authority_uuid=0000000a000000000000000000000000",
+          "--label",
+          "baton.v12.work_id=0000000a-W5",
+          "--label",
+          "baton.v12.participant=baton.approver",
+          "--label",
+          "baton.v12.generation=1",
+          "--label",
+          "baton.v12.principal=principal:baton.approver",
+          "--label",
+          "baton.v12.effective_scope=scope:deployment",
+          "--label",
+          "baton.v12.profile_digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "--label",
+          "baton.v12.policy_digest=sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "--label",
+          "baton.v12.adapter_digest=sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6/inputs,target=/input,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6/workspace,target=/output,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-approval-credential_home/credentials/judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6/api,target=/run/baton/credentials/api,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-approval-launch_home/judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6/launch.json,target=/run/baton/launch.json,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-approval-launch_home/judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6/command,target=/run/baton/exchange/command,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/judgment-approval-launch_home/judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6/events,target=/run/baton/exchange/events,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/state/result-judgments/2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/source,target=/input/source,readonly=true",
+          "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        ],
+        "argv_digest": "sha256:647e1c813e7627ed5be2e27bce9d437b2bdc82c475f9b1738f13072c00f46af4",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "judgment-eec4d952cedef8d7160555f2cfed1d6871e6047e70e33788b525039134f850c6",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W5",
+          "baton.v12.participant": "baton.approver",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.approver",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "operation_operand": "baton-runtime.start-66b7ec2c5054540d889e49670dcb04d19f1d1dc7f60796776ab8204afe92e081",
+        "argv": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "baton-runtime.start-66b7ec2c5054540d889e49670dcb04d19f1d1dc7f60796776ab8204afe92e081",
+          "--interactive",
+          "--cap-drop",
+          "ALL",
+          "--security-opt",
+          "no-new-privileges",
+          "--security-opt",
+          "label=disable",
+          "--user",
+          "65532:65532",
+          "--read-only",
+          "--network",
+          "none",
+          "--pids-limit",
+          "512",
+          "--memory",
+          "2g",
+          "--cpus",
+          "2",
+          "--tmpfs",
+          "/tmp:rw,noexec,nosuid,nodev,size=64m",
+          "--tmpfs",
+          "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+          "--group-add",
+          "1000",
+          "--label",
+          "baton.v12.runtime_attempt_id=attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "--label",
+          "baton.v12.authority_uuid=0000000a000000000000000000000000",
+          "--label",
+          "baton.v12.work_id=0000000a-W1",
+          "--label",
+          "baton.v12.participant=baton.integrator",
+          "--label",
+          "baton.v12.generation=5",
+          "--label",
+          "baton.v12.principal=principal:baton.integrator",
+          "--label",
+          "baton.v12.effective_scope=scope:deployment",
+          "--label",
+          "baton.v12.profile_digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "--label",
+          "baton.v12.policy_digest=sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "--label",
+          "baton.v12.adapter_digest=sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/inputs,target=/input,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/storage/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/workspace,target=/output,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/credentials/credentials/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/claude,target=/run/baton/credentials/claude,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/launch.json,target=/run/baton/launch.json,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/command,target=/run/baton/exchange/command,readonly=true",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/launch/attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0/events,target=/run/baton/exchange/events,readonly=false",
+          "--mount",
+          "type=bind,source=/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/state/managed-results/2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0/apply-input,target=/input/source,readonly=true",
+          "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+        ],
+        "argv_digest": "sha256:b21acf2f24b43fbdd2707e3423a69be1c8fb524f9d45c8316226dd68f2d3cef0",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.integrator",
+          "baton.v12.generation": "5",
+          "baton.v12.principal": "principal:baton.integrator",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      }
+    ]
+  },
+  "verifications": [
+    {
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "status": 0,
+      "code_digest": "sha256:83827dc5504d80c34c6cb9f9a9aabf7153836960493c7f71413bc9ea88d20f3a",
+      "verifier_digest": "sha256:a7839d701bf4784ea5ace235fed46343b47b0e9854198878aa53bd192fa95473",
+      "argv": [
+        "python3",
+        "harness.py"
+      ],
+      "before": {
+        "scale.py": "sha256:83827dc5504d80c34c6cb9f9a9aabf7153836960493c7f71413bc9ea88d20f3a",
+        "harness.py": "sha256:a7839d701bf4784ea5ace235fed46343b47b0e9854198878aa53bd192fa95473"
+      },
+      "after": {
+        "scale.py": "sha256:83827dc5504d80c34c6cb9f9a9aabf7153836960493c7f71413bc9ea88d20f3a",
+        "harness.py": "sha256:a7839d701bf4784ea5ace235fed46343b47b0e9854198878aa53bd192fa95473"
+      },
+      "seconds": 0.015558473009150475,
+      "output": null,
+      "execution": "real subprocess"
+    },
+    {
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "status": 0,
+      "code_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+      "verifier_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+      "argv": [
+        "python3",
+        "harness.py"
+      ],
+      "before": {
+        "scale.py": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+        "harness.py": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd"
+      },
+      "after": {
+        "scale.py": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+        "harness.py": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd"
+      },
+      "seconds": 0.015388588013593107,
+      "output": null,
+      "execution": "real subprocess"
+    }
+  ],
+  "managed": {
+    "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "canonical_target_id": "target-1",
+    "target_revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "job_id": "job-a",
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "source_checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+    "source_verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+    "source_proposal_id": "integration-driver.proposal:43de69a24f9cbacfa33da5a8d416a23894f31a437cb2a912c68f3b1b21a39d85",
+    "source_result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+    "source_result_digest": "sha256:27eee764e3d2132a4fd89dedb95797401b5f61000665795b43353230a24b47f8",
+    "source_checkpoint_digest": "sha256:5d82b8193aa8c9a0f154689fbde206dc6420d0ff249461c30a42707c9d72c6b2",
+    "source_base": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+    "source_candidate": "b72ad6525739898c7aaa0b54a51085364a21e789",
+    "state": "imported",
+    "reason": null,
+    "prepared": {
+      "head": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+      "integration_assignment": {
+        "generation": 5,
+        "participant": "baton.integrator",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "preparation": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.integrator",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W47984398722361"
+          }
+        },
+        "candidate": {
+          "artifact_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-candidate",
+          "bytes": 166,
+          "content_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+        },
+        "canonical_target_id": "target-1",
+        "collected": {
+          "custody": "accepted",
+          "disposition": "completed",
+          "manifest_digest": "sha256:99c99d2df3dd9535836915b5f778a0081bcaf85ac2bac302fe921aff95e89e5e",
+          "report": {
+            "artifact_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:preparation-report",
+            "bytes": 3361,
+            "content_digest": "sha256:c82910b8d8e290e0595adae7b8386356a4248f58ed7f92ac123ea575491f9e9e"
+          },
+          "result_id": "result-prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+        },
+        "derived_candidate": {
+          "base": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+          "candidate": "b72ad6525739898c7aaa0b54a51085364a21e789",
+          "revision": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+          "target_revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+          "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+        },
+        "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+        "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+        "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "objects": {
+          "artifact_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-objects",
+          "bytes": 1463,
+          "content_digest": "sha256:24b2f38cdcb93cc99860376a4fb3ad0f1305c7f81f858410b561a4bd0a72bb85"
+        },
+        "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "report": {
+          "completed": [
+            {
+              "name": "combined",
+              "status": 0
+            },
+            {
+              "name": "base",
+              "status": 1
+            },
+            {
+              "name": "isolated",
+              "status": 0
+            }
+          ],
+          "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "kind": "measured",
+          "not_run": [],
+          "phase": "prepare",
+          "schema": "baton.v12.managed-integration-report/1",
+          "status": 1,
+          "tag": null
+        },
+        "request_digest": "sha256:35a801d12e0fd8fe0b595d78304e2f33ec542e28727cec3f703c8a443610e9ce",
+        "schema": "baton.v12.managed-prepared-candidate/1",
+        "source": {
+          "base": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+          "candidate": "b72ad6525739898c7aaa0b54a51085364a21e789",
+          "target_revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f"
+        },
+        "states": {
+          "base": {
+            "content": {
+              "entries": [
+                {
+                  "bytes": 100,
+                  "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                  "path": "harness.py"
+                },
+                {
+                  "bytes": 27,
+                  "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                  "path": "worker-task.txt"
+                }
+              ],
+              "entry_count": 2,
+              "total_bytes": 127,
+              "tree_digest": "sha256:08aeb1ae1a5f40bc5809b927a2da2316ab62ff7253bda96c2c9f0a6fbb09377e"
+            },
+            "revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f"
+          },
+          "combined": {
+            "content": {
+              "entries": [
+                {
+                  "bytes": 100,
+                  "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                  "path": "harness.py"
+                },
+                {
+                  "bytes": 39,
+                  "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                  "path": "scale.py"
+                },
+                {
+                  "bytes": 27,
+                  "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                  "path": "worker-task.txt"
+                }
+              ],
+              "entry_count": 3,
+              "total_bytes": 166,
+              "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+            },
+            "revision": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0"
+          },
+          "isolated": {
+            "content": {
+              "entries": [
+                {
+                  "bytes": 100,
+                  "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                  "path": "harness.py"
+                },
+                {
+                  "bytes": 39,
+                  "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                  "path": "scale.py"
+                },
+                {
+                  "bytes": 27,
+                  "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                  "path": "worker-task.txt"
+                }
+              ],
+              "entry_count": 3,
+              "total_bytes": 166,
+              "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+            },
+            "revision": "b72ad6525739898c7aaa0b54a51085364a21e789"
+          }
+        },
+        "target_revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f"
+      },
+      "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+    },
+    "content_digest": "sha256:d4a133d3f17f1c7fb464bdfc68de6cef0ec16c76927c794c6947143c5895bcae",
+    "evidence": {
+      "approval": {
+        "actor": "baton.approver",
+        "candidate_digest": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.approver",
+          "grant": "direct",
+          "policy_generation": 13,
+          "principal": "principal:baton.approver",
+          "role": "approve"
+        },
+        "disposition": "approved",
+        "kind": "approval",
+        "policy_generation": 13,
+        "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "receipt_id": "judgment-9ce0b1784f059e2f1d19f4067a34c2fb848d740db98df4d937ec324ece94411c",
+        "recorded_at": "2026-09-16T00:48:37.100Z",
+        "target": "e284a47a0511a7c8050e20a06e1fe57d85b0560f"
+      },
+      "review": {
+        "actor": "baton.approver-review",
+        "candidate_digest": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.approver-review",
+          "grant": "direct",
+          "policy_generation": 13,
+          "principal": "principal:baton.approver-review",
+          "role": "review"
+        },
+        "disposition": "accepted",
+        "kind": "review",
+        "policy_generation": null,
+        "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "receipt_id": "judgment-8cb7b0013334c0bf6c6441b4cf611a92939d7e8bd4cfa64d700f551dbf2fd945",
+        "recorded_at": "2026-09-16T00:48:37.099Z",
+        "target": "e284a47a0511a7c8050e20a06e1fe57d85b0560f"
+      },
+      "verification": {
+        "actor": "baton.verifier",
+        "candidate_digest": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.verifier",
+          "grant": "direct",
+          "policy_generation": 13,
+          "principal": "principal:baton.verifier",
+          "role": "verify"
+        },
+        "disposition": "passed",
+        "kind": "verification",
+        "policy_generation": null,
+        "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "receipt_id": "judgment-5507152236993adc0f182cb31774729b7bc7245f25adee83d3f94a102be1304a",
+        "recorded_at": "2026-09-16T00:48:37.098Z",
+        "target": "e284a47a0511a7c8050e20a06e1fe57d85b0560f"
+      }
+    },
+    "causal_observations": {
+      "completed": [
+        {
+          "harness_added": false,
+          "name": "combined",
+          "status": 0
+        },
+        {
+          "harness_added": true,
+          "name": "base",
+          "status": 1
+        },
+        {
+          "harness_added": false,
+          "name": "isolated",
+          "status": 0
+        }
+      ],
+      "derived_candidate": {
+        "base": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+        "candidate": "b72ad6525739898c7aaa0b54a51085364a21e789",
+        "revision": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+        "target_revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+        "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+      },
+      "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+      "harness_measured_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+      "input_content": {
+        "entries": [
+          {
+            "bytes": 1379,
+            "content_digest": "sha256:3237c00c12c33af8581739e4a75c1c58a5dcb8bdf90056d9893347762cb4f2fc",
+            "path": "objects.bundle"
+          }
+        ],
+        "entry_count": 1,
+        "total_bytes": 1379,
+        "tree_digest": "sha256:18e8180abfd4786cac886ec40cf4d89ec4031e5b6b152899497ebad80f000282"
+      },
+      "kind": "measured",
+      "not_run": [],
+      "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "output": [
+        {
+          "name": "combined",
+          "output": "verified multiplier 3\n"
+        },
+        {
+          "name": "base",
+          "output": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/v12/python/v12-w71917-s8emjxzi/prepare-scratch/base/harness.py\", line 1, in <module>\n    from scale import scale\nModuleNotFoundError: No module named 'scale'\n"
+        },
+        {
+          "name": "isolated",
+          "output": "verified multiplier 3\n"
+        }
+      ],
+      "phase": null,
+      "schema": "baton.v12.managed-preparation-report/1",
+      "source": {
+        "base": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+        "candidate": "b72ad6525739898c7aaa0b54a51085364a21e789",
+        "target_revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f"
+      },
+      "states": {
+        "base": {
+          "content": {
+            "entries": [
+              {
+                "bytes": 100,
+                "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                "path": "harness.py"
+              },
+              {
+                "bytes": 27,
+                "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                "path": "worker-task.txt"
+              }
+            ],
+            "entry_count": 2,
+            "total_bytes": 127,
+            "tree_digest": "sha256:08aeb1ae1a5f40bc5809b927a2da2316ab62ff7253bda96c2c9f0a6fbb09377e"
+          },
+          "revision": "e284a47a0511a7c8050e20a06e1fe57d85b0560f"
+        },
+        "combined": {
+          "content": {
+            "entries": [
+              {
+                "bytes": 100,
+                "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                "path": "harness.py"
+              },
+              {
+                "bytes": 39,
+                "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                "path": "scale.py"
+              },
+              {
+                "bytes": 27,
+                "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                "path": "worker-task.txt"
+              }
+            ],
+            "entry_count": 3,
+            "total_bytes": 166,
+            "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+          },
+          "revision": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0"
+        },
+        "isolated": {
+          "content": {
+            "entries": [
+              {
+                "bytes": 100,
+                "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                "path": "harness.py"
+              },
+              {
+                "bytes": 39,
+                "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                "path": "scale.py"
+              },
+              {
+                "bytes": 27,
+                "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                "path": "worker-task.txt"
+              }
+            ],
+            "entry_count": 3,
+            "total_bytes": 166,
+            "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+          },
+          "revision": "b72ad6525739898c7aaa0b54a51085364a21e789"
+        }
+      },
+      "status": 1,
+      "tag": null
+    },
+    "observed_by": "baton.integrator",
+    "policy_generation": 13,
+    "derived_proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "derived_result_id": "derived-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "derived_result_digest": "sha256:23407790b8b1bd72502479f087e520f07be2baf2eb96c4906c7479f01dacaf4b",
+    "entry_id": "managed-entry:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "recorded_at": "2026-09-02T00:00:00.000Z",
+    "phases": {
+      "apply": {
+        "task": {
+          "schema": "baton.v12.managed-integration-task/1",
+          "phase": "apply",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "canonical_target_id": "target-1",
+          "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "assignment": {
+            "generation": 5,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "task_digest": "sha256:3d0ee84b4655f94eff4858e087d353ff5fac40d8d2e3ecb00dfc4b8f4e116e37",
+          "input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+          "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+          "execution_limits": {
+            "boundaries": {
+              "host_verification": {
+                "default_seconds": 300,
+                "origin": "compatibility",
+                "seconds": 300,
+                "setting": "verification_command_seconds"
+              },
+              "integration_verification": {
+                "default_seconds": 1800,
+                "origin": "compatibility",
+                "seconds": 1800,
+                "setting": "verification_command_seconds"
+              },
+              "ordinary_verification": {
+                "default_seconds": 900,
+                "origin": "compatibility",
+                "seconds": 900,
+                "setting": "verification_command_seconds"
+              },
+              "provider_turn": {
+                "default_seconds": 3600,
+                "origin": "compatibility",
+                "seconds": 3600,
+                "setting": "provider_turn_seconds"
+              }
+            },
+            "compatibility_generation": 1,
+            "requested": {},
+            "scope": "per-invocation",
+            "units": "seconds"
+          },
+          "parent": {
+            "collected_digest": "sha256:99c99d2df3dd9535836915b5f778a0081bcaf85ac2bac302fe921aff95e89e5e",
+            "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+          },
+          "commands": [
+            "post-import"
+          ]
+        },
+        "result": {
+          "schema": "baton.v12.managed-integration-result/1",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "phase": "apply",
+          "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "assignment": {
+            "generation": 5,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "canonical_target_id": "target-1",
+          "report": {
+            "schema": "baton.v12.managed-integration-report/1",
+            "kind": "measured",
+            "phase": "apply",
+            "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "status": 0,
+            "tag": null,
+            "completed": [
+              {
+                "name": "post-import",
+                "status": 0
+              }
+            ],
+            "not_run": []
+          },
+          "collected": {
+            "disposition": "completed",
+            "manifest_digest": "sha256:33ab1992423459a2a3f9b6314ac5fdfdd4d3bfa6d279258c2be7f44af6f276e8",
+            "result_id": "result-attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+          }
+        }
+      },
+      "prepare": {
+        "task": {
+          "schema": "baton.v12.managed-integration-task/1",
+          "phase": "prepare",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "canonical_target_id": "target-1",
+          "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            }
+          },
+          "task_digest": "sha256:35a801d12e0fd8fe0b595d78304e2f33ec542e28727cec3f703c8a443610e9ce",
+          "input_digest": "sha256:18e8180abfd4786cac886ec40cf4d89ec4031e5b6b152899497ebad80f000282",
+          "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+          "execution_limits": {
+            "boundaries": {
+              "host_verification": {
+                "default_seconds": 300,
+                "origin": "compatibility",
+                "seconds": 300,
+                "setting": "verification_command_seconds"
+              },
+              "integration_verification": {
+                "default_seconds": 1800,
+                "origin": "compatibility",
+                "seconds": 1800,
+                "setting": "verification_command_seconds"
+              },
+              "ordinary_verification": {
+                "default_seconds": 900,
+                "origin": "compatibility",
+                "seconds": 900,
+                "setting": "verification_command_seconds"
+              },
+              "provider_turn": {
+                "default_seconds": 3600,
+                "origin": "compatibility",
+                "seconds": 3600,
+                "setting": "provider_turn_seconds"
+              }
+            },
+            "compatibility_generation": 1,
+            "requested": {},
+            "scope": "per-invocation",
+            "units": "seconds"
+          },
+          "parent": null,
+          "commands": [
+            "combined",
+            "base",
+            "isolated"
+          ]
+        },
+        "result": {
+          "schema": "baton.v12.managed-integration-result/1",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "phase": "prepare",
+          "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            }
+          },
+          "canonical_target_id": "target-1",
+          "report": {
+            "schema": "baton.v12.managed-integration-report/1",
+            "kind": "measured",
+            "phase": "prepare",
+            "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+            "status": 1,
+            "tag": null,
+            "completed": [
+              {
+                "name": "combined",
+                "status": 0
+              },
+              {
+                "name": "base",
+                "status": 1
+              },
+              {
+                "name": "isolated",
+                "status": 0
+              }
+            ],
+            "not_run": []
+          },
+          "collected": {
+            "disposition": "completed",
+            "manifest_digest": "sha256:99c99d2df3dd9535836915b5f778a0081bcaf85ac2bac302fe921aff95e89e5e",
+            "result_id": "result-prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+          }
+        }
+      }
+    }
+  },
+  "capacity": {
+    "root": {
+      "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "root_assignment_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "stage_id": "job-a/integration",
+      "episode": 1,
+      "job_id": "job-a",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "pool_generation": 1,
+      "worker_id": "integration-worker",
+      "participant": "baton.integrator",
+      "canonical_principal": "principal:baton.integrator",
+      "lifecycle": "ended",
+      "registered_operation_id": "integration-capacity.register:integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "ending_operation_id": "integration-capacity.ending:integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "registered_at": "2026-09-02T00:00:00.000Z"
+    },
+    "members": [
+      {
+        "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "phase": "apply",
+        "execution_work_id": "0000000a-W1",
+        "execution_offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "participant": "baton.integrator",
+        "task_digest": "sha256:3d0ee84b4655f94eff4858e087d353ff5fac40d8d2e3ecb00dfc4b8f4e116e37",
+        "input_digest": "sha256:55d5a7285d4c45874d10fe7586b75f22905457a48c3182152c7dea06b89d9983",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_content_digest": "sha256:99c99d2df3dd9535836915b5f778a0081bcaf85ac2bac302fe921aff95e89e5e",
+        "assignment": "{\"generation\": 5, \"participant\": \"baton.integrator\", \"work_ref\": {\"authority_uuid\": \"0000000a000000000000000000000000\", \"work_id\": \"0000000a-W1\"}}",
+        "state": "ended",
+        "outcome": "succeeded",
+        "exclusion": "runtime-destroyed",
+        "collected_digest": null,
+        "collected_report": null,
+        "recovery_reason": null,
+        "authorized_proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "authorized_result_id": "derived-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "authorized_result_digest": "sha256:23407790b8b1bd72502479f087e520f07be2baf2eb96c4906c7479f01dacaf4b",
+        "ending_evidence": "{\"assignment\": {\"generation\": 5, \"participant\": \"baton.integrator\", \"work_ref\": {\"authority_uuid\": \"0000000a000000000000000000000000\", \"work_id\": \"0000000a-W1\"}}, \"attempt_id\": \"attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\", \"cleanup\": \"retained\", \"execution_runtime\": \"destroyed\", \"runtime_id\": \"runtime-single-9\", \"state\": \"runtime-destroyed\"}",
+        "registered_operation_id": "integration-capacity.register:integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "ended_operation_id": "integration-capacity.end:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+      },
+      {
+        "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+        "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "phase": "prepare",
+        "execution_work_id": "0000000a-W47984398722361",
+        "execution_offer_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0-offer",
+        "participant": "baton.integrator",
+        "task_digest": "sha256:35a801d12e0fd8fe0b595d78304e2f33ec542e28727cec3f703c8a443610e9ce",
+        "input_digest": "sha256:6a73d38f66980a813063619a37893f8e2be427b61c4918ed4b0ac1ea55c0ae50",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_content_digest": null,
+        "assignment": "{\"generation\": 1, \"participant\": \"baton.integrator\", \"work_ref\": {\"authority_uuid\": \"0000000a000000000000000000000000\", \"work_id\": \"0000000a-W47984398722361\"}}",
+        "state": "ended",
+        "outcome": "succeeded",
+        "exclusion": "runtime-destroyed",
+        "collected_digest": "sha256:99c99d2df3dd9535836915b5f778a0081bcaf85ac2bac302fe921aff95e89e5e",
+        "collected_report": "{\"artifacts\": [{\"artifact_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:preparation-report\", \"bytes\": 3361, \"content_digest\": \"sha256:c82910b8d8e290e0595adae7b8386356a4248f58ed7f92ac123ea575491f9e9e\"}, {\"artifact_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-candidate\", \"bytes\": 166, \"content_digest\": \"sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d\"}, {\"artifact_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-objects\", \"bytes\": 1463, \"content_digest\": \"sha256:24b2f38cdcb93cc99860376a4fb3ad0f1305c7f81f858410b561a4bd0a72bb85\"}], \"attempt_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0\", \"custody\": \"accepted\", \"disposition\": \"completed\", \"freeze_operation_id\": \"output.freeze:c40bb0f9707317c9128028cbd309a515977433abb02d92b6fe02bdd453483ceb\", \"intake_operation\": {\"operation_id\": \"intake.record:c40bb0f9707317c9128028cbd309a515977433abb02d92b6fe02bdd453483ceb\", \"signature_digest\": \"sha256:622b8327d9d3851e288bb8025333f8d03593b0b11caceaa5b2fc4feca95b729a\"}, \"manifest_digest\": \"sha256:99c99d2df3dd9535836915b5f778a0081bcaf85ac2bac302fe921aff95e89e5e\", \"result_id\": \"result-prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0\"}",
+        "recovery_reason": null,
+        "authorized_proposal_id": null,
+        "authorized_result_id": null,
+        "authorized_result_digest": null,
+        "ending_evidence": "{\"assignment\": {\"generation\": 1, \"participant\": \"baton.integrator\", \"work_ref\": {\"authority_uuid\": \"0000000a000000000000000000000000\", \"work_id\": \"0000000a-W47984398722361\"}}, \"attempt_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0\", \"cleanup\": \"retained\", \"execution_runtime\": \"destroyed\", \"runtime_id\": \"runtime-single-5\", \"state\": \"runtime-destroyed\"}",
+        "registered_operation_id": "integration-capacity.register:integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "ended_operation_id": "integration-capacity.end:prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+      }
+    ]
+  },
+  "target": {
+    "revision": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+    "code_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+    "authority_revision": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+    "receipt": {
+      "receipt_id": "managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "kind": "integration",
+      "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "actor": "baton.integrator",
+      "disposition": "integrated",
+      "candidate_digest": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+      "target": "e284a47a0511a7c8050e20a06e1fe57d85b0560f",
+      "policy_generation": null,
+      "recorded_at": "2026-09-16T00:48:37.390Z",
+      "decision": {
+        "endpoint": "baton.integrator",
+        "principal": "principal:baton.integrator",
+        "effective_scope": "scope:deployment",
+        "role": "integrate",
+        "grant": "direct",
+        "policy_generation": 13
+      }
+    }
+  },
+  "ticks": 23
+}

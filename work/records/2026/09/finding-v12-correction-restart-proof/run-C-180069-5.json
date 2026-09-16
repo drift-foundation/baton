@@ -1,0 +1,101 @@
+{
+  "claim": 180069,
+  "run": "5",
+  "selectors": [
+    "UsefulCorrection"
+  ],
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_correction_restart.UsefulCorrection"
+  ],
+  "status": 1,
+  "seconds": 2.067353983002249,
+  "timeout": false,
+  "group_gone": true,
+  "subreaper": true,
+  "signals": [],
+  "reaped": [
+    [
+      8,
+      0
+    ],
+    [
+      37,
+      0
+    ],
+    [
+      109,
+      0
+    ],
+    [
+      172,
+      0
+    ],
+    [
+      185,
+      0
+    ]
+  ],
+  "before": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+    "v12/python/tools/single_worker.py": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+    "v12/python/tools/stage_execution.py": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+    "v12/worker/baton_worker.py": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+    "v12/worker/claude_agent.py": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+    "v12/python/tests/manager/test_claude_context.py": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+    "v12/python/tests/manager/test_launch.py": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+    "v12/python/tests/manager/test_oci.py": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+    "v12/python/tests/manager/test_claude_agent.py": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+    "v12/python/tests/tools/test_single_worker.py": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+    "v12/python/tests/tools/test_stage_execution.py": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+    "v12/python/tests/tools/scheduler_trace.py": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+    "v12/python/tests/tools/test_scheduler_trace.py": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+    "v12/python/tests/tools/test_managed_apply.py": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57",
+    "v12/python/tests/tools/test_managed_preparation.py": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+    "v12/python/tests/tools/test_managed_integration.py": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+    "v12/python/requirements.lock": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+    "v12/python/pyproject.toml": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+    "v12/python/tests/tools/correction_restart_trace.py": "e0dc7a466c184f3e72ace320045f26a5e14af7874f855f8d7cd83e56d283506c",
+    "v12/python/tests/tools/test_correction_restart.py": "ef7ad4379977bab317e1e2b3fdca7fc2b9e96c4c20e07eb8713303a308a6d3e3"
+  },
+  "after": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+    "v12/python/tools/single_worker.py": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+    "v12/python/tools/stage_execution.py": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+    "v12/worker/baton_worker.py": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+    "v12/worker/claude_agent.py": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+    "v12/python/tests/manager/test_claude_context.py": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+    "v12/python/tests/manager/test_launch.py": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+    "v12/python/tests/manager/test_oci.py": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+    "v12/python/tests/manager/test_claude_agent.py": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+    "v12/python/tests/tools/test_single_worker.py": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+    "v12/python/tests/tools/test_stage_execution.py": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+    "v12/python/tests/tools/scheduler_trace.py": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+    "v12/python/tests/tools/test_scheduler_trace.py": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+    "v12/python/tests/tools/test_managed_apply.py": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57",
+    "v12/python/tests/tools/test_managed_preparation.py": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+    "v12/python/tests/tools/test_managed_integration.py": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+    "v12/python/requirements.lock": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+    "v12/python/pyproject.toml": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+    "v12/python/tests/tools/correction_restart_trace.py": "e0dc7a466c184f3e72ace320045f26a5e14af7874f855f8d7cd83e56d283506c",
+    "v12/python/tests/tools/test_correction_restart.py": "ef7ad4379977bab317e1e2b3fdca7fc2b9e96c4c20e07eb8713303a308a6d3e3"
+  },
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "attrs": "26.1.0",
+    "rpds-py": "2026.6.3"
+  }
+}

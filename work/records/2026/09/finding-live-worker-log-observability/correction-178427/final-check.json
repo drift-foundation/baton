@@ -1,0 +1,8 @@
+{
+  "all12_candidate_and_base_hashes_match": true,
+  "final_test_input_hashes_match": true,
+  "repository_modes_unchanged": true,
+  "git_diff_check_exit": 0,
+  "dossier_whitespace_check": "pass",
+  "claim": 178427
+}

@@ -1,0 +1,532 @@
+{
+  "all_match": true,
+  "checks": [
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/EVIDENCE-180298.json",
+      "sha256": "aa5cb5fd7ec48dc7a3b6393adcd793309c1f8bf3950866d160f40f4e4b02e17f"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "fcb73a55c9c8ef5e98509a5165f96e49eeb81ab377f9095339c347c589afb6c8"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/partial-180298/v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "fcb73a55c9c8ef5e98509a5165f96e49eeb81ab377f9095339c347c589afb6c8"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/partial-180298/v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/partial-180298/v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "e0dc7a466c184f3e72ace320045f26a5e14af7874f855f8d7cd83e56d283506c"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "ef7ad4379977bab317e1e2b3fdca7fc2b9e96c4c20e07eb8713303a308a6d3e3"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "ef7ad4379977bab317e1e2b3fdca7fc2b9e96c4c20e07eb8713303a308a6d3e3"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "2ae66976951d9afd43e994daaf214aaf6e6f2c95f80b43449626ac8460da5110"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "sha256": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "sha256": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "sha256": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3"
+    },
+    {
+      "matches": true,
+      "path": "v12/worker/baton_worker.py",
+      "sha256": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea"
+    },
+    {
+      "matches": true,
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "sha256": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/manager/test_launch.py",
+      "sha256": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/manager/test_oci.py",
+      "sha256": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/tools/scheduler_trace.py",
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/tools/test_scheduler_trace.py",
+      "sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/tests/tools/test_managed_integration.py",
+      "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/requirements.lock",
+      "sha256": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/pyproject.toml",
+      "sha256": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e"
+    },
+    {
+      "matches": true,
+      "path": "v12/worker/reconciliation_task.py",
+      "sha256": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2"
+    },
+    {
+      "matches": true,
+      "path": "v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/BASE-180298.json",
+      "sha256": "371b6dca521634a7c9548920832cedec79021bd7d9af4fea76932d9055571ea0"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/OBSERVATION-180298.json",
+      "sha256": "f3fb4daa062d98946890c278e2f5207c76bc01cdc04830db43e46a7e5476ca2d"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/partial-180298.patch",
+      "sha256": "60bda59b0f1fe392769e9d032370f8ee3f38dd430ad4b3d49c6d1e2b465be543"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-1.json",
+      "sha256": "043c0a2c692b9659090ecff6c569faab7068fb6dd6a6374769cf167d90af3976"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-1.log",
+      "sha256": "383fabf057bd02f3353a3a8c7d7c0fd327a183bc32e7bdb4b003491121c8a15e"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-2.json",
+      "sha256": "193eac1b87ba741614dd76f9c56a3a0bf94f035a128f5b00bc34b314d628e60f"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-2.log",
+      "sha256": "2045c6abde0e2ae0477c6a0a0f060e3ea870d58b14227d1c3793df2fcdb1a284"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-3.json",
+      "sha256": "f80dc760d7ddb4c004bd56c1b355a2ffe0f7a6c801750acc1620712d0af8f689"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-3.log",
+      "sha256": "f1551229c353d643bea79162086f4744ab312073d2d05209a212fa21a1d51bab"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-4.json",
+      "sha256": "aa1e952e4cc1a28a86038b77f14391dab0fe893d33bdde055a14b4c6afc9353a"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-4.log",
+      "sha256": "6fd5069d8d6388d9a211005bd5928e6cacfd7db21074adae3b64f14b6022abe4"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-5.json",
+      "sha256": "16486245c11c12dc3d6d75ecfbc74c03bec30ecd002e5bdd7342d2ace6d3c3e0"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-5.log",
+      "sha256": "c1e078a10130c1301dceab7ccc9547ad4e8ea32fa83666f608447d3bd227513d"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-6.json",
+      "sha256": "0b21073fe61c1ed2db13ff18ecf39d550afa26837845c71df860fab5e741b0f7"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-6.log",
+      "sha256": "0a158370629e5aec2c2eaa4c6d7d4643697b7f9e307a6d043281e7dc35a6ca5f"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-7.json",
+      "sha256": "bd220eb43ee178bf81292035433daca3656f22636518b97b617ab02660ab5bea"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180298-7.log",
+      "sha256": "a0cfd7ef6323aeb71320042e96f0cd5ec355b1b9ff6c6b748f40ccb5261d3629"
+    },
+    {
+      "matches": true,
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/verify-180298.py",
+      "sha256": "8131d2edff142c4c5be932c4ee86ffef63a4c553276a7a5052b4f5b3e396a571"
+    }
+  ],
+  "claim": 180371,
+  "managed_state": "authorized",
+  "method": "static files, hashes and parsed author logs; no test or engine rerun; no independent process-cleanup inspection",
+  "new_author_seconds_sum": 17.276815144054126,
+  "new_reviewer_test_seconds": 0,
+  "observation_equals_log": true,
+  "prior_reviewer_test_seconds": 93.48170357503113,
+  "report": {
+    "completed": [
+      {
+        "name": "combined",
+        "status": 0
+      },
+      {
+        "name": "base",
+        "status": 1
+      },
+      {
+        "name": "isolated",
+        "status": 0
+      }
+    ],
+    "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+    "kind": "measured",
+    "not_run": [],
+    "phase": "prepare",
+    "schema": "baton.v12.managed-integration-report/1",
+    "status": 1,
+    "tag": null
+  },
+  "runs": [
+    {
+      "group_gone": true,
+      "run": "1",
+      "seconds": 0.8167775840265676,
+      "selectors": [
+        "tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements"
+      ],
+      "status": 0,
+      "timeout": false
+    },
+    {
+      "group_gone": true,
+      "run": "2",
+      "seconds": 2.818057983997278,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "status": 1,
+      "timeout": false
+    },
+    {
+      "group_gone": true,
+      "run": "3",
+      "seconds": 2.7185990340076387,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "status": 1,
+      "timeout": false
+    },
+    {
+      "group_gone": true,
+      "run": "4",
+      "seconds": 2.7678978530166205,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "status": 1,
+      "timeout": false
+    },
+    {
+      "group_gone": true,
+      "run": "5",
+      "seconds": 2.718248772987863,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "status": 1,
+      "timeout": false
+    },
+    {
+      "group_gone": true,
+      "run": "6",
+      "seconds": 2.719010409025941,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "status": 1,
+      "timeout": false
+    },
+    {
+      "group_gone": true,
+      "run": "7",
+      "seconds": 2.718223506992217,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "status": 1,
+      "timeout": false
+    }
+  ],
+  "stage_projection": {
+    "job-a/implementation": {
+      "ending": {
+        "intent": {
+          "assignment": {
+            "generation": 3,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "disposition": "completed",
+          "episode": 2,
+          "job_id": "job-a",
+          "kind": "implementation",
+          "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "retention_disposition": "retain",
+          "retention_policy_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+          "stage_id": "job-a/implementation",
+          "terminal_manifest_digest": "sha256:326f93e3e2cbfde08a2b05b2ab690a28ecfb06570e1570501bd2d258df17435f",
+          "work_id": "0000000a-W1"
+        },
+        "settlement": {
+          "assignment": {
+            "generation": 3,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "episode": 2,
+          "evidence": {
+            "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+            "gate_discharge": "runtime-quiescence:3",
+            "manifest_digest": "sha256:0cfd82b97ff9f3692ada935246ce2e8681ab0e09dc7a90e634235cd609459574",
+            "receipt_digest": "sha256:be12bee3f0b0929089ee4514ea46401c9521afd4f1883093d2829c11d15038fd",
+            "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa"
+          },
+          "intent": "ending.intent:job-a/implementation:2",
+          "job_id": "job-a",
+          "kind": "implementation",
+          "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "stage_id": "job-a/implementation",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "exchange": null,
+      "state": "completed"
+    },
+    "job-a/integration": {
+      "ending": null,
+      "exchange": {
+        "command": {
+          "command_digest": "sha256:26e2e9205453e1feb6c4ab500b8c2e988ff9776955b389430eb647da032d5383",
+          "operations": [
+            "describe",
+            "work"
+          ],
+          "sequence_id": "sequence-f7d80c98163de8e550840e3823199256"
+        },
+        "foreign": [],
+        "receipt": {
+          "accepted_at": "2026-09-15T18:42:45.000Z"
+        },
+        "sequence_id": "sequence-f7d80c98163de8e550840e3823199256",
+        "state": "faulted",
+        "states": [
+          {
+            "operation": "describe",
+            "state": "answered"
+          },
+          {
+            "operation": "work",
+            "state": "faulted"
+          }
+        ],
+        "terminal": {
+          "answered": [
+            "describe"
+          ],
+          "disposition": null,
+          "ending": "faulted",
+          "fault_code": "input",
+          "manifest_digest": null
+        },
+        "transport": "baton.worker-exchange/1",
+        "unreadable": null
+      },
+      "state": "exceptional"
+    },
+    "job-a/review": {
+      "ending": {
+        "intent": {
+          "assignment": {
+            "generation": 4,
+            "participant": "baton.reviewer",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "disposition": "completed",
+          "episode": 2,
+          "job_id": "job-a",
+          "kind": "review",
+          "offer_id": "offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "retention_disposition": "retain",
+          "retention_policy_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+          "stage_id": "job-a/review",
+          "terminal_manifest_digest": "sha256:8ba0682a62bfc9ea2668c56e4400318b230cad6e25a0e17bd3a0e2cab040410f",
+          "work_id": "0000000a-W1"
+        },
+        "settlement": {
+          "assignment": {
+            "generation": 4,
+            "participant": "baton.reviewer",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "episode": 2,
+          "evidence": {
+            "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+            "gate_discharge": "runtime-quiescence:4",
+            "manifest_digest": "sha256:c6b410430415d6dcdc590a0427ac0ce090492fbc835346054a85b6a47f594c10",
+            "outcome": "accepted",
+            "receipt_digest": "sha256:4cffb098d34d9770dfe3c412ba05aa891f5f94cb3e7a93762005a3d0ba169bff",
+            "result_id": "result-attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+            "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348"
+          },
+          "intent": "ending.intent:job-a/review:2",
+          "job_id": "job-a",
+          "kind": "review",
+          "offer_id": "offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "stage_id": "job-a/review",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "exchange": null,
+      "state": "completed"
+    }
+  },
+  "worker_traceback": "Traceback (most recent call last):\n  File \"<string>\", line 26, in traced_handle\n    try:return original_handle(*args)\n               ~~~~~~~~~~~~~~~^^^^^^^\n  File \"/home/sl/src/baton/v12/worker/baton_worker.py\", line 1709, in handle\n    context_declaration(seen, declared)\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/worker/baton_worker.py\", line 2565, in context_declaration\n    raise WorkerFault(\"input\", \"context receipt is reserved for implementation and isolated review\")\nbaton_worker.WorkerFault: context receipt is reserved for implementation and isolated review\n"
+}

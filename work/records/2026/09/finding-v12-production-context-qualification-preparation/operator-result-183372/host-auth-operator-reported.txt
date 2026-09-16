@@ -1,0 +1,8 @@
+Operator separately reported running the host CLI command:
+claude --print --permission-mode plan "Reply with exactly one word and nothing else: pong"
+Reported output:
+Failed to authenticate: OAuth session expired and could not be refreshed
+
+This is user-supplied text, not independently captured command output.
+It diagnoses that host invocation, not the precise cause of every prior
+qualification failure. No credential contents were inspected or preserved.

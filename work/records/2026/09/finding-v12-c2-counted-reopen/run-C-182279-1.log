@@ -1,0 +1,29 @@
+test_manager_recomposition_preserves_both_positive_counts (tests.tools.test_correction_restart.CountedReopen.test_manager_recomposition_preserves_both_positive_counts) ... ERROR
+test_unchanged_predecessor_artifacts_still_validate_without_execution (tests.tools.test_correction_restart.CountedReopen.test_unchanged_predecessor_artifacts_still_validate_without_execution) ... ok
+
+======================================================================
+ERROR: test_manager_recomposition_preserves_both_positive_counts (tests.tools.test_correction_restart.CountedReopen.test_manager_recomposition_preserves_both_positive_counts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 95, in test_manager_recomposition_preserves_both_positive_counts
+    observed = artifact(counted_reopen=True)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 16, in artifact
+    return world.run_scenario(counted_reopen=counted_reopen)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 326, in run_scenario
+    held, boundary = self.reopen(held, first, initial)
+                     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 302, in reopen
+    reopened = self.snapshot(held, first)
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 232, in snapshot
+    workspace = self.mounted(held.composed, "implementation", attempt)["workspace"]
+                ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2702, in mounted
+    held = self.worker_of(composed, role).stage._prepared[attempt_id]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.444s
+
+FAILED (errors=1)

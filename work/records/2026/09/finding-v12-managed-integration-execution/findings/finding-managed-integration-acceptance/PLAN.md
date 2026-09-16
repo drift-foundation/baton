@@ -1,5 +1,18 @@
 # Plan
 
+## Current — independent complete-flow/documentation acceptance; owner next
+
+Claim174513 accepts the exact tuner candidate174420 and the combined selected
+outcome; see `review-2026-09-15T03-21-13Z.md` and
+`review-evidence-174513.json`. All four documentation regions, preserved deadline
+suffix, exact patch/snapshot and92 runtime provenance checks match. Runtime
+evidence is reused on unchanged bytes; no new runtime tests. No implementation
+or independent review remains for the selected scope. Return baton.ops for
+applicable child acceptance/closure, then canonical umbrella/dependent
+disposition. Historical red checks, W129838 and reduced/unproved recovery scope
+remain as ACCEPTANCE/BASELINE-CLASSIFICATION record. This supersedes the pending
+tuner/review next actions below without rewriting their history.
+
 ## Current — runtime assessed; documentation-only tuner next
 
 Claim174271 completed ACCEPTANCE-174271.md and BASELINE-CLASSIFICATION-174271.md.

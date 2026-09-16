@@ -1,0 +1,74 @@
+{
+  "work": "W177936",
+  "claim": 178808,
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/review-178808-probes.py"
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "timeout_seconds": 30,
+  "timed_out": false,
+  "exit_code": 0,
+  "process_group_absent": true,
+  "pid": 4,
+  "elapsed_seconds": 0.26373039101599716,
+  "input_checks": {
+    "FINDING.md": true,
+    "PLAN.md": true,
+    "PROGRESS.md": true,
+    "BASELINE-178579.json": true,
+    "OPERATOR-178579.md": true,
+    "evidence/audit-178579.json": true,
+    "evidence/offline-178579-1.json": true,
+    "evidence/offline-178579-1.log": true,
+    "evidence/offline-178579-2.json": true,
+    "evidence/offline-178579-2.log": true,
+    "evidence/offline-178579-candidate.json": true,
+    "evidence/offline-178579-candidate.log": true,
+    "evidence/offline-178579-final.json": true,
+    "evidence/offline-178579-final.log": true,
+    "evidence/qualification-fixture.py": true,
+    "evidence/qualification-manifest.json": true,
+    "evidence/qualification_contract.py": true,
+    "evidence/qualification_worker.py": true,
+    "evidence/test_qualification.py": true,
+    "evidence/verify-offline.py": true,
+    "candidate-178579/qualification-fixture.py": true,
+    "candidate-178579/qualification-manifest.json": true,
+    "candidate-178579/qualification_contract.py": true,
+    "candidate-178579/qualification_worker.py": true,
+    "candidate-178579/test_qualification.py": true,
+    "candidate-178579/verify-offline.py": true
+  },
+  "manifest_sha256": "26a0f74254f88d49e02420c05b242c3349dc6b30b567666928be7290019ded2f",
+  "candidate_after_matches": true,
+  "log_sha256": "dcb77ae71c576fe9fbfa08d1ce53857234ead700ca5e6ac6811125bcd34ad958",
+  "probe_receipt": {
+    "elapsed_seconds": 0.17341688700253144,
+    "errors": 0,
+    "export_preflight_probe": {
+      "actual_controller_engine_provider_calls": 0,
+      "created_run_marker": true,
+      "created_volatile_marker": true,
+      "export_existed_before_admission": true,
+      "reached": [
+        "controller-process-construction"
+      ]
+    },
+    "failures": 0,
+    "live_threads": [],
+    "permission_probe": {
+      "fake_controller_outcome": "qualified",
+      "gid": 1000,
+      "group_read": true,
+      "group_write": false,
+      "mode": "0o640",
+      "other_write": false,
+      "owner_uid": 1000,
+      "qualification": "metadata proof; fake uses current UID/GID, not real Docker identities",
+      "runtime_is_owner": false,
+      "selected_runtime_uid": 65532
+    },
+    "tests": 22
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "work": "W61599",
+  "claim": 178362,
+  "review_type": "bounded static current-state review for owner stop; no independent runtime acceptance",
+  "files": [
+    {
+      "path": "baton:v12/worker/claude_agent.py",
+      "expected_sha256": "a6f934eaa5cf37fbed0ae7edc7f0521bb42566d4a0753cd939b4c148625b4529",
+      "actual_sha256": "a6f934eaa5cf37fbed0ae7edc7f0521bb42566d4a0753cd939b4c148625b4529",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/baton_worker.py",
+      "expected_sha256": "92eaf3a2761f937dd17d781c2321974179d7c9cfed7234f3a7b68741cbbdf704",
+      "actual_sha256": "92eaf3a2761f937dd17d781c2321974179d7c9cfed7234f3a7b68741cbbdf704",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/exchange.py",
+      "expected_sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+      "actual_sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/single_worker.py",
+      "expected_sha256": "b3186d119c3dab6d15a466c3b6271b68668a0a39426d33fb680718eabaae9a14",
+      "actual_sha256": "b3186d119c3dab6d15a466c3b6271b68668a0a39426d33fb680718eabaae9a14",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "expected_sha256": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "actual_sha256": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/dogfood_operator.py",
+      "expected_sha256": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "actual_sha256": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_claude_agent.py",
+      "expected_sha256": "5532d3c11b22db6d88a22387c5e069393e85af394a0d0e37ac1cac94ceed4532",
+      "actual_sha256": "00293380042508b22f99ff3067dfb0531796b9fa76614de92b0a8429e85bc308",
+      "matches": false
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_exchange.py",
+      "expected_sha256": "6c976f45eaba8779fcb1b9938a279e70add85566040e56badeacc88863d14613",
+      "actual_sha256": "bb430fb360864d16089d3fa2feabfc1e2ff4d9533f803f8b5c016b66b6e1ac25",
+      "matches": false
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_single_worker.py",
+      "expected_sha256": "76a1967a759204469200e56e9948448231b65c7c60348efc211ec6ca96ad41af",
+      "actual_sha256": "76a1967a759204469200e56e9948448231b65c7c60348efc211ec6ca96ad41af",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "expected_sha256": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "actual_sha256": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_dogfood_operator.py",
+      "expected_sha256": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+      "actual_sha256": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_dependencies.py",
+      "expected_sha256": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+      "actual_sha256": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+      "matches": true
+    }
+  ],
+  "documents": {
+    "ACTIVITY-IMPLEMENTATION-177898.md": "ce96bf93f163a0ff55d4c2c48ccbde600d02da49f9279374f7c7e887177e87a1",
+    "OWNER-STOP-177898.md": "43d2db2558a223a4d8486c8b0a40ac68ca47a41b55c69f90ae990ed8e107abdf",
+    "review-2026-09-15T04-29-53Z.md": "1b9968b2eb7fb79e5c44e7c1d9ff385e1d2293b71c1689ea34c4bd6175b58ec1",
+    "ACTIVITY-DOCUMENT-DESIGN-175025.md": "014be97ecf91807fde86d1d84c0d05ede70b3bdd12790a23e3abc3ee57e99906"
+  },
+  "verification_seconds": 0,
+  "author_cost_qualification": "Author reports approximately2966s, includes approximately190s focused/probe estimate; durable run logs and cleanup receipt not bound in handoff. No independent no-new-failure or resource-exclusion acceptance."
+}

@@ -1,0 +1,127 @@
+test_a_directory_replaced_before_scanning_cannot_redirect_the_scan (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_directory_replaced_before_scanning_cannot_redirect_the_scan) ... ok
+test_a_disappearing_file_freezes_the_total (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_disappearing_file_freezes_the_total) ... ok
+test_a_home_that_does_not_exist_yet_is_unknown_and_not_a_zero (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_home_that_does_not_exist_yet_is_unknown_and_not_a_zero) ... ok
+test_a_link_pointing_at_a_large_file_is_not_followed (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_link_pointing_at_a_large_file_is_not_followed) ... ok
+test_a_real_turn_observes_growth_before_it_completes (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_real_turn_observes_growth_before_it_completes)
+THE NORMAL ADAPTER BOUNDARY, with a deterministic provider standing ... ok
+test_a_replaced_root_link_never_counts_foreign_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_root_link_never_counts_foreign_activity) ... ok
+test_a_replaced_smaller_file_freezes_rather_than_going_backwards (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_smaller_file_freezes_rather_than_going_backwards)
+THE FORMULA THAT WOULD HAVE LIED. `sum(max(0, size - baseline))` ... ok
+test_a_scratch_this_process_made_counts_from_the_first_byte (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_scratch_this_process_made_counts_from_the_first_byte)
+PROVED BY CONSTRUCTION. `tempfile.mkdtemp` answers a directory this ... ok
+test_a_second_file_contributes_its_whole_size_once (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_second_file_contributes_its_whole_size_once) ... ok
+test_a_total_past_the_ceiling_is_unknown_rather_than_reported (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_total_past_the_ceiling_is_unknown_rather_than_reported)
+THE COUNT THIS READER COULD NOT COMPARE. A total outside the range ... ok
+test_an_agent_that_never_launched_a_provider_observes_nothing (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_an_agent_that_never_launched_a_provider_observes_nothing) ... ok
+test_an_injected_or_reused_home_is_unknown_for_the_whole_operation (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_an_injected_or_reused_home_is_unknown_for_the_whole_operation)
+AN UNPROVED HOME IS NEVER ESTIMATED. No scan reconstructs a baseline ... ok
+test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) ... ok
+test_exceeding_the_depth_yields_unknown_rather_than_a_sample (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_depth_yields_unknown_rather_than_a_sample) ... ok
+test_exceeding_the_entry_bound_yields_unknown (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_entry_bound_yields_unknown)
+A SCAN THAT OVERRAN ITS BOUND REPORTS UNKNOWN RATHER THAN WHAT IT ... ok
+test_exceeding_the_tracked_file_bound_yields_unknown (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_tracked_file_bound_yields_unknown) ... ok
+test_other_home_growth_is_not_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_other_home_growth_is_not_activity) ... ok
+test_restored_history_under_an_unproved_home_fabricates_nothing (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_restored_history_under_an_unproved_home_fabricates_nothing) ... ok
+test_the_credential_symlink_is_never_counted (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_credential_symlink_is_never_counted)
+EXCLUDED TWICE OVER: it is a symlink, which the regular-file test ... ok
+test_the_launch_path_performs_no_scan_and_no_stat (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_launch_path_performs_no_scan_and_no_stat)
+THE BASELINE IS ADMITTED, NOT MEASURED. An earlier revision of this ... ok
+test_the_total_is_monotonic_across_growth (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_total_is_monotonic_across_growth) ... ok
+test_truncation_freezes_the_total (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_truncation_freezes_the_total)
+FROZEN, NOT MERELY UNREDUCED. A file truncated IN PLACE keeps its ... ok
+test_a_bound_count_is_read (tests.manager.test_exchange.TheOptionalActivityDocument.test_a_bound_count_is_read) ... ok
+test_a_command_naming_another_session_refuses_the_expectation (tests.manager.test_exchange.TheOptionalActivityDocument.test_a_command_naming_another_session_refuses_the_expectation) ... ok
+test_a_count_for_another_turn_is_discarded (tests.manager.test_exchange.TheOptionalActivityDocument.test_a_count_for_another_turn_is_discarded) ... ok
+test_a_document_from_another_protocol_is_not_read (tests.manager.test_exchange.TheOptionalActivityDocument.test_a_document_from_another_protocol_is_not_read) ... ok
+test_a_hostile_count_is_refused_by_this_parser_alone (tests.manager.test_exchange.TheOptionalActivityDocument.test_a_hostile_count_is_refused_by_this_parser_alone) ... ok
+test_a_link_at_the_fixed_name_is_refused_rather_than_resolved (tests.manager.test_exchange.TheOptionalActivityDocument.test_a_link_at_the_fixed_name_is_refused_rather_than_resolved) ... ok
+test_a_terminal_operation_is_skipped_rather_than_read (tests.manager.test_exchange.TheOptionalActivityDocument.test_a_terminal_operation_is_skipped_rather_than_read)
+OWNER M174788's SEMANTICS, and the boundary it is NOT. The terminal ... ok
+test_an_absent_document_is_unknown_and_never_a_zero (tests.manager.test_exchange.TheOptionalActivityDocument.test_an_absent_document_is_unknown_and_never_a_zero)
+NEW MANAGER, OLD WORKER. Nothing is published, and absence means ... ok
+test_an_extra_or_missing_member_is_refused (tests.manager.test_exchange.TheOptionalActivityDocument.test_an_extra_or_missing_member_is_refused)
+A CLOSED SET, not an allowlist. An extra member is how a second ... ok
+test_an_undispatched_attempt_has_nothing_to_expect (tests.manager.test_exchange.TheOptionalActivityDocument.test_an_undispatched_attempt_has_nothing_to_expect) ... ok
+test_no_existing_parser_learned_to_accept_an_integer (tests.manager.test_exchange.TheOptionalActivityDocument.test_no_existing_parser_learned_to_accept_an_integer)
+THE RELAXATION THAT DID NOT HAPPEN, asked of the parser itself. ... ok
+test_the_document_is_not_reported_as_a_foreign_entry (tests.manager.test_exchange.TheOptionalActivityDocument.test_the_document_is_not_reported_as_a_foreign_entry)
+OLD MANAGER, NEW WORKER is the other pairing, and this is the half ... ok
+test_the_expectation_comes_from_this_managers_own_command (tests.manager.test_exchange.TheOptionalActivityDocument.test_the_expectation_comes_from_this_managers_own_command)
+SIX WIRE IDENTITIES, NONE OF THEM TAKEN FROM THE DOCUMENT. Five are ... ok
+test_the_lifecycle_documents_did_not_move (tests.manager.test_exchange.TheOptionalActivityDocument.test_the_lifecycle_documents_did_not_move)
+THE COMPATIBILITY CLAIM, asserted rather than argued. A new document ... ok
+test_the_whole_namespace_still_fits_the_entry_budget (tests.manager.test_exchange.TheOptionalActivityDocument.test_the_whole_namespace_still_fits_the_entry_budget)
+THE PART THAT COULD ACTUALLY BITE. More than `MAX_EVENT_ENTRIES` ... ok
+test_a_blocked_publisher_is_abandoned_within_its_bound (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_a_blocked_publisher_is_abandoned_within_its_bound)
+A DIAGNOSTIC MAY NOT GATE THE TURN. A wedged observer is abandoned ... ok
+test_a_symlink_at_the_staging_name_is_never_written_through (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_a_symlink_at_the_staging_name_is_never_written_through) ... ok
+test_a_transient_observer_fault_does_not_end_the_publisher (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_a_transient_observer_fault_does_not_end_the_publisher)
+THE HALF THE TURN'S SURVIVAL CANNOT PROVE. The publisher runs on its ... ok
+test_an_agent_that_observes_nothing_publishes_no_document (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_an_agent_that_observes_nothing_publishes_no_document)
+AN OLD WORKER, AND EVERY SCRIPTED ONE. No `observed_activity` means ... ok
+test_an_existing_temporary_suppresses_the_write (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_an_existing_temporary_suppresses_the_write)
+EXCLUSIVE STAGING. An entry already at the one staging name may be ... ok
+test_an_observer_that_raises_never_stops_the_turn (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_an_observer_that_raises_never_stops_the_turn) ... ok
+test_an_unknown_or_empty_count_publishes_nothing_at_all (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_an_unknown_or_empty_count_publishes_nothing_at_all)
+`None`, `0` AND A PUBLISHED COUNT ARE THREE ANSWERS. A provider ... ok
+test_describe_runs_no_publisher (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_describe_runs_no_publisher)
+`describe` INVOKES NO PROVIDER, so there is no native stream for a ... ok
+test_growth_is_observable_before_the_turn_completes (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_growth_is_observable_before_the_turn_completes) ... ok
+test_the_count_is_readable_while_the_operation_is_still_live (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_the_count_is_readable_while_the_operation_is_still_live)
+THE CASE THE PREVIOUS ONE CANNOT MAKE: the manager reads the ... ok
+test_the_published_file_is_replaced_and_never_renamed_away (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_the_published_file_is_replaced_and_never_renamed_away)
+A READER CONCURRENT WITH PUBLICATION never sees absence caused by ... ok
+test_the_two_ends_agree_about_the_activity_contract (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_the_two_ends_agree_about_the_activity_contract) ... ok
+test_a_distinct_composition_for_another_attempt_starts_no_helper (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_a_distinct_composition_for_another_attempt_starts_no_helper)
+THE ACCEPTANCE CASE, with DIFFERENT ATTEMPTS. C1 holds an ... ok
+test_a_helper_that_never_started_releases_its_slot (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_a_helper_that_never_started_releases_its_slot)
+PARTIAL CONSTRUCTION UNWINDS WHAT IT ACQUIRED. A half-built ... ok
+test_a_store_with_no_file_admits_nothing (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_a_store_with_no_file_admits_nothing) ... ok
+test_an_over_bound_stop_refuses_and_leaves_the_slot_held (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_an_over_bound_stop_refuses_and_leaves_the_slot_held)
+LEAKING A HANDLE IS THE LESSER FAULT. Closing one under a live ... ok
+test_one_helper_is_admitted_and_a_second_over_the_same_store_is_not (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_one_helper_is_admitted_and_a_second_over_the_same_store_is_not) ... ok
+test_releasing_nothing_is_not_a_refusal (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_releasing_nothing_is_not_a_refusal) ... ok
+test_repeated_stops_keep_the_live_thread_handle_and_store (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_repeated_stops_keep_the_live_thread_handle_and_store) ... ok
+test_the_identity_is_the_file_the_held_store_actually_has_open (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_the_identity_is_the_file_the_held_store_actually_has_open)
+ASKED OF THE HANDLE rather than of a configuration, because neither ... ok
+test_the_registry_is_bounded_and_fails_toward_no_diagnostic (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_the_registry_is_bounded_and_fails_toward_no_diagnostic) ... ok
+test_two_different_stores_each_admit_their_own (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_two_different_stores_each_admit_their_own)
+THE EXCLUSION IS PER STORE and not a process-wide singleton: two ... ok
+test_a_blocked_resolver_leaves_enqueue_and_manager_reads_usable (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_a_blocked_resolver_leaves_enqueue_and_manager_reads_usable) ... ok
+test_a_bound_count_reaches_the_managers_own_record (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_a_bound_count_reaches_the_managers_own_record) ... ok
+test_a_document_bound_to_another_turn_is_not_ingested (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_a_document_bound_to_another_turn_is_not_ingested) ... ok
+test_a_hostile_count_is_not_ingested (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_a_hostile_count_is_not_ingested) ... ok
+test_a_root_naming_nothing_ingests_nothing_and_does_not_raise (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_a_root_naming_nothing_ingests_nothing_and_does_not_raise) ... ok
+test_a_zero_is_never_recorded_as_an_observation (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_a_zero_is_never_recorded_as_an_observation)
+`None` AND `0` ARE DIFFERENT ANSWERS. Writing a zero would assert ... ok
+test_an_absent_document_records_nothing (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_an_absent_document_records_nothing) ... ok
+test_no_launch_adoption_runs_on_the_diagnostic_path (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_no_launch_adoption_runs_on_the_diagnostic_path)
+`launch.adopt` PROVES A DELIVERY BY AUTHORING AND COMPARING ITS ... ok
+test_the_helper_ingests_from_its_own_thread_and_its_own_handle (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_the_helper_ingests_from_its_own_thread_and_its_own_handle)
+END TO END THROUGH THE REAL THREAD, which is the half a direct call ... ok
+test_the_newest_request_wins_and_enqueueing_cannot_block (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_the_newest_request_wins_and_enqueueing_cannot_block) ... ok
+test_the_owners_own_rules_decide_repeats_and_regressions (tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop.test_the_owners_own_rules_decide_repeats_and_regressions) ... ok
+test_a_failing_enqueue_never_stops_the_sweep (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_a_failing_enqueue_never_stops_the_sweep) ... ok
+test_a_second_composition_over_one_store_composes_with_no_helper (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_a_second_composition_over_one_store_composes_with_no_helper)
+IT STILL COMPOSES AND STILL RUNS. Only the optional diagnostic is ... ok
+test_an_attempt_with_no_runtime_enqueues_nothing (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_an_attempt_with_no_runtime_enqueues_nothing) ... ok
+test_an_over_bound_stop_is_reported_out_of_close (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_an_over_bound_stop_is_reported_out_of_close)
+THE FACT IS CARRIED, not swallowed. An operator is told that a ... ok
+test_close_stops_the_helper_and_frees_the_admission (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_close_stops_the_helper_and_frees_the_admission) ... ok
+test_the_composition_admits_one_and_hands_its_enqueue_to_the_worker (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_the_composition_admits_one_and_hands_its_enqueue_to_the_worker) ... ok
+test_the_serving_loops_runtime_read_enqueues_and_reads_no_file (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_the_serving_loops_runtime_read_enqueues_and_reads_no_file)
+THE HOOK IS AN ASSIGNMENT. `refresh_runtime` already runs per tick ... ok
+test_a_partially_constructed_deployment_answers_this_as_its_own (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_a_partially_constructed_deployment_answers_this_as_its_own)
+`__getattr__` DELEGATES EVERY UNBOUND NAME to the pooled surface, ... ok
+test_a_second_staged_composition_over_one_store_admits_none (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_a_second_staged_composition_over_one_store_admits_none)
+DISTINCT COMPOSITIONS, ONE STORE. The second runs normally with no ... ok
+test_an_over_bound_stop_appears_in_the_collected_refusal (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_an_over_bound_stop_appears_in_the_collected_refusal) ... ok
+test_the_deployment_admits_one_and_every_worker_shares_it (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_the_deployment_admits_one_and_every_worker_shares_it)
+OWNERSHIP IS AT THE DEPLOYMENT, not at the worker. ... ok
+test_the_helper_is_released_through_closers_by_its_own_name (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_the_helper_is_released_through_closers_by_its_own_name) ... ok
+
+----------------------------------------------------------------------
+Ran 82 tests in 6.958s
+
+OK
+{"elapsed_seconds": 7.11936305501149, "errors": [], "failures": [], "live_threads": [], "mode": "focused", "tests": 82}

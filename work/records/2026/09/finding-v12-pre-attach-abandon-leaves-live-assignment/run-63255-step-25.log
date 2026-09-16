@@ -1,0 +1,17 @@
+......................................................................................................................................................................................................................................................................................................................................F...................................
+======================================================================
+FAIL: test_an_interruption_after_the_fence_resumes_one_authority_effect (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_interruption_after_the_fence_resumes_one_authority_effect)
+CUT TWO, for real: the fence COMMITS at the authority and the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_dogfood_operator.py", line 7407, in test_an_interruption_after_the_fence_resumes_one_authority_effect
+    self.assertIsNotNone(committed, "the fence never reached the "
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                    "authority before the crash")
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : the fence never reached the authority before the crash
+
+----------------------------------------------------------------------
+Ran 362 tests in 4.076s
+
+FAILED (failures=1)

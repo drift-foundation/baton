@@ -1,0 +1,69 @@
+{
+  "work": "W161234",
+  "claim": 175150,
+  "author": "baton.tuner",
+  "selection_event": 174829,
+  "handoff_event": 175131,
+  "status": "awaiting-independent-review",
+  "independent_acceptance": false,
+  "prior_candidate_sha256": "b579b0307137886e109a8025a1d5a1961be395a79e7f30d3880a30a50b76247f",
+  "base_sha256": "3e9bd24abe5d23548a9fe605d1f956b4bd809042d5be22e8aca322665bd13a5d",
+  "files": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "bytes": 32950,
+      "lines": 503,
+      "target_mode": "0664",
+      "base_sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "base_snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "original_repository_base_exists": false,
+      "changed_this_claim": false,
+      "candidate_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/src/baton_v12/worker_manager/provider_context.py"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "sha256": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "bytes": 28321,
+      "lines": 551,
+      "target_mode": "0664",
+      "base_sha256": "6c881fcf56eaa80b799f2e6387ed13cb0f3c8f41055bb88ea464581b5af1bb80",
+      "base_snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "original_repository_base_exists": false,
+      "changed_this_claim": true,
+      "candidate_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/src/baton_v12/worker_manager/context_delivery.py"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context.py",
+      "sha256": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "bytes": 44814,
+      "lines": 782,
+      "target_mode": "0664",
+      "base_sha256": "f3a6239bd98ffb9355a6e96ced0013a61c44e1e21a3c1c338667755bcd485758",
+      "base_snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/tests/manager/test_provider_context.py",
+      "original_repository_base_exists": false,
+      "changed_this_claim": true,
+      "candidate_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/tests/manager/test_provider_context.py"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context_delivery.py",
+      "sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "bytes": 5245,
+      "lines": 114,
+      "target_mode": "0664",
+      "base_sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "base_snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/tests/manager/test_provider_context_delivery.py",
+      "original_repository_base_exists": false,
+      "changed_this_claim": false,
+      "candidate_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/tests/manager/test_provider_context_delivery.py"
+    }
+  ],
+  "full_new_file_patch_sha256": "efe09f776a757b018d415ff670fd90c4f0fa73b149cc6e00d825b9b4ef512b88",
+  "corrections_patch_sha256": "ffd52fef0b8916e988190ac6b64a499d0c3d5eada2525f2516ef495cd95cc91f",
+  "verification_sha256": "d0aec641cc0e358c92579bed7862294aa1caafb622c46ef68e64736b755b0a33",
+  "static": {
+    "ast_parse": true,
+    "selected_file_whitespace": true
+  },
+  "remaining": "Independent A review, B serving, C complete correction/restart proof, separate production provider qualification."
+}

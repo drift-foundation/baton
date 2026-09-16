@@ -1,0 +1,25 @@
+{
+  "candidate_sha256": "a08ce1ffcd95bedb62c65597b027d4c48a1c0368df86e77544ab4bee39ae9f73",
+  "files": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/intake.py",
+      "matches": true,
+      "unchanged_since_prior_review": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/__init__.py",
+      "matches": true,
+      "unchanged_since_prior_review": true
+    },
+    {
+      "path": "baton:v12/python/tools/dogfood_operator.py",
+      "matches": true,
+      "unchanged_since_prior_review": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_dogfood_operator.py",
+      "matches": true,
+      "unchanged_since_prior_review": false
+    }
+  ]
+}

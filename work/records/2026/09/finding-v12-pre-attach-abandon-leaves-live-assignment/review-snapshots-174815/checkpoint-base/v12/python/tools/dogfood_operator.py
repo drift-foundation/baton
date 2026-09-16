@@ -1,0 +1,4890 @@
+"""W39358 — the minimal supervised dogfood operator.
+
+`work/records/2026/08/finding-v12-first-useful-dogfood-task/findings/
+finding-minimal-supervised-operator/`.
+
+WHAT THIS IS. One documented composition of capabilities other Work already
+delivered and other Work already reviewed: the accepted Worker Manager
+lifecycle (W6636), the Docker worker-entry transport (W39356) and the real
+Claude worker image (W39357). It is a DEPLOYMENT, and the whole of its value
+is that it is the only place where those three meet.
+
+WHAT IT IS EMPHATICALLY NOT, and each line is a boundary somebody could
+reasonably have crossed:
+
+  NOT A SECOND MANAGER. Every durable decision here goes through a public
+  `baton_v12.worker_manager` operation. This module journals nothing, opens no
+  control store table, recomputes no signature and invents no state. If a
+  question can only be answered by reaching past those operations, that
+  inability is the finding.
+  NOT AN AUTHORITY. `DeploymentSession` is a FACADE over one already-minted
+  `baton_v12.authority.Session`; it mints nothing and widens nothing.
+  NOT A MERGE TOOL. It derives the candidate's diff and the task's own
+  verification result INDEPENDENTLY, and it never stages, merges, or writes
+  into the canonical checkout. What it produces is a proposal an operator
+  reads.
+  NOT AN AUTHORIZATION. Every grant is an explicit operand: the exact source
+  subset, the frozen task, the image DIGEST, the engine, the manager's own
+  roots, the configured workspace group, the credential source and the network
+  name. There is no home credential, no mutable image tag and no open-network
+  default anywhere in this file, because a default is a grant nobody made.
+  NOT THE PLACE THE IMAGE IS SELECTED, and W55361 approver event 55641 is why
+  that sentence is here rather than assumed. The worker artefact is SELECTED
+  BY VALIDATED DIGEST in the owning Work's record, chronologically, and this
+  command CONSUMES that exact digest and reports what it launched. A new
+  attempt reuses the current selection: an attempt is not a rebuild trigger.
+  A build result is a CANDIDATE until a recorded upgrade, source, security,
+  platform or refresh event validates it and explicitly selects its digest --
+  so writing a fresh digest into a new grants file is not a selection, it is
+  an operator claiming an authorization no record made. The measured reason is
+  in `tools/worker_image.py`: two builds of an unchanged tree a day apart
+  differ in the `npm` and `apt` layers alone, so rebuilding per attempt
+  silently changes the artefact under test.
+
+THE ORDER, and it is the accepted arc rather than this module's invention:
+
+  1. offer, accept, record, claim, activate       -- the authority half
+  2. workspace roots, input root, staged source   -- the delivery half
+  3. launch document, credential delivery         -- the two manager roots
+  4. runtime start, worker-entry conversation     -- the one container
+  5. freeze, intake, retention                    -- output custody
+  6. pass the assignment to its review route      -- the v11 lifecycle
+  7. destroy, positive absence, teardown          -- the ending
+
+THE COMMAND, and it is one because the acceptance asks for one that is
+REUSABLE for another bounded task:
+
+    python3 tools/dogfood_operator.py --grants GRANTS.json \
+        --evidence OUT.json [--credential-sources PATH] [--retry-handoff]
+        [--abandon --abandon-reason WHY]
+        [--finalize-quiescent --finalize-reason WHY]
+
+`--credential-sources` names the USER'S OWN private `baton.user-credential-
+sources/1` registry, which says which of that user's files backs each exact
+provider and opaque reference the trusted profile resolves. It is read once,
+when the delivery is materialized, and never written back; it is deliberately
+NOT a grants member, because a grants file is a durable surface and §13 keeps
+the one deliberate secret off every one of them.
+
+W52821 REPLACED `--credential-file`, AND THE THING IT REPLACED WAS A BYPASS.
+That operand named one file whose bytes were returned for every provider and
+every reference: `CredentialHome.materialize` asks its injected provider with
+the two operands `credentials.resolved_delivery` read out of the trusted
+profile, and the old seam discarded both. So the profile decided what a
+credential is and the command then ignored the decision, and an attempt
+authorized for two slots delivered one file twice. `tools/user_credentials.py`
+is the owner that selects on the exact pair instead, with no fallback of any
+shape, and it proves the registry and the selected source are ordinary files
+this user owns privately before it reads either.
+
+`retention_disposition` is one of the manager's frozen three -- `retain`,
+`quarantine` or `discard-after-intake` -- and it decides whether this attempt
+leaves its candidate behind. It has no default and is not derived from
+`retention_policy_digest`: W39364's first live attempt ran the whole arc under
+a HARD-CODED discard and destroyed the proposal it existed to produce,
+including the worker's own account of why it answered `unable`. A `retain` or
+`quarantine` run ends `retained` rather than `complete` -- that is the
+manager's own vocabulary for "the material is still there" -- and this command
+reports it resolved, having proved the custody locator is still openable.
+
+`--retry-handoff` performs approver ruling M46985's narrow retry over the
+record in `--evidence`: an attempt whose worker COMPLETED, whose output was
+frozen and whose candidate this operator independently verified, but whose
+pass or settlement then failed. It runs no worker, starts no runtime, opens no
+provider turn and restages nothing -- it redoes the pass and the ending, both
+under the original identities, so the authority and the manager replay rather
+than repeat.
+
+`--finalize-quiescent` is W61984's EXPLICIT operator decision, and the one
+mode that touches the authority and nothing else. It ends the live assignment
+of an attempt whose worker already answered one of the four terminal
+dispositions and whose exact runtime this manager recorded `quiescent`, so the
+participant's claim slot is freed and the exact generation is fenced. It
+contacts no agent, stops no runtime, decides nothing about whether the retained
+output is accepted, trustworthy or disposable, and performs no cleanup: the
+Work stays behind `runtime-quiescence:<generation>` until positive absence, and
+the custody stays pending for the operator's own retention decision. It is
+never reached by an ordinary run, however that run ended.
+
+`GRANTS.json` is the whole of what an operator decides. Nothing in it has a
+default and nothing is read from the environment, because a grant nobody made
+is the failure this deployment exists to avoid:
+
+    {
+      "engine": "docker",
+      "attempt_id": "...", "offer_id": "...",
+      "source": "/abs/path/to/the/exact/subset",
+      "task_path": "/abs/path/to/task.json",
+      "storage": "/abs/path/manager-storage",
+      "launch_home": "/abs/path/launch-home",
+      "control_store": "/abs/path/control.sqlite3",
+      "authority_store": "/abs/path/authority.sqlite3",
+      "incarnation": "dogfood-1",
+      "credential_home": "/abs/path/credential-home",
+      "credential_slots": [...the slots this assignment authorizes...],
+      "credential_profile": {...the trusted slot-to-provider mapping...},
+      "image_digest": "sha256:...", "network": "baton-dogfood",
+      "review_route": "rview",
+      "retention_disposition": "retain",
+      "retention_policy_digest": "sha256:...",
+      "work_ref": {"authority_uuid": "...", "work_id": "..."},
+      "participant": "team.member", "generation": 1,
+      "now": "2026-08-30T00:00:00.000Z",
+      "policies": {...the seven policy identities...},
+      "record_binding": {...root, path and the two digests...},
+      "assignment_contract": "...", "human_contract": {...},
+      "role_instructions_digest": "sha256:...",
+      "runtime_profile_digest": "sha256:...",
+      "toolchain_digest": "sha256:...",
+      "adapter_digest": "sha256:...", "adapter_name": "oci",
+      "labels": {...}, "retention_policy_digest": "sha256:..."
+    }
+
+REUSING IT FOR ANOTHER BOUNDED TASK is changing `task_path`, `source` and the
+identities -- and nothing in this file. That is the whole claim: the arc is
+the same arc, and what varies is what an operator granted.
+
+TWO THINGS THE COMMAND DELIBERATELY DOES NOT TAKE. The one-use bearer and the
+authority session are supplied by the launcher through
+`compose(...)`/`main(...)` operands rather than read from a file or an
+environment variable, because §13 keeps the one deliberate secret off every
+durable surface and a grants file is a durable surface.
+
+WHAT AN UNRESOLVED ATTEMPT IS. Whenever runtime absence, output custody or
+credential cleanup cannot be PROVED, this reports `unresolved` and says which
+proof is missing. It never relabels an unproved ending as a clean one -- that
+is the one failure mode a supervised pilot must not have, because the operator
+reading the evidence is deciding whether to run another.
+"""
+
+import json
+import os
+import re
+
+from baton_v12.contracts import ContractRefusal, check_no_durable_secret
+from baton_v12.contracts import validate_fragment as _validate_fragment
+from baton_v12 import source_profiles
+from baton_v12.worker_manager import source_boundary, workspaces
+from baton_v12.worker_manager.oci import _network as _engine_network
+from baton_v12.worker_manager.authority_port import SESSION_OPERATIONS
+
+# THE USER-SCOPED CREDENTIAL SOURCE OWNER, imported both ways because this file
+# is both a module and a program. `python3 tools/dogfood_operator.py` runs it as
+# a script, where `tools/` is `sys.path[0]` and there is no package to be
+# relative to; the suite imports it as `tools.dogfood_operator`, where there is.
+# One module either way -- what varies is how the interpreter was started.
+try:
+    from . import user_credentials
+except ImportError:                                        # run as a script
+    import user_credentials
+
+__all__ = ["DeploymentSession", "MAX_SOURCE_ENTRIES", "MAX_SOURCE_BYTES",
+           "RECOVERY_MEMBERS", "RECOVERY_SCHEMA", "recover_abandoned",
+           "finalize_quiescent", "write_recovery",
+           "PROPOSAL_TARGET", "POLICY_DIGESTS", "SOURCE_TARGET",
+           "OperatorRefusal", "assignment_manifest", "frozen_task",
+           "held_task", "input_manifest", "preflight", "stage_source"]
+
+
+# WHERE THE STAGED SOURCE LANDS INSIDE THE INPUT ROOT, and it is fixed for the
+# reason every other path in this campaign is: a path a payload can vary is a
+# path a runtime can be pointed at wrongly. `claude_agent.SOURCE_ROOT` is the
+# other half of this agreement and holds the same constant by equality.
+SOURCE_TARGET = "source"
+
+# WHERE THE PROPOSAL LANDS, relative to the fixed `/output` root. The parent
+# finding's accepted tree is `/output/proposal/`, and W39357's adapter joins
+# the declared path directly below `/output` -- so this is the same constant
+# seen from the two ends of one agreement.
+PROPOSAL_TARGET = "proposal"
+
+# WHAT A DIGEST LOOKS LIKE. Held on the way in because every policy identity
+# this deployment names is one it is accountable for, and "sha256:" plus 64
+# hex is what the manager compares.
+_DIGEST = re.compile(r"\Asha256:[0-9a-f]{64}\Z")
+
+# WHAT THE OPERATOR MAY STAGE, bounded on both axes at the party that walks
+# it. The manager bounds its own roots; this is the second bound, at the one
+# place a human names a directory.
+MAX_SOURCE_ENTRIES = 2000
+MAX_SOURCE_BYTES = 64 * 1024 * 1024
+
+
+class OperatorRefusal(Exception):
+    """Something this operator will not proceed from.
+
+    Deliberately not a `ContractRefusal`: those are the manager's judgements
+    about its own contracts, and this one is a deployment saying it was asked
+    for something it does not do. Conflating them would let an operator
+    mistake a composition mistake for a protocol refusal.
+    """
+
+
+class DeploymentSession:
+    """The authority face this deployment gives the manager, and no more.
+
+    SIX MEMBERS DELEGATE, one refuses, and ONE MORE IS THIS DEPLOYMENT'S OWN.
+    `AuthorityPort` names exactly seven session operations and checks all of
+    them are callable at construction, so a facade that simply omitted
+    `publish_answer` would be refused before the first offer -- and one that
+    quietly forwarded it would be promising a Baton publication this pilot
+    does not perform.
+
+    `pass_work` IS THE EIGHTH AND IT IS NOT THE MANAGER'S. Approver ruling
+    M44657: the v11 lifecycle is preserved in v12, so after intake,
+    independent verification and retention this deployment explicitly passes
+    the exact assignment generation to an operator-supplied review Route. The
+    manager's port does not name that operation and this deployment does not
+    ask it to -- the port checks the seven it names and ignores anything else,
+    so the capability lives where the ruling put it: on the deployment's own
+    facade, over the deployment's own already-minted session.
+
+    WHY `publish_answer` IS A TYPED REFUSAL RATHER THAN A NO-OP. It is the
+    manager's route for a conversational `inquire` answer, and this pilot runs
+    no `inquire` at all. A no-op would answer "published" to something nobody
+    published; a refusal says the deployment does not carry that capability,
+    which is true and is what an operator needs to read.
+
+    IT MINTS NOTHING. What it holds is one already-minted participant-bound
+    `Session`; there is no route from here to a second one, which is the
+    property the authority's own mint rule exists to give.
+    """
+
+    def __init__(self, session):
+        # THE EIGHTH IS CHECKED WITH THE SIX, because it is delegated like
+        # them. Review 2026-08-30T12:27:41Z [P1]: only the port's operations
+        # were held, so this facade's own `pass_work` was callable over a
+        # session that had none -- and `run_dogfood_task`'s preflight, which
+        # asks the FACADE, was satisfied by the very method that would fail.
+        # A capability check that inspects the wrapper rather than the thing
+        # wrapped is not a check, and the discovery moved to after staging, a
+        # container, a conversation, intake and retention.
+        for member in SESSION_OPERATIONS + ("pass_work",):
+            if member == "publish_answer":
+                continue
+            if not callable(getattr(session, member, None)):
+                raise OperatorRefusal(
+                    f"the authority session this deployment was given has no "
+                    f"callable {member}; a facade cannot supply an operation "
+                    f"the session it delegates to does not have")
+        self._session = session
+
+    @property
+    def participant(self):
+        """The bound identity, read from the session rather than configured."""
+        return self._session.participant
+
+    def project_work(self, *arguments):
+        return self._session.project_work(*arguments)
+
+    def slot_holder(self, *arguments):
+        return self._session.slot_holder(*arguments)
+
+    def claim(self, *documents):
+        return self._session.claim(*documents)
+
+    def settle_operation(self, *documents):
+        return self._session.settle_operation(*documents)
+
+    def assignment_of(self, *arguments):
+        return self._session.assignment_of(*arguments)
+
+    def cancel(self, *documents):
+        return self._session.cancel(*documents)
+
+    def pass_work(self, *documents):
+        """Hand the exact assignment generation to its review Route.
+
+        Delegated rather than composed, like every other member here: the
+        authority owns what a pass MEANS -- it moves the Route and ends the
+        assignment in one act -- and a facade that reimplemented any part of
+        that would be a second spelling of the transition.
+        """
+        return self._session.pass_work(*documents)
+
+    def publish_answer(self, *documents):
+        """The one member this deployment does not carry."""
+        raise OperatorRefusal(
+            "this dogfood deployment publishes no conversational answer: it "
+            "runs no `inquire`, so there is no answer to publish and a "
+            "successful-looking no-op would be a publication nobody made")
+
+
+def held_human_contract(document, *, what="the human contract"):
+    """ONE human-contract hold, applied everywhere the contract is believed.
+
+    W51476, and it is `held_task`'s defect one grant over. `preflight` held
+    the policies, the record binding, the network, the review route and the
+    task; `input_manifest` then copied `human_contract` into the frozen
+    document and left it to `check_input_pair`. So the grant was validated
+    for the first time by the WHOLE-MANIFEST validator -- which
+    `compose_input_root` runs after `stage_source` has written the delivery,
+    after `submit_claim`, after `activate_assignment` and after the credential
+    home has materialized the attempt's slot.
+
+    W39364's first live invocation is what found it. A locator of
+    `baton:work/records/...` -- the ordinary opaque spelling -- passed
+    everything an operator could check and was refused halfway through an
+    attempt that had already taken a claim and an activation. No runtime and
+    no provider turn started, so nothing unsafe happened; what happened is
+    that the no-side-effect interval `preflight` documents was open.
+
+    TWO GRAMMARS, BOTH IMPORTED, AND THE NARROWER ONE IS THE REAL CONTRACT.
+    `artifactRef` is the frozen `$defs` shape and its `locator` pattern admits
+    `scheme:anything`; `contracts.manifest.check_uri` is what the manifest
+    actually applies, and it requires `scheme://` followed by an authority --
+    EXCEPT for `file:`, which has its own form, `file:///` and an absolute
+    path with no host, because a file locator naming a host would be a claim
+    about somebody else's filesystem. Review 2026-08-31T05:27:01Z asked for
+    that precision and it is worth having: the positive cases use both forms.
+    Applying the loose grammar alone is what let the two lifecycle times
+    disagree, so this applies BOTH -- the shape from the schema, then the
+    locator from the manifest's own owner. Neither is rewritten here: a third
+    spelling would be a third thing to disagree with.
+
+    ONE FUNCTION, TWO CALL SITES, for the reason `held_task` gives in its own
+    words: checking a document twice with two different rules is not the same
+    hold. This runs at the preflight and again immediately before the manifest
+    is composed from it, so a contract that was read valid and then changed is
+    not the contract that gets frozen.
+    """
+    from baton_v12.contracts import check_uri
+
+    if type(document) is not dict:
+        raise OperatorRefusal(f"{what} is one JSON object; this is a "
+                              f"{type(document).__name__}")
+    # THE FROZEN SHAPE FIRST, from the schema that owns it. Every member, its
+    # type, the media-type grammar, the digest and the byte bound come from
+    # `artifactRef` rather than from a list maintained here.
+    try:
+        _validate_fragment(document, "artifactRef", what=what)
+    except ContractRefusal as refused:
+        # THE CONTRACT'S OWN SENTENCE, as the record binding's locators
+        # already do: the refusal text says which rule the value broke, and a
+        # class name would send an operator reading this file instead of
+        # their own document.
+        raise OperatorRefusal(f"{what} is not an artifact reference: "
+                              f"{refused.message}") from None
+    # AND THEN THE LOCATOR, BY THE GRAMMAR THE MANIFEST WILL APPLY. This is
+    # the whole finding: `artifactRef` admits `baton:<path>` and
+    # `check_input_pair` does not, so the operand has to meet the stricter of
+    # the two here, where refusing it costs nothing.
+    try:
+        check_uri(document["locator"], f"{what} locator")
+    except ContractRefusal as refused:
+        raise OperatorRefusal(f"{what} locator is not one the frozen input "
+                              f"manifest will accept: {refused.message}") \
+            from None
+    return dict(document)
+
+
+def held_disposition(disposition):
+    """The retention disposition an operator chose, held to the MANAGER's own
+    vocabulary.
+
+    W51473. The first live attempt (W39364 `attempt-w39364-run2`) completed the
+    whole arc and then destroyed the thing it existed to produce: `_custody`
+    passed the literal `"discard-after-intake"` to `decide_retention`, so the
+    `retention_policy_digest` an operator granted named a policy whose
+    DISPOSITION nothing read. The manager took custody of an 86,417-byte
+    proposal, this operator derived it, and the discard then removed the
+    tree -- taking `result.json`, the worker's own bounded account of its
+    `unable` answer, and the candidate a human is required to inspect. The
+    sealed result's own locator named a directory that no longer existed.
+
+    A LITERAL IS NOT A DECISION, and that is the whole finding. Retention
+    decides whether a supervised attempt leaves anything behind, which is the
+    most consequential thing about a supervised attempt; it is an operator
+    grant like the network and the credential source, with no default and
+    nothing derived from the policy digest.
+
+    ONE VOCABULARY, IMPORTED. `schema.RETENTION_DISPOSITIONS` is the manager's
+    frozen three and `intake._disposition` is the rule that enforces them; a
+    second tuple spelled here would be a second vocabulary that agrees until
+    one of the two is edited. This holds the operand to the imported set and
+    says which three, so an operator reads the answer rather than this file.
+    """
+    from baton_v12.worker_manager import RETENTION_DISPOSITIONS
+
+    if type(disposition) is not str \
+            or disposition not in RETENTION_DISPOSITIONS:
+        raise OperatorRefusal(
+            f"the retention disposition is one of the manager's frozen three "
+            f"-- {', '.join(RETENTION_DISPOSITIONS)} -- named explicitly; "
+            f"this is {disposition!r}. Retention decides whether this attempt "
+            f"leaves its candidate behind for review, so it is granted like "
+            f"the network and the credential source and is never defaulted "
+            f"or derived from the policy digest")
+    return disposition
+
+
+# WHICH DISPOSITIONS MEAN THE MATERIAL STAYS -- the manager's own answer,
+# imported for the same reason `held_disposition` imports the vocabulary.
+# `intake.KEEPS_MATERIAL` is what makes cleanup end `retained` rather than
+# `complete`, so a deployment deciding whether a `retained` ending is the one
+# it asked for has to be reading that exact tuple.
+def _keeps_material(disposition):
+    from baton_v12.worker_manager.intake import KEEPS_MATERIAL
+
+    return disposition in KEEPS_MATERIAL
+
+
+def preflight(*, task, policies, worker_image_digest, toolchain_digest,
+              runtime_profile_digest, role_instructions_digest,
+              record_binding, network, review_route, retention_disposition,
+              human_contract):
+    """EVERY EXPLICIT OPERAND, HELD BEFORE ANYTHING IS STAGED OR STARTED.
+
+    Review 2026-08-30T05:53:19Z [P1]. The first round put the policy check
+    inside `input_manifest`, which takes the already-produced staged manifest
+    -- so the record claimed a refusal happened "while nothing has been
+    staged" and the code could not deliver it. **Superseded:** that claim.
+    This is the pure preflight it described, and it runs before
+    `stage_source` writes anything.
+
+    IT HOLDS VALUES AND NOT ONLY KEYS, which was the other half of the
+    finding. `policy_digest="not-a-digest"` passed a key check and was left
+    for the manager to refuse after the delivery existed; every digest operand
+    is held to its shape here.
+
+    IT DOES NOT VALIDATE THE TASK'S CONTENT, only that it is a task this
+    deployment reads -- `frozen_task` owns that and is called with the
+    operator's path. What this adds is that the task is checked in the same
+    act as everything else, so one refusal reports the whole preflight rather
+    than one operand at a time.
+    """
+    faults = _held_identities(
+        policies=policies, worker_image_digest=worker_image_digest,
+        toolchain_digest=toolchain_digest,
+        runtime_profile_digest=runtime_profile_digest,
+        role_instructions_digest=role_instructions_digest,
+        record_binding=record_binding)
+    # THE NETWORK IS A NAME AND NEVER A DEFAULT, and it is held to the
+    # ENGINE'S OWN GRAMMAR rather than to a second one written here. Review
+    # 2026-08-30T06:05:02Z [P1]: any non-empty string passed, including
+    # `--network=host`, `../bridge` and `two words`, and `oci._network`
+    # refused them only when the runtime vector was composed. Reusing that
+    # owner is what keeps the operator and the adapter from drifting.
+    try:
+        _engine_network(network)
+    except ContractRefusal:
+        # EXACTLY THE TYPED OUTCOME, and nothing else. Review
+        # 2026-08-30T06:20:54Z [P2]: `except Exception` here turned an
+        # implementation defect in the owner into an `OperatorRefusal`, which
+        # tells a human to edit a grant that is fine and hides the boundary
+        # that actually failed. `OperatorRefusal`'s own docstring draws that
+        # distinction; catching broadly erased it.
+        faults.append("the engine network is one engine network name, named "
+                      "explicitly")
+    # THE REVIEW ROUTE IS NAMED, NEVER DEFAULTED. Approver ruling M44657 makes
+    # the pass part of the arc, and where the Work goes next is a DEPLOYMENT
+    # decision -- so it is an operand held here beside the network, and an
+    # operator who did not say gets a refusal rather than somebody's guess at
+    # a sensible destination.
+    if type(review_route) is not str or not review_route.strip():
+        faults.append("the review route this attempt is passed to is one "
+                      "non-empty name, named explicitly")
+    # AND THE RETENTION DISPOSITION, held here beside the network and the
+    # review route because it is the same kind of grant: a deployment decision
+    # with no default, whose absence is a refusal rather than somebody's guess.
+    # W51473: it used to be a literal inside `_custody`, so the operator asked
+    # for a discard on every run and no operator could say otherwise.
+    try:
+        held_disposition(retention_disposition)
+    except OperatorRefusal as refused:
+        faults.append(str(refused))
+    # THE WHOLE TASK, not its schema. See `held_task`.
+    try:
+        held_task(task)
+    except OperatorRefusal as refused:
+        faults.append(str(refused))
+    # AND THE WHOLE HUMAN CONTRACT, for exactly the same reason and by the
+    # same shape of owner. W51476: this grant reached the frozen manifest
+    # unvalidated and was refused there -- after the delivery, the claim, the
+    # activation and the credential slot existed.
+    try:
+        held_human_contract(human_contract)
+    except OperatorRefusal as refused:
+        faults.append(str(refused))
+    if faults:
+        raise OperatorRefusal(
+            "this operator will not stage or start anything until every "
+            "grant it was given is one it can name: " + "; ".join(faults))
+    return True
+
+
+def _held_identities(*, policies, worker_image_digest, toolchain_digest,
+                     runtime_profile_digest, role_instructions_digest,
+                     record_binding):
+    """The digest and record-binding half of the preflight, as a fault list.
+
+    Split out so `input_manifest` can apply the same hold at the composer
+    without being handed a task it does not have. One owner, two callers, and
+    no second spelling of what a policy identity is.
+    """
+    faults = []
+    # THE CONTAINER BEFORE ITS CONTENTS. Review 2026-08-30T06:05:02Z [P1]:
+    # `policies=None` leaked `TypeError` and a string leaked `ValueError`, so
+    # the public promise of one collected `OperatorRefusal` over explicit
+    # grants was false for exactly the operands most likely to arrive wrong.
+    if type(policies) is not dict:
+        raise OperatorRefusal(
+            f"the policy identities are one document naming "
+            f"{', '.join(POLICY_DIGESTS)}; this is a "
+            f"{type(policies).__name__}")
+    missing = sorted(one for one in POLICY_DIGESTS if one not in policies)
+    extra = sorted(one for one in policies if one not in POLICY_DIGESTS)
+    if missing or extra:
+        faults.append(
+            "the policy identities are exactly "
+            + ", ".join(POLICY_DIGESTS)
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    named = dict(policies)
+    named.update({"worker_image_digest": worker_image_digest,
+                  "toolchain_digest": toolchain_digest,
+                  "runtime_profile_digest": runtime_profile_digest,
+                  "role_instructions_digest": role_instructions_digest})
+    for name in sorted(named):
+        value = named[name]
+        if type(value) is not str or not _DIGEST.match(value):
+            faults.append(f"{name} is not a sha256 digest")
+    # THE RECORD BINDING'S VALUES, not only its four names. Review
+    # 2026-08-30T06:05:02Z [P1]: four correctly named members passed with a
+    # malformed digest, an empty root or an absolute path, and the frozen
+    # input-manifest schema refused them only after the source was staged.
+    if type(record_binding) is not dict \
+            or sorted(record_binding) != sorted(_RECORD_BINDING):
+        faults.append("the record binding is exactly "
+                      + ", ".join(_RECORD_BINDING))
+    else:
+        for name in ("finding_digest", "plan_digest"):
+            value = record_binding[name]
+            if type(value) is not str or not _DIGEST.match(value):
+                faults.append(f"the record binding's {name} is not a sha256 "
+                              f"digest")
+        # THE FROZEN CONTRACT'S OWN GRAMMAR, through its own owner. Review
+        # 2026-08-30T06:13:35Z [P1]: the previous cut wrote an approximation
+        # here -- any non-empty string as the root, `posixpath.normpath` plus
+        # a few exclusions as the path -- so a root with spaces or 161
+        # characters, and a path of `.`, with a backslash, with a NUL or 513
+        # characters long, all reached `_sealed`, which refused them AFTER
+        # `stage_source` had created the delivery. That is exactly the
+        # interval this preflight exists to remove, and the record's claim
+        # that both locators were held by value was stronger than the code.
+        #
+        # `validate_fragment` is the frozen document's own `$defs` owner, and
+        # reusing it is the same rule the network operand is under: a second
+        # approximation maintained here is a second grammar with nothing
+        # comparing the two.
+        for name, definition in (("root", "opaqueId"),
+                                 ("path", "relativePath")):
+            try:
+                _validate_fragment(record_binding[name], definition,
+                                   what=f"the record binding's {name}")
+            except ContractRefusal as refused:
+                # THE CONTRACT'S OWN SENTENCE, not a summary of it. The
+                # refusal text is composed by the frozen validator and says
+                # which rule the value broke, which is what an operator needs
+                # to fix a launch; a class name would send them reading this
+                # file instead of their own document.
+                #
+                # AND ONLY THE TYPED OUTCOME REACHES IT. Review
+                # 2026-08-30T06:20:54Z [P2]: `except Exception` relabelled an
+                # owner's implementation defect as a malformed grant, which is
+                # the one thing `OperatorRefusal` is documented not to be.
+                faults.append(f"the record binding's {name} is not a "
+                              f"{definition}: {refused.message}")
+    return faults
+
+
+_RECORD_BINDING = ("root", "path", "finding_digest", "plan_digest")
+
+
+def stage_source(source, inputs, *, max_entries=MAX_SOURCE_ENTRIES,
+                 max_bytes=MAX_SOURCE_BYTES):
+    """The exact source subset, copied into the input root, bounded.
+
+    THROUGH THE MANAGER'S OWN COPIER. `workspaces.copied_manifest` is the
+    reviewed bounded no-follow path -- it refuses a link at any depth, counts
+    what it walks and answers a manifest of what it copied. Writing a second
+    copier here would be a second party deciding what a delivery is, which is
+    the first defect this campaign found.
+
+    STAGED INTO THE INPUT ROOT AND NOWHERE ELSE. The input root is mounted
+    read-only at `/input`, so the worker sees `/input/source` and cannot write
+    to it; the adapter copies it into container-private scratch before the
+    provider touches anything.
+    """
+    # THE OPERATOR CONSTANTS ARE A CEILING, not a default. Review
+    # 2026-08-30T05:53:19Z [P1]: these were forwarded unchanged, so a caller
+    # could widen the bound this module states -- which makes a stated bound
+    # a suggestion. A LOWER value is still accepted, because a test or a
+    # cautious operator narrowing its own delivery takes nothing away.
+    # A NARROWED CEILING IS STILL A CEILING. Review 2026-08-30T06:05:02Z [P2]:
+    # this accepted booleans and zero and leaked `TypeError` for text, and one
+    # boolean reached `copied_manifest` and surfaced in a manager refusal as a
+    # limit of `True` files. Positive exact integers, by the manager's own rule
+    # for every other seconds-or-count operand.
+    for name, value in (("max_entries", max_entries),
+                        ("max_bytes", max_bytes)):
+        if type(value) is not int or type(value) is bool or not 0 < value:
+            raise OperatorRefusal(
+                f"{name} is a positive whole number; this is "
+                f"{type(value).__name__} {value!r}")
+    if max_entries > MAX_SOURCE_ENTRIES or max_bytes > MAX_SOURCE_BYTES:
+        raise OperatorRefusal(
+            f"this operator stages at most {MAX_SOURCE_ENTRIES} entries and "
+            f"{MAX_SOURCE_BYTES} bytes; a caller may narrow that and may not "
+            f"widen it, because a bound a caller can raise is not one this "
+            f"module states")
+    place = os.path.join(inputs, SOURCE_TARGET)
+    if os.path.exists(place):
+        raise OperatorRefusal(
+            f"{place} already exists; an attempt stages its source once, and "
+            f"a second staging into a live input root would be replacing a "
+            f"delivery the manager has already measured")
+    return workspaces.copied_manifest(source, place, max_entries=max_entries,
+                                      max_bytes=max_bytes)
+
+
+def frozen_task(place):
+    """The operator's frozen task document, read and held to its own shape.
+
+    READ HERE AND VALIDATED HERE rather than passed through. The adapter holds
+    it to `baton.dogfood-task/1` inside the container, and this reads it on the
+    way in so an operator learns about a malformed task before a container
+    starts rather than from a failed attempt's evidence.
+
+    IT IS THE OPERATOR'S DOCUMENT. This module does not compose one, because
+    a task an operator did not write is a task nobody chose.
+    """
+    try:
+        with open(place, "rb") as reading:
+            raw = reading.read(1 << 20)
+    except OSError as failed:
+        raise OperatorRefusal(
+            f"this operator has no readable frozen task at {place} "
+            f"({type(failed).__name__}); the task is the operator's own "
+            f"document and is named explicitly") from None
+    try:
+        document = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        raise OperatorRefusal(f"{place} is not a readable document") from None
+    return held_task(document, what=place)
+
+
+def held_task(document, *, what="the frozen task"):
+    """ONE task hold, applied everywhere a task is believed.
+
+    Review 2026-08-30T06:05:02Z [P1]. `frozen_task` answered an ordinary
+    mutable dict, `preflight` re-checked only its `schema`, and `_copied_task`
+    serialized whatever it was handed -- so a task could be read valid, have
+    its identity, instructions, verification vector or source root changed,
+    pass preflight and be copied into `/input/task.json` as the changed thing.
+    **Checking the schema a second time is not the same hold**, which is the
+    review's own sentence and the reason this function exists.
+
+    So there is one hold and it is applied at every place a task is believed:
+    the first read, the preflight, and immediately before the copy. It is a
+    pure function over a document, which is what lets it be applied three
+    times without three chances to disagree.
+
+    THE SAME CHECKS THE WORKER MAKES. `claude_agent._task` holds the identity
+    grammar, the non-empty text and the non-empty list of words inside the
+    container; an operator read that accepted what the container rejects would
+    move the promised refusal back to the failed provider attempt it exists to
+    avoid.
+    """
+    if type(document) is not dict:
+        raise OperatorRefusal(f"{what} is one JSON object")
+    missing = sorted(one for one in _TASK_MEMBERS if one not in document)
+    extra = sorted(one for one in document if one not in _TASK_MEMBERS)
+    if missing or extra:
+        raise OperatorRefusal(
+            f"{what} is exactly {', '.join(_TASK_MEMBERS)}"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    if document["schema"] != _TASK_SCHEMA:
+        raise OperatorRefusal(
+            f"{what} says it is {document['schema']!r} and this deployment "
+            f"stages {_TASK_SCHEMA!r}")
+    if type(document["task_id"]) is not str \
+            or not _TASK_ID.match(document["task_id"]):
+        raise OperatorRefusal(f"{what} carries no usable task identity")
+    for name in ("instructions", "source_root"):
+        if type(document[name]) is not str or not document[name]:
+            raise OperatorRefusal(
+                f"{what} carries a {name} that is not bounded non-empty text")
+    verification = document["verification"]
+    if type(verification) is not list or not verification \
+            or not all(type(one) is str and one for one in verification):
+        raise OperatorRefusal(
+            f"{what} carries a verification that is a non-empty list of "
+            f"words; a command anybody has to assemble from a string is a "
+            f"shell, and there is no shell in the worker")
+    if document["source_root"] != SOURCE_TARGET:
+        raise OperatorRefusal(
+            f"{what} names source_root {document['source_root']!r} and this "
+            f"deployment stages exactly {SOURCE_TARGET!r}")
+    # W71917 SECOND REVIEW [P1]: THE TWO NEW MEMBERS WERE ADMITTED AND NEVER
+    # ASKED ABOUT. `/2` added them to the closed set above, so a document
+    # carrying `source_profile=7` and `declared_base=[]` passed this read
+    # unchanged and was refused inside the container instead -- which is the
+    # one thing this operator's read exists to prevent.
+    #
+    # ASKED OF THE PROFILE PACKAGE, WHICH OWNS ALL THREE ANSWERS. The profile
+    # vocabulary, the base revision's grammar and the PAIRING -- a
+    # version-control profile with no base, a generic profile with one -- are
+    # `checkout_plan`'s rules, and a copy of them here would be a second
+    # definition drifting from the first. The two container paths are the
+    # manager's own constants, which is what makes this the same question the
+    # worker will ask.
+    try:
+        source_profiles.checkout_plan(source_boundary.SOURCE_TARGET,
+                                      source_boundary.WORKSPACE_TARGET,
+                                      profile=document["source_profile"],
+                                      declared=document["declared_base"])
+    except source_profiles.ProfileRefusal as refusal:
+        raise OperatorRefusal(
+            f"{what} carries a source_profile and declared_base this "
+            f"deployment cannot stage: {refusal}") from None
+    return document
+
+
+# THE FROZEN TASK'S CONTRACT, and it is W39357's rather than this module's.
+# Held here by equality so a document from another generation is refused on
+# the way in; `v12/worker/claude_agent.py` holds the same closed set at the
+# receiving end, which is the both-ends rule this campaign applies to every
+# crossing.
+#
+# W71917 MOVED IT TO `/2`, and this copy moves with it. The receiving end
+# gained `source_profile` and `declared_base` because the worker now turns its
+# read-only mount into a checkout itself; this end holds the same closed set so
+# a document from the other generation is still refused on the way in rather
+# than at a failed provider attempt. That both-ends agreement is what
+# `test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS`
+# measures, and it is why this constant is not left behind.
+_TASK_SCHEMA = "baton.dogfood-task/2"
+_TASK_MEMBERS = ("schema", "task_id", "instructions", "verification",
+                 "source_root", "source_profile", "declared_base")
+_TASK_ID = re.compile(r"\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}\Z")
+
+
+def _copied_task(document, inputs):
+    """The frozen task, delivered beside the staged source.
+
+    Written by this operator rather than by the manager, for the reason the
+    parent finding gives: the task is a WORKLOAD convention and not
+    worker-control protocol vocabulary, so the manager neither reads it nor
+    carries it in its documents.
+    """
+    # HELD IMMEDIATELY BEFORE THE WRITE. Review 2026-08-30T06:05:02Z [P1]:
+    # this serialized whatever it was handed, so a task read valid earlier and
+    # changed afterwards was copied as the changed thing. The hold is the same
+    # one `frozen_task` and `preflight` apply -- one function, three places, no
+    # chance for three answers.
+    document = held_task(document, what="the task being staged")
+    place = os.path.join(inputs, "task.json")
+    with open(place, "w", encoding="utf-8") as writing:
+        json.dump(document, writing, sort_keys=True)
+    os.chmod(place, 0o444)
+    return place
+
+
+POLICY_DIGESTS = ("policy_digest", "resource_policy_digest",
+                  "network_policy_digest", "mount_policy_digest",
+                  "tool_policy_digest", "credential_policy_digest",
+                  "retention_policy_digest")
+
+
+def input_manifest(*, work_ref, staged, created_at, manifest_id,
+                   assignment_contract, human_contract, record_binding,
+                   role_instructions_digest, runtime_profile_digest,
+                   toolchain_digest, worker_image_digest, policies):
+    """The manager-authored input manifest for one dogfood attempt.
+
+    COMPOSED HERE BECAUSE THE MANAGER DOES NOT COMPOSE IT. `compose_input_root`
+    takes both protocol documents as operands, so the party that knows what
+    this delivery IS -- the deployment -- authors them, and the manager holds
+    the root against what it was handed.
+
+    EVERY POLICY IDENTITY IS AN OPERAND. The frozen schema requires seven of
+    them plus the toolchain, the image and the record binding, and each names
+    something the deployment is accountable for. A tool that filled one in
+    would be making a grant on an operator's behalf, which is the one thing
+    the parent finding forbids this composition to do.
+
+    THE `sources` ENTRY DESCRIBES THE STAGED TREE and its `content_manifest`
+    is the one `copied_manifest` answered, not a second measurement. A
+    deployment that measured the tree twice would be two parties disagreeing
+    about one delivery, which is the defect the manager's own copier exists to
+    prevent.
+
+    BOTH PATHS ARE RELATIVE TO A FIXED ROOT, and the first round got both
+    wrong. `destination` is below `/input` and `path` is below `/output` --
+    `contracts/manifest.py` says so where it checks their overlap, W39357's
+    adapter reads `/input/source` and joins the declared output path directly
+    below `/output`, and the parent finding's accepted proposal is at
+    `/output/proposal`. The first cut wrote `workspace/source` and
+    `workspace/proposal`, copied from a conformance vector, which described a
+    delivery at `/input/workspace/source` that nothing makes and asked the
+    worker to write somewhere nobody collects.
+
+    **Superseded:** the first round's claim that `sources[].destination` is
+    "consumed by nothing". It is not a materialization instruction in this
+    build -- nothing copies a source to it -- but the MANIFEST RULES read it,
+    and it is the durable description of the staged delivery. Filling it
+    truthfully matters for that reason rather than merely for tidiness.
+
+    THE FROZEN TASK'S IDENTITY IS NOT IN HERE, and that is the schema's ruling
+    rather than a preference. `baton.worker-manifest/input` is closed and
+    carries no task member; the task is a WORKLOAD convention that travels in
+    `/input/task.json`, the same boundary the parent finding draws for Git. A
+    first cut of this function added `task_id` and `compose_input_root` refused
+    the document -- recorded because a reader will wonder where the task went.
+    """
+    # THE SAME HOLD, AGAIN, AT THE COMPOSER. `preflight` is where an operator
+    # learns about a bad grant before anything is staged; this is the second
+    # party proving it rather than assuming the first did, which is the rule
+    # the manager applies to its own roots.
+    faults = _held_identities(
+        policies=policies, worker_image_digest=worker_image_digest,
+        toolchain_digest=toolchain_digest,
+        runtime_profile_digest=runtime_profile_digest,
+        role_instructions_digest=role_instructions_digest,
+        record_binding=record_binding)
+    if faults:
+        raise OperatorRefusal(
+            "an input manifest carries identities this deployment named: "
+            + "; ".join(faults))
+    return _sealed({
+        "version": {"major": 1, "minor": 0},
+        "manifest_id": manifest_id,
+        "created_at": created_at,
+        "extensions": {},
+        "schema": "baton.worker-manifest/input",
+        "work_ref": dict(work_ref),
+        "assignment_contract": assignment_contract,
+        # THE SAME HOLD, THE SECOND TIME. `held_task`'s rule: a document
+        # read valid at the preflight and changed afterwards is not the
+        # document that gets frozen, so the hold is applied here too
+        # rather than the value being copied.
+        "human_contract": held_human_contract(human_contract),
+        "record_binding": dict(record_binding),
+        "sources": [{"name": SOURCE_TARGET,
+                     "destination": SOURCE_TARGET,
+                     "required": True,
+                     "content_manifest": staged,
+                     "consumption": {"baton.directory/1": {"layout": "flat"}}}],
+        "outputs": [{"name": PROPOSAL_TARGET,
+                     "type": "directory-result",
+                     "path": PROPOSAL_TARGET, "required": True,
+                     "constraints": {"max_bytes": MAX_SOURCE_BYTES,
+                                     "max_entries": MAX_SOURCE_ENTRIES,
+                                     "allowed_media_types":
+                                         ["application/octet-stream",
+                                          "text/plain"],
+                                     "link_policy": "forbid",
+                                     "validator_digest": None}}],
+        "role_instructions_digest": role_instructions_digest,
+        "runtime_profile_digest": runtime_profile_digest,
+        "toolchain_digest": toolchain_digest,
+        "worker_image_digest": worker_image_digest,
+        **dict(policies)})
+
+
+def assignment_manifest(*, given, work_ref, participant, generation,
+                        attempt_id, offer_id, claim_receipt_digest,
+                        claim_event_seq, created_at, activated_at,
+                        assignment_contract, manifest_id):
+    """The assignment minted for THIS attempt against THAT input manifest."""
+    return _sealed({
+        "version": {"major": 1, "minor": 0},
+        "manifest_id": manifest_id,
+        "created_at": created_at,
+        "extensions": {},
+        "schema": "baton.worker-manifest/assignment",
+        "assignment_ref": {"work_ref": dict(work_ref),
+                           "participant": participant,
+                           "generation": generation},
+        "assignment_contract": assignment_contract,
+        "offer_id": offer_id,
+        "runtime_attempt_id": attempt_id,
+        "input_manifest_digest": given["manifest_digest"],
+        "policy_digest": given["policy_digest"],
+        "runtime_profile_digest": given["runtime_profile_digest"],
+        "claim_receipt_digest": claim_receipt_digest,
+        "claim_event_seq": claim_event_seq,
+        "activated_at": activated_at})
+
+
+def _sealed(document):
+    """The document's own digest, over the document without it.
+
+    Through the contracts package's canonical digest rather than a local
+    hash: the manager recomputes it with that one, and two spellings of one
+    digest is two documents.
+    """
+    from baton_v12.contracts import digest
+
+    document.pop("manifest_digest", None)
+    document["manifest_digest"] = digest(document)
+    return document
+
+
+# THE ONE DECLARED OUTPUT'S NAME, and the three files an operator reads out of
+# it. `result.json` and `change.patch` are the WORKER's account and are never
+# what this operator trusts -- the parent finding says so in terms, and
+# `_derived` below is why: the diff and the verification are recomputed here
+# from the collected bytes.
+PROPOSAL_MEMBERS = ("candidate", "change.patch", "result.json",
+                    "verification.txt")
+
+# THE WORKER'S OWN PROGRAM, and the bound one conversation is given. Both are
+# this deployment's constants rather than operands: the program is W6633's
+# file at the image's own path, and a conversation a caller could lengthen is
+# a bound a caller could remove.
+# THE DOGFOOD IMAGE'S OWN ENTRY, and not the worker module underneath it.
+#
+# DEFECT, found while composing the real-engine gate: this named
+# `baton_worker.py`, which `exec`s the worker with `agent=None` -- and
+# `main` then falls back to `_scripted_default()`, the M2 FIXTURE agent.
+# Against this image that is wrong twice over. It is wrong in principle,
+# because a supervised pilot would have reported a result produced by a stub
+# as the worker's work; and it is wrong in fact, because W39770 removed
+# `scripted_agent.py` from this image, so the fallback dies
+# `ModuleNotFoundError` and the conversation is lost for a reason that names
+# nothing true about the attempt.
+#
+# `dogfood_entry.py` is the documented injection seam -- one line, in a file,
+# calling `baton_worker.main(agent=ClaudeAgent())` -- and it is what the
+# image's own ENTRYPOINT names. The transport `exec`s a second copy of it
+# because PID 1 is idle by design; the program is the same program.
+WORKER_PROGRAM = ["python3", "/opt/baton/dogfood_entry.py"]
+CONVERSATION_SECONDS = 3900
+
+# WHAT THE CONVERSATION ASKS FOR, in order. `describe` first because a worker
+# that cannot describe itself is one this operator should not hand an
+# assignment to, and the ordering is the transport's own: one exec session,
+# two correlated operations, each consumed once.
+CONVERSATION = ("describe", "work")
+
+
+# EXACTLY WHAT AN EVIDENCE DOCUMENT IS. Held as a closed set rather than
+# "whatever the arc put in the dict", because this is the one document that
+# leaves this process and lands on an operator's disk: a member added upstream
+# without thought would otherwise ride out to a durable file unexamined, which
+# is precisely how raw provider text got into `result.json` in W39357.
+EVIDENCE_MEMBERS = (
+    "schema", "attempt_id", "task_id", "input_manifest_digest",
+    "assignment_manifest_digest", "source_tree_digest", "worker_image_digest",
+    "network", "runtime_id", "offer_id", "conversation", "worker_disposition",
+    "output", "cleanup", "independent", "resolved", "unresolved",
+    # Review 2026-08-30T14:59:53Z [P0] and [P1]: the retry could skip a REFUSED
+    # `decide_retention` and pass anyway, because nothing recorded whether
+    # retention had committed; and the route and policy it hands on were taken
+    # from the grants without ever being bound to the attempt the record is
+    # about.
+    "retention", "review_route", "retention_policy_digest",
+    # W39358 review 2026-08-30T14:46:24Z [P0]: the record carried no exact
+    # assignment, so a closed valid one could be paired with ANOTHER
+    # assignment's grants -- the pass would take its generation from the
+    # grants and its operation id, runtime and settlement attempt from the
+    # evidence. Member presence is not provenance.
+    "work_ref", "participant", "generation",
+    # ...and the members the post-start owner adds as it goes.
+    "quiescence", "intake_receipt", "custody", "review_pass", "abandoned",
+    "observed_after")
+
+# W55758: THE RECOVERY RECORD, and it is a DIFFERENT DOCUMENT from the
+# evidence above rather than more members on it.
+#
+# The two answer different questions and are written by different processes.
+# An evidence record is one supervised attempt's own account, composed as the
+# arc runs; a recovery record is what a LATER operator did about an attempt
+# whose supervising process died before it could write one. Folding the second
+# into the first would mean either loosening the closed member set that keeps
+# the worker's account out of a durable file, or writing a record that claims
+# to be an attempt's evidence while most of it was never observed.
+#
+# WHAT IT SEPARATES, because the contract asks for each fact on its own: the
+# authority fence, the runtime removal, the credential ending, the launch
+# ending, the directory custody and the terminal manager state. Nothing here
+# is a credential byte or a digest of one, and nothing here calls the
+# worker-authored workspace output trusted -- it is not read at all.
+RECOVERY_SCHEMA = "baton.dogfood-recovery/1"
+
+RECOVERY_MEMBERS = (
+    "schema", "attempt_id", "work_ref", "participant", "generation",
+    "reason", "branch", "attempt_state", "authority_fence", "runtime",
+    "credentials", "launch", "custody", "cleanup", "observed_after",
+    # W55758, approver ruling M60437: RUNTIMES THIS RECOVERY LEFT ALONE.
+    #
+    # V12 does not adopt or resume a runtime from an older Worker Manager
+    # incarnation. An EXACTLY IDENTIFIED one may be stopped, its credential
+    # settled and its attempt marked interrupted, with its output preserved as
+    # untrusted evidence -- that is the ordinary ending and it needs no new
+    # member. What needs one is the other half: unknown, ambiguous and
+    # mismatched runtimes are UNTOUCHED, and a recovery that silently left
+    # something running would be exactly the stranded state this Work exists
+    # to end. Automatic reconciliation of these is deliberately out of scope,
+    # so the report IS the deliverable.
+    "zombies",
+    "resolved", "unresolved")
+
+# A CEILING ON WHAT IS WRITTEN, not a truncation of what happened. Prose in
+# this document is manager refusal text and this deployment's own sentences;
+# an unbounded one would be an unbounded durable write driven by an untrusted
+# failure path.
+MAX_EVIDENCE_BYTES = 256 * 1024
+
+
+def write_evidence(evidence, place):
+    """The retained record, written ONCE and proved clean before it is.
+
+    THREE HOLDS, IN THIS ORDER, and the order is the point.
+
+    First the §13 sweep, over the WHOLE document at any depth, using the
+    manager's own owner rather than a second spelling of it. A bearer that
+    reached a refusal message would be as durable here as one written to a
+    member of its own, and this file is the most durable surface this
+    deployment has.
+
+    Then the closed member set. What this arc composes is identities,
+    dispositions and this operator's INDEPENDENT derivation -- never the
+    worker's account and never a captured stream -- and an unexpected member
+    is refused rather than written, because the reason it is unexpected is
+    that nobody decided it was safe to keep.
+
+    Then the ceiling, before the write rather than after it.
+
+    THE WRITE IS ATOMIC AND DURABLE. Composed beside the destination and
+    renamed onto it, so a reader never sees a partial evidence document and a
+    crash mid-write leaves the previous one intact; the directory is synced
+    because the rename is the act that has to survive.
+    """
+    return _written_document(evidence, place, EVIDENCE_MEMBERS,
+                             "a dogfood evidence record", "an evidence record")
+
+
+def write_recovery(record, place):
+    """W55758: the recovery record, under the SAME three holds.
+
+    One writer for both documents rather than two, because the holds are the
+    security property and a second copy of them is a second place for one of
+    them to be quietly dropped. What differs is the closed member set and the
+    noun in the refusal -- both operands.
+    """
+    return _written_document(record, place, RECOVERY_MEMBERS,
+                             "a dogfood recovery record", "a recovery record")
+
+
+def _written_document(document, place, members, what, noun):
+    import tempfile
+
+    from baton_v12.contracts import check_no_durable_secret
+
+    if type(document) is not dict:
+        raise OperatorRefusal(
+            f"the evidence written for an operator is one document; this is a "
+            f"{type(document).__name__}")
+    try:
+        check_no_durable_secret(document, what)
+    except ContractRefusal as refused:
+        # THE OPERATOR'S OWN VOCABULARY at the operator's own boundary, and
+        # the manager's sentence kept inside it rather than replaced.
+        raise OperatorRefusal(
+            f"this evidence record will not be written: {refused.message}")
+    evidence = document
+    missing = sorted(one for one in members if one not in evidence)
+    extra = sorted(one for one in evidence if one not in members)
+    if missing or extra:
+        raise OperatorRefusal(
+            f"{noun} is exactly the members this operator composes"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    body = json.dumps({one: evidence[one] for one in members},
+                      indent=2, sort_keys=True).encode("utf-8")
+    if len(body) > MAX_EVIDENCE_BYTES:
+        raise OperatorRefusal(
+            f"this evidence record is {len(body)} bytes and this operator "
+            f"writes at most {MAX_EVIDENCE_BYTES}; an unbounded durable write "
+            f"driven by a failure path is not evidence")
+    directory = os.path.dirname(os.path.abspath(place)) or "."
+    handle, staged = tempfile.mkstemp(prefix=".evidence-", dir=directory)
+    try:
+        with os.fdopen(handle, "wb") as writing:
+            writing.write(body)
+            writing.flush()
+            os.fsync(writing.fileno())
+        os.replace(staged, place)
+    except BaseException:
+        if os.path.exists(staged):
+            os.unlink(staged)
+        raise
+    opened = os.open(directory, os.O_RDONLY)
+    try:
+        os.fsync(opened)
+    finally:
+        os.close(opened)
+    return place
+
+
+def run_dogfood_task(*, engine, run, open_channel, store, port, session,
+                     adapter_of, review_route,
+                     attempt_id, offer_id, source, task_path, storage,
+                     launch_home, credential_delivery, image_digest, network,
+                     work_ref, participant, generation, now, policies,
+                     record_binding, assignment_contract, human_contract,
+                     role_instructions_digest, runtime_profile_digest,
+                     toolchain_digest, adapter_digest, adapter_name,
+                     labels, retention_policy_digest,
+                     retention_disposition, bearer,
+                     seconds=CONVERSATION_SECONDS):
+    """ONE supervised dogfood attempt, composed from public operations only.
+
+    THE ORDER IS THE ACCEPTED ARC and this function's whole job is to be the
+    one place it is written down: authority half, delivery half, the two
+    manager roots, one container and one conversation, output custody, and
+    the ending. Every step is a `baton_v12.worker_manager` operation; nothing
+    here journals, reads a control-store table, or invents a state.
+
+    IT ANSWERS EVIDENCE AND RAISES NOTHING IT CAN ACCOUNT FOR. What comes back
+    is the retained record an operator reads -- identities, dispositions and
+    the INDEPENDENTLY derived diff and verification result -- and `resolved`
+    is false whenever a proof this arc requires was not obtained.
+    """
+    from baton_v12.worker_manager import (accept_offer, activate_assignment,
+                                          authorize_cleanup, decide_retention,
+                                          issue_offer, observe, record_attempt,
+                                          reconcile_runtime, request_freeze,
+                                          request_intake,
+                                          request_runtime_start,
+                                          retain_manifest, submit_claim)
+    from baton_v12.worker_manager import launch, worker_entry, workspaces
+
+    task = frozen_task(task_path)
+    preflight(task=task, policies=policies,
+              worker_image_digest=image_digest,
+              toolchain_digest=toolchain_digest,
+              runtime_profile_digest=runtime_profile_digest,
+              role_instructions_digest=role_instructions_digest,
+              record_binding=record_binding, network=network,
+              review_route=review_route,
+              retention_disposition=retention_disposition,
+              human_contract=human_contract)
+    # THE SESSION IS TAKEN AS AN OPERAND AND NOT READ OFF THE PORT. It is the
+    # SAME facade the caller constructed `port` with -- but reaching into
+    # `port._session` for it would be helping myself to a private attribute of
+    # another module to obtain a capability, which is the exact mistake review
+    # 2026-08-30T06:44:13Z caught in `_derived` reaching for `adapter._custody`.
+    # A capability this deployment uses is a capability it was given.
+    if not callable(getattr(session, "pass_work", None)):
+        raise OperatorRefusal(
+            "this deployment passes the assignment to its review route when "
+            "the attempt succeeds, and the session it was given has no "
+            "callable pass_work")
+
+    # -- the delivery half, before the authority half touches anything ------
+    #
+    # STAGED FIRST BECAUSE THE OFFER FREEZES ITS DIGEST. `issue_offer` binds
+    # the input manifest digest, and the manifest describes the staged tree --
+    # so the tree has to exist before there is a digest to freeze.
+    group = _configured_group(store)
+    roots = workspaces.assignment_workspace(group, storage, attempt_id)
+    staged = stage_source(source, roots["inputs"])
+    given = input_manifest(
+        work_ref=work_ref, staged=staged, created_at=now,
+        manifest_id=f"input-{attempt_id}",
+        assignment_contract=assignment_contract, human_contract=human_contract,
+        record_binding=record_binding,
+        role_instructions_digest=role_instructions_digest,
+        runtime_profile_digest=runtime_profile_digest,
+        toolchain_digest=toolchain_digest, worker_image_digest=image_digest,
+        policies=policies)
+
+    # -- the authority half -------------------------------------------------
+    issue_offer(store, port, offer_id=offer_id,
+                work_id=work_ref["work_id"], runtime_attempt_id=attempt_id,
+                input_digest=given["manifest_digest"],
+                policy_digest=given["policy_digest"],
+                profile_digest=runtime_profile_digest,
+                profile_name="dogfood", mint_bearer=lambda: bearer)
+    accepted = accept_offer(store, port, offer_id=offer_id, decision="accept",
+                            bearer=bearer, now=now,
+                            runtime_attempt_id=attempt_id,
+                            work_ref=dict(work_ref))
+    record_attempt(store, attempt_id=attempt_id, adapter_name=adapter_name,
+                   adapter_digest=adapter_digest,
+                   profile_digest=runtime_profile_digest,
+                   input_digest=given["manifest_digest"],
+                   policy_digest=given["policy_digest"])
+    # THE CLAIM'S OWN ANSWER IS KEPT. Review 2026-08-30T06:35:56Z [P0]: this
+    # discarded it and populated the assignment manifest from the
+    # `offer.accepted` document, which carries neither a claim event nor a
+    # receipt digest -- so `_claim_receipt` wrote an all-zero digest and
+    # `_claim_event` wrote 1. A syntactically valid placeholder in an
+    # assignment manifest is INVENTED AUTHORITY EVIDENCE, which is worse than
+    # an absent field because it reads as a fact.
+    claimed = submit_claim(store, port, offer_id=offer_id)
+    expect = {"work_ref": dict(work_ref), "participant": participant,
+              "generation": generation}
+    activate_assignment(store, port, attempt_id=attempt_id,
+                        expect=dict(expect))
+
+    assignment = assignment_manifest(
+        given=given, work_ref=work_ref, participant=participant,
+        generation=generation, attempt_id=attempt_id, offer_id=offer_id,
+        claim_receipt_digest=_claim_receipt(claimed),
+        claim_event_seq=_claim_event(claimed), created_at=now,
+        activated_at=now, assignment_contract=assignment_contract,
+        manifest_id=f"assignment-{attempt_id}")
+    # THE TASK IS WRITTEN BEFORE THE ROOT IS SEALED, and the order is not a
+    # preference. `compose_input_root` exposes the whole surface READ-ONLY as
+    # its last act -- `r-xr-xr-x` on the input root -- so a write afterwards
+    # is a `PermissionError` and this arc could not run at all.
+    #
+    # HOW IT SURVIVED NINE ROUNDS: every composition case so far patched
+    # `compose_input_root` to a no-op, so the seal never happened and the copy
+    # always succeeded. The replay matrix this round is the first case to run
+    # the real one, and it failed on the first attempt. A mock that removes
+    # the very act an ordering depends on cannot observe the ordering.
+    #
+    # It stays out of the input MANIFEST either way -- that is pinned, and
+    # unaffected: the manifest was composed from the staged tree above and
+    # names nothing here.
+    _copied_task(task, roots["inputs"])
+    workspaces.compose_input_root(
+        roots["inputs"], given, assignment,
+        assignment=dict(assignment["assignment_ref"]),
+        runtime_attempt_id=attempt_id)
+    # THE MANAGER HOLDS THE MANIFEST IT WILL COMPARE AGAINST. A freeze refuses
+    # an attempt whose input manifest this manager never retained.
+    retain_manifest(store, given, "inputManifest")
+
+    # -- the two manager roots, and the one container -----------------------
+    delivery = launch.materialize(launch_home,
+                                  **_launch_operands(attempt_id, task))
+    declared = [dict(one) for one in given["outputs"]]
+    # THE FACTORY IS GIVEN THE SAME GRANTS THIS RUN RECORDS. Review
+    # 2026-08-30T06:35:56Z [P1]: it received neither the engine, the resolved
+    # image digest, the network nor the labels -- so the evidence could name
+    # one image and network while an unchecked closure built an adapter for
+    # another. `run` and `labels` were accepted and unused for the same reason
+    # and are passed through here rather than dropped, because an adapter that
+    # cannot select this attempt's runtimes cannot reconcile them.
+    adapter = adapter_of(engine=engine, run=run, image_digest=image_digest,
+                         network=network, labels=dict(labels), roots=roots,
+                         declared=declared, launch=delivery,
+                         credential_delivery=credential_delivery,
+                         input_manifest_digest=given["manifest_digest"])
+    # THE RUNTIME IDENTITY COMES BACK FROM THE OPERATION, not from a row.
+    # `request_runtime_start` journals the start and answers through
+    # `reconcile_runtime`, whose `runtime.attached` document carries
+    # `runtime_id` -- so the transport's operand is the manager's own answer
+    # rather than something this deployment read out of a table it must not
+    # open. An UNCERTAIN reconciliation carries no identity, and that is a
+    # fact about the attempt rather than a value to go looking for.
+    started = request_runtime_start(store, adapter, attempt_id=attempt_id,
+                                    inputs=roots["inputs"])
+    runtime_id = started.get("runtime_id") if type(started) is dict else None
+
+    if runtime_id is None:
+        decided = started.get("decision") if type(started) is dict else None
+        raise OperatorRefusal(
+            f"the start of attempt {attempt_id} reconciled to "
+            f"{decided!r} without naming a runtime; a conversation needs the "
+            f"exact runtime, and this deployment does not go looking for one "
+            f"the manager did not name")
+
+    # EVERY MEMBER EXISTS FROM THE START, and that is what makes an ABSENT
+    # one mean something. `write_evidence` holds this document to a closed
+    # set, so a record composed member-by-member as the arc happened to reach
+    # them would have a different shape per outcome and no shape to hold. A
+    # step that did not run leaves its member `None`, which is a fact an
+    # operator can read; a member that is not there at all is a question.
+    evidence = {"schema": "baton.dogfood-evidence/1",
+                "attempt_id": attempt_id, "task_id": task["task_id"],
+                "input_manifest_digest": given["manifest_digest"],
+                "assignment_manifest_digest": assignment["manifest_digest"],
+                "source_tree_digest": staged["tree_digest"],
+                "worker_image_digest": image_digest, "network": network,
+                "work_ref": dict(work_ref), "participant": participant,
+                "generation": generation,
+                "runtime_id": runtime_id, "offer_id": offer_id,
+                "conversation": None, "worker_disposition": None,
+                "output": None, "cleanup": None, "quiescence": None,
+                "intake_receipt": False, "custody": None, "review_pass": None,
+                "abandoned": None, "observed_after": None,
+                "review_route": review_route, "retention": None,
+                "retention_policy_digest": retention_policy_digest,
+                "independent": None, "resolved": False, "unresolved": []}
+
+    # -- EVERYTHING AFTER THE START IS THE ENDING'S -------------------------
+    #
+    # Review 2026-08-30T06:44:13Z [P0]: the conversation used to happen HERE,
+    # and its two failure branches returned before the guard -- so a container
+    # this deployment had started was left running whenever the worker did not
+    # answer, which is precisely the case the guard exists for. Successful
+    # conversation is not a precondition for entering an ending; a STARTED
+    # RUNTIME is.
+    return _after_start(store, port, session, adapter, evidence,
+                        engine=engine, open_channel=open_channel,
+                        attempt_id=attempt_id, runtime_id=runtime_id,
+                        roots=roots, task=task,
+                        source=os.path.join(roots["inputs"], SOURCE_TARGET),
+                        expect=dict(expect), review_route=review_route,
+                        retention_policy_digest=retention_policy_digest,
+                        retention_disposition=retention_disposition,
+                        seconds=seconds)
+
+
+class _Lost(Exception):
+    """One named reason this attempt cannot reach a supervised result.
+
+    Raised rather than returned, so every one of them lands in the same
+    ending. The sixth and seventh rounds both claimed a common ending while
+    returning around it from three places; an exception is the shape that
+    cannot be forgotten at a call site.
+    """
+
+
+def _after_start(store, port, session, adapter, evidence, *, engine,
+                 open_channel, attempt_id, runtime_id, roots, task, source,
+                 expect, review_route, retention_policy_digest,
+                 retention_disposition, seconds):
+    """ONE owner for every branch after a runtime exists.
+
+    Review 2026-08-30T06:44:13Z [P0], twice over. The conversation was outside
+    the guard and the guard's own early returns skipped the ending, so the
+    record's "the manager's own cleanup is attempted, whatever happened" was
+    stronger than the code for the third round running. Everything is inside
+    now, every named reason is raised rather than returned, and the ending
+    runs in `finally`.
+
+    AN UNEXPECTED FAULT IS RECORDED AND THEN PROPAGATES. Review [P1]: catching
+    every `Exception` turned a `KeyError` in this module into a supervised
+    attempt outcome. Cleanup still runs -- that is what `finally` is for -- but
+    an implementation defect is not an ending an operator should read as one.
+    """
+    from baton_v12.worker_manager import worker_entry
+
+    try:
+        spoken = worker_entry.converse(
+            worker_entry.ChannelPort(open_channel), engine=engine,
+            runtime_id=runtime_id, program=WORKER_PROGRAM,
+            session=f"session-{attempt_id}", operations=list(CONVERSATION),
+            seconds=seconds,
+            operation_ids=[f"{one}:{attempt_id}" for one in CONVERSATION])
+        evidence["conversation"] = {
+            "ending": spoken["ending"], "why": spoken["why"],
+            "answered": [one.get("operation") for one in spoken["answers"]]}
+        if spoken["ending"] != "answered":
+            # THE TRANSPORT'S OWN VOCABULARY, reported rather than translated
+            # into a disposition nobody observed.
+            raise _Lost(f"the worker-entry conversation ended "
+                        f"{spoken['ending']}")
+        disposition = _disposition_of(spoken)
+        if disposition is None:
+            raise _Lost("the worker answered no disposition")
+        evidence["worker_disposition"] = disposition
+        _custody(store, port, session, adapter, evidence,
+                 attempt_id=attempt_id, runtime_id=runtime_id, task=task,
+                 source=source, disposition=disposition,
+                 expect=expect, review_route=review_route,
+                 retention_policy_digest=retention_policy_digest,
+                 retention_disposition=retention_disposition)
+    except _Lost as why:
+        _unresolved(evidence, str(why))
+    except ContractRefusal as refused:
+        _unresolved(evidence, f"a manager contract declined: "
+                              f"{refused.message}")
+    except BaseException as failed:                        # noqa: BLE001
+        _unresolved(evidence, f"the attempt ended on an unexpected "
+                              f"{type(failed).__name__}")
+        # THE EVIDENCE RIDES OUT WITH THE FAULT. Approver ruling item 8: a
+        # post-start unexpected fault must still leave durable unresolved
+        # evidence. The record is local to `run_dogfood_task`, so a launcher
+        # catching the propagating fault has no other way to reach it -- and a
+        # container that started and an attempt that is now unresolved is
+        # exactly the case an operator most needs the file for.
+        failed.dogfood_evidence = evidence
+        raise
+    finally:
+        _ended_however(store, port, adapter, evidence, attempt_id=attempt_id,
+                       runtime_id=runtime_id,
+                       retention_policy_digest=retention_policy_digest)
+    return evidence
+
+
+def _custody(store, port, session, adapter, evidence, *, attempt_id,
+             runtime_id, task, source, disposition, expect, review_route,
+             retention_policy_digest, retention_disposition):
+    """Quiescence, freeze, intake, the derivation, retention, and the pass.
+
+    EVERY REASON IT CANNOT PROCEED IS RAISED. `_after_start` owns the ending,
+    so nothing here returns early -- the third round in a row that mistake was
+    made is the reason this function has no `return` on a failure path at all.
+    """
+    from baton_v12.worker_manager import (decide_retention, observe,
+                                          reconcile_runtime, request_freeze,
+                                          request_intake)
+
+    # QUIESCENCE IS ORDERED, NOT WAITED FOR. The accepted transport starts the
+    # container INTERACTIVE so idle PID 1 outlives the exec'd worker program,
+    # and `reconcile_runtime` observes rather than stops.
+    stopped = adapter.stop({"runtime_id": runtime_id,
+                            "operation_id": f"quiesce:{attempt_id}"})
+    evidence["quiescence"] = {"ordered": stopped.get("ordered"),
+                              "state": stopped.get("state"),
+                              "why": stopped.get("why")}
+    # ONLY `quiescent`, AND `absent` IS NOT THE SAME PROOF. Review
+    # 2026-08-30T06:44:13Z [P1]: this accepted both and went on to freeze. The
+    # freeze contract takes `quiescent` alone and says why -- a runtime that
+    # is merely GONE was never observed to have finished writing, so freezing
+    # its output would seal bytes nobody watched the end of.
+    if stopped.get("state") != "quiescent":
+        raise _Lost(f"the runtime was ordered to stop and observed "
+                    f"{stopped.get('state')!r}; a freeze takes a positively "
+                    f"quiescent runtime, and an absent one is not the same "
+                    f"proof because its writer was never seen to finish")
+    reconcile_runtime(store, adapter, attempt_id=attempt_id)
+    observe(store, attempt_id=attempt_id, axis="worker_disposition",
+            value=disposition)
+    # THE FROZEN OUTPUT IS RECORDED. A verified custody receipt is not yet the
+    # retained handoff result: the freeze is what makes the bytes the ones the
+    # pass hands on, and a retry that could not see it would resume an
+    # ordering that never completed.
+    frozen = request_freeze(store, port, adapter, attempt_id=attempt_id,
+                            disposition=disposition)
+    # THE EXACT ANSWER, WITH NO DEFAULT INVENTED FOR IT. Review
+    # 2026-08-30T15:10:12Z [P0]: this wrote `frozen=True` unconditionally and
+    # filled the retention disposition in from the REQUEST when the manager's
+    # answer omitted it -- so the record asserted facts the manager had not
+    # necessarily committed, and a retry then read that assertion back as
+    # proof. What is recorded here is what the manager said.
+    evidence["output"] = {"manifest_digest": frozen["manifest_digest"],
+                          "result_id": frozen["result_id"]}
+    receipt = request_intake(store, port, adapter, attempt_id=attempt_id)
+    # THE RECEIPT IS THE AUTHORIZATION, AND ITS CONTENTS ARE NOT. Recorded the
+    # moment intake commits, before anything is asked about what it holds:
+    # `authorize_cleanup` is authorized by the receipt existing, so an EMPTY
+    # one still ends the attempt through the ordinary path. My first cut set
+    # this after the emptiness check, which sent an attempt that had a
+    # perfectly good receipt down the abandonment ending instead -- declaring
+    # a human decision over an attempt the manager could already end.
+    # THE RECEIPT'S OWN DIGEST, not a boolean. Review 2026-08-30T15:25:10Z
+    # [P0]: `True` is a claim with nothing to compare, so the retry could
+    # check that intake had happened and not that THIS receipt was the one.
+    evidence["intake_receipt"] = {
+        "receipt_digest": receipt["receipt_digest"]}
+    held = list(receipt["artifacts"])
+    if not held:
+        raise _Lost("intake took custody of nothing, so there is no proposal "
+                    "to account for")
+    # THE PUBLIC LOCATOR, from the receipt. `intake_artifact` carries
+    # `custody_locator` precisely so a caller does not reach into the adapter.
+    # ...AND ITS PUBLIC LOCATOR, which W51473 makes part of the record rather
+    # than a value only `_derived` ever looked at. A retained candidate whose
+    # locator an operator cannot read out of the evidence is a candidate the
+    # independent diff cannot be performed on -- which is precisely what the
+    # first live attempt discovered, from the other end.
+    evidence["custody"] = sorted(
+        ({"artifact_id": one["artifact_id"],
+          "content_digest": one["content_digest"],
+          "bytes": one["bytes"],
+          "custody_locator": one["custody_locator"]} for one in held),
+        key=lambda one: one["artifact_id"])
+    # DERIVED BEFORE RETENTION DISCARDS THE BYTES, which is the ordering the
+    # parent finding requires.
+    evidence["independent"] = _derived(held[0]["custody_locator"], task,
+                                       source)
+    # RECORDING A CHECK IS NOT PASSING IT. Review 2026-08-30T14:36:46Z [P0]:
+    # `_derived` wrote `verification_status` and this went straight on to
+    # retention and the pass, so a candidate whose frozen task verification
+    # exited nonzero received the SAME successful authority pass as a verified
+    # one. The acceptance's whole point is an INDEPENDENTLY derived
+    # verification, and approver ruling M46985 authorizes handing on a
+    # VERIFIED result -- a failed check is neither.
+    #
+    # RAISED, so the receipt-authorized ending still runs: intake committed,
+    # so the manager is still asked to settle. What does not happen is the
+    # pass, which is the one thing a failed verification must not earn.
+    if evidence["independent"]["verification_status"] != 0:
+        raise _Lost(
+            f"the task's own verification exited "
+            f"{evidence['independent']['verification_status']} over the "
+            f"candidate this operator rederived; a recorded check is not a "
+            f"passed one, and an unverified candidate is not handed to review")
+    # THE COMMITTED DECISION IS RECORDED, not merely performed. A retry that
+    # could not tell a committed retention from a refused one would hand a
+    # result to review whose untrusted material nobody had decided about.
+    decided = decide_retention(
+        store, port, adapter, attempt_id=attempt_id,
+        artifact_ids=[one["artifact_id"] for one in held],
+        disposition=retention_disposition,
+        retention_policy_digest=retention_policy_digest)
+    # TAKEN FROM THE DECISION ITSELF rather than recomposed from the request:
+    # a member the writer composes out of what it ASKED for is not a record of
+    # what the manager DECIDED.
+    evidence["retention"] = {
+        "disposition": decided["disposition"],
+        "retention_policy_digest": decided["retention_policy_digest"],
+        "artifact_ids": sorted(one["artifact_id"] for one in held)}
+    # AND THEN THE WORK GOES TO REVIEW, which is where the v11 lifecycle this
+    # deployment is dogfooding actually ends. Approver ruling M44657: after
+    # successful intake, independent verification and retention, pass the
+    # EXACT assignment generation to the operator-supplied review Route.
+    #
+    # ORDERED HERE, LAST, AND THAT ORDER IS THE RULING'S. The pass both moves
+    # the Route and ENDS the assignment in one authority act, so cleanup --
+    # which runs in `_ended_however` after this returns -- necessarily happens
+    # on an assignment that is over. Cleaning up first would tear down the
+    # runtime of an assignment the authority still considered live, which is
+    # the same boundary W44716 exists to keep straight.
+    #
+    # EFFECTIVELY ONCE BY IDENTITY. The operation id is derived from this
+    # attempt, so an exact replay of the arc replays the authority's own
+    # committed answer instead of passing a second time; a DIFFERENT
+    # generation carries a different signature and collides rather than
+    # silently reusing this one's pass.
+    evidence["review_pass"] = _passed(session, expect, review_route,
+                                      attempt_id=attempt_id)
+
+
+def _passed(session, expect, review_route, *, attempt_id):
+    """The authority's own answer to this deployment's pass, held to shape.
+
+    WHAT IS KEPT IS WHAT THE AUTHORITY SAID, not what this deployment asked
+    for. The route in the evidence is the route the authority recorded, so an
+    operator reading the record afterwards is reading the transition that
+    happened rather than the operand that requested it.
+    """
+    # ONE EXACT OPERAND DOCUMENT, which is the authority's own rule for every
+    # session act -- "exactly one exact built-in operand document, taken
+    # ONCE". W39358's real-authority gate is what found this: every case until
+    # now used a fake that accepted keywords, so the deployment had been
+    # calling a shape no real `Session` has.
+    answered = session.pass_work({"expect": dict(expect),
+                                  "operation_id": f"pass:{attempt_id}",
+                                  "to_route": review_route,
+                                  "comment": PASS_COMMENT})
+    if type(answered) is not dict:
+        raise _Lost(f"the authority answered the review pass with "
+                    f"{type(answered).__name__} and this deployment reads a "
+                    f"document")
+    missing = sorted(one for one in PASS_MEMBERS if one not in answered)
+    if missing:
+        raise _Lost(f"the review pass answered without {', '.join(missing)}; "
+                    f"a pass answers the ended assignment beside the route it "
+                    f"moved the Work to, and a document missing either is not "
+                    f"evidence this assignment ended")
+    # THE ROUTE ECHO IS NOT THE PROOF, and taking it as one was the defect.
+    # Review 2026-08-30T12:27:41Z [P0]: this accepted any document whose
+    # `route` matched the operand, so an answer ABOUT ANOTHER GENERATION that
+    # happened to echo `rview` was retained as this attempt's successful
+    # review pass -- and cleanup then ran on the strength of a transition that
+    # ended somebody else's assignment.
+    #
+    # THE RULING IS EXACT-ASSIGNMENT SHAPED, so the assignment the authority
+    # says it ENDED is what is compared, and the route is checked beside it
+    # rather than instead of it.
+    if answered["assignment"] != expect:
+        raise _Lost(f"the review pass ended {answered['assignment']!r} and "
+                    f"this attempt holds {expect!r}; an answer about another "
+                    f"assignment is not evidence that this one ended")
+    if answered["route"] != review_route:
+        raise _Lost(f"the assignment was passed to {answered['route']!r} and "
+                    f"this deployment asked for {review_route!r}")
+    # AND IT IS A PASS RATHER THAN SOME OTHER ENDING. `cause` is what tells
+    # a release, a cancel and a pass apart in the authority's own vocabulary,
+    # and a fenced ending is not the lifecycle transition this arc performs.
+    if answered["cause"] != "pass" or answered["fenced"]:
+        raise _Lost(f"the assignment ended {answered['cause']!r} with fenced "
+                    f"{answered['fenced']!r}; the approved transition is an "
+                    f"unfenced pass and nothing else is one")
+    # AND THE WORK IS WHERE A PASS LEAVES IT. Review 2026-08-30T12:40:47Z
+    # [P1]: requiring these two by NAME and then adopting whatever they said
+    # meant an answer with `phase="active"` and a live quiescence gate was
+    # recorded as the approved queued, ungated handoff. A member held only for
+    # presence is a member not held.
+    if answered["phase"] != "queued" or answered["gate"] is not None:
+        raise _Lost(f"the assignment was passed into phase "
+                    f"{answered['phase']!r} behind gate {answered['gate']!r}; "
+                    f"the approved handoff leaves the Work queued and ungated "
+                    f"for its review route to claim")
+    return {"route": answered["route"], "cause": answered["cause"],
+            "phase": answered["phase"], "gate": answered["gate"],
+            "fenced": answered["fenced"],
+            "assignment": dict(answered["assignment"])}
+
+
+# THE CLOSED RESULT A PASS ANSWERS WITH. `AuthorityCore.pass_work` returns the
+# ended assignment beside the new Route, and every member of it is read here --
+# holding a document to the members it must carry is what makes the comparison
+# below a comparison rather than a `get` that shrugs at an absence.
+PASS_MEMBERS = ("assignment", "route", "cause", "phase", "gate", "fenced")
+
+# WHAT A COMPLETED, TRUSTED RESULT LOOKS LIKE IN THIS DEPLOYMENT'S OWN RECORD.
+# Approver ruling item 7 turns on this distinction: a successful worker whose
+# result is frozen and independently verified is a DIFFERENT state from failed
+# post-worker machinery, and only the second one is retried.
+_TRUSTED_RESULT = ("worker_disposition", "intake_receipt", "custody",
+                   "independent", "retention", "output")
+
+# THE ONE DISPOSITION A HANDOFF PRESERVES. `schema.DISPOSITIONS` is
+# `completed, unable, plan-rejected, cancelled` -- four terminal answers, and
+# only the first is a result to hand to review. Review 2026-08-30T14:36:46Z
+# [P0]: the hold was truthiness, so any non-empty string passed, and the
+# positive case supplied the fixture word `succeeded` which is not in the
+# worker's vocabulary at all -- so it proved nothing about the real state.
+TRUSTED_DISPOSITION = "completed"
+
+# WHAT EACH CONSUMED MEMBER OF A RETAINED RECORD IS. Review
+# 2026-08-30T15:34:00Z [P1]: `read_evidence` proved the top-level member SET
+# and the secret boundary, and neither of those makes an allowed member a
+# DOCUMENT. A retained `True` where a projection belongs is untrusted operator
+# input, and leaking `AttributeError` or `TypeError` out of it makes the
+# documented retry an unsafe parser rather than a typed boundary.
+_RETRY_SHAPE = {
+    "output": {"manifest_digest": str, "result_id": str},
+    "intake_receipt": {"receipt_digest": str},
+    "retention": {"disposition": str, "retention_policy_digest": str,
+                  "artifact_ids": list},
+    "independent": {"verification_status": int},
+}
+_CUSTODY_SHAPE = {"artifact_id": str, "content_digest": str,
+                  "bytes": int, "custody_locator": str}
+
+# A CEILING ON THE HISTORY a retry reads back, for the same reason the record
+# has one on the way out: an unbounded list in an editable file is an
+# unbounded read driven by whoever edited it.
+MAX_UNRESOLVED_REASONS = 256
+
+
+def _held_record(evidence):
+    """The nested contract, proved BEFORE any member is consumed.
+
+    ONE PASS OVER EVERY MEMBER THE RETRY READS, and it runs first: a document
+    checked as it is used is a document that has already been used wrongly by
+    the time the check fails. What comes back is the same record; what does
+    not come back is an exception type a caller cannot act on.
+    """
+    for member, contract in _RETRY_SHAPE.items():
+        held = evidence.get(member)
+        if type(held) is not dict:
+            raise OperatorRefusal(
+                f"the retained record's {member} is a "
+                f"{type(held).__name__} and this operator reads a document "
+                f"naming {', '.join(sorted(contract))}")
+        for name, kind in contract.items():
+            value = held.get(name)
+            # `bool` IS an `int` in Python and is not one here: a retained
+            # `True` verification status is a claim nobody measured.
+            if type(value) is not kind:
+                raise OperatorRefusal(
+                    f"the retained record's {member}.{name} is a "
+                    f"{type(value).__name__} and this operator reads a "
+                    f"{kind.__name__}")
+        if member == "retention":
+            for one in held["artifact_ids"]:
+                if type(one) is not str:
+                    raise OperatorRefusal(
+                        f"the retained record names a retained artifact that "
+                        f"is a {type(one).__name__} and an artifact id is "
+                        f"durable text")
+    # THE RETRY-OWNED HISTORY, which this function consumes as much as the
+    # projections do. Review [P1]: `historical = list(evidence["unresolved"])`
+    # leaked a raw `TypeError` for an editable boolean, so a member used to
+    # DECIDE and to REPORT was the one member not held.
+    unresolved = evidence.get("unresolved")
+    if type(unresolved) is not list:
+        raise OperatorRefusal(
+            f"the retained record's unresolved is a "
+            f"{type(unresolved).__name__} and this operator reads a list of "
+            f"reasons")
+    if len(unresolved) > MAX_UNRESOLVED_REASONS:
+        raise OperatorRefusal(
+            f"the retained record carries {len(unresolved)} unresolved "
+            f"reasons and this operator reads at most "
+            f"{MAX_UNRESOLVED_REASONS}")
+    for one in unresolved:
+        if type(one) is not str:
+            raise OperatorRefusal(
+                f"the retained record names an unresolved reason that is a "
+                f"{type(one).__name__} and a reason is durable text")
+    for member in ("attempt_id", "runtime_id", "worker_disposition"):
+        if type(evidence.get(member)) is not str:
+            raise OperatorRefusal(
+                f"the retained record's {member} is a "
+                f"{type(evidence.get(member)).__name__} and this operator "
+                f"reads durable text")
+    if evidence.get("review_pass") is not None \
+            and type(evidence["review_pass"]) is not dict:
+        raise OperatorRefusal(
+            f"the retained record's review_pass is a "
+            f"{type(evidence['review_pass']).__name__} and this operator "
+            f"reads a document or nothing")
+    custody = evidence.get("custody")
+    if type(custody) is not list or not custody:
+        raise OperatorRefusal(
+            f"the retained record's custody is a "
+            f"{type(custody).__name__} and this operator reads a non-empty "
+            f"list of artifacts")
+    for one in custody:
+        if type(one) is not dict:
+            raise OperatorRefusal(
+                f"the retained record names a custody artifact that is a "
+                f"{type(one).__name__} and this operator reads a document")
+        for name, kind in _CUSTODY_SHAPE.items():
+            if type(one.get(name)) is not kind:
+                raise OperatorRefusal(
+                    f"a retained custody artifact's {name} is a "
+                    f"{type(one.get(name)).__name__} and this operator reads "
+                    f"a {kind.__name__}")
+    return evidence
+
+
+def _committed(store, evidence):
+    """The manager's OWN answers, read back and held against the record.
+
+    THREE PUBLIC READERS AND NO OTHER ROUTE. `frozen_output_of`,
+    `intake_receipt_of` and `retentions_of` are what the manager will say
+    about this attempt; a retry that believed the file instead would be
+    letting a text editor authorize a handoff.
+
+    ABSENCE, DISAGREEMENT OR AN INCOMPLETE DECISION ALL REFUSE, and they are
+    the same answer for the same reason: the ending this retry is trying to
+    finish was composed from acts that must have happened, and a record is
+    evidence of them only where the journal agrees.
+    """
+    from baton_v12.worker_manager import (frozen_output_of, intake_receipt_of,
+                                          retentions_of)
+
+    attempt_id = evidence["attempt_id"]
+    frozen = frozen_output_of(store, attempt_id)
+    if frozen is None:
+        raise OperatorRefusal(
+            f"the manager has no frozen result for attempt {attempt_id!r}; a "
+            f"handoff retry hands on a frozen result and this record names "
+            f"one the manager did not commit")
+    # EVERY RECORDED MEMBER IS HELD. Review 2026-08-30T15:25:10Z [P0], and the
+    # rule it states is the one to keep: a member the writer claims and the
+    # reader ignores is an editable alternate fact. So each projection below
+    # is compared whole rather than by selected names.
+    named = evidence["output"] or {}
+    for member in ("manifest_digest", "result_id"):
+        if frozen[member] != named.get(member):
+            raise OperatorRefusal(
+                f"the retained record names frozen {member} "
+                f"{named.get(member)!r} and the manager committed "
+                f"{frozen[member]!r}")
+    receipt = intake_receipt_of(store, attempt_id)
+    if receipt is None:
+        raise OperatorRefusal(
+            f"the manager has no intake receipt for attempt {attempt_id!r}; "
+            f"the receipt is what authorizes the ending this retry finishes")
+    recorded = evidence["intake_receipt"] or {}
+    if receipt["receipt_digest"] != recorded.get("receipt_digest"):
+        raise OperatorRefusal(
+            f"the retained record names intake receipt "
+            f"{recorded.get('receipt_digest')!r} and the manager committed "
+            f"{receipt['receipt_digest']!r}")
+    # THE WHOLE CUSTODY PROJECTION -- identity, content and size. Comparing
+    # ids alone would let an edited content digest or byte count ride through
+    # on a matching name.
+    committed = sorted(
+        ({"artifact_id": one["artifact_id"],
+          "content_digest": one["content_digest"], "bytes": one["bytes"],
+          "custody_locator": one["custody_locator"]}
+         for one in receipt["artifacts"]),
+        key=lambda one: one["artifact_id"])
+    if committed != sorted(evidence["custody"],
+                           key=lambda one: one["artifact_id"]):
+        raise OperatorRefusal(
+            f"the retained record and the manager's intake receipt describe "
+            f"different custody for attempt {attempt_id!r}")
+    held = [one["artifact_id"] for one in committed]
+    decided = retentions_of(store, attempt_id)
+    if not decided:
+        raise OperatorRefusal(
+            f"the manager holds no retention decision for attempt "
+            f"{attempt_id!r}; the required ordering never completed")
+    named = evidence["retention"]
+    if sorted(named.get("artifact_ids") or ()) != held:
+        raise OperatorRefusal(
+            f"the retained record names retained artifacts "
+            f"{named.get('artifact_ids')!r} and intake took custody of "
+            f"{held!r}")
+    if sorted(one["artifact_id"] for one in decided) != held:
+        raise OperatorRefusal(
+            f"the manager's retention decisions do not cover exactly the "
+            f"artifacts intake took custody of for attempt {attempt_id!r}; an "
+            f"incomplete decision is not a completed ordering")
+    for one in decided:
+        if one["disposition"] != named.get("disposition") \
+                or one["retention_policy_digest"] != named.get(
+                    "retention_policy_digest"):
+            raise OperatorRefusal(
+                f"the retained record names retention "
+                f"{named.get('disposition')!r} under "
+                f"{named.get('retention_policy_digest')!r} and the manager "
+                f"committed {one['disposition']!r} under "
+                f"{one['retention_policy_digest']!r}")
+    return evidence
+
+
+# THE SENTENCES A RETRY PERFORMS THE ACTS FOR, matched on their openings so a
+# retry settles what it redid and nothing else. All three are this
+# deployment's own wording for the pass and the settlement.
+_RETRY_OWNS = ("the manager declined to end the attempt:",
+               "the manager declined to abandon the attempt:",
+               "cleanup ended",
+               "a manager contract declined:")
+
+
+def retry_handoff(store, port, session, adapter, evidence, *, expect,
+                  review_route, retention_policy_digest):
+    """Retry ONLY the handoff, over a result that is already trusted.
+
+    Approver ruling item 7. A worker that succeeded, whose output was frozen
+    and whose candidate this operator independently rederived and verified, is
+    not made untrustworthy by a `pass_work` that refused afterwards or a
+    settlement that could not finish. Abandoning it would throw away a
+    completed piece of work over a failure in the machinery AFTER it; opening
+    another provider turn would pay for that work twice and produce a second,
+    different result.
+
+    SO THIS DOES EXACTLY TWO THINGS: the pass, and the ending. And it is
+    defined as much by what it does NOT do, each of which is a thing a
+    "just run it again" retry would have done:
+
+      no restage        -- the input root is sealed and already measured;
+      no reassignment   -- the SAME generation, or the pass is not this pass;
+      no runtime start  -- nothing is launched, and nothing is stopped either,
+                           because the arc already quiesced it cleanly;
+      no provider turn  -- no claim, no offer, no bearer;
+      no worker run     -- no conversation, no `exec`, no container;
+      no freeze         -- the output is frozen and freezing is once;
+      no rederivation   -- the diff and the verification stand as recorded.
+
+    IDEMPOTENT AT BOTH STEPS. The pass carries the attempt's own operation
+    identity, so the authority replays a committed one rather than passing
+    twice; the ending is the manager's own operation, which replays likewise.
+    Calling this on an attempt whose pass already committed does the ending
+    and nothing else.
+
+    IT REFUSES A RESULT THAT IS NOT TRUSTED, which is the whole of its
+    licence. An attempt with no receipt, no custody or no independent
+    derivation did not reach a result worth preserving, and its ending is
+    W44716's abandonment rather than this.
+    """
+    # THE SHAPE BEFORE ANYTHING ELSE, because every check below reads members
+    # of members and a `True` where a document belongs would fault rather than
+    # refuse.
+    _held_record(evidence)
+    absent = [one for one in _TRUSTED_RESULT if not evidence.get(one)]
+    if absent:
+        raise OperatorRefusal(
+            f"this attempt has no completed, independently verified result to "
+            f"hand on ({', '.join(absent)} missing); a handoff retry preserves "
+            f"a result that exists and does not manufacture one")
+    # PRESENT IS NOT TRUSTED, and the two holds below are the difference.
+    if evidence["worker_disposition"] != TRUSTED_DISPOSITION:
+        raise OperatorRefusal(
+            f"this attempt's worker answered "
+            f"{evidence['worker_disposition']!r}; a handoff retry preserves a "
+            f"{TRUSTED_DISPOSITION!r} result, and the other three terminal "
+            f"dispositions are not results to hand to review")
+    status = (evidence["independent"] or {}).get("verification_status")
+    if status != 0:
+        raise OperatorRefusal(
+            f"this attempt's independent verification exited {status!r}; a "
+            f"handoff retry preserves a VERIFIED result, and a recorded check "
+            f"is not a passed one")
+    # AND THE MANAGER IS ASKED, because the record is not an authority over
+    # acts the manager owns. Review 2026-08-30T15:10:12Z [P0]: the retained
+    # file is explicitly operator-editable and untrusted on read, and this
+    # treated truthy members as proof that the freeze, the intake and the
+    # retention had COMMITTED -- so an edited record could pass Work to review
+    # while all three public readers reported absence.
+    #
+    # EDITABLE EVIDENCE MAY SAY WHAT TO LOOK UP AND MAY NOT MINT WHAT WAS
+    # NEVER COMMITTED. Every fact below is replay-read from the manager's own
+    # public surface and held against the record, before `_passed` is
+    # reachable at all.
+    _committed(store, evidence)
+    # THE FAILURES THIS RETRY OWNS ARE THE ONES IT MAY SETTLE. Review
+    # 2026-08-30T14:46:24Z [P0]: the retained record necessarily carries the
+    # original pass or settlement failure, and `_ended_however` reports
+    # `resolved` only when `unresolved` is empty -- so a retry that completed
+    # both acts wrote a full pass and cleanup beside `resolved=False` and
+    # exited 1 forever.
+    #
+    # HISTORY IS SET ASIDE STRUCTURALLY, not by matching this deployment's own
+    # wording. The retained sentences are what was true BEFORE this retry; the
+    # retry then re-performs the pass and the ending and writes what is true
+    # AFTER. Nothing is erased on the strength of a prefix, and nothing
+    # unrelated is quietly resolved either: `_ended_however` re-runs the
+    # manager's own cleanup, so an unproved absence or an unsettled delivery
+    # that is still true comes back on its own account rather than being
+    # carried over on faith.
+    historical = list(evidence["unresolved"])
+    evidence["unresolved"] = []
+    # THE PASS IS ALWAYS REPLAYED. Review 2026-08-30T15:41:53Z [P0]: this ran
+    # only when the record held no pass, so a plausible projection typed into
+    # the editable file skipped the authority call entirely -- an evidence
+    # member had become an alternate authority fact.
+    #
+    # Replaying is both SAFE and NECESSARY: the pass carries this attempt's own
+    # operation identity, so the authority returns its committed answer rather
+    # than passing twice, and that answer is the only thing that can show the
+    # pass happened. The file may identify what to replay and cannot prove it.
+    answered = _passed(session, expect, review_route,
+                       attempt_id=evidence["attempt_id"])
+    recorded = evidence.get("review_pass")
+    if recorded is not None and recorded != answered:
+        raise OperatorRefusal(
+            f"the retained record names a review pass {recorded!r} and the "
+            f"authority replayed {answered!r}; a recorded projection is held "
+            f"whole against the act it claims to be a record of")
+    evidence["review_pass"] = answered
+    _ended_however(store, port, adapter, evidence,
+                   attempt_id=evidence["attempt_id"],
+                   runtime_id=evidence["runtime_id"],
+                   retention_policy_digest=retention_policy_digest)
+    # AND IF IT DID NOT CONVERGE, THE HISTORY COMES BACK. A retry whose own
+    # acts failed again has superseded nothing, and a record that had quietly
+    # dropped the earlier account would be a shorter story about the same
+    # unfinished attempt.
+    if evidence["unresolved"]:
+        evidence["unresolved"] = historical + [
+            one for one in evidence["unresolved"] if one not in historical]
+        evidence["resolved"] = False
+    return evidence
+
+
+# WHAT THE PASS SAYS IN THE AUTHORITY'S OWN JOURNAL. Fixed rather than
+# composed from evidence: a comment is durable text on a Work other people
+# read, and this deployment has exactly one thing to say with it.
+PASS_COMMENT = ("passed by the supervised v12 dogfood operator after intake, "
+                "independent verification and retention")
+
+MAX_ABANDONMENT_REASON = 2000
+
+
+# HOW DEEP A RETAINED TREE IS WALKED, AND HOW MANY ENTRIES, BEFORE THIS
+# REFUSES TO KEEP WALKING. `workspaces.MAX_DEPTH` bounds the manager's own
+# walks for the same reason and `MAX_SOURCE_ENTRIES` is this module's own
+# stated ceiling: a walk with no limit is a walk somebody else decides the
+# cost of, and this one runs over material a worker wrote.
+MAX_KEPT_DEPTH = 64
+MAX_KEPT_ENTRIES = MAX_SOURCE_ENTRIES
+
+# THE ONE MEMBER THE DOCUMENTED USES ACT ON. `_derived` diffs `candidate`
+# against the staged source and reruns the task's own command with it as
+# `cwd`; the three siblings beside it are the worker's account and are
+# collected rather than executed. So a retained proposal without this
+# directory is one neither half of the acceptance can be performed on.
+CANDIDATE_TARGET = "candidate"
+
+
+def _readable(opened, name):
+    """One regular file OPENED read-only and no-follow, then closed.
+
+    W51473 review 2026-08-31T05:33:31Z [P1], and the reviewer is right twice
+    over. The previous round opened and traversed DIRECTORIES and only
+    `stat`ed everything else -- so a regular file at mode `000` inside a
+    perfectly traversable tree passed a proof whose whole purpose is that the
+    documented bytewise diff can read it. `filecmp.cmp` opens these files;
+    `stat` does not.
+
+    OPENING IS THE PROOF AND READING IS NOT NEEDED. A zero-byte file is a
+    legitimate member -- the first live attempt's `change.patch` was exactly
+    that -- so requiring a byte would refuse material the contract allows.
+    What is in question is permission, and `os.open` answers it.
+    """
+    handle = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=opened)
+    os.close(handle)
+
+
+def _traversed(opened, depth, seen):
+    """One directory opened, listed, descended, and its FILES opened.
+
+    Each step needs exactly what one bad mode withholds: `os.open` with
+    `O_DIRECTORY` needs READ on a directory, the descriptor-relative `os.stat`
+    needs SEARCH, and opening a regular file needs READ on the file. Nothing
+    here writes, creates or changes a mode.
+
+    DESCRIPTOR-RELATIVE AND `O_NOFOLLOW`, the same idiom
+    `workspaces._emptied` uses over the same kind of tree. A name resolved
+    afresh at each step is a name something else can move between the check
+    and the use, and a link followed here would be this operator proving
+    something about material nobody retained.
+
+    AND AN ENTRY THAT IS NEITHER IS REFUSED BY KIND rather than skipped. The
+    independent diff reads regular files and walks directories; a link, a
+    fifo, a socket or a device is not something it can read, and the manager's
+    own copier refuses links at any depth -- so one here is a tree this
+    operator should not be reporting as reviewable.
+    """
+    import stat as _stat
+
+    for name in sorted(os.listdir(opened)):
+        seen[0] += 1
+        if seen[0] > MAX_KEPT_ENTRIES:
+            raise _Lost(f"a retained tree holds more than "
+                        f"{MAX_KEPT_ENTRIES} entries; this operator bounds "
+                        f"the walk it performs over material a worker wrote")
+        found = os.stat(name, dir_fd=opened, follow_symlinks=False)
+        if _stat.S_ISREG(found.st_mode):
+            _readable(opened, name)
+            continue
+        if not _stat.S_ISDIR(found.st_mode):
+            raise _Lost(f"a retained tree holds {name!r}, which is neither a "
+                        f"regular file nor a directory; the documented "
+                        f"independent diff reads neither")
+        if depth >= MAX_KEPT_DEPTH:
+            raise _Lost(f"a retained tree is deeper than {MAX_KEPT_DEPTH} "
+                        f"directories; this operator bounds the walk it "
+                        f"performs over material a worker wrote")
+        below = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                        dir_fd=opened)
+        try:
+            _traversed(below, depth + 1, seen)
+        finally:
+            os.close(below)
+
+
+def _has_candidate(opened):
+    """The fixed `candidate/` directory, proved present and a directory.
+
+    W51473 review [P1], second half. The traversal alone admitted an EMPTY
+    proposal root: it opens and lists successfully while the verification
+    rerun has no `cwd` and the diff has nothing to compare. My own positive
+    fixture was such a root, so the case that was supposed to keep the
+    negative ones honest was locking the false positive in.
+
+    ASKED AFTER THE TRAVERSAL, so a root this operator cannot read reports
+    that rather than reporting a missing member it was never able to look for.
+    """
+    import stat as _stat
+
+    try:
+        found = os.stat(CANDIDATE_TARGET, dir_fd=opened,
+                        follow_symlinks=False)
+    except OSError:
+        return False
+    return _stat.S_ISDIR(found.st_mode)
+
+
+def _kept(evidence):
+    """Every retained artifact, proved to SUPPORT the documented acceptance.
+
+    W51473's boundary in one function: "prove the retained public custody
+    locator exists after command completion and supports the documented
+    independent diff and verification rerun". Both of those are concrete acts.
+    `_changed_paths` walks the candidate tree and compares files BY BYTES;
+    the rerun executes the task's own command with `candidate` as its `cwd`.
+    So what has to be true is that this operator can open the root, traverse
+    everything under it, OPEN the files the diff would read, and find the one
+    directory the rerun needs -- not merely that something is there.
+
+    IT IS STILL NARROWER THAN RERUNNING THE VERIFICATION, deliberately. That
+    already happened at `_derived`, over the same custody tree and before the
+    ending; what this answers is whether the ending left it usable. Running a
+    worker-influenced command a second time at the terminal boundary would be
+    a new act rather than a proof about an old one.
+
+    THE RECORD'S OWN LOCATOR IS WHAT IS OPENED, not a path recomposed here.
+    It came from the intake receipt, and on the retry path `_committed` has
+    already held it against the manager's own row.
+
+    ONE SCHEME, THE SAME OWNER. `_proposal_root` is what `_derived` decodes
+    with, and reusing it keeps "the locator the operator reads" and "the tree
+    this deployment derived from" one path rather than two spellings.
+
+    EVERY ARTIFACT IS ASKED ABOUT, and one failure does not stop the others:
+    an operator reading this record is deciding what to do about their kept
+    material, and "the first one failed" is less use than knowing which.
+    """
+    for one in evidence.get("custody") or ():
+        try:
+            place = _proposal_root(one["custody_locator"])
+        except _Lost as why:
+            _unresolved(evidence, str(why))
+            continue
+        try:
+            opened = os.open(place,
+                             os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        except OSError as failed:
+            _unresolved(
+                evidence,
+                f"artifact {one['artifact_id']!r} was retained and its "
+                f"custody locator {one['custody_locator']!r} is not a "
+                f"directory this operator can open "
+                f"({type(failed).__name__}); a keep nobody can open is not a "
+                f"candidate anybody can review")
+            continue
+        # ONE DESCRIPTOR FOR BOTH QUESTIONS. Re-opening the root to ask the
+        # second one would be asking about whatever answers to that name by
+        # then, which is the resolve-twice defect this walk is built to avoid.
+        try:
+            _traversed(opened, 0, [0])
+            if not _has_candidate(opened):
+                _unresolved(
+                    evidence,
+                    f"artifact {one['artifact_id']!r} was retained and holds "
+                    f"no {CANDIDATE_TARGET!r} directory; the documented "
+                    f"independent diff compares that tree against the staged "
+                    f"source and the verification rerun uses it as its "
+                    f"working directory")
+        except _Lost as why:
+            _unresolved(evidence, f"artifact {one['artifact_id']!r}: {why}")
+        except OSError as failed:
+            _unresolved(
+                evidence,
+                f"artifact {one['artifact_id']!r} was retained and its "
+                f"custody tree under {one['custody_locator']!r} cannot be "
+                f"read ({type(failed).__name__}); the documented independent "
+                f"diff opens every file in it")
+        finally:
+            os.close(opened)
+
+
+def _ended_however(store, port, adapter, evidence, *, attempt_id, runtime_id,
+                   retention_policy_digest):
+    """The ending, run whatever happened -- and HONEST about what it can end.
+
+    Review 2026-08-30T06:44:13Z [P0]. The previous `finally` only observed,
+    while the record claimed the manager's own cleanup was attempted. It is
+    attempted here, through the manager's own operation and never through a
+    second deployment-owned destroy.
+
+    AND THERE IS A STATE THIS SURFACE CANNOT END, which is recorded rather
+    than worked around. `authorize_cleanup` is authorized by the INTAKE
+    RECEIPT; `authorize_failed_start_cleanup` is authorized by the manager's
+    own `runtime.start-failed` record; `authorize_refused_session_cleanup` by
+    a refused session. An attempt whose runtime STARTED and whose worker then
+    failed to answer has none of the three, so no public operation ends it --
+    and inventing a destroy here would be exactly the second removal boundary
+    a deployment must not grow. That is a MANAGER finding, filed as W44716,
+    and until it lands such an attempt is `unresolved` with the runtime named
+    so an operator can act on it.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import abandon_attempt, authorize_cleanup
+
+    # ENDING A STARTED RUNTIME BEGINS BY STOPPING IT -- ON THE RECEIPT PATH.
+    #
+    # Review 2026-08-30T06:44:13Z [P0] required a stop on every post-start
+    # path, because a lost conversation left the container running. Review
+    # 2026-08-30T11:44:55Z [P0] then found the correction had gone one step
+    # too far: on the RECEIPTLESS path the ending is now `abandon_attempt`,
+    # whose whole ruling is FENCE BEFORE ANY RUNTIME CONTROL — and a stop this
+    # deployment ordered first is one the manager cannot undo. That recreates
+    # exactly the unsafe boundary W44716 was introduced to remove: the
+    # authority may still consider the worker live while its runtime is
+    # stopped.
+    #
+    # So the ordinary receipt-authorized cleanup keeps its established
+    # quiescence path, and abandonment's composite owns its own fence and
+    # removal order. Both paths still end a started runtime; only one of them
+    # is this deployment's to begin.
+    if evidence.get("intake_receipt") and evidence.get("quiescence") is None:
+        try:
+            stopped = adapter.stop({"runtime_id": runtime_id,
+                                    "operation_id": f"quiesce:{attempt_id}"})
+            evidence["quiescence"] = {"ordered": stopped.get("ordered"),
+                                      "state": stopped.get("state"),
+                                      "why": stopped.get("why")}
+        except Exception as failed:                        # noqa: BLE001
+            evidence["quiescence"] = {"ordered": False,
+                                      "state": "unobserved",
+                                      "why": type(failed).__name__}
+            _unresolved(evidence, f"the runtime could not be ordered to stop "
+                                  f"({type(failed).__name__})")
+    if evidence.get("intake_receipt"):
+        try:
+            settled = authorize_cleanup(
+                store, port, adapter, attempt_id=attempt_id,
+                retention_policy_digest=retention_policy_digest)
+            evidence["cleanup"] = {"cleanup": settled.get("cleanup"),
+                                   "state": settled.get("state")}
+            # THE TWO TERMINAL ENDINGS THIS DEPLOYMENT ASKED FOR, and which
+            # one is expected is decided by the disposition the MANAGER
+            # COMMITTED -- never by the grants and never by the record.
+            #
+            # W51473, and it is the half that makes the operand real. Swapping
+            # the hard-coded literal for `retain` alone would have kept the
+            # bytes and left the command unresolved forever: the manager ends
+            # cleanup `retained` whenever anything is kept, deliberately,
+            # because "retained" and "complete" are different endings and
+            # reporting kept material as cleaned up would erase the reason it
+            # still exists (`intake._settle`). This deployment used to treat
+            # every ending but `complete` as a failure, so an INTENDED keep
+            # read as a broken cleanup.
+            #
+            # SO THE EXPECTED ENDING IS DERIVED FROM THE COMMITTED DECISION.
+            # `evidence["retention"]` is written from `decide_retention`'s own
+            # answer on the ordinary path, and on the retry path `_committed`
+            # has already held it against `retentions_of` before this is
+            # reachable -- so an edited record cannot turn a discard into a
+            # keep, and a retry cannot reinterpret somebody else's ending. A
+            # retention that never committed leaves this `None`, which keeps
+            # material for nobody and expects `complete`, which is exactly
+            # what an attempt with no retention decision should expect.
+            committed = (evidence.get("retention") or {}).get(
+                "disposition")
+            keeping = committed is not None and _keeps_material(committed)
+            expected = "retained" if keeping else "complete"
+            # POSITIVE ABSENCE IS STILL REQUIRED FOR BOTH, and that is the
+            # ruled difference `retained` does NOT relax: the material staying
+            # is a fact about custody, and the runtime being gone is a fact
+            # about the engine. `retained` releases the lane precisely because
+            # custody is a manager-owned sibling the worker never sees.
+            # AND A KEEP IS PROVED ON THE DISK, AFTER THE REMOVAL, before it
+            # can be called resolved.
+            #
+            # `_settle` discards the execution roots INSIDE the terminal
+            # transaction, so this is the first moment "the candidate is still
+            # there" is a fact rather than a plan. The manager already refuses
+            # to journal a keep over material that is not there
+            # (`OciAdapter.retain`), and this is the deployment's own half of
+            # that: what an operator was promised is a locator THEY can open,
+            # so it is asked of the filesystem here rather than inferred from
+            # an ending. A keep whose locator is gone is unresolved, which is
+            # the honest answer -- the ending happened and the thing it was
+            # for did not survive.
+            if keeping:
+                _kept(evidence)
+            if settled.get("cleanup") == expected \
+                    and settled.get("state") == "absent" \
+                    and not evidence["unresolved"]:
+                evidence["resolved"] = True
+            elif settled.get("cleanup") != expected:
+                _unresolved(evidence,
+                            f"cleanup ended {settled.get('cleanup')!r} with "
+                            f"the runtime {settled.get('state')!r}, and this "
+                            f"attempt's committed retention {committed!r} "
+                            f"ends {expected!r}")
+        except _Refusal as refused:
+            _unresolved(evidence, f"the manager declined to end the attempt: "
+                                  f"{refused.message}")
+    else:
+        # W44716 LANDED, so this is a real ending rather than a recorded gap.
+        # An attempt whose runtime started and whose worker never answered has
+        # no receipt, no start failure and no refusal -- and now has its own
+        # public operation, authorized by an operator's explicit declaration.
+        # The reason carried is this deployment's own account of why it is
+        # declaring the attempt over; it reads no clock and no timer decides.
+        try:
+            ended = abandon_attempt(
+                store, port, adapter, attempt_id=attempt_id,
+                reason=_abandonment_reason(evidence),
+                retention_policy_digest=retention_policy_digest)
+            evidence["abandoned"] = {
+                "fenced": bool(ended["fenced"].get("fenced")),
+                "cleanup": ended["cleanup"].get("cleanup"),
+                "state": ended["cleanup"].get("state")}
+            if ended["cleanup"].get("cleanup") != "retained":
+                _unresolved(evidence,
+                            f"the abandonment ended "
+                            f"{ended['cleanup'].get('cleanup')!r} with the "
+                            f"runtime {ended['cleanup'].get('state')!r}")
+        except _Refusal as refused:
+            _unresolved(evidence, f"the manager declined to abandon the "
+                                  f"attempt: {refused.message}")
+    # THE LAST READ, and it belongs at the END of the ending. Review
+    # 2026-08-30T11:44:55Z [P1]: an edit displaced this below an unconditional
+    # return in another function, where it was unreachable and referred to
+    # names that function does not have. It is the evidence an unsettled
+    # abandonment needs in order to tell an operator what is still there.
+    evidence["observed_after"] = _observed_after(adapter, runtime_id)
+
+
+def recover_abandoned(store, port, adapter, given, *, reason, orphan,
+                      launch_home=None, session=None):
+    """W55758: end an attempt whose SUPERVISING PROCESS died, from the grants.
+
+    THE OBSERVED DEFECT. A managed turn was torn down while `attempt-w51487-
+    run7` was executing. The v12 control arc stopped at `attempt.attach`, so
+    three external facts outlived the process that owned them: the container,
+    the attempt's volatile credential root with a readable bearer in it, and a
+    complete-looking workspace proposal nothing had frozen. `evidence.json` is
+    composed in memory and written at the END, so the record that would have
+    named any of them was never written -- and `--retry-handoff` refuses,
+    correctly, because there is no trusted result to hand on. The deployment
+    therefore had the manager's fourth ending, `abandon_attempt`, and no way
+    to invoke it.
+
+    IT NEEDS NO LOST EVIDENCE AND NO CREDENTIAL. What it takes is the grants
+    the attempt already ran under, the operator's own reason, and a path for a
+    NEW record. There is no `--credential-sources`: a recovery delivers
+    nothing, reads no registry and opens no source, and asking for a bearer in
+    order to delete one would be the exact read this ending exists to avoid.
+
+    TWO BRANCHES, ON DURABLE MANAGER STATE, and review 2026-09-01T03:45:20Z
+    pinned the distinction. `abandon_attempt` refuses an attempt with no
+    attached runtime -- deliberately, because there is nothing to end -- while
+    the interruption matrix includes attempts interrupted after the credential
+    was materialized and before the runtime attached. So the branch is taken
+    from `attempt_runtime_of`, which is the manager's own record of whether a
+    runtime is attached, rather than from the wording of a refusal.
+
+      attached      the ruled W44716 ending: declaration, authority fence,
+                    exact force-removal, positive absence, both provider
+                    endings, directory custody, cleanup `retained`, lane
+                    released. Nothing here duplicates any of it.
+      pre-attach    exact, bounded, no-read cleanup, and only after a public
+                    surface has proved this attempt's material belongs to no
+                    live runtime. NO terminal attempt is invented: an attempt
+                    that never attached one has no runtime ending to record.
+
+    AND NOTHING ELSE HAPPENS. No restage, no offer, no claim, no provider
+    turn, no worker conversation, no freeze, no intake, no retention decision,
+    no pass, and not one byte of the workspace proposal is read or promoted.
+    The complete-looking output stays exactly where the worker left it, open
+    and untrusted, which is the rule M33800 set for every recordless ending.
+
+    AND IT ACCEPTS NO PROJECTION FROM ITS CALLER. W55758 review
+    (2026-09-01T10:56:54Z) [P1]: the carried observation was first a plain
+    operand and then a nominal `_HeldProjection`, and neither is a capability.
+    An importable class with a public constructor is something any caller can
+    compose, so a forged generation-2 projection beside generation-2 grants
+    still ended the real generation-1 attempt and published generation 2 as
+    the identity the ending used. There is no operand to forge now: this
+    operation performs the manager read and the hold itself, and the
+    documented command carries its own one observation through `_recovery_of`
+    -- private composition between two parts of one command, not a door.
+    """
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    return _recovery_of(attempt_runtime_of(store, given["attempt_id"]),
+                        store, port, adapter, given, reason=reason,
+                        orphan=orphan, launch_home=launch_home,
+                        session=session)
+
+
+def _recovery_of(state, store, port, adapter, given, *, reason, orphan,
+                 launch_home, session=None):
+    """The recovery over ONE manager projection, held and then acted on.
+
+    THE PRIVATE SEAM, and the reason there is one. M60437 requires the
+    fixed-assignment hold BEFORE any capability exists, so `_for_abandonment`
+    takes the projection itself; re-reading it here would make the identity
+    held and the state acted on two answers at two moments. The exported
+    operation reaches this only by performing that read itself, so nothing a
+    caller composed can arrive as the manager's own answer.
+    """
+    record = _recovery_record(given, reason)
+    try:
+        return _recovering(record, state, store, port, adapter, given,
+                           reason=reason, orphan=orphan,
+                           launch_home=launch_home, session=session)
+    except BaseException as failed:                        # noqa: BLE001
+        # W55758 review (2026-09-01T04:57:06Z) [P1]: THE RECORD RIDES OUT WITH
+        # THE FAULT. Once this ending has begun, an external act may already
+        # have happened, and a command that propagated with nothing durable
+        # written would leave an operator with a partially ended attempt and
+        # no account of it. Only the fault's TYPE is recorded -- its text is
+        # untrusted prose and this is the most durable surface here.
+        # AND WHAT IT HAD ALREADY DONE, on the same rule as a refusal. A
+        # fault between the credential and the launch teardown leaves a
+        # runtime absent and a credential gone, and a record saying only "it
+        # faulted" would leave an operator unable to tell any of that.
+        try:
+            _partial_account(record, store, adapter, given,
+                             record.get("attempt_state"), orphan=orphan,
+                             launch_home=launch_home, session=session)
+        except BaseException:                              # noqa: BLE001
+            # THE ORIGINAL FAULT IS WHAT AN OPERATOR HAS TO SEE. A second one
+            # raised while accounting for the first must not replace it.
+            pass
+        _unresolved(record, f"this recovery faulted after it began: "
+                            f"{type(failed).__name__}")
+        failed.dogfood_recovery = record
+        raise
+
+
+def _recovering(record, state, store, port, adapter, given, *, reason,
+                orphan, launch_home, session=None):
+    """The two branches, composed into the record `recover_abandoned` owns.
+
+    THE ONE OBSERVATION ARRIVES ALREADY TAKEN, by whichever of this module's
+    two entry points is standing in front of it, and the hold below is what
+    it was taken for.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import abandon_attempt
+
+    record["attempt_state"] = state
+    # W55758, approver ruling APPROVE-EXTEND (M60437): THE GRANTS ARE HELD
+    # AGAINST THE MANAGER'S OWN FIXED ASSIGNMENT, BEFORE EITHER BRANCH AND
+    # BEFORE ANY EXTERNAL ACT.
+    #
+    # THE DEFECT. A grants file is an editable durable surface, and nothing
+    # compared it with what activation fixed: `abandon_attempt` takes its
+    # assignment from the ATTEMPT ROW, so a recovery granted another
+    # generation ended the generation-1 attempt anyway and then wrote its own
+    # generation into the record as though it were the identity the ending
+    # used. The same held for the authority, the Work and the participant.
+    #
+    # ALL FOUR PARTS, EXACTLY. `_fixed_assignment` reads the four columns
+    # together because the schema keeps them together, and this compares them
+    # together for the same reason: three quarters of an identity matching is
+    # not an identity matching.
+    #
+    # AN ATTEMPT WITH NO FIXED ASSIGNMENT REFUSES TOO. Activation is what
+    # fixes one, and a grants file cannot be held against something that was
+    # never decided.
+    disagreed = _assignment_disagrees(state, given)
+    if disagreed is not None:
+        return _unresolved(record, disagreed)
+    # W55758 review [P1]: AND THE RECORD'S IDENTITY IS NOW THE MANAGER'S.
+    #
+    # The members were composed from the grants, which are editable. Equal
+    # values kept that honest only because the hold above had just proved them
+    # equal -- and value equality is not provenance. What an operator reads as
+    # "the identity this ending used" is now the identity the MANAGER fixed,
+    # taken from the same atomic projection the hold compared.
+    fixed = state["assignment"]
+    record["work_ref"] = dict(fixed["work_ref"])
+    record["participant"] = fixed["participant"]
+    record["generation"] = fixed["generation"]
+    if state is None or state["runtime_id"] is None:
+        record["branch"] = "pre-attach"
+        return _pre_attach_recovered(record, store, port, adapter, given,
+                                     reason=reason, orphan=orphan,
+                                     launch_home=launch_home)
+    record["branch"] = "abandonment"
+    try:
+        ended = abandon_attempt(
+            store, port, adapter, attempt_id=given["attempt_id"],
+            reason=reason,
+            retention_policy_digest=given["retention_policy_digest"])
+    except _Refusal as refused:
+        # THE ENDING MAY HAVE GOT PART WAY, and the record has to say so.
+        #
+        # Found by the attached-state case: `abandon_attempt` refuses at the
+        # TERMINAL SETTLEMENT -- directory custody, for one -- after the
+        # destroy answer has already proved the runtime absent and torn the
+        # credential down. A record that left `credentials` null there would
+        # leave an operator unable to tell whether the bearer is still on the
+        # host, which is the exact half-state this Work exists to stop anybody
+        # having to infer.
+        _partial_account(record, store, adapter, given, state,
+                         orphan=orphan, launch_home=launch_home,
+                         session=session)
+        return _unresolved(record, f"the manager declined to abandon the "
+                                   f"attempt: {refused.message}")
+    settled = ended["cleanup"]
+    record["authority_fence"] = {
+        "fenced": bool(ended["fenced"].get("fenced")),
+        "generation": ended["fenced"].get("generation")}
+    record["runtime"] = {"runtime_id": state["runtime_id"],
+                         "state": settled.get("state"),
+                         "why": settled.get("why")}
+    record["cleanup"] = settled.get("cleanup")
+    record["custody"] = settled.get("directory_custody")
+    # THE CREDENTIAL ENDING IS THE CAPABILITY'S OWN ACCOUNT, kept by the
+    # object that performed it rather than inferred from the settlement. The
+    # abandonment document reports the runtime and the cleanup; what the
+    # credential owner did is its own answer, and reading it here is how this
+    # record can say `torn-down` without asserting anything itself.
+    record["credentials"] = _credential_account(orphan)
+    record["launch"] = _launch_after(given, launch_home)
+    record["observed_after"] = _observed_after(adapter, state["runtime_id"])
+    record["zombies"] = _reported_zombies(record)  # after the observation
+    if settled.get("cleanup") != "retained" \
+            or settled.get("state") != "absent":
+        _unresolved(record,
+                    f"the abandonment ended {settled.get('cleanup')!r} with "
+                    f"the runtime {settled.get('state')!r}")
+    if record["credentials"].get("lifecycle_state") not in (
+            "torn-down", "not-delivered"):
+        _unresolved(record,
+                    f"the credential ending is "
+                    f"{record['credentials'].get('lifecycle_state')!r}")
+    _held_orphan_absent(record, orphan)
+    if not record["unresolved"]:
+        record["resolved"] = True
+    return record
+
+
+def _recovery_record(given, reason):
+    """The empty recovery account, with the identity the operator ASKED for.
+
+    Composed from the grants because that is what a refusal is about: an
+    account of a request that was not this attempt's. A recovery that PASSES
+    the hold replaces these three members with the manager's own fixed
+    assignment, so a record of an ending that really ran never names an
+    editable identity as the one it used.
+    """
+    return {"schema": RECOVERY_SCHEMA,
+            "attempt_id": given["attempt_id"],
+            "work_ref": dict(given.get("work_ref") or {}),
+            "participant": given.get("participant"),
+            "generation": given.get("generation"),
+            "reason": reason, "branch": None, "attempt_state": None,
+            "authority_fence": None, "runtime": None, "credentials": None,
+            "launch": None, "custody": None, "cleanup": None,
+            "observed_after": None, "zombies": None,
+            "resolved": False, "unresolved": []}
+
+
+def _assignment_disagrees(state, given):
+    """Why these grants are not this attempt's, or `None` when they are.
+
+    W55758 (M60437). Read out of the ONE atomic recovery projection the branch
+    also turns on, so the identity held and the state acted on are one
+    observation rather than two moments.
+    """
+    if state is None:
+        return (f"the manager has no attempt {given['attempt_id']!r}; a "
+                f"recovery ends an attempt this manager recorded and refuses "
+                f"a grants file naming one it did not")
+    fixed = state.get("assignment")
+    if not fixed:
+        return (f"attempt {given['attempt_id']!r} has no fixed assignment, so "
+                f"there is nothing to hold these grants against; activation "
+                f"is what fixes one and this attempt never reached it")
+    granted = {"authority_uuid": (given.get("work_ref") or {}).get(
+                   "authority_uuid"),
+               "work_id": (given.get("work_ref") or {}).get("work_id"),
+               "participant": given.get("participant"),
+               "generation": given.get("generation")}
+    held = {"authority_uuid": (fixed.get("work_ref") or {}).get(
+                "authority_uuid"),
+            "work_id": (fixed.get("work_ref") or {}).get("work_id"),
+            "participant": fixed.get("participant"),
+            "generation": fixed.get("generation")}
+    differing = sorted(one for one in held if granted[one] != held[one])
+    if differing:
+        return (f"these grants and the assignment this manager fixed for "
+                f"attempt {given['attempt_id']!r} disagree on "
+                f"{', '.join(differing)}; a recovery ends ONE attempt, and a "
+                f"grants file naming another identity is not this attempt's "
+                f"however well formed it is")
+    return None
+
+
+def finalize_quiescent(store, port, given, *, reason):
+    """W61984: end the LIVE ASSIGNMENT of an already-quiescent attempt.
+
+    THE OBSERVED DEFECT. W52821 run5b's worker answered `unable`, the exact
+    execution runtime was positively observed `quiescent`, its output was
+    frozen and intake held the proposal in custody -- and the independent
+    verification failed, so this deployment made no retention decision and no
+    review pass. `_ended_however` then went straight to `authorize_cleanup`,
+    which refused because `attempt-w52821-run5b` was still the live assignment
+    for `baton.claude` generation 1. Nothing between those two acts could end
+    the assignment, so the claim slot stayed held for an execution that had
+    already stopped.
+
+    IT IS AN EXPLICIT MODE AND NEVER AN AUTOMATIC CONSEQUENCE. Approver ruling
+    2026-09-01 item 2: an `unable` result waits for an explicit pass, release
+    or close decision, and turning a failed verification into an automatic
+    cancellation would be a policy change rather than an implementation detail.
+    So the ordinary arc is untouched -- `_custody` still raises on a failed
+    verification and `_ended_however` still ends what its receipt authorizes --
+    and this is reached only when an operator asks for it by name.
+
+    AND IT TAKES NO ADAPTER, WHICH IS THE PROOF RATHER THAN THE PROMISE. There
+    is no engine port, no agent, no credential owner and no launch delivery
+    here, so no runtime can be stopped, no conversation reopened and no
+    material read: what this command can do is bounded by what it was handed.
+    It makes no retention decision, no review pass, no cleanup call and reads
+    not one byte of the retained proposal. Custody stays pending for the
+    operator's own later decision, and the existing exact cleanup is still the
+    only thing that proves absence.
+    """
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    return _finalization_of(attempt_runtime_of(store, given["attempt_id"]),
+                            store, port, given, reason=reason)
+
+
+def _finalization_of(state, store, port, given, *, reason):
+    """The finalization over ONE manager projection, held and then acted on.
+
+    THE SAME PRIVATE SEAM `_recovery_of` IS, and for the same M60437 reason:
+    the fixed-assignment hold has to happen before any capability exists, so
+    the builder takes the projection itself and the exported operation reaches
+    this only by performing that read. Nothing a caller composed can arrive
+    here as the manager's own answer.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import finalize_quiescent_assignment
+
+    record = _recovery_record(given, reason)
+    record["branch"] = "quiescent-finalization"
+    record["attempt_state"] = state
+    # THE EDITABLE GRANTS ARE HELD AGAINST WHAT ACTIVATION FIXED, before the
+    # authority is asked. `finalize_quiescent_assignment` derives its own
+    # assignment from the attempt row, so without this a grants file naming
+    # another generation would end the real one and then write its own
+    # generation into the record as the identity the ending used.
+    disagreed = _assignment_disagrees(state, given)
+    if disagreed is not None:
+        return _unresolved(record, disagreed)
+    fixed = state["assignment"]
+    record["work_ref"] = dict(fixed["work_ref"])
+    record["participant"] = fixed["participant"]
+    record["generation"] = fixed["generation"]
+    try:
+        finalized = finalize_quiescent_assignment(
+            store, port, attempt_id=given["attempt_id"], reason=reason)
+    except _Refusal as refused:
+        # NOTHING PARTIAL TO ACCOUNT FOR. The manager commits its decision
+        # before the fence and refuses everything else beforehand, and this
+        # command performs no external act of its own -- so a refusal here
+        # leaves the world exactly as it was and the account is the sentence.
+        return _unresolved(record, f"the manager declined to finalize the "
+                                   f"assignment: {refused.message}")
+    fenced = finalized["fenced"]
+    record["authority_fence"] = {
+        "fenced": bool(fenced.get("fenced")),
+        "cause": fenced.get("cause"),
+        "phase": fenced.get("phase"),
+        # THE GATE IS THE POINT, so it is recorded rather than summarized.
+        # Freeing the claim slot is not clearing the Work: it stays behind
+        # `runtime-quiescence:<generation>` until positive absence, and an
+        # operator reading this record has to be able to see that.
+        "gate": fenced.get("gate"),
+        "worker_disposition": finalized["intent"]["worker_disposition"],
+        "runtime_id": finalized["intent"]["runtime_id"],
+        "authority_operation_id": finalized["intent"][
+            "authority_operation_id"]}
+    # WHAT IS DELIBERATELY STILL NULL: `runtime`, `cleanup`, `custody`,
+    # `credentials`, `launch`, `observed_after` and `zombies`. This command
+    # made no engine call, so it has nothing observed to say about any of
+    # them, and a record that filled one in from an inference would be the
+    # assumed state this Work exists to remove.
+    # RESOLVED IS READ OFF THE RECORD, not asserted beside it. `AuthorityPort.
+    # cancel` already refuses an answer that did not fence -- so there is no
+    # second check here, and what an operator reads as resolved is the same
+    # member they can read as the fence.
+    record["resolved"] = record["authority_fence"]["fenced"]
+    return record
+
+
+def _partial_account(record, store, adapter, given, state, *, orphan,
+                     launch_home, session):
+    """What the refused ending had ALREADY DONE, re-observed rather than
+    inferred.
+
+    W55758 review (2026-09-01T05:54:54Z) [P1]. `abandon_attempt` refuses at
+    its terminal settlement long after it has declared, fenced the authority,
+    removed the runtime and proved it absent -- and the record kept only the
+    credential fact, so an operator could not tell whether the container was
+    gone, whether the fence landed, or which step refused. This record's own
+    acceptance requires the fence, the runtime removal, both provider endings,
+    custody and the terminal manager state reported SEPARATELY, and that is
+    exactly the case where the separation earns its keep.
+
+    EVERY MEMBER IS RE-OBSERVED THROUGH A PUBLIC SURFACE, never read out of
+    the refusal's sentence and never out of the store: `attempt_runtime_of`
+    for the manager's own axes, the adapter's observation for the engine, the
+    credential owner's own account, and the authority's assignment for the
+    fence. What genuinely did not happen stays unset -- `custody` is the act
+    that refused, and a record inventing a value for it would be the failure
+    this whole function is correcting, one member further on.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    record["credentials"] = _credential_account(orphan)
+    try:
+        record["launch"] = _launch_after(given, launch_home)
+    except _Refusal as unsettled:
+        record["launch"] = {"lifecycle_state": "unresolved",
+                            "why": unsettled.message}
+    runtime_id = (state or {}).get("runtime_id")
+    if runtime_id is not None:
+        record["observed_after"] = _observed_after(adapter, runtime_id)
+        record["runtime"] = {"runtime_id": runtime_id,
+                             "state": (record["observed_after"] or {}).get(
+                                 "state"),
+                             "why": (record["observed_after"] or {}).get(
+                                 "why")}
+    current = attempt_runtime_of(store, given["attempt_id"])
+    record["attempt_state"] = current
+    # THE MANAGER'S OWN AXIS, which is the terminal state this ending did or
+    # did not reach. `cleanup` is the axis rather than a settlement's word
+    # here, and that is the honest reading of a refusal.
+    record["cleanup"] = (current or {}).get("cleanup")
+    record["zombies"] = _reported_zombies(record)
+    if session is not None:
+        # THE FENCE, ASKED OF THE AUTHORITY. An assignment the authority no
+        # longer has is a generation that was fenced; this reads and decides
+        # nothing else, and says `null` rather than guessing when it cannot
+        # ask.
+        try:
+            live = session.assignment_of(given["work_ref"]["work_id"])
+        except Exception:                                  # noqa: BLE001
+            live = None
+            record["authority_fence"] = None
+        else:
+            record["authority_fence"] = {"fenced": live is None,
+                                         "generation": None}
+    return record
+
+
+def _reported_zombies(record):
+    """Runtimes still on this host after the ending, EACH with what was done.
+
+    M60437: only an EXACTLY IDENTIFIED old-incarnation runtime may be stopped;
+    unknown, ambiguous and mismatched ones stay where they are, and automatic
+    reconciliation of those is out of scope -- so the report IS the
+    deliverable.
+
+    W55758 review (2026-09-01T10:35:20Z) [P1] corrects two things it got
+    wrong. IT NAMED THE WRONG RUNTIMES: the report was reconstructed from the
+    EXPECTED target while the engine had answered about other identities
+    entirely, and `observe` was reducing those to prose and a count. They are
+    carried structurally now, so what is named is what the engine reported.
+    AND IT MISSTATED THE ACT: a target this command really issued a removal
+    for and which is still present was called `left untouched`, which is
+    false and is the one sentence an operator would act on. The two are
+    different facts and get different words.
+
+    W55758 review (2026-09-01T10:56:54Z) [P1]: AND EACH CANDIDATE KEEPS ITS
+    OWN STATE. This wrote the literal `unidentified` for every non-target and
+    copied the target's diagnostic as their reason -- for runtimes whose own
+    inspection said `Running: true`. `observe` decides that per runtime now
+    and this composes rather than reconstructs.
+    """
+    observed = record.get("runtime") or {}
+    state = observed.get("state")
+    if state is None or state == "absent":
+        return None
+    target = observed.get("runtime_id")
+    after = record.get("observed_after") or {}
+    seen = [one for one in (after.get("candidates") or ())
+            if type(one) is dict and one.get("runtime_id")]
+    # THE TARGET IS NAMED EVEN WHEN THE ENGINE NEVER MENTIONED IT, which is
+    # exactly the mismatched answer: a removal was issued for this identity
+    # and the engine then talked about a different one. Its own state is the
+    # ending's, because that is all anybody knows about it.
+    if target and not any(one["runtime_id"] == target for one in seen):
+        seen = [{"runtime_id": target, "state": state,
+                 "why": observed.get("why")}, *seen]
+    return _zombie_account(
+        seen, target,
+        acted="removal was issued for this exact identity and it is still "
+              "present; it is NOT untouched, and it is not proved absent "
+              "either",
+        untouched="left untouched: the engine reported this identity while "
+                  "answering about another, so this recovery neither "
+                  "targeted nor stopped it, and reconciling an unknown or "
+                  "ambiguous runtime is not in this command's scope")
+
+
+def _canonical_candidates(candidates):
+    """ONE ROW PER RUNTIME IDENTITY, and a contradiction reported as one.
+
+    W55758 review (2026-09-01T11:38:25Z) [P1]. An engine that named the same
+    runtime twice under conflicting `Running` members produced TWO zombie rows
+    for one exact locator -- one `quiescent`, one `running`, both targeted --
+    while the runtime itself was reported `uncertain`. Two mutually exclusive
+    states under one identity leave an operator no fact to act on, which is
+    exactly the ambiguity M60437's per-runtime report exists to remove.
+
+    AGREEMENT IS ONE OBSERVATION SEEN TWICE, so repeated or aliasing documents
+    that say the same thing collapse. ANYTHING ELSE IS `uncertain` AND CARRIES
+    EVERY ACCOUNT: the engine said more than one thing about this identity,
+    and a row that kept whichever arrived first would publish an observation
+    the rest of the answer contradicts.
+
+    AND AGREEMENT IS THE WHOLE ACCOUNT, NOT THE COARSE STATE. W55758 review
+    (2026-09-01T11:53:38Z) [P1]: comparing `state` alone made two DIFFERENT
+    `uncertain` answers -- one document carrying no state record, another
+    carrying `Running: "yes"` -- look like one observation seen twice, and the
+    second engine account was dropped without a word. For `uncertain` the
+    reason IS the evidence; it is the whole of what an operator has to act on,
+    so identical accounts are what collapses here and nothing else.
+    """
+    order = []
+    accounts = {}
+    for candidate in candidates:
+        runtime_id = candidate.get("runtime_id")
+        if not runtime_id:
+            continue
+        if runtime_id not in accounts:
+            order.append(runtime_id)
+            accounts[runtime_id] = []
+        account = (candidate.get("state"), candidate.get("why"))
+        if account not in accounts[runtime_id]:
+            accounts[runtime_id].append(account)
+    found = []
+    for runtime_id in order:
+        seen = accounts[runtime_id]
+        if len(seen) == 1:
+            state, why = seen[0]
+            found.append({"runtime_id": runtime_id, "state": state,
+                          "why": why})
+            continue
+        # THE ENGINE'S OWN WORDS, DEDUPLICATED BUT NOT SUMMARISED. An operator
+        # deciding what to do about this runtime needs to see that the several
+        # answers exist; a reason saying only "conflicting" would replace one
+        # unusable row with one uninformative one.
+        said = "; ".join(f"{state!r} ({why})" for state, why in seen)
+        found.append({"runtime_id": runtime_id, "state": "uncertain",
+                      "why": f"the engine reported this exact identity more "
+                             f"than once and its answers disagree: {said}"})
+    return found
+
+
+def _zombie_account(candidates, target, *, acted, untouched):
+    """One composer for both branches of M60437's leave-alone report.
+
+    The attached ending reports what the engine said after its removal; the
+    pre-attach ending reports what `recover_credentials` refused over. Those
+    are the same obligation -- name every runtime this recovery left on the
+    host, with its exact locator, its observed state and why -- and a second
+    composer would be a second vocabulary for one deliverable.
+
+    THE ACT IS PER RUNTIME AND THE TWO SENTENCES ARE NOT INTERCHANGEABLE.
+    Whichever runtime this recovery was permitted to act on gets `acted`;
+    every other one gets `untouched`, and calling a runtime somebody just
+    tried to remove untouched is the false sentence an operator would act on.
+
+    AND THE RUNTIME IS THE ROW. `_canonical_candidates` settles repeated
+    observations before this composes, so `targeted` and its sentence are said
+    once per identity rather than once per document the engine emitted.
+    """
+    found = []
+    for candidate in _canonical_candidates(candidates):
+        runtime_id = candidate["runtime_id"]
+        targeted = target is not None and runtime_id == target
+        found.append({"runtime_id": runtime_id,
+                      "state": candidate["state"],
+                      "why": candidate["why"],
+                      "targeted": targeted,
+                      "action": acted if targeted else untouched})
+    return found or None
+
+
+def _credential_account(orphan):
+    """What the credential owner DID, reported whether the attempt settled.
+
+    THE CAPABILITY'S OWN ACCOUNT and not an inference from the settlement:
+    the teardown rides inside the destroy answer and follows positive runtime
+    absence, while the terminal settlement comes after it, so an ending that
+    refused later may still have made the host clean.
+
+    AND `not-delivered` IS STILL A CLAIM. It is made only when this recovery
+    holds no teardown at all -- an attempt granted no credential slots. A
+    teardown that exists and was never asked is `unresolved`, because durable
+    facts say a credential WAS delivered and nothing has proved it gone.
+    """
+    if orphan is None:
+        return {"lifecycle_state": "not-delivered"}
+    if orphan.ending is not None:
+        return orphan.ending
+    # THIS CAPABILITY WAS NOT ASKED, so the answer comes from the HOST rather
+    # than from the absence of an act.
+    #
+    # Found by the exact-retry case: a replayed ending returns the composite
+    # the first call journalled without calling this process's teardown, and
+    # reporting `unresolved` there would call a provably clean host unsettled
+    # on every retry. `torn-down` means PROVED ABSENT -- the same thing it
+    # means everywhere else in this component -- so every held home being
+    # empty is that proof, and anything still present is not.
+    found = orphan.evidence()
+    if all(not one["volatile_root"] and not one["lifecycle_record"]
+           for one in found):
+        return {"attempt_id": orphan.attempt_id,
+                "lifecycle_state": "torn-down", "homes": found}
+    return {"lifecycle_state": "unresolved",
+            "why": "the attempt ending reported no credential teardown and "
+                   "material for this attempt is still present"}
+
+
+def _pre_attach_recovered(record, store, port, adapter, given, *, reason,
+                          orphan, launch_home):
+    """The interruption that never reached a runtime, ended exactly.
+
+    Review 2026-09-01T03:45:20Z: `_launched` materializes the credential
+    BEFORE `run_dogfood_task` records and starts the attempt, so a process
+    that died in between left a bearer on the host and no attempt for
+    `abandon_attempt` to end. Forcing that through the W44716 ending would be
+    inventing a terminal attempt; leaving it alone would be leaving the exact
+    material this Work exists to remove.
+
+    THE PROOF COMES FIRST AND IT IS THE MANAGER'S. `recover_credentials` is
+    the public surface that asks the engine whether any runtime carries this
+    attempt's whole label set, stops what it finds, and performs bounded
+    orphan cleanup only when that stop is PROVED -- removing a mount source
+    out from under a container this manager cannot say is gone is the one act
+    worse than leaving it. This composes nothing of its own on top.
+    """
+    from baton_v12.contracts import ContractRefusal as _Refusal
+    from baton_v12.worker_manager import (fence_pre_attach_abandonment,
+                                          label_context)
+
+    try:
+        context = label_context(store, given["attempt_id"])
+    except _Refusal as refused:
+        return _unresolved(
+            record,
+            f"this attempt is not activated, so no runtime selector can be "
+            f"composed for it and its material cannot be proved unheld: "
+            f"{refused.message}")
+    # W63255: THE ASSIGNMENT IS FENCED BEFORE ANY RESOURCE ACCOUNT IS TAKEN.
+    #
+    # This branch used to prove the runtime absent, tear the credentials down
+    # and report `resolved` from those facts alone, while the exact assignment
+    # stayed live with its Handler and generation still held. Resource absence
+    # is not release of assignment authority, and a recovery that declares an
+    # activated attempt resolved while its authority still believes it is
+    # executing is the defect this Work exists to remove.
+    #
+    # IT RUNS FIRST because everything after it is destructive and `resolved`
+    # depends on it: a fence that refused after the credentials were gone would
+    # leave an unresolvable record. It runs through the MANAGER PORT rather than
+    # the authority session, because the port is the boundary that owns and
+    # relates the fence answer to this exact four-member assignment.
+    try:
+        fenced = fence_pre_attach_abandonment(
+            store, port, attempt_id=given["attempt_id"], reason=reason)
+    except _Refusal as refused:
+        return _unresolved(
+            record,
+            f"this attempt's assignment was not fenced, so it remains live "
+            f"however its resources ended: {refused.message}")
+    record["authority_fence"] = fenced["fenced"]
+    try:
+        answered = adapter.recover_credentials({
+            "attempt_id": given["attempt_id"],
+            "assignment": {"work_ref": dict(given["work_ref"]),
+                           "participant": given["participant"],
+                           "generation": given["generation"]},
+            "context": context})
+    except _Refusal as refused:
+        # W55758 review (2026-09-01T10:56:54Z) [P1]: AND WHAT IT LEFT ON THE
+        # HOST IS REPORTED HERE TOO. M60437's untouched-runtime rule applies
+        # to this branch exactly as it does to the attached one, and reducing
+        # the manager's refusal to prose left an operator a sentence where the
+        # ruling requires a per-runtime locator, state and reason.
+        record["zombies"] = _zombie_account(
+            getattr(refused, "runtime_zombies", ()),
+            getattr(refused, "stopped_runtime", None),
+            acted="this runtime was identified exactly and stopped, and it "
+                  "is still present; it is NOT untouched, and it is not "
+                  "proved absent either",
+            untouched="left untouched: this recovery could not identify it "
+                      "exactly as this attempt's runtime, so it was neither "
+                      "stopped nor adopted, and reconciling an unknown, "
+                      "ambiguous or mismatched runtime is not in this "
+                      "command's scope")
+        return _unresolved(
+            record,
+            f"this attempt's credential material could not be proved unheld: "
+            f"{refused.message}")
+    if answered.get("lifecycle_state") != "absent":
+        # A LIVE RUNTIME ADOPTED IT, and the manager's own row said no runtime
+        # is attached. Two accounts that disagree are not an ending.
+        return _unresolved(
+            record,
+            f"the manager records no attached runtime and a live one "
+            f"answered {answered.get('lifecycle_state')!r} for this "
+            f"attempt's credential; nothing is removed on two accounts that "
+            f"disagree")
+    # PROVED UNHELD, so the rest of this attempt's material may end. The
+    # orphan capability covers the OTHER home the legacy split put a record
+    # under; `recover_credentials` acted only through the adapter's own.
+    #
+    # W55758 review (2026-09-01T04:57:06Z) [P1]: EACH MUTATION IS ACCOUNTED
+    # FOR SEPARATELY. A real multi-home ending can remove the first home and
+    # then refuse on the second, and a raise there produced no durable
+    # recovery document at all -- after an external act had already happened.
+    # An expected cleanup refusal is a named `unresolved` fact here; the
+    # record is still composed, and `_abandoned` writes it either way.
+    record["runtime"] = {"runtime_id": None, "state": "absent",
+                         "why": "no runtime was ever attached to this attempt"}
+    if orphan is None:
+        record["credentials"] = {"lifecycle_state": "not-delivered"}
+    else:
+        try:
+            record["credentials"] = orphan.tear_down()
+        except _Refusal as refused:
+            record["credentials"] = {"lifecycle_state": "unresolved",
+                                     "why": refused.message}
+            _unresolved(record, f"the credential teardown did not settle: "
+                                f"{refused.message}")
+    try:
+        record["launch"] = _launch_after(given, launch_home, discard=True)
+    except _Refusal as refused:
+        record["launch"] = {"lifecycle_state": "unresolved",
+                            "why": refused.message}
+        _unresolved(record, f"the launch teardown did not settle: "
+                            f"{refused.message}")
+    _held_orphan_absent(record, orphan)
+    if not record["unresolved"]:
+        record["resolved"] = True
+    return record
+
+
+def _held_orphan_absent(record, orphan):
+    """Every held home proved empty AFTER the ending, or named as unresolved.
+
+    The deployment's own half of the credential proof, and it is asked of the
+    filesystem rather than inferred from a word. `CredentialHome` proves each
+    removal as it makes it; this proves the whole set once more at the end,
+    because a recovery that reported an ending while a bearer was still on the
+    host is precisely the failure this Work exists to remove.
+    """
+    if orphan is None:
+        return record
+    for found in orphan.evidence():
+        if found["volatile_root"] or found["lifecycle_record"]:
+            _unresolved(record,
+                        f"credential material for this attempt is still "
+                        f"present under {found['home']}")
+    return record
+
+
+def _launch_after(given, launch_home, *, discard=False):
+    """What became of the launch root, read through the manager's own adopt.
+
+    A READ, and the abandonment's own `destroy_abandoned` has already settled
+    it on the attached branch -- so this reports rather than repeats. On the
+    pre-attach branch nothing has settled it, and `launch.discard` is the
+    manager's own removal for exactly that root.
+    """
+    from baton_v12.worker_manager import launch
+
+    if launch_home is None:
+        return {"lifecycle_state": "not-delivered"}
+    adopted = launch.adopt(
+        launch_home,
+        **_launch_operands(given["attempt_id"],
+                           frozen_task(given["task_path"])))
+    if adopted is None:
+        return {"lifecycle_state": "torn-down"}
+    if not discard:
+        return {"lifecycle_state": "unresolved",
+                "why": "the launch root is still present after the ending"}
+    if launch.discard(adopted.root):
+        return {"lifecycle_state": "torn-down"}
+    return {"lifecycle_state": "unresolved",
+            "why": "the launch root is still present after removal"}
+
+
+def _abandonment_reason(evidence):
+    """Why THIS deployment is declaring the attempt over, in its own words.
+
+    Composed from what was already recorded rather than restated, so the
+    declaration an operator later reads in the journal is the same sentence
+    the evidence carries. Bounded, because it is durable text.
+    """
+    return ("the dogfood operator declared this attempt abandoned: "
+            + "; ".join(evidence["unresolved"] or ["no reason recorded"])
+            )[:MAX_ABANDONMENT_REASON]
+
+
+def _observed_after(adapter, runtime_id):
+    """What the engine says about the runtime once the arc has finished.
+
+    A READ AND NEVER A REMOVAL. Removing here would be a second destroy
+    boundary beside the manager's own, which is the one thing a deployment
+    must not grow; what this adds is that an unresolved evidence record says
+    whether the container is still running rather than leaving an operator to
+    go and look.
+    """
+    try:
+        return dict(adapter.observe(runtime_id))
+    except Exception as failed:                            # noqa: BLE001
+        return {"state": "unobserved", "why": type(failed).__name__}
+
+
+def _derived(custody_locator, task, source):
+    """The diff and the verification, RECOMPUTED by this operator.
+
+    NEITHER READS THE WORKER'S ACCOUNT. `change.patch` and `result.json` are
+    the worker's convenience and are collected as evidence; what an operator
+    acts on is this — the candidate tree custody holds, diffed against the
+    staged source it was made from, and the task's own frozen command rerun
+    OUTSIDE the container over that tree.
+
+    THE LOCATOR IS THE RECEIPT'S. Review [P1]: it used to be derived from the
+    adapter's private `_custody`, which is OCI's business and not a
+    deployment's.
+    """
+    import subprocess
+
+    # THE LOCATOR IS A URI, and this treated it as a path. W39358: the real
+    # intake receipt carries `file:///...`, so `os.path.join` produced
+    # `file:///...` and every real derivation died `FileNotFoundError` -- a
+    # fault rather than the typed refusal a boundary owes. Only the one scheme
+    # this deployment can read is accepted; anything else is refused by name
+    # rather than guessed at.
+    proposal = _proposal_root(custody_locator)
+    candidate = os.path.join(proposal, "candidate")
+    changed = sorted(_changed_paths(source, candidate))
+    # W85497: THE RERUN WRITES NOTHING INTO WHAT IT IS MEASURING.
+    #
+    # This is the boundary the first ordinary self-hosted W71917 retry crossed.
+    # `changed` above is computed, and then the verification ran with `cwd` set
+    # to the RETAINED CUSTODY CANDIDATE and no cache root -- so its 149
+    # `__pycache__` entries landed in the tree after the changed-path answer
+    # was taken. That is how independent evidence could report ten workload
+    # paths while later proposal packaging saw a 10,779,527-byte patch: both
+    # were right about the tree they looked at, and this rerun changed it in
+    # between.
+    snapshot = _candidate_snapshot(candidate)
+    verified = _verified(task, candidate, proposal)
+    # AND THE PROOF IS TAKEN, NOT ASSERTED. A cache root that a future edit
+    # spelled wrong, or a command that writes somewhere this correction did not
+    # anticipate, is caught by comparing the whole tree rather than by trusting
+    # the environment composed above.
+    if verified.returncode == 0:
+        _unchanged_by_verification(candidate, snapshot)
+    return {"changed_paths": changed,
+            "verification_argv": list(task["verification"]),
+            "verification_status": verified.returncode,
+            # THE SAME DECODED ROOT. Review 2026-08-30T19:44:14Z: this joined
+            # below the raw `file://` STRING while the candidate above used
+            # the decoded path, so every member answered absent and the record
+            # reported an empty proposal with all four members present. One
+            # decode, one root, both uses.
+            "members_present": sorted(
+                one for one in PROPOSAL_MEMBERS
+                if os.path.exists(os.path.join(proposal, one)))}
+
+
+# HOW MUCH OF A FAILED COMMAND THE OPERATOR SEES. Enough for `compileall` to
+# name the file, the line, the caret and the `SyntaxError` -- which is the
+# diagnostic W85497 found discarded -- and bounded so a shouting command cannot
+# fill a supervising terminal.
+MAX_DIAGNOSTIC = 4000
+
+# An explicit operator-owned volatile root, rather than `tempfile`'s ambient
+# selection. The latter can be redirected beneath a retained proposal by
+# `TMPDIR` or `tempfile.tempdir`, which would make the verifier's supposedly
+# ephemeral output part of custody. This deployment already requires `/tmp`
+# for bounded operator scratch; every created child is checked again below.
+VERIFICATION_TEMP_ROOT = "/tmp"
+
+
+def _verified(task, candidate, proposal):
+    """The frozen command, rerun with its ephemera OUTSIDE the proposal.
+
+    THE ENVIRONMENT IS THE HOST'S, WITH THREE NAMES OVERRIDDEN, and the
+    difference from the worker adapter is deliberate. `claude_agent` composes
+    its children's environments from nothing because those children run beside
+    a mounted bearer; this one is the OPERATOR'S OWN rerun on the operator's
+    own host, and a closed environment here would break a frozen command that
+    legitimately needs the host's `PATH`, locale or interpreter selection. What
+    is corrected is where it WRITES.
+
+    `PYTHONDONTWRITEBYTECODE` IS NOT USED and would not work: `compileall`
+    writes bytecode as its purpose and ignores it. `PYTHONPYCACHEPREFIX` is
+    the name that decides where.
+    """
+    import subprocess
+    import sys
+    import stat
+    import tempfile
+
+    # EXPLICITLY OUTSIDE THE PROPOSAL, not merely wherever ambient `tempfile`
+    # configuration happens to point today. Review 2026-09-04T14:44:23Z found
+    # that `tempfile.tempdir` beneath the retained proposal put every one of
+    # these files inside custody while this comment claimed the opposite.
+    try:
+        temporary_root = os.lstat(VERIFICATION_TEMP_ROOT)
+    except OSError as failed:
+        raise _Lost(
+            f"the independent verification temporary root "
+            f"{VERIFICATION_TEMP_ROOT} is unavailable "
+            f"({type(failed).__name__})") from failed
+    if not stat.S_ISDIR(temporary_root.st_mode):
+        raise _Lost(
+            f"the independent verification temporary root "
+            f"{VERIFICATION_TEMP_ROOT} is not an ordinary directory")
+    ephemera = tempfile.mkdtemp(prefix="dogfood-verify-",
+                                dir=VERIFICATION_TEMP_ROOT)
+    if (_within(ephemera, proposal) or _within(ephemera, candidate)):
+        os.rmdir(ephemera)
+        raise _Lost(
+            f"the independent verification's temporary root {ephemera} is "
+            f"inside retained proposal storage; no command was started")
+    try:
+        env = dict(os.environ)
+        env["PYTHONPYCACHEPREFIX"] = os.path.join(ephemera, "pycache")
+        env["TMPDIR"] = os.path.join(ephemera, "tmp")
+        env["XDG_CACHE_HOME"] = os.path.join(ephemera, "cache")
+        for name in ("PYTHONPYCACHEPREFIX", "TMPDIR", "XDG_CACHE_HOME"):
+            os.mkdir(env[name], 0o700)
+        # CAPTURED RATHER THAN DISCARDED, and the distinction is the finding's.
+        # The worker adapter's no-stream ruling governs a child running beside
+        # the attempt's credential mount; this is the operator's own host-side
+        # rerun of a command the operator froze, and sending it to `DEVNULL`
+        # threw away `compileall`'s filename, line, caret and `SyntaxError`
+        # while still failing the attempt. What must not happen is these bytes
+        # reaching a durable member.
+        #
+        # CAPTURED TO A FILE, NOT TO A PIPE, and review 2026-09-04T13-56-04Z
+        # [P1] is why. `subprocess.PIPE` accumulates the WHOLE stream in this
+        # process's memory for as long as the 900-second command runs, and the
+        # truncation happened afterwards -- so the bound was on what an
+        # operator SAW and not on what this process held. A shouting command
+        # could still exhaust the operator's memory while the case that was
+        # supposed to prove otherwise passed.
+        #
+        # THE FILE LIVES IN THE EPHEMERAL ROOT this call already owns, so it is
+        # outside the retained proposal by construction and is removed with
+        # everything else in the `finally` below. Only the tail is ever read
+        # into memory.
+        with open(os.path.join(ephemera, "verification.out"), "w+b") as said:
+            verified = subprocess.run(list(task["verification"]),
+                                      cwd=candidate, stdout=said,
+                                      stderr=subprocess.STDOUT, timeout=900,
+                                      env=env)
+            if verified.returncode != 0:
+                _shown(task, verified.returncode, said)
+        return verified
+    finally:
+        import shutil
+
+        try:
+            shutil.rmtree(ephemera)
+        except OSError as failed:
+            # CHILD BYTES ARE NOT REPEATED. The path and exception class are
+            # enough for an operator to locate residue and distinguish it from
+            # verification success; silent retention was the defect.
+            raise _Lost(
+                f"independent verification left ephemera at {ephemera}; "
+                f"cleanup failed ({type(failed).__name__})") from failed
+
+
+def _within(place, root):
+    """Whether resolved `place` is `root` or one of its descendants."""
+    place = os.path.realpath(place)
+    root = os.path.realpath(root)
+    try:
+        return os.path.commonpath((place, root)) == root
+    except ValueError:
+        return False
+
+
+def _shown(task, status, said):
+    """A bounded, actionable diagnostic, to the SUPERVISING OPERATOR only.
+
+    This process's own stderr and nowhere else. It is not returned, so it
+    cannot reach `evidence`, the retained record, the proposal, the recap or a
+    Baton message -- every one of which the finding forbids -- and an operator
+    watching this run gets the line and caret that say WHICH file failed
+    instead of a bare exit status they have to reproduce by hand.
+
+    THE TAIL IS SOUGHT, NOT SLICED. `said` is the file the child wrote to, so
+    the bound here is on what is READ rather than on what is discarded after
+    reading: at most `MAX_DIAGNOSTIC` bytes ever enter this process, however
+    much the command produced.
+    """
+    import sys
+
+    total = said.seek(0, os.SEEK_END)
+    said.seek(max(0, total - MAX_DIAGNOSTIC))
+    text = said.read().decode("utf-8", "replace")
+    if total > MAX_DIAGNOSTIC:
+        text = f"[{total - MAX_DIAGNOSTIC} earlier bytes dropped]\n" + text
+    print(f"independent verification {' '.join(task['verification'])} exited "
+          f"{status}; its output follows and is NOT recorded anywhere "
+          f"durable:\n{text}", file=sys.stderr, flush=True)
+
+
+# HOW MUCH OF A FILE IS HELD WHILE IT IS DIGESTED. A candidate may carry an
+# artefact of any size, and a snapshot that read each one whole would make this
+# operator's memory a function of somebody else's build output.
+DIGEST_CHUNK = 1 << 20
+
+
+def _candidate_snapshot(tree):
+    """EVERY entry under the candidate, typed, with file bytes digested.
+
+    Paths AND bytes, because either alone misses half of what a verification
+    can do: a command that only adds files leaves every existing digest intact,
+    and one that rewrites a file in place leaves the path set intact.
+
+    AND DIRECTORIES, which review 2026-09-04T13-56-04Z [P1] found missing. Only
+    `os.walk`'s FILES were recorded, so an empty `__pycache__` produced an
+    identical snapshot before and after and was accepted -- while being exactly
+    the entry the finding's candidate-clean rule names. A directory that
+    appears is a change to the retained candidate whether or not anything is
+    in it yet.
+
+    TYPED, because a path becoming a different KIND of thing is a change no
+    digest comparison would see: a file replaced by a directory, or either
+    replaced by a link, compares as "the name is still there".
+
+    STREAMED, because a candidate may carry an artefact of any size and this
+    operator's memory must not be a function of it.
+    """
+    import stat
+
+    found = {}
+    for base, directories, files in os.walk(tree):
+        for name in directories:
+            place = os.path.join(base, name)
+            relative = os.path.relpath(place, tree)
+            held = os.lstat(place)
+            found[relative] = (_snapshot_kind(held.st_mode, place)
+                               if not stat.S_ISREG(held.st_mode)
+                               else _snapshot_file(place))
+        for name in files:
+            place = os.path.join(base, name)
+            relative = os.path.relpath(place, tree)
+            held = os.lstat(place)
+            found[relative] = (_snapshot_file(place)
+                               if stat.S_ISREG(held.st_mode)
+                               else _snapshot_kind(held.st_mode, place))
+    return found
+
+
+def _snapshot_kind(mode, place):
+    """A bounded description of an entry that must never be opened."""
+    import stat
+
+    if stat.S_ISLNK(mode):
+        return f"link:{os.readlink(place)}"
+    if stat.S_ISDIR(mode):
+        return "dir"
+    if stat.S_ISFIFO(mode):
+        return "fifo"
+    if stat.S_ISSOCK(mode):
+        return "socket"
+    if stat.S_ISCHR(mode):
+        return "character-device"
+    if stat.S_ISBLK(mode):
+        return "block-device"
+    return f"special:{stat.S_IFMT(mode):o}"
+
+
+def _snapshot_file(place):
+    """Digest one regular inode through a no-follow validated descriptor."""
+    import hashlib
+    import stat
+
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
+    # O_NONBLOCK keeps a last-moment regular-to-FIFO replacement from hanging
+    # the operator before fstat can reject it. It has no effect on a regular
+    # file. O_NOFOLLOW closes the equivalent link-replacement race.
+    flags |= getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        descriptor = os.open(place, flags)
+    except OSError as failed:
+        raise _Lost(
+            f"the candidate entry {place} could not be opened without "
+            f"following links ({type(failed).__name__})") from failed
+    try:
+        held = os.fstat(descriptor)
+        if not stat.S_ISREG(held.st_mode):
+            return _snapshot_kind(held.st_mode, place)
+        digested = hashlib.sha256()
+        with open(descriptor, "rb", closefd=False) as reading:
+            for block in iter(lambda: reading.read(DIGEST_CHUNK), b""):
+                digested.update(block)
+        return "file:" + digested.hexdigest()
+    finally:
+        os.close(descriptor)
+
+
+def _unchanged_by_verification(tree, before):
+    """A successful rerun leaves the retained candidate exactly as found."""
+    after = _candidate_snapshot(tree)
+    added = sorted(set(after) - set(before))
+    removed = sorted(set(before) - set(after))
+    altered = sorted(one for one in set(before) & set(after)
+                     if before[one] != after[one])
+    if not (added or removed or altered):
+        return
+    # NAMED, AND BOUNDED. An operator reading this needs to know it was the
+    # verification and roughly what it touched; 149 cache paths spelled out in
+    # a durable refusal would be a wall rather than a diagnostic.
+    def few(paths):
+        return ", ".join(paths[:5]) + (f" (+{len(paths) - 5} more)"
+                                       if len(paths) > 5 else "")
+
+    parts = []
+    if added:
+        parts.append(f"added {len(added)}: {few(added)}")
+    if removed:
+        parts.append(f"removed {len(removed)}: {few(removed)}")
+    if altered:
+        parts.append(f"rewrote {len(altered)}: {few(altered)}")
+    raise _Lost(
+        f"the independent verification changed the retained candidate it was "
+        f"measuring -- {'; '.join(parts)}. A rerun's own generated artefacts "
+        f"are not proposed source changes, and a proposal whose inventory was "
+        f"computed before they appeared describes a tree that no longer "
+        f"exists")
+
+
+def _proposal_root(custody_locator):
+    """The ONE absolute local path a custody locator names.
+
+    Decoded and validated once, and reused by every read below it. The first
+    cut decoded it at one use and not the other, which is the shape of every
+    two-spellings defect in this dossier.
+    """
+    if type(custody_locator) is not str \
+            or not custody_locator.startswith("file://"):
+        raise _Lost(f"custody answered {custody_locator!r} and this operator "
+                    f"reads a local `file://` locator; a scheme it cannot open "
+                    f"is not a tree it can independently derive")
+    place = custody_locator[len("file://"):]
+    if not os.path.isabs(place):
+        raise _Lost(f"custody answered {custody_locator!r}, whose path is not "
+                    f"absolute; a proposal root this operator cannot name "
+                    f"exactly is not one it can derive from")
+    return place
+
+
+def _changed_paths(source, candidate):
+    """Which staged files the candidate differs from, by BYTES.
+
+    Not by the worker's list and not by a digest the worker computed: the two
+    trees are on this host and comparing them is the one derivation nothing
+    inside the container can influence.
+    """
+    import filecmp
+
+    found = set()
+    for base, _directories, files in os.walk(source):
+        for name in files:
+            relative = os.path.relpath(os.path.join(base, name), source)
+            theirs = os.path.join(candidate, relative)
+            if not os.path.isfile(theirs) or not filecmp.cmp(
+                    os.path.join(base, name), theirs, shallow=False):
+                found.add(relative)
+    for base, _directories, files in os.walk(candidate):
+        for name in files:
+            relative = os.path.relpath(os.path.join(base, name), candidate)
+            if not os.path.isfile(os.path.join(source, relative)):
+                found.add(relative)
+    return found
+
+
+def _unresolved(evidence, why):
+    """An attempt whose required proof was not obtained, said out loud."""
+    evidence["resolved"] = False
+    evidence["unresolved"].append(why)
+    return evidence
+
+
+def _configured_group(store):
+    from baton_v12.worker_manager import configured_workspace_group
+
+    return configured_workspace_group(store)
+
+
+def _claim_receipt(claimed):
+    """The claim's receipt digest, DERIVED from the authority's own result.
+
+    Review 2026-08-30T06:35:56Z [P0]. There is no placeholder branch, and that
+    is the correction: a manifest that could fall back to a well-formed
+    all-zero digest was one an operator would read as evidence. `submit_claim`
+    answers the authority's exact assignment, claim event and decision, and
+    the receipt digest is over those three — which is what makes it a digest
+    OF the claim rather than a value this deployment chose.
+    """
+    from baton_v12.contracts import digest
+
+    return digest(_claim_facts(claimed))
+
+
+def _claim_event(claimed):
+    """The authority's own claim event sequence, or a refusal."""
+    return _claim_facts(claimed)["claim_event"]
+
+
+def _claim_facts(claimed):
+    """The three facts `submit_claim` answers, held before either is used."""
+    if type(claimed) is not dict:
+        raise OperatorRefusal(
+            f"the claim answered a {type(claimed).__name__} rather than the "
+            f"authority's closed result; an assignment manifest is bound to "
+            f"that result and to nothing this deployment composed")
+    missing = sorted(one for one in ("assignment", "claim_event", "decision")
+                     if one not in claimed)
+    if missing:
+        raise OperatorRefusal(
+            f"the claim result names none of {', '.join(missing)}; an "
+            f"assignment manifest carries the authority's evidence and this "
+            f"deployment does not invent the parts it was not given")
+    return {one: claimed[one]
+            for one in ("assignment", "claim_event", "decision")}
+
+
+def _disposition_of(spoken):
+    """What the worker SAID it did, out of the `work` answer and nowhere else."""
+    for one in spoken["answers"]:
+        if one.get("operation") == "work":
+            body = one.get("answer") or {}
+            return body.get("disposition")
+    return None
+
+
+# EXACTLY WHAT A GRANTS FILE IS. Held as a closed set for the same reason
+# every other document here is: an operator who misspells a member is told,
+# and a member this build does not read cannot sit in a file looking like it
+# was honoured.
+GRANT_MEMBERS = (
+    "engine", "attempt_id", "offer_id", "source", "task_path", "storage",
+    "launch_home", "control_store", "authority_store", "incarnation",
+    "credential_home", "credential_slots", "credential_profile",
+    "image_digest", "network", "review_route", "retention_disposition",
+    "work_ref", "participant", "generation", "now", "policies",
+    "record_binding", "assignment_contract", "human_contract",
+    "role_instructions_digest", "runtime_profile_digest", "toolchain_digest",
+    "adapter_digest", "adapter_name", "labels", "retention_policy_digest")
+
+
+def read_grants(place):
+    """The operator's decisions, read once and held to the closed set.
+
+    SEPARATE FROM `preflight` ON PURPOSE. This holds the FILE -- is it a
+    document, are these the members this build reads -- and `preflight` holds
+    the VALUES. Two owners because they answer to two different people: this
+    one to whoever wrote the file, that one to whoever granted what is in it.
+    """
+    with open(place, "rb") as reading:
+        body = reading.read()
+    try:
+        given = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as broken:
+        raise OperatorRefusal(
+            f"the grants file is one JSON document and this one is not "
+            f"({type(broken).__name__})")
+    if type(given) is not dict:
+        raise OperatorRefusal(
+            f"the grants file is one JSON object; this is a "
+            f"{type(given).__name__}")
+    missing = sorted(one for one in GRANT_MEMBERS if one not in given)
+    extra = sorted(one for one in given if one not in GRANT_MEMBERS)
+    if missing or extra:
+        raise OperatorRefusal(
+            "a grants file names exactly what this operator was given"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    # §13 AT THE FILE BOUNDARY TOO. A grants file is a durable surface an
+    # operator edits by hand, and the one place a bearer is most likely to be
+    # pasted "just for a moment". Refusing here is cheaper than discovering it
+    # in the evidence record afterwards.
+    try:
+        check_no_durable_secret(given, "a dogfood grants file")
+    except ContractRefusal as refused:
+        raise OperatorRefusal(
+            f"this grants file will not be used: {refused.message}")
+    return given
+
+
+def compose(given, *, session, bearer, credential_delivery, open_store,
+            adapter_of, run, open_channel):
+    """One attempt, from a grants document and the launcher's capabilities.
+
+    WHAT IS IN THE FILE AND WHAT IS NOT is the whole shape of this function.
+    Identities, paths and names come from the file, because an operator
+    decides them and a durable record of them is exactly what the acceptance
+    asks for. The SESSION and the BEARER arrive as operands, because §13 keeps
+    the one deliberate secret off durable surfaces and a session is a minted
+    capability rather than a value anybody can write down.
+
+    THE STORE IS OPENED BY THE LAUNCHER, for the same reason: a control store
+    is the manager's, and a deployment that opened one itself would be
+    choosing an incarnation identity that belongs to whoever runs the manager.
+    The credential delivery is a capability too, and arrives the same way.
+    """
+    from baton_v12.authority import claim_signature
+    from baton_v12.worker_manager import AuthorityPort
+
+    store = open_store(given["control_store"])
+    # THE AUTHORITY'S OWN DERIVATION, passed rather than wrapped. A lambda
+    # around it here would be a second place the claim signature is spelled.
+    port = AuthorityPort(session, claim_signature)
+    return run_dogfood_task(
+        engine=given["engine"], run=run, open_channel=open_channel,
+        store=store, port=port, session=session, adapter_of=adapter_of,
+        review_route=given["review_route"],
+        attempt_id=given["attempt_id"], offer_id=given["offer_id"],
+        source=given["source"], task_path=given["task_path"],
+        storage=given["storage"], launch_home=given["launch_home"],
+        credential_delivery=credential_delivery,
+        image_digest=given["image_digest"], network=given["network"],
+        work_ref=given["work_ref"], participant=given["participant"],
+        generation=given["generation"], now=given["now"],
+        policies=given["policies"], record_binding=given["record_binding"],
+        assignment_contract=given["assignment_contract"],
+        human_contract=given["human_contract"],
+        role_instructions_digest=given["role_instructions_digest"],
+        runtime_profile_digest=given["runtime_profile_digest"],
+        toolchain_digest=given["toolchain_digest"],
+        adapter_digest=given["adapter_digest"],
+        adapter_name=given["adapter_name"], labels=given["labels"],
+        retention_policy_digest=given["retention_policy_digest"],
+        retention_disposition=given["retention_disposition"],
+        bearer=bearer)
+
+
+def _held_grants(given):
+    """Every grant judgeable WITHOUT a capability, held before one is built.
+
+    W51476 review [P1]. `main` builds the ordinary capabilities before
+    `compose` runs, and the real builder opens two stores and materializes the
+    attempt's credential slot -- so every hold inside `run_dogfood_task` was
+    behind an outward act. This is the same set of holds, applied where
+    nothing has happened yet.
+
+    IT IS NOT A SECOND SET OF RULES. `frozen_task` and `preflight` are the
+    owners `run_dogfood_task` uses, called here with the same operands; a
+    check written out again would be a second thing to keep in agreement.
+    Both stay where they were, because a direct caller of `run_dogfood_task`
+    is not reached by this and `input_manifest`'s hold answers a different
+    question -- a document changed after it was read.
+
+    READING THE OPERATOR'S OWN TASK FILE IS NOT A SIDE EFFECT. It creates
+    nothing, opens no store, touches no credential home and starts no engine;
+    an operator whose task file is missing learns it here rather than after a
+    credential exists.
+    """
+    preflight(task=frozen_task(given["task_path"]),
+              policies=given["policies"],
+              worker_image_digest=given["image_digest"],
+              toolchain_digest=given["toolchain_digest"],
+              runtime_profile_digest=given["runtime_profile_digest"],
+              role_instructions_digest=given["role_instructions_digest"],
+              record_binding=given["record_binding"],
+              network=given["network"],
+              review_route=given["review_route"],
+              retention_disposition=given["retention_disposition"],
+              human_contract=given["human_contract"])
+
+
+def _abandoned(given, reason, capabilities, place):
+    """The public recovery, over freshly built ending-only capabilities.
+
+    AND A FAULT AFTER THE FIRST MUTATION STILL LEAVES A RECORD. W55758 review
+    (2026-09-01T04:57:06Z) [P1]: the document was written only after
+    `recover_abandoned` returned, so an unexpected fault between two homes --
+    or anywhere after the ending began -- propagated with nothing durable
+    saying an external act had happened. `main`'s ordinary branch already
+    holds the opposite rule for the same reason ("a post-start fault still
+    leaves a file"), and one rule is right for both.
+
+    THE CARRIED RECORD IS THIS DEPLOYMENT'S OWN. Only the exception's TYPE
+    name is recorded, never its text: a fault's message is untrusted prose on
+    the most durable surface this command has.
+
+    AND IT GOES THROUGH `_recovery_of` RATHER THAN THE EXPORTED OPERATION,
+    because the builder above has already taken the one projection M60437
+    requires before any capability exists. The exported operation takes no
+    projection from anybody -- review (2026-09-01T10:56:54Z) [P1] -- so the
+    command's own carried observation travels by private composition instead.
+    """
+    from baton_v12.worker_manager import AuthorityPort
+    from baton_v12.authority import claim_signature
+
+    built = capabilities(given)
+    # W55758 review [P1]: THE HOLD REFUSED BEFORE ANY CAPABILITY WAS BUILT, so
+    # there is nothing to run and nothing that could have acted. What is owed
+    # is the account.
+    if built.get("disagreement"):
+        record = _recovery_record(given, reason)
+        record["attempt_state"] = built.get("state")
+        _unresolved(record, built["disagreement"])
+        for closing in built.get("closing", ()):
+            closing()
+        write_recovery(record, place)
+        return 1
+    try:
+        answered = _recovery_of(
+            built["state"], built["store"],
+            AuthorityPort(built["session"], claim_signature),
+            built["adapter"], given, reason=reason, orphan=built["orphan"],
+            launch_home=built["launch_home"], session=built["session"])
+    except BaseException as failed:                        # noqa: BLE001
+        carried = getattr(failed, "dogfood_recovery", None)
+        if carried is not None:
+            try:
+                write_recovery(carried, place)
+            except OperatorRefusal:
+                # A RECORD THAT WILL NOT WRITE MUST NOT REPLACE THE FAULT.
+                # The original failure is what an operator has to see.
+                pass
+        raise
+    finally:
+        for closing in built.get("closing", ()):
+            closing()
+    write_recovery(answered, place)
+    return 0 if answered["resolved"] else 1
+
+
+def _finalized(given, reason, capabilities, place):
+    """The public finalization, over freshly built fence-only capabilities.
+
+    THE SHAPE IS `_abandoned`'S, and the difference is what is missing from it.
+    There is no adapter to unwind, no orphan teardown and no launch home,
+    because a finalization performs no engine act at all -- so the only fault
+    this can propagate with is one raised between opening a store and reading
+    the manager's own row, and the record still rides out with it.
+    """
+    from baton_v12.authority import claim_signature
+    from baton_v12.worker_manager import AuthorityPort
+
+    built = capabilities(given)
+    if built.get("disagreement"):
+        # NOTHING ELSE WAS BUILT. The hold refused before an authority session
+        # existed, so there is nothing that could have acted and nothing but
+        # the store to release.
+        record = _recovery_record(given, reason)
+        record["branch"] = "quiescent-finalization"
+        record["attempt_state"] = built.get("state")
+        _unresolved(record, built["disagreement"])
+        for closing in built.get("closing", ()):
+            closing()
+        write_recovery(record, place)
+        return 1
+    try:
+        answered = _finalization_of(
+            built["state"], built["store"],
+            AuthorityPort(built["session"], claim_signature), given,
+            reason=reason)
+    finally:
+        for closing in built.get("closing", ()):
+            closing()
+    write_recovery(answered, place)
+    return 0 if answered["resolved"] else 1
+
+
+def _no_credential_sources(options, mode):
+    """The ending modes' contradiction, in this command's own vocabulary.
+
+    W52821. The RULE belongs to `tools/user_credentials.py`, which is the one
+    place that knows what the operand means and which modes must not carry it;
+    what belongs here is the TYPE. `OperatorRefusal` is a deployment saying it
+    was asked for something it does not do, and a `SourceRefusal` escaping the
+    command would tell an operator to read a reader's rules when what they did
+    was ask one command to do two things.
+    """
+    try:
+        user_credentials.refused_in_ending(options.credential_sources,
+                                           mode=mode)
+    except user_credentials.SourceRefusal as refused:
+        raise OperatorRefusal(str(refused)) from None
+
+
+def _credential_resolver(place):
+    """ONE ordinary command's credential source resolver.
+
+    W52821, and the two halves of the ruling are both here.
+
+    PER COMMAND. It is constructed for this invocation, from this invocation's
+    operand, and it is neither a module-level object, a cache nor a lock. Two
+    supervised attempts running as one user are two resolvers over two
+    registries that share nothing.
+
+    AND THE BOUND IS THE MANAGER'S. `credentials.MAX_BEARER` is passed in
+    rather than respelled in the reader, because the value that governs the
+    read must be the value the manager will hold the bearer to -- a second
+    constant is a second bound with nothing comparing the two.
+
+    IT OPENS NOTHING HERE. The lazy window approver ruling APPROVE-LAZY
+    (M59057) established is unchanged: this construction reads no registry and
+    no source, so a command that refuses at its preflight, or dies before
+    `activate_assignment`, has opened neither.
+    """
+    from baton_v12.worker_manager import credentials
+
+    try:
+        return user_credentials.UserCredentialSources(
+            place, max_bearer=credentials.MAX_BEARER)
+    except user_credentials.SourceRefusal as refused:
+        # THE OPERAND IS THIS COMMAND'S BOUNDARY, so its refusal is this
+        # command's type -- the same translation `_no_credential_sources`
+        # performs. What happens LATER, when a slot is resolved, stays a
+        # `SourceRefusal`: that one is the reader judging the user's own
+        # registry and source, and relabelling it would send an operator to
+        # edit an operand that is fine.
+        raise OperatorRefusal(str(refused)) from None
+
+
+def main(argv, *, capabilities, retry_capabilities=None,
+         abandon_capabilities=None, finalize_capabilities=None):
+    """The documented command, and it answers a process exit status.
+
+    ONE INJECTED THING, and it is a FUNCTION OF THE GRANTS. The seven
+    capabilities cannot be built before the grants are read -- the authority
+    store, the control store and the credential home are all named in the file
+    -- so what is injected is the launcher that builds them, not the built
+    things. `_launched` is the real one; a test supplies its own and neither
+    has to pretend the other's boundary does not exist.
+
+    `0` IS A RESOLVED ATTEMPT AND NOTHING ELSE. An attempt that ran but could
+    not prove its ending exits non-zero even though nothing raised, because an
+    operator scripting this reads the status before the file and a supervised
+    pilot that reported success for an unproved ending would be the one
+    failure mode this deployment must not have.
+
+    AND A POST-START FAULT STILL LEAVES A FILE. Approver ruling item 8: the
+    fault propagates, because an implementation defect is not an attempt
+    outcome -- but the record of the attempt that was running when it happened
+    is written first.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        prog="dogfood_operator",
+        description="Run one supervised v12 dogfood attempt.")
+    parser.add_argument("--grants", required=True,
+                        help="the JSON document of operator decisions")
+    parser.add_argument("--evidence", required=True,
+                        help="where the durable evidence record is written")
+    # NAMED BY THE ONE PUBLIC PARSER. Review 2026-08-30T14:36:46Z [P1]: a
+    # private pre-parser stripped this before `main` ever saw it, so
+    # `--help` listed two operands while the launcher refused without a
+    # third. An operand a command requires and does not name is an operand an
+    # operator discovers by failing.
+    #
+    # W52821: THE DECLARATION IS THE SOURCE OWNER'S. The launcher below reads
+    # the same operand out of `sys.argv` to build the resolver it injects, and
+    # it does so through THIS declaration rather than a second spelling -- so
+    # `--help` and the launcher cannot disagree about the operand's name.
+    user_credentials.add_operand(parser)
+    parser.add_argument("--abandon", action="store_true",
+                        help="end an attempt whose supervising process died "
+                             "before it could freeze output or destroy its "
+                             "runtime; requires --abandon-reason, needs no "
+                             "retained evidence and no credential, delivers "
+                             "nothing, accepts no output and writes a "
+                             "recovery record to --evidence")
+    parser.add_argument("--abandon-reason",
+                        help="the operator's own account of why this attempt "
+                             "is being declared over; calling the command IS "
+                             "the declaration, so no timer and no clock "
+                             "decides it")
+    parser.add_argument("--retry-handoff", action="store_true",
+                        help="retry ONLY the pass and settlement of an "
+                             "attempt whose completed, independently verified "
+                             "result is already recorded in --evidence; runs "
+                             "no worker, starts no runtime and restages "
+                             "nothing")
+    # W61984: THE EXPLICIT FINALIZATION MODE. It is a separate operand rather
+    # than a consequence of any other flag, because the ruling is that an
+    # operator decides this and nothing infers it -- see `finalize_quiescent`.
+    parser.add_argument("--finalize-quiescent", action="store_true",
+                        help="end the LIVE ASSIGNMENT of an attempt whose "
+                             "worker already answered and whose exact runtime "
+                             "is recorded quiescent; requires "
+                             "--finalize-reason, contacts no agent, stops no "
+                             "runtime, decides nothing about the retained "
+                             "output and performs no cleanup")
+    parser.add_argument("--finalize-reason",
+                        help="the operator's own account of why this "
+                             "already-quiescent assignment is being ended; "
+                             "calling the command IS the decision, so no "
+                             "timer and no worker result decides it")
+    options = parser.parse_args(argv)
+    # ONE MODE PER INVOCATION, counted rather than compared pairwise. Three
+    # flags make three pairs and a fourth would make six, and a command asked
+    # for two endings was asked to do two different things to one attempt.
+    asked = [name for name, chosen in
+             (("--abandon", options.abandon),
+              ("--retry-handoff", options.retry_handoff),
+              ("--finalize-quiescent", options.finalize_quiescent))
+             if chosen]
+    if len(asked) > 1:
+        raise OperatorRefusal(
+            f"{' and '.join(asked)} are different acts on one attempt; a "
+            f"command that was asked for more than one of them was asked to "
+            f"do two different things to it")
+    given = read_grants(options.grants)
+    if options.finalize_quiescent:
+        # W61984. THE REASON IS REQUIRED AND IS THE DECISION, on the rule
+        # `--abandon` states, and it is held before a store is opened because
+        # building a capability is already an outward act.
+        if finalize_capabilities is None:
+            raise OperatorRefusal(
+                "this launcher supplies no finalization capability path; an "
+                "already-quiescent finalization opens a control store and an "
+                "authority session and nothing else, so it is not the "
+                "ordinary builder with a flag")
+        if not (options.finalize_reason or "").strip():
+            raise OperatorRefusal(
+                "--finalize-quiescent carries the operator's own "
+                "--finalize-reason; calling this command IS the decision that "
+                "this assignment is over, so a blank one is a decision nobody "
+                "made")
+        # AND IT READS NO REGISTRY AND OPENS NO SOURCE. The rule is the source
+        # owner's, applied here for the reason both other ending modes apply
+        # it: a mode that delivers nothing must not accept an operand naming
+        # material to deliver.
+        _no_credential_sources(options, "--finalize-quiescent")
+        return _finalized(given, options.finalize_reason.strip(),
+                          finalize_capabilities, options.evidence)
+    if options.abandon:
+        # W55758. THE REASON IS REQUIRED AND IS THE DECLARATION. `abandon_
+        # attempt` refuses a blank one because calling it IS the operator's
+        # act, and this refuses before a store is opened for the same reason
+        # the retry does: building a capability is already an outward act.
+        if abandon_capabilities is None:
+            raise OperatorRefusal(
+                "this launcher supplies no abandonment capability path; a "
+                "recovery constructs an ending and allocates nothing, so it "
+                "is not the ordinary builder with a flag")
+        if not (options.abandon_reason or "").strip():
+            raise OperatorRefusal(
+                "--abandon carries the operator's own --abandon-reason; "
+                "calling this command IS the declaration that the attempt is "
+                "over, so a blank one is a declaration nobody made")
+        # AND IT READS NO REGISTRY AND OPENS NO SOURCE. W52821: a recovery
+        # that asked for one would be opening the exact material its own
+        # ending exists to remove. The rule is the source owner's, applied
+        # here, so both endings refuse the same operand the same way.
+        _no_credential_sources(options, "--abandon")
+        return _abandoned(given, options.abandon_reason.strip(),
+                          abandon_capabilities, options.evidence)
+    if options.retry_handoff:
+        # APPROVER RULING M46985, REACHABLE. Review [P0]: the narrow retry
+        # existed as a function nobody could call -- an operator whose pass
+        # failed had no documented way to perform it, and exact whole-attempt
+        # replay deliberately refuses at staging, so there was no way at all.
+        #
+        # IT READS THE RETAINED RECORD, which is the point: the original
+        # process is gone, so the trusted result is whatever this deployment
+        # durably wrote down. The capabilities are rebuilt fresh from the same
+        # grants, so the pass and settlement carry the SAME identities and the
+        # authority and the manager replay rather than repeat.
+        # BOUND BEFORE A CAPABILITY IS BUILT, because building one is already
+        # an outward act: it opens stores and touches the credential home.
+        if retry_capabilities is None:
+            raise OperatorRefusal(
+                "this launcher supplies no retry capability path; a retry "
+                "adopts an existing delivery and allocates nothing, so it is "
+                "not the ordinary builder with a flag")
+        # AND IT READS NO REGISTRY AND OPENS NO SOURCE EITHER. W52821: the
+        # retry ADOPTS the delivery the ordinary attempt already materialized
+        # -- `_for_retry` builds no provider callback at all -- so an operand
+        # naming a source asks a mode that opens nothing to open something.
+        # Refused rather than ignored, because ignoring it would let an
+        # operator believe a credential was delivered by a command that
+        # delivers none.
+        _no_credential_sources(options, "--retry-handoff")
+        return _retried(read_evidence(options.evidence), given,
+                        retry_capabilities, options.evidence)
+    # HELD BEFORE A CAPABILITY IS BUILT, because building one is already an
+    # outward act -- the retry branch above says so in those words and the
+    # ordinary branch did not do it.
+    #
+    # W51476 review [P1]. The shared hold was correct at both places it
+    # reached and the documented command reached it too late: `capabilities`
+    # is called HERE, and the real builder `_launched` opens the authority,
+    # opens the control store and calls `CredentialHome.materialize` before
+    # `compose` ever reaches `run_dogfood_task`'s preflight. So W39364's exact
+    # malformed contract still materialized the attempt's credential slot
+    # before anything refused it -- which is the observed defect, one layer
+    # further out than the layer I fixed.
+    #
+    # MY OWN ARC CASE DID NOT COVER THIS and my report said it did. It called
+    # `run_dogfood_task` directly with an already-built delivery and spied on
+    # inner-arc operations; `assignment_workspace` is a workspace allocation
+    # and is not credential materialization. The claim was wrong.
+    #
+    # THIS BOUNDARY IS PURE. It reads the operator's own task file and applies
+    # the same holds `run_dogfood_task` applies -- no store, no home, no
+    # engine. The inner preflight STAYS: a direct caller of `run_dogfood_task`
+    # is not reached by this, and the composer's hold is a different question
+    # again (a document changed after it was read).
+    _held_grants(given)
+    built = capabilities(given)
+    closing = built.pop("closing", ())
+    try:
+        evidence = compose(given, **built)
+    except BaseException as failed:                        # noqa: BLE001
+        carried = getattr(failed, "dogfood_evidence", None)
+        if carried is not None:
+            write_evidence(carried, options.evidence)
+        raise
+    finally:
+        # CLOSED ON EVERY PATH, including the one that propagates a fault: a
+        # command that faulted still held two durable handles.
+        for release in closing:
+            release()
+    # WRITTEN WHATEVER HAPPENED, because an unresolved attempt is exactly the
+    # one an operator most needs the record of.
+    write_evidence(evidence, options.evidence)
+    return 0 if evidence["resolved"] else 1
+
+
+def read_evidence(place):
+    """A retained evidence record, read back and held to the same closed set.
+
+    THE SAME HOLD AS THE WRITE, because a record read back is as untrusted as
+    any other document that crossed a boundary -- it has been on a disk an
+    operator can edit, and a retry that believed an edited one would hand on a
+    result nobody produced.
+    """
+    # BOUNDED AT THE READ, not after it. Reading a file of unknown size into
+    # memory and then measuring it is a ceiling that admits the thing it is
+    # supposed to refuse.
+    with open(place, "rb") as reading:
+        body = reading.read(MAX_EVIDENCE_BYTES + 1)
+    if len(body) > MAX_EVIDENCE_BYTES:
+        raise OperatorRefusal(
+            f"the retained evidence is larger than the "
+            f"{MAX_EVIDENCE_BYTES} bytes this operator reads")
+    try:
+        record = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as broken:
+        raise OperatorRefusal(
+            f"the retained evidence is one JSON document and this one is not "
+            f"({type(broken).__name__})")
+    if type(record) is not dict:
+        raise OperatorRefusal(
+            f"the retained evidence is one JSON object; this is a "
+            f"{type(record).__name__}")
+    # THE SAME TWO HOLDS THE WRITE APPLIES, and for a stronger reason on this
+    # side. Review [P0]: a bearer inserted into an ALLOWED member of an edited
+    # record would reach authority and manager operands and every refusal
+    # surface composed from them, long before the final writer got another
+    # chance to reject it. A file that has been on a disk an operator can edit
+    # is read with the boundary the writer used, not a weaker one.
+    try:
+        check_no_durable_secret(record, "a retained dogfood evidence record")
+    except ContractRefusal as refused:
+        raise OperatorRefusal(
+            f"this retained evidence will not be used: {refused.message}")
+    missing = sorted(one for one in EVIDENCE_MEMBERS if one not in record)
+    extra = sorted(one for one in record if one not in EVIDENCE_MEMBERS)
+    if missing or extra:
+        raise OperatorRefusal(
+            "a retained evidence record is exactly the members this operator "
+            "composes"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    return record
+
+
+# WHAT A RETRY MUST FIND UNCHANGED BETWEEN THE RECORD AND THE GRANTS. Each is
+# a fact the pass or the settlement is composed from, so a disagreement is two
+# different attempts being spliced rather than one being resumed.
+_RETRY_BINDING = ("attempt_id", "work_ref", "participant", "generation",
+                  "worker_image_digest", "network", "review_route",
+                  "retention_policy_digest")
+
+
+def _bound(evidence, given):
+    """Hold the retained record to the grants BEFORE anything outward happens.
+
+    Review 2026-08-30T14:46:24Z [P0]: `_retried` opened stores, allocated
+    roots and built an adapter before comparing anything, and even then took
+    the assignment from the grants while taking the operation id, the runtime
+    and the settlement attempt from the evidence. A closed, valid record could
+    therefore be paired with another assignment's grants and the mismatch
+    would surface, if at all, as a manager refusal about something else.
+
+    THIS RUNS FIRST, and it compares every identity the handoff is composed
+    from -- not `attempt_id` alone, because an attempt name that matched while
+    the work, participant or generation did not would still be two attempts.
+    """
+    named = {"attempt_id": given.get("attempt_id"),
+             "work_ref": given.get("work_ref"),
+             "participant": given.get("participant"),
+             "generation": given.get("generation"),
+             "worker_image_digest": given.get("image_digest"),
+             "network": given.get("network"),
+             "review_route": given.get("review_route"),
+             "retention_policy_digest": given.get(
+                 "retention_policy_digest")}
+    disagreed = [one for one in _RETRY_BINDING
+                 if evidence.get(one) != named[one]]
+    if disagreed:
+        raise OperatorRefusal(
+            f"the retained evidence and these grants disagree on "
+            f"{', '.join(disagreed)}; a handoff retry resumes ONE attempt, "
+            f"and a record that names another is not this attempt's result "
+            f"however well formed it is")
+    # THE RETENTION DISPOSITION IS HELD TOO, and against the COMMITTED
+    # decision rather than beside the flat members above.
+    #
+    # W51473. It is not an evidence member of its own -- what the record
+    # carries is `retention.disposition`, the manager's own committed answer --
+    # so the generic loop cannot reach it, and leaving it out would leave the
+    # one operand that decides whether the ending is `retained` or `complete`
+    # free to differ between the run and its retry. A retry granted `retain`
+    # over an attempt that committed a discard would then expect an ending the
+    # manager will never produce, and one granted a discard over a committed
+    # keep would call a `retained` ending broken.
+    #
+    # A RETENTION THAT NEVER COMMITTED IS NOT A DISAGREEMENT. `retry_handoff`
+    # refuses that record separately and for a better reason -- there is no
+    # result to hand on -- and duplicating the refusal here would report the
+    # grants as wrong when what is missing is the decision.
+    granted = given.get("retention_disposition")
+    committed = (evidence.get("retention") or {}).get("disposition")
+    if committed is not None and granted != committed:
+        raise OperatorRefusal(
+            f"these grants ask for retention {granted!r} and this attempt "
+            f"committed {committed!r}; a handoff retry finishes the ending "
+            f"the manager already decided and does not redecide what happens "
+            f"to the material")
+    return evidence
+
+
+def _retried(evidence, given, capabilities, place):
+    """The narrow retry, over freshly built capabilities and a retained record.
+
+    NOTHING WORKER-SIDE IS CONSTRUCTED. `retry_handoff` needs the store, the
+    port, the session and an adapter to end the attempt with; it needs no
+    engine runner and no channel, because it runs no container and opens no
+    conversation. What is rebuilt is exactly what the pass and the settlement
+    need.
+    """
+    from baton_v12.worker_manager import AuthorityPort
+    from baton_v12.authority import claim_signature
+
+    # BOUND FIRST, INSIDE, so no caller can reach the outward acts by calling
+    # this directly. Review [P0]: the mismatch has to be refused before a
+    # store, a workspace, a credential delivery or an adapter is touched.
+    _bound(evidence, given)
+    built = capabilities(evidence, given)
+    store, session, adapter = built["store"], built["session"], built["adapter"]
+    # CLOSED WHATEVER HAPPENS. Review 2026-08-30T17:13:10Z [P1]: `_for_retry`
+    # opens an authority and a control store and this closed neither, so a
+    # command that ran a retry left two SQLite handles behind -- and a handle
+    # this process still holds is a lock the next incarnation waits on.
+    try:
+        answered = retry_handoff(
+            store, AuthorityPort(session, claim_signature), session, adapter,
+            evidence,
+            expect={"work_ref": dict(given["work_ref"]),
+                    "participant": given["participant"],
+                    "generation": given["generation"]},
+            review_route=given["review_route"],
+            retention_policy_digest=given["retention_policy_digest"])
+    finally:
+        for closing in built.get("closing", ()):
+            closing()
+    write_evidence(answered, place)
+    return 0 if answered["resolved"] else 1
+
+
+# -- THE LAUNCHER: the deployment's own half of the world ---------------------
+#
+# WHY THIS IS HERE AND NOT IN THE PACKAGE. Every outward act in the Worker
+# Manager crosses an injected capability, and the thing that actually spawns a
+# process belongs to the DEPLOYMENT. `worker_entry` says so about the channel
+# in as many words -- "this is the object the package deliberately does not
+# contain". This module is the deployment, so this is where that object lives.
+#
+# Review 2026-08-30T12:40:47Z [P0] is exactly the gap between having written
+# every rule and never having written the half that runs them: the command was
+# documented, the composition was tested, and executing the documented line
+# defined some functions and exited 0.
+
+
+class _Channel:
+    """One `docker exec` process, driven as a framed stream.
+
+    STDERR IS DRAINED BY A THREAD from the moment the process starts. A
+    container that writes more diagnostics than a pipe buffer holds would
+    otherwise block in `write` while this waited on stdout, and the two would
+    wait for each other -- a hang indistinguishable from a worker that stopped
+    answering.
+
+    NOTHING HERE INTERPRETS A FRAME. The framing, the vocabulary and every
+    rule about what an answer means belong to `worker_entry`; this owns a pipe.
+    """
+
+    def __init__(self, argv, *, seconds, observe=None):
+        import subprocess
+        import threading
+
+        self._seconds = seconds
+        self._process = subprocess.Popen(argv, stdin=subprocess.PIPE,
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
+        self._errors = []
+        # W61599: HOW MUCH HAS BEEN SEEN, which is not the same question as
+        # what was said. The count is the whole of what this reports; the
+        # bytes themselves keep the disposal W39357 gave them.
+        self._seen = 0
+        self._observe = observe
+        self._reported = None
+        # DRAINED AND DISCARDED. Review W39357 [P1]: provider diagnostics that
+        # reach a durable surface are a credential disclosure, and the only
+        # reason to hold these bytes at all is to keep the pipe from filling.
+        self._pump = threading.Thread(target=self._drain, daemon=True)
+        self._pump.start()
+
+    def _drain(self):
+        # KEPT ONLY AS A BOUNDED WINDOW for the transport's own ending
+        # document, which names `stderr` and holds it to text. It is never
+        # written anywhere durable: `_ended_however` records the transport's
+        # VOCABULARY, and W39357's finding is that provider diagnostics on a
+        # durable surface are a credential disclosure.
+        for chunk in iter(lambda: self._process.stderr.read(4096), b""):
+            if len(self._errors) < self._KEEP:
+                self._errors.append(chunk)
+            # W61599, approver ruling M61707: THE COUNT IS AN OBSERVATION THIS
+            # LOOP CAN MAKE AND THE CONTENT IS NOT. Every byte is counted --
+            # including the ones past `_KEEP` that this deliberately forgets --
+            # because how much a worker has produced is exactly the fact an
+            # operator has today no way to see, and it is content-free by
+            # construction: a length cannot carry a credential.
+            self._seen += len(chunk)
+            self._report()
+        # THE END OF THE STREAM IS ALWAYS PUBLISHED, past the cadence below.
+        # A session whose last chunk landed inside the quiet window would
+        # otherwise leave a durable total short of what this actually saw, and
+        # a count that stops one chunk early is a count an operator cannot
+        # compare against the next observation.
+        self._report(final=True)
+
+    # ONE PUBLICATION A SECOND, which is the resolution of an operator reading
+    # "updated 4s ago" rather than the resolution of the stream. A container
+    # can produce thousands of chunks a second and each publication is a
+    # durable write; the cadence is this loop's own resource decision, not an
+    # interpretation of anything it read.
+    _ACTIVITY_SECONDS = 1.0
+
+    def _report(self, *, final=False):
+        """Publish the running total, and NEVER let publishing stop the drain.
+
+        This loop exists to keep the container's stderr pipe from filling; a
+        blocked drain is a hang indistinguishable from a worker that stopped
+        answering. A diagnostic projection that could raise out of here would
+        wedge the very session it was added to observe, so a busy store, a
+        refused observation or an observer fault is dropped: the count is a
+        cue to look, and an operator who does not get it is exactly as
+        informed as one running yesterday's build.
+        """
+        if self._observe is None:
+            return
+        import time
+
+        now = time.monotonic()
+        if not final and self._reported is not None \
+                and now - self._reported < self._ACTIVITY_SECONDS:
+            return
+        self._reported = now
+        try:
+            self._observe(self._seen)
+        except BaseException:                              # noqa: BLE001
+            pass
+
+    def send(self, payload):
+        self._process.stdin.write(payload)
+        self._process.stdin.flush()
+
+    def receive(self, count):
+        return self._process.stdout.read1(count)
+
+    def close_input(self):
+        if not self._process.stdin.closed:
+            self._process.stdin.close()
+
+    # A FEW CHUNKS, because the ending's `stderr` is bounded at the transport
+    # and an unbounded buffer here would be an unbounded read driven by the
+    # container.
+    _KEEP = 8
+
+    def finish(self):
+        """The session's ending, as the DOCUMENT the transport reads.
+
+        W39358: this answered a bare integer, and `worker_entry._finished`
+        requires `{status, stderr}` -- so every real conversation this
+        deployment ever held ended `lost` with "the session's ending could not
+        be read", including the one the arc gate reported as an unauthorized
+        provider dry run. The worker had answered; this could not say so.
+        """
+        self.close_input()
+        status = self._process.wait(timeout=self._seconds)
+        self._pump.join(self._seconds)
+        self._process.stdout.close()
+        self._process.stderr.close()
+        return {"status": status,
+                "stderr": b"".join(self._errors).decode("utf-8", "replace")}
+
+
+def _activity_observer(given):
+    """This deployment's publisher for W61599's liveness projection.
+
+    ITS OWN HANDLE, BECAUSE IT RUNS ON ITS OWN THREAD. `_Channel` drains the
+    exec process's stderr from a thread of its own, and a `sqlite3` connection
+    belongs to the thread that opened it -- so the live manager handle this
+    command already holds cannot be the one that records this. Each
+    publication opens, writes and closes: at one write a second that is cheap,
+    and it leaves no handle for a drain thread to own or for an ending to have
+    to remember to close.
+
+    AND IT PUBLISHES A NUMBER. The count crosses; nothing the worker wrote
+    does, which is what keeps M61707's credential-free durable surface true by
+    construction rather than by a redactor nobody can enforce.
+    """
+    from baton_v12.worker_manager import ControlStore, attempts
+
+    def observe(total):
+        store = ControlStore.open(given["control_store"],
+                                  incarnation=given["incarnation"],
+                                  clock=_now)
+        try:
+            attempts.observe_activity(store,
+                                      attempt_id=given["attempt_id"],
+                                      bytes_observed=total)
+        finally:
+            store.close()
+
+    return observe
+
+
+def _engine_run(argv, *, seconds=None):
+    """The engine port's run operation, over a real process.
+
+    The STREAMS ARE RETURNED because `EnginePort` reads them -- a container id
+    comes back on stdout and a refusal on stderr -- and they are the engine's
+    own text about its own act, not the worker's or the provider's.
+    """
+    import subprocess
+
+    # THE MANAGER'S OWN DEADLINE, HONOURED. W39358's real-authority gate found
+    # this: W43975's custody act refuses an engine capability it cannot bound,
+    # and this runner took no `seconds` at all -- so every ending that settles
+    # through a directory act was unreachable from the documented command. The
+    # default stands for the calls that name no deadline.
+    finished = subprocess.run(argv, capture_output=True,
+                              timeout=600 if seconds is None else seconds)
+    return {"status": finished.returncode,
+            "stdout": finished.stdout.decode("utf-8", "replace"),
+            "stderr": finished.stderr.decode("utf-8", "replace")}
+
+
+def _launch_operands(attempt_id, task):
+    """WHAT THIS DEPLOYMENT LAUNCHES WITH, in one place.
+
+    W47225 review [P0]: adoption now requires the exact canonical bytes this
+    component would have written, which means the retry has to name the same
+    session, contract and role the ordinary arc did. Two spellings of that
+    would be a delivery the retry could never adopt, discovered only after a
+    handoff had already failed once.
+    """
+    return {"attempt_id": attempt_id, "session": f"session-{attempt_id}",
+            "contract": task["instructions"], "role": "implementer"}
+
+
+def _for_retry(evidence, given, *, provider=None):
+    """Only what the PASS and the SETTLEMENT need, and nothing that allocates.
+
+    Review 2026-08-30T14:46:24Z [P0]. The retry rebuilt the ordinary launcher,
+    which always calls `CredentialHome.materialize` -- and that operation
+    deliberately refuses a pre-existing root, because an existing root is a
+    live delivery or an orphan to be ADOPTED and never overwritten. The
+    approved retry case is precisely a refused pass after committed intake,
+    where the assignment is still live and the credential root therefore still
+    exists, so the retry could never reach the pass it promises. It also
+    called `assignment_workspace`, an allocating, mode-adopting filesystem
+    operation, in a mode that promises only a pass and a settlement.
+
+    SO NOTHING HERE CREATES ANYTHING. The credential lifecycle is ADOPTED from
+    the manager's own durable state record; the assignment roots are PROVED to
+    exist and are not allocated or re-adopted; and no engine runner, no
+    channel and no provider callback is constructed at all, because a retry
+    runs no container and opens no conversation.
+    """
+    from baton_v12.authority import Authority
+    from baton_v12.worker_manager import ControlStore, credentials, launch
+    from baton_v12.worker_manager.oci import EnginePort, OciAdapter
+
+    del provider
+    authority = Authority.open(given["authority_store"])
+    opened = [authority.dispose]
+    try:
+        session = DeploymentSession(authority.session(given["participant"]))
+        store = ControlStore.open(given["control_store"],
+                                  incarnation=given["incarnation"],
+                                  clock=_now)
+        opened.append(store.close)
+        home = credentials.CredentialHome(given["credential_home"])
+        recorded = home.read_state(given["attempt_id"])
+        # ADOPTED OR ABSENT, never made. A delivery this manager already wrote is
+        # recovered on the exact agreement `adopt` requires; an attempt that never
+        # had one has none to recover, and inventing one here would be delivering
+        # a credential during a retry that runs no worker.
+        delivery = (home.adopt(recorded, attempt_id=given["attempt_id"],
+                               runtime_id=evidence["runtime_id"],
+                               workspace_group=_configured_group(store))
+                    if recorded is not None else None)
+        return {"store": store, "session": session,
+                # WHAT THIS BUILDER OPENED, so the caller can close it. It opens
+                # two durable handles and a caller that could not release them
+                # would be leaking whatever a retry costs, every retry.
+                "closing": (store.close, authority.dispose),
+                "adapter": OciAdapter(
+                    given["engine"], EnginePort(_engine_run),
+                    identity={"image_digest": given["image_digest"],
+                              "profile_digest": given["runtime_profile_digest"],
+                              "policy_digest": given["policies"]["policy_digest"],
+                              "adapter_digest": given["adapter_digest"]},
+                    # `dict(...)` exactly as the ordinary launcher does: the
+                    # adapter's boundary takes built-in documents, and the nominal
+                    # type the manager answers with carries behaviour. That this
+                    # flattening loses the proved identity is the standing [P1],
+                    # recorded and not papered over here.
+                    # THE MANAGER'S OWN ANSWER, unflattened. `_roots` adopts a
+                    # nominal `AllocatedRoots` rather than re-deriving it, so
+                    # the proof `adopted_assignment_workspace` performed
+                    # survives to the adapter's use instead of being reduced
+                    # to path strings this deployment asserts something about.
+                    assignment_roots=_proved_roots(given),
+                    posture="execution",
+                    mounts=[], workspace_group=_configured_group(store),
+                    # W47225: THE LAUNCH ROOT IS ADOPTED, NOT LEFT BEHIND, AND
+                    # ITS ABSENCE IS A CONTRADICTION HERE. This passed `None`, so
+                    # `authorize_cleanup` could remove the runtime while the
+                    # adapter reported the launch delivery `not-delivered` and the
+                    # root stayed on disk with nothing that would come back for
+                    # it. `launch.adopt` proves the delivery this manager already
+                    # made; this deployment reconstructs nothing.
+                    #
+                    # `None` is an ordinary answer FOR THE COMPONENT -- some
+                    # attempts have no launch delivery -- and a contradictory one
+                    # for THIS caller, whose retained evidence says the runtime
+                    # started, and a runtime only starts after `materialize`
+                    # completes. So the refusal is here, where the contradiction
+                    # is, rather than in a component that cannot know it.
+                    launch_delivery=_adopted_launch(evidence, given),
+                    credential_delivery=delivery,
+                    # W55758: THE SAME HOME THIS BUILDER ADOPTED THROUGH.
+                    # Without it the adapter derived its own from the
+                    # assignment workspace while this read the operator's
+                    # granted one, so materialization, publication, adoption
+                    # and teardown had two owners that agreed only when the
+                    # two paths happened to coincide -- and for a real attempt
+                    # they did not.
+                    credential_home=home,
+                    network=given["network"], interactive=True)}
+    except BaseException:                                # noqa: BLE001
+        _unwinding(opened)
+        raise
+
+
+def _for_abandonment(given, *, run=None):
+    """Only what an ENDING needs, and nothing that delivers or allocates.
+
+    W55758. No engine channel, no provider callback, no credential
+    materialization and no workspace allocation: a recovery runs no container,
+    opens no conversation and delivers nothing. What it constructs is the
+    store, the session, the roots the manager already proved, and an adapter
+    carrying the two credential capabilities this ending turns on.
+
+    THE ORPHAN TEARDOWN IS BUILT FROM DURABLE FACTS, never from the absence of
+    an in-memory delivery. `credential_slots` is the operator's own grant and
+    says whether this attempt was ever to carry a credential; an attempt
+    granted none has nothing to end and honestly reports `not-delivered`. An
+    attempt granted one gets the teardown even when its material is already
+    gone, because "proved absent" is the ending and "never delivered" is a
+    different and false claim.
+
+    BOTH HOMES, because one legacy attempt really has two. The granted home is
+    the one-owner correction going forward; the assignment-derived home is
+    where this deployment's own split published run7's and run8's lifecycle
+    records. Each is a proved `CredentialHome` asked only about its own two
+    locations -- the record's `credential_root` member is never read and never
+    followed.
+    """
+    from baton_v12.authority import Authority
+    from baton_v12.worker_manager import ControlStore, credentials, launch
+    from baton_v12.worker_manager.oci import EnginePort, OciAdapter
+
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    # W55758 review (2026-09-01T10:21:35Z) [P1]: THE HOLD COMES FIRST, BEFORE
+    # A CAPABILITY EXISTS.
+    #
+    # M60437 requires the fixed-assignment match before any external act, and
+    # this builder was the act: by the time `recover_abandoned` compared
+    # anything it had already opened the authority, selected a participant
+    # session, proved roots, constructed credential owners and adopted the
+    # launch delivery. A hold after all of that is a hold after most of what
+    # it exists to prevent.
+    #
+    # THE CONTROL STORE IS OPENED FIRST AND ALONE, because the projection is
+    # the question and there is no way to ask it without one. Opening a file
+    # this manager owns is not one of the capabilities the ruling names --
+    # no authority, engine, credential, launch or custody act happens here.
+    #
+    # AND IT IS THE ONE OBSERVATION. The projection is carried out to the
+    # caller rather than re-read there, so the identity held and the state
+    # acted on are one atomic answer at one moment.
+    store = ControlStore.open(given["control_store"],
+                              incarnation=given["incarnation"], clock=_now)
+    opened = [store.close]
+    try:
+        state = attempt_runtime_of(store, given["attempt_id"])
+        disagreement = _assignment_disagrees(state, given)
+        if disagreement is not None:
+            # NOTHING ELSE IS BUILT. The caller writes the account and closes
+            # what this opened; no other capability was ever constructed, so
+            # there is nothing else to release and nothing that could act.
+            return {"store": store, "state": state,
+                    "disagreement": disagreement,
+                    "held": None, "closing": (store.close,)}
+        authority = Authority.open(given["authority_store"])
+        opened.append(authority.dispose)
+        session = DeploymentSession(authority.session(given["participant"]))
+        roots = _proved_roots(given)
+        granted = credentials.CredentialHome(given["credential_home"])
+        assignment = credentials.CredentialHome(
+            os.path.dirname(roots["workspace"].rstrip("/")))
+        orphan = (credentials.OrphanTeardown(given["attempt_id"],
+                                             homes=[granted, assignment])
+                  if given["credential_slots"] else None)
+        adopted = launch.adopt(
+            given["launch_home"],
+            **_launch_operands(given["attempt_id"],
+                               frozen_task(given["task_path"])))
+        return {"store": store, "session": session, "orphan": orphan,
+                "launch_home": given["launch_home"], "state": state,
+                "disagreement": None,
+                "closing": (store.close, authority.dispose),
+                "adapter": OciAdapter(
+                    given["engine"], EnginePort(run or _engine_run),
+                    identity={"image_digest": given["image_digest"],
+                              "profile_digest": given["runtime_profile_digest"],
+                              "policy_digest": given["policies"]["policy_digest"],
+                              "adapter_digest": given["adapter_digest"]},
+                    assignment_roots=roots, posture="execution",
+                    mounts=[], workspace_group=_configured_group(store),
+                    launch_delivery=adopted,
+                    # NO `credential_delivery`. The object that owned it died
+                    # with the process this recovery is standing in for, and
+                    # rebuilding one -- which means READING the bearer back --
+                    # merely to delete it is the one act this ending must not
+                    # perform.
+                    credential_orphan=orphan,
+                    credential_home=granted,
+                    network=given["network"], interactive=True)}
+    except BaseException:                                # noqa: BLE001
+        _unwinding(opened)
+        raise
+
+
+def _for_finalization(given):
+    """Only what a FENCE needs, and nothing that observes, delivers or removes.
+
+    W61984. The control store, the manager's own atomic projection of the
+    attempt, and one participant-bound authority session. NO engine port, NO
+    adapter, NO credential home, NO orphan teardown, NO launch adoption and NO
+    workspace roots -- this mode makes no engine call, so it is handed nothing
+    that could make one.
+
+    THE HOLD COMES FIRST, on the rule `_for_abandonment` states: the control
+    store is opened first and alone because the projection is the question and
+    there is no way to ask it without one, and nothing else is constructed
+    until the editable grants have been held against what activation fixed.
+    """
+    from baton_v12.authority import Authority
+    from baton_v12.worker_manager import ControlStore, attempt_runtime_of
+
+    store = ControlStore.open(given["control_store"],
+                              incarnation=given["incarnation"], clock=_now)
+    opened = [store.close]
+    try:
+        state = attempt_runtime_of(store, given["attempt_id"])
+        disagreement = _assignment_disagrees(state, given)
+        if disagreement is not None:
+            return {"store": store, "state": state,
+                    "disagreement": disagreement, "closing": (store.close,)}
+        authority = Authority.open(given["authority_store"])
+        opened.append(authority.dispose)
+        return {"store": store, "state": state, "disagreement": None,
+                "session": DeploymentSession(
+                    authority.session(given["participant"])),
+                "closing": (store.close, authority.dispose)}
+    except BaseException:                                # noqa: BLE001
+        _unwinding(opened)
+        raise
+
+
+def _adopted_launch(evidence, given):
+    """The delivery the ordinary attempt made, and never `None` here."""
+    from baton_v12.worker_manager import launch
+
+    adopted = launch.adopt(
+        given["launch_home"],
+        **_launch_operands(given["attempt_id"], frozen_task(given["task_path"])))
+    if adopted is None:
+        raise OperatorRefusal(
+            f"attempt {given['attempt_id']!r} has no launch delivery to "
+            f"adopt, and its retained evidence says a runtime started -- "
+            f"which only happens after one was materialized. Ending it with "
+            f"no delivery would report `not-delivered` for a root that was "
+            f"really made, which is the settlement this Work exists to stop")
+    return adopted
+
+
+def _proved_roots(given):
+    """The attempt's existing roots, PROVED BY THE MANAGER and not here.
+
+    The name is unchanged on purpose: what moved is WHERE the proof lives,
+    not what this function is for.
+
+    W39358 review [P1]. This module's own version derived the paths, checked
+    them, and then handed them to an adapter that opened them again -- a
+    deployment-side check followed by a later use, which is both a second
+    spelling of allocation's containment rule and a check-then-open race.
+
+    `workspaces.adopted_assignment_workspace` is that rule where it belongs:
+    read-only, allocating nothing, changing no mode or group, and answering
+    the same `AllocatedRoots` an allocation would -- so the adapter receives
+    roots whose provenance is the manager's rather than this deployment's
+    assertion about them.
+    """
+    from baton_v12.worker_manager import workspaces
+
+    try:
+        return workspaces.adopted_assignment_workspace(given["storage"],
+                                                       given["attempt_id"])
+    except ContractRefusal as refused:
+        raise OperatorRefusal(
+            f"attempt {given['attempt_id']!r} has no roots this manager will "
+            f"adopt: {refused.message}")
+
+
+def _unwinding(opened):
+    """Release what a half-built capability set already opened, then re-raise.
+
+    W39358 review 2026-08-30T18:54:12Z [P1]. A builder answers `closing` so
+    its caller can release the handles it opened -- but only if it RETURNS. An
+    authority opened before a control store that then fails is an authority
+    nobody disposes, because the bundle carrying its release never exists.
+
+    Construction unwinds locally for the same reason `materialize` tears its
+    own root down: the caller cannot clean up what it was never handed.
+    """
+    for release in reversed(opened):
+        try:
+            release()
+        except BaseException:                              # noqa: BLE001
+            # A FAILING RELEASE MUST NOT HIDE THE FAULT that caused the
+            # unwind. What is being reported is why construction stopped.
+            pass
+
+
+def _now():
+    """This deployment's own clock, in the manager's own spelling.
+
+    Injected rather than ambient for the reason the manager takes it as an
+    operand: a store that read the wall clock itself would be dating its own
+    evidence, and a deployment is the thing that decides what time it is here.
+    """
+    import datetime
+
+    return datetime.datetime.now(datetime.timezone.utc).strftime(
+        "%Y-%m-%dT%H:%M:%S.") + f"{datetime.datetime.now().microsecond // 1000:03d}Z"
+
+
+def _minted_bearer():
+    """One use, minted here, and never written down.
+
+    NOT A GRANT MEMBER and not an environment variable: §13 keeps the one
+    deliberate secret off every durable surface, and both of those are durable
+    surfaces. It exists for the length of this process.
+    """
+    import secrets as _entropy
+
+    return _entropy.token_urlsafe(32)
+
+
+def _launched(given, *, credential_provider):
+    """Every capability the arc needs, built from what the operator granted.
+
+    THE ONE THING THIS CANNOT BUILD is the credential provider: live provider
+    authorization is W39364's operator gate, so it arrives as an operand and
+    this launcher never learns where the material came from.
+    """
+    from baton_v12.authority import Authority
+    from baton_v12.worker_manager import ControlStore, credentials
+    from baton_v12.worker_manager.oci import EnginePort, OciAdapter
+
+    authority = Authority.open(given["authority_store"])
+    # CONSTRUCTION UNWINDS LOCALLY. The bundle below carries
+    # `closing`, but only if it is RETURNED: an authority opened
+    # before a control store that then fails is an authority
+    # nobody disposes, because the thing carrying its release
+    # never exists. The caller cannot clean up what it was never
+    # handed.
+    opened = [authority.dispose]
+    try:
+        session = DeploymentSession(authority.session(given["participant"]))
+        # OPENED ONCE, HERE, because choosing an incarnation identity is the
+        # deployment's act and `compose` should not be making it twice. The
+        # workspace group is read off this manager's OWN record rather than
+        # composed, which is the sequence a deployment performs.
+        # THE CLOCK IS THE DEPLOYMENT'S, and it is required rather than defaulted
+        # -- found by the positive launcher case, which is the first thing ever to
+        # run this construction. `ControlStore.open` takes it keyword-only and
+        # this passed none, so the documented command could not have opened a
+        # store at all.
+        store = ControlStore.open(given["control_store"],
+                                  incarnation=given["incarnation"],
+                                  clock=_now)
+        opened.append(store.close)
+        group = _configured_group(store)
+        home = credentials.CredentialHome(given["credential_home"])
+        # W55758, approver ruling APPROVE-LAZY (M59057): THE CREDENTIAL IS
+        # MATERIALIZED HERE, INSIDE THE ADAPTER FACTORY, AND NOT WHEN THIS
+        # BUNDLE IS BUILT.
+        #
+        # THE DEFECT THIS CLOSES. Building the bundle wrote the bearer to disk
+        # before `run_dogfood_task` had recorded, claimed or activated
+        # anything -- so a process that died in that window left a readable
+        # credential with no attempt row, no activated assignment and
+        # therefore no `label_context` from which a recovery could compose a
+        # runtime selector. `--abandon` could prove nothing and clean nothing,
+        # which is this record's sharpest failure with no path out of it.
+        #
+        # THE ORDER IS WHAT MAKES IT SAFE, and the arc already had it: this
+        # factory is called AFTER `record_attempt`, the claim and
+        # `activate_assignment` and BEFORE `request_runtime_start`. So a crash
+        # before activation leaves no bearer at all, and a crash after it
+        # leaves one the manager can name.
+        #
+        # EXACTLY ONCE. The delivery is a live registration and a set of files;
+        # a second materialization would refuse against its own root, and
+        # silently answering the first one twice would hide a second caller.
+        # `run_dogfood_task` builds one adapter, and this says so rather than
+        # relying on it.
+        #
+        # THE PARAMETER LIST DOES NOT MOVE, which the ruling also names: the
+        # arc still forwards whatever `compose` was given, and this factory
+        # ignores that operand because a deployment materializing lazily is
+        # the one that owns the act.
+        materialized = []
+
+        def deliver():
+            if materialized:
+                raise OperatorRefusal(
+                    "this launcher materializes one attempt's credential "
+                    "exactly once; a second delivery for the same attempt "
+                    "would refuse against its own root, and answering the "
+                    "first one again would hide the caller that asked twice")
+            made = home.materialize(
+                credentials.resolved_delivery(
+                    given["credential_slots"],
+                    profile=given["credential_profile"]),
+                attempt_id=given["attempt_id"],
+                # W52800: the slot's reader group is a grant, and this
+                # launcher already read the one nominal capability for the
+                # adapter below. One lookup, both halves.
+                workspace_group=group,
+                credential_provider=credential_provider)
+            materialized.append(made)
+            return made
+
+        def adapter_of(*, engine, run, image_digest, network, labels, roots,
+                       declared, launch, credential_delivery,
+                       input_manifest_digest):
+            del credential_delivery
+            return OciAdapter(
+                engine, EnginePort(run),
+                identity={"image_digest": image_digest,
+                          "profile_digest": given["runtime_profile_digest"],
+                          "policy_digest": given["policies"]["policy_digest"],
+                          "adapter_digest": given["adapter_digest"]},
+            # THE ALLOCATION'S OWN ANSWER, unflattened, for the same reason.
+            assignment_roots=roots, posture="execution",
+            # THE ASSIGNMENT'S DECLARED OUTPUTS, forwarded. W39358: this
+            # factory ACCEPTED `declared` and dropped it, so the adapter
+            # had no declarations at all and the freeze refused every real
+            # completed result with "the worker's envelope answers
+            # 'proposal', which this assignment did not declare". The
+            # worker answered exactly what the manager asked for; the
+            # launcher never told the adapter what that was.
+            outputs=declared,
+            # AND THE MANIFEST THE RESULT IS SEALED AGAINST, dropped by
+            # this factory for the same reason: it was accepted and never
+            # forwarded, so the sealed result carried no input manifest
+            # digest and broke the frozen schema.
+            input_manifest_digest=input_manifest_digest,
+                # THE WORKER'S OWN FIXED PATHS. `baton_worker` reads `/input` and
+                # writes declared outputs under `/output`; a workspace bound
+                # anywhere else is a workspace the agent cannot reach.
+                mounts=[{"source": roots["inputs"], "target": "/input",
+                         "writable": False},
+                        {"source": roots["workspace"], "target": "/output",
+                         "writable": True}],
+                workspace_group=group,
+                launch_delivery=launch,
+                # THE OPERAND IS DELIBERATELY DISCARDED. What the arc forwards
+                # is whatever `compose` was handed, and this deployment's
+                # delivery does not exist until this line runs.
+                credential_delivery=deliver(),
+                # W55758: ONE OWNER, from the first act of the attempt. The
+                # home that materialized the delivery is the home that
+                # publishes its lifecycle record, so a later restart finds the
+                # root and the record under one place.
+                credential_home=home,
+                network=network,
+                # INTERACTIVE, so idle PID 1 outlives the exec'd worker program
+                # and the transport has something to `exec` into.
+                interactive=True)
+
+        return {"session": session, "bearer": _minted_bearer(),
+                # NOTHING IS MATERIALIZED YET, and that is the ruling: bundle
+                # construction leaves no volatile credential root and no
+                # lifecycle record on the host.
+                "credential_delivery": None,
+                # WHAT THIS BUILDER OPENED, so the caller can close it. Review
+                # 2026-08-30T18:34:00Z [P1]: the retry path was corrected and this
+                # one was not, so the ORDINARY command left an authority and a
+                # control store behind on every run -- and a handle this process
+                # still holds is a lock the next incarnation waits on. One rule,
+                # both builders.
+                "closing": (store.close, authority.dispose),
+                "open_store": lambda _place: store,
+                "adapter_of": adapter_of, "run": _engine_run,
+                "open_channel": lambda argv, *, seconds: _Channel(
+                    argv, seconds=seconds,
+                    observe=_activity_observer(given))}
+
+
+
+    except BaseException:                                # noqa: BLE001
+        _unwinding(opened)
+        raise
+
+if __name__ == "__main__":
+    # THE DOCUMENTED COMMAND, and it runs.
+    #
+    # The user's own credential SOURCES are named by PATH on the command line.
+    # The registry is not a grants member and not an environment variable,
+    # because both are durable surfaces and §13 keeps the one deliberate
+    # secret off every one of them; and the registry's own entries -- the
+    # paths of that user's files -- reach no durable document either, because
+    # the only thing that leaves the reader is the bearer the manager
+    # registers live.
+    #
+    # Live provider authorization remains W39364's operator gate -- what this
+    # does is hand whatever the operator authorized to the manager's own
+    # credential home, which registers it live before a byte of it lands.
+    #
+    # THE RESOLVER IS BUILT ONLY FOR THE ORDINARY COMMAND. It is constructed
+    # inside the `capabilities` lambda, which `main` calls on the ordinary
+    # branch alone -- an abandonment and a handoff retry go to their own
+    # builders, neither of which is handed a provider at all, and both refuse
+    # the operand outright before any capability exists.
+    import sys as _sys
+
+    _sources = user_credentials.named_operand(_sys.argv[1:])
+
+    _sys.exit(main(_sys.argv[1:],
+                   capabilities=lambda given: _launched(
+                       given,
+                       credential_provider=_credential_resolver(_sources)),
+                   retry_capabilities=_for_retry,
+                   abandon_capabilities=_for_abandonment,
+                   finalize_capabilities=_for_finalization))

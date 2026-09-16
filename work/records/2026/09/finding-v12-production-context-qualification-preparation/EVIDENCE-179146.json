@@ -1,0 +1,257 @@
+{
+  "A": {
+    "excluded_implementations": [
+      "strip",
+      "Unicode normalization",
+      "AST equivalence",
+      "CRLF conversion",
+      "general whitespace tolerance"
+    ],
+    "export": "observed_sha256, observed_bytes, separately named expected_sha256/expected_bytes and the exact/missing-final-lf/mismatch form, recorded BEFORE the refusal; continuity.txt gets lengths and a verdict and no digest because it holds the private token",
+    "finding": "run179075 wrote the expected 38 bytes of solution.py with its single final LF absent; the exact-byte guard refused correctly at initial-artifact",
+    "prompt_wording": "expected bytes are delimited by <<<BEGIN>>>/<<<END>>> markers and the optional final newline is stated; continuity.txt's one newline is made explicit without moving its acceptance. Wording is not acceptance.",
+    "renamed": {
+      "corrected_artifact_sha256": "expected_corrected_artifact_sha256",
+      "initial_artifact_sha256": "expected_initial_artifact_sha256"
+    },
+    "selection": "accept solution.py in both turns as the expected constant, or as that constant with its one final LF absent -- those two forms and no others",
+    "still_refuses": [
+      "extra final LF",
+      "leading whitespace",
+      "horizontal trailing whitespace",
+      "altered indentation",
+      "altered multiplier",
+      "added comment",
+      "CRLF endings",
+      "interior newline removed",
+      "empty",
+      "doubled content",
+      "any extra or missing workspace entry"
+    ],
+    "supersedes": "the exact-final-LF requirement for solution.py in FINDING's 178579 entry and OPERATOR-178579.md; nothing else",
+    "unchanged": [
+      "continuity.txt token-plus-one-LF contract",
+      "both workspace entry sets",
+      "every other byte, indentation, interior newline and multiplier",
+      "the manager never repairs an artifact"
+    ]
+  },
+  "B": {
+    "acceptance_unchanged": "actual_model, model_fields and the conflict predicate are byte-for-byte the same; an expected key inside a mixed object does not qualify, and neither does the matching --model argument",
+    "correction": "closed model_diagnostic / model_usage_diagnostic / model_usage_keys / model_usage_keys_capped / model_usage_expected_key members, plus a consistent() predicate enforced at the arm",
+    "finding": "modelUsage was present and failed its exact singleton-key predicate while model was absent; the projection could not distinguish a non-object, an empty object, one other key or several, and the raw provider document was never retained",
+    "key_cap": 8,
+    "never_exported": [
+      "model names",
+      "model values",
+      "usage payloads",
+      "provider prose",
+      "raw JSON",
+      "private state"
+    ]
+  },
+  "bytecode_discipline": "Each probe runs in its own temporary copy with its manifest recomputed, __pycache__ removed and -B, so no probe can read another's bytecode -- the 178875 harness artifact is not repeatable here.",
+  "claim": 179146,
+  "corrects": {
+    "accepted_base_manifest": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+    "failed_operator_run": "operator-result-2026-09-15T15-08-40Z/qualification.json",
+    "failed_operator_run_sha256": "7ac89dac9d7e1457b553b761d406187958866d5c7bbe373280834753ddf5ecfc",
+    "review": "review-2026-09-15T15-16-11Z.md",
+    "sha256": "ee05231d3b5d1229aa397e4c6ef523c03cf72a04217623474fad67058b6f996f"
+  },
+  "files": [
+    {
+      "base_sha256": "9d81715885219362987583170a4e557b85bd45bb6c04dbe3e48c3f2f86b81ba6",
+      "candidate_sha256": "8f77718841f45af02c589c238c3f634c0851e7c9dd4610ada95cf97bb591bc50",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-179146/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "badef0f1a0cea800b6be91fba85848360d9c1762ecfa4c7b9cc16b3f6a6022a7",
+      "candidate_sha256": "1689a5228a6ecf77dcd246420a8b4d3af1c129b6a133a83ff7c3c222aac9032d",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-179146/qualification_contract.py"
+    },
+    {
+      "base_sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "candidate_sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-179146/qualification_worker.py"
+    },
+    {
+      "base_sha256": "a7d645e939d6d3621ff749bdf0bd54a7b32ac512fe0d3b6bd723aa2d1a4d626f",
+      "candidate_sha256": "d2fcdf8a8e5b6f38fc23987a6925a890388c4c1ca0ebc22633557f6099d02ec6",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-179146/test_qualification.py"
+    },
+    {
+      "base_sha256": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+      "candidate_sha256": "9a1ddd250da674e956c707f043830863d74db9074814b5050dff5d5c6c5b78ff",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-179146/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-179146/verify-offline.py"
+    },
+    {
+      "base_sha256": "e504579fb99ec837d5522a0184906fda3ffb01a3830cbe5e1274af800b5ba323",
+      "candidate_sha256": "551f40256b3ae79cfdae9ab62c1917b7bd43351fc5d4137f8618886e4d9f091f",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": null
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.2638050550012849,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "631a92587e6cabfd819b41eac98c59538dfafbccf6c620d291f1fedf01cff978",
+    "manifest_sha256": "9a1ddd250da674e956c707f043830863d74db9074814b5050dff5d5c6c5b78ff",
+    "pid": 3650462,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "focused_run_note": "The suite was run more than once against these exact bytes; every run reported OK with the identical log digest 631a92587e6cabfd819b41eac98c59538dfafbccf6c620d291f1fedf01cff978, and the elapsed figure cited everywhere is the one in the retained receipt rather than an earlier measurement of the same bytes.",
+  "g7": "image 979f11d5 remains the qualification-only selection",
+  "g8": "--max-turns not composed",
+  "manifest_sha256": "9a1ddd250da674e956c707f043830863d74db9074814b5050dff5d5c6c5b78ff",
+  "not_done": [
+    "live execution",
+    "engine",
+    "model",
+    "credential use",
+    "image build or pull",
+    "product edits",
+    "consumer dossier edits",
+    "broad suites",
+    "baseline repair",
+    "marker reset",
+    "new run identity",
+    "reuse of the consumed fixed identity",
+    "version-control operations"
+  ],
+  "operator_packet_sha256": "551f40256b3ae79cfdae9ab62c1917b7bd43351fc5d4137f8618886e4d9f091f",
+  "owner_selection": 179142,
+  "partial": {
+    "G1": "first-turn terminal and session evidence; no accepted actual model",
+    "G4": "first-use observation only",
+    "G6": "first-use observation only"
+  },
+  "probe_finding": "The first probe batch had SIX probes and one of them PASSED -- reordering the first-turn record after its refusal broke nothing, because no test drove a first-turn artifact mismatch at all. That gap was real: the observed-before-refused requirement was only covered at the second turn. test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused was added, a matching second-turn ordering probe was added, and all seven then failed as required.",
+  "refused_manifests": [
+    "26a0f74254f88d49e02420c05b242c3349dc6b30b567666928be7290019ded2f",
+    "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481"
+  ],
+  "reversal_probes": [
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+        "test_both_constants_are_accepted_with_and_without_their_final_lf",
+        "test_changed_code_still_refuses_at_the_second_turn",
+        "test_the_controller_never_rewrites_the_workspace",
+        "test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "artifact-exact-only",
+      "reverts": "the second accepted form is gone"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+        "test_both_constants_are_accepted_with_and_without_their_final_lf",
+        "test_no_strip_or_normalization_was_introduced",
+        "test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours",
+        "test_the_relaxation_is_exactly_one_newline_wide"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "artifact-strip",
+      "reverts": "general whitespace tolerance instead of one newline"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_terminal_record_that_contradicts_its_own_diagnostics_refuses"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "no-consistency-guard",
+      "reverts": "a forged terminal record is no longer refused"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_terminal_record_that_contradicts_its_own_diagnostics_refuses",
+        "test_a_truthy_integer_is_not_a_boolean"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "membership-not-identity",
+      "reverts": "a truthy integer passes as a boolean"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+        "test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "constant-as-observed",
+      "reverts": "the export labels a constant as the observed artifact"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_refused_artifact_is_recorded_before_it_is_refused",
+        "test_a_token_written_without_its_newline_still_refuses",
+        "test_changed_code_still_refuses_at_the_second_turn"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "refuse-before-record-turn-2",
+      "reverts": "a refused second-turn record no longer survives the refusal"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "refuse-before-record",
+      "reverts": "the observed record no longer survives a refusal"
+    }
+  ],
+  "still_unqualified": [
+    "G2",
+    "G3",
+    "G5"
+  ],
+  "tests": {
+    "added": 22,
+    "after": 51,
+    "before": 29,
+    "outcome": "OK"
+  },
+  "work": "W177936",
+  "worker_unchanged": "qualification_worker.py forwards the closed projection whole, so the new members reach the controller without a worker edit; its digest is the one accepted at 178875"
+}

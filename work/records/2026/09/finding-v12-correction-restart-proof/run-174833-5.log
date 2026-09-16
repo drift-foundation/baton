@@ -1,0 +1,95 @@
+test_crash_after_publication_before_journal_replays_only_custody (tests.manager.test_provider_context.Finalization.test_crash_after_publication_before_journal_replays_only_custody) ... ERROR
+test_crash_during_staging_reuses_only_matching_private_bytes (tests.manager.test_provider_context.Finalization.test_crash_during_staging_reuses_only_matching_private_bytes) ... ERROR
+test_damaged_committed_generation_is_refused (tests.manager.test_provider_context.Finalization.test_damaged_committed_generation_is_refused) ... ERROR
+test_disposal_preserves_generation_and_invocation_evidence (tests.manager.test_provider_context.Finalization.test_disposal_preserves_generation_and_invocation_evidence) ... ERROR
+test_positive_generation_is_published_and_replayed_after_fence (tests.manager.test_provider_context.Finalization.test_positive_generation_is_published_and_replayed_after_fence) ... ERROR
+test_wrong_actual_model_receipt_cannot_publish_a_generation (tests.manager.test_provider_context.Finalization.test_wrong_actual_model_receipt_cannot_publish_a_generation) ... ok
+
+======================================================================
+ERROR: test_crash_after_publication_before_journal_replays_only_custody (tests.manager.test_provider_context.Finalization.test_crash_after_publication_before_journal_replays_only_custody)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 272, in test_crash_after_publication_before_journal_replays_only_custody
+    self.finalize()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 152, in finalize
+    return context.finalize_context_use(self.control, self.jobs, self.port, attempt_id=self.attempt_id, storage=self.custody, receipt_reader=lambda *args: self.receipt_body, checkpoint_reader=lambda *args: self.checkpoint["checkpoint_id"])
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 442, in finalize_context_use
+    sealed = context_delivery.seal_generation(control, storage, attempt_id=attempt_id, exclusion=cleanup)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/context_delivery.py", line 384, in seal_generation
+    os.rename(operation, str(number), src_dir_fd=staging, dst_dir_fd=generations)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'context-finalize-15351bf69c35334e2643b006e7cc3bcd7c2b435c5adc0553439df8b61ed2b740' -> '1'
+
+======================================================================
+ERROR: test_crash_during_staging_reuses_only_matching_private_bytes (tests.manager.test_provider_context.Finalization.test_crash_during_staging_reuses_only_matching_private_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 287, in test_crash_during_staging_reuses_only_matching_private_bytes
+    self.assertEqual(self.finalize()["status"], "ready")
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 152, in finalize
+    return context.finalize_context_use(self.control, self.jobs, self.port, attempt_id=self.attempt_id, storage=self.custody, receipt_reader=lambda *args: self.receipt_body, checkpoint_reader=lambda *args: self.checkpoint["checkpoint_id"])
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 442, in finalize_context_use
+    sealed = context_delivery.seal_generation(control, storage, attempt_id=attempt_id, exclusion=cleanup)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/context_delivery.py", line 384, in seal_generation
+    os.rename(operation, str(number), src_dir_fd=staging, dst_dir_fd=generations)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'context-finalize-15351bf69c35334e2643b006e7cc3bcd7c2b435c5adc0553439df8b61ed2b740' -> '1'
+
+======================================================================
+ERROR: test_damaged_committed_generation_is_refused (tests.manager.test_provider_context.Finalization.test_damaged_committed_generation_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 293, in test_damaged_committed_generation_is_refused
+    self.finalize()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 152, in finalize
+    return context.finalize_context_use(self.control, self.jobs, self.port, attempt_id=self.attempt_id, storage=self.custody, receipt_reader=lambda *args: self.receipt_body, checkpoint_reader=lambda *args: self.checkpoint["checkpoint_id"])
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 442, in finalize_context_use
+    sealed = context_delivery.seal_generation(control, storage, attempt_id=attempt_id, exclusion=cleanup)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/context_delivery.py", line 384, in seal_generation
+    os.rename(operation, str(number), src_dir_fd=staging, dst_dir_fd=generations)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'context-finalize-15351bf69c35334e2643b006e7cc3bcd7c2b435c5adc0553439df8b61ed2b740' -> '1'
+
+======================================================================
+ERROR: test_disposal_preserves_generation_and_invocation_evidence (tests.manager.test_provider_context.Finalization.test_disposal_preserves_generation_and_invocation_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 304, in test_disposal_preserves_generation_and_invocation_evidence
+    self.finalize()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 152, in finalize
+    return context.finalize_context_use(self.control, self.jobs, self.port, attempt_id=self.attempt_id, storage=self.custody, receipt_reader=lambda *args: self.receipt_body, checkpoint_reader=lambda *args: self.checkpoint["checkpoint_id"])
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 442, in finalize_context_use
+    sealed = context_delivery.seal_generation(control, storage, attempt_id=attempt_id, exclusion=cleanup)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/context_delivery.py", line 384, in seal_generation
+    os.rename(operation, str(number), src_dir_fd=staging, dst_dir_fd=generations)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'context-finalize-15351bf69c35334e2643b006e7cc3bcd7c2b435c5adc0553439df8b61ed2b740' -> '1'
+
+======================================================================
+ERROR: test_positive_generation_is_published_and_replayed_after_fence (tests.manager.test_provider_context.Finalization.test_positive_generation_is_published_and_replayed_after_fence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 250, in test_positive_generation_is_published_and_replayed_after_fence
+    ready = self.finalize()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 152, in finalize
+    return context.finalize_context_use(self.control, self.jobs, self.port, attempt_id=self.attempt_id, storage=self.custody, receipt_reader=lambda *args: self.receipt_body, checkpoint_reader=lambda *args: self.checkpoint["checkpoint_id"])
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/provider_context.py", line 442, in finalize_context_use
+    sealed = context_delivery.seal_generation(control, storage, attempt_id=attempt_id, exclusion=cleanup)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/context_delivery.py", line 384, in seal_generation
+    os.rename(operation, str(number), src_dir_fd=staging, dst_dir_fd=generations)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'context-finalize-15351bf69c35334e2643b006e7cc3bcd7c2b435c5adc0553439df8b61ed2b740' -> '1'
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.201s
+
+FAILED (errors=5)

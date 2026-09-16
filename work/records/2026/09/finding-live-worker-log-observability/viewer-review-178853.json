@@ -1,0 +1,59 @@
+{
+  "claim": 178853,
+  "manifest_sha256": "2d8bd9bfe8e2769f1da33d9d5e89870c43d9ec2679482f122bbe5c698a1a37ad",
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "work/records/2026/09/finding-live-worker-log-observability/viewer-review-178853-run.py"
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "elapsed_seconds": 3.266339145018719,
+  "exit_code": 0,
+  "timed_out": false,
+  "timeout_seconds": 60,
+  "process_group_absent": true,
+  "pid": 7,
+  "files": [
+    {
+      "base_sha256": "093ec72480e2c921ea657b0e63e7235d7dd5e27933762724132310b42447d356",
+      "candidate_sha256": "8dce0e033cc3cc76c313013590e30e42e16702f01e8834fd450b7a9352c7f818",
+      "changed": true,
+      "mode": "0o644",
+      "path": "baton:v12/python/tools/job_viewer.py"
+    },
+    {
+      "base_sha256": "bbbc6be5ffc35774654336a41f9d0c36182f013ae53feb3b14203ce0245b476b",
+      "candidate_sha256": "0c2c42f71253b62bf84134863dce9144323fe617997e9876cf19add88f37ee21",
+      "changed": true,
+      "mode": "0o644",
+      "path": "baton:v12/python/tests/tools/test_job_viewer.py"
+    },
+    {
+      "base_sha256": "d319f7813c826970eca6f49a5970f894805288754f31f30999d28d3cfbbb5976",
+      "candidate_sha256": "f914fc20fbe47734873ae649cda3a521460f07b1082e146731929dbcb571ec2b",
+      "changed": true,
+      "mode": "0o644",
+      "path": "baton:v12/python/JOB-VIEWER.md"
+    }
+  ],
+  "after_match": true,
+  "log_sha256": "4eef230cf299ac3c07243827fc3d10eb4ad3aaa218b375a9841c75037e406eb5",
+  "test_receipt": {
+    "tests": 74,
+    "failures": 0,
+    "errors": 0,
+    "clipping_probe": {
+      "line": "  implementation   completed        elapsed 0s       activity 1.40 MiB last at 2026-09-01T23:59:56.0",
+      "width": 100,
+      "full_instant_visible": false,
+      "stage_id_visible": false,
+      "instant": "2026-09-01T23:59:56.000Z"
+    },
+    "oversized_integer_probe": {
+      "snapshot_accepted": true,
+      "bytes": 5659,
+      "error": "OverflowError",
+      "old_constant_activity_renders": true
+    },
+    "live_threads": []
+  }
+}

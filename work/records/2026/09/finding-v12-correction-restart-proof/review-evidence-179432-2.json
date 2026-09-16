@@ -1,0 +1,995 @@
+{
+  "process_pid": 3,
+  "reaped_children": [
+    [
+      8,
+      0
+    ],
+    [
+      34,
+      0
+    ],
+    [
+      104,
+      0
+    ],
+    [
+      136,
+      0
+    ],
+    [
+      155,
+      0
+    ],
+    [
+      173,
+      0
+    ],
+    [
+      199,
+      0
+    ],
+    [
+      232,
+      0
+    ],
+    [
+      258,
+      0
+    ],
+    [
+      290,
+      0
+    ],
+    [
+      316,
+      0
+    ],
+    [
+      349,
+      0
+    ],
+    [
+      375,
+      0
+    ],
+    [
+      408,
+      0
+    ],
+    [
+      434,
+      0
+    ],
+    [
+      467,
+      0
+    ],
+    [
+      493,
+      0
+    ],
+    [
+      526,
+      0
+    ],
+    [
+      552,
+      0
+    ],
+    [
+      585,
+      0
+    ],
+    [
+      611,
+      0
+    ],
+    [
+      644,
+      0
+    ],
+    [
+      670,
+      0
+    ],
+    [
+      703,
+      0
+    ],
+    [
+      729,
+      0
+    ],
+    [
+      762,
+      0
+    ],
+    [
+      788,
+      0
+    ],
+    [
+      821,
+      0
+    ],
+    [
+      847,
+      0
+    ],
+    [
+      880,
+      0
+    ],
+    [
+      906,
+      0
+    ],
+    [
+      939,
+      0
+    ],
+    [
+      965,
+      0
+    ],
+    [
+      998,
+      0
+    ],
+    [
+      1024,
+      0
+    ],
+    [
+      1057,
+      0
+    ],
+    [
+      1083,
+      0
+    ],
+    [
+      1116,
+      0
+    ],
+    [
+      1142,
+      0
+    ],
+    [
+      1175,
+      0
+    ],
+    [
+      1201,
+      0
+    ],
+    [
+      1219,
+      0
+    ],
+    [
+      1245,
+      0
+    ],
+    [
+      1263,
+      0
+    ],
+    [
+      1289,
+      0
+    ],
+    [
+      1307,
+      0
+    ],
+    [
+      1333,
+      0
+    ],
+    [
+      1365,
+      0
+    ],
+    [
+      1390,
+      0
+    ],
+    [
+      1407,
+      0
+    ],
+    [
+      1429,
+      0
+    ],
+    [
+      1454,
+      0
+    ],
+    [
+      1471,
+      0
+    ],
+    [
+      1496,
+      0
+    ],
+    [
+      1513,
+      0
+    ],
+    [
+      1538,
+      0
+    ],
+    [
+      1555,
+      0
+    ],
+    [
+      1580,
+      0
+    ],
+    [
+      1597,
+      0
+    ],
+    [
+      1623,
+      0
+    ],
+    [
+      1655,
+      0
+    ],
+    [
+      1680,
+      0
+    ],
+    [
+      1697,
+      0
+    ],
+    [
+      1722,
+      0
+    ],
+    [
+      1739,
+      0
+    ],
+    [
+      1764,
+      0
+    ],
+    [
+      1781,
+      0
+    ],
+    [
+      1799,
+      0
+    ],
+    [
+      1817,
+      0
+    ],
+    [
+      1835,
+      0
+    ],
+    [
+      1853,
+      0
+    ],
+    [
+      1871,
+      0
+    ],
+    [
+      1889,
+      0
+    ],
+    [
+      1993,
+      0
+    ],
+    [
+      2019,
+      0
+    ],
+    [
+      2051,
+      0
+    ],
+    [
+      2093,
+      0
+    ],
+    [
+      2101,
+      0
+    ],
+    [
+      2126,
+      0
+    ],
+    [
+      2160,
+      0
+    ],
+    [
+      2185,
+      0
+    ],
+    [
+      2217,
+      0
+    ],
+    [
+      2242,
+      0
+    ],
+    [
+      2274,
+      0
+    ],
+    [
+      2299,
+      0
+    ],
+    [
+      2334,
+      0
+    ],
+    [
+      2359,
+      0
+    ],
+    [
+      2391,
+      0
+    ],
+    [
+      2416,
+      0
+    ],
+    [
+      2448,
+      0
+    ],
+    [
+      2473,
+      0
+    ],
+    [
+      2505,
+      0
+    ],
+    [
+      2511,
+      0
+    ],
+    [
+      2536,
+      0
+    ],
+    [
+      2568,
+      0
+    ],
+    [
+      2593,
+      0
+    ],
+    [
+      2625,
+      0
+    ],
+    [
+      2650,
+      0
+    ],
+    [
+      2682,
+      0
+    ],
+    [
+      2707,
+      0
+    ],
+    [
+      2739,
+      0
+    ],
+    [
+      2764,
+      0
+    ],
+    [
+      2799,
+      0
+    ],
+    [
+      2817,
+      0
+    ],
+    [
+      2824,
+      0
+    ],
+    [
+      2831,
+      0
+    ],
+    [
+      2852,
+      0
+    ],
+    [
+      2857,
+      0
+    ],
+    [
+      2864,
+      0
+    ],
+    [
+      2869,
+      0
+    ],
+    [
+      2883,
+      0
+    ],
+    [
+      2888,
+      0
+    ],
+    [
+      2895,
+      0
+    ],
+    [
+      2900,
+      0
+    ]
+  ],
+  "subreaper": true,
+  "work": "W161234",
+  "claim": 179432,
+  "reviewer": "baton.codex",
+  "candidate_sha256": "010aaefde8159ef52b95ddf289b981b051a2b64041a3a1638441a158cb517c50",
+  "checks": [
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255.json",
+      "expected": "010aaefde8159ef52b95ddf289b981b051a2b64041a3a1638441a158cb517c50",
+      "actual": "010aaefde8159ef52b95ddf289b981b051a2b64041a3a1638441a158cb517c50"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/BASE-179255.json",
+      "expected": "d20490b705d54fbde194e050d9cf7e227d95ab86e36af9c2241082f40084d6e3",
+      "actual": "d20490b705d54fbde194e050d9cf7e227d95ab86e36af9c2241082f40084d6e3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255.patch",
+      "expected": "a721c1b706a846be4da82abd5f71b2429cfdf205ae5d0bbbd34b94696a096fba",
+      "actual": "a721c1b706a846be4da82abd5f71b2429cfdf205ae5d0bbbd34b94696a096fba"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/EVIDENCE-179255.json",
+      "expected": "58d99586424cdd0aed066c689b9e6873a4491dfbda4403ab63c7128e8c381b15",
+      "actual": "58d99586424cdd0aed066c689b9e6873a4491dfbda4403ab63c7128e8c381b15"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "expected": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "actual": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "expected": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "actual": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "expected": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "actual": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "expected": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "actual": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "expected": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "actual": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "expected": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "actual": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "expected": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "actual": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/launch.py",
+      "expected": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "actual": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/launch.py",
+      "expected": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508",
+      "actual": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "expected": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "actual": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/oci.py",
+      "expected": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "actual": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/oci.py",
+      "expected": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+      "actual": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "expected": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "actual": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tools/single_worker.py",
+      "expected": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "actual": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tools/single_worker.py",
+      "expected": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+      "actual": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "expected": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "actual": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tools/stage_execution.py",
+      "expected": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "actual": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tools/stage_execution.py",
+      "expected": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "actual": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6"
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "expected": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+      "actual": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/worker/baton_worker.py",
+      "expected": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+      "actual": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/worker/baton_worker.py",
+      "expected": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "actual": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4"
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "expected": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "actual": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/worker/claude_agent.py",
+      "expected": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "actual": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/worker/claude_agent.py",
+      "expected": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+      "actual": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6"
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "expected": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "actual": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_claude_context.py",
+      "expected": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "actual": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04"
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "expected": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "actual": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_launch.py",
+      "expected": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "actual": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/manager/test_launch.py",
+      "expected": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031",
+      "actual": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031"
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "expected": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "actual": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_oci.py",
+      "expected": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "actual": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/manager/test_oci.py",
+      "expected": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+      "actual": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8"
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "expected": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "actual": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_claude_agent.py",
+      "expected": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "actual": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/manager/test_claude_agent.py",
+      "expected": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "actual": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3"
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "expected": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+      "actual": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/tools/test_single_worker.py",
+      "expected": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+      "actual": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/tools/test_single_worker.py",
+      "expected": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "actual": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "expected": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "actual": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/tools/test_stage_execution.py",
+      "expected": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "actual": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/tools/test_stage_execution.py",
+      "expected": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "actual": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-1.json",
+      "expected": "d8e54fcb79f29e6bd622987230021a9941367606f2528e05b97a15dc7e7a752b",
+      "actual": "d8e54fcb79f29e6bd622987230021a9941367606f2528e05b97a15dc7e7a752b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-1.log",
+      "expected": "9c802cfdaadbac856f864ee63abe907e697b28cd3eae0db3a6e15ff99c6daa97",
+      "actual": "9c802cfdaadbac856f864ee63abe907e697b28cd3eae0db3a6e15ff99c6daa97"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-2.json",
+      "expected": "475ad5d6bcb3f7bf9f11e81aecddecc7cb47437a37ebbd48f7823aafa0521538",
+      "actual": "475ad5d6bcb3f7bf9f11e81aecddecc7cb47437a37ebbd48f7823aafa0521538"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-2.log",
+      "expected": "4ead878e35996012b947ddda323ef5955b11d4a3c0660a902ae8cd8e6f28518d",
+      "actual": "4ead878e35996012b947ddda323ef5955b11d4a3c0660a902ae8cd8e6f28518d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-3.json",
+      "expected": "ccc09e199d7eb5bda1278324980b37ff9d95676869352b155ad959cb2d67460c",
+      "actual": "ccc09e199d7eb5bda1278324980b37ff9d95676869352b155ad959cb2d67460c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-3.log",
+      "expected": "154ac6256ac1e723989a6ab1203d219b478482119fbcc645f093f04f0c9c41b8",
+      "actual": "154ac6256ac1e723989a6ab1203d219b478482119fbcc645f093f04f0c9c41b8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-4.json",
+      "expected": "cfdf05767d2104107f4fb6d136182fe755ed7cac3d881bf2303200290d21e5df",
+      "actual": "cfdf05767d2104107f4fb6d136182fe755ed7cac3d881bf2303200290d21e5df"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-4.log",
+      "expected": "5ba044c051e0d51cce3a1505d52a6cd5ce77984432c086dd9dac2a2912079208",
+      "actual": "5ba044c051e0d51cce3a1505d52a6cd5ce77984432c086dd9dac2a2912079208"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-5.json",
+      "expected": "54f5aa7c1ad7580e7440d28a55095b930e010022c2fd0429a381ec697d51febc",
+      "actual": "54f5aa7c1ad7580e7440d28a55095b930e010022c2fd0429a381ec697d51febc"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-5.log",
+      "expected": "b32f454b03ba96670fe8bdeb696ec7079b41f87e4caabe5f5676a4a35e34a6e5",
+      "actual": "b32f454b03ba96670fe8bdeb696ec7079b41f87e4caabe5f5676a4a35e34a6e5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-6.json",
+      "expected": "6ef1cf76590b739b2916e2013a96a6468e4edbd35b222afee26f3c59adeff167",
+      "actual": "6ef1cf76590b739b2916e2013a96a6468e4edbd35b222afee26f3c59adeff167"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-6.log",
+      "expected": "9188fb6e18737ffbc065e88e17749b907b77f571a5d4242ff4f3339de09414ed",
+      "actual": "9188fb6e18737ffbc065e88e17749b907b77f571a5d4242ff4f3339de09414ed"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-7.json",
+      "expected": "bc3e3b64ff0965e81b78a10690f7ba213f235b15a4ae02df78c2f49de905bf7f",
+      "actual": "bc3e3b64ff0965e81b78a10690f7ba213f235b15a4ae02df78c2f49de905bf7f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-7.log",
+      "expected": "90572ed3906dcb93d91228c897856101e033af232d0d8accd5adeb97abeffe4f",
+      "actual": "90572ed3906dcb93d91228c897856101e033af232d0d8accd5adeb97abeffe4f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-8.json",
+      "expected": "bdc337fdd5a72b3fca017e2c9cdf4c71bda62b52a8249a94ccf6c86503c5e094",
+      "actual": "bdc337fdd5a72b3fca017e2c9cdf4c71bda62b52a8249a94ccf6c86503c5e094"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-8.log",
+      "expected": "640c9176a7b6d2ab3dc8f8b1960029278a9c7a6965b17e3e15ecf675ea7434bc",
+      "actual": "640c9176a7b6d2ab3dc8f8b1960029278a9c7a6965b17e3e15ecf675ea7434bc"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-9.json",
+      "expected": "c77f6d2e4f73b29b142b6007f4cac6ba92b55454fa6b6603991219457089ff0e",
+      "actual": "c77f6d2e4f73b29b142b6007f4cac6ba92b55454fa6b6603991219457089ff0e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-9.log",
+      "expected": "76e4e32876ca5713bb1c7b7ea8c5b2112227a3eab953eb99ac9a0de673713520",
+      "actual": "76e4e32876ca5713bb1c7b7ea8c5b2112227a3eab953eb99ac9a0de673713520"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-10.json",
+      "expected": "d11d565e147da2d307153d6769d5160337e230718a38e553f17ae3647ff0e61b",
+      "actual": "d11d565e147da2d307153d6769d5160337e230718a38e553f17ae3647ff0e61b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-10.log",
+      "expected": "5347be43a737b2f48d2c5bd78a9acff9ed574a69e19db0c3c0efb827ca03529a",
+      "actual": "5347be43a737b2f48d2c5bd78a9acff9ed574a69e19db0c3c0efb827ca03529a"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-11.json",
+      "expected": "d6279d27bcd30eebe54baa9bc2607caee54db60a44fb1968a4109eb46d936aee",
+      "actual": "d6279d27bcd30eebe54baa9bc2607caee54db60a44fb1968a4109eb46d936aee"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-11.log",
+      "expected": "40a45d276fd61baaa9b22efb9a2113fc2fd654fa9e617660a84603539b5c5ee2",
+      "actual": "40a45d276fd61baaa9b22efb9a2113fc2fd654fa9e617660a84603539b5c5ee2"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-12.json",
+      "expected": "b30ad2ce831b2097bf7b7b9bc97228eeb9c4639be7a46824a7e5e39fe680eb34",
+      "actual": "b30ad2ce831b2097bf7b7b9bc97228eeb9c4639be7a46824a7e5e39fe680eb34"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-12.log",
+      "expected": "40f662b90353ee505a19d6a743b72bc83776e4f807b98b9c8680880ed76715cf",
+      "actual": "40f662b90353ee505a19d6a743b72bc83776e4f807b98b9c8680880ed76715cf"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-13.json",
+      "expected": "1d3fb75b06bbbf20ff31b0afc57710ebe8750e7baea81115e64ab7559a9a31d0",
+      "actual": "1d3fb75b06bbbf20ff31b0afc57710ebe8750e7baea81115e64ab7559a9a31d0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-13.log",
+      "expected": "49b2ba6687c739d8c42811efc705d43c79ad45166e4a24954980735392f4367b",
+      "actual": "49b2ba6687c739d8c42811efc705d43c79ad45166e4a24954980735392f4367b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-14.json",
+      "expected": "d814f9376e8f07e4ef59284248c9aaa9754dab6905a6a455aedb1f4d06a78702",
+      "actual": "d814f9376e8f07e4ef59284248c9aaa9754dab6905a6a455aedb1f4d06a78702"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179255-14.log",
+      "expected": "95fad17be0163ea9e2b1789f52403fb60483dd30286e499f9e374fabfc9afef3",
+      "actual": "95fad17be0163ea9e2b1789f52403fb60483dd30286e499f9e374fabfc9afef3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "expected": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "actual": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "expected": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "actual": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314"
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context.py",
+      "expected": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "actual": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a"
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context_delivery.py",
+      "expected": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "actual": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/worker/claude_agent.py",
+      "expected": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+      "actual": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/worker/baton_worker.py",
+      "expected": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "actual": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/exchange.py",
+      "expected": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+      "actual": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tools/single_worker.py",
+      "expected": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+      "actual": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tools/stage_execution.py",
+      "expected": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "actual": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6"
+    },
+    {
+      "path": "v12/python/tools/dogfood_operator.py",
+      "expected": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "actual": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/manager/test_claude_agent.py",
+      "expected": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "actual": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3"
+    },
+    {
+      "path": "v12/python/tests/manager/test_exchange.py",
+      "expected": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a",
+      "actual": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/tools/test_single_worker.py",
+      "expected": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "actual": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/tools/test_stage_execution.py",
+      "expected": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "actual": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70"
+    },
+    {
+      "path": "v12/python/tests/tools/test_dogfood_operator.py",
+      "expected": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+      "actual": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228"
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "expected": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+      "actual": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831"
+    }
+  ],
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.manager.test_claude_context",
+    "tests.manager.test_launch",
+    "tests.manager.test_oci.TheVectorsAreClosedAndOrdered",
+    "tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts",
+    "tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity",
+    "tests.manager.test_oci.TheContextMountIsAnExactUse",
+    "tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed",
+    "tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead",
+    "tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate",
+    "tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished",
+    "tests.manager.test_claude_agent.TheContextEnvironmentRemainsPrivate",
+    "tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed",
+    "tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe",
+    "tests.tools.test_single_worker.TheContextConfigurationIsRequiredAndClosed",
+    "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers",
+    "tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup",
+    "tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+    "tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly",
+    "tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs",
+    "tests.manager.test_claude_agent.TheNativeSessionActivityObservation",
+    "tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst",
+    "tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored",
+    "tests.tools.test_single_worker.ARealStartRefusalKeepsItsOwnAccount"
+  ],
+  "status": 0,
+  "timeout": false,
+  "group_gone": false,
+  "seconds": 33.04191372601781,
+  "prior_reviewer_seconds": 4.108358147001127,
+  "cumulative_reviewer_seconds": 65.2387721290288,
+  "author_seconds": 146.81700767797884,
+  "before": {
+    "baton:v12/python/src/baton_v12/worker_manager/provider_context.py": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+    "baton:v12/python/src/baton_v12/worker_manager/context_delivery.py": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+    "baton:v12/python/src/baton_v12/worker_manager/launch.py": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+    "baton:v12/python/src/baton_v12/worker_manager/oci.py": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+    "baton:v12/python/tools/single_worker.py": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+    "baton:v12/python/tools/stage_execution.py": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+    "baton:v12/worker/baton_worker.py": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+    "baton:v12/worker/claude_agent.py": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+    "baton:v12/python/tests/manager/test_claude_context.py": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+    "baton:v12/python/tests/manager/test_launch.py": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+    "baton:v12/python/tests/manager/test_oci.py": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+    "baton:v12/python/tests/manager/test_claude_agent.py": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+    "baton:v12/python/tests/tools/test_single_worker.py": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+    "baton:v12/python/tests/tools/test_stage_execution.py": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628"
+  },
+  "after": {
+    "baton:v12/python/src/baton_v12/worker_manager/provider_context.py": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+    "baton:v12/python/src/baton_v12/worker_manager/context_delivery.py": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+    "baton:v12/python/src/baton_v12/worker_manager/launch.py": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+    "baton:v12/python/src/baton_v12/worker_manager/oci.py": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+    "baton:v12/python/tools/single_worker.py": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+    "baton:v12/python/tools/stage_execution.py": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+    "baton:v12/worker/baton_worker.py": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+    "baton:v12/worker/claude_agent.py": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+    "baton:v12/python/tests/manager/test_claude_context.py": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+    "baton:v12/python/tests/manager/test_launch.py": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+    "baton:v12/python/tests/manager/test_oci.py": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+    "baton:v12/python/tests/manager/test_claude_agent.py": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+    "baton:v12/python/tests/tools/test_single_worker.py": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+    "baton:v12/python/tests/tools/test_stage_execution.py": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628"
+  },
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "attrs": "26.1.0",
+    "rpds-py": "2026.6.3"
+  },
+  "log_sha256": "a40cb8da135fa82918803204d3400d6510f757eaf45def9567bb7745556c84c5",
+  "qualification": "Deterministic fake/replay and local subprocess only; simulated OCI; no actual engine or live provider."
+}

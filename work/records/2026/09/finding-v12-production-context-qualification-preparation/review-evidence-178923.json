@@ -1,0 +1,12 @@
+{
+  "work": "W177936",
+  "claim": 178923,
+  "outcome": "fixture accepted; live selection and qualification separate",
+  "manifest_sha256": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+  "files": {
+    "review-2026-09-15T14-51-59Z.md": "2995243fa8353018fc5ee89171146f40cf6e1a30db4c09a01044064873b1c022",
+    "review-178923-run.py": "153132203a86f15f24afd4ba413a3cc8b056792480d2678041bd4a5e0983f558",
+    "review-178923-offline.json": "4a7f36dbd57d1f6fa53a4d6d0fcc81fe5f3ef3aca76f06c0cf2d10f79cbde77f",
+    "review-178923-offline.log": "89efff7065c0755ec51a2211cfdd47d7bf83b424031170311098f5ee42541800"
+  }
+}

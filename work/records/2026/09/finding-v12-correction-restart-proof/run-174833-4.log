@@ -1,0 +1,148 @@
+test_admission_is_replayed_after_reopen_without_another_authority_read (tests.manager.test_provider_context.Admission.test_admission_is_replayed_after_reopen_without_another_authority_read) ... ok
+test_changed_profile_cannot_reinterpret_an_admitted_use (tests.manager.test_provider_context.Admission.test_changed_profile_cannot_reinterpret_an_admitted_use) ... ok
+test_missing_live_assignment_refuses_before_any_context_transition (tests.manager.test_provider_context.Admission.test_missing_live_assignment_refuses_before_any_context_transition) ... ok
+test_missing_owner_cleanup_never_reads_the_receipt (tests.manager.test_provider_context.Admission.test_missing_owner_cleanup_never_reads_the_receipt) ... ok
+test_observation_is_pure_and_contains_no_private_locator (tests.manager.test_provider_context.Admission.test_observation_is_pure_and_contains_no_private_locator) ... ok
+test_replaced_repository_refuses_before_admission (tests.manager.test_provider_context.Admission.test_replaced_repository_refuses_before_admission) ... ok
+test_two_connections_commit_one_admission (tests.manager.test_provider_context.Admission.test_two_connections_commit_one_admission) ... ok
+test_unknown_use_stays_held (tests.manager.test_provider_context.Admission.test_unknown_use_stays_held) ... ok
+test_wrong_writer_refuses (tests.manager.test_provider_context.Admission.test_wrong_writer_refuses) ... ok
+test_crash_after_publication_before_journal_replays_only_custody (tests.manager.test_provider_context.Finalization.test_crash_after_publication_before_journal_replays_only_custody) ... ERROR
+test_crash_during_staging_reuses_only_matching_private_bytes (tests.manager.test_provider_context.Finalization.test_crash_during_staging_reuses_only_matching_private_bytes) ... ERROR
+test_damaged_committed_generation_is_refused (tests.manager.test_provider_context.Finalization.test_damaged_committed_generation_is_refused) ... ERROR
+test_disposal_preserves_generation_and_invocation_evidence (tests.manager.test_provider_context.Finalization.test_disposal_preserves_generation_and_invocation_evidence) ... ERROR
+test_positive_generation_is_published_and_replayed_after_fence (tests.manager.test_provider_context.Finalization.test_positive_generation_is_published_and_replayed_after_fence) ... ERROR
+test_wrong_actual_model_receipt_cannot_publish_a_generation (tests.manager.test_provider_context.Finalization.test_wrong_actual_model_receipt_cannot_publish_a_generation) ... ERROR
+test_closed_profile_rejects_wrong_types_and_unsafe_paths (tests.manager.test_provider_context.Profiles.test_closed_profile_rejects_wrong_types_and_unsafe_paths) ... ok
+test_production_qualification_cannot_be_asserted_by_a_profile_label (tests.manager.test_provider_context.Profiles.test_production_qualification_cannot_be_asserted_by_a_profile_label) ... ok
+test_exact_volatile_credential_link_is_never_opened_or_retained (tests.manager.test_provider_context_delivery.Delivery.test_exact_volatile_credential_link_is_never_opened_or_retained) ... ok
+test_excluded_source_cannot_be_used_as_context_storage (tests.manager.test_provider_context_delivery.Delivery.test_excluded_source_cannot_be_used_as_context_storage) ... ok
+test_fresh_home_and_exact_reopen_keep_the_original_pins (tests.manager.test_provider_context_delivery.Delivery.test_fresh_home_and_exact_reopen_keep_the_original_pins) ... ok
+test_missing_state_size_and_entry_bounds_refuse (tests.manager.test_provider_context_delivery.Delivery.test_missing_state_size_and_entry_bounds_refuse) ... ok
+test_other_link_hardlink_and_fifo_are_refused (tests.manager.test_provider_context_delivery.Delivery.test_other_link_hardlink_and_fifo_are_refused) ... ok
+test_read_protection_is_not_repaired_after_delivery (tests.manager.test_provider_context_delivery.Delivery.test_read_protection_is_not_repaired_after_delivery) ... ok
+test_regular_credential_file_is_refused_without_reading_it (tests.manager.test_provider_context_delivery.Delivery.test_regular_credential_file_is_refused_without_reading_it) ... ok
+test_replaced_home_is_not_adopted (tests.manager.test_provider_context_delivery.Delivery.test_replaced_home_is_not_adopted) ... ok
+test_replaced_storage_ancestor_is_not_followed (tests.manager.test_provider_context_delivery.Delivery.test_replaced_storage_ancestor_is_not_followed) ... ok
+test_sealing_cannot_be_authorized_with_a_caller_absence_receipt (tests.manager.test_provider_context_delivery.Delivery.test_sealing_cannot_be_authorized_with_a_caller_absence_receipt) ... ok
+test_unknown_regular_file_bytes_are_not_read (tests.manager.test_provider_context_delivery.Delivery.test_unknown_regular_file_bytes_are_not_read) ... ok
+test_unsupported_runtime_uid_refuses_before_delivery (tests.manager.test_provider_context_delivery.Delivery.test_unsupported_runtime_uid_refuses_before_delivery) ... ok
+
+======================================================================
+ERROR: test_crash_after_publication_before_journal_replays_only_custody (tests.manager.test_provider_context.Finalization.test_crash_after_publication_before_journal_replays_only_custody)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 265, in test_crash_after_publication_before_journal_replays_only_custody
+    self.end_runtime(first)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 144, in end_runtime
+    decide_retention(self.control, self.port, self.custodian, attempt_id=attempt, artifact_ids=[artifact["artifact_id"]], disposition="retain-for-review", retention_policy_digest=profile()["retention_policy_digest"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 854, in decide_retention
+    _disposition(disposition)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 105, in _disposition
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"frozen three are {', '.join(schema.RETENTION_DISPOSITIONS)}")
+baton_v12.contracts.errors.ContractRefusal: 'retain-for-review' is not a retention disposition; the frozen three are retain, quarantine, discard-after-intake
+
+======================================================================
+ERROR: test_crash_during_staging_reuses_only_matching_private_bytes (tests.manager.test_provider_context.Finalization.test_crash_during_staging_reuses_only_matching_private_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 279, in test_crash_during_staging_reuses_only_matching_private_bytes
+    self.end_runtime(first)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 144, in end_runtime
+    decide_retention(self.control, self.port, self.custodian, attempt_id=attempt, artifact_ids=[artifact["artifact_id"]], disposition="retain-for-review", retention_policy_digest=profile()["retention_policy_digest"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 854, in decide_retention
+    _disposition(disposition)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 105, in _disposition
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"frozen three are {', '.join(schema.RETENTION_DISPOSITIONS)}")
+baton_v12.contracts.errors.ContractRefusal: 'retain-for-review' is not a retention disposition; the frozen three are retain, quarantine, discard-after-intake
+
+======================================================================
+ERROR: test_damaged_committed_generation_is_refused (tests.manager.test_provider_context.Finalization.test_damaged_committed_generation_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 292, in test_damaged_committed_generation_is_refused
+    self.end_runtime(first)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 144, in end_runtime
+    decide_retention(self.control, self.port, self.custodian, attempt_id=attempt, artifact_ids=[artifact["artifact_id"]], disposition="retain-for-review", retention_policy_digest=profile()["retention_policy_digest"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 854, in decide_retention
+    _disposition(disposition)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 105, in _disposition
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"frozen three are {', '.join(schema.RETENTION_DISPOSITIONS)}")
+baton_v12.contracts.errors.ContractRefusal: 'retain-for-review' is not a retention disposition; the frozen three are retain, quarantine, discard-after-intake
+
+======================================================================
+ERROR: test_disposal_preserves_generation_and_invocation_evidence (tests.manager.test_provider_context.Finalization.test_disposal_preserves_generation_and_invocation_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 303, in test_disposal_preserves_generation_and_invocation_evidence
+    self.end_runtime(first)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 144, in end_runtime
+    decide_retention(self.control, self.port, self.custodian, attempt_id=attempt, artifact_ids=[artifact["artifact_id"]], disposition="retain-for-review", retention_policy_digest=profile()["retention_policy_digest"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 854, in decide_retention
+    _disposition(disposition)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 105, in _disposition
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"frozen three are {', '.join(schema.RETENTION_DISPOSITIONS)}")
+baton_v12.contracts.errors.ContractRefusal: 'retain-for-review' is not a retention disposition; the frozen three are retain, quarantine, discard-after-intake
+
+======================================================================
+ERROR: test_positive_generation_is_published_and_replayed_after_fence (tests.manager.test_provider_context.Finalization.test_positive_generation_is_published_and_replayed_after_fence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 248, in test_positive_generation_is_published_and_replayed_after_fence
+    self.end_runtime(first)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 144, in end_runtime
+    decide_retention(self.control, self.port, self.custodian, attempt_id=attempt, artifact_ids=[artifact["artifact_id"]], disposition="retain-for-review", retention_policy_digest=profile()["retention_policy_digest"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 854, in decide_retention
+    _disposition(disposition)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 105, in _disposition
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"frozen three are {', '.join(schema.RETENTION_DISPOSITIONS)}")
+baton_v12.contracts.errors.ContractRefusal: 'retain-for-review' is not a retention disposition; the frozen three are retain, quarantine, discard-after-intake
+
+======================================================================
+ERROR: test_wrong_actual_model_receipt_cannot_publish_a_generation (tests.manager.test_provider_context.Finalization.test_wrong_actual_model_receipt_cannot_publish_a_generation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 258, in test_wrong_actual_model_receipt_cannot_publish_a_generation
+    self.end_runtime(first, receipt_changes={"model": "other-model"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 144, in end_runtime
+    decide_retention(self.control, self.port, self.custodian, attempt_id=attempt, artifact_ids=[artifact["artifact_id"]], disposition="retain-for-review", retention_policy_digest=profile()["retention_policy_digest"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 854, in decide_retention
+    _disposition(disposition)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 105, in _disposition
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"frozen three are {', '.join(schema.RETENTION_DISPOSITIONS)}")
+baton_v12.contracts.errors.ContractRefusal: 'retain-for-review' is not a retention disposition; the frozen three are retain, quarantine, discard-after-intake
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.362s
+
+FAILED (errors=6)

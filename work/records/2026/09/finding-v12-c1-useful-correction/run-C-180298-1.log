@@ -1,0 +1,32 @@
+test_a_failed_preparation_contributes_no_candidate (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_a_failed_preparation_contributes_no_candidate) ... ok
+test_a_foreign_task_digest_refuses_and_writes_nothing (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_a_foreign_task_digest_refuses_and_writes_nothing)
+Review [P2]: the task's own identity was not compared to the ... ok
+test_a_preparation_still_running_is_not_adopted (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_a_preparation_still_running_is_not_adopted)
+A preparation is adopted after it ENDED. An execution that may ... ok
+test_a_preparation_that_ran_another_harness_refuses (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_a_preparation_that_ran_another_harness_refuses)
+The workload reports the harness it was ASKED for and the harness ... ok
+test_a_proposal_this_coordinator_never_accepted_refuses (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_a_proposal_this_coordinator_never_accepted_refuses)
+And when the intent itself was decided for a proposal the ... ok
+test_a_report_about_another_snapshot_refuses (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_a_report_about_another_snapshot_refuses) ... ok
+test_a_request_naming_another_candidates_line_refuses (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_a_request_naming_another_candidates_line_refuses)
+The substitution the caller operand used to allow now has to go ... ok
+test_a_request_the_intent_did_not_decide_refuses (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_a_request_the_intent_did_not_decide_refuses) ... ok
+test_an_output_the_preparation_did_not_produce_refuses (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_an_output_the_preparation_did_not_produce_refuses)
+The two declared outputs are the preparation's contract. A result ... ok
+test_eligibility_preserves_measurements_and_replays_retained_custody (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_eligibility_preserves_measurements_and_replays_retained_custody) ... ok
+test_incomplete_or_timed_out_measurements_remain_blocked (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_incomplete_or_timed_out_measurements_remain_blocked) ... ok
+test_invalid_status_command_identity_order_and_retained_source_refuse (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_invalid_status_command_identity_order_and_retained_source_refuse) ... ok
+test_the_collected_preparation_is_adopted_end_to_end (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_the_collected_preparation_is_adopted_end_to_end) ... ok
+test_the_phase_is_retained_through_its_own_owner (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_the_phase_is_retained_through_its_own_owner)
+The adoption does not write rows: it drives `record_managed_result` ... ok
+test_the_report_bytes_are_weighed_against_custody (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_the_report_bytes_are_weighed_against_custody)
+A JSON report is not trusted custody. What makes this document the ... ok
+test_the_root_is_still_held_and_the_apply_still_planned (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_the_root_is_still_held_and_the_apply_still_planned)
+Slice2 finishes with the preparation ended, the apply NOT run and ... ok
+test_the_submission_is_resolved_from_owners_not_supplied (tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements.test_the_submission_is_resolved_from_owners_not_supplied)
+Review [P1]: the submission was a caller operand handed straight to ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.587s
+
+OK

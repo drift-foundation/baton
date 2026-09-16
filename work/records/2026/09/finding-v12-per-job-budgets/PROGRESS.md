@@ -3809,3 +3809,55 @@ for.
 
 Spending is unchanged: **246 runs, 2530.584419 s**, plus the four disclosed
 unmeasured activities. No Git mutation, installation or live provider.
+
+## Claim 174738 — the single selected test correction
+
+Read pass174731, triage174734 and `review-2026-09-15T03-45-58Z.md`. W161230 is
+closed satisfying, so this Work's blocker is discharged. Exactly the one
+correction specified was made; nothing else was touched.
+
+**Baseline verified before editing:** `v12/python/tests/tools/test_execution_limits.py`
+hashed `66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f`,
+matching the pinned baseline exactly.
+
+**Reproduced first:** `TheJobOwnerAnswersOneBoundaryWithoutADelivery.`
+`test_a_migrated_job_with_no_limits_row_still_answers` failed
+`AssertionError: 6 != 5` — `job_manager/schema.py:88` is now `SCHEMA_VERSION = 6`.
+
+**The change, and why this shape.** One line:
+
+    -  self.assertEqual(schema.SCHEMA_VERSION, 5)
+    +  self.assertGreaterEqual(schema.SCHEMA_VERSION, 5)
+
+The assertion above it — that a Job with no `job_execution_limits` row resolves
+through generation 0 — is the genuine migration and default coverage, and it
+passed throughout. The schema line was pinning an **equality** on a number this
+Work does not own: W170387 moved the Job Manager schema to 6 and broke the case
+while the compatibility it guards was untouched. A **floor** keeps the meaning —
+the legacy path is exercised at or after the version that created it — without
+re-breaking on the next unrelated migration.
+
+**Reversals, each restored:**
+
+| Reversal | Result |
+| --- | --- |
+| the legacy default expectation changed to the current generation's value | **fails** (step 02) |
+| the floor raised to 99 | **fails** (step 03) |
+
+So the case still fails if the legacy resolution breaks, and the floor is a real
+assertion rather than a vacuous one.
+
+**Verification.** Step 04, the affected class only, in the project-pinned
+environment: `OK`, **6 tests**. Ledger `ledger-174738.json`: 4 rows,
+0.698782 s measured; no run timed out, none was signalled, every run proved its
+process group gone. Per the triage I ran **only** the affected class and did not
+rerun the broad campaign; the reviewer's 252 passes and the accepted W161230
+evidence are reused.
+
+**Candidate `candidate-174738.json`** — one file:
+`v12/python/tests/tools/test_execution_limits.py`, baseline
+`66b1954e…`, candidate `sha256` recorded in the manifest with byte count and
+mode `0o664` unchanged.
+
+No product source changed, no owner-deferred causal/limits/two-Job/
+partial-delivery/shutdown matrix revived, no broad rerun, no Git mutation.

@@ -1,0 +1,184 @@
+--- submitted/test_exchange.py
++++ review178362/test_exchange.py
+@@ -1653,14 +1653,42 @@
+                          exchange.MAX_ACTIVITY_BYTES)
+ 
+     def test_no_existing_parser_learned_to_accept_an_integer(self):
+-        """THE RELAXATION THAT DID NOT HAPPEN. `bytes_observed` is validated in
+-        the activity parser and nowhere else, so a state document carrying an
+-        integer is refused exactly as it was before this document existed."""
+-        held, document = self.one()
+-        self.wrote(held, exchange.state_document("work"),
+-                   self.state(document, "work", 4096))
+-        view = exchange.observation(held)
+-        self.assertEqual(view["state"], "unreadable")
++        """THE RELAXATION THAT DID NOT HAPPEN, asked of the parser itself.
++
++        A CASE DRIVEN THROUGH `observation` CANNOT ANSWER THIS. Every member of
++        every lifecycle document has a second guard -- a closed vocabulary, a
++        canonical grammar or the correlation -- so a document carrying an
++        integer is refused whether or not the decoder still holds its members
++        to bounded text, and a test that only watched the outcome would go on
++        passing with the decoder wide open. So the decoder is asked directly:
++        the `numeric` opt-in is named by the activity parser and by nothing
++        else, and without it an integer is refused exactly as it was before
++        this document existed.
++        """
++        for members, member in ((exchange.RECEIPT_MEMBERS, "accepted_at"),
++                                (exchange.STATE_MEMBERS, "state"),
++                                (exchange.TERMINAL_MEMBERS, "ending"),
++                                (exchange.ACTIVITY_MEMBERS, "operation")):
++            with self.subTest(member=member):
++                raw = json.dumps({one: (4096 if one == member else "x")
++                                  for one in members}).encode("utf-8")
++                with self.assertRaises(ContractRefusal):
++                    exchange._decoded(raw, "whatever.json", what="a document",
++                                      members=members)
++        # AND THE OPT-IN ADMITS EXACTLY THE ONE MEMBER THAT NAMES IT.
++        raw = json.dumps({one: (4096 if one == "bytes_observed" else "x")
++                          for one in exchange.ACTIVITY_MEMBERS}).encode("utf-8")
++        self.assertEqual(
++            exchange._decoded(raw, exchange.ACTIVITY_DOCUMENT,
++                              what="a worker activity count",
++                              members=exchange.ACTIVITY_MEMBERS,
++                              numeric=("bytes_observed",))["bytes_observed"],
++            4096)
++        # AND THE DOCUMENT AS A WHOLE IS STILL REFUSED WITH THE OPT-IN AWAY.
++        with self.assertRaises(ContractRefusal):
++            exchange._decoded(raw, exchange.ACTIVITY_DOCUMENT,
++                              what="a worker activity count",
++                              members=exchange.ACTIVITY_MEMBERS)
+ 
+     def test_a_document_from_another_protocol_is_not_read(self):
+         held, document = self.one()
+@@ -1741,6 +1769,27 @@
+             exchange.activity_identities(held, session=self.SESSION)
+ 
+ 
++def _ActivityPublisherOver(baton_worker, held, case, observe):
++    """One real publisher bound to this delivery, over an injected observer.
++
++    W61599. The publisher's operands are `serve_exchange`'s, and composing them
++    here is how a case can drive the real thread without a provider turn
++    standing between it and the file.
++    """
++    from baton_v12.worker_manager import exchange as _exchange
++
++    return baton_worker._ActivityPublisher(
++        held.event_root,
++        baton_worker._bound(
++            {"session": case.SESSION, "attempt_id": held.attempt_id,
++             "sequence_id": _exchange.sequence_of(held.attempt_id)},
++            _exchange.observation(held)["command"]["command_digest"],
++            operation="work",
++            operation_id=_exchange.worker_operation_id(held.attempt_id,
++                                                       "work")),
++        observe, seconds=0.01)
++
++
+ class TheWorkerPublishesTheOptionalCount(Home):
+     """W61599 at the OTHER end: the real in-image publisher, on real files.
+ 
+@@ -1887,28 +1936,37 @@
+         self.assertNotIn(exchange.ACTIVITY_DOCUMENT,
+                          os.listdir(held.event_root))
+ 
+-    def test_an_unknown_count_publishes_nothing_rather_than_a_zero(self):
+-        """`None` AND `0` ARE NOT INTERCHANGEABLE. A provider whose stream this
+-        adapter cannot account for leaves the projection absent; writing a zero
+-        would assert "observed, and empty"."""
++    def test_an_unknown_or_empty_count_publishes_nothing_at_all(self):
++        """`None`, `0` AND A PUBLISHED COUNT ARE THREE ANSWERS. A provider
++        whose stream this adapter cannot account for leaves the projection
++        absent, and so does one that has produced nothing yet -- writing a zero
++        would assert "observed, and empty", which is a claim neither end has
++        evidence for. Both are asserted, because they reach the publisher by
++        different values and only one of them is caught by the cadence."""
+         from scripted_agent import ScriptedAgent
+ 
+-        held, _document = self.commanded()
+-        inner = ScriptedAgent()
+-
+-        class Silent:
+-            def work(self, launched, declared):
+-                return inner.work(launched, declared)
+-
+-            def observed_activity(self):
+-                return None
+-
+-            def consider(self, launched, request):
+-                raise AssertionError("not this runtime's operation")
+-
+-        self.assertEqual(self.worker(held, Silent()), 0)
+-        self.assertNotIn(exchange.ACTIVITY_DOCUMENT,
+-                         os.listdir(held.event_root))
++        for index, answer in enumerate((None, 0, False, 1.5, "10")):
++            with self.subTest(answer=answer):
++                # ONE DELIVERY PER VALUE. `launch.materialize` refuses an
++                # existing root on purpose, so each value gets its own attempt
++                # rather than a fixture that reused one worker's namespace.
++                held, _document = self.commanded(
++                    self.delivered(attempt_id=f"attempt-{index}").exchange)
++                inner = ScriptedAgent()
++
++                class Silent:
++                    def work(self, launched, declared):
++                        return inner.work(launched, declared)
++
++                    def observed_activity(self):
++                        return answer
++
++                    def consider(self, launched, request):
++                        raise AssertionError("not this runtime's operation")
++
++                self.assertEqual(self.worker(held, Silent()), 0)
++                self.assertNotIn(exchange.ACTIVITY_DOCUMENT,
++                                 os.listdir(held.event_root))
+ 
+     def test_an_observer_that_raises_never_stops_the_turn(self):
+         from scripted_agent import ScriptedAgent
+@@ -1930,6 +1988,44 @@
+         self.assertEqual(exchange.observation(held)["state"], "answered")
+         self.assertNotIn(exchange.ACTIVITY_DOCUMENT,
+                          os.listdir(held.event_root))
++
++    def test_a_transient_observer_fault_does_not_end_the_publisher(self):
++        """THE HALF THE TURN'S SURVIVAL CANNOT PROVE. The publisher runs on its
++        own thread, so the turn would finish whether or not a fault killed it;
++        what the guard actually buys is that a scan which fails once -- a file
++        replaced mid-walk, a transient EIO -- leaves the NEXT observation still
++        able to publish. A publisher that died on the first fault would report
++        nothing for the rest of a turn that was going perfectly well."""
++        import time
++
++        import baton_worker
++
++        held, _document = self.commanded()
++        answers = [RuntimeError("the scan failed"), 3072]
++
++        def observe():
++            held_answer = answers[0]
++            if len(answers) > 1:
++                answers.pop(0)
++            if isinstance(held_answer, BaseException):
++                raise held_answer
++            return held_answer
++
++        publisher = _ActivityPublisherOver(baton_worker, held, self,
++                                           observe).start()
++        self.addCleanup(publisher.stop)
++        place = os.path.join(held.event_root, exchange.ACTIVITY_DOCUMENT)
++        for _ in range(400):
++            if os.path.lexists(place):
++                break
++            time.sleep(0.01)
++        self.assertTrue(os.path.lexists(place),
++                        "the publisher never recovered from one fault")
++        self.assertEqual(
++            exchange.observed_activity(
++                held, exchange.activity_identities(held,
++                                                   session=self.SESSION)),
++            3072)
+ 
+     def test_describe_runs_no_publisher(self):
+         """`describe` INVOKES NO PROVIDER, so there is no native stream for a

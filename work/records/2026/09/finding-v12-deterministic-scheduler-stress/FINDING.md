@@ -1321,3 +1321,26 @@ reported pre-existing/concurrent trailing whitespace at
 v12/python/tools/stage_execution.py:1909, outside this claim's edits; it is not
 repaired or represented as this plan's verification failure. Check the exact
 planning path set separately before handoff.
+
+## 2026-09-15 — owner moves remaining certification and replacement to v13
+
+Recorded by baton.prompt after Slawomir questioned the W2 gate and confirmed
+"lets move it". Operator-designated replacement and remaining broad W103525
+certification belong to v13. This explicitly supersedes the v12-required
+replacement ruling of 2026-09-13T14:22:47Z, SELECTED-PLAN-161345.md's immediate
+replacement requirement, and the W2 release-checklist classification of W103525
+as a mandatory minimum provider. Replacement remains desired future capability;
+it is not a demonstrated defect preventing parallel Jobs with fixed workers.
+
+Retain the accepted scheduling foundation, both terminal orders, historical
+failures and all evidence with their original qualifications. W161234 continues
+to own required context reuse/correction/restart; W156162 owns limits acceptance.
+Neither is deferred by this ruling. No unfinished W103525 requirement is marked
+passed, and no known correctness defect is waived by calling it hardening.
+
+W103525 stays parked under its existing identity and canonical dossier. W174357's
+replacement design and already-queued independent design review are retained as
+nonblocking v13 pre-work; no implementation or extra research is selected here.
+The v13 W165786 membership table records this release assignment without copying
+or reparenting Work. Remove only W2's dependency on W103525 through the operator;
+the documentation update does not claim that ledger mutation has occurred.

@@ -1,0 +1,314 @@
+--- a/v12/python/tests/tools/correction_restart_trace.py
++++ b/v12/python/tests/tools/correction_restart_trace.py
+@@ -2,8 +2,8 @@
+ 
+ The provider is a deterministic local child; the OCI engine is simulated.
+ Preparation and apply execute their real worker entrypoints as local children.
+-C1 proves useful correction and reviewed import. The retained reopen helper is
+-reserved for C2; no host-loss or production qualification is claimed.
++C1 proves useful correction and reviewed import. C2 adds a counted manager
++recomposition in one process; no host-loss or production qualification is claimed.
+ """
+ import copy
+ import json
+@@ -35,7 +35,7 @@
+ argv,edits,log,bound,attempt,role=json.loads(sys.argv[1])
+ def digest(value):
+     return 'sha256:'+hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
+-record={'attempt_id':attempt,'role':role,'pid':os.getpid(),'use_id':None,'invocation_id':None,'argv_digest':digest(argv),'selector':None,'conversation_id':None,'restored':False}
++record={'attempt_id':attempt,'role':role,'pid':os.getpid(),'use_id':None,'invocation_id':None,'argv':argv,'argv_digest':digest(argv),'selector':None,'conversation_id':None,'restored':False}
+ if bound is not None:
+     state=Path(os.environ['HOME'])/'.claude/projects/output/session.json'
+     previous=json.loads(state.read_text()) if state.exists() else None
+@@ -103,9 +103,8 @@
+             if argv[1] == "rm" and process.poll() is None:
+                 process.terminate()
+             process.wait(timeout=5)
+-        answer = super().__call__(argv, **options)
+         if argv[1] != "run" or "--entrypoint" in argv:
+-            return answer
++            return super().__call__(argv, **options)
+         labels, mounts = {}, {}
+         for index, arg in enumerate(argv[:-1]):
+             if arg == "--label":
+@@ -116,7 +115,10 @@
+                 mounts[parts["target"]] = parts["source"]
+         attempt = labels["baton.v12.runtime_attempt_id"]
+         self.launches[attempt] = json.loads(Path(next(source for target, source in mounts.items() if target.endswith("launch.json"))).read_text())
+-        self.events.append({"attempt_id": attempt, "operation_id": labels.get("baton.v12.start_operation_id"), "argv_digest": digest(list(argv)), "labels": labels})
++        # There is no start-operation label. The engine receives the rendered
++        # operation identity as --name; count calls, including repeated inputs.
++        self.events.append({"attempt_id": attempt, "operation_operand": argv[argv.index("--name") + 1], "argv": list(argv), "argv_digest": digest(list(argv)), "labels": labels})
++        answer = super().__call__(argv, **options)
+         source = Path(mounts.get("/input/source", "/nonexistent"))
+         kind = "apply" if (source / "managed-apply.json").is_file() else "prepare" if attempt.startswith("prepare-") else None
+         if kind is not None:
+@@ -227,7 +229,7 @@
+         body = custody.read_context_receipt(held.control, attempt_id=attempt, artifact_id=receipt["artifact"]["artifact_id"], workspace_storage=self.storage)
+         settlement = self.record(held.job, attempt)["settlement"]
+         checkpoint = review_cycles.checkpoint_of(held.control, settlement["evidence"]["checkpoint_id"])
+-        workspace = self.mounted(held.composed, "implementation", attempt)["workspace"]
++        workspace = next(one["source"] for one in self.mounts_for(attempt) if one["target"] == "/output")
+         content = {}
+         for name in ("scale.py", "harness.py"):
+             answer = stage_execution._git_run(["git", "-C", workspace, "show", checkpoint["head_object"] + ":" + name])
+@@ -254,7 +256,7 @@
+         self.assertNotIn("provider_context", launch.document)
+         self.assertIsNone(context.context_invocation_of(held.control, attempt))
+         implementation = episodes.live_of(held.job, "job-a/implementation")["attempt_id"]
+-        line = self.mounted(held.composed, "implementation", implementation)["workspace"]
++        line = next(one["source"] for one in self.mounts_for(implementation) if one["target"] == "/output")
+         mounts = self.mounts_for(attempt)
+         for one in mounts:
+             for forbidden in (line, str(self.context_root)):
+@@ -274,21 +276,43 @@
+         return stage, episode, attempt
+ 
+     def reopen(self, held, first, initial):
+-        """Retained draft for C2; C1 never calls this boundary."""
++        """Close manager handles, preserving the external engine and call log."""
++        from baton_v12.worker_manager.attempts import attempt_runtime_of
+         before = {"provider": self.provider_events(), "engine": copy.deepcopy(self.engine.events)}
++        self.assertTrue([one for one in before["provider"] if one["attempt_id"] == first])
++        self.assertTrue([one for one in before["engine"] if one["attempt_id"] == first])
++        runtime = attempt_runtime_of(held.control, first)
+         old_job, old_control, old_composed = held.job, held.control, held.composed
++        incarnation = old_control.incarnation
++        paths = {"job": self.job_path, "control": self.control_path, "context": str(self.context_root)}
++        before_tick = self.tick_count
++        configuration_digest = digest_of_bytes(json.dumps(self.configuration, sort_keys=True).encode())
+         old_composed.close(); old_job.close(); old_control.close()
+         for owner in (old_job, old_control):
+             with self.assertRaises(sqlite3.ProgrammingError):
+                 owner._connection.execute("SELECT 1")
+         held = self.serving()
++        self.assertIsNot(held.job, old_job)
++        self.assertIsNot(held.control, old_control)
++        self.assertIsNot(held.composed, old_composed)
++        self.assertNotEqual(held.control.incarnation, incarnation)
+         self.trace.scenario.reopen_at = self.tick_count
+-        self.trace.record(self.tick_count, "reopen", outcome="performed", evidence="closed-job-and-control-handles")
++        self.trace.record(self.tick_count, "reopen", outcome="performed", attempt_id=first, operation_id="store.reopen:C2", evidence="closed-job-and-control-handles")
+         after = {"provider": self.provider_events(), "engine": copy.deepcopy(self.engine.events)}
+-        self.assertEqual(self.snapshot(held, first), initial)
+-        return held, before, after
+-
+-    def run_scenario(self):
++        self.assertEqual(before, after)
++        reopened = self.snapshot(held, first)
++        self.assertEqual(reopened, initial)
++        self.assertEqual(attempt_runtime_of(held.control, first), runtime)
++        # Execute a real scheduler observation after recomposition. Immediate
++        # constructor equality alone cannot prove an old runtime is not restarted.
++        self.tick(held)
++        observed = {"provider": self.provider_events(), "engine": copy.deepcopy(self.engine.events)}
++        return held, {"kind": "manager recomposition in one process", "performed": True, "old_handles_closed": True, "fresh_handles": True, "incarnations": [incarnation, held.control.incarnation], "before_tick": before_tick, "after_tick": self.tick_count, "before_paths": paths, "after_paths": {"job": self.job_path, "control": self.control_path, "context": str(self.context_root)}, "configuration_before": configuration_digest, "configuration_after": digest_of_bytes(json.dumps(self.configuration, sort_keys=True).encode()), "before": before, "after": after, "observed": observed, "durable_before": initial, "durable_after": reopened, "runtime_before": runtime, "runtime_after": attempt_runtime_of(held.control, first)}
++
++    def run_scenario(self, *, counted_reopen=False):
++        if counted_reopen:
++            self.trace.scenario.name = "counted-reopen"
++            self.trace.scenario.note["boundary"] = "manager recomposition in one process; no host or power loss"
+         held = self.serving()
+         submit(held.job, self.submission)
+         self.until(held, "implementation", "waiting")
+@@ -298,6 +322,9 @@
+         self.assertEqual(self.turn(held.control, "implementation", first, self.mounted(held.composed, "implementation", first), edits=edits(2)), 0)
+         self.until(held, "implementation", "completed")
+         initial = self.snapshot(held, first)
++        boundary = None
++        if counted_reopen:
++            held, boundary = self.reopen(held, first, initial)
+         reviewed_stage, review_episode, reviewer = self.review(held, "changes-requested")
+         self.until(held, "implementation", "waiting")
+         implementation = submission.stages_of(held.job, "job-a")[0]
+@@ -362,15 +389,19 @@
+         publication = reconciliation.publication_of(deployment.integration, result_ids[0], "apply")
+         publication_receipt = deployment.reconciliation_profile.publication_receipt(self.target, publication_id=publication["publication_id"])
+         judgments = {kind: deployment.authority.receipt(result["derived_proposal_id"], kind) for kind in ("verification", "review", "approval")}
+-        return {"accepted": accepted, "accepted_verdict": accepted_verdict, "reviews": self.review_evidence, "final": final, "apply": {"launch": apply_launch, "mounts": apply_mounts, "manifest": apply_manifest, "receipt_path_exists": False}, "publication": publication, "publication_receipt": publication_receipt, "judgments": judgments, "schema": SCHEMA, "scheduler": self.trace.artifact(), "initial": initial, "revised": revised, "correction": correction, "verdict": verdict, "review_assignment": assignment_of(held.control, reviewer), "final_counters": {"provider": self.provider_events(), "engine": self.engine.events}, "verifications": self.verifications, "managed": result, "capacity": integration_capacity_of(held.job, result_ids[0]), "target": {"revision": deployment.reconciliation_profile.revision(self.target, "refs/heads/main"), "code_digest": digest_of_bytes(target["stdout"].encode()), "authority_revision": deployment.authority.canonical_target(), "receipt": deployment.authority.receipt(result["derived_proposal_id"], "integration")}, "ticks": self.tick_count}
+-
+-
+-def validate(artifact):
++        artifact = {"accepted": accepted, "accepted_verdict": accepted_verdict, "reviews": self.review_evidence, "final": final, "apply": {"launch": apply_launch, "mounts": apply_mounts, "manifest": apply_manifest, "receipt_path_exists": False}, "publication": publication, "publication_receipt": publication_receipt, "judgments": judgments, "schema": SCHEMA, "scheduler": self.trace.artifact(), "initial": initial, "revised": revised, "correction": correction, "verdict": verdict, "review_assignment": assignment_of(held.control, reviewer), "final_counters": {"provider": self.provider_events(), "engine": self.engine.events}, "verifications": self.verifications, "managed": result, "capacity": integration_capacity_of(held.job, result_ids[0]), "target": {"revision": deployment.reconciliation_profile.revision(self.target, "refs/heads/main"), "code_digest": digest_of_bytes(target["stdout"].encode()), "authority_revision": deployment.authority.canonical_target(), "receipt": deployment.authority.receipt(result["derived_proposal_id"], "integration")}, "ticks": self.tick_count}
++        if counted_reopen:
++            artifact["reopen"] = boundary
++        return artifact
++
++
++def validate(artifact, *, counted_reopen=False):
+     """Re-derive C1 relationships from exported records, without live owners.
+ 
+     This is a consistency oracle, not a signature scheme. Provenance is bound
+-    separately by the supervised export and candidate hashes. Counter and
+-    reopen acceptance belong to C2. No producer private state is read here.
++    separately by the supervised export and candidate hashes. C2 callers must
++    select counted_reopen, so deleting the boundary cannot downgrade the oracle.
++    No producer private state is read here.
+     """
+     failures = []
+     def require(condition, code):
+@@ -471,4 +502,68 @@
+         require(all(not m["target"].startswith("/run/baton/context") for m in apply["mounts"]), "C1-apply-context")
+     except (KeyError, TypeError, ValueError, IndexError) as error:
+         failures.append({"code": "C1-incomplete-evidence", "detail": str(error)})
++    if counted_reopen:
++        failures.extend(validate_reopen(artifact))
+     return failures
++
++
++def validate_reopen(artifact):
++    """Count raw process/engine observations independently of owner sessions."""
++    failures = []
++    def require(condition, code):
++        if not condition:
++            failures.append({"code": code})
++    try:
++        boundary = artifact["reopen"]
++        initial, revised = artifact["initial"], artifact["revised"]
++        first, second = initial["binding"], revised["binding"]
++        require(boundary["kind"] == "manager recomposition in one process" and boundary["performed"] is True and boundary["old_handles_closed"] is True and boundary["fresh_handles"] is True, "C2-reopen")
++        require(len(boundary["incarnations"]) == 2 and all(boundary["incarnations"]) and boundary["incarnations"][0] != boundary["incarnations"][1], "C2-reopen")
++        require(boundary["configuration_before"] == boundary["configuration_after"], "C2-configuration")
++        require(boundary["before_paths"] == boundary["after_paths"] and set(boundary["before_paths"]) == {"job", "control", "context"}, "C2-durable-paths")
++        require(0 < boundary["before_tick"] < boundary["after_tick"] <= artifact["ticks"], "C2-reopen")
++        records = [one for one in artifact["scheduler"]["records"] if one["act"] == "reopen"]
++        require(len(records) == 1 and records[0]["outcome"] == "performed" and records[0]["attempt_id"] == first["attempt_id"] and records[0]["tick"] == boundary["before_tick"], "C2-reopen")
++        require(boundary["durable_before"] == boundary["durable_after"] == initial, "C2-durable-attribution")
++        require(boundary["runtime_before"] == boundary["runtime_after"] and boundary["runtime_before"]["attempt_id"] == first["attempt_id"], "C2-runtime")
++        require(first["attempt_id"] != second["attempt_id"] and first["use_id"] != second["use_id"] and first["invocation_id"] != second["invocation_id"], "C2-distinct-use")
++
++        streams = [boundary[key] for key in ("before", "after", "observed")] + [artifact["final_counters"]]
++        def events(stream, name, attempt):
++            return [one for one in stream[name] if one["attempt_id"] == attempt]
++        for name in ("provider", "engine"):
++            baseline = events(streams[0], name, first["attempt_id"])
++            require(len(baseline) == 1, "C2-positive-baseline")
++            for stream in streams[1:]:
++                require(events(stream, name, first["attempt_id"]) == baseline, "C2-" + name + "-duplicate")
++            # The boundary itself starts nothing. Later real scheduler ticks
++            # may launch review/correction, but the old attempt must stay fixed.
++            require(streams[0][name] == streams[1][name], "C2-" + name + "-duplicate")
++            require(not events(streams[0], name, second["attempt_id"]), "C2-new-use-order")
++            require(len(events(streams[-1], name, second["attempt_id"])) == 1, "C2-" + name + "-new-use")
++
++        for stream in streams:
++            # Changing one attribution operand must not hide a repeated use
++            # from an attempt-only filter. Count every matching identity axis.
++            for binding in (first, second):
++                matched = events(stream, "provider", binding["attempt_id"])
++                for key in ("use_id", "invocation_id"):
++                    require([one for one in stream["provider"] if one[key] == binding[key]] == matched, "C2-provider-attribution")
++            operations = [one["operation_operand"] for one in stream["engine"]]
++            require(all(operations.count(value) == 1 for value in operations), "C2-engine-duplicate")
++            for one in stream["engine"]:
++                argv = one["argv"]
++                labels = dict(argv[index + 1].split("=", 1) for index, arg in enumerate(argv[:-1]) if arg == "--label")
++                require(argv[1] == "run" and digest(argv) == one["argv_digest"] and labels == one["labels"] and labels["baton.v12.runtime_attempt_id"] == one["attempt_id"], "C2-engine-input")
++                require(one["operation_operand"] == argv[argv.index("--name") + 1] and one["operation_operand"].startswith("baton-runtime.start-"), "C2-engine-operation")
++            for binding in (first, second):
++                for one in events(stream, "provider", binding["attempt_id"]):
++                    argv = one["argv"]
++                    require(one["role"] == "implementation" and type(one["pid"]) is int and one["pid"] > 0, "C2-provider-process")
++                    require(one["use_id"] == binding["use_id"] and one["invocation_id"] == binding["invocation_id"] and one["conversation_id"] == binding["conversation_id"], "C2-provider-attribution")
++                    require(digest(argv) == one["argv_digest"] == binding["argv_digest"], "C2-provider-operands")
++                    selector = "--session-id" if binding["mode"] == "open" else "--resume"
++                    require(argv[0] == "claude" and argv[-3:-1] == [selector, binding["conversation_id"]] and one["selector"] == selector and one["restored"] is (binding["mode"] == "restore"), "C2-provider-operands")
++    except (KeyError, TypeError, ValueError, IndexError) as error:
++        failures.append({"code": "C2-incomplete-evidence", "detail": str(error)})
++    return failures
+--- a/v12/python/tests/tools/test_correction_restart.py
++++ b/v12/python/tests/tools/test_correction_restart.py
+@@ -1,4 +1,4 @@
+-"""C1 proof: deterministic provider children and a simulated OCI engine."""
++"""C1/C2 proofs: deterministic provider children and a simulated OCI engine."""
+ import copy
+ import hashlib
+ import json
+@@ -9,11 +9,11 @@
+ from tests.tools import correction_restart_trace as proof
+ 
+ 
+-def artifact():
++def artifact(*, counted_reopen=False):
+     world = proof.World()
+     try:
+         world.setUp()
+-        return world.run_scenario()
++        return world.run_scenario(counted_reopen=counted_reopen)
+     finally:
+         world.doCleanups()
+ 
+@@ -88,3 +88,73 @@
+             source["readonly"] = False
+         self.rejects("reviewer receives writable producer line", writable, "C1-review-writable-line")
+         self.rejects("reviewer receives private mount", lambda x: x["reviews"][0]["mounts"].append({"source": x["reviews"][0]["private_context_root"], "target": "/run/baton/context", "readonly": True}), "C1-review-context")
++
++
++class CountedReopen(unittest.TestCase):
++    def test_manager_recomposition_preserves_both_positive_counts(self):
++        observed = artifact(counted_reopen=True)
++        export(observed)
++        self.assertEqual(proof.validate(observed, counted_reopen=True), [])
++
++    test_unchanged_predecessor_artifacts_still_validate_without_execution = UsefulCorrection.test_unchanged_predecessor_artifacts_still_validate_without_execution
++
++
++class CountedReopenInvalidEvidence(unittest.TestCase):
++    """Separate mutations of actual provider and engine observations."""
++
++    @classmethod
++    def setUpClass(cls):
++        cls.observed = artifact(counted_reopen=True)
++        cls().assertEqual(proof.validate(cls.observed, counted_reopen=True), [])
++        cls.rejections = []
++
++    @classmethod
++    def tearDownClass(cls):
++        export({"kind": "C2 synthetic invalid-evidence results", "valid_observation": cls.observed, "rejections": cls.rejections})
++
++    def rejects(self, name, mutate, expected):
++        invalid = copy.deepcopy(self.observed)
++        invalid["synthetic_invalid_evidence"] = name
++        mutate(invalid)
++        failures = proof.validate(invalid, counted_reopen=True)
++        self.assertIn(expected, {one["code"] for one in failures}, failures)
++        self.rejections.append({"kind": "synthetic invalid evidence", "case": name, "expected": expected, "violations": failures})
++        self.assertEqual(proof.validate(self.observed, counted_reopen=True), [])
++
++    def duplicate(self, stream, point, revised=False):
++        def mutate(x):
++            counters = x["final_counters"] if point == "final" else x["reopen"][point]
++            attempt = x["revised" if revised else "initial"]["binding"]["attempt_id"]
++            counters[stream].append(copy.deepcopy(next(one for one in counters[stream] if one["attempt_id"] == attempt)))
++        self.rejects(stream + " duplicate at " + point + (" revised use" if revised else " old use"), mutate, "C2-" + stream + ("-new-use" if revised else "-duplicate"))
++
++    def test_duplicate_provider_is_rejected_independently(self):
++        self.duplicate("provider", "after")
++        self.duplicate("provider", "final")
++        self.duplicate("provider", "final", revised=True)
++
++    def test_duplicate_engine_is_rejected_independently(self):
++        self.duplicate("engine", "after")
++        self.duplicate("engine", "final")
++        self.duplicate("engine", "final", revised=True)
++
++    def test_missing_positive_baseline_is_rejected(self):
++        for stream in ("provider", "engine"):
++            self.rejects("missing " + stream + " baseline", lambda x, stream=stream: x["reopen"]["before"].__setitem__(stream, []), "C2-positive-baseline")
++
++    def test_absent_actual_reopen_is_rejected(self):
++        self.rejects("boundary deleted", lambda x: x.pop("reopen"), "C2-incomplete-evidence")
++        self.rejects("no close or recompose performed", lambda x: x["reopen"].__setitem__("performed", False), "C2-reopen")
++
++    def test_changed_verdict_checkpoint_or_attempt_is_rejected(self):
++        self.rejects("changed verdict attribution", lambda x: x["verdict"].__setitem__("checkpoint_id", x["revised"]["checkpoint"]["checkpoint_id"]), "C1-verdict-attribution")
++        self.rejects("changed reopened checkpoint", lambda x: x["reopen"]["durable_after"]["checkpoint"].__setitem__("checkpoint_id", "forged-checkpoint"), "C2-durable-attribution")
++        self.rejects("changed provider attempt", lambda x: x["reopen"]["after"]["provider"][0].__setitem__("attempt_id", "forged-attempt"), "C2-provider-duplicate")
++        def disguised_provider(x):
++            one = copy.deepcopy(x["reopen"]["before"]["provider"][0])
++            one["attempt_id"] = "forged-attempt"
++            x["final_counters"]["provider"].append(one)
++        self.rejects("duplicate use disguised as another attempt", disguised_provider, "C2-provider-attribution")
++
++    def test_forged_context_receipt_is_rejected(self):
++        self.rejects("forged restored context receipt", lambda x: x["revised"]["receipt"].__setitem__("use_id", x["initial"]["binding"]["use_id"]), "C1-context-receipt")

@@ -1,0 +1,60 @@
+{
+ "active_seconds": 420,
+ "actual_model": "claude-fable-5",
+ "claim": 180078,
+ "consumed_identity": {
+  "identity": "178579",
+  "roots": [
+   "/tmp/baton-w177936-qualification-178579",
+   "/dev/shm/baton-w177936-qualification-178579",
+   "/tmp/baton-w177936-qualification-178579-export"
+  ],
+  "status": "consumed by the failed operator run 2026-09-15T15:08:40Z; retained untouched and never reusable"
+ },
+ "corrections": {
+  "A": "solution.py is accepted in both turns as the expected constant or as that constant with its one final LF absent; every other byte, both workspace entry sets and continuity.txt's exact token-plus-one-LF contract are unchanged, and the observed raw digest, byte length and form are exported before any refusal",
+  "B": "closed model type/cardinality/expected-key diagnostics with a bounded key count and explicit overflow flag; the actual_model/model_fields/conflict predicate is unchanged and no arbitrary model name, value, usage payload or provider prose is exported",
+  "R1": "reconstructed per-use session state is created 0660 group-writable; the credential slot copy and the request document stay 0640 and no existing protected, source or credential object changes",
+  "R1_diagnostics": "consistent() now relates the diagnostic members to each other and to the closed member list: missing means the known member is absent and every other diagnostic means it is present, for both model and modelUsage; empty-object is count0 uncapped; expected-only is count1 uncapped; other-only has a positive count; expected-plus-other has at least two; capped requires exactly the cap and a shape that can hold more keys than that. MODEL_KEY_CAP stays 8, the strict int/bool checks and the original actual-model predicate are unchanged",
+  "R2": "all three fixed roots -- run, volatile and export -- are reserved exclusively before any controller, credential or engine admission, and a refused reservation unwinds what it took",
+  "identity_180078": "fresh fixed run identity 180078 replacing the consumed 178579; audit now requires the manifest's run_identity, private_root, credential_copy_root and export_root to equal the roots this fixture would actually reserve, so an approved manifest can no longer name one identity while the code takes another",
+  "review": "review-2026-09-15T14-36-52Z.md",
+  "review_ab": "review-2026-09-15T15-16-11Z.md",
+  "review_r1": "review-2026-09-15T15-39-27Z.md",
+  "superseded_acceptance": "the exact-final-LF requirement for solution.py stated by FINDING's 178579 entry and OPERATOR-178579.md; nothing else moved"
+ },
+ "credential_copy_root": "/dev/shm/baton-w177936-qualification-180078",
+ "credential_source": "/home/sl/.claude/.credentials.json",
+ "cwd": "/output",
+ "export_root": "/tmp/baton-w177936-qualification-180078-export",
+ "files": {
+  "qualification-fixture.py": "72875394cb4b958919db48a019a99de076ee5cab526b51a1c2278ae0c7e49e94",
+  "qualification_contract.py": "0efe61f528ce4c691b85fa336967d1f85bd32241ffd686c73305f7d36e3281d1",
+  "qualification_worker.py": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+  "test_qualification.py": "108a7b67474e427ff4e76b635811e73ceb0487a692de88ac8ab69f7866ba0f22"
+ },
+ "group": 1001,
+ "home": "/run/baton/context/home",
+ "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+ "live_execution_selected": false,
+ "max_state_bytes": 33554432,
+ "max_state_depth": 8,
+ "max_state_entries": 1024,
+ "model": "claude-fable-5[1m]",
+ "operator_command_shape": [
+  "python3",
+  "evidence/qualification-fixture.py",
+  "--run",
+  "--approved-manifest",
+  "SHA256_OF_THIS_MANIFEST"
+ ],
+ "overall_seconds": 600,
+ "per_turn_seconds": 180,
+ "private_root": "/tmp/baton-w177936-qualification-180078",
+ "run_identity": "180078",
+ "runtime_user": "65532:65532",
+ "scope": "qualification fixture only; no production enablement",
+ "source_reference": "PACKET.md plus FINDING owner178575 clarifications",
+ "state_subset": "one observed project directory, exact expected UUID.jsonl; no nested or foreign sessions",
+ "work": "W177936"
+}

@@ -1,0 +1,149 @@
+{
+  "R1_completion": {
+    "correction": "the mutation targets are the descriptors the walk itself opened, retained through selection and mutation; a survey that cannot complete -- an entry that vanishes or refuses mid-walk -- refuses with a registered code instead of letting a raw OSError decide",
+    "defect": "_survey walked descriptors and then REOPENED the targets by path, so replacing the project directory with a regular decoy after the survey redirected the chmod onto an unsurveyed file while the original stayed 0600",
+    "tests": [
+      "test_a_decoy_swapped_in_at_the_end_of_the_survey_is_not_reached",
+      "test_a_type_swapped_after_its_check_cannot_be_followed"
+    ]
+  },
+  "R2_completion": {
+    "correction": "the preflight descends the whole home under the existing STATE_FILES/STATE_DEPTH bounds and applies the manager's own admitted-type rule, still never opening credential or configuration contents",
+    "defect": "the survey descended only .claude and the .claude/projects chain, so a credential-shaped entry under HOME/cache or HOME/.claude/cache was never seen and unselected invalid types elsewhere were ignored -- each publishing before the manager's later inventory refused",
+    "tests": [
+      "test_forbidden_layouts_refuse_and_change_nothing (now including cache, .claude/cache and deeply nested credential-shaped entries)",
+      "test_an_unselected_invalid_type_anywhere_refuses (stray symlink, symlink in a cache directory, fifo)"
+    ]
+  },
+  "claim": 182906,
+  "corrects": {
+    "base_manifest": "f6b954ccb2e68bca9d44d0afdfdca1a3b18ff25f2ac96cb630463b1f405e06ba",
+    "review": "review-2026-09-16T02-11-27Z.md",
+    "sha256": "2bd232da42bf6442a129d3e788721c2e7f83a28c19a968f18af8d43bfd5f42e5",
+    "verified_already": "R3: distinct EACCES/EIO/ENOENT causes, the eight-step matrix, real worker.publish composition"
+  },
+  "evidence_corrections": [
+    "an inventory source comment still called the 0o600/stat seam the observed operator shape; the observed result is opendir:EACCES on a runtime-owned 0o700 directory",
+    "my summaries said 94 tests where the bound log said 95 -- the count I had been discounting was the audit case, which passes once the manifest is rebound. Corrected in PROGRESS and the operator packet",
+    "the operator packet's command still advertised manifest 3b0020ba, from before R1-R3: the 182771 section was appended without moving the two command lines with it. Every earlier digest is refused by --approved-manifest so the stale line could only have produced a refusal, never a wrong run, but a packet naming bytes that are no longer the candidate is exactly the drift the digest exists to prevent. Both occurrences now carry the current manifest."
+  ],
+  "files": [
+    {
+      "base_sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "candidate_sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-182906/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "811d06811fd1bfd1d356971c39a1a5a6e28c3962a2707dc73074656df8807a41",
+      "candidate_sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-182906/qualification_contract.py"
+    },
+    {
+      "base_sha256": "9e8c355bca2e8b4645ba43ea5463fb204f2f6945f16151f0ed06e86581cb993b",
+      "candidate_sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-182906/qualification_worker.py"
+    },
+    {
+      "base_sha256": "78a8e9995e3449176d48c1d97c07631cd350cc1ff613baa7c467dd6e5891d010",
+      "candidate_sha256": "233b4afe38cf286fad29f9b1106fc7418843c104595c7725a08b9976b54623e3",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-182906/test_qualification.py"
+    },
+    {
+      "base_sha256": "f6b954ccb2e68bca9d44d0afdfdca1a3b18ff25f2ac96cb630463b1f405e06ba",
+      "candidate_sha256": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-182906/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-182906/verify-offline.py"
+    },
+    {
+      "base_sha256": "5c5cd0a2c4f2d4fef900395b9db3517a1afc2aae5e8f8c9b49744c64d728fef7",
+      "candidate_sha256": "c16ea3a3060bd65a86f0620033a83743de84f63b96849780c9b3d6a1814f8ee4",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-182906/OPERATOR-178579.md"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.3138288449845277,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "f2fcd4cb5dc5b6c7edcec1a37ba92d730ce1c29504b54eee7a49168f1c8f847b",
+    "manifest_sha256": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+    "pid": 3757774,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "gaps": {
+    "G1": "partial; model unqualified",
+    "G2": "unobserved",
+    "G3": "unobserved",
+    "G4": "first-use only",
+    "G5": "unobserved",
+    "G6": "first-use only",
+    "G7": "qualification-only image selection",
+    "G8": "not composed"
+  },
+  "manifest_sha256": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+  "not_done": [
+    "live run",
+    "fresh identity",
+    "consumed-root repair",
+    "private-tree inspection",
+    "product expansion",
+    "model-policy change",
+    "version-control operations"
+  ],
+  "operator_packet_sha256": "c16ea3a3060bd65a86f0620033a83743de84f63b96849780c9b3d6a1814f8ee4",
+  "owner_selection": 182904,
+  "preserved": [
+    "verified R3",
+    "turn-2 no-op and the restored 0o660 contract",
+    "complete-structure refusal",
+    "the strict model, artifact and continuity contracts",
+    "the image, run identity and limits"
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "made_load_bearing": "publish-follows-ancestors passed at first, because lstat screens symlinks before the open is reached. O_NOFOLLOW still matters in the gap between them, so a test now makes lstat report a directory for an entry that is really a link out of the home; the probe then fails.",
+    "new": [
+      "survey-reopens-by-path",
+      "survey-not-home-wide"
+    ],
+    "removed_and_recorded": "survey-ignores-types reverted a REDUNDANT guard: a non-directory also fails the O_DIRECTORY open below it, so removing the explicit type check changed no behaviour. The check stays, so the right code is reported for the right reason rather than incidentally, but the probe proved nothing and was not counted.",
+    "total": 30
+  },
+  "tests": {
+    "after": 98,
+    "before": 95,
+    "outcome": "OK"
+  },
+  "work": "W177936"
+}

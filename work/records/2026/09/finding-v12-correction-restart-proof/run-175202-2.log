@@ -1,0 +1,9 @@
+test_generation_identity_damage_observation (__main__.ReviewProbes.test_generation_identity_damage_observation) ... ok
+test_partial_state_write_retry (__main__.ReviewProbes.test_partial_state_write_retry) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.091s
+
+OK
+{"probe": "generation-identity-damage", "observation": "held", "finalize_replay": "held"}
+{"probe": "partial-state-write", "before": "admitted", "retry": "ready", "after": "ready", "reason": null, "engine_starts": 1}

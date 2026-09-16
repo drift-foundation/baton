@@ -1,0 +1,30 @@
+{
+  "claim": 175150,
+  "prior_candidate": 174833,
+  "files": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "mode": "0664",
+      "base_snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/src/baton_v12/worker_manager/provider_context.py"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "sha256": "6c881fcf56eaa80b799f2e6387ed13cb0f3c8f41055bb88ea464581b5af1bb80",
+      "mode": "0664",
+      "base_snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/src/baton_v12/worker_manager/context_delivery.py"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context.py",
+      "sha256": "f3a6239bd98ffb9355a6e96ced0013a61c44e1e21a3c1c338667755bcd485758",
+      "mode": "0664",
+      "base_snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/tests/manager/test_provider_context.py"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context_delivery.py",
+      "sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "mode": "0664",
+      "base_snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-174833/files/v12/python/tests/manager/test_provider_context_delivery.py"
+    }
+  ]
+}

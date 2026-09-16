@@ -1,0 +1,82 @@
+{
+  "claim": 180069,
+  "owner": 180064,
+  "status": "incomplete: source-scope disposition required",
+  "partial_files": [
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "e0dc7a466c184f3e72ace320045f26a5e14af7874f855f8d7cd83e56d283506c",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/partial-C-180069/correction_restart_trace.py",
+      "state": "incomplete draft, not reviewed candidate"
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "ef7ad4379977bab317e1e2b3fdca7fc2b9e96c4c20e07eb8713303a308a6d3e3",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/partial-C-180069/test_correction_restart.py",
+      "state": "incomplete draft, not reviewed candidate"
+    }
+  ],
+  "new_author_seconds": 15.190110625029774,
+  "cumulative_author_seconds": 162.0071183030086,
+  "prior_reviewer_seconds": 93.48170357503113,
+  "runs": [
+    {
+      "run": "1",
+      "seconds": 0.6657115289999638,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "2",
+      "seconds": 0.7160410200012848,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "3",
+      "seconds": 5.870365088019753,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "4",
+      "seconds": 5.870639005006524,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": "5",
+      "seconds": 2.067353983002249,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true
+    }
+  ],
+  "read_only_inputs_match": true,
+  "static_source_hashes_after_run": {
+    "v12/worker/reconciliation_task.py": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+    "v12/python/src/baton_v12/integration/reconciliation.py": "2ae66976951d9afd43e994daaf214aaf6e6f2c95f80b43449626ac8460da5110",
+    "v12/python/src/baton_v12/integration/managed_execution.py": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936"
+  },
+  "artifacts": {
+    "BASE-C-180069.json": "eaae88ce9c3767c23927984370d8bc8b49a9f2b6df3a338094b09c3a00fdfbfa",
+    "OBSERVATION-C-180069.json": "19da02e5a2dae573167a80eb214508a5eb68165d1191ef7e1ff47a7f7c124fb2",
+    "run-C-180069-1.json": "1c741c8ca8a59b52b96da0798427bc45fa08137bd316f0c6f7e4f0713bd77a4e",
+    "run-C-180069-1.log": "f7303f117381cec89401b44e8339403ed79b28a8658a840c1deb949b30703ba4",
+    "run-C-180069-2.json": "7213d0181c30593af820295b7518856ce2f6bf0b8aea31279d6fc1b9e26fd658",
+    "run-C-180069-2.log": "a969a3ef34ba027eca6abc1c8a8ffca2752540b7634f1c46843bb8d99a4512d5",
+    "run-C-180069-3.json": "dd43d6df39a74f4ad419a2348f0f0738b012b0560f068045699fdc25bf3bf0a2",
+    "run-C-180069-3.log": "8a58ccd1a90800e43f4622411784cb220b0e239e291fce44874fd41f701c98c2",
+    "run-C-180069-4.json": "20423c3b3feaed5bed970bbfdfd7cbc78d2973315bd4f6bca8d53c70e3b93426",
+    "run-C-180069-4.log": "12ab1b2b46333c14aa76603b51a733b5c17582095d2ca8c68b3a589ad52ff5ff",
+    "run-C-180069-5.json": "3db409369dd95b8e171bdf0ef3512a545b2f04a7379b4f84e52c971204761d32",
+    "run-C-180069-5.log": "0fd6daa979f22624d9c83353b669d42282b4794b6dcf5180e7f27405ef28e32b",
+    "verify-C-180069.py": "c07f43e2f253ac6ad5f01acee371061c05f4c5d82e33d3e5fd99e50aa61aa07e"
+  }
+}

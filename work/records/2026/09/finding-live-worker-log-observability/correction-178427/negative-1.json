@@ -1,0 +1,39 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-live-worker-log-observability/correction-178427/run-focused.py",
+    "baseline"
+  ],
+  "mode": "baseline",
+  "started_utc": "2026-09-15T13:54:26.921945+00:00",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "input_hashes": {
+    "baton:v12/worker/claude_agent.py": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+    "baton:v12/worker/baton_worker.py": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+    "baton:v12/python/src/baton_v12/worker_manager/exchange.py": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+    "baton:v12/python/tools/single_worker.py": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+    "baton:v12/python/tools/stage_execution.py": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+    "baton:v12/python/tools/dogfood_operator.py": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+    "baton:v12/python/tests/manager/test_claude_agent.py": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+    "baton:v12/python/tests/manager/test_exchange.py": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a",
+    "baton:v12/python/tests/tools/test_single_worker.py": "ffe35d1d222b5c79a3379d95d822af6bd09ac15c2530c50a4b4aa5f12f4ee901",
+    "baton:v12/python/tests/tools/test_stage_execution.py": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+    "baton:v12/python/tests/tools/test_dogfood_operator.py": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+    "baton:v12/python/tests/manager/test_dependencies.py": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831"
+  },
+  "dependencies": {
+    "jsonschema": "4.19.2",
+    "referencing": "0.36.2",
+    "jsonschema-specifications": "2023.12.1",
+    "attrs": "25.3.0",
+    "rpds-py": "0.21.0"
+  },
+  "timeout_seconds": 180,
+  "terminated": false,
+  "pid": 3,
+  "pgid": 3,
+  "exit_code": 1,
+  "process_group_absent": true,
+  "elapsed_seconds": 0.06855844199890271,
+  "log_sha256": "6cf6ad72daf038032f58642c0cc30610e506fa9e0d22df0a3b322b7a902ca143"
+}

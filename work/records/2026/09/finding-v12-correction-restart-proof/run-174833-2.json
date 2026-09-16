@@ -1,0 +1,33 @@
+{
+  "claim": 174833,
+  "run": "2",
+  "at": "2026-09-15T04:16:21.666079+00:00",
+  "seconds": 0.36400706198764965,
+  "status": 1,
+  "timeout": false,
+  "group_gone": true,
+  "selectors": [
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery"
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "attrs": "26.1.0",
+    "rpds-py": "2026.6.3"
+  },
+  "before": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "468b69d0dc10923b4db6acb904824a9e4953f6167a01b8e34ffff9bb4b3dcae7",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "7449ce032a74f3976d27c1caaa9d9cc6867b9699fec0452ed6aba9075dc3dda0",
+    "v12/python/tests/manager/test_provider_context.py": "6dc2bd479d9081b8c38c955149389ab0275fd1442dc8aa23f623f5dabf69061f",
+    "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+  },
+  "after": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "468b69d0dc10923b4db6acb904824a9e4953f6167a01b8e34ffff9bb4b3dcae7",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "7449ce032a74f3976d27c1caaa9d9cc6867b9699fec0452ed6aba9075dc3dda0",
+    "v12/python/tests/manager/test_provider_context.py": "6dc2bd479d9081b8c38c955149389ab0275fd1442dc8aa23f623f5dabf69061f",
+    "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+  }
+}

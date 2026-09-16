@@ -1,0 +1,233 @@
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... FAIL
+
+======================================================================
+FAIL: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 15, in test_useful_correction_reaches_managed_target
+    artifact = world.run_scenario()
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 263, in run_scenario
+    self.fail(json.dumps({"reports": meaningful[-5:], "logs": logs}, indent=2))
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {
+  "reports": [
+    {
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "recovered": null,
+      "observed": 0,
+      "replaced": [],
+      "acts": [
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "act": "admit",
+          "outcome": "deferred",
+          "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "stage 'job-a/integration' is preparing under orchestration 'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83\u2026; the parent offer is not issued while the same actor holds this reservation's preparation, and this admit stays owed"
+          }
+        }
+      ],
+      "started": [],
+      "spoken": [],
+      "refreshed": [
+        {
+          "stage_id": "job-a/implementation",
+          "episode": 2,
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/review",
+          "episode": 2,
+          "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "state": "not-asked"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "recovered": null,
+      "observed": 0,
+      "replaced": [],
+      "acts": [
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "act": "admit",
+          "outcome": "deferred",
+          "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "stage 'job-a/integration' is preparing under orchestration 'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83\u2026; the parent offer is not issued while the same actor holds this reservation's preparation, and this admit stays owed"
+          }
+        }
+      ],
+      "started": [],
+      "spoken": [],
+      "refreshed": [
+        {
+          "stage_id": "job-a/implementation",
+          "episode": 2,
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/review",
+          "episode": 2,
+          "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "state": "not-asked"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "recovered": null,
+      "observed": 0,
+      "replaced": [],
+      "acts": [
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "act": "admit",
+          "outcome": "deferred",
+          "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "stage 'job-a/integration' is preparing under orchestration 'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83\u2026; the parent offer is not issued while the same actor holds this reservation's preparation, and this admit stays owed"
+          }
+        }
+      ],
+      "started": [],
+      "spoken": [],
+      "refreshed": [
+        {
+          "stage_id": "job-a/implementation",
+          "episode": 2,
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/review",
+          "episode": 2,
+          "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "state": "not-asked"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "recovered": null,
+      "observed": 0,
+      "replaced": [],
+      "acts": [
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "act": "admit",
+          "outcome": "deferred",
+          "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "stage 'job-a/integration' is preparing under orchestration 'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83\u2026; the parent offer is not issued while the same actor holds this reservation's preparation, and this admit stays owed"
+          }
+        }
+      ],
+      "started": [],
+      "spoken": [],
+      "refreshed": [
+        {
+          "stage_id": "job-a/implementation",
+          "episode": 2,
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/review",
+          "episode": 2,
+          "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "state": "not-asked"
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "recovered": null,
+      "observed": 0,
+      "replaced": [],
+      "acts": [
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "act": "admit",
+          "outcome": "deferred",
+          "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "the preparation failed causal verification; the parent settled exceptionally"
+          }
+        }
+      ],
+      "started": [],
+      "spoken": [],
+      "refreshed": [
+        {
+          "stage_id": "job-a/implementation",
+          "episode": 2,
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/review",
+          "episode": 2,
+          "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "state": "not-asked"
+        }
+      ]
+    }
+  ],
+  "logs": {
+    "prepare-5.log": ""
+  }
+}
+
+----------------------------------------------------------------------
+Ran 1 test in 5.579s
+
+FAILED (failures=1)

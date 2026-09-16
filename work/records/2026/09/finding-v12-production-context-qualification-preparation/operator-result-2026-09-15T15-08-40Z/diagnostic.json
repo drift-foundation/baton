@@ -1,0 +1,57 @@
+{
+  "workspace": {
+    "entries": 1,
+    "unexpected_entries": 0,
+    "mode": "0o2770",
+    "uid": 1000,
+    "gid": 65534
+  },
+  "solution": {
+    "regular_file": true,
+    "size": 38,
+    "mode": "0o644",
+    "uid": 65534,
+    "gid": 65534,
+    "exact_match": false,
+    "matches_after_crlf_normalization": false,
+    "matches_ignoring_outer_whitespace": true
+  },
+  "failure_code": "initial-artifact",
+  "terminal": {
+    "actual_model": null,
+    "api_error_status": null,
+    "is_error": "false",
+    "members": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "result",
+      "session_id",
+      "stop_reason",
+      "subtype",
+      "total_cost_usd",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "model_fields": [],
+    "session_id": "99eb5f81-572c-4a52-a20b-030aa7023ead",
+    "session_matches": true,
+    "subtype": "success",
+    "type": "result",
+    "unknown_member_hashes": [
+      "353ea38c9245fb27daf08027453155a2a23566cb0266d4db0fd8e683a0b6d23d",
+      "4582322f82d1b43d1921f91f38661db8d5d5d9a42e4b409940334483ff89d3cb",
+      "4712f8dde34f44c2c845b6e82ddcbdd78428e271dfef76a3d76d82cab73b34cc",
+      "700853c3adcf274a21e70a12469cbbc78a8f88390f9524deb219f8ea36fc2771",
+      "8283c15a8c69f4d7af2f5425744b2093eab4e7c030072cbc0adc0387445a5e09",
+      "aaf5a3b9dafde7d80f067faaeeb45e17d65dde7ea91194f05a862546bae28b8b",
+      "b5dd8c15c6274c6666b35c0cf879e053d8e17dc17d4ccc0c899e91db8e5e8775",
+      "cbebde76f1a986ebe713bc8b0b581da601a62fad9c904d6dadf86f635f818597"
+    ]
+  }
+}

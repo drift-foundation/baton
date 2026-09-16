@@ -1,0 +1,31 @@
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... ERROR
+
+======================================================================
+ERROR: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 15, in test_useful_correction_reaches_managed_target
+    artifact = world.run_scenario()
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 354, in run_scenario
+    apply_launch = apply_runtime.operations._worker._adopted({"attempt_id": apply_attempt}).document
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 2569, in _adopted
+    job_execution=self._job_execution(stage),
+                  ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 2542, in _job_execution
+    _refuse("this execution names no Job and this deployment resolves "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "a Job's configured ceilings; a launch composed now would "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "state defaults nothing chose",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="refused", code="precondition")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 147, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: this execution names no Job and this deployment resolves a Job's configured ceilings; a launch composed now would state defaults nothing chose
+
+----------------------------------------------------------------------
+Ran 1 test in 2.695s
+
+FAILED (errors=1)

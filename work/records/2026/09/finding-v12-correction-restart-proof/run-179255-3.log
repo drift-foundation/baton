@@ -1,0 +1,16 @@
+test_actual_changes_requested_review_restores_only_fresh_implementation_use (tests.manager.test_claude_context.RestoredCorrectionBoundary.test_actual_changes_requested_review_restores_only_fresh_implementation_use) ... FAIL
+test_intent_before_child_loss_never_reinvokes_the_use (tests.manager.test_claude_context.WorkerInvocation.test_intent_before_child_loss_never_reinvokes_the_use) ... ok
+
+======================================================================
+FAIL: test_actual_changes_requested_review_restores_only_fresh_implementation_use (tests.manager.test_claude_context.RestoredCorrectionBoundary.test_actual_changes_requested_review_restores_only_fresh_implementation_use)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 349, in test_actual_changes_requested_review_restores_only_fresh_implementation_use
+    self.assertEqual(self.turn(held.control, "implementation", second, self.mounted(held.composed, "implementation", second), edits={"harness.py": "print('correction round')\n"}), 0, faults)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ["FileExistsError(17, 'File exists')"]
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.904s
+
+FAILED (failures=1)

@@ -1,0 +1,161 @@
+{
+  "all_checks_match": true,
+  "artifact_lengths": {
+    "diagnostic_actual": 38,
+    "expected_initial": 39
+  },
+  "checks": {
+    "all_expected_hashes_match": true,
+    "cleanup_receipt_confirmed": true,
+    "diagnostic_outer_whitespace_only": true,
+    "diagnostic_repeats_same_terminal": true,
+    "events_exact_first_turn_sequence": true,
+    "events_monotonic": true,
+    "failed_first_artifact": true,
+    "manifest_matches_both_exports": true,
+    "model_not_established": true,
+    "one_observed_arm": true,
+    "provenance_binds_public_bytes": true,
+    "receipt_consumed_stopped": true,
+    "selected_observed_runtime": true,
+    "success_session_projection": true
+  },
+  "claim": 179084,
+  "inventory": {
+    "EVIDENCE-178875.json": {
+      "bytes": 6070,
+      "expected": "b2962d220f7c8eb166b8fe9aab2db7f9884fa144c8cb10453fd6d56e90e6e986",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "b2962d220f7c8eb166b8fe9aab2db7f9884fa144c8cb10453fd6d56e90e6e986"
+    },
+    "OPERATOR-178579.md": {
+      "bytes": 9952,
+      "expected": "e504579fb99ec837d5522a0184906fda3ffb01a3830cbe5e1274af800b5ba323",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "e504579fb99ec837d5522a0184906fda3ffb01a3830cbe5e1274af800b5ba323"
+    },
+    "audit-179084.py": {
+      "bytes": 5869,
+      "expected": null,
+      "matches": null,
+      "mode": "0o664",
+      "sha256": "78293b4cbb570c85e4757aa1dab0624ebe6eb42a75eac019289069ef9d173659"
+    },
+    "candidate-178875/qualification-fixture.py": {
+      "bytes": 26170,
+      "expected": "9d81715885219362987583170a4e557b85bd45bb6c04dbe3e48c3f2f86b81ba6",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "9d81715885219362987583170a4e557b85bd45bb6c04dbe3e48c3f2f86b81ba6"
+    },
+    "candidate-178875/qualification-manifest.json": {
+      "bytes": 1941,
+      "expected": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481"
+    },
+    "candidate-178875/qualification_contract.py": {
+      "bytes": 11664,
+      "expected": "badef0f1a0cea800b6be91fba85848360d9c1762ecfa4c7b9cc16b3f6a6022a7",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "badef0f1a0cea800b6be91fba85848360d9c1762ecfa4c7b9cc16b3f6a6022a7"
+    },
+    "candidate-178875/qualification_worker.py": {
+      "bytes": 3060,
+      "expected": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28"
+    },
+    "candidate-178875/test_qualification.py": {
+      "bytes": 26623,
+      "expected": "a7d645e939d6d3621ff749bdf0bd54a7b32ac512fe0d3b6bd723aa2d1a4d626f",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "a7d645e939d6d3621ff749bdf0bd54a7b32ac512fe0d3b6bd723aa2d1a4d626f"
+    },
+    "evidence/qualification-fixture.py": {
+      "bytes": 26170,
+      "expected": "9d81715885219362987583170a4e557b85bd45bb6c04dbe3e48c3f2f86b81ba6",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "9d81715885219362987583170a4e557b85bd45bb6c04dbe3e48c3f2f86b81ba6"
+    },
+    "evidence/qualification-manifest.json": {
+      "bytes": 1941,
+      "expected": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481"
+    },
+    "evidence/qualification_contract.py": {
+      "bytes": 11664,
+      "expected": "badef0f1a0cea800b6be91fba85848360d9c1762ecfa4c7b9cc16b3f6a6022a7",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "badef0f1a0cea800b6be91fba85848360d9c1762ecfa4c7b9cc16b3f6a6022a7"
+    },
+    "evidence/qualification_worker.py": {
+      "bytes": 3060,
+      "expected": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28"
+    },
+    "evidence/test_qualification.py": {
+      "bytes": 26623,
+      "expected": "a7d645e939d6d3621ff749bdf0bd54a7b32ac512fe0d3b6bd723aa2d1a4d626f",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "a7d645e939d6d3621ff749bdf0bd54a7b32ac512fe0d3b6bd723aa2d1a4d626f"
+    },
+    "operator-result-2026-09-15T15-08-40Z/PROVENANCE.json": {
+      "bytes": 301,
+      "expected": "27649d4ddfcfaba5b9f20e79e84a2011433bef4a8cc3899b048189b64d02f368",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "27649d4ddfcfaba5b9f20e79e84a2011433bef4a8cc3899b048189b64d02f368"
+    },
+    "operator-result-2026-09-15T15-08-40Z/diagnostic.json": {
+      "bytes": 1615,
+      "expected": "2695e882e7192e724a6ad8124e8d15f8ebe268b02ce07dc813788b37ae7977ee",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "2695e882e7192e724a6ad8124e8d15f8ebe268b02ce07dc813788b37ae7977ee"
+    },
+    "operator-result-2026-09-15T15-08-40Z/diagnostic.py": {
+      "bytes": 1759,
+      "expected": null,
+      "matches": null,
+      "mode": "0o664",
+      "sha256": "fcd48be3a7e05ec2f783a1bd12e61086a5a9cfc0dac5699d0167ac5ac3f48fea"
+    },
+    "operator-result-2026-09-15T15-08-40Z/qualification.json": {
+      "bytes": 3764,
+      "expected": "7ac89dac9d7e1457b553b761d406187958866d5c7bbe373280834753ddf5ecfc",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "7ac89dac9d7e1457b553b761d406187958866d5c7bbe373280834753ddf5ecfc"
+    },
+    "review-2026-09-15T14-51-59Z.md": {
+      "bytes": 6810,
+      "expected": "2995243fa8353018fc5ee89171146f40cf6e1a30db4c09a01044064873b1c022",
+      "matches": true,
+      "mode": "0o664",
+      "sha256": "2995243fa8353018fc5ee89171146f40cf6e1a30db4c09a01044064873b1c022"
+    }
+  },
+  "limitations": [
+    "Provenance is the retained operator/fixture report, not a signed execution attestation.",
+    "No current Docker/resource inspection or independent private artifact comparison performed.",
+    "Original provider JSON unavailable; the anonymous projection cannot identify the modelUsage mismatch subtype."
+  ],
+  "method": "static public evidence/hash comparisons only; no imports or fixture/diagnostic execution; no private roots read",
+  "new_runtime_verification_seconds": 0,
+  "operator_elapsed_seconds": 8.666650786995888,
+  "work": "W177936"
+}

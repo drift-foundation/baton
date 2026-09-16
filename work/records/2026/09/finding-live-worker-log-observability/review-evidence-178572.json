@@ -1,0 +1,24 @@
+{
+  "work": "W61599",
+  "review_claim": 178572,
+  "outcome": "accepted bounded candidate; owner disposition pending",
+  "candidate_manifest_sha256": "acabca2d229f984a647626d6feb5244d4d1d0bea95c80b025f802ca9194138b3",
+  "files": [
+    {
+      "path": "baton:work/records/2026/09/finding-live-worker-log-observability/review-2026-09-15T14-06-58Z.md",
+      "sha256": "975d4ea565eb3eae50e5f053b7677fdeae00a5109f518502331d06ad27a42e90"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-live-worker-log-observability/review-178572-supervise.py",
+      "sha256": "8b2286b147430909064069e39ba46f69916fd3746f59e8068d0cc0a50b68d696"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-live-worker-log-observability/review-178572-focused.json",
+      "sha256": "29872b016254ec4840b069dd7ddab2fafbce4f8808be53c4d273423ee174391e"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-live-worker-log-observability/review-178572-focused.log",
+      "sha256": "2a6d2967f9ed6a8041634313efa5128a2fb09fcfb2a2336082bad401dc787eee"
+    }
+  ]
+}

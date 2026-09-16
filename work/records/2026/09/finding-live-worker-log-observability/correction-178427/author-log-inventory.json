@@ -1,0 +1,37 @@
+[
+  {
+    "source": "/tmp/w61599-base.log",
+    "retained_path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-base.log",
+    "sha256": "80618fbb3de77294f9400718d42feef9764b568a00bb62553480287fc2d67738",
+    "bytes": 1828160,
+    "acceptance": "Retained only; no broad historical failure comparison performed. full is author-designated non-evidence."
+  },
+  {
+    "source": "/tmp/w61599-cand.log",
+    "retained_path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-cand.log",
+    "sha256": "29550ae8d3a27a6dca631e30ff6f9da6cbcf633ced1ba34ab34245560d90e643",
+    "bytes": 1840793,
+    "acceptance": "Retained only; no broad historical failure comparison performed. full is author-designated non-evidence."
+  },
+  {
+    "source": "/tmp/w61599-cand2.log",
+    "retained_path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-cand2.log",
+    "sha256": "9a83654f847cf3c8767f5104e9349eb0af3172de0e2d90e10394546c23c9eb50",
+    "bytes": 1835254,
+    "acceptance": "Retained only; no broad historical failure comparison performed. full is author-designated non-evidence."
+  },
+  {
+    "source": "/tmp/w61599-final.log",
+    "retained_path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-final.log",
+    "sha256": "c90f614f296745173547e91481d8f6781b342123e4dd651377f2d2980da3fedd",
+    "bytes": 1835293,
+    "acceptance": "Retained only; no broad historical failure comparison performed. full is author-designated non-evidence."
+  },
+  {
+    "source": "/tmp/w61599-full.log",
+    "retained_path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-full.log",
+    "sha256": "f32d92e2444302d5d250404f0fe817c7f8e0beb24a1f4af61ad76b50c72d7758",
+    "bytes": 1840748,
+    "acceptance": "Retained only; no broad historical failure comparison performed. full is author-designated non-evidence."
+  }
+]

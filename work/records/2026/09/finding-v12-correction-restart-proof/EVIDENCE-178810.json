@@ -1,0 +1,106 @@
+{
+  "work": "W161234",
+  "claim": 178810,
+  "disposition": "incomplete packet conflict; no current product delta",
+  "files": {
+    "BASE-178810.json": "09e7185cfa80dff409040dd89facbc02fa6b7d3a9a32caf681bc047cbf701ac0",
+    "FINDING.md": "e875ab029245d78438aef050141f40951440de847aca3654dc306ed8c47cba85",
+    "PLAN.md": "f661bd17a0175cbd665de1f6e9a9cf95ccfb16f1bb1d1572298c16a83a89b927",
+    "PROGRESS.md": "74c99b74d8d8b1a09fb4f516ececd4f73def8bab517419e13fad5aee7d58a2ec",
+    "reproduce-packet-conflict-178810.py": "43394febd526047976001ce35e8b73357e2a2f6e70547778e66c7cc6fb14223a",
+    "verify-178810.py": "13aeb9bec3c566743b268b10ae1252d81daa213cdd2d6f5dc1219f5a08804a03",
+    "run-178810-1.json": "21758454667224900071e128fc5ce6ff0651f85bd5dac22bd05cf148a86c915d",
+    "run-178810-1.log": "57e7419dbe627c592045646ae9c87f428e7581a241f11e4ee7a4f6d758ba6ac6",
+    "run-178810-2.json": "11ee71fa21d47621bdc0966f696e162933b7533fbc027d90a5b85821f97b70b1",
+    "run-178810-2.log": "e3bef7af129dade63a4fa361cad66a622979a3e9b832a0ded9fc3aa7ab64a528",
+    "partial-178810/manifest.json": "557cab23c266bfd25ee5f7ba6e565691c0fbd48b438dc31412cdaed5f1437b75",
+    "partial-178810/partial.patch": "1afe725364472d9310c6fe84c6d9f8fb64c9a01d09eeb47c8180cc4a1fdd81ca"
+  },
+  "restored_baseline": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "matches_base": true,
+      "actual_sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "matches_base": true,
+      "actual_sha256": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "matches_base": true,
+      "actual_sha256": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "matches_base": true,
+      "actual_sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "matches_base": true,
+      "actual_sha256": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "matches_base": true,
+      "actual_sha256": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6"
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "matches_base": true,
+      "actual_sha256": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4"
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "matches_base": true,
+      "actual_sha256": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6"
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "matches_base": true,
+      "actual_sha256": null
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "matches_base": true,
+      "actual_sha256": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031"
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "matches_base": true,
+      "actual_sha256": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8"
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "matches_base": true,
+      "actual_sha256": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3"
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "matches_base": true,
+      "actual_sha256": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "matches_base": true,
+      "actual_sha256": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70"
+    }
+  ],
+  "conflict_source_hashes": {
+    "v12/python/src/baton_v12/job_manager/delegation.py": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+    "v12/python/tools/single_worker.py": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+    "v12/python/tools/stage_execution.py": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+    "v12/worker/baton_worker.py": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+    "v12/worker/claude_agent.py": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+    "v12/python/tests/tools/test_stage_execution.py": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70"
+  },
+  "producer_manifest_sha256": "acabca2d229f984a647626d6feb5244d4d1d0bea95c80b025f802ca9194138b3",
+  "accepted_A_manifest_sha256": "9d82e0035ff756bcf7b631307482394adeb4c7ea51a1efae63ca2648babf9cf9",
+  "measured_author_seconds": 2.6298276509915013,
+  "cumulative_author_seconds": 14.6219795490033,
+  "prior_reviewer_seconds": 4.108358147001127,
+  "runtime_groups_gone": true,
+  "live_execution": false
+}

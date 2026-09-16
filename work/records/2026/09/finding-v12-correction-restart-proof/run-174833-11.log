@@ -1,0 +1,7 @@
+test_actual_correction_admits_a_fresh_copy_with_the_same_conversation (tests.manager.test_provider_context.Restoration.test_actual_correction_admits_a_fresh_copy_with_the_same_conversation) ... ok
+test_competing_restore_refusal_does_not_consume_incumbent_finalization (tests.manager.test_provider_context.Restoration.test_competing_restore_refusal_does_not_consume_incumbent_finalization) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.138s
+
+OK

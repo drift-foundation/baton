@@ -1,0 +1,89 @@
+test_a_replaced_root_link_never_counts_foreign_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_root_link_never_counts_foreign_activity) ... FAIL
+test_a_directory_replaced_before_scanning_cannot_redirect_the_scan (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_directory_replaced_before_scanning_cannot_redirect_the_scan) ... FAIL
+test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) ... 
+  test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) (link=True) ... FAIL
+  test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) (link=False) ... FAIL
+test_a_blocked_publisher_is_abandoned_within_its_bound (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_a_blocked_publisher_is_abandoned_within_its_bound)
+A DIAGNOSTIC MAY NOT GATE THE TURN. A wedged observer is abandoned ... FAIL
+test_repeated_stops_keep_the_live_thread_handle_and_store (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_repeated_stops_keep_the_live_thread_handle_and_store) ... FAIL
+test_the_serving_loops_runtime_read_enqueues_and_reads_no_file (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_the_serving_loops_runtime_read_enqueues_and_reads_no_file)
+THE HOOK IS AN ASSIGNMENT. `refresh_runtime` already runs per tick ... FAIL
+
+======================================================================
+FAIL: test_a_replaced_root_link_never_counts_foreign_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_root_link_never_counts_foreign_activity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_agent.py", line 3393, in test_a_replaced_root_link_never_counts_foreign_activity
+    self.assertIsNone(agent.observed_activity())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 9000 is not None
+
+======================================================================
+FAIL: test_a_directory_replaced_before_scanning_cannot_redirect_the_scan (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_directory_replaced_before_scanning_cannot_redirect_the_scan)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_agent.py", line 3414, in test_a_directory_replaced_before_scanning_cannot_redirect_the_scan
+    self.assertIn(total, (None, 7), "foreign activity was attributed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 9000 not found in (None, 7) : foreign activity was attributed
+
+======================================================================
+FAIL: test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) (link=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_agent.py", line 3449, in test_directory_acquisition_rejects_replacement_and_closes_descriptors
+    self.assertIsNone(agent.observed_activity())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 7 is not None
+
+======================================================================
+FAIL: test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) (link=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_agent.py", line 3449, in test_directory_acquisition_rejects_replacement_and_closes_descriptors
+    self.assertIsNone(agent.observed_activity())
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 7 is not None
+
+======================================================================
+FAIL: test_a_blocked_publisher_is_abandoned_within_its_bound (tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_a_blocked_publisher_is_abandoned_within_its_bound)
+A DIAGNOSTIC MAY NOT GATE THE TURN. A wedged observer is abandoned
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_exchange.py", line 2137, in test_a_blocked_publisher_is_abandoned_within_its_bound
+    self.assertFalse(publisher.stop(0.02))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_repeated_stops_keep_the_live_thread_handle_and_store (tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_repeated_stops_keep_the_live_thread_handle_and_store)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3833, in test_repeated_stops_keep_the_live_thread_handle_and_store
+    self.assertFalse(helper.stop(0.01))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_the_serving_loops_runtime_read_enqueues_and_reads_no_file (tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_the_serving_loops_runtime_read_enqueues_and_reads_no_file)
+THE HOOK IS AN ASSIGNMENT. `refresh_runtime` already runs per tick
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 4158, in test_the_serving_loops_runtime_read_enqueues_and_reads_no_file
+    refreshed = operations._worker.refresh_runtime({"attempt_id": stage["attempt_id"]})
+  File "/home/sl/src/baton/work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tools/single_worker.py", line 2013, in refresh_runtime
+    self._enqueue_activity(attempt_id)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 4152, in checked_enqueue
+    resolved.assert_not_called()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 940, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'realpath' to not have been called. Called 1 times.
+Calls: [call('/home/sl/src/baton/v12/python/v12-w71917-gon_mpu9/launch')].
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.091s
+
+FAILED (failures=7)
+{"elapsed_seconds": 0.11400120498728938, "errors": [], "failures": ["tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_root_link_never_counts_foreign_activity", "tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_directory_replaced_before_scanning_cannot_redirect_the_scan", "tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors (link=True)", "tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors (link=False)", "tests.manager.test_exchange.TheWorkerPublishesTheOptionalCount.test_a_blocked_publisher_is_abandoned_within_its_bound", "tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore.test_repeated_stops_keep_the_live_thread_handle_and_store", "tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper.test_the_serving_loops_runtime_read_enqueues_and_reads_no_file"], "live_threads": [], "mode": "baseline", "tests": 6}

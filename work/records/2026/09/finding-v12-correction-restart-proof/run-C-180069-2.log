@@ -1,0 +1,17 @@
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... ERROR
+
+======================================================================
+ERROR: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 15, in test_useful_correction_reaches_managed_target
+    artifact = world.run_scenario()
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 226, in run_scenario
+    before = {"provider": self.calls(), "engine": copy.deepcopy(self.engine.events)}
+                          ~~~~~~~~~~^^
+TypeError: 'PosixPath' object is not callable
+
+----------------------------------------------------------------------
+Ran 1 test in 0.429s
+
+FAILED (errors=1)

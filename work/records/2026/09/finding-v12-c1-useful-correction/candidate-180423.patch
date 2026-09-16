@@ -1,0 +1,692 @@
+--- a/v12/python/src/baton_v12/integration/reconciliation.py
++++ b/v12/python/src/baton_v12/integration/reconciliation.py
+@@ -3142,10 +3142,22 @@
+         for name in ("base", "candidate", "target_revision"):
+             if derived[name] != owned_request["source"][name]:
+                 _refuse("the retained derived identity names a different source or target")
+-        passed = account["kind"] == "measured" and account["status"] == 0
++        # The aggregate is the first nonzero exit, including the original
++        # base's expected regression failure. Preserve that observation while
++        # judging the two candidate states by their own measured exits.
++        complete = account["kind"] == "measured" and not account["not_run"] and [one["name"] for one in account["completed"]] == ["combined", "base", "isolated"]
++        statuses = {one["name"]: one["status"] for one in account["completed"]}
++        reason = None
++        if not complete:
++            reason = "the retained preparation did not complete its measured command sequence"
++        elif statuses["combined"] != 0:
++            reason = "the retained preparation did not pass its combined command"
++        elif statuses["isolated"] != 0:
++            reason = "the retained preparation did not pass its isolated command"
++        passed = reason is None
+         _transition_managed(store, orchestration_id, "retain", {
+             "state": "awaiting-evidence" if passed else "blocked",
+-            "reason": None if passed else "the retained preparation did not pass its combined command",
++            "reason": reason,
+             "prepared": {"head": _object(derived["revision"], "the derived commit"), "tree": _object(derived["tree"], "the derived tree"), "preparation": adoption},
+             "content_digest": digest({"tree": derived["tree"], "candidate_artifact": candidate["content_digest"]}),
+             "causal_observations": raw, "observed_by": owned_task["assignment"]["participant"]})
+--- a/v12/python/tests/integration/test_managed_storage.py
++++ b/v12/python/tests/integration/test_managed_storage.py
+@@ -1876,3 +1876,92 @@
+                     "result_metadata": {}}]
+         with self.assertRaises(ContractRefusal):
+             self.ended(outputs=outputs)
++
++
++class PreparedEligibilityUsesCandidateMeasurements(ThePreparationIsAdoptedFromWhatItCollected):
++    """Retained-object adoption with synthetic unit inputs through real owners.
++
++    C1's process scenario separately supplies genuine worker-produced objects.
++    These fixtures vary one measured report while preserving frozen custody.
++    """
++
++    def published_declaration(self):
++        held = super().published_declaration()
++        return sealed_manifest(dict(held, outputs=held["outputs"] + [_declared_output("prepared-objects", "workspace/objects")]))
++
++    def outputs(self, body=None, **changed):
++        return super().outputs(body, **changed) + [_answered_output("prepared-objects", b"unit-object-fixture", "artifact-objects", path="objects.bundle")]
++
++    def report_body(self, **changed):
++        held = json.loads(super().report_body())
++        source = self.request()["source"]
++        held["derived_candidate"] = dict(source, revision="d" * 40, tree="e" * 40)
++        held.update(changed)
++        return json.dumps(held, sort_keys=True).encode()
++
++    def test_eligibility_preserves_measurements_and_replays_retained_custody(self):
++        for statuses, expected, reason in [
++            ((0, 1, 0), "awaiting-evidence", None),
++            ((0, 0, 0), "awaiting-evidence", None),
++            ((7, 1, 0), "blocked", "combined command"),
++            ((0, 1, 9), "blocked", "isolated command"),
++        ]:
++            with self.subTest(statuses=statuses):
++                case = type(self)(); case.setUp()
++                try:
++                    request = case.request()
++                    report = worker_task.compose_report(request, case.trees(), [{"name": name, "status": status, "harness_added": name == "base", "output": "unit measurement fixture"} for name, status in zip(request["commands"], statuses)], [], None, harness_measured=case.HARNESS)
++                    body = case.report_body(**report)
++                    store = case.ended(body=body)
++                    adopted = case.adopt(store, body=body)
++                    result = managed_result_of(case.coordinated(), case.ORCHESTRATION)
++                    self.assertEqual(result["state"], expected)
++                    self.assertEqual(adopted["report"]["status"], next((s for s in statuses if s), 0))
++                    self.assertEqual([one["status"] for one in adopted["report"]["completed"]], list(statuses))
++                    self.assertEqual(adopted["collected"]["custody"], "accepted")
++                    self.assertIsNotNone(adopted["objects"])
++                    self.assertEqual(result["prepared"]["preparation"], adopted)
++                    if reason is None:
++                        self.assertIsNone(result["reason"])
++                    else:
++                        self.assertIn(reason, result["reason"])
++                    self.assertEqual(case.adopt(store, body=body), adopted)
++                    self.assertEqual(managed_result_of(case.coordinated(), case.ORCHESTRATION), result)
++                    self.assertEqual(list(result["phases"]), ["prepare"])
++                finally:
++                    case.doCleanups()
++
++    def test_incomplete_or_timed_out_measurements_remain_blocked(self):
++        for kind, status, tag in [("measured", 0, None), ("collected-without-status", None, "timeout")]:
++            with self.subTest(kind=kind):
++                case = type(self)(); case.setUp()
++                try:
++                    body = case.report_body(kind=kind, status=status, tag=tag, completed=[{"name": "combined", "status": 0, "harness_added": False}], not_run=["base", "isolated"])
++                    store = case.ended(body=body)
++                    adopted = case.adopt(store, body=body)
++                    result = managed_result_of(case.coordinated(), case.ORCHESTRATION)
++                    self.assertEqual(result["state"], "blocked")
++                    self.assertIn("measured command sequence", result["reason"])
++                    self.assertEqual(adopted["report"]["status"], status)
++                    self.assertEqual(case.adopt(store, body=body), adopted)
++                finally:
++                    case.doCleanups()
++
++    def test_invalid_status_command_identity_order_and_retained_source_refuse(self):
++        invalid = [
++            {"kind": "collected-without-status", "status": None, "tag": None},
++            {"completed": []},
++            {"completed": [{"name": name, "status": 0} for name in ("base", "combined", "isolated")]},
++            {"completed": [{"name": name, "status": 0} for name in ("combined", "foreign", "isolated")]},
++            {"derived_candidate": {"revision": "d" * 40, "tree": "e" * 40, "base": "f" * 40, "candidate": "b" * 40, "target_revision": "c" * 40}},
++        ]
++        for changed in invalid:
++            with self.subTest(changed=changed):
++                case = type(self)(); case.setUp()
++                try:
++                    body = case.report_body(**changed)
++                    store = case.ended(body=body)
++                    with self.assertRaises(ContractRefusal):
++                        case.adopt(store, body=body)
++                finally:
++                    case.doCleanups()
+--- a/v12/python/tests/tools/correction_restart_trace.py
++++ b/v12/python/tests/tools/correction_restart_trace.py
+@@ -2,7 +2,8 @@
+ 
+ The provider is a deterministic local child; the OCI engine is simulated.
+ Preparation and apply execute their real worker entrypoints as local children.
+-This proves manager recomposition, not host-loss or production qualification.
++C1 proves useful correction and reviewed import. The retained reopen helper is
++reserved for C2; no host-loss or production qualification is claimed.
+ """
+ import copy
+ import json
+@@ -67,6 +68,21 @@
+     status=reconciliation_entry.main(place=launch,command_root=command,event_root=events)
+ else:
+     import integration_entry
++    import traceback
++    original_work=integration_entry.ManagedApplyAgent.work
++    def traced_work(self,*args):
++        try:return original_work(self,*args)
++        except BaseException:
++            traceback.print_exc()
++            raise
++    integration_entry.ManagedApplyAgent.work=traced_work
++    original_handle=baton_worker.handle
++    def traced_handle(*args):
++        try:return original_handle(*args)
++        except BaseException:
++            traceback.print_exc()
++            raise
++    baton_worker.handle=traced_handle
+     integration_entry.ManagedApplyAgent=functools.partial(integration_entry.ManagedApplyAgent,output_root=mounts['/output'])
+     status=integration_entry.main(launch_place=launch,command_root=command,event_root=events,bundle_root=mounts['/input/source'],scratch=scratch)
+ sys.exit(status)
+@@ -79,6 +95,7 @@
+         self.world = world
+         self.processes = {}
+         self.events = []
++        self.launches = {}
+ 
+     def __call__(self, argv, **options):
+         if argv[1] in ("stop", "rm") and argv[-1] in self.processes:
+@@ -98,6 +115,7 @@
+                 parts = dict(part.split("=", 1) for part in argv[index + 1].split(",") if "=" in part)
+                 mounts[parts["target"]] = parts["source"]
+         attempt = labels["baton.v12.runtime_attempt_id"]
++        self.launches[attempt] = json.loads(Path(next(source for target, source in mounts.items() if target.endswith("launch.json"))).read_text())
+         self.events.append({"attempt_id": attempt, "operation_id": labels.get("baton.v12.start_operation_id"), "argv_digest": digest(list(argv)), "labels": labels})
+         source = Path(mounts.get("/input/source", "/nonexistent"))
+         kind = "apply" if (source / "managed-apply.json").is_file() else "prepare" if attempt.startswith("prepare-") else None
+@@ -129,6 +147,7 @@
+         self.reports = []
+         self.provider_log = Path(self.root) / "provider-counter.jsonl"
+         self.verifications = []
++        self.review_evidence = []
+         self.engine = ProcessEngine(self)
+         self.addCleanup(self.engine.close)
+         methods = stage_fixture.TwoBoundJobsTraverseServingAndCorrection
+@@ -146,7 +165,7 @@
+             authority.dispose()
+         judges = self.judgment_workers("job-a")
+         self.configuration = self.composed_document(line_declared_base=self.base, integration_preparation=True, policy_generation=self.fixture_policy, result_judgment_workers=judges, integration_target=self.target, integration_target_reference="refs/heads/main", schema="baton.v12.stage-execution-deployment/2", job_bindings=[{"job_id": "job-a", "job_work_id": self.work, "review_work_id": self.work, "line_declared_base": self.base, "canonical_target_id": "target-1", "source_worker_id": "implementation-worker"}])
+-        self.trace = scheduler_trace.Trace(scheduler_trace.Scenario(name="useful-correction-with-counted-reopen", jobs=copy.deepcopy(self.submission["jobs"]), workers=[], ticks=100, note={"provider": "deterministic local process", "engine": "simulated OCI", "boundary": "manager recomposition in one process"}))
++        self.trace = scheduler_trace.Trace(scheduler_trace.Scenario(name="useful-correction", jobs=copy.deepcopy(self.submission["jobs"]), workers=[], ticks=100, note={"provider": "deterministic local process", "engine": "simulated OCI", "boundary": "C1 useful correction; no reopen"}))
+ 
+     def serving(self, **unused):
+         job, control = self.stores("correction-" + str(self.tick_count))
+@@ -163,10 +182,16 @@
+         def run(argv, **options):
+             if argv[0] == "claude":
+                 return subprocess.run([sys.executable, "-B", "-c", PROVIDER, json.dumps([list(argv), edits or {}, str(self.provider_log), self.active_binding, self.active_attempt, self.active_role])], **options)
++            verifying = list(argv[:2]) == ["python3", "harness.py"]
++            if verifying:
++                root = Path(options["cwd"])
++                before = {name: digest_of_bytes((root / name).read_bytes()) for name in ("scale.py", "harness.py")}
++            started = time.monotonic()
+             answer = original(argv, **options)
+-            if list(argv[:2]) == ["python3", "harness.py"]:
+-                root = Path(options["cwd"])
+-                self.verifications.append({"attempt_id": self.active_attempt, "status": answer.returncode, "code_digest": digest_of_bytes((root / "scale.py").read_bytes()), "verifier_digest": digest_of_bytes((root / "harness.py").read_bytes()), "argv": list(argv)})
++            if verifying:
++                after = {name: digest_of_bytes((root / name).read_bytes()) for name in before}
++                self.assertEqual(before, after)
++                self.verifications.append({"attempt_id": self.active_attempt, "status": answer.returncode, "code_digest": before["scale.py"], "verifier_digest": before["harness.py"], "argv": list(argv), "before": before, "after": after, "seconds": time.monotonic() - started, "output": answer.stdout, "execution": "real subprocess"})
+             return answer
+         return run
+ 
+@@ -201,7 +226,23 @@
+         receipt = next(one for one in result["outputs"] if one["name"] == "provider-context-receipt")
+         body = custody.read_context_receipt(held.control, attempt_id=attempt, artifact_id=receipt["artifact"]["artifact_id"], workspace_storage=self.storage)
+         settlement = self.record(held.job, attempt)["settlement"]
+-        return {"binding": binding, "receipt": json.loads(body), "receipt_digest": digest_of_bytes(body), "receipt_entry": receipt["content_manifest"]["entries"][0], "assignment": assignment_of(held.control, attempt), "settlement": settlement, "checkpoint": review_cycles.checkpoint_of(held.control, settlement["evidence"]["checkpoint_id"])}
++        checkpoint = review_cycles.checkpoint_of(held.control, settlement["evidence"]["checkpoint_id"])
++        workspace = self.mounted(held.composed, "implementation", attempt)["workspace"]
++        content = {}
++        for name in ("scale.py", "harness.py"):
++            answer = stage_execution._git_run(["git", "-C", workspace, "show", checkpoint["head_object"] + ":" + name])
++            self.assertEqual(answer["returncode"], 0)
++            content[name] = {"text": answer["stdout"], "digest": digest_of_bytes(answer["stdout"].encode())}
++        return {"content": content, "binding": binding, "receipt_bytes": body.decode(), "receipt": json.loads(body), "receipt_digest": digest_of_bytes(body), "receipt_entry": receipt["content_manifest"]["entries"][0], "assignment": assignment_of(held.control, attempt), "settlement": settlement, "checkpoint": review_cycles.checkpoint_of(held.control, settlement["evidence"]["checkpoint_id"])}
++
++    def mounts_for(self, attempt):
++        vectors = [argv for argv in self.engine.starts if "--entrypoint" not in argv and "baton.v12.runtime_attempt_id=" + attempt in argv]
++        self.assertEqual(len(vectors), 1)
++        argv = vectors[0]
++        mounts = [dict(part.split("=", 1) if "=" in part else (part, True) for part in argv[index + 1].split(",")) for index, name in enumerate(argv[:-1]) if name == "--mount"]
++        for mount in mounts:
++            mount["readonly"] = mount.get("readonly") in (True, "true")
++        return mounts
+ 
+     def review(self, held, verdict):
+         self.until(held, "review", "waiting")
+@@ -212,19 +253,28 @@
+         launch = worker._adopted({"attempt_id": attempt, "job_id": "job-a"})
+         self.assertNotIn("provider_context", launch.document)
+         self.assertIsNone(context.context_invocation_of(held.control, attempt))
++        implementation = episodes.live_of(held.job, "job-a/implementation")["attempt_id"]
++        line = self.mounted(held.composed, "implementation", implementation)["workspace"]
++        mounts = self.mounts_for(attempt)
++        for one in mounts:
++            for forbidden in (line, str(self.context_root)):
++                common = os.path.commonpath([os.path.realpath(one["source"]), os.path.realpath(forbidden)])
++                if common in (os.path.realpath(one["source"]), os.path.realpath(forbidden)):
++                    self.assertEqual(forbidden, line)
++                    self.assertTrue(one.get("readonly"))
++                    self.assertEqual(one["target"], "/input/source")
++        source = next(one for one in mounts if one["target"] == "/input/source")
++        self.assertTrue(source["readonly"])
++        checkpoint = review_cycles.checkpoint_of(held.control, self.record(held.job, implementation)["settlement"]["evidence"]["checkpoint_id"])
++        revision = stage_execution._git_run(["git", "-C", source["source"], "rev-parse", "HEAD"])
++        self.assertEqual(revision["returncode"], 0)
++        self.assertEqual(revision["stdout"].strip(), checkpoint["head_object"])
++        self.review_evidence.append({"attempt_id": attempt, "implementation_attempt": implementation, "assignment": assignment_of(held.control, attempt), "launch": launch.document, "mounts": mounts, "producer_workspace": line, "private_context_root": str(self.context_root), "source_revision": revision["stdout"].strip(), "checkpoint_id": checkpoint["checkpoint_id"]})
+         self.assertEqual(self.turn(held.control, "review", attempt, self.mounted(held.composed, "review", attempt), edits={"review-report.json": json.dumps(dict(self.REPORT, verdict=verdict))}), 0)
+         return stage, episode, attempt
+ 
+-    def run_scenario(self):
+-        held = self.serving()
+-        submit(held.job, self.submission)
+-        self.until(held, "implementation", "waiting")
+-        first = self.only_attempt(held.composed, "implementation")
+-        def edits(multiplier):
+-            return {"scale.py": f"def scale(value):\n    return value * {multiplier}\n", "harness.py": f"from scale import scale\nassert scale(7) == {multiplier * 7}\nassert scale(-2) == {-2 * multiplier}\nprint('verified multiplier {multiplier}')\n"}
+-        self.assertEqual(self.turn(held.control, "implementation", first, self.mounted(held.composed, "implementation", first), edits=edits(2)), 0)
+-        self.until(held, "implementation", "completed")
+-        initial = self.snapshot(held, first)
++    def reopen(self, held, first, initial):
++        """Retained draft for C2; C1 never calls this boundary."""
+         before = {"provider": self.provider_events(), "engine": copy.deepcopy(self.engine.events)}
+         old_job, old_control, old_composed = held.job, held.control, held.composed
+         old_composed.close(); old_job.close(); old_control.close()
+@@ -236,6 +286,18 @@
+         self.trace.record(self.tick_count, "reopen", outcome="performed", evidence="closed-job-and-control-handles")
+         after = {"provider": self.provider_events(), "engine": copy.deepcopy(self.engine.events)}
+         self.assertEqual(self.snapshot(held, first), initial)
++        return held, before, after
++
++    def run_scenario(self):
++        held = self.serving()
++        submit(held.job, self.submission)
++        self.until(held, "implementation", "waiting")
++        first = self.only_attempt(held.composed, "implementation")
++        def edits(multiplier):
++            return {"scale.py": f"def scale(value):\n    return value * {multiplier}\n", "harness.py": f"from scale import scale\nassert scale(7) == {multiplier * 7}\nassert scale(-2) == {-2 * multiplier}\nprint('verified multiplier {multiplier}')\n"}
++        self.assertEqual(self.turn(held.control, "implementation", first, self.mounted(held.composed, "implementation", first), edits=edits(2)), 0)
++        self.until(held, "implementation", "completed")
++        initial = self.snapshot(held, first)
+         reviewed_stage, review_episode, reviewer = self.review(held, "changes-requested")
+         self.until(held, "implementation", "waiting")
+         implementation = submission.stages_of(held.job, "job-a")[0]
+@@ -246,7 +308,7 @@
+         self.assertEqual(self.turn(held.control, "implementation", second, self.mounted(held.composed, "implementation", second), edits=edits(3)), 0)
+         self.until(held, "implementation", "completed")
+         revised = self.snapshot(held, second)
+-        self.review(held, "accepted")
++        accepted_stage, accepted_episode, accepted_attempt = self.review(held, "accepted")
+         judged = set()
+         while self.tick_count < 100:
+             self.tick(held)
+@@ -254,8 +316,13 @@
+                 if key not in judged:
+                     self.judgment_turn(held, execution)
+                     judged.add(key)
+-            if self.states(held.job, held.composed)["integration"] in ("completed", "exceptional"):
++            state = self.states(held.job, held.composed)["integration"]
++            if state == "exceptional":
+                 break
++            if state == "completed":
++                attempt = episodes.live_of(held.job, "job-a/integration")["attempt_id"]
++                if integration_capacity_of(held.job, "integration:" + attempt)["root"]["lifecycle"] == "ended":
++                    break
+             time.sleep(.02)
+         if self.states(held.job, held.composed)["integration"] == "exceptional":
+             meaningful = [one for one in self.reports if one.get("started") or one.get("spoken") or one.get("acts")]
+@@ -264,21 +331,144 @@
+             if isinstance(parent, stage_execution._PerJobIntegration):
+                 parent = parent.held["job-a"]
+             retained = {key: reconciliation.managed_result_of(held.composed.deployment.integration, key) for key in parent._preparation.adopted}
+-            self.fail(json.dumps({"reports": meaningful[-1:], "logs": logs, "retained": retained}, indent=2))
++            stage = next(one for one in submission.stages_of(held.job, "job-a") if one["kind"] == "integration")
++            episode = episodes.live_of(held.job, stage["stage_id"])
++            from baton_v12.job_manager.projection import stage_states
++            from baton_v12.worker_manager import attempt_start_failure_of
++            record = {"ending": ending.ending_of(held.job, stage["stage_id"], episode["episode"]), "failure": attempt_start_failure_of(held.control, episode["attempt_id"]), "projection": stage_states(held.job, held.composed), "apply": [(one.request, one.operations._worker.observed_exchange({"attempt_id": attempt})) for attempt, one in getattr(held.composed.integrator, "managed_runtimes", {}).items()]}
++            self.fail(json.dumps({"reports": meaningful[-1:], "logs": logs, "retained": retained, "integration_attempt": record}, indent=2))
+         self.assertEqual(self.states(held.job, held.composed)["integration"], "completed")
+         deployment = held.composed.deployment
+-        result_ids = list(deployment._integration_operations._preparation.adopted)
++        parent = deployment._integration_operations
++        if isinstance(parent, stage_execution._PerJobIntegration):
++            parent = parent.held["job-a"]
++        result_ids = list(parent._preparation.adopted)
+         self.assertEqual(len(result_ids), 1)
+         result = reconciliation.managed_result_of(deployment.integration, result_ids[0])
+         target = stage_execution._git_run(["git", "--git-dir=" + self.target, "show", "refs/heads/main:scale.py"])
+         self.assertEqual(target["returncode"], 0)
+         self.assertEqual(target["stdout"], edits(3)["scale.py"])
+-        return {"schema": SCHEMA, "scheduler": self.trace.artifact(), "initial": initial, "revised": revised, "correction": correction, "verdict": verdict, "review_assignment": assignment_of(held.control, reviewer), "before": before, "after": after, "final_counters": {"provider": self.provider_events(), "engine": self.engine.events}, "reopen": {"kind": "manager-recomposition", "closed": ["job", "control"], "tick": self.trace.scenario.reopen_at}, "verifications": self.verifications, "managed": result, "capacity": integration_capacity_of(held.job, result_ids[0]), "target": {"revision": deployment.reconciliation_profile.revision(self.target, "refs/heads/main"), "code_digest": digest_of_bytes(target["stdout"].encode()), "authority_revision": deployment.authority.canonical_target(), "receipt": deployment.authority.receipt(result["derived_proposal_id"], "integration")}, "ticks": self.tick_count}
++        accepted = ending.settlement_of(held.job, accepted_stage["stage_id"], accepted_episode["episode"])
++        accepted_verdict = review_cycles.verdict_of(held.control, accepted["evidence"]["verdict_id"])
++        from baton_v12.job_manager.projection import stage_states
++        final = stage_states(held.job, held.composed)["job-a/integration"]
++        apply_attempt = result["phases"]["apply"]["task"]["execution_attempt_id"]
++        apply_frozen = frozen_output_of(held.control, apply_attempt)
++        apply_manifest = load_manifest(held.control, apply_frozen["manifest_digest"], "resultManifest")
++        apply_launch = self.engine.launches[apply_attempt]
++        apply_mounts = self.mounts_for(apply_attempt)
++        output = next(one["source"] for one in apply_mounts if one["target"] == "/output")
++        self.assertFalse(os.path.lexists(os.path.join(output, "provider-context-receipt")))
++        publication = reconciliation.publication_of(deployment.integration, result_ids[0], "apply")
++        publication_receipt = deployment.reconciliation_profile.publication_receipt(self.target, publication_id=publication["publication_id"])
++        judgments = {kind: deployment.authority.receipt(result["derived_proposal_id"], kind) for kind in ("verification", "review", "approval")}
++        return {"accepted": accepted, "accepted_verdict": accepted_verdict, "reviews": self.review_evidence, "final": final, "apply": {"launch": apply_launch, "mounts": apply_mounts, "manifest": apply_manifest, "receipt_path_exists": False}, "publication": publication, "publication_receipt": publication_receipt, "judgments": judgments, "schema": SCHEMA, "scheduler": self.trace.artifact(), "initial": initial, "revised": revised, "correction": correction, "verdict": verdict, "review_assignment": assignment_of(held.control, reviewer), "final_counters": {"provider": self.provider_events(), "engine": self.engine.events}, "verifications": self.verifications, "managed": result, "capacity": integration_capacity_of(held.job, result_ids[0]), "target": {"revision": deployment.reconciliation_profile.revision(self.target, "refs/heads/main"), "code_digest": digest_of_bytes(target["stdout"].encode()), "authority_revision": deployment.authority.canonical_target(), "receipt": deployment.authority.receipt(result["derived_proposal_id"], "integration")}, "ticks": self.tick_count}
+ 
+ 
+ def validate(artifact):
+-    """Companion checks use the exported bytes only, never live owner handles."""
+-    failures = list(scheduler_trace.validate(artifact["scheduler"]))
+-    if artifact.get("schema") != SCHEMA:
+-        failures.append({"code": "C-schema"})
++    """Re-derive C1 relationships from exported records, without live owners.
++
++    This is a consistency oracle, not a signature scheme. Provenance is bound
++    separately by the supervised export and candidate hashes. Counter and
++    reopen acceptance belong to C2. No producer private state is read here.
++    """
++    failures = []
++    def require(condition, code):
++        if not condition:
++            failures.append({"code": code})
++    try:
++        require(artifact["schema"] == SCHEMA, "C1-schema")
++        failures.extend(scheduler_trace.validate(artifact["scheduler"]))
++        require(0 < artifact["ticks"] <= 100, "C1-ticks")
++        initial, revised = artifact["initial"], artifact["revised"]
++        require(initial["content"]["scale.py"]["digest"] != revised["content"]["scale.py"]["digest"], "C1-code-unchanged")
++        require(initial["checkpoint"]["line_id"] == revised["checkpoint"]["line_id"], "C1-line")
++        require(initial["settlement"]["episode"] == 1 and revised["settlement"]["episode"] == 2, "C1-episodes")
++        for snapshot in (initial, revised):
++            content, checkpoint = snapshot["content"], snapshot["checkpoint"]
++            binding, receipt = snapshot["binding"], snapshot["receipt"]
++            attempt = snapshot["settlement"]["attempt_id"]
++            require(binding["attempt_id"] == snapshot["assignment"]["runtime_attempt_id"] == attempt, "C1-attempt")
++            require(snapshot["settlement"]["evidence"]["checkpoint_id"] == checkpoint["checkpoint_id"], "C1-checkpoint")
++            require(checkpoint["checkpoint_digest"] == digest(checkpoint["evidence"]), "C1-checkpoint-digest")
++            require(checkpoint["fence_digest"] == digest(checkpoint["fence"]) and checkpoint["fence"]["intent"]["attempt_id"] == attempt, "C1-checkpoint-fence")
++            for item in content.values():
++                require(digest_of_bytes(item["text"].encode()) == item["digest"], "C1-code-digest")
++            verifications = [one for one in artifact["verifications"] if one["attempt_id"] == attempt]
++            require(len(verifications) == 1, "C1-verifier-missing")
++            if len(verifications) == 1:
++                one = verifications[0]
++                measured = {name: value["digest"] for name, value in content.items()}
++                require(one["execution"] == "real subprocess" and one["seconds"] > 0 and one["status"] == 0 and one["argv"] == ["python3", "harness.py"], "C1-verifier-execution")
++                require(one["before"] == one["after"] == measured and one["code_digest"] == measured["scale.py"] and one["verifier_digest"] == measured["harness.py"], "C1-verifier-bytes")
++            body = snapshot["receipt_bytes"].encode()
++            require(json.loads(body) == receipt and digest_of_bytes(body) == snapshot["receipt_digest"] == snapshot["receipt_entry"]["content_digest"] and len(body) == snapshot["receipt_entry"]["bytes"], "C1-context-receipt")
++            require(receipt["complete"] is True and receipt["status"] == 0 and receipt["terminal"] == "success", "C1-context-terminal")
++            for key in ("attempt_id", "use_id", "invocation_id", "conversation_id", "invocation_binding_digest", "delivery_digest", "argv_digest", "mode"):
++                require(receipt[key] == binding[key], "C1-context-binding")
++        require(initial["binding"]["mode"] == "open" and revised["binding"]["mode"] == "restore" and initial["binding"]["context_id"] == revised["binding"]["context_id"], "C1-context-continuity")
++
++        def verdict_matches(verdict, settlement, snapshot, disposition):
++            checkpoint = snapshot["checkpoint"]
++            require(verdict["verdict_id"] == settlement["evidence"]["verdict_id"] and verdict["disposition"] == disposition, "C1-verdict")
++            for key in ("checkpoint_id", "checkpoint_digest", "line_id", "revision", "base_object", "head_object", "tree_object", "path_set_digest"):
++                require(verdict[key] == checkpoint[key], "C1-verdict-attribution")
++            require(verdict["review_result"]["attempt_id"] == settlement["attempt_id"] and verdict["review_result"]["manifest_digest"] == settlement["evidence"]["manifest_digest"], "C1-review-result")
++            require(verdict["review_result_digest"] == digest(verdict["review_result"]) and verdict["review_fence_digest"] == digest(verdict["review_fence"]), "C1-review-digest")
++            reviews = [one for one in artifact["reviews"] if one["attempt_id"] == settlement["attempt_id"]]
++            require(len(reviews) == 1, "C1-review-missing")
++            if len(reviews) == 1:
++                one = reviews[0]; launch = one["launch"]; assignment = one["assignment"]
++                require(one["implementation_attempt"] == snapshot["settlement"]["attempt_id"] and one["checkpoint_id"] == checkpoint["checkpoint_id"] and one["source_revision"] == checkpoint["head_object"], "C1-review-source")
++                require(assignment["participant"] == verdict["reviewer_participant"] and assignment["principal"] == verdict["reviewer_principal"] and assignment["generation"] == verdict["review_assignment_generation"], "C1-review-identity")
++                require(assignment["participant"] != snapshot["assignment"]["participant"] and assignment["principal"] != snapshot["assignment"]["principal"], "C1-review-isolation")
++                require(launch["role"] == "review" and launch["schema"] != "baton.worker-launch/4" and "provider_context" not in launch and launch["job_execution"]["attempt_id"] == one["attempt_id"], "C1-review-context")
++                source = [m for m in one["mounts"] if m["target"] == "/input/source"]
++                require(len(source) == 1 and source[0].get("readonly") is True, "C1-review-mount")
++                for mount in one["mounts"]:
++                    # Pure lexical comparison of exported absolute paths; no
++                    # filesystem resolution can change this oracle's answer.
++                    origin = os.path.normpath(mount["source"])
++                    private = os.path.normpath(one["private_context_root"])
++                    line = os.path.normpath(one["producer_workspace"])
++                    require(os.path.commonpath([origin, private]) not in (origin, private) and not mount["target"].startswith("/run/baton/context"), "C1-review-context")
++                    if os.path.commonpath([origin, line]) in (origin, line):
++                        require(mount.get("readonly") is True and mount["target"] == "/input/source", "C1-review-writable-line")
++        correction = artifact["correction"]
++        verdict_matches(artifact["verdict"], correction, initial, "changes-requested")
++        require(correction["evidence"]["outcome"] == "correction" and correction["evidence"]["routed"] == revised["settlement"]["attempt_id"], "C1-correction-route")
++        verdict_matches(artifact["accepted_verdict"], artifact["accepted"], revised, "accepted")
++
++        managed = artifact["managed"]; target = artifact["target"]
++        require(managed["state"] == "imported" and managed["source_checkpoint_id"] == revised["checkpoint"]["checkpoint_id"] and managed["source_verdict_id"] == artifact["accepted_verdict"]["verdict_id"] and managed["source_candidate"] == revised["checkpoint"]["head_object"], "C1-managed-source")
++        require(managed["source_checkpoint_digest"] == revised["checkpoint"]["checkpoint_digest"], "C1-managed-checkpoint")
++        prepared = managed["prepared"]; phases = managed["phases"]
++        require(set(phases) == {"prepare", "apply"}, "C1-managed-phases")
++        report = phases["prepare"]["result"]["report"]
++        require(report["kind"] == "measured" and report["completed"] == [{"name": "combined", "status": 0}, {"name": "base", "status": 1}, {"name": "isolated", "status": 0}] and report["status"] == 1 and report["not_run"] == [], "C1-preparation")
++        require(phases["apply"]["result"]["report"]["status"] == 0 and phases["apply"]["task"]["parent"]["collected_digest"] == phases["prepare"]["result"]["collected"]["manifest_digest"], "C1-apply-parent")
++        for state in ("combined", "isolated"):
++            entries = {one["path"]: one["content_digest"] for one in prepared["preparation"]["states"][state]["content"]["entries"]}
++            require(all(entries[name] == item["digest"] for name, item in revised["content"].items()), "C1-prepared-bytes")
++        require(target["code_digest"] == revised["content"]["scale.py"]["digest"], "C1-target-bytes")
++        require(target["revision"] == target["authority_revision"] == prepared["head"] and prepared["tree"] == revised["checkpoint"]["tree_object"], "C1-target-revision")
++        for kind, expected in (("verification", "passed"), ("review", "accepted"), ("approval", "approved"), ("integration", "integrated")):
++            receipt = target["receipt"] if kind == "integration" else artifact["judgments"][kind]
++            require(receipt["kind"] == kind and receipt["disposition"] == expected and receipt["candidate_digest"] == target["revision"] and receipt["proposal_id"] == managed["derived_proposal_id"] and receipt["target"] == managed["target_revision"], "C1-target-receipt")
++            require(receipt["actor"] != revised["assignment"]["participant"] and bool(receipt["decision"]["principal"]), "C1-judgment-independence")
++        publication = artifact["publication"]; local = artifact["publication_receipt"]["document"]
++        require(publication["state"] == "settled" and publication["imported_revision"] == target["revision"] and publication["managed_result_id"] == managed["managed_result_id"], "C1-publication")
++        require(local["apply"] == phases["apply"] and local["preparation"] == phases["prepare"] and local["publication"]["publication_id"] == publication["publication_id"] and local["publication"]["imported_revision"] == target["revision"] and local["exclusion"]["excluded"] is True, "C1-local-receipt")
++        verification = publication["settlement"]["verification"]
++        require(verification["status"] == 0 and verification["unchanged"] is True and verification["candidate"] == target["revision"] and verification["harness_digest"] == revised["content"]["harness.py"]["digest"], "C1-import-verification")
++        final = artifact["final"]; completion = final["observed"]["integration"]["completion"]
++        require(final["state"] == "completed" and completion["integration_receipt_id"] == target["receipt"]["receipt_id"] and completion["managed_result_id"] == managed["managed_result_id"] and completion["execution_runtime"] == "destroyed", "C1-final")
++        require(artifact["capacity"]["root"]["lifecycle"] == "ended" and all(m["state"] == "ended" and m["outcome"] == "succeeded" for m in artifact["capacity"]["members"]), "C1-capacity")
++        apply = artifact["apply"]
++        require(apply["launch"]["role"] == "integration" and apply["launch"]["schema"] != "baton.worker-launch/4" and "provider_context" not in apply["launch"], "C1-apply-context")
++        receipt = [one for one in apply["manifest"]["outputs"] if one["name"] == "provider-context-receipt"]
++        require(len(receipt) == 1 and receipt[0]["status"] == "missing-optional" and apply["receipt_path_exists"] is False, "C1-apply-receipt")
++        require(all(not m["target"].startswith("/run/baton/context") for m in apply["mounts"]), "C1-apply-context")
++    except (KeyError, TypeError, ValueError, IndexError) as error:
++        failures.append({"code": "C1-incomplete-evidence", "detail": str(error)})
+     return failures
+--- a/v12/python/tests/tools/test_correction_restart.py
++++ b/v12/python/tests/tools/test_correction_restart.py
+@@ -1,4 +1,6 @@
+-"""Selected C proof; deterministic subprocesses and a simulated OCI engine."""
++"""C1 proof: deterministic provider children and a simulated OCI engine."""
++import copy
++import hashlib
+ import json
+ import os
+ from pathlib import Path
+@@ -7,12 +9,82 @@
+ from tests.tools import correction_restart_trace as proof
+ 
+ 
++def artifact():
++    world = proof.World()
++    try:
++        world.setUp()
++        return world.run_scenario()
++    finally:
++        world.doCleanups()
++
++
++def export(document):
++    if os.environ.get("BATON_C_EVIDENCE"):
++        Path(os.environ["BATON_C_EVIDENCE"]).write_text(json.dumps(document, indent=2) + "\n")
++
++
+ class UsefulCorrection(unittest.TestCase):
+     def test_useful_correction_reaches_managed_target(self):
+-        world = proof.World()
+-        self.addCleanup(world.doCleanups)
+-        world.setUp()
+-        artifact = world.run_scenario()
+-        self.assertEqual(proof.validate(artifact), [])
+-        if os.environ.get("BATON_C_EVIDENCE"):
+-            Path(os.environ["BATON_C_EVIDENCE"]).write_text(json.dumps(artifact, indent=2) + "\n")
++        observed = artifact()
++        export(observed)
++        self.assertEqual(proof.validate(observed), [])
++
++    def test_unchanged_predecessor_artifacts_still_validate_without_execution(self):
++        root = Path(__file__).resolve().parents[4]
++        predecessor = root / "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json"
++        body = predecessor.read_bytes()
++        self.assertEqual(hashlib.sha256(body).hexdigest(), "5a3ead46c46b5586cbd3a74d7454b402fd04dfbe34414e33a061ac9e90fb9303")
++        schedules = json.loads(body)["schedules"]
++        self.assertEqual(len(schedules), 18)
++        for schedule in schedules:
++            self.assertEqual(proof.scheduler_trace.validate(schedule["artifact"]), [])
++
++
++class UsefulCorrectionInvalidEvidence(unittest.TestCase):
++    """Every mutation is a synthetic invalid copy, never an owner receipt."""
++
++    @classmethod
++    def setUpClass(cls):
++        cls.observed = artifact()
++        cls().assertEqual(proof.validate(cls.observed), [])
++        cls.rejections = []
++
++    @classmethod
++    def tearDownClass(cls):
++        export({"kind": "C1 synthetic invalid-evidence results", "valid_observation": cls.observed, "rejections": cls.rejections})
++
++    def rejects(self, name, mutate, expected):
++        invalid = copy.deepcopy(self.observed)
++        invalid["synthetic_invalid_evidence"] = name
++        mutate(invalid)
++        failures = proof.validate(invalid)
++        self.assertIn(expected, {one["code"] for one in failures}, failures)
++        self.rejections.append({"kind": "synthetic invalid evidence", "case": name, "expected": expected, "violations": failures})
++        self.assertEqual(proof.validate(self.observed), [])
++
++    def test_identical_revised_code_is_rejected(self):
++        self.rejects("revised code replaced by original", lambda x: x["revised"]["content"].__setitem__("scale.py", copy.deepcopy(x["initial"]["content"]["scale.py"])), "C1-code-unchanged")
++
++    def test_unexecuted_or_wrong_byte_verifier_is_rejected(self):
++        self.rejects("verifier never executed", lambda x: x["verifications"][1].__setitem__("execution", "not-run"), "C1-verifier-execution")
++        self.rejects("verifier measures original bytes", lambda x: x["verifications"][1].__setitem__("code_digest", x["initial"]["content"]["scale.py"]["digest"]), "C1-verifier-bytes")
++        self.rejects("revised verifier absent", lambda x: x["verifications"].pop(), "C1-verifier-missing")
++
++    def test_target_receipt_naming_original_is_rejected(self):
++        self.rejects("target receipt names original revision", lambda x: x["target"]["receipt"].__setitem__("candidate_digest", x["initial"]["checkpoint"]["head_object"]), "C1-target-receipt")
++        self.rejects("target content names original code", lambda x: x["target"].__setitem__("code_digest", x["initial"]["content"]["scale.py"]["digest"]), "C1-target-bytes")
++
++    def test_missing_or_forged_changes_requested_verdict_is_rejected(self):
++        self.rejects("changes-requested verdict absent", lambda x: x.__setitem__("verdict", None), "C1-incomplete-evidence")
++        self.rejects("changes-requested verdict forged", lambda x: x["verdict"].__setitem__("disposition", "accepted"), "C1-verdict")
++        self.rejects("verdict names another checkpoint", lambda x: x["verdict"].__setitem__("checkpoint_id", x["revised"]["checkpoint"]["checkpoint_id"]), "C1-verdict-attribution")
++        self.rejects("correction names original attempt", lambda x: x["correction"]["evidence"].__setitem__("routed", x["initial"]["settlement"]["attempt_id"]), "C1-correction-route")
++
++    def test_reviewer_context_or_writable_line_access_is_rejected(self):
++        self.rejects("reviewer receives producer context", lambda x: x["reviews"][0]["launch"].__setitem__("provider_context", x["initial"]["binding"]), "C1-review-context")
++        def writable(x):
++            source = next(m for m in x["reviews"][0]["mounts"] if m["target"] == "/input/source")
++            source["source"] = x["reviews"][0]["producer_workspace"]
++            source["readonly"] = False
++        self.rejects("reviewer receives writable producer line", writable, "C1-review-writable-line")
++        self.rejects("reviewer receives private mount", lambda x: x["reviews"][0]["mounts"].append({"source": x["reviews"][0]["private_context_root"], "target": "/run/baton/context", "readonly": True}), "C1-review-context")
+--- a/v12/python/tests/tools/test_managed_apply.py
++++ b/v12/python/tests/tools/test_managed_apply.py
+@@ -675,3 +675,54 @@
+         self.assertEqual(self.case.publish()["outcome"], "resumed")
+         self.assertEqual(len(calls), 1)
+         self.assertEqual(self.case.standing(), self.case.candidate)
++
++
++class ContextFreeIntegrationReceiptBoundary(unittest.TestCase):
++    """Focused real handle/output checks; C1 separately runs the apply entry."""
++
++    def attempt(self, *, seen_change=None, output="missing-optional", produce=False):
++        import tempfile
++        from pathlib import Path
++        from types import SimpleNamespace
++        from unittest import mock
++        from tests.manager import input_roots
++        from tests.manager.test_claude_context import declaration
++        import baton_worker
++        given, assignment = input_roots.documents(work_ref={"authority_uuid": "0000000a" + "0" * 24, "work_id": "0000000a-W1"}, participant="baton.integrator", generation=1, runtime_attempt_id="apply-boundary")
++        seen = {"role": "integration", "schema": "baton.worker-launch/3"}
++        seen.update(seen_change or {})
++        calls = []
++        def work(*unused):
++            calls.append(True)
++            if produce:
++                (root / "provider-context-receipt").mkdir()
++                (root / "provider-context-receipt/receipt.json").write_text("{}")
++            return {"disposition": "completed", "recap": "unit boundary", "outputs": [{"name": "provider-context-receipt", "status": output, "result_metadata": {}}]}
++        with tempfile.TemporaryDirectory() as home:
++            root = Path(home)
++            with mock.patch.object(baton_worker, "INPUT_ROOT", home), mock.patch.object(baton_worker, "OUTPUT_ROOT", home), mock.patch.object(baton_worker, "input_manifest", return_value=(given, [declaration()])), mock.patch.object(baton_worker, "assignment_manifest", return_value=assignment):
++                try:
++                    answer = baton_worker.handle({"protocol": baton_worker.PROTOCOL, "session": "unit-session", "operation_id": "unit-apply", "operation": "work"}, {"operation_id": "unit-apply"}, seen, SimpleNamespace(work=work), set())
++                except baton_worker.WorkerFault:
++                    self.assertFalse((root / "output.json").exists())
++                    if seen_change:
++                        self.assertEqual(calls, [])
++                    raise
++                self.assertTrue((root / "output.json").is_file())
++                self.assertEqual(answer["outputs"], [])
++                self.assertFalse((root / "provider-context-receipt").exists())
++
++    def test_exact_optional_absence_publishes_completion(self):
++        self.attempt()
++
++    def test_present_or_physically_produced_receipt_never_publishes(self):
++        import baton_worker
++        for status, produced in [("present", True), ("missing-optional", True), ("present", False)]:
++            with self.subTest(status=status, produced=produced), self.assertRaises(baton_worker.WorkerFault):
++                self.attempt(output=status, produce=produced)
++
++    def test_delivered_context_and_context_schema_refuse_before_work(self):
++        import baton_worker
++        for changed in [{"provider_context": None}, {"provider_context": {}}, {"schema": baton_worker.CONTEXT_LAUNCH_SCHEMA}, {"role": "unsupported"}]:
++            with self.subTest(changed=changed), self.assertRaises(baton_worker.WorkerFault):
++                self.attempt(seen_change=changed)
+--- a/v12/python/tests/tools/test_single_worker.py
++++ b/v12/python/tests/tools/test_single_worker.py
+@@ -4271,3 +4271,32 @@
+                 {"attempt_id": stage["attempt_id"]}))
+         finally:
+             operations.close()
++
++
++class OptionalIntegrationContextDeclaration(SingleWorkerCase):
++    """The manager and worker agree on this exact optional declaration."""
++
++    def test_exact_context_free_integration_declaration_is_accepted(self):
++        from tests.manager.test_claude_context import declaration
++        given = copy.deepcopy(self.config)
++        given["launch_role"] = "integration"
++        manifest = given["input_manifest"]
++        manifest["outputs"].append(declaration())
++        manifest.pop("manifest_digest")
++        manifest["manifest_digest"] = digest(manifest)
++        self.assertEqual(single_worker._held(given, roles=("integration",))["launch_role"], "integration")
++
++    def test_reserved_declaration_variants_remain_refused(self):
++        import baton_worker
++        from tests.manager.test_claude_context import declaration
++        variants = [dict(declaration(), required=True), dict(declaration(), path="other"), dict(declaration(), name="other")]
++        for key, value in [("allowed_media_types", ["application/json"]), ("max_bytes", 16385), ("max_entries", 2), ("validator_digest", "sha256:" + "1" * 64), ("link_policy", "allow")]:
++            one = declaration(); one["constraints"][key] = value; variants.append(one)
++        for one in variants:
++            with self.subTest(declaration=one), self.assertRaises(baton_worker.WorkerFault):
++                baton_worker.context_declaration({"role": "integration", "schema": "baton.worker-launch/3"}, [one])
++        with self.assertRaises(baton_worker.WorkerFault):
++            baton_worker.context_declaration({"role": "integration"}, [declaration(), declaration()])
++        for role in ("implementation", "unknown"):
++            with self.subTest(role=role), self.assertRaises(baton_worker.WorkerFault):
++                baton_worker.context_declaration({"role": role}, [declaration()])
+--- a/v12/worker/baton_worker.py
++++ b/v12/worker/baton_worker.py
+@@ -1705,7 +1705,8 @@
+     delivered = assignment_manifest()
+     assignment = one_delivery(given, delivered)
+     contextual = seen.get("schema") == CONTEXT_LAUNCH_SCHEMA
+-    if contextual or any(one["name"] == "provider-context-receipt" for one in declared):
++    reserved_context = any(one["name"] == "provider-context-receipt" for one in declared)
++    if contextual or "provider_context" in seen or reserved_context:
+         context_declaration(seen, declared)
+         if contextual and (seen["job_execution"]["attempt_id"] != delivered["runtime_attempt_id"] or seen["job_execution"]["runtime_input_digest"] != given["manifest_digest"] or seen["job_execution"]["runtime_policy_digest"] != given["policy_digest"]):
+             raise WorkerFault("input", "context Job and assignment disagree")
+@@ -1713,6 +1714,10 @@
+     if type(reported) is not dict:
+         raise WorkerFault("answer", "a work answer is one JSON object")
+     published = answered(declared, reported.get("outputs"))
++    if seen.get("role") == "integration" and reserved_context:
++        receipt = next(one for one in published if one["name"] == "provider-context-receipt")
++        if receipt["status"] != "missing-optional" or os.path.lexists(os.path.join(OUTPUT_ROOT, "provider-context-receipt")):
++            raise WorkerFault("answer", "context-free integration must not produce a provider context receipt")
+     disposition = reported.get("disposition")
+     if disposition not in DISPOSITIONS:
+         raise WorkerFault(
+@@ -2561,7 +2566,7 @@
+ def context_declaration(seen, declared):
+     if seen.get("role") == "implementation" or seen.get("schema") == CONTEXT_LAUNCH_SCHEMA or "provider_context" in seen:
+         context_delivery(seen)
+-    elif seen.get("role") != "review":
++    elif seen.get("role") not in ("review", "integration"):
+         raise WorkerFault("input", "context receipt is reserved for implementation and isolated review")
+     selected = [one for one in declared if one["name"] == "provider-context-receipt"]
+     if len(selected) != 1:

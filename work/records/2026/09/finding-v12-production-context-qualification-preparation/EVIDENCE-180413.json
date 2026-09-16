@@ -1,0 +1,111 @@
+{
+  "bounds": {
+    "behaviour_at_bound": "reported explicitly; coverage.complete goes false and the specific flag goes true",
+    "max_depth": 8,
+    "max_entries_per_home": 1024,
+    "wall_seconds": 20
+  },
+  "cannot_do": [
+    "recover the stopped attempt's original error, which failure_code collapsed to unclassified",
+    "prove readability: POSIX mode bits ignore ACLs, namespaces and other policy",
+    "identify the other modelUsage key"
+  ],
+  "claim": 180413,
+  "constraints_held": {
+    "aggregates_only": "a name can only leak if BOTH the group key and the export name list are widened; the export zips against six named fields and truncates",
+    "credential_stop": "the fixture's own regex, so the walk stops exactly where the collector stops",
+    "no_arguments": "main refuses any argv with exit 2",
+    "no_regular_file_open": "only directories are opened, with O_DIRECTORY",
+    "no_symlink_following": "lstat-equivalent entry.stat(follow_symlinks=False); links counted and never resolved; directories opened O_NOFOLLOW from the parent descriptor so a symlinked component is refused",
+    "no_writes": "a before/after walk in the self-test proves the tree is unmodified"
+  },
+  "consumed_roots_preserved": [
+    "the whole 180078 set",
+    "the whole 178579 set"
+  ],
+  "deliverables": {
+    "operator_packet": "OPERATOR-WALK-180413.md",
+    "operator_packet_sha256": "2f8cb852756d0108f7d6d7809f4eb589cdbd2a4f186d06d650c6ffd23943eebf",
+    "probes": "probes-180413.py",
+    "probes_sha256": "565aba027afade81c6fde186e358e9ee4310f04a46bd758d5c8ba26741d508a0",
+    "selftest": "walk-180078-selftest.py",
+    "selftest_sha256": "9ae2a144cf939ab3ae259c2d6e01a3bc9121349fa13be8066e710849eeac8f71",
+    "walk": "walk-180078.py",
+    "walk_sha256": "7cf7dae6651f13dd54228eef1505ad5b3e481d43058569d836640fcf57a80f8d"
+  },
+  "exported": [
+    "operator numeric identity",
+    "per-home aggregate counts grouped by type/uid/gid/mode/readable/searchable",
+    "entries, truncated, depth_limited, timed_out, max_depth_reached, complete",
+    "traversal errors as opendir/stat/scandir by closed errno category",
+    "links_not_followed and credential_shaped_skipped counts"
+  ],
+  "gaps": {
+    "G1": "partial; model unqualified, modelUsage expected-plus-other with two keys",
+    "G2": "unobserved",
+    "G3": "unobserved",
+    "G4": "first-use only",
+    "G5": "unobserved",
+    "G6": "first-use only",
+    "G7": "qualification-only image selection",
+    "G8": "not composed"
+  },
+  "homes": [
+    "use-1/home",
+    "use-2/home (absent; reported absent, not an error)"
+  ],
+  "never_exported": [
+    "discovered names",
+    "paths",
+    "path hashes",
+    "sizes",
+    "mtimes",
+    "file contents",
+    "link targets",
+    "exception strings",
+    "tracebacks",
+    "user or group names"
+  ],
+  "not_done": [
+    "walking the private tree",
+    "reading any content",
+    "following any link",
+    "repairs, chmod, chown or marker reset",
+    "fixture rerun",
+    "new run identity",
+    "model-acceptance change",
+    "live provider, engine, credential or image operation",
+    "product or consumer edits",
+    "version-control operations"
+  ],
+  "not_executed_against_the_private_tree": "the 180078 tree was not walked from the managed context. Beyond the owner's instruction, the read/search classification is relative to the identity running the script, so an answer computed under this context's identity would be confidently wrong rather than merely useless. Verified against synthetic trees instead.",
+  "not_selected_and_not_prepared": [
+    "the closed collection step/category/errno fixture correction"
+  ],
+  "operator_command": "python3 work/records/2026/09/finding-v12-production-context-qualification-preparation/walk-180078.py",
+  "owner_selection": 180411,
+  "prior_operator_result": {
+    "file": "operator-result-2026-09-15T18-29-34Z/metadata-180078-operator-reported.json",
+    "sha256": "237d34b173cea22c7686e5c5d9dad66bf25f1e1e5d057e6b5ba7e77434109ffd",
+    "what_it_localized": "private-layout.json, its tmp sibling and every use-2 operand absent, so the run stopped before the layout save and before destination-home creation -- inside first inventory or subset selection. The five top directories are mode-permitted for the reported identity; their descendants were untested. use-1/home/.claude/projects is uid65532 gid1001 mode 0o2755."
+  },
+  "probe_findings": [
+    "A probe removing O_NOFOLLOW from directory opens PASSED at first: only the static source check noticed it, so nothing proved it mattered. test_a_symlinked_home_component_is_refused_not_walked was added -- the home's own path is where a following open would walk a decoy and report it as the home.",
+    "A probe reverting the scandir error handler PASSED, and taught me I had mislabelled my own test: mode 0600 on a directory is readable, so it opens and scandirs fine and the failure lands on the STAT handler, not opendir. The test was passing for a different reason than its name claimed. It was renamed and test_an_unopenable_directory_reports_an_opendir_error added for the mode 0000 case.",
+    "A wider-export-names probe was tried and REMOVED rather than counted: widening the export name list reverts nothing, because zip truncates against the six-element key, so a name can only leak if the key is widened too -- which names-in-the-export covers. Two independent changes are needed for a leak; that is a property of the code, not a gap in the tests."
+  ],
+  "selected": "the review's second, conditional proposal: the bounded metadata-only home walk",
+  "source_review": "review-2026-09-15T18-36-00Z.md",
+  "source_review_sha256": "7d3ad2603ba16b31c27cac3240dec40e07ec1f968dd96fdc1c43903984ba2326",
+  "verification": {
+    "exit_code": 0,
+    "outcome": [
+      "Ran 21 tests in 0.004s",
+      "OK"
+    ],
+    "reversal_probes": 10,
+    "scope": "synthetic temporary trees only; no live provider, engine, credential, image or private-tree access",
+    "tests": 21
+  },
+  "work": "W177936"
+}

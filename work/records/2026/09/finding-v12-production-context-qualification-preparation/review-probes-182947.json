@@ -1,0 +1,265 @@
+{
+  "claim": 182947,
+  "candidate_manifest": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+  "checks": [
+    {
+      "path": "evidence/qualification-fixture.py",
+      "sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/qualification-fixture.py",
+      "sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/qualification-fixture.py",
+      "sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_contract.py",
+      "sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/qualification_contract.py",
+      "sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/qualification_contract.py",
+      "sha256": "811d06811fd1bfd1d356971c39a1a5a6e28c3962a2707dc73074656df8807a41",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_worker.py",
+      "sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/qualification_worker.py",
+      "sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/qualification_worker.py",
+      "sha256": "9e8c355bca2e8b4645ba43ea5463fb204f2f6945f16151f0ed06e86581cb993b",
+      "matches": true
+    },
+    {
+      "path": "evidence/test_qualification.py",
+      "sha256": "233b4afe38cf286fad29f9b1106fc7418843c104595c7725a08b9976b54623e3",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/test_qualification.py",
+      "sha256": "233b4afe38cf286fad29f9b1106fc7418843c104595c7725a08b9976b54623e3",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/test_qualification.py",
+      "sha256": "78a8e9995e3449176d48c1d97c07631cd350cc1ff613baa7c467dd6e5891d010",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification-manifest.json",
+      "sha256": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/qualification-manifest.json",
+      "sha256": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/qualification-manifest.json",
+      "sha256": "f6b954ccb2e68bca9d44d0afdfdca1a3b18ff25f2ac96cb630463b1f405e06ba",
+      "matches": true
+    },
+    {
+      "path": "evidence/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "OPERATOR-178579.md",
+      "sha256": "c16ea3a3060bd65a86f0620033a83743de84f63b96849780c9b3d6a1814f8ee4",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/OPERATOR-178579.md",
+      "sha256": "c16ea3a3060bd65a86f0620033a83743de84f63b96849780c9b3d6a1814f8ee4",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/OPERATOR-178579.md",
+      "sha256": "5c5cd0a2c4f2d4fef900395b9db3517a1afc2aae5e8f8c9b49744c64d728fef7",
+      "matches": true
+    }
+  ],
+  "results": [
+    {
+      "case": "healthy",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "victim_before": "0o600",
+      "victim_after": "0o640",
+      "same_victim_inode": true,
+      "subsequent_inventory": "accepted",
+      "post_survey_swaps": 0
+    },
+    {
+      "case": "symlinked-projects-parent",
+      "outcome": "publish-type",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "state-type",
+      "post_survey_swaps": 0
+    },
+    {
+      "case": "hardlinked-session",
+      "outcome": "publish-alias",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "state-hardlink",
+      "post_survey_swaps": 0
+    },
+    {
+      "case": "foreign-session",
+      "outcome": "publish-shape",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "accepted",
+      "post_survey_swaps": 0
+    },
+    {
+      "case": "nested-session",
+      "outcome": "publish-shape",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "accepted",
+      "post_survey_swaps": 0
+    },
+    {
+      "case": "direct-credential",
+      "outcome": "publish-shape",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "unexpected-credential-entry",
+      "post_survey_swaps": 0
+    },
+    {
+      "case": "credential-in-home-cache",
+      "outcome": "publish-shape",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "unexpected-credential-entry",
+      "post_survey_swaps": 0
+    },
+    {
+      "case": "credential-in-claude-cache",
+      "outcome": "publish-shape",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "unexpected-credential-entry",
+      "post_survey_swaps": 0
+    },
+    {
+      "case": "unrelated-symlink",
+      "outcome": "publish-type",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "state-type",
+      "post_survey_swaps": 0
+    },
+    {
+      "case": "regular-project-replacement",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "unexpected-credential-entry",
+      "post_survey_swaps": 1,
+      "surveyed_original_mode_after": "0o640",
+      "surveyed_original_project_mode_after": "0o2750",
+      "decoy_project_mode_after": "0o700"
+    },
+    {
+      "case": "coverage-EACCES",
+      "code": "state-coverage-incomplete",
+      "detail": {
+        "step": "source-inventory",
+        "category": "known-refusal",
+        "errno": "none",
+        "cause": "EACCES"
+      },
+      "cause_matches": true,
+      "canary_absent": true,
+      "valid": true
+    },
+    {
+      "case": "coverage-EIO",
+      "code": "state-coverage-incomplete",
+      "detail": {
+        "step": "source-inventory",
+        "category": "known-refusal",
+        "errno": "none",
+        "cause": "EIO"
+      },
+      "cause_matches": true,
+      "canary_absent": true,
+      "valid": true
+    },
+    {
+      "case": "coverage-ENOENT",
+      "code": "state-coverage-incomplete",
+      "detail": {
+        "step": "source-inventory",
+        "category": "known-refusal",
+        "errno": "none",
+        "cause": "ENOENT"
+      },
+      "cause_matches": true,
+      "canary_absent": true,
+      "valid": true
+    }
+  ],
+  "seconds": 0.0026529100141488016,
+  "source_unchanged": true,
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "scope": "synthetic same-UID trees; no real private roots, credentials, engine or model; no child processes; owned temporary directories cleaned"
+}

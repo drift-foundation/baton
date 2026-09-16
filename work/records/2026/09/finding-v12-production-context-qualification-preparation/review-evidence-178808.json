@@ -1,0 +1,12 @@
+{
+  "work": "W177936",
+  "review_claim": 178808,
+  "outcome": "changes requested R1/R2; return owner disposition",
+  "candidate_manifest_sha256": "26a0f74254f88d49e02420c05b242c3349dc6b30b567666928be7290019ded2f",
+  "files": {
+    "review-2026-09-15T14-36-52Z.md": "e1107c43c598da0e8f9b20ca2679efa7ecc8b7c8b4df0709eb972c40de92a231",
+    "review-178808-probes.py": "963fde251e34eddac766e2b5e8dd4aba254355687e388964e26e27f3584455be",
+    "review-178808-offline.json": "096aad03225febc543a50d5f72e4160649a546cdc094924be97aaeaad45d4ad1",
+    "review-178808-offline.log": "dcb77ae71c576fe9fbfa08d1ce53857234ead700ca5e6ac6811125bcd34ad958"
+  }
+}

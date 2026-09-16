@@ -1,0 +1,24 @@
+{
+  "work": "W61599",
+  "author_message": 178528,
+  "cause": "Author confirms six test-only corrections after computing his handoff hash list; exact retained submitted bytes independently hash-verified and diffed against retained review178362 base.",
+  "files": [
+    {
+      "path": "baton:v12/python/tests/manager/test_claude_agent.py",
+      "submitted_snapshot": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/submitted-177898/test_claude_agent.py",
+      "submitted_sha256": "5532d3c11b22db6d88a22387c5e069393e85af394a0d0e37ac1cac94ceed4532",
+      "correction_base_sha256": "00293380042508b22f99ff3067dfb0531796b9fa76614de92b0a8429e85bc308",
+      "author_explanation_message": 178528,
+      "delta_path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/test_claude_agent.py.author-reconciliation.patch"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_exchange.py",
+      "submitted_snapshot": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/submitted-177898/test_exchange.py",
+      "submitted_sha256": "6c976f45eaba8779fcb1b9938a279e70add85566040e56badeacc88863d14613",
+      "correction_base_sha256": "bb430fb360864d16089d3fa2feabfc1e2ff4d9533f803f8b5c016b66b6e1ac25",
+      "author_explanation_message": 178528,
+      "delta_path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/test_exchange.py.author-reconciliation.patch"
+    }
+  ],
+  "process_statement": "Author178528 reports all original tests foregrounded to completion before handoff178359 and a fresh no-unittest ps check. This is attributed testimony, not this tuner observing the old process group."
+}

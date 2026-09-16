@@ -1,0 +1,88 @@
+{
+  "all_required_inputs_readable": true,
+  "claim": 180137,
+  "gate": {
+    "blocker": "baton.tuner holds W161234 claim180069, episode180064",
+    "consequence": "the two Works are specified exactly and deliberately not created",
+    "safe_handoff_requested": "T161234 message180094 at 2026-09-15T18:08:57Z",
+    "state_at_handoff": "phase active, pickup claimed, agent state working, last_contact 2026-09-15T18:19:08Z, not stale",
+    "state_at_preparation": "phase active, agent state working, last_contact 2026-09-15T18:14:08Z, not stale"
+  },
+  "new_measured_verification_seconds": 0,
+  "not_done": [
+    "creating any Work",
+    "recording any dependency",
+    "editing parent-owned records",
+    "product or test edits",
+    "test runs",
+    "live provider or engine",
+    "image work",
+    "rerouting or releasing the tuner's claim",
+    "version-control operations"
+  ],
+  "observed_in_flight": {
+    "caveat": "read while baton.tuner held W161234 claim180069 and was actively writing these files; this is an observation, not a binding. C1's baseline must come from the tuner's own safe-handoff record.",
+    "files": [
+      {
+        "bytes": 18337,
+        "path": "v12/python/tests/tools/correction_restart_trace.py",
+        "sha256": "e0dc7a466c184f3e72ace320045f26a5e14af7874f855f8d7cd83e56d283506c"
+      },
+      {
+        "bytes": 642,
+        "path": "v12/python/tests/tools/test_correction_restart.py",
+        "sha256": "ef7ad4379977bab317e1e2b3fdca7fc2b9e96c4c20e07eb8713303a308a6d3e3"
+      }
+    ],
+    "observed_at": "2026-09-15T18:16:15Z",
+    "second_read": {
+      "correction_restart_trace.py_bytes": 18337,
+      "note": "grew from 17966 bytes since the 18:16:15Z read, with the tuner's last contact eleven seconds earlier; direct proof the in-flight hashes must not be bound",
+      "observed_at": "2026-09-15T18:19:17Z"
+    }
+  },
+  "prepared": {
+    "dependency": "C2 blocked_by C1",
+    "parent": "2b077949-W161234",
+    "split": "SPLIT.md",
+    "split_sha256": "17b18faf4dbd9991760dadd6b4a2f122f2653bac7fae2979a8fa745a4f407cc2",
+    "works": [
+      "V12 C1: Useful correction through reviewed managed import",
+      "V12 C2: Counted manager reopen without duplicate execution"
+    ]
+  },
+  "required_inputs": [
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/FINDING.md",
+      "readable": true,
+      "sha256": "dbaebc918eaacca10a5bb91107eba19629c7ce1231e5d1cb11aad9b115a46864"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/PLAN.md",
+      "readable": true,
+      "sha256": "c5d3f1028861194f76957e52f872ef86c7b7ddd86dac59b89d12676393715982"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/review-2026-09-15T16-15-23Z.md",
+      "readable": true,
+      "sha256": "4f1960f6ace0163381bfb42b6af4c5d07b86a96ecf740e2bfb090e4f768eb8ec"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-final-proof-preparation/PACKET.md",
+      "readable": true,
+      "sha256": "941b423395e311d668bef62bd3e3be2813f10b113c672bf260207729bbaf136e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/BASE-C-180069.json",
+      "readable": true,
+      "sha256": "eaae88ce9c3767c23927984370d8bc8b49a9f2b6df3a338094b09c3a00fdfbfa"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-4.json",
+      "readable": true,
+      "sha256": "20423c3b3feaed5bed970bbfdfd7cbc78d2973315bd4f6bca8d53c70e3b93426"
+    }
+  ],
+  "role": "preparation only; no Work created",
+  "work": "W180092"
+}

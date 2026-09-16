@@ -1,0 +1,294 @@
+{
+  "work": "W161234",
+  "claim": 179255,
+  "author": "baton.tuner",
+  "at": "2026-09-15T16:05:41.902933+00:00",
+  "selection": 179252,
+  "selected_packet_sha256": "e7014bba453f2b23a65d5c4a90bd094767c742dccc1012ef382fdb688a795cfa",
+  "optionality_amendment_sha256": "8c4802ba96ced0feeeed4114280763c80ffed1d281c86ed1b020cc042745861d",
+  "media_amendment_sha256": "9bf7a21e2d64e0ac00050186fa1f7b24d01e858bf1f241dda8cd2aee36ca2f15",
+  "supervisor_sha256": "71f3588e5d39100219f33656f16d42451976c9dcc4bf19dc878126cc9bd7d9fe",
+  "base_manifest_sha256": "d20490b705d54fbde194e050d9cf7e227d95ab86e36af9c2241082f40084d6e3",
+  "runs": [
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-1.json",
+      "sha256": "d8e54fcb79f29e6bd622987230021a9941367606f2528e05b97a15dc7e7a752b",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-1.log",
+      "log_sha256": "9c802cfdaadbac856f864ee63abe907e697b28cd3eae0db3a6e15ff99c6daa97",
+      "seconds": 0.7641896969871596,
+      "status": 0,
+      "tests": 2,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-2.json",
+      "sha256": "475ad5d6bcb3f7bf9f11e81aecddecc7cb47437a37ebbd48f7823aafa0521538",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-2.log",
+      "log_sha256": "4ead878e35996012b947ddda323ef5955b11d4a3c0660a902ae8cd8e6f28518d",
+      "seconds": 6.870674036996206,
+      "status": 1,
+      "tests": 20,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-3.json",
+      "sha256": "ccc09e199d7eb5bda1278324980b37ff9d95676869352b155ad959cb2d67460c",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-3.log",
+      "log_sha256": "154ac6256ac1e723989a6ab1203d219b478482119fbcc645f093f04f0c9c41b8",
+      "seconds": 1.1646238940011244,
+      "status": 1,
+      "tests": 2,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-4.json",
+      "sha256": "cfdf05767d2104107f4fb6d136182fe755ed7cac3d881bf2303200290d21e5df",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-4.log",
+      "log_sha256": "5ba044c051e0d51cce3a1505d52a6cd5ce77984432c086dd9dac2a2912079208",
+      "seconds": 1.0145847870153375,
+      "status": 1,
+      "tests": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-5.json",
+      "sha256": "54f5aa7c1ad7580e7440d28a55095b930e010022c2fd0429a381ec697d51febc",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-5.log",
+      "log_sha256": "b32f454b03ba96670fe8bdeb696ec7079b41f87e4caabe5f5676a4a35e34a6e5",
+      "seconds": 1.1146584230009466,
+      "status": 0,
+      "tests": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-6.json",
+      "sha256": "6ef1cf76590b739b2916e2013a96a6468e4edbd35b222afee26f3c59adeff167",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-6.log",
+      "log_sha256": "9188fb6e18737ffbc065e88e17749b907b77f571a5d4242ff4f3339de09414ed",
+      "seconds": 10.223750965000363,
+      "status": 0,
+      "tests": 30,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-7.json",
+      "sha256": "bc3e3b64ff0965e81b78a10690f7ba213f235b15a4ae02df78c2f49de905bf7f",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-7.log",
+      "log_sha256": "90572ed3906dcb93d91228c897856101e033af232d0d8accd5adeb97abeffe4f",
+      "seconds": 1.6150731819798239,
+      "status": 1,
+      "tests": 11,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-8.json",
+      "sha256": "bdc337fdd5a72b3fca017e2c9cdf4c71bda62b52a8249a94ccf6c86503c5e094",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-8.log",
+      "log_sha256": "640c9176a7b6d2ab3dc8f8b1960029278a9c7a6965b17e3e15ecf675ea7434bc",
+      "seconds": 12.226133806019789,
+      "status": 1,
+      "tests": 46,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-9.json",
+      "sha256": "c77f6d2e4f73b29b142b6007f4cac6ba92b55454fa6b6603991219457089ff0e",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-9.log",
+      "log_sha256": "76e4e32876ca5713bb1c7b7ea8c5b2112227a3eab953eb99ac9a0de673713520",
+      "seconds": 25.657772579987068,
+      "status": 1,
+      "tests": 300,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-10.json",
+      "sha256": "d11d565e147da2d307153d6769d5160337e230718a38e553f17ae3647ff0e61b",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-10.log",
+      "log_sha256": "5347be43a737b2f48d2c5bd78a9acff9ed574a69e19db0c3c0efb827ca03529a",
+      "seconds": 0.5139720209990628,
+      "status": 0,
+      "tests": 1,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-11.json",
+      "sha256": "d6279d27bcd30eebe54baa9bc2607caee54db60a44fb1968a4109eb46d936aee",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-11.log",
+      "log_sha256": "40a45d276fd61baaa9b22efb9a2113fc2fd654fa9e617660a84603539b5c5ee2",
+      "seconds": 26.808718756976305,
+      "status": 1,
+      "tests": 303,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-12.json",
+      "sha256": "b30ad2ce831b2097bf7b7b9bc97228eeb9c4639be7a46824a7e5e39fe680eb34",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-12.log",
+      "log_sha256": "40f662b90353ee505a19d6a743b72bc83776e4f807b98b9c8680880ed76715cf",
+      "seconds": 13.826891978998901,
+      "status": 0,
+      "tests": 102,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-13.json",
+      "sha256": "1d3fb75b06bbbf20ff31b0afc57710ebe8750e7baea81115e64ab7559a9a31d0",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-13.log",
+      "log_sha256": "49b2ba6687c739d8c42811efc705d43c79ad45166e4a24954980735392f4367b",
+      "seconds": 26.909479941998143,
+      "status": 0,
+      "tests": 303,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-14.json",
+      "sha256": "d814f9376e8f07e4ef59284248c9aaa9754dab6905a6a455aedb1f4d06a78702",
+      "log_path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/run-179255-14.log",
+      "log_sha256": "95fad17be0163ea9e2b1789f52403fb60483dd30286e499f9e374fabfc9afef3",
+      "seconds": 0.9644946549960878,
+      "status": 0,
+      "tests": 35,
+      "timeout": false,
+      "group_gone": true
+    }
+  ],
+  "final_runs": [
+    13,
+    14
+  ],
+  "final_tests": 338,
+  "new_author_seconds": 129.67501872495632,
+  "prior_author_seconds": 17.14198895302252,
+  "cumulative_author_seconds": 146.81700767797884,
+  "prior_reviewer_seconds": 4.108358147001127,
+  "new_reviewer_seconds": 0,
+  "baseline_and_unchanged_checks": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "compared": "B base snapshot",
+      "expected": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "actual": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "compared": "B base snapshot",
+      "expected": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "actual": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context.py",
+      "compared": "unchanged current file",
+      "expected": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "actual": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context_delivery.py",
+      "compared": "unchanged current file",
+      "expected": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "actual": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+    },
+    {
+      "path": "baton:v12/worker/claude_agent.py",
+      "compared": "B base snapshot",
+      "expected": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+      "actual": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6"
+    },
+    {
+      "path": "baton:v12/worker/baton_worker.py",
+      "compared": "B base snapshot",
+      "expected": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "actual": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/exchange.py",
+      "compared": "unchanged current file",
+      "expected": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+      "actual": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8"
+    },
+    {
+      "path": "baton:v12/python/tools/single_worker.py",
+      "compared": "B base snapshot",
+      "expected": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+      "actual": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3"
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "compared": "B base snapshot",
+      "expected": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "actual": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6"
+    },
+    {
+      "path": "baton:v12/python/tools/dogfood_operator.py",
+      "compared": "unchanged current file",
+      "expected": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "actual": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_claude_agent.py",
+      "compared": "B base snapshot",
+      "expected": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "actual": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_exchange.py",
+      "compared": "unchanged current file",
+      "expected": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a",
+      "actual": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_single_worker.py",
+      "compared": "B base snapshot",
+      "expected": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "actual": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "compared": "B base snapshot",
+      "expected": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "actual": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_dogfood_operator.py",
+      "compared": "unchanged current file",
+      "expected": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+      "actual": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_dependencies.py",
+      "compared": "unchanged current file",
+      "expected": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+      "actual": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831"
+    }
+  ],
+  "static": {
+    "ast_all14": true,
+    "added_line_whitespace": true,
+    "git_diff_check": true
+  },
+  "environment": {
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "dependencies": {
+      "jsonschema": "4.26.0",
+      "jsonschema-specifications": "2025.9.1",
+      "referencing": "0.37.0",
+      "attrs": "26.1.0",
+      "rpds-py": "2026.6.3"
+    },
+    "pyproject_sha256": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+    "lock_sha256": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157"
+  },
+  "qualification": "Deterministic local provider subprocess and simulated OCI engine only; explicit test replacement of unqualified OCI context guard. No live provider, actual engine, image, install, broad suite or C run."
+}

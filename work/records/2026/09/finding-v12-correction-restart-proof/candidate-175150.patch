@@ -1,0 +1,1962 @@
+--- /dev/null
++++ b/v12/python/src/baton_v12/worker_manager/provider_context.py
+@@ -0,0 +1,503 @@
++"""Private provider contexts, derived from this manager's operation journal.
++
++A context is neither an AgentSession nor permission to launch. A committed use
++binds an ordinary implementation assignment; a ready generation additionally
++requires accepted output, a fenced checkpoint and positively completed cleanup.
++Production CLI qualification is intentionally unavailable in this first slice.
++"""
++
++import json
++import os
++import uuid
++
++from ..contracts import ContractRefusal, canonical_text, check_no_durable_secret, digest, digest_of_bytes
++from ..job_manager import ending, episodes, submission
++from ..job_manager.store import job_signature
++from . import attempts, boundaries, intake, manifests, output, review_cycles
++from .store import manager_signature
++
++PROFILE_KIND = "provider-context.profile"
++TRANSITION_KIND = "provider-context.transition"
++PROFILE_SCHEMA = "baton.claude-context-profile/1"
++RECEIPT_SCHEMA = "baton.provider-context-receipt/1"
++REASONS = frozenset(("runtime-unknown", "invocation-unknown", "receipt-invalid", "custody-invalid", "generation-damaged", "retired"))
++_ACTION_KEYS = {
++    "admit": ("identity", "attempt_id", "writer_id", "assignment", "stage_id", "episode", "profile_digest", "job_digest", "limits_digest", "repo_pin", "source_pin", "input_digest", "policy_digest", "generation", "conversation_id", "mode", "predecessor"),
++    "deliver": ("delivery_digest", "pins"),
++    "finalize": ("generation", "manifest_digest", "generation_pins", "receipt_digest", "checkpoint_id", "checkpoint_digest", "exclusion_digest"),
++    "hold": ("reason", "evidence_refs"),
++    "retire": ("reason", "evidence_refs"),
++}
++
++
++def _refuse(reason, *, durable=False):
++    # Reasons are controlled literals. Private paths/provider data are not diagnostics.
++    raise ContractRefusal("refused", "precondition", "provider context: " + reason, durable=durable)
++
++
++def _document(value, required):
++    check_no_durable_secret(value, what="provider context metadata")
++    return boundaries.document(value, "provider context metadata", required=required)
++
++
++def _id(prefix, value):
++    return prefix + "-" + digest(value).split(":", 1)[1]
++
++
++def _integer(value, minimum=0):
++    if type(value) is not int or not minimum <= value <= 2**53 - 1:
++        _refuse("invalid integer")
++    return value
++
++
++def _text(value):
++    boundaries.identity(value, "provider context identity")
++    if len(value) > 256:
++        _refuse("identity exceeds its bound")
++    return value
++
++
++def _hash(value):
++    if type(value) is not str or len(value) != 71 or not value.startswith("sha256:") or any(c not in "0123456789abcdef" for c in value[7:]):
++        _refuse("invalid digest")
++    return value
++
++
++def _profile(value):
++    held = _document(value, ("schema", "qualification", "evidence_digest", "cli_build", "image_digest", "adapter_digest", "runtime_profile_digest", "argv_policy_digest", "environment_policy_digest", "layout_version", "reported_model", "model", "cwd", "state_paths", "max_entries", "max_bytes", "retention_policy_digest"))
++    if held["schema"] != PROFILE_SCHEMA or held["qualification"] != "deterministic":
++        _refuse("production one-shot profile qualification is unavailable")
++    for key in ("evidence_digest", "image_digest", "adapter_digest", "runtime_profile_digest", "argv_policy_digest", "environment_policy_digest", "retention_policy_digest"):
++        _hash(held[key])
++    for key in ("cli_build", "model", "reported_model", "layout_version"):
++        _text(held[key])
++    if held["cwd"] != "/output":
++        _refuse("unsupported provider working directory")
++    paths = held["state_paths"]
++    if type(paths) is not list or not 1 <= len(paths) <= 64:
++        _refuse("invalid positive state allowlist")
++    if any(type(path) is not str for path in paths) or len(set(paths)) != len(paths):
++        _refuse("invalid positive state allowlist")
++    for path in paths:
++        if type(path) is not str or len(path) > 512 or any(p in ("", ".", "..") for p in path.split("/")) or not path.startswith(".claude/projects/") or any(p in (".credentials.json", "invocation", "cache", "tmp") for p in path.split("/")):
++            _refuse("state path is outside the qualified layout")
++    if not 1 <= _integer(held["max_entries"]) <= 4096 or not 1 <= _integer(held["max_bytes"]) <= 64 * 1024 * 1024:
++        _refuse("state ceiling exceeds the supported bound")
++    return held
++
++
++def certify_context_profile(control, profile):
++    held = _profile(profile)
++    key = digest(held)
++    signature = manager_signature(PROFILE_KIND, held)
++    return control.transact(_id("context-profile", key), PROFILE_KIND, signature, lambda connection: {"profile_digest": key, "profile": held})
++
++
++def context_profile_of(control, profile_digest):
++    key = _hash(profile_digest)
++    row = control.operation_record(_id("context-profile", key))
++    if row is None or row["kind"] != PROFILE_KIND or row["state"] != "committed":
++        _refuse("profile is not certified")
++    result = _document(json.loads(row["result"]), ("profile_digest", "profile"))
++    profile = _profile(result["profile"])
++    if result["profile_digest"] != key or digest(profile) != key or row["signature"] != manager_signature(PROFILE_KIND, profile):
++        _refuse("profile journal disagrees")
++    return profile
++
++
++def _operation(action, context_id, use_id, revision):
++    return _id("context-" + action, [context_id, use_id, revision])
++
++
++
++def _payload(action, payload):
++    held = _document(payload, _ACTION_KEYS[action])
++    if action == "admit":
++        identity = _document(held["identity"], ("authority_uuid", "job_id", "work_id", "line_id", "participant", "principal", "purpose"))
++        for value in identity.values():
++            _text(value)
++        if identity["purpose"] != "implementation":
++            _refuse("only implementation context is supported")
++        for key in ("attempt_id", "writer_id", "stage_id"):
++            _text(held[key])
++        for key in ("profile_digest", "job_digest", "limits_digest", "input_digest", "policy_digest"):
++            _hash(held[key])
++        _integer(held["episode"], 1); _integer(held["generation"])
++        _document(held["assignment"], ("runtime_attempt_id", "authority_uuid", "work_id", "participant", "generation", "principal", "effective_scope"))
++        if held["assignment"]["runtime_attempt_id"] != held["attempt_id"] or any(held["assignment"][key] != identity[key] for key in ("authority_uuid", "work_id", "participant", "principal")):
++            _refuse("admitted assignment identity disagrees")
++        if held["conversation_id"] != str(uuid.uuid5(uuid.NAMESPACE_OID, _id("context", identity))):
++            _refuse("admitted conversation identity disagrees")
++        _pins(held["repo_pin"]); _pins(held["source_pin"])
++        if held["predecessor"] is not None:
++            _hash(held["predecessor"])
++    elif action == "deliver":
++        _hash(held["delivery_digest"])
++        for pin in _document(held["pins"], ("owner", "use", "home")).values():
++            _pins([pin])
++    elif action == "finalize":
++        _integer(held["generation"], 1)
++        for key in ("manifest_digest", "receipt_digest", "checkpoint_digest", "exclusion_digest"):
++            _hash(held[key])
++        _text(held["checkpoint_id"])
++        for pin in _document(held["generation_pins"], ("owner", "generation", "state")).values():
++            _pins([pin])
++    else:
++        if type(held["reason"]) is not str or held["reason"] not in REASONS or type(held["evidence_refs"]) is not list or len(held["evidence_refs"]) > 16:
++            _refuse("invalid closed hold or retirement")
++        for value in held["evidence_refs"]:
++            _hash(value)
++    return held
++
++
++def _pins(value):
++    if type(value) is not list or not 1 <= len(value) <= 128:
++        _refuse("invalid directory pin chain")
++    for pair in value:
++        if type(pair) is not list or len(pair) != 2:
++            _refuse("invalid directory object pin")
++        for number in pair:
++            _integer(number)
++
++
++def _history(control, context_id=None):
++    # Only this owner reads its journal family. Refusals never advance the head.
++    rows = control._connection.execute("SELECT operation_id FROM operations WHERE kind = ? ORDER BY rowid", (TRANSITION_KIND,)).fetchall()
++    histories = {}
++    for row_id in rows:
++        row = control.operation_record(row_id["operation_id"])
++        if row["state"] != "committed":
++            continue
++        value = _document(json.loads(row["result"]), ("action", "context_id", "use_id", "expected_revision", "revision", "previous_digest", "payload"))
++        action = value["action"]
++        if type(action) is not str or action not in _ACTION_KEYS:
++            _refuse("unknown journal transition")
++        _text(value["context_id"]); _text(value["use_id"])
++        _integer(value["expected_revision"]); _integer(value["revision"], 1)
++        _payload(action, value["payload"])
++        if action == "admit" and (value["context_id"] != _id("context", value["payload"]["identity"]) or value["use_id"] != _id("context-use", [value["context_id"], value["payload"]["attempt_id"], value["payload"]["generation"]])):
++            _refuse("context/use identity derivation disagrees")
++        operands = {key: value[key] for key in value if key != "revision"}
++        if row["signature"] != manager_signature(TRANSITION_KIND, operands) or row["operation_id"] != _operation(action, value["context_id"], value["use_id"], value["expected_revision"]):
++            _refuse("transition identity disagrees")
++        chain = histories.setdefault(value["context_id"], [])
++        previous = chain[-1] if chain else None
++        if value["expected_revision"] != len(chain) or value["revision"] != len(chain) + 1 or value["previous_digest"] != (digest(previous) if previous else None):
++            _refuse("transition predecessor disagrees")
++        _legal(previous, action, value["use_id"], value["payload"], chain)
++        chain.append(value)
++    if context_id is None:
++        return histories
++    return histories.get(context_id, [])
++
++
++def _legal(previous, action, use_id, payload, chain):
++    state = previous["action"] if previous else None
++    if action == "admit":
++        if state not in (None, "finalize") or any(x["action"] == "admit" and x["use_id"] == use_id for x in chain):
++            _refuse("context already occupied or retired", durable=True)
++        _integer(payload["generation"])
++        if payload["generation"] != sum(x["action"] == "finalize" for x in chain):
++            _refuse("generation predecessor disagrees")
++        if payload["predecessor"] != (digest(previous) if previous else None):
++            _refuse("admission predecessor disagrees")
++        if payload["mode"] != ("restore" if payload["generation"] else "open"):
++            _refuse("use mode disagrees")
++    elif previous is None or previous["use_id"] != use_id:
++        _refuse("transition names another active use", durable=True)
++    elif action == "deliver" and state != "admit":
++        _refuse("delivery is not admitted", durable=True)
++    elif action == "finalize":
++        if state != "deliver" or payload["generation"] != 1 + sum(one["action"] == "finalize" for one in chain):
++            _refuse("finalization is not the next delivered generation", durable=True)
++    elif action == "hold" and state not in ("admit", "deliver", "finalize"):
++        _refuse("context is already held or retired", durable=True)
++    elif action == "retire" and state != "finalize":
++        _refuse("only an excluded finalized use can retire", durable=True)
++
++
++def _transition(control, *, action, context_id, use_id, expected_revision, payload, check=None):
++    _payload(action, payload)
++    chain = _history(control, context_id)
++    previous = next((one for one in chain if one["revision"] == expected_revision), None)
++    operands = {"action": action, "context_id": context_id, "use_id": use_id, "expected_revision": expected_revision, "previous_digest": digest(previous) if previous else None, "payload": payload}
++    signature = manager_signature(TRANSITION_KIND, operands)
++    def act(connection):
++        current = _history(control, context_id)
++        if len(current) != expected_revision:
++            _refuse("context revision changed", durable=True)
++        _legal(current[-1] if current else None, action, use_id, payload, current)
++        if check is not None:
++            check()
++        return dict(operands, revision=expected_revision + 1)
++    return control.transact(_operation(action, context_id, use_id, expected_revision), TRANSITION_KIND, signature, act)
++
++
++def _use(control, attempt_id):
++    _text(attempt_id)
++    found = [(chain, row) for chain in _history(control).values() for row in chain if row["action"] == "admit" and row["payload"]["attempt_id"] == attempt_id]
++    if len(found) != 1:
++        _refuse("attempt has no unique admitted context")
++    return found[0]
++
++
++def context_use_of(control, attempt_id):
++    chain, admitted = _use(control, attempt_id)
++    owned = [one for one in chain if one["use_id"] == admitted["use_id"]]
++    result = {"context_id": admitted["context_id"], "use_id": admitted["use_id"], "attempt_id": attempt_id, "status": {"admit": "admitted", "deliver": "admitted", "finalize": "ready", "hold": "held", "retire": "retired"}[owned[-1]["action"]], "generation": admitted["payload"]["generation"], "revision": owned[-1]["revision"], "reason": owned[-1]["payload"].get("reason")}
++    if owned[-1]["action"] == "finalize":
++        from .context_delivery import configured_context_storage, validate_generation
++        try:
++            validate_generation(control, configured_context_storage(control), admitted["context_id"], owned[-1]["payload"])
++        except ContractRefusal:
++            result.update(status="held", reason="generation-damaged")
++    return result
++
++
++def context_of(control, context_id):
++    _text(context_id)
++    chain = _history(control, context_id)
++    if not chain:
++        return {"context_id": context_id, "status": "unavailable"}
++    admitted = next(one for one in reversed(chain) if one["action"] == "admit")
++    return context_use_of(control, admitted["payload"]["attempt_id"])
++
++
++def _job_attempt(jobs, attempt_id):
++    matches = [(stage, episode) for stage in submission.stage_rows(jobs) for episode in episodes.episodes_of(jobs, stage["stage_id"]) if episode["attempt_id"] == attempt_id]
++    if len(matches) != 1 or matches[0][0]["kind"] != "implementation":
++        _refuse("attempt is not a unique implementation episode")
++    stage, episode = matches[0]
++    return stage, episode, submission.job_of(jobs, stage["job_id"])
++
++
++def _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, *, live):
++    profile = context_profile_of(control, profile_digest)
++    assignment = attempts.assignment_of(control, attempt_id)
++    stage, episode, job = _job_attempt(jobs, attempt_id)
++    writer = review_cycles.writer_for_attempt(control, attempt_id=attempt_id, generation=assignment["generation"])
++    if writer is None or writer["writer_id"] != writer_id:
++        _refuse("attempt does not own the named writer")
++    line = review_cycles.line_of(control, writer["line_id"])
++    if assignment["authority_uuid"] != jobs.authority_uuid or stage["work_id"] != assignment["work_id"] or line["work_id"] != assignment["work_id"] or line["authority_uuid"] != jobs.authority_uuid or writer["participant"] != assignment["participant"] or writer["principal"] != assignment["principal"]:
++        _refuse("assignment, Job and line disagree")
++    if stage["profile_digest"] != profile["runtime_profile_digest"]:
++        _refuse("runtime profile changed")
++    runtime = attempts._require_attempt(control, attempt_id)
++    if runtime["profile_digest"] != profile["runtime_profile_digest"] or runtime["adapter_digest"] != profile["adapter_digest"] or runtime["image_digest"] != profile["image_digest"]:
++        _refuse("actual runtime profile or adapter changed")
++    expected = {"work_ref": {"authority_uuid": assignment["authority_uuid"], "work_id": assignment["work_id"]}, "participant": assignment["participant"], "generation": assignment["generation"]}
++    if live and (episode["ended_state"] is not None or writer["state"] != "active" or authority.assignment_of(assignment["work_id"], jobs.authority_uuid) != expected):
++        _refuse("implementation assignment is no longer live")
++    # The private repository object is pinned by the line owner. Open its entire
++    # ancestry without links, then compare the final descriptor to that pin.
++    from .context_delivery import _open_absolute
++    fd, pins = _open_absolute(line["line_path"])
++    try:
++        info = os.fstat(fd)
++        if [info.st_dev, info.st_ino] != [line["line_device"], line["line_inode"]]:
++            _refuse("private repository object changed")
++    finally:
++        os.close(fd)
++    source_fd, source_pins = _open_absolute(line["source_path"])
++    os.close(source_fd)
++    if source_pins[-1] != [line["source_device"], line["source_inode"]]:
++        _refuse("source object changed")
++    identity = {"authority_uuid": jobs.authority_uuid, "job_id": job["job_id"], "work_id": assignment["work_id"], "line_id": line["line_id"], "participant": assignment["participant"], "principal": assignment["principal"], "purpose": "implementation"}
++    return {"identity": identity, "attempt_id": attempt_id, "writer_id": writer_id, "assignment": assignment, "stage_id": stage["stage_id"], "episode": episode["episode"], "profile_digest": profile_digest, "job_digest": digest(job), "limits_digest": digest(submission.execution_limits_of(jobs, job["job_id"])), "repo_pin": pins, "source_pin": source_pins, "input_digest": runtime["input_digest"], "policy_digest": runtime["policy_digest"]}
++
++
++def admit_context_use(control, jobs, authority, *, attempt_id, writer_id, profile_digest):
++    _text(attempt_id); _text(writer_id); _hash(profile_digest)
++    request_kind = "provider-context.admission-request"
++    request_id = _id("context-admission-request", attempt_id)
++    request_operands = {"attempt_id": attempt_id, "writer_id": writer_id, "profile_digest": profile_digest}
++    request_signature = manager_signature(request_kind, request_operands)
++    request_found, request = control.replay(request_id, request_signature, kind=request_kind)
++    if request_found:
++        request = _document(request, ("context_id", "use_id", "revision", "payload"))
++        _payload("admit", request["payload"])
++        if any(request["payload"][key] != value for key, value in request_operands.items()):
++            _refuse("admission request journal disagrees")
++        operands = {"action": "admit", "context_id": request["context_id"], "use_id": request["use_id"], "expected_revision": request["revision"], "previous_digest": request["payload"]["predecessor"], "payload": request["payload"]}
++        found, unused = control.replay(_operation("admit", request["context_id"], request["use_id"], request["revision"]), manager_signature(TRANSITION_KIND, operands), kind=TRANSITION_KIND)
++        if found:
++            return context_use_of(control, attempt_id)
++        # A crash between request binding and transition retains that exact
++        # expected predecessor; a later head cannot silently mint another use.
++        facts = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
++        if any(facts[key] != request["payload"][key] for key in facts):
++            _refuse("admission request owner facts changed")
++        _transition(control, action="admit", context_id=request["context_id"], use_id=request["use_id"], expected_revision=request["revision"], payload=request["payload"], check=lambda: _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True))
++        return context_use_of(control, attempt_id)
++    existing = [row for chain in _history(control).values() for row in chain if row["action"] == "admit" and row["payload"]["attempt_id"] == attempt_id]
++    if existing:
++        row = existing[0]
++        if row["payload"]["writer_id"] != writer_id or row["payload"]["profile_digest"] != profile_digest:
++            _refuse("admission replay operands changed")
++        # Adoption is not new launch authority; the serving consumer must repeat
++        # its live checks immediately before an unstarted runtime is launched.
++        return context_use_of(control, attempt_id)
++    facts = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
++    context_id = _id("context", facts["identity"])
++    for other in _history(control).values():
++        first = other[0]["payload"]["identity"]
++        if first["line_id"] == facts["identity"]["line_id"] and first != facts["identity"]:
++            _refuse("private line cannot implicitly change context owner")
++    chain = _history(control, context_id)
++    predecessor = chain[-1] if chain else None
++    generation = sum(one["action"] == "finalize" for one in chain)
++    if predecessor is not None:
++        initial = next(one for one in chain if one["action"] == "admit")["payload"]
++        if any(facts[key] != initial[key] for key in ("profile_digest", "job_digest", "limits_digest", "repo_pin", "source_pin")):
++            _refuse("context identity or pinned profile changed")
++        if predecessor["action"] == "finalize":
++            from .context_delivery import configured_context_storage, validate_generation
++            validate_generation(control, configured_context_storage(control), context_id, predecessor["payload"])
++            checkpoint = predecessor["payload"]["checkpoint_id"]
++            row = jobs.operation_record(episodes.correction_operation_id(facts["identity"]["job_id"], checkpoint))
++            if row is None or row["state"] != "committed" or row["kind"] != episodes.CORRECT_KIND:
++                _refuse("no owner-committed correction")
++            operands = json.loads(row["signature"])["operands"]
++            verdict = review_cycles.verdict_of(control, operands["verdict_id"])
++            if verdict["checkpoint_id"] != checkpoint or verdict["disposition"] != "changes-requested":
++                _refuse("correction verdict disagrees")
++            old = next(one for one in reversed(chain) if one["action"] == "admit")["payload"]
++            if ending.settlement_of(jobs, old["stage_id"], old["episode"]) is None:
++                _refuse("previous implementation ending is unsettled")
++            if row["signature"] != job_signature(episodes.CORRECT_KIND, operands) or operands["job_id"] != facts["identity"]["job_id"] or operands["line_id"] != facts["identity"]["line_id"]:
++                _refuse("correction owner operands disagree")
++            recorded = json.loads(row["result"])
++            if recorded["implementation"]["attempt_id"] != attempt_id or recorded["implementation"]["episode"] != facts["episode"]:
++                _refuse("correction did not open this attempt")
++    payload = dict(facts, generation=generation, mode="restore" if generation else "open", predecessor=digest(predecessor) if predecessor else None, conversation_id=str(uuid.uuid5(uuid.NAMESPACE_OID, context_id)))
++    use_id = _id("context-use", [context_id, attempt_id, generation])
++    request = control.transact(request_id, request_kind, request_signature, lambda connection: {"context_id": context_id, "use_id": use_id, "revision": len(chain), "payload": payload})
++    if request != {"context_id": context_id, "use_id": use_id, "revision": len(chain), "payload": payload}:
++        # Another caller already pinned this attempt's exact request. Re-enter
++        # its replay branch rather than compute a new operation identity.
++        return admit_context_use(control, jobs, authority, attempt_id=attempt_id, writer_id=writer_id, profile_digest=profile_digest)
++    def check():
++        if _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True) != facts:
++            _refuse("admission owner facts changed", durable=True)
++    _transition(control, action="admit", context_id=context_id, use_id=use_id, expected_revision=len(chain), payload=payload, check=check)
++    return context_use_of(control, attempt_id)
++
++
++def hold_context_use(control, *, attempt_id, reason, evidence_refs):
++    if type(reason) is not str or reason not in REASONS or type(evidence_refs) is not list or len(evidence_refs) > 16:
++        _refuse("invalid hold reason or evidence")
++    for value in evidence_refs:
++        _hash(value)
++    chain, admitted = _use(control, attempt_id)
++    head = chain[-1]
++    if head["action"] == "hold" and head["use_id"] == admitted["use_id"] and head["payload"] == {"reason": reason, "evidence_refs": evidence_refs}:
++        return context_use_of(control, attempt_id)
++    _transition(control, action="hold", context_id=admitted["context_id"], use_id=admitted["use_id"], expected_revision=len(chain), payload={"reason": reason, "evidence_refs": evidence_refs})
++    return context_use_of(control, attempt_id)
++
++
++def retire_context(control, context_id):
++    chain = _history(control, context_id)
++    if not chain:
++        _refuse("context is absent")
++    head = chain[-1]
++    if head["action"] != "retire":
++        _transition(control, action="retire", context_id=context_id, use_id=head["use_id"], expected_revision=len(chain), payload={"reason": "retired", "evidence_refs": [digest(head)]})
++    return context_of(control, context_id)
++
++
++def _receipt(control, admitted, reader):
++    facts = admitted["payload"]
++    attempt_id = facts["attempt_id"]
++    frozen = output.frozen_output_of(control, attempt_id)
++    collected = intake.intake_receipt_of(control, attempt_id)
++    if frozen is None or collected is None or collected["custody"] != "accepted" or any(frozen[key] != collected[key] for key in ("result_id", "manifest_digest")):
++        _refuse("receipt has no matching accepted custody")
++    manifest = manifests.load_manifest(control, frozen["manifest_digest"], "resultManifest")
++    candidates = [one for one in manifest["outputs"] if one["name"] == "provider-context-receipt" and one["status"] == "present"]
++    if len(candidates) != 1:
++        _refuse("mandatory context receipt is missing")
++    candidate = candidates[0]
++    entries = candidate["content_manifest"]["entries"]
++    if len(entries) != 1 or entries[0]["path"] != "receipt.json" or entries[0]["bytes"] > 16384:
++        _refuse("receipt is not one bounded sealed file")
++    artifact = candidate["artifact"]
++    retained_ids = {one["artifact_id"] for one in intake.retentions_of(control, attempt_id) if one["disposition"] == "retain"}
++    if artifact is None or artifact["artifact_id"] not in retained_ids:
++        _refuse("context receipt was not retained")
++    if artifact is None or not any(one["artifact_id"] == artifact["artifact_id"] and one["content_digest"] == artifact["content_digest"] and one["bytes"] == artifact["bytes"] for one in collected["artifacts"]) or not any(one["artifact_id"] == artifact["artifact_id"] and one["content_digest"] == artifact["content_digest"] for one in frozen["artifacts"]):
++        _refuse("receipt artifact is not indexed and accepted")
++    boundaries.capability(reader, "the retained context receipt byte reader")
++    body = reader(attempt_id, artifact["artifact_id"])
++    if type(body) is not bytes or len(body) != entries[0]["bytes"] or digest_of_bytes(body) != entries[0]["content_digest"]:
++        _refuse("receipt bytes disagree with frozen custody")
++    def pairs(items):
++        result = {}
++        for key, value in items:
++            if key in result:
++                _refuse("duplicate receipt member")
++            result[key] = value
++        return result
++    try:
++        raw = json.loads(body, object_pairs_hook=pairs)
++    except (ValueError, UnicodeError):
++        _refuse("receipt is not complete JSON")
++    value = _document(raw, ("schema", "context_id", "use_id", "attempt_id", "conversation_id", "profile_digest", "invocation_id", "status", "complete", "model", "observed_model", "terminal", "cli_build", "mode", "delivery_digest", "input_digest", "policy_digest"))
++    profile = context_profile_of(control, facts["profile_digest"])
++    delivered = next(one for one in _history(control, admitted["context_id"]) if one["action"] == "deliver" and one["use_id"] == admitted["use_id"])
++    expected = {"model": profile["model"], "observed_model": profile["reported_model"], "terminal": "success", "cli_build": profile["cli_build"], "mode": facts["mode"], "delivery_digest": delivered["payload"]["delivery_digest"], "input_digest": facts["input_digest"], "policy_digest": facts["policy_digest"], "schema": RECEIPT_SCHEMA, "context_id": admitted["context_id"], "use_id": admitted["use_id"], "attempt_id": attempt_id, "conversation_id": facts["conversation_id"], "profile_digest": facts["profile_digest"], "invocation_id": _id("context-invocation", admitted["use_id"])}
++    if any(value[key] != wanted for key, wanted in expected.items()) or type(value["status"]) is not int or value["status"] != 0 or value["complete"] is not True:
++        _refuse("receipt does not prove this healthy invocation")
++    assignment = facts["assignment"]
++    expected_assignment = {"work_ref": {"authority_uuid": assignment["authority_uuid"], "work_id": assignment["work_id"]}, "participant": assignment["participant"], "generation": assignment["generation"]}
++    if manifest["assignment_ref"] != expected_assignment or collected["assignment"] != expected_assignment or manifest["input_manifest_digest"] != facts["input_digest"] or manifest["policy_digest"] != facts["policy_digest"]:
++        _refuse("receipt belongs to another assignment")
++    return digest_of_bytes(body)
++
++
++def _finalize_context_use(control, jobs, authority, *, attempt_id, storage, receipt_reader, checkpoint_reader):
++    """Historical owner reads; never ask Authority for a fresh admission here."""
++    from . import context_delivery
++    chain, admitted = _use(control, attempt_id)
++    own = [one for one in chain if one["use_id"] == admitted["use_id"]]
++    if own[-1]["action"] in ("hold", "retire"):
++        _refuse("context use is held or retired")
++    finalized = next((one for one in own if one["action"] == "finalize"), None)
++    if finalized is not None:
++        context_delivery.validate_generation(control, storage, admitted["context_id"], finalized["payload"])
++        return context_use_of(control, attempt_id)
++    facts = admitted["payload"]
++    current = _facts(control, jobs, authority, attempt_id, facts["writer_id"], facts["profile_digest"], live=False)
++    if any(current[key] != facts[key] for key in current):
++        _refuse("historical use owner facts changed")
++    profile = context_profile_of(control, facts["profile_digest"])
++    cleanup = intake.cleanup_of(control, attempt_id=attempt_id, retention_policy_digest=profile["retention_policy_digest"])
++    runtime = attempts.attempt_runtime_of(control, attempt_id)
++    if cleanup is None or runtime is None or cleanup["state"] != "absent" or cleanup["cleanup"] not in ("complete", "retained") or runtime["execution_runtime"] != "destroyed":
++        _refuse("old runtime exclusion is unproved")
++    writer = review_cycles.writer_of(control, facts["writer_id"])
++    boundaries.capability(checkpoint_reader, "the historical checkpoint identity reader")
++    checkpoint = review_cycles.checkpoint_of(control, checkpoint_reader(attempt_id, writer["writer_id"]))
++    if writer["state"] != "revoked" or checkpoint["writer_id"] != writer["writer_id"] or checkpoint["state"] != "frozen" or checkpoint["fence"] is None:
++        _refuse("old writer checkpoint is not fenced")
++    try:
++        receipt_digest = _receipt(control, admitted, receipt_reader)
++    except ContractRefusal:
++        hold_context_use(control, attempt_id=attempt_id, reason="receipt-invalid", evidence_refs=[digest(admitted)])
++        raise
++    sealed = context_delivery.seal_generation(control, storage, attempt_id=attempt_id, exclusion=cleanup)
++    payload = dict(sealed, receipt_digest=receipt_digest, checkpoint_id=checkpoint["checkpoint_id"], checkpoint_digest=checkpoint["checkpoint_digest"], exclusion_digest=digest(cleanup))
++    _transition(control, action="finalize", context_id=admitted["context_id"], use_id=admitted["use_id"], expected_revision=own[-1]["revision"], payload=payload)
++    return context_use_of(control, attempt_id)
++
++
++def finalize_context_use(control, jobs, authority, *, attempt_id, storage, receipt_reader, checkpoint_reader):
++    """Persist a closed hold for an unprovable ending; faults remain retryable."""
++    try:
++        return _finalize_context_use(control, jobs, authority, attempt_id=attempt_id, storage=storage, receipt_reader=receipt_reader, checkpoint_reader=checkpoint_reader)
++    except ContractRefusal:
++        chain, admitted = _use(control, attempt_id)
++        if chain[-1]["use_id"] == admitted["use_id"] and chain[-1]["action"] not in ("hold", "retire"):
++            hold_context_use(control, attempt_id=attempt_id, reason="generation-damaged" if chain[-1]["action"] == "finalize" else "custody-invalid", evidence_refs=[digest(chain[-1])])
++        raise
+--- /dev/null
++++ b/v12/python/src/baton_v12/worker_manager/context_delivery.py
+@@ -0,0 +1,551 @@
++"""Descriptor-pinned private context storage; never a generic extra mount.
++
++Only the context owner publishes generations. A runtime receives a new working
++copy, not a writable generation. This first slice supports the manager UID only;
++other runtime ownership needs a qualified normalization profile before launch.
++"""
++
++import contextlib
++import json
++import os
++import stat
++from dataclasses import dataclass
++
++from ..contracts import canonical_text, digest, digest_of_bytes
++from . import intake, workspaces
++from . import provider_context as context
++from .store import manager_signature
++
++STORAGE_KIND = "provider-context.storage"
++STORAGE_ID = "provider-context-storage"
++CREDENTIAL_PATH = ".claude/.credentials.json"
++CREDENTIAL_TARGET = "/run/baton/credentials/claude"
++_DIR_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
++_FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
++
++
++def _pin(fd):
++    info = os.fstat(fd)
++    return [info.st_dev, info.st_ino]
++
++
++def _open_absolute(path):
++    if type(path) is not str or not path.startswith("/") or path != os.path.normpath(path):
++        context._refuse("storage path is not canonical and absolute")
++    fd = os.open("/", _DIR_FLAGS)
++    pins = [_pin(fd)]
++    try:
++        for part in path.split("/")[1:]:
++            if not part:
++                continue
++            child = os.open(part, _DIR_FLAGS, dir_fd=fd)
++            os.close(fd)
++            fd = child
++            pins.append(_pin(fd))
++        return fd, pins
++    except OSError:
++        os.close(fd)
++        context._refuse("directory ancestry is inaccessible or replaced")
++
++
++def _private(fd, *, writable=False):
++    info = os.fstat(fd)
++    if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) & 0o077 or not info.st_mode & stat.S_IRUSR or (writable and not info.st_mode & stat.S_IWUSR):
++        context._refuse("protected custody owner or mode changed")
++
++
++@dataclass(frozen=True)
++class ContextStorage:
++    """A private locator, always re-adopted against its committed owner record."""
++    path: str
++    pins: tuple
++
++
++@dataclass(frozen=True)
++class ContextDelivery:
++    context_id: str
++    use_id: str
++    attempt_id: str
++    home: str
++    invocation: str
++    digest: str
++
++
++def configure_context_storage(control, path, *, excluded_roots, runtime_uid):
++    if type(runtime_uid) is not int or runtime_uid != os.getuid():
++        context._refuse("runtime custody normalization profile is unavailable")
++    if type(excluded_roots) is not list or not excluded_roots:
++        context._refuse("storage exclusion roots must be explicit")
++    fd, pins = _open_absolute(path)
++    try:
++        _private(fd, writable=True)
++        excluded = []
++        fixed_roots = list(excluded_roots) + [workspaces.configured_workspace_storage(control).place]
++        for root in dict.fromkeys(fixed_roots):
++            other, other_pins = _open_absolute(root)
++            os.close(other)
++            if pins[:len(other_pins)] == other_pins or other_pins[:len(pins)] == pins:
++                context._refuse("context storage overlaps an excluded root")
++            excluded.append({"path": root, "pins": other_pins})
++        held = {"path": path, "pins": pins, "excluded": excluded, "runtime_uid": runtime_uid}
++        control.transact(STORAGE_ID, STORAGE_KIND, manager_signature(STORAGE_KIND, held), lambda connection: held)
++    finally:
++        os.close(fd)
++    return ContextStorage(path, tuple(tuple(one) for one in pins))
++
++
++def configured_context_storage(control):
++    row = control.operation_record(STORAGE_ID)
++    if row is None or row["kind"] != STORAGE_KIND or row["state"] != "committed":
++        context._refuse("protected context storage is not configured")
++    held = context._document(json.loads(row["result"]), ("path", "pins", "excluded", "runtime_uid"))
++    if row["signature"] != manager_signature(STORAGE_KIND, held):
++        context._refuse("storage journal disagrees")
++    fd, pins = _open_absolute(held["path"])
++    try:
++        _private(fd, writable=True)
++        if pins != held["pins"] or held["runtime_uid"] != os.getuid():
++            context._refuse("protected storage object changed")
++    finally:
++        os.close(fd)
++    return ContextStorage(held["path"], tuple(tuple(one) for one in pins))
++
++
++@contextlib.contextmanager
++def _storage(control, storage):
++    fixed = configured_context_storage(control)
++    if type(storage) is not ContextStorage or storage != fixed:
++        context._refuse("storage capability disagrees with its owner")
++    fd, pins = _open_absolute(fixed.path)
++    try:
++        if tuple(tuple(one) for one in pins) != fixed.pins:
++            context._refuse("storage changed during adoption")
++        _private(fd, writable=True)
++        yield fd
++    finally:
++        os.close(fd)
++
++
++def _directory(parent, name, *, create=False):
++    if type(name) is not str or name in ("", ".", "..") or "/" in name:
++        context._refuse("invalid custody component")
++    try:
++        if create:
++            try:
++                os.mkdir(name, 0o700, dir_fd=parent)
++                os.fsync(parent)
++            except FileExistsError:
++                pass
++        fd = os.open(name, _DIR_FLAGS, dir_fd=parent)
++    except OSError:
++        context._refuse("custody directory is inaccessible or replaced")
++    try:
++        _private(fd)
++        return fd
++    except BaseException:
++        os.close(fd)
++        raise
++
++
++@contextlib.contextmanager
++def _directories(parent, names, *, create=False):
++    handles = []
++    try:
++        current = parent
++        for name in names:
++            current = _directory(current, name, create=create)
++            handles.append(current)
++        yield current
++    finally:
++        for handle in reversed(handles):
++            os.close(handle)
++
++
++def _read(parent, name, limit, *, immutable=False):
++    try:
++        fd = os.open(name, _FILE_FLAGS, dir_fd=parent)
++    except OSError:
++        context._refuse("custody file is inaccessible or replaced")
++    try:
++        info = os.fstat(fd)
++        if immutable and stat.S_IMODE(info.st_mode) != 0o400:
++            context._refuse("published metadata file is not immutable")
++        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) & 0o077 or not info.st_mode & stat.S_IRUSR or info.st_size > limit:
++            context._refuse("custody file type, ownership or size is invalid")
++        chunks = []
++        remaining = limit + 1
++        while remaining:
++            part = os.read(fd, min(65536, remaining))
++            if not part:
++                break
++            chunks.append(part); remaining -= len(part)
++        body = b"".join(chunks)
++        after = os.fstat(fd)
++        if len(body) > limit or len(body) != info.st_size or (info.st_mtime_ns, info.st_ctime_ns, info.st_size) != (after.st_mtime_ns, after.st_ctime_ns, after.st_size):
++            context._refuse("custody file changed while measured")
++        return body
++    finally:
++        os.close(fd)
++
++
++def _write(parent, name, body, *, immutable=False, recover=False):
++    try:
++        fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=parent)
++    except FileExistsError:
++        info = os.stat(name, dir_fd=parent, follow_symlinks=False)
++        existing = _read(parent, name, len(body))
++        if not recover:
++            if existing != body:
++                context._refuse("existing custody file differs")
++            return
++        # Only journal-pinned, uncommitted staging may complete a write. A
++        # complete immutable file is adopted; a mutable exact prefix is resumed
++        # without truncation. Foreign bytes and immutable partial files refuse.
++        mode = stat.S_IMODE(info.st_mode)
++        if existing == body and mode == 0o400:
++            fd = os.open(name, _FILE_FLAGS, dir_fd=parent)
++            try:
++                if _pin(fd) != [info.st_dev, info.st_ino]:
++                    context._refuse("staged file changed before synchronization")
++                os.fsync(fd)
++            finally:
++                os.close(fd)
++            os.fsync(parent)
++            return
++        if mode != 0o600 or not body.startswith(existing):
++            context._refuse("existing custody file differs")
++        fd = os.open(name, os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC, dir_fd=parent)
++        after = os.fstat(fd)
++        if (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns) != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns):
++            os.close(fd)
++            context._refuse("staged file changed before recovery")
++        os.lseek(fd, len(existing), os.SEEK_SET)
++        body = body[len(existing):]
++    try:
++        view = memoryview(body)
++        while view:
++            amount = os.write(fd, view)
++            if amount <= 0:
++                context._refuse("custody write made no progress")
++            view = view[amount:]
++        if immutable:
++            os.fchmod(fd, 0o400)
++        os.fsync(fd)
++    finally:
++        os.close(fd)
++    os.fsync(parent)
++
++
++def _state(home, profile, *, snapshot=False, immutable=False):
++    """Inspect types before opening any content; unknown files are never read."""
++    allowed = set(profile["state_paths"])
++    entries = []
++    count = 0
++    total = 0
++    def walk(parent, prefix, depth):
++        nonlocal count, total
++        if immutable and stat.S_IMODE(os.fstat(parent).st_mode) != 0o500:
++            context._refuse("published state directory is writable")
++        if depth > 16:
++            context._refuse("context directory depth exceeds its bound")
++        # Limit enumeration itself; never list an unbounded worker tree.
++        with os.scandir(parent) as listing:
++            names = []
++            for entry in listing:
++                count += 1
++                if count > profile["max_entries"]:
++                    context._refuse("context entry ceiling exceeded")
++                names.append(entry.name)
++        for name in sorted(names):
++            path = prefix + name
++            info = os.stat(name, dir_fd=parent, follow_symlinks=False)
++            if path == CREDENTIAL_PATH:
++                if snapshot:
++                    context._refuse("credential slot entered a generation")
++                if not stat.S_ISLNK(info.st_mode) or os.readlink(name, dir_fd=parent) != CREDENTIAL_TARGET:
++                    context._refuse("volatile credential slot was substituted")
++                continue
++            if stat.S_ISDIR(info.st_mode):
++                if snapshot and not any(one.startswith(path + "/") for one in allowed):
++                    context._refuse("generation contains an unlisted directory")
++                child = _directory(parent, name)
++                try:
++                    if _pin(child) != [info.st_dev, info.st_ino]:
++                        context._refuse("context directory replaced during traversal")
++                    walk(child, path + "/", depth + 1)
++                finally:
++                    os.close(child)
++            elif not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
++                context._refuse("context contains a link or special file")
++            elif path in allowed:
++                if immutable and stat.S_IMODE(info.st_mode) != 0o400:
++                    context._refuse("published state file is writable")
++                body = _read(parent, name, profile["max_bytes"] - total)
++                total += len(body)
++                entries.append((path, body))
++            elif snapshot:
++                context._refuse("generation contains an unlisted file")
++    walk(home, "", 0)
++    if set(path for path, body in entries) != allowed:
++        context._refuse("required provider state is missing")
++    return entries
++
++
++def _manifest(entries):
++    files = [{"path": path, "bytes": len(body), "digest": digest_of_bytes(body)} for path, body in entries]
++    return {"entries": files, "bytes": sum(one["bytes"] for one in files), "count": len(files)}
++
++
++def _copy(parent, entries, *, immutable=False, recover=False):
++    for path, body in entries:
++        parts = path.split("/")
++        with _directories(parent, parts[:-1], create=True) as target:
++            _write(target, parts[-1], body, immutable=immutable, recover=recover)
++    os.fsync(parent)
++
++
++def _delivery(control, storage, admitted, pins):
++    value = {"context_id": admitted["context_id"], "use_id": admitted["use_id"], "attempt_id": admitted["payload"]["attempt_id"], "pins": pins, "admission_digest": digest(admitted)}
++    root = os.path.join(storage.path, admitted["context_id"], "uses", admitted["use_id"])
++    return ContextDelivery(value["context_id"], value["use_id"], value["attempt_id"], os.path.join(root, "home"), os.path.join(root, "invocation"), digest(value))
++
++
++def materialize_context_use(control, storage, *, attempt_id):
++    chain, admitted = context._use(control, attempt_id)
++    if control.operation_record(context._id("context-discard", admitted["use_id"]) + "-intent") is not None:
++        context._refuse("context use is being discarded")
++    prior = next((one for one in chain if one["use_id"] == admitted["use_id"] and one["action"] == "deliver"), None)
++    if prior is not None:
++        return adopt_context_use(control, storage, attempt_id=attempt_id)
++    if chain[-1] != admitted:
++        context._refuse("context use cannot be materialized")
++    profile = context.context_profile_of(control, admitted["payload"]["profile_digest"])
++    storage_pins = [list(one) for one in configured_context_storage(control).pins]
++    for key in ("repo_pin", "source_pin"):
++        other = admitted["payload"][key]
++        if storage_pins[:len(other)] == other or other[:len(storage_pins)] == storage_pins:
++            context._refuse("context storage overlaps its admitted source or line")
++    with _storage(control, storage) as root:
++        with _directories(root, [admitted["context_id"]], create=True) as owner:
++            entries = []
++            if admitted["payload"]["generation"]:
++                previous = next(one for one in reversed(chain) if one["action"] == "finalize")
++                entries = _generation(owner, str(admitted["payload"]["generation"]), profile, previous["payload"], use_id=previous["use_id"])
++            with _directories(owner, ["uses", admitted["use_id"]], create=True) as use:
++                _write(use, "identity", canonical_text({"admission_digest": digest(admitted)}).encode())
++                with _directories(use, ["home"], create=True) as home:
++                    _copy(home, entries)
++                    pins = {"use": _pin(use), "home": _pin(home), "owner": _pin(owner)}
++                # The invocation witness is per-use. It is never copied from state.
++                delivery = _delivery(control, storage, admitted, pins)
++    context._transition(control, action="deliver", context_id=admitted["context_id"], use_id=admitted["use_id"], expected_revision=admitted["revision"], payload={"delivery_digest": delivery.digest, "pins": pins})
++    return delivery
++
++
++def adopt_context_use(control, storage, *, attempt_id):
++    chain, admitted = context._use(control, attempt_id)
++    delivered = next((one for one in chain if one["use_id"] == admitted["use_id"] and one["action"] == "deliver"), None)
++    if delivered is None:
++        context._refuse("context delivery has no committed pins")
++    pins = delivered["payload"]["pins"]
++    with _storage(control, storage) as root:
++        with _directories(root, [admitted["context_id"]]) as owner:
++            with _directories(owner, ["uses", admitted["use_id"]]) as use:
++                with _directories(use, ["home"]) as home:
++                    if {"use": _pin(use), "home": _pin(home), "owner": _pin(owner)} != pins or _read(use, "identity", 1024) != canonical_text({"admission_digest": digest(admitted)}).encode():
++                        context._refuse("original use roots were replaced")
++    delivery = _delivery(control, storage, admitted, pins)
++    if delivery.digest != delivered["payload"]["delivery_digest"]:
++        context._refuse("delivery digest disagrees")
++    return delivery
++
++
++def _generation(owner, number, profile, expected, *, use_id, finish_publication=False):
++    with _directories(owner, ["generations", number]) as generation:
++        if set(os.listdir(generation)) != {"identity", "manifest", "state"}:
++            context._refuse("generation contains an unlisted entry")
++        identity = canonical_text({"use_id": use_id, "exclusion_digest": expected["exclusion_digest"]}).encode()
++        if _read(generation, "identity", 1024, immutable=True) != identity:
++            context._refuse("generation identity disagrees with its original use and exclusion")
++        body = _read(generation, "manifest", 1024 * 1024, immutable=True)
++        with _directories(generation, ["state"]) as state:
++            pins = {"owner": _pin(owner), "generation": _pin(generation), "state": _pin(state)}
++            if expected["generation_pins"] != pins:
++                context._refuse("committed generation objects were replaced")
++            entries = _state(state, profile, snapshot=True, immutable=True)
++        manifest = _manifest(entries)
++        if body != canonical_text(manifest).encode() or digest(manifest) != expected["manifest_digest"]:
++            context._refuse("committed generation is damaged")
++        if finish_publication:
++            os.fchmod(generation, 0o500)
++            os.fsync(generation)
++        elif stat.S_IMODE(os.fstat(generation).st_mode) != 0o500:
++            context._refuse("published generation directory is writable")
++        return entries
++
++
++def validate_generation(control, storage, context_id, expected):
++    chain = context._history(control, context_id)
++    finalized = next((one for one in chain if one["action"] == "finalize" and one["payload"] == expected), None)
++    if finalized is None:
++        context._refuse("generation has no matching committed finalization")
++    admitted = next(one for one in chain if one["action"] == "admit" and one["use_id"] == finalized["use_id"])
++    profile = context.context_profile_of(control, admitted["payload"]["profile_digest"])
++    with _storage(control, storage) as root:
++        with _directories(root, [context_id]) as owner:
++            _generation(owner, str(expected["generation"]), profile, expected, use_id=admitted["use_id"])
++
++
++def seal_generation(control, storage, *, attempt_id, exclusion):
++    """Only positive owner cleanup allows reading the formerly mutable state."""
++    chain, admitted = context._use(control, attempt_id)
++    profile = context.context_profile_of(control, admitted["payload"]["profile_digest"])
++    actual = intake.cleanup_of(control, attempt_id=attempt_id, retention_policy_digest=profile["retention_policy_digest"])
++    if actual is None or actual != exclusion or actual["state"] != "absent" or actual["cleanup"] not in ("complete", "retained"):
++        context._refuse("generation has no owner-proved runtime exclusion")
++    delivery = adopt_context_use(control, storage, attempt_id=attempt_id)
++    number = admitted["payload"]["generation"] + 1
++    operation = context._operation("finalize", admitted["context_id"], admitted["use_id"], admitted["revision"] + 1)
++    with _storage(control, storage) as root:
++        with _directories(root, [admitted["context_id"]]) as owner:
++            delivered = next(one for one in chain if one["action"] == "deliver" and one["use_id"] == admitted["use_id"])
++            pins = delivered["payload"]["pins"]
++            with _directories(owner, ["uses", admitted["use_id"]]) as use:
++                with _directories(use, ["home"]) as home:
++                    if {"owner": _pin(owner), "use": _pin(use), "home": _pin(home)} != pins:
++                        context._refuse("use root changed before state measurement")
++                    entries = _state(home, profile)
++            manifest = _manifest(entries)
++            expected = {"generation": number, "manifest_digest": digest(manifest), "exclusion_digest": digest(actual)}
++            identity = {"use_id": admitted["use_id"], "exclusion_digest": digest(actual)}
++            staging_kind = "provider-context.staging"
++            staging_id = operation + "-staging"
++            operands = dict(identity, generation=number, manifest_digest=digest(manifest), delivery_digest=delivery.digest, source_pins=pins)
++            recorded = control.operation_record(staging_id)
++            held = None
++            if recorded is not None:
++                if recorded["kind"] != staging_kind or recorded["state"] != "committed":
++                    context._refuse("staging has no committed owner")
++                held = context._document(json.loads(recorded["result"]), (*operands, "generation_pins"))
++                if recorded["signature"] != manager_signature(staging_kind, held) or any(held[key] != value for key, value in operands.items()):
++                    context._refuse("staging owner facts changed")
++            with _directories(owner, ["generations"], create=True) as generations:
++                if str(number) in os.listdir(generations):
++                    if held is None:
++                        context._refuse("published generation has no original staging pins")
++                    expected["generation_pins"] = held["generation_pins"]
++                    _generation(owner, str(number), profile, expected, use_id=admitted["use_id"], finish_publication=True)
++                    return expected
++                # Commit staging object pins and immutable source/exclusion facts
++                # before the first file write. Only that operation can resume
++                # mutable prefix files. An unowned nonempty directory refuses.
++                with _directories(owner, ["staging"], create=True) as staging:
++                    with _directories(staging, [operation], create=True) as staged:
++                        if held is None and set(os.listdir(staged)) - {"state"}:
++                            context._refuse("unowned staging is not empty")
++                        with _directories(staged, ["state"], create=True) as state:
++                            if held is None and os.listdir(state):
++                                context._refuse("unowned staging state is not empty")
++                            generation_pins = {"owner": _pin(owner), "generation": _pin(staged), "state": _pin(state)}
++                            proposed = dict(operands, generation_pins=generation_pins)
++                            if held is not None and held != proposed:
++                                context._refuse("original staging objects were replaced")
++                            control.transact(staging_id, staging_kind, manager_signature(staging_kind, proposed), lambda connection: proposed)
++                            expected["generation_pins"] = generation_pins
++                            _write(staged, "identity", canonical_text(identity).encode(), immutable=True, recover=True)
++                            _copy(state, entries, immutable=True, recover=True)
++                            if _manifest(_state(state, profile, snapshot=True)) != manifest:
++                                context._refuse("staged generation disagrees")
++                        _write(staged, "manifest", canonical_text(manifest).encode(), immutable=True, recover=True)
++                        if set(os.listdir(staged)) != {"identity", "state", "manifest"}:
++                            context._refuse("staging contains an unlisted entry")
++                        _freeze_directories(staged, freeze_root=False)
++                        os.fsync(staged)
++                    os.rename(operation, str(number), src_dir_fd=staging, dst_dir_fd=generations)
++                    with _directories(generations, [str(number)]) as published:
++                        os.fchmod(published, 0o500)
++                        os.fsync(published)
++                    os.fsync(staging); os.fsync(generations)
++    return expected
++
++
++
++def _freeze_directories(parent, *, freeze_root=True):
++    # This walks only owner-created bounded staging, after the bounded state
++    # measurement. Files already have their immutable custody modes.
++    with os.scandir(parent) as listing:
++        for entry in listing:
++            if entry.is_dir(follow_symlinks=False):
++                child = _directory(parent, entry.name)
++                try:
++                    _freeze_directories(child)
++                finally:
++                    os.close(child)
++    if freeze_root:
++        os.fchmod(parent, 0o500)
++    os.fsync(parent)
++
++
++def discard_context_use(control, storage, *, attempt_id):
++    """Dispose only a finalized old use after independently proving exclusion.
++
++    Published generations remain retained. Unknown and admitted roots are never
++    deleted. The invocation witness is private evidence and survives disposal.
++    """
++    chain, admitted = context._use(control, attempt_id)
++    finalized = next((row for row in chain if row["use_id"] == admitted["use_id"] and row["action"] == "finalize"), None)
++    if finalized is None:
++        context._refuse("only an excluded finalized use may be discarded")
++    profile = context.context_profile_of(control, admitted["payload"]["profile_digest"])
++    cleanup = intake.cleanup_of(control, attempt_id=attempt_id, retention_policy_digest=profile["retention_policy_digest"])
++    if cleanup is None or cleanup["state"] != "absent" or digest(cleanup) != finalized["payload"]["exclusion_digest"]:
++        context._refuse("use disposal has no matching exclusion")
++    validate_generation(control, storage, admitted["context_id"], finalized["payload"])
++    delivered = next(row for row in chain if row["use_id"] == admitted["use_id"] and row["action"] == "deliver")
++    operands = {"use_id": admitted["use_id"], "delivery_digest": delivered["payload"]["delivery_digest"], "exclusion_digest": digest(cleanup), "generation_digest": finalized["payload"]["manifest_digest"]}
++    kind = "provider-context.discard-use"
++    operation = context._id("context-discard", admitted["use_id"])
++    signature = manager_signature(kind, operands)
++    control.transact(operation + "-intent", kind + ".intent", manager_signature(kind + ".intent", operands), lambda connection: operands)
++    def discard(connection):
++        with _storage(control, storage) as root:
++            with _directories(root, [admitted["context_id"]]) as owner:
++                with _directories(owner, ["uses", admitted["use_id"]]) as use:
++                    with _directories(use, ["home"]) as home:
++                        if {"owner": _pin(owner), "use": _pin(use), "home": _pin(home)} != delivered["payload"]["pins"]:
++                            context._refuse("discarded use root was replaced")
++                        _clear_owned(home, profile["max_entries"], "")
++        return dict(operands, discarded=True)
++    return control.transact(operation, kind, signature, discard)
++
++
++def _clear_owned(parent, remaining, prefix):
++    _private(parent, writable=True)
++    with os.scandir(parent) as listing:
++        names = []
++        for entry in listing:
++            if len(names) >= remaining:
++                context._refuse("disposal entry bound exceeded")
++            names.append(entry.name)
++    remaining -= len(names)
++    for name in names:
++        info = os.stat(name, dir_fd=parent, follow_symlinks=False)
++        if stat.S_ISDIR(info.st_mode):
++            child = _directory(parent, name)
++            try:
++                if _pin(child) != [info.st_dev, info.st_ino]:
++                    context._refuse("disposal directory was replaced")
++                remaining = _clear_owned(child, remaining, prefix + name + "/")
++                if os.stat(name, dir_fd=parent, follow_symlinks=False).st_ino != info.st_ino:
++                    context._refuse("disposal directory changed before removal")
++                os.rmdir(name, dir_fd=parent)
++            finally:
++                os.close(child)
++        elif stat.S_ISREG(info.st_mode) and info.st_nlink == 1:
++            os.unlink(name, dir_fd=parent)
++        elif prefix + name == CREDENTIAL_PATH and stat.S_ISLNK(info.st_mode) and os.readlink(name, dir_fd=parent) == CREDENTIAL_TARGET:
++            os.unlink(name, dir_fd=parent)
++        else:
++            context._refuse("disposal encountered a foreign object")
++    os.fsync(parent)
++    return remaining
+--- /dev/null
++++ b/v12/python/tests/manager/test_provider_context.py
+@@ -0,0 +1,782 @@
++"""Selected A: real owner journals and files; deterministic boundary providers.
++
++No production CLI qualification, serving enablement or live engine is claimed.
++"""
++import copy
++import json
++import os
++import pathlib
++import tempfile
++import threading
++import unittest
++from unittest import mock
++
++from baton_v12.contracts import ContractRefusal, digest
++from baton_v12.job_manager import JobStore, submit
++from baton_v12.job_manager import episodes, submission
++from baton_v12.worker_manager import (AuthorityPort, ControlStore, accept_offer, activate_assignment, certify_profile, create_line, grant_writer, issue_offer, record_attempt, submit_claim)
++from baton_v12.worker_manager import provider_context as context
++from baton_v12.worker_manager import context_delivery as delivery
++from baton_v12.worker_manager.source_boundary import nominate_source
++from baton_v12.worker_manager.workspaces import configure_workspace_storage
++from tests.manager import input_roots
++from tests.manager.disk_roots import disk_backed_under
++from tests.manager.test_offers import FakeSession, NOW, UUID, WORK, WHO, PROFILE, fake_claim_signature
++from tests.job_manager.fixtures import job, stage
++from tests.job_manager.test_review_driver import Profile
++
++
++UUID = "0000000a" + "0" * 24
++
++
++def profile(**changed):
++    result = {"schema": context.PROFILE_SCHEMA, "qualification": "deterministic", "evidence_digest": "sha256:" + "e" * 64, "cli_build": "deterministic-claude-layout", "image_digest": "sha256:" + "a" * 64, "adapter_digest": "sha256:" + "d" * 64, "runtime_profile_digest": PROFILE, "model": "deterministic-model", "reported_model": "deterministic-model", "argv_policy_digest": "sha256:" + "3" * 64, "environment_policy_digest": "sha256:" + "4" * 64, "layout_version": "deterministic-layout/1", "cwd": "/output", "state_paths": [".claude/projects/output/session.json"], "max_entries": 64, "max_bytes": 4096, "retention_policy_digest": "sha256:" + "9" * 64}
++    result.update(changed)
++    return result
++
++
++class ContextSession(FakeSession):
++    def __init__(self, *args, **kwargs):
++        super().__init__(*args, **kwargs)
++        self.discharge_answer["kind"] = "runtime-absent"
++
++    def cancel(self, operands):
++        answer = super().cancel(operands)
++        self._work = dict(self._work, gate=answer["gate"], phase="block")
++        self.live_assignment = None
++        return answer
++
++
++class ContextCase(unittest.TestCase):
++    def setUp(self):
++        self.temporary = tempfile.TemporaryDirectory(prefix="v12-context-")
++        self.addCleanup(self.temporary.cleanup)
++        self.root = pathlib.Path(self.temporary.name)
++        self.path = str(self.root / "control.sqlite3")
++        self.control = ControlStore.open(self.path, incarnation="context-1", clock=lambda: NOW)
++        self.addCleanup(self.control.close)
++        self.store = self.control
++        self.storage = pathlib.Path(disk_backed_under(self)) / "workspaces"
++        self.storage.mkdir(mode=0o700)
++        configure_workspace_storage(self.control, str(self.storage))
++        input_roots.configured_group(self.control)
++        self.source = self.root / "source"
++        self.source.mkdir(mode=0o700)
++        self.private = self.root / "contexts"
++        self.private.mkdir(mode=0o700)
++        self.custody = delivery.configure_context_storage(self.control, str(self.private), excluded_roots=[str(self.source), str(self.storage)], runtime_uid=os.getuid())
++        self.jobs = JobStore.open(str(self.root / "jobs.sqlite3"), authority_uuid=UUID, incarnation="jobs-1", clock=lambda: NOW)
++        self.addCleanup(self.jobs.close)
++        submit(self.jobs, {"schema": "baton.v12.job-submission/1", "submission_id": "context-submission", "jobs": [job("context-job", stages=[stage("implementation", WORK), stage("review", WORK)])]})
++        self.stage = submission.stages_of(self.jobs, "context-job")[0]
++        self.attempt_id = episodes.live_of(self.jobs, self.stage["stage_id"])["attempt_id"]
++        self.session = ContextSession()
++        self.session._work["authority_uuid"] = UUID
++        self.session.live_assignment["work_ref"]["authority_uuid"] = UUID
++        self.session.claim_answer["assignment"]["work_ref"]["authority_uuid"] = UUID
++        self.port = AuthorityPort(self.session, fake_claim_signature)
++        certify_profile(self.control, "runtime", "reference", PROFILE)
++        self.profile = Profile()
++        self.line = create_line(self.control, source=nominate_source(str(self.source)), declared_base="a" * 40, profile=self.profile, authority_uuid=UUID, work_id=WORK)
++        self.profile_digest = context.certify_context_profile(self.control, profile())["profile_digest"]
++        from baton_v12.worker_manager import retain_manifest
++        given, assignment = input_roots.documents(work_ref={"authority_uuid": UUID, "work_id": WORK}, participant=WHO, generation=1, runtime_attempt_id=self.attempt_id, policy_digest="sha256:" + "2" * 64, profile_digest=PROFILE)
++        declaration = copy.deepcopy(given["outputs"][0])
++        declaration["name"] = "provider-context-receipt"
++        declaration["path"] = "provider-context-receipt"
++        declaration["constraints"]["allowed_media_types"] = ["application/json"]
++        given["outputs"] = [declaration]
++        given.pop("manifest_digest")
++        given["manifest_digest"] = digest(given)
++        self.given = given
++        self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
++        self.activate()
++
++    def activate(self, *, generation=1, based=None, review=False):
++        attempt = self.attempt_id
++        offer = "context-offer-" + attempt
++        self.generation = generation
++        issue_offer(self.control, self.port, offer_id=offer, work_id=WORK, runtime_attempt_id=attempt, input_digest=self.input_digest, policy_digest="sha256:" + "2" * 64, profile_digest=PROFILE, profile_name="reference", mint_bearer=lambda: "context-bearer")
++        accept_offer(self.control, self.port, offer_id=offer, decision="accept", bearer="context-bearer", now=NOW, runtime_attempt_id=attempt, work_ref={"authority_uuid": UUID, "work_id": WORK})
++        record_attempt(self.control, attempt_id=attempt, adapter_name="deterministic", adapter_digest="sha256:" + "d" * 64, image_digest=profile()["image_digest"], profile_digest=PROFILE, input_digest=self.input_digest, policy_digest="sha256:" + "2" * 64)
++        submit_claim(self.control, self.port, offer_id=offer)
++        activate_assignment(self.control, self.port, attempt_id=attempt, expect=self.session.live_assignment)
++        if review:
++            from baton_v12.worker_manager import attach_review
++            self.attachment = attach_review(self.control, checkpoint_id=based, attempt_id=attempt, generation=generation, reviewer_worker_id="independent-reviewer", profile=self.profile)
++        else:
++            self.writer = grant_writer(self.control, line_id=self.line["line_id"], attempt_id=attempt, generation=generation, worker_id="implementation-worker", profile=self.profile, based_checkpoint_id=based)
++
++    def admit(self, control=None, **changed):
++        arguments = dict(attempt_id=self.attempt_id, writer_id=self.writer["writer_id"], profile_digest=self.profile_digest)
++        arguments.update(changed)
++        return context.admit_context_use(control or self.control, self.jobs, self.port, **arguments)
++
++    def delivered(self):
++        self.admit()
++        return delivery.materialize_context_use(self.control, self.custody, attempt_id=self.attempt_id)
++
++    def state(self, delivered=None):
++        delivered = delivered or self.delivered()
++        home = pathlib.Path(delivered.home)
++        state = home / profile()["state_paths"][0]
++        state.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
++        # mkdir(parents=True) uses ambient permissions for intermediate dirs.
++        (home / ".claude").chmod(0o700)
++        (home / ".claude/projects").chmod(0o700)
++        state.write_bytes(b'{"private":"remembered"}')
++        state.chmod(0o600)
++        return delivered, state
++
++
++    def end_runtime(self, first=None, *, receipt_changes=None, review=False):
++        """Ordinary public freeze/intake/retention/fence/cleanup with fake adapters.
++
++        No owner receipts or materialized rows are inserted. The provider output
++        is simulated; real owners validate and commit every resulting fact.
++        """
++        from baton_v12.contracts import canonical_text, digest_of_bytes
++        from baton_v12.worker_manager import (request_runtime_start, reconcile_runtime, observe, request_freeze, request_intake, decide_retention, freeze_checkpoint, authorize_cleanup)
++        from baton_v12.worker_manager import attempts, output
++        from tests.manager.test_attempts import Adapter
++        from tests.manager.test_output import Collector, sealed
++        from tests.manager.test_intake import Custodian
++        attempt = self.attempt_id
++        inputs, unused = input_roots.composed(self, str(self.storage), given=self.given, work_ref={"authority_uuid": UUID, "work_id": WORK}, participant=self.session.participant, generation=self.generation, runtime_attempt_id=attempt)
++        from baton_v12.job_manager import ending
++        self.ending_stage = episodes.attempting(self.stage, episodes.live_of(self.jobs, self.stage["stage_id"]))
++        self.ending_assignment = copy.deepcopy(self.session.live_assignment)
++        ending.register_ending(self.jobs, self.ending_stage, assignment=self.ending_assignment, disposition="completed", terminal_manifest_digest="sha256:" + "c" * 64, retention_disposition="retain", retention_policy_digest=profile()["retention_policy_digest"])
++        self.adapter = Adapter()
++        request_runtime_start(self.control, self.adapter, attempt_id=attempt, inputs=inputs)
++        reconcile_runtime(self.control, self.adapter, attempt_id=attempt)
++        observe(self.control, attempt_id=attempt, axis="execution_runtime", value="quiescent")
++        observe(self.control, attempt_id=attempt, axis="worker_disposition", value="completed")
++        if not review:
++            chain, admitted = context._use(self.control, attempt)
++        receipt = {"schema": context.RECEIPT_SCHEMA, "context_id": first.context_id, "use_id": first.use_id, "attempt_id": attempt, "conversation_id": admitted["payload"]["conversation_id"], "profile_digest": self.profile_digest, "invocation_id": context._id("context-invocation", first.use_id), "status": 0, "complete": True, "model": profile()["model"], "observed_model": profile()["reported_model"], "terminal": "success", "cli_build": profile()["cli_build"], "mode": "open", "delivery_digest": first.digest, "input_digest": self.input_digest, "policy_digest": "sha256:" + "2" * 64} if not review else {"finding": "changes-requested"}
++        receipt.update(receipt_changes or {})
++        self.receipt_body = canonical_text(receipt).encode()
++        entries = [{"path": "receipt.json", "bytes": len(self.receipt_body), "content_digest": digest_of_bytes(self.receipt_body)}]
++        content = {"entries": entries, "entry_count": 1, "total_bytes": len(self.receipt_body), "tree_digest": digest(entries)}
++        artifact = {"artifact_id": "context-artifact-" + attempt, "media_type": "application/json", "bytes": len(self.receipt_body), "content_digest": digest(entries), "locator": "file:///private/context-receipt-artifact"}
++        result = sealed({"version": {"major": 1, "minor": 0}, "manifest_id": "context-result", "created_at": NOW, "extensions": {}, "schema": "baton.worker-manifest/result", "result_id": "context-result-" + attempt, "assignment_ref": self.session.live_assignment, "input_manifest_digest": self.input_digest, "policy_digest": "sha256:" + "2" * 64, "disposition": "completed", "outputs": [{"name": "provider-context-receipt", "type": "directory-result", "status": "present", "content_manifest": content, "artifact": artifact, "result_metadata": {}}], "evidence": [], "freeze_operation": dict(output.freeze_operation(attempts._require_attempt(self.control, attempt))), "manager_observed_at": NOW, "completion_manifest_digest": "sha256:" + "c" * 64})
++        if review:
++            outputs = []
++            for name in ("findings", "logs"):
++                one = copy.deepcopy(result["outputs"][0])
++                one["name"] = name
++                one["artifact"]["artifact_id"] = "review-" + name + "-" + attempt
++                outputs.append(one)
++            result = sealed(dict(result, outputs=outputs))
++        request_freeze(self.control, self.port, Collector(result), attempt_id=attempt, disposition="completed")
++        artifacts = [one["artifact"] for one in result["outputs"]]
++        self.custodian = Custodian({"result_id": "context-result-" + attempt, "artifacts": [{"artifact_id": item["artifact_id"], "content_digest": item["content_digest"], "bytes": item["bytes"], "custody_locator": item["locator"]} for item in artifacts]})
++        self.collected = request_intake(self.control, self.port, self.custodian, attempt_id=attempt)
++        decide_retention(self.control, self.port, self.custodian, attempt_id=attempt, artifact_ids=[item["artifact_id"] for item in artifacts], disposition="retain", retention_policy_digest=profile()["retention_policy_digest"])
++        self.session.fence_answer["assignment"] = dict(self.session.live_assignment)
++        self.session.fence_answer["gate"] = "runtime-quiescence:" + str(self.generation)
++        if review:
++            from baton_v12.worker_manager import record_verdict
++            self.verdict = record_verdict(self.control, attachment_id=self.attachment["attachment_id"], disposition="changes-requested", profile=self.profile, port=self.port)
++        else:
++            self.checkpoint = freeze_checkpoint(self.control, writer_id=self.writer["writer_id"], generation=self.generation, profile=self.profile, port=self.port)
++        self.session.live_assignment = None
++        self.cleanup = authorize_cleanup(self.control, self.port, self.custodian, attempt_id=attempt, retention_policy_digest=profile()["retention_policy_digest"])
++        self.assertEqual(self.cleanup["state"], "absent")
++
++    def finalize(self):
++        return context.finalize_context_use(self.control, self.jobs, self.port, attempt_id=self.attempt_id, storage=self.custody, receipt_reader=lambda *args: self.receipt_body, checkpoint_reader=lambda *args: self.checkpoint["checkpoint_id"])
++
++
++    def settle(self):
++        from baton_v12.job_manager import ending
++        from baton_v12.worker_manager import discharge_quiescence_gate
++        discharge = discharge_quiescence_gate(self.control, self.port, attempt_id=self.attempt_id, retention_policy_digest=profile()["retention_policy_digest"])
++        return ending.settle_ending(self.jobs, self.ending_stage, assignment=self.ending_assignment, evidence={"result_id": self.collected["result_id"], "manifest_digest": self.collected["manifest_digest"], "receipt_digest": self.collected["receipt_digest"], "gate_discharge": discharge["gate"]})
++
++    def as_participant(self, participant, generation, principal):
++        from tests.manager.test_offers import decision
++        self.session = ContextSession(participant=participant)
++        self.session._work["authority_uuid"] = UUID
++        self.session.live_assignment = {"work_ref": {"authority_uuid": UUID, "work_id": WORK}, "participant": participant, "generation": generation}
++        self.session.claim_answer = {"assignment": copy.deepcopy(self.session.live_assignment), "claim_event": generation, "decision": decision(participant=participant, principal=principal)}
++        self.port = AuthorityPort(self.session, fake_claim_signature)
++
++    def correction(self, *, finalize=True, next_principal="principal:org-a"):
++        first, state = self.state()
++        self.end_runtime(first)
++        if finalize:
++            self.finalize()
++        # The first ending is settled by its real public owner and names the
++        # actual accepted intake and gate-discharge records, never fake rows.
++        self.settle()
++        first_attempt = self.attempt_id
++        self.first_writer = self.writer
++        self.first_checkpoint = self.checkpoint
++        self.first_receipt_body = self.receipt_body
++        self.stage = submission.stages_of(self.jobs, "context-job")[1]
++        self.attempt_id = episodes.live_of(self.jobs, self.stage["stage_id"])["attempt_id"]
++        self.as_participant("baton.context-reviewer", 2, "principal:independent-reviewer")
++        from baton_v12.worker_manager import retain_manifest
++        self.first_given, self.first_input_digest = self.given, self.input_digest
++        self.given = copy.deepcopy(self.given)
++        self.given["outputs"] = [dict(self.given["outputs"][0], name=name, path=name) for name in ("findings", "logs")]
++        self.given.pop("manifest_digest")
++        self.given["manifest_digest"] = digest(self.given)
++        self.input_digest = retain_manifest(self.control, self.given, "inputManifest")["digest"]
++        self.activate(generation=2, based=self.checkpoint["checkpoint_id"], review=True)
++        self.end_runtime(review=True)
++        self.settle()
++        corrected = episodes.advance_correction(self.jobs, self.control, job_id="context-job", line_id=self.line["line_id"], checkpoint_id=self.checkpoint["checkpoint_id"], verdict_id=self.verdict["verdict_id"])
++        self.stage = submission.stages_of(self.jobs, "context-job")[0]
++        self.attempt_id = corrected["implementation"]["attempt_id"]
++        self.as_participant(WHO, 3, next_principal)
++        self.given, self.input_digest = self.first_given, self.first_input_digest
++        self.activate(generation=3, based=self.checkpoint["checkpoint_id"])
++        return first, first_attempt
++
++
++class Admission(ContextCase):
++    def test_admission_is_replayed_after_reopen_without_another_authority_read(self):
++        first = self.admit()
++        self.session.live_assignment = None
++        again = ControlStore.open(self.path, incarnation="context-2", clock=lambda: NOW)
++        self.addCleanup(again.close)
++        with mock.patch.object(self.port, "assignment_of", side_effect=AssertionError("historical replay made a live call")):
++            self.assertEqual(first, self.admit(again))
++        self.assertEqual(first["status"], "admitted")
++
++    def test_missing_live_assignment_refuses_before_any_context_transition(self):
++        self.session.live_assignment = None
++        with self.assertRaises(ContractRefusal):
++            self.admit()
++        self.assertEqual(context._history(self.control), {})
++
++    def test_changed_profile_cannot_reinterpret_an_admitted_use(self):
++        self.admit()
++        changed = context.certify_context_profile(self.control, profile(model="other-model"))["profile_digest"]
++        with self.assertRaises(ContractRefusal):
++            self.admit(profile_digest=changed)
++
++    def test_wrong_writer_refuses(self):
++        with self.assertRaises(ContractRefusal):
++            self.admit(writer_id="other-writer")
++
++    def test_replaced_repository_refuses_before_admission(self):
++        from baton_v12.worker_manager import line_of
++        line = pathlib.Path(line_of(self.control, self.line["line_id"])["line_path"])
++        line.rename(line.with_name(line.name + "-old"))
++        line.mkdir(mode=0o700)
++        with self.assertRaises(ContractRefusal):
++            self.admit()
++
++    def test_two_connections_commit_one_admission(self):
++        # SQLite handles are opened in their owning threads. Both requests see
++        # the same real Job, assignment and grant; no ready row is fabricated.
++        barrier = threading.Barrier(2)
++        results = []
++        errors = []
++        def run(number):
++            try:
++                with ControlStore.open(self.path, incarnation="racer-" + str(number), clock=lambda: NOW) as control:
++                    with JobStore.open(str(self.root / "jobs.sqlite3"), authority_uuid=UUID, incarnation="job-racer-" + str(number), clock=lambda: NOW) as jobs:
++                        barrier.wait(timeout=5)
++                        result = context.admit_context_use(control, jobs, self.port, attempt_id=self.attempt_id, writer_id=self.writer["writer_id"], profile_digest=self.profile_digest)
++                        results.append(result)
++            except BaseException as error:
++                errors.append(error)
++        threads = [threading.Thread(target=run, args=(n,)) for n in range(2)]
++        for thread in threads: thread.start()
++        for thread in threads: thread.join(10)
++        self.assertFalse(any(thread.is_alive() for thread in threads))
++        self.assertEqual(errors, [])
++        self.assertEqual(len(results), 2)
++        self.assertEqual(results[0], results[1])
++        self.assertEqual(len(context._history(self.control, results[0]["context_id"])), 1)
++
++    def test_observation_is_pure_and_contains_no_private_locator(self):
++        use = self.admit()
++        before = self.control._connection.total_changes
++        observed = context.context_of(self.control, use["context_id"])
++        self.assertEqual(self.control._connection.total_changes, before)
++        self.assertNotIn(str(self.root), json.dumps(observed))
++        self.assertNotIn("conversation_id", observed)
++
++    def test_unknown_use_stays_held(self):
++        self.admit()
++        first = context.hold_context_use(self.control, attempt_id=self.attempt_id, reason="invocation-unknown", evidence_refs=[])
++        self.assertEqual(first, context.hold_context_use(self.control, attempt_id=self.attempt_id, reason="invocation-unknown", evidence_refs=[]))
++        with self.assertRaises(ContractRefusal):
++            delivery.materialize_context_use(self.control, self.custody, attempt_id=self.attempt_id)
++
++    def test_missing_owner_cleanup_never_reads_the_receipt(self):
++        self.delivered()
++        with self.assertRaises(ContractRefusal):
++            context.finalize_context_use(self.control, self.jobs, self.port, attempt_id=self.attempt_id, storage=self.custody, receipt_reader=lambda *args: self.fail("read before exclusion"), checkpoint_reader=lambda *args: self.fail("checkpoint before exclusion"))
++
++
++class Profiles(unittest.TestCase):
++    def test_production_qualification_cannot_be_asserted_by_a_profile_label(self):
++        with self.assertRaises(ContractRefusal):
++            context._profile(profile(qualification="production"))
++
++    def test_closed_profile_rejects_wrong_types_and_unsafe_paths(self):
++        for changed in ({"max_entries": True}, {"max_bytes": 2**60}, {"state_paths": [["nested"]]}, {"state_paths": [".claude/../credentials"]}, {"state_paths": [".claude/projects/.credentials.json"]}, {"cwd": "/other"}, {"healthy": True}):
++            with self.subTest(changed=changed), self.assertRaises(ContractRefusal):
++                context._profile(profile(**changed))
++
++
++class Finalization(ContextCase):
++    def test_positive_generation_is_published_and_replayed_after_fence(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        with mock.patch.object(self.port, "assignment_of", side_effect=AssertionError("historical finalize asked for authority")):
++            ready = self.finalize()
++            self.assertEqual(ready["status"], "ready")
++            self.assertEqual(ready, self.finalize())
++        self.assertEqual(len(self.adapter.started), 1)
++        self.assertEqual(len(list((self.private / first.context_id / "generations").iterdir())), 1)
++
++    def test_wrong_actual_model_receipt_cannot_publish_a_generation(self):
++        first, state = self.state()
++        self.end_runtime(first, receipt_changes={"model": "other-model"})
++        with self.assertRaises(ContractRefusal):
++            self.finalize()
++        self.assertFalse((self.private / first.context_id / "generations").exists())
++
++    def test_crash_after_publication_before_journal_replays_only_custody(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        original = context._transition
++        def cut(*args, **kwargs):
++            if kwargs["action"] == "finalize":
++                raise RuntimeError("publication cut")
++            return original(*args, **kwargs)
++        with mock.patch.object(context, "_transition", side_effect=cut), self.assertRaisesRegex(RuntimeError, "publication cut"):
++            self.finalize()
++        self.assertEqual(context.context_use_of(self.control, self.attempt_id)["status"], "admitted")
++        self.assertEqual(self.finalize()["status"], "ready")
++        self.assertEqual(len(self.adapter.started), 1)
++
++    def test_crash_during_staging_reuses_only_matching_private_bytes(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        original = delivery._write
++        def cut(parent, name, body, **kwargs):
++            if name == "manifest":
++                raise RuntimeError("staging cut")
++            return original(parent, name, body, **kwargs)
++        with mock.patch.object(delivery, "_write", side_effect=cut), self.assertRaisesRegex(RuntimeError, "staging cut"):
++            self.finalize()
++        self.assertEqual(self.finalize()["status"], "ready")
++        self.assertEqual(len(self.adapter.started), 1)
++
++    def test_damaged_committed_generation_is_refused(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        self.finalize()
++        target = self.private / first.context_id / "generations/1/state" / profile()["state_paths"][0]
++        target.chmod(0o600)
++        target.write_bytes(b"damaged")
++        with self.assertRaises(ContractRefusal):
++            self.finalize()
++
++    def test_disposal_preserves_generation_and_invocation_evidence(self):
++        first, state = self.state()
++        pathlib.Path(first.invocation).write_text("synthetic invocation evidence")
++        self.end_runtime(first)
++        self.finalize()
++        result = delivery.discard_context_use(self.control, self.custody, attempt_id=self.attempt_id)
++        self.assertTrue(result["discarded"])
++        self.assertEqual(result, delivery.discard_context_use(self.control, self.custody, attempt_id=self.attempt_id))
++        self.assertEqual(list(pathlib.Path(first.home).iterdir()), [])
++        self.assertTrue(pathlib.Path(first.invocation).exists())
++        self.assertEqual(self.finalize()["status"], "ready")
++
++
++class Restoration(ContextCase):
++    def test_actual_correction_admits_a_fresh_copy_with_the_same_conversation(self):
++        first, first_attempt = self.correction()
++        second = self.admit()
++        self.assertNotEqual(first.use_id, second["use_id"])
++        delivered = delivery.materialize_context_use(self.control, self.custody, attempt_id=self.attempt_id)
++        source = self.private / first.context_id / "generations/1/state" / profile()["state_paths"][0]
++        target = pathlib.Path(delivered.home) / profile()["state_paths"][0]
++        self.assertEqual(source.read_bytes(), target.read_bytes())
++        self.assertNotEqual(source.stat().st_ino, target.stat().st_ino)
++        self.assertFalse(pathlib.Path(delivered.invocation).exists())
++        target.write_bytes(b"corrected private context")
++        self.assertNotEqual(source.read_bytes(), target.read_bytes())
++        self.assertEqual(context._use(self.control, first_attempt)[1]["payload"]["conversation_id"], context._use(self.control, self.attempt_id)[1]["payload"]["conversation_id"])
++
++    def test_competing_restore_refusal_does_not_consume_incumbent_finalization(self):
++        first, first_attempt = self.correction(finalize=False)
++        with self.assertRaises(ContractRefusal):
++            self.admit()
++        refused_attempt, refused_writer = self.attempt_id, self.writer
++        self.attempt_id = first_attempt
++        self.receipt_body = self.first_receipt_body
++        self.writer = self.first_writer
++        self.assertEqual(self.finalize()["status"], "ready")
++        # The exact refused request stays refused; it is never silently admitted
++        # by changing its operation id after its predecessor has advanced.
++        self.attempt_id, self.writer = refused_attempt, refused_writer
++        with self.assertRaises(ContractRefusal) as replay:
++            self.admit()
++
++        self.assertTrue(replay.exception.durable)
++
++
++class RemainingBoundaries(ContextCase):
++    def test_actual_principal_change_cannot_inherit_the_existing_context(self):
++        self.correction(next_principal="principal:replacement")
++        with self.assertRaisesRegex(ContractRefusal, "context owner"):
++            self.admit()
++
++    def test_another_jobs_store_cannot_supply_this_episode(self):
++        other = JobStore.open(str(self.root / "other-jobs.sqlite3"), authority_uuid=UUID, incarnation="other", clock=lambda: NOW)
++        self.addCleanup(other.close)
++        submit(other, {"schema": "baton.v12.job-submission/1", "submission_id": "other-submission", "jobs": [job("other-job", stages=[stage("implementation", WORK)])]})
++        with self.assertRaises(ContractRefusal):
++            context.admit_context_use(self.control, other, self.port, attempt_id=self.attempt_id, writer_id=self.writer["writer_id"], profile_digest=self.profile_digest)
++
++    def test_a_foreign_live_actor_is_refused(self):
++        self.session.live_assignment["participant"] = "baton.someone-else"
++        with self.assertRaises(ContractRefusal):
++            self.admit()
++
++    def test_original_context_survives_removal_of_generic_execution_roots(self):
++        from baton_v12.worker_manager.workspaces import discard_execution_roots
++        first, state = self.state()
++        self.end_runtime(first)
++        discard_execution_roots(str(self.storage), self.attempt_id)
++        self.assertTrue(state.is_file())
++        with mock.patch.object(self.port, "assignment_of", side_effect=AssertionError("ending attempted admission")):
++            self.assertEqual(self.finalize()["status"], "ready")
++
++    def test_damage_is_observed_as_a_hold_without_mutating_the_store(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        self.finalize()
++        path = self.private / first.context_id / "generations/1/state" / profile()["state_paths"][0]
++        path.chmod(0o600)
++        path.write_bytes(b"damaged")
++        before = self.control._connection.total_changes
++        observed = context.context_of(self.control, first.context_id)
++        self.assertEqual(observed["status"], "held")
++        self.assertEqual(observed["reason"], "generation-damaged")
++        self.assertEqual(self.control._connection.total_changes, before)
++
++    def test_unknown_file_in_staging_cannot_enter_a_generation(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        original = delivery._copy
++        def extra(parent, entries, **kwargs):
++            original(parent, entries, **kwargs)
++            fd = os.open("unexpected", os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600, dir_fd=parent)
++            os.close(fd)
++        with mock.patch.object(delivery, "_copy", side_effect=extra), self.assertRaises(ContractRefusal):
++            self.finalize()
++        self.assertEqual(context.context_of(self.control, first.context_id)["status"], "held")
++
++    def test_a_replaced_generation_with_identical_bytes_is_still_not_the_original(self):
++        import shutil
++        first, state = self.state()
++        self.end_runtime(first)
++        self.finalize()
++        path = self.private / first.context_id / "generations/1"
++        path.rename(path.with_name("old-generation"))
++        shutil.copytree(path.with_name("old-generation"), path)
++        with self.assertRaises(ContractRefusal):
++            self.finalize()
++
++    def test_retirement_cannot_release_an_unknown_writer(self):
++        use = self.admit()
++        context.hold_context_use(self.control, attempt_id=self.attempt_id, reason="invocation-unknown", evidence_refs=[])
++        with self.assertRaises(ContractRefusal):
++            context.retire_context(self.control, use["context_id"])
++
++    def test_unproven_receipt_bytes_cannot_replace_a_frozen_healthy_receipt(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        self.receipt_body = b"{}"
++        with self.assertRaises(ContractRefusal):
++            self.finalize()
++        self.assertEqual(context.context_of(self.control, first.context_id)["reason"], "receipt-invalid")
++
++
++    def test_actual_image_drift_refuses_before_admission(self):
++        changed = context.certify_context_profile(self.control, profile(image_digest="sha256:" + "f" * 64))["profile_digest"]
++        with self.assertRaisesRegex(ContractRefusal, "runtime profile or adapter"):
++            self.admit(profile_digest=changed)
++
++
++class StagingRecovery(ContextCase):
++    def cut_write(self, target, count):
++        original = delivery._write
++        write = os.write
++        def selected(parent, name, body, **kwargs):
++            if name != target:
++                return original(parent, name, body, **kwargs)
++            def cut(fd, remaining):
++                if count:
++                    write(fd, remaining[:count])
++                raise RuntimeError("interrupted staged write")
++            with mock.patch.object(os, "write", side_effect=cut):
++                return original(parent, name, body, **kwargs)
++        with mock.patch.object(delivery, "_write", side_effect=selected), self.assertRaisesRegex(RuntimeError, "interrupted staged write"):
++            self.finalize()
++
++    def check_recovery(self, target, count):
++        first, state = self.state()
++        source = state.read_bytes()
++        pathlib.Path(first.invocation).write_bytes(b"original invocation witness")
++        self.end_runtime(first)
++        receipt = self.receipt_body
++        self.cut_write(target, count)
++        self.assertEqual(context.context_use_of(self.control, self.attempt_id)["status"], "admitted")
++        staged = next((self.private / first.context_id / "staging").iterdir())
++        partial = staged / ("state/" + profile()["state_paths"][0] if target == "session.json" else target)
++        self.assertEqual(partial.stat().st_size, count)
++        staged_inode = staged.stat().st_ino
++        self.control.close()
++        self.control = ControlStore.open(self.path, incarnation="recover-staging", clock=lambda: NOW)
++        self.addCleanup(self.control.close)
++        with mock.patch.object(self.port, "assignment_of", side_effect=AssertionError("recovery asked for a fresh assignment")):
++            ready = self.finalize()
++            changes = self.control._connection.total_changes
++            self.assertEqual(self.finalize(), ready)
++            self.assertEqual(self.control._connection.total_changes, changes)
++        self.assertEqual(ready["status"], "ready")
++        published = self.private / first.context_id / "generations/1"
++        self.assertEqual(published.stat().st_ino, staged_inode)
++        self.assertEqual((published / "state" / profile()["state_paths"][0]).read_bytes(), source)
++        self.assertEqual(state.read_bytes(), source)
++        self.assertEqual(self.receipt_body, receipt)
++        self.assertEqual(pathlib.Path(first.invocation).read_bytes(), b"original invocation witness")
++        self.assertEqual(len(self.adapter.started), 1)
++        self.assertEqual(len([one for one in context._history(self.control, first.context_id) if one["action"] == "finalize"]), 1)
++
++    def test_zero_state_write_recovers(self):
++        self.check_recovery("session.json", 0)
++
++    def test_partial_state_write_recovers(self):
++        self.check_recovery("session.json", 3)
++
++    def test_zero_identity_write_recovers(self):
++        self.check_recovery("identity", 0)
++
++    def test_partial_identity_write_recovers(self):
++        self.check_recovery("identity", 3)
++
++    def test_zero_manifest_write_recovers(self):
++        self.check_recovery("manifest", 0)
++
++    def test_partial_manifest_write_recovers(self):
++        self.check_recovery("manifest", 3)
++
++    def test_mismatching_staging_bytes_are_preserved_and_refused(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        self.cut_write("identity", 3)
++        staged = next((self.private / first.context_id / "staging").iterdir())
++        identity = staged / "identity"
++        identity.write_bytes(b"foreign")
++        with self.assertRaisesRegex(ContractRefusal, "existing custody file differs"):
++            self.finalize()
++        self.assertEqual(identity.read_bytes(), b"foreign")
++        self.assertEqual(len(self.adapter.started), 1)
++
++    def test_replaced_staging_objects_are_refused(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        self.cut_write("identity", 0)
++        staged = next((self.private / first.context_id / "staging").iterdir())
++        staged.rename(staged.with_name("original-staging"))
++        staged.mkdir(mode=0o700)
++        with self.assertRaisesRegex(ContractRefusal, "staging objects were replaced"):
++            self.finalize()
++        self.assertEqual(len(self.adapter.started), 1)
++
++    def test_source_changes_after_interruption_are_refused(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        self.cut_write("manifest", 3)
++        state.write_bytes(b"different excluded source")
++        with self.assertRaisesRegex(ContractRefusal, "staging owner facts changed"):
++            self.finalize()
++        self.assertEqual(len(self.adapter.started), 1)
++
++    def test_complete_write_before_freeze_recovers(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        original = os.fchmod
++        def cut(fd, mode):
++            if mode == 0o400:
++                raise RuntimeError("before file freeze")
++            return original(fd, mode)
++        with mock.patch.object(os, "fchmod", side_effect=cut), self.assertRaisesRegex(RuntimeError, "before file freeze"):
++            self.finalize()
++        self.assertEqual(self.finalize()["status"], "ready")
++        self.assertEqual(len(self.adapter.started), 1)
++
++    def cut_staging_registration(self):
++        original = self.control.transact
++        def cut(operation, kind, *args, **kwargs):
++            if kind == "provider-context.staging":
++                raise RuntimeError("before staging registration")
++            return original(operation, kind, *args, **kwargs)
++        with mock.patch.object(self.control, "transact", side_effect=cut), self.assertRaisesRegex(RuntimeError, "before staging registration"):
++            self.finalize()
++
++    def test_empty_staging_before_registration_can_recover(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        self.cut_staging_registration()
++        self.assertEqual(self.finalize()["status"], "ready")
++        self.assertEqual(len(self.adapter.started), 1)
++
++    def test_unregistered_nonempty_staging_is_preserved_and_refused(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        self.cut_staging_registration()
++        staged = next((self.private / first.context_id / "staging").iterdir())
++        identity = staged / "identity"
++        identity.write_bytes(b"foreign staging")
++        with self.assertRaisesRegex(ContractRefusal, "unowned staging is not empty"):
++            self.finalize()
++        self.assertEqual(identity.read_bytes(), b"foreign staging")
++        self.assertEqual(len(self.adapter.started), 1)
++
++
++class GenerationIdentity(ContextCase):
++    def check_damage(self, damage, *, before_commit=False):
++        first, state = self.state()
++        self.end_runtime(first)
++        if before_commit:
++            original = context._transition
++            def cut(*args, **kwargs):
++                if kwargs["action"] == "finalize":
++                    raise RuntimeError("published before journal")
++                return original(*args, **kwargs)
++            with mock.patch.object(context, "_transition", side_effect=cut), self.assertRaisesRegex(RuntimeError, "published before journal"):
++                self.finalize()
++        else:
++            self.finalize()
++        generation = self.private / first.context_id / "generations/1"
++        identity = generation / "identity"
++        original_bytes = identity.read_bytes()
++        if damage == "wrong":
++            identity.chmod(0o600)
++            value = json.loads(original_bytes)
++            value["use_id"] = "foreign-use"
++            identity.write_text(json.dumps(value))
++            identity.chmod(0o400)
++        elif damage == "exclusion":
++            identity.chmod(0o600)
++            value = json.loads(original_bytes)
++            value["exclusion_digest"] = "sha256:" + "0" * 64
++            identity.write_text(json.dumps(value))
++            identity.chmod(0o400)
++        elif damage == "mode":
++            identity.chmod(0o600)
++        elif damage in ("missing", "symlink", "directory"):
++            generation.chmod(0o700)
++            identity.unlink()
++            if damage == "symlink":
++                identity.symlink_to(state)
++            elif damage == "directory":
++                identity.mkdir(mode=0o400)
++            generation.chmod(0o500)
++        elif damage == "hardlink":
++            os.link(identity, self.root / "foreign-identity-link")
++        elif damage == "oversized":
++            identity.chmod(0o600)
++            identity.write_bytes(b"x" * 1025)
++            identity.chmod(0o400)
++        else:
++            self.fail("unknown damage")
++        before = self.control._connection.total_changes
++        observed = context.context_of(self.control, first.context_id)
++        self.assertEqual(self.control._connection.total_changes, before)
++        self.assertEqual(observed["status"], "admitted" if before_commit else "held")
++        with self.assertRaises(ContractRefusal):
++            self.finalize()
++        self.assertEqual(context.context_of(self.control, first.context_id)["status"], "held")
++        self.assertEqual(len(self.adapter.started), 1)
++        self.assertEqual(len([one for one in context._history(self.control, first.context_id) if one["action"] == "finalize"]), 0 if before_commit else 1)
++
++    def test_wrong_use_is_not_ready(self):
++        self.check_damage("wrong")
++
++    def test_wrong_exclusion_is_not_ready(self):
++        self.check_damage("exclusion")
++
++    def test_missing_identity_is_not_ready(self):
++        self.check_damage("missing")
++
++    def test_writable_identity_is_not_ready(self):
++        self.check_damage("mode")
++
++    def test_symlink_identity_is_not_ready(self):
++        self.check_damage("symlink")
++
++    def test_directory_identity_is_not_ready(self):
++        self.check_damage("directory")
++
++    def test_hardlink_identity_is_not_ready(self):
++        self.check_damage("hardlink")
++
++    def test_oversized_identity_is_not_ready(self):
++        self.check_damage("oversized")
++
++    def test_publication_replay_refuses_wrong_identity(self):
++        self.check_damage("wrong", before_commit=True)
++
++    def test_publication_replay_refuses_wrong_exclusion(self):
++        self.check_damage("exclusion", before_commit=True)
++
++    def test_publication_replay_refuses_missing_identity(self):
++        self.check_damage("missing", before_commit=True)
++
++    def test_publication_replay_refuses_writable_identity(self):
++        self.check_damage("mode", before_commit=True)
++
++    def test_restore_admission_refuses_damaged_prior_identity(self):
++        first, first_attempt = self.correction()
++        identity = self.private / first.context_id / "generations/1/identity"
++        identity.chmod(0o600)
++        identity.write_bytes(b"foreign")
++        identity.chmod(0o400)
++        with self.assertRaises(ContractRefusal):
++            self.admit()
++
++    def test_publication_replay_preserves_mismatching_state(self):
++        first, state = self.state()
++        self.end_runtime(first)
++        original = context._transition
++        def cut(*args, **kwargs):
++            if kwargs["action"] == "finalize":
++                raise RuntimeError("published before journal")
++            return original(*args, **kwargs)
++        with mock.patch.object(context, "_transition", side_effect=cut), self.assertRaisesRegex(RuntimeError, "published before journal"):
++            self.finalize()
++        target = self.private / first.context_id / "generations/1/state" / profile()["state_paths"][0]
++        target.chmod(0o600)
++        target.write_bytes(b"mismatching published state")
++        target.chmod(0o400)
++        with self.assertRaisesRegex(ContractRefusal, "generation is damaged"):
++            self.finalize()
++        self.assertEqual(target.read_bytes(), b"mismatching published state")
++        self.assertEqual(len(self.adapter.started), 1)
++
++    def test_restore_materialization_rechecks_original_generation_identity(self):
++        first, first_attempt = self.correction()
++        self.admit()
++        identity = self.private / first.context_id / "generations/1/identity"
++        identity.chmod(0o600)
++        identity.write_bytes(b"foreign")
++        identity.chmod(0o400)
++        with self.assertRaisesRegex(ContractRefusal, "generation identity"):
++            delivery.materialize_context_use(self.control, self.custody, attempt_id=self.attempt_id)
+--- /dev/null
++++ b/v12/python/tests/manager/test_provider_context_delivery.py
+@@ -0,0 +1,114 @@
++"""Private custody checks using real temporary directories and owner admission."""
++import os
++import pathlib
++from unittest import mock
++
++from baton_v12.contracts import ContractRefusal
++from baton_v12.worker_manager import context_delivery as delivery
++from baton_v12.worker_manager import provider_context as context
++from tests.manager.test_provider_context import ContextCase, profile
++
++
++class Delivery(ContextCase):
++    def test_fresh_home_and_exact_reopen_keep_the_original_pins(self):
++        first = self.delivered()
++        self.assertEqual(first, delivery.adopt_context_use(self.control, self.custody, attempt_id=self.attempt_id))
++        self.assertEqual(list(pathlib.Path(first.home).iterdir()), [])
++        self.assertFalse(pathlib.Path(first.invocation).exists())
++
++    def test_replaced_home_is_not_adopted(self):
++        first = self.delivered()
++        home = pathlib.Path(first.home)
++        home.rename(home.with_name("old-home"))
++        home.mkdir(mode=0o700)
++        with self.assertRaises(ContractRefusal):
++            delivery.adopt_context_use(self.control, self.custody, attempt_id=self.attempt_id)
++
++    def test_replaced_storage_ancestor_is_not_followed(self):
++        self.private.rename(self.private.with_name("old-contexts"))
++        self.private.symlink_to(self.private.with_name("old-contexts"), target_is_directory=True)
++        with self.assertRaises(ContractRefusal):
++            delivery.configured_context_storage(self.control)
++
++    def test_excluded_source_cannot_be_used_as_context_storage(self):
++        with self.assertRaises(ContractRefusal):
++            delivery.configure_context_storage(self.control, str(self.source), excluded_roots=[str(self.source)], runtime_uid=os.getuid())
++
++    def test_unsupported_runtime_uid_refuses_before_delivery(self):
++        with self.assertRaises(ContractRefusal):
++            delivery.configure_context_storage(self.control, str(self.private), excluded_roots=[str(self.source)], runtime_uid=os.getuid() + 1)
++
++    def measured(self, first):
++        fd, pins = delivery._open_absolute(first.home)
++        try:
++            return delivery._state(fd, profile())
++        finally:
++            os.close(fd)
++
++    def test_exact_volatile_credential_link_is_never_opened_or_retained(self):
++        first, state = self.state()
++        credential = pathlib.Path(first.home) / delivery.CREDENTIAL_PATH
++        credential.symlink_to(delivery.CREDENTIAL_TARGET)
++        original = os.open
++        def guarded(path, *args, **kwargs):
++            if str(path) in (".credentials.json", delivery.CREDENTIAL_TARGET):
++                self.fail("credential target opened")
++            return original(path, *args, **kwargs)
++        with mock.patch.object(os, "open", side_effect=guarded):
++            entries = self.measured(first)
++        self.assertEqual(entries, [(profile()["state_paths"][0], state.read_bytes())])
++
++    def test_regular_credential_file_is_refused_without_reading_it(self):
++        first, state = self.state()
++        credential = pathlib.Path(first.home) / delivery.CREDENTIAL_PATH
++        credential.write_bytes(b"synthetic secret")
++        with self.assertRaises(ContractRefusal):
++            self.measured(first)
++
++    def test_other_link_hardlink_and_fifo_are_refused(self):
++        first, state = self.state()
++        bad = pathlib.Path(first.home) / "bad"
++        for make in (lambda: bad.symlink_to(state), lambda: os.link(state, bad), lambda: os.mkfifo(bad)):
++            with self.subTest(make=make):
++                make()
++                try:
++                    with self.assertRaises(ContractRefusal):
++                        self.measured(first)
++                finally:
++                    bad.unlink()
++
++    def test_unknown_regular_file_bytes_are_not_read(self):
++        first, state = self.state()
++        bad = pathlib.Path(first.home) / "unknown"
++        bad.write_bytes(b"not provider state")
++        bad.chmod(0o000)
++        self.assertEqual(self.measured(first), [(profile()["state_paths"][0], state.read_bytes())])
++
++    def test_missing_state_size_and_entry_bounds_refuse(self):
++        first, state = self.state()
++        state.write_bytes(b"x" * 4097)
++        with self.assertRaises(ContractRefusal):
++            self.measured(first)
++        state.unlink()
++        with self.assertRaises(ContractRefusal):
++            self.measured(first)
++        for n in range(65):
++            (pathlib.Path(first.home) / str(n)).touch(mode=0o600)
++        with self.assertRaises(ContractRefusal):
++            self.measured(first)
++
++    def test_sealing_cannot_be_authorized_with_a_caller_absence_receipt(self):
++        self.state()
++        with self.assertRaises(ContractRefusal):
++            delivery.seal_generation(self.control, self.custody, attempt_id=self.attempt_id, exclusion={"state": "absent", "cleanup": "complete"})
++
++    def test_read_protection_is_not_repaired_after_delivery(self):
++        first = self.delivered()
++        home = pathlib.Path(first.home)
++        home.chmod(0o000)
++        try:
++            with self.assertRaises(ContractRefusal):
++                delivery.adopt_context_use(self.control, self.custody, attempt_id=self.attempt_id)
++            self.assertEqual(home.stat().st_mode & 0o777, 0)
++        finally:
++            home.chmod(0o700)

@@ -1,0 +1,44 @@
+{
+  "claim": 174869,
+  "files": [
+    {
+      "bytes": 231594,
+      "changed_this_claim": false,
+      "path": "baton:v12/python/src/baton_v12/worker_manager/intake.py",
+      "prior_candidate_sha256": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+      "sha256": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+      "target_mode": "0o664"
+    },
+    {
+      "accepted_w32577_baseline_sha256": "cd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834",
+      "bytes": 14551,
+      "changed_this_claim": false,
+      "path": "baton:v12/python/src/baton_v12/worker_manager/__init__.py",
+      "prior_candidate_sha256": "cce4b68650b5f73c0fa1b17f8ddb16f354c45c35df8e6f983594834307b36f29",
+      "sha256": "cce4b68650b5f73c0fa1b17f8ddb16f354c45c35df8e6f983594834307b36f29",
+      "target_mode": "0o644"
+    },
+    {
+      "bytes": 258329,
+      "changed_this_claim": false,
+      "path": "baton:v12/python/tools/dogfood_operator.py",
+      "prior_candidate_sha256": "04f4a60d13f2dcf3e60da99fba58debce875e9286c2a0ded0a2e1f6c01ae36ad",
+      "sha256": "04f4a60d13f2dcf3e60da99fba58debce875e9286c2a0ded0a2e1f6c01ae36ad",
+      "target_mode": "0o644"
+    },
+    {
+      "bytes": 388072,
+      "changed_this_claim": true,
+      "path": "baton:v12/python/tests/tools/test_dogfood_operator.py",
+      "prior_candidate_sha256": "8a935db6f0b5ae2e3e9e87f36a11a0619fe1351fc8a609f48eeaf8f351e3127f",
+      "sha256": "b540716bda6cce430919bc830234d53d4d3e554396ceff42b9ee45ac0779298a",
+      "target_mode": "0o644"
+    }
+  ],
+  "ledger": {
+    "rows": 23,
+    "seconds": 151.62043231201824
+  },
+  "prior_candidate": "candidate-174768.json",
+  "work": "W63255"
+}

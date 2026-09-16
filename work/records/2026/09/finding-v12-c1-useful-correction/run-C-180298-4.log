@@ -1,0 +1,550 @@
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... FAIL
+
+======================================================================
+FAIL: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 15, in test_useful_correction_reaches_managed_target
+    artifact = world.run_scenario()
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 274, in run_scenario
+    self.fail(json.dumps({"reports": meaningful[-1:], "logs": logs, "retained": retained, "integration_attempt": record}, indent=2))
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {
+  "reports": [
+    {
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "recovered": null,
+      "observed": 0,
+      "replaced": [],
+      "acts": [],
+      "started": [
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "outcome": "started",
+          "runtime_id": null
+        }
+      ],
+      "spoken": [],
+      "refreshed": [
+        {
+          "stage_id": "job-a/implementation",
+          "episode": 2,
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/review",
+          "episode": 2,
+          "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "state": "not-asked"
+        }
+      ]
+    }
+  ],
+  "logs": {
+    "apply-9.log": "",
+    "prepare-5.log": ""
+  },
+  "retained": {
+    "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0": {
+      "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "canonical_target_id": "target-1",
+      "target_revision": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "job_id": "job-a",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "source_checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "source_verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+      "source_proposal_id": "integration-driver.proposal:fa823b073f544b88d2605162b57a942cc88390a17b96e467400869ce255b76cd",
+      "source_result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "source_result_digest": "sha256:379996844723949bf255cc4ac6056dcbe4f011179870dde8d2e8db213f552c47",
+      "source_checkpoint_digest": "sha256:d5e378b7705254b065e63a4b0cffb36258459b08d1fdd56f8ae13463322f970d",
+      "source_base": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3",
+      "source_candidate": "7130f30c34ac90d68cc81f55f62561d3e204900c",
+      "state": "authorized",
+      "reason": null,
+      "prepared": {
+        "head": "d62e8b42b4d9aa32d28b768fcb78c05dca8514fe",
+        "integration_assignment": {
+          "generation": 5,
+          "participant": "baton.integrator",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "preparation": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            }
+          },
+          "candidate": {
+            "artifact_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-candidate",
+            "bytes": 166,
+            "content_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+          },
+          "canonical_target_id": "target-1",
+          "collected": {
+            "custody": "accepted",
+            "disposition": "completed",
+            "manifest_digest": "sha256:3c7cbfa0b8ab64998f1687e2e92bb9afea41f7d91d7729de9e7508051f2d8710",
+            "report": {
+              "artifact_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:preparation-report",
+              "bytes": 3361,
+              "content_digest": "sha256:ff35205252191af2604a32681598a7e7a373a373e5f9e2aee5341fd5191eef90"
+            },
+            "result_id": "result-prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+          },
+          "derived_candidate": {
+            "base": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3",
+            "candidate": "7130f30c34ac90d68cc81f55f62561d3e204900c",
+            "revision": "d62e8b42b4d9aa32d28b768fcb78c05dca8514fe",
+            "target_revision": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3",
+            "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+          },
+          "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+          "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "objects": {
+            "artifact_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-objects",
+            "bytes": 1461,
+            "content_digest": "sha256:6a43e48df9f35a89cd171ee32aa06c4c58c5ebda8cf079fee45167dd3cfa8ce4"
+          },
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "report": {
+            "completed": [
+              {
+                "name": "combined",
+                "status": 0
+              },
+              {
+                "name": "base",
+                "status": 1
+              },
+              {
+                "name": "isolated",
+                "status": 0
+              }
+            ],
+            "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+            "kind": "measured",
+            "not_run": [],
+            "phase": "prepare",
+            "schema": "baton.v12.managed-integration-report/1",
+            "status": 1,
+            "tag": null
+          },
+          "request_digest": "sha256:38cd0ec25a8355668660045c4b458c33568d8c92d7794086185dab6555648f2a",
+          "schema": "baton.v12.managed-prepared-candidate/1",
+          "source": {
+            "base": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3",
+            "candidate": "7130f30c34ac90d68cc81f55f62561d3e204900c",
+            "target_revision": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3"
+          },
+          "states": {
+            "base": {
+              "content": {
+                "entries": [
+                  {
+                    "bytes": 100,
+                    "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                    "path": "harness.py"
+                  },
+                  {
+                    "bytes": 27,
+                    "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                    "path": "worker-task.txt"
+                  }
+                ],
+                "entry_count": 2,
+                "total_bytes": 127,
+                "tree_digest": "sha256:08aeb1ae1a5f40bc5809b927a2da2316ab62ff7253bda96c2c9f0a6fbb09377e"
+              },
+              "revision": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3"
+            },
+            "combined": {
+              "content": {
+                "entries": [
+                  {
+                    "bytes": 100,
+                    "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                    "path": "harness.py"
+                  },
+                  {
+                    "bytes": 39,
+                    "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                    "path": "scale.py"
+                  },
+                  {
+                    "bytes": 27,
+                    "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                    "path": "worker-task.txt"
+                  }
+                ],
+                "entry_count": 3,
+                "total_bytes": 166,
+                "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+              },
+              "revision": "d62e8b42b4d9aa32d28b768fcb78c05dca8514fe"
+            },
+            "isolated": {
+              "content": {
+                "entries": [
+                  {
+                    "bytes": 100,
+                    "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                    "path": "harness.py"
+                  },
+                  {
+                    "bytes": 39,
+                    "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                    "path": "scale.py"
+                  },
+                  {
+                    "bytes": 27,
+                    "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                    "path": "worker-task.txt"
+                  }
+                ],
+                "entry_count": 3,
+                "total_bytes": 166,
+                "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+              },
+              "revision": "7130f30c34ac90d68cc81f55f62561d3e204900c"
+            }
+          },
+          "target_revision": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3"
+        },
+        "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+      },
+      "content_digest": "sha256:d4a133d3f17f1c7fb464bdfc68de6cef0ec16c76927c794c6947143c5895bcae",
+      "evidence": {
+        "approval": {
+          "actor": "baton.approver",
+          "candidate_digest": "d62e8b42b4d9aa32d28b768fcb78c05dca8514fe",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.approver",
+            "grant": "direct",
+            "policy_generation": 13,
+            "principal": "principal:baton.approver",
+            "role": "approve"
+          },
+          "disposition": "approved",
+          "kind": "approval",
+          "policy_generation": 13,
+          "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "receipt_id": "judgment-1f58b164ada057bee62d55abacb479f39cd237a9e367eb3b2603028ba477defa",
+          "recorded_at": "2026-09-15T18:40:50.169Z",
+          "target": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3"
+        },
+        "review": {
+          "actor": "baton.approver-review",
+          "candidate_digest": "d62e8b42b4d9aa32d28b768fcb78c05dca8514fe",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.approver-review",
+            "grant": "direct",
+            "policy_generation": 13,
+            "principal": "principal:baton.approver-review",
+            "role": "review"
+          },
+          "disposition": "accepted",
+          "kind": "review",
+          "policy_generation": null,
+          "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "receipt_id": "judgment-57c9dd9c3750cd04b933eeb32b5c5e784d6f62a321056c1f7466b5c28857b133",
+          "recorded_at": "2026-09-15T18:40:50.169Z",
+          "target": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3"
+        },
+        "verification": {
+          "actor": "baton.verifier",
+          "candidate_digest": "d62e8b42b4d9aa32d28b768fcb78c05dca8514fe",
+          "decision": {
+            "effective_scope": "scope:deployment",
+            "endpoint": "baton.verifier",
+            "grant": "direct",
+            "policy_generation": 13,
+            "principal": "principal:baton.verifier",
+            "role": "verify"
+          },
+          "disposition": "passed",
+          "kind": "verification",
+          "policy_generation": null,
+          "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "receipt_id": "judgment-0d5ac328e2a0875e8707781ecfaea0bfb5ab0d42bca4d4c44f0c016553c5fee6",
+          "recorded_at": "2026-09-15T18:40:50.168Z",
+          "target": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3"
+        }
+      },
+      "causal_observations": {
+        "completed": [
+          {
+            "harness_added": false,
+            "name": "combined",
+            "status": 0
+          },
+          {
+            "harness_added": true,
+            "name": "base",
+            "status": 1
+          },
+          {
+            "harness_added": false,
+            "name": "isolated",
+            "status": 0
+          }
+        ],
+        "derived_candidate": {
+          "base": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3",
+          "candidate": "7130f30c34ac90d68cc81f55f62561d3e204900c",
+          "revision": "d62e8b42b4d9aa32d28b768fcb78c05dca8514fe",
+          "target_revision": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3",
+          "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+        },
+        "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+        "harness_measured_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+        "input_content": {
+          "entries": [
+            {
+              "bytes": 1378,
+              "content_digest": "sha256:34ff2d3468a27772bc6504e32a1d856fefc0ab214526a89bf8fe9c8ecdbb8604",
+              "path": "objects.bundle"
+            }
+          ],
+          "entry_count": 1,
+          "total_bytes": 1378,
+          "tree_digest": "sha256:877804d2a6ac92ecb67251765a966651af24b480b79ae1b05b0ee502dcb4c76b"
+        },
+        "kind": "measured",
+        "not_run": [],
+        "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "output": [
+          {
+            "name": "combined",
+            "output": "verified multiplier 3\n"
+          },
+          {
+            "name": "base",
+            "output": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/v12/python/v12-w71917-v5jbvyrw/prepare-scratch/base/harness.py\", line 1, in <module>\n    from scale import scale\nModuleNotFoundError: No module named 'scale'\n"
+          },
+          {
+            "name": "isolated",
+            "output": "verified multiplier 3\n"
+          }
+        ],
+        "phase": null,
+        "schema": "baton.v12.managed-preparation-report/1",
+        "source": {
+          "base": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3",
+          "candidate": "7130f30c34ac90d68cc81f55f62561d3e204900c",
+          "target_revision": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3"
+        },
+        "states": {
+          "base": {
+            "content": {
+              "entries": [
+                {
+                  "bytes": 100,
+                  "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                  "path": "harness.py"
+                },
+                {
+                  "bytes": 27,
+                  "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                  "path": "worker-task.txt"
+                }
+              ],
+              "entry_count": 2,
+              "total_bytes": 127,
+              "tree_digest": "sha256:08aeb1ae1a5f40bc5809b927a2da2316ab62ff7253bda96c2c9f0a6fbb09377e"
+            },
+            "revision": "73a99ef0250b2c5b5b01c73fdc7d5eeb43b8b9e3"
+          },
+          "combined": {
+            "content": {
+              "entries": [
+                {
+                  "bytes": 100,
+                  "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                  "path": "harness.py"
+                },
+                {
+                  "bytes": 39,
+                  "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                  "path": "scale.py"
+                },
+                {
+                  "bytes": 27,
+                  "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                  "path": "worker-task.txt"
+                }
+              ],
+              "entry_count": 3,
+              "total_bytes": 166,
+              "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+            },
+            "revision": "d62e8b42b4d9aa32d28b768fcb78c05dca8514fe"
+          },
+          "isolated": {
+            "content": {
+              "entries": [
+                {
+                  "bytes": 100,
+                  "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                  "path": "harness.py"
+                },
+                {
+                  "bytes": 39,
+                  "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                  "path": "scale.py"
+                },
+                {
+                  "bytes": 27,
+                  "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                  "path": "worker-task.txt"
+                }
+              ],
+              "entry_count": 3,
+              "total_bytes": 166,
+              "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+            },
+            "revision": "7130f30c34ac90d68cc81f55f62561d3e204900c"
+          }
+        },
+        "status": 1,
+        "tag": null
+      },
+      "observed_by": "baton.integrator",
+      "policy_generation": 13,
+      "derived_proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "derived_result_id": "derived-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "derived_result_digest": "sha256:ae079c510f519170dca9ed7a43351572d6f4b990728fb3ec2beb58106a0bc679",
+      "entry_id": null,
+      "recorded_at": "2026-09-02T00:00:00.000Z",
+      "phases": {
+        "prepare": {
+          "task": {
+            "schema": "baton.v12.managed-integration-task/1",
+            "phase": "prepare",
+            "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "canonical_target_id": "target-1",
+            "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.integrator",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W47984398722361"
+              }
+            },
+            "task_digest": "sha256:38cd0ec25a8355668660045c4b458c33568d8c92d7794086185dab6555648f2a",
+            "input_digest": "sha256:877804d2a6ac92ecb67251765a966651af24b480b79ae1b05b0ee502dcb4c76b",
+            "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+            "execution_limits": {
+              "boundaries": {
+                "host_verification": {
+                  "default_seconds": 300,
+                  "origin": "compatibility",
+                  "seconds": 300,
+                  "setting": "verification_command_seconds"
+                },
+                "integration_verification": {
+                  "default_seconds": 1800,
+                  "origin": "compatibility",
+                  "seconds": 1800,
+                  "setting": "verification_command_seconds"
+                },
+                "ordinary_verification": {
+                  "default_seconds": 900,
+                  "origin": "compatibility",
+                  "seconds": 900,
+                  "setting": "verification_command_seconds"
+                },
+                "provider_turn": {
+                  "default_seconds": 3600,
+                  "origin": "compatibility",
+                  "seconds": 3600,
+                  "setting": "provider_turn_seconds"
+                }
+              },
+              "compatibility_generation": 1,
+              "requested": {},
+              "scope": "per-invocation",
+              "units": "seconds"
+            },
+            "parent": null,
+            "commands": [
+              "combined",
+              "base",
+              "isolated"
+            ]
+          },
+          "result": {
+            "schema": "baton.v12.managed-integration-result/1",
+            "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "phase": "prepare",
+            "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.integrator",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W47984398722361"
+              }
+            },
+            "canonical_target_id": "target-1",
+            "report": {
+              "schema": "baton.v12.managed-integration-report/1",
+              "kind": "measured",
+              "phase": "prepare",
+              "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+              "status": 1,
+              "tag": null,
+              "completed": [
+                {
+                  "name": "combined",
+                  "status": 0
+                },
+                {
+                  "name": "base",
+                  "status": 1
+                },
+                {
+                  "name": "isolated",
+                  "status": 0
+                }
+              ],
+              "not_run": []
+            },
+            "collected": {
+              "disposition": "completed",
+              "manifest_digest": "sha256:3c7cbfa0b8ab64998f1687e2e92bb9afea41f7d91d7729de9e7508051f2d8710",
+              "result_id": "result-prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+            }
+          }
+        }
+      }
+    }
+  },
+  "integration_attempt": null
+}
+
+----------------------------------------------------------------------
+Ran 1 test in 2.459s
+
+FAILED (failures=1)

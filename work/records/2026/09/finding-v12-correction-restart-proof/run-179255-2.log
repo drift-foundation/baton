@@ -1,0 +1,46 @@
+test_actual_changes_requested_review_restores_only_fresh_implementation_use (tests.manager.test_claude_context.RestoredCorrectionBoundary.test_actual_changes_requested_review_restores_only_fresh_implementation_use) ... FAIL
+test_real_composition_binds_exact_task_prompt_argv_and_adoption (tests.manager.test_claude_context.ServingBinding.test_real_composition_binds_exact_task_prompt_argv_and_adoption) ... ok
+test_committed_context_does_not_bypass_missing_retained_receipt (tests.manager.test_claude_context.ServingEnding.test_committed_context_does_not_bypass_missing_retained_receipt) ... ok
+test_reopen_after_context_commit_before_settlement (tests.manager.test_claude_context.ServingEnding.test_reopen_after_context_commit_before_settlement) ... ok
+test_reopen_after_publication_before_context_commit (tests.manager.test_claude_context.ServingEnding.test_reopen_after_publication_before_context_commit) ... ok
+test_reopen_before_generation_publication (tests.manager.test_claude_context.ServingEnding.test_reopen_before_generation_publication) ... ok
+test_retained_changed_bytes_block_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_changed_bytes_block_reopened_ending) ... ok
+test_retained_extra_entry_blocks_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_extra_entry_blocks_reopened_ending) ... ok
+test_retained_link_blocks_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_link_blocks_reopened_ending) ... ok
+test_retained_missing_file_blocks_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_missing_file_blocks_reopened_ending) ... ok
+test_duplicate_exchange_cannot_call_the_provider_again (tests.manager.test_claude_context.WorkerInvocation.test_duplicate_exchange_cannot_call_the_provider_again) ... ok
+test_duplicate_terminal_keys_are_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_duplicate_terminal_keys_are_unhealthy) ... ok
+test_intent_before_child_loss_never_reinvokes_the_use (tests.manager.test_claude_context.WorkerInvocation.test_intent_before_child_loss_never_reinvokes_the_use) ... ERROR
+test_missing_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_missing_terminal_is_unhealthy) ... ok
+test_oversized_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_oversized_terminal_is_unhealthy) ... ok
+test_partial_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_partial_terminal_is_unhealthy) ... ok
+test_real_worker_retains_measured_receipt_and_finalizes_before_settlement (tests.manager.test_claude_context.WorkerInvocation.test_real_worker_retains_measured_receipt_and_finalizes_before_settlement) ... ok
+test_status_zero_with_error_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_error_is_unhealthy) ... ok
+test_status_zero_with_wrong_model_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_wrong_model_is_unhealthy) ... ok
+test_status_zero_with_wrong_uuid_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_wrong_uuid_is_unhealthy) ... ok
+
+======================================================================
+ERROR: test_intent_before_child_loss_never_reinvokes_the_use (tests.manager.test_claude_context.WorkerInvocation.test_intent_before_child_loss_never_reinvokes_the_use)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 230, in test_intent_before_child_loss_never_reinvokes_the_use
+    self.assert_owed(job, control, attempt)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 136, in assert_owed
+    self.assertIsNone(self.record(job, attempt)["settlement"])
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+FAIL: test_actual_changes_requested_review_restores_only_fresh_implementation_use (tests.manager.test_claude_context.RestoredCorrectionBoundary.test_actual_changes_requested_review_restores_only_fresh_implementation_use)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 338, in test_actual_changes_requested_review_restores_only_fresh_implementation_use
+    self.assertEqual(self.turn(held.control, "implementation", second, self.mounted(held.composed, "implementation", second), edits={"harness.py": "print('correction round')\n"}), 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0
+
+----------------------------------------------------------------------
+Ran 20 tests in 6.617s
+
+FAILED (failures=1, errors=1)

@@ -1,0 +1,117 @@
+{
+  "claim": 183524,
+  "cycle": "OFFLINE-CUSTODY-CORRECTION-20260916.md",
+  "cycle_sha256": "cccf05d3b77128f527344d422f2f60f18e9f75d8cb6f8b817671fdcebd6805c1",
+  "design": {
+    "basis": "name and type coverage needs r-x on DIRECTORIES and r on NO FILE -- scandir needs read on the directory, entry.stat needs search on it, and neither opens a file; P1b already records an unreadable file as content:unreadable:<errno> and continues, so only unreadable STRUCTURE refuses",
+    "invariants_kept": [
+      "complete required name/type coverage",
+      "credential exclusion",
+      "no foreign or nested session acceptance",
+      "exact selected-state custody",
+      "no symlink or hardlink escape",
+      "descriptor identity across checks and mutation",
+      "original runtime exclusion before manager copy",
+      "turn-2 restored 0o660",
+      "no second turn on a failed first arm",
+      "all mode changes after the complete preflight, bounded by the directory-bound check"
+    ],
+    "name": "publish traversal, not contents",
+    "not_forbidden_thing": "not a broad HOME chmod -- no file content becomes readable that was not already; nothing is skipped; nothing extra is copied; no model, artifact or continuity gate moves",
+    "rule": "every runtime-owned directory becomes 0o2750 with setgid kept and no world access; every file keeps the mode the CLI gave it except the one selected session at 0o640"
+  },
+  "files": [
+    {
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-183524/qualification-fixture.py",
+      "sha256": "3bef4f1d7f265735860119f57950c79eac6e2007db7584662c4f312ead22e020"
+    },
+    {
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-183524/qualification_contract.py",
+      "sha256": "fb716eb3eea18404c1105e76c31f6659e43d4d3f0b04bc560c35bf3087ca9e01"
+    },
+    {
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-183524/qualification_worker.py",
+      "sha256": "4261d09e6fb7cdc1de20aad1ad271e7cce008237334695632f5f5ed26912b949"
+    },
+    {
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-183524/test_qualification.py",
+      "sha256": "34af2f8537f3939221e9c94e7588d1a344fbf7514f069f80a83a517a94e87158"
+    },
+    {
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-183524/qualification-manifest.json",
+      "sha256": "91f2f687379f7bea3a00e954d07204586b975ef4b873816912949b575428d626"
+    },
+    {
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-183524/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8"
+    },
+    {
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-183524/OPERATOR-178579.md",
+      "sha256": "99ed75fee2fa6ffdf0e02d2074cbe8b7c1bf9c7ae6a24311c838d4a9781ca204"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.36381306999828666,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "f954a5550d280e07c121332884fd35c0adf73cf083b9919ffc13ceaeb223824f",
+    "manifest_sha256": "91f2f687379f7bea3a00e954d07204586b975ef4b873816912949b575428d626",
+    "pid": 3774527,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "identity_note": "a direct identity preparation moved the fixture to 20260916T035035Z between claims and rewrote the identity comment. All five identities -- 178579, 180078, 183114, 183372, 20260916T035035Z -- are consumed, so the fixture currently names a consumed identity and this manifest is NOT rerunnable authority. A future live run needs its own selection and a fresh identity, which this cycle does not prepare.",
+  "manifest_sha256": "91f2f687379f7bea3a00e954d07204586b975ef4b873816912949b575428d626",
+  "model_gap": "UNTOUCHED AND UNRESOLVED: expected-plus-other with two keys observed AGAIN and strictly refused. The other key is unknown and unrecoverable from a document never retained. No model policy or raw-output retention change; this is not model or production qualification.",
+  "not_done": [
+    "live run",
+    "fresh identity preparation",
+    "private-root inspection",
+    "credential access",
+    "consumed-root repair",
+    "production enabling",
+    "product-source edits",
+    "version-control operations"
+  ],
+  "operator_packet_sha256": "99ed75fee2fa6ffdf0e02d2074cbe8b7c1bf9c7ae6a24311c838d4a9781ca204",
+  "owner_selection": "pass183521",
+  "problem": "publication relaxed exactly two objects while inventory demands whole-HOME name and type coverage under a different uid. Those two rules cannot both hold over a home whose other directories the CLI creates 0o700. Each half was built against its own review and neither was checked against the other.",
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "gap_found": "publish-file-contents-too PASSED at first: same-UID fixtures cannot express 'not runtime-owned', so nothing proved the ownership gate load-bearing. A test now makes lstat report a foreign uid for one directory and asserts it is left alone while the runtime's own are published; the probe then failed.",
+    "total": 46
+  },
+  "same_uid_limits_labelled": "these fixtures run as one identity, so 'unreadable to the manager' is stood in for by mode 0o000 and 'owned by someone else' by a targeted lstat report. Both are named as stand-ins in the tests. Same-UID mode assertions are not evidence of manager readability and nothing here claims otherwise.",
+  "tests": {
+    "after": 120,
+    "before": 116,
+    "outcome": "OK"
+  },
+  "triggering_result": {
+    "file": "operator-result-20260916T035035Z/qualification.json",
+    "observed": "provider exit0, successful terminal and session, exact initial artifact, publication 0o2750/0o640, consumed shutdown, then source-inventory state-coverage-incomplete cause EACCES as the manager; cleanup confirmed, 6.432271532015875s, no second turn",
+    "sha256": "58408c2ea88711eb033bf645775cb9e73f2813ddb1a9f12c35732ec527285d06",
+    "what_it_proves_about_the_last_cycle": "run183114 said publish-shape and nothing else; this one named its step, refusal and errno and carried the provider's answer -- the diagnostics made the real problem visible"
+  },
+  "work": "W177936"
+}

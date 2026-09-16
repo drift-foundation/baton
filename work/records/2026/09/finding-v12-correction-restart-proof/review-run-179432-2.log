@@ -1,0 +1,485 @@
+test_actual_changes_requested_review_restores_only_fresh_implementation_use (tests.manager.test_claude_context.RestoredCorrectionBoundary.test_actual_changes_requested_review_restores_only_fresh_implementation_use) ... ok
+test_current_authority_change_between_preparation_and_start_refuses (tests.manager.test_claude_context.ServingBinding.test_current_authority_change_between_preparation_and_start_refuses) ... ok
+test_real_composition_binds_exact_task_prompt_argv_and_adoption (tests.manager.test_claude_context.ServingBinding.test_real_composition_binds_exact_task_prompt_argv_and_adoption) ... ok
+test_committed_context_does_not_bypass_missing_retained_receipt (tests.manager.test_claude_context.ServingEnding.test_committed_context_does_not_bypass_missing_retained_receipt) ... ok
+test_failed_runtime_removal_keeps_context_and_ending_unsettled (tests.manager.test_claude_context.ServingEnding.test_failed_runtime_removal_keeps_context_and_ending_unsettled) ... ok
+test_missing_optional_answer_cannot_finalize_implementation (tests.manager.test_claude_context.ServingEnding.test_missing_optional_answer_cannot_finalize_implementation) ... ok
+test_reopen_after_context_commit_before_settlement (tests.manager.test_claude_context.ServingEnding.test_reopen_after_context_commit_before_settlement) ... ok
+test_reopen_after_publication_before_context_commit (tests.manager.test_claude_context.ServingEnding.test_reopen_after_publication_before_context_commit) ... ok
+test_reopen_before_generation_publication (tests.manager.test_claude_context.ServingEnding.test_reopen_before_generation_publication) ... ok
+test_retained_changed_bytes_block_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_changed_bytes_block_reopened_ending) ... ok
+test_retained_extra_entry_blocks_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_extra_entry_blocks_reopened_ending) ... ok
+test_retained_link_blocks_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_link_blocks_reopened_ending) ... ok
+test_retained_missing_file_blocks_reopened_ending (tests.manager.test_claude_context.ServingEnding.test_retained_missing_file_blocks_reopened_ending) ... ok
+test_sealed_duplicate_json_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_duplicate_json_is_not_context_evidence) ... ok
+test_sealed_excessive_json_depth_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_excessive_json_depth_is_not_context_evidence) ... ok
+test_sealed_foreign_receipt_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_foreign_receipt_is_not_context_evidence) ... ok
+test_sealed_legacy_receipt_cannot_downgrade_serving_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_legacy_receipt_cannot_downgrade_serving_evidence) ... ok
+test_sealed_malformed_json_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_malformed_json_is_not_context_evidence) ... ok
+test_sealed_wrong_argv_binding_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_wrong_argv_binding_is_not_context_evidence) ... ok
+test_sealed_wrong_filename_is_not_context_evidence (tests.manager.test_claude_context.ServingEnding.test_sealed_wrong_filename_is_not_context_evidence) ... ok
+test_worker_extra_entries_cannot_pass_collection (tests.manager.test_claude_context.ServingEnding.test_worker_extra_entries_cannot_pass_collection) ... ok
+test_worker_link_cannot_pass_collection (tests.manager.test_claude_context.ServingEnding.test_worker_link_cannot_pass_collection) ... ok
+test_worker_oversized_receipt_cannot_pass_collection (tests.manager.test_claude_context.ServingEnding.test_worker_oversized_receipt_cannot_pass_collection) ... ok
+test_duplicate_exchange_cannot_call_the_provider_again (tests.manager.test_claude_context.WorkerInvocation.test_duplicate_exchange_cannot_call_the_provider_again) ... ok
+test_duplicate_terminal_keys_are_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_duplicate_terminal_keys_are_unhealthy) ... ok
+test_intent_before_child_loss_never_reinvokes_the_use (tests.manager.test_claude_context.WorkerInvocation.test_intent_before_child_loss_never_reinvokes_the_use) ... ok
+test_missing_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_missing_terminal_is_unhealthy) ... ok
+test_nonzero_with_success_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_nonzero_with_success_terminal_is_unhealthy) ... ok
+test_oversized_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_oversized_terminal_is_unhealthy) ... ok
+test_partial_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_partial_terminal_is_unhealthy) ... ok
+test_real_worker_retains_measured_receipt_and_finalizes_before_settlement (tests.manager.test_claude_context.WorkerInvocation.test_real_worker_retains_measured_receipt_and_finalizes_before_settlement) ... ok
+test_status_zero_with_error_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_error_is_unhealthy) ... ok
+test_status_zero_with_wrong_model_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_wrong_model_is_unhealthy) ... ok
+test_status_zero_with_wrong_uuid_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_wrong_uuid_is_unhealthy) ... ok
+test_every_operation_this_cut_adds_is_exported (tests.manager.test_launch.TheComponentIsOnThePublicSurface.test_every_operation_this_cut_adds_is_exported) ... ok
+test_adoption_cannot_drop_original_binding (tests.manager.test_launch.TheContextLaunchIsClosed.test_adoption_cannot_drop_original_binding) ... ok
+test_closed_version_refuses_omission_extra_and_downgrade (tests.manager.test_launch.TheContextLaunchIsClosed.test_closed_version_refuses_omission_extra_and_downgrade) ... ok
+test_owner_launch_and_worker_reader_agree (tests.manager.test_launch.TheContextLaunchIsClosed.test_owner_launch_and_worker_reader_agree) ... ok
+test_wrong_role_uuid_attempt_and_binding_refuse_both_readers (tests.manager.test_launch.TheContextLaunchIsClosed.test_wrong_role_uuid_attempt_and_binding_refuse_both_readers) ... ok
+test_it_authorizes_exactly_one_mount_at_the_fixed_target (tests.manager.test_launch.TheDeliveryIsACapabilityAndNotAPath.test_it_authorizes_exactly_one_mount_at_the_fixed_target) ... ok
+test_it_remembers_which_attempt_it_belongs_to (tests.manager.test_launch.TheDeliveryIsACapabilityAndNotAPath.test_it_remembers_which_attempt_it_belongs_to) ... ok
+test_readonly_is_not_something_it_can_be_asked_for (tests.manager.test_launch.TheDeliveryIsACapabilityAndNotAPath.test_readonly_is_not_something_it_can_be_asked_for)
+A delivery that could ask to be writable would be a launch document ... ok
+test_a_delivery_whose_modes_have_moved_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_delivery_whose_modes_have_moved_is_refused)
+`materialize` chmods both exactly, so anything else is a root ... ok
+test_a_document_authored_for_other_values_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_document_authored_for_other_values_is_refused)
+Which delivery, not which kind of thing. ... ok
+test_a_document_that_is_not_this_contract_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_document_that_is_not_this_contract_is_refused) ... ok
+test_a_root_this_manager_did_not_write_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_root_this_manager_did_not_write_is_refused)
+Bytes this manager cannot account for are not a launch contract, ... ok
+test_a_well_formed_document_from_another_delivery_is_refused (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_a_well_formed_document_from_another_delivery_is_refused)
+Schema agreement is not delivery identity. ... ok
+test_adoption_applies_the_member_value_contract (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_adoption_applies_the_member_value_contract)
+A closed member set does not validate any member's value. ... ok
+test_adoption_is_on_the_public_surface (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_adoption_is_on_the_public_surface)
+A deployment that built its own delivery from a path would be ... ok
+test_adoption_refuses_an_extra_entry_it_would_later_delete (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_adoption_refuses_an_extra_entry_it_would_later_delete)
+The root materializer made exactly one entry. ... ok
+test_an_attempt_with_no_delivery_adopts_nothing (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_an_attempt_with_no_delivery_adopts_nothing)
+An ordinary state, and distinguishable from a failed proof: an ... ok
+test_an_existing_delivery_is_adopted_whole (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_an_existing_delivery_is_adopted_whole) ... ok
+test_the_expectation_is_authored_by_the_owner_that_writes_it (tests.manager.test_launch.TheDeliveryIsAdoptedRatherThanReconstructed.test_the_expectation_is_authored_by_the_owner_that_writes_it)
+Reused rather than copied: a value contract re-implemented here ... ok
+test_a_caller_supplies_values_and_never_a_shape (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_a_caller_supplies_values_and_never_a_shape)
+The document is REBUILT over `LAUNCH_MEMBERS` rather than copied. ... ok
+test_a_live_bearer_cannot_ride_the_launch_document (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_a_live_bearer_cannot_ride_the_launch_document)
+§13's own clause, driven rather than asserted about. ... ok
+test_a_malformed_value_refuses_before_anything_is_written (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_a_malformed_value_refuses_before_anything_is_written) ... ok
+test_a_session_wider_than_the_workers_ceiling_refuses (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_a_session_wider_than_the_workers_ceiling_refuses)
+THE WORKER'S CEILING, ENFORCED HERE. `session` is what every frame ... ok
+test_it_is_exactly_four_members_and_the_pinned_schema (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_it_is_exactly_four_members_and_the_pinned_schema) ... ok
+test_prose_may_carry_newlines_and_is_bounded (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_prose_may_carry_newlines_and_is_bounded)
+The retired transport refused a newline because one ... ok
+test_there_is_no_posture_member (tests.manager.test_launch.TheDocumentIsAuthoredRatherThanAssembled.test_there_is_no_posture_member)
+The consent-posture supersession, stated as a case. ... ok
+test_a_failed_write_leaves_no_half_delivery (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_failed_write_leaves_no_half_delivery)
+The ending that would have removed a partial root never starts, ... ok
+test_a_link_left_at_the_documents_name_is_not_written_through (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_link_left_at_the_documents_name_is_not_written_through)
+`O_EXCL | O_NOFOLLOW`, and the race they exist for. ... ok
+test_a_partial_document_is_never_readable (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_partial_document_is_never_readable)
+The other half of establishing the mode rather than requesting it. ... ok
+test_a_relative_storage_refuses (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_relative_storage_refuses) ... ok
+test_a_short_write_is_not_a_delivered_document (tests.manager.test_launch.TheFileIsThisManagersOwn.test_a_short_write_is_not_a_delivered_document)
+`os.write` is allowed to write fewer bytes than it was given. ... ok
+test_an_existing_root_refuses_rather_than_being_written_into (tests.manager.test_launch.TheFileIsThisManagersOwn.test_an_existing_root_refuses_rather_than_being_written_into)
+A live delivery or an orphan, and replacing bytes this manager ... ok
+test_discard_removes_the_root_it_froze (tests.manager.test_launch.TheFileIsThisManagersOwn.test_discard_removes_the_root_it_froze) ... ok
+test_it_is_a_regular_file_at_the_documents_own_name (tests.manager.test_launch.TheFileIsThisManagersOwn.test_it_is_a_regular_file_at_the_documents_own_name) ... ok
+test_it_is_readable_by_anybody_and_writable_by_nobody (tests.manager.test_launch.TheFileIsThisManagersOwn.test_it_is_readable_by_anybody_and_writable_by_nobody)
+BOTH HALVES ARE DELIBERATE, and the first one is the interesting ... ok
+test_the_bytes_are_canonical_and_bounded (tests.manager.test_launch.TheFileIsThisManagersOwn.test_the_bytes_are_canonical_and_bounded) ... ok
+test_the_mode_is_established_rather_than_requested (tests.manager.test_launch.TheFileIsThisManagersOwn.test_the_mode_is_established_rather_than_requested)
+W26291 review [P0]: a creation mode is FILTERED BY THE UMASK. ... ok
+test_a_label_carrying_a_line_break_is_refused (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_a_label_carrying_a_line_break_is_refused) ... ok
+test_a_label_set_that_is_not_the_contracts_is_refused (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_a_label_set_that_is_not_the_contracts_is_refused) ... ok
+test_an_engine_this_adapter_does_not_speak_is_refused (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_an_engine_this_adapter_does_not_speak_is_refused) ... ok
+test_an_image_that_is_not_a_digest_is_refused (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_an_image_that_is_not_a_digest_is_refused)
+A tag is a name somebody can move, and a runtime started from a ... ok
+test_digest_and_generation_labels_keep_their_semantic_types (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_digest_and_generation_labels_keep_their_semantic_types)
+The adapter reconciles these values, so text-shaped substitutes ... ok
+test_every_restriction_is_present_and_unconditional (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_every_restriction_is_present_and_unconditional)
+A policy a caller can turn off is a default. ... ok
+test_the_labels_are_the_frozen_contracts_own_set_in_its_own_order (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_labels_are_the_frozen_contracts_own_set_in_its_own_order) ... ok
+test_the_listing_selects_candidates_and_never_pre_compares_identity (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_listing_selects_candidates_and_never_pre_compares_identity)
+REVISED under review [P0]'s explicit case-specific confirmation. ... ok
+test_the_query_vectors_name_one_exact_identity (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_query_vectors_name_one_exact_identity) ... ok
+test_the_run_vector_is_exact_for_both_engines (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_run_vector_is_exact_for_both_engines) ... ok
+test_the_whole_label_set_is_still_owned_before_the_engine_is_asked (tests.manager.test_oci.TheVectorsAreClosedAndOrdered.test_the_whole_label_set_is_still_owned_before_the_engine_is_asked)
+Narrowing the FILTERS did not narrow the ownership. An invented or ... ok
+test_a_consent_container_mounts_nothing (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_consent_container_mounts_nothing)
+ROOTS ALONE CANNOT CHOOSE THE TOPOLOGY, which is why the posture is ... ok
+test_a_mount_reaches_the_engine_only_in_canonical_spelling (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_mount_reaches_the_engine_only_in_canonical_spelling) ... ok
+test_a_path_that_is_not_canonical_is_refused (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_path_that_is_not_canonical_is_refused) ... ok
+test_a_repository_outside_assignment_owned_roots_is_not_mountable (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_repository_outside_assignment_owned_roots_is_not_mountable)
+A denylist cannot prove that a host path belongs to this assignment. ... ok
+test_a_symlink_descendant_cannot_escape_an_assignment_root (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_symlink_descendant_cannot_escape_an_assignment_root)
+Lexical containment is not mount authority. ... ok
+test_a_symlinked_root_and_a_symlinked_source_agree (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_symlinked_root_and_a_symlinked_source_agree)
+Resolution is applied to BOTH sides or it decides nothing: a ... ok
+test_a_target_traversal_is_not_normalized_into_another_location (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_target_traversal_is_not_normalized_into_another_location)
+The spelling is checked before `normpath` erases the traversal. ... ok
+test_a_writable_and_a_read_only_mount_are_spelled_apart (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_a_writable_and_a_read_only_mount_are_spelled_apart) ... ok
+test_assignment_roots_cannot_overlap (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_assignment_roots_cannot_overlap)
+A source inside two roots has no unique posture authority. ... ok
+test_both_roots_and_posture_are_required_and_closed (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_both_roots_and_posture_are_required_and_closed) ... ok
+test_delivered_inputs_are_evidence_rather_than_scratch (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_delivered_inputs_are_evidence_rather_than_scratch)
+Read-only under `inputs`, read/write only under `workspace`. ... ok
+test_nested_mount_sources_and_targets_are_ambiguous (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_nested_mount_sources_and_targets_are_ambiguous)
+No mount may hide or alias a second mount by containment. ... ok
+test_only_this_assignments_own_material_is_mountable (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_only_this_assignments_own_material_is_mountable)
+PROVED TO BE OURS, not proved not to be theirs. ... ok
+test_the_assignment_root_contract_is_artifact_neutral (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_the_assignment_root_contract_is_artifact_neutral)
+The core adapter may know generic input and workspace roots, but ... ok
+test_the_engine_and_the_hosts_own_state_are_never_mounted (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_the_engine_and_the_hosts_own_state_are_never_mounted)
+Each of these is a way to hand a worker the manager's own authority ... ok
+test_the_engine_is_handed_what_this_adapter_proved (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_the_engine_is_handed_what_this_adapter_proved)
+The other half of resolving: proving the resolved path and then ... ok
+test_two_mounts_cannot_land_on_one_target (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_two_mounts_cannot_land_on_one_target) ... ok
+test_two_roots_that_are_the_same_place_are_refused (tests.manager.test_oci.AMountIsCanonicalAndNeverTheHosts.test_two_roots_that_are_the_same_place_are_refused)
+Equality is containment's degenerate case with the same defect: a ... ok
+test_a_contradictory_candidate_stops_a_start_before_the_engine_creates (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_contradictory_candidate_stops_a_start_before_the_engine_creates)
+The reason the whole-record comparison matters: a candidate this ... ok
+test_a_foreign_authoritys_container_is_refused_and_stays_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_foreign_authoritys_container_is_refused_and_stays_refused)
+W83781, the negative control that must NOT change. ... ok
+test_a_listing_that_names_no_image_is_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_listing_that_names_no_image_is_refused)
+An engine that will not say which image is running has not proved ... ok
+test_a_namespaced_attempt_reaches_exactly_one_run (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_namespaced_attempt_reaches_exactly_one_run)
+The correction's own half, driven THROUGH `start`. ... ok
+test_a_resolved_identity_is_four_digests_and_nothing_else (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_resolved_identity_is_four_digests_and_nothing_else)
+FOUR, and the count is the case. ... ok
+test_a_restart_finds_the_runtime_by_the_identity_it_started_under (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_restart_finds_the_runtime_by_the_identity_it_started_under)
+The restart probe. A new adapter over the same resolved identity ... ok
+test_a_restart_refuses_a_runtime_from_another_resolved_image (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_restart_refuses_a_runtime_from_another_resolved_image)
+Labels alone cannot make a stale image this adapter's runtime. ... ok
+test_a_restart_refuses_a_runtime_labelled_for_another_policy (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_restart_refuses_a_runtime_labelled_for_another_policy)
+The labelled half of the identity, for the member no engine ... ok
+test_a_returned_candidate_must_match_the_requested_assignment (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_returned_candidate_must_match_the_requested_assignment)
+Engine filters select candidates; they do not prove their labels. ... ok
+test_a_stale_assignment_runtime_is_not_filtered_into_a_duplicate_start (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_stale_assignment_runtime_is_not_filtered_into_a_duplicate_start)
+Candidate discovery cannot pre-compare mutable assignment facts. ... ok
+test_a_stale_candidate_is_refused_rather_than_filtered_away (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_stale_candidate_is_refused_rather_than_filtered_away)
+The module's own sentence, now true of the listing too: a stale ... ok
+test_a_stale_candidate_stops_a_start_before_the_engine_creates (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_stale_candidate_stops_a_start_before_the_engine_creates)
+The reason the discovery half matters at all. `start` asks what ... ok
+test_a_stale_policy_runtime_is_not_filtered_into_a_duplicate_start (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_stale_policy_runtime_is_not_filtered_into_a_duplicate_start)
+The candidate query must be broader than the identity comparison. ... ok
+test_a_start_labelled_for_another_policy_is_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_start_labelled_for_another_policy_is_refused)
+The mismatch probe, extended to the member review [P1] restored. ... ok
+test_a_tag_is_not_an_image_identity (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_a_tag_is_not_an_image_identity)
+A tag is a pointer that was true when somebody last pushed. The ... ok
+test_an_ordinary_start_still_finds_no_candidate_and_creates (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_an_ordinary_start_still_finds_no_candidate_and_creates)
+The other half. Broadening discovery must not make every start ... ok
+test_every_label_that_contradicts_the_request_is_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_every_label_that_contradicts_the_request_is_refused)
+The complete returned record, member by member. Engine-side ... ok
+test_labels_that_disagree_with_the_identity_are_refused (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_labels_that_disagree_with_the_identity_are_refused)
+The mismatch probe. A runtime labelled with a profile or adapter ... ok
+test_nothing_is_started_when_the_identity_disagrees (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_nothing_is_started_when_the_identity_disagrees)
+Refused BEFORE the engine is asked to run anything: a start that ... ok
+test_the_engines_two_spellings_of_the_image_are_one_fact (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_the_engines_two_spellings_of_the_image_are_one_fact)
+Docker answers `Image` and Podman answers `ImageID`, and the id may ... ok
+test_the_resolved_identity_includes_the_assignment_policy (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_the_resolved_identity_includes_the_assignment_policy)
+Image/profile/adapter is not the dossier's four-digest identity. ... ok
+test_the_started_image_comes_from_the_resolved_identity (tests.manager.test_oci.OneDeliveryCarriesOneResolvedIdentity.test_the_started_image_comes_from_the_resolved_identity) ... ok
+test_exact_root_and_fixed_target_exclude_storage_and_generation (tests.manager.test_oci.TheContextMountIsAnExactUse.test_exact_root_and_fixed_target_exclude_storage_and_generation) ... ok
+test_observation_refuses_changed_or_missing_context_mount (tests.manager.test_oci.TheContextMountIsAnExactUse.test_observation_refuses_changed_or_missing_context_mount) ... ok
+test_untyped_wrong_purpose_and_both_overlap_directions_refuse (tests.manager.test_oci.TheContextMountIsAnExactUse.test_untyped_wrong_purpose_and_both_overlap_directions_refuse) ... ok
+test_both_verification_streams_are_discarded_too (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_both_verification_streams_are_discarded_too)
+The sharper of the two, because this child is provider-EDITED code ... ok
+test_the_argv_is_exactly_the_pinned_vector_plus_one_prompt (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_argv_is_exactly_the_pinned_vector_plus_one_prompt)
+GOLDEN. The one operand a golden test cannot establish is whether ... ok
+test_the_environment_is_composed_and_never_inherited (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_environment_is_composed_and_never_inherited)
+A credential variable in this process must not reach the child. ... ok
+test_the_inner_permission_policy_is_bypassed_and_not_re_spelled (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_inner_permission_policy_is_bypassed_and_not_re_spelled)
+W64268's negative half. ... ok
+test_the_prompt_carries_the_task_and_names_nothing_protocol (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_prompt_carries_the_task_and_names_nothing_protocol) ... ok
+test_the_provider_runs_in_the_workspace_copy_and_not_the_source (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_provider_runs_in_the_workspace_copy_and_not_the_source)
+W71917 MOVED THE COPY, AND NOT THE RULE. ... ok
+test_the_provider_stderr_is_discarded_rather_than_captured (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_provider_stderr_is_discarded_rather_than_captured)
+W39357 review 2026-08-30T04:01:29Z [P1], and it is why the stderr ... ok
+test_the_provider_stdout_is_a_bounded_anonymous_pipe (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_provider_stdout_is_a_bounded_anonymous_pipe)
+W55360: read, but never through a name a child could reach. ... ok
+test_the_turn_is_bounded (tests.manager.test_claude_agent.TheProviderArgvAndEnvironmentAreClosed.test_the_turn_is_bounded) ... ok
+test_a_provider_created_link_cannot_copy_the_bearer_to_the_proposal (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_a_provider_created_link_cannot_copy_the_bearer_to_the_proposal)
+The provider controls the candidate after the trusted source-copy ... ok
+test_an_absent_credential_refuses_rather_than_falling_back (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_an_absent_credential_refuses_rather_than_falling_back)
+The finding forbids a home-directory or ambient default. ... ok
+test_an_unreadable_credential_refuses_before_the_provider_runs (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_an_unreadable_credential_refuses_before_the_provider_runs)
+W52800, and it is the case that would have saved three attempts. ... ok
+test_no_bearer_reaches_the_argv_or_the_result (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_no_bearer_reaches_the_argv_or_the_result) ... ok
+test_provider_stderr_cannot_print_the_mounted_credential (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_provider_stderr_cannot_print_the_mounted_credential)
+A bounded provider diagnostic is still an untrusted secret sink. ... ok
+test_the_bearer_bytes_are_never_opened (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_the_bearer_bytes_are_never_opened)
+THE PROPERTY, measured rather than asserted about intent. ... ok
+test_the_providers_credential_path_points_at_the_mounted_slot (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_the_providers_credential_path_points_at_the_mounted_slot) ... ok
+test_verification_cannot_print_the_mounted_credential (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_verification_cannot_print_the_mounted_credential)
+The transcript cannot trust provider-edited verification output. ... ok
+test_verification_cannot_replace_checked_file_bytes_with_the_credential (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_verification_cannot_replace_checked_file_bytes_with_the_credential)
+Revalidation must hold CONTENT, not only path shape. ... ok
+test_verification_cannot_replace_its_capture_with_the_credential (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_verification_cannot_replace_its_capture_with_the_credential)
+Capture state must not be reachable by the verification command. ... ok
+test_verification_cannot_swap_a_checked_parent_for_the_credential_root (tests.manager.test_claude_agent.TheCredentialIsLinkedAndNeverRead.test_verification_cannot_swap_a_checked_parent_for_the_credential_root)
+Validation must remain true through the final candidate read. ... ok
+test_a_child_given_this_environment_really_selects_those_roots (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_a_child_given_this_environment_really_selects_those_roots)
+THE PROOF THE STRING CHECK CANNOT GIVE. ... ok
+test_a_descendant_cannot_redirect_a_root_after_final_validation (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_a_descendant_cannot_redirect_a_root_after_final_validation)
+Review 2026-09-04T18-59-48Z: discriminate the TOCTOU. ... ok
+test_a_real_compileall_leaves_the_candidate_cache_free (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_a_real_compileall_leaves_the_candidate_cache_free)
+THE DEFECT ITSELF, with a real interpreter rather than a double. ... ok
+test_every_ephemeral_root_is_outside_the_candidate (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_every_ephemeral_root_is_outside_the_candidate) ... ok
+test_every_named_root_exists_before_either_child_starts (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_every_named_root_exists_before_either_child_starts)
+W85497 review 2026-09-04T13-56-04Z [P1]: named is not created. ... ok
+test_provider_symlinks_cannot_replace_the_verifiers_owned_roots (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_provider_symlinks_cannot_replace_the_verifiers_owned_roots)
+Review 2026-09-04T14:44:23Z: predictable is attacker-known. ... ok
+test_the_providers_home_is_still_the_prepared_credential_home (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_the_providers_home_is_still_the_prepared_credential_home)
+The correction moves ephemera, not the credential. ... ok
+test_the_pycache_prefix_is_set_because_compileall_ignores_the_other (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_the_pycache_prefix_is_set_because_compileall_ignores_the_other)
+`PYTHONDONTWRITEBYTECODE` cannot answer this and is not relied on. ... ok
+test_the_verification_home_is_not_the_candidate_and_holds_no_bearer (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_the_verification_home_is_not_the_candidate_and_holds_no_bearer)
+It used to BE the candidate, so a command writing to its own home ... ok
+test_the_verifier_inherits_the_exact_held_directory_objects (tests.manager.test_claude_agent.NeitherChildLeavesEphemeraInTheCandidate.test_the_verifier_inherits_the_exact_held_directory_objects)
+The provider-writable names are no longer launch authority. ... ok
+test_a_descendant_holding_stdout_cannot_outlive_the_bound (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_descendant_holding_stdout_cannot_outlive_the_bound)
+W55360 review (2026-09-01T03:35:56Z) [P1], at the seam. ... ok
+test_a_descendant_holding_stdout_publishes_only_the_fallback (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_descendant_holding_stdout_publishes_only_the_fallback)
+End to end, and the retained bytes really do carry the marker. ... ok
+test_a_flood_beginning_with_a_good_record_is_unclassified (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_flood_beginning_with_a_good_record_is_unclassified)
+Overflow is not a reason to trust the prefix. ... ok
+test_a_flood_is_drained_to_the_end_and_retained_bounded (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_flood_is_drained_to_the_end_and_retained_bounded)
+The two properties together, against a real child. ... ok
+test_a_partial_record_is_unclassified_even_when_it_parses (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_partial_record_is_unclassified_even_when_it_parses)
+The guard on its own, with the parser deliberately unable to help. ... ok
+test_a_record_the_parser_cannot_finish_is_unclassified (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_record_the_parser_cannot_finish_is_unclassified)
+The same review's second half: `_failure_reason` was not TOTAL. ... ok
+test_a_success_publishes_no_reason_and_none_of_the_marker (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_success_publishes_no_reason_and_none_of_the_marker)
+A clean turn writes its structured record too, and none of it is ... ok
+test_a_timed_out_provider_with_a_descendant_still_ends (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_a_timed_out_provider_with_a_descendant_still_ends)
+The same hazard, reached from the timeout path. ... ok
+test_every_unusable_record_is_unclassified_and_says_nothing_more (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_every_unusable_record_is_unclassified_and_says_nothing_more)
+One case per way the document can fail to earn a word. ... ok
+test_invalid_utf8_is_unclassified_rather_than_replaced (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_invalid_utf8_is_unclassified_rather_than_replaced)
+Decoded strictly, so an undecodable record cannot become a ... ok
+test_pythons_non_standard_constants_are_not_json (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_pythons_non_standard_constants_are_not_json)
+W55360 review (2026-09-01T03:35:56Z) [P1]: the parser was strict ... ok
+test_the_map_is_closed_and_matched_by_equality (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_map_is_closed_and_matched_by_equality)
+No prefix, no substring, no pattern. A near miss is a miss. ... ok
+test_the_mapped_word_reaches_the_recap_and_the_status_survives (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_mapped_word_reaches_the_recap_and_the_status_survives) ... ok
+test_the_observed_api_error_becomes_the_adapter_word (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_observed_api_error_becomes_the_adapter_word)
+The whole point of the Work, end to end through a real child. ... ok
+test_the_provider_stderr_is_still_never_read (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_provider_stderr_is_still_never_read)
+The child above writes the marker to BOTH streams. Stdout is read, ... ok
+test_the_providers_own_spelling_never_reaches_a_sink (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_providers_own_spelling_never_reaches_a_sink)
+`api_error` earns `api-error`, and the underscore form is not what ... ok
+test_the_verification_streams_are_still_devnull (tests.manager.test_claude_agent.TheStructuredRecordIsMappedAndNeverPublished.test_the_verification_streams_are_still_devnull)
+W55360 must not weaken the sharper half: verification is ... ok
+test_actual_child_environment_verifier_and_public_outputs_exclude_private_state (tests.manager.test_claude_agent.TheContextEnvironmentRemainsPrivate.test_actual_child_environment_verifier_and_public_outputs_exclude_private_state) ... ok
+test_injected_context_is_unknown_for_activity_even_on_initial_open (tests.manager.test_claude_agent.TheContextEnvironmentRemainsPrivate.test_injected_context_is_unknown_for_activity_even_on_initial_open) ... ok
+test_a_changed_nominated_source_is_not_a_configuration_refusal (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_changed_nominated_source_is_not_a_configuration_refusal)
+W71917 REPLACED THE CHECK THAT STOOD HERE, and the replacement is ... ok
+test_a_configuration_of_the_superseded_schema_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_configuration_of_the_superseded_schema_is_refused)
+W81115: `/2` adds a required member, so it is a new contract. ... ok
+test_a_configuration_without_a_task_document_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_configuration_without_a_task_document_is_refused) ... ok
+test_a_manifest_claiming_measured_content_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_manifest_claiming_measured_content_is_refused) ... ok
+test_a_nominated_source_that_is_a_link_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_nominated_source_that_is_a_link_is_refused)
+A link at the nominated name is a source somebody else chose, and ... ok
+test_a_source_destination_the_workload_does_not_read_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_source_destination_the_workload_does_not_read_is_refused)
+The adjacent fact the reproduction found beside the missing task. ... ok
+test_a_source_that_does_not_declare_the_boundary_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_source_that_does_not_declare_the_boundary_is_refused)
+A staged descriptor is not a nominated one, and mounting over it ... ok
+test_a_task_that_is_not_the_declared_human_contract_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_task_that_is_not_the_declared_human_contract_is_refused)
+The approved relationship, held in both directions. ... ok
+test_a_workspace_capacity_declaring_an_entry_ceiling_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_workspace_capacity_declaring_an_entry_ceiling_is_refused)
+The closed member set is what makes the removal a refusal. ... ok
+test_a_workspace_capacity_inside_the_scratch_bound_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_a_workspace_capacity_inside_the_scratch_bound_is_refused)
+The deterministic form of "the ruled uses must not rely on tmpfs". ... ok
+test_authority_resolves_the_exact_configured_participant (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_authority_resolves_the_exact_configured_participant) ... ok
+test_authority_resolves_the_exact_configured_principal (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_authority_resolves_the_exact_configured_principal) ... ok
+test_static_authority_contract_and_role_relationships_are_bound (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_static_authority_contract_and_role_relationships_are_bound) ... ok
+test_task_material_this_deployment_cannot_hold_is_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_task_material_this_deployment_cannot_hold_is_refused)
+Every static negative, before anything exists to undo. ... ok
+test_the_held_bytes_and_not_the_path_are_what_is_delivered (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_the_held_bytes_and_not_the_path_are_what_is_delivered)
+A change to the configured path after construction changes nothing. ... ok
+test_the_public_factory_reads_only_its_named_configuration (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_the_public_factory_reads_only_its_named_configuration) ... ok
+test_unknown_configuration_members_are_refused (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_unknown_configuration_members_are_refused) ... ok
+test_a_credential_source_refusal_is_exceptional_and_not_retried (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_a_credential_source_refusal_is_exceptional_and_not_retried) ... ok
+test_an_accepted_offer_is_adopted_after_restart (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_an_accepted_offer_is_adopted_after_restart) ... ok
+test_an_unbound_profile_is_refused_before_an_offer_or_engine_act (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_an_unbound_profile_is_refused_before_an_offer_or_engine_act) ... ok
+test_authority_bootstrap_paths_do_not_cross_into_the_runtime_composer (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_authority_bootstrap_paths_do_not_cross_into_the_runtime_composer) ... ok
+test_one_submission_becomes_one_observable_runtime_and_is_adopted (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_one_submission_becomes_one_observable_runtime_and_is_adopted) ... ok
+test_restart_after_activation_commits (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_activation_commits) ... ok
+test_restart_after_credential_materialization (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_credential_materialization) ... ok
+test_restart_after_input_composition (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_input_composition) ... ok
+test_restart_after_launch_delivery (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_launch_delivery) ... ok
+test_restart_after_manifest_retention (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_manifest_retention) ... ok
+test_restart_after_the_attempt_record_commits (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_attempt_record_commits) ... ok
+test_restart_after_the_boundary_is_adopted_for_the_start (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_boundary_is_adopted_for_the_start) ... ok
+test_restart_after_the_claim_commits (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_claim_commits) ... ok
+test_restart_after_the_runtime_start_commits (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_runtime_start_commits) ... ok
+test_restart_after_the_source_boundary_is_composed (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_source_boundary_is_composed) ... ok
+test_restart_after_workspace_allocation (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_workspace_allocation) ... ok
+test_restart_reconciles_the_start_journal_engine_call_window (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_reconciles_the_start_journal_engine_call_window) ... ok
+test_exact_reserved_declaration_rejects_stale_media_and_other_shapes (tests.tools.test_single_worker.TheContextConfigurationIsRequiredAndClosed.test_exact_reserved_declaration_rejects_stale_media_and_other_shapes) ... ok
+test_legacy_implementation_cannot_silently_omit_context (tests.tools.test_single_worker.TheContextConfigurationIsRequiredAndClosed.test_legacy_implementation_cannot_silently_omit_context) ... ok
+test_a_configuration_naming_another_pool_generation_refuses (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_a_configuration_naming_another_pool_generation_refuses) ... ok
+test_a_review_stage_is_admitted_by_the_review_worker (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_a_review_stage_is_admitted_by_the_review_worker)
+The measured symptom: `_matches` refused every kind but ... ok
+test_each_stage_worker_carries_its_own_composition (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_each_stage_worker_carries_its_own_composition) ... ok
+test_integration_requires_an_accepted_checkpoint_before_runtime (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_integration_requires_an_accepted_checkpoint_before_runtime)
+W103068 constructs the runtime port; acceptance remains the gate. ... ok
+test_the_integration_kind_is_driven_by_the_integration_driver (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_the_integration_kind_is_driven_by_the_integration_driver) ... ok
+test_the_pool_is_activated_from_the_configuration (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_the_pool_is_activated_from_the_configuration)
+Nobody issues an operator transition to create capacity: the ... ok
+test_the_artifact_bytes_reopen_at_their_recorded_locator (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_artifact_bytes_reopen_at_their_recorded_locator) ... ok
+test_the_cleanup_that_ran_was_the_ordinary_authorized_one (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_cleanup_that_ran_was_the_ordinary_authorized_one)
+`retained` is TERMINAL and is not `complete`, and neither is ... ok
+test_the_persistent_line_and_its_pin_survive_that_cleanup (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_persistent_line_and_its_pin_survive_that_cleanup)
+Ordinary attempt cleanup neither deletes the line nor moves its pin. ... ok
+test_the_retained_manifest_reopens_and_names_those_same_bytes (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_retained_manifest_reopens_and_names_those_same_bytes) ... ok
+test_the_retained_sibling_was_never_a_writable_worker_mount (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_retained_sibling_was_never_a_writable_worker_mount)
+The custody tree is beside the line, not inside it. ... ok
+test_a_reconstructed_manager_re_enters_the_same_ending (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_a_reconstructed_manager_re_enters_the_same_ending)
+THE CUTPOINT THIS WORK EXISTS FOR, driven through the actual ... ok
+test_the_historical_adapter_can_perform_no_runtime_act (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_historical_adapter_can_perform_no_runtime_act)
+A property of the object rather than a promise about the path. ... ok
+test_the_historical_entry_reconstructs_no_mount_or_credential (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_historical_entry_reconstructs_no_mount_or_credential)
+The entry the ordinary ending cannot be. ... ok
+test_the_historical_operands_come_from_the_recorded_obligation (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_historical_operands_come_from_the_recorded_obligation)
+Not from the exchange the ordinary ending reads them off. ... ok
+test_the_obligation_is_registered_and_settled_by_ordinary_ticks (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_obligation_is_registered_and_settled_by_ordinary_ticks) ... ok
+test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer)
+The durable operand, read through the accepted public reader. ... ok
+test_the_settlement_names_the_records_that_finished_the_ending (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_settlement_names_the_records_that_finished_the_ending)
+Every member is an identity an operator can look up in the owner ... ok
+test_a_stage_with_no_allocation_is_answered_by_no_worker (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_a_stage_with_no_allocation_is_answered_by_no_worker)
+The rule `PooledManagerOperations._reader` keeps, for the same ... ok
+test_it_carries_the_exchange_read_and_no_act (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_it_carries_the_exchange_read_and_no_act) ... ok
+test_it_reads_through_the_worker_the_scheduler_allocated (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_it_reads_through_the_worker_the_scheduler_allocated) ... ok
+test_another_job_owner_cannot_supply_the_context_attempt (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_another_job_owner_cannot_supply_the_context_attempt) ... ok
+test_another_roles_root_cannot_overlap_context_storage (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_another_roles_root_cannot_overlap_context_storage) ... ok
+test_context_preflight_requires_the_preconfigured_profile (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_context_preflight_requires_the_preconfigured_profile) ... ok
+test_live_handle_reopen_observes_without_duplicate_start_or_binding (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_live_handle_reopen_observes_without_duplicate_start_or_binding) ... ok
+test_admission_is_replayed_after_reopen_without_another_authority_read (tests.manager.test_provider_context.Admission.test_admission_is_replayed_after_reopen_without_another_authority_read) ... ok
+test_changed_profile_cannot_reinterpret_an_admitted_use (tests.manager.test_provider_context.Admission.test_changed_profile_cannot_reinterpret_an_admitted_use) ... ok
+test_missing_live_assignment_refuses_before_any_context_transition (tests.manager.test_provider_context.Admission.test_missing_live_assignment_refuses_before_any_context_transition) ... ok
+test_missing_owner_cleanup_never_reads_the_receipt (tests.manager.test_provider_context.Admission.test_missing_owner_cleanup_never_reads_the_receipt) ... ok
+test_observation_is_pure_and_contains_no_private_locator (tests.manager.test_provider_context.Admission.test_observation_is_pure_and_contains_no_private_locator) ... ok
+test_replaced_repository_refuses_before_admission (tests.manager.test_provider_context.Admission.test_replaced_repository_refuses_before_admission) ... ok
+test_two_connections_commit_one_admission (tests.manager.test_provider_context.Admission.test_two_connections_commit_one_admission) ... ok
+test_unknown_use_stays_held (tests.manager.test_provider_context.Admission.test_unknown_use_stays_held) ... ok
+test_wrong_writer_refuses (tests.manager.test_provider_context.Admission.test_wrong_writer_refuses) ... ok
+test_crash_after_publication_before_journal_replays_only_custody (tests.manager.test_provider_context.Finalization.test_crash_after_publication_before_journal_replays_only_custody) ... ok
+test_crash_during_staging_reuses_only_matching_private_bytes (tests.manager.test_provider_context.Finalization.test_crash_during_staging_reuses_only_matching_private_bytes) ... ok
+test_damaged_committed_generation_is_refused (tests.manager.test_provider_context.Finalization.test_damaged_committed_generation_is_refused) ... ok
+test_disposal_preserves_generation_and_invocation_evidence (tests.manager.test_provider_context.Finalization.test_disposal_preserves_generation_and_invocation_evidence) ... ok
+test_positive_generation_is_published_and_replayed_after_fence (tests.manager.test_provider_context.Finalization.test_positive_generation_is_published_and_replayed_after_fence) ... ok
+test_wrong_actual_model_receipt_cannot_publish_a_generation (tests.manager.test_provider_context.Finalization.test_wrong_actual_model_receipt_cannot_publish_a_generation) ... ok
+test_directory_identity_is_not_ready (tests.manager.test_provider_context.GenerationIdentity.test_directory_identity_is_not_ready) ... ok
+test_hardlink_identity_is_not_ready (tests.manager.test_provider_context.GenerationIdentity.test_hardlink_identity_is_not_ready) ... ok
+test_missing_identity_is_not_ready (tests.manager.test_provider_context.GenerationIdentity.test_missing_identity_is_not_ready) ... ok
+test_oversized_identity_is_not_ready (tests.manager.test_provider_context.GenerationIdentity.test_oversized_identity_is_not_ready) ... ok
+test_publication_replay_preserves_mismatching_state (tests.manager.test_provider_context.GenerationIdentity.test_publication_replay_preserves_mismatching_state) ... ok
+test_publication_replay_refuses_missing_identity (tests.manager.test_provider_context.GenerationIdentity.test_publication_replay_refuses_missing_identity) ... ok
+test_publication_replay_refuses_writable_identity (tests.manager.test_provider_context.GenerationIdentity.test_publication_replay_refuses_writable_identity) ... ok
+test_publication_replay_refuses_wrong_exclusion (tests.manager.test_provider_context.GenerationIdentity.test_publication_replay_refuses_wrong_exclusion) ... ok
+test_publication_replay_refuses_wrong_identity (tests.manager.test_provider_context.GenerationIdentity.test_publication_replay_refuses_wrong_identity) ... ok
+test_restore_admission_refuses_damaged_prior_identity (tests.manager.test_provider_context.GenerationIdentity.test_restore_admission_refuses_damaged_prior_identity) ... ok
+test_restore_materialization_rechecks_original_generation_identity (tests.manager.test_provider_context.GenerationIdentity.test_restore_materialization_rechecks_original_generation_identity) ... ok
+test_symlink_identity_is_not_ready (tests.manager.test_provider_context.GenerationIdentity.test_symlink_identity_is_not_ready) ... ok
+test_writable_identity_is_not_ready (tests.manager.test_provider_context.GenerationIdentity.test_writable_identity_is_not_ready) ... ok
+test_wrong_exclusion_is_not_ready (tests.manager.test_provider_context.GenerationIdentity.test_wrong_exclusion_is_not_ready) ... ok
+test_wrong_use_is_not_ready (tests.manager.test_provider_context.GenerationIdentity.test_wrong_use_is_not_ready) ... ok
+test_closed_profile_rejects_wrong_types_and_unsafe_paths (tests.manager.test_provider_context.Profiles.test_closed_profile_rejects_wrong_types_and_unsafe_paths) ... ok
+test_production_qualification_cannot_be_asserted_by_a_profile_label (tests.manager.test_provider_context.Profiles.test_production_qualification_cannot_be_asserted_by_a_profile_label) ... ok
+test_a_foreign_live_actor_is_refused (tests.manager.test_provider_context.RemainingBoundaries.test_a_foreign_live_actor_is_refused) ... ok
+test_a_replaced_generation_with_identical_bytes_is_still_not_the_original (tests.manager.test_provider_context.RemainingBoundaries.test_a_replaced_generation_with_identical_bytes_is_still_not_the_original) ... ok
+test_actual_image_drift_refuses_before_admission (tests.manager.test_provider_context.RemainingBoundaries.test_actual_image_drift_refuses_before_admission) ... ok
+test_actual_principal_change_cannot_inherit_the_existing_context (tests.manager.test_provider_context.RemainingBoundaries.test_actual_principal_change_cannot_inherit_the_existing_context) ... ok
+test_another_jobs_store_cannot_supply_this_episode (tests.manager.test_provider_context.RemainingBoundaries.test_another_jobs_store_cannot_supply_this_episode) ... ok
+test_damage_is_observed_as_a_hold_without_mutating_the_store (tests.manager.test_provider_context.RemainingBoundaries.test_damage_is_observed_as_a_hold_without_mutating_the_store) ... ok
+test_original_context_survives_removal_of_generic_execution_roots (tests.manager.test_provider_context.RemainingBoundaries.test_original_context_survives_removal_of_generic_execution_roots) ... ok
+test_retirement_cannot_release_an_unknown_writer (tests.manager.test_provider_context.RemainingBoundaries.test_retirement_cannot_release_an_unknown_writer) ... ok
+test_unknown_file_in_staging_cannot_enter_a_generation (tests.manager.test_provider_context.RemainingBoundaries.test_unknown_file_in_staging_cannot_enter_a_generation) ... ok
+test_unproven_receipt_bytes_cannot_replace_a_frozen_healthy_receipt (tests.manager.test_provider_context.RemainingBoundaries.test_unproven_receipt_bytes_cannot_replace_a_frozen_healthy_receipt) ... ok
+test_actual_correction_admits_a_fresh_copy_with_the_same_conversation (tests.manager.test_provider_context.Restoration.test_actual_correction_admits_a_fresh_copy_with_the_same_conversation) ... ok
+test_competing_restore_refusal_does_not_consume_incumbent_finalization (tests.manager.test_provider_context.Restoration.test_competing_restore_refusal_does_not_consume_incumbent_finalization) ... ok
+test_complete_write_before_freeze_recovers (tests.manager.test_provider_context.StagingRecovery.test_complete_write_before_freeze_recovers) ... ok
+test_empty_staging_before_registration_can_recover (tests.manager.test_provider_context.StagingRecovery.test_empty_staging_before_registration_can_recover) ... ok
+test_mismatching_staging_bytes_are_preserved_and_refused (tests.manager.test_provider_context.StagingRecovery.test_mismatching_staging_bytes_are_preserved_and_refused) ... ok
+test_partial_identity_write_recovers (tests.manager.test_provider_context.StagingRecovery.test_partial_identity_write_recovers) ... ok
+test_partial_manifest_write_recovers (tests.manager.test_provider_context.StagingRecovery.test_partial_manifest_write_recovers) ... ok
+test_partial_state_write_recovers (tests.manager.test_provider_context.StagingRecovery.test_partial_state_write_recovers) ... ok
+test_replaced_staging_objects_are_refused (tests.manager.test_provider_context.StagingRecovery.test_replaced_staging_objects_are_refused) ... ok
+test_source_changes_after_interruption_are_refused (tests.manager.test_provider_context.StagingRecovery.test_source_changes_after_interruption_are_refused) ... ok
+test_unregistered_nonempty_staging_is_preserved_and_refused (tests.manager.test_provider_context.StagingRecovery.test_unregistered_nonempty_staging_is_preserved_and_refused) ... ok
+test_zero_identity_write_recovers (tests.manager.test_provider_context.StagingRecovery.test_zero_identity_write_recovers) ... ok
+test_zero_manifest_write_recovers (tests.manager.test_provider_context.StagingRecovery.test_zero_manifest_write_recovers) ... ok
+test_zero_state_write_recovers (tests.manager.test_provider_context.StagingRecovery.test_zero_state_write_recovers) ... ok
+test_exact_volatile_credential_link_is_never_opened_or_retained (tests.manager.test_provider_context_delivery.Delivery.test_exact_volatile_credential_link_is_never_opened_or_retained) ... ok
+test_excluded_source_cannot_be_used_as_context_storage (tests.manager.test_provider_context_delivery.Delivery.test_excluded_source_cannot_be_used_as_context_storage) ... ok
+test_fresh_home_and_exact_reopen_keep_the_original_pins (tests.manager.test_provider_context_delivery.Delivery.test_fresh_home_and_exact_reopen_keep_the_original_pins) ... ok
+test_missing_state_size_and_entry_bounds_refuse (tests.manager.test_provider_context_delivery.Delivery.test_missing_state_size_and_entry_bounds_refuse) ... ok
+test_other_link_hardlink_and_fifo_are_refused (tests.manager.test_provider_context_delivery.Delivery.test_other_link_hardlink_and_fifo_are_refused) ... ok
+test_read_protection_is_not_repaired_after_delivery (tests.manager.test_provider_context_delivery.Delivery.test_read_protection_is_not_repaired_after_delivery) ... ok
+test_regular_credential_file_is_refused_without_reading_it (tests.manager.test_provider_context_delivery.Delivery.test_regular_credential_file_is_refused_without_reading_it) ... ok
+test_replaced_home_is_not_adopted (tests.manager.test_provider_context_delivery.Delivery.test_replaced_home_is_not_adopted) ... ok
+test_replaced_storage_ancestor_is_not_followed (tests.manager.test_provider_context_delivery.Delivery.test_replaced_storage_ancestor_is_not_followed) ... ok
+test_sealing_cannot_be_authorized_with_a_caller_absence_receipt (tests.manager.test_provider_context_delivery.Delivery.test_sealing_cannot_be_authorized_with_a_caller_absence_receipt) ... ok
+test_unknown_regular_file_bytes_are_not_read (tests.manager.test_provider_context_delivery.Delivery.test_unknown_regular_file_bytes_are_not_read) ... ok
+test_unsupported_runtime_uid_refuses_before_delivery (tests.manager.test_provider_context_delivery.Delivery.test_unsupported_runtime_uid_refuses_before_delivery) ... ok
+test_a_declaration_this_workload_does_not_know_is_refused (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_a_declaration_this_workload_does_not_know_is_refused) ... ok
+test_a_review_turn_answers_the_proposal_absent (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_a_review_turn_answers_the_proposal_absent) ... ok
+test_a_review_turn_needs_both_of_its_own_outputs (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_a_review_turn_needs_both_of_its_own_outputs) ... ok
+test_the_other_stages_output_may_not_be_declared_required (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_the_other_stages_output_may_not_be_declared_required) ... ok
+test_a_directory_replaced_before_scanning_cannot_redirect_the_scan (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_directory_replaced_before_scanning_cannot_redirect_the_scan) ... ok
+test_a_disappearing_file_freezes_the_total (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_disappearing_file_freezes_the_total) ... ok
+test_a_home_that_does_not_exist_yet_is_unknown_and_not_a_zero (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_home_that_does_not_exist_yet_is_unknown_and_not_a_zero) ... ok
+test_a_link_pointing_at_a_large_file_is_not_followed (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_link_pointing_at_a_large_file_is_not_followed) ... ok
+test_a_real_turn_observes_growth_before_it_completes (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_real_turn_observes_growth_before_it_completes)
+THE NORMAL ADAPTER BOUNDARY, with a deterministic provider standing ... ok
+test_a_replaced_root_link_never_counts_foreign_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_root_link_never_counts_foreign_activity) ... ok
+test_a_replaced_smaller_file_freezes_rather_than_going_backwards (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_smaller_file_freezes_rather_than_going_backwards)
+THE FORMULA THAT WOULD HAVE LIED. `sum(max(0, size - baseline))` ... ok
+test_a_scratch_this_process_made_counts_from_the_first_byte (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_scratch_this_process_made_counts_from_the_first_byte)
+PROVED BY CONSTRUCTION. `tempfile.mkdtemp` answers a directory this ... ok
+test_a_second_file_contributes_its_whole_size_once (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_second_file_contributes_its_whole_size_once) ... ok
+test_a_total_past_the_ceiling_is_unknown_rather_than_reported (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_total_past_the_ceiling_is_unknown_rather_than_reported)
+THE COUNT THIS READER COULD NOT COMPARE. A total outside the range ... ok
+test_an_agent_that_never_launched_a_provider_observes_nothing (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_an_agent_that_never_launched_a_provider_observes_nothing) ... ok
+test_an_injected_or_reused_home_is_unknown_for_the_whole_operation (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_an_injected_or_reused_home_is_unknown_for_the_whole_operation)
+AN UNPROVED HOME IS NEVER ESTIMATED. No scan reconstructs a baseline ... ok
+test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) ... ok
+test_exceeding_the_depth_yields_unknown_rather_than_a_sample (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_depth_yields_unknown_rather_than_a_sample) ... ok
+test_exceeding_the_entry_bound_yields_unknown (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_entry_bound_yields_unknown)
+A SCAN THAT OVERRAN ITS BOUND REPORTS UNKNOWN RATHER THAN WHAT IT ... ok
+test_exceeding_the_tracked_file_bound_yields_unknown (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_tracked_file_bound_yields_unknown) ... ok
+test_other_home_growth_is_not_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_other_home_growth_is_not_activity) ... ok
+test_restored_history_under_an_unproved_home_fabricates_nothing (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_restored_history_under_an_unproved_home_fabricates_nothing) ... ok
+test_the_credential_symlink_is_never_counted (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_credential_symlink_is_never_counted)
+EXCLUDED TWICE OVER: it is a symlink, which the regular-file test ... ok
+test_the_launch_path_performs_no_scan_and_no_stat (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_launch_path_performs_no_scan_and_no_stat)
+THE BASELINE IS ADMITTED, NOT MEASURED. An earlier revision of this ... ok
+test_the_total_is_monotonic_across_growth (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_total_is_monotonic_across_growth) ... ok
+test_truncation_freezes_the_total (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_truncation_freezes_the_total)
+FROZEN, NOT MERELY UNREDUCED. A file truncated IN PLACE keeps its ... ok
+test_a_mismatched_credential_mount_is_refused_and_stopped (tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst.test_a_mismatched_credential_mount_is_refused_and_stopped)
+Exactly identified, and what disagrees is what it has mounted. ... ok
+test_a_record_naming_another_runtime_is_refused_without_adopting (tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst.test_a_record_naming_another_runtime_is_refused_without_adopting)
+The live runtime is not the one this manager's record names. ... ok
+test_the_exact_recovery_adopts_through_the_public_proof (tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst.test_the_exact_recovery_adopts_through_the_public_proof)
+The positive case: the engine is ASKED before any bearer is ... ok
+test_a_mismatched_credential_mount_is_refused_and_stopped (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_mismatched_credential_mount_is_refused_and_stopped)
+Exactly identified, and what disagrees is what it has mounted. ... ok
+test_a_missing_launch_delivery_after_the_start_is_ended_and_named (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_missing_launch_delivery_after_the_start_is_ended_and_named)
+Re-review 2026-09-03T18:49:20Z [P1]: refusing was not enough. ... ok
+test_a_missing_launch_delivery_before_a_start_is_authored_once (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_missing_launch_delivery_before_a_start_is_authored_once)
+The other side of the same rule: before a start, absence is ... ok
+test_a_record_naming_another_runtime_is_refused_without_adopting (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_record_naming_another_runtime_is_refused_without_adopting)
+The live runtime is not the one this manager's record names. ... ok
+test_the_exact_recovery_adopts_through_the_public_proof (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_the_exact_recovery_adopts_through_the_public_proof)
+The positive case: the engine is ASKED before any bearer is ... ok
+test_an_engine_that_denies_the_start_reports_its_own_refusal (tests.tools.test_single_worker.ARealStartRefusalKeepsItsOwnAccount.test_an_engine_that_denies_the_start_reports_its_own_refusal) ... ok
+
+----------------------------------------------------------------------
+Ran 338 tests in 27.374s
+
+OK

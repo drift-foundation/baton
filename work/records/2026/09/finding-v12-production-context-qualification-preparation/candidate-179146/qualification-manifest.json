@@ -1,0 +1,46 @@
+{
+ "active_seconds": 420,
+ "actual_model": "claude-fable-5",
+ "claim": 179146,
+ "corrections": {
+  "A": "solution.py is accepted in both turns as the expected constant or as that constant with its one final LF absent; every other byte, both workspace entry sets and continuity.txt's exact token-plus-one-LF contract are unchanged, and the observed raw digest, byte length and form are exported before any refusal",
+  "B": "closed model type/cardinality/expected-key diagnostics with a bounded key count and explicit overflow flag; the actual_model/model_fields/conflict predicate is unchanged and no arbitrary model name, value, usage payload or provider prose is exported",
+  "R1": "reconstructed per-use session state is created 0660 group-writable; the credential slot copy and the request document stay 0640 and no existing protected, source or credential object changes",
+  "R2": "all three fixed roots -- run, volatile and export -- are reserved exclusively before any controller, credential or engine admission, and a refused reservation unwinds what it took",
+  "review": "review-2026-09-15T14-36-52Z.md",
+  "review_ab": "review-2026-09-15T15-16-11Z.md",
+  "superseded_acceptance": "the exact-final-LF requirement for solution.py stated by FINDING's 178579 entry and OPERATOR-178579.md; nothing else moved"
+ },
+ "credential_copy_root": "/dev/shm/baton-w177936-qualification-178579",
+ "credential_source": "/home/sl/.claude/.credentials.json",
+ "cwd": "/output",
+ "files": {
+  "qualification-fixture.py": "8f77718841f45af02c589c238c3f634c0851e7c9dd4610ada95cf97bb591bc50",
+  "qualification_contract.py": "1689a5228a6ecf77dcd246420a8b4d3af1c129b6a133a83ff7c3c222aac9032d",
+  "qualification_worker.py": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+  "test_qualification.py": "d2fcdf8a8e5b6f38fc23987a6925a890388c4c1ca0ebc22633557f6099d02ec6"
+ },
+ "group": 1001,
+ "home": "/run/baton/context/home",
+ "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+ "live_execution_selected": false,
+ "max_state_bytes": 33554432,
+ "max_state_depth": 8,
+ "max_state_entries": 1024,
+ "model": "claude-fable-5[1m]",
+ "operator_command_shape": [
+  "python3",
+  "evidence/qualification-fixture.py",
+  "--run",
+  "--approved-manifest",
+  "SHA256_OF_THIS_MANIFEST"
+ ],
+ "overall_seconds": 600,
+ "per_turn_seconds": 180,
+ "private_root": "/tmp/baton-w177936-qualification-178579",
+ "runtime_user": "65532:65532",
+ "scope": "qualification fixture only; no production enablement",
+ "source_reference": "PACKET.md plus FINDING owner178575 clarifications",
+ "state_subset": "one observed project directory, exact expected UUID.jsonl; no nested or foreign sessions",
+ "work": "W177936"
+}

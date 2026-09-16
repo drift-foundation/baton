@@ -1,0 +1,289 @@
+{
+  "work": "W161234",
+  "claim": 179121,
+  "at": "2026-09-15T15:30:05.954314+00:00",
+  "status": "incomplete; packet media mismatch; no B candidate",
+  "files": {
+    "BASE-179121.json": "caaf3da98fd9d44c950a1279e18fb749080a9dd0126eddb88f085825a581a7ac",
+    "partial-179121/manifest.json": "8bf172797e1c14dd36f11b9faf33df9d6d29e26eacdf0e78d10e541103dcec32",
+    "partial-179121/partial.patch": "7e769356b49718ec9a48fedb543d50846dd5eaf39af9e4138a22c7a3551b50f5",
+    "verify-179121.py": "2e7e0870e61d0ce9922248f834efd1b65b5495d78539b531fe929c91d8cb9ca7",
+    "reproduce-media-conflict-179121.py": "9741d8dc36f3541478022ec1e48d465c012e084059c04bfee26f0fd72903a49d",
+    "EXECUTION-B-177536.md": "e7014bba453f2b23a65d5c4a90bd094767c742dccc1012ef382fdb688a795cfa",
+    "review-2026-09-15T15-09-00Z.md": "8c4802ba96ced0feeeed4114280763c80ffed1d281c86ed1b020cc042745861d",
+    "run-179121-1.json": "7ba361b1e8931f0523d1dec974452f3c79cc6e9c0c214448cf785a388a1cbce9",
+    "run-179121-1.log": "4966b0cf3fb97aa2cdf6a65cb9aa5dbc71a933b800f87d8c7f468ee968b4dc43",
+    "run-179121-2.json": "2be7344df470e1c5976face755aad9aa3dc22e7bb05a72ef1d29821ddc2948ee",
+    "run-179121-2.log": "54649e157ddc414db5b0dc3d3782fc710836ac8dfde86c59ea408ba0d3be1ed5",
+    "run-179121-3.json": "009a10bf3f6acec84e6ef203c42c7881a45fcc28471d94d25114a78448e7ab71",
+    "run-179121-3.log": "217b69a2af4ec3f478083586b77e582b9ee6ab3f78c6f47eb6f6f34818cdc7fd",
+    "run-179121-4.json": "7c3dc054a072cb4a758fdaf276978bc26423774d7939ab7774529cad797a76ee",
+    "run-179121-4.log": "9b97890a0a3210c20a59c89ca1fa2c23f6fe32c307993317116b82e34c38195d",
+    "run-179121-5.json": "5cc63fd599580de5a71919436680e7f352dc75688d351a200989f65fb000afe9",
+    "run-179121-5.log": "2c7e61dad96bd2b3f8abc2eed7f332478495146c3efd16e07a62d335c7c3a501"
+  },
+  "checks": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "kind": "baseline-state-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context_delivery.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/exchange.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/dogfood_operator.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_exchange.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_dogfood_operator.py",
+      "kind": "accepted-baseline",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "kind": "accepted-baseline",
+      "match": true
+    }
+  ],
+  "conflict_sources": {
+    "v12/python/src/baton_v12/worker_manager/sealing.py": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+    "v12/python/src/baton_v12/worker_manager/output.py": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+    "v12/worker/baton_worker.py": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4"
+  },
+  "runs": [
+    {
+      "claim": 179121,
+      "run": "1",
+      "at": "2026-09-15T15:24:43.127937+00:00",
+      "seconds": 0.21369578599114902,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_claude_context"
+      ],
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      }
+    },
+    {
+      "claim": 179121,
+      "run": "2",
+      "at": "2026-09-15T15:25:01.154171+00:00",
+      "seconds": 0.7142079979821574,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_claude_context"
+      ],
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      }
+    },
+    {
+      "claim": 179121,
+      "run": "3",
+      "at": "2026-09-15T15:25:18.968253+00:00",
+      "seconds": 0.4640083410195075,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_claude_context.ServingBinding"
+      ],
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      }
+    },
+    {
+      "claim": 179121,
+      "run": "4",
+      "at": "2026-09-15T15:25:39.676368+00:00",
+      "seconds": 0.9644712310109753,
+      "status": 1,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_claude_context"
+      ],
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      }
+    },
+    {
+      "claim": 179121,
+      "run": "5",
+      "at": "2026-09-15T15:27:40.778096+00:00",
+      "seconds": 0.16362604801543057,
+      "status": 0,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "media-conflict"
+      ],
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      }
+    }
+  ],
+  "new_author_seconds": 2.52000940401922,
+  "cumulative_author_seconds": 17.14198895302252,
+  "prior_reviewer_seconds": 4.108358147001127,
+  "requirements_lock_sha256": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+  "pyproject_sha256": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e"
+}

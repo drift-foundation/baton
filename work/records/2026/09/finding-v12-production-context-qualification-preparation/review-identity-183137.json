@@ -1,0 +1,178 @@
+{
+  "claim": 183137,
+  "candidate_manifest": "dd28498767bbcaf0eeb1552549f39228c555069b6c48e939abec136fa7df2779",
+  "checks": [
+    {
+      "path": "evidence/qualification-fixture.py",
+      "sha256": "08ad95e355f2702fd7273d3d3069d7466cfe8b94030e105140d49588d25bf630",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/qualification-fixture.py",
+      "sha256": "08ad95e355f2702fd7273d3d3069d7466cfe8b94030e105140d49588d25bf630",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/qualification-fixture.py",
+      "sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_contract.py",
+      "sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/qualification_contract.py",
+      "sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/qualification_contract.py",
+      "sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_worker.py",
+      "sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/qualification_worker.py",
+      "sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/qualification_worker.py",
+      "sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "matches": true
+    },
+    {
+      "path": "evidence/test_qualification.py",
+      "sha256": "315c444bd8792b50617be09b7f391ed28f799fd0ecbc348cf0eb33ef2f89fb10",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/test_qualification.py",
+      "sha256": "315c444bd8792b50617be09b7f391ed28f799fd0ecbc348cf0eb33ef2f89fb10",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/test_qualification.py",
+      "sha256": "233b4afe38cf286fad29f9b1106fc7418843c104595c7725a08b9976b54623e3",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification-manifest.json",
+      "sha256": "dd28498767bbcaf0eeb1552549f39228c555069b6c48e939abec136fa7df2779",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/qualification-manifest.json",
+      "sha256": "dd28498767bbcaf0eeb1552549f39228c555069b6c48e939abec136fa7df2779",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/qualification-manifest.json",
+      "sha256": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+      "matches": true
+    },
+    {
+      "path": "evidence/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "OPERATOR-178579.md",
+      "sha256": "c78f4c665421d0b4f9968d8af1f1c44edf639897e8caf6773ff3b97d86b5d159",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/OPERATOR-178579.md",
+      "sha256": "c78f4c665421d0b4f9968d8af1f1c44edf639897e8caf6773ff3b97d86b5d159",
+      "matches": true
+    },
+    {
+      "path": "candidate-182906/OPERATOR-178579.md",
+      "sha256": "c16ea3a3060bd65a86f0620033a83743de84f63b96849780c9b3d6a1814f8ee4",
+      "matches": true
+    }
+  ],
+  "current_modes_match": 7,
+  "changed_manifest_keys": [
+    "claim",
+    "consumed_identities",
+    "consumed_identity",
+    "credential_copy_root",
+    "export_root",
+    "files",
+    "private_root",
+    "run_identity"
+  ],
+  "fixture_ast_equal_except_identity": true,
+  "operator_digest_occurrences_match": 2,
+  "outcomes": [
+    {
+      "consumed_identity": "178579",
+      "field": "run_identity",
+      "refusal": "manifest-constants"
+    },
+    {
+      "consumed_identity": "178579",
+      "field": "private_root",
+      "refusal": "manifest-constants"
+    },
+    {
+      "consumed_identity": "178579",
+      "field": "credential_copy_root",
+      "refusal": "manifest-constants"
+    },
+    {
+      "consumed_identity": "178579",
+      "field": "export_root",
+      "refusal": "manifest-constants"
+    },
+    {
+      "consumed_identity": "180078",
+      "field": "run_identity",
+      "refusal": "manifest-constants"
+    },
+    {
+      "consumed_identity": "180078",
+      "field": "private_root",
+      "refusal": "manifest-constants"
+    },
+    {
+      "consumed_identity": "180078",
+      "field": "credential_copy_root",
+      "refusal": "manifest-constants"
+    },
+    {
+      "consumed_identity": "180078",
+      "field": "export_root",
+      "refusal": "manifest-constants"
+    },
+    {
+      "digest": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+      "refusal": "manifest-digest"
+    },
+    {
+      "digest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "refusal": "manifest-digest"
+    }
+  ],
+  "seconds": 0.011714140011463314,
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "source_unchanged": true,
+  "scope": "offline; no live-root reads/reservation; no engine, credential or model; no children; helper temporary roots cleaned"
+}

@@ -1,0 +1,6 @@
+test_actual_changes_requested_review_restores_only_fresh_implementation_use (tests.manager.test_claude_context.RestoredCorrectionBoundary.test_actual_changes_requested_review_restores_only_fresh_implementation_use) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.851s
+
+OK

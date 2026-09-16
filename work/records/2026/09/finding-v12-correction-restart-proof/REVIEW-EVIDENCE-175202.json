@@ -1,0 +1,134 @@
+{
+  "work": "W161234",
+  "claim": 175202,
+  "candidate_manifest_sha256": "9d82e0035ff756bcf7b631307482394adeb4c7ea51a1efae63ca2648babf9cf9",
+  "files": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "current_sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "retained_sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "expected_sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "prior_sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "expected_prior_sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "mode": "0o664",
+      "regular_nonsymlink": true,
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "current_sha256": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "retained_sha256": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "expected_sha256": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "prior_sha256": "6c881fcf56eaa80b799f2e6387ed13cb0f3c8f41055bb88ea464581b5af1bb80",
+      "expected_prior_sha256": "6c881fcf56eaa80b799f2e6387ed13cb0f3c8f41055bb88ea464581b5af1bb80",
+      "mode": "0o664",
+      "regular_nonsymlink": true,
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context.py",
+      "current_sha256": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "retained_sha256": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "expected_sha256": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "prior_sha256": "f3a6239bd98ffb9355a6e96ced0013a61c44e1e21a3c1c338667755bcd485758",
+      "expected_prior_sha256": "f3a6239bd98ffb9355a6e96ced0013a61c44e1e21a3c1c338667755bcd485758",
+      "mode": "0o664",
+      "regular_nonsymlink": true,
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context_delivery.py",
+      "current_sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "retained_sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "expected_sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "prior_sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "expected_prior_sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "mode": "0o664",
+      "regular_nonsymlink": true,
+      "matches": true
+    }
+  ],
+  "new_reviewer_seconds": 2.679714911006158,
+  "cumulative_reviewer_seconds": 4.108358147001127,
+  "cumulative_author_seconds": 11.992151898011798,
+  "runs": [
+    {
+      "claim": 175202,
+      "run": "1",
+      "at": "2026-09-15T04:54:55.390684+00:00",
+      "seconds": 2.3657027120061684,
+      "status": 0,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery"
+      ],
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "before": {
+        "v12/python/src/baton_v12/worker_manager/provider_context.py": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+        "v12/python/src/baton_v12/worker_manager/context_delivery.py": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+        "v12/python/tests/manager/test_provider_context.py": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+        "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+      },
+      "after": {
+        "v12/python/src/baton_v12/worker_manager/provider_context.py": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+        "v12/python/src/baton_v12/worker_manager/context_delivery.py": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+        "v12/python/tests/manager/test_provider_context.py": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+        "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+      }
+    },
+    {
+      "claim": 175202,
+      "run": "2",
+      "at": "2026-09-15T04:55:01.763736+00:00",
+      "seconds": 0.3140121989999898,
+      "status": 0,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "reproduce-175202.py"
+      ],
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "before": {
+        "v12/python/src/baton_v12/worker_manager/provider_context.py": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+        "v12/python/src/baton_v12/worker_manager/context_delivery.py": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+        "v12/python/tests/manager/test_provider_context.py": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+        "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+      },
+      "after": {
+        "v12/python/src/baton_v12/worker_manager/provider_context.py": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+        "v12/python/src/baton_v12/worker_manager/context_delivery.py": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+        "v12/python/tests/manager/test_provider_context.py": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+        "v12/python/tests/manager/test_provider_context_delivery.py": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a"
+      }
+    }
+  ],
+  "artifacts": {
+    "HANDOFF-175150.md": "80218f0b0995ec08abeca0b8f43c2a82190a84985d6322bc4d58dbbba173b218",
+    "BASE-175150.json": "3e9bd24abe5d23548a9fe605d1f956b4bd809042d5be22e8aca322665bd13a5d",
+    "candidate-175150.patch": "efe09f776a757b018d415ff670fd90c4f0fa73b149cc6e00d825b9b4ef512b88",
+    "corrections-175150.patch": "ffd52fef0b8916e988190ac6b64a499d0c3d5eada2525f2516ef495cd95cc91f",
+    "VERIFICATION-175150.json": "d0aec641cc0e358c92579bed7862294aa1caafb622c46ef68e64736b755b0a33",
+    "verify-175202.py": "0319f691f26fc0c70a76c09b874c6997633e9ef54977bda854db9cd93a177c25",
+    "reproduce-175202.py": "2cf5262d27597edbcb9d2c3a5ca1f503faa22ffe367f85f78c8bc017621b4c20",
+    "run-175202-1.log": "0921695b50b03d05bb6048184cf4502465099420453b19bc362cd03c97c082f1",
+    "run-175202-2.log": "df5e4b75ea32a12f1e918262e530cc6fd11a759f6cd1c6af772880401fbebe0e"
+  },
+  "outcome": "accepted-slice-A-only",
+  "scope": "focused deterministic owner/filesystem coverage; no B/C or production qualification"
+}

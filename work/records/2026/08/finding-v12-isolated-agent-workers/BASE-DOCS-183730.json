@@ -1,0 +1,53 @@
+{
+  "work": "W2",
+  "claim": 183730,
+  "owner": 183727,
+  "selected": [
+    {
+      "path": "v12/python/DEPLOYMENT.md",
+      "sha256": "5dc34d45d5b098baca7318df305f96bc02275cd3ecaaa9a20e0f4758a641c7a5",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/08/finding-v12-isolated-agent-workers/base-docs-183730/v12/python/DEPLOYMENT.md"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md",
+      "sha256": "b580f21fac9260f3c99d309a1c8ce577e6636637da9e6e916132e9da072885c1",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/08/finding-v12-isolated-agent-workers/base-docs-183730/work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md",
+      "sha256": "7ee6d0a481b43e0e0f64e7c4e03bebed9303bb7d632e372025efe4d47cb70d2d",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/08/finding-v12-isolated-agent-workers/base-docs-183730/work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/PROGRESS.md",
+      "sha256": "dd11f417bd3dbcc466e358e33ec3b7ea40285b5e414de03b9f813f8b2c8ccdfc",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/08/finding-v12-isolated-agent-workers/base-docs-183730/work/records/2026/08/finding-v12-isolated-agent-workers/PROGRESS.md"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/DEPLOYMENT-PROPOSED-183574.md",
+      "sha256": "825027b4dbb2c7370c2fa8d8b035fbb2ad64c360a72d848bb20fe793efeb9a93"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/OWNER-FRESH-ATTEMPT-RECOVERY-20260916.md",
+      "sha256": "55429d8e8be306cbc06392c49b9e6f450fa3c11f7ec6fce01012df7bcb039b27"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/review-2026-09-16T04-14-53Z.md",
+      "sha256": "82b74430ed22e0e3ad1720d76298d069fff7fb3a8c27a4c04a995f7f2bf5c89d"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/READINESS-EVIDENCE-183574.json",
+      "sha256": "259dd039933691d305a9dc0e2da52485a87cdc51f92a3fda1b2ad058c22040f9"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2"
+    }
+  ]
+}

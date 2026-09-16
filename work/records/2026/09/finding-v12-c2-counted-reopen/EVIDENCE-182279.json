@@ -1,0 +1,246 @@
+{
+  "schema": "baton.c2-evidence/1",
+  "work": "W180252",
+  "claim": 182279,
+  "created_at": "2026-09-16T00:41:36.686619+00:00",
+  "candidate": {
+    "path": "work/records/2026/09/finding-v12-c2-counted-reopen/CANDIDATE-182279.json",
+    "sha256": "055b765cf539d472fda98dabc173973162214babbd51a97b758d70499086b628"
+  },
+  "artifacts": [
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/BASE-182279.json",
+      "sha256": "471973e0fad0e6a06266653ce52f6838a4801e083b03797ef660ab0da84d02ab"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/verify-182279.py",
+      "sha256": "37e6e3bbac1e0c2b52d55919300a2c661823f44dced6363820e361f7f8f5c228"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/package-182279.py",
+      "sha256": "67e99e45831da0fa9f0207019da744a24d51de20cc3f2ca12ebc2a54f7cf2626"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/trace-C-182279-6.json",
+      "sha256": "60a820ee5047acb34f8c0c54ab39f651bf138c3c1dfbfaef9d79c084a4bc86bc"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/trace-C-182279-7.json",
+      "sha256": "2c25d3ff2a2c50886b88508ad120cb3f65a05c4015e7766da5e025b86519fa26"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/trace-C-182279-8.json",
+      "sha256": "cbc19e36ed3ee5ade1991372a036ead2475aa0e75c41e5874a4360f588e35b5c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/trace-C-182279-9.json",
+      "sha256": "b18d96a4f2a46207b0771f2566daf431b997bf3b8f3f6f0ca04687922a38649e"
+    }
+  ],
+  "runs": [
+    {
+      "run": 1,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-1.json",
+        "sha256": "3708f2997045f64cd49bf3c3a78871503f26bcafb58e57c796fe96d95195a94a"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-1.log",
+        "sha256": "94ba005fdbd188b1691f2a0dca418482a55dae3b0295cf27d8864a3a011d1215"
+      },
+      "selectors": [
+        "tests.tools.test_correction_restart.CountedReopen"
+      ],
+      "status": 1,
+      "seconds": 0.7163131820270792,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": 2,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-2.json",
+        "sha256": "b5d8572d138f8d09bb8cf91702e582cc706e38bf83a15e2a9d3bda8fb49a43e3"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-2.log",
+        "sha256": "47c25ffff91ce6497106ab1df3ed1767e6bd014d3008113d851dd29a2767d068"
+      },
+      "selectors": [
+        "tests.tools.test_correction_restart.CountedReopen"
+      ],
+      "status": 1,
+      "seconds": 0.7660789639921859,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": 3,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-3.json",
+        "sha256": "0235c1850ff975f620af717b7a9754bbf6315cebdc6e639b83701de829eb66cd"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-3.log",
+        "sha256": "b0ef50cffd8485b4e641c4e50f53824bb31b5c538478024f5d8989d005eaeb21"
+      },
+      "selectors": [
+        "tests.tools.test_correction_restart.CountedReopen"
+      ],
+      "status": 0,
+      "seconds": 3.018276503018569,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": 4,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-4.json",
+        "sha256": "0880fbde126da2c5dcf63a4bb29c560e079c3ebb8d44432394c256e321b5fb0c"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-4.log",
+        "sha256": "1cc2ca122cb2a778901f64b75710d454e7a3f2c93ac347f91e8e3a14847a7480"
+      },
+      "selectors": [
+        "tests.tools.test_correction_restart.CountedReopenInvalidEvidence"
+      ],
+      "status": 0,
+      "seconds": 3.0686255599721335,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": 5,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-5.json",
+        "sha256": "ea072aa6a5250b6544c9e256192b0105998a2451f29bbc4ea87d645ced357f55"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-5.log",
+        "sha256": "ded80a534ca442285d4426acae9a3161a63f33d30cb1a1231ed25930c2145ccb"
+      },
+      "selectors": [
+        "tests.tools.test_correction_restart.CountedReopen"
+      ],
+      "status": 0,
+      "seconds": 3.1189109290135093,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": 6,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-6.json",
+        "sha256": "4236ebaa1a59c16568e7a6e37913710b3d87798fe18fdae8647ce9f6dbc027eb"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-6.log",
+        "sha256": "e9e6ed75aaaff7e42b7e26fec4ae7487ca7dc66326a8c9d54507055ac7ad1d96"
+      },
+      "selectors": [
+        "tests.tools.test_correction_restart.CountedReopenInvalidEvidence"
+      ],
+      "status": 0,
+      "seconds": 3.0685516130179167,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": 7,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-7.json",
+        "sha256": "a404582c37318b515f3edd780367dcf127594aa6b81aad5cccfc9a9c9a7287c1"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-7.log",
+        "sha256": "4eb96ee59739bdad2ae7de0026771695802e9cef39cf6bbe81274e7068954727"
+      },
+      "selectors": [
+        "tests.tools.test_correction_restart.CountedReopen"
+      ],
+      "status": 0,
+      "seconds": 3.0686842090217397,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": 8,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-8.json",
+        "sha256": "eed573430ad7533b3951cb5a7e8d0ab126eaece2ed93d5e916440b86c8a9b636"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-8.log",
+        "sha256": "3e536fed28fde581f31654be9f4f3f743a52ac92e356518f94c460bed83f55fe"
+      },
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "status": 0,
+      "seconds": 3.018770491005853,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "run": 9,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-9.json",
+        "sha256": "bb07e4d4974e001e1dcea9cffd661d6d0c9a33abbf0202be1a1bb79e4561cc74"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-9.log",
+        "sha256": "ce1c207b8b14637e086ff81a3b62c523cb2a379d8e02c9671a6c688b3fbe2894"
+      },
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence"
+      ],
+      "status": 0,
+      "seconds": 3.0682408250286244,
+      "timeout": false,
+      "group_gone": true
+    }
+  ],
+  "final_runs": {
+    "C2_negative": 6,
+    "C2_positive": 7,
+    "C1_positive": 8,
+    "C1_negative": 9
+  },
+  "acceptance": {
+    "tests": 15,
+    "C2_negative_groups": 6,
+    "C2_synthetic_rejections": 15,
+    "C1_synthetic_rejections": 13,
+    "predecessor_artifact_schedules_validated_without_execution": 18,
+    "C2_ticks": 23,
+    "boundary_ticks": [
+      3,
+      4
+    ],
+    "counts": {
+      "provider": {
+        "before_old": 1,
+        "after_old": 1,
+        "observed_old": 1,
+        "final_old": 1,
+        "final_new": 1
+      },
+      "engine": {
+        "before_old": 1,
+        "after_old": 1,
+        "observed_old": 1,
+        "final_old": 1,
+        "final_new": 1
+      }
+    }
+  },
+  "verification_seconds": {
+    "this_author_claim": 22.91245227609761,
+    "prior_author": 211.3880788211536,
+    "cumulative_author": 234.30053109725122,
+    "prior_reviewer_separate": 104.8836736070516
+  },
+  "cleanup": "All nine runs: subreaper, no timeout, positive group absence, source bytes stable. Final four runs match candidate. Runs7/8/9 ran concurrently in independent supervised process groups with separate fixture stores and logs; durations are summed, not elapsed-wall substitution.",
+  "limit": "Manager recomposition in one process after initial runtime destroyed and result retained. Deterministic real provider child and simulated OCI; no host/power-loss exactly-once or production restoration qualification."
+}

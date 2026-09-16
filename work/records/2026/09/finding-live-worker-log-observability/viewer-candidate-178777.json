@@ -1,0 +1,152 @@
+{
+  "base_description": "Accepted W167896 candidate-168326.json, revalidated byte-exact before any edit.",
+  "claim": 178777,
+  "files": [
+    {
+      "base_sha256": "093ec72480e2c921ea657b0e63e7235d7dd5e27933762724132310b42447d356",
+      "candidate_sha256": "8dce0e033cc3cc76c313013590e30e42e16702f01e8834fd450b7a9352c7f818",
+      "changed": true,
+      "mode": "0o644",
+      "path": "baton:v12/python/tools/job_viewer.py"
+    },
+    {
+      "base_sha256": "bbbc6be5ffc35774654336a41f9d0c36182f013ae53feb3b14203ce0245b476b",
+      "candidate_sha256": "0c2c42f71253b62bf84134863dce9144323fe617997e9876cf19add88f37ee21",
+      "changed": true,
+      "mode": "0o644",
+      "path": "baton:v12/python/tests/tools/test_job_viewer.py"
+    },
+    {
+      "base_sha256": "d319f7813c826970eca6f49a5970f894805288754f31f30999d28d3cfbbb5976",
+      "candidate_sha256": "f914fc20fbe47734873ae649cda3a521460f07b1082e146731929dbcb571ec2b",
+      "changed": true,
+      "mode": "0o644",
+      "path": "baton:v12/python/JOB-VIEWER.md"
+    }
+  ],
+  "focused_run": {
+    "ceiling_seconds": 60,
+    "kill_grace": 5,
+    "measured_seconds": 3.187675,
+    "outcome": "OK",
+    "own_process_group": true,
+    "process_group_absent_after": true,
+    "ran": 74,
+    "selector": "tests.tools.test_job_viewer",
+    "status": 0,
+    "supervisor": "/tmp/w61599-viewer-run.py",
+    "term_grace": 5,
+    "timed_out": false
+  },
+  "not_run": [
+    "full v12 suite",
+    "any producer or B-path test",
+    "engine",
+    "provider",
+    "live model",
+    "build",
+    "install"
+  ],
+  "owner_selection": 178775,
+  "packet": {
+    "accepted_as": "W177937 closed satisfying at 178761",
+    "path": "baton:work/records/2026/09/finding-v12-viewer-activity-connection-preparation/PACKET.md",
+    "sha256": "aaa30c9dd529d245f89b1d0645a00c85d5769a94b31b8b8d1411751646a7db28"
+  },
+  "producer_bytes_untouched": {
+    "v12/python/src/baton_v12/worker_manager/exchange.py": {
+      "accepted": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+      "current": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+      "unchanged_by_this_claim": true
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "accepted": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "current": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "unchanged_by_this_claim": true
+    },
+    "v12/python/tests/manager/test_dependencies.py": {
+      "accepted": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+      "current": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+      "unchanged_by_this_claim": true
+    },
+    "v12/python/tests/manager/test_exchange.py": {
+      "accepted": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a",
+      "current": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a",
+      "unchanged_by_this_claim": true
+    },
+    "v12/python/tests/tools/test_dogfood_operator.py": {
+      "accepted": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+      "current": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+      "unchanged_by_this_claim": true
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "accepted": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "current": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "unchanged_by_this_claim": true
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "accepted": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "current": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "unchanged_by_this_claim": true
+    },
+    "v12/python/tools/dogfood_operator.py": {
+      "accepted": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "current": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "unchanged_by_this_claim": true
+    },
+    "v12/python/tools/single_worker.py": {
+      "accepted": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+      "current": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+      "unchanged_by_this_claim": true
+    },
+    "v12/python/tools/stage_execution.py": {
+      "accepted": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "current": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "unchanged_by_this_claim": true
+    },
+    "v12/worker/baton_worker.py": {
+      "accepted": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "current": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "unchanged_by_this_claim": true
+    },
+    "v12/worker/claude_agent.py": {
+      "accepted": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+      "current": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+      "unchanged_by_this_claim": true
+    }
+  },
+  "reversal_probes": [
+    {
+      "confirmed": true,
+      "failed": 4,
+      "guard": "terminal stage shows the instant, never a relative age",
+      "reverted": "if state in TERMINAL_STATES"
+    },
+    {
+      "confirmed": true,
+      "failed": 1,
+      "guard": "a zero renders unknown rather than 0",
+      "reverted": "the positive-integer test"
+    },
+    {
+      "confirmed": true,
+      "failed": 8,
+      "guard": "the count actually reaches the view",
+      "reverted": "_activity(...) back to the UNKNOWN constant"
+    },
+    {
+      "confirmed": true,
+      "failed": 1,
+      "guard": "a missing instant is unknown rather than now",
+      "reverted": "the None-age branch"
+    },
+    {
+      "confirmed": true,
+      "failed": 8,
+      "guard": "absence in every shape is handled",
+      "reverted": "the defensive runtime/activity reads"
+    }
+  ],
+  "version_control_operations": 0,
+  "work": "W61599"
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "elapsed_seconds": 0.3638401919743046,
+  "exit_code": 0,
+  "timeout_seconds": 30,
+  "timed_out": false,
+  "process_group_absent": true,
+  "pid": 3764321,
+  "manifest_sha256": "c5b325cd3b083b0ba5fd8952c48bbd27ff1efa67e0e27c326434e95c35901cc6",
+  "log_sha256": "e04cff6f8166a962d091a9051b7da473759c27618a889e0e3ed3fe80155a5a7e",
+  "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential"
+}

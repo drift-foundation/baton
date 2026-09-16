@@ -1,0 +1,193 @@
+{
+  "P1a": {
+    "objects": [
+      "the one observed project directory -> 0o2750 (setgid kept so later entries still inherit the group)",
+      "its expected <session>.jsonl -> 0o640"
+    ],
+    "ownership_rule": "st_uid == os.geteuid(), not a hard-coded 65532: an identity may only reopen its OWN objects, and main's existing worker-identity check separately pins that the worker is uid 65532",
+    "refusals": [
+      "publish-shape",
+      "publish-type",
+      "publish-ownership"
+    ],
+    "scope": "turn 1 only, runtime-owned only",
+    "turn_two": "publishes nothing; the manager-owned 0o660 restored working copy accepted at R1/178875 is untouched",
+    "verification": "type, owner and group checked through THE SAME O_NOFOLLOW descriptor that is then fchmodded, so a symlink refuses rather than redirecting and nothing can be swapped between check and change"
+  },
+  "P1b": {
+    "content_field": "read / excluded / unreadable:<errno>, because a deliberate exclusion and an access failure both leave sha256 null",
+    "promoted_set": "unchanged",
+    "refused": [
+      "a failed scandir -> state-coverage-incomplete",
+      "a failed per-entry stat -> state-coverage-incomplete (the shape the operator observed: a 0o600 directory is READABLE so scandir succeeds and each child's stat fails)",
+      "an unreadable SELECTED session -> selected-session-unreadable at subset, not a later digest mismatch"
+    ],
+    "rule": "unreadable CONTENT is tolerated; unreadable STRUCTURE never is",
+    "tolerated": "an unreadable regular file, recorded content: unreadable:<errno>, sha256 None, run continues",
+    "why": "all three absence claims -- unexpected-credential-entry home-wide, project-key-ambiguous, foreign-session-state -- are read from NAMES, and a name is visible in the parent listing"
+  },
+  "P1c": {
+    "boundary": "valid_failure_detail refuses a malformed triple, and a refusal carrying an errno",
+    "categories": [
+      "known-refusal",
+      "unregistered-refusal",
+      "os-error",
+      "other"
+    ],
+    "errno_enum": [
+      "EACCES",
+      "EPERM",
+      "ENOENT",
+      "ENOTDIR",
+      "ELOOP",
+      "ENOSPC",
+      "EDQUOT",
+      "EIO",
+      "other",
+      "none"
+    ],
+    "never": [
+      "exception text",
+      "type names",
+      "paths",
+      "arguments"
+    ],
+    "steps": 8
+  },
+  "claim": 182264,
+  "consumed_roots_preserved": [
+    "the whole 180078 set",
+    "the whole 178579 set"
+  ],
+  "files": [
+    {
+      "base_sha256": "72875394cb4b958919db48a019a99de076ee5cab526b51a1c2278ae0c7e49e94",
+      "candidate_sha256": "5854895e7c1519a85df95057663e00139a18f2f2d0c3953dfca19316cdcab910",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-182264/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "0efe61f528ce4c691b85fa336967d1f85bd32241ffd686c73305f7d36e3281d1",
+      "candidate_sha256": "d6443e55b70c8a65480cc8f19ced56cce18d0030bf56a95f705f13d662075927",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-182264/qualification_contract.py"
+    },
+    {
+      "base_sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "candidate_sha256": "2bbc7e663a662da2f0d29f0e31b9b01741cb328801c77db0d5466ab33ce5a9ce",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-182264/qualification_worker.py"
+    },
+    {
+      "base_sha256": "108a7b67474e427ff4e76b635811e73ceb0487a692de88ac8ab69f7866ba0f22",
+      "candidate_sha256": "cba1f4af6a240df1d243f354ee323cbb122d46acc405226e4f4496a11889ef03",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-182264/test_qualification.py"
+    },
+    {
+      "base_sha256": "5e789f4e3115b5eb9a7623772adf0a17aac3e45135afaa65bc11a35eb30e951f",
+      "candidate_sha256": "3b0020baf600335d6e7f2d999f6b01e70507e4c515a8c3c7ee4f8a3e24824bde",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-182264/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-182264/verify-offline.py"
+    },
+    {
+      "base_sha256": "fe63a4f11a3a3b7ea480d70e2a72793ed8f90cc9fab1bee62214ede80c4d6589",
+      "candidate_sha256": "3b65a7362f7952fbcb1766a9df15c5590380db03dfb5c53ad0bf2fbd704b3b5e",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-182264/OPERATOR-178579.md"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.3138183479895815,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "74fa97e2c2f52f29915116a40f6afe1307ea08902ea7f8d0e96289221e5b3d3e",
+    "manifest_sha256": "3b0020baf600335d6e7f2d999f6b01e70507e4c515a8c3c7ee4f8a3e24824bde",
+    "pid": 3739550,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "gaps": {
+    "G1": "partial; model unqualified",
+    "G2": "unobserved",
+    "G3": "unobserved",
+    "G4": "first-use only",
+    "G5": "unobserved",
+    "G6": "first-use only",
+    "G7": "qualification-only image selection",
+    "G8": "not composed"
+  },
+  "implements": "CORRECTION-PROPOSAL-180537.md revision 2",
+  "manifest_sha256": "3b0020baf600335d6e7f2d999f6b01e70507e4c515a8c3c7ee4f8a3e24824bde",
+  "not_done": [
+    "live execution",
+    "engine",
+    "model",
+    "credential use",
+    "image work",
+    "network operation",
+    "product or consumer edits",
+    "consumed-tree repair",
+    "chmod or chown of either consumed tree",
+    "marker reset",
+    "new run identity",
+    "model-acceptance change",
+    "broad suite",
+    "version-control operations"
+  ],
+  "operator_packet_sha256": "3b65a7362f7952fbcb1766a9df15c5590380db03dfb5c53ad0bf2fbd704b3b5e",
+  "owner_selection": 182261,
+  "proposal_sha256": "e4495ee4bd65dd6c28a511449c9703b90932e3f9e96af2150895e01ecd64d31f",
+  "regression_tests_for_the_returned_defects": {
+    "D1": "test_an_unenterable_directory_refuses_rather_than_reporting_absence -- the hidden directory CONTAINS a foreign .jsonl and a credential-shaped entry, so tolerating it would report those absence checks as passed",
+    "D2": "test_turn_two_publishes_nothing_and_the_restored_copy_stands -- a manager-owned 0o660 restored file is still 0o660"
+  },
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "new": [
+      "publish-in-any-turn",
+      "publish-without-ownership",
+      "publish-follows-symlinks",
+      "tolerate-unlistable-directory",
+      "tolerate-unstattable-entry",
+      "accept-unreadable-selected",
+      "no-failure-detail"
+    ],
+    "total": 22
+  },
+  "stated_limitation": "if the blocking directory is not the project directory the run REFUSES rather than passes -- at state-coverage-incomplete with a named step and errno instead of unclassified. Covered by test_a_blocked_directory_names_its_step_and_errno.",
+  "test_note": "The synthetic trees use mode 0o000 rather than 0o700/0o600 to stand in for the observed state, because this process owns its fixtures and only a zeroed owner triad denies it. The FakeEngine creates state at 0o700/0o600 and applies P1a, so the controller path exercises the real sequence.",
+  "tests": {
+    "added": 18,
+    "after": 85,
+    "before": 67,
+    "outcome": "OK"
+  },
+  "work": "W177936"
+}

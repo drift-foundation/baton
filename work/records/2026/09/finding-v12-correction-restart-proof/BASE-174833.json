@@ -1,0 +1,23 @@
+{
+  "claim": 174833,
+  "recorded_at": "2026-09-15T03:59:54.196199+00:00",
+  "selection_event": 174829,
+  "paths": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "base_exists": false
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "base_exists": false
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context.py",
+      "base_exists": false
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_provider_context_delivery.py",
+      "base_exists": false
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+test_integration_requires_an_accepted_checkpoint_before_runtime (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_integration_requires_an_accepted_checkpoint_before_runtime)
+W103068 constructs the runtime port; acceptance remains the gate. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.235s
+
+OK

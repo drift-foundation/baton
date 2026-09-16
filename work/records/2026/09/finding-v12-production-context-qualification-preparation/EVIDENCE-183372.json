@@ -1,0 +1,151 @@
+{
+  "accepted_base": {
+    "candidate": "candidate-183316",
+    "finding": "accepted as complete for OFFLINE-CORRECTION-CYCLE-183114.md; no implementation correction remains",
+    "manifest": "d101f1ec1c3dac410e0551cb5beaf2ed60cf0ecce21aca33674e3da233eba7fa",
+    "review": "review-2026-09-16T03-32-44Z.md",
+    "sha256": "5bc43df8981d594d244716bdb15ce8de26cae83bbe53465323d522335c6df1e9"
+  },
+  "cannot_do": [
+    "recover run183114's cause -- that export cannot identify the branch and no later run explains an earlier one",
+    "settle the model -- run180078's modelUsage had exactly two keys including the expected one and the other is unrecoverable from a document never retained; the strict predicate is unchanged",
+    "anything beyond a first two-identity test of the custody correction, which remains offline-verified"
+  ],
+  "claim": 183372,
+  "consumed_identities": [
+    {
+      "consumed_by": "the initial-artifact failure",
+      "identity": "178579"
+    },
+    {
+      "consumed_by": "the collection failure",
+      "identity": "180078"
+    },
+    {
+      "consumed_by": "the publication failure, first turn publish-shape",
+      "identity": "183114"
+    }
+  ],
+  "experiment": {
+    "framing": "one diagnostic qualification experiment with two useful outcomes",
+    "outcome_a": "names the actual publication check with its closed errno where an operation failed, AND retains the validated terminal observation -- so for the first time a publication failure also says what the provider answered. This is exactly what run183114 could not do.",
+    "outcome_b": "publication succeeds and the run reaches restoration -- the first --resume turn this campaign has ever run, and the first evidence for G2, G3 and G5",
+    "why_either_is_a_result": "the owner-confirmed cycle was to stop rerunning until failures produce useful information, then run once. A failure that names its branch is a result, not a wasted run."
+  },
+  "files": [
+    {
+      "base_sha256": "a43d0347d16f1deff6a5f7e69348efff7426a86ec736f361bdad8b6f1ede1545",
+      "candidate_sha256": "fd784dd767f9899284ffae25886d8782d1603e9bad6a0ceecdfc933411722592",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-183372/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "e0fbb3e428940a21054afe4d295556d721b2bdf1a4922c33773b40bed135df39",
+      "candidate_sha256": "e0fbb3e428940a21054afe4d295556d721b2bdf1a4922c33773b40bed135df39",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-183372/qualification_contract.py"
+    },
+    {
+      "base_sha256": "29a9ea21ae0f3fdb9e2fdd0c54e48d3326c5343aa3857f1baca4f719b312492d",
+      "candidate_sha256": "29a9ea21ae0f3fdb9e2fdd0c54e48d3326c5343aa3857f1baca4f719b312492d",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-183372/qualification_worker.py"
+    },
+    {
+      "base_sha256": "52d0d2692299b332b99cdf0496b95bcffeefbe9f10dd79c9cb8d324ae7ed5420",
+      "candidate_sha256": "f2e77751b0c233aeb7dfa45a69527ce6976daea57f8f89af95974bc799f0abdc",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-183372/test_qualification.py"
+    },
+    {
+      "base_sha256": "d101f1ec1c3dac410e0551cb5beaf2ed60cf0ecce21aca33674e3da233eba7fa",
+      "candidate_sha256": "cefaf7bfa518874a082d9867c464f3629819828ef940cad5e8db0a74afb91945",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-183372/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-183372/verify-offline.py"
+    },
+    {
+      "base_sha256": "7bdbcfbc33c33dd44d9a6fc8e905dcf3f80141dd4065f96b4136dd00a33d4fdd",
+      "candidate_sha256": "42263953fce4c17ddf1933c2fc1b25a088eaf84e94cf804381b5a78d3dd4bc49",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-183372/OPERATOR-178579.md"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.3638261739979498,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "e411eca049b8e1b2579076101c4f2eba99b5431600bc796dd640e92be52653f5",
+    "manifest_sha256": "cefaf7bfa518874a082d9867c464f3629819828ef940cad5e8db0a74afb91945",
+    "pid": 3769660,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "fresh_identity": "183372",
+  "fresh_roots": {
+    "checked_free": true,
+    "created": false,
+    "credential_copy_root": "/dev/shm/baton-w177936-qualification-183372",
+    "export_root": "/tmp/baton-w177936-qualification-183372-export",
+    "private_root": "/tmp/baton-w177936-qualification-183372",
+    "reserved": false
+  },
+  "manifest_sha256": "cefaf7bfa518874a082d9867c464f3629819828ef940cad5e8db0a74afb91945",
+  "not_done": [
+    "agent live execution",
+    "production enabling",
+    "reserving or creating any fresh root",
+    "launching the fixture",
+    "consumed-root repair",
+    "model-policy change",
+    "product-source edits",
+    "version-control operations"
+  ],
+  "operator_command": "python3 work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/qualification-fixture.py --run --approved-manifest cefaf7bfa518874a082d9867c464f3629819828ef940cad5e8db0a74afb91945",
+  "operator_packet_sha256": "42263953fce4c17ddf1933c2fc1b25a088eaf84e94cf804381b5a78d3dd4bc49",
+  "owner_selection": 183369,
+  "preserved": [
+    "the strict model, artifact and continuity acceptance",
+    "the image and the run limits",
+    "the two-turn shape, 180s per invocation and the 600s envelope",
+    "retained descriptors and before-mutation refusal",
+    "the R3 collection diagnostics",
+    "turn-2 restored 0o660",
+    "all nine consumed roots at their timestamps"
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "note": "one probe per consumed identity, now three",
+    "total": 42
+  },
+  "tests": {
+    "count": 116,
+    "outcome": "OK"
+  },
+  "work": "W177936"
+}

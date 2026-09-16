@@ -1,0 +1,103 @@
+{
+  "claim": 180537,
+  "consumed_roots_preserved": [
+    "the whole 180078 set",
+    "the whole 178579 set"
+  ],
+  "defects_found_in_revision_1": {
+    "D1": "P1b's tolerance would have made three absence claims vacuous. unexpected-credential-entry, project-key-ambiguous and foreign-session-state are all NAME-based, read from directory listings; an unenterable directory hides those names, so tolerating it would have reported the checks as passed without looking. Fixed: an unreadable regular FILE is recorded closed because its name is still visible in the parent listing; an unenterable DIRECTORY refuses with the registered code state-coverage-incomplete; an unreadable SELECTED file refuses specifically.",
+    "D2": "P1a did not distinguish the turns and aimed a chmod at the manager-owned 0o660 restored working copy that accepted R1 established at 178875. It would have failed EPERM rather than corrupting it silently, since uid65532 cannot chmod a uid1000 file, but the intent was wrong. Fixed: P1a is turn-1 only and runtime-owned only, and ownership and type are verified through the same no-follow descriptor that is then fchmodded, so there is no check-to-change window."
+  },
+  "deliverable": "CORRECTION-PROPOSAL-180537.md",
+  "deliverable_sha256": "e4495ee4bd65dd6c28a511449c9703b90932e3f9e96af2150895e01ecd64d31f",
+  "established": {
+    "blocking_objects": "one runtime-owned directory 0o700 and three runtime-owned regular files 0o600, all gid1001",
+    "host_collector": "uid1000 gid1000 with group1001",
+    "mechanism": "setgid gave group ownership and never group permission bits -- the same distinction accepted R1 turned on at 178875, from the other side",
+    "observed_error": "one opendir:EACCES; 11 entries, depth4, no bound reached; use-2/home absent"
+  },
+  "evidence_base": {
+    "accepted_manifest": "5e789f4e3115b5eb9a7623772adf0a17aac3e45135afaa65bc11a35eb30e951f",
+    "fixed_path": "operator-result-2026-09-15T18-29-34Z/metadata-180078-operator-reported.json",
+    "fixed_path_sha256": "237d34b173cea22c7686e5c5d9dad66bf25f1e1e5d057e6b5ba7e77434109ffd",
+    "review": "review-2026-09-15T18-36-00Z.md",
+    "review_sha256": "7d3ad2603ba16b31c27cac3240dec40e07ec1f968dd96fdc1c43903984ba2326",
+    "walk": "operator-result-2026-09-15T18-29-34Z/walk-180078-operator-reported.json",
+    "walk_sha256": "d399a3a6705b3453007e6ff83aecb8ec23ce2704a3fb1e49ccc1adfabb62e3fb"
+  },
+  "exact_paths": [
+    "evidence/qualification_worker.py",
+    "evidence/qualification_contract.py",
+    "evidence/qualification-fixture.py",
+    "evidence/test_qualification.py",
+    "evidence/qualification-manifest.json",
+    "OPERATOR-178579.md"
+  ],
+  "gaps": {
+    "G1": "partial; model unqualified",
+    "G2": "unobserved",
+    "G3": "unobserved",
+    "G4": "first-use only",
+    "G5": "unobserved",
+    "G6": "first-use only",
+    "G7": "qualification-only image selection",
+    "G8": "not composed"
+  },
+  "guarantees_preserved": [
+    "minimal credential-free session selection, rule-identical",
+    "shutdown ordering: host collection still only after positive stopped inspection and consumed receipt",
+    "identity and custody: uid65532, --group-add, 0o2770 roots, 0o600 manager-private, 0o660 reconstructed copy, 0o640 read-only inputs",
+    "no widening to pass: every new path refuses rather than adapts"
+  ],
+  "key_inference": {
+    "claim": "the restrictive modes are explicitly set, not umask-derived",
+    "consequence": "a container umask would be a one-line fix and CANNOT work; checked before proposing it, not after",
+    "why": "the runtime created both permissive (0o2755 dirs, a 0o644 file) and restrictive (0o700 dir, 0o600 files) objects, which one umask cannot do since umask only removes bits; and the 0o700 directory has gid1001 with NO setgid bit, which a child of a setgid parent inherits automatically, so it was chmodded after creation"
+  },
+  "kind": "proposal only; nothing implemented",
+  "new_measured_verification_seconds": 0,
+  "not_done": [
+    "implementation",
+    "further private-tree exploration",
+    "consumed-tree repair",
+    "chmod or chown of either consumed tree",
+    "live rerun",
+    "fresh identity",
+    "assuming an identity switch is already selected",
+    "model-acceptance change",
+    "product or consumer edits",
+    "version-control operations"
+  ],
+  "not_established_and_not_assumed": [
+    "which directory produced the EACCES",
+    "whether that directory contains the selected session",
+    "whether the three 0o600 files include the session JSONL",
+    "which original collection operation failed -- the exception was collapsed to unclassified and is lost"
+  ],
+  "owner_selection": 180530,
+  "proposal": {
+    "P1a": "turn 1 only; the worker relaxes exactly two objects it owns -- the one observed project directory to 0o2750 and its expected session JSONL to 0o640 -- opening O_NOFOLLOW, fstat-verifying type, uid 65532 and gid GROUP, then fchmod on that same descriptor; anything else refuses and relaxes nothing. Turn 2 relaxes nothing and the restored 0o660 manager-owned working copy is untouched.",
+    "P1b": "unreadable regular file -> record closed with a new closed `content` field (read / excluded / unreadable:<errno>) and continue; unenterable directory -> REFUSE state-coverage-incomplete; unreadable selected session file -> refuse specifically. The promoted set is unchanged.",
+    "P1c": "the review's closed collection step/category/errno diagnostics, unchanged"
+  },
+  "rejected_alternatives": {
+    "collect as uid65532": "coherent and larger; deferred not dismissed -- evidence of the symptom is not evidence this is the smallest cure, and it should be selected deliberately rather than arrived at by accident",
+    "container umask": "cannot work; umask only removes bits and the modes are explicit",
+    "manager-side chmod of runtime state": "the host granting itself access to another identity's files; excluded by PACKET and the review",
+    "relaxing everything the runtime creates": "makes the run pass and qualifies nothing"
+  },
+  "revised_under_claim": 180580,
+  "revision": 2,
+  "revision_owner_selection": 180577,
+  "stated_limitation": "if the blocking 0o700 directory is not the project directory, the correction does NOT make the run pass: P1a relaxes two named objects and P1b then refuses at state-coverage-incomplete. That is a refusal, with a named step and errno instead of unclassified -- progress, but revision 1 implied a pass and that would have been selling a guess.",
+  "superseded_revision_1_sha256": "3e18b5e517db57ecac6617669abe583523a369c64435a3cee2a1366f50f1becb",
+  "verification_plan": [
+    "P1a: exactly two objects change in turn 1; TURN 2 CHANGES NOTHING and a manager-owned 0o660 restored file is still 0o660 afterwards (the direct R1 regression test for D2); manager-owned, wrong-type and symlink cases each refuse through the verified descriptor; second project dir, missing UUID, nested session and credential-shaped entry refuse",
+    "P1b: unreadable non-selected file continues with content:unreadable:EACCES; unreadable selected file refuses; AN UNENTERABLE DIRECTORY CONTAINING A FOREIGN .jsonl AND A CREDENTIAL-SHAPED ENTRY REFUSES rather than reporting those absence checks as passed (the D1 regression test); .claude.json still content:excluded and never opened",
+    "P1c: eight steps under known/unknown refusal, OSError and non-OSError, with canaries in exception arguments",
+    "end to end: a synthetic runtime-owned 0o700/0o600 home fails unclassified BEFORE; AFTER, the project-directory case completes and the other-directory case refuses with a named step and errno -- both halves, because both are real",
+    "one reversal probe per new guard, isolated copies, __pycache__ removed, -B"
+  ],
+  "work": "W177936",
+  "worker_change_justification": "PACKET keeps the worker unchanged unless the correction demonstrably requires it and the reason is recorded; only the owning identity may open its own objects, so P1a cannot live anywhere else"
+}

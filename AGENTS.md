@@ -90,6 +90,21 @@ an explicit recorded classification; this release ruling does not close unfinish
 Work or silently alter a live assignment. Exact decision and next planning action:
 [W2 release boundary](work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md#v12-parallel-delivery-enables-v13-hardening--confirmed-2026-09-14).
 
+### Fresh-attempt recovery and optional session reuse — owner 2026-09-16
+
+The owner now selects fresh, isolated attempts from known inputs as the minimum
+v12 recovery path. Failures must be actionable, prior execution stopped or
+fenced, and effects/results correctly attributed and independently accepted.
+Production provider-session reuse is optional, not a minimum-release gate.
+This explicitly supersedes the mandatory context-reuse part of the Sep14
+release ruling above and earlier Sep15 release sequencing; it does not waive
+isolation, cleanup, recovery correctness or duplicate-effect/false-success
+defects. Preserve accepted historical proofs and unfinished reuse evidence.
+W177936 is classified as deferred optional production session reuse; its active
+handler must preserve work and release safely, not be silently rerouted.
+Exact ruling and next bounded readiness check:
+[W2 fresh-attempt recovery](work/records/2026/08/finding-v12-isolated-agent-workers/OWNER-FRESH-ATTEMPT-RECOVERY-20260916.md).
+
 ## Development verification time accounting
 
 Owner ruling 2026-09-14: cumulative stopwatch budgets are not approval or

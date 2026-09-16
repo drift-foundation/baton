@@ -1,0 +1,59 @@
+{
+  "claim": 178427,
+  "runs": [
+    {
+      "run": "regressions-1",
+      "elapsed_seconds": 2.37160381799913,
+      "exit_code": 1,
+      "process_group_absent": true,
+      "terminated": false,
+      "receipt_sha256": "ffadd8e3d693bedad72779908e0204ac48b1b10b98b6d8848267d198a0fba6c5",
+      "log_sha256": "599cc7f0bea40304b15302cb1c71c2785f995399b4e9d77432cf725345a67663"
+    },
+    {
+      "run": "negative-1",
+      "elapsed_seconds": 0.06855844199890271,
+      "exit_code": 1,
+      "process_group_absent": true,
+      "terminated": false,
+      "receipt_sha256": "c20b2b693f93e8fd737ba2fc1be2e7262904a6b30a143cb43d6b99dc61b43388",
+      "log_sha256": "6cf6ad72daf038032f58642c0cc30610e506fa9e0d22df0a3b322b7a902ca143"
+    },
+    {
+      "run": "negative-2",
+      "elapsed_seconds": 0.3197014959878288,
+      "exit_code": 1,
+      "process_group_absent": true,
+      "terminated": false,
+      "receipt_sha256": "a323c536d2c640051fd50d7cc3e26ee10c6cae7a1e1260c6d31afd7eed418535",
+      "log_sha256": "4df11a5f26f7b4faa7047d8fa253e9ca78d287bc62629566502ccd687e3bd01f"
+    },
+    {
+      "run": "focused-1",
+      "elapsed_seconds": 7.175049993005814,
+      "exit_code": 0,
+      "process_group_absent": true,
+      "terminated": false,
+      "receipt_sha256": "0d740bd93a56bb22432ffea287c297662aa984b61a40e2ff75defa81802c8fd8",
+      "log_sha256": "4a74c71728cf7f225e9a8279863fbbffce5dabd1fc970e76ef7d1fb72513a7a2"
+    },
+    {
+      "run": "focused-final",
+      "elapsed_seconds": 7.225550314993598,
+      "exit_code": 0,
+      "process_group_absent": true,
+      "terminated": false,
+      "receipt_sha256": "93b24a2b3b8aca1060948447e3d0f2a07f3c63ae382a2e1880abe5fe5e117ebd",
+      "log_sha256": "09002406962159d63709e29412e2103dfab85ba9e064c2decdd8f797ade7e361"
+    }
+  ],
+  "cumulative_measured_supervisor_seconds": 17.160464063985273,
+  "prior_author_seconds": "approximately2966s, including approximately190s estimate; prior aggregate claims not independently accepted.",
+  "prior_reviewer_seconds": 0,
+  "final_tests": 82,
+  "final_result": "pass",
+  "test_threads_remaining": [],
+  "live_provider_or_engine": false,
+  "process_scope": "New tests run under their own supervised process group, absent after each run. Before/after ps has sandbox visibility only; no host-wide claim about historical author processes.",
+  "dependencies": "Ambient Python3.13.7 with versions recorded in every run receipt; not a locked-environment or installed-package certification."
+}

@@ -1,5 +1,98 @@
 # Plan
 
+## Current — review175026: technical acceptance; owner disposition
+
+Candidate175002 is independently accepted in
+`review-2026-09-15T04-26-43Z.md`. Fourteen focused checks pass and read-only
+observation confirms start-requested, no attached runtime and no failed-start
+record at the fence call. The last pending-start proof is complete. All earlier
+accepted crash/replay/positive-ending/non-effect evidence is retained; no
+implementation correction remains from the controlling reviews.
+
+Pass baton.ops for owner approval/closure disposition. Exact candidate manifest,
+four-path hashes, snapshots and remaining working-tree delta are bound in the
+review. No Git mutation or automatic import is authorized here; future import
+must recheck its actual target/base. W63255/W2 canonical closure is not asserted.
+This supersedes the previous changes-requested next action and older unfinished
+acceptance statuses for this exact candidate.
+
+## Prior — review174974: one pending-start boundary remains
+
+Return directly baton.impl under owner174746. Review
+`review-2026-09-15T04-21-09Z.md` accepts the post-fence/pre-resource interruption
+and Authority replay, authentic input-root capture, and corrected attribution.
+Fourteen focused tests pass. Independent read-only observation shows the start
+case reaches fencing at uncertain with a failed-start record, so it misses the
+pending start-requested boundary still required by review174914.
+
+Use a controlled BaseException interruption at the fake adapter start, caught
+by exact type, so the real start commits without ordinary failed-start
+settlement. Assert start-requested, null runtime identity, one start operation
+and no failed-start record before testing the fence and its absent effects.
+The review supplies this exact correction; no scope/permission decision or
+additional broad matrix is needed. Preserve accepted evidence and return the
+complete candidate to baton.feat. W63255/W2 remain open. This supersedes the
+previous two-boundary remainder; only the pending-start case remains.
+
+## Prior — review174914: finish the two actual public boundaries
+
+Return directly baton.impl under owner174746. Review
+`review-2026-09-15T04-13-11Z.md` verifies candidate174869 and14 focused cases.
+Complete the real public start-wins transaction using the input operand already
+composed by the command fixture; no permission decision is pending. Move the
+post-fence interruption ahead of adapter recovery and orphan teardown, with
+zero-resource-call assertions. Existing `_launch_after` interruption is later
+cleanup evidence and must be labelled accordingly. Preserve the real Authority
+operation-record/slot/retry evidence and correct step25's failing-test attribution.
+
+The review supplies exact fixture/call-order maps and closes the prior shared
+eligibility/non-effect mapping request. No source expansion, acceptance waiver,
+new live run or duplicate shared-guard matrix is selected. Return the completed
+candidate and exact test delta to baton.feat; W63255 and W2 remain open. This
+supersedes review174815 as current action and the claimed fixture decision gate.
+
+## Prior — review174815: complete the remaining exact proof
+
+`review-2026-09-15T04-00-41Z.md` verifies12 focused cases and candidate174768,
+including successful real-Authority abandonment and positive/exact-fence
+validation. Return directly baton.impl under owner174746. Complete public
+start-wins (current case still seeds the axis), actual interruption after
+committed fence/before cleanup, durable Authority effect/operation replay proof,
+and mapped internal eligibility/non-effects. Reuse the shared fixed-assignment
+guard already covering changed generation/Authority/Work/participant before
+either branch. No new source scope, test permission, broad matrix or live run.
+
+Reviewer snapshots retain genuine checkpoint/candidate bytes for all four paths
+and review-checkpoint-delta-174815.patch. Bind the completed candidate and exact
+next test delta to those references without inventing original base history.
+Return the complete outcome to baton.feat, or an exact decision blocker. W63255
+and W2 remain open. This supersedes current-candidate-complete claims, preserving
+accepted partial evidence and owner-selected scope.
+
+## Historical — owner selects direct Claude completion, 2026-09-15
+
+Latest FINDING ruling sends the incomplete handoff174630 directly to baton.impl.
+Revalidate candidate174593 and complete its four explicit remaining acceptance
+groups plus requested provenance; then return the full outcome to baton.feat.
+Do not route known authorized remaining work through another partial review.
+A concrete decision/operational blocker still requires an honest handoff.
+No new source, live execution or acceptance waiver is selected.
+
+## Current — review174551: partial correction verified, implementation continues
+
+Read `review-2026-09-15T03-24-46Z.md`. The revised command proves a real Authority
+fence and passes independently, but still expects unresolved/status1. Complete
+the successful positive-resource ending, exact durable replay/collision, both
+public race orders, crash/fault continuation and retained non-effects; supply
+the already-requested base/candidate/scoped-patch provenance. Reuse the existing
+real command/reopened-owner fixtures. Prior review's ArcSession attribution for
+the command and retry is explicitly corrected; missing outcome assertions remain.
+Owner174440 already selected the two-entry export amendment, so that gate is
+resolved and must not be requested again. Return baton.impl directly under
+existing authority, then baton.feat for complete independent review. No new
+source expansion or test-approval gate. W63255/W2 remain open. This supersedes
+the pending export disposition and earlier next actions below.
+
 ## Current — review174362 changes requested; export disposition next
 
 review-2026-09-15T03-05-11Z.md is the controlling newest review.828 focused tests pass,

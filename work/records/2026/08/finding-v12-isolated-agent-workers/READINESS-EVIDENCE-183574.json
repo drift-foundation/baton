@@ -1,0 +1,213 @@
+{
+  "claim": 183574,
+  "kind": "static file digest checks only; no product imports, tests, providers, engines or stores",
+  "checks": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "expected": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "actual": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "expected": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "actual": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context.py",
+      "expected": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "actual": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context_delivery.py",
+      "expected": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "actual": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "expected": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "actual": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "expected": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "actual": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "expected": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "actual": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "expected": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "actual": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "expected": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "actual": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "expected": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "actual": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "expected": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "actual": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "expected": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "actual": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "expected": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "actual": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "expected": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "actual": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "expected": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "actual": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "expected": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "actual": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "expected": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "actual": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/integration/test_managed_storage.py",
+      "expected": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "actual": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "expected": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "actual": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "expected": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "actual": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_apply.py",
+      "expected": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "actual": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tools/job_viewer.py",
+      "expected": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+      "actual": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_viewer.py",
+      "expected": "a3feb92da0d16a98e35cb09ca6f7f8347834449a759f7f1dd73a447a7d105d5e",
+      "actual": "a3feb92da0d16a98e35cb09ca6f7f8347834449a759f7f1dd73a447a7d105d5e",
+      "matches": true
+    },
+    {
+      "path": "v12/python/JOB-VIEWER.md",
+      "expected": "bd7cb49c79f421ed42671bc60b680f620065d7858de38e7a257c2a3084f43fde",
+      "actual": "bd7cb49c79f421ed42671bc60b680f620065d7858de38e7a257c2a3084f43fde",
+      "matches": true
+    },
+    {
+      "path": "v12/python/DEPLOYMENT.md",
+      "expected": "5dc34d45d5b098baca7318df305f96bc02275cd3ecaaa9a20e0f4758a641c7a5",
+      "actual": "5dc34d45d5b098baca7318df305f96bc02275cd3ecaaa9a20e0f4758a641c7a5",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "expected": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+      "actual": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tools/dogfood_operator.py",
+      "expected": "04f4a60d13f2dcf3e60da99fba58debce875e9286c2a0ded0a2e1f6c01ae36ad",
+      "actual": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "matches": false
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/live-success-nup4nltc/scenario-result.json",
+      "expected": "fd1d034c04e9892f75387eaf46095de6412e6be6bb90a0b0613915d100ca3ee7",
+      "actual": "fd1d034c04e9892f75387eaf46095de6412e6be6bb90a0b0613915d100ca3ee7",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/live-success-nup4nltc/evidence/run-result.json",
+      "expected": "ce988d809fb70de48954c9b6255f5ac54bbf9a55041d8641a818a22ce56e7901",
+      "actual": "ce988d809fb70de48954c9b6255f5ac54bbf9a55041d8641a818a22ce56e7901",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/live-success-nup4nltc/evidence/final-view.json",
+      "expected": "68b520b23f08fdb48ffe5fca4c7fb72c7e2b8ba20dd96fb62b7a5a10e7f05103",
+      "actual": "68b520b23f08fdb48ffe5fca4c7fb72c7e2b8ba20dd96fb62b7a5a10e7f05103",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/live-success-nup4nltc/evidence/terminal-status.json",
+      "expected": "4dd65a88ee9b606c1c441ebe29ad6af696923536ee8ce3b5a4ecc867f6a219ab",
+      "actual": "4dd65a88ee9b606c1c441ebe29ad6af696923536ee8ce3b5a4ecc867f6a219ab",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/live-success-nup4nltc/evidence/final-tests.log",
+      "expected": "9ff9492c3644f1c7c75a07a2bdc7c8367da9c88d1e3e987a7d3338d0f800de32",
+      "actual": "9ff9492c3644f1c7c75a07a2bdc7c8367da9c88d1e3e987a7d3338d0f800de32",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/live-success-nup4nltc/evidence/final-greeting.log",
+      "expected": "ad50ed5a36ccfb5422605595068a306257656ab9ab7c4ed2ab896bc2c2bac37c",
+      "actual": "ad50ed5a36ccfb5422605595068a306257656ab9ab7c4ed2ab896bc2c2bac37c",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/live-success-nup4nltc/evidence/final-hours.log",
+      "expected": "eadb9ef3b397217e544d4b9deaab0f2859a6f42087fbdb1d379cb1ec1e0fb6d8",
+      "actual": "eadb9ef3b397217e544d4b9deaab0f2859a6f42087fbdb1d379cb1ec1e0fb6d8",
+      "matches": true
+    }
+  ],
+  "all_match": false,
+  "seconds": 0.002249881043098867,
+  "new_test_seconds": 0
+}

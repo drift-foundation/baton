@@ -1,0 +1,221 @@
+--- a/v12/python/tests/tools/correction_restart_trace.py
++++ b/v12/python/tests/tools/correction_restart_trace.py
+@@ -67,6 +67,21 @@
+     status=reconciliation_entry.main(place=launch,command_root=command,event_root=events)
+ else:
+     import integration_entry
++    import traceback
++    original_work=integration_entry.ManagedApplyAgent.work
++    def traced_work(self,*args):
++        try:return original_work(self,*args)
++        except BaseException:
++            traceback.print_exc()
++            raise
++    integration_entry.ManagedApplyAgent.work=traced_work
++    original_handle=baton_worker.handle
++    def traced_handle(*args):
++        try:return original_handle(*args)
++        except BaseException:
++            traceback.print_exc()
++            raise
++    baton_worker.handle=traced_handle
+     integration_entry.ManagedApplyAgent=functools.partial(integration_entry.ManagedApplyAgent,output_root=mounts['/output'])
+     status=integration_entry.main(launch_place=launch,command_root=command,event_root=events,bundle_root=mounts['/input/source'],scratch=scratch)
+ sys.exit(status)
+@@ -146,7 +161,7 @@
+             authority.dispose()
+         judges = self.judgment_workers("job-a")
+         self.configuration = self.composed_document(line_declared_base=self.base, integration_preparation=True, policy_generation=self.fixture_policy, result_judgment_workers=judges, integration_target=self.target, integration_target_reference="refs/heads/main", schema="baton.v12.stage-execution-deployment/2", job_bindings=[{"job_id": "job-a", "job_work_id": self.work, "review_work_id": self.work, "line_declared_base": self.base, "canonical_target_id": "target-1", "source_worker_id": "implementation-worker"}])
+-        self.trace = scheduler_trace.Trace(scheduler_trace.Scenario(name="useful-correction-with-counted-reopen", jobs=copy.deepcopy(self.submission["jobs"]), workers=[], ticks=100, note={"provider": "deterministic local process", "engine": "simulated OCI", "boundary": "manager recomposition in one process"}))
++        self.trace = scheduler_trace.Trace(scheduler_trace.Scenario(name="useful-correction", jobs=copy.deepcopy(self.submission["jobs"]), workers=[], ticks=100, note={"provider": "deterministic local process", "engine": "simulated OCI", "boundary": "C1 useful correction; no reopen"}))
+ 
+     def serving(self, **unused):
+         job, control = self.stores("correction-" + str(self.tick_count))
+@@ -215,16 +230,8 @@
+         self.assertEqual(self.turn(held.control, "review", attempt, self.mounted(held.composed, "review", attempt), edits={"review-report.json": json.dumps(dict(self.REPORT, verdict=verdict))}), 0)
+         return stage, episode, attempt
+ 
+-    def run_scenario(self):
+-        held = self.serving()
+-        submit(held.job, self.submission)
+-        self.until(held, "implementation", "waiting")
+-        first = self.only_attempt(held.composed, "implementation")
+-        def edits(multiplier):
+-            return {"scale.py": f"def scale(value):\n    return value * {multiplier}\n", "harness.py": f"from scale import scale\nassert scale(7) == {multiplier * 7}\nassert scale(-2) == {-2 * multiplier}\nprint('verified multiplier {multiplier}')\n"}
+-        self.assertEqual(self.turn(held.control, "implementation", first, self.mounted(held.composed, "implementation", first), edits=edits(2)), 0)
+-        self.until(held, "implementation", "completed")
+-        initial = self.snapshot(held, first)
++    def reopen(self, held, first, initial):
++        """Retained draft for C2; C1 never calls this boundary."""
+         before = {"provider": self.provider_events(), "engine": copy.deepcopy(self.engine.events)}
+         old_job, old_control, old_composed = held.job, held.control, held.composed
+         old_composed.close(); old_job.close(); old_control.close()
+@@ -236,6 +243,18 @@
+         self.trace.record(self.tick_count, "reopen", outcome="performed", evidence="closed-job-and-control-handles")
+         after = {"provider": self.provider_events(), "engine": copy.deepcopy(self.engine.events)}
+         self.assertEqual(self.snapshot(held, first), initial)
++        return held, before, after
++
++    def run_scenario(self):
++        held = self.serving()
++        submit(held.job, self.submission)
++        self.until(held, "implementation", "waiting")
++        first = self.only_attempt(held.composed, "implementation")
++        def edits(multiplier):
++            return {"scale.py": f"def scale(value):\n    return value * {multiplier}\n", "harness.py": f"from scale import scale\nassert scale(7) == {multiplier * 7}\nassert scale(-2) == {-2 * multiplier}\nprint('verified multiplier {multiplier}')\n"}
++        self.assertEqual(self.turn(held.control, "implementation", first, self.mounted(held.composed, "implementation", first), edits=edits(2)), 0)
++        self.until(held, "implementation", "completed")
++        initial = self.snapshot(held, first)
+         reviewed_stage, review_episode, reviewer = self.review(held, "changes-requested")
+         self.until(held, "implementation", "waiting")
+         implementation = submission.stages_of(held.job, "job-a")[0]
+@@ -264,16 +283,24 @@
+             if isinstance(parent, stage_execution._PerJobIntegration):
+                 parent = parent.held["job-a"]
+             retained = {key: reconciliation.managed_result_of(held.composed.deployment.integration, key) for key in parent._preparation.adopted}
+-            self.fail(json.dumps({"reports": meaningful[-1:], "logs": logs, "retained": retained}, indent=2))
++            stage = next(one for one in submission.stages_of(held.job, "job-a") if one["kind"] == "integration")
++            episode = episodes.live_of(held.job, stage["stage_id"])
++            from baton_v12.job_manager.projection import stage_states
++            from baton_v12.worker_manager import attempt_start_failure_of
++            record = {"ending": ending.ending_of(held.job, stage["stage_id"], episode["episode"]), "failure": attempt_start_failure_of(held.control, episode["attempt_id"]), "projection": stage_states(held.job, held.composed), "apply": [(one.request, one.operations._worker.observed_exchange({"attempt_id": attempt})) for attempt, one in getattr(held.composed.integrator, "managed_runtimes", {}).items()]}
++            self.fail(json.dumps({"reports": meaningful[-1:], "logs": logs, "retained": retained, "integration_attempt": record}, indent=2))
+         self.assertEqual(self.states(held.job, held.composed)["integration"], "completed")
+         deployment = held.composed.deployment
+-        result_ids = list(deployment._integration_operations._preparation.adopted)
++        parent = deployment._integration_operations
++        if isinstance(parent, stage_execution._PerJobIntegration):
++            parent = parent.held["job-a"]
++        result_ids = list(parent._preparation.adopted)
+         self.assertEqual(len(result_ids), 1)
+         result = reconciliation.managed_result_of(deployment.integration, result_ids[0])
+         target = stage_execution._git_run(["git", "--git-dir=" + self.target, "show", "refs/heads/main:scale.py"])
+         self.assertEqual(target["returncode"], 0)
+         self.assertEqual(target["stdout"], edits(3)["scale.py"])
+-        return {"schema": SCHEMA, "scheduler": self.trace.artifact(), "initial": initial, "revised": revised, "correction": correction, "verdict": verdict, "review_assignment": assignment_of(held.control, reviewer), "before": before, "after": after, "final_counters": {"provider": self.provider_events(), "engine": self.engine.events}, "reopen": {"kind": "manager-recomposition", "closed": ["job", "control"], "tick": self.trace.scenario.reopen_at}, "verifications": self.verifications, "managed": result, "capacity": integration_capacity_of(held.job, result_ids[0]), "target": {"revision": deployment.reconciliation_profile.revision(self.target, "refs/heads/main"), "code_digest": digest_of_bytes(target["stdout"].encode()), "authority_revision": deployment.authority.canonical_target(), "receipt": deployment.authority.receipt(result["derived_proposal_id"], "integration")}, "ticks": self.tick_count}
++        return {"schema": SCHEMA, "scheduler": self.trace.artifact(), "initial": initial, "revised": revised, "correction": correction, "verdict": verdict, "review_assignment": assignment_of(held.control, reviewer), "final_counters": {"provider": self.provider_events(), "engine": self.engine.events}, "verifications": self.verifications, "managed": result, "capacity": integration_capacity_of(held.job, result_ids[0]), "target": {"revision": deployment.reconciliation_profile.revision(self.target, "refs/heads/main"), "code_digest": digest_of_bytes(target["stdout"].encode()), "authority_revision": deployment.authority.canonical_target(), "receipt": deployment.authority.receipt(result["derived_proposal_id"], "integration")}, "ticks": self.tick_count}
+ 
+ 
+ def validate(artifact):
+--- a/v12/python/src/baton_v12/integration/reconciliation.py
++++ b/v12/python/src/baton_v12/integration/reconciliation.py
+@@ -3142,10 +3142,22 @@
+         for name in ("base", "candidate", "target_revision"):
+             if derived[name] != owned_request["source"][name]:
+                 _refuse("the retained derived identity names a different source or target")
+-        passed = account["kind"] == "measured" and account["status"] == 0
++        # The aggregate is the first nonzero exit, including the original
++        # base's expected regression failure. Preserve that observation while
++        # judging the two candidate states by their own measured exits.
++        complete = account["kind"] == "measured" and not account["not_run"] and [one["name"] for one in account["completed"]] == ["combined", "base", "isolated"]
++        statuses = {one["name"]: one["status"] for one in account["completed"]}
++        reason = None
++        if not complete:
++            reason = "the retained preparation did not complete its measured command sequence"
++        elif statuses["combined"] != 0:
++            reason = "the retained preparation did not pass its combined command"
++        elif statuses["isolated"] != 0:
++            reason = "the retained preparation did not pass its isolated command"
++        passed = reason is None
+         _transition_managed(store, orchestration_id, "retain", {
+             "state": "awaiting-evidence" if passed else "blocked",
+-            "reason": None if passed else "the retained preparation did not pass its combined command",
++            "reason": reason,
+             "prepared": {"head": _object(derived["revision"], "the derived commit"), "tree": _object(derived["tree"], "the derived tree"), "preparation": adoption},
+             "content_digest": digest({"tree": derived["tree"], "candidate_artifact": candidate["content_digest"]}),
+             "causal_observations": raw, "observed_by": owned_task["assignment"]["participant"]})
+--- a/v12/python/tests/integration/test_managed_storage.py
++++ b/v12/python/tests/integration/test_managed_storage.py
+@@ -1876,3 +1876,92 @@
+                     "result_metadata": {}}]
+         with self.assertRaises(ContractRefusal):
+             self.ended(outputs=outputs)
++
++
++class PreparedEligibilityUsesCandidateMeasurements(ThePreparationIsAdoptedFromWhatItCollected):
++    """Retained-object adoption with synthetic unit inputs through real owners.
++
++    C1's process scenario separately supplies genuine worker-produced objects.
++    These fixtures vary one measured report while preserving frozen custody.
++    """
++
++    def published_declaration(self):
++        held = super().published_declaration()
++        return sealed_manifest(dict(held, outputs=held["outputs"] + [_declared_output("prepared-objects", "workspace/objects")]))
++
++    def outputs(self, body=None, **changed):
++        return super().outputs(body, **changed) + [_answered_output("prepared-objects", b"unit-object-fixture", "artifact-objects", path="objects.bundle")]
++
++    def report_body(self, **changed):
++        held = json.loads(super().report_body())
++        source = self.request()["source"]
++        held["derived_candidate"] = dict(source, revision="d" * 40, tree="e" * 40)
++        held.update(changed)
++        return json.dumps(held, sort_keys=True).encode()
++
++    def test_eligibility_preserves_measurements_and_replays_retained_custody(self):
++        for statuses, expected, reason in [
++            ((0, 1, 0), "awaiting-evidence", None),
++            ((0, 0, 0), "awaiting-evidence", None),
++            ((7, 1, 0), "blocked", "combined command"),
++            ((0, 1, 9), "blocked", "isolated command"),
++        ]:
++            with self.subTest(statuses=statuses):
++                case = type(self)(); case.setUp()
++                try:
++                    request = case.request()
++                    report = worker_task.compose_report(request, case.trees(), [{"name": name, "status": status, "harness_added": name == "base", "output": "unit measurement fixture"} for name, status in zip(request["commands"], statuses)], [], None, harness_measured=case.HARNESS)
++                    body = case.report_body(**report)
++                    store = case.ended(body=body)
++                    adopted = case.adopt(store, body=body)
++                    result = managed_result_of(case.coordinated(), case.ORCHESTRATION)
++                    self.assertEqual(result["state"], expected)
++                    self.assertEqual(adopted["report"]["status"], next((s for s in statuses if s), 0))
++                    self.assertEqual([one["status"] for one in adopted["report"]["completed"]], list(statuses))
++                    self.assertEqual(adopted["collected"]["custody"], "accepted")
++                    self.assertIsNotNone(adopted["objects"])
++                    self.assertEqual(result["prepared"]["preparation"], adopted)
++                    if reason is None:
++                        self.assertIsNone(result["reason"])
++                    else:
++                        self.assertIn(reason, result["reason"])
++                    self.assertEqual(case.adopt(store, body=body), adopted)
++                    self.assertEqual(managed_result_of(case.coordinated(), case.ORCHESTRATION), result)
++                    self.assertEqual(list(result["phases"]), ["prepare"])
++                finally:
++                    case.doCleanups()
++
++    def test_incomplete_or_timed_out_measurements_remain_blocked(self):
++        for kind, status, tag in [("measured", 0, None), ("collected-without-status", None, "timeout")]:
++            with self.subTest(kind=kind):
++                case = type(self)(); case.setUp()
++                try:
++                    body = case.report_body(kind=kind, status=status, tag=tag, completed=[{"name": "combined", "status": 0, "harness_added": False}], not_run=["base", "isolated"])
++                    store = case.ended(body=body)
++                    adopted = case.adopt(store, body=body)
++                    result = managed_result_of(case.coordinated(), case.ORCHESTRATION)
++                    self.assertEqual(result["state"], "blocked")
++                    self.assertIn("measured command sequence", result["reason"])
++                    self.assertEqual(adopted["report"]["status"], status)
++                    self.assertEqual(case.adopt(store, body=body), adopted)
++                finally:
++                    case.doCleanups()
++
++    def test_invalid_status_command_identity_order_and_retained_source_refuse(self):
++        invalid = [
++            {"kind": "collected-without-status", "status": None, "tag": None},
++            {"completed": []},
++            {"completed": [{"name": name, "status": 0} for name in ("base", "combined", "isolated")]},
++            {"completed": [{"name": name, "status": 0} for name in ("combined", "foreign", "isolated")]},
++            {"derived_candidate": {"revision": "d" * 40, "tree": "e" * 40, "base": "f" * 40, "candidate": "b" * 40, "target_revision": "c" * 40}},
++        ]
++        for changed in invalid:
++            with self.subTest(changed=changed):
++                case = type(self)(); case.setUp()
++                try:
++                    body = case.report_body(**changed)
++                    store = case.ended(body=body)
++                    with self.assertRaises(ContractRefusal):
++                        case.adopt(store, body=body)
++                finally:
++                    case.doCleanups()

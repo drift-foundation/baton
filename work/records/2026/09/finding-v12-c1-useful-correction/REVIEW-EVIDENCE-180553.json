@@ -1,0 +1,165 @@
+{
+  "claim": 180553,
+  "candidate_sha256": "2e7107ecbfc133374e1811e33e99e3764924c20f90ceb22ab71683a00d834499",
+  "provenance_checks_per_run": 75,
+  "reconstruction": {
+    "all_match": true,
+    "paths": {
+      "v12/python/src/baton_v12/integration/reconciliation.py": true,
+      "v12/python/tests/integration/test_managed_storage.py": true,
+      "v12/python/tests/tools/correction_restart_trace.py": true,
+      "v12/python/tests/tools/test_correction_restart.py": true,
+      "v12/python/tests/tools/test_managed_apply.py": true,
+      "v12/python/tests/tools/test_single_worker.py": true,
+      "v12/worker/baton_worker.py": true
+    },
+    "seconds": 0.002610712981550023,
+    "output": "patching file v12/python/src/baton_v12/integration/reconciliation.py\npatching file v12/python/tests/integration/test_managed_storage.py\npatching file v12/python/tests/tools/correction_restart_trace.py\npatching file v12/python/tests/tools/test_correction_restart.py\npatching file v12/python/tests/tools/test_managed_apply.py\npatching file v12/python/tests/tools/test_single_worker.py\npatching file v12/worker/baton_worker.py\n",
+    "temporary_directory_cleaned": true
+  },
+  "runs": [
+    {
+      "selector_group": "positive",
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ],
+      "status": 0,
+      "seconds": 3.0166675120126456,
+      "timeout": false,
+      "group_gone": true,
+      "signals": []
+    },
+    {
+      "selector_group": "negative",
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence"
+      ],
+      "status": 0,
+      "seconds": 3.0162157920130994,
+      "timeout": false,
+      "group_gone": true,
+      "signals": []
+    },
+    {
+      "selector_group": "focused",
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements",
+        "tests.tools.test_single_worker.OptionalIntegrationContextDeclaration",
+        "tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary",
+        "tests.manager.test_claude_context.ServingBinding",
+        "tests.manager.test_claude_context.WorkerInvocation",
+        "tests.manager.test_claude_context.RestoredCorrectionBoundary"
+      ],
+      "status": 0,
+      "seconds": 5.369086727994727,
+      "timeout": false,
+      "group_gone": true,
+      "signals": []
+    }
+  ],
+  "new_reviewer_test_seconds": 11.401970032020472,
+  "cumulative_reviewer_test_seconds": 104.8836736070516,
+  "author_cumulative_seconds_separate": 211.3880788211536,
+  "positive": {
+    "ticks": 23,
+    "different_attempts": true,
+    "initial_code_digest": "sha256:83827dc5504d80c34c6cb9f9a9aabf7153836960493c7f71413bc9ea88d20f3a",
+    "revised_code_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+    "verifier_results": [
+      {
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "status": 0,
+        "code_digest": "sha256:83827dc5504d80c34c6cb9f9a9aabf7153836960493c7f71413bc9ea88d20f3a",
+        "verifier_digest": "sha256:a7839d701bf4784ea5ace235fed46343b47b0e9854198878aa53bd192fa95473",
+        "argv": [
+          "python3",
+          "harness.py"
+        ],
+        "before": {
+          "scale.py": "sha256:83827dc5504d80c34c6cb9f9a9aabf7153836960493c7f71413bc9ea88d20f3a",
+          "harness.py": "sha256:a7839d701bf4784ea5ace235fed46343b47b0e9854198878aa53bd192fa95473"
+        },
+        "after": {
+          "scale.py": "sha256:83827dc5504d80c34c6cb9f9a9aabf7153836960493c7f71413bc9ea88d20f3a",
+          "harness.py": "sha256:a7839d701bf4784ea5ace235fed46343b47b0e9854198878aa53bd192fa95473"
+        },
+        "seconds": 0.015433394990395755,
+        "output": null,
+        "execution": "real subprocess"
+      },
+      {
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "status": 0,
+        "code_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+        "verifier_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+        "argv": [
+          "python3",
+          "harness.py"
+        ],
+        "before": {
+          "scale.py": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+          "harness.py": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd"
+        },
+        "after": {
+          "scale.py": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+          "harness.py": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd"
+        },
+        "seconds": 0.015406945982249454,
+        "output": null,
+        "execution": "real subprocess"
+      }
+    ],
+    "first_verdict": "changes-requested",
+    "revised_verdict": "accepted",
+    "managed_state": "imported",
+    "target_revision": "407c9bc0d21f0f1aaf29045b558bd639ce10250a",
+    "target_receipt_candidate": "407c9bc0d21f0f1aaf29045b558bd639ce10250a",
+    "final_state": "completed",
+    "capacity_root": "ended",
+    "apply_receipt_path_exists": false
+  },
+  "negative_cases": [
+    "revised code replaced by original",
+    "changes-requested verdict absent",
+    "changes-requested verdict forged",
+    "verdict names another checkpoint",
+    "correction names original attempt",
+    "reviewer receives producer context",
+    "reviewer receives writable producer line",
+    "reviewer receives private mount",
+    "target receipt names original revision",
+    "target content names original code",
+    "verifier never executed",
+    "verifier measures original bytes",
+    "revised verifier absent"
+  ],
+  "artifacts": {
+    "CANDIDATE-180423.json": "2e7107ecbfc133374e1811e33e99e3764924c20f90ceb22ab71683a00d834499",
+    "EVIDENCE-180423.json": "7ebf7dcf65b6e2242cb8ced6d200da7f6f94486c259b6e9f6f92d5a7a3932659",
+    "review-run-180553.py": "b83d26d0df0d445e1c6533ca1644a2ecd49d66689823c9dbb827996fe50a2fb9",
+    "review-audit-180553.py": "7836fea5e853abbcb06516c506d58236826cb3d36d3962a5fa012a1ee3f9d13c",
+    "review-trace-180553-positive.json": "f82a47edf8e4427afd406899b89e3964196fc63adfd997de99cf601b8ce7bbe3",
+    "review-trace-180553-negative.json": "06cdbdbf003eb46f0af01b76f156f806b8e63a68a45c7e0cac6d06391b9cc6cf",
+    "review-run-180553-positive.json": "4b448f329cf8600f67e0ebddc535abe8a099530e1c70e5d9730c5e25d50ed5d4",
+    "review-run-180553-positive.log": "77adcd1349559651d819cd35572c4ca95cdb94a5eb07fb8820e11c1fd9954a9a",
+    "review-run-180553-negative.json": "a26dd2171061e42dd551ab13b45826b28ac4501cc876056e4f3e8e49165b1df2",
+    "review-run-180553-negative.log": "6669a957e0de9c11f4870570b6ae9fd9b0257aadb3e40fae989c8c86c06774f2",
+    "review-run-180553-focused.json": "5654765a335ef9b508b4368e3d2a99cc27c1a51ab749dc5dacf05cfb7bbfac1d",
+    "review-run-180553-focused.log": "76dd3e0ff5a56fe116ea095ea730bc04f2359c66112fbe64c4e1368eddb98dbd"
+  }
+}

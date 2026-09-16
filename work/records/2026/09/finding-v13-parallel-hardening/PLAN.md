@@ -1,6 +1,36 @@
 # V13 campaign plan
 
+## 2026-09-15 — owner confirms the usable-v12 delivery path
+
+Slawomir confirmed the path: "yes that's the path. We need to be on the other side to finally benefit from the new model where we can begin work on v13". The immediate objective is usable v12, with its parallel development Jobs enabling subsequent v13 work.
+
+Current delivery sequence:
+
+1. Complete W61599 focused independent review, preserving the owner instruction to defer unrelated baseline suite failures.
+2. Complete W161234 required context reuse and useful correction/restart proof. Tuner implements after Claude preparation and the independently reviewed W61599 shared-file release, using the accepted architecture and concrete B/C packets.
+3. Connect the minimal read-only monitor and establish readiness for actual use, including the narrow production qualification facts that remain necessary.
+
+Preparation must shorten this path. Classify findings by whether they concretely prevent this usable release; defer unrelated baseline repairs and broader hardening to W165786 after readiness. Preserve execution correctness, isolation and honest reviewed result collection; do not manufacture success or add speculative release gates. Do not repeat accepted architecture reviews or broad suites merely because work changes hands.
+
+After readiness, use v12 parallel Jobs for small bounded v13 tasks. Keep v11 as the current coordination authority during preparation; no backlog copying or unselected authority cutover. This usable-release objective does not falsely close W2 while its historical open children remain. Record readiness explicitly against the selected minimum outcome.
+
 Owning Work: W165786. Canonical scheduler state remains in Baton.
+
+## Additional owner assignment — 2026-09-15
+
+W103525's latest FINDING and W2 FINDING explicitly assign remaining broad
+certification and operator replacement to v13, superseding their v12 gate.
+Retain original dossiers and accepted scheduling evidence. No implementation
+is selected; W103525 remains parked. W174357's already-queued independent design
+review may finish as nonblocking pre-work and must not delay ready v12 delivery.
+
+| Existing Work | Release assignment | Ledger containment |
+| --- | --- | --- |
+| W103525 | v13: remaining certification and operator-designated replacement | Standalone; preserved |
+| W174357 | v13: retained operator-replacement design and existing review | Standalone; preserved |
+
+The original 42-member audit below is historical; these are later explicit
+additions, not corrections to its retained snapshot or new Work identities.
 
 Current owner disposition 2026-09-14T09:04:44Z: park this umbrella until v12
 readiness. A parking-only handoff to baton.feat supplies the route-handler act;
@@ -116,3 +146,16 @@ activity stays v12, while its older rich follow/search/retention ideas are futur
 W39649/v13 selection material. No new v13 execution or graph reparenting.
 Membership editing for this turn is complete; the separate W165786 turn may
 park the umbrella without repeating classification or changing these rows.
+
+
+## 2026-09-15 — owner defers reported pre-existing suite failures until post-v12
+
+After W61599 implementation handoff178359, Slawomir directed: "the so called 'preexisting' failures need to be addressed in post-v12 era, where we have speedy access to parallel work. I don't want to burn time on them now".
+
+Record the baseline failure backlog under W165786 for bounded parallel work after v12 readiness. W61599's ACTIVITY-IMPLEMENTATION-177898.md reports baseline7259 tests/89 failures-errors and candidate7333 tests/88 failures-errors, with the remaining set reported unchanged from baseline. These are author-reported classifications, not an independent certification or a green suite. Preserve the existing results, failure identifiers/log locators where already available, and the exact baseline/candidate context. Do not spend current release time repairing those baseline failures, reconstructing broad suite history, or repeating full suites merely to investigate them.
+
+The active W61599 reviewer should use existing evidence and focused checks of the changed behavior and any concrete suspected introduced regression. Candidate acceptance does not require fixing unrelated baseline failures. Report a concretely demonstrated defect in selected v12 execution separately; do not call a new regression pre-existing to waive it, or use speculative classification concerns to launch a baseline cleanup campaign. This ruling narrows current verification/repair scope, not truthful result reporting or independent acceptance.
+
+After readiness, W165786 will decompose surviving failures into small Jobs with explicit file ownership, prioritization and acceptance, reusing v12 parallel execution. Reuse existing defect Works when identified; no new implementation/backlog copies or release-gate edges are created now. The downstream consumer must revalidate the surviving failures then rather than treating this snapshot as current indefinitely.
+
+Evidence: baton:work/records/2026/09/finding-live-worker-log-observability/ACTIVITY-IMPLEMENTATION-177898.md, section8; PROGRESS.md claim177898; W61599 pass178359. This explicit post-v12 repair selection supersedes any interpretation that the baseline suite must be made green before W61599/W2 can proceed. W161234 and the already-selected required v12 outcomes remain independently accountable.

@@ -1,0 +1,57 @@
+test_exact_context_free_integration_declaration_is_accepted (tests.tools.test_single_worker.OptionalIntegrationContextDeclaration.test_exact_context_free_integration_declaration_is_accepted) ... ERROR
+test_reserved_declaration_variants_remain_refused (tests.tools.test_single_worker.OptionalIntegrationContextDeclaration.test_reserved_declaration_variants_remain_refused) ... ok
+test_delivered_context_and_context_schema_refuse_before_work (tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary.test_delivered_context_and_context_schema_refuse_before_work) ... ok
+test_exact_optional_absence_publishes_completion (tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary.test_exact_optional_absence_publishes_completion) ... ERROR
+test_present_or_physically_produced_receipt_never_publishes (tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary.test_present_or_physically_produced_receipt_never_publishes) ... ok
+test_current_authority_change_between_preparation_and_start_refuses (tests.manager.test_claude_context.ServingBinding.test_current_authority_change_between_preparation_and_start_refuses) ... ok
+test_real_composition_binds_exact_task_prompt_argv_and_adoption (tests.manager.test_claude_context.ServingBinding.test_real_composition_binds_exact_task_prompt_argv_and_adoption) ... ok
+test_duplicate_exchange_cannot_call_the_provider_again (tests.manager.test_claude_context.WorkerInvocation.test_duplicate_exchange_cannot_call_the_provider_again) ... ok
+test_duplicate_terminal_keys_are_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_duplicate_terminal_keys_are_unhealthy) ... ok
+test_intent_before_child_loss_never_reinvokes_the_use (tests.manager.test_claude_context.WorkerInvocation.test_intent_before_child_loss_never_reinvokes_the_use) ... ok
+test_missing_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_missing_terminal_is_unhealthy) ... ok
+test_nonzero_with_success_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_nonzero_with_success_terminal_is_unhealthy) ... ok
+test_oversized_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_oversized_terminal_is_unhealthy) ... ok
+test_partial_terminal_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_partial_terminal_is_unhealthy) ... ok
+test_real_worker_retains_measured_receipt_and_finalizes_before_settlement (tests.manager.test_claude_context.WorkerInvocation.test_real_worker_retains_measured_receipt_and_finalizes_before_settlement) ... ok
+test_status_zero_with_error_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_error_is_unhealthy) ... ok
+test_status_zero_with_wrong_model_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_wrong_model_is_unhealthy) ... ok
+test_status_zero_with_wrong_uuid_is_unhealthy (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_with_wrong_uuid_is_unhealthy) ... ok
+test_actual_changes_requested_review_restores_only_fresh_implementation_use (tests.manager.test_claude_context.RestoredCorrectionBoundary.test_actual_changes_requested_review_restores_only_fresh_implementation_use) ... ok
+
+======================================================================
+ERROR: test_exact_context_free_integration_declaration_is_accepted (tests.tools.test_single_worker.OptionalIntegrationContextDeclaration.test_exact_context_free_integration_declaration_is_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 4287, in test_exact_context_free_integration_declaration_is_accepted
+    self.assertEqual(single_worker._held(given)["launch_role"], "integration")
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 294, in _held
+    _refuse(f"this deployment launches "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{' or '.join(roles)} and this configuration names "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{given['launch_role']!r}", category="policy", code="denied")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 147, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: this deployment launches implementation and this configuration names 'integration'
+
+======================================================================
+ERROR: test_exact_optional_absence_publishes_completion (tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary.test_exact_optional_absence_publishes_completion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 716, in test_exact_optional_absence_publishes_completion
+    self.attempt()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 705, in attempt
+    answer = baton_worker.handle({"operation": "work"}, {"operation_id": "unit-apply"}, seen, SimpleNamespace(work=work), set())
+  File "/home/sl/src/baton/v12/worker/baton_worker.py", line 1655, in handle
+    raise WorkerFault(
+    ...<3 lines>...
+        + (f"; unexpected {', '.join(extra)}" if extra else ""))
+baton_worker.WorkerFault: a work request is exactly protocol, session, operation_id, operation; missing operation_id, protocol, session
+
+----------------------------------------------------------------------
+Ran 19 tests in 4.436s
+
+FAILED (errors=2)

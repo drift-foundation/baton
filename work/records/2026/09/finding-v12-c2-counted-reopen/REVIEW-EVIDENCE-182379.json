@@ -1,0 +1,145 @@
+{
+  "work": "W180252",
+  "claim": 182379,
+  "candidate": {
+    "path": "work/records/2026/09/finding-v12-c2-counted-reopen/CANDIDATE-182279.json",
+    "sha256": "055b765cf539d472fda98dabc173973162214babbd51a97b758d70499086b628"
+  },
+  "author_evidence": {
+    "path": "work/records/2026/09/finding-v12-c2-counted-reopen/EVIDENCE-182279.json",
+    "sha256": "9091bf68a01b80484af3389f9652d2780eb3da44e464550e911058bbc644af27"
+  },
+  "review_scripts": [
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-audit-182379.py",
+      "sha256": "476b841a58b1ff24267c9936cfc12162f5310cf3aac5527ffb82b6f713eed674"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-run-182379.py",
+      "sha256": "037a10c2535241005b630012e586236873d3212d1c362f8f761466e2a0eb0e13"
+    }
+  ],
+  "runs": [
+    {
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopen.json",
+        "sha256": "a2d51ed2bd78f3db5523f06253ff95af1c980215cfab0cdbeab3c1af9a557700"
+      },
+      "trace": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopen-trace.json",
+        "sha256": "860c8f1a56c712d1322a379873548f77aa2e85d9ee4bde6ad4f183ce52b10bf2"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopen.log",
+        "sha256": "911a504a9423d85f770ac681b9bd45524af33ec528966e7944f536f9bb28261e"
+      },
+      "selector": "CountedReopen",
+      "seconds": 3.166829251043964,
+      "provenance_checks": 64
+    },
+    {
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopenInvalidEvidence.json",
+        "sha256": "816c79f931caf1f4765f58049b76ebadd0bb7442f6f79f7bbc40e97a22c1ce62"
+      },
+      "trace": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopenInvalidEvidence-trace.json",
+        "sha256": "71c7381de9dc969d125744a4bbfd6a287e614dad4245ee8b8a29eb9d465fd61e"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopenInvalidEvidence.log",
+        "sha256": "007bbf2ee20ccb869a45a1c2deff5ae5723c8640a80c643f3d325f284de01167"
+      },
+      "selector": "CountedReopenInvalidEvidence",
+      "seconds": 3.217164159985259,
+      "provenance_checks": 64
+    },
+    {
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrection.json",
+        "sha256": "589f21fbbfaf85e204ffb2a8c495254bf1bd2f652b6a1f9886d18888675f45b5"
+      },
+      "trace": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrection-trace.json",
+        "sha256": "2d83b7cba9d869e7508feecdff6fd399d752fa2a5fbc68ebde2c7281a8b8c083"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrection.log",
+        "sha256": "2682c8b34f98c479a81a87aa2d4f817a3bdbcdc1e38e1c8444e1f2f917b2bf70"
+      },
+      "selector": "UsefulCorrection",
+      "seconds": 3.117268649977632,
+      "provenance_checks": 64
+    },
+    {
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrectionInvalidEvidence.json",
+        "sha256": "ecd8b7036e6cc866e5f6ba2d0a8e482a540b7b70d75c34d9bcfbe05d04618497"
+      },
+      "trace": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrectionInvalidEvidence-trace.json",
+        "sha256": "c3e8fe695e2620b581c61392a26f36aab5d7908010d318676a00264ac4b5fa04"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrectionInvalidEvidence.log",
+        "sha256": "f9426ec14ea820cf313add0d6964223fbef3a721846b106cee74ba91704419e4"
+      },
+      "selector": "UsefulCorrectionInvalidEvidence",
+      "seconds": 3.1674489519791678,
+      "provenance_checks": 64
+    }
+  ],
+  "tests_passed": 15,
+  "C2_invalid_copies": 15,
+  "C1_invalid_copies": 13,
+  "patch_reconstructed": true,
+  "patch_audit_seconds": 0.001881004951428622,
+  "patch_stdout": "patching file v12/python/tests/tools/correction_restart_trace.py\npatching file v12/python/tests/tools/test_correction_restart.py\n",
+  "reviewer_seconds": 12.668711012986023,
+  "prior_reviewer_seconds": 104.8836736070516,
+  "cumulative_reviewer_seconds": 117.55238462003763,
+  "author_seconds_separate": 234.30053109725122,
+  "counts": {
+    "provider": {
+      "before": 1,
+      "after": 1,
+      "observed": 1,
+      "final_old": 1,
+      "final_new": 1
+    },
+    "engine": {
+      "before": 1,
+      "after": 1,
+      "observed": 1,
+      "final_old": 1,
+      "final_new": 1
+    }
+  },
+  "ticks": 23,
+  "boundary_ticks": [
+    3,
+    4
+  ],
+  "incarnations": [
+    "correction-0",
+    "correction-3"
+  ],
+  "runtime_before": {
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "runtime_id": "runtime-single-1",
+    "execution_runtime": "destroyed",
+    "cleanup": "retained",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.claude",
+      "generation": 1
+    }
+  },
+  "final_state": "completed",
+  "managed_state": "imported",
+  "target_revision": "33c3beb185b4ad350648422d64d09a0b5fe3a2a0",
+  "limit": "Manager recomposition in one process after durable result; deterministic provider child, simulated OCI. No host/power-loss or live provider qualification."
+}

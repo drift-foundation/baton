@@ -1,0 +1,105 @@
+{
+ "active_seconds": 420,
+ "actual_model": "claude-fable-5",
+ "claim": 183524,
+ "consumed_identities": [
+  {
+   "consumed_by": "the initial-artifact failure of 2026-09-15T15:08:40Z (run179075)",
+   "identity": "178579",
+   "roots": [
+    "/tmp/baton-w177936-qualification-178579",
+    "/dev/shm/baton-w177936-qualification-178579",
+    "/tmp/baton-w177936-qualification-178579-export"
+   ]
+  },
+  {
+   "consumed_by": "the collection failure of 2026-09-15T18:29:34Z",
+   "identity": "180078",
+   "roots": [
+    "/tmp/baton-w177936-qualification-180078",
+    "/dev/shm/baton-w177936-qualification-180078",
+    "/tmp/baton-w177936-qualification-180078-export"
+   ]
+  },
+  {
+   "consumed_by": "the publication failure of 2026-09-16, first turn publish-shape",
+   "identity": "183114",
+   "roots": [
+    "/tmp/baton-w177936-qualification-183114",
+    "/dev/shm/baton-w177936-qualification-183114",
+    "/tmp/baton-w177936-qualification-183114-export"
+   ]
+  },
+  {
+   "consumed_by": "first-turn provider error and credential-link publication refusal; cleanup confirmed",
+   "identity": "183372",
+   "roots": [
+    "/tmp/baton-w177936-qualification-183372",
+    "/dev/shm/baton-w177936-qualification-183372",
+    "/tmp/baton-w177936-qualification-183372-export"
+   ]
+  }
+ ],
+ "corrections": {
+  "A": "solution.py is accepted in both turns as the expected constant or as that constant with its one final LF absent; every other byte, both workspace entry sets and continuity.txt's exact token-plus-one-LF contract are unchanged, and the observed raw digest, byte length and form are exported before any refusal",
+  "B": "closed model type/cardinality/expected-key diagnostics with a bounded key count and explicit overflow flag; the actual_model/model_fields/conflict predicate is unchanged and no arbitrary model name, value, usage payload or provider prose is exported",
+  "R1": "reconstructed per-use session state is created 0660 group-writable; the credential slot copy and the request document stay 0640 and no existing protected, source or credential object changes",
+  "R1_diagnostics": "consistent() now relates the diagnostic members to each other and to the closed member list: missing means the known member is absent and every other diagnostic means it is present, for both model and modelUsage; empty-object is count0 uncapped; expected-only is count1 uncapped; other-only has a positive count; expected-plus-other has at least two; capped requires exactly the cap and a shape that can hold more keys than that. MODEL_KEY_CAP stays 8, the strict int/bool checks and the original actual-model predicate are unchanged",
+  "R2": "all three fixed roots -- run, volatile and export -- are reserved exclusively before any controller, credential or engine admission, and a refused reservation unwinds what it took",
+  "collection_custody": "CORRECTION-PROPOSAL-180537.md revision 2, selected by owner182261. P1a: turn-1-only, runtime-owned-only relaxation of exactly the observed project directory (0o2750) and its expected session file (0o640), verified and changed through one O_NOFOLLOW descriptor; turn 2 publishes nothing and the manager-owned 0o660 restored working copy is untouched. P1b: unreadable file CONTENT is recorded closed via the new `content` field, while unreadable STRUCTURE -- a failed scandir or a failed per-entry stat -- refuses state-coverage-incomplete, because all three absence claims are name-based; an unreadable selected session refuses at subset. P1c: a closed collection step, failure category and errno category on every failure.",
+  "collection_custody_R1_R2_completion": "review-2026-09-16T02-11-27Z.md. R1: the survey walked descriptors and then reopened the targets BY PATH, so a regular decoy swapped in at the end of the survey redirected the chmod onto an unsurveyed file; the mutation targets are now the descriptors the walk itself opened, retained through selection and mutation, and a survey that cannot complete refuses with a registered code. R2: the survey descended only the .claude/projects chain, so a credential-shaped entry under HOME/cache or HOME/.claude/cache and unselected invalid types elsewhere were never seen; the preflight is now genuinely home-wide within the existing entry and depth bounds and applies the manager's own admitted-type rule, still never opening credential or configuration contents.",
+  "collection_custody_R1_R3": "review-2026-09-16T00-41-09Z.md R1-R3. R1: traversal anchored at the verified home with every component opened relative to its verified parent descriptor, O_NONBLOCK so a special-file substitution cannot hang before fstat, and a single-link regular selected file required before any mode change. R2: the complete bounded name/type/ownership/shape survey and descriptor acquisition happen BEFORE the first fchmod, so a foreign session, a nested session, a credential-shaped entry or a second project directory each refuse and relax nothing. R3: a closed `cause` carries the wrapped errno across the coverage refusal, with the errno/cause relationships validated explicitly at the projection boundary.",
+  "custody_collection_mismatch": "OFFLINE-CUSTODY-CORRECTION-20260916.md. Run 20260916T035035Z published two objects and then refused at source-inventory with state-coverage-incomplete/EACCES, because inventory demands whole-HOME name and type coverage under a different uid. PUBLISH TRAVERSAL, NOT CONTENTS: name and type coverage needs r-x on directories and r on no file, so every runtime-owned directory becomes 0o2750 with setgid kept and no world access, while every file keeps the mode the CLI gave it except the one selected session at 0o640. Not a broad HOME chmod: no file content becomes readable that was not already, nothing is skipped, nothing extra is copied and no model, artifact or continuity gate moves. All mode changes still follow the complete preflight on descriptors the survey opened, bounded by the directory-bound check.",
+  "identity_180078": "fresh fixed run identity 180078 replacing the consumed 178579; audit now requires the manifest's run_identity, private_root, credential_copy_root and export_root to equal the roots this fixture would actually reserve, so an approved manifest can no longer name one identity while the code takes another",
+  "publication_diagnostics": "OFFLINE-CORRECTION-CYCLE-183114.md. Run183114 refused at publish-shape with nothing else, after the provider had started and exited. Two corrections: every publication refusal now names its check from a closed seventeen-name vocabulary with a closed errno category, exporting no path, name, prose, credential or configuration content; and the validated terminal observation is made BEFORE publication and preserved through a publication failure, while the arm still fails and bypasses no publication, shutdown or qualification gate. A preserved observation is validated exactly like a real terminal record.",
+  "review": "review-2026-09-15T14-36-52Z.md",
+  "review_ab": "review-2026-09-15T15-16-11Z.md",
+  "review_collection_custody": "CORRECTION-PROPOSAL-180537.md revision 2 (e4495ee4)",
+  "review_r1": "review-2026-09-15T15-39-27Z.md",
+  "shared_terminal_validation": "review-2026-09-16T03-18-48Z.md. R1: the failure path carried a shorter copy of the terminal validator, so type, subtype, is_error, session_matches, unknown_member_hashes and api_error_status went unchecked there and a canary in any of the six was refused on the normal path and exported on the failure path. One valid_terminal now serves both paths. valid_publication also checks types before membership, since an unhashable value raised TypeError out of the validator instead of being refused by it. R2: the target's own fstat had no wrapper, so an EACCES/EIO/ENOENT there exported unclassified with a null publication diagnostic; it now reports the target-metadata check.",
+  "superseded_acceptance": "the exact-final-LF requirement for solution.py stated by FINDING's 178579 entry and OPERATOR-178579.md; nothing else moved",
+  "total_terminal_validation": "review-2026-09-16T03-26-33Z.md. valid_terminal built sets from unvalidated members/model_fields elements and consistent compared untyped model diagnostics by membership, so an unhashable element or diagnostic raised TypeError OUT OF the validator and surfaced as unclassified instead of terminal-record-values (normal path) or worker-failure-shape (preserved path). Element and diagnostic types are checked before any set or membership test, completing the shared total validation."
+ },
+ "credential_copy_root": "/dev/shm/baton-w177936-qualification-20260916T035035Z",
+ "credential_source": "/home/sl/.claude/.credentials.json",
+ "cwd": "/output",
+ "direct_preparation": {
+  "actor": "baton.prompt",
+  "at": "2026-09-16T03:50:35.728956+00:00",
+  "authority": "explicit operator request in interactive prompt",
+  "base_claim": 183372,
+  "base_review": "review-2026-09-16T03-41-10Z.md"
+ },
+ "experiment": "After operator-reported host authentication recovery, observe publication diagnostics and valid terminal facts; restoration remains conditional on all preceding strict gates.",
+ "export_root": "/tmp/baton-w177936-qualification-20260916T035035Z-export",
+ "files": {
+  "qualification-fixture.py": "3bef4f1d7f265735860119f57950c79eac6e2007db7584662c4f312ead22e020",
+  "qualification_contract.py": "fb716eb3eea18404c1105e76c31f6659e43d4d3f0b04bc560c35bf3087ca9e01",
+  "qualification_worker.py": "4261d09e6fb7cdc1de20aad1ad271e7cce008237334695632f5f5ed26912b949",
+  "test_qualification.py": "34af2f8537f3939221e9c94e7588d1a344fbf7514f069f80a83a517a94e87158"
+ },
+ "group": 1001,
+ "home": "/run/baton/context/home",
+ "image": "sha256:979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f",
+ "live_execution_selected": false,
+ "max_state_bytes": 33554432,
+ "max_state_depth": 8,
+ "max_state_entries": 1024,
+ "model": "claude-fable-5[1m]",
+ "operator_command_shape": [
+  "python3",
+  "evidence/qualification-fixture.py",
+  "--run",
+  "--approved-manifest",
+  "SHA256_OF_THIS_MANIFEST"
+ ],
+ "overall_seconds": 600,
+ "per_turn_seconds": 180,
+ "private_root": "/tmp/baton-w177936-qualification-20260916T035035Z",
+ "run_identity": "20260916T035035Z",
+ "runtime_user": "65532:65532",
+ "scope": "qualification fixture only; no production enablement",
+ "source_reference": "PACKET.md plus FINDING owner178575 clarifications",
+ "state_subset": "one observed project directory, exact expected UUID.jsonl; no nested or foreign sessions",
+ "work": "W177936"
+}

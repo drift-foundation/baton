@@ -1,0 +1,2040 @@
+--- a/v12/python/src/baton_v12/worker_manager/provider_context.py
++++ b/v12/python/src/baton_v12/worker_manager/provider_context.py
+@@ -20,6 +20,12 @@
+ TRANSITION_KIND = "provider-context.transition"
+ PROFILE_SCHEMA = "baton.claude-context-profile/1"
+ RECEIPT_SCHEMA = "baton.provider-context-receipt/1"
++SERVING_RECEIPT_SCHEMA = "baton.provider-context-receipt/2"
++INVOCATION_KIND = "provider-context.invocation"
++DELIVERY_SCHEMA = "baton.provider-context-delivery/1"
++DELIVERY_MEMBERS = ("schema", "context_id", "use_id", "invocation_id", "attempt_id", "generation", "generation_digest", "mode", "conversation_id", "profile_digest", "delivery_digest", "invocation_binding_digest", "task_digest", "prompt_digest", "argv_digest", "cli_build", "model", "reported_model", "argv_policy_digest", "environment_policy_digest")
++ARGV_POLICY = {"program": "claude", "arguments": ["--print", "--dangerously-skip-permissions", "--output-format", "json"], "open": "--session-id", "restore": "--resume"}
++ENVIRONMENT_POLICY = {"cwd": "/output", "home": "/run/baton/context/home", "keys": ["HOME", "PATH", "PYTHONPYCACHEPREFIX", "TMPDIR", "XDG_CACHE_HOME"], "ephemera": "fresh-per-child"}
+ REASONS = frozenset(("runtime-unknown", "invocation-unknown", "receipt-invalid", "custody-invalid", "generation-damaged", "retired"))
+ _ACTION_KEYS = {
+     "admit": ("identity", "attempt_id", "writer_id", "assignment", "stage_id", "episode", "profile_digest", "job_digest", "limits_digest", "repo_pin", "source_pin", "input_digest", "policy_digest", "generation", "conversation_id", "mode", "predecessor"),
+@@ -441,12 +447,20 @@
+         return result
+     try:
+         raw = json.loads(body, object_pairs_hook=pairs)
+-    except (ValueError, UnicodeError):
++    except (ValueError, UnicodeError, RecursionError):
+         _refuse("receipt is not complete JSON")
+-    value = _document(raw, ("schema", "context_id", "use_id", "attempt_id", "conversation_id", "profile_digest", "invocation_id", "status", "complete", "model", "observed_model", "terminal", "cli_build", "mode", "delivery_digest", "input_digest", "policy_digest"))
++    if type(raw) is not dict or any(type(value) not in (str, int, bool, type(None)) for value in raw.values()):
++        _refuse("receipt must contain only its bounded scalar fields")
++    binding = context_invocation_of(control, attempt_id)
++    members = ("schema", "context_id", "use_id", "attempt_id", "conversation_id", "profile_digest", "invocation_id", "status", "complete", "model", "observed_model", "terminal", "cli_build", "mode", "delivery_digest", "input_digest", "policy_digest")
++    if binding is not None:
++        members += ("task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest", "observed_conversation_id")
++    value = _document(raw, members)
+     profile = context_profile_of(control, facts["profile_digest"])
+     delivered = next(one for one in _history(control, admitted["context_id"]) if one["action"] == "deliver" and one["use_id"] == admitted["use_id"])
+     expected = {"model": profile["model"], "observed_model": profile["reported_model"], "terminal": "success", "cli_build": profile["cli_build"], "mode": facts["mode"], "delivery_digest": delivered["payload"]["delivery_digest"], "input_digest": facts["input_digest"], "policy_digest": facts["policy_digest"], "schema": RECEIPT_SCHEMA, "context_id": admitted["context_id"], "use_id": admitted["use_id"], "attempt_id": attempt_id, "conversation_id": facts["conversation_id"], "profile_digest": facts["profile_digest"], "invocation_id": _id("context-invocation", admitted["use_id"])}
++    if binding is not None:
++        expected.update(schema=SERVING_RECEIPT_SCHEMA, observed_conversation_id=facts["conversation_id"], **{key: binding[key] for key in ("task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest")})
+     if any(value[key] != wanted for key, wanted in expected.items()) or type(value["status"]) is not int or value["status"] != 0 or value["complete"] is not True:
+         _refuse("receipt does not prove this healthy invocation")
+     assignment = facts["assignment"]
+@@ -466,6 +480,13 @@
+     finalized = next((one for one in own if one["action"] == "finalize"), None)
+     if finalized is not None:
+         context_delivery.validate_generation(control, storage, admitted["context_id"], finalized["payload"])
++        if context_invocation_of(control, attempt_id) is not None:
++            try:
++                if _receipt(control, admitted, receipt_reader) != finalized["payload"]["receipt_digest"]:
++                    _refuse("finalized serving receipt no longer matches its retained evidence")
++            except ContractRefusal:
++                hold_context_use(control, attempt_id=attempt_id, reason="receipt-invalid", evidence_refs=[digest(finalized)])
++                raise
+         return context_use_of(control, attempt_id)
+     facts = admitted["payload"]
+     current = _facts(control, jobs, authority, attempt_id, facts["writer_id"], facts["profile_digest"], live=False)
+@@ -501,3 +522,102 @@
+         if chain[-1]["use_id"] == admitted["use_id"] and chain[-1]["action"] not in ("hold", "retire"):
+             hold_context_use(control, attempt_id=attempt_id, reason="generation-damaged" if chain[-1]["action"] == "finalize" else "custody-invalid", evidence_refs=[digest(chain[-1])])
+         raise
++
++
++def context_prompt(task):
++    """The image's deterministic implementation prompt, without importing it."""
++    if type(task) is not dict or type(task.get("instructions")) is not str or type(task.get("verification")) is not list or not all(type(one) is str for one in task["verification"]):
++        _refuse("invalid serving task")
++    return (f"{task['instructions']}\n\n"
++            f"You are working in a private copy of the source tree, which is "
++            f"the current working directory. Edit files here directly.\n"
++            f"When you are done, the following command will be run from this "
++            f"directory and must pass:\n"
++            f"  {' '.join(task['verification'])}\n")
++
++
++def serving_argv(profile, facts, prompt):
++    return ["claude", *ARGV_POLICY["arguments"], "--model", profile["model"], ARGV_POLICY[facts["mode"]], facts["conversation_id"], prompt]
++
++
++def _invocation_base(control, admitted):
++    facts = admitted["payload"]
++    profile = context_profile_of(control, facts["profile_digest"])
++    chain, original = _use(control, facts["attempt_id"])
++    delivered = next((one for one in chain if one["use_id"] == admitted["use_id"] and one["action"] == "deliver"), None)
++    if original != admitted or delivered is None:
++        _refuse("serving invocation lacks delivery")
++    previous = next((one for one in chain if one["action"] == "finalize" and one["payload"]["generation"] == facts["generation"]), None)
++    return {"schema": DELIVERY_SCHEMA, "context_id": admitted["context_id"], "use_id": admitted["use_id"], "invocation_id": _id("context-invocation", admitted["use_id"]), "attempt_id": facts["attempt_id"], "generation": facts["generation"], "generation_digest": previous["payload"]["manifest_digest"] if previous else None, "mode": facts["mode"], "conversation_id": facts["conversation_id"], "profile_digest": facts["profile_digest"], "delivery_digest": delivered["payload"]["delivery_digest"], **{key: profile[key] for key in ("cli_build", "model", "reported_model", "argv_policy_digest", "environment_policy_digest")}}
++
++
++def context_invocation_of(control, attempt_id):
++    """Pure historical reader. Absence never authorizes a downgraded launch."""
++    row = control.operation_record(_id("context-serving-invocation", attempt_id))
++    if row is None:
++        return None
++    if row["state"] != "committed" or row["kind"] != INVOCATION_KIND:
++        _refuse("serving invocation is not committed")
++    value = _document(json.loads(row["result"]), DELIVERY_MEMBERS)
++    operands = {key: value[key] for key in value if key != "invocation_binding_digest"}
++    if row["signature"] != manager_signature(INVOCATION_KIND, operands) or value["invocation_binding_digest"] != digest(operands):
++        _refuse("serving invocation journal disagrees")
++    chain, admitted = _use(control, attempt_id)
++    if any(value[key] != expected for key, expected in _invocation_base(control, admitted).items()):
++        _refuse("serving invocation original identity disagrees")
++    for key in ("task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest"):
++        _hash(value[key])
++    return value
++
++
++def bind_context_invocation(control, jobs, authority, *, attempt_id, writer_id, profile_digest, task_bytes):
++    if type(task_bytes) is not bytes or len(task_bytes) > 65536:
++        _refuse("serving task exceeds its bound")
++    chain, admitted = _use(control, attempt_id)
++    facts = admitted["payload"]
++    if facts["writer_id"] != writer_id or facts["profile_digest"] != profile_digest:
++        _refuse("serving invocation operands disagree")
++    profile = context_profile_of(control, profile_digest)
++    if profile["argv_policy_digest"] != digest(ARGV_POLICY) or profile["environment_policy_digest"] != digest(ENVIRONMENT_POLICY):
++        _refuse("profile does not qualify the closed serving policy")
++    try:
++        task = json.loads(task_bytes)
++    except (ValueError, UnicodeError):
++        _refuse("serving task is not JSON")
++    manifest = manifests.load_manifest(control, facts["input_digest"], "inputManifest")
++    context_output_declaration(manifest["outputs"])
++    if manifest["human_contract"]["content_digest"] != digest_of_bytes(task_bytes) or manifest["human_contract"]["bytes"] != len(task_bytes):
++        _refuse("serving task differs from the submitted input")
++    prompt = context_prompt(task)
++    value = dict(_invocation_base(control, admitted), task_digest=digest_of_bytes(task_bytes), prompt_digest=digest_of_bytes(prompt.encode()), argv_digest=digest(serving_argv(profile, facts, prompt)))
++    def commit(connection):
++        current = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
++        if context_use_of(control, attempt_id)["status"] != "admitted" or any(current[key] != facts[key] for key in current):
++            _refuse("serving invocation owner changed", durable=True)
++        return dict(value, invocation_binding_digest=digest(value))
++    control.transact(_id("context-serving-invocation", attempt_id), INVOCATION_KIND, manager_signature(INVOCATION_KIND, value), commit)
++    return context_invocation_of(control, attempt_id)
++
++
++def revalidate_context_start(control, jobs, authority, *, attempt_id):
++    from .context_delivery import adopt_context_use, configured_context_storage
++    binding = context_invocation_of(control, attempt_id)
++    if binding is None or context_use_of(control, attempt_id)["status"] != "admitted":
++        _refuse("serving use cannot start")
++    chain, admitted = _use(control, attempt_id)
++    facts = admitted["payload"]
++    current = _facts(control, jobs, authority, attempt_id, facts["writer_id"], facts["profile_digest"], live=True)
++    if any(current[key] != facts[key] for key in current):
++        _refuse("serving start owner changed")
++    adopt_context_use(control, configured_context_storage(control), attempt_id=attempt_id)
++    return binding
++
++
++def context_output_declaration(outputs):
++    selected = [one for one in outputs if one["name"] == "provider-context-receipt"]
++    if len(selected) != 1:
++        _refuse("reserved receipt declaration is missing or duplicated")
++    one = selected[0]
++    if one["type"] != "directory-result" or one["path"] != "provider-context-receipt" or one["required"] is not False or one["constraints"] != {"max_entries": 1, "max_bytes": 16384, "allowed_media_types": ["application/octet-stream"], "link_policy": "forbid", "validator_digest": None}:
++        _refuse("reserved receipt declaration differs from the optional bounded contract")
++    return one
+--- a/v12/python/src/baton_v12/worker_manager/context_delivery.py
++++ b/v12/python/src/baton_v12/worker_manager/context_delivery.py
+@@ -549,3 +549,78 @@
+             context._refuse("disposal encountered a foreign object")
+     os.fsync(parent)
+     return remaining
++
++
++@dataclass(frozen=True)
++class ContextMount:
++    """Owner-bound exact-use capability, never a caller-nominated mount path."""
++    control: object
++    storage: ContextStorage
++    delivery: ContextDelivery
++
++    def boundary(self):
++        actual = adopt_context_use(self.control, self.storage, attempt_id=self.delivery.attempt_id)
++        if actual != self.delivery:
++            context._refuse("context mount original delivery changed")
++        return (os.path.dirname(actual.home), "/run/baton/context", True)
++
++
++def context_mount_of(control, storage, *, attempt_id):
++    return ContextMount(control, storage, adopt_context_use(control, storage, attempt_id=attempt_id))
++
++
++def read_context_receipt(control, *, attempt_id, artifact_id, workspace_storage):
++    """Read the original accepted custody file; never fetch a supplied URL."""
++    from . import output, manifests
++    frozen = output.frozen_output_of(control, attempt_id)
++    collected = intake.intake_receipt_of(control, attempt_id)
++    if frozen is None or collected is None or collected["custody"] != "accepted" or any(frozen[key] != collected[key] for key in ("result_id", "manifest_digest")):
++        context._refuse("receipt custody is not accepted")
++    held = manifests.load_manifest(control, frozen["manifest_digest"], "resultManifest")
++    candidates = [one for one in held["outputs"] if one["name"] == "provider-context-receipt" and one["status"] == "present" and one["artifact"] and one["artifact"]["artifact_id"] == artifact_id]
++    if len(candidates) != 1:
++        context._refuse("retained receipt artifact is not original")
++    candidate = candidates[0]
++    entries = candidate["content_manifest"]["entries"]
++    if len(entries) != 1 or entries[0]["path"] != "receipt.json" or entries[0]["bytes"] > 16384:
++        context._refuse("retained receipt is not one bounded file")
++    artifacts = [one for one in collected["artifacts"] if one["artifact_id"] == artifact_id]
++    from . import review_cycles
++    chain, admitted = context._use(control, attempt_id)
++    writer = review_cycles.writer_of(control, admitted["payload"]["writer_id"])
++    line = review_cycles.line_of(control, writer["line_id"])
++    line_fd, line_pins = _open_absolute(line["line_path"])
++    os.close(line_fd)
++    if line_pins != admitted["payload"]["repo_pin"]:
++        context._refuse("retained receipt original line object disagrees")
++    root_path = os.path.join(os.path.dirname(line["line_path"]), "custody", attempt_id, "provider-context-receipt")
++    if len(artifacts) != 1 or artifacts[0]["custody_locator"] != "file://" + root_path:
++        context._refuse("retained receipt locator disagrees with owned custody")
++    fd, pins = _open_absolute(root_path)
++    try:
++        if os.listdir(fd) != ["receipt.json"]:
++            context._refuse("retained receipt directory has unexpected entries")
++        receipt = os.open("receipt.json", _FILE_FLAGS, dir_fd=fd)
++        try:
++            before = os.fstat(receipt)
++            if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or before.st_uid != os.getuid() or before.st_size > 16384 or before.st_mode & 0o222:
++                context._refuse("retained receipt type, owner, mode or size disagrees")
++            body = bytearray()
++            while len(body) <= 16384:
++                part = os.read(receipt, 16385-len(body))
++                if not part:
++                    break
++                body.extend(part)
++            after = os.fstat(receipt)
++            if (before.st_size, before.st_mtime_ns, before.st_ctime_ns) != (after.st_size, after.st_mtime_ns, after.st_ctime_ns):
++                context._refuse("retained receipt changed while read")
++            body = bytes(body)
++        finally:
++            os.close(receipt)
++    except OSError:
++        context._refuse("retained receipt cannot be read through its owned boundary")
++    finally:
++        os.close(fd)
++    if len(body) != entries[0]["bytes"] or digest_of_bytes(body) != entries[0]["content_digest"]:
++        context._refuse("retained receipt sealed bytes disagree")
++    return body
+--- a/v12/python/src/baton_v12/worker_manager/launch.py
++++ b/v12/python/src/baton_v12/worker_manager/launch.py
+@@ -122,6 +122,8 @@
+ # fact that decides which channel is authoritative.
+ JOB_SCHEMA = "baton.worker-launch/3"
+ JOB_MEMBERS = LAUNCH_MEMBERS + ("transport", "job_execution")
++CONTEXT_SCHEMA = "baton.worker-launch/4"
++CONTEXT_MEMBERS = JOB_MEMBERS + ("provider_context",)
+ 
+ # WHAT THE JOB CONTEXT NAMES, closed. The Job and the attempt it is running,
+ # the identities the JOB was submitted with, the identities this RUNTIME was
+@@ -148,7 +150,7 @@
+ # so a reader asking "is this one of ours" cannot ask it there. W156162: it was
+ # asked there, and the composed integration bundle refused the `/3` its own port
+ # had just authored.
+-SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_SCHEMA, JOB_SCHEMA)
++SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_SCHEMA, JOB_SCHEMA, CONTEXT_SCHEMA)
+ 
+ 
+ def members_for(document):
+@@ -161,6 +163,8 @@
+     disagreeing silently about which channel is authoritative.
+     """
+     schema = document.get("schema") if type(document) is dict else None
++    if schema == CONTEXT_SCHEMA:
++        return CONTEXT_MEMBERS
+     if schema == JOB_SCHEMA:
+         return JOB_MEMBERS
+     if schema == EXCHANGE_SCHEMA:
+@@ -377,7 +381,7 @@
+ 
+ 
+ def launch_document(*, session, contract, role, transport=None,
+-                    job_execution=None):
++                    job_execution=None, provider_context=None):
+     """The complete document for the version this transport selects.
+ 
+     AUTHORED HERE RATHER THAN ASSEMBLED BY A CALLER, and rebuilt over
+@@ -416,6 +420,11 @@
+         document["schema"] = JOB_SCHEMA
+         document["transport"] = document.get("transport")
+         document["job_execution"] = _job_execution(job_execution)
++    if provider_context is not None:
++        if job_execution is None or role != "implementation" or transport != exchange.EXCHANGE_TRANSPORT:
++            _denied("provider context requires the implementation Job exchange")
++        document["schema"] = CONTEXT_SCHEMA
++        document["provider_context"] = _context_delivery(provider_context, document["job_execution"])
+     check_no_durable_secret(document, what="a worker launch document")
+     return document
+ 
+@@ -501,7 +510,7 @@
+ 
+ 
+ def materialize(storage, *, attempt_id, session, contract, role,
+-                transport=None, job_execution=None, workspace_group=None):
++                transport=None, job_execution=None, workspace_group=None, provider_context=None):
+     """Author one launch document and put it on disk as this manager's own.
+ 
+     `storage` is the manager's own launch storage, NOT an assignment root. The
+@@ -526,7 +535,7 @@
+                 code="path")
+     document = launch_document(session=session, contract=contract,
+                                role=role, transport=transport,
+-                               job_execution=job_execution)
++                               job_execution=job_execution, provider_context=provider_context)
+     payload = _bytes(document)
+     root = os.path.join(os.path.realpath(home), attempt)
+     if os.path.lexists(root):
+@@ -623,7 +632,7 @@
+ 
+ 
+ def adopt(storage, *, attempt_id, session, contract, role,
+-          transport=None, job_execution=None, workspace_group=None):
++          transport=None, job_execution=None, workspace_group=None, provider_context=None):
+     """Recover the delivery THIS MANAGER already made, or FAIL CLOSED.
+ 
+     W47225. `materialize` refuses an existing root and `discard` removes one,
+@@ -684,7 +693,7 @@
+     # comparison below a comparison rather than a second rule set.
+     expected = _bytes(launch_document(session=session, contract=contract,
+                                       role=role, transport=transport,
+-                                      job_execution=job_execution))
++                                      job_execution=job_execution, provider_context=provider_context))
+     root = os.path.join(os.path.realpath(home), attempt)
+     if not os.path.lexists(root):
+         return None
+@@ -767,7 +776,7 @@
+                           document=launch_document(
+                               session=session, contract=contract, role=role,
+                               transport=transport,
+-                              job_execution=job_execution),
++                              job_execution=job_execution, provider_context=provider_context),
+                           delivery=delivery)
+ 
+ 
+@@ -807,3 +816,32 @@
+     except OSError:
+         pass
+     return not os.path.lexists(root)
++
++
++def _context_delivery(given, job):
++    from . import provider_context as owner
++    held = owner._document(given, owner.DELIVERY_MEMBERS)
++    if held["schema"] != owner.DELIVERY_SCHEMA or held["attempt_id"] != job["attempt_id"]:
++        _denied("context delivery names another schema or attempt")
++    for key in ("context_id", "use_id", "invocation_id", "attempt_id", "cli_build", "model", "reported_model"):
++        owner._text(held[key])
++    for key in ("profile_digest", "delivery_digest", "invocation_binding_digest", "task_digest", "prompt_digest", "argv_digest", "argv_policy_digest", "environment_policy_digest"):
++        owner._hash(held[key])
++    owner._integer(held["generation"])
++    owner._text(held["conversation_id"])
++    try:
++        canonical_uuid = str(__import__("uuid").UUID(held["conversation_id"]))
++    except ValueError:
++        _denied("context conversation is not a canonical UUID")
++    if held["conversation_id"] != canonical_uuid:
++        _denied("context conversation is not a canonical UUID")
++    if held["mode"] != ("restore" if held["generation"] else "open") or (held["generation_digest"] is None) != (held["generation"] == 0):
++        _denied("context generation and mode disagree")
++    if held["generation_digest"] is not None:
++        owner._hash(held["generation_digest"])
++    if held["argv_policy_digest"] != owner.digest(owner.ARGV_POLICY) or held["environment_policy_digest"] != owner.digest(owner.ENVIRONMENT_POLICY):
++        _denied("context serving policy disagrees")
++    operands = {key: value for key, value in held.items() if key != "invocation_binding_digest"}
++    if owner.digest(operands) != held["invocation_binding_digest"]:
++        _denied("context invocation binding digest disagrees")
++    return dict(held)
+--- a/v12/python/src/baton_v12/worker_manager/oci.py
++++ b/v12/python/src/baton_v12/worker_manager/oci.py
+@@ -1109,7 +1109,7 @@
+ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
+                mounts=(), credentials_delivered=(), launch_delivered=None,
+                exchange_delivered=None, source_delivered=None,
+-               integration_delivered=None,
++               integration_delivered=None, context_delivered=None,
+                name, workspace_group=None, network=NETWORK_NONE,
+                interactive=False):
+     """The closed argv that STARTS one runtime, restrictions and all.
+@@ -1352,6 +1352,13 @@
+         argv += ["--mount",
+                  f"type=bind,source={source},target={target},"
+                  f"readonly={'false' if writable else 'true'}"]
++    if context_delivered is not None:
++        others = list(assigned) + [(source, target, False) for source, target in _credential_mounts(credentials_delivered)]
++        others += ([_launch_mount(launch_delivered) + (False,)] if launch_delivered else [])
++        others += list(_exchange_mounts(exchange_delivered)) + list(_source_mount(source_delivered, assigned, roots)) + list(integration_composed)
++        others += [(source, None, False) for unused, source in roots.items()]
++        for source, target, writable in _context_mounts(context_delivered, posture, others):
++            argv += ["--mount", f"type=bind,source={source},target={target},readonly=false"]
+     # THE IMAGE, LAST and by digest. Every flag precedes it, so nothing a
+     # caller supplies can be read as an argument to the engine itself.
+     argv.append(image_digest)
+@@ -1732,7 +1739,7 @@
+                  posture, mounts=(), outputs=(), input_manifest_digest=None,
+                  credential_delivery=None, credential_home=None,
+                  credential_orphan=None, launch_delivery=None,
+-                 source_delivery=None, integration_delivery=None,
++                 source_delivery=None, integration_delivery=None, context_delivery=None,
+                  workspace_group=None, network=NETWORK_NONE,
+                  interactive=False):
+         self.engine = _engine(engine)
+@@ -1853,6 +1860,18 @@
+             _refuse(f"a launch delivery is one this manager materialized; "
+                     f"this is {name_value(launch_delivery)}")
+         self.launch_delivery = launch_delivery
++        self.context_delivery = context_delivery
++        context_document = launch_delivery.document.get("provider_context") if launch_delivery is not None else None
++        if (context_delivery is None) != (context_document is None):
++            _denied("context launch and mount must both be present")
++        if context_delivery is not None:
++            from . import context_delivery as custody, provider_context
++            if type(context_delivery) is not custody.ContextMount or posture != "execution" or integration_delivery is not None:
++                _denied("context mount requires its implementation use capability")
++            expected = provider_context.context_invocation_of(context_delivery.control, context_delivery.delivery.attempt_id)
++            if expected is None or context_document != expected:
++                _denied("context mount and launch name different invocation bindings")
++            context_delivery.boundary()
+         # W71917: THE COMPOSED SOURCE BOUNDARY, owned at construction for the
+         # reason every other delivery here is: it is assignment-scoped and
+         # fixed, and a per-call operand would make "which tree is this
+@@ -1996,6 +2015,10 @@
+ 
+     # -- the seam ------------------------------------------------------------
+ 
++    def _context_execution(self):
++        """Actual engine custody is not yet qualified by a production profile."""
++        _denied("actual OCI context execution awaits qualified runtime custody")
++
+     def start(self, request):
+         """Start one runtime and answer WHAT WAS STARTED, not that it worked.
+ 
+@@ -2003,6 +2026,11 @@
+         carries these labels BEFORE anything is created, because two runtimes
+         for one assignment is the state no later reconciliation can undo.
+         """
++        if self.context_delivery is not None:
++            # A's custody policy is manager-UID only. No production context
++            # profile/normalization is qualified yet; deterministic tests
++            # substitute the engine execution boundary explicitly.
++            self._context_execution()
+         taken = boundaries.document(
+             request, "a start request", required=("labels", "operation_id"),
+             optional=("input_root",))
+@@ -2182,6 +2210,7 @@
+                     else None),
+                 source_delivered=self.source_delivery,
+                 integration_delivered=self.integration_delivery,
++                context_delivered=self.context_delivery,
+                 name=_runtime_name(taken["operation_id"]),
+                 workspace_group=self.workspace_group,
+                 network=self.network, interactive=self.interactive)
+@@ -3490,6 +3519,16 @@
+                         "mounts": mounts,
+                         "candidates": ({"runtime_id": runtime_id,
+                                         **found},)}
++        if found["state"] != "absent" and (self.context_delivery is not None or (self.launch_delivery is not None and any(_within(one["target"], "/run/baton/context") or _within("/run/baton/context", one["target"]) for one in (mounts or ())))):
++            try:
++                if self.context_delivery is None:
++                    raise ValueError("unexpected context mount")
++                expected = self.context_delivery.boundary()
++                selected = [one for one in (mounts or ()) if _within(one["target"], "/run/baton/context") or _within("/run/baton/context", one["target"])]
++                if mounts is None or selected != [{"source": expected[0], "target": expected[1], "writable": True}]:
++                    raise ValueError("context mount mismatch")
++            except (ContractRefusal, ValueError):
++                return {"state": "uncertain", "why": "context mount is not proved", "mounts": mounts, "candidates": ({"runtime_id": runtime_id, **found},)}
+         return {"state": found["state"], "why": found["why"],
+                 "mounts": mounts,
+                 "candidates": ({"runtime_id": runtime_id, **found},)}
+@@ -3582,3 +3621,15 @@
+         _refuse(f"a generation label is a whole number that was counted up "
+                 f"from one; this is {name_value(value)}")
+     return int(value)
++
++
++def _context_mounts(delivered, posture, others):
++    from .context_delivery import ContextMount
++    if type(delivered) is not ContextMount or posture != "execution":
++        _denied("only a typed implementation context use may be mounted")
++    source, target, writable = delivered.boundary()
++    source = canonical_source(source, "context use root")
++    for other_source, other_target, unused in others:
++        if _within(source, other_source) or _within(other_source, source) or (other_target is not None and (_within(target, other_target) or _within(other_target, target))):
++            _denied("context use overlaps another mount family")
++    return [(source, target, writable)]
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -110,6 +110,7 @@
+ # run7 review found, and a deployment reading its own configuration is exactly
+ # who the wrong name misleads.
+ CONFIG_SCHEMA = "baton.v12.single-worker-deployment/4"
++CONTEXT_CONFIG_SCHEMA = "baton.v12.single-worker-deployment/5"
+ MAX_CONFIG_BYTES = 1024 * 1024
+ 
+ # W81115: THE TWO NAMES THE CERTIFIED WORKLOAD FIXES, mirrored here rather than
+@@ -219,8 +220,9 @@
+ 
+ def _held(document, *, roles=("implementation",)):
+     """Own and relate every static deployment choice before an offer exists."""
+-    given = dict(_document(document, "a single-worker configuration", _MEMBERS))
+-    if given["schema"] != CONFIG_SCHEMA:
++    contextual = type(document) is dict and document.get("schema") == CONTEXT_CONFIG_SCHEMA
++    given = dict(_document(document, "a single-worker configuration", _MEMBERS + (("provider_context",) if contextual else ())))
++    if given["schema"] not in (CONFIG_SCHEMA, CONTEXT_CONFIG_SCHEMA):
+         _refuse(f"a single-worker configuration says {given['schema']!r}; "
+                 f"this deployment reads {CONFIG_SCHEMA!r}")
+     for member in ("authority_store", "workspace_storage", "launch_home",
+@@ -367,6 +369,16 @@
+     # question, answered against the base its own profile declares -- and it is
+     # answered inside the container, over the tree that is really mounted.
+     _source_manifest(manifest["sources"][0])
++    if contextual:
++        selected = _document(given["provider_context"], "required provider context", ("mode", "storage", "profile_digest"))
++        if selected["mode"] != "required" or given["launch_role"] != "implementation" or given["retention_disposition"] != "retain":
++            _refuse("required provider context is retained implementation only", category="policy", code="denied")
++        given["provider_context"] = {"mode": "required", "storage": _path(selected["storage"], "context storage"), "profile_digest": _digest(selected["profile_digest"], "context profile")}
++        _context_declaration(manifest["outputs"])
++    elif any(one["name"] == "provider-context-receipt" for one in manifest["outputs"]):
++        _context_declaration(manifest["outputs"])
++        if given["launch_role"] == "implementation":
++            _refuse("reserved context receipt requires context implementation deployment")
+     return given
+ 
+ 
+@@ -1542,9 +1554,10 @@
+             credential_home=self.credential_home,
+             credential_orphan=orphan,
+             launch_delivery=launched, workspace_group=self.group,
++            context_delivery=_context_mount(self.control, self.given, launched.attempt_id) if launched is not None else None,
+             network=given["network"], interactive=True)
+ 
+-    def _credential(self, attempt_id, state, roots):
++    def _credential(self, attempt_id, state, roots, launched=None):
+         given = self.given
+         if not given["credential_resolution"]:
+             return None, None
+@@ -1557,7 +1570,7 @@
+                 given["credential_resolution"], attempt_id=attempt_id,
+                 workspace_group=self.group,
+                 credential_provider=self.credential_provider), None)
+-        recovered = self._recovered(attempt_id, state, roots)
++        recovered = self._recovered(attempt_id, state, roots, launched)
+         if recovered is not None:
+             return recovered, None
+         # THE START OPERATION MAY HAVE COMMITTED BEFORE ITS ENGINE CALL. The
+@@ -1569,7 +1582,7 @@
+         return None, credentials.OrphanTeardown(
+             attempt_id, homes=[self.credential_home])
+ 
+-    def _recovered(self, attempt_id, state, roots):
++    def _recovered(self, attempt_id, state, roots, launched=None):
+         """Adopt a published delivery only through the public LIVE proof.
+ 
+         Review 2026-09-03T17:23:00Z [P1]: this read the lifecycle record and
+@@ -1602,7 +1615,7 @@
+         """
+         if self.credential_home.read_state(attempt_id) is None:
+             return None
+-        answered = self._adapter(roots, None, None, None).recover_credentials({
++        answered = self._adapter(roots, None, None, launched).recover_credentials({
+             "attempt_id": attempt_id,
+             # THE ASSIGNMENT ACTIVATION FIXED, out of the same atomic read the
+             # branch above turns on -- not the claim row, which is where this
+@@ -1827,12 +1840,16 @@
+         self.checkpoint("manifest")
+         state = attempt_runtime_of(self.control, attempt_id)
+         fresh = state["execution_runtime"] == "not-started"
++        if given.get("provider_context") is not None:
++            if self.stage is None:
++                _refuse("required provider context lacks its stage owner")
++            self.stage.prepare_context(self, stage)
+         launched = self._launch_document(stage, state)
+         self.checkpoint("launch")
+         delivery = None
+         adapter = None
+         try:
+-            delivery, orphan = self._credential(attempt_id, state, roots)
++            delivery, orphan = self._credential(attempt_id, state, roots, launched)
+             self.checkpoint("credential")
+             # W71917: RE-PROVED IMMEDIATELY BEFORE THE START, and this is the
+             # gate the ruling asks for. Everything between composition and here
+@@ -1860,6 +1877,8 @@
+             adapter = self._adapter(roots, delivery, orphan, launched,
+                                     boundary)
+             if fresh:
++                if given.get("provider_context") is not None:
++                    self.stage.revalidate_context(self, stage)
+                 answer = request_runtime_start(
+                     self.control, adapter, attempt_id=attempt_id,
+                     inputs=roots["inputs"])
+@@ -2253,7 +2272,7 @@
+         # workspace -- so an ending that recomposed the ordinary pair here
+         # would be taking custody of an empty directory beside the work.
+         roots = self._mounted(stage, attempt_id, checkpoint=False)[0]
+-        delivery, orphan = self._credential(attempt_id, state, roots)
++        delivery, orphan = self._credential(attempt_id, state, roots, launched)
+         adapter = self._adapter(roots, delivery, orphan, launched)
+         if self.stage is not None:
+             # W103083: AND THE ENDING ITSELF IS THE STAGE'S. Everything above
+@@ -2548,6 +2567,7 @@
+             role=self.given["launch_role"],
+             transport=exchange.EXCHANGE_TRANSPORT,
+             job_execution=self._job_execution(stage),
++            provider_context=_context_descriptor(self.control, self.given, attempt_id),
+             workspace_group=self.group)
+ 
+     def _launch_document(self, stage, state):
+@@ -2593,6 +2613,7 @@
+             contract=given["launch_contract"], role=given["launch_role"],
+             transport=exchange.EXCHANGE_TRANSPORT,
+             job_execution=self._job_execution(stage),
++            provider_context=_context_descriptor(self.control, self.given, attempt_id),
+             workspace_group=self.group)
+ 
+ # What this deployment says when it hands an implementation result on. The
+@@ -2645,6 +2666,8 @@
+     and private source reader.
+     """
+     given = _held(document)
++    if given.get("provider_context") is not None:
++        _refuse("bootstrap has no private-line context owner", category="policy", code="denied")
+     # W83781: THE JOB STORE'S AUTHORITY BINDING IS COMPARED FIRST, before this
+     # deployment configures anything.
+     #
+@@ -2797,6 +2820,7 @@
+     Answers the credential provider, because that is the one thing built here
+     that the half below needs.
+     """
++    _context_preflight(given, control_store)
+     provider = credential_provider
+     if provider is None:
+         if given["credential_sources"] is None:
+@@ -2848,6 +2872,8 @@
+     bootstrap deployment, which mounts its nominated source and ends through
+     the configured v11 review Route. See `_SingleWorker.__init__`.
+     """
++    if given.get("provider_context") is not None and stage is None:
++        _refuse("required provider context lacks its staged implementation owner")
+     if authority.principal_of(given["participant"]) != given["principal"]:
+         _refuse("the configured participant resolves to another principal",
+                 category="refused", code="capability")
+@@ -3219,6 +3245,7 @@
+                 role=self.given["launch_role"],
+                 transport=exchange.EXCHANGE_TRANSPORT,
+                 job_execution=self._job_execution(stage),
++                provider_context=_context_descriptor(self.control, self.given, attempt_id),
+                 workspace_group=self.group)
+             if launched is None or launched.exchange is None:
+                 return None
+@@ -3252,3 +3279,50 @@
+         _refuse(f"{CONFIG_ENV} names the required absolute deployment "
+                 "configuration path", category="refused", code="capability")
+     return operations_from(_read(place), job_store, control_store)
++
++
++def _context_declaration(outputs):
++    chosen = [one for one in outputs if one["name"] == "provider-context-receipt"]
++    if len(chosen) != 1:
++        _refuse("required context receipt declaration is missing")
++    one = chosen[0]
++    limits = one["constraints"]
++    if one["path"] != "provider-context-receipt" or one["required"] is not False or one["type"] != "directory-result" or limits["max_entries"] != 1 or limits["max_bytes"] != 16384 or limits["allowed_media_types"] != ["application/octet-stream"] or limits["link_policy"] != "forbid" or limits["validator_digest"] is not None:
++        _refuse("required context receipt declaration disagrees with its bounded contract")
++
++
++def _context_preflight(given, control):
++    selected = given.get("provider_context")
++    if selected is None:
++        return
++    from baton_v12.worker_manager import provider_context, context_delivery
++    profile = provider_context.context_profile_of(control, selected["profile_digest"])
++    storage = context_delivery.configured_context_storage(control)
++    if storage.path != selected["storage"] or any(profile[key] != given[other] for key, other in (("runtime_profile_digest", "profile_digest"), ("adapter_digest", "adapter_digest"), ("image_digest", "image_digest"), ("retention_policy_digest", "retention_policy_digest"))):
++        _refuse("required context configuration disagrees with its preconfigured owner")
++    if profile["argv_policy_digest"] != digest(provider_context.ARGV_POLICY) or profile["environment_policy_digest"] != digest(provider_context.ENVIRONMENT_POLICY):
++        _refuse("required context profile lacks the selected serving policy")
++    for key in ("workspace_storage", "launch_home", "credential_home", "nominated_source", "task_document", "credential_sources"):
++        other = given.get(key)
++        if other and (os.path.commonpath([storage.path, other]) in (storage.path, other)):
++            _refuse("context storage overlaps a configured execution root")
++
++
++def _context_descriptor(control, given, attempt_id):
++    from baton_v12.worker_manager import provider_context
++    binding = provider_context.context_invocation_of(control, attempt_id)
++    if (binding is None) != (given.get("provider_context") is None):
++        _refuse("required context binding is missing or deployment was downgraded")
++    if binding is not None and binding["profile_digest"] != given["provider_context"]["profile_digest"]:
++        _refuse("required context binding changed profile")
++    return binding
++
++
++def _context_mount(control, given, attempt_id):
++    if _context_descriptor(control, given, attempt_id) is None:
++        return None
++    from baton_v12.worker_manager import context_delivery
++    storage = context_delivery.configured_context_storage(control)
++    if storage.path != given["provider_context"]["storage"]:
++        _refuse("required context storage changed")
++    return context_delivery.context_mount_of(control, storage, attempt_id=attempt_id)
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -1099,6 +1099,22 @@
+                     category="refused", code="precondition")
+         return held["boundary"]
+ 
++    def prepare_context(self, worker, stage):
++        from baton_v12.worker_manager import provider_context, context_delivery
++        if self.role != "implementation":
++            _refuse("provider context is implementation only")
++        selected = worker.given["provider_context"]
++        single_worker._context_preflight(worker.given, self.deployment.control)
++        prepared = self._prepared.get(stage["attempt_id"]) or self._prepare(stage)
++        provider_context.admit_context_use(self.deployment.control, self.deployment.jobs, worker.port, attempt_id=stage["attempt_id"], writer_id=prepared["writer_id"], profile_digest=selected["profile_digest"])
++        storage = context_delivery.configured_context_storage(self.deployment.control)
++        context_delivery.materialize_context_use(self.deployment.control, storage, attempt_id=stage["attempt_id"])
++        return provider_context.bind_context_invocation(self.deployment.control, self.deployment.jobs, worker.port, attempt_id=stage["attempt_id"], writer_id=prepared["writer_id"], profile_digest=selected["profile_digest"], task_bytes=worker.given["task_bytes"])
++
++    def revalidate_context(self, worker, stage):
++        from baton_v12.worker_manager import provider_context
++        return provider_context.revalidate_context_start(self.deployment.control, self.deployment.jobs, worker.port, attempt_id=stage["attempt_id"])
++
+     def _prepare(self, stage):
+         """Grant this role's boundary, or recover the one already granted.
+ 
+@@ -1353,6 +1369,25 @@
+                 profile=deployment.profile,
+                 retention_disposition=deployment.retention_disposition,
+                 retention_policy_digest=deployment.retention_policy_digest)
++        from baton_v12.worker_manager import provider_context, context_delivery
++        binding = provider_context.context_invocation_of(deployment.control, attempt_id)
++        if self.role == "implementation" and (worker.given.get("provider_context") is not None or binding is not None):
++            if answered.get("outcome") == "held" or answered.get("cleaned_up") is False:
++                return answered
++            if binding is None:
++                return dict(answered, outcome="held", reason="provider-context-binding-missing")
++            if context["disposition"] != "completed":
++                provider_context.hold_context_use(deployment.control, attempt_id=attempt_id, reason="invocation-unknown", evidence_refs=[])
++                return dict(answered, outcome="held", reason="provider-context-unknown")
++            def checkpoint_reader(original, writer_id):
++                writer = review_cycles.writer_for_attempt(deployment.control, attempt_id=original, generation=deployment.generation_of(original))
++                if writer is None or writer["writer_id"] != writer_id or answered.get("checkpoint_id") is None:
++                    _refuse("historical context checkpoint is missing")
++                return answered["checkpoint_id"]
++            try:
++                provider_context.finalize_context_use(deployment.control, deployment.jobs, worker.port, attempt_id=attempt_id, storage=context_delivery.configured_context_storage(deployment.control), receipt_reader=lambda original, artifact: context_delivery.read_context_receipt(deployment.control, attempt_id=original, artifact_id=artifact, workspace_storage=worker.given["workspace_storage"]), checkpoint_reader=checkpoint_reader)
++            except ContractRefusal:
++                return dict(answered, outcome="held", reason="provider-context-unproved")
+         return self._finished(worker, stage, assignment, answered)
+ 
+     def _source_receipts(self, worker, stage, answered):
+@@ -5496,6 +5531,7 @@
+         _refuse(f"this Job store is bound to Authority {held!r} and this "
+                 f"configuration names {given['authority_uuid']!r}",
+                 category="refused", code="operation-collision")
++    _context_roots(given, control_store)
+     profile = _profile_of(given, checkpoint_profile)
+     # W130224 review 2026-09-09T21-58-10Z: THE PORT BINDING IS PROVED HERE,
+     # WITH EVERYTHING ELSE THIS MODULE CAN ANSWER WITHOUT WRITING. It used to
+@@ -5921,3 +5957,27 @@
+ def observing_factory(job_store, control_store):
+     """The `status --observe` entry point, named the way `factory` is."""
+     return observation_from(_configuration(), job_store, control_store)
++
++
++def _context_roots(given, control):
++    configs = [one["deployment"] for one in given["workers"]]
++    for config in configs:
++        single_worker._context_preflight(config, control)
++        selected = config.get("provider_context")
++        if selected is None:
++            continue
++        storage = selected["storage"]
++        def walk(value, key=None):
++            if key == "provider_context":
++                return
++            if type(value) is dict:
++                for name, child in value.items():
++                    yield from walk(child, name)
++            elif type(value) is list:
++                for child in value:
++                    yield from walk(child)
++            elif type(value) is str and value.startswith("/"):
++                yield value
++        for other in walk(given):
++            if os.path.commonpath([storage, other]) in (storage, other):
++                _refuse("context storage overlaps another role or configured root")
+--- a/v12/worker/baton_worker.py
++++ b/v12/worker/baton_worker.py
+@@ -149,6 +149,8 @@
+ # guessing at the one fact that decides which channel is authoritative.
+ JOB_LAUNCH_SCHEMA = "baton.worker-launch/3"
+ JOB_LAUNCH_MEMBERS = EXCHANGE_LAUNCH_MEMBERS + ("job_execution",)
++CONTEXT_LAUNCH_SCHEMA = "baton.worker-launch/4"
++CONTEXT_LAUNCH_MEMBERS = JOB_LAUNCH_MEMBERS + ("provider_context",)
+ 
+ # The members of that context, closed, and the two that are NOT text: the
+ # configuration is a document and the transport may be null.
+@@ -853,7 +855,7 @@
+     # authoritative. An unknown schema is held to `/1`'s set so the refusal
+     # names the version rather than the members.
+     given = document.get("schema")
+-    members = (JOB_LAUNCH_MEMBERS if given == JOB_LAUNCH_SCHEMA
++    members = (CONTEXT_LAUNCH_MEMBERS if given == CONTEXT_LAUNCH_SCHEMA else JOB_LAUNCH_MEMBERS if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA)
+                else EXCHANGE_LAUNCH_MEMBERS
+                if given == EXCHANGE_LAUNCH_SCHEMA else LAUNCH_MEMBERS)
+     missing = sorted(name for name in members if name not in document)
+@@ -865,7 +867,7 @@
+             + (f"; missing {', '.join(missing)}" if missing else "")
+             + (f"; unexpected {', '.join(extra)}" if extra else ""))
+     if given not in (LAUNCH_SCHEMA, EXCHANGE_LAUNCH_SCHEMA,
+-                     JOB_LAUNCH_SCHEMA):
++                     JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA):
+         raise WorkerFault(
+             "launch",
+             f"{place} says it is {document['schema']!r} and this worker reads "
+@@ -877,7 +879,7 @@
+     # `main` then treated it as a one-shot launch -- a container told to speak
+     # something nothing is listening to, deciding for itself that it had been
+     # told nothing.
+-    if given == JOB_LAUNCH_SCHEMA \
++    if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA) \
+             and document.get("transport") not in (None, EXCHANGE_TRANSPORT):
+         raise WorkerFault(
+             "launch",
+@@ -891,16 +893,18 @@
+             f"{place} selects transport {document.get('transport')!r} and "
+             f"this worker speaks {EXCHANGE_TRANSPORT!r}; a transport this "
+             f"program cannot name is a channel nothing is listening to")
+-    if given == JOB_LAUNCH_SCHEMA:
++    if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA):
+         _job_execution(document, place)
++    if given == CONTEXT_LAUNCH_SCHEMA:
++        context_delivery(document)
+     for name in members:
+         # THE TWO MEMBERS THAT ARE NOT BOUNDED TEXT. `/3`'s transport is
+         # deliberately null for a one-shot launch and its job execution is a
+         # document; both are proved above by their own rules, so holding them
+         # to the text bound here would refuse the shapes this version exists
+         # to carry.
+-        if given == JOB_LAUNCH_SCHEMA and name in ("transport",
+-                                                   "job_execution"):
++        if given in (JOB_LAUNCH_SCHEMA, CONTEXT_LAUNCH_SCHEMA) and name in ("transport",
++                                                   "job_execution", "provider_context"):
+             continue
+         value = document[name]
+         if type(value) is not str or not value:
+@@ -1700,6 +1704,11 @@
+     given, declared = input_manifest()
+     delivered = assignment_manifest()
+     assignment = one_delivery(given, delivered)
++    contextual = seen.get("schema") == CONTEXT_LAUNCH_SCHEMA
++    if contextual or any(one["name"] == "provider-context-receipt" for one in declared):
++        context_declaration(seen, declared)
++        if contextual and (seen["job_execution"]["attempt_id"] != delivered["runtime_attempt_id"] or seen["job_execution"]["runtime_input_digest"] != given["manifest_digest"] or seen["job_execution"]["runtime_policy_digest"] != given["policy_digest"]):
++            raise WorkerFault("input", "context Job and assignment disagree")
+     reported = agent.work(seen, declared)
+     if type(reported) is not dict:
+         raise WorkerFault("answer", "a work answer is one JSON object")
+@@ -2508,5 +2517,61 @@
+                  command_root, event_root)
+ 
+ 
++
++def context_delivery(document):
++    """Closed context launch validation at the image boundary."""
++    import uuid
++    fields = ("schema", "context_id", "use_id", "invocation_id", "attempt_id", "generation", "generation_digest", "mode", "conversation_id", "profile_digest", "delivery_digest", "invocation_binding_digest", "task_digest", "prompt_digest", "argv_digest", "cli_build", "model", "reported_model", "argv_policy_digest", "environment_policy_digest")
++    held = document.get("provider_context")
++    def refuse():
++        raise WorkerFault("launch", "required provider context is malformed or disagrees")
++    if document.get("schema") != CONTEXT_LAUNCH_SCHEMA or document.get("role") != "implementation" or document.get("transport") != EXCHANGE_TRANSPORT or type(held) is not dict or set(held) != set(fields):
++        refuse()
++    job = document.get("job_execution")
++    if type(job) is not dict or held["attempt_id"] != job.get("attempt_id") or held["schema"] != "baton.provider-context-delivery/1":
++        refuse()
++    for key in fields:
++        value = held[key]
++        if key in ("generation", "generation_digest"):
++            continue
++        if type(value) is not str or not value or len(value) > 256:
++            refuse()
++        if key.endswith("digest") and (len(value) != 71 or not value.startswith("sha256:") or any(c not in "0123456789abcdef" for c in value[7:])):
++            refuse()
++    try:
++        if str(uuid.UUID(held["conversation_id"])) != held["conversation_id"]:
++            refuse()
++    except ValueError:
++        refuse()
++    if type(held["generation"]) is not int or not 0 <= held["generation"] <= 2**53-1 or held["mode"] != ("restore" if held["generation"] else "open"):
++        refuse()
++    generation = held["generation_digest"]
++    if held["generation"] == 0:
++        if generation is not None:
++            refuse()
++    elif type(generation) is not str or len(generation) != 71 or not generation.startswith("sha256:") or any(c not in "0123456789abcdef" for c in generation[7:]):
++        refuse()
++    argv = {"program": "claude", "arguments": ["--print", "--dangerously-skip-permissions", "--output-format", "json"], "open": "--session-id", "restore": "--resume"}
++    env = {"cwd": "/output", "home": "/run/baton/context/home", "keys": ["HOME", "PATH", "PYTHONPYCACHEPREFIX", "TMPDIR", "XDG_CACHE_HOME"], "ephemera": "fresh-per-child"}
++    if held["argv_policy_digest"] != digest(argv) or held["environment_policy_digest"] != digest(env) or digest({key: value for key, value in held.items() if key != "invocation_binding_digest"}) != held["invocation_binding_digest"]:
++        refuse()
++    return dict(held)
++
++
++def context_declaration(seen, declared):
++    if seen.get("role") == "implementation" or seen.get("schema") == CONTEXT_LAUNCH_SCHEMA or "provider_context" in seen:
++        context_delivery(seen)
++    elif seen.get("role") != "review":
++        raise WorkerFault("input", "context receipt is reserved for implementation and isolated review")
++    selected = [one for one in declared if one["name"] == "provider-context-receipt"]
++    if len(selected) != 1:
++        raise WorkerFault("input", "mandatory provider context receipt is missing")
++    one = selected[0]
++    limits = one["constraints"]
++    if one["required"] is not False or one["type"] != "directory-result" or one["path"] != "provider-context-receipt" or limits["max_bytes"] != 16384 or limits["max_entries"] != 1 or limits["allowed_media_types"] != ["application/octet-stream"] or limits["link_policy"] != "forbid" or limits["validator_digest"] is not None:
++        raise WorkerFault("input", "mandatory provider context receipt declaration disagrees")
++    return one
++
++
+ if __name__ == "__main__":
+     sys.exit(main())
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -101,6 +101,8 @@
+ 
+ INPUT_ROOT = "/input"
+ OUTPUT_ROOT = "/output"
++CONTEXT_ROOT = "/run/baton/context"
++CONTEXT_RECEIPT = "provider-context-receipt"
+ 
+ # The frozen task, and the staged tree it is about.
+ TASK_DOCUMENT = "task.json"
+@@ -387,7 +389,7 @@
+ # therefore the union and each role produces its own half, answering the other
+ # half `missing-optional`. The assembly owns constructing that manifest; this
+ # adapter owns knowing which half is its.
+-COMMON_OUTPUTS = ("proposal", "findings", "logs")
++COMMON_OUTPUTS = ("proposal", "findings", "logs", CONTEXT_RECEIPT)
+ IMPLEMENTATION_OUTPUTS = ("proposal",)
+ REVIEW_OUTPUTS = ("findings", "logs")
+ 
+@@ -711,19 +713,32 @@
+         # HELD BEFORE ANY BRANCH, because the ceilings belong to the turn
+         # rather than to one of its shapes.
+         self._seen = seen
++        self._context_pins = None
++        self._context_receipt = None
++        contextual = self._context_bound()
++        selected_declarations = declared
++        if contextual is not None:
++            import baton_worker
++            baton_worker.context_declaration(seen, declared)
++            selected_declarations = [one for one in declared if one["name"] != CONTEXT_RECEIPT]
++        elif any(one["name"] == CONTEXT_RECEIPT for one in declared):
++            import baton_worker
++            baton_worker.context_declaration(seen, declared)
+         if seen.get("role") == REVIEW_ROLE:
+             return self._review(declared)
+-        if len(declared) == 1:
++        if len(selected_declarations) == 1:
+             # THE ORIGINAL SINGLE-OUTPUT WORKLOAD, byte-for-byte unchanged.
+-            one, absent = _one_declaration(declared), []
++            one, absent = _one_declaration(selected_declarations), []
+         else:
+-            produce, absent = _selected(declared, IMPLEMENTATION_OUTPUTS,
++            produce, absent = _selected(selected_declarations, IMPLEMENTATION_OUTPUTS,
+                                         "implementation")
+             one = produce[0]
+         proposal = os.path.join(OUTPUT_ROOT, one["path"])
+         # W112029: THE BYTES AS WELL AS THE DOCUMENT, so the ordinary-test
+         # observation can name the exact task this turn consumed.
+         task, task_bytes = _read_task()
++        if contextual is not None and _task_digest(task_bytes) != contextual["task_digest"]:
++            raise TaskRefusal("context task bytes disagree with launch")
+         scratch = self._scratch()
+         # W71917: THE PLAN RUNS, AND IT RUNS IN THE WORKSPACE.
+         #
+@@ -740,6 +755,8 @@
+         plan = self._checkout(task, source)
+         baseline = plan["source_root"]
+         line = plan["profile"] == _profiles.checkout.GIT_LINE_PROFILE
++        if contextual is not None and not line:
++            raise TaskRefusal("context serving requires the private implementation line")
+         if line:
+             # W105575: THERE IS NOTHING TO COPY. The workspace IS the durable
+             # private repository the manager materialized and detached before
+@@ -876,6 +893,12 @@
+         finally:
+             for _name, descriptor in verification_directories:
+                 os.close(descriptor)
++        receipt_output = []
++        if contextual is not None:
++            if disposition == "candidate" and (self._context_receipt is None or not self._context_receipt["complete"]):
++                raise TaskRefusal("healthy context implementation requires measured receipt")
++            self._publish_context_receipt()
++            receipt_output = [{"name": CONTEXT_RECEIPT, "status": "present", "result_metadata": {}}]
+         recap = (f"{disposition}: {why}"
+                  f" ({len(changed)} changed path(s))")[:MAX_RECAP]
+         return {"disposition": ("completed" if disposition == "candidate"
+@@ -893,7 +916,7 @@
+                                                     verification,
+                                                     plan["base"], head)}
+                                  if head is not None else {})}]
+-                           + _absent(absent),
++                           + receipt_output + _absent(absent),
+                 "recap": recap}
+ 
+     # -- W110772: the review turn --------------------------------------------
+@@ -1586,7 +1609,8 @@
+ 
+     def _child_environments(self, scratch):
+         """Create both child environments before either child may execute."""
+-        provider_home = self._prepared_home(scratch)
++        contextual = self._context_bound()
++        provider_home = self._context_home() if contextual is not None else self._prepared_home(scratch)
+         _provider_root, provider_roots = self._new_ephemera(
+             scratch, PROVIDER_EPHEMERA)
+         verification_home = self._new_directory(scratch, VERIFICATION_HOME)
+@@ -1671,7 +1695,7 @@
+         directory exists, so the loop below makes each one at the same mode as
+         its parent before either child is started.
+         """
+-        composed = {"HOME": self._checked_directory(scratch, home),
++        composed = {"HOME": self._context_home() if self._context_bound() is not None and home == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, home),
+                     "PATH": "/usr/local/bin:/usr/bin:/bin"}
+         for name, _leaf in self.EPHEMERA_ROOTS:
+             # `compileall` WRITES BYTECODE AS ITS PURPOSE and ignores
+@@ -1683,7 +1707,7 @@
+     def _revalidated_environment(self, scratch, environment):
+         """Re-prove the prepared paths after the provider had write access."""
+         checked = dict(environment)
+-        checked["HOME"] = self._checked_directory(scratch, checked["HOME"])
++        checked["HOME"] = self._context_home() if self._context_bound() is not None and checked["HOME"] == os.path.join(CONTEXT_ROOT, "home") else self._checked_directory(scratch, checked["HOME"])
+         for name, _leaf in self.EPHEMERA_ROOTS:
+             checked[name] = self._checked_directory(scratch, checked[name])
+         return checked
+@@ -1770,8 +1794,18 @@
+         provider's credential, which stays exactly where `_prepared_home` puts
+         it and is the one thing this turn cannot run without.
+         """
+-        argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS,
+-                _prompt(task) if prompt is None else prompt]
++        prompt = _prompt(task) if prompt is None else prompt
++        contextual = self._context_bound()
++        argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS, prompt]
++        if contextual is not None:
++            if candidate != OUTPUT_ROOT:
++                raise TaskRefusal("context provider working directory disagrees")
++            argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS, "--model", contextual["model"], "--session-id" if contextual["mode"] == "open" else "--resume", contextual["conversation_id"], prompt]
++            import baton_worker
++            if _task_digest(prompt.encode()) != contextual["prompt_digest"] or baton_worker.digest(argv) != contextual["argv_digest"]:
++                raise TaskRefusal("actual context prompt or argv disagrees")
++            self._context_intent(contextual)
++            self._context_receipt = self._context_result(contextual, status=None, record=None, partial=True)
+         # W61599: THE ONE ACT THE LAUNCH PATH PERFORMS FOR THE DIAGNOSTIC, and
+         # it is an assignment rather than a filesystem call. See
+         # `_bound_activity`: the baseline is proved by construction, so binding
+@@ -1793,6 +1827,10 @@
+                     "failure_reason": PROVIDER_START_ERROR,
+                     "why": f"the provider could not be started: "
+                            f"{type(failed).__name__}"}
++        if contextual is not None:
++            self._context_receipt = self._context_result(contextual, status=status, record=record, partial=partial)
++            if self._context_receipt["complete"] is not True:
++                return {"ok": False, "status": status, "failure_reason": PROVIDER_START_ERROR, "why": "provider context terminal identity is unproved"}
+         if status == 0:
+             # A CLEAN TURN PUBLISHES NO REASON. There is nothing to classify,
+             # and a `failure_reason` on a success would be a field readers
+@@ -1818,6 +1856,144 @@
+                        f"unrestricted diagnostic is withheld; supported "
+                        f"nonsecret detail is in provider.diagnostic"}
+ 
++    def _context_bound(self):
++        seen = self._seen or {}
++        if seen.get("schema") != "baton.worker-launch/4" and "provider_context" not in seen:
++            return None
++        import baton_worker
++        return baton_worker.context_delivery(seen)
++
++    def _context_open(self):
++        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
++        fd = os.open("/", flags)
++        try:
++            for part in CONTEXT_ROOT.strip("/").split("/"):
++                child = os.open(part, flags, dir_fd=fd)
++                os.close(fd)
++                fd = child
++            info = os.fstat(fd)
++            if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o700:
++                raise TaskRefusal("context use root ownership disagrees")
++            return fd
++        except BaseException:
++            os.close(fd)
++            raise
++
++    def _context_home(self):
++        slot = os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT)
++        if not os.path.exists(slot) or not os.access(slot, os.R_OK):
++            raise TaskRefusal("context credential slot is absent or unreadable")
++        root = self._context_open()
++        try:
++            home = os.open("home", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root)
++            try:
++                info, outer = os.fstat(home), os.fstat(root)
++                pins = (outer.st_dev, outer.st_ino, info.st_dev, info.st_ino)
++                if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o700 or (getattr(self, "_context_pins", None) is not None and self._context_pins != pins):
++                    raise TaskRefusal("context HOME ownership or original object disagrees")
++                self._context_pins = pins
++                try:
++                    os.mkdir(".claude", 0o700, dir_fd=home)
++                except FileExistsError:
++                    pass
++                state = os.open(".claude", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=home)
++                try:
++                    try:
++                        os.symlink("/run/baton/credentials/claude", ".credentials.json", dir_fd=state)
++                        os.fsync(state)
++                    except FileExistsError:
++                        pass
++                    if os.readlink(".credentials.json", dir_fd=state) != "/run/baton/credentials/claude":
++                        raise TaskRefusal("context credential link disagrees")
++                finally:
++                    os.close(state)
++            finally:
++                os.close(home)
++        finally:
++            os.close(root)
++        return os.path.join(CONTEXT_ROOT, "home")
++
++    def _context_intent(self, contextual):
++        import baton_worker
++        self._context_home()
++        root = self._context_open()
++        try:
++            try:
++                fd = os.open("invocation", os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=root)
++            except FileExistsError:
++                raise TaskRefusal("context invocation already intended; outcome remains unknown") from None
++            try:
++                raw = baton_worker.canonical({key: contextual[key] for key in ("invocation_id", "use_id", "task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest")})
++                with os.fdopen(fd, "wb", closefd=False) as stream:
++                    stream.write(raw)
++                    stream.flush()
++                    os.fsync(fd)
++            finally:
++                os.close(fd)
++            os.fsync(root)
++        finally:
++            os.close(root)
++
++    def _context_result(self, contextual, *, status, record, partial):
++        value = None
++        def pairs(items):
++            result = {}
++            for key, item in items:
++                if key in result:
++                    raise ValueError("duplicate terminal key")
++                result[key] = item
++            return result
++        if not partial and type(record) is bytes and len(record) <= MAX_PROVIDER_RECORD:
++            try:
++                value = json.loads(record, object_pairs_hook=pairs, parse_constant=lambda text: (_ for _ in ()).throw(ValueError()))
++            except (ValueError, UnicodeError, RecursionError):
++                pass
++        good = (type(value) is dict and value.get("type") == "result" and value.get("subtype") == "success" and value.get("is_error") is False and value.get("session_id") == contextual["conversation_id"] and value.get("model") == contextual["reported_model"] and status == 0)
++        # This deterministic profile's terminal model field is deliberately
++        # closed. Production one-shot field qualification remains unavailable.
++        job = self._seen["job_execution"]
++        return {"schema": "baton.provider-context-receipt/2", **{key: contextual[key] for key in ("context_id", "use_id", "attempt_id", "conversation_id", "profile_digest", "invocation_id", "model", "cli_build", "mode", "delivery_digest", "task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest")}, "status": status, "complete": bool(good), "observed_model": contextual["reported_model"] if good else None, "observed_conversation_id": contextual["conversation_id"] if good else None, "terminal": "success" if good else "unproved", "input_digest": job["runtime_input_digest"], "policy_digest": job["runtime_policy_digest"]}
++
++    def _publish_context_receipt(self):
++        import baton_worker
++        if self._context_receipt is None:
++            raise TaskRefusal("context invocation receipt is absent")
++        root = os.open(OUTPUT_ROOT, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
++        try:
++            try:
++                os.mkdir(CONTEXT_RECEIPT, 0o700, dir_fd=root)
++            except FileExistsError:
++                pass
++            held = os.open(CONTEXT_RECEIPT, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root)
++            try:
++                # A private line preserves declared outputs across corrections.
++                # Replace only our regular output member; retained custody is
++                # outside this mount. The exclusive use intent fences execution.
++                if set(os.listdir(held)) - {"receipt.json"}:
++                    raise TaskRefusal("context receipt output contains an unexpected member")
++                if "receipt.json" in os.listdir(held):
++                    old = os.stat("receipt.json", dir_fd=held, follow_symlinks=False)
++                    if not stat.S_ISREG(old.st_mode) or old.st_nlink != 1:
++                        raise TaskRefusal("previous context receipt output is not a regular owned member")
++                    os.unlink("receipt.json", dir_fd=held)
++                fd = os.open("receipt.json", os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=held)
++                try:
++                    raw = baton_worker.canonical(self._context_receipt)
++                    if len(raw) > 16384:
++                        raise TaskRefusal("context receipt exceeds bound")
++                    with os.fdopen(fd, "wb", closefd=False) as stream:
++                        stream.write(raw)
++                        stream.flush()
++                        os.fsync(fd)
++                finally:
++                    os.close(fd)
++                os.fsync(held)
++            finally:
++                os.close(held)
++            os.fsync(root)
++        finally:
++            os.close(root)
++
+     # -- W61599: the native-session activity observation ---------------------
+ 
+     def _bound_activity(self, scratch):
+@@ -1846,7 +2022,7 @@
+         provider wait behind a directory walk would be a diagnostic charged to
+         the turn.
+         """
+-        created = self._home is None
++        created = self._home is None and not (self._seen or {}).get("provider_context")
+         with self._activity_lock:
+             self._activity = (
+                 None if not created
+--- /dev/null
++++ b/v12/python/tests/manager/test_claude_context.py
+@@ -0,0 +1,507 @@
++"""B: real serving/worker/owner paths, simulated engine and provider process.
++
++No production CLI or manager/runtime UID qualification is claimed. Only the
++adapter's explicit unqualified-OCI guard is replaced for the simulated engine;
++all launch, mount, runtime, exchange, retention and ending checks still execute.
++"""
++import copy
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++from unittest import mock
++
++from baton_v12.contracts import ContractRefusal, digest, digest_of_bytes
++from baton_v12.job_manager import submit, sweep, ending, submission, episodes
++from baton_v12.worker_manager import provider_context as context, context_delivery as custody
++from baton_v12.worker_manager import oci, frozen_output_of, load_manifest
++from baton_v12.worker_manager.workspaces import configure_workspace_storage
++from tests.manager.test_provider_context import profile
++from tests.tools.test_stage_execution import ComposedOneJobCase
++from tests.job_manager import fixtures
++from tools import stage_execution, single_worker
++
++
++def declaration():
++    return {"name": "provider-context-receipt", "type": "directory-result", "path": "provider-context-receipt", "required": False, "constraints": {"max_bytes": 16384, "max_entries": 1, "allowed_media_types": ["application/octet-stream"], "link_policy": "forbid", "validator_digest": None}}
++
++
++class ServingContextCase(ComposedOneJobCase):
++    def setUp(self):
++        super().setUp()
++        self.context_root = Path(self.root) / "private-contexts"
++        self.context_root.mkdir(mode=0o700)
++        self.calls = Path(self.root) / "actual-provider-calls.jsonl"
++        self.model_output = None
++        self.actual_environments = []
++        manifest = copy.deepcopy(self.manifest)
++        manifest["outputs"].append(declaration())
++        manifest.pop("manifest_digest")
++        manifest["manifest_digest"] = digest(manifest)
++        self.manifest = self.config["input_manifest"] = manifest
++        self.submission["jobs"][0]["input_digest"] = manifest["manifest_digest"]
++        self.context_profile = profile(runtime_profile_digest=self.config["profile_digest"], image_digest=self.config["image_digest"], adapter_digest=self.config["adapter_digest"], retention_policy_digest=self.config["retention_policy_digest"], argv_policy_digest=digest(context.ARGV_POLICY), environment_policy_digest=digest(context.ENVIRONMENT_POLICY))
++        self.context_digest = digest(self.context_profile)
++        patch = mock.patch.object(oci.OciAdapter, "_context_execution", return_value=None)
++        patch.start()
++        self.addCleanup(patch.stop)
++
++    def worker(self, role, **members):
++        held = super().worker(role, **members)
++        if role == "implementation":
++            held["deployment"].update(schema=single_worker.CONTEXT_CONFIG_SCHEMA, provider_context={"mode": "required", "storage": str(self.context_root), "profile_digest": self.context_digest})
++        return held
++
++    def serving(self, **members):
++        self.engine = self.quiescing()
++        job, control = self.stores("context-serving")
++        configure_workspace_storage(control, self.storage)
++        custody.configure_context_storage(control, str(self.context_root), excluded_roots=[self.source, self.storage], runtime_uid=os.getuid())
++        context.certify_context_profile(control, self.context_profile)
++        composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base, **members), job, control, engine_run=self.engine, credential_provider=lambda provider, reference: self.secret, clock=lambda: fixtures.NOW, checkout=self.checkout)
++        self.addCleanup(composed.close)
++        self._composed = composed
++        return job, control, composed
++
++    def provider(self, edits=None, status=0):
++        original = super().provider(edits=edits, status=status)
++        def run(argv, **options):
++            if argv[0] != "claude" or "--model" not in argv:
++                return original(argv, **options)
++            self.actual_environments.append(dict(options["env"]))
++            # A real child reads/restores private bytes and records actual argv.
++            script = '''import json,os,sys
++from pathlib import Path
++argv,edits,calls,override,status=json.loads(sys.argv[1])
++session=argv[-2]
++state=Path(os.environ["HOME"])/".claude/projects/output/session.json"
++previous=json.loads(state.read_text()) if state.exists() else None
++assert (previous is not None)==("--resume" in argv)
++if previous: assert previous["session"]==session
++state.parent.mkdir(parents=True,exist_ok=True)
++for parent in (state.parent,state.parent.parent): parent.chmod(0o700)
++state.write_text(json.dumps({"session":session,"private":"PRIVATE-CONTEXT-MARKER","turn":1 if previous is None else previous["turn"]+1}))
++state.chmod(0o600)
++for name,body in edits.items(): Path(name).write_text(body)
++with open(calls,"a") as f: f.write(json.dumps({"argv":argv,"restored":previous is not None})+"\\n")
++print(override if override is not None else json.dumps({"type":"result","subtype":"success","is_error":False,"session_id":session,"model":"deterministic-model"}))
++sys.exit(status)
++'''
++            return subprocess.run([sys.executable, "-c", script, json.dumps([argv, edits or {}, str(self.calls), self.model_output, status])], **options)
++        return run
++
++    def turn(self, control, role, attempt_id, roots, **operands):
++        import claude_agent
++        binding = context.context_invocation_of(control, attempt_id)
++        if binding is None:
++            return super().turn(control, role, attempt_id, roots, **operands)
++        delivery = custody.context_mount_of(control, custody.configured_context_storage(control), attempt_id=attempt_id)
++        with mock.patch.object(claude_agent, "CONTEXT_ROOT", delivery.boundary()[0]):
++            return super().turn(control, role, attempt_id, roots, **operands)
++
++    def started(self):
++        job, control, composed = self.serving()
++        submit(job, self.submission)
++        self.drive(job, composed, "implementation", "waiting")
++        attempt = self.only_attempt(composed, "implementation")
++        return job, control, composed, attempt, self.mounted(composed, "implementation", attempt)
++
++    def drive(self, job, composed, kind, want, ticks=10):
++        reports = []
++        for unused in range(ticks):
++            reports.append(sweep(job, composed, now=fixtures.NOW))
++            if self.states(job, composed).get(kind) == want:
++                return self.states(job, composed)
++        self.fail(f"{kind} did not reach {want}: {reports}")
++
++    def record(self, job, attempt):
++        stage = submission.stages_of(job, "job-a")[0]
++        episode = next(one for one in episodes.episodes_of(job, stage["stage_id"]) if one["attempt_id"] == attempt)
++        return ending.ending_of(job, stage["stage_id"], episode["episode"])
++
++    def reopen(self, job, control, composed):
++        composed.close()
++        job.close()
++        control.close()
++        job, control = self.stores("context-reopened")
++        composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control, engine_run=self.engine, credential_provider=lambda provider, reference: self.secret, clock=lambda: fixtures.NOW, checkout=self.checkout)
++        self.addCleanup(composed.close)
++        self._composed = composed
++        return job, control, composed
++
++    def calls_count(self):
++        return len(self.calls.read_text().splitlines()) if self.calls.exists() else 0
++
++    def assert_owed(self, job, control, attempt):
++        record = self.record(job, attempt)
++        self.assertTrue(record is None or record["settlement"] is None)
++        self.assertNotEqual(context.context_use_of(control, attempt)["status"], "ready")
++
++    def fault_tick(self, job, composed):
++        # Process-loss injection may propagate or be reported by the sweep.
++        try:
++            return sweep(job, composed, now=fixtures.NOW)
++        except RuntimeError as error:
++            self.assertEqual(str(error), "injected manager loss")
++
++
++class ServingBinding(ServingContextCase):
++    def test_current_authority_change_between_preparation_and_start_refuses(self):
++        job, control, composed = self.serving()
++        submit(job, self.submission)
++        original = stage_execution.StageComposition.revalidate_context
++        fenced = []
++        def changed(stage, worker, held):
++            current = worker.port.assignment_of(self.work, self.config["authority_uuid"])
++            worker.port.cancel(current, "context-prestart-fence", "test ownership changed", self.work, self.config["authority_uuid"])
++            fenced.append(held["attempt_id"])
++            return original(stage, worker, held)
++        with mock.patch.object(stage_execution.StageComposition, "revalidate_context", changed):
++            for unused in range(5):
++                sweep(job, composed, now=fixtures.NOW)
++                if fenced:
++                    break
++        self.assertEqual(len(fenced), 1)
++        self.assertEqual(self.calls_count(), 0)
++        self.assertEqual(len(self.engine.starts), 0)
++        binding = context.context_invocation_of(control, fenced[0])
++        self.assertIsNotNone(binding)
++        job, control, composed = self.reopen(job, control, composed)
++        for unused in range(2):
++            sweep(job, composed, now=fixtures.NOW)
++        self.assertEqual(context.context_invocation_of(control, fenced[0]), binding)
++        self.assertEqual(len(self.engine.starts), 0)
++
++    def test_real_composition_binds_exact_task_prompt_argv_and_adoption(self):
++        import claude_agent
++        job, control, composed, attempt, roots = self.started()
++        bound = context.context_invocation_of(control, attempt)
++        self.assertEqual(bound["task_digest"], digest_of_bytes(self.task_bytes))
++        self.assertEqual(context.context_prompt(json.loads(self.task_bytes)), claude_agent._prompt(json.loads(self.task_bytes)))
++        self.assertEqual(bound["prompt_digest"], digest_of_bytes(claude_agent._prompt(json.loads(self.task_bytes)).encode()))
++        worker = self.worker_of(composed, "implementation")
++        self.assertEqual(worker._adopted({"attempt_id": attempt, "job_id": "job-a"}).document["provider_context"], bound)
++
++
++class WorkerInvocation(ServingContextCase):
++    def test_real_worker_retains_measured_receipt_and_finalizes_before_settlement(self):
++        held = self.implemented()
++        self.assertEqual(context.context_use_of(held.control, held.attempt_id)["status"], "ready")
++        self.assertIsNotNone(self.record(held.job, held.attempt_id)["settlement"])
++        frozen = frozen_output_of(held.control, held.attempt_id)
++        manifest = load_manifest(held.control, frozen["manifest_digest"], "resultManifest")
++        receipt = next(one for one in manifest["outputs"] if one["name"] == "provider-context-receipt")
++        body = custody.read_context_receipt(held.control, attempt_id=held.attempt_id, artifact_id=receipt["artifact"]["artifact_id"], workspace_storage=self.storage)
++        value = json.loads(body)
++        self.assertEqual(value["schema"], context.SERVING_RECEIPT_SCHEMA)
++        self.assertTrue(value["complete"])
++        self.assertEqual(value["observed_conversation_id"], value["conversation_id"])
++        self.assertEqual(receipt["artifact"]["media_type"], "application/octet-stream")
++        self.assertNotIn(b"PRIVATE-CONTEXT-MARKER", body)
++        self.assertEqual(len(self.calls.read_text().splitlines()), 1)
++        self.assertEqual(len(self.actual_environments), 1)
++        self.assertNotIn(self.actual_environments[0]["HOME"], self.actual_environments[0]["TMPDIR"])
++
++    def test_duplicate_exchange_cannot_call_the_provider_again(self):
++        job, control, composed, attempt, roots = self.started()
++        self.assertEqual(self.turn(control, "implementation", attempt, roots, edits={"harness.py": "print('changed')\n"}), 0)
++        self.assertEqual(self.turn(control, "implementation", attempt, roots), 0)
++        self.assertEqual(self.calls_count(), 1)
++        self.drive(job, composed, "implementation", "completed")
++
++    def terminal_refuses(self, value, status=0):
++        job, control, composed, attempt, roots = self.started()
++        bound = context.context_invocation_of(control, attempt)
++        good = {"type": "result", "subtype": "success", "is_error": False, "session_id": bound["conversation_id"], "model": "deterministic-model"}
++        self.model_output = value(good)
++        self.turn(control, "implementation", attempt, roots, edits={"harness.py": "print('changed')\n"}, status=status)
++        for unused in range(3):
++            sweep(job, composed, now=fixtures.NOW)
++        self.assert_owed(job, control, attempt)
++        self.assertEqual(self.calls_count(), 1)
++
++    def test_status_zero_with_wrong_uuid_is_unhealthy(self):
++        self.terminal_refuses(lambda good: json.dumps(dict(good, session_id="00000000-0000-4000-8000-000000000000")))
++
++    def test_nonzero_with_success_terminal_is_unhealthy(self):
++        self.terminal_refuses(json.dumps, status=1)
++
++    def test_status_zero_with_wrong_model_is_unhealthy(self):
++        self.terminal_refuses(lambda good: json.dumps(dict(good, model="foreign-model")))
++
++    def test_status_zero_with_error_is_unhealthy(self):
++        self.terminal_refuses(lambda good: json.dumps(dict(good, is_error=True)))
++
++    def test_missing_terminal_is_unhealthy(self):
++        self.terminal_refuses(lambda good: "")
++
++    def test_partial_terminal_is_unhealthy(self):
++        self.terminal_refuses(lambda good: json.dumps(good)[:-2])
++
++    def test_duplicate_terminal_keys_are_unhealthy(self):
++        self.terminal_refuses(lambda good: json.dumps(good)[:-1] + ',"is_error":false}')
++
++    def test_oversized_terminal_is_unhealthy(self):
++        import claude_agent
++        self.terminal_refuses(lambda good: json.dumps(dict(good, result="x" * (claude_agent.MAX_PROVIDER_RECORD + 1))))
++
++    def test_intent_before_child_loss_never_reinvokes_the_use(self):
++        import claude_agent
++        job, control, composed, attempt, roots = self.started()
++        original = claude_agent.ClaudeAgent._context_intent
++        def lost(agent, bound):
++            original(agent, bound)
++            raise claude_agent.TaskRefusal("injected loss after invocation intent")
++        with mock.patch.object(claude_agent.ClaudeAgent, "_context_intent", lost):
++            self.turn(control, "implementation", attempt, roots)
++        self.turn(control, "implementation", attempt, roots)
++        for unused in range(3):
++            sweep(job, composed, now=fixtures.NOW)
++        self.assert_owed(job, control, attempt)
++        self.assertEqual(self.calls_count(), 0)
++        delivery = custody.context_mount_of(control, custody.configured_context_storage(control), attempt_id=attempt)
++        with mock.patch.object(claude_agent, "CONTEXT_ROOT", delivery.boundary()[0]), mock.patch.object(claude_agent, "CREDENTIAL_ROOT", os.path.join(self.root, "credential-" + attempt[:12])):
++            with self.assertRaises(claude_agent.TaskRefusal) as refused:
++                claude_agent.ClaudeAgent()._context_intent(context.context_invocation_of(control, attempt))
++        self.assertIn("already intended", str(refused.exception))
++
++
++class ServingEnding(ServingContextCase):
++    def test_failed_runtime_removal_keeps_context_and_ending_unsettled(self):
++        job, control, composed, attempt, roots = self.started()
++        self.assertEqual(self.turn(control, "implementation", attempt, roots, edits={"harness.py": "print('changed')\n"}), 0)
++        engine_type = type(self.engine)
++        original = engine_type.__call__
++        def refused(engine, argv, **kwargs):
++            if argv[1] == "rm":
++                return engine_type.answer(status=1, stderr="simulated removal failure")
++            return original(engine, argv, **kwargs)
++        with mock.patch.object(engine_type, "__call__", refused):
++            sweep(job, composed, now=fixtures.NOW)
++        self.assert_owed(job, control, attempt)
++        self.assertEqual(self.calls_count(), 1)
++
++    def sealed_fault(self, mutate):
++        import claude_agent
++        job, control, composed, attempt, roots = self.started()
++        original = claude_agent.ClaudeAgent._publish_context_receipt
++        def faulty(agent):
++            original(agent)
++            mutate(Path(claude_agent.OUTPUT_ROOT) / "provider-context-receipt")
++        with mock.patch.object(claude_agent.ClaudeAgent, "_publish_context_receipt", faulty):
++            self.turn(control, "implementation", attempt, roots, edits={"harness.py": "print('changed')\n"})
++        for unused in range(3):
++            sweep(job, composed, now=fixtures.NOW)
++        self.assert_owed(job, control, attempt)
++        self.assertEqual(self.calls_count(), 1)
++        job, control, composed = self.reopen(job, control, composed)
++        sweep(job, composed, now=fixtures.NOW)
++        self.assert_owed(job, control, attempt)
++        self.assertEqual(self.calls_count(), 1)
++
++    def test_sealed_malformed_json_is_not_context_evidence(self):
++        self.sealed_fault(lambda root: (root / "receipt.json").write_text("{incomplete"))
++
++    def test_sealed_excessive_json_depth_is_not_context_evidence(self):
++        self.sealed_fault(lambda root: (root / "receipt.json").write_text("[" * 2000 + "0" + "]" * 2000))
++
++    def test_sealed_wrong_argv_binding_is_not_context_evidence(self):
++        def changed(root):
++            path = root / "receipt.json"
++            body = json.loads(path.read_text())
++            body["argv_digest"] = "sha256:" + "f" * 64
++            path.write_text(json.dumps(body))
++        self.sealed_fault(changed)
++
++    def test_sealed_duplicate_json_is_not_context_evidence(self):
++        def duplicate(root):
++            path = root / "receipt.json"
++            path.write_text(path.read_text().rstrip()[:-1] + ',"complete":true}')
++        self.sealed_fault(duplicate)
++
++    def test_sealed_foreign_receipt_is_not_context_evidence(self):
++        def foreign(root):
++            path = root / "receipt.json"
++            body = json.loads(path.read_text())
++            body["attempt_id"] = "another-attempt"
++            path.write_text(json.dumps(body))
++        self.sealed_fault(foreign)
++
++    def test_sealed_legacy_receipt_cannot_downgrade_serving_evidence(self):
++        def legacy(root):
++            path = root / "receipt.json"
++            body = json.loads(path.read_text())
++            body["schema"] = context.RECEIPT_SCHEMA
++            path.write_text(json.dumps(body))
++        self.sealed_fault(legacy)
++
++    def test_sealed_wrong_filename_is_not_context_evidence(self):
++        self.sealed_fault(lambda root: (root / "receipt.json").rename(root / "wrong.json"))
++
++    def test_worker_extra_entries_cannot_pass_collection(self):
++        self.sealed_fault(lambda root: (root / "extra").write_text("unexpected"))
++
++    def test_worker_oversized_receipt_cannot_pass_collection(self):
++        self.sealed_fault(lambda root: (root / "receipt.json").write_text("x" * 16385))
++
++    def test_worker_link_cannot_pass_collection(self):
++        def link(root):
++            (root / "receipt.json").unlink()
++            (root / "receipt.json").symlink_to("../harness.py")
++        self.sealed_fault(link)
++
++    def test_missing_optional_answer_cannot_finalize_implementation(self):
++        import claude_agent
++        job, control, composed, attempt, roots = self.started()
++        original = claude_agent.ClaudeAgent.work
++        def withheld(agent, *args, **kwargs):
++            value = original(agent, *args, **kwargs)
++            root = Path(claude_agent.OUTPUT_ROOT) / "provider-context-receipt"
++            (root / "receipt.json").unlink()
++            root.rmdir()
++            for one in value["outputs"]:
++                if one["name"] == "provider-context-receipt":
++                    one["status"] = "missing-optional"
++            return value
++        with mock.patch.object(claude_agent.ClaudeAgent, "work", withheld):
++            self.assertEqual(self.turn(control, "implementation", attempt, roots, edits={"harness.py": "print('changed')\n"}), 0)
++        sweep(job, composed, now=fixtures.NOW)
++        frozen = frozen_output_of(control, attempt)
++        manifest = load_manifest(control, frozen["manifest_digest"], "resultManifest")
++        self.assertEqual(next(one for one in manifest["outputs"] if one["name"] == "provider-context-receipt")["status"], "missing-optional")
++        self.assert_owed(job, control, attempt)
++        job, control, composed = self.reopen(job, control, composed)
++        sweep(job, composed, now=fixtures.NOW)
++        self.assert_owed(job, control, attempt)
++
++    def cut(self, window):
++        job, control, composed, attempt, roots = self.started()
++        self.assertEqual(self.turn(control, "implementation", attempt, roots, edits={"harness.py": "print('changed')\n"}), 0)
++        if window == "before-publication":
++            patch = mock.patch.object(custody, "seal_generation", side_effect=RuntimeError("injected manager loss"))
++        elif window == "after-publication":
++            original = context._transition
++            def transition(*args, **kwargs):
++                if kwargs.get("action") == "finalize":
++                    raise RuntimeError("injected manager loss")
++                return original(*args, **kwargs)
++            patch = mock.patch.object(context, "_transition", transition)
++        else:
++            patch = mock.patch.object(stage_execution.StageComposition, "_finished", side_effect=RuntimeError("injected manager loss"))
++        with patch:
++            self.fault_tick(job, composed)
++        self.assertIsNone(self.record(job, attempt)["settlement"])
++        self.assertFalse(Path(roots["inputs"]).exists())
++        self.assertEqual(self.calls_count(), 1)
++        starts = len(self.engine.starts)
++        job, control, composed = self.reopen(job, control, composed)
++        # Historical ending must not require re-materialization or admission.
++        with mock.patch.object(context, "admit_context_use", side_effect=AssertionError("fresh admission on reopen")), mock.patch.object(single_worker.launch, "materialize", side_effect=AssertionError("launch recreation on reopen")):
++            sweep(job, composed, now=fixtures.NOW)
++        self.assertIsNotNone(self.record(job, attempt)["settlement"])
++        self.assertEqual(context.context_use_of(control, attempt)["status"], "ready")
++        self.assertEqual(self.calls_count(), 1)
++        self.assertEqual(len(self.engine.starts), starts)
++
++    def test_reopen_before_generation_publication(self):
++        self.cut("before-publication")
++
++    def test_reopen_after_publication_before_context_commit(self):
++        self.cut("after-publication")
++
++    def test_reopen_after_context_commit_before_settlement(self):
++        self.cut("after-commit")
++
++    def retained_fault(self, mutate, *, committed=False):
++        job, control, composed, attempt, roots = self.started()
++        self.assertEqual(self.turn(control, "implementation", attempt, roots, edits={"harness.py": "print('changed')\n"}), 0)
++        target, name = (stage_execution.StageComposition, "_finished") if committed else (custody, "seal_generation")
++        with mock.patch.object(target, name, side_effect=RuntimeError("injected manager loss")):
++            self.fault_tick(job, composed)
++        from baton_v12.worker_manager import intake_receipt_of
++        artifact = next(one for one in intake_receipt_of(control, attempt)["artifacts"] if one["custody_locator"].endswith("/provider-context-receipt"))
++        root = Path(artifact["custody_locator"][len("file://"):])
++        root.chmod(0o700)
++        mutate(root)
++        root.chmod(0o500)
++        job, control, composed = self.reopen(job, control, composed)
++        starts = len(self.engine.starts)
++        sweep(job, composed, now=fixtures.NOW)
++        self.assert_owed(job, control, attempt)
++        self.assertEqual(context.context_use_of(control, attempt)["status"], "held")
++        self.assertEqual(self.calls_count(), 1)
++        self.assertEqual(len(self.engine.starts), starts)
++
++    def test_retained_changed_bytes_block_reopened_ending(self):
++        def corrupt(root):
++            path = root / "receipt.json"
++            path.chmod(0o600)
++            path.write_text("{}")
++            path.chmod(0o400)
++        self.retained_fault(corrupt)
++
++    def test_retained_missing_file_blocks_reopened_ending(self):
++        self.retained_fault(lambda root: (root / "receipt.json").unlink())
++
++    def test_retained_extra_entry_blocks_reopened_ending(self):
++        self.retained_fault(lambda root: (root / "extra").write_text("unexpected"))
++
++    def test_retained_link_blocks_reopened_ending(self):
++        def link(root):
++            path = root / "receipt.json"
++            path.rename(root / "original")
++            path.symlink_to("original")
++        self.retained_fault(link)
++
++    def test_committed_context_does_not_bypass_missing_retained_receipt(self):
++        self.retained_fault(lambda root: (root / "receipt.json").unlink(), committed=True)
++
++
++class RestoredCorrectionBoundary(ServingContextCase):
++    def test_actual_changes_requested_review_restores_only_fresh_implementation_use(self):
++        held = self.implemented()
++        first = context.context_invocation_of(held.control, held.attempt_id)
++        self.drive(held.job, held.composed, "review", "waiting")
++        reviewer = self.only_attempt(held.composed, "review")
++        self.assertIsNone(context.context_invocation_of(held.control, reviewer))
++        review_launch = self.worker_of(held.composed, "review")._adopted({"attempt_id": reviewer, "job_id": "job-a"}).document
++        self.assertNotIn("provider_context", review_launch)
++        self.assertNotEqual(review_launch["session"], self.worker_of(held.composed, "implementation")._session_of(held.attempt_id))
++        self.assertEqual(review_launch["job_execution"]["runtime_input_digest"], self.manifest["manifest_digest"])
++        self.assertEqual(self.turn(held.control, "review", reviewer, self.mounted(held.composed, "review", reviewer), edits={"review-report.json": json.dumps({"schema": "baton.review-report/1", "verdict": "changes-requested", "findings": "adjust the implementation"})}), 0)
++        self.drive(held.job, held.composed, "implementation", "waiting", ticks=12)
++        review_frozen = frozen_output_of(held.control, reviewer)
++        review_result = load_manifest(held.control, review_frozen["manifest_digest"], "resultManifest")
++        self.assertEqual(next(one for one in review_result["outputs"] if one["name"] == "provider-context-receipt")["status"], "missing-optional")
++        review_start = [one for one in self.engine.starts if "--entrypoint" not in one][1]
++        self.assertFalse(any("/run/baton/context" in item for item in review_start))
++        attempts = self.worker_of(held.composed, "implementation").stage._prepared
++        [second] = [one for one in attempts if one != held.attempt_id]
++        bound = context.context_invocation_of(held.control, second)
++        self.assertEqual(bound["conversation_id"], first["conversation_id"])
++        self.assertEqual(bound["context_id"], first["context_id"])
++        self.assertEqual(bound["mode"], "restore")
++        for key in ("attempt_id", "use_id", "invocation_id", "delivery_digest"):
++            self.assertNotEqual(bound[key], first[key])
++        import claude_agent
++        original = claude_agent.ClaudeAgent.work
++        faults = []
++        def observed(agent, *args, **kwargs):
++            try:
++                return original(agent, *args, **kwargs)
++            except Exception as error:
++                import traceback
++                faults.append(traceback.format_exc())
++                raise
++        with mock.patch.object(claude_agent.ClaudeAgent, "work", observed):
++            self.assertEqual(self.turn(held.control, "implementation", second, self.mounted(held.composed, "implementation", second), edits={"harness.py": "print('correction round')\n"}), 0, faults)
++        self.drive(held.job, held.composed, "implementation", "completed")
++        calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
++        self.assertEqual([one["restored"] for one in calls], [False, True])
++        self.assertIn("--session-id", calls[0]["argv"])
++        self.assertIn("--resume", calls[1]["argv"])
++        self.assertNotEqual(self.actual_environments[0]["HOME"], self.actual_environments[1]["HOME"])
++        original_state = self.context_root / first["context_id"] / "generations/1/state/.claude/projects/output/session.json"
++        self.assertEqual(json.loads(original_state.read_text())["turn"], 1)
++        self.assertEqual(json.loads((Path(self.actual_environments[1]["HOME"]) / ".claude/projects/output/session.json").read_text())["turn"], 2)
+--- a/v12/python/tests/manager/test_launch.py
++++ b/v12/python/tests/manager/test_launch.py
+@@ -21,6 +21,58 @@
+ import stat
+ import tempfile
+ import unittest
++
++
++class TheContextLaunchIsClosed(unittest.TestCase):
++    def setUp(self):
++        from tests.manager.test_claude_context import ServingContextCase
++        self.case = ServingContextCase()
++        self.addCleanup(self.case.doCleanups)
++        self.case.setUp()
++        self.job, self.control, self.composed, self.attempt, self.roots = self.case.started()
++        self.worker = self.case.worker_of(self.composed, "implementation")
++        self.stage = {"attempt_id": self.attempt, "job_id": "job-a"}
++        self.document = self.worker._adopted(self.stage).document
++
++    def test_owner_launch_and_worker_reader_agree(self):
++        import baton_worker
++        self.assertEqual(baton_worker.launched(self.document), self.document)
++        self.assertEqual(self.document["schema"], "baton.worker-launch/4")
++
++    def test_closed_version_refuses_omission_extra_and_downgrade(self):
++        import copy
++        import baton_worker
++        for change in (lambda value: value.pop("provider_context"), lambda value: value.update(extra=True), lambda value: value.update(schema="baton.worker-launch/3")):
++            with self.subTest(change=change):
++                value = copy.deepcopy(self.document)
++                change(value)
++                with self.assertRaises(baton_worker.WorkerFault):
++                    baton_worker.launched(value)
++
++    def test_wrong_role_uuid_attempt_and_binding_refuse_both_readers(self):
++        import copy
++        import baton_worker
++        for key, replacement in (("attempt_id", "other-attempt"), ("conversation_id", "not-a-uuid"), ("task_digest", "sha256:" + "f" * 64)):
++            with self.subTest(key=key):
++                value = copy.deepcopy(self.document)
++                value["provider_context"][key] = replacement
++                with self.assertRaises(baton_worker.WorkerFault):
++                    baton_worker.launched(value)
++                with self.assertRaises(ContractRefusal):
++                    launch.launch_document(**{one: value[one] for one in ("session", "contract", "role", "transport", "job_execution", "provider_context")})
++        with self.assertRaises(ContractRefusal):
++            launch.launch_document(**dict({one: self.document[one] for one in ("session", "contract", "transport", "job_execution", "provider_context")}, role="review"))
++
++    def test_adoption_cannot_drop_original_binding(self):
++        from unittest import mock
++        from baton_v12.worker_manager import provider_context
++        before = self.control._connection.total_changes
++        with mock.patch.object(provider_context, "admit_context_use", side_effect=AssertionError("adoption admitted")):
++            self.assertEqual(self.worker._adopted(self.stage).document, self.document)
++        self.assertEqual(self.control._connection.total_changes, before)
++        self.worker.given.pop("provider_context")
++        with self.assertRaises(ContractRefusal):
++            self.worker._adopted(self.stage)
+ 
+ from baton_v12.contracts import ContractRefusal, held_secret
+ from baton_v12.worker_manager import launch
+--- a/v12/python/tests/manager/test_oci.py
++++ b/v12/python/tests/manager/test_oci.py
+@@ -142,6 +142,51 @@
+             clock=lambda: "2026-08-24T00:00:00.000Z")
+         self.addCleanup(self.store.close)
+         self.group = input_roots.configured_group(self.store)
++
++
++class TheContextMountIsAnExactUse(unittest.TestCase):
++    def setUp(self):
++        from tests.manager.test_claude_context import ServingContextCase
++        from baton_v12.worker_manager import context_delivery
++        self.case = ServingContextCase()
++        self.addCleanup(self.case.doCleanups)
++        self.case.setUp()
++        job, control, composed, attempt, roots = self.case.started()
++        self.mount = context_delivery.context_mount_of(control, context_delivery.configured_context_storage(control), attempt_id=attempt)
++        worker = self.case.worker_of(composed, "implementation")
++        self.adapter = worker._adapter(roots, None, None, worker._adopted({"attempt_id": attempt, "job_id": "job-a"}))
++        self.attempt = attempt
++
++    def test_exact_root_and_fixed_target_exclude_storage_and_generation(self):
++        from baton_v12.worker_manager import oci
++        source, target, writable = self.mount.boundary()
++        self.assertEqual(target, "/run/baton/context")
++        self.assertTrue(writable)
++        self.assertNotEqual(source, str(self.case.context_root))
++        self.assertIn("/uses/", source)
++        self.assertEqual(oci._context_mounts(self.mount, "execution", []), [(source, target, True)])
++        starts = [one for one in self.case.engine.starts if "--entrypoint" not in one]
++        self.assertEqual(len(starts), 1)
++        self.assertIn("65532:65532", starts[0])
++
++    def test_untyped_wrong_purpose_and_both_overlap_directions_refuse(self):
++        from baton_v12.worker_manager import oci
++        source, target, unused = self.mount.boundary()
++        for capability, posture, others in ((self.mount.boundary(), "execution", []), (self.mount, "consent", []), (self.mount, "execution", [(source + "/home", "/elsewhere", True)]), (self.mount, "execution", [(os.path.dirname(source), "/elsewhere", True)]), (self.mount, "execution", [("/tmp/elsewhere", target + "/home", True)]), (self.mount, "execution", [("/tmp/elsewhere", "/run/baton", True)])):
++            with self.subTest(posture=posture, others=others):
++                with self.assertRaises(ContractRefusal):
++                    oci._context_mounts(capability, posture, others)
++
++    def test_observation_refuses_changed_or_missing_context_mount(self):
++        from baton_v12.worker_manager import oci, attempt_runtime_of
++        from unittest import mock
++        runtime = attempt_runtime_of(self.mount.control, self.attempt)["runtime_id"]
++        original = oci._observed_mounts
++        good = self.adapter.observe(runtime)
++        self.assertNotEqual(good["state"], "uncertain", good)
++        for change in (lambda mounts: [one for one in mounts if one["target"] != "/run/baton/context"], lambda mounts: [dict(one, source="/tmp/foreign-context") if one["target"] == "/run/baton/context" else one for one in mounts], lambda mounts: [dict(one, writable=False) if one["target"] == "/run/baton/context" else one for one in mounts]):
++            with mock.patch.object(oci, "_observed_mounts", side_effect=lambda value: change(original(value))):
++                self.assertEqual(self.adapter.observe(runtime)["state"], "uncertain")
+ 
+ 
+ class TheVectorsAreClosedAndOrdered(Configured):
+--- a/v12/python/tests/manager/test_claude_agent.py
++++ b/v12/python/tests/manager/test_claude_agent.py
+@@ -65,6 +65,43 @@
+         "source_root": "source",
+         "source_profile": "generic",
+         "declared_base": None}
++
++
++class TheContextEnvironmentRemainsPrivate(unittest.TestCase):
++    def setUp(self):
++        from tests.manager.test_claude_context import ServingContextCase
++        self.case = ServingContextCase()
++        self.addCleanup(self.case.doCleanups)
++        self.case.setUp()
++
++    def test_actual_child_environment_verifier_and_public_outputs_exclude_private_state(self):
++        from baton_v12.worker_manager import intake_receipt_of
++        captured = []
++        original = ClaudeAgent._verify
++        def verify(agent, task, candidate, environment, directories):
++            captured.append(dict(environment))
++            return original(agent, task, candidate, environment, directories)
++        with mock.patch.object(ClaudeAgent, "_verify", verify):
++            held = self.case.implemented()
++        provider = self.case.actual_environments[0]
++        self.assertEqual(set(provider), {"HOME", "PATH", "TMPDIR", "XDG_CACHE_HOME", "PYTHONPYCACHEPREFIX"})
++        self.assertEqual(len(captured), 1)
++        self.assertNotEqual(provider["HOME"], captured[0]["HOME"])
++        self.assertFalse(captured[0]["HOME"].startswith(str(self.case.context_root)))
++        for one in intake_receipt_of(held.control, held.attempt_id)["artifacts"]:
++            root = pathlib.Path(one["custody_locator"][len("file://"):])
++            for path in root.rglob("*"):
++                if path.is_file():
++                    self.assertNotIn(b"PRIVATE-CONTEXT-MARKER", path.read_bytes(), path.name)
++
++    def test_injected_context_is_unknown_for_activity_even_on_initial_open(self):
++        agent = ClaudeAgent()
++        agent._seen = {"provider_context": {"mode": "open"}}
++        agent._bound_activity("/tmp/unused-context-scratch")
++        self.assertIsNone(agent.observed_activity())
++        agent._seen["provider_context"]["mode"] = "restore"
++        agent._bound_activity("/tmp/unused-context-scratch")
++        self.assertIsNone(agent.observed_activity())
+ 
+ 
+ class AdapterCase(unittest.TestCase):
+--- a/v12/python/tests/tools/test_single_worker.py
++++ b/v12/python/tests/tools/test_single_worker.py
+@@ -182,6 +182,46 @@
+     @property
+     def starts(self):
+         return [one for one in self.vectors if one[1] == "run"]
++
++
++class TheContextConfigurationIsRequiredAndClosed(unittest.TestCase):
++    def test_exact_reserved_declaration_rejects_stale_media_and_other_shapes(self):
++        from tests.manager.test_claude_context import declaration
++        from baton_v12.worker_manager import provider_context
++        import baton_worker
++        import copy
++        good = declaration()
++        single_worker._context_declaration([good])
++        for media in (["application/json"], ["application/json", "application/octet-stream"], [], ["text/plain"]):
++            wrong = copy.deepcopy(good)
++            wrong["constraints"]["allowed_media_types"] = media
++            for check in (single_worker._context_declaration, provider_context.context_output_declaration):
++                with self.subTest(media=media, owner=check):
++                    with self.assertRaises(ContractRefusal):
++                        check([wrong])
++            with self.assertRaises(baton_worker.WorkerFault):
++                baton_worker.context_declaration({"role": "review"}, [wrong])
++        for key, value in (("path", "another"), ("type", "file-result"), ("required", True)):
++            wrong = copy.deepcopy(good)
++            wrong[key] = value
++            with self.assertRaises(ContractRefusal):
++                single_worker._context_declaration([wrong])
++        for selected in ([], [good, good]):
++            with self.assertRaises(ContractRefusal):
++                single_worker._context_declaration(selected)
++
++    def test_legacy_implementation_cannot_silently_omit_context(self):
++        from tests.manager.test_claude_context import ServingContextCase
++        case = ServingContextCase()
++        self.addCleanup(case.doCleanups)
++        case.setUp()
++        value = case.worker("implementation")["deployment"]
++        value.pop("provider_context")
++        value["schema"] = "baton.v12.single-worker-deployment/4"
++        with self.assertRaises(ContractRefusal):
++            single_worker._held(value)
++        # The one shared submitted manifest is admissible to isolated review.
++        self.assertNotIn("provider_context", single_worker._held(case.worker("review")["deployment"], roles=("review",)))
+ 
+ 
+ class SingleWorkerCase(unittest.TestCase):
+--- a/v12/python/tests/tools/test_stage_execution.py
++++ b/v12/python/tests/tools/test_stage_execution.py
+@@ -52,6 +52,58 @@
+         if isinstance(document, dict) and document.get("schema") == schema:
+             return copy.deepcopy(document)
+     raise AssertionError(f"the published vectors carry no {schema}")
++
++
++class TheContextServingBoundaryIsIsolated(unittest.TestCase):
++    def setUp(self):
++        from tests.manager.test_claude_context import ServingContextCase
++        self.case = ServingContextCase()
++        self.addCleanup(self.case.doCleanups)
++        self.case.setUp()
++
++    def test_another_roles_root_cannot_overlap_context_storage(self):
++        job, control, composed = self.case.serving()
++        given = stage_execution.held_configuration(self.case.composed_document(line_declared_base=self.case.base), checkout=self.case.checkout)
++        review = next(one for one in given["workers"] if one["role"] == "review")
++        review["deployment"]["credential_home"] = str(self.case.context_root / "foreign-role")
++        with self.assertRaises(ContractRefusal):
++            stage_execution._context_roots(given, control)
++        self.assertEqual(len(self.case.engine.starts), 0)
++
++    def test_live_handle_reopen_observes_without_duplicate_start_or_binding(self):
++        from baton_v12.worker_manager import provider_context
++        from tests.job_manager import fixtures
++        job, control, composed, attempt, roots = self.case.started()
++        binding = provider_context.context_invocation_of(control, attempt)
++        starts = len(self.case.engine.starts)
++        job, control, composed = self.case.reopen(job, control, composed)
++        sweep = __import__("baton_v12.job_manager", fromlist=["sweep"]).sweep
++        sweep(job, composed, now=fixtures.NOW)
++        self.assertEqual(self.case.states(job, composed)["implementation"], "waiting")
++        self.assertEqual(len(self.case.engine.starts), starts)
++        self.assertEqual(self.case.calls_count(), 0)
++        self.assertEqual(provider_context.context_invocation_of(control, attempt), binding)
++
++    def test_context_preflight_requires_the_preconfigured_profile(self):
++        job, control, composed = self.case.serving()
++        worker = self.case.worker_of(composed, "implementation")
++        given = dict(worker.given, provider_context=dict(worker.given["provider_context"], profile_digest="sha256:" + "f" * 64))
++        with self.assertRaises(ContractRefusal):
++            single_worker._context_preflight(given, control)
++        self.assertEqual(len(self.case.engine.starts), 0)
++
++    def test_another_job_owner_cannot_supply_the_context_attempt(self):
++        from baton_v12.job_manager import JobStore
++        from baton_v12.worker_manager import provider_context
++        from tests.job_manager import fixtures
++        job, control, composed, attempt, roots = self.case.started()
++        other = JobStore.open(os.path.join(self.case.root, "foreign-jobs.sqlite3"), authority_uuid=job.authority_uuid, incarnation="other-job-owner", clock=lambda: fixtures.NOW)
++        self.addCleanup(other.close)
++        worker = self.case.worker_of(composed, "implementation")
++        before = provider_context.context_invocation_of(control, attempt)
++        with self.assertRaises(ContractRefusal):
++            provider_context.revalidate_context_start(control, other, worker.port, attempt_id=attempt)
++        self.assertEqual(provider_context.context_invocation_of(control, attempt), before)
+ 
+ 
+ class StageCase(SingleWorkerCase):
+@@ -1752,16 +1804,24 @@
+         self.assertEqual([one[0] for one in asked],
+                          ["integration", "integration"])
+ 
+-    def test_an_integration_without_a_runtime_port_refuses_as_that(self):
+-        """The one capability this build does not have, reported rather than
+-        stubbed and contained to its own stage."""
+-        _job, _control, composed = self.serving()
++    def test_integration_requires_an_accepted_checkpoint_before_runtime(self):
++        """W103068 constructs the runtime port; acceptance remains the gate.
++
++        The old fixture expected the removed missing-port refusal and had no
++        repository. Use a real unreviewed line and prove the current gate,
++        before any integration runtime or provider can run.
++        """
++        case = ComposedOneJobCase()
++        self.addCleanup(case.doCleanups)
++        case.setUp()
++        held = case.implemented()
++        starts = len(case.engine.starts)
+         with self.assertRaises(ContractRefusal) as caught:
+-            composed.launch({"kind": "integration", "attempt_id": "attempt-i"},
+-                            {})
++            held.composed.launch({"kind": "integration", "attempt_id": "attempt-i", "job_id": "job-a"}, {})
+         self.assertEqual((caught.exception.category, caught.exception.code),
+-                         ("refused", "capability"))
+-        self.assertIn("integration runtime port", caught.exception.message)
++                         ("refused", "precondition"))
++        self.assertIn("no accepted integration checkpoint", caught.exception.message)
++        self.assertEqual(len(case.engine.starts), starts)
+ 
+     def test_the_pool_is_activated_from_the_configuration(self):
+         """Nobody issues an operator transition to create capacity: the
+@@ -2706,6 +2766,7 @@
+             # context the deployment composed -- adoption compares canonical
+             # bytes. Setup only: no assertion and no expected outcome changes.
+             job_execution=self.job_execution_for(role, attempt_id),
++            provider_context=__import__("baton_v12.worker_manager.provider_context", fromlist=["context_invocation_of"]).context_invocation_of(control, attempt_id),
+             workspace_group=single_worker.configured_workspace_group(control))
+         held = []
+         for module, name, value in (

@@ -1,0 +1,511 @@
+{
+  "work": "W161234",
+  "claim": 179206,
+  "at": "2026-09-15T15:33:34.430488+00:00",
+  "activity": "static source/evidence comparison; no tests, fixture imports, product execution or resource inspection",
+  "checks": [
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/EVIDENCE-179121.json",
+      "kind": "handoff-evidence",
+      "expected": "2af899a64251373a2a7fd04385d2272ce7d6fd12d34de536b57b15c8d9274cc7",
+      "actual": "2af899a64251373a2a7fd04385d2272ce7d6fd12d34de536b57b15c8d9274cc7",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/HANDOFF-179121.md",
+      "kind": "handoff",
+      "expected": "828a749c3c060db3b16e53b9ea24207d7d6a5f26f084575633233bf94ec80c1d",
+      "actual": "828a749c3c060db3b16e53b9ea24207d7d6a5f26f084575633233bf94ec80c1d",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/BASE-179121.json",
+      "kind": "retained-evidence",
+      "expected": "caaf3da98fd9d44c950a1279e18fb749080a9dd0126eddb88f085825a581a7ac",
+      "actual": "caaf3da98fd9d44c950a1279e18fb749080a9dd0126eddb88f085825a581a7ac",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/manifest.json",
+      "kind": "retained-evidence",
+      "expected": "8bf172797e1c14dd36f11b9faf33df9d6d29e26eacdf0e78d10e541103dcec32",
+      "actual": "8bf172797e1c14dd36f11b9faf33df9d6d29e26eacdf0e78d10e541103dcec32",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/partial.patch",
+      "kind": "retained-evidence",
+      "expected": "7e769356b49718ec9a48fedb543d50846dd5eaf39af9e4138a22c7a3551b50f5",
+      "actual": "7e769356b49718ec9a48fedb543d50846dd5eaf39af9e4138a22c7a3551b50f5",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/verify-179121.py",
+      "kind": "retained-evidence",
+      "expected": "2e7e0870e61d0ce9922248f834efd1b65b5495d78539b531fe929c91d8cb9ca7",
+      "actual": "2e7e0870e61d0ce9922248f834efd1b65b5495d78539b531fe929c91d8cb9ca7",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/reproduce-media-conflict-179121.py",
+      "kind": "retained-evidence",
+      "expected": "9741d8dc36f3541478022ec1e48d465c012e084059c04bfee26f0fd72903a49d",
+      "actual": "9741d8dc36f3541478022ec1e48d465c012e084059c04bfee26f0fd72903a49d",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/EXECUTION-B-177536.md",
+      "kind": "retained-evidence",
+      "expected": "e7014bba453f2b23a65d5c4a90bd094767c742dccc1012ef382fdb688a795cfa",
+      "actual": "e7014bba453f2b23a65d5c4a90bd094767c742dccc1012ef382fdb688a795cfa",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/review-2026-09-15T15-09-00Z.md",
+      "kind": "retained-evidence",
+      "expected": "8c4802ba96ced0feeeed4114280763c80ffed1d281c86ed1b020cc042745861d",
+      "actual": "8c4802ba96ced0feeeed4114280763c80ffed1d281c86ed1b020cc042745861d",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-1.json",
+      "kind": "retained-evidence",
+      "expected": "7ba361b1e8931f0523d1dec974452f3c79cc6e9c0c214448cf785a388a1cbce9",
+      "actual": "7ba361b1e8931f0523d1dec974452f3c79cc6e9c0c214448cf785a388a1cbce9",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-1.log",
+      "kind": "retained-evidence",
+      "expected": "4966b0cf3fb97aa2cdf6a65cb9aa5dbc71a933b800f87d8c7f468ee968b4dc43",
+      "actual": "4966b0cf3fb97aa2cdf6a65cb9aa5dbc71a933b800f87d8c7f468ee968b4dc43",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-2.json",
+      "kind": "retained-evidence",
+      "expected": "2be7344df470e1c5976face755aad9aa3dc22e7bb05a72ef1d29821ddc2948ee",
+      "actual": "2be7344df470e1c5976face755aad9aa3dc22e7bb05a72ef1d29821ddc2948ee",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-2.log",
+      "kind": "retained-evidence",
+      "expected": "54649e157ddc414db5b0dc3d3782fc710836ac8dfde86c59ea408ba0d3be1ed5",
+      "actual": "54649e157ddc414db5b0dc3d3782fc710836ac8dfde86c59ea408ba0d3be1ed5",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-3.json",
+      "kind": "retained-evidence",
+      "expected": "009a10bf3f6acec84e6ef203c42c7881a45fcc28471d94d25114a78448e7ab71",
+      "actual": "009a10bf3f6acec84e6ef203c42c7881a45fcc28471d94d25114a78448e7ab71",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-3.log",
+      "kind": "retained-evidence",
+      "expected": "217b69a2af4ec3f478083586b77e582b9ee6ab3f78c6f47eb6f6f34818cdc7fd",
+      "actual": "217b69a2af4ec3f478083586b77e582b9ee6ab3f78c6f47eb6f6f34818cdc7fd",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-4.json",
+      "kind": "retained-evidence",
+      "expected": "7c3dc054a072cb4a758fdaf276978bc26423774d7939ab7774529cad797a76ee",
+      "actual": "7c3dc054a072cb4a758fdaf276978bc26423774d7939ab7774529cad797a76ee",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-4.log",
+      "kind": "retained-evidence",
+      "expected": "9b97890a0a3210c20a59c89ca1fa2c23f6fe32c307993317116b82e34c38195d",
+      "actual": "9b97890a0a3210c20a59c89ca1fa2c23f6fe32c307993317116b82e34c38195d",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-5.json",
+      "kind": "retained-evidence",
+      "expected": "5cc63fd599580de5a71919436680e7f352dc75688d351a200989f65fb000afe9",
+      "actual": "5cc63fd599580de5a71919436680e7f352dc75688d351a200989f65fb000afe9",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-179121-5.log",
+      "kind": "retained-evidence",
+      "expected": "2c7e61dad96bd2b3f8abc2eed7f332478495146c3efd16e07a62d335c7c3a501",
+      "actual": "2c7e61dad96bd2b3f8abc2eed7f332478495146c3efd16e07a62d335c7c3a501",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/sealing.py",
+      "kind": "conflict-source",
+      "expected": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+      "actual": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/output.py",
+      "kind": "conflict-source",
+      "expected": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "actual": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "match": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "kind": "conflict-source",
+      "expected": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "actual": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "kind": "restored-baseline-mode",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "3f2dacb79ff322449e7b252fdb118371f471893ad8cf77021b3e4ab36c6ff27c",
+      "actual": "3f2dacb79ff322449e7b252fdb118371f471893ad8cf77021b3e4ab36c6ff27c",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "d0537c0399e6184c8248b078b7877aaa6305b9ef9ed695f2c6761c315736dcd6",
+      "actual": "d0537c0399e6184c8248b078b7877aaa6305b9ef9ed695f2c6761c315736dcd6",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/src/baton_v12/worker_manager/launch.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "c590a0e5f93dbe76291eca944b6858217234f0bedae7ded9bf3828909d9c1f22",
+      "actual": "c590a0e5f93dbe76291eca944b6858217234f0bedae7ded9bf3828909d9c1f22",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/src/baton_v12/worker_manager/oci.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "f2f3c2bc96deb4cb80d7eba87fe5b30a5ca84966c29c49864a530502cd18bc16",
+      "actual": "f2f3c2bc96deb4cb80d7eba87fe5b30a5ca84966c29c49864a530502cd18bc16",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/tools/single_worker.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "3f708a8a330ced3958facd4e42ad799382f839050fe6aa0a1dee057d4aab4014",
+      "actual": "3f708a8a330ced3958facd4e42ad799382f839050fe6aa0a1dee057d4aab4014",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/tools/stage_execution.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "actual": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/worker/baton_worker.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "d2c0a97bdcfe916164ac9ca84ee30c60ac68fa3f126cc18ff97dcf446cbc16ab",
+      "actual": "d2c0a97bdcfe916164ac9ca84ee30c60ac68fa3f126cc18ff97dcf446cbc16ab",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/worker/claude_agent.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "d071877ccc64a46e19296bed7ab2562d76e5207dae7bfc5ce89fde83d325aaf9",
+      "actual": "d071877ccc64a46e19296bed7ab2562d76e5207dae7bfc5ce89fde83d325aaf9",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/tests/manager/test_claude_context.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "3ebeccb9b5ae8b426f003b90da27d0525427d235a06931a774d7034406bf5f7c",
+      "actual": "3ebeccb9b5ae8b426f003b90da27d0525427d235a06931a774d7034406bf5f7c",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/tests/manager/test_launch.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031",
+      "actual": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/tests/manager/test_oci.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+      "actual": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/tests/manager/test_claude_agent.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "actual": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/tests/tools/test_single_worker.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "actual": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-179121/v12/python/tests/tools/test_stage_execution.py",
+      "kind": "unreviewed-partial-snapshot",
+      "expected": "eeb0092e6ec5aaa50bb42adfe3a9c0b0317b0701d99bdade0c3bbc25fc5aa25a",
+      "actual": "eeb0092e6ec5aaa50bb42adfe3a9c0b0317b0701d99bdade0c3bbc25fc5aa25a",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150.json",
+      "kind": "accepted-manifest",
+      "expected": "9d82e0035ff756bcf7b631307482394adeb4c7ea51a1efae63ca2648babf9cf9",
+      "actual": "9d82e0035ff756bcf7b631307482394adeb4c7ea51a1efae63ca2648babf9cf9",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "kind": "accepted-source",
+      "expected": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "actual": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "kind": "accepted-source",
+      "expected": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "actual": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context.py",
+      "kind": "accepted-source",
+      "expected": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "actual": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context_delivery.py",
+      "kind": "accepted-source",
+      "expected": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "actual": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate.json",
+      "kind": "accepted-manifest",
+      "expected": "acabca2d229f984a647626d6feb5244d4d1d0bea95c80b025f802ca9194138b3",
+      "actual": "acabca2d229f984a647626d6feb5244d4d1d0bea95c80b025f802ca9194138b3",
+      "match": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "kind": "accepted-source",
+      "expected": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+      "actual": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+      "match": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "kind": "accepted-source",
+      "expected": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "actual": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/exchange.py",
+      "kind": "accepted-source",
+      "expected": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+      "actual": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "kind": "accepted-source",
+      "expected": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+      "actual": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "kind": "accepted-source",
+      "expected": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "actual": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/dogfood_operator.py",
+      "kind": "accepted-source",
+      "expected": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "actual": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "kind": "accepted-source",
+      "expected": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "actual": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_exchange.py",
+      "kind": "accepted-source",
+      "expected": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a",
+      "actual": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "kind": "accepted-source",
+      "expected": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "actual": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "kind": "accepted-source",
+      "expected": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "actual": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_dogfood_operator.py",
+      "kind": "accepted-source",
+      "expected": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+      "actual": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "kind": "accepted-source",
+      "expected": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+      "actual": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+      "match": true
+    },
+    {
+      "path": "run-179121-1.json",
+      "kind": "retained-run-candidate-and-cleanup",
+      "match": true
+    },
+    {
+      "path": "run-179121-2.json",
+      "kind": "retained-run-candidate-and-cleanup",
+      "match": true
+    },
+    {
+      "path": "run-179121-3.json",
+      "kind": "retained-run-candidate-and-cleanup",
+      "match": true
+    },
+    {
+      "path": "run-179121-4.json",
+      "kind": "retained-run-candidate-and-cleanup",
+      "match": true
+    },
+    {
+      "path": "run-179121-5.json",
+      "kind": "retained-run-candidate-and-cleanup",
+      "match": true
+    },
+    {
+      "path": "v12/python/requirements.lock",
+      "kind": "environment-reference",
+      "expected": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+      "actual": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+      "match": true
+    },
+    {
+      "path": "v12/python/pyproject.toml",
+      "kind": "environment-reference",
+      "expected": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+      "actual": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+      "match": true
+    }
+  ],
+  "all_match": true,
+  "new_reviewer_runtime_seconds": 0,
+  "prior_reviewer_seconds": 4.108358147001127,
+  "author_new_seconds": 2.52000940401922,
+  "author_cumulative_seconds": 17.14198895302252,
+  "author_run_seconds_sum": 2.52000940401922,
+  "author_run_statuses": [
+    1,
+    1,
+    1,
+    1,
+    0
+  ],
+  "additional_read_sources": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b"
+  }
+}

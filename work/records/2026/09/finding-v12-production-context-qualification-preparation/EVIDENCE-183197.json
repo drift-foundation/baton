@@ -1,0 +1,141 @@
+{
+  "claim": 183197,
+  "cycle": "OFFLINE-CORRECTION-CYCLE-183114.md",
+  "cycle_sha256": "54e00a9b5892b123e3703024088695b90702e70ad58bc7e13b18b9a44d2a6727",
+  "defect_1": {
+    "correction": "every publication refusal names its check from the closed PUBLICATION_CHECKS vocabulary, with a closed errno category where an operation failed; an unlabelled refusal degrades to `other`",
+    "never_exported": [
+      "paths",
+      "filenames",
+      "exception prose",
+      "credential or configuration contents",
+      "transcripts"
+    ],
+    "what": "one refusal code stood for seventeen distinct checks, so the export could say a run refused and not which question it answered -- the same failure `unclassified` had one layer down"
+  },
+  "defect_2": {
+    "correction": "the observation is made first and carried through the refusal; it is EVIDENCE, NOT A PASS -- the arm still fails, no second arm is admitted, no publication/shutdown/qualification gate is bypassed, and a preserved observation is validated exactly like a real terminal record",
+    "what": "publish ran BEFORE c.projection, so a publication refusal discarded a provider exit and terminal record already available -- run183114 cannot say whether the provider's answer was well-formed"
+  },
+  "files": [
+    {
+      "base_sha256": "08ad95e355f2702fd7273d3d3069d7466cfe8b94030e105140d49588d25bf630",
+      "candidate_sha256": "3a5f867334fd91fadee18cfee0ee1ec3df99233ef48cb6ebd7bc8dbf79693325",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-183197/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "candidate_sha256": "2f9cac7b6b0ddbf48ad8e98a4ceba177acbc9533b2bc3346983b39feba78f84b",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-183197/qualification_contract.py"
+    },
+    {
+      "base_sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "candidate_sha256": "aeec34fea71387fa06804ca0b1c41a1e78fa260a5b71f981b5454c47c8dc81ab",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-183197/qualification_worker.py"
+    },
+    {
+      "base_sha256": "315c444bd8792b50617be09b7f391ed28f799fd0ecbc348cf0eb33ef2f89fb10",
+      "candidate_sha256": "66f729618f2b0ffc5411fc1df457db263c814e63bcdb3fd5b45f3a66fb463af9",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-183197/test_qualification.py"
+    },
+    {
+      "base_sha256": "dd28498767bbcaf0eeb1552549f39228c555069b6c48e939abec136fa7df2779",
+      "candidate_sha256": "c5b325cd3b083b0ba5fd8952c48bbd27ff1efa67e0e27c326434e95c35901cc6",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-183197/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-183197/verify-offline.py"
+    },
+    {
+      "base_sha256": "c78f4c665421d0b4f9968d8af1f1c44edf639897e8caf6773ff3b97d86b5d159",
+      "candidate_sha256": "47ff787563a8d14478745cfd06e648252bbc3f5de1089c36ca589fe317c1b245",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-183197/OPERATOR-178579.md"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.3638401919743046,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "e04cff6f8166a962d091a9051b7da473759c27618a889e0e3ed3fe80155a5a7e",
+    "manifest_sha256": "c5b325cd3b083b0ba5fd8952c48bbd27ff1efa67e0e27c326434e95c35901cc6",
+    "pid": 3764321,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "manifest_sha256": "c5b325cd3b083b0ba5fd8952c48bbd27ff1efa67e0e27c326434e95c35901cc6",
+  "not_done": [
+    "live run",
+    "private-tree inspection",
+    "fresh identity preparation",
+    "consumed-root repair",
+    "production enabling",
+    "product-source edits",
+    "broad suite",
+    "version-control operations"
+  ],
+  "operator_packet_sha256": "47ff787563a8d14478745cfd06e648252bbc3f5de1089c36ca589fe317c1b245",
+  "owner_selection": "pass183193",
+  "preserved": [
+    "R1 retained descriptors with alias/type/UID/GID checks",
+    "R2 complete bounded preflight before mutation",
+    "R3 causal diagnostics",
+    "turn-2 restored 0o660",
+    "the strict model, artifact and continuity acceptance",
+    "the image and the run limits",
+    "all three consumed identities at their original timestamps"
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "coverage_gap_found": "observe-after-publishing and drop-the-preserved-observation PASSED at first, because the FakeEngine builds its own failure record and nothing exercised the real worker.main ordering. Two tests now drive the actual entry point, and both probes then failed.",
+    "fixture_artefact_corrected": "the first version of that harness mocked `invoke` without firing its `started` callback, so provider_started read False for a provider that had in fact started. The mock was made faithful rather than the assertion weakened.",
+    "total": 36
+  },
+  "routing": "implement -> baton.feat; ordinary corrections return directly to baton.impl; baton.ops only on accepted completion or a real scope/authority blocker",
+  "tests": {
+    "after": 109,
+    "before": 98,
+    "outcome": "OK"
+  },
+  "triggering_result": {
+    "file": "operator-result-183114/qualification.json",
+    "observed": "first-turn publish-shape after provider start and exit; cleanup confirmed; 18.80640551802935s; no second turn; the export cannot identify the failed branch",
+    "sha256": "008b79672a42b8d5a6c95a1cb7ce28bf91b4950846ee26dbed0d0f300da71707"
+  },
+  "what_remains_unknown": [
+    "run183114's actual branch -- that export cannot identify it and no synthetic reproduction recovers its cause or terminal response",
+    "the model for the earlier runs, unrecoverable from a never-retained document",
+    "G2/G3/G5: no --resume turn has ever run",
+    "the custody correction in the field: still same-UID synthetic evidence only"
+  ],
+  "what_the_next_run_could_distinguish": "the exact publication branch and its errno, and what the provider answered even when publication refuses",
+  "work": "W177936"
+}

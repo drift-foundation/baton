@@ -1,0 +1,28 @@
+{
+  "work": "W61599",
+  "claim": 175051,
+  "design_sha256": "014be97ecf91807fde86d1d84c0d05ede70b3bdd12790a23e3abc3ee57e99906",
+  "design_chain_sha256": {
+    "ACTIVITY-DOCUMENT-DESIGN-174572.md": "cdf220ab2d5cffa5604fab56ae022b688b1ab44d54065f53f60cc7e745ed37eb",
+    "ACTIVITY-DOCUMENT-DESIGN-174645.md": "25bc279ca43637f1e74427ce6847b1ffe97f450b35254b6e849e6204b5a63d46",
+    "ACTIVITY-DOCUMENT-DESIGN-174799.md": "401637e167c2e76cceebb6846b1c7d683189751ee0df6ca7d8954143a628890e",
+    "ACTIVITY-DOCUMENT-DESIGN-174920.md": "3731daca7a8b196ea1cd97cf34df8c8b88af691271ba2e8818b634683d3443ef",
+    "ACTIVITY-DOCUMENT-DESIGN-174971.md": "22427e63b215578d5e911235a33347856b3214edcae35b8fe222c2fce14f1d85",
+    "ACTIVITY-DOCUMENT-DESIGN-175025.md": "014be97ecf91807fde86d1d84c0d05ede70b3bdd12790a23e3abc3ee57e99906"
+  },
+  "source_sha256": {
+    "v12/worker/claude_agent.py": "c7a2b746fbefc088a7670c6f1a3c6363d0faeadcb08d27c56c8f6819ae0f979c",
+    "v12/worker/baton_worker.py": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+    "v12/python/src/baton_v12/worker_manager/exchange.py": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+    "v12/python/tools/single_worker.py": "3b78842c59a46b30a2a542cac6e7ed860e32c5e5645baed643c478a4eddd3c49",
+    "v12/python/tools/stage_execution.py": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+    "v12/python/tools/dogfood_operator.py": "04f4a60d13f2dcf3e60da99fba58debce875e9286c2a0ded0a2e1f6c01ae36ad",
+    "v12/python/tools/job_manager.py": "1060e26a4196bafbc55db7955271853b1a2dde45e316d39cba7681939aeb6bb7",
+    "v12/python/src/baton_v12/job_manager/manager.py": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+    "v12/python/tools/job_viewer.py": "093ec72480e2c921ea657b0e63e7235d7dd5e27933762724132310b42447d356"
+  },
+  "changed_since_review175005": [],
+  "verification_execution_seconds": 0,
+  "method": "static completed-design review; no tests or runtime probes"
+}

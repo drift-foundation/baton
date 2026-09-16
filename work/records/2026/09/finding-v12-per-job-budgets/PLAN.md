@@ -1,6 +1,56 @@
 # Plan
 
-**Current: per-Job budgets wait on mandatory managed-integration prerequisite W161230.**
+## Current — 2026-09-15T03:54:40Z, independently accepted retained v12 scope
+
+Review `review-2026-09-15T03-54-40Z.md` accepts candidate174738 and resolves the
+sole correction in review174632. Six affected-class tests pass independently;
+reuse prior252 passes and accepted W161230 evidence. All observed paths except
+the exact approved test change match the prior inventory. Next baton.ops for
+owner completion disposition; no further implementation or tests requested.
+
+Candidate manifest SHA2561181863ca52453709dd0bbe354b45edee41187cec5d8e76bbdca37149a0f4502
+binds the one existing test path. Evidence review-evidence-174782.json records
+baseline reconstruction, current identities, pinned environment and measured
+execution. Reviewer192.25599302800583s; author250 measured runs2531.283201341037s,
+older unknowns preserved and reported pre-edit reproduction not separately timed.
+
+This supersedes the pending-test-correction and withheld retained-scope sign-off
+states below. Owner closure remains outstanding. Preserve manual recovery for
+uncertain starts and owner-deferred v13/unproved causal/limit/two-Job,
+partial-delivery and shutdown coverage; no live/OCI certification or broad-suite
+pass is claimed. Git remains Slawomir's responsibility.
+
+## Historical — 2026-09-15T03:45:58Z, review174632
+
+W161230 closed satisfying174613. The waiting state and unimplemented-prerequisite
+language below are historical and superseded. Current review:
+`review-2026-09-15T03-45-58Z.md`; evidence `review-evidence-174632.json`.
+Focused current regression:253 tests,252 pass, one already-classified stale
+schema5 assertion after the legacy budget assertion passes under schema6.
+
+Next baton.impl (triaged through baton.bug at174731/174733): correct only
+`v12/python/tests/tools/test_execution_limits.py` method
+`TheJobOwnerAnswersOneBoundaryWithoutADelivery.test_a_migrated_job_with_no_limits_row_still_answers`,
+preserving legacy-generation/default coverage; record path/reason and exact
+before/after hashes. Standing test authority applies. Re-run only affected
+method/class with pinned dependencies and bounded cleanup; reuse252 passes and
+accepted managed evidence. Return baton.feat for independent correction review
+and final retained-scope disposition. No product changes, new managed matrix,
+golden regeneration or blanket suite requested.
+
+Existing positive recovery/isolation evidence is retained. Later owner rulings
+in managed-preparation-recovery FINDING22:18/22:25/22:32/22:33 on2026-09-14 control
+the v12 boundary: manual recovery for uncertain starts and explicitly deferred
+expanded causal/limits/two-Job/partial-delivery/shutdown coverage remain honest
+unproved v13 coverage. They supersede interpreting the historical consumer
+acceptance as a demand to rebuild that matrix. Known concrete defects remain
+required. No full-feature/import sign-off until the bounded correction review.
+Measured reviewer192.04221964701173s; historical author2530.5844189850177s/246runs
+plus4unknown activities. These totals are evidence, not execution gates.
+
+### Historical prerequisite handoff — superseded by current review above
+
+**Historical: per-Job budgets wait on mandatory managed-integration prerequisite W161230.**
 
 Owner M161222/M161232 created the separate Work at
 `baton:work/records/2026/09/finding-v12-managed-integration-execution/`.

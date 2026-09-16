@@ -1,0 +1,28 @@
+test_arbitrary_exception_text_is_not_a_diagnostic (test_qualification.Contract.test_arbitrary_exception_text_is_not_a_diagnostic) ... ok
+test_argv_and_environment_are_the_selected_one_shot_contract (test_qualification.Contract.test_argv_and_environment_are_the_selected_one_shot_contract) ... ok
+test_parser_refuses_duplicate_nonfinite_truncated_and_oversized_records (test_qualification.Contract.test_parser_refuses_duplicate_nonfinite_truncated_and_oversized_records) ... ok
+test_private_values_and_unknown_names_are_not_exported (test_qualification.Contract.test_private_values_and_unknown_names_are_not_exported) ... ok
+test_resume_requires_consumed_positive_shutdown (test_qualification.Contract.test_resume_requires_consumed_positive_shutdown) ... ok
+test_session_model_success_are_observed_and_never_filled_in (test_qualification.Contract.test_session_model_success_are_observed_and_never_filled_in) ... ok
+test_audit_never_uses_engine_or_credentials (test_qualification.Controller.test_audit_never_uses_engine_or_credentials) ... ok
+test_capture_refusal_never_widens_the_subset_or_retries (test_qualification.Controller.test_capture_refusal_never_widens_the_subset_or_retries) ... ok
+test_existing_run_marker_refuses_before_any_engine_or_credential_use (test_qualification.Controller.test_existing_run_marker_refuses_before_any_engine_or_credential_use) ... ok
+test_foreign_nonce_is_never_stopped_or_removed (test_qualification.Controller.test_foreign_nonce_is_never_stopped_or_removed) ... ok
+test_lost_create_answer_is_recovered_by_exact_name_and_nonce (test_qualification.Controller.test_lost_create_answer_is_recovered_by_exact_name_and_nonce) ... ok
+test_missing_model_is_a_qualification_failure_even_if_restoration_works (test_qualification.Controller.test_missing_model_is_a_qualification_failure_even_if_restoration_works) ... ok
+test_two_turn_trace_reconstructs_only_the_subset_and_keeps_token_private (test_qualification.Controller.test_two_turn_trace_reconstructs_only_the_subset_and_keeps_token_private) ... ok
+test_uncertain_cleanup_retains_the_owned_credential (test_qualification.Controller.test_uncertain_cleanup_retains_the_owned_credential) ... ok
+test_unconfirmed_stop_cannot_start_replacement_or_release_credential (test_qualification.Controller.test_unconfirmed_stop_cannot_start_replacement_or_release_credential) ... ok
+test_ambiguous_projects_and_missing_session_do_not_widen_selection (test_qualification.Files.test_ambiguous_projects_and_missing_session_do_not_widen_selection) ... ok
+test_bad_credential_and_link_types_refuse_before_contents (test_qualification.Files.test_bad_credential_and_link_types_refuse_before_contents) ... ok
+test_credential_target_is_never_opened (test_qualification.Files.test_credential_target_is_never_opened) ... ok
+test_entry_and_byte_limits_are_enforced (test_qualification.Files.test_entry_and_byte_limits_are_enforced) ... ok
+test_subset_uses_observed_project_key_and_only_expected_session_file (test_qualification.Files.test_subset_uses_observed_project_key_and_only_expected_session_file) ... ok
+test_bounded_pipe_uses_a_deterministic_local_process_and_reaps_it (test_qualification.ProviderPipe.test_bounded_pipe_uses_a_deterministic_local_process_and_reaps_it) ... ok
+test_output_overflow_and_timeout_reap_the_owned_process (test_qualification.ProviderPipe.test_output_overflow_and_timeout_reap_the_owned_process) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.171s
+
+OK
+{"elapsed_seconds": 0.17341688700253144, "errors": 0, "export_preflight_probe": {"actual_controller_engine_provider_calls": 0, "created_run_marker": true, "created_volatile_marker": true, "export_existed_before_admission": true, "reached": ["controller-process-construction"]}, "failures": 0, "live_threads": [], "permission_probe": {"fake_controller_outcome": "qualified", "gid": 1000, "group_read": true, "group_write": false, "mode": "0o640", "other_write": false, "owner_uid": 1000, "qualification": "metadata proof; fake uses current UID/GID, not real Docker identities", "runtime_is_owner": false, "selected_runtime_uid": 65532}, "tests": 22}

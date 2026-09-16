@@ -1,0 +1,292 @@
+{
+  "claim": 179295,
+  "corrects": {
+    "base_manifest": "9a1ddd250da674e956c707f043830863d74db9074814b5050dff5d5c6c5b78ff",
+    "finding": "R1 -- consistent() validated the diagnostic members' types, ranges and boolean identity, and their agreement with the verdict, but never related them to each other or to the closed members list",
+    "review": "review-2026-09-15T15-39-27Z.md",
+    "review_evidence": "review-evidence-179242.json",
+    "review_evidence_sha256": "63b0d980eaa412ffc888fb9932d347d7d940e40a0c5587cde08318a145b68364",
+    "sha256": "de5c4a2b5131c80739201ebe05eabbe80804f35d1eaa3f6cffe6749d3777cb63"
+  },
+  "files": [
+    {
+      "base_sha256": "8f77718841f45af02c589c238c3f634c0851e7c9dd4610ada95cf97bb591bc50",
+      "candidate_sha256": "8f77718841f45af02c589c238c3f634c0851e7c9dd4610ada95cf97bb591bc50",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-179295/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "1689a5228a6ecf77dcd246420a8b4d3af1c129b6a133a83ff7c3c222aac9032d",
+      "candidate_sha256": "0efe61f528ce4c691b85fa336967d1f85bd32241ffd686c73305f7d36e3281d1",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-179295/qualification_contract.py"
+    },
+    {
+      "base_sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "candidate_sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-179295/qualification_worker.py"
+    },
+    {
+      "base_sha256": "d2fcdf8a8e5b6f38fc23987a6925a890388c4c1ca0ebc22633557f6099d02ec6",
+      "candidate_sha256": "9b76df9f07161eabd2edb2d57e7d96e9e1eb08241d1d642bfea6a5f0bc51457f",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-179295/test_qualification.py"
+    },
+    {
+      "base_sha256": "9a1ddd250da674e956c707f043830863d74db9074814b5050dff5d5c6c5b78ff",
+      "candidate_sha256": "3d5684edae17c296827db26c2a1dcffbf5173d719ddb80fe8e5f1e25f6f98741",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-179295/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-179295/verify-offline.py"
+    },
+    {
+      "base_sha256": "551f40256b3ae79cfdae9ab62c1917b7bd43351fc5d4137f8618886e4d9f091f",
+      "candidate_sha256": "fb872f80ddf330eacd2d954b6bf6a0769410e25ed4212f08883125778f5b3c2d",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": null
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.2636633020010777,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "5bad929ce2646e38d561f9a1b28ec75ae534ec24044bd7da7dacf463af1e4e4a",
+    "manifest_sha256": "3d5684edae17c296827db26c2a1dcffbf5173d719ddb80fe8e5f1e25f6f98741",
+    "pid": 3656916,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "g7": "image 979f11d5 remains the qualification-only selection",
+  "g8": "--max-turns not composed",
+  "manifest_sha256": "3d5684edae17c296827db26c2a1dcffbf5173d719ddb80fe8e5f1e25f6f98741",
+  "not_done": [
+    "live execution",
+    "engine",
+    "model",
+    "credential use",
+    "image build or pull",
+    "product edits",
+    "consumer dossier edits",
+    "broad suites",
+    "baseline repair",
+    "marker reset",
+    "new run identity",
+    "reuse of the consumed fixed identity",
+    "model acceptance relaxation",
+    "validation redesign",
+    "version-control operations"
+  ],
+  "operator_packet_sha256": "fb872f80ddf330eacd2d954b6bf6a0769410e25ed4212f08883125778f5b3c2d",
+  "owner_selection": 179288,
+  "partial": {
+    "G1": "first-turn terminal and session evidence; no accepted actual model",
+    "G4": "first-use observation only",
+    "G6": "first-use observation only"
+  },
+  "probe_findings": [
+    "A probe reverting the expected-key rule PASSED on the first batch: no test flipped model_usage_expected_key to a valid-but-wrong boolean, so only the identity check (which catches 1, not False) covered it. test_the_expected_key_flag_must_match_its_shape and an arm-level case were added; the probe then failed.",
+    "A probe substituting shape['high'] == MODEL_KEY_CAP for the named OVERFLOW_SHAPES membership also passed -- correctly, because the two are exactly equivalent at cap 8. It reverted nothing and was not evidence, so it was REMOVED rather than counted, and the source comment that claimed the naming guarded against a reachable fault was corrected to say it is a readability choice."
+  ],
+  "refused_manifests": [
+    "26a0f74254f88d49e02420c05b242c3349dc6b30b567666928be7290019ded2f",
+    "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+    "9a1ddd250da674e956c707f043830863d74db9074814b5050dff5d5c6c5b78ff"
+  ],
+  "relationships_enforced": {
+    "empty-object": "count 0, uncapped, expected-key false",
+    "expected-only": "count 1, uncapped, expected-key true",
+    "expected-plus-other": "count at least 2, expected-key true",
+    "member_presence": "missing means the known member is absent; every other diagnostic means it is present -- applied to both model and modelUsage",
+    "other-only": "positive count, expected-key false",
+    "overflow": "capped=true requires exactly MODEL_KEY_CAP and a shape that can hold more keys than the cap",
+    "unchanged": [
+      "MODEL_KEY_CAP 8",
+      "strict int/bool identity checks",
+      "model_fields and verdict relationships",
+      "the original actual-model predicate -- no model is qualified or refused differently"
+    ]
+  },
+  "reproduced_before_editing": [
+    "expected-only reporting key count 2, uncapped -- reached qualified",
+    "expected-only reporting key count 8 with capped=true -- reached qualified",
+    "expected-only reporting key count 1 with capped=true -- reached qualified",
+    "modelUsage credited with the model while absent from the closed members list -- reached qualified",
+    "empty-object with capped=true (verdict fields made coherent) -- admitted",
+    "expected-plus-other with key count 1 (verdict fields made coherent) -- admitted",
+    "other-only with key count 1 and capped=true -- admitted",
+    "model_diagnostic=expected for a model field absent from members -- admitted"
+  ],
+  "reversal_probes": [
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+        "test_both_constants_are_accepted_with_and_without_their_final_lf",
+        "test_changed_code_still_refuses_at_the_second_turn",
+        "test_the_controller_never_rewrites_the_workspace",
+        "test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "artifact-exact-only",
+      "reverts": "the second accepted form is gone"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+        "test_both_constants_are_accepted_with_and_without_their_final_lf",
+        "test_no_strip_or_normalization_was_introduced",
+        "test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours",
+        "test_the_relaxation_is_exactly_one_newline_wide"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "artifact-strip",
+      "reverts": "general whitespace tolerance instead of one newline"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm",
+        "test_a_terminal_record_that_contradicts_its_own_diagnostics_refuses",
+        "test_contradictory_cardinality_is_refused_at_the_arm"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "no-consistency-guard",
+      "reverts": "a forged terminal record is no longer refused"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_truthy_integer_is_not_a_boolean"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "membership-not-identity",
+      "reverts": "a truthy integer passes as a boolean"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+        "test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "constant-as-observed",
+      "reverts": "the export labels a constant as the observed artifact"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_refused_artifact_is_recorded_before_it_is_refused",
+        "test_a_token_written_without_its_newline_still_refuses",
+        "test_changed_code_still_refuses_at_the_second_turn"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "refuse-before-record-turn-2",
+      "reverts": "a refused second-turn record no longer survives the refusal"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "refuse-before-record",
+      "reverts": "the observed record no longer survives a refusal"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_shape_cannot_claim_a_cardinality_it_excludes",
+        "test_contradictory_cardinality_is_refused_at_the_arm"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-cardinality-bounds",
+      "reverts": "the old range check: a singleton may report any in-range count"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_contradictory_cardinality_is_refused_at_the_arm",
+        "test_overflow_belongs_only_to_the_shapes_that_can_overflow"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-overflow-rule",
+      "reverts": "overflow may be claimed by any shape at any count"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_diagnostic_about_an_absent_member_is_a_contradiction",
+        "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-usage-member-rule",
+      "reverts": "a modelUsage diagnostic about an absent member is admitted"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_diagnostic_about_an_absent_member_is_a_contradiction",
+        "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-model-member-rule",
+      "reverts": "a model diagnostic about an absent member is admitted"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_contradictory_cardinality_is_refused_at_the_arm",
+        "test_the_expected_key_flag_must_match_its_shape"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-expected-key-rule",
+      "reverts": "the expected-key flag need not match its shape"
+    }
+  ],
+  "scope": "a malformed-worker-record admission gap, not a claim that the pinned provider emitted these contradictions; the review's own 80-vector matrix found the unchanged worker projection coherent throughout",
+  "still_unqualified": [
+    "G2",
+    "G3",
+    "G5"
+  ],
+  "tests": {
+    "added": 9,
+    "after": 60,
+    "before": 51,
+    "outcome": "OK"
+  },
+  "unchanged_from_accepted_179146": [
+    "evidence/qualification-fixture.py",
+    "evidence/qualification_worker.py",
+    "evidence/verify-offline.py",
+    "the whole artifact/prompt half accepted by review179242"
+  ],
+  "work": "W177936"
+}

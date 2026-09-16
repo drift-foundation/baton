@@ -1,0 +1,242 @@
+{
+  "work": "W161234",
+  "claim": 180169,
+  "kind": "static evidence/source triage; no test or provider execution",
+  "checks": [
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/EVIDENCE-C-180069.json",
+      "sha256": "6f25ed30f1bb28474465262795cf3165cc089a3b16101c6199f89ebb9b2f6e14",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/BASE-C-180069.json",
+      "sha256": "eaae88ce9c3767c23927984370d8bc8b49a9f2b6df3a338094b09c3a00fdfbfa",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/OBSERVATION-C-180069.json",
+      "sha256": "19da02e5a2dae573167a80eb214508a5eb68165d1191ef7e1ff47a7f7c124fb2",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-1.json",
+      "sha256": "1c741c8ca8a59b52b96da0798427bc45fa08137bd316f0c6f7e4f0713bd77a4e",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-1.log",
+      "sha256": "f7303f117381cec89401b44e8339403ed79b28a8658a840c1deb949b30703ba4",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-2.json",
+      "sha256": "7213d0181c30593af820295b7518856ce2f6bf0b8aea31279d6fc1b9e26fd658",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-2.log",
+      "sha256": "a969a3ef34ba027eca6abc1c8a8ffca2752540b7634f1c46843bb8d99a4512d5",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-3.json",
+      "sha256": "dd43d6df39a74f4ad419a2348f0f0738b012b0560f068045699fdc25bf3bf0a2",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-3.log",
+      "sha256": "8a58ccd1a90800e43f4622411784cb220b0e239e291fce44874fd41f701c98c2",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-4.json",
+      "sha256": "20423c3b3feaed5bed970bbfdfd7cbc78d2973315bd4f6bca8d53c70e3b93426",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-4.log",
+      "sha256": "12ab1b2b46333c14aa76603b51a733b5c17582095d2ca8c68b3a589ad52ff5ff",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-5.json",
+      "sha256": "3db409369dd95b8e171bdf0ef3512a545b2f04a7379b4f84e52c971204761d32",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-C-180069-5.log",
+      "sha256": "0fd6daa979f22624d9c83353b669d42282b4794b6dcf5180e7f27405ef28e32b",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/verify-C-180069.py",
+      "sha256": "c07f43e2f253ac6ad5f01acee371061c05f4c5d82e33d3e5fd99e50aa61aa07e",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "sha256": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "sha256": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "sha256": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "match": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "match": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "sha256": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+      "match": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "sha256": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "sha256": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "sha256": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/scheduler_trace.py",
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_scheduler_trace.py",
+      "sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_integration.py",
+      "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "match": true
+    },
+    {
+      "path": "v12/python/requirements.lock",
+      "sha256": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+      "match": true
+    },
+    {
+      "path": "v12/python/pyproject.toml",
+      "sha256": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "e0dc7a466c184f3e72ace320045f26a5e14af7874f855f8d7cd83e56d283506c",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-C-180069/correction_restart_trace.py",
+      "sha256": "e0dc7a466c184f3e72ace320045f26a5e14af7874f855f8d7cd83e56d283506c",
+      "match": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "ef7ad4379977bab317e1e2b3fdca7fc2b9e96c4c20e07eb8713303a308a6d3e3",
+      "match": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-C-180069/test_correction_restart.py",
+      "sha256": "ef7ad4379977bab317e1e2b3fdca7fc2b9e96c4c20e07eb8713303a308a6d3e3",
+      "match": true
+    },
+    {
+      "path": "v12/worker/reconciliation_task.py",
+      "sha256": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "2ae66976951d9afd43e994daaf214aaf6e6f2c95f80b43449626ac8460da5110",
+      "match": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+      "match": true
+    }
+  ],
+  "verbatim_log_observation_match": true,
+  "observed_completed": {
+    "combined": 0,
+    "base": 1,
+    "isolated": 0
+  },
+  "observed_aggregate": 1,
+  "observed_state": "blocked",
+  "observed_reason": "the retained preparation did not pass its combined command",
+  "new_reviewer_runtime_seconds": 0,
+  "cumulative_reviewer_seconds": 93.48170357503113,
+  "cumulative_author_seconds": 162.0071183030086,
+  "current_source_findings": {
+    "report_composer": "v12/worker/reconciliation_task.py:compose_report",
+    "actual_adoption_symbol": "v12/python/src/baton_v12/integration/reconciliation.py:adopt_prepared_candidate",
+    "aggregate_contract_test": "v12/python/tests/manager/test_reconciliation_task.py:test_a_genuine_base_failure_is_a_real_integer"
+  },
+  "not_claimed": [
+    "complete C candidate",
+    "managed target/final receipt",
+    "duplicate rejection",
+    "runtime reproduction by reviewer",
+    "source correction",
+    "whole Work acceptance"
+  ]
+}

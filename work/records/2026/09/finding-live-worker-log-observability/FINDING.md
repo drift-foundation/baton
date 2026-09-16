@@ -369,3 +369,519 @@ Slawomir agreed to prioritize Claude implementation of W63255, followed by concr
 Read the complete existing review-2026-09-01T14-24-19Z.md, current FINDING/PLAN and corrected advisory baton:work/records/2026/09/finding-v12-live-progress-prework/PREWORK.md SHA256 65243e410ae3526b1895c7f53bfae9453b8b8e933db04953889fdd27ce5778c9. Produce one concrete design here identifying the supported incremental provider activity source, a closed count-only worker/deployment transport, bounded/coalescing nonblocking publication and positive-growth-only manager freshness. Compare actual source/test bodies and retained evidence before naming a gap. Provider stdout being final JSON is not evidence of incremental native progress. Identify the exact content-free observation operation, lifecycle/teardown ownership, proposed source/test paths and deterministic production-boundary validation.
 
 Design owns only this dossier's new design document and FINDING/PLAN updates; no product/test/main-documentation edits, tests/probes, live models/engines or protocol implementation. If a producer fact cannot be established from source and retained evidence, specify the exact unresolved question and smallest proposed validation instead of inventing it. Caller-versus-owner placement and scoped test changes need no new owner gate. No generic telemetry, rich stream UX or extra acceptance campaign is selected. Return the concrete recommendation to baton.ops for reviewable scope selection before implementation. Do not claim W61599 complete from this design.
+
+## 2026-09-15T03:16:10Z — independent design review, claim174457
+
+**Confirmed:** reviewed the submitted ACTIVITY-SOURCE-DESIGN-174354.md SHA256
+696c117d71bc9740d33e458bb93a2e8e6a82dd424c02d55938539f53d65ac3f7 against
+current source and retained evidence. `review-2026-09-15T03-16-10Z.md` requests
+changes before implementation selection. No product/test changes or execution.
+
+The design's assertion that no native incremental observation exists is
+superseded by this clarification: this FINDING already retains the W52821
+operator observation of private native JSONL growth. Exact current invocation
+file identity remains open. A fake provider timing experiment cannot select
+the real CLI source, and multiple reads can all belong to its final JSON.
+
+**Confirmed:** state/1 has a closed text-valued member contract; the proposed
+integer addition needs a typed/versioned design. Ordinary exchange consumption
+is in single_worker, omitted from the proposed path set. **Inferred:** the
+proposed independent periodic state writer can overwrite answered/faulted
+after terminal publication, causing the existing causal validator to discard
+the terminal; separating threads alone does not establish bounded teardown.
+
+**Proposed, not implementation authority:** revise around private native-file
+metadata, one separately versioned optional count-only exchange document with
+exact operation binding, and bounded/coalescing publishers owned by the worker
+and the actual serving composition. Preserve lifecycle documents, unknown/last
+observed state and receipt-time semantics. The review names path ownership,
+compatibility, source-baseline and finalization cases required in that revision.
+Return baton.ops for selection; W61599 remains unfinished and blocks W2.
+The 2026-09-14 minimum selection and W39649/v13 rich-UX deferrals are unchanged.
+
+## 2026-09-15 — owner selects the bounded design revision (M174518)
+
+Slawomir selected the bounded design revision recommended by
+`review-2026-09-15T03-16-10Z.md`
+(SHA-256 `534d4b37aaff995d94703eb11c8e15bdf479a2ec14a50fa55edbda5d121576d8`),
+to follow the W63255 implementation handoff (returned at seq 174481).
+
+Selected for revision: **native-file identity**, a **separate optional
+count-only activity transport**, **compatibility and exact binding**,
+**ordinary serving ingestion**, and **bounded publication and cleanup**.
+Lifecycle documents are preserved unchanged, and the minimum/v13 boundary
+stands. Design only — no product edits, tests or live execution — returning to
+`baton.ops` with the concrete revised design and path ownership for
+implementation selection. `ACTIVITY-SOURCE-DESIGN-174354.md` is superseded by
+the revision recorded beside it; it remains as history.
+
+## 2026-09-15 — owner completes the activity-document selection (M174565)
+
+Slawomir selects the separate optional `activity.json`, **written to a temporary
+file then atomically renamed over the published file — never renaming the
+published file away first**. One publisher, a bounded latest-count slot, and
+exact **attempt / operation / sequence / command** binding. Missing activity
+preserves **unknown or last-observed** state.
+
+The design must be completed with concrete nonblocking manager ingestion,
+bounded publisher lifetime and cleanup **even when publication stalls**, exact
+document and count limits, accurate old-reader compatibility, and
+**current-invocation native-session file identification derived from source and
+retained evidence**. Lifecycle documents and the minimum/v13 boundary are
+preserved. Design only. The completed packet returns to `baton.feat` for focused
+independent review, then `baton.ops`.
+
+## 2026-09-15T03:30:15Z — review174592: selected document stands; design incomplete
+
+Reviewed ACTIVITY-DOCUMENT-DESIGN-174572.md SHA256
+cdf220ab2d5cffa5604fab56ae022b688b1ab44d54065f53f60cc7e745ed37eb;
+`review-2026-09-15T03-30-15Z.md` requests completion before implementation
+selection. Optional activity.json, atomic replacement, separate typed parser,
+unchanged lifecycle documents and minimum/v13 boundary remain selected.
+
+**Confirmed:** manager.sweep executes serial passes, so synchronous diagnostic
+file/store work can delay following stages and cleanup; calling it a step does
+not supply nonblocking ingestion. Identity equality does not expire a completed
+operation, stop a thread or prove cleanup. **Inferred counterexample:** two
+operation publishers can overlap after one is abandoned and collide on the same
+temporary file. An exact publisher lifetime/exclusion and late-write policy is
+still required; the selected file pattern is not being reopened.
+
+**Explicit correction of the174572 source deduction:** production _scratch
+does not cache its new directory in _home; _home is assigned by the constructor's
+test injection only. Describe invokes no Claude provider. A reused _prepared_home
+is not proved empty. Fresh invocation HOME is useful provenance, not proof that
+all matching files are native sessions. The proposed count formula can regress
+when a file shrinks while remaining above its initial baseline; track last size
+and freeze further observations on ambiguity. Bind per-operation observation to
+the attempt-wide cumulative owner coherently. These are corrections to design
+claims, not executed product failures.
+
+Old-reader compatibility is statically known: MAX_EVENT_ENTRIES=64; extra names
+are reported as foreign without being read, and exceeding the cap invalidates
+the observation. Pin bounded staging/leftover headroom in the revised design.
+Return baton.ops with the concrete corrections and retain W61599/W2 gates.
+No product/test changes or tests/probes/live execution; verification execution0s.
+
+## 2026-09-15T03:50:47Z — review174739: concrete remaining design boundaries
+
+Owner174641 requested completion; reviewed author174658/174656 packet
+ACTIVITY-DOCUMENT-DESIGN-174645.md SHA256
+25bc279ca43637f1e74427ce6847b1ffe97f450b35254b6e849e6204b5a63d46.
+Review `review-2026-09-15T03-50-47Z.md` accepts the corrected scratch deduction,
+work-only baseline and monotonic/freeze counting direction, publication cadence,
+no-replacement direction and64-entry headroom. These supersede those outstanding
+parts of review03:30:15Z; optional activity.json and atomic replacement stay
+selected. No product implementation is accepted.
+
+**Confirmed:** observe_activity has no live-state/publication-generation guard.
+**Inferred counterexample:** a greater-total write paused after a nonterminal
+check can resume after terminal/close, advancing receipt time for the same
+operation. Binding/repeat/regression checks do not reject it. Finish explicit
+delayed-final-count semantics or an actual revocation boundary before claiming
+that delayed publication cannot occur.
+
+**Confirmed:** single_worker.worker_operations is instantiated per pooled
+worker; stage_execution.operations_from and StageExecution.release/_closers
+own the deployment and its actual teardown. A one-per-deployment ingestion
+resource needs exact wiring there, outside the current five-path packet, or a
+concrete equivalent proving the same ownership. The review proposes injection
+of a bounded enqueue capability through the existing serving-only runtime
+refresh seam, with an independent ingestion-thread store handle; this is design
+support for owner selection, not implementation authority. Numeric scanner and
+manager-stop limits, cross-composition no-replacement and safe fixed staging
+creation/recovery remain unspecified. Return baton.ops with the finite list.
+
+Evidence review-evidence-174739.json pins source/design hashes. Design review
+only;0s tests/probes/runtime execution, no product/test/PROGRESS/Git edits.
+The minimum/v13 boundary and W2 gate remain unchanged.
+
+## 2026-09-15 — owner pins delayed-final-count semantics and the composition boundary (M174788)
+
+Slawomir selected the **delayed-final-count semantics**: an update admitted
+while the operation was live may arrive after completion; its timestamp is
+**manager receipt time** and is never evidence of continued provider activity
+and never authority to change terminal state. The terminal precheck is a cheap
+early skip, not a correctness boundary, and the viewer reports activity as
+historical once the stage is terminal.
+
+Also selected: the additional **`v12/python/tools/stage_execution.py`**
+composition boundary, owning one ingestion worker per deployment with its own
+thread-opened `ControlStore` handle, released through `StageExecution._closers`;
+the `single_worker.refresh_runtime` enqueue hook; trusted seven-member enqueue
+binding; no replacement across recomposition while a prior worker is unresolved;
+numeric scan/overflow limits; a nonblocking baseline whose failure leaves
+activity unknown; and exclusive `O_CREAT|O_EXCL|O_NOFOLLOW` staging that
+suppresses rather than cleans up.
+
+Completed packet: `ACTIVITY-DOCUMENT-DESIGN-174799.md`. Design only.
+
+## 2026-09-15T04:06:59Z — review174872: retained decisions and concrete remainder
+
+Reviewed design174799 SHA256401637e167c2e76cceebb6846b1c7d683189751ee0df6ca7d8954143a628890e
+under owner174788. Delayed-final-count receipt semantics explicitly supersede
+the old demand for strict same-operation late-write revocation. New composition
+scope, numeric bounds and exclusive/no-follow suppressing staging are accepted
+design directions, not product implementation. Do not reopen these selections.
+
+**Confirmed:** bootstrap uses single_worker.operations_from/_Operations.close,
+not stage_execution.operations_from/StageExecution._closers. The packet's
+both-covered-by-one-constructor claim is superseded by this source correction.
+**Inferred:** a synchronous baseline scan can stall in one filesystem operation
+despite entry/depth caps, and an instance-local closer cannot prevent a distinct
+new composition starting a replacement for an unresolved ingestion helper.
+Review `review-2026-09-15T04-06-59Z.md` names three finite mechanism completions
+within the selected source paths; these are not executed product reproductions.
+
+Keep the manager-local event root out of the wire document and distinguish its
+six content identity fields. Existing viewer job_viewer.py still renders activity
+UNKNOWN; its historical-after-terminal display rule needs coordination through
+W167896, not a claim of implementation or silent source expansion here.
+
+Evidence review-evidence-174872.json pins design and sources; prior nine source
+hashes unchanged. No tests/probes/live execution (0s), no product/test/PROGRESS/
+Git edits. Return baton.ops for completion disposition. Work remains design-only,
+unfinished and a W2 gate; rich UX/v13 deferrals stand.
+
+## 2026-09-15T04:16:56Z — owner174917 routing and review174947 corrections
+
+Owner174917 selected completion of baseline admission, separate pooled/bootstrap
+ownership and shared bounded admission within existing scope, design only.
+Further in-scope corrections go directly to baton.impl and back to baton.feat;
+baton.ops is reserved for a concrete new scope/product decision or the completed
+implementation-selection packet. This supersedes the earlier routine ops return.
+
+Reviewed ACTIVITY-DOCUMENT-DESIGN-174920.md SHA256
+3731daca7a8b196ea1cd97cf34df8c8b88af691271ba2e8818b634683d3443ef.
+**Accepted:** separate actual constructor/closer hooks, retained registry owner
+direction, six wire fields distinct from local root, no diagnostic adoption and
+honest viewer follow-through. Transport/count semantics/numbers/staging stand.
+
+**Inferred design counterexample:** old file1000 bytes plus10 appended before
+the first tick has1010 bytes and new mtime. The proposed timestamp discriminator
+counts all1010, so its claim to reconstruct a correct baseline is superseded.
+Use a true completed baseline or construction-proven fresh/unrestored emptiness;
+otherwise optional activity stays unknown. This is reasoning, not a runtime test.
+
+**Confirmed composition mismatch:** the selected helper is per deployment,
+whereas the new registry is per attempt and the new root operand is fixed once
+at construction. Specify deployment/store helper admission plus per-attempt
+trusted root/identity requests. A manager-local queued root was never forbidden;
+only a wire-supplied host root and synchronous diagnostic adoption are excluded.
+Review `review-2026-09-15T04-16-56Z.md` gives exact corrections and lifetime rules.
+
+review-evidence-174947.json pins ten unchanged source hashes. Static review
+only,0s tests/probes/live execution, no product/test/PROGRESS/Git edits. Return
+directly baton.impl to finish the coherent design, then baton.feat. No
+implementation selection or W61599/W2 completion is asserted.
+
+## 2026-09-15T04:23:56Z — review175005 accepts baseline; helper admission still due
+
+Reviewed design174971 SHA25622427e63b215578d5e911235a33347856b3214edcae35b8fe222c2fce14f1d85.
+Construction-proven fresh/unrestored baseline with unknown on injected/reused/
+restored homes resolves the mtime objection; per-request trusted roots resolve
+the fixed-root composition mismatch. Preserve those accepted corrections.
+
+The per-attempt registry still does not exclude replacement helpers: C1/H1 can
+remain blocked for (S,A) while C2/H2 acquires (S,B). The claim that separating
+helper and admission names resolves the retained no-replacement requirement is
+superseded to this extent. This is a reasoned design sequence, not a runtime
+reproduction. Add the helper-level deployment/store slot before thread start,
+retained until positive termination, and test different-attempt recomposition.
+Review `review-2026-09-15T04-23-56Z.md` gives the exact in-scope correction.
+
+Return directly baton.impl under owner174917, then baton.feat. No new owner
+decision or product scope is needed for that correction. All other accepted
+design decisions and W167896 viewer follow-through stand. Work remains design-
+only and gates W2. review-evidence-175005.json pins ten unchanged source hashes;
+verification execution0s, no tests/probes/live execution or product/test/
+PROGRESS/Git edits by reviewer.
+
+## 2026-09-15T04:29:53Z — review175051 accepts completed design for selection
+
+Design175025 SHA256014be97ecf91807fde86d1d84c0d05ede70b3bdd12790a23e3abc3ee57e99906
+resolves the final helper-exclusion objection. Both factories acquire one
+process-wide ownership slot per held control-store identity before helper
+start, without an attempt id in the key. An occupied slot suppresses the new
+helper and all its ingestion, including requests for a different attempt.
+Positive termination releases the slot; failure before any helper starts may
+unwind it. The ingestion thread closes its own handle during finalization,
+while a timed-out closer leaves the handle/slot untouched and reports the fact.
+
+This explicitly supersedes the earlier per-attempt helper-admission design and
+remaining changes-requested status. Fresh/unrestored baseline, per-request
+trusted roots/identities, transport, receipt semantics, numbers, staging, both
+factory hooks and W167896 viewer follow-through remain accepted. Review
+`review-2026-09-15T04-29-53Z.md` consolidates the current corrected chain and
+six-source/five-test selection packet so historical contradictions are not
+implementation instructions.
+
+Pass baton.ops for owner implementation selection under owner174917. This is
+design acceptance only: no product implementation, executed runtime acceptance,
+Work closure or W2 release is asserted. No correction remains from the
+controlling design reviews; implementation still requires its focused tests
+and independent candidate review. The rich-UX/v13 boundary is unchanged.
+
+review-evidence-175051.json pins the complete design chain and ten unchanged
+source hashes. Verification execution0s; no tests/probes/live provider/engine
+execution or product/test/PROGRESS/Git edits by reviewer.
+
+## 2026-09-15 — the activity source is implemented (claim 177898)
+
+The selected design is implemented over its six source paths. Two facts from
+this round are worth keeping beyond the candidate:
+
+**The outer `docker exec` stderr was never the provider's stream.**
+`ClaudeAgent` runs the provider with stdout on a private anonymous pipe it
+reads inside the container and stderr on `DEVNULL`, so the count this manager
+published was of the worker's own transport noise — a silent provider grinding
+for ten minutes looked identical to a stopped one, and a chatty exec wrapper
+looked alive. That is why the source had to move inside the container, and it
+is the whole reason the first review of this Work rejected the original wiring.
+
+**A baseline that is measured cannot be trusted; one proved by construction
+can.** An uninjected `_scratch` is a `mkdtemp` this process just created, so
+its private `.claude` is provably empty of native files with no scan and no
+stat — a true pre-launch zero that costs the launch nothing. Every other home
+is **unknown**, and nothing is estimated. The mtime rule that preceded it was
+wrong for a reason worth recording: 1000 bytes with 10 appended has 1010 bytes
+*and* a fresh mtime, so mtime can say that a file changed and never how much of
+it is new.
+
+**Three reversal probes came back as non-evidence** and the tests they exposed
+were corrected — a truncation case that asserted only that a total had not
+fallen, a positive-total case whose `None` was being absorbed by the
+publisher's own dedup so a **zero** would have been published, and an
+observer-fault case that proved nothing because a turn survives a dead
+publisher thread either way. A probe that passes with its guard removed is not
+a test of that guard.
+
+
+## 2026-09-15T13:33:05Z — owner hard stop at 100 minutes of claim177898
+
+Slawomir directs a hard stop at 100 minutes for W61599, then joint review of the current state before further work. Claim177898 began 2026-09-15T12:15:43Z. The deadline is therefore **2026-09-15T13:55:43Z (07:55:43 America/Denver, MDT)**. This is an owner-selected wall-clock execution boundary, not a cumulative test-accounting gate. It supersedes open-ended continuation of this claim and automatic further W61599 correction cycles pending that review; it does not change accepted behavior or declare a candidate accepted.
+
+Claude should budget the remaining interval to stop execution, terminate/clean up owned test processes, preserve current bytes and evidence, and return a concrete handoff by the deadline. Record completed scope, actual passing/failing checks and measured/unknown costs, exact unfinished scope, any remaining processes/resources and blockers. Do not start work that cannot finish and clean up before the deadline. Return control to baton.ops through the supported route for owner review; if route authority requires another destination, state the stop ruling and do not resume implementation automatically. Do not begin queued preparation after this stop until the owner has reviewed the state. No claim release by the prompt participant or forced process termination is performed by this record.
+
+The owner said he will terminate the process if necessary. A conversational notification is not an enforced OS deadline and may not be consumed during an active turn. Any forced stop must target the then-current exact executor, not assume that an old bridge PID identifies only this Work. A later recovery must re-read the claim and resource state; killing a process is not proof that its claim or child processes were cleaned up.
+
+
+## 2026-09-15 — owner defers reported pre-existing suite failures until post-v12
+
+After W61599 implementation handoff178359, Slawomir directed: "the so called 'preexisting' failures need to be addressed in post-v12 era, where we have speedy access to parallel work. I don't want to burn time on them now".
+
+Record the baseline failure backlog under W165786 for bounded parallel work after v12 readiness. W61599's ACTIVITY-IMPLEMENTATION-177898.md reports baseline7259 tests/89 failures-errors and candidate7333 tests/88 failures-errors, with the remaining set reported unchanged from baseline. These are author-reported classifications, not an independent certification or a green suite. Preserve the existing results, failure identifiers/log locators where already available, and the exact baseline/candidate context. Do not spend current release time repairing those baseline failures, reconstructing broad suite history, or repeating full suites merely to investigate them.
+
+The active W61599 reviewer should use existing evidence and focused checks of the changed behavior and any concrete suspected introduced regression. Candidate acceptance does not require fixing unrelated baseline failures. Report a concretely demonstrated defect in selected v12 execution separately; do not call a new regression pre-existing to waive it, or use speculative classification concerns to launch a baseline cleanup campaign. This ruling narrows current verification/repair scope, not truthful result reporting or independent acceptance.
+
+After readiness, W165786 will decompose surviving failures into small Jobs with explicit file ownership, prioritization and acceptance, reusing v12 parallel execution. Reuse existing defect Works when identified; no new implementation/backlog copies or release-gate edges are created now. The downstream consumer must revalidate the surviving failures then rather than treating this snapshot as current indefinitely.
+
+Evidence: baton:work/records/2026/09/finding-live-worker-log-observability/ACTIVITY-IMPLEMENTATION-177898.md, section8; PROGRESS.md claim177898; W61599 pass178359. This explicit post-v12 repair selection supersedes any interpretation that the baseline suite must be made green before W61599/W2 can proceed. W161234 and the already-selected required v12 outcomes remain independently accountable.
+
+## 2026-09-15T13:39:06Z — current-state review returns to owner under stop ruling
+
+baton.codex claim178362 performed bounded static review after implementation
+pass178359. The later OWNER-STOP-177898.md ruling requires joint owner review
+before further work and supersedes automatic correction dispatch. Return baton.ops,
+not baton.impl; no queued preparation or new correction cycle is selected here.
+
+review-2026-09-15T13-39-06Z.md records: two current test hashes differ from the
+submitted handoff; the enqueue adds realpath/lstat work on the serial serving
+path; both stop methods discard their thread reference before a timed-out join,
+so a second stop can falsely report success; and path-based directory scanning
+can follow a link substituted after its no-follow check. Source/control-flow
+findings are distinguished from an inferred directory race; no dynamic probe
+was run. No candidate acceptance or shared-path release is granted.
+
+review-evidence-178362.json SHA256
+b4ad2a0eca2f394afb0bddc4e79f50d625fa44c8d6d81c6c98e29fa7328d34d2 binds all12
+current/submitted comparisons. All six source hashes match. Test drift authorship
+is unknown. The author's aggregate suite/reversal claims lack bound logs,
+failure-identity comparison and process-cleanup evidence; they remain reported,
+not independently accepted. Approximately2966s includes an approximately190s
+estimate, which must retain that qualification. No stopwatch replenishment gate.
+
+Reviewer verification0s; no product/test/PROGRESS/Git changes or test processes.
+Owner reviews the stopped state, evidence/resources and concrete next assignment.
+This supersedes pending implementation acceptance/automatic return as next action,
+not accepted product semantics, prior history, W167896 viewer ownership, W161234
+shared-file order or W39649/v13 deferrals. W61599 remains unfinished.
+
+## 2026-09-15 — owner178421 selects bounded tuner correction, claim178427
+
+Owner reroute178421 explicitly assigns baton.tuner the three source corrections
+in review-2026-09-15T13-39-06Z.md: remove diagnostic filesystem resolution from
+the serving loop, retain truthful repeated-stop results, and prevent directory
+replacement from attributing foreign native activity. This supersedes the
+OWNER-STOP-177898.md hold only for this correction. Return baton.feat for focused
+independent review, then baton.ops; no automatic further implementation cycle.
+
+Revalidated all12 current file hashes against review-evidence-178362.json.
+correction-178427/base.json and its immutable base snapshots preserve those
+bytes, including the two test files differing from the older submitted hashes.
+Earlier suite/probe results are not rebound to these bytes. Requested known
+final edits/snapshots/process disposition from the author in T61599 M178453;
+unknown historical facts remain unknown and no broad reconstruction is selected.
+
+Tuner owns exactly claude_agent.py, baton_worker.py, tools/single_worker.py and
+their existing test_claude_agent.py, test_exchange.py, test_single_worker.py
+paths in the selected v12 tree, plus this dossier. Tests cover no filesystem
+resolution at enqueue, repeated timed-out stops with retained handle/slot and
+positive cleanup, and root/child-directory replacement races with descriptor
+cleanup. Standing test authority applies; expectation changes and reasons will
+be in the handoff. Preserve limits, fresh-home baseline, unknown reused HOME,
+optional transport, lifecycle bytes, receipt-time semantics and both factories.
+
+Only focused deterministic regressions and process-cleanup evidence are selected.
+No full suite, baseline repair, architecture redesign, broad historical accounting
+or live provider/engine execution. W161234 shared-source release still awaits
+independent acceptance; W167896 viewer follow-through and v13 deferrals stand.
+
+## 2026-09-15 — bounded correction complete, tuner claim178427
+
+HANDOFF-178427.md and correction-178427/candidate.json bind the exact correction
+and retained base/candidate bytes. The three review178362 defects are corrected:
+filesystem resolution is off the enqueue thread, repeated stops retain their
+thread handles, and directory traversal uses no-follow parent-relative descriptors
+with opened-object checks. This supersedes the old implementation claims that
+enqueue did no filesystem work and entry checks alone excluded directory races.
+A missing/inaccessible native root now conservatively freezes optional activity.
+Accepted baseline, transport, counts, receipt-time semantics and scope stand.
+
+Author M178528 supplied exact submitted test snapshots. Both old hashes verify;
+the two retained diffs prove six author test corrections after his hash list.
+Current correction hashes are separate. Fresh final focused verification passes
+82 tests; 17.160464063985273s total new supervised execution including failed
+setup/negative runs. Every owned group exited, with no live test threads in the
+completed checks. See handoff for negative-control qualifications, ambient
+dependency versions, retained author logs and attributed historical cleanup.
+Return baton.feat for focused independent review then baton.ops, per178421.
+No automatic correction cycle, W161234 shared-file release or viewer completion.
+
+## 2026-09-15T14:06:58Z — correction178427 independently accepted
+
+baton.codex claim178572 accepts the bounded source/transport/ingestion candidate
+in correction-178427/candidate.json SHA256
+acabca2d229f984a647626d6feb5244d4d1d0bea95c80b025f802ca9194138b3.
+review-2026-09-15T14-06-58Z.md SHA256
+975d4ea565eb3eae50e5f053b7677fdeae00a5109f518502331d06ad27a42e90 and
+review-evidence-178572.json SHA256
+4f98daa2c62ba459b7ffebbd5479a610d78d34d86f6202cff243dc92789832cd bind the
+independent outcome. All12 candidate/base comparisons, repository modes/types,
+and56 inventoried evidence hashes verified; final candidate bytes remained fixed.
+
+The three review178362 defects are resolved: no diagnostic path resolution on
+enqueue, truthful repeated stops with retained thread handles, and descriptor-
+relative no-follow traversal with child identity checks. The two stale submitted
+test hashes are reconciled to retained exact snapshots and six author corrections;
+this supersedes their unknown-authorship classification, not the historical review.
+The independently run focused82 tests passed with zero failures/errors and no live
+test threads. The owned process group was absent; no termination was needed.
+Measured reviewer supervisor time7.170285156025784s. See the review for exact
+virtual-environment dependencies, test expectation assessment and evidence limits.
+
+Author correction17.160464063985273s and original approximately2966s (including
+approximately190s estimated) remain separate. Historical author process cleanup
+and baseline89/candidate88 pre-existing classifications remain attributed claims;
+no broad rerun, baseline repair or historical reconstruction was performed.
+
+This supersedes pending independent acceptance as the current action. Return
+baton.ops under178421 for owner disposition, with no automatic further implementation.
+W161234 has an accepted exact shared-byte reference but still needs explicit
+ownership release. W167896 historical terminal viewer follow-through remains;
+visible count delivery and Work closure are not asserted. W165786/post-v12 baseline
+repair and W39649/v13 richer viewer scope stand. No product/test/PROGRESS/Git edits.
+
+
+## 2026-09-15 — resume Claude's approved preparation after owner review
+
+Owner review of the stopped W61599 state is complete: owner178644 accepted correction178427 and released shared files; owner178645 selected W161234 B for tuner. Slawomir now reports that Claude is not picking up work, in the context of the already-approved Claude-prepares/tuner-implements plan. Resume that selected preparation: W177937 viewer activity connection, then W177938 final correction/restart proof packet.
+
+This explicitly supersedes OWNER-STOP-177898.md's temporary prohibition on these two queued preparation tasks and Claude's stop acknowledgment178462. The original implementation claim177898 ended before its deadline and is not resumed. No new W61599 producer edit, implementation, live experiment, broad suite or baseline repair is authorized. Claude owns only each preparation dossier and hands exact concrete execution packets to baton.ops for tuner follow-through. Revalidate accepted W61599 candidate/review and W161234 current state; do not edit tuner's shared source files or active dossier. Existing independent review and scope boundaries remain.
+
+
+## 2026-09-15 — owner assigns remaining viewer delivery to tuner after Claude preparation
+
+Slawomir requested that W61599 also be assigned and then asked to resume. The accepted producer correction178427 and owner acceptance/shared-file release178644 remain intact. The remaining W61599 delivery is the minimal viewer connection. Assign that outcome to baton.tuner after W177937 supplies the concrete viewer consumer packet; Claude prepares W177937 and then W177938 under the already-recorded resumption ruling. Preserve W161234 B shared-file ownership and the accepted producer bytes. No producer rewrite, rich viewer expansion, broad suites, baseline repair or live execution is selected.
+
+W61599-on-W177937 is the proposed exact dependency: the viewer implementation consumes its concrete API/path/verification packet. This sequences existing selected work and is not another W2 release requirement or an architecture review. The owner should add this dependency while W61599 is at baton.ops, then route W61599 to baton.tune. The completed packet and accepted minimum monitor scope bound the implementation; record exact paths and coordinate any overlap before edits. Return the implemented candidate for focused independent review. These ledger operations are pending until confirmed, not claimed by this file.
+
+Operational finding: at snapshot178674 all prior resume routing attempts remained uncommitted. Standalone canonical reroute writes as baton.prompt failed with sqlite3.OperationalError: attempt to write a readonly database; two requested escalated retries failed before execution with approval request failed. No database inspection, alternate identity, hidden mutation path or claim release was attempted. The resumption decision is pinned in the existing dossiers, but delivery through the CLI still needs the operator's normal authorized boundary. Human commands will notify Claude using poke (the Work is already routed to her), record the real viewer-preparation dependency and route W61599. The notification relays recorded owner authority and does not itself grant workflow authority.
+
+
+## 2026-09-15 — owner selects parallel viewer implementation by Claude
+
+Slawomir states that tuner is tied up and Claude can carry out one implementation. Snapshot178772 confirms tuner actively holds W177936 fixture preparation; W61599 and W161234 are ready/unclaimed on baton.tune, and Claude is idle. Select W61599's independent three-file viewer connection for baton.claude. This supersedes the tuner-only implementation assignment178690 for this remaining viewer slice; W161234 B and W177936 stay with tuner.
+
+Input: owner-accepted W177937 PACKET.md SHA256 aaa30c9dd529d245f89b1d0645a00c85d5769a94b31b8b8d1411751646a7db28; preparation closed satisfying178761. Exact product/test ownership: v12/python/tools/job_viewer.py, v12/python/tests/tools/test_job_viewer.py, v12/python/JOB-VIEWER.md, plus this W61599 dossier for author progress/candidate/evidence. Read the packet and revalidate its three base hashes before editing. Consume existing stage.runtime.activity; positive live count with age, terminal historical instant, absent/invalid count unknown. Preserve snapshot staleness separately and no second backend read. These files are disjoint from tuner's active fixture and selected B paths.
+
+Implement this bounded packet to completion, run focused tests.tools.test_job_viewer verification with the packet's finite timeout and cleanup, publish exact candidate and measured evidence, then pass baton.feat for focused independent review followed by baton.ops. No repeated architecture review, six-producer-path edit, new backend/schema, rich UI, broad suites, baseline repair or live provider/engine execution. The former W61599 claim177898 and its expired deadline are not resumed; this is a newly selected three-file implementation claim. Prior source acceptance and shared-file release remain intact. Canonical assignment remains pending until the reroute succeeds.
+
+## 2026-09-15T14:42:20Z — viewer review178853 requests two corrections
+
+baton.codex reviewed viewer-candidate-178777.json SHA256
+2d8bd9bfe8e2769f1da33d9d5e89870c43d9ec2679482f122bbe5c698a1a37ad under
+owner178775. review-2026-09-15T14-42-20Z.md SHA256
+cefb901369782edfc1155bfc0c3c6eddca2bf997efce0f9ec287d4300d2c7650 and
+review-evidence-178853.json SHA256
+41b421f30c751d467a2428dbb21b43acd1685dc4deb996b6d4329c9564fe66f1 bind the
+outcome. All three candidate bytes/modes and exact accepted viewer base hashes
+verified; retained base/candidate copies and independent results are in this
+dossier. Candidate bytes remained unchanged through verification.
+
+R1: the default100-column list clips the new terminal activity timestamp and
+entire stage identity on an ordinary completed stage. The new terminal test
+checks full timestamp only in detail. Preserve both facts in the default list
+with a bounded layout correction and test all three terminal states.
+R2: a5659-byte valid JSON snapshot with activity integer10**400 passes parsing
+then raises OverflowError in the new floating-point byte formatter. The old
+constant-unknown behavior renders the same snapshot. Bound/validate the count
+before conversion and cover the input-to-render path; this is malformed consumer
+input, not a claim that the trusted producer emits an out-of-domain count.
+
+Independent74-test focused viewer run passed, and both additional probes
+reproduced. Measured reviewer supervisor3.266339145018719s, no timeout/test
+threads, process group positively absent. Author main viewer run3.187675s and
+five reversal probes remain attributed; probe durations are not supplied and
+are not invented. Prior producer costs and baseline qualifications stand.
+
+This supersedes pending viewer review/visible-count delivery claims as the
+current action: return baton.ops for R1/R2 disposition, no automatic further
+implementation. Accepted producer correction178427 and release178644 stand;
+W161234 B owns its separate active paths. No producer edit, new backend, rich UI,
+baseline repair, broad suite, live provider/engine, product/test/doc-candidate
+change, author PROGRESS edit or Git mutation occurred. Only reviewer dossier
+evidence/FINDING/PLAN changed. Visible-count acceptance and owner closure remain
+pending; W165786/post-v12 baseline work and W39649/v13 scope are unchanged.
+
+## 2026-09-15T15:04:29Z — corrected viewer independently accepted, claim179011
+
+Owner reroute178927 selected the bounded R1/R2 correction within the existing
+three-file viewer scope; that selection was pinned in PLAN before implementation.
+It superseded the pending owner-disposition hold for this correction only.
+review-2026-09-15T15-04-29Z.md now accepts viewer-candidate-178930.json SHA256
+820c7c9b1aff17390b78d304d1d320dd8c13c3279823361f362be30b4cc314c7.
+
+**Confirmed:** R1/R2 are resolved. The default list separates activity timing
+onto a continuation line, preserving the original fixture's full stage identity
+and terminal receipt instant. Domain validation precedes formatting, so an
+oversized integer renders unknown while the largest valid count remains visible.
+Independent83 focused viewer tests pass, plus12 actual-JSON renderer probes over
+four states and normal/ceiling/oversized counts. All three file hashes/modes and
+both prior base/candidate snapshot chains verify; bytes remained fixed.
+
+viewer-review-179011.py, .json and .log retain the verification and exact copies.
+Measured supervisor3.266575059009483s; no failures/errors, live test threads,
+timeout or termination signals; owned process group positively absent. Prior
+author/reviewer costs and unknown reversal durations remain separate in the
+review. Historical baseline classifications remain author testimony; no broad
+suite, baseline repair, live provider/engine or producer-path test selection.
+
+This supersedes review178853's pending R1/R2 acceptance status. The minimal
+viewer connection is independently accepted and visible activity rendering may
+be claimed, combined with the already accepted producer correction178427 and
+owner release178644. Return baton.ops under178927 for owner disposition; no Work
+closure or deployment is asserted here. W161234 owns its separate shared paths.
+W39649/v13 richer stream/viewer work and W165786/post-v12 baseline repair remain
+deferred. Reviewer changed only dossier evidence/FINDING/PLAN, not candidate
+source/tests/docs, author PROGRESS or Git state.

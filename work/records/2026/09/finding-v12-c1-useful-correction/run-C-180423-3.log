@@ -1,0 +1,20 @@
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... FAIL
+
+======================================================================
+FAIL: test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_correction_restart.py", line 15, in test_useful_correction_reaches_managed_target
+    artifact = world.run_scenario()
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 288, in run_scenario
+    reviewed_stage, review_episode, reviewer = self.review(held, "changes-requested")
+                                               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/correction_restart_trace.py", line 257, in review
+    self.assertNotIn(common, (os.path.realpath(one["source"]), os.path.realpath(forbidden)))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '/home/sl/src/baton/v12/python/v12-w71917-w4mej556/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout' unexpectedly found in ('/home/sl/src/baton/v12/python/v12-w71917-w4mej556/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout', '/home/sl/src/baton/v12/python/v12-w71917-w4mej556/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout')
+
+----------------------------------------------------------------------
+Ran 1 test in 0.498s
+
+FAILED (failures=1)

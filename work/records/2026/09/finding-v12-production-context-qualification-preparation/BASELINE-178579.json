@@ -1,0 +1,97 @@
+[
+  {
+    "path": "baton:v12/python/src/baton_v12/worker_manager/credentials.py",
+    "old_sha256": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df",
+    "current_sha256": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df"
+  },
+  {
+    "path": "baton:v12/python/src/baton_v12/worker_manager/exchange.py",
+    "old_sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+    "current_sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8"
+  },
+  {
+    "path": "baton:v12/python/src/baton_v12/worker_manager/oci.py",
+    "old_sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+    "current_sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1"
+  },
+  {
+    "path": "baton:v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "old_sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+    "current_sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9"
+  },
+  {
+    "path": "baton:v12/worker/Dockerfile.claude",
+    "old_sha256": "8f88fc3bd366b76686d9cae0e5af019ba395a39d3afb9fd78dc5c3570556e55b",
+    "current_sha256": "8f88fc3bd366b76686d9cae0e5af019ba395a39d3afb9fd78dc5c3570556e55b"
+  },
+  {
+    "path": "baton:v12/worker/claude_agent.py",
+    "old_sha256": "a6f934eaa5cf37fbed0ae7edc7f0521bb42566d4a0753cd939b4c148625b4529",
+    "current_sha256": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-context-reuse-design/DESIGN.md",
+    "old_sha256": "5da337d20d0bd62ba3e2d65128ce046b0ef318bf1f1512cb47ee8ca44bcbf3c7",
+    "current_sha256": "5da337d20d0bd62ba3e2d65128ce046b0ef318bf1f1512cb47ee8ca44bcbf3c7"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/EXECUTION-B-177536.md",
+    "old_sha256": "e7014bba453f2b23a65d5c4a90bd094767c742dccc1012ef382fdb688a795cfa",
+    "current_sha256": "e7014bba453f2b23a65d5c4a90bd094767c742dccc1012ef382fdb688a795cfa"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/HANDOFF-B-177536.md",
+    "old_sha256": "da10c9f54c448c15935bb0f53eae80efb421c2468fc582166403402e6917011e",
+    "current_sha256": "da10c9f54c448c15935bb0f53eae80efb421c2468fc582166403402e6917011e"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/PLAN.md",
+    "old_sha256": "9d758dff5096f1aa566e2d8f8e7e36cb238db57201849ed2168e643d2e45454f",
+    "current_sha256": "9d758dff5096f1aa566e2d8f8e7e36cb238db57201849ed2168e643d2e45454f"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-live-session-workspace-detach/OFFLINE-HELP-CHECKPOINT.md",
+    "old_sha256": "3c58a5f48428234fee08c41a0dc75798d675ab62dd41fca06d4ce1e7df7def09",
+    "current_sha256": "3c58a5f48428234fee08c41a0dc75798d675ab62dd41fca06d4ce1e7df7def09"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-live-session-workspace-detach/RESULT-DIAGNOSTICS.md",
+    "old_sha256": "b82c49d5afd663c8c7e75aa8d0cb8e1cefa4e1d5af645aa1a4b1af318c8a2f06",
+    "current_sha256": "b82c49d5afd663c8c7e75aa8d0cb8e1cefa4e1d5af645aa1a4b1af318c8a2f06"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/transport-contract.json",
+    "old_sha256": "880a5bc279ac820cb1224f6c43f6e96ac92501d95120684306363553c1dcb2a9",
+    "current_sha256": "880a5bc279ac820cb1224f6c43f6e96ac92501d95120684306363553c1dcb2a9"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_result_diagnostics.py",
+    "old_sha256": "94c6dd20122131f2a67bcd00c50d55e94ac5b65f14d648f036d8532fcf0cca41",
+    "current_sha256": "94c6dd20122131f2a67bcd00c50d55e94ac5b65f14d648f036d8532fcf0cca41"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/offline-transport-pass-2026-09-07.json",
+    "old_sha256": "1c8db12a082ceddfb1c01d89511446726f10faa3d3e93d6d548af33aa85cf9f9",
+    "current_sha256": "1c8db12a082ceddfb1c01d89511446726f10faa3d3e93d6d548af33aa85cf9f9"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-113177/export/PROVENANCE.json",
+    "old_sha256": "df7ca912825e647c8220619b8bcac31d8e4b6bee58a4d1a1ed46e5e054a174a5",
+    "current_sha256": "df7ca912825e647c8220619b8bcac31d8e4b6bee58a4d1a1ed46e5e054a174a5"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-113177/export/arms.json",
+    "old_sha256": "ba13fa385efde3c0964eeaa0a84e8da9998a8442fa92b474ee4097b0b0f101cc",
+    "current_sha256": "ba13fa385efde3c0964eeaa0a84e8da9998a8442fa92b474ee4097b0b0f101cc"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-live-session-workspace-detach/review-2026-09-07T20-20-41Z.md",
+    "old_sha256": "d757acbe3bc1e82f65a4b3d4b21c7957e0b2159f62f5eb1933eeb3c4d8b2771f",
+    "current_sha256": "d757acbe3bc1e82f65a4b3d4b21c7957e0b2159f62f5eb1933eeb3c4d8b2771f"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-private-line-runtime-access/PLAN.md",
+    "old_sha256": "00d6b6c1718458dcacf5053e220f658d244a99f08075bedf5f33ec199eb8976c",
+    "current_sha256": "00d6b6c1718458dcacf5053e220f658d244a99f08075bedf5f33ec199eb8976c"
+  }
+]

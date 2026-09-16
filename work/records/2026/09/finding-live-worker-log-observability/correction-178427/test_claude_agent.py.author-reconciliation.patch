@@ -1,0 +1,37 @@
+--- submitted/test_claude_agent.py
++++ review178362/test_claude_agent.py
+@@ -3336,12 +3336,21 @@
+         self.assertEqual(agent.observed_activity(), 100)
+ 
+     def test_truncation_freezes_the_total(self):
++        """FROZEN, NOT MERELY UNREDUCED. A file truncated IN PLACE keeps its
++        identity, so the count could have carried on from the new size -- and
++        the bytes it then counted would be a second accounting of bytes it had
++        already reported. The growth after the truncation is what tells the
++        two apart, so it is asserted rather than the instant value alone."""
+         agent, state = self.bound()
+         place = self.native(state, "session.jsonl", "a" * 100)
+         self.assertEqual(agent.observed_activity(), 100)
+         with open(place, "w", encoding="utf-8") as writing:
+             writing.write("a" * 10)
+         self.assertEqual(agent.observed_activity(), 100)
++        with open(place, "a", encoding="utf-8") as writing:
++            writing.write("b" * 1000)
++        self.assertEqual(agent.observed_activity(), 100,
++                         "the total resumed after an ambiguous source")
+ 
+     def test_a_disappearing_file_freezes_the_total(self):
+         agent, state = self.bound()
+@@ -3395,7 +3404,12 @@
+         self.assertEqual(agent.observed_activity(), 100)
+ 
+     def test_exceeding_the_entry_bound_yields_unknown(self):
++        """A SCAN THAT OVERRAN ITS BOUND REPORTS UNKNOWN RATHER THAN WHAT IT
++        HAPPENED TO REACH. The native file is there and would be counted by an
++        unbounded walk, so the answer distinguishes the bound from an empty
++        result."""
+         agent, state = self.bound()
++        self.native(state, "session.jsonl", "a" * 90)
+         for index in range(claude_agent.ACTIVITY_ENTRIES + 1):
+             self.native(state, f"entry-{index}.txt", "x")
+         self.assertIsNone(agent.observed_activity())

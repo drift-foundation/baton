@@ -1,0 +1,628 @@
+test_admission_is_replayed_after_reopen_without_another_authority_read (tests.manager.test_provider_context.Admission.test_admission_is_replayed_after_reopen_without_another_authority_read) ... ERROR
+test_changed_profile_cannot_reinterpret_an_admitted_use (tests.manager.test_provider_context.Admission.test_changed_profile_cannot_reinterpret_an_admitted_use) ... ERROR
+test_missing_live_assignment_refuses_before_any_context_transition (tests.manager.test_provider_context.Admission.test_missing_live_assignment_refuses_before_any_context_transition) ... ERROR
+test_missing_owner_cleanup_never_reads_the_receipt (tests.manager.test_provider_context.Admission.test_missing_owner_cleanup_never_reads_the_receipt) ... ERROR
+test_observation_is_pure_and_contains_no_private_locator (tests.manager.test_provider_context.Admission.test_observation_is_pure_and_contains_no_private_locator) ... ERROR
+test_replaced_repository_refuses_before_admission (tests.manager.test_provider_context.Admission.test_replaced_repository_refuses_before_admission) ... ERROR
+test_two_connections_commit_one_admission (tests.manager.test_provider_context.Admission.test_two_connections_commit_one_admission) ... ERROR
+test_unknown_use_stays_held (tests.manager.test_provider_context.Admission.test_unknown_use_stays_held) ... ERROR
+test_wrong_writer_refuses (tests.manager.test_provider_context.Admission.test_wrong_writer_refuses) ... ERROR
+test_crash_after_publication_before_journal_replays_only_custody (tests.manager.test_provider_context.Finalization.test_crash_after_publication_before_journal_replays_only_custody) ... ERROR
+test_crash_during_staging_reuses_only_matching_private_bytes (tests.manager.test_provider_context.Finalization.test_crash_during_staging_reuses_only_matching_private_bytes) ... ERROR
+test_damaged_committed_generation_is_refused (tests.manager.test_provider_context.Finalization.test_damaged_committed_generation_is_refused) ... ERROR
+test_disposal_preserves_generation_and_invocation_evidence (tests.manager.test_provider_context.Finalization.test_disposal_preserves_generation_and_invocation_evidence) ... ERROR
+test_positive_generation_is_published_and_replayed_after_fence (tests.manager.test_provider_context.Finalization.test_positive_generation_is_published_and_replayed_after_fence) ... ERROR
+test_wrong_actual_model_receipt_cannot_publish_a_generation (tests.manager.test_provider_context.Finalization.test_wrong_actual_model_receipt_cannot_publish_a_generation) ... ERROR
+test_closed_profile_rejects_wrong_types_and_unsafe_paths (tests.manager.test_provider_context.Profiles.test_closed_profile_rejects_wrong_types_and_unsafe_paths) ... ok
+test_production_qualification_cannot_be_asserted_by_a_profile_label (tests.manager.test_provider_context.Profiles.test_production_qualification_cannot_be_asserted_by_a_profile_label) ... ok
+test_exact_volatile_credential_link_is_never_opened_or_retained (tests.manager.test_provider_context_delivery.Delivery.test_exact_volatile_credential_link_is_never_opened_or_retained) ... ERROR
+test_excluded_source_cannot_be_used_as_context_storage (tests.manager.test_provider_context_delivery.Delivery.test_excluded_source_cannot_be_used_as_context_storage) ... ERROR
+test_fresh_home_and_exact_reopen_keep_the_original_pins (tests.manager.test_provider_context_delivery.Delivery.test_fresh_home_and_exact_reopen_keep_the_original_pins) ... ERROR
+test_missing_state_size_and_entry_bounds_refuse (tests.manager.test_provider_context_delivery.Delivery.test_missing_state_size_and_entry_bounds_refuse) ... ERROR
+test_other_link_hardlink_and_fifo_are_refused (tests.manager.test_provider_context_delivery.Delivery.test_other_link_hardlink_and_fifo_are_refused) ... ERROR
+test_read_protection_is_not_repaired_after_delivery (tests.manager.test_provider_context_delivery.Delivery.test_read_protection_is_not_repaired_after_delivery) ... ERROR
+test_regular_credential_file_is_refused_without_reading_it (tests.manager.test_provider_context_delivery.Delivery.test_regular_credential_file_is_refused_without_reading_it) ... ERROR
+test_replaced_home_is_not_adopted (tests.manager.test_provider_context_delivery.Delivery.test_replaced_home_is_not_adopted) ... ERROR
+test_replaced_storage_ancestor_is_not_followed (tests.manager.test_provider_context_delivery.Delivery.test_replaced_storage_ancestor_is_not_followed) ... ERROR
+test_sealing_cannot_be_authorized_with_a_caller_absence_receipt (tests.manager.test_provider_context_delivery.Delivery.test_sealing_cannot_be_authorized_with_a_caller_absence_receipt) ... ERROR
+test_unknown_regular_file_bytes_are_not_read (tests.manager.test_provider_context_delivery.Delivery.test_unknown_regular_file_bytes_are_not_read) ... ERROR
+test_unsupported_runtime_uid_refuses_before_delivery (tests.manager.test_provider_context_delivery.Delivery.test_unsupported_runtime_uid_refuses_before_delivery) ... ERROR
+
+======================================================================
+ERROR: test_admission_is_replayed_after_reopen_without_another_authority_read (tests.manager.test_provider_context.Admission.test_admission_is_replayed_after_reopen_without_another_authority_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_changed_profile_cannot_reinterpret_an_admitted_use (tests.manager.test_provider_context.Admission.test_changed_profile_cannot_reinterpret_an_admitted_use)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_missing_live_assignment_refuses_before_any_context_transition (tests.manager.test_provider_context.Admission.test_missing_live_assignment_refuses_before_any_context_transition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_missing_owner_cleanup_never_reads_the_receipt (tests.manager.test_provider_context.Admission.test_missing_owner_cleanup_never_reads_the_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_observation_is_pure_and_contains_no_private_locator (tests.manager.test_provider_context.Admission.test_observation_is_pure_and_contains_no_private_locator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_replaced_repository_refuses_before_admission (tests.manager.test_provider_context.Admission.test_replaced_repository_refuses_before_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_two_connections_commit_one_admission (tests.manager.test_provider_context.Admission.test_two_connections_commit_one_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_unknown_use_stays_held (tests.manager.test_provider_context.Admission.test_unknown_use_stays_held)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_wrong_writer_refuses (tests.manager.test_provider_context.Admission.test_wrong_writer_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_crash_after_publication_before_journal_replays_only_custody (tests.manager.test_provider_context.Finalization.test_crash_after_publication_before_journal_replays_only_custody)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_crash_during_staging_reuses_only_matching_private_bytes (tests.manager.test_provider_context.Finalization.test_crash_during_staging_reuses_only_matching_private_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_damaged_committed_generation_is_refused (tests.manager.test_provider_context.Finalization.test_damaged_committed_generation_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_disposal_preserves_generation_and_invocation_evidence (tests.manager.test_provider_context.Finalization.test_disposal_preserves_generation_and_invocation_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_positive_generation_is_published_and_replayed_after_fence (tests.manager.test_provider_context.Finalization.test_positive_generation_is_published_and_replayed_after_fence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_wrong_actual_model_receipt_cannot_publish_a_generation (tests.manager.test_provider_context.Finalization.test_wrong_actual_model_receipt_cannot_publish_a_generation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_exact_volatile_credential_link_is_never_opened_or_retained (tests.manager.test_provider_context_delivery.Delivery.test_exact_volatile_credential_link_is_never_opened_or_retained)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_excluded_source_cannot_be_used_as_context_storage (tests.manager.test_provider_context_delivery.Delivery.test_excluded_source_cannot_be_used_as_context_storage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_fresh_home_and_exact_reopen_keep_the_original_pins (tests.manager.test_provider_context_delivery.Delivery.test_fresh_home_and_exact_reopen_keep_the_original_pins)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_missing_state_size_and_entry_bounds_refuse (tests.manager.test_provider_context_delivery.Delivery.test_missing_state_size_and_entry_bounds_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_other_link_hardlink_and_fifo_are_refused (tests.manager.test_provider_context_delivery.Delivery.test_other_link_hardlink_and_fifo_are_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_read_protection_is_not_repaired_after_delivery (tests.manager.test_provider_context_delivery.Delivery.test_read_protection_is_not_repaired_after_delivery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_regular_credential_file_is_refused_without_reading_it (tests.manager.test_provider_context_delivery.Delivery.test_regular_credential_file_is_refused_without_reading_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_replaced_home_is_not_adopted (tests.manager.test_provider_context_delivery.Delivery.test_replaced_home_is_not_adopted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_replaced_storage_ancestor_is_not_followed (tests.manager.test_provider_context_delivery.Delivery.test_replaced_storage_ancestor_is_not_followed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_sealing_cannot_be_authorized_with_a_caller_absence_receipt (tests.manager.test_provider_context_delivery.Delivery.test_sealing_cannot_be_authorized_with_a_caller_absence_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_unknown_regular_file_bytes_are_not_read (tests.manager.test_provider_context_delivery.Delivery.test_unknown_regular_file_bytes_are_not_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+======================================================================
+ERROR: test_unsupported_runtime_uid_refuses_before_delivery (tests.manager.test_provider_context_delivery.Delivery.test_unsupported_runtime_uid_refuses_before_delivery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_provider_context.py", line 73, in setUp
+    self.input_digest = retain_manifest(self.control, given, "inputManifest")["digest"]
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/manifests.py", line 80, in retain_manifest
+    owned = check_manifest_structure(document, definition,
+                                     what="a retained manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 644, in check_manifest_structure
+    owned = validate_fragment(document, definition, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 289, in validate_fragment
+    return validate_against(_FRAGMENTS[definition], document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 204, in validate_against
+    return _validate_with(validator, document, what=what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 240, in _validate_with
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{_sample_of_faults(failures, total)}")
+baton_v12.contracts.errors.ContractRefusal: a retained manifest does not satisfy the frozen schema: 'outputs'.[0] breaks additionalProperties; the document breaks unevaluatedProperties
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.178s
+
+FAILED (errors=27)

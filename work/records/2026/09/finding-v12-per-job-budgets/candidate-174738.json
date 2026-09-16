@@ -1,0 +1,20 @@
+{
+  "change": "assertEqual(schema.SCHEMA_VERSION, 5) -> assertGreaterEqual(..., 5)",
+  "claim": 174738,
+  "consumes": "review-2026-09-15T03-45-58Z.md and triage174734",
+  "files": [
+    {
+      "baseline_sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "bytes": 225429,
+      "path": "baton:v12/python/tests/tools/test_execution_limits.py",
+      "sha256": "ea7257f4c1178c262e5a50548303b3cfa572cc15734089a56becac62f80f3f61",
+      "target_mode": "0o664"
+    }
+  ],
+  "ledger": {
+    "rows": 4,
+    "seconds": 0.6987823560193647
+  },
+  "method": "TheJobOwnerAnswersOneBoundaryWithoutADelivery.test_a_migrated_job_with_no_limits_row_still_answers",
+  "work": "W156162"
+}

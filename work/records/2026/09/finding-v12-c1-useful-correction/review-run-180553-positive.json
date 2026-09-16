@@ -1,0 +1,499 @@
+{
+  "claim": 180553,
+  "selector_group": "positive",
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_correction_restart.UsefulCorrection"
+  ],
+  "status": 0,
+  "seconds": 3.0166675120126456,
+  "timeout": false,
+  "group_gone": true,
+  "subreaper": true,
+  "signals": [],
+  "reaped": [
+    [
+      8,
+      0
+    ],
+    [
+      37,
+      0
+    ],
+    [
+      111,
+      0
+    ],
+    [
+      177,
+      0
+    ],
+    [
+      190,
+      0
+    ],
+    [
+      221,
+      0
+    ],
+    [
+      240,
+      0
+    ],
+    [
+      301,
+      0
+    ],
+    [
+      350,
+      0
+    ]
+  ],
+  "checks": [
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "2ae66976951d9afd43e994daaf214aaf6e6f2c95f80b43449626ac8460da5110",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "e0dc7a466c184f3e72ace320045f26a5e14af7874f855f8d7cd83e56d283506c",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "ef7ad4379977bab317e1e2b3fdca7fc2b9e96c4c20e07eb8713303a308a6d3e3",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/test_single_worker.py",
+      "sha256": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180423/v12/python/tests/tools/test_single_worker.py",
+      "sha256": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "sha256": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/worker/baton_worker.py",
+      "sha256": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180423/v12/worker/baton_worker.py",
+      "sha256": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "sha256": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180423/v12/python/tests/manager/test_claude_context.py",
+      "sha256": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/base-180298/v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "sha256": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "sha256": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "sha256": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "sha256": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "sha256": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/scheduler_trace.py",
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_scheduler_trace.py",
+      "sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_integration.py",
+      "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "matches": true
+    },
+    {
+      "path": "v12/python/requirements.lock",
+      "sha256": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+      "matches": true
+    },
+    {
+      "path": "v12/python/pyproject.toml",
+      "sha256": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/reconciliation_task.py",
+      "sha256": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423.patch",
+      "sha256": "a38ceaf5c3d5547c1e02f73227bf25f91cdef58fe1730d77f125b7492397fb0b",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/HANDOFF-180423.md",
+      "sha256": "fb7002066020b014bee958a3dbd55107b464060f0f4bb340625a2486428e4357",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/EVIDENCE-180423.json",
+      "sha256": "7ebf7dcf65b6e2242cb8ced6d200da7f6f94486c259b6e9f6f92d5a7a3932659",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/trace-C-180423-9.json",
+      "sha256": "624e4d15694b8f844a97dc002c9b5c63be8a0ca7b8e35fdd414ac907c539c53b",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/trace-C-180423-10.json",
+      "sha256": "c23c12d1667f7ae81ae7ca464929a07217b17d46ceded2915f426bb642211371",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/verify-180423.py",
+      "sha256": "d82769880f0c303a3dd3deda413e909a093cda932b5ecb0bdb6ae601a898b20e",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/BASE-180298.json",
+      "sha256": "371b6dca521634a7c9548920832cedec79021bd7d9af4fea76932d9055571ea0",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/BASE-180423.json",
+      "sha256": "8e0d19187ea9f2eed6e19c9c0e4a2d8c7ec74daf20a80c27e7e49ae90b6c2404",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/EVIDENCE-180298.json",
+      "sha256": "aa5cb5fd7ec48dc7a3b6393adcd793309c1f8bf3950866d160f40f4e4b02e17f",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-2026-09-15T18-48-11Z.md",
+      "sha256": "47d596a85008f34c1ebf8960718e5cd31ff5a9f4d7533248bb7763303b7d9bb3",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-1.json",
+      "sha256": "229f5dc31084eea355c10267b71dffdb2d6c14f8001f4056d95425c35cc9372e",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-1.log",
+      "sha256": "436a0b7a5ae0cd2d15c50e813ebfd29fd509d5afc71457b5f1c2f10d156a474a",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-2.json",
+      "sha256": "18de992afe422049346f46e0cbb238c51f120e1111c08a64756cc90055ef4cf6",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-2.log",
+      "sha256": "ccd1d7e035c485ef9674c4f27fa3ab7c0445a7976521302843cd33e4129abfb2",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-3.json",
+      "sha256": "25ef0922da8663879ddc9aa43c8254e50447c7832ea2ae0876c37bb95391c511",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-3.log",
+      "sha256": "baa7510b4790deb17d3f999b0676b89a12e7f82df1f445cc1eabb71032a6911a",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-4.json",
+      "sha256": "f9d78593830f6850e52df265d09852fc38b9682a6e5ce68c97a0e6cd82ef3f47",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-4.log",
+      "sha256": "33aedde3136f175179420b0d4d2f6406ac29d3d2cb9cb1c4fe01019466d914cf",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-5.json",
+      "sha256": "c10402a0a549578bbbcc1da4aa9530c3ec0a33ed941537389743923acf71e44d",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-5.log",
+      "sha256": "31a5e1f737e935ee3b3e8beed5563c7c8d0401ccb2913792cf0a3fe9d9c6b2d2",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-6.json",
+      "sha256": "3925318f9b0624d8b5a9148dafcac5973f5d66865803454e7ee11680f96b0fed",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-6.log",
+      "sha256": "a0e451fdb050e9e4bcdb722efef0b1e5c0755b05fa7886ed9235e28cf4b890f4",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-7.json",
+      "sha256": "68214ebbc3df52bb044af37ab26e298449d74e30fea01c83213fa47adb61187b",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-7.log",
+      "sha256": "1414d52056e125ac7bac06a7846f4c0ebbfd418cd13be3949eb752a08d13e099",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-8.json",
+      "sha256": "7ca14a84dcd63c78cfe911a42898a3ee50444c93a6b62e4d83d6d3c2e518e141",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-8.log",
+      "sha256": "f99093f228de07904e434ce5e831ba12b0a156166a03a819b6d5039194cd4c43",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-9.json",
+      "sha256": "008d24a878873e62578202e545b9a4458903fff3129f1e68933602b275479b82",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-9.log",
+      "sha256": "6669a957e0de9c11f4870570b6ae9fd9b0257aadb3e40fae989c8c86c06774f2",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-10.json",
+      "sha256": "69abf9896860578ffa2ba3638bd211d91018d1959f33132e3fd2c054cdb5e22d",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-10.log",
+      "sha256": "ea579d11c6f9ba6d02bcb16c490e1e8ef3fc8cf98eb86695e292076918873769",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-11.json",
+      "sha256": "f1a2efebca5a17f4c758db14301f8f46ac58f2bc1f916eb643c74b5c33a76aad",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-11.log",
+      "sha256": "4e15ef4e7733cca5e76342efbf919ea1d2a9573249a192c1ef5d8db71128adac",
+      "matches": true
+    }
+  ],
+  "before": {
+    "v12/python/src/baton_v12/integration/reconciliation.py": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+    "v12/python/tests/integration/test_managed_storage.py": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+    "v12/python/tests/tools/correction_restart_trace.py": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+    "v12/python/tests/tools/test_correction_restart.py": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+    "v12/python/tests/tools/test_managed_apply.py": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+    "v12/python/tests/tools/test_single_worker.py": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+    "v12/worker/baton_worker.py": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+    "v12/python/tests/manager/test_claude_context.py": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+    "v12/python/tests/tools/test_managed_preparation.py": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+    "v12/python/tools/single_worker.py": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+    "v12/python/tools/stage_execution.py": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+    "v12/worker/claude_agent.py": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+    "v12/python/tests/manager/test_launch.py": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+    "v12/python/tests/manager/test_oci.py": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+    "v12/python/tests/manager/test_claude_agent.py": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+    "v12/python/tests/tools/test_stage_execution.py": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+    "v12/python/tests/tools/scheduler_trace.py": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+    "v12/python/tests/tools/test_scheduler_trace.py": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+    "v12/python/tests/tools/test_managed_integration.py": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+    "v12/python/requirements.lock": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+    "v12/python/pyproject.toml": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+    "v12/worker/reconciliation_task.py": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+    "v12/python/src/baton_v12/integration/managed_execution.py": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936"
+  },
+  "after": {
+    "v12/python/src/baton_v12/integration/reconciliation.py": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+    "v12/python/tests/integration/test_managed_storage.py": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+    "v12/python/tests/tools/correction_restart_trace.py": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+    "v12/python/tests/tools/test_correction_restart.py": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+    "v12/python/tests/tools/test_managed_apply.py": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+    "v12/python/tests/tools/test_single_worker.py": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+    "v12/worker/baton_worker.py": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+    "v12/python/tests/manager/test_claude_context.py": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+    "v12/python/tests/tools/test_managed_preparation.py": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+    "v12/python/tools/single_worker.py": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+    "v12/python/tools/stage_execution.py": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+    "v12/worker/claude_agent.py": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+    "v12/python/tests/manager/test_launch.py": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+    "v12/python/tests/manager/test_oci.py": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+    "v12/python/tests/manager/test_claude_agent.py": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+    "v12/python/tests/tools/test_stage_execution.py": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+    "v12/python/tests/tools/scheduler_trace.py": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+    "v12/python/tests/tools/test_scheduler_trace.py": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+    "v12/python/tests/tools/test_managed_integration.py": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+    "v12/python/requirements.lock": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+    "v12/python/pyproject.toml": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+    "v12/worker/reconciliation_task.py": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+    "v12/python/src/baton_v12/integration/managed_execution.py": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936"
+  },
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "attrs": "26.1.0",
+    "rpds-py": "2026.6.3"
+  }
+}

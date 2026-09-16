@@ -1,0 +1,1178 @@
+{
+  "claim": 182748,
+  "kind": "static joined evidence, no test or provider/engine execution",
+  "reviews": [
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/review-2026-09-15T04-55-41Z.md",
+      "sha256": "e092a8c8bc101ed27b7c0f4d65b33449d441b071132fcb18f60590997b561bb5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/review-2026-09-15T16-15-23Z.md",
+      "sha256": "4f1960f6ace0163381bfb42b6af4c5d07b86a96ecf740e2bfb090e4f768eb8ec"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-2026-09-15T19-18-29Z.md",
+      "sha256": "dad640dbc106f8772ba9129bb7dbec6b9243c33e4eb993a8210ad7ac45172d2d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-2026-09-16T00-49-52Z.md",
+      "sha256": "d832c8517d0736373f5e9e38c25ee9f601216f76e645ca56462688bfa6ab5e78"
+    }
+  ],
+  "checks": [
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150.json",
+      "expected": "9d82e0035ff756bcf7b631307482394adeb4c7ea51a1efae63ca2648babf9cf9",
+      "actual": "9d82e0035ff756bcf7b631307482394adeb4c7ea51a1efae63ca2648babf9cf9",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "expected": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "actual": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "expected": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "actual": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/tests/manager/test_provider_context.py",
+      "expected": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "actual": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/tests/manager/test_provider_context_delivery.py",
+      "expected": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "actual": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255.json",
+      "expected": "010aaefde8159ef52b95ddf289b981b051a2b64041a3a1638441a158cb517c50",
+      "actual": "010aaefde8159ef52b95ddf289b981b051a2b64041a3a1638441a158cb517c50",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "expected": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "actual": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "expected": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "actual": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/launch.py",
+      "expected": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "actual": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/oci.py",
+      "expected": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "actual": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tools/single_worker.py",
+      "expected": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "actual": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tools/stage_execution.py",
+      "expected": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "actual": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/worker/baton_worker.py",
+      "expected": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+      "actual": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/worker/claude_agent.py",
+      "expected": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "actual": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_claude_context.py",
+      "expected": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "actual": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_launch.py",
+      "expected": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "actual": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_oci.py",
+      "expected": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "actual": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_claude_agent.py",
+      "expected": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "actual": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/tools/test_single_worker.py",
+      "expected": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+      "actual": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/tools/test_stage_execution.py",
+      "expected": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "actual": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/CANDIDATE-180423.json",
+      "expected": "2e7107ecbfc133374e1811e33e99e3764924c20f90ceb22ab71683a00d834499",
+      "actual": "2e7107ecbfc133374e1811e33e99e3764924c20f90ceb22ab71683a00d834499",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/src/baton_v12/integration/reconciliation.py",
+      "expected": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "actual": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/integration/test_managed_storage.py",
+      "expected": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "actual": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/correction_restart_trace.py",
+      "expected": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+      "actual": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/test_correction_restart.py",
+      "expected": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+      "actual": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/test_managed_apply.py",
+      "expected": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "actual": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/test_single_worker.py",
+      "expected": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "actual": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/worker/baton_worker.py",
+      "expected": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "actual": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/CANDIDATE-182279.json",
+      "expected": "055b765cf539d472fda98dabc173973162214babbd51a97b758d70499086b628",
+      "actual": "055b765cf539d472fda98dabc173973162214babbd51a97b758d70499086b628",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/candidate-182279/v12/python/tests/tools/correction_restart_trace.py",
+      "expected": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "actual": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/candidate-182279/v12/python/tests/tools/test_correction_restart.py",
+      "expected": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "actual": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "expected": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "actual": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "expected": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "actual": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context.py",
+      "expected": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "actual": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context_delivery.py",
+      "expected": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "actual": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "expected": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "actual": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "expected": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "actual": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "expected": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "actual": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "expected": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "actual": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "expected": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "actual": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "expected": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "actual": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "expected": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "actual": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "expected": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "actual": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "expected": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "actual": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "expected": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "actual": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "expected": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "actual": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "expected": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "actual": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "expected": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "actual": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/integration/test_managed_storage.py",
+      "expected": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "actual": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "expected": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "actual": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "expected": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "actual": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_apply.py",
+      "expected": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "actual": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/REVIEW-EVIDENCE-175202.json",
+      "expected": "95cf18411aac6322e11db06615b77150a855b17466c9b3f76c9cd77f46a07043",
+      "actual": "95cf18411aac6322e11db06615b77150a855b17466c9b3f76c9cd77f46a07043",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/review-evidence-179432-3.json",
+      "expected": "65a16e37788266b67926f0c420316c5fc3f7acf858d3788b218e40b283ba33fd",
+      "actual": "65a16e37788266b67926f0c420316c5fc3f7acf858d3788b218e40b283ba33fd",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/REVIEW-EVIDENCE-180553.json",
+      "expected": "715d34ff5b04673dccb7971b275666ca9ef2d0a84d774ed917c58b18b46761dc",
+      "actual": "715d34ff5b04673dccb7971b275666ca9ef2d0a84d774ed917c58b18b46761dc",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/REVIEW-EVIDENCE-182379.json",
+      "expected": "83dc7d5d99ee627e563713f2a29b1afc3e625e9aec1cb5fe919b50a1c52a0560",
+      "actual": "83dc7d5d99ee627e563713f2a29b1afc3e625e9aec1cb5fe919b50a1c52a0560",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/HANDOFF-175150.md",
+      "expected": "80218f0b0995ec08abeca0b8f43c2a82190a84985d6322bc4d58dbbba173b218",
+      "actual": "80218f0b0995ec08abeca0b8f43c2a82190a84985d6322bc4d58dbbba173b218",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/BASE-175150.json",
+      "expected": "3e9bd24abe5d23548a9fe605d1f956b4bd809042d5be22e8aca322665bd13a5d",
+      "actual": "3e9bd24abe5d23548a9fe605d1f956b4bd809042d5be22e8aca322665bd13a5d",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150.patch",
+      "expected": "efe09f776a757b018d415ff670fd90c4f0fa73b149cc6e00d825b9b4ef512b88",
+      "actual": "efe09f776a757b018d415ff670fd90c4f0fa73b149cc6e00d825b9b4ef512b88",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/corrections-175150.patch",
+      "expected": "ffd52fef0b8916e988190ac6b64a499d0c3d5eada2525f2516ef495cd95cc91f",
+      "actual": "ffd52fef0b8916e988190ac6b64a499d0c3d5eada2525f2516ef495cd95cc91f",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/VERIFICATION-175150.json",
+      "expected": "d0aec641cc0e358c92579bed7862294aa1caafb622c46ef68e64736b755b0a33",
+      "actual": "d0aec641cc0e358c92579bed7862294aa1caafb622c46ef68e64736b755b0a33",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/verify-175202.py",
+      "expected": "0319f691f26fc0c70a76c09b874c6997633e9ef54977bda854db9cd93a177c25",
+      "actual": "0319f691f26fc0c70a76c09b874c6997633e9ef54977bda854db9cd93a177c25",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/reproduce-175202.py",
+      "expected": "2cf5262d27597edbcb9d2c3a5ca1f503faa22ffe367f85f78c8bc017621b4c20",
+      "actual": "2cf5262d27597edbcb9d2c3a5ca1f503faa22ffe367f85f78c8bc017621b4c20",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-175202-1.log",
+      "expected": "0921695b50b03d05bb6048184cf4502465099420453b19bc362cd03c97c082f1",
+      "actual": "0921695b50b03d05bb6048184cf4502465099420453b19bc362cd03c97c082f1",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/run-175202-2.log",
+      "expected": "df5e4b75ea32a12f1e918262e530cc6fd11a759f6cd1c6af772880401fbebe0e",
+      "actual": "df5e4b75ea32a12f1e918262e530cc6fd11a759f6cd1c6af772880401fbebe0e",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/CANDIDATE-180423.json",
+      "expected": "2e7107ecbfc133374e1811e33e99e3764924c20f90ceb22ab71683a00d834499",
+      "actual": "2e7107ecbfc133374e1811e33e99e3764924c20f90ceb22ab71683a00d834499",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/EVIDENCE-180423.json",
+      "expected": "7ebf7dcf65b6e2242cb8ced6d200da7f6f94486c259b6e9f6f92d5a7a3932659",
+      "actual": "7ebf7dcf65b6e2242cb8ced6d200da7f6f94486c259b6e9f6f92d5a7a3932659",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-run-180553.py",
+      "expected": "b83d26d0df0d445e1c6533ca1644a2ecd49d66689823c9dbb827996fe50a2fb9",
+      "actual": "b83d26d0df0d445e1c6533ca1644a2ecd49d66689823c9dbb827996fe50a2fb9",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-audit-180553.py",
+      "expected": "7836fea5e853abbcb06516c506d58236826cb3d36d3962a5fa012a1ee3f9d13c",
+      "actual": "7836fea5e853abbcb06516c506d58236826cb3d36d3962a5fa012a1ee3f9d13c",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-trace-180553-positive.json",
+      "expected": "f82a47edf8e4427afd406899b89e3964196fc63adfd997de99cf601b8ce7bbe3",
+      "actual": "f82a47edf8e4427afd406899b89e3964196fc63adfd997de99cf601b8ce7bbe3",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-trace-180553-negative.json",
+      "expected": "06cdbdbf003eb46f0af01b76f156f806b8e63a68a45c7e0cac6d06391b9cc6cf",
+      "actual": "06cdbdbf003eb46f0af01b76f156f806b8e63a68a45c7e0cac6d06391b9cc6cf",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-run-180553-positive.json",
+      "expected": "4b448f329cf8600f67e0ebddc535abe8a099530e1c70e5d9730c5e25d50ed5d4",
+      "actual": "4b448f329cf8600f67e0ebddc535abe8a099530e1c70e5d9730c5e25d50ed5d4",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-run-180553-positive.log",
+      "expected": "77adcd1349559651d819cd35572c4ca95cdb94a5eb07fb8820e11c1fd9954a9a",
+      "actual": "77adcd1349559651d819cd35572c4ca95cdb94a5eb07fb8820e11c1fd9954a9a",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-run-180553-negative.json",
+      "expected": "a26dd2171061e42dd551ab13b45826b28ac4501cc876056e4f3e8e49165b1df2",
+      "actual": "a26dd2171061e42dd551ab13b45826b28ac4501cc876056e4f3e8e49165b1df2",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-run-180553-negative.log",
+      "expected": "6669a957e0de9c11f4870570b6ae9fd9b0257aadb3e40fae989c8c86c06774f2",
+      "actual": "6669a957e0de9c11f4870570b6ae9fd9b0257aadb3e40fae989c8c86c06774f2",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-run-180553-focused.json",
+      "expected": "5654765a335ef9b508b4368e3d2a99cc27c1a51ab749dc5dacf05cfb7bbfac1d",
+      "actual": "5654765a335ef9b508b4368e3d2a99cc27c1a51ab749dc5dacf05cfb7bbfac1d",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-run-180553-focused.log",
+      "expected": "76dd3e0ff5a56fe116ea095ea730bc04f2359c66112fbe64c4e1368eddb98dbd",
+      "actual": "76dd3e0ff5a56fe116ea095ea730bc04f2359c66112fbe64c4e1368eddb98dbd",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-correction-restart-proof/review-run-179432-3.log",
+      "expected": "ec5784b770d8cf648ee0bce81dca6576b4d4694a25de3a46fa004a4b62359258",
+      "actual": "ec5784b770d8cf648ee0bce81dca6576b4d4694a25de3a46fa004a4b62359258",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopen.json",
+      "expected": "a2d51ed2bd78f3db5523f06253ff95af1c980215cfab0cdbeab3c1af9a557700",
+      "actual": "a2d51ed2bd78f3db5523f06253ff95af1c980215cfab0cdbeab3c1af9a557700",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopen-trace.json",
+      "expected": "860c8f1a56c712d1322a379873548f77aa2e85d9ee4bde6ad4f183ce52b10bf2",
+      "actual": "860c8f1a56c712d1322a379873548f77aa2e85d9ee4bde6ad4f183ce52b10bf2",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopen.log",
+      "expected": "911a504a9423d85f770ac681b9bd45524af33ec528966e7944f536f9bb28261e",
+      "actual": "911a504a9423d85f770ac681b9bd45524af33ec528966e7944f536f9bb28261e",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopenInvalidEvidence.json",
+      "expected": "816c79f931caf1f4765f58049b76ebadd0bb7442f6f79f7bbc40e97a22c1ce62",
+      "actual": "816c79f931caf1f4765f58049b76ebadd0bb7442f6f79f7bbc40e97a22c1ce62",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopenInvalidEvidence-trace.json",
+      "expected": "71c7381de9dc969d125744a4bbfd6a287e614dad4245ee8b8a29eb9d465fd61e",
+      "actual": "71c7381de9dc969d125744a4bbfd6a287e614dad4245ee8b8a29eb9d465fd61e",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-CountedReopenInvalidEvidence.log",
+      "expected": "007bbf2ee20ccb869a45a1c2deff5ae5723c8640a80c643f3d325f284de01167",
+      "actual": "007bbf2ee20ccb869a45a1c2deff5ae5723c8640a80c643f3d325f284de01167",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrection.json",
+      "expected": "589f21fbbfaf85e204ffb2a8c495254bf1bd2f652b6a1f9886d18888675f45b5",
+      "actual": "589f21fbbfaf85e204ffb2a8c495254bf1bd2f652b6a1f9886d18888675f45b5",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrection-trace.json",
+      "expected": "2d83b7cba9d869e7508feecdff6fd399d752fa2a5fbc68ebde2c7281a8b8c083",
+      "actual": "2d83b7cba9d869e7508feecdff6fd399d752fa2a5fbc68ebde2c7281a8b8c083",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrection.log",
+      "expected": "2682c8b34f98c479a81a87aa2d4f817a3bdbcdc1e38e1c8444e1f2f917b2bf70",
+      "actual": "2682c8b34f98c479a81a87aa2d4f817a3bdbcdc1e38e1c8444e1f2f917b2bf70",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrectionInvalidEvidence.json",
+      "expected": "ecd8b7036e6cc866e5f6ba2d0a8e482a540b7b70d75c34d9bcfbe05d04618497",
+      "actual": "ecd8b7036e6cc866e5f6ba2d0a8e482a540b7b70d75c34d9bcfbe05d04618497",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrectionInvalidEvidence-trace.json",
+      "expected": "c3e8fe695e2620b581c61392a26f36aab5d7908010d318676a00264ac4b5fa04",
+      "actual": "c3e8fe695e2620b581c61392a26f36aab5d7908010d318676a00264ac4b5fa04",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/review-182379-UsefulCorrectionInvalidEvidence.log",
+      "expected": "f9426ec14ea820cf313add0d6964223fbef3a721846b106cee74ba91704419e4",
+      "actual": "f9426ec14ea820cf313add0d6964223fbef3a721846b106cee74ba91704419e4",
+      "matches": true
+    }
+  ],
+  "successions": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "from": "A",
+      "to": "B",
+      "accepted_predecessor_sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "successor_base_sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "from": "A",
+      "to": "B",
+      "accepted_predecessor_sha256": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "successor_base_sha256": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "from": "B",
+      "to": "C1",
+      "accepted_predecessor_sha256": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+      "successor_base_sha256": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "from": "B",
+      "to": "C1",
+      "accepted_predecessor_sha256": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+      "successor_base_sha256": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "from": "C1",
+      "to": "C2",
+      "accepted_predecessor_sha256": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+      "successor_base_sha256": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "from": "C1",
+      "to": "C2",
+      "accepted_predecessor_sha256": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+      "successor_base_sha256": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+      "matches": true
+    }
+  ],
+  "composed_paths": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "slice": "B",
+      "sha256": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "accepted_target_mode": "0664",
+      "current_sha256": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "A",
+          "sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/src/baton_v12/worker_manager/provider_context.py"
+        },
+        {
+          "slice": "B",
+          "sha256": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/provider_context.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "slice": "B",
+      "sha256": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "accepted_target_mode": "0664",
+      "current_sha256": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "A",
+          "sha256": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/src/baton_v12/worker_manager/context_delivery.py"
+        },
+        {
+          "slice": "B",
+          "sha256": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/context_delivery.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context.py",
+      "slice": "A",
+      "sha256": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "accepted_target_mode": "0664",
+      "current_sha256": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "A",
+          "sha256": "e3c72b7558e403ca516cd6d50e74ac96f337fc592867f42c74917b8ca801fb3a",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/tests/manager/test_provider_context.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_context_delivery.py",
+      "slice": "A",
+      "sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "accepted_target_mode": "0664",
+      "current_sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "A",
+          "sha256": "8d8d7b8727666cadf6891eadf74e16189b90ac6a3c5afe5104e23ece702d6d6a",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-175150/files/v12/python/tests/manager/test_provider_context_delivery.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "slice": "B",
+      "sha256": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "accepted_target_mode": "0664",
+      "current_sha256": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/launch.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "slice": "B",
+      "sha256": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "accepted_target_mode": "0664",
+      "current_sha256": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/src/baton_v12/worker_manager/oci.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "slice": "B",
+      "sha256": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "accepted_target_mode": "0664",
+      "current_sha256": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tools/single_worker.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "slice": "B",
+      "sha256": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "accepted_target_mode": "0664",
+      "current_sha256": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tools/stage_execution.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "slice": "C1",
+      "sha256": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "accepted_target_mode": "0o664",
+      "current_sha256": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "fc8c0f95e7d99e04b9d26c00a25d0517d5ccb304d6b83867d042b67bcc582eea",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/worker/baton_worker.py"
+        },
+        {
+          "slice": "C1",
+          "sha256": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+          "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/worker/baton_worker.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "slice": "B",
+      "sha256": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "accepted_target_mode": "0644",
+      "current_sha256": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "matches": true,
+      "current_mode": "0o644",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/worker/claude_agent.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "slice": "B",
+      "sha256": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "accepted_target_mode": "0664",
+      "current_sha256": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_claude_context.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "slice": "B",
+      "sha256": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "accepted_target_mode": "0664",
+      "current_sha256": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_launch.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "slice": "B",
+      "sha256": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "accepted_target_mode": "0664",
+      "current_sha256": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_oci.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "slice": "B",
+      "sha256": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "accepted_target_mode": "0644",
+      "current_sha256": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "matches": true,
+      "current_mode": "0o644",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/manager/test_claude_agent.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "slice": "C1",
+      "sha256": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "accepted_target_mode": "0o664",
+      "current_sha256": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "9d9c86d668569b62057195d90d304f33a4b3c4054668e3be4890a3784f86721a",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/tools/test_single_worker.py"
+        },
+        {
+          "slice": "C1",
+          "sha256": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+          "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/test_single_worker.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "slice": "B",
+      "sha256": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "accepted_target_mode": "0664",
+      "current_sha256": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "B",
+          "sha256": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+          "snapshot": "baton:work/records/2026/09/finding-v12-correction-restart-proof/candidate-179255/files/v12/python/tests/tools/test_stage_execution.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "slice": "C1",
+      "sha256": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "accepted_target_mode": "0o664",
+      "current_sha256": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "C1",
+          "sha256": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+          "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/src/baton_v12/integration/reconciliation.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/integration/test_managed_storage.py",
+      "slice": "C1",
+      "sha256": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "accepted_target_mode": "0o644",
+      "current_sha256": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "matches": true,
+      "current_mode": "0o644",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "C1",
+          "sha256": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+          "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/integration/test_managed_storage.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "slice": "C2",
+      "sha256": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "accepted_target_mode": "0o664",
+      "current_sha256": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "C1",
+          "sha256": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+          "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/correction_restart_trace.py"
+        },
+        {
+          "slice": "C2",
+          "sha256": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+          "snapshot": "work/records/2026/09/finding-v12-c2-counted-reopen/candidate-182279/v12/python/tests/tools/correction_restart_trace.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "slice": "C2",
+      "sha256": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "accepted_target_mode": "0o664",
+      "current_sha256": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "C1",
+          "sha256": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+          "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/test_correction_restart.py"
+        },
+        {
+          "slice": "C2",
+          "sha256": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+          "snapshot": "work/records/2026/09/finding-v12-c2-counted-reopen/candidate-182279/v12/python/tests/tools/test_correction_restart.py"
+        }
+      ]
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_apply.py",
+      "slice": "C1",
+      "sha256": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "accepted_target_mode": "0o664",
+      "current_sha256": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "matches": true,
+      "current_mode": "0o664",
+      "mode_matches_candidate": true,
+      "regular_nonsymlink_owner_writable": true,
+      "succession": [
+        {
+          "slice": "C1",
+          "sha256": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+          "snapshot": "work/records/2026/09/finding-v12-c1-useful-correction/candidate-180423/v12/python/tests/tools/test_managed_apply.py"
+        }
+      ]
+    }
+  ],
+  "environments_from_retained_runs": [
+    {
+      "label": "A1",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "label": "A2",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "label": "B",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "label": "C1-positive",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "label": "C1-negative",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "label": "C1-focused",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "label": "C2-CountedReopen",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "label": "C2-CountedReopenInvalidEvidence",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "label": "C2-UsefulCorrection",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    },
+    {
+      "label": "C2-UsefulCorrectionInvalidEvidence",
+      "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+      "dependencies": {
+        "jsonschema": "4.26.0",
+        "jsonschema-specifications": "2025.9.1",
+        "referencing": "0.37.0",
+        "attrs": "26.1.0",
+        "rpds-py": "2026.6.3"
+      },
+      "status": 0,
+      "timeout": false,
+      "group_gone": true
+    }
+  ],
+  "all_dependency_versions_match_current_lock": true,
+  "lock_sha256": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+  "pyproject_sha256": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+  "deployment_base_sha256": "5dc34d45d5b098baca7318df305f96bc02275cd3ecaaa9a20e0f4758a641c7a5",
+  "progress_before_sha256": "4b5fdbfd24f541ea81da1cb5a28a46fc7c98305e8c98991a6fcd51dd8571906e",
+  "all_hashes_match": true,
+  "all_succession_bases_match": true,
+  "mode_differences": [],
+  "new_test_seconds": 0,
+  "cumulative_reviewer_test_seconds": 117.55238462003763,
+  "cumulative_author_test_seconds_separate": 234.30053109725122,
+  "static_seconds": 0.007192034972831607
+}

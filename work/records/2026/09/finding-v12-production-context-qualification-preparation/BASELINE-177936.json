@@ -1,0 +1,43 @@
+{
+  "claim": 178367,
+  "claude_agent_provenance": {
+    "accepted_baseline": "c7a2b746fbefc088a7670c6f1a3c6363d0faeadcb08d27c56c8f6819ae0f979c",
+    "current_bytes": "a6f934eaa5cf37fbed0ae7edc7f0521bb42566d4a0753cd939b4c148625b4529",
+    "diff_against_HEAD": "199 insertions, 0 deletions",
+    "difference": "W61599 candidate, under independent review at seq 178359",
+    "qualification_relevant_symbols_changed": []
+  },
+  "image_digests_in_evidence": {
+    "0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4": "W105706 private-line runtime access proof; superseded 979f11d5 for that proof only",
+    "979f11d53433f2930d69b70d81e265332547895cbd674e3e8b190cafb236243f": "W106673 detach/restoration experiment and the offline help/version probe"
+  },
+  "kind": "preparation baseline; read-only input inventory",
+  "method": "repository source and retained nonsecret evidence only; no protected original, credential, transcript or session file opened; no test, probe, provider, model, engine, build, install or Git operation",
+  "packet_sha256": "be5076943897be157240c8cd48af1db754a61d102030d830d895a8f1b2d8de86",
+  "read_inputs_sha256": {
+    "v12/python/src/baton_v12/worker_manager/credentials.py": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df",
+    "v12/python/src/baton_v12/worker_manager/exchange.py": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+    "v12/worker/Dockerfile.claude": "8f88fc3bd366b76686d9cae0e5af019ba395a39d3afb9fd78dc5c3570556e55b",
+    "v12/worker/claude_agent.py": "a6f934eaa5cf37fbed0ae7edc7f0521bb42566d4a0753cd939b4c148625b4529",
+    "work/records/2026/09/finding-v12-context-reuse-design/DESIGN.md": "5da337d20d0bd62ba3e2d65128ce046b0ef318bf1f1512cb47ee8ca44bcbf3c7",
+    "work/records/2026/09/finding-v12-correction-restart-proof/EXECUTION-B-177536.md": "e7014bba453f2b23a65d5c4a90bd094767c742dccc1012ef382fdb688a795cfa",
+    "work/records/2026/09/finding-v12-correction-restart-proof/HANDOFF-B-177536.md": "da10c9f54c448c15935bb0f53eae80efb421c2468fc582166403402e6917011e",
+    "work/records/2026/09/finding-v12-correction-restart-proof/PLAN.md": "9d758dff5096f1aa566e2d8f8e7e36cb238db57201849ed2168e643d2e45454f",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/OFFLINE-HELP-CHECKPOINT.md": "3c58a5f48428234fee08c41a0dc75798d675ab62dd41fca06d4ce1e7df7def09",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/RESULT-DIAGNOSTICS.md": "b82c49d5afd663c8c7e75aa8d0cb8e1cefa4e1d5af645aa1a4b1af318c8a2f06",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/failure-reason-112817/transport-contract.json": "880a5bc279ac820cb1224f6c43f6e96ac92501d95120684306363553c1dcb2a9",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/live_supervisor_result_diagnostics.py": "94c6dd20122131f2a67bcd00c50d55e94ac5b65f14d648f036d8532fcf0cca41",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/offline-transport-pass-2026-09-07.json": "1c8db12a082ceddfb1c01d89511446726f10faa3d3e93d6d548af33aa85cf9f9",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-113177/export/PROVENANCE.json": "df7ca912825e647c8220619b8bcac31d8e4b6bee58a4d1a1ed46e5e054a174a5",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/evidence/review-113177/export/arms.json": "ba13fa385efde3c0964eeaa0a84e8da9998a8442fa92b474ee4097b0b0f101cc",
+    "work/records/2026/09/finding-v12-live-session-workspace-detach/review-2026-09-07T20-20-41Z.md": "d757acbe3bc1e82f65a4b3d4b21c7957e0b2159f62f5eb1933eeb3c4d8b2771f",
+    "work/records/2026/09/finding-v12-private-line-runtime-access/PLAN.md": "00d6b6c1718458dcacf5053e220f658d244a99f08075bedf5f33ec199eb8976c"
+  },
+  "required_inputs_present": true,
+  "selected_production_image_digest": null,
+  "unreadable_required_inputs": [],
+  "verification_execution_seconds": 0,
+  "work": "W177936"
+}

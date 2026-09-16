@@ -1,0 +1,138 @@
+{
+  "limits": "POSIX mode bits do not account for ACLs, namespaces or other policy and are not proof of actual readability; this cannot recover the stopped attempt's original error",
+  "method": "no-follow lstat of fixed operands only; no traversal, no open, no readlink, no writes, no name resolution",
+  "operator": {
+    "egid": 1000,
+    "euid": 1000,
+    "gid": 1000,
+    "groups": [
+      4,
+      24,
+      27,
+      30,
+      46,
+      100,
+      113,
+      119,
+      1000,
+      1001
+    ],
+    "uid": 1000
+  },
+  "paths": [
+    {
+      "errno": null,
+      "gid": 1000,
+      "links": 4,
+      "mode": "0o700",
+      "operand": "<root>",
+      "state": "present",
+      "type": "directory",
+      "uid": 1000
+    },
+    {
+      "errno": null,
+      "gid": 1001,
+      "links": 3,
+      "mode": "0o2770",
+      "operand": "use-1",
+      "state": "present",
+      "type": "directory",
+      "uid": 1000
+    },
+    {
+      "errno": null,
+      "gid": 1001,
+      "links": 3,
+      "mode": "0o2770",
+      "operand": "use-1/home",
+      "state": "present",
+      "type": "directory",
+      "uid": 1000
+    },
+    {
+      "errno": null,
+      "gid": 1001,
+      "links": 5,
+      "mode": "0o2770",
+      "operand": "use-1/home/.claude",
+      "state": "present",
+      "type": "directory",
+      "uid": 1000
+    },
+    {
+      "errno": null,
+      "gid": 1001,
+      "links": 3,
+      "mode": "0o2755",
+      "operand": "use-1/home/.claude/projects",
+      "state": "present",
+      "type": "directory",
+      "uid": 65532
+    },
+    {
+      "errno": "ENOENT",
+      "gid": null,
+      "links": null,
+      "mode": null,
+      "operand": "private-layout.json",
+      "state": "absent",
+      "type": null,
+      "uid": null
+    },
+    {
+      "errno": "ENOENT",
+      "gid": null,
+      "links": null,
+      "mode": null,
+      "operand": "private-layout.json.tmp",
+      "state": "absent",
+      "type": null,
+      "uid": null
+    },
+    {
+      "errno": "ENOENT",
+      "gid": null,
+      "links": null,
+      "mode": null,
+      "operand": "use-2",
+      "state": "absent",
+      "type": null,
+      "uid": null
+    },
+    {
+      "errno": "ENOENT",
+      "gid": null,
+      "links": null,
+      "mode": null,
+      "operand": "use-2/home",
+      "state": "absent",
+      "type": null,
+      "uid": null
+    },
+    {
+      "errno": "ENOENT",
+      "gid": null,
+      "links": null,
+      "mode": null,
+      "operand": "use-2/home/.claude",
+      "state": "absent",
+      "type": null,
+      "uid": null
+    },
+    {
+      "errno": "ENOENT",
+      "gid": null,
+      "links": null,
+      "mode": null,
+      "operand": "use-2/home/.claude/projects",
+      "state": "absent",
+      "type": null,
+      "uid": null
+    }
+  ],
+  "root": "/tmp/baton-w177936-qualification-180078",
+  "run_identity": "180078",
+  "schema": "baton.w177936.fixed-path-metadata/1",
+  "work": "W177936"
+}

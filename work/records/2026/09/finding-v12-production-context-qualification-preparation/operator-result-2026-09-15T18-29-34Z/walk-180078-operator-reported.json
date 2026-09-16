@@ -1,0 +1,126 @@
+{
+  "bounds": {
+    "max_depth": 8,
+    "max_entries_per_home": 1024,
+    "wall_seconds": 20
+  },
+  "homes": [
+    {
+      "coverage": {
+        "complete": false,
+        "depth_limited": false,
+        "max_depth_reached": 4,
+        "reason": "bounds reached or entries unreadable",
+        "timed_out": false,
+        "truncated": false
+      },
+      "credential_shaped_skipped": 0,
+      "entries": 11,
+      "errno": null,
+      "errors": {
+        "opendir:EACCES": 1
+      },
+      "groups": [
+        {
+          "count": 1,
+          "gid": 1001,
+          "mode": "0o2770",
+          "readable": true,
+          "searchable": true,
+          "type": "directory",
+          "uid": 1000
+        },
+        {
+          "count": 4,
+          "gid": 1001,
+          "mode": "0o2755",
+          "readable": true,
+          "searchable": true,
+          "type": "directory",
+          "uid": 65532
+        },
+        {
+          "count": 1,
+          "gid": 1001,
+          "mode": "0o700",
+          "readable": false,
+          "searchable": false,
+          "type": "directory",
+          "uid": 65532
+        },
+        {
+          "count": 3,
+          "gid": 1001,
+          "mode": "0o600",
+          "readable": false,
+          "searchable": false,
+          "type": "regular",
+          "uid": 65532
+        },
+        {
+          "count": 1,
+          "gid": 1001,
+          "mode": "0o644",
+          "readable": true,
+          "searchable": false,
+          "type": "regular",
+          "uid": 65532
+        },
+        {
+          "count": 1,
+          "gid": 1001,
+          "mode": "0o777",
+          "readable": true,
+          "searchable": true,
+          "type": "symlink",
+          "uid": 1000
+        }
+      ],
+      "home": "use-1/home",
+      "links_not_followed": 1,
+      "state": "present"
+    },
+    {
+      "coverage": {
+        "complete": false,
+        "depth_limited": false,
+        "max_depth_reached": 0,
+        "reason": "home not opened",
+        "timed_out": false,
+        "truncated": false
+      },
+      "credential_shaped_skipped": 0,
+      "entries": 0,
+      "errno": "ENOENT",
+      "errors": {},
+      "groups": [],
+      "home": "use-2/home",
+      "links_not_followed": 0,
+      "state": "absent"
+    }
+  ],
+  "limits": "POSIX mode bits do not account for ACLs, namespaces or other policy, so permitted is not proof of readability and denied is not proof of the failure; this cannot recover the stopped attempt's original error",
+  "method": "no-follow directory descriptors; aggregate counts only; no regular-file open, no readlink, no writes, no name resolution, no names exported",
+  "operator": {
+    "egid": 1000,
+    "euid": 1000,
+    "gid": 1000,
+    "groups": [
+      4,
+      24,
+      27,
+      30,
+      46,
+      100,
+      113,
+      119,
+      1000,
+      1001
+    ],
+    "uid": 1000
+  },
+  "root": "/tmp/baton-w177936-qualification-180078",
+  "run_identity": "180078",
+  "schema": "baton.w177936.bounded-home-walk/1",
+  "work": "W177936"
+}

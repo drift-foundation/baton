@@ -1,0 +1,290 @@
+{
+  "work": "W156162",
+  "claim": 174632,
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "executable": "/home/sl/src/baton/.venv/bin/python3",
+  "jsonschema": "4.26.0",
+  "before": {
+    "v12/python/DEPLOYMENT.md": "5dc34d45d5b098baca7318df305f96bc02275cd3ecaaa9a20e0f4758a641c7a5",
+    "v12/python/src/baton_v12/integration/execution.py": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e",
+    "v12/python/src/baton_v12/integration/git_profile.py": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+    "v12/python/src/baton_v12/integration/managed_execution.py": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+    "v12/python/src/baton_v12/integration/queue.py": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+    "v12/python/src/baton_v12/integration/reconciliation.py": "2ae66976951d9afd43e994daaf214aaf6e6f2c95f80b43449626ac8460da5110",
+    "v12/python/src/baton_v12/job_manager/delegation.py": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+    "v12/python/src/baton_v12/job_manager/documents.py": "372495aa6a29060ca22e2f693e9390d9c0b53ea630ad6db42519dd7e37dd5a1d",
+    "v12/python/src/baton_v12/job_manager/execution_limits.py": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442",
+    "v12/python/src/baton_v12/job_manager/integration_capacity.py": "87b92b347f0391b1c3487be9ef3176d64c9567f0b5bf3d3a91544c481963317b",
+    "v12/python/src/baton_v12/job_manager/projection.py": "f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+    "v12/python/src/baton_v12/job_manager/scheduler.py": "4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+    "v12/python/src/baton_v12/job_manager/schema.py": "137617b87020e4b4b5309c3396ce94f86243822604d67392bfbd44dafd9cc0f0",
+    "v12/python/src/baton_v12/job_manager/store.py": "f35eb9878c7bfbcd592bc5afc816acf1a67ee01a1529fc123e2b0f89fda33c91",
+    "v12/python/src/baton_v12/job_manager/submission.py": "204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508",
+    "v12/python/tests/integration/test_execution.py": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+    "v12/python/tests/integration/test_managed_execution.py": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+    "v12/python/tests/integration/test_managed_storage.py": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+    "v12/python/tests/job_manager/execution_limits_fixtures/PROVENANCE.md": "4a6cf1ca5c4a165b7d6094c1e89edb8ce06a97de5a61a67df0d711b6a3111475",
+    "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3": "bb9fa3aba268f461f46cc38098faed7bbe8699d0da5918f62f0fc9c44a6b7866",
+    "v12/python/tests/job_manager/test_delegation.py": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+    "v12/python/tests/job_manager/test_documents.py": "1a8c151ae2f88a47ec8b26110fdea2a5ba0cb4197ef8c76cd8d2a46c744d82f8",
+    "v12/python/tests/job_manager/test_exchange.py": "f6d426f9fa9d59a30b80587751dde2e98a537c95fd4f28610411a7d5808f949e",
+    "v12/python/tests/job_manager/test_execution_limits.py": "9df0c9078bfa7a0d47c95cb4c5be7349569875579bfabd90457d0620a186e465",
+    "v12/python/tests/job_manager/test_managed_integration_capacity.py": "3bdd3ffa1349c56a99d65c6eb3f1280752a5a55563deeff5ef729d4eb3edab86",
+    "v12/python/tests/job_manager/test_scheduling.py": "d61e968e11dd6bd8904631b577f25ceafc9e231b811294ea7f81ae681e88b03e",
+    "v12/python/tests/job_manager/test_store.py": "5febdd004e0e6db8a83acf4c2489107f9d5eebb3ebb5945949a59b746bc787c6",
+    "v12/python/tests/job_manager/test_tool.py": "bade475f9eef10e4c3b1de3cf91989e77dfafcdcc6bd13ddbbaa9de10ca64d9b",
+    "v12/python/tests/manager/test_execution_limits.py": "95087d91d67b89b4b022a6a2a085e52ec001a24104ba20d3748b9ade76fa1afd",
+    "v12/python/tests/manager/test_integration_worker.py": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+    "v12/python/tests/manager/test_reconciliation_task.py": "d0a32b441d49dcb3a204040155e73891abfc580ca67b74e2228db75c029da186",
+    "v12/python/tests/tools/test_execution_limits.py": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+    "v12/python/tests/tools/test_integration_bundle.py": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+    "v12/python/tests/tools/test_integration_worker.py": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+    "v12/python/tests/tools/test_managed_apply.py": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57",
+    "v12/python/tests/tools/test_managed_integration.py": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+    "v12/python/tests/tools/test_managed_preparation.py": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+    "v12/python/tests/tools/test_single_worker.py": "409cb7b771e902cea0a28bce5635b422f92110a5a5491eb461c8982817b027f9",
+    "v12/python/tests/tools/test_stage_execution.py": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+    "v12/python/tools/integration_bundle.py": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942",
+    "v12/python/tools/integration_placement.py": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161",
+    "v12/python/tools/integration_worker.py": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+    "v12/python/tools/single_worker.py": "3b78842c59a46b30a2a542cac6e7ed860e32c5e5645baed643c478a4eddd3c49",
+    "v12/python/tools/stage_execution.py": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+    "v12/worker/Dockerfile.reconciliation": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3",
+    "v12/worker/baton_worker.py": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+    "v12/worker/claude_agent.py": "c7a2b746fbefc088a7670c6f1a3c6363d0faeadcb08d27c56c8f6819ae0f979c",
+    "v12/worker/integration_contract.py": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+    "v12/worker/integration_entry.py": "23cc2608732e885bda617c470f84de417b2f016c5a3bd3edf8e782097e81de66",
+    "v12/worker/integration_workload.py": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+    "v12/worker/reconciliation_entry.py": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4",
+    "v12/worker/reconciliation_task.py": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2"
+  },
+  "accepted_current_paths": 33,
+  "old_candidate_comparison": [
+    {
+      "path": "v12/python/DEPLOYMENT.md",
+      "unchanged": false,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/execution_limits.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "unchanged": false,
+      "accepted_managed_overlap": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/schema.py",
+      "unchanged": false,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/store.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/submission.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "unchanged": false,
+      "accepted_managed_overlap": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/execution.py",
+      "unchanged": false,
+      "accepted_managed_overlap": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/execution_limits_fixtures/PROVENANCE.md",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_documents.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_exchange.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_execution_limits.py",
+      "unchanged": false,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_scheduling.py",
+      "unchanged": false,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_store.py",
+      "unchanged": false,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/manager/test_execution_limits.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/tools/test_execution_limits.py",
+      "unchanged": true,
+      "accepted_managed_overlap": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "unchanged": true,
+      "accepted_managed_overlap": true
+    },
+    {
+      "path": "v12/python/tools/integration_bundle.py",
+      "unchanged": false,
+      "accepted_managed_overlap": true
+    },
+    {
+      "path": "v12/python/tools/integration_worker.py",
+      "unchanged": false,
+      "accepted_managed_overlap": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "unchanged": false,
+      "accepted_managed_overlap": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "unchanged": true,
+      "accepted_managed_overlap": false
+    },
+    {
+      "path": "v12/worker/integration_workload.py",
+      "unchanged": false,
+      "accepted_managed_overlap": true
+    }
+  ],
+  "accepted_current_mismatches": [],
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.tools.test_execution_limits",
+    "tests.job_manager.test_store"
+  ],
+  "timeout_seconds": 120,
+  "pid": 3,
+  "exit": 1,
+  "group_gone": true,
+  "elapsed_seconds": 44.307999097014545,
+  "after": {
+    "v12/python/DEPLOYMENT.md": "5dc34d45d5b098baca7318df305f96bc02275cd3ecaaa9a20e0f4758a641c7a5",
+    "v12/python/src/baton_v12/integration/execution.py": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e",
+    "v12/python/src/baton_v12/integration/git_profile.py": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+    "v12/python/src/baton_v12/integration/managed_execution.py": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+    "v12/python/src/baton_v12/integration/queue.py": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+    "v12/python/src/baton_v12/integration/reconciliation.py": "2ae66976951d9afd43e994daaf214aaf6e6f2c95f80b43449626ac8460da5110",
+    "v12/python/src/baton_v12/job_manager/delegation.py": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+    "v12/python/src/baton_v12/job_manager/documents.py": "372495aa6a29060ca22e2f693e9390d9c0b53ea630ad6db42519dd7e37dd5a1d",
+    "v12/python/src/baton_v12/job_manager/execution_limits.py": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442",
+    "v12/python/src/baton_v12/job_manager/integration_capacity.py": "87b92b347f0391b1c3487be9ef3176d64c9567f0b5bf3d3a91544c481963317b",
+    "v12/python/src/baton_v12/job_manager/projection.py": "f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+    "v12/python/src/baton_v12/job_manager/scheduler.py": "4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+    "v12/python/src/baton_v12/job_manager/schema.py": "137617b87020e4b4b5309c3396ce94f86243822604d67392bfbd44dafd9cc0f0",
+    "v12/python/src/baton_v12/job_manager/store.py": "f35eb9878c7bfbcd592bc5afc816acf1a67ee01a1529fc123e2b0f89fda33c91",
+    "v12/python/src/baton_v12/job_manager/submission.py": "204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508",
+    "v12/python/tests/integration/test_execution.py": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+    "v12/python/tests/integration/test_managed_execution.py": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+    "v12/python/tests/integration/test_managed_storage.py": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+    "v12/python/tests/job_manager/execution_limits_fixtures/PROVENANCE.md": "4a6cf1ca5c4a165b7d6094c1e89edb8ce06a97de5a61a67df0d711b6a3111475",
+    "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3": "bb9fa3aba268f461f46cc38098faed7bbe8699d0da5918f62f0fc9c44a6b7866",
+    "v12/python/tests/job_manager/test_delegation.py": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+    "v12/python/tests/job_manager/test_documents.py": "1a8c151ae2f88a47ec8b26110fdea2a5ba0cb4197ef8c76cd8d2a46c744d82f8",
+    "v12/python/tests/job_manager/test_exchange.py": "f6d426f9fa9d59a30b80587751dde2e98a537c95fd4f28610411a7d5808f949e",
+    "v12/python/tests/job_manager/test_execution_limits.py": "9df0c9078bfa7a0d47c95cb4c5be7349569875579bfabd90457d0620a186e465",
+    "v12/python/tests/job_manager/test_managed_integration_capacity.py": "3bdd3ffa1349c56a99d65c6eb3f1280752a5a55563deeff5ef729d4eb3edab86",
+    "v12/python/tests/job_manager/test_scheduling.py": "d61e968e11dd6bd8904631b577f25ceafc9e231b811294ea7f81ae681e88b03e",
+    "v12/python/tests/job_manager/test_store.py": "5febdd004e0e6db8a83acf4c2489107f9d5eebb3ebb5945949a59b746bc787c6",
+    "v12/python/tests/job_manager/test_tool.py": "bade475f9eef10e4c3b1de3cf91989e77dfafcdcc6bd13ddbbaa9de10ca64d9b",
+    "v12/python/tests/manager/test_execution_limits.py": "95087d91d67b89b4b022a6a2a085e52ec001a24104ba20d3748b9ade76fa1afd",
+    "v12/python/tests/manager/test_integration_worker.py": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+    "v12/python/tests/manager/test_reconciliation_task.py": "d0a32b441d49dcb3a204040155e73891abfc580ca67b74e2228db75c029da186",
+    "v12/python/tests/tools/test_execution_limits.py": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+    "v12/python/tests/tools/test_integration_bundle.py": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+    "v12/python/tests/tools/test_integration_worker.py": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+    "v12/python/tests/tools/test_managed_apply.py": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57",
+    "v12/python/tests/tools/test_managed_integration.py": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+    "v12/python/tests/tools/test_managed_preparation.py": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+    "v12/python/tests/tools/test_single_worker.py": "409cb7b771e902cea0a28bce5635b422f92110a5a5491eb461c8982817b027f9",
+    "v12/python/tests/tools/test_stage_execution.py": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+    "v12/python/tools/integration_bundle.py": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942",
+    "v12/python/tools/integration_placement.py": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161",
+    "v12/python/tools/integration_worker.py": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+    "v12/python/tools/single_worker.py": "3b78842c59a46b30a2a542cac6e7ed860e32c5e5645baed643c478a4eddd3c49",
+    "v12/python/tools/stage_execution.py": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+    "v12/worker/Dockerfile.reconciliation": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3",
+    "v12/worker/baton_worker.py": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+    "v12/worker/claude_agent.py": "c7a2b746fbefc088a7670c6f1a3c6363d0faeadcb08d27c56c8f6819ae0f979c",
+    "v12/worker/integration_contract.py": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+    "v12/worker/integration_entry.py": "23cc2608732e885bda617c470f84de417b2f016c5a3bd3edf8e782097e81de66",
+    "v12/worker/integration_workload.py": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+    "v12/worker/reconciliation_entry.py": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4",
+    "v12/worker/reconciliation_task.py": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2"
+  },
+  "unchanged_during_review": true,
+  "prior_reviewer_seconds": 147.7342205499972,
+  "reviewer_seconds": 192.04221964701173,
+  "historical_author": {
+    "measured_seconds": 2530.5844189850177,
+    "measured_runs": 246,
+    "unknown_activities": 4
+  }
+}

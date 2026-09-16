@@ -1,5 +1,16 @@
 # Selected release checklist and dispositions — W165782 claim167877
 
+## Current amendment — owner 2026-09-15: replacement and certification to v13
+
+W2 FINDING and W103525 FINDING record the owner's explicit reassignment of
+W103525's unfinished broad certification and operator replacement to v13.
+This supersedes the W103525 minimum-required classification below. Reuse its
+accepted scheduling foundation with original limits; do not require completion
+of the remainder for v12. W174357's retained design review is nonblocking v13
+pre-work. Keep both original identities/evidence. W2-on-W103525 requires operator
+removal; no other gate is removed. W161234 context/correction/restart, W156162
+limits, W61599 activity and W63255 supported abandonment remain required.
+
 ## Follow-up through the v12 ecosystem — owner 2026-09-14T12:23:19Z
 
 Implement reminders for unresolved operator Work through the v12 ecosystem.

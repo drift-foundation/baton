@@ -1,0 +1,18 @@
+{
+  "work": "W61599",
+  "claim": 178853,
+  "outcome": "viewer changes requested R1/R2",
+  "candidate_sha256": "2d8bd9bfe8e2769f1da33d9d5e89870c43d9ec2679482f122bbe5c698a1a37ad",
+  "files": {
+    "review-2026-09-15T14-42-20Z.md": "cefb901369782edfc1155bfc0c3c6eddca2bf997efce0f9ec287d4300d2c7650",
+    "viewer-review-178853-run.py": "4198f80723ca6abae5cc6fb3b3d934286aa6be57bba1ae633878ee0cf4c9fa62",
+    "viewer-review-178853.json": "4acc09360ed66407fe93d0fb5030598ee37bd5602dba4446a676700ee7cd89a7",
+    "viewer-review-178853.log": "4eef230cf299ac3c07243827fc3d10eb4ad3aaa218b375a9841c75037e406eb5",
+    "viewer-review-178853/base/v12/python/tests/tools/test_job_viewer.py": "bbbc6be5ffc35774654336a41f9d0c36182f013ae53feb3b14203ce0245b476b",
+    "viewer-review-178853/base/v12/python/tools/job_viewer.py": "093ec72480e2c921ea657b0e63e7235d7dd5e27933762724132310b42447d356",
+    "viewer-review-178853/candidate/v12/python/tests/tools/test_job_viewer.py": "0c2c42f71253b62bf84134863dce9144323fe617997e9876cf19add88f37ee21",
+    "viewer-review-178853/candidate/v12/python/tools/job_viewer.py": "8dce0e033cc3cc76c313013590e30e42e16702f01e8834fd450b7a9352c7f818",
+    "viewer-review-178853/base/v12/python/JOB-VIEWER.md": "d319f7813c826970eca6f49a5970f894805288754f31f30999d28d3cfbbb5976",
+    "viewer-review-178853/candidate/v12/python/JOB-VIEWER.md": "f914fc20fbe47734873ae649cda3a521460f07b1082e146731929dbcb571ec2b"
+  }
+}

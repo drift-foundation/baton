@@ -1,0 +1,345 @@
+{
+  "based_on": {
+    "acceptance_review": "review-2026-09-15T15-53-41Z.md",
+    "acceptance_review_sha256": "84d90a97dbce368401d27b83045fe51845ec9a560e357261385cbec882359cc6",
+    "accepted_correction": 179295,
+    "accepted_manifest": "3d5684edae17c296827db26c2a1dcffbf5173d719ddb80fe8e5f1e25f6f98741"
+  },
+  "claim": 180078,
+  "consumed_identity": {
+    "addressable_by_running_code": false,
+    "identity": "178579",
+    "roots": [
+      "/tmp/baton-w177936-qualification-178579",
+      "/dev/shm/baton-w177936-qualification-178579",
+      "/tmp/baton-w177936-qualification-178579-export"
+    ],
+    "status": "consumed by failed operator run179075; retained untouched at their original timestamps and never reusable"
+  },
+  "delta": {
+    "OPERATOR-178579.md": [
+      "fresh identity section, the exact copyable command and the new approved digest",
+      "a note that the filename records the packet's origin, not the run identity"
+    ],
+    "qualification-fixture.py": [
+      "IDENTITY/ROOT/VOLATILE now name 180078",
+      "export_root() derives the third root from ROOT in one place, replacing the local derivation in run()",
+      "audit's manifest-constants check now also requires run_identity, private_root, credential_copy_root and export_root to equal the roots this code would reserve"
+    ],
+    "qualification-manifest.json": [
+      "run_identity, private_root, credential_copy_root and the new export_root name 180078",
+      "consumed_identity records the retired 178579 roots"
+    ],
+    "test_qualification.py": [
+      "genuine identity constants captured at import, before any test patches them",
+      "TheFreshRunIdentity: seven cases over the identity, the single derivation, the manifest binding and the unaddressability of the consumed roots",
+      "the audit case restores the real roots, because its class patches them away"
+    ],
+    "unchanged": [
+      "qualification_contract.py",
+      "qualification_worker.py",
+      "verify-offline.py",
+      "the image, two user turns, 180s per invocation, 600s envelope",
+      "the artifact, continuity, custody, shutdown and model-acceptance behaviour"
+    ]
+  },
+  "files": [
+    {
+      "base_sha256": "8f77718841f45af02c589c238c3f634c0851e7c9dd4610ada95cf97bb591bc50",
+      "candidate_sha256": "72875394cb4b958919db48a019a99de076ee5cab526b51a1c2278ae0c7e49e94",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-180078/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "0efe61f528ce4c691b85fa336967d1f85bd32241ffd686c73305f7d36e3281d1",
+      "candidate_sha256": "0efe61f528ce4c691b85fa336967d1f85bd32241ffd686c73305f7d36e3281d1",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-180078/qualification_contract.py"
+    },
+    {
+      "base_sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "candidate_sha256": "6d9d0a0b5260b4e180a18672c58ae5ec7274bf0f3170a3b62f140bf2f1c92a28",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-180078/qualification_worker.py"
+    },
+    {
+      "base_sha256": "9b76df9f07161eabd2edb2d57e7d96e9e1eb08241d1d642bfea6a5f0bc51457f",
+      "candidate_sha256": "108a7b67474e427ff4e76b635811e73ceb0487a692de88ac8ab69f7866ba0f22",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-180078/test_qualification.py"
+    },
+    {
+      "base_sha256": "3d5684edae17c296827db26c2a1dcffbf5173d719ddb80fe8e5f1e25f6f98741",
+      "candidate_sha256": "5e789f4e3115b5eb9a7623772adf0a17aac3e45135afaa65bc11a35eb30e951f",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-180078/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-180078/verify-offline.py"
+    },
+    {
+      "base_sha256": "fb872f80ddf330eacd2d954b6bf6a0769410e25ed4212f08883125778f5b3c2d",
+      "candidate_sha256": "fe63a4f11a3a3b7ea480d70e2a72793ed8f90cc9fab1bee62214ede80c4d6589",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-180078/OPERATOR-178579.md"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.26378964600735344,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "ce055344ec35ba442dba17923eab9e5e8dcccc47217cfc92121dd58e8eee9b06",
+    "manifest_sha256": "5e789f4e3115b5eb9a7623772adf0a17aac3e45135afaa65bc11a35eb30e951f",
+    "pid": 3695235,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "fresh_roots": {
+    "checked_free_at_preparation": true,
+    "confirmed_unreserved_after_all_verification": true,
+    "credential_copy_root": "/dev/shm/baton-w177936-qualification-180078",
+    "export_root": "/tmp/baton-w177936-qualification-180078-export",
+    "private_root": "/tmp/baton-w177936-qualification-180078",
+    "reserved": false
+  },
+  "g7": "image 979f11d5 remains the qualification-only selection",
+  "g8": "--max-turns not composed",
+  "manifest_sha256": "5e789f4e3115b5eb9a7623772adf0a17aac3e45135afaa65bc11a35eb30e951f",
+  "not_done": [
+    "live execution",
+    "engine",
+    "model",
+    "credential use",
+    "network or image operation",
+    "reserving or creating any of the fresh roots",
+    "launching the fixture",
+    "marker reset",
+    "touching the consumed roots",
+    "product or consumer edits",
+    "broad suites",
+    "architecture restart",
+    "version-control operations"
+  ],
+  "operator_audit_command": "python3 work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/qualification-fixture.py --audit",
+  "operator_command": "python3 work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/qualification-fixture.py --run --approved-manifest 5e789f4e3115b5eb9a7623772adf0a17aac3e45135afaa65bc11a35eb30e951f",
+  "operator_packet_sha256": "fe63a4f11a3a3b7ea480d70e2a72793ed8f90cc9fab1bee62214ede80c4d6589",
+  "owner_selection": "2026-09-15T18:04:42Z (reroute 180071)",
+  "partial": {
+    "G1": "first-turn terminal and session evidence; no accepted actual model",
+    "G4": "first-use observation only",
+    "G6": "first-use observation only"
+  },
+  "prepares": "a fresh fixed run identity and its exact manifest-bound operator command",
+  "probe_note": "Three probes were added for the identity bindings: putting the consumed identity back, dropping the declared-root check, and deriving the export root from another operand instead of ROOT. All fifteen fail as required.",
+  "probe_sandbox_finding": "MY OWN PROBE CONSUMED THE FRESH EXPORT ROOT. The first version of export-root-pinned-not-derived returned a hard-coded /tmp/baton-w177936-qualification-180078-export literal, so when the patched tests called run() the reservation loop created the REAL directory -- a probe reaching outside its sandbox and quietly taking the very identity this turn prepares. Caught by the post-run check that all three fresh roots are still unreserved, not by a test. The empty 0700 directory (created 12:09:45, mine, no entries) was removed, the probe now derives from VOLATILE so it stays inside the temporary tree, and the re-run confirms all three fresh roots unreserved and all fifteen probes failing.",
+  "refused_manifests": [
+    "26a0f74254f88d49e02420c05b242c3349dc6b30b567666928be7290019ded2f",
+    "73fe32b941b2c82bc0f7bc87a4fa512854dfd64b17b4c8656752607f45dc0481",
+    "9a1ddd250da674e956c707f043830863d74db9074814b5050dff5d5c6c5b78ff",
+    "3d5684edae17c296827db26c2a1dcffbf5173d719ddb80fe8e5f1e25f6f98741"
+  ],
+  "reversal_probes": [
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+        "test_both_constants_are_accepted_with_and_without_their_final_lf",
+        "test_changed_code_still_refuses_at_the_second_turn",
+        "test_the_controller_never_rewrites_the_workspace",
+        "test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "artifact-exact-only",
+      "reverts": "the second accepted form is gone"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+        "test_both_constants_are_accepted_with_and_without_their_final_lf",
+        "test_no_strip_or_normalization_was_introduced",
+        "test_the_observed_digest_is_the_providers_and_the_expected_one_is_ours",
+        "test_the_relaxation_is_exactly_one_newline_wide"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "artifact-strip",
+      "reverts": "general whitespace tolerance instead of one newline"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm",
+        "test_a_terminal_record_that_contradicts_its_own_diagnostics_refuses",
+        "test_contradictory_cardinality_is_refused_at_the_arm"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "no-consistency-guard",
+      "reverts": "a forged terminal record is no longer refused"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_truthy_integer_is_not_a_boolean"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "membership-not-identity",
+      "reverts": "a truthy integer passes as a boolean"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_missing_final_lf_reaches_turn_two_and_is_observed_not_assumed",
+        "test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "constant-as-observed",
+      "reverts": "the export labels a constant as the observed artifact"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_refused_artifact_is_recorded_before_it_is_refused",
+        "test_a_token_written_without_its_newline_still_refuses",
+        "test_changed_code_still_refuses_at_the_second_turn"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "refuse-before-record-turn-2",
+      "reverts": "a refused second-turn record no longer survives the refusal"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_refused_first_turn_artifact_is_recorded_before_it_is_refused"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "refuse-before-record",
+      "reverts": "the observed record no longer survives a refusal"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_shape_cannot_claim_a_cardinality_it_excludes",
+        "test_contradictory_cardinality_is_refused_at_the_arm"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-cardinality-bounds",
+      "reverts": "the old range check: a singleton may report any in-range count"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_contradictory_cardinality_is_refused_at_the_arm",
+        "test_overflow_belongs_only_to_the_shapes_that_can_overflow"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-overflow-rule",
+      "reverts": "overflow may be claimed by any shape at any count"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_diagnostic_about_an_absent_member_is_a_contradiction",
+        "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-usage-member-rule",
+      "reverts": "a modelUsage diagnostic about an absent member is admitted"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_diagnostic_about_an_absent_member_is_a_contradiction",
+        "test_a_diagnostic_about_an_absent_member_is_refused_at_the_arm"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-model-member-rule",
+      "reverts": "a model diagnostic about an absent member is admitted"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_contradictory_cardinality_is_refused_at_the_arm",
+        "test_the_expected_key_flag_must_match_its_shape"
+      ],
+      "file": "qualification_contract.py",
+      "probe": "no-expected-key-rule",
+      "reverts": "the expected-key flag need not match its shape"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_audit_never_uses_engine_or_credentials",
+        "test_the_consumed_roots_are_never_addressable_by_the_running_code",
+        "test_the_identity_is_not_the_consumed_one",
+        "test_the_manifest_declares_exactly_the_roots_the_code_would_take",
+        "test_the_three_roots_are_one_identity_and_distinct"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "identity-back-to-consumed",
+      "reverts": "the consumed run identity is reachable again"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_manifest_naming_another_identity_is_refused",
+        "test_the_export_root_is_derived_in_exactly_one_place"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "no-declared-root-check",
+      "reverts": "an approved manifest may declare an identity the code does not take"
+    },
+    {
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_refused_reservation_leaves_no_half_taken_identity",
+        "test_audit_never_uses_engine_or_credentials",
+        "test_each_fixed_root_refuses_before_any_admission",
+        "test_the_export_root_follows_a_patched_root",
+        "test_the_export_root_is_derived_in_exactly_one_place",
+        "test_the_manifest_declares_exactly_the_roots_the_code_would_take",
+        "test_the_three_roots_are_one_identity_and_distinct"
+      ],
+      "file": "qualification-fixture.py",
+      "probe": "export-root-pinned-not-derived",
+      "reverts": "the export root stops following ROOT and is derived from another operand"
+    }
+  ],
+  "run_identity": "180078",
+  "still_unqualified": [
+    "G2",
+    "G3",
+    "G5"
+  ],
+  "test_note": "One new test first failed on my own explanatory comment: it banned the string 178579 anywhere in the source. It now strips comments and asserts over executable text only, so the history can still be explained where it cannot run.",
+  "tests": {
+    "added": 7,
+    "after": 67,
+    "before": 60,
+    "outcome": "OK"
+  },
+  "why_audit_now_checks_the_roots": "the manifest's root fields were decorative: an approved manifest could name one identity while the fixture reserved another and the digest would still verify. Changing any one of the four declared identity fields alone now refuses with manifest-constants.",
+  "work": "W177936"
+}

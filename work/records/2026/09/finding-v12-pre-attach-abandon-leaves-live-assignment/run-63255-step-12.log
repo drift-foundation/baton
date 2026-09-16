@@ -1,0 +1,15 @@
+............................................................................................................................................................................................................................................................................................................................................F..................
+======================================================================
+FAIL: test_the_documented_command_fences_a_pre_attach_assignment (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_documented_command_fences_a_pre_attach_assignment)
+W63255's centre: `main --abandon` over an attempt that ACTIVATED and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_dogfood_operator.py", line 7024, in test_the_documented_command_fences_a_pre_attach_assignment
+    self.assertIsNone(after["handler"])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 'baton.claude' is not None
+
+----------------------------------------------------------------------
+Ran 351 tests in 3.972s
+
+FAILED (failures=1)

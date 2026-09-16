@@ -1,0 +1,72 @@
+{
+  "work": "W2",
+  "claim": 183730,
+  "owner": 183727,
+  "candidate": {
+    "path": "work/records/2026/08/finding-v12-isolated-agent-workers/DOCS-CANDIDATE-183730.json",
+    "sha256": "6509e6c6b56ff44239885ca259f207d61091c66de5c4383d4f1b6902d53b9a40"
+  },
+  "artifacts": [
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/BASE-DOCS-183730.json",
+      "sha256": "9f1bd9d81dabeeb2bac87ecf6cd63b70949ba9a7a44245f506ab0d50c6eb0974"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/docs-183730.patch",
+      "sha256": "cd0bf1080b8db8691a04fc68c7b7c5c1c75010945496befd155d9bcd0f9f8342"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/DOCS-HANDOFF-183730.md",
+      "sha256": "d701f8c1d2401abcac8e1955627a40c0884c9bf687f17c31c90dbeead62c0807"
+    }
+  ],
+  "dossier": [
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md",
+      "sha256": "699390decb2f76d6a95354d2e8fd384622b8c667f6dadfd7c6d67dc9f1570dd5",
+      "snapshot": "work/records/2026/08/finding-v12-isolated-agent-workers/candidate-docs-183730/work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md",
+      "sha256": "7e9e011b18eca5bbac8dee9ff89092c73f8dfa7731acb336fc311e680f4ddc8f",
+      "snapshot": "work/records/2026/08/finding-v12-isolated-agent-workers/candidate-docs-183730/work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/PROGRESS.md",
+      "sha256": "cb77423f66c25eef8add0efcb9567ee2355ca1c183d5e7da328830ade9f609ce",
+      "snapshot": "work/records/2026/08/finding-v12-isolated-agent-workers/candidate-docs-183730/work/records/2026/08/finding-v12-isolated-agent-workers/PROGRESS.md"
+    }
+  ],
+  "inputs_unchanged": [
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/DEPLOYMENT-PROPOSED-183574.md",
+      "sha256": "825027b4dbb2c7370c2fa8d8b035fbb2ad64c360a72d848bb20fe793efeb9a93"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/OWNER-FRESH-ATTEMPT-RECOVERY-20260916.md",
+      "sha256": "55429d8e8be306cbc06392c49b9e6f450fa3c11f7ec6fce01012df7bcb039b27"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/review-2026-09-16T04-14-53Z.md",
+      "sha256": "82b74430ed22e0e3ad1720d76298d069fff7fb3a8c27a4c04a995f7f2bf5c89d"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/READINESS-EVIDENCE-183574.json",
+      "sha256": "259dd039933691d305a9dc0e2da52485a87cdc51f92a3fda1b2ad058c22040f9"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2"
+    }
+  ],
+  "checks": {
+    "exact_prepared_insertion": true,
+    "all_surrounding_manual_bytes_preserved": true,
+    "target_mode_preserved": true,
+    "prior_finding_progress_preserved_as_prefix": true,
+    "prior_plan_preserved_as_suffix": true
+  },
+  "runtime_verification_seconds": 0,
+  "static_edit_check_seconds": 0.0006227369885891676,
+  "limits": "Documentation-only publication. Independent review pending; no final owner readiness signoff, W2 closure, live qualification or deployment."
+}

@@ -1,0 +1,1931 @@
+{
+  "schema": "baton.v12.correction-restart-trace/1",
+  "scheduler": {
+    "schema": "baton.v12.scheduler-trace/1",
+    "scenario": {
+      "schema": "baton.v12.scheduler-trace-scenario/1",
+      "name": "useful-correction",
+      "jobs": [
+        {
+          "job_id": "job-a",
+          "input_digest": "sha256:29764f7997a8ad87a284523395128d8979efd55c804ce620d2f21002f125503c",
+          "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "test_scope": [
+            "v12/python/tests/job_manager"
+          ],
+          "terminal_policy": "report-and-hold",
+          "stages": [
+            {
+              "kind": "implementation",
+              "work_id": "0000000a-W1",
+              "profile_name": "reference",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "depends_on": []
+            },
+            {
+              "kind": "review",
+              "work_id": "0000000a-W1",
+              "profile_name": "reference",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "depends_on": [
+                {
+                  "job_id": "job-a",
+                  "kind": "implementation"
+                }
+              ]
+            },
+            {
+              "kind": "integration",
+              "work_id": "0000000a-W1",
+              "profile_name": "reference",
+              "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "depends_on": [
+                {
+                  "job_id": "job-a",
+                  "kind": "review"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "workers": [],
+      "ticks": 100,
+      "reopen_at": null,
+      "order": [],
+      "completions": {},
+      "resolved_principals": {},
+      "note": {
+        "provider": "deterministic local process",
+        "engine": "simulated OCI",
+        "boundary": "C1 useful correction; no reopen"
+      }
+    },
+    "scenario_digest": "sha256:caa99340928b417a0bffcc61a08b105c7e024bbea0b4bf420efbed386d48acde",
+    "environment": {
+      "python": "3.13.7",
+      "implementation": "CPython",
+      "jsonschema_resolved": "4.26.0",
+      "jsonschema_pinned": "4.26.0",
+      "jsonschema_conformant": true,
+      "unobserved_fields": [
+        "runtime_id",
+        "session_id"
+      ],
+      "sources": {
+        "v12/python/src/baton_v12/job_manager/scheduler.py": "sha256:4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+        "v12/python/src/baton_v12/job_manager/projection.py": "sha256:f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+        "v12/python/src/baton_v12/job_manager/manager.py": "sha256:f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+        "v12/python/src/baton_v12/job_manager/submission.py": "sha256:204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1",
+        "v12/python/tests/job_manager/fixtures.py": "sha256:439a21f71a859bd4aa00092aa6bc8018d6c614825acd0a886c1e0853f91fc434",
+        "v12/python/tests/job_manager/test_scheduling.py": "sha256:d61e968e11dd6bd8904631b577f25ceafc9e231b811294ea7f81ae681e88b03e",
+        "v12/python/tests/tools/scheduler_trace.py": "sha256:fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+        "v12/python/tests/tools/test_scheduler_trace.py": "sha256:a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+        "v12/python/tools/stage_execution.py": "sha256:34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+        "v12/python/tools/single_worker.py": "sha256:6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+        "v12/python/tests/tools/test_stage_execution.py": "sha256:86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+        "v12/python/src/baton_v12/worker_manager/attempts.py": "sha256:1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+        "v12/python/src/baton_v12/worker_manager/review_cycles.py": "sha256:0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b"
+      }
+    },
+    "records": [
+      {
+        "tick": 1,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:1198bca9284aab642e43e2f79a0d7d7812ff49502af2547c05a5b21e8d40f610",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 2,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:c147ef62430eab4c595d70f48b3a0ebfb71a54d618eefa7d8daf9b7f4e2de831",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 3,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:760ecfd6690ed5b07640840d05844a72fa6268875ecccfbe5a3848c2eaa3eb01",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 4,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:0a0d5bed6349274878e3c5e1c3644e5b2dd0a3e5f92f08e8de62207cead43e93",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 5,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:4f45a143a843c46b53715663a58e370b771d0f242ca72179b2de9e8c1dbe351d",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 6,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:4e142c122cddc868ebeef752454e413e397b13c4bcda38c5d07de21ce3411024",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 7,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:b9d01004912b8eee8255113a391c5c3d8a32c806b224a445e19d36e32ee94abc",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 8,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:0f2fd30ca9c56dc90dec00c3f9ed53ec828d361d75743d71e8475078e1aa25b2",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 9,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:b91a565c6e09d28b656b07a66f89d0eef63c21f70edf2aaaf9dcb0fe9b06d7f1",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 10,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:e893b50136ea685ef31275913a42c55d9f54800d4d0063054ff82a455ed9cd40",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 11,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:d1c0dc4e2204d65e777948b30a3133189f82bfc7926402eef9c402d2abcc1904",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 12,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:35f3b4b0e2ff9e55316c20596e432312727e593d7a2b3e56df12f4ee0e04dab4",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 13,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:26074b5d56bed68b04ca927ac5e7e8759b6391f9e006b1cc2c58aca7e1d656b3",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 14,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 15,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 16,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 17,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 18,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:77de29576dc5a5130052477e3c077cc7c9d6a1baa4e1967a6a66c601d91d6736",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 19,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:2b29af9769dd205ed8780c306df1e8210791618a6143613d3da035fee184fb38",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 20,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:050962a8c6f044bd089f384665e640a818112a7543a3d96c76e92909f3858099",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 21,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:dbedfaa34e5dd32feb78f83ed1c8eba567c062996729a3a53ba2bf309bb7c94b",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      },
+      {
+        "tick": 22,
+        "job_id": null,
+        "stage_id": null,
+        "episode": null,
+        "attempt_id": null,
+        "act": "observe",
+        "outcome": "observed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "sha256:845616a841f296d3518f64ebe56223e15c365f98df5111694ae3749b12a959cd",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": null,
+        "authorization": null
+      }
+    ],
+    "authorization_references": {},
+    "assignment_references": {},
+    "result_references": {},
+    "gaps": []
+  },
+  "initial": {
+    "binding": {
+      "argv_digest": "sha256:1be122edcaf38548761ec436468854bd4578e75feab9b623b40747a219eeb86d",
+      "argv_policy_digest": "sha256:19ddb1ba068487202f1d80c28b1dc68a0760f13cc53f7ae8336459e05de0f167",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "cli_build": "deterministic-claude-layout",
+      "context_id": "context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a",
+      "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "delivery_digest": "sha256:5de4fe976b566011bc61b404e5b514d8a32e6a8f2b010c817171b2f995b9ffa7",
+      "environment_policy_digest": "sha256:22c5b6d5c9d853dedcdabdb9da554de43300f6a7243f8d822dcabdaa9cc9ab69",
+      "generation": 0,
+      "generation_digest": null,
+      "invocation_binding_digest": "sha256:701bfc2cede5fc960f1914ac9ce65b7a1412d05c94b00c0f9c151c7cc4412b50",
+      "invocation_id": "context-invocation-6650908154d1b4eaa56b70c5e3242b30858a9b32f233c627a4a18232e70102b7",
+      "mode": "open",
+      "model": "deterministic-model",
+      "profile_digest": "sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c",
+      "prompt_digest": "sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba",
+      "reported_model": "deterministic-model",
+      "schema": "baton.provider-context-delivery/1",
+      "task_digest": "sha256:6f8f3fc28214378ba6af669277316c17af1303e43ceb8db8255af830fd0fc3ed",
+      "use_id": "context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103"
+    },
+    "receipt": {
+      "argv_digest": "sha256:1be122edcaf38548761ec436468854bd4578e75feab9b623b40747a219eeb86d",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "cli_build": "deterministic-claude-layout",
+      "complete": true,
+      "context_id": "context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a",
+      "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "delivery_digest": "sha256:5de4fe976b566011bc61b404e5b514d8a32e6a8f2b010c817171b2f995b9ffa7",
+      "input_digest": "sha256:29764f7997a8ad87a284523395128d8979efd55c804ce620d2f21002f125503c",
+      "invocation_binding_digest": "sha256:701bfc2cede5fc960f1914ac9ce65b7a1412d05c94b00c0f9c151c7cc4412b50",
+      "invocation_id": "context-invocation-6650908154d1b4eaa56b70c5e3242b30858a9b32f233c627a4a18232e70102b7",
+      "mode": "open",
+      "model": "deterministic-model",
+      "observed_conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "observed_model": "deterministic-model",
+      "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "profile_digest": "sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c",
+      "prompt_digest": "sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba",
+      "schema": "baton.provider-context-receipt/2",
+      "status": 0,
+      "task_digest": "sha256:6f8f3fc28214378ba6af669277316c17af1303e43ceb8db8255af830fd0fc3ed",
+      "terminal": "success",
+      "use_id": "context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103"
+    },
+    "receipt_digest": "sha256:fc2989dd8e9737ff5bc197e61dbda02fffaaedb3920b6a0ad1cf8dcd901eb3d4",
+    "receipt_entry": {
+      "bytes": 1437,
+      "content_digest": "sha256:fc2989dd8e9737ff5bc197e61dbda02fffaaedb3920b6a0ad1cf8dcd901eb3d4",
+      "path": "receipt.json"
+    },
+    "assignment": {
+      "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "participant": "baton.claude",
+      "generation": 1,
+      "principal": "principal:baton.claude",
+      "effective_scope": "scope:deployment"
+    },
+    "settlement": {
+      "stage_id": "job-a/implementation",
+      "job_id": "job-a",
+      "kind": "implementation",
+      "episode": 1,
+      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "work_id": "0000000a-W1",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      },
+      "intent": "ending.intent:job-a/implementation:1",
+      "evidence": {
+        "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "manifest_digest": "sha256:2f04b2b4a7f5ac9823558cd24b62fe02f07f7b5abc23f98f9d83fdf458062beb",
+        "receipt_digest": "sha256:78322ef27eb4e3d10fb613c683d5a4fc6e776ce82550d2059656476ce0db9319",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "gate_discharge": "runtime-quiescence:1"
+      }
+    },
+    "checkpoint": {
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "revision": 1,
+      "profile_name": "git",
+      "state": "frozen",
+      "evidence": {
+        "base": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+        "head": "d321e899d180b2cb6f52d3fbe3c64b4b8e05c949",
+        "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+        "paths": [
+          "harness.py",
+          "scale.py"
+        ],
+        "profile": "git",
+        "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+        "tree": "398848d3f6911d6a4c04e613cb02268e8e4f87f1"
+      },
+      "checkpoint_digest": "sha256:5dc871b85df6b82518e456327138a54be656dffe6d7d6affc3255869d80f76ed",
+      "base_object": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+      "head_object": "d321e899d180b2cb6f52d3fbe3c64b4b8e05c949",
+      "tree_object": "398848d3f6911d6a4c04e613cb02268e8e4f87f1",
+      "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+      "reference_name": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+      "fence": {
+        "fenced": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:1",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "authority_operation_id": "authority.finalize-quiescent:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+          "decision": "finalized",
+          "reason": "review checkpoint writer completed",
+          "runtime_id": "runtime-single-1",
+          "worker_disposition": "completed"
+        }
+      },
+      "fence_digest": "sha256:8424ff63e6239681629226cfa56e84c9c519b14489da36f571375ae64d454fe9",
+      "prepared_at": "2026-09-02T00:00:00.000Z",
+      "frozen_at": "2026-09-02T00:00:00.000Z"
+    }
+  },
+  "revised": {
+    "binding": {
+      "argv_digest": "sha256:eb7b480f06830b3350f7210fcb1152bbb054237bbe173219008e046faeabf955",
+      "argv_policy_digest": "sha256:19ddb1ba068487202f1d80c28b1dc68a0760f13cc53f7ae8336459e05de0f167",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "cli_build": "deterministic-claude-layout",
+      "context_id": "context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a",
+      "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "delivery_digest": "sha256:ee7e81c22b37f49a92ad47a439c18f4d7211704b84c33e80658e531777410576",
+      "environment_policy_digest": "sha256:22c5b6d5c9d853dedcdabdb9da554de43300f6a7243f8d822dcabdaa9cc9ab69",
+      "generation": 1,
+      "generation_digest": "sha256:bc52dc77a6e538ff336e062062ab8fb0b90f83aa2a8036c6e23a88548f7229ad",
+      "invocation_binding_digest": "sha256:a0db0f9f038f918de8987843b9c521ca782a9597e4b811cdab613c69fd64b150",
+      "invocation_id": "context-invocation-2e2fcc950492bd28c04cf088bd78eca6522c02abacd8bd378ca00c5459309763",
+      "mode": "restore",
+      "model": "deterministic-model",
+      "profile_digest": "sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c",
+      "prompt_digest": "sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba",
+      "reported_model": "deterministic-model",
+      "schema": "baton.provider-context-delivery/1",
+      "task_digest": "sha256:6f8f3fc28214378ba6af669277316c17af1303e43ceb8db8255af830fd0fc3ed",
+      "use_id": "context-use-94ea913b150b0d0b9a4f7b7580709ded6546a34f4d632444dc8d1d09f55b77fb"
+    },
+    "receipt": {
+      "argv_digest": "sha256:eb7b480f06830b3350f7210fcb1152bbb054237bbe173219008e046faeabf955",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "cli_build": "deterministic-claude-layout",
+      "complete": true,
+      "context_id": "context-d312cf11193bf552cecf1998eb5be23c03efc11a70e72f4b19883a2369a8e36a",
+      "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "delivery_digest": "sha256:ee7e81c22b37f49a92ad47a439c18f4d7211704b84c33e80658e531777410576",
+      "input_digest": "sha256:29764f7997a8ad87a284523395128d8979efd55c804ce620d2f21002f125503c",
+      "invocation_binding_digest": "sha256:a0db0f9f038f918de8987843b9c521ca782a9597e4b811cdab613c69fd64b150",
+      "invocation_id": "context-invocation-2e2fcc950492bd28c04cf088bd78eca6522c02abacd8bd378ca00c5459309763",
+      "mode": "restore",
+      "model": "deterministic-model",
+      "observed_conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+      "observed_model": "deterministic-model",
+      "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "profile_digest": "sha256:ed9c6db8e890398298eee9c370a9b736ffdad63b9c9b40857c6b632a9122bc3c",
+      "prompt_digest": "sha256:c7fa092c77ecf1937f250eec9108d52e46ca60be043b4e3d7b35573e5db5dcba",
+      "schema": "baton.provider-context-receipt/2",
+      "status": 0,
+      "task_digest": "sha256:6f8f3fc28214378ba6af669277316c17af1303e43ceb8db8255af830fd0fc3ed",
+      "terminal": "success",
+      "use_id": "context-use-94ea913b150b0d0b9a4f7b7580709ded6546a34f4d632444dc8d1d09f55b77fb"
+    },
+    "receipt_digest": "sha256:fb27870141763018ef648643852c1c3e2a604b565ab4c9638daeef75de811d9c",
+    "receipt_entry": {
+      "bytes": 1440,
+      "content_digest": "sha256:fb27870141763018ef648643852c1c3e2a604b565ab4c9638daeef75de811d9c",
+      "path": "receipt.json"
+    },
+    "assignment": {
+      "runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "participant": "baton.claude",
+      "generation": 3,
+      "principal": "principal:baton.claude",
+      "effective_scope": "scope:deployment"
+    },
+    "settlement": {
+      "stage_id": "job-a/implementation",
+      "job_id": "job-a",
+      "kind": "implementation",
+      "episode": 2,
+      "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "work_id": "0000000a-W1",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 3
+      },
+      "intent": "ending.intent:job-a/implementation:2",
+      "evidence": {
+        "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "manifest_digest": "sha256:836e102b1b076cda96f2a3f13c3626ad084d26187350c8c1190be58d643f5781",
+        "receipt_digest": "sha256:6e0809cb72d513f4cf4e146a0dccd37349bc28e18cd696dc32106c581db2f674",
+        "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+        "gate_discharge": "runtime-quiescence:3"
+      }
+    },
+    "checkpoint": {
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "writer_id": "writer-bd646428cb9b289c405472b6cd59d8031cfe7708ecf4082c875bd6c01aff7534",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "revision": 2,
+      "profile_name": "git",
+      "state": "frozen",
+      "evidence": {
+        "base": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+        "head": "c92b005c8443537b765d5ecb05029e747bb85e73",
+        "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+        "paths": [
+          "harness.py",
+          "scale.py"
+        ],
+        "profile": "git",
+        "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/2",
+        "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+      },
+      "checkpoint_digest": "sha256:f59d5717fdd3f6c89baae6dabe34a9dcbaf18c728eb592f98c0d47a68c3269a3",
+      "base_object": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+      "head_object": "c92b005c8443537b765d5ecb05029e747bb85e73",
+      "tree_object": "e09ce7780adf98089bca406002bee5f152c99cf7",
+      "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+      "reference_name": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/2",
+      "fence": {
+        "fenced": {
+          "assignment": {
+            "generation": 3,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:3",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": {
+            "generation": 3,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "authority_operation_id": "authority.finalize-quiescent:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+          "decision": "finalized",
+          "reason": "review checkpoint writer completed",
+          "runtime_id": "runtime-single-3",
+          "worker_disposition": "completed"
+        }
+      },
+      "fence_digest": "sha256:ee8ee3cbbf5e69d25befda20d70f39bb2633bd768a953c16136e63f3e924048f",
+      "prepared_at": "2026-09-02T00:00:00.000Z",
+      "frozen_at": "2026-09-02T00:00:00.000Z"
+    }
+  },
+  "correction": {
+    "stage_id": "job-a/review",
+    "job_id": "job-a",
+    "kind": "review",
+    "episode": 1,
+    "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "work_id": "0000000a-W1",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.reviewer",
+      "generation": 2
+    },
+    "intent": "ending.intent:job-a/review:1",
+    "evidence": {
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "manifest_digest": "sha256:72736683091904cbb6cfe69cdb707fc19e05294533799052a0ed8489086be8fb",
+      "receipt_digest": "sha256:219a249e20870858095ea72691a171d01f9fa2dfccb48c67f8f757ca4e594047",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "gate_discharge": "runtime-quiescence:2",
+      "outcome": "correction",
+      "routed": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a"
+    }
+  },
+  "verdict": {
+    "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a",
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "review_assignment_generation": 2,
+    "reviewer_worker_id": "review-worker",
+    "reviewer_participant": "baton.reviewer",
+    "reviewer_principal": "principal:baton.reviewer",
+    "disposition": "changes-requested",
+    "checkpoint_digest": "sha256:5dc871b85df6b82518e456327138a54be656dffe6d7d6affc3255869d80f76ed",
+    "revision": 1,
+    "base_object": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+    "head_object": "d321e899d180b2cb6f52d3fbe3c64b4b8e05c949",
+    "tree_object": "398848d3f6911d6a4c04e613cb02268e8e4f87f1",
+    "path_set_digest": "sha256:885f688b577d0c28c04fe649e79e20b8d9a57d9755581cd87976ca8b5a1e507d",
+    "review_result": {
+      "artifacts": [
+        {
+          "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+          "bytes": 162,
+          "content_digest": "sha256:65e320c8e1793be393c6eaf41bc1c0bf929f3b6ab528755316419df32ee3917f",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-2ycep0ce/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/findings",
+          "media_type": "application/octet-stream",
+          "output_name": "findings"
+        },
+        {
+          "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs",
+          "bytes": 419,
+          "content_digest": "sha256:e22ecd6df02c66accb35bef571eae6ca6d0456ed61e94f43b7e295c5f0676966",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-2ycep0ce/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/logs",
+          "media_type": "application/octet-stream",
+          "output_name": "logs"
+        }
+      ],
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "disposition": "completed",
+      "freeze_operation_id": "output.freeze:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+      "frozen_at": "2026-09-02T00:00:00.000Z",
+      "manifest_digest": "sha256:72736683091904cbb6cfe69cdb707fc19e05294533799052a0ed8489086be8fb",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+    },
+    "review_result_digest": "sha256:8a234bfbf20e7925d829835e4911fdee97a246738371bad8a476b382a8fd53d0",
+    "review_fence": {
+      "fenced": {
+        "assignment": {
+          "generation": 2,
+          "participant": "baton.reviewer",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "cause": "cancelled",
+        "fenced": true,
+        "gate": "runtime-quiescence:2",
+        "phase": "block"
+      },
+      "intent": {
+        "assignment": {
+          "generation": 2,
+          "participant": "baton.reviewer",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "authority_operation_id": "authority.finalize-quiescent:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+        "decision": "finalized",
+        "reason": "independent checkpoint review completed",
+        "runtime_id": "runtime-single-2",
+        "worker_disposition": "completed"
+      }
+    },
+    "review_fence_digest": "sha256:4c2a752935888d9fc8e9beb670b06ca55569386d425d13f999a497ebd65deaa2",
+    "recorded_at": "2026-09-02T00:00:00.000Z"
+  },
+  "review_assignment": {
+    "runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "participant": "baton.reviewer",
+    "generation": 2,
+    "principal": "principal:baton.reviewer",
+    "effective_scope": "scope:deployment"
+  },
+  "final_counters": {
+    "provider": [
+      {
+        "argv_digest": "sha256:1be122edcaf38548761ec436468854bd4578e75feab9b623b40747a219eeb86d",
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+        "invocation_id": "context-invocation-6650908154d1b4eaa56b70c5e3242b30858a9b32f233c627a4a18232e70102b7",
+        "pid": 30,
+        "restored": false,
+        "role": "implementation",
+        "selector": "--session-id",
+        "use_id": "context-use-7e49d92100a2d406e8f9b3600c400d6bc81009a2433d2928a5148fae3b947103"
+      },
+      {
+        "argv_digest": "sha256:f80da7577e41b482c42e6842d7a634be7309b9f3a0fc9c506f9c9f1c67d38fef",
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 80,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      },
+      {
+        "argv_digest": "sha256:eb7b480f06830b3350f7210fcb1152bbb054237bbe173219008e046faeabf955",
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "conversation_id": "2fdb09ab-8452-575a-a293-0726abeac436",
+        "invocation_id": "context-invocation-2e2fcc950492bd28c04cf088bd78eca6522c02abacd8bd378ca00c5459309763",
+        "pid": 101,
+        "restored": true,
+        "role": "implementation",
+        "selector": "--resume",
+        "use_id": "context-use-94ea913b150b0d0b9a4f7b7580709ded6546a34f4d632444dc8d1d09f55b77fb"
+      },
+      {
+        "argv_digest": "sha256:3e388be0eac93b8b67aa7f5d4e230964ede1a3fe9c9edc61a4f3b572db0828d4",
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 151,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      },
+      {
+        "argv_digest": "sha256:e1c90ee1a697a74c08be56e8af1a2cae46fd8332f2f5e8367c7fa9a738bbda82",
+        "attempt_id": "judgment-81ab0f10c0da6d625f4b48bb95de0f1bd9dc08e88d8051f154951372a2ecf8c3",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 247,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      },
+      {
+        "argv_digest": "sha256:2d4738f2669f9e2deed8521d0f52a87b2ff9ecac78c50b9bb9f3418be2d3761d",
+        "attempt_id": "judgment-69d7fba2c225c671786fc67d859d5c7869f792ba4a49f0dc766fc134180e7fc1",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 257,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      },
+      {
+        "argv_digest": "sha256:17fda344ffb028d191bf0defe363ffbd25b404fa7065b85a26edf5e1e4c4072a",
+        "attempt_id": "judgment-d5fd606a3ef292072e1d7aeef822049421640d5c0e607d885c7e0d19d3a3d6c2",
+        "conversation_id": null,
+        "invocation_id": null,
+        "pid": 267,
+        "restored": false,
+        "role": "review",
+        "selector": null,
+        "use_id": null
+      }
+    ],
+    "engine": [
+      {
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "operation_id": null,
+        "argv_digest": "sha256:f878b09ea4a9a19a8c9905cb9fea05debc44504f216d8ca702cc069bfd0695e0",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.claude",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.claude",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "operation_id": null,
+        "argv_digest": "sha256:c44c21e1418906bd54086fab60d15883158b5bfd878f9860a794537881962116",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.reviewer",
+          "baton.v12.generation": "2",
+          "baton.v12.principal": "principal:baton.reviewer",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "operation_id": null,
+        "argv_digest": "sha256:abda0bd4228c69bb93a115f29ada4f86f01964e1183c4f98217f35639f7a991e",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.claude",
+          "baton.v12.generation": "3",
+          "baton.v12.principal": "principal:baton.claude",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "operation_id": null,
+        "argv_digest": "sha256:6d2f6b80c278a0636603f164792a98fac2a71d9e37d3b9c0099b75be681555c3",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.reviewer",
+          "baton.v12.generation": "4",
+          "baton.v12.principal": "principal:baton.reviewer",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+        "operation_id": null,
+        "argv_digest": "sha256:9336779af1fc0c2e4fcfe6454ece82fbfddbf8190e88f2d3ab863263688b9334",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W47984398722361",
+          "baton.v12.participant": "baton.integrator",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.integrator",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "judgment-81ab0f10c0da6d625f4b48bb95de0f1bd9dc08e88d8051f154951372a2ecf8c3",
+        "operation_id": null,
+        "argv_digest": "sha256:2db190100314bc25b73b1ca739ad4050907d209a921a9d5db119825115ea54ce",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "judgment-81ab0f10c0da6d625f4b48bb95de0f1bd9dc08e88d8051f154951372a2ecf8c3",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W3",
+          "baton.v12.participant": "baton.verifier",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.verifier",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "judgment-69d7fba2c225c671786fc67d859d5c7869f792ba4a49f0dc766fc134180e7fc1",
+        "operation_id": null,
+        "argv_digest": "sha256:186176eb89bfef8b17f00f02436913166f6447e6ad84183a04d358cb6fbe62c0",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "judgment-69d7fba2c225c671786fc67d859d5c7869f792ba4a49f0dc766fc134180e7fc1",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W4",
+          "baton.v12.participant": "baton.approver-review",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.approver-review",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "judgment-d5fd606a3ef292072e1d7aeef822049421640d5c0e607d885c7e0d19d3a3d6c2",
+        "operation_id": null,
+        "argv_digest": "sha256:46346a3ac086c999018628999e376f7f7babba249d7ef492d386c27c5b7b5680",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "judgment-d5fd606a3ef292072e1d7aeef822049421640d5c0e607d885c7e0d19d3a3d6c2",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W5",
+          "baton.v12.participant": "baton.approver",
+          "baton.v12.generation": "1",
+          "baton.v12.principal": "principal:baton.approver",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      },
+      {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "operation_id": null,
+        "argv_digest": "sha256:0b5cebf7f6f297592820fbaa4136f30af234ce6d79a451390fe4db0a4ca35532",
+        "labels": {
+          "baton.v12.runtime_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "baton.v12.authority_uuid": "0000000a000000000000000000000000",
+          "baton.v12.work_id": "0000000a-W1",
+          "baton.v12.participant": "baton.integrator",
+          "baton.v12.generation": "5",
+          "baton.v12.principal": "principal:baton.integrator",
+          "baton.v12.effective_scope": "scope:deployment",
+          "baton.v12.profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baton.v12.policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "baton.v12.adapter_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      }
+    ]
+  },
+  "verifications": [
+    {
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "status": 0,
+      "code_digest": "sha256:83827dc5504d80c34c6cb9f9a9aabf7153836960493c7f71413bc9ea88d20f3a",
+      "verifier_digest": "sha256:a7839d701bf4784ea5ace235fed46343b47b0e9854198878aa53bd192fa95473",
+      "argv": [
+        "python3",
+        "harness.py"
+      ]
+    },
+    {
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "status": 0,
+      "code_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+      "verifier_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+      "argv": [
+        "python3",
+        "harness.py"
+      ]
+    }
+  ],
+  "managed": {
+    "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "canonical_target_id": "target-1",
+    "target_revision": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "job_id": "job-a",
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "source_checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+    "source_verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+    "source_proposal_id": "integration-driver.proposal:3a72a102cbff408913342a7058dbe5ab18eb17949e02661d5d57e637c39e1387",
+    "source_result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+    "source_result_digest": "sha256:836e102b1b076cda96f2a3f13c3626ad084d26187350c8c1190be58d643f5781",
+    "source_checkpoint_digest": "sha256:f59d5717fdd3f6c89baae6dabe34a9dcbaf18c728eb592f98c0d47a68c3269a3",
+    "source_base": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+    "source_candidate": "c92b005c8443537b765d5ecb05029e747bb85e73",
+    "state": "imported",
+    "reason": null,
+    "prepared": {
+      "head": "c158a70ae101c9677333490264060680ee149701",
+      "integration_assignment": {
+        "generation": 5,
+        "participant": "baton.integrator",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "preparation": {
+        "assignment": {
+          "generation": 1,
+          "participant": "baton.integrator",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W47984398722361"
+          }
+        },
+        "candidate": {
+          "artifact_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-candidate",
+          "bytes": 166,
+          "content_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+        },
+        "canonical_target_id": "target-1",
+        "collected": {
+          "custody": "accepted",
+          "disposition": "completed",
+          "manifest_digest": "sha256:665e08e2f325523200206607c11d9cd2891b22f6e0188aee83de9a70eaccebea",
+          "report": {
+            "artifact_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:preparation-report",
+            "bytes": 3361,
+            "content_digest": "sha256:13f11860459c94feba7395818725ba372def4e8e2bd7b34c39e33e40e946a684"
+          },
+          "result_id": "result-prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+        },
+        "derived_candidate": {
+          "base": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+          "candidate": "c92b005c8443537b765d5ecb05029e747bb85e73",
+          "revision": "c158a70ae101c9677333490264060680ee149701",
+          "target_revision": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+          "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+        },
+        "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+        "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+        "managed_result_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "objects": {
+          "artifact_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-objects",
+          "bytes": 1465,
+          "content_digest": "sha256:af605a0c7692c724a8e6103e55aea5051aba1fe49e7ff839bd63aead7e7984c5"
+        },
+        "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "report": {
+          "completed": [
+            {
+              "name": "combined",
+              "status": 0
+            },
+            {
+              "name": "base",
+              "status": 1
+            },
+            {
+              "name": "isolated",
+              "status": 0
+            }
+          ],
+          "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "kind": "measured",
+          "not_run": [],
+          "phase": "prepare",
+          "schema": "baton.v12.managed-integration-report/1",
+          "status": 1,
+          "tag": null
+        },
+        "request_digest": "sha256:1320b489c92f8d664045b4cccd0e6d2fb88b31455c3f37e3dfa993070defa4c2",
+        "schema": "baton.v12.managed-prepared-candidate/1",
+        "source": {
+          "base": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+          "candidate": "c92b005c8443537b765d5ecb05029e747bb85e73",
+          "target_revision": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185"
+        },
+        "states": {
+          "base": {
+            "content": {
+              "entries": [
+                {
+                  "bytes": 100,
+                  "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                  "path": "harness.py"
+                },
+                {
+                  "bytes": 27,
+                  "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                  "path": "worker-task.txt"
+                }
+              ],
+              "entry_count": 2,
+              "total_bytes": 127,
+              "tree_digest": "sha256:08aeb1ae1a5f40bc5809b927a2da2316ab62ff7253bda96c2c9f0a6fbb09377e"
+            },
+            "revision": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185"
+          },
+          "combined": {
+            "content": {
+              "entries": [
+                {
+                  "bytes": 100,
+                  "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                  "path": "harness.py"
+                },
+                {
+                  "bytes": 39,
+                  "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                  "path": "scale.py"
+                },
+                {
+                  "bytes": 27,
+                  "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                  "path": "worker-task.txt"
+                }
+              ],
+              "entry_count": 3,
+              "total_bytes": 166,
+              "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+            },
+            "revision": "c158a70ae101c9677333490264060680ee149701"
+          },
+          "isolated": {
+            "content": {
+              "entries": [
+                {
+                  "bytes": 100,
+                  "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                  "path": "harness.py"
+                },
+                {
+                  "bytes": 39,
+                  "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                  "path": "scale.py"
+                },
+                {
+                  "bytes": 27,
+                  "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                  "path": "worker-task.txt"
+                }
+              ],
+              "entry_count": 3,
+              "total_bytes": 166,
+              "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+            },
+            "revision": "c92b005c8443537b765d5ecb05029e747bb85e73"
+          }
+        },
+        "target_revision": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185"
+      },
+      "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+    },
+    "content_digest": "sha256:d4a133d3f17f1c7fb464bdfc68de6cef0ec16c76927c794c6947143c5895bcae",
+    "evidence": {
+      "approval": {
+        "actor": "baton.approver",
+        "candidate_digest": "c158a70ae101c9677333490264060680ee149701",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.approver",
+          "grant": "direct",
+          "policy_generation": 13,
+          "principal": "principal:baton.approver",
+          "role": "approve"
+        },
+        "disposition": "approved",
+        "kind": "approval",
+        "policy_generation": 13,
+        "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "receipt_id": "judgment-861fa82c5b0adcb98e879bc158b8e61eac82abc7adfc5f1db6bdcbf7894b4974",
+        "recorded_at": "2026-09-15T18:55:09.204Z",
+        "target": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185"
+      },
+      "review": {
+        "actor": "baton.approver-review",
+        "candidate_digest": "c158a70ae101c9677333490264060680ee149701",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.approver-review",
+          "grant": "direct",
+          "policy_generation": 13,
+          "principal": "principal:baton.approver-review",
+          "role": "review"
+        },
+        "disposition": "accepted",
+        "kind": "review",
+        "policy_generation": null,
+        "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "receipt_id": "judgment-8a16c76a6903fc6e234c9f1a04166e7518c39e777fcd5777e69181b0a37c89db",
+        "recorded_at": "2026-09-15T18:55:09.203Z",
+        "target": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185"
+      },
+      "verification": {
+        "actor": "baton.verifier",
+        "candidate_digest": "c158a70ae101c9677333490264060680ee149701",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.verifier",
+          "grant": "direct",
+          "policy_generation": 13,
+          "principal": "principal:baton.verifier",
+          "role": "verify"
+        },
+        "disposition": "passed",
+        "kind": "verification",
+        "policy_generation": null,
+        "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "receipt_id": "judgment-ba8bea2d57d3a711343a528a08ab52ce712be45fb7ab6994b024d53a621f1530",
+        "recorded_at": "2026-09-15T18:55:09.203Z",
+        "target": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185"
+      }
+    },
+    "causal_observations": {
+      "completed": [
+        {
+          "harness_added": false,
+          "name": "combined",
+          "status": 0
+        },
+        {
+          "harness_added": true,
+          "name": "base",
+          "status": 1
+        },
+        {
+          "harness_added": false,
+          "name": "isolated",
+          "status": 0
+        }
+      ],
+      "derived_candidate": {
+        "base": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+        "candidate": "c92b005c8443537b765d5ecb05029e747bb85e73",
+        "revision": "c158a70ae101c9677333490264060680ee149701",
+        "target_revision": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+        "tree": "e09ce7780adf98089bca406002bee5f152c99cf7"
+      },
+      "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+      "harness_measured_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+      "input_content": {
+        "entries": [
+          {
+            "bytes": 1380,
+            "content_digest": "sha256:53986256790a50f10a3c24e55c1173290a786f09dd61c35b0f382262caadfe4d",
+            "path": "objects.bundle"
+          }
+        ],
+        "entry_count": 1,
+        "total_bytes": 1380,
+        "tree_digest": "sha256:49cd18b496a98b8a4ecafd98e208059f85af75874233dca44e7c80634d288c16"
+      },
+      "kind": "measured",
+      "not_run": [],
+      "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "output": [
+        {
+          "name": "combined",
+          "output": "verified multiplier 3\n"
+        },
+        {
+          "name": "base",
+          "output": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/v12/python/v12-w71917-2ycep0ce/prepare-scratch/base/harness.py\", line 1, in <module>\n    from scale import scale\nModuleNotFoundError: No module named 'scale'\n"
+        },
+        {
+          "name": "isolated",
+          "output": "verified multiplier 3\n"
+        }
+      ],
+      "phase": null,
+      "schema": "baton.v12.managed-preparation-report/1",
+      "source": {
+        "base": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+        "candidate": "c92b005c8443537b765d5ecb05029e747bb85e73",
+        "target_revision": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185"
+      },
+      "states": {
+        "base": {
+          "content": {
+            "entries": [
+              {
+                "bytes": 100,
+                "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                "path": "harness.py"
+              },
+              {
+                "bytes": 27,
+                "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                "path": "worker-task.txt"
+              }
+            ],
+            "entry_count": 2,
+            "total_bytes": 127,
+            "tree_digest": "sha256:08aeb1ae1a5f40bc5809b927a2da2316ab62ff7253bda96c2c9f0a6fbb09377e"
+          },
+          "revision": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185"
+        },
+        "combined": {
+          "content": {
+            "entries": [
+              {
+                "bytes": 100,
+                "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                "path": "harness.py"
+              },
+              {
+                "bytes": 39,
+                "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                "path": "scale.py"
+              },
+              {
+                "bytes": 27,
+                "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                "path": "worker-task.txt"
+              }
+            ],
+            "entry_count": 3,
+            "total_bytes": 166,
+            "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+          },
+          "revision": "c158a70ae101c9677333490264060680ee149701"
+        },
+        "isolated": {
+          "content": {
+            "entries": [
+              {
+                "bytes": 100,
+                "content_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+                "path": "harness.py"
+              },
+              {
+                "bytes": 39,
+                "content_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+                "path": "scale.py"
+              },
+              {
+                "bytes": 27,
+                "content_digest": "sha256:a24a308d115423bd0e6dc7ba14f8d173a6d6b315d4b8039c28210e5ea4686236",
+                "path": "worker-task.txt"
+              }
+            ],
+            "entry_count": 3,
+            "total_bytes": 166,
+            "tree_digest": "sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d"
+          },
+          "revision": "c92b005c8443537b765d5ecb05029e747bb85e73"
+        }
+      },
+      "status": 1,
+      "tag": null
+    },
+    "observed_by": "baton.integrator",
+    "policy_generation": 13,
+    "derived_proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "derived_result_id": "derived-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "derived_result_digest": "sha256:b8712ff5ee464e93912e9a184bbd32cefc2cbc51a38ce4f812ace834409870dd",
+    "entry_id": "managed-entry:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "recorded_at": "2026-09-02T00:00:00.000Z",
+    "phases": {
+      "apply": {
+        "task": {
+          "schema": "baton.v12.managed-integration-task/1",
+          "phase": "apply",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "canonical_target_id": "target-1",
+          "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "assignment": {
+            "generation": 5,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "task_digest": "sha256:6f8f3fc28214378ba6af669277316c17af1303e43ceb8db8255af830fd0fc3ed",
+          "input_digest": "sha256:29764f7997a8ad87a284523395128d8979efd55c804ce620d2f21002f125503c",
+          "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+          "execution_limits": {
+            "boundaries": {
+              "host_verification": {
+                "default_seconds": 300,
+                "origin": "compatibility",
+                "seconds": 300,
+                "setting": "verification_command_seconds"
+              },
+              "integration_verification": {
+                "default_seconds": 1800,
+                "origin": "compatibility",
+                "seconds": 1800,
+                "setting": "verification_command_seconds"
+              },
+              "ordinary_verification": {
+                "default_seconds": 900,
+                "origin": "compatibility",
+                "seconds": 900,
+                "setting": "verification_command_seconds"
+              },
+              "provider_turn": {
+                "default_seconds": 3600,
+                "origin": "compatibility",
+                "seconds": 3600,
+                "setting": "provider_turn_seconds"
+              }
+            },
+            "compatibility_generation": 1,
+            "requested": {},
+            "scope": "per-invocation",
+            "units": "seconds"
+          },
+          "parent": {
+            "collected_digest": "sha256:665e08e2f325523200206607c11d9cd2891b22f6e0188aee83de9a70eaccebea",
+            "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+          },
+          "commands": [
+            "post-import"
+          ]
+        },
+        "result": {
+          "schema": "baton.v12.managed-integration-result/1",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "phase": "apply",
+          "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "assignment": {
+            "generation": 5,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "canonical_target_id": "target-1",
+          "report": {
+            "schema": "baton.v12.managed-integration-report/1",
+            "kind": "measured",
+            "phase": "apply",
+            "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "status": 0,
+            "tag": null,
+            "completed": [
+              {
+                "name": "post-import",
+                "status": 0
+              }
+            ],
+            "not_run": []
+          },
+          "collected": {
+            "disposition": "completed",
+            "manifest_digest": "sha256:62fd94941bb2115b04f89b3eea914ef89f37e92f8ba46ffb76458d0edf0c903e",
+            "result_id": "result-attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+          }
+        }
+      },
+      "prepare": {
+        "task": {
+          "schema": "baton.v12.managed-integration-task/1",
+          "phase": "prepare",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "canonical_target_id": "target-1",
+          "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            }
+          },
+          "task_digest": "sha256:1320b489c92f8d664045b4cccd0e6d2fb88b31455c3f37e3dfa993070defa4c2",
+          "input_digest": "sha256:49cd18b496a98b8a4ecafd98e208059f85af75874233dca44e7c80634d288c16",
+          "harness_digest": "sha256:b4ef3a1a2978cedc6f442e71d7e7d7a74b23f85fdd79e9b9dea6a07a445d7cfd",
+          "execution_limits": {
+            "boundaries": {
+              "host_verification": {
+                "default_seconds": 300,
+                "origin": "compatibility",
+                "seconds": 300,
+                "setting": "verification_command_seconds"
+              },
+              "integration_verification": {
+                "default_seconds": 1800,
+                "origin": "compatibility",
+                "seconds": 1800,
+                "setting": "verification_command_seconds"
+              },
+              "ordinary_verification": {
+                "default_seconds": 900,
+                "origin": "compatibility",
+                "seconds": 900,
+                "setting": "verification_command_seconds"
+              },
+              "provider_turn": {
+                "default_seconds": 3600,
+                "origin": "compatibility",
+                "seconds": 3600,
+                "setting": "provider_turn_seconds"
+              }
+            },
+            "compatibility_generation": 1,
+            "requested": {},
+            "scope": "per-invocation",
+            "units": "seconds"
+          },
+          "parent": null,
+          "commands": [
+            "combined",
+            "base",
+            "isolated"
+          ]
+        },
+        "result": {
+          "schema": "baton.v12.managed-integration-result/1",
+          "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "phase": "prepare",
+          "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.integrator",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            }
+          },
+          "canonical_target_id": "target-1",
+          "report": {
+            "schema": "baton.v12.managed-integration-report/1",
+            "kind": "measured",
+            "phase": "prepare",
+            "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+            "status": 1,
+            "tag": null,
+            "completed": [
+              {
+                "name": "combined",
+                "status": 0
+              },
+              {
+                "name": "base",
+                "status": 1
+              },
+              {
+                "name": "isolated",
+                "status": 0
+              }
+            ],
+            "not_run": []
+          },
+          "collected": {
+            "disposition": "completed",
+            "manifest_digest": "sha256:665e08e2f325523200206607c11d9cd2891b22f6e0188aee83de9a70eaccebea",
+            "result_id": "result-prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+          }
+        }
+      }
+    }
+  },
+  "capacity": {
+    "root": {
+      "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "root_assignment_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "stage_id": "job-a/integration",
+      "episode": 1,
+      "job_id": "job-a",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "pool_generation": 1,
+      "worker_id": "integration-worker",
+      "participant": "baton.integrator",
+      "canonical_principal": "principal:baton.integrator",
+      "lifecycle": "ending",
+      "registered_operation_id": "integration-capacity.register:integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "ending_operation_id": "integration-capacity.ending:integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "registered_at": "2026-09-02T00:00:00.000Z"
+    },
+    "members": [
+      {
+        "execution_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "phase": "apply",
+        "execution_work_id": "0000000a-W1",
+        "execution_offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "participant": "baton.integrator",
+        "task_digest": "sha256:6f8f3fc28214378ba6af669277316c17af1303e43ceb8db8255af830fd0fc3ed",
+        "input_digest": "sha256:29764f7997a8ad87a284523395128d8979efd55c804ce620d2f21002f125503c",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_content_digest": "sha256:665e08e2f325523200206607c11d9cd2891b22f6e0188aee83de9a70eaccebea",
+        "assignment": "{\"generation\": 5, \"participant\": \"baton.integrator\", \"work_ref\": {\"authority_uuid\": \"0000000a000000000000000000000000\", \"work_id\": \"0000000a-W1\"}}",
+        "state": "ended",
+        "outcome": "succeeded",
+        "exclusion": "runtime-destroyed",
+        "collected_digest": null,
+        "collected_report": null,
+        "recovery_reason": null,
+        "authorized_proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "authorized_result_id": "derived-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "authorized_result_digest": "sha256:b8712ff5ee464e93912e9a184bbd32cefc2cbc51a38ce4f812ace834409870dd",
+        "ending_evidence": "{\"assignment\": {\"generation\": 5, \"participant\": \"baton.integrator\", \"work_ref\": {\"authority_uuid\": \"0000000a000000000000000000000000\", \"work_id\": \"0000000a-W1\"}}, \"attempt_id\": \"attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\", \"cleanup\": \"retained\", \"execution_runtime\": \"destroyed\", \"runtime_id\": \"runtime-single-9\", \"state\": \"runtime-destroyed\"}",
+        "registered_operation_id": "integration-capacity.register:integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "ended_operation_id": "integration-capacity.end:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+      },
+      {
+        "execution_attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+        "orchestration_id": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "phase": "prepare",
+        "execution_work_id": "0000000a-W47984398722361",
+        "execution_offer_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0-offer",
+        "participant": "baton.integrator",
+        "task_digest": "sha256:1320b489c92f8d664045b4cccd0e6d2fb88b31455c3f37e3dfa993070defa4c2",
+        "input_digest": "sha256:17c48e409e564ea9c3bcd026fbf3895f33858b92044c171e6b253d2f2bd25506",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "parent_content_digest": null,
+        "assignment": "{\"generation\": 1, \"participant\": \"baton.integrator\", \"work_ref\": {\"authority_uuid\": \"0000000a000000000000000000000000\", \"work_id\": \"0000000a-W47984398722361\"}}",
+        "state": "ended",
+        "outcome": "succeeded",
+        "exclusion": "runtime-destroyed",
+        "collected_digest": "sha256:665e08e2f325523200206607c11d9cd2891b22f6e0188aee83de9a70eaccebea",
+        "collected_report": "{\"artifacts\": [{\"artifact_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:preparation-report\", \"bytes\": 3361, \"content_digest\": \"sha256:13f11860459c94feba7395818725ba372def4e8e2bd7b34c39e33e40e946a684\"}, {\"artifact_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-candidate\", \"bytes\": 166, \"content_digest\": \"sha256:cc934e8d7dcb39871645c0f670fb75a27a48c1e57553c784e77944e57833bd4d\"}, {\"artifact_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0:prepared-objects\", \"bytes\": 1465, \"content_digest\": \"sha256:af605a0c7692c724a8e6103e55aea5051aba1fe49e7ff839bd63aead7e7984c5\"}], \"attempt_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0\", \"custody\": \"accepted\", \"disposition\": \"completed\", \"freeze_operation_id\": \"output.freeze:c40bb0f9707317c9128028cbd309a515977433abb02d92b6fe02bdd453483ceb\", \"intake_operation\": {\"operation_id\": \"intake.record:c40bb0f9707317c9128028cbd309a515977433abb02d92b6fe02bdd453483ceb\", \"signature_digest\": \"sha256:622b8327d9d3851e288bb8025333f8d03593b0b11caceaa5b2fc4feca95b729a\"}, \"manifest_digest\": \"sha256:665e08e2f325523200206607c11d9cd2891b22f6e0188aee83de9a70eaccebea\", \"result_id\": \"result-prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0\"}",
+        "recovery_reason": null,
+        "authorized_proposal_id": null,
+        "authorized_result_id": null,
+        "authorized_result_digest": null,
+        "ending_evidence": "{\"assignment\": {\"generation\": 1, \"participant\": \"baton.integrator\", \"work_ref\": {\"authority_uuid\": \"0000000a000000000000000000000000\", \"work_id\": \"0000000a-W47984398722361\"}}, \"attempt_id\": \"prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0\", \"cleanup\": \"retained\", \"execution_runtime\": \"destroyed\", \"runtime_id\": \"runtime-single-5\", \"state\": \"runtime-destroyed\"}",
+        "registered_operation_id": "integration-capacity.register:integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "ended_operation_id": "integration-capacity.end:prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0"
+      }
+    ]
+  },
+  "target": {
+    "revision": "c158a70ae101c9677333490264060680ee149701",
+    "code_digest": "sha256:671970c246a1a1322cb6315e53a8eeba5e125b4fb32e18a70bf1c026fde58e81",
+    "authority_revision": "c158a70ae101c9677333490264060680ee149701",
+    "receipt": {
+      "receipt_id": "managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "kind": "integration",
+      "proposal_id": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "actor": "baton.integrator",
+      "disposition": "integrated",
+      "candidate_digest": "c158a70ae101c9677333490264060680ee149701",
+      "target": "72d31ffd13ed755ab0f7fa7cd311a3cc62e9c185",
+      "policy_generation": null,
+      "recorded_at": "2026-09-15T18:55:09.482Z",
+      "decision": {
+        "endpoint": "baton.integrator",
+        "principal": "principal:baton.integrator",
+        "effective_scope": "scope:deployment",
+        "role": "integrate",
+        "grant": "direct",
+        "policy_generation": 13
+      }
+    }
+  },
+  "ticks": 22
+}

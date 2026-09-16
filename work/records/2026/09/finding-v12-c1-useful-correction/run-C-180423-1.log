@@ -1,0 +1,6 @@
+test_useful_correction_reaches_managed_target (tests.tools.test_correction_restart.UsefulCorrection.test_useful_correction_reaches_managed_target) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.620s
+
+OK

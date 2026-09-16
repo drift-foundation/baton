@@ -1,0 +1,52 @@
+{
+  "claim": 179121,
+  "run": "1",
+  "at": "2026-09-15T15:24:43.127937+00:00",
+  "seconds": 0.21369578599114902,
+  "status": 1,
+  "timeout": false,
+  "group_gone": true,
+  "selectors": [
+    "tests.manager.test_claude_context"
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "attrs": "26.1.0",
+    "rpds-py": "2026.6.3"
+  },
+  "before": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "3f2dacb79ff322449e7b252fdb118371f471893ad8cf77021b3e4ab36c6ff27c",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "d0537c0399e6184c8248b078b7877aaa6305b9ef9ed695f2c6761c315736dcd6",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "c590a0e5f93dbe76291eca944b6858217234f0bedae7ded9bf3828909d9c1f22",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "b5c1212bda9d696ba6a36d8dfd1921b4e10a8f9ced743ecee8c40b430e4bbffa",
+    "v12/python/tools/single_worker.py": "3f708a8a330ced3958facd4e42ad799382f839050fe6aa0a1dee057d4aab4014",
+    "v12/python/tools/stage_execution.py": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+    "v12/worker/baton_worker.py": "d2c0a97bdcfe916164ac9ca84ee30c60ac68fa3f126cc18ff97dcf446cbc16ab",
+    "v12/worker/claude_agent.py": "d071877ccc64a46e19296bed7ab2562d76e5207dae7bfc5ce89fde83d325aaf9",
+    "v12/python/tests/manager/test_claude_context.py": "ca254eaf759ddf42caf76a4f29bf40693a32269c9f061a7e9aed0702c8e0eb83",
+    "v12/python/tests/manager/test_launch.py": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031",
+    "v12/python/tests/manager/test_oci.py": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+    "v12/python/tests/manager/test_claude_agent.py": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+    "v12/python/tests/tools/test_single_worker.py": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+    "v12/python/tests/tools/test_stage_execution.py": "eeb0092e6ec5aaa50bb42adfe3a9c0b0317b0701d99bdade0c3bbc25fc5aa25a"
+  },
+  "after": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "3f2dacb79ff322449e7b252fdb118371f471893ad8cf77021b3e4ab36c6ff27c",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "d0537c0399e6184c8248b078b7877aaa6305b9ef9ed695f2c6761c315736dcd6",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "c590a0e5f93dbe76291eca944b6858217234f0bedae7ded9bf3828909d9c1f22",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "b5c1212bda9d696ba6a36d8dfd1921b4e10a8f9ced743ecee8c40b430e4bbffa",
+    "v12/python/tools/single_worker.py": "3f708a8a330ced3958facd4e42ad799382f839050fe6aa0a1dee057d4aab4014",
+    "v12/python/tools/stage_execution.py": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+    "v12/worker/baton_worker.py": "d2c0a97bdcfe916164ac9ca84ee30c60ac68fa3f126cc18ff97dcf446cbc16ab",
+    "v12/worker/claude_agent.py": "d071877ccc64a46e19296bed7ab2562d76e5207dae7bfc5ce89fde83d325aaf9",
+    "v12/python/tests/manager/test_claude_context.py": "ca254eaf759ddf42caf76a4f29bf40693a32269c9f061a7e9aed0702c8e0eb83",
+    "v12/python/tests/manager/test_launch.py": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031",
+    "v12/python/tests/manager/test_oci.py": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+    "v12/python/tests/manager/test_claude_agent.py": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+    "v12/python/tests/tools/test_single_worker.py": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+    "v12/python/tests/tools/test_stage_execution.py": "eeb0092e6ec5aaa50bb42adfe3a9c0b0317b0701d99bdade0c3bbc25fc5aa25a"
+  }
+}

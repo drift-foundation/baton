@@ -1,0 +1,271 @@
+{
+  "schema": "baton.c1-evidence/1",
+  "work": "W180245",
+  "claim": 180423,
+  "created_at": "2026-09-15T19:11:51.528517+00:00",
+  "candidate": {
+    "path": "work/records/2026/09/finding-v12-c1-useful-correction/CANDIDATE-180423.json",
+    "sha256": "2e7107ecbfc133374e1811e33e99e3764924c20f90ceb22ab71683a00d834499"
+  },
+  "artifacts": [
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/trace-C-180423-9.json",
+      "sha256": "624e4d15694b8f844a97dc002c9b5c63be8a0ca7b8e35fdd414ac907c539c53b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/trace-C-180423-10.json",
+      "sha256": "c23c12d1667f7ae81ae7ca464929a07217b17d46ceded2915f426bb642211371"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/verify-180423.py",
+      "sha256": "d82769880f0c303a3dd3deda413e909a093cda932b5ecb0bdb6ae601a898b20e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/BASE-180298.json",
+      "sha256": "371b6dca521634a7c9548920832cedec79021bd7d9af4fea76932d9055571ea0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/BASE-180423.json",
+      "sha256": "8e0d19187ea9f2eed6e19c9c0e4a2d8c7ec74daf20a80c27e7e49ae90b6c2404"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/EVIDENCE-180298.json",
+      "sha256": "aa5cb5fd7ec48dc7a3b6393adcd793309c1f8bf3950866d160f40f4e4b02e17f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-2026-09-15T18-48-11Z.md",
+      "sha256": "47d596a85008f34c1ebf8960718e5cd31ff5a9f4d7533248bb7763303b7d9bb3"
+    }
+  ],
+  "runs": [
+    {
+      "run": 1,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-1.json",
+        "sha256": "229f5dc31084eea355c10267b71dffdb2d6c14f8001f4056d95425c35cc9372e"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-1.log",
+        "sha256": "436a0b7a5ae0cd2d15c50e813ebfd29fd509d5afc71457b5f1c2f10d156a474a"
+      },
+      "status": 0,
+      "seconds": 2.9187096460082103,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ]
+    },
+    {
+      "run": 2,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-2.json",
+        "sha256": "18de992afe422049346f46e0cbb238c51f120e1111c08a64756cc90055ef4cf6"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-2.log",
+        "sha256": "ccd1d7e035c485ef9674c4f27fa3ab7c0445a7976521302843cd33e4129abfb2"
+      },
+      "status": 1,
+      "seconds": 4.720450887980405,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_single_worker.OptionalIntegrationContextDeclaration",
+        "tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary",
+        "tests.manager.test_claude_context.ServingBinding",
+        "tests.manager.test_claude_context.WorkerInvocation",
+        "tests.manager.test_claude_context.RestoredCorrectionBoundary"
+      ]
+    },
+    {
+      "run": 3,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-3.json",
+        "sha256": "25ef0922da8663879ddc9aa43c8254e50447c7832ea2ae0876c37bb95391c511"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-3.log",
+        "sha256": "baa7510b4790deb17d3f999b0676b89a12e7f82df1f445cc1eabb71032a6911a"
+      },
+      "status": 1,
+      "seconds": 0.766530329012312,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ]
+    },
+    {
+      "run": 4,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-4.json",
+        "sha256": "f9d78593830f6850e52df265d09852fc38b9682a6e5ce68c97a0e6cd82ef3f47"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-4.log",
+        "sha256": "33aedde3136f175179420b0d4d2f6406ac29d3d2cb9cb1c4fe01019466d914cf"
+      },
+      "status": 0,
+      "seconds": 0.3157734150008764,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_single_worker.OptionalIntegrationContextDeclaration",
+        "tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary"
+      ]
+    },
+    {
+      "run": 5,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-5.json",
+        "sha256": "c10402a0a549578bbbcc1da4aa9530c3ec0a33ed941537389743923acf71e44d"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-5.log",
+        "sha256": "31a5e1f737e935ee3b3e8beed5563c7c8d0401ccb2913792cf0a3fe9d9c6b2d2"
+      },
+      "status": 1,
+      "seconds": 2.9682584550173488,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ]
+    },
+    {
+      "run": 6,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-6.json",
+        "sha256": "3925318f9b0624d8b5a9148dafcac5973f5d66865803454e7ee11680f96b0fed"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-6.log",
+        "sha256": "a0e451fdb050e9e4bcdb722efef0b1e5c0755b05fa7886ed9235e28cf4b890f4"
+      },
+      "status": 1,
+      "seconds": 2.9688536210160237,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ]
+    },
+    {
+      "run": 7,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-7.json",
+        "sha256": "68214ebbc3df52bb044af37ab26e298449d74e30fea01c83213fa47adb61187b"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-7.log",
+        "sha256": "1414d52056e125ac7bac06a7846f4c0ebbfd418cd13be3949eb752a08d13e099"
+      },
+      "status": 0,
+      "seconds": 3.018605921010021,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ]
+    },
+    {
+      "run": 8,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-8.json",
+        "sha256": "7ca14a84dcd63c78cfe911a42898a3ee50444c93a6b62e4d83d6d3c2e518e141"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-8.log",
+        "sha256": "f99093f228de07904e434ce5e831ba12b0a156166a03a819b6d5039194cd4c43"
+      },
+      "status": 1,
+      "seconds": 3.0187464220216498,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ]
+    },
+    {
+      "run": 9,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-9.json",
+        "sha256": "008d24a878873e62578202e545b9a4458903fff3129f1e68933602b275479b82"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-9.log",
+        "sha256": "6669a957e0de9c11f4870570b6ae9fd9b0257aadb3e40fae989c8c86c06774f2"
+      },
+      "status": 0,
+      "seconds": 3.018728466995526,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence"
+      ]
+    },
+    {
+      "run": 10,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-10.json",
+        "sha256": "69abf9896860578ffa2ba3638bd211d91018d1959f33132e3fd2c054cdb5e22d"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-10.log",
+        "sha256": "ea579d11c6f9ba6d02bcb16c490e1e8ef3fc8cf98eb86695e292076918873769"
+      },
+      "status": 0,
+      "seconds": 3.018555267015472,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.tools.test_correction_restart.UsefulCorrection"
+      ]
+    },
+    {
+      "run": 11,
+      "receipt": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-11.json",
+        "sha256": "f1a2efebca5a17f4c758db14301f8f46ac58f2bc1f916eb643c74b5c33a76aad"
+      },
+      "log": {
+        "path": "work/records/2026/09/finding-v12-c1-useful-correction/run-C-180423-11.log",
+        "sha256": "4e15ef4e7733cca5e76342efbf919ea1d2a9573249a192c1ef5d8db71128adac"
+      },
+      "status": 0,
+      "seconds": 5.370932943013031,
+      "timeout": false,
+      "group_gone": true,
+      "selectors": [
+        "tests.integration.test_managed_storage.PreparedEligibilityUsesCandidateMeasurements",
+        "tests.tools.test_single_worker.OptionalIntegrationContextDeclaration",
+        "tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary",
+        "tests.manager.test_claude_context.ServingBinding",
+        "tests.manager.test_claude_context.WorkerInvocation",
+        "tests.manager.test_claude_context.RestoredCorrectionBoundary"
+      ]
+    }
+  ],
+  "final_acceptance_runs": [
+    9,
+    10,
+    11
+  ],
+  "acceptance": {
+    "useful_correction_and_unchanged_predecessor_artifact_tests": 2,
+    "invalid_evidence_test_groups": 5,
+    "synthetic_rejections": 13,
+    "focused_regression_tests": 36,
+    "predecessor_artifact_schedules_validated_without_execution": 18,
+    "positive_scenario_ticks": 23
+  },
+  "verification_seconds": {
+    "this_author_claim": 32.104145374090876,
+    "prior_author": 179.28393344706274,
+    "cumulative_author": 211.3880788211536,
+    "prior_reviewer_separate": 93.48170357503113
+  },
+  "execution": "Deterministic provider and simulated OCI boundary; real Python worker/provider children, Git/verifiers and coordination/managed owner transitions. No live model, real OCI, C2 scenario, predecessor schedule rerun or production qualification.",
+  "cleanup": "All eleven receipts show subreaping, no timeout and positive process-group absence. Source hashes are stable within every run; all final runs match packaged bytes."
+}

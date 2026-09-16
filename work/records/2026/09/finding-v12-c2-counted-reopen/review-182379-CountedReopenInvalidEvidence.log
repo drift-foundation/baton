@@ -1,0 +1,11 @@
+test_absent_actual_reopen_is_rejected (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_absent_actual_reopen_is_rejected) ... ok
+test_changed_verdict_checkpoint_or_attempt_is_rejected (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_changed_verdict_checkpoint_or_attempt_is_rejected) ... ok
+test_duplicate_engine_is_rejected_independently (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_duplicate_engine_is_rejected_independently) ... ok
+test_duplicate_provider_is_rejected_independently (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_duplicate_provider_is_rejected_independently) ... ok
+test_forged_context_receipt_is_rejected (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_forged_context_receipt_is_rejected) ... ok
+test_missing_positive_baseline_is_rejected (tests.tools.test_correction_restart.CountedReopenInvalidEvidence.test_missing_positive_baseline_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.898s
+
+OK

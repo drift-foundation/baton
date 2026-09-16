@@ -1,0 +1,282 @@
+[
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-base.log",
+    "sha256": "80618fbb3de77294f9400718d42feef9764b568a00bb62553480287fc2d67738",
+    "bytes": 1828160
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-cand.log",
+    "sha256": "29550ae8d3a27a6dca631e30ff6f9da6cbcf633ced1ba34ab34245560d90e643",
+    "bytes": 1840793
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-cand2.log",
+    "sha256": "9a83654f847cf3c8767f5104e9349eb0af3172de0e2d90e10394546c23c9eb50",
+    "bytes": 1835254
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-final.log",
+    "sha256": "c90f614f296745173547e91481d8f6781b342123e4dd651377f2d2980da3fedd",
+    "bytes": 1835293
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-177898-logs/w61599-full.log",
+    "sha256": "f32d92e2444302d5d250404f0fe817c7f8e0beb24a1f4af61ad76b50c72d7758",
+    "bytes": 1840748
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-log-inventory.json",
+    "sha256": "72e4e8219afa634ecdff337477b1e349d8e17e0b652a942cc50a8618da94bb62",
+    "bytes": 2067
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/author-reconciliation.json",
+    "sha256": "4c24794d42f71783bb7a30c0dff8cd73b877aa5dc082da68de905c00798e30ce",
+    "bytes": 1711
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/src/baton_v12/worker_manager/exchange.py",
+    "sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+    "bytes": 69908
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tests/manager/test_claude_agent.py",
+    "sha256": "00293380042508b22f99ff3067dfb0531796b9fa76614de92b0a8429e85bc308",
+    "bytes": 173210
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tests/manager/test_dependencies.py",
+    "sha256": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+    "bytes": 56223
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tests/manager/test_exchange.py",
+    "sha256": "bb430fb360864d16089d3fa2feabfc1e2ff4d9533f803f8b5c016b66b6e1ac25",
+    "bytes": 102642
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tests/tools/test_dogfood_operator.py",
+    "sha256": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+    "bytes": 389150
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tests/tools/test_single_worker.py",
+    "sha256": "76a1967a759204469200e56e9948448231b65c7c60348efc211ec6ca96ad41af",
+    "bytes": 206118
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tests/tools/test_stage_execution.py",
+    "sha256": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+    "bytes": 469250
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tools/dogfood_operator.py",
+    "sha256": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+    "bytes": 255331
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tools/single_worker.py",
+    "sha256": "b3186d119c3dab6d15a466c3b6271b68668a0a39426d33fb680718eabaae9a14",
+    "bytes": 176099
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/python/tools/stage_execution.py",
+    "sha256": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+    "bytes": 332486
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/worker/baton_worker.py",
+    "sha256": "92eaf3a2761f937dd17d781c2321974179d7c9cfed7234f3a7b68741cbbdf704",
+    "bytes": 123306
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base/v12/worker/claude_agent.py",
+    "sha256": "a6f934eaa5cf37fbed0ae7edc7f0521bb42566d4a0753cd939b4c148625b4529",
+    "bytes": 181940
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/base.json",
+    "sha256": "31bf95e22fb4e71dfd41512278555e70b67a44a08f6c290b83b27d27e7f0c284",
+    "bytes": 6511
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/src/baton_v12/worker_manager/exchange.py",
+    "sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+    "bytes": 69908
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/tests/manager/test_claude_agent.py",
+    "sha256": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+    "bytes": 176232
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/tests/manager/test_dependencies.py",
+    "sha256": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+    "bytes": 56223
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/tests/manager/test_exchange.py",
+    "sha256": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a",
+    "bytes": 103022
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/tests/tools/test_dogfood_operator.py",
+    "sha256": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+    "bytes": 389150
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/tests/tools/test_single_worker.py",
+    "sha256": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+    "bytes": 210156
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/tests/tools/test_stage_execution.py",
+    "sha256": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+    "bytes": 469250
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/tools/dogfood_operator.py",
+    "sha256": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+    "bytes": 255331
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/tools/single_worker.py",
+    "sha256": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+    "bytes": 176047
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/python/tools/stage_execution.py",
+    "sha256": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+    "bytes": 332486
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/worker/baton_worker.py",
+    "sha256": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+    "bytes": 123286
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate/v12/worker/claude_agent.py",
+    "sha256": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+    "bytes": 182273
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/candidate.json",
+    "sha256": "acabca2d229f984a647626d6feb5244d4d1d0bea95c80b025f802ca9194138b3",
+    "bytes": 10845
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/correction.patch",
+    "sha256": "611cae6e173faad87330c268c3d9af1c8c9c81740c3f1e83ab2aaf69c0dfa480",
+    "bytes": 18059
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/final-check.json",
+    "sha256": "27d9ee20b29eba86d6aa0f3b096c7bf60540ed25ecb5a65dfc5ae6ebc73d1277",
+    "bytes": 216
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/focused-1.json",
+    "sha256": "0d740bd93a56bb22432ffea287c297662aa984b61a40e2ff75defa81802c8fd8",
+    "bytes": 2224
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/focused-1.log",
+    "sha256": "4a74c71728cf7f225e9a8279863fbbffce5dabd1fc970e76ef7d1fb72513a7a2",
+    "bytes": 17777
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/focused-final.json",
+    "sha256": "93b24a2b3b8aca1060948447e3d0f2a07f3c63ae382a2e1880abe5fe5e117ebd",
+    "bytes": 2224
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/focused-final.log",
+    "sha256": "09002406962159d63709e29412e2103dfab85ba9e064c2decdd8f797ade7e361",
+    "bytes": 17986
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/negative-1.json",
+    "sha256": "c20b2b693f93e8fd737ba2fc1be2e7262904a6b30a143cb43d6b99dc61b43388",
+    "bytes": 2228
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/negative-1.log",
+    "sha256": "6cf6ad72daf038032f58642c0cc30610e506fa9e0d22df0a3b322b7a902ca143",
+    "bytes": 1034
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/negative-2-binding.json",
+    "sha256": "92a11b5970426590c058025af878ef759c37a3b33e98c11da1ca5473192fb966",
+    "bytes": 2291
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/negative-2-test-single-worker.py",
+    "sha256": "2ef9071a5f066c6b57d08e7610063c15484e1eceb75f847db1f643f401454cea",
+    "bytes": 208874
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/negative-2.json",
+    "sha256": "a323c536d2c640051fd50d7cc3e26ee10c6cae7a1e1260c6d31afd7eed418535",
+    "bytes": 2227
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/negative-2.log",
+    "sha256": "4df11a5f26f7b4faa7047d8fa253e9ca78d287bc62629566502ccd687e3bd01f",
+    "bytes": 8540
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/processes-after.txt",
+    "sha256": "ed0d5f3d69956f99fd7f57483151678bc417acfffad8d189c5664bfa15b5010c",
+    "bytes": 190
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/processes-before.txt",
+    "sha256": "ed0d5f3d69956f99fd7f57483151678bc417acfffad8d189c5664bfa15b5010c",
+    "bytes": 190
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/regressions-1.json",
+    "sha256": "ffadd8e3d693bedad72779908e0204ac48b1b10b98b6d8848267d198a0fba6c5",
+    "bytes": 2231
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/regressions-1.log",
+    "sha256": "599cc7f0bea40304b15302cb1c71c2785f995399b4e9d77432cf725345a67663",
+    "bytes": 3519
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/run-focused.py",
+    "sha256": "f588d092610b806da368652fe2d7a7d634092f60b46eb205bb57a4c6a4069fe5",
+    "bytes": 3393
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/submitted-177898/test_claude_agent.py",
+    "sha256": "5532d3c11b22db6d88a22387c5e069393e85af394a0d0e37ac1cac94ceed4532",
+    "bytes": 172291
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/submitted-177898/test_exchange.py",
+    "sha256": "6c976f45eaba8779fcb1b9938a279e70add85566040e56badeacc88863d14613",
+    "bytes": 97549
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/supervise.py",
+    "sha256": "ec4250688fe802d4063d5c7564434e7b449ccf27b1b5b3b05d09c4aba3a08658",
+    "bytes": 2322
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/test_claude_agent.py.author-reconciliation.patch",
+    "sha256": "1c341748094c385c7263a2ca801bae19305518d2193c6368bf6bd32a14067d7e",
+    "bytes": 1912
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/test_exchange.py.author-reconciliation.patch",
+    "sha256": "e951cd3d29f6e99e19e26e9a0435577d94f2b79d572cc9db311c2d0932dac722",
+    "bytes": 9067
+  },
+  {
+    "path": "work/records/2026/09/finding-live-worker-log-observability/correction-178427/verification.json",
+    "sha256": "594b052470d75d3d92358283cdce814723192825aad94e28b990d3ccff318b3b",
+    "bytes": 2481
+  }
+]

@@ -1,0 +1,474 @@
+--- a/v12/python/tools/dogfood_operator.py
++++ b/v12/python/tools/dogfood_operator.py
+@@ -2955,7 +2955,25 @@
+             record,
+             f"this attempt's assignment was not fenced, so it remains live "
+             f"however its resources ended: {refused.message}")
+-    record["authority_fence"] = fenced["fenced"]
++    # AND THE ANSWER IS HELD TO WHAT IT MUST SAY, before anything destructive
++    # follows it. The port already relates a real fence to this exact
++    # four-member assignment, but the RECORD is what an operator reads and
++    # `resolved` is what it claims: an answer that is not positively `fenced`
++    # for THIS fixed assignment is not proof, and treating it as one would
++    # rebuild the defect this Work exists to remove one layer higher.
++    answer = fenced["fenced"]
++    expected = {"work_ref": dict(given["work_ref"]),
++                "participant": given["participant"],
++                "generation": given["generation"]}
++    if answer.get("fenced") is not True \
++            or answer.get("assignment") != expected:
++        return _unresolved(
++            record,
++            f"this attempt's assignment was not proved fenced, so it remains "
++            f"live however its resources ended: the authority answered "
++            f"{answer.get('fenced')!r} for "
++            f"{answer.get('assignment')!r}")
++    record["authority_fence"] = answer
+     try:
+         answered = adapter.recover_credentials({
+             "attempt_id": given["attempt_id"],
+--- a/v12/python/tests/tools/test_dogfood_operator.py
++++ b/v12/python/tests/tools/test_dogfood_operator.py
+@@ -5420,7 +5420,11 @@
+         # fence has its own cases against a real manager and authority; here it
+         # is held to answering, so the credential account below is what the
+         # case still measures.
+-        fenced = {"fenced": True, "generation": 1}
++        fenced = {"cause": "cancelled", "phase": "block", "gate": "g",
++                  "fenced": True,
++                  "assignment": {"work_ref": dict(self.given()["work_ref"]),
++                                 "participant": self.given()["participant"],
++                                 "generation": self.given()["generation"]}}
+         with mock.patch.object(dogfood_operator, "_launch_after",
+                                return_value={"lifecycle_state": "torn-down"}), \
+                 mock.patch("baton_v12.worker_manager.fence_pre_attach_abandonment",
+@@ -6689,6 +6693,11 @@
+             home.volatile_root(given["attempt_id"])))
+ 
+ 
++def status_name(name):
++    """A filesystem-safe fragment for a subtest's own record."""
++    return name.replace(" ", "-")
++
++
+ class TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime(
+         TheGrantsAreHeldAgainstTheFixedAssignment):
+     """W55758, approver ruling M60437.
+@@ -6986,6 +6995,150 @@
+                          "M60437 leaves an unidentified runtime untouched and "
+                          "this recovery acted on one")
+ 
++    def unbearered(self):
++        """The FINDING's own observed state: activated, no runtime, NO bearer.
++
++        W61984 run3 recorded "No credential bearer, container or provider turn
++        started" -- the attempt was activated and then refused while reading a
++        registry. The shared fixture materializes a bearer, so this removes it
++        to reach the state the defect was actually reported from. Everything
++        else is the fixture's real durable state and real authority.
++        """
++        import shutil
++
++        given, grants_path, made = self.interrupted_before_attach()
++        home = self.home(given)
++        volatile = home.volatile_root(given["attempt_id"])
++        state = home.state_path(given["attempt_id"])
++        if os.path.lexists(volatile):
++            shutil.rmtree(volatile, ignore_errors=True)
++        if os.path.exists(state):
++            os.remove(state)
++        return given, grants_path, made
++
++    def test_a_pre_attach_abandonment_resolves_and_releases_the_assignment(
++            self):
++        """THE DEFINING OUTCOME. `--abandon` over an activated attempt whose
++        runtime never started now exits 0, reports `resolved`, and the exact
++        generation is gone from the public authority projection.
++
++        Before this Work the same command exited 0 and reported `resolved`
++        from resource facts alone while the assignment stayed live -- the
++        Handler held, the generation live, `authority_fence` null. Both halves
++        are asserted here against a real disposable v12 Authority.
++        """
++        given, grants_path, _made = self.unbearered()
++        before = self.projected(given)
++        self.assertEqual(before["handler"], given["participant"])
++        self.assertEqual(before["phase"], "active")
++        self.assertEqual(self.slot_holder(given), given["work_ref"]["work_id"])
++
++        status, written = self.abandoned(
++            grants_path, self.recovery_capabilities,
++            reason="the supervising turn was torn down")
++
++        self.assertEqual(status, 0, written["unresolved"])
++        self.assertTrue(written["resolved"], written["unresolved"])
++        self.assertEqual(written["unresolved"], [])
++        self.assertEqual(written["branch"], "pre-attach")
++        # THE FENCE, EXACT, AND THE GENERATION IT NAMES.
++        self.assertTrue(written["authority_fence"]["fenced"])
++        self.assertEqual(
++            written["authority_fence"]["assignment"]["generation"],
++            given["generation"])
++        # THE PUBLIC PROJECTION NO LONGER HOLDS THE HANDLER OR THE SLOT.
++        after = self.projected(given)
++        self.assertIsNone(after["handler"])
++        self.assertEqual(after["phase"], "block")
++        self.assertIsNone(self.slot_holder(given))
++        # AND THE RESOURCE ACCOUNT IS COMPLETE BESIDE IT.
++        self.assertEqual(written["runtime"]["state"], "absent")
++        self.assertIsNone(written["runtime"]["runtime_id"])
++        self.assertIn(written["credentials"]["lifecycle_state"],
++                      ("torn-down", "not-delivered"))
++
++    def test_a_changed_reason_collides_and_never_fences_again(self):
++        """THE DECLARATION IS THE ACT, so a different reason is a different
++        declaration and must not replay this one. `_abandon_intent` keys the
++        operation on the attempt and fixed assignment while signing the
++        reason, so a second call under another reason collides rather than
++        quietly issuing a second authority act under the first one's identity.
++        """
++        given, grants_path, _made = self.unbearered()
++        first = self.abandoned(grants_path, self.recovery_capabilities,
++                               reason="the supervising turn was torn down")
++        self.assertEqual(first[0], 0, first[1]["unresolved"])
++
++        status, written = self.abandoned(
++            grants_path, self.recovery_capabilities,
++            out=os.path.join(self._root.name, "changed-reason.json"),
++            reason="a different declaration entirely")
++
++        self.assertEqual(status, 1)
++        self.assertFalse(written["resolved"])
++        self.assertTrue(written["unresolved"])
++        # AND THE ORIGINAL DECLARATION IS UNTOUCHED: the first fence stands.
++        self.assertIsNone(self.slot_holder(given))
++
++    def test_the_original_reason_replays_one_durable_declaration(self):
++        """A same-reason retry adopts the committed declaration through
++        REOPENED owners -- the command opens its own stores and authority each
++        run -- and the manager holds one abandonment operation, not two."""
++        given, grants_path, _made = self.unbearered()
++        first = self.abandoned(grants_path, self.recovery_capabilities)
++        second = self.abandoned(
++            grants_path, self.recovery_capabilities,
++            out=os.path.join(self._root.name, "replayed.json"))
++
++        self.assertEqual(first[0], 0, first[1]["unresolved"])
++        self.assertEqual(second[0], 0, second[1]["unresolved"])
++        self.assertEqual(first[1]["authority_fence"],
++                         second[1]["authority_fence"])
++        # ONE DURABLE EFFECT, counted at the manager rather than inferred from
++        # two equal answers: exactly one committed abandonment declaration
++        # exists for this attempt.
++        store = self.abandonment_owners(given)[0]
++        # The operation id is a DIGEST of the attempt and its fixed
++        # assignment, so it is counted by kind rather than matched by name.
++        self.assertEqual(
++            store._connection.execute(
++                "SELECT count(*) FROM operations WHERE kind = ?",
++                ("attempt.abandon",)).fetchone()[0], 1)
++
++    def test_a_fence_that_did_not_fence_leaves_everything_unresolved(self):
++        """THE PAIRED REFUSAL. A fence answer that is absent, false or about
++        another assignment must stop the recovery BEFORE any resource act --
++        the whole point of fencing first is that nothing destructive follows a
++        fence this manager cannot show."""
++        from baton_v12 import worker_manager
++
++        for name, answer in (
++                ("not true", {"cause": "cancelled", "phase": "block",
++                              "gate": "g", "fenced": False}),
++                ("another assignment",
++                 {"cause": "cancelled", "phase": "block", "gate": "g",
++                  "fenced": True,
++                  "assignment": {"work_ref": {"authority_uuid": "0" * 32,
++                                              "work_id": "0" * 8 + "-W9"},
++                                 "participant": "someone.else",
++                                 "generation": 7}})):
++            with self.subTest(fence=name):
++                given, grants_path, _made = self.unbearered()
++                home = self.home(given)
++                with mock.patch.object(
++                        worker_manager, "fence_pre_attach_abandonment",
++                        return_value={"intent": {}, "fenced": answer}):
++                    status, written = self.abandoned(
++                        grants_path, self.recovery_capabilities,
++                        out=os.path.join(self._root.name,
++                                         f"refused-{status_name(name)}.json"))
++                self.assertEqual(status, 1)
++                self.assertFalse(written["resolved"])
++                self.assertTrue(written["unresolved"])
++                # AND NOTHING DESTRUCTIVE RAN: the runtime account was never
++                # taken, so no positive-absence claim was recorded either.
++                self.assertIsNone(written["runtime"])
++
+     def test_the_documented_command_fences_a_pre_attach_assignment(self):
+         """W63255's centre: `main --abandon` over an attempt that ACTIVATED and
+         never attached a runtime now ends its ASSIGNMENT too.
+@@ -6996,12 +7149,34 @@
+         still held. Runtime absence is not release of assignment authority, and
+         a recovery that cannot show the fence must not say `resolved`.
+         """
+-        _given, grants_path, _made = self.interrupted_before_attach()
++        from baton_v12.authority import Authority
++
++        given, grants_path, _made = self.interrupted_before_attach()
++        # THE ASSIGNMENT IS LIVE AT A REAL AUTHORITY BEFORE THE COMMAND RUNS.
++        # This fixture's authority is a disposable v12 store created in setUp,
++        # opened by `_for_abandonment` through the deployment's own session --
++        # not a fake. Review claim174362 read the arc's `ArcSession` and took
++        # it for this crossing; the arc uses it to RUN the worker, while the
++        # abandonment opens the real store. That reading was wrong about the
++        # fixture and right about the test: the defining outcome was reachable
++        # and unasserted, so it is asserted here.
++        before = self.projected(given)
++        self.assertEqual(before["handler"], given["participant"])
++        self.assertEqual(before["phase"], "active")
++        self.assertEqual(self.slot_holder(given), given["work_ref"]["work_id"])
+ 
+         status, written = self.abandoned(
+             grants_path, self.recovery_capabilities,
+             reason="the supervising turn was torn down")
+ 
++        # AND IT IS GONE FROM THE PUBLIC PROJECTION AFTERWARDS. This is the
++        # fact the FINDING names and the one the old branch could never obtain:
++        # the Handler is released, the live generation no longer holds the
++        # participant's slot, and the Work is no longer active.
++        after = self.projected(given)
++        self.assertIsNone(after["handler"])
++        self.assertEqual(after["phase"], "block")
++        self.assertIsNone(self.slot_holder(given))
+         self.assertEqual(written["branch"], "pre-attach")
+         # THE FENCE IS RECORDED AND IT IS EXACT: this manager did not merely
+         # ask, it kept the authority's own answer about this assignment.
+@@ -7021,6 +7196,34 @@
+         self.assertFalse(written["resolved"])
+         self.assertTrue(written["unresolved"])
+ 
++    def projected(self, given):
++        """This Work as the REAL disposable authority projects it now."""
++        from baton_v12.authority import Authority
++
++        opened = Authority.open(given["authority_store"])
++        try:
++            return opened.project_work(given["work_ref"]["work_id"])
++        finally:
++            opened.dispose()
++
++    def slot_holder(self, given):
++        """Which Work holds this participant's one live slot, if any."""
++        from baton_v12.authority import Authority
++
++        opened = Authority.open(given["authority_store"])
++        try:
++            return opened.slot_holder(given["participant"])
++        finally:
++            opened.dispose()
++
++    def abandoned_attempt_row(self, given):
++        """This attempt's own persisted row, for the axes a runtime
++        projection does not carry."""
++        store, _port = self.abandonment_owners(given)
++        return dict(store._connection.execute(
++            "SELECT * FROM attempts WHERE runtime_attempt_id = ?",
++            (given["attempt_id"],)).fetchone())
++
+     def abandonment_owners(self, given):
+         """This attempt's real control store and authority port.
+ 
+@@ -7036,17 +7239,192 @@
+         self.addCleanup(store.close)
+         from baton_v12.worker_manager import AuthorityPort as _Port
+         del _Port
++        # A FIXED-REPLY SESSION, and named as one. This helper drives a single
++        # manager operation at a boundary the command cannot reach, and the
++        # case using it asserts a REFUSAL -- so no authority act should occur
++        # and a fake that would record one is the right instrument. The
++        # successful outcome is proved against the real store above.
+         session = ArcSession(participant=given["participant"])
+         return store, AuthorityPort(session, claim_signature)
+ 
++    def test_the_abandonment_wins_and_a_public_start_can_no_longer_pass(self):
++        """THE OTHER PUBLIC ORDER. The declaration commits and moves the axis
++        off `not-started` in ONE transaction, so the ordinary public
++        `request_runtime_start` can no longer pass its own precondition -- and
++        it refuses BEFORE reaching any adapter, so no runtime is created and no
++        start intent survives.
++        """
++        from baton_v12.contracts import ContractRefusal
++        from baton_v12.worker_manager import (attempts,
++                                              fence_pre_attach_abandonment)
++
++        given, _grants, _made = self.unbearered()
++        store, port = self.abandonment_owners(given)
++        fence_pre_attach_abandonment(
++            store, port, attempt_id=given["attempt_id"],
++            reason="the supervising turn was torn down")
++
++        started = []
++
++        class Adapter:
++            def start(self, _request):
++                started.append(True)
++                self.fail("the adapter was reached after the fence")
++
++        with self.assertRaises(ContractRefusal) as refused:
++            attempts.request_runtime_start(
++                store, Adapter(), attempt_id=given["attempt_id"],
++                inputs=None)
++
++        self.assertIn("execution is", refused.exception.message)
++        self.assertEqual(started, [], "a runtime was created after the fence")
++        # AND NO START OPERATION SURVIVES for a later replay to resume.
++        self.assertEqual(
++            store._connection.execute(
++                "SELECT count(*) FROM operations WHERE kind = ?",
++                ("runtime.start",)).fetchone()[0], 0)
++
++    def test_an_interruption_after_the_intent_resumes_the_same_fence(self):
++        """CUT ONE: the declaration commits and the process dies before the
++        authority is called. A retry adopts that declaration and issues the
++        SAME authority operation rather than declaring again."""
++        from baton_v12 import worker_manager
++
++        given, grants_path, _made = self.unbearered()
++        store, _port = self.abandonment_owners(given)
++
++        class Interrupted(Exception):
++            pass
++
++        def after_intent(self, *args, **keywords):
++            raise Interrupted("the process died before the fence")
++
++        from baton_v12.worker_manager import authority_port
++        with mock.patch.object(authority_port.AuthorityPort, "cancel",
++                               after_intent):
++            with self.assertRaises(Interrupted):
++                self.abandoned(grants_path, self.recovery_capabilities)
++        # THE DECLARATION IS COMMITTED AND THE FENCE IS NOT.
++        self.assertEqual(
++            store._connection.execute(
++                "SELECT count(*) FROM operations WHERE kind = ?",
++                ("attempt.abandon",)).fetchone()[0], 1)
++
++        status, written = self.abandoned(
++            grants_path, self.recovery_capabilities,
++            out=os.path.join(self._root.name, "resumed.json"))
++
++        self.assertEqual(status, 0, written["unresolved"])
++        self.assertTrue(written["authority_fence"]["fenced"])
++        # STILL ONE DECLARATION: the retry adopted it rather than making a
++        # second one under a fresh identity.
++        self.assertEqual(
++            store._connection.execute(
++                "SELECT count(*) FROM operations WHERE kind = ?",
++                ("attempt.abandon",)).fetchone()[0], 1)
++
++    def test_a_resource_refusal_after_the_fence_keeps_it_and_then_retries(
++            self):
++        """CUT TWO, and the recovery that follows it. The fence commits, the
++        resource account then refuses, and the durable record must still carry
++        the exact fence -- a partial account may not lose the assignment fact.
++        The original-reason retry then completes."""
++        given, grants_path, _made = self.unbearered()
++
++        from baton_v12.contracts import ContractRefusal
++        from baton_v12.worker_manager import credentials
++
++        refusing = {"count": 0}
++        original = credentials.OrphanTeardown.tear_down
++
++        def once(self, *args, **keywords):
++            if refusing["count"] == 0:
++                refusing["count"] += 1
++                raise ContractRefusal(
++                    "refused", "precondition",
++                    "the credential teardown could not settle")
++            return original(self, *args, **keywords)
++
++        with mock.patch.object(credentials.OrphanTeardown, "tear_down", once):
++            status, written = self.abandoned(
++                grants_path, self.recovery_capabilities)
++
++        self.assertEqual(status, 1)
++        self.assertFalse(written["resolved"])
++        # THE FENCE SURVIVES THE PARTIAL ACCOUNT.
++        self.assertTrue(written["authority_fence"]["fenced"])
++        self.assertEqual(
++            written["authority_fence"]["assignment"]["generation"],
++            given["generation"])
++
++        status, again = self.abandoned(
++            grants_path, self.recovery_capabilities,
++            out=os.path.join(self._root.name, "after-refusal.json"))
++
++        self.assertEqual(status, 0, again["unresolved"])
++        self.assertTrue(again["resolved"])
++        self.assertEqual(again["authority_fence"],
++                         written["authority_fence"])
++
++    def test_a_wrong_participant_refuses_before_any_fence_or_cleanup(self):
++        """IDENTITY IS HELD FIRST. The port requires the session's own
++        participant, so an operation for another one refuses before the
++        declaration is committed and before any resource act."""
++        from baton_v12.contracts import ContractRefusal
++        from baton_v12.worker_manager import fence_pre_attach_abandonment
++
++        given, _grants, _made = self.unbearered()
++        store, _port = self.abandonment_owners(given)
++        from baton_v12.authority import claim_signature
++        from baton_v12.worker_manager import AuthorityPort
++        foreign = AuthorityPort(ArcSession(participant="someone.else"),
++                                claim_signature)
++
++        with self.assertRaises(ContractRefusal):
++            fence_pre_attach_abandonment(
++                store, foreign, attempt_id=given["attempt_id"],
++                reason="the supervising turn was torn down")
++
++        self.assertEqual(
++            store._connection.execute(
++                "SELECT count(*) FROM operations WHERE kind = ?",
++                ("attempt.abandon",)).fetchone()[0], 0)
++
++    def test_the_ending_decides_nothing_about_output_or_custody(self):
++        """THE RETAINED NON-EFFECTS. This operation answers the assignment
++        question and stops: no output is frozen, no intake accepted, no
++        retention chosen, no review or integration performed, and W61984's
++        none-disposition requirement is neither invoked nor relaxed."""
++        given, grants_path, _made = self.unbearered()
++        # THE ATTEMPT ROW, not the runtime projection: `state` answers about a
++        # runtime and these axes are the attempt's own.
++        before = self.abandoned_attempt_row(given)
++
++        status, written = self.abandoned(
++            grants_path, self.recovery_capabilities)
++
++        self.assertEqual(status, 0, written["unresolved"])
++        after = self.abandoned_attempt_row(given)
++        for axis in ("output", "worker_disposition"):
++            with self.subTest(axis=axis):
++                self.assertEqual(after[axis], before[axis])
++        self.assertEqual(after["output"], "open")
++        self.assertEqual(after["worker_disposition"], "none")
++
+     def test_a_requested_start_refuses_the_pre_attach_fence(self):
+         """THE RACE, in the order where the start won.
+ 
+         `_no_start_declared` asks the axis INSIDE the declaration's own
+         transaction, so an attempt whose start was already requested refuses
+-        and nothing is fenced; a fresh observation then selects the attached
+-        branch. Driving the manager operation directly is the point: this is
+-        the window the command cannot reach on its own.
++        and nothing is fenced. Driving the manager operation directly is the
++        point: this is the window the command cannot reach on its own.
++
++        WHAT A FRESH OBSERVATION SELECTS IS NOT DECIDED HERE, and an earlier
++        comment of mine claimed it was. Review claim174362: a requested start
++        may still have `runtime_id is None`, so the next observation may take
++        the pre-attach branch again rather than the attached one. This case
++        proves the refusal and the absent declaration, and says nothing about
++        which branch follows.
+         """
+         from baton_v12.contracts import ContractRefusal
+         from baton_v12.worker_manager import fence_pre_attach_abandonment

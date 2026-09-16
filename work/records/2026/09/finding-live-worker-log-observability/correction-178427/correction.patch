@@ -1,0 +1,390 @@
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -1923,55 +1923,62 @@
+ 
+     @staticmethod
+     def _activity_scan(root):
+-        """Every native file's identity and size beneath one private home.
+-
+-        METADATA ONLY, AND BOUNDED. `os.scandir` answers from the directory
+-        entry and one `stat`; nothing is opened, so no content can be read by
+-        accident and no link can be followed into one.
+-
+-        WHAT IS NEVER COUNTED: the credential entry, which is a SYMLINK and is
+-        excluded by the regular-file test before its name is ever considered;
+-        anything that is not a regular file; and anything outside this
+-        adapter's own private home.
++        """Bounded native-file metadata from no-follow directory descriptors.
++
++        Open each directory relative to its held parent and compare the opened
++        object with the checked entry. Renames cannot redirect a later scan to
++        a symlink target. No native file is opened or its content read. All
++        descriptors belong to this scan and close even on ambiguity/overflow.
+         """
+         found = {}
+         examined = 0
+-        pending = [(root, 0)]
+-        while pending:
+-            place, depth = pending.pop()
++        flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
++
++        def scan(directory, depth):
++            nonlocal examined
+             if depth > ACTIVITY_DEPTH:
+                 raise _ActivityUnknown()
+-            try:
+-                entries = os.scandir(place)
+-            except OSError:
+-                # THE ROOT ITSELF IS NOT THERE YET. `_prepared_home` makes it
+-                # before the launch, so this is an ambiguity rather than an
+-                # ordinary absence -- except at the very top, where a turn that
+-                # has not reached its home has simply nothing to report.
+-                if depth == 0:
+-                    return found
+-                raise _ActivityUnknown()
+-            try:
++            with os.scandir(directory) as entries:
+                 for entry in entries:
+                     examined += 1
+                     if examined > ACTIVITY_ENTRIES:
+                         raise _ActivityUnknown()
+-                    try:
+-                        if entry.is_dir(follow_symlinks=False):
+-                            pending.append((entry.path, depth + 1))
+-                            continue
+-                        if not entry.is_file(follow_symlinks=False):
+-                            continue
+-                        if not entry.name.endswith(ACTIVITY_SUFFIX):
+-                            continue
+-                        held = entry.stat(follow_symlinks=False)
+-                    except OSError:
+-                        raise _ActivityUnknown()
+-                    found[(held.st_dev, held.st_ino)] = held.st_size
+-                    if len(found) > ACTIVITY_FILES:
+-                        raise _ActivityUnknown()
+-            finally:
+-                entries.close()
++                    held = entry.stat(follow_symlinks=False)
++                    if stat.S_ISDIR(held.st_mode):
++                        child = os.open(entry.name, flags, dir_fd=directory)
++                        try:
++                            opened = os.fstat(child)
++                            if (opened.st_dev, opened.st_ino) != (held.st_dev, held.st_ino):
++                                raise _ActivityUnknown()
++                            scan(child, depth + 1)
++                        finally:
++                            os.close(child)
++                    elif stat.S_ISREG(held.st_mode) and entry.name.endswith(ACTIVITY_SUFFIX):
++                        found[(held.st_dev, held.st_ino)] = held.st_size
++                        if len(found) > ACTIVITY_FILES:
++                            raise _ActivityUnknown()
++
++        directory = None
++        try:
++            # Acquire the root without following a substituted ancestor either.
++            # This happens only on the publisher thread, never at launch.
++            if not os.path.isabs(root):
++                raise _ActivityUnknown()
++            directory = os.open(os.path.sep, flags)
++            for component in root.split(os.path.sep):
++                if not component:
++                    continue
++                if component in (".", ".."):
++                    raise _ActivityUnknown()
++                child = os.open(component, flags, dir_fd=directory)
++                os.close(directory)
++                directory = child
++            scan(directory, 0)
++        except OSError:
++            raise _ActivityUnknown() from None
++        finally:
++            if directory is not None:
++                os.close(directory)
+         return found
+ 
+     def _ran_provider(self, argv, *, cwd, seconds, env):
+--- a/v12/worker/baton_worker.py
++++ b/v12/worker/baton_worker.py
+@@ -1957,7 +1957,7 @@
+     def stop(self, seconds=ACTIVITY_STOP_SECONDS):
+         """Ask it to finish, and WAIT A FINITE BOUND. Answers whether it did."""
+         self._stop.set()
+-        thread, self._thread = self._thread, None
++        thread = self._thread
+         if thread is None:
+             return True
+         thread.join(seconds)
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -1007,7 +1007,7 @@
+         with self._lock:
+             self._stop = True
+         self._wake.set()
+-        thread, self._thread = self._thread, None
++        thread = self._thread
+         if thread is None:
+             return True
+         thread.join(seconds)
+@@ -1079,7 +1079,7 @@
+         means here and a diagnostic must not be able to say more than it saw.
+         """
+         delivery = exchange.ExchangeDelivery(attempt_id=request["attempt_id"],
+-                                             root=request["root"])
++                                             root=os.path.realpath(request["root"]))
+         try:
+             expected = exchange.activity_identities(
+                 delivery, session=request["session"])
+@@ -2085,8 +2085,7 @@
+         if self.activity is None:
+             return
+         try:
+-            root = os.path.join(os.path.realpath(self.given["launch_home"]),
+-                                attempt_id)
++            root = os.path.join(self.given["launch_home"], attempt_id)
+             self.activity({"attempt_id": attempt_id, "root": root,
+                            "session": self._session_of(attempt_id)})
+         except BaseException:                              # noqa: BLE001
+--- a/v12/python/tests/manager/test_claude_agent.py
++++ b/v12/python/tests/manager/test_claude_agent.py
+@@ -3384,6 +3384,72 @@
+         os.symlink(outside, os.path.join(state, "pointer.jsonl"))
+         self.assertIsNone(agent.observed_activity())
+ 
++    def test_a_replaced_root_link_never_counts_foreign_activity(self):
++        agent, state = self.bound()
++        foreign = os.path.join(self.home, "foreign")
++        self.native(foreign, "foreign.jsonl", "x" * 9000)
++        os.rename(state, state + "-original")
++        os.symlink(foreign, state)
++        self.assertIsNone(agent.observed_activity())
++
++    def test_a_directory_replaced_before_scanning_cannot_redirect_the_scan(self):
++        agent, state = self.bound()
++        child = os.path.join(state, "child")
++        self.native(child, "own.jsonl", "x" * 7)
++        foreign = os.path.join(self.home, "foreign")
++        self.native(foreign, "foreign.jsonl", "x" * 9000)
++        original = os.scandir
++        calls = []
++
++        def replaced(place):
++            calls.append(place)
++            if len(calls) == 2:
++                os.rename(child, child + "-original")
++                os.symlink(foreign, child)
++            return original(place)
++
++        with mock.patch.object(os, "scandir", replaced):
++            total = agent.observed_activity()
++        self.assertEqual(len(calls), 2, "replacement seam was not reached")
++        self.assertIn(total, (None, 7), "foreign activity was attributed")
++
++    def test_directory_acquisition_rejects_replacement_and_closes_descriptors(self):
++        # Replace between no-follow entry stat and open, rather than after an
++        # already-held descriptor. Both links and different ordinary objects
++        # must fail toward unknown and release every descriptor we acquired.
++        for link in (True, False):
++            with self.subTest(link=link):
++                scratch = os.path.join(self.home, "race-" + str(link))
++                agent, state = self.bound(scratch)
++                child = os.path.join(state, "child")
++                self.native(child, "own.jsonl", "x" * 7)
++                foreign = os.path.join(self.home, "foreign-" + str(link))
++                self.native(foreign, "foreign.jsonl", "x" * 9000)
++                opened, closed, replaced = [], [], []
++                real_open, real_close = os.open, os.close
++
++                def opening(path, flags, *args, **kwargs):
++                    if path == "child" and not replaced:
++                        replaced.append(True)
++                        os.rename(child, child + "-original")
++                        if link:
++                            os.symlink(foreign, child)
++                        else:
++                            os.rename(foreign, child)
++                    fd = real_open(path, flags, *args, **kwargs)
++                    opened.append(fd)
++                    return fd
++
++                def closing(fd):
++                    closed.append(fd)
++                    real_close(fd)
++
++                with mock.patch.object(os, "open", opening), \
++                        mock.patch.object(os, "close", closing):
++                    self.assertIsNone(agent.observed_activity())
++                self.assertEqual(replaced, [True])
++                self.assertCountEqual(opened, closed)
++
+     def test_other_home_growth_is_not_activity(self):
+         agent, state = self.bound()
+         self.native(state, "settings.json", "{}" * 500)
+--- a/v12/python/tests/manager/test_exchange.py
++++ b/v12/python/tests/manager/test_exchange.py
+@@ -2129,7 +2129,17 @@
+         publisher = baton_worker._ActivityPublisher(
+             held.event_root, {}, Wedged().observed_activity, seconds=0.01)
+         publisher.start()
+-        self.assertTrue(entered.wait(5))
+-        started = time.monotonic()
+-        self.assertFalse(publisher.stop(0.2))
+-        self.assertLess(time.monotonic() - started, 5)
++        thread = publisher._thread
++        try:
++            self.assertTrue(entered.wait(5))
++            started = time.monotonic()
++            self.assertFalse(publisher.stop(0.02))
++            self.assertFalse(publisher.stop(0.02))
++            self.assertIs(publisher._thread, thread)
++            self.assertTrue(thread.is_alive())
++            self.assertLess(time.monotonic() - started, 5)
++        finally:
++            release.set()
++            thread.join(5)
++            self.assertFalse(thread.is_alive())
++        self.assertTrue(publisher.stop(0.01))
+--- a/v12/python/tests/tools/test_single_worker.py
++++ b/v12/python/tests/tools/test_single_worker.py
+@@ -3769,6 +3769,7 @@
+             control = self.store()
+             first = single_worker.activity_ingestion(control)
+             self.assertIsNotNone(first)
++            self.addCleanup(first.stop, 5)
+             self.assertEqual(len(started), 1)
+ 
+             # H1 IS MADE UNRESOLVED: its thread is wedged, so a stop within the
+@@ -3806,6 +3807,48 @@
+             self.assertIsNotNone(third)
+             self.assertEqual(len(started), 2)
+ 
++    def test_repeated_stops_keep_the_live_thread_handle_and_store(self):
++        import threading
++        from types import SimpleNamespace
++
++        entered, release = threading.Event(), threading.Event()
++        closed, writers = [], []
++        fake_store = SimpleNamespace(close=lambda: closed.append(threading.get_ident()))
++        control = self.store()
++        helper = self.admitted(control)
++        thread = helper._thread
++
++        def ingest(store, request):
++            self.assertIs(store, fake_store)
++            writers.append(threading.get_ident())
++            entered.set()
++            release.wait(5)
++
++        with mock.patch.object(ControlStore, "open", return_value=fake_store), \
++                mock.patch.object(single_worker._ActivityIngestion, "_ingest", staticmethod(ingest)):
++            try:
++                helper.enqueue({"attempt_id": "a"})
++                self.assertTrue(entered.wait(2))
++                self.assertFalse(helper.stop(0.01))
++                self.assertFalse(helper.stop(0.01))
++                self.assertIs(helper._thread, thread)
++                self.assertTrue(thread.is_alive())
++                self.assertEqual(closed, [])
++                self.assertIn(os.path.realpath(self.place), single_worker._ACTIVITY_HELPERS)
++                with self.assertRaises(ContractRefusal):
++                    single_worker.activity_release(helper)
++                self.assertEqual(closed, [])
++            finally:
++                release.set()
++                # The captured handle also cleans up the intentionally broken
++                # baseline during the regression's negative control.
++                thread.join(5)
++                self.assertFalse(thread.is_alive())
++        self.assertTrue(helper.stop(0.01))
++        self.assertEqual(closed, writers)
++        self.assertEqual(len(closed), 1)
++        self.assertNotIn(os.path.realpath(self.place), single_worker._ACTIVITY_HELPERS)
++
+     def test_two_different_stores_each_admit_their_own(self):
+         """THE EXCLUSION IS PER STORE and not a process-wide singleton: two
+         unrelated deployments must both get their diagnostic."""
+@@ -3838,8 +3881,8 @@
+         import threading
+ 
+         wedged = threading.Event()
++        helper = self.admitted(self.store())
+         self.addCleanup(wedged.set)
+-        helper = self.admitted(self.store())
+         with mock.patch.object(single_worker._ActivityIngestion, "_ingest",
+                                staticmethod(lambda _s, _r: wedged.wait(30))):
+             helper.enqueue({"attempt_id": "a", "root": self.root,
+@@ -3925,6 +3968,37 @@
+     def activity(self):
+         return attempt_activity_of(self.control, self.ATTEMPT)
+ 
++    def test_a_blocked_resolver_leaves_enqueue_and_manager_reads_usable(self):
++        import threading
++
++        self.wrote(4096)
++        helper = single_worker.activity_ingestion(self.control)
++        self.assertIsNotNone(helper)
++        thread = helper._thread
++        entered, release = threading.Event(), threading.Event()
++        original = os.path.realpath
++
++        def resolving(path, *args, **kwargs):
++            if threading.current_thread() is thread and path == self.delivered.root:
++                entered.set()
++                release.wait(5)
++            return original(path, *args, **kwargs)
++
++        with mock.patch.object(os.path, "realpath", resolving):
++            try:
++                helper.enqueue(self.request())
++                self.assertTrue(entered.wait(2), "resolver seam was not reached")
++                helper.enqueue(self.request())
++                self.assertIsNone(self.activity()["bytes_observed"])
++                self.assertFalse(release.is_set())
++                self.assertFalse(helper.stop(0.01))
++            finally:
++                release.set()
++                thread.join(5)
++                self.assertFalse(thread.is_alive())
++        self.assertTrue(helper.stop(0.01))
++        self.assertEqual(self.activity()["bytes_observed"], 4096)
++
+     def test_a_bound_count_reaches_the_managers_own_record(self):
+         self.wrote(4096)
+         self.ingest()
+@@ -4067,6 +4141,8 @@
+         job, control = self.stores("i-1")
+         operations = self.operations(job, control, Engine())
+         wedged = threading.Event()
++        helper = operations._worker.activity.__self__
++        self.addCleanup(helper.stop, 5)
+         self.addCleanup(wedged.set)
+         with mock.patch.object(single_worker._ActivityIngestion, "_ingest",
+                                staticmethod(lambda _s, _r: wedged.wait(30))), \
+@@ -4096,12 +4172,22 @@
+             operations._worker.activity = seen.append
+             stage = status(job, operations,
+                            observed_at=fixtures.NOW)["jobs"][0]["stages"][0]
+-            with mock.patch.object(launch, "adopt",
+-                                   side_effect=AssertionError("adopted")), \
+-                    mock.patch.object(exchange, "observation",
+-                                      side_effect=AssertionError("read")):
+-                operations._worker.refresh_runtime(
+-                    {"attempt_id": stage["attempt_id"]})
++            enqueue = single_worker._SingleWorker._enqueue_activity
++
++            def checked_enqueue(worker, attempt_id):
++                # Existing runtime reconciliation legitimately checks its
++                # workspace. Assert the diagnostic addition performs no I/O.
++                with mock.patch.object(os.path, "realpath", side_effect=AssertionError("resolved")) as resolved, \
++                        mock.patch.object(os, "lstat", side_effect=AssertionError("stat")) as stated:
++                    enqueue(worker, attempt_id)
++                resolved.assert_not_called()
++                stated.assert_not_called()
++
++            with mock.patch.object(launch, "adopt", side_effect=AssertionError("adopted")), \
++                    mock.patch.object(exchange, "observation", side_effect=AssertionError("read")), \
++                    mock.patch.object(single_worker._SingleWorker, "_enqueue_activity", checked_enqueue):
++                refreshed = operations._worker.refresh_runtime({"attempt_id": stage["attempt_id"]})
++            self.assertIsNotNone(refreshed)
+             [request] = seen
+             self.assertEqual(sorted(request),
+                              ["attempt_id", "root", "session"])

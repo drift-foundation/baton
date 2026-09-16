@@ -1,0 +1,11 @@
+test_crash_after_publication_before_journal_replays_only_custody (tests.manager.test_provider_context.Finalization.test_crash_after_publication_before_journal_replays_only_custody) ... ok
+test_crash_during_staging_reuses_only_matching_private_bytes (tests.manager.test_provider_context.Finalization.test_crash_during_staging_reuses_only_matching_private_bytes) ... ok
+test_damaged_committed_generation_is_refused (tests.manager.test_provider_context.Finalization.test_damaged_committed_generation_is_refused) ... ok
+test_disposal_preserves_generation_and_invocation_evidence (tests.manager.test_provider_context.Finalization.test_disposal_preserves_generation_and_invocation_evidence) ... ok
+test_positive_generation_is_published_and_replayed_after_fence (tests.manager.test_provider_context.Finalization.test_positive_generation_is_published_and_replayed_after_fence) ... ok
+test_wrong_actual_model_receipt_cannot_publish_a_generation (tests.manager.test_provider_context.Finalization.test_wrong_actual_model_receipt_cannot_publish_a_generation) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.221s
+
+OK

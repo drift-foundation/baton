@@ -1,0 +1,7 @@
+test_manager_recomposition_preserves_both_positive_counts (tests.tools.test_correction_restart.CountedReopen.test_manager_recomposition_preserves_both_positive_counts) ... ok
+test_unchanged_predecessor_artifacts_still_validate_without_execution (tests.tools.test_correction_restart.CountedReopen.test_unchanged_predecessor_artifacts_still_validate_without_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.844s
+
+OK

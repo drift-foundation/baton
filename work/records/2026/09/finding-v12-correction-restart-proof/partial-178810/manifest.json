@@ -1,0 +1,144 @@
+{
+  "work": "W161234",
+  "claim": 178810,
+  "status": "incomplete; not an import or execution candidate",
+  "reason": "mandatory implementation-only receipt contradicts shared Job input contract; owner packet amendment required",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "exists": true,
+      "sha256": "c0c7c0756858cf0eed9ec8166d6c8341139001210e19118cdb6250e28cf344c2",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "partial_sha256": "9ef70b9be262358f18526fa79423fa6b64a41b7bc19dd43dc7d15e3d7f8a7030",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "changed": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "exists": true,
+      "sha256": "ae20af8c11655887fbe4bdb3fa3ebaa923003e0e93e073e83fafa500f9716314",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "partial_sha256": "6c86e7af256806073c86aacb1427d4a8d0c5e7532c2ff4af9a2dff844da729fc",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "changed": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "exists": true,
+      "sha256": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/launch.py",
+      "partial_sha256": "c590a0e5f93dbe76291eca944b6858217234f0bedae7ded9bf3828909d9c1f22",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/src/baton_v12/worker_manager/launch.py",
+      "changed": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "exists": true,
+      "sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/src/baton_v12/worker_manager/oci.py",
+      "partial_sha256": "6d09e76fe869f31286a3c5376c60f98091270ba890a2cb63516f1dde3f2ff3b8",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/src/baton_v12/worker_manager/oci.py",
+      "changed": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "exists": true,
+      "sha256": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tools/single_worker.py",
+      "partial_sha256": "340f9602c03610069161e8880b16e022e29111c9e88bd7e571afafb884e251a8",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/tools/single_worker.py",
+      "changed": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "exists": true,
+      "sha256": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tools/stage_execution.py",
+      "partial_sha256": "c6e5a4fdf6fd4157e1806c0008aa26d0e06ac2c64687fa280a82d69d62761ecb",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/tools/stage_execution.py",
+      "changed": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "exists": true,
+      "sha256": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/worker/baton_worker.py",
+      "partial_sha256": "c54e9698c62541b63d01025f140effc25f599487e97a97bcded37cb1457ab14a",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/worker/baton_worker.py",
+      "changed": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "exists": true,
+      "sha256": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+      "mode": "0o644",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/worker/claude_agent.py",
+      "partial_sha256": "29ce415c8f6274de1a4772c09e89fba6aa5e3b0adfb9977202a3692d2044f94d",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/worker/claude_agent.py",
+      "changed": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "exists": false,
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "exists": true,
+      "sha256": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/manager/test_launch.py",
+      "partial_sha256": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/tests/manager/test_launch.py",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "exists": true,
+      "sha256": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/manager/test_oci.py",
+      "partial_sha256": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/tests/manager/test_oci.py",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "exists": true,
+      "sha256": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "mode": "0o644",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/manager/test_claude_agent.py",
+      "partial_sha256": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/tests/manager/test_claude_agent.py",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "exists": true,
+      "sha256": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/tools/test_single_worker.py",
+      "partial_sha256": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/tests/tools/test_single_worker.py",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "exists": true,
+      "sha256": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "mode": "0o664",
+      "snapshot": "work/records/2026/09/finding-v12-correction-restart-proof/base-178810/v12/python/tests/tools/test_stage_execution.py",
+      "partial_sha256": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "partial_path": "work/records/2026/09/finding-v12-correction-restart-proof/partial-178810/v12/python/tests/tools/test_stage_execution.py",
+      "changed": false
+    }
+  ],
+  "patch_sha256": "1afe725364472d9310c6fe84c6d9f8fb64c9a01d09eeb47c8180cc4a1fdd81ca"
+}

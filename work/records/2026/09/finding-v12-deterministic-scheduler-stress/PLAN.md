@@ -1,5 +1,17 @@
 # Plan
 
+## Current — remaining work assigned to v13, owner 2026-09-15
+
+The latest dated FINDING ruling supersedes the immediate replacement requirement
+and current-plan language below. Keep W103525 parked; remaining operator
+replacement and broad certification are v13 work. Preserve accepted scheduling
+evidence for v12 and all historical limitations. W174357's queued design review
+is nonblocking v13 pre-work, with no implementation selected. W161234 and W156162
+retain their separate v12 obligations. Owner removed W2-on-W103525 at174710,
+verified in snapshot174711; do not close W103525 as fully certified.
+
+## Historical selected plan — superseded as specified above
+
 **Current: owner selection consolidated; return selected plan before implementation.**
 SELECTED-PLAN-161345.md is the current small-Job plan, acceptance disposition and
 operator-substitution source map. W161230 owns managed integration, W161234 owns

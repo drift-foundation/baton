@@ -1,0 +1,364 @@
+{
+  "claim": 183243,
+  "manifest": "c5b325cd3b083b0ba5fd8952c48bbd27ff1efa67e0e27c326434e95c35901cc6",
+  "checks": [
+    {
+      "path": "evidence/qualification-fixture.py",
+      "sha256": "3a5f867334fd91fadee18cfee0ee1ec3df99233ef48cb6ebd7bc8dbf79693325",
+      "matches": true
+    },
+    {
+      "path": "candidate-183197/qualification-fixture.py",
+      "sha256": "3a5f867334fd91fadee18cfee0ee1ec3df99233ef48cb6ebd7bc8dbf79693325",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/qualification-fixture.py",
+      "sha256": "08ad95e355f2702fd7273d3d3069d7466cfe8b94030e105140d49588d25bf630",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_contract.py",
+      "sha256": "2f9cac7b6b0ddbf48ad8e98a4ceba177acbc9533b2bc3346983b39feba78f84b",
+      "matches": true
+    },
+    {
+      "path": "candidate-183197/qualification_contract.py",
+      "sha256": "2f9cac7b6b0ddbf48ad8e98a4ceba177acbc9533b2bc3346983b39feba78f84b",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/qualification_contract.py",
+      "sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_worker.py",
+      "sha256": "aeec34fea71387fa06804ca0b1c41a1e78fa260a5b71f981b5454c47c8dc81ab",
+      "matches": true
+    },
+    {
+      "path": "candidate-183197/qualification_worker.py",
+      "sha256": "aeec34fea71387fa06804ca0b1c41a1e78fa260a5b71f981b5454c47c8dc81ab",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/qualification_worker.py",
+      "sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "matches": true
+    },
+    {
+      "path": "evidence/test_qualification.py",
+      "sha256": "66f729618f2b0ffc5411fc1df457db263c814e63bcdb3fd5b45f3a66fb463af9",
+      "matches": true
+    },
+    {
+      "path": "candidate-183197/test_qualification.py",
+      "sha256": "66f729618f2b0ffc5411fc1df457db263c814e63bcdb3fd5b45f3a66fb463af9",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/test_qualification.py",
+      "sha256": "315c444bd8792b50617be09b7f391ed28f799fd0ecbc348cf0eb33ef2f89fb10",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification-manifest.json",
+      "sha256": "c5b325cd3b083b0ba5fd8952c48bbd27ff1efa67e0e27c326434e95c35901cc6",
+      "matches": true
+    },
+    {
+      "path": "candidate-183197/qualification-manifest.json",
+      "sha256": "c5b325cd3b083b0ba5fd8952c48bbd27ff1efa67e0e27c326434e95c35901cc6",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/qualification-manifest.json",
+      "sha256": "dd28498767bbcaf0eeb1552549f39228c555069b6c48e939abec136fa7df2779",
+      "matches": true
+    },
+    {
+      "path": "evidence/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-183197/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "OPERATOR-178579.md",
+      "sha256": "47ff787563a8d14478745cfd06e648252bbc3f5de1089c36ca589fe317c1b245",
+      "matches": true
+    },
+    {
+      "path": "candidate-183197/OPERATOR-178579.md",
+      "sha256": "47ff787563a8d14478745cfd06e648252bbc3f5de1089c36ca589fe317c1b245",
+      "matches": true
+    },
+    {
+      "path": "candidate-183114/OPERATOR-178579.md",
+      "sha256": "c78f4c665421d0b4f9968d8af1f1c44edf639897e8caf6773ff3b97d86b5d159",
+      "matches": true
+    }
+  ],
+  "current_modes_match": 7,
+  "trigger_and_scope_hashes_match": true,
+  "results": [
+    {
+      "case": "terminal-field",
+      "field": "type",
+      "publication_failed": false,
+      "outcome": "failed",
+      "failure_code": "terminal-record-values",
+      "canary_exported": false,
+      "containers": 1,
+      "arms": 0
+    },
+    {
+      "case": "terminal-field",
+      "field": "type",
+      "publication_failed": true,
+      "outcome": "failed",
+      "failure_code": "publish-shape",
+      "canary_exported": true,
+      "containers": 1,
+      "arms": 1
+    },
+    {
+      "case": "terminal-field",
+      "field": "subtype",
+      "publication_failed": false,
+      "outcome": "failed",
+      "failure_code": "terminal-record-values",
+      "canary_exported": false,
+      "containers": 1,
+      "arms": 0
+    },
+    {
+      "case": "terminal-field",
+      "field": "subtype",
+      "publication_failed": true,
+      "outcome": "failed",
+      "failure_code": "publish-shape",
+      "canary_exported": true,
+      "containers": 1,
+      "arms": 1
+    },
+    {
+      "case": "terminal-field",
+      "field": "is_error",
+      "publication_failed": false,
+      "outcome": "failed",
+      "failure_code": "terminal-record-values",
+      "canary_exported": false,
+      "containers": 1,
+      "arms": 0
+    },
+    {
+      "case": "terminal-field",
+      "field": "is_error",
+      "publication_failed": true,
+      "outcome": "failed",
+      "failure_code": "publish-shape",
+      "canary_exported": true,
+      "containers": 1,
+      "arms": 1
+    },
+    {
+      "case": "terminal-field",
+      "field": "session_matches",
+      "publication_failed": false,
+      "outcome": "failed",
+      "failure_code": "terminal-record-values",
+      "canary_exported": false,
+      "containers": 1,
+      "arms": 0
+    },
+    {
+      "case": "terminal-field",
+      "field": "session_matches",
+      "publication_failed": true,
+      "outcome": "failed",
+      "failure_code": "publish-shape",
+      "canary_exported": true,
+      "containers": 1,
+      "arms": 1
+    },
+    {
+      "case": "terminal-field",
+      "field": "unknown_member_hashes",
+      "publication_failed": false,
+      "outcome": "failed",
+      "failure_code": "terminal-record-values",
+      "canary_exported": false,
+      "containers": 1,
+      "arms": 0
+    },
+    {
+      "case": "terminal-field",
+      "field": "unknown_member_hashes",
+      "publication_failed": true,
+      "outcome": "failed",
+      "failure_code": "publish-shape",
+      "canary_exported": true,
+      "containers": 1,
+      "arms": 1
+    },
+    {
+      "case": "terminal-field",
+      "field": "api_error_status",
+      "publication_failed": false,
+      "outcome": "failed",
+      "failure_code": "terminal-record-values",
+      "canary_exported": false,
+      "containers": 1,
+      "arms": 0
+    },
+    {
+      "case": "terminal-field",
+      "field": "api_error_status",
+      "publication_failed": true,
+      "outcome": "failed",
+      "failure_code": "publish-shape",
+      "canary_exported": true,
+      "containers": 1,
+      "arms": 1
+    },
+    {
+      "case": "target-fstat-EACCES",
+      "record": {
+        "failure_code": "unclassified",
+        "observed": {
+          "provider_exit": 0,
+          "terminal": {
+            "actual_model": "claude-fable-5",
+            "api_error_status": null,
+            "is_error": "false",
+            "members": [
+              "is_error",
+              "modelUsage",
+              "session_id",
+              "subtype",
+              "type"
+            ],
+            "model_diagnostic": "missing",
+            "model_fields": [
+              "modelUsage"
+            ],
+            "model_usage_diagnostic": "expected-only",
+            "model_usage_expected_key": true,
+            "model_usage_keys": 1,
+            "model_usage_keys_capped": false,
+            "session_id": "2586e7d3-bb1c-4917-b39c-3ffb1d8247e2",
+            "session_matches": true,
+            "subtype": "success",
+            "type": "result",
+            "unknown_member_hashes": []
+          }
+        },
+        "outcome": "failed",
+        "provider_started": true,
+        "publication": null
+      },
+      "canary_exported": false,
+      "modes_unchanged": true
+    },
+    {
+      "case": "target-fstat-EIO",
+      "record": {
+        "failure_code": "unclassified",
+        "observed": {
+          "provider_exit": 0,
+          "terminal": {
+            "actual_model": "claude-fable-5",
+            "api_error_status": null,
+            "is_error": "false",
+            "members": [
+              "is_error",
+              "modelUsage",
+              "session_id",
+              "subtype",
+              "type"
+            ],
+            "model_diagnostic": "missing",
+            "model_fields": [
+              "modelUsage"
+            ],
+            "model_usage_diagnostic": "expected-only",
+            "model_usage_expected_key": true,
+            "model_usage_keys": 1,
+            "model_usage_keys_capped": false,
+            "session_id": "4f0882cb-d888-4e1c-a4a6-65eb7671bbf5",
+            "session_matches": true,
+            "subtype": "success",
+            "type": "result",
+            "unknown_member_hashes": []
+          }
+        },
+        "outcome": "failed",
+        "provider_started": true,
+        "publication": null
+      },
+      "canary_exported": false,
+      "modes_unchanged": true
+    },
+    {
+      "case": "target-fstat-ENOENT",
+      "record": {
+        "failure_code": "unclassified",
+        "observed": {
+          "provider_exit": 0,
+          "terminal": {
+            "actual_model": "claude-fable-5",
+            "api_error_status": null,
+            "is_error": "false",
+            "members": [
+              "is_error",
+              "modelUsage",
+              "session_id",
+              "subtype",
+              "type"
+            ],
+            "model_diagnostic": "missing",
+            "model_fields": [
+              "modelUsage"
+            ],
+            "model_usage_diagnostic": "expected-only",
+            "model_usage_expected_key": true,
+            "model_usage_keys": 1,
+            "model_usage_keys_capped": false,
+            "session_id": "df921e5e-0a0f-4d4b-938a-04f4838fcb57",
+            "session_matches": true,
+            "subtype": "success",
+            "type": "result",
+            "unknown_member_hashes": []
+          }
+        },
+        "outcome": "failed",
+        "provider_started": true,
+        "publication": null
+      },
+      "canary_exported": false,
+      "modes_unchanged": true
+    },
+    {
+      "case": "malformed-publication-check",
+      "raised": "TypeError"
+    },
+    {
+      "case": "malformed-publication-errno",
+      "raised": "TypeError"
+    }
+  ],
+  "seconds": 0.011679835966788232,
+  "source_unchanged": true,
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "scope": "synthetic same-UID controller and actual worker.main; provider/engine fake; no subprocesses or live/private roots; helper temporary trees cleaned"
+}

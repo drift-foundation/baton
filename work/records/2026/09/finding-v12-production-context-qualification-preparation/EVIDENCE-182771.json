@@ -1,0 +1,157 @@
+{
+  "R1": {
+    "correction": "traversal anchored at the verified home with every component opened relative to its verified parent descriptor; O_NONBLOCK so a special-file substitution cannot block before fstat; a multi-link regular selected file refused before any mode change (new code publish-alias)",
+    "defect": "O_NOFOLLOW bound only each object's FINAL component, and the session was reopened by pathname after its directory had been verified. Reviewer demonstrated: a symlinked .claude/projects published an object OUTSIDE HOME; a rename-and-replace race redirected the change to a decoy; a hardlinked session was chmodded through its alias, which the manager's later hardlink refusal cannot undo.",
+    "tests": [
+      "test_a_symlinked_ancestor_cannot_reach_outside_the_home",
+      "test_a_swap_between_check_and_open_cannot_redirect_the_change",
+      "test_a_hardlinked_session_refuses_before_any_mode_change",
+      "test_a_special_file_substitution_cannot_hang_the_open"
+    ]
+  },
+  "R2": {
+    "correction": "the complete bounded name/type/ownership/shape survey runs and the target descriptors are acquired BEFORE the first fchmod; the expected credential link is still checked by readlink and never opened",
+    "defect": "publish checked one directory and the expected filename only, so a foreign session, a nested session and a credential-shaped entry each still published and moved the selected file 0600->0640 before anything refused",
+    "tests": [
+      "test_forbidden_layouts_refuse_and_change_nothing (foreign, nested, credential-shaped, second project, each with before/after modes asserted)",
+      "test_a_wrong_uid_object_refuses_on_its_own (the existing test varied GID, not UID)",
+      "test_the_expected_credential_link_is_checked_and_never_opened"
+    ]
+  },
+  "R3": {
+    "correction": "a closed `cause` carries the wrapped errno across the refusal; the projection boundary states both relationships -- only an os-error has an errno of its own, only a known-refusal can have wrapped a cause",
+    "defect": "the coverage refusal discarded the errno it was raised for, reporting known-refusal/none -- and my own test asserted that loss while its name claimed the opposite",
+    "tests": [
+      "test_the_coverage_refusal_keeps_the_errno_it_was_raised_for (EACCES/EIO/ENOENT at the real scandir seam)",
+      "test_the_stat_seam_carries_its_cause_too (unmocked 0o600 directory)",
+      "test_every_collection_step_reports_its_own_closed_triple (the eight-step x four-kind matrix injected at the REAL operations, selected by argument predicate rather than call-occurrence)"
+    ]
+  },
+  "claim": 182771,
+  "corrects": {
+    "base_manifest": "3b0020baf600335d6e7f2d999f6b01e70507e4c515a8c3c7ee4f8a3e24824bde",
+    "review": "review-2026-09-16T00-41-09Z.md",
+    "sha256": "a47b7cb76bafdd774cd21f5d95e4fb4266835f133af2164583aabbf0950d549e"
+  },
+  "evidence_attributions_corrected": [
+    "the observed operator result is opendir:EACCES on a runtime-owned 0o700 directory; the 0o600/stat seam is an additional synthetic regression, which I had presented as the observed shape",
+    "the collection failure is identity 180078; 179075 was the earlier initial-artifact failure",
+    "mixed permissive/restrictive modes do not alone prove a chmod -- different requested creation modes share one umask. What survives is the part that matters: an explicitly requested 0o600 cannot be made group-readable by loosening umask, so a umask change cannot fix this"
+  ],
+  "fake_engine": "now calls the REAL worker.publish rather than simulating it, so the composed controller case exercises the code under test; the blocked directory's mode is dropped AFTER publication because the worker owns it and the manager does not, a difference same-UID fixtures cannot otherwise express",
+  "files": [
+    {
+      "base_sha256": "5854895e7c1519a85df95057663e00139a18f2f2d0c3953dfca19316cdcab910",
+      "candidate_sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-182771/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "d6443e55b70c8a65480cc8f19ced56cce18d0030bf56a95f705f13d662075927",
+      "candidate_sha256": "811d06811fd1bfd1d356971c39a1a5a6e28c3962a2707dc73074656df8807a41",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-182771/qualification_contract.py"
+    },
+    {
+      "base_sha256": "2bbc7e663a662da2f0d29f0e31b9b01741cb328801c77db0d5466ab33ce5a9ce",
+      "candidate_sha256": "9e8c355bca2e8b4645ba43ea5463fb204f2f6945f16151f0ed06e86581cb993b",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-182771/qualification_worker.py"
+    },
+    {
+      "base_sha256": "cba1f4af6a240df1d243f354ee323cbb122d46acc405226e4f4496a11889ef03",
+      "candidate_sha256": "78a8e9995e3449176d48c1d97c07631cd350cc1ff613baa7c467dd6e5891d010",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-182771/test_qualification.py"
+    },
+    {
+      "base_sha256": "3b0020baf600335d6e7f2d999f6b01e70507e4c515a8c3c7ee4f8a3e24824bde",
+      "candidate_sha256": "f6b954ccb2e68bca9d44d0afdfdca1a3b18ff25f2ac96cb630463b1f405e06ba",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-182771/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-182771/verify-offline.py"
+    },
+    {
+      "base_sha256": "3b65a7362f7952fbcb1766a9df15c5590380db03dfb5c53ad0bf2fbd704b3b5e",
+      "candidate_sha256": "5c5cd0a2c4f2d4fef900395b9db3517a1afc2aae5e8f8c9b49744c64d728fef7",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-182771/OPERATOR-178579.md"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.3638601779821329,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "7d4634a6c0c19393659b93d13986ae4586357b337489010955f8b9a1886b6e85",
+    "manifest_sha256": "f6b954ccb2e68bca9d44d0afdfdca1a3b18ff25f2ac96cb630463b1f405e06ba",
+    "pid": 3755058,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "gaps": {
+    "G1": "partial; model unqualified",
+    "G2": "unobserved",
+    "G3": "unobserved",
+    "G4": "first-use only",
+    "G5": "unobserved",
+    "G6": "first-use only",
+    "G7": "qualification-only image selection",
+    "G8": "not composed"
+  },
+  "manifest_sha256": "f6b954ccb2e68bca9d44d0afdfdca1a3b18ff25f2ac96cb630463b1f405e06ba",
+  "not_done": [
+    "private-tree inspection",
+    "consumed-root repair",
+    "live execution",
+    "fresh identity",
+    "product expansion",
+    "model-policy change",
+    "chmod or chown of either consumed tree",
+    "version-control operations"
+  ],
+  "operator_packet_sha256": "5c5cd0a2c4f2d4fef900395b9db3517a1afc2aae5e8f8c9b49744c64d728fef7",
+  "owner_selection": 182768,
+  "preserved": [
+    "turn-2 no-op and the restored 0o660 contract",
+    "complete-structure refusal",
+    "the strict model, artifact and continuity contracts",
+    "the image, run identity and limits"
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "split": "publish-without-ownership became publish-without-uid-check and publish-without-gid-check, since ownership is two conditions",
+    "superseded": "the claim182264 publish-follows-symlinks probe was removed: R1 replaced final-component O_NOFOLLOW with a descriptor chain, so its target line no longer exists and publish-follows-ancestors is the meaningful reversal. Recorded rather than silently dropped.",
+    "total": 28
+  },
+  "tests": {
+    "after": 94,
+    "before": 85,
+    "outcome": "OK"
+  },
+  "work": "W177936"
+}

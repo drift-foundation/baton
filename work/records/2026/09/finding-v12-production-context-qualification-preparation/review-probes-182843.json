@@ -1,0 +1,272 @@
+{
+  "claim": 182843,
+  "candidate_manifest": "f6b954ccb2e68bca9d44d0afdfdca1a3b18ff25f2ac96cb630463b1f405e06ba",
+  "checks": [
+    {
+      "path": "evidence/qualification-fixture.py",
+      "sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/qualification-fixture.py",
+      "sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/qualification-fixture.py",
+      "sha256": "5854895e7c1519a85df95057663e00139a18f2f2d0c3953dfca19316cdcab910",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_contract.py",
+      "sha256": "811d06811fd1bfd1d356971c39a1a5a6e28c3962a2707dc73074656df8807a41",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/qualification_contract.py",
+      "sha256": "811d06811fd1bfd1d356971c39a1a5a6e28c3962a2707dc73074656df8807a41",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/qualification_contract.py",
+      "sha256": "d6443e55b70c8a65480cc8f19ced56cce18d0030bf56a95f705f13d662075927",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_worker.py",
+      "sha256": "9e8c355bca2e8b4645ba43ea5463fb204f2f6945f16151f0ed06e86581cb993b",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/qualification_worker.py",
+      "sha256": "9e8c355bca2e8b4645ba43ea5463fb204f2f6945f16151f0ed06e86581cb993b",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/qualification_worker.py",
+      "sha256": "2bbc7e663a662da2f0d29f0e31b9b01741cb328801c77db0d5466ab33ce5a9ce",
+      "matches": true
+    },
+    {
+      "path": "evidence/test_qualification.py",
+      "sha256": "78a8e9995e3449176d48c1d97c07631cd350cc1ff613baa7c467dd6e5891d010",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/test_qualification.py",
+      "sha256": "78a8e9995e3449176d48c1d97c07631cd350cc1ff613baa7c467dd6e5891d010",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/test_qualification.py",
+      "sha256": "cba1f4af6a240df1d243f354ee323cbb122d46acc405226e4f4496a11889ef03",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification-manifest.json",
+      "sha256": "f6b954ccb2e68bca9d44d0afdfdca1a3b18ff25f2ac96cb630463b1f405e06ba",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/qualification-manifest.json",
+      "sha256": "f6b954ccb2e68bca9d44d0afdfdca1a3b18ff25f2ac96cb630463b1f405e06ba",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/qualification-manifest.json",
+      "sha256": "3b0020baf600335d6e7f2d999f6b01e70507e4c515a8c3c7ee4f8a3e24824bde",
+      "matches": true
+    },
+    {
+      "path": "evidence/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "OPERATOR-178579.md",
+      "sha256": "5c5cd0a2c4f2d4fef900395b9db3517a1afc2aae5e8f8c9b49744c64d728fef7",
+      "matches": true
+    },
+    {
+      "path": "candidate-182771/OPERATOR-178579.md",
+      "sha256": "5c5cd0a2c4f2d4fef900395b9db3517a1afc2aae5e8f8c9b49744c64d728fef7",
+      "matches": true
+    },
+    {
+      "path": "candidate-182264/OPERATOR-178579.md",
+      "sha256": "3b65a7362f7952fbcb1766a9df15c5590380db03dfb5c53ad0bf2fbd704b3b5e",
+      "matches": true
+    }
+  ],
+  "results": [
+    {
+      "case": "healthy",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "victim_before": "0o600",
+      "victim_after": "0o640",
+      "same_victim_inode": true,
+      "subsequent_inventory": "accepted",
+      "project_open_calls": 0
+    },
+    {
+      "case": "symlinked-projects-parent",
+      "outcome": "publish-shape",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "state-type",
+      "project_open_calls": 0
+    },
+    {
+      "case": "hardlinked-session",
+      "outcome": "publish-alias",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "state-hardlink",
+      "project_open_calls": 0
+    },
+    {
+      "case": "foreign-session",
+      "outcome": "publish-shape",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "accepted",
+      "project_open_calls": 0
+    },
+    {
+      "case": "nested-session",
+      "outcome": "publish-shape",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "accepted",
+      "project_open_calls": 0
+    },
+    {
+      "case": "direct-credential",
+      "outcome": "publish-shape",
+      "published": null,
+      "victim_before": "0o600",
+      "victim_after": "0o600",
+      "same_victim_inode": true,
+      "subsequent_inventory": "unexpected-credential-entry",
+      "project_open_calls": 0
+    },
+    {
+      "case": "credential-in-home-cache",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "victim_before": "0o600",
+      "victim_after": "0o640",
+      "same_victim_inode": true,
+      "subsequent_inventory": "unexpected-credential-entry",
+      "project_open_calls": 0
+    },
+    {
+      "case": "credential-in-claude-cache",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "victim_before": "0o600",
+      "victim_after": "0o640",
+      "same_victim_inode": true,
+      "subsequent_inventory": "unexpected-credential-entry",
+      "project_open_calls": 0
+    },
+    {
+      "case": "unrelated-symlink",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "victim_before": "0o600",
+      "victim_after": "0o640",
+      "same_victim_inode": true,
+      "subsequent_inventory": "state-type",
+      "project_open_calls": 0
+    },
+    {
+      "case": "regular-project-replacement",
+      "outcome": "published",
+      "published": {
+        "project_mode": "0o2750",
+        "session_mode": "0o640"
+      },
+      "victim_before": "0o600",
+      "victim_after": "0o640",
+      "same_victim_inode": true,
+      "subsequent_inventory": "unexpected-credential-entry",
+      "project_open_calls": 2,
+      "surveyed_original_mode_after": "0o600"
+    },
+    {
+      "case": "coverage-EACCES",
+      "code": "state-coverage-incomplete",
+      "detail": {
+        "step": "source-inventory",
+        "category": "known-refusal",
+        "errno": "none",
+        "cause": "EACCES"
+      },
+      "cause_matches": true,
+      "canary_absent": true,
+      "valid": true
+    },
+    {
+      "case": "coverage-EIO",
+      "code": "state-coverage-incomplete",
+      "detail": {
+        "step": "source-inventory",
+        "category": "known-refusal",
+        "errno": "none",
+        "cause": "EIO"
+      },
+      "cause_matches": true,
+      "canary_absent": true,
+      "valid": true
+    },
+    {
+      "case": "coverage-ENOENT",
+      "code": "state-coverage-incomplete",
+      "detail": {
+        "step": "source-inventory",
+        "category": "known-refusal",
+        "errno": "none",
+        "cause": "ENOENT"
+      },
+      "cause_matches": true,
+      "canary_absent": true,
+      "valid": true
+    }
+  ],
+  "seconds": 0.0028731600032188,
+  "source_unchanged": true,
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "scope": "synthetic same-UID trees; no real private roots, credentials, engine or model; no child processes; owned temporary directories cleaned"
+}

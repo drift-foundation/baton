@@ -1,0 +1,98 @@
+{
+  "work": "W61599",
+  "review_claim": 178572,
+  "candidate_manifest_sha256": "acabca2d229f984a647626d6feb5244d4d1d0bea95c80b025f802ca9194138b3",
+  "started_utc": "2026-09-15T14:06:36.401406+00:00",
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-live-worker-log-observability/correction-178427/run-focused.py",
+    "focused"
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "referencing": "0.37.0",
+    "jsonschema-specifications": "2025.9.1",
+    "attrs": "26.1.0",
+    "rpds-py": "2026.6.3"
+  },
+  "files_before": [
+    {
+      "path": "baton:v12/worker/claude_agent.py",
+      "sha256": "bbca3ad5eac9c734ab2891baf77d8be4f9fa8beb58a1dc16c5f9f82d7aba60b6",
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/worker/baton_worker.py",
+      "sha256": "75ff8ab7d336ce1b170e31a0d3ede6c0d9c7374f9d99524922e4267f5137aab4",
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/exchange.py",
+      "sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/tools/single_worker.py",
+      "sha256": "0327cc49571f2cb20c5d1b56742167fb0595c8f559b1349eed0c58afe52283e3",
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "30c4d4fe347697f1bc3953bda3c027be6fbe02ff45b820854c40023f1bd99cf6",
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/tools/dogfood_operator.py",
+      "sha256": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "78cf80839ba27433e331654b38bac26381a23620e6dc0a39f89c1059c6ccebf3",
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_exchange.py",
+      "sha256": "63e12bd43093b645f21171f1b9c15676d7de98407148368ddbb5184e53799f5a",
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_single_worker.py",
+      "sha256": "8ee991c815644c2bc7431299914b2626a1bce04fa3af8db0cd09736bf720a01d",
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "60cafef6de3c69faccd939d11052b4ebb2e02e58c410037a4bc7672fec4d6e70",
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_dogfood_operator.py",
+      "sha256": "2d809e1a2823c429b82c20ff9f0b4d9ef84f38587f2566836c03192277d61228",
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_dependencies.py",
+      "sha256": "e7a2a53f43ec9c77347d43d3a839f0be750ff85607685880b6e47266d0065831",
+      "mode": "0o644"
+    }
+  ],
+  "verified_evidence_files": 56,
+  "timeout_seconds": 60,
+  "termination_signals": [],
+  "pgid": 3,
+  "exit_code": 0,
+  "process_group_absent": true,
+  "elapsed_seconds": 7.170285156025784,
+  "log_sha256": "2a6d2967f9ed6a8041634313efa5128a2fb09fcfb2a2336082bad401dc787eee",
+  "files_after_match": true,
+  "test_receipt": {
+    "elapsed_seconds": 7.11936305501149,
+    "errors": [],
+    "failures": [],
+    "live_threads": [],
+    "mode": "focused",
+    "tests": 82
+  }
+}

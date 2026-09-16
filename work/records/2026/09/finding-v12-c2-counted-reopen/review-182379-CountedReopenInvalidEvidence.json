@@ -1,0 +1,390 @@
+{
+  "claim": 182379,
+  "selector": "CountedReopenInvalidEvidence",
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_correction_restart.CountedReopenInvalidEvidence"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "attrs": "26.1.0",
+    "rpds-py": "2026.6.3"
+  },
+  "seconds": 3.217164159985259,
+  "status": 0,
+  "timeout": false,
+  "group_gone": true,
+  "signals": [],
+  "reaped": [
+    [
+      8,
+      0
+    ],
+    [
+      37,
+      0
+    ],
+    [
+      114,
+      0
+    ],
+    [
+      180,
+      0
+    ],
+    [
+      193,
+      0
+    ],
+    [
+      224,
+      0
+    ],
+    [
+      243,
+      0
+    ],
+    [
+      304,
+      0
+    ],
+    [
+      353,
+      0
+    ]
+  ],
+  "source_stable": true,
+  "provenance": [
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/CANDIDATE-182279.json",
+      "sha256": "055b765cf539d472fda98dabc173973162214babbd51a97b758d70499086b628",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/EVIDENCE-182279.json",
+      "sha256": "9091bf68a01b80484af3389f9652d2780eb3da44e464550e911058bbc644af27",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/HANDOFF-182279.md",
+      "sha256": "a761b60073499c124d98cb019160ac6b83a72a65f226a50ee1ae1241c30ab012",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/candidate-182279/v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "mode": "0o444"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/base-182279/v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "b40057b231c0c102a2b67790c02ed2f506169caa364a6763c28dd4064684422f",
+      "mode": "0o444"
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/candidate-182279/v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "mode": "0o444"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/base-182279/v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "a9a861f732331b5b4dae839a028d4b27a0316da2599f5f9f610d42973803cfae",
+      "mode": "0o444"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "bc3bf48d5c2fcf8edce7de7171fae86b3871fc1c6d7a3879f26d49b9202e1d2e",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "faf677c2fbf5c8e928f460f8db6853bc11f3a66e6ed78f5f33faefe68c799a81",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "d0503d09efc0ae28653805808348c352e3caa078df10e0a1d418c91eeb1df61c",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "sha256": "0b5a94bc86b22ef88a0b95ae9ae257ba33bef33841d11876c91a744d7d8bd0c7",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "sha256": "5b650d6ace4bb6fd156437921525bcfbedc688f9d28b7f3048f50ecd82f35e04",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "sha256": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "sha256": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "sha256": "10f26dab90accd018eab60fd946a249b6247b21dd99416ed7e5b3acd5efd1a91",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "3d5bedf0b92fdda83fd2b03eb4dabb279e533e204ec5b059a05d16f492e78ac8",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "6a3ad634f3902a06112d28746ccff900dbe9f6e5ce07fcbd7e23fb4aca55ccc8",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "34887b7835e9a31b38949e6725ea0d0c0e721fa454f075b6b46cbc437d5c75c3",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/manager/test_launch.py",
+      "sha256": "06896740b8ec7048bafebf1702c23e579b3717bb8fcaf6b8f9c55962e7a573f0",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "sha256": "765a5afb5787c1ac006408bf4609bc4b102658790daafab46dccd65f02cdb1cb",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "d04c703be64e2f8ba764292fb0fa4386f076e5321bab68605703cf1b29eca95b",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "86153c4e853df8f3e97945403a620809a399a539748990729dc526d216ec3628",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/scheduler_trace.py",
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/test_scheduler_trace.py",
+      "sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_integration.py",
+      "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/requirements.lock",
+      "sha256": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/pyproject.toml",
+      "sha256": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/worker/reconciliation_task.py",
+      "sha256": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+      "mode": "0o644"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/review-2026-09-15T19-18-29Z.md",
+      "sha256": "dad640dbc106f8772ba9129bb7dbec6b9243c33e4eb993a8210ad7ac45172d2d",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/CANDIDATE-180423.json",
+      "sha256": "2e7107ecbfc133374e1811e33e99e3764924c20f90ceb22ab71683a00d834499",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c1-useful-correction/EVIDENCE-180423.json",
+      "sha256": "7ebf7dcf65b6e2242cb8ced6d200da7f6f94486c259b6e9f6f92d5a7a3932659",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/BASE-182279.json",
+      "sha256": "471973e0fad0e6a06266653ce52f6838a4801e083b03797ef660ab0da84d02ab",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/candidate-182279.patch",
+      "sha256": "9cb81d2096b9e09b3b1265a7662810bd20ef332cceb920932a1e954ec357fd82",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/BASE-182279.json",
+      "sha256": "471973e0fad0e6a06266653ce52f6838a4801e083b03797ef660ab0da84d02ab",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/verify-182279.py",
+      "sha256": "37e6e3bbac1e0c2b52d55919300a2c661823f44dced6363820e361f7f8f5c228",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/package-182279.py",
+      "sha256": "67e99e45831da0fa9f0207019da744a24d51de20cc3f2ca12ebc2a54f7cf2626",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/trace-C-182279-6.json",
+      "sha256": "60a820ee5047acb34f8c0c54ab39f651bf138c3c1dfbfaef9d79c084a4bc86bc",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/trace-C-182279-7.json",
+      "sha256": "2c25d3ff2a2c50886b88508ad120cb3f65a05c4015e7766da5e025b86519fa26",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/trace-C-182279-8.json",
+      "sha256": "cbc19e36ed3ee5ade1991372a036ead2475aa0e75c41e5874a4360f588e35b5c",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/trace-C-182279-9.json",
+      "sha256": "b18d96a4f2a46207b0771f2566daf431b997bf3b8f3f6f0ca04687922a38649e",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-1.json",
+      "sha256": "3708f2997045f64cd49bf3c3a78871503f26bcafb58e57c796fe96d95195a94a",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-1.log",
+      "sha256": "94ba005fdbd188b1691f2a0dca418482a55dae3b0295cf27d8864a3a011d1215",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-2.json",
+      "sha256": "b5d8572d138f8d09bb8cf91702e582cc706e38bf83a15e2a9d3bda8fb49a43e3",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-2.log",
+      "sha256": "47c25ffff91ce6497106ab1df3ed1767e6bd014d3008113d851dd29a2767d068",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-3.json",
+      "sha256": "0235c1850ff975f620af717b7a9754bbf6315cebdc6e639b83701de829eb66cd",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-3.log",
+      "sha256": "b0ef50cffd8485b4e641c4e50f53824bb31b5c538478024f5d8989d005eaeb21",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-4.json",
+      "sha256": "0880fbde126da2c5dcf63a4bb29c560e079c3ebb8d44432394c256e321b5fb0c",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-4.log",
+      "sha256": "1cc2ca122cb2a778901f64b75710d454e7a3f2c93ac347f91e8e3a14847a7480",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-5.json",
+      "sha256": "ea072aa6a5250b6544c9e256192b0105998a2451f29bbc4ea87d645ced357f55",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-5.log",
+      "sha256": "ded80a534ca442285d4426acae9a3161a63f33d30cb1a1231ed25930c2145ccb",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-6.json",
+      "sha256": "4236ebaa1a59c16568e7a6e37913710b3d87798fe18fdae8647ce9f6dbc027eb",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-6.log",
+      "sha256": "e9e6ed75aaaff7e42b7e26fec4ae7487ca7dc66326a8c9d54507055ac7ad1d96",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-7.json",
+      "sha256": "a404582c37318b515f3edd780367dcf127594aa6b81aad5cccfc9a9c9a7287c1",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-7.log",
+      "sha256": "4eb96ee59739bdad2ae7de0026771695802e9cef39cf6bbe81274e7068954727",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-8.json",
+      "sha256": "eed573430ad7533b3951cb5a7e8d0ab126eaece2ed93d5e916440b86c8a9b636",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-8.log",
+      "sha256": "3e536fed28fde581f31654be9f4f3f743a52ac92e356518f94c460bed83f55fe",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-9.json",
+      "sha256": "bb07e4d4974e001e1dcea9cffd661d6d0c9a33abbf0202be1a1bb79e4561cc74",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-c2-counted-reopen/run-C-182279-9.log",
+      "sha256": "ce1c207b8b14637e086ff81a3b62c523cb2a379d8e02c9671a6c688b3fbe2894",
+      "mode": "0o664"
+    }
+  ],
+  "C1_classes_unchanged": true,
+  "trace_sha256": "71c7381de9dc969d125744a4bbfd6a287e614dad4245ee8b8a29eb9d465fd61e",
+  "log_sha256": "007bbf2ee20ccb869a45a1c2deff5ae5723c8640a80c643f3d325f284de01167"
+}

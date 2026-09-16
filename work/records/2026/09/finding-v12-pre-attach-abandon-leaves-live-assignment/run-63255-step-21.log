@@ -1,0 +1,15 @@
+........................................................................................................................................................................................................................................................................................................................F...............................................
+======================================================================
+FAIL: test_a_requested_start_refuses_the_pre_attach_fence (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_requested_start_refuses_the_pre_attach_fence)
+THE RACE, in the order where the start won.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_dogfood_operator.py", line 7439, in test_a_requested_start_refuses_the_pre_attach_fence
+    with self.assertRaises(ContractRefusal) as refused:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 360 tests in 4.060s
+
+FAILED (failures=1)

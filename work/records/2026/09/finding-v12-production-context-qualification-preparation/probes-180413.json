@@ -1,0 +1,102 @@
+{
+  "probes": [
+    {
+      "probe": "no-link-skip",
+      "reverts": "links are no longer counted as unfollowed",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_links_are_counted_and_never_followed"
+      ]
+    },
+    {
+      "probe": "no-credential-skip",
+      "reverts": "credential-shaped entries are descended into",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_credential_shaped_entries_are_skipped_not_opened"
+      ]
+    },
+    {
+      "probe": "follow-symlinks-on-stat",
+      "reverts": "entry metadata follows links to their target",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_clean_tree_reports_complete",
+        "test_aggregates_only_and_the_closed_group_shape",
+        "test_links_are_counted_and_never_followed",
+        "test_the_source_cannot_read_follow_or_write"
+      ]
+    },
+    {
+      "probe": "opendir-follows",
+      "reverts": "a symlinked component is followed instead of refused",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_symlinked_home_component_is_refused_not_walked",
+        "test_the_source_cannot_read_follow_or_write"
+      ]
+    },
+    {
+      "probe": "no-truncation-flag",
+      "reverts": "a truncated walk reports as complete",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_the_entry_cap_truncates_and_says_so"
+      ]
+    },
+    {
+      "probe": "no-depth-flag",
+      "reverts": "a depth-limited walk reports as complete",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_the_depth_cap_stops_and_says_so"
+      ]
+    },
+    {
+      "probe": "no-timeout-flag",
+      "reverts": "a timed-out walk reports as complete",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_the_wall_bound_stops_and_says_so"
+      ]
+    },
+    {
+      "probe": "names-in-the-export",
+      "reverts": "a discovered name becomes part of the exported aggregate key",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_a_clean_tree_reports_complete",
+        "test_absent_home_is_absent_not_an_error",
+        "test_aggregates_only_and_the_closed_group_shape",
+        "test_an_unopenable_directory_reports_an_opendir_error",
+        "test_an_unreadable_nested_file_is_classified_not_opened",
+        "test_an_unsearchable_directory_reports_a_stat_error",
+        "test_credential_shaped_entries_are_skipped_not_opened",
+        "test_links_are_counted_and_never_followed",
+        "test_no_descriptor_is_leaked",
+        "test_no_name_content_or_link_target_reaches_the_export",
+        "test_the_depth_cap_stops_and_says_so",
+        "test_the_entry_cap_truncates_and_says_so",
+        "test_the_report_is_closed_and_json_safe",
+        "test_the_walk_does_not_modify_the_tree"
+      ]
+    },
+    {
+      "probe": "opendir-errors-swallowed",
+      "reverts": "an unsearchable directory becomes a silent gap",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_an_unopenable_directory_reports_an_opendir_error"
+      ]
+    },
+    {
+      "probe": "permissive-bit-order",
+      "reverts": "owner bits are skipped, so the group/other answer is used for owned files",
+      "exit_code": 1,
+      "failing_tests": [
+        "test_permission_bits_follow_the_kernels_order"
+      ]
+    }
+  ],
+  "note": "each probe reverts one guard in an isolated copy; every probe must fail"
+}

@@ -1,0 +1,57 @@
+test_a_declaration_this_workload_does_not_know_is_refused (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_a_declaration_this_workload_does_not_know_is_refused) ... ok
+test_a_review_turn_answers_the_proposal_absent (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_a_review_turn_answers_the_proposal_absent) ... ok
+test_a_review_turn_needs_both_of_its_own_outputs (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_a_review_turn_needs_both_of_its_own_outputs) ... ok
+test_the_other_stages_output_may_not_be_declared_required (tests.manager.test_claude_agent.TheSharedJobDeclaresBothStagesOutputs.test_the_other_stages_output_may_not_be_declared_required) ... ok
+test_a_directory_replaced_before_scanning_cannot_redirect_the_scan (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_directory_replaced_before_scanning_cannot_redirect_the_scan) ... ok
+test_a_disappearing_file_freezes_the_total (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_disappearing_file_freezes_the_total) ... ok
+test_a_home_that_does_not_exist_yet_is_unknown_and_not_a_zero (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_home_that_does_not_exist_yet_is_unknown_and_not_a_zero) ... ok
+test_a_link_pointing_at_a_large_file_is_not_followed (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_link_pointing_at_a_large_file_is_not_followed) ... ok
+test_a_real_turn_observes_growth_before_it_completes (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_real_turn_observes_growth_before_it_completes)
+THE NORMAL ADAPTER BOUNDARY, with a deterministic provider standing ... ok
+test_a_replaced_root_link_never_counts_foreign_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_root_link_never_counts_foreign_activity) ... ok
+test_a_replaced_smaller_file_freezes_rather_than_going_backwards (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_replaced_smaller_file_freezes_rather_than_going_backwards)
+THE FORMULA THAT WOULD HAVE LIED. `sum(max(0, size - baseline))` ... ok
+test_a_scratch_this_process_made_counts_from_the_first_byte (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_scratch_this_process_made_counts_from_the_first_byte)
+PROVED BY CONSTRUCTION. `tempfile.mkdtemp` answers a directory this ... ok
+test_a_second_file_contributes_its_whole_size_once (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_second_file_contributes_its_whole_size_once) ... ok
+test_a_total_past_the_ceiling_is_unknown_rather_than_reported (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_a_total_past_the_ceiling_is_unknown_rather_than_reported)
+THE COUNT THIS READER COULD NOT COMPARE. A total outside the range ... ok
+test_an_agent_that_never_launched_a_provider_observes_nothing (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_an_agent_that_never_launched_a_provider_observes_nothing) ... ok
+test_an_injected_or_reused_home_is_unknown_for_the_whole_operation (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_an_injected_or_reused_home_is_unknown_for_the_whole_operation)
+AN UNPROVED HOME IS NEVER ESTIMATED. No scan reconstructs a baseline ... ok
+test_directory_acquisition_rejects_replacement_and_closes_descriptors (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_directory_acquisition_rejects_replacement_and_closes_descriptors) ... ok
+test_exceeding_the_depth_yields_unknown_rather_than_a_sample (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_depth_yields_unknown_rather_than_a_sample) ... ok
+test_exceeding_the_entry_bound_yields_unknown (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_entry_bound_yields_unknown)
+A SCAN THAT OVERRAN ITS BOUND REPORTS UNKNOWN RATHER THAN WHAT IT ... ok
+test_exceeding_the_tracked_file_bound_yields_unknown (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_exceeding_the_tracked_file_bound_yields_unknown) ... ok
+test_other_home_growth_is_not_activity (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_other_home_growth_is_not_activity) ... ok
+test_restored_history_under_an_unproved_home_fabricates_nothing (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_restored_history_under_an_unproved_home_fabricates_nothing) ... ok
+test_the_credential_symlink_is_never_counted (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_credential_symlink_is_never_counted)
+EXCLUDED TWICE OVER: it is a symlink, which the regular-file test ... ok
+test_the_launch_path_performs_no_scan_and_no_stat (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_launch_path_performs_no_scan_and_no_stat)
+THE BASELINE IS ADMITTED, NOT MEASURED. An earlier revision of this ... ok
+test_the_total_is_monotonic_across_growth (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_the_total_is_monotonic_across_growth) ... ok
+test_truncation_freezes_the_total (tests.manager.test_claude_agent.TheNativeSessionActivityObservation.test_truncation_freezes_the_total)
+FROZEN, NOT MERELY UNREDUCED. A file truncated IN PLACE keeps its ... ok
+test_a_mismatched_credential_mount_is_refused_and_stopped (tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst.test_a_mismatched_credential_mount_is_refused_and_stopped)
+Exactly identified, and what disagrees is what it has mounted. ... ok
+test_a_record_naming_another_runtime_is_refused_without_adopting (tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst.test_a_record_naming_another_runtime_is_refused_without_adopting)
+The live runtime is not the one this manager's record names. ... ok
+test_the_exact_recovery_adopts_through_the_public_proof (tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst.test_the_exact_recovery_adopts_through_the_public_proof)
+The positive case: the engine is ASKED before any bearer is ... ok
+test_a_mismatched_credential_mount_is_refused_and_stopped (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_mismatched_credential_mount_is_refused_and_stopped)
+Exactly identified, and what disagrees is what it has mounted. ... ok
+test_a_missing_launch_delivery_after_the_start_is_ended_and_named (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_missing_launch_delivery_after_the_start_is_ended_and_named)
+Re-review 2026-09-03T18:49:20Z [P1]: refusing was not enough. ... ok
+test_a_missing_launch_delivery_before_a_start_is_authored_once (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_missing_launch_delivery_before_a_start_is_authored_once)
+The other side of the same rule: before a start, absence is ... ok
+test_a_record_naming_another_runtime_is_refused_without_adopting (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_record_naming_another_runtime_is_refused_without_adopting)
+The live runtime is not the one this manager's record names. ... ok
+test_the_exact_recovery_adopts_through_the_public_proof (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_the_exact_recovery_adopts_through_the_public_proof)
+The positive case: the engine is ASKED before any bearer is ... ok
+test_an_engine_that_denies_the_start_reports_its_own_refusal (tests.tools.test_single_worker.ARealStartRefusalKeepsItsOwnAccount.test_an_engine_that_denies_the_start_reports_its_own_refusal) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.710s
+
+OK

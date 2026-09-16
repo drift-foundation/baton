@@ -1,0 +1,15 @@
+...F..
+======================================================================
+FAIL: test_a_migrated_job_with_no_limits_row_still_answers (tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery.test_a_migrated_job_with_no_limits_row_still_answers)
+And the compatibility this must NOT break: a Job the store really
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 4476, in test_a_migrated_job_with_no_limits_row_still_answers
+    self.assertGreaterEqual(schema.SCHEMA_VERSION, 99)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 6 not greater than or equal to 99
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.013s
+
+FAILED (failures=1)

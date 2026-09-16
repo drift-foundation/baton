@@ -1,0 +1,32 @@
+test_an_interruption_after_the_fence_resumes_one_authority_effect (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_interruption_after_the_fence_resumes_one_authority_effect)
+CUT TWO, for real: the fence COMMITS at the authority and the ... ok
+test_the_fence_adopts_the_declarations_own_operation_and_reason (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_fence_adopts_the_declarations_own_operation_and_reason)
+THE ADOPTED VALUES, not freshly derived ones. A resumed call must ... ok
+test_a_pre_attach_abandonment_resolves_and_releases_the_assignment (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_pre_attach_abandonment_resolves_and_releases_the_assignment)
+THE DEFINING OUTCOME. `--abandon` over an activated attempt whose ... ok
+test_a_changed_reason_collides_and_never_fences_again (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_changed_reason_collides_and_never_fences_again)
+THE DECLARATION IS THE ACT, so a different reason is a different ... ok
+test_the_original_reason_replays_one_durable_declaration (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_original_reason_replays_one_durable_declaration)
+A same-reason retry adopts the committed declaration through ... ok
+test_a_fence_that_did_not_fence_leaves_everything_unresolved (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_fence_that_did_not_fence_leaves_everything_unresolved)
+THE PAIRED REFUSAL. A fence answer that is absent, false or about ... ok
+test_the_documented_command_fences_a_pre_attach_assignment (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_documented_command_fences_a_pre_attach_assignment)
+W63255's centre: `main --abandon` over an attempt that ACTIVATED and ... ok
+test_the_abandonment_wins_and_a_public_start_can_no_longer_pass (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_abandonment_wins_and_a_public_start_can_no_longer_pass)
+THE OTHER PUBLIC ORDER. The declaration commits and moves the axis ... ok
+test_an_interruption_after_the_intent_resumes_the_same_fence (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_interruption_after_the_intent_resumes_the_same_fence)
+CUT ONE: the declaration commits and the process dies before the ... ok
+test_a_resource_refusal_after_the_fence_keeps_it_and_then_retries (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_resource_refusal_after_the_fence_keeps_it_and_then_retries)
+CUT TWO, and the recovery that follows it. The fence commits, the ... ok
+test_a_wrong_participant_refuses_before_any_fence_or_cleanup (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_wrong_participant_refuses_before_any_fence_or_cleanup)
+IDENTITY IS HELD FIRST. The port requires the session's own ... ok
+test_the_ending_decides_nothing_about_output_or_custody (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_ending_decides_nothing_about_output_or_custody)
+THE RETAINED NON-EFFECTS. This operation answers the assignment ... ok
+test_a_requested_start_refuses_the_pre_attach_fence (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_requested_start_refuses_the_pre_attach_fence)
+THE RACE, in the order where the start won. ... ok
+test_every_assignment_member_refuses_with_nothing_touched (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_every_assignment_member_refuses_with_nothing_touched) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.265s
+
+OK

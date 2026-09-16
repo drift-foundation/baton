@@ -1,0 +1,155 @@
+{
+  "accepted_base": {
+    "candidate": "candidate-182906",
+    "manifest": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+    "review": "review-2026-09-16T02-31-07Z.md",
+    "scope_of_acceptance": "the selected offline fixture correction only; not live qualification and not a rerun of a consumed identity",
+    "sha256": "63f8e01ceb1f206c273e0823b5e068dc9aa13f3fd62684037ac226b730f92df5"
+  },
+  "claim": 183114,
+  "consumed_identities": [
+    {
+      "consumed_by": "the initial-artifact failure of 2026-09-15T15:08:40Z (run179075)",
+      "identity": "178579"
+    },
+    {
+      "consumed_by": "the collection failure of 2026-09-15T18:29:34Z",
+      "identity": "180078"
+    }
+  ],
+  "consumed_treatment": "all six roots keep their original timestamps; nothing executable in the fixture, contract or worker can name either identity, asserted over comment-stripped source; neither is repaired or reset",
+  "delta": {
+    "OPERATOR-178579.md": "new approved digest, the header's current identity, and the fresh-identity section with the remaining qualification questions",
+    "qualification-fixture.py": "IDENTITY 180078 -> 183114 and the comment now records BOTH consumed identities",
+    "qualification-manifest.json": "run_identity and the three declared roots name 183114; consumed_identity became consumed_identities, a list of both",
+    "test_qualification.py": "CONSUMED_IDENTITIES covers both names; the identity, manifest-binding and unaddressability tests apply every rule to both, and the unaddressability check now also covers the worker",
+    "unchanged": [
+      "qualification_contract.py",
+      "qualification_worker.py",
+      "verify-offline.py"
+    ]
+  },
+  "files": [
+    {
+      "base_sha256": "4236d0956687a154a196e23ede124ef14956812298e71436c1b6b22cdc2d948e",
+      "candidate_sha256": "08ad95e355f2702fd7273d3d3069d7466cfe8b94030e105140d49588d25bf630",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-fixture.py",
+      "retained_copy": "candidate-183114/qualification-fixture.py"
+    },
+    {
+      "base_sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "candidate_sha256": "bc7d5bc49d61b01c2dce9bfcc37ef97764cabe8f5c2bd6adbc33a7a275c770fa",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_contract.py",
+      "retained_copy": "candidate-183114/qualification_contract.py"
+    },
+    {
+      "base_sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "candidate_sha256": "ec536085ed608a7b890c148546ed17224b25b3a7d39912e536fb43ec618faca7",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/qualification_worker.py",
+      "retained_copy": "candidate-183114/qualification_worker.py"
+    },
+    {
+      "base_sha256": "233b4afe38cf286fad29f9b1106fc7418843c104595c7725a08b9976b54623e3",
+      "candidate_sha256": "315c444bd8792b50617be09b7f391ed28f799fd0ecbc348cf0eb33ef2f89fb10",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/test_qualification.py",
+      "retained_copy": "candidate-183114/test_qualification.py"
+    },
+    {
+      "base_sha256": "eaa757a494ec6dc10db5e1a5cd67a88d52710affd912a947f7a41482d3fad99d",
+      "candidate_sha256": "dd28498767bbcaf0eeb1552549f39228c555069b6c48e939abec136fa7df2779",
+      "changed": true,
+      "mode": "0o664",
+      "path": "evidence/qualification-manifest.json",
+      "retained_copy": "candidate-183114/qualification-manifest.json"
+    },
+    {
+      "base_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "candidate_sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "changed": false,
+      "mode": "0o664",
+      "path": "evidence/verify-offline.py",
+      "retained_copy": "candidate-183114/verify-offline.py"
+    },
+    {
+      "base_sha256": "c16ea3a3060bd65a86f0620033a83743de84f63b96849780c9b3d6a1814f8ee4",
+      "candidate_sha256": "c78f4c665421d0b4f9968d8af1f1c44edf639897e8caf6773ff3b97d86b5d159",
+      "changed": true,
+      "mode": "0o664",
+      "path": "OPERATOR-178579.md",
+      "retained_copy": "candidate-183114/OPERATOR-178579.md"
+    }
+  ],
+  "focused_run": {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/test_qualification.py"
+    ],
+    "elapsed_seconds": 0.3638466850388795,
+    "execution": "offline fake-engine tests and bounded local Python pipe fixtures only; no actual engine/model/credential",
+    "exit_code": 0,
+    "log_sha256": "96b324332ba7b3b5671a4994cc9b3ae20ea2f28cccab687d5d72943f4fbdaf0b",
+    "manifest_sha256": "dd28498767bbcaf0eeb1552549f39228c555069b6c48e939abec136fa7df2779",
+    "pid": 3761095,
+    "process_group_absent": true,
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "timed_out": false,
+    "timeout_seconds": 30
+  },
+  "fresh_identity": "183114",
+  "fresh_roots": {
+    "checked_free_at_preparation": true,
+    "created": false,
+    "credential_copy_root": "/dev/shm/baton-w177936-qualification-183114",
+    "export_root": "/tmp/baton-w177936-qualification-183114-export",
+    "private_root": "/tmp/baton-w177936-qualification-183114",
+    "reserved": false
+  },
+  "manifest_sha256": "dd28498767bbcaf0eeb1552549f39228c555069b6c48e939abec136fa7df2779",
+  "not_done": [
+    "live execution",
+    "production enabling",
+    "reserving or creating any fresh root",
+    "launching the fixture",
+    "consumed-root repair",
+    "marker reset",
+    "model-policy change",
+    "product or consumer edits",
+    "version-control operations"
+  ],
+  "operator_command": "python3 work/records/2026/09/finding-v12-production-context-qualification-preparation/evidence/qualification-fixture.py --run --approved-manifest dd28498767bbcaf0eeb1552549f39228c555069b6c48e939abec136fa7df2779",
+  "operator_packet_sha256": "c78f4c665421d0b4f9968d8af1f1c44edf639897e8caf6773ff3b97d86b5d159",
+  "owner_selection": 183105,
+  "preserved": [
+    "the accepted behaviour and the image",
+    "the strict model predicate",
+    "the artifact and continuity contracts",
+    "the two-turn shape, 180s per invocation and the 600s envelope",
+    "both consumed root sets at their original timestamps"
+  ],
+  "remaining_qualification_questions": {
+    "G1_model": "partial and UNQUALIFIED. Run180078's modelUsage held exactly two keys, one of them the expected model, with no direct model member -- expected-plus-other, which the strict predicate correctly refuses. The other key's identity and purpose are UNKNOWN AND UNRECOVERABLE: the raw terminal document is read from an anonymous bounded pipe and never retained, so no fixture change can answer it. Retaining more is a separate selection with its own privacy question; the predicate is not relaxed here.",
+    "G2_G3_G5": "unobserved; no --resume turn has ever run, so restoration from a manager-rebuilt home remains untested",
+    "G4_G6": "first-use evidence only -- one cwd and one HOME-mode observation, from turns that never reached a second arm",
+    "G7": "qualification-only image selection",
+    "G8": "not composed",
+    "custody_correction": "offline-verified, not field-verified: the publication and coverage rules are exercised by same-UID synthetic fixtures, with no two-UID or live-provider observation behind them. A 183114 run would put that under load first."
+  },
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "note": "identity-back-to-consumed was split so there is one probe per consumed identity",
+    "total": 31
+  },
+  "tests": {
+    "count": 98,
+    "outcome": "OK"
+  },
+  "work": "W177936"
+}
