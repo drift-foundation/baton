@@ -1344,3 +1344,13 @@ AGENTS.md bytes, not a synthetic digest. Default state_root is
 chosen destination. This is input preparation only, not installation, worker
 assignment or Job execution. Recheck instruction bytes when configuring real
 Jobs; later changes to AGENTS.md do not silently change the captured digest.
+
+
+## 2026-09-17 — ignore generated Python build outputs
+
+Owner requested ignoring the build subdirectory to avoid adding artifacts.
+Observed: v12/python/build and packaging/build-stamp.json are already tracked.
+Add narrow v12/.gitignore rules for python/build/ and the generated
+python/packaging/build-stamp.json, preserving visibility of runtime state paths.
+The owner must remove these generated paths from the Git index; prompt only
+edits ignore rules and does not delete artifacts or mutate Git state.
