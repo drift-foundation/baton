@@ -56,10 +56,20 @@ MULTI_JOB_SCHEMA = "baton.v12.stage-execution-deployment/2"
 RECEIPTS = ("verification", "review", "approval")
 
 # What the operator must name. Everything else this module derives.
-REQUIRED = ("schema", "state_root", "authority_uuid", "checkpoint_profile",
+#
+# NEITHER AN IDENTITY NOR A JOB IS AMONG THEM.
+# OWNER-FRESH-INSTALL-20260916.md: "Why are we asking for any job, this is a
+# fresh install". An installation initializes an instance -- its runtime, its
+# empty stores, its pool and its profiles -- and a Work, a declared base, a
+# canonical target and a producer assignment are facts about a JOB, supplied
+# and validated when one is created. The Authority identity is likewise not an
+# operator selection: it is generated ONCE here and persisted at the
+# destination, so separate installs have separate identities and no two
+# documents can name one.
+REQUIRED = ("schema", "state_root", "checkpoint_profile",
             "integration_profile", "retention_policy_digest",
             "retention_disposition", "pool_generation", "policy_generation",
-            "workers", "receipt_participants", "jobs")
+            "receipt_participants")
 _WORKER = ("worker_id", "role", "participant", "deployment")
 # A Job binds ONE Work. `stage_execution._held_bindings` requires the
 # implementation and review Work IDs to be EQUAL within a binding -- the
@@ -83,6 +93,20 @@ OPTIONAL = ("integration_target", "integration_target_reference",
             "integration_instructions", "integration_preparation",
             "result_judgment_workers")
 
+# WHAT AN INPUT MAY STILL NAME AND THE EMITTED CONFIGURATION NEVER CARRIES.
+# `jobs` is accepted and validated in full when it is supplied -- every rule
+# about distinct identities, configured producers and complete bindings stands
+# -- and its absence is the ordinary fresh install. It is kept OUT of
+# `OPTIONAL` because that tuple is what travels verbatim into the
+# `stage_execution` document, whose closed schema names `job_bindings` instead.
+# AND `workers` IS ONE OF THEM. A worker is configured WITH the Job it serves:
+# its `deployment` carries a digest-sealed input manifest naming an Authority
+# and a Work, so it cannot be written for an instance that does not exist yet
+# and it is not an instance selection. An installation configures no capacity;
+# a repeated bootstrap that supplies workers is held to every rule they ever
+# had.
+DEFERRED = ("jobs", "workers")
+
 # NOTHING INSTALLER-ONLY TRAVELS IN THE INPUT DOCUMENT ANY MORE.
 # OWNER-VERSION-STAMP-20260916.md: "the bootstrap source is the repository
 # containing the development v12/justfile, not a source location to communicate
@@ -91,6 +115,12 @@ OPTIONAL = ("integration_target", "integration_target_reference",
 # names it is refused with that said, rather than quietly ignored.
 INSTALLER_ONLY = ()
 SUPERSEDED = {
+    "authority_uuid":
+        "an instance generates its own Authority identity once, when it is "
+        "installed, and persists it at the destination; every later lifecycle "
+        "operation reuses it and separate installations have separate "
+        "identities. Remove the member -- an input document that named one "
+        "would be a second place for a fact this instance already owns.",
     "repository_source":
         "the repositories are cloned from the checkout this bootstrap runs "
         "from -- the repository containing v12/justfile -- so a deployment "
@@ -113,6 +143,189 @@ class BootstrapRefusal(Exception):
     """An operator-facing refusal. Its text is the whole message."""
 
 
+def jobs_of(document):
+    """The Jobs this document names, which for a fresh installation is none."""
+    return document.get("jobs") or []
+
+
+def workers_of(document):
+    """The pool this document configures, which for a fresh install is none."""
+    return document.get("workers") or []
+
+
+IDENTITY_SCHEMA = "baton.v12.instance-identity/1"
+# HOW BIG AN IDENTITY RECORD MAY BE. It names a schema and 32 hexadecimal
+# characters; anything approaching this is not one. The bound exists so a
+# reader cannot be handed a file it will only partly see -- see `_identity_bytes`.
+IDENTITY_LIMIT = 64 * 1024
+
+
+def _identity_bytes(place):
+    """This root's OWN identity record, read without following anything.
+
+    Review 2026-09-16T22-27-59Z [F3]: this was `Path.read_bytes`, which follows
+    a symlink -- so two separate destinations could each carry a LINK at this
+    name pointing at one external file, and both would read the same identity,
+    both report it as already persisted, and both believe they were installed
+    independently. `O_NOFOLLOW` refuses the link itself and `fstat` refuses
+    anything that is not a regular file, so what is read is a file this
+    destination owns or nothing at all.
+
+    THE FOREIGN BYTES ARE LEFT EXACTLY AS THEY ARE. A link somebody else put
+    here is refused, not repaired: removing it would destroy state this command
+    did not create, and following it would write through a name somebody else
+    controls.
+    """
+    import stat
+
+    try:
+        # O_NONBLOCK, AND IT IS NOT A PERFORMANCE CHOICE. Review
+        # 2026-09-16T22-36-58Z: a FIFO at this name made `os.open` BLOCK
+        # waiting for a writer -- before `fstat` could say it was a FIFO. A
+        # setup command that hangs forever on a named pipe somebody left in a
+        # destination is worse than one that refuses it, and the refusal is the
+        # right answer either way. Opening a FIFO read-only and non-blocking
+        # succeeds at once with no writer, so the check below is reached.
+        #
+        # THE NO-FOLLOW PROOF IS UNCHANGED: O_NOFOLLOW still refuses the link
+        # itself, and what is fstat'ed is this descriptor rather than the path.
+        handle = os.open(str(place),
+                         os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except FileNotFoundError:
+        return None
+    except OSError as failure:
+        # ELOOP is the link case and is worth its own sentence, because "could
+        # not be read" would send an operator looking for a permission problem.
+        raise BootstrapRefusal(
+            "the instance identity at " + str(place) + " is not a file this "
+            "destination owns (" + type(failure).__name__ + ": "
+            + str(failure) + "). A link or a dangling link at that name is "
+            "refused rather than followed: an instance owns what is under its "
+            "own destination, and two destinations pointing at one identity "
+            "would be one Authority wearing two names. Nothing here removed "
+            "it.")
+    try:
+        held = os.fstat(handle)
+        if not stat.S_ISREG(held.st_mode):
+            raise BootstrapRefusal(
+                "the instance identity at " + str(place) + " is a "
+                + _node_kind(held.st_mode) + " rather than a regular file, so "
+                "what Authority this root is bound to is unknown. Nothing here "
+                "replaced it.")
+        # THE WHOLE FILE OR A REFUSAL, NEVER A PREFIX. Review
+        # 2026-09-16T22-36-58Z: this was one `os.read(handle, 64 * 1024)`,
+        # which silently discards everything after -- so a valid record padded
+        # out past that bound and followed by rubbish PARSED, and the file that
+        # is actually on disk does not. A reader that sees part of a document
+        # is answering about a document nobody wrote.
+        raw, chunk = b"", True
+        while chunk:
+            chunk = os.read(handle, 8192)
+            raw += chunk
+            if len(raw) > IDENTITY_LIMIT:
+                raise BootstrapRefusal(
+                    "the instance identity at " + str(place) + " is larger "
+                    "than " + str(IDENTITY_LIMIT) + " bytes, which an identity "
+                    "record is not; what Authority this root is bound to is "
+                    "unknown and nothing here replaced it.")
+        return raw
+    finally:
+        os.close(handle)
+
+
+def _node_kind(mode):
+    """What this descriptor actually is, said in the operator's words."""
+    import stat
+
+    for asking, name in ((stat.S_ISDIR, "directory"), (stat.S_ISFIFO, "named "
+                         "pipe"), (stat.S_ISSOCK, "socket"),
+                         (stat.S_ISCHR, "character device"),
+                         (stat.S_ISBLK, "block device")):
+        if asking(mode):
+            return name
+    return "special file"
+
+
+def _identity_held(place):
+    """The identity this root already persisted, or None."""
+    raw = _identity_bytes(place)
+    if raw is None:
+        return None
+    try:
+        held = json.loads(raw)
+    except ValueError as failure:
+        raise BootstrapRefusal(
+            "the instance identity at " + str(place) + " could not be read ("
+            + type(failure).__name__ + "), so what Authority this root is "
+            "bound to is unknown. Nothing here rebinds state it cannot "
+            "identify.")
+    if type(held) is not dict or held.get("schema") != IDENTITY_SCHEMA:
+        raise BootstrapRefusal(
+            "the instance identity at " + str(place) + " is not a "
+            + IDENTITY_SCHEMA + " document, so what Authority this root is "
+            "bound to is unknown.")
+    uuid = held.get("authority_uuid")
+    if type(uuid) is not str or len(uuid) != 32 or any(
+            one not in "0123456789abcdef" for one in uuid):
+        raise BootstrapRefusal(
+            "the instance identity at " + str(place) + " does not name 32 "
+            "lowercase hexadecimal characters, so what Authority this root is "
+            "bound to is unknown.")
+    return uuid
+
+
+def identity(places):
+    """This instance's Authority identity: the one already here, or a new one.
+
+    OWNER-FRESH-INSTALL-20260916.md: "Generate the instance authority identity
+    once and persist it at the destination; subsequent lifecycle operations
+    reuse it. Separate installs have separate IDs."
+
+    GENERATED, NEVER NAMED. An input document that carried one would be a
+    second place for a fact this instance owns, and two roots installed from
+    the SAME document would be one Authority wearing two destinations. A fresh
+    identity is minted here; a root that already persisted one keeps it, which
+    is what makes a repeated bootstrap a repeat rather than a rebinding.
+    """
+    import uuid as identities
+
+    held = _identity_held(places["identity"])
+    if held is not None:
+        return held, False
+    return identities.uuid4().hex, True
+
+
+def persist_identity(places, uuid):
+    """Write this instance's identity EXCLUSIVELY, once.
+
+    O_EXCL, so two bootstraps racing for one fresh root cannot both believe
+    they minted it: the loser reads what the winner wrote and is then held to
+    it by `conflicts` like any other repeat.
+    """
+    place = Path(places["identity"])
+    place.parent.mkdir(parents=True, exist_ok=True)
+    document = json.dumps({"schema": IDENTITY_SCHEMA,
+                           "authority_uuid": uuid}, sort_keys=True) + "\n"
+    try:
+        handle = os.open(str(place), os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                         | os.O_NOFOLLOW, 0o644)
+    except FileExistsError:
+        # THE SAME SAFE READ. [F3]: `O_EXCL` protects the CREATE and says
+        # nothing about what is already at the name -- a link here means the
+        # exclusive create failed against somebody else's name, and reading
+        # through it is exactly what must not happen.
+        held = _identity_held(place)
+        if held != uuid:
+            raise BootstrapRefusal(
+                "this root persisted the identity " + repr(held)
+                + " while this bootstrap was composing " + repr(uuid)
+                + "; nothing here rebinds an instance somebody else installed.")
+        return held
+    with os.fdopen(handle, "w") as writing:
+        writing.write(document)
+    return uuid
+
+
 def _unknown(document):
     """Every member this input document names that nothing reads.
 
@@ -121,7 +334,8 @@ def _unknown(document):
     accepted and dropped -- the two are indistinguishable to an operator until
     the deployment behaves differently from what they asked for.
     """
-    allowed = set(REQUIRED) | set(OPTIONAL) | set(INSTALLER_ONLY)
+    allowed = (set(REQUIRED) | set(OPTIONAL) | set(INSTALLER_ONLY)
+               | set(DEFERRED))
     found = [name + " -- " + SUPERSEDED[name] if name in SUPERSEDED else name
              for name in document if name not in allowed]
     for index, worker in enumerate(document.get("workers") or []):
@@ -204,21 +418,19 @@ def held(document):
     if not os.path.isabs(document["state_root"]):
         faults.append("state_root must be absolute; runtime state resolves "
                       "against whatever directory a recipe ran from otherwise")
-    uuid = document["authority_uuid"]
-    if type(uuid) is not str or len(uuid) != 32 or any(
-            one not in "0123456789abcdef" for one in uuid):
-        faults.append("authority_uuid is 32 lowercase hexadecimal characters")
-
     by_role = {}
-    for worker in document["workers"]:
+    for worker in workers_of(document):
         by_role.setdefault(worker["role"], []).append(worker)
-    for role in ROLES:
+    # EVERY ROLE, WHENEVER ANY WORKER IS CONFIGURED. An installation configures
+    # none and serves none; a deployment that configures SOME is a pool with a
+    # hole in it, which is the refusal this has always made.
+    for role in (ROLES if workers_of(document) else ()):
         if not by_role.get(role):
             faults.append("no worker is configured for the " + role + " stage")
     for role in set(by_role) - set(ROLES):
         faults.append("this deployment serves " + ", ".join(ROLES)
                       + " and a worker names the role " + repr(role))
-    named = [one["worker_id"] for one in document["workers"]]
+    named = [one["worker_id"] for one in workers_of(document)]
     if len(set(named)) != len(named):
         faults.append("every worker_id is distinct; these are " + repr(named))
 
@@ -232,11 +444,13 @@ def held(document):
         faults.append("implementation and review may share no participant, and "
                       + ", ".join(sorted(shared)) + " serves both")
 
+    # EVERY JOB RULE, UNCHANGED, WHENEVER JOBS ARE SUPPLIED. The fresh install
+    # names none; one that names some is held to exactly what it always was.
     producing = {one["worker_id"] for one in by_role.get("implementation", [])}
-    bound = [job["job_id"] for job in document["jobs"]]
+    bound = [job["job_id"] for job in jobs_of(document)]
     if len(set(bound)) != len(bound):
         faults.append("every job_id is distinct; these are " + repr(bound))
-    for job in document["jobs"]:
+    for job in jobs_of(document):
         if job["source_worker_id"] not in producing:
             faults.append("job " + repr(job["job_id"]) + " names the producer "
                           + repr(job["source_worker_id"])
@@ -260,6 +474,14 @@ def layout(root):
     # name. `state/` is the STACK's process records, which is a different thing
     # from the stage deployment's workspace root and is kept a different path.
     return {"state_root": str(root),
+            # WHERE THIS INSTANCE'S IDENTITY PERSISTS, in its own file.
+            # OWNER-FRESH-INSTALL-20260916.md: it is generated once and reused
+            # by every later operation. It is NOT kept only in the record,
+            # because a record is custody evidence about BINDINGS and is read
+            # beside the emitted configuration -- an instance that binds
+            # nothing still has an identity, and the identity has to be
+            # readable before either of those documents exists.
+            "identity": str(root / "authority-identity.json"),
             "authority_store": str(root / "db" / "authority.sqlite3"),
             "job_store": str(root / "db" / "jobs.sqlite3"),
             "control_store": str(root / "db" / "control.sqlite3"),
@@ -278,10 +500,14 @@ def variant(document):
     half the answer.
     """
     by_role = {}
-    for worker in document["workers"]:
+    for worker in workers_of(document):
         by_role.setdefault(worker["role"], []).append(worker["worker_id"])
     one_each = all(len(by_role.get(role, [])) == 1 for role in ROLES)
-    return (ONE_JOB_SCHEMA if len(document["jobs"]) == 1 and one_each
+    # AN INSTANCE THAT BINDS NOTHING IS THE MULTI-JOB DOCUMENT WITH AN EMPTY
+    # BINDING LIST. `/1` DERIVES its single binding from its own global Work,
+    # base and target, so it cannot express "none" -- the shape that can is the
+    # one that says its bindings out loud.
+    return (ONE_JOB_SCHEMA if len(jobs_of(document)) == 1 and one_each
             else MULTI_JOB_SCHEMA)
 
 
@@ -296,12 +522,12 @@ def configuration(document, principals=None):
     Jobs actually are.
     """
     places = layout(document["state_root"])
-    jobs = document["jobs"]
+    jobs = jobs_of(document)
     # THE DERIVED IDENTITIES AND PATHS GO IN HERE, not afterwards. [F1]: they
     # used to be grafted on after the Authority had been composed, so what was
     # validated -- when anything was -- was not what was written.
     workers = []
-    for one in document["workers"]:
+    for one in workers_of(document):
         deployment = dict(one["deployment"],
                           participant=one["participant"],
                           authority_store=places["authority_store"],
@@ -325,15 +551,19 @@ def configuration(document, principals=None):
         "retention_policy_digest": document["retention_policy_digest"],
         "retention_disposition": document["retention_disposition"],
         "receipt_participants": dict(document["receipt_participants"]),
-        "workers": workers,
+        "workers": workers}
+    if jobs:
         # THE SAME WORK ON BOTH AXES. `_held_bindings` requires the
         # implementation and review Work IDs to be equal, so one input member
         # answers for both rather than two that could disagree.
-        "job_work_id": jobs[0]["work_id"],
-        "review_work_id": jobs[0]["work_id"],
-        "line_declared_base": jobs[0]["line_declared_base"],
-        "canonical_target_id": jobs[0]["canonical_target_id"]}
+        built["job_work_id"] = jobs[0]["work_id"]
+        built["review_work_id"] = jobs[0]["work_id"]
+        built["line_declared_base"] = jobs[0]["line_declared_base"]
+        built["canonical_target_id"] = jobs[0]["canonical_target_id"]
     if chosen == MULTI_JOB_SCHEMA:
+        # AND THE EMPTY LIST WHEN THERE ARE NONE, which is the instance-only
+        # deployment `stage_execution` admits: no global Work, base or target,
+        # because those are facts about a Job and this binds none.
         built["job_bindings"] = [
             {"job_id": job["job_id"], "job_work_id": job["work_id"],
              "review_work_id": job["work_id"],
@@ -363,9 +593,9 @@ def capacity(document):
     promise that arbitrary Jobs traverse review and integration at once.
     """
     by_role = {}
-    for worker in document["workers"]:
+    for worker in workers_of(document):
         by_role.setdefault(worker["role"], []).append(worker["worker_id"])
-    jobs = document["jobs"]
+    jobs = jobs_of(document)
     return {"schema": variant(document),
             "workers_by_role": {role: sorted(by_role.get(role, []))
                                 for role in ROLES},
@@ -373,7 +603,16 @@ def capacity(document):
             "job_affinity": {job["job_id"]: job["source_worker_id"]
                              for job in jobs},
             "targets": sorted({job["canonical_target_id"] for job in jobs}),
-            "note": ("each Job is bound to one producer, one Work, one declared "
+            "note": ("this instance binds no Job and configures no execution "
+                     "capacity; it serves a real idle scheduler and publisher "
+                     "over empty stores, and a worker, a Work, a declared "
+                     "base, a canonical target and a producer are supplied "
+                     "together when a Job is created"
+                     if not jobs and not workers_of(document) else
+                     "this instance configures a pool and binds no Job; a "
+                     "Work, a declared base and a canonical target are "
+                     "supplied when a Job is created" if not jobs else
+                     "each Job is bound to one producer, one Work, one declared "
                      "base and one canonical target; Jobs sharing a canonical "
                      "target are serialized at integration by the accepted "
                      "composition, so this is configured capacity rather than "
@@ -399,7 +638,7 @@ def principals_for(places, document, *, opener=None):
     """
     from baton_v12.authority.principals import principal_for_endpoint
 
-    wanted = sorted({one["participant"] for one in document["workers"]}
+    wanted = sorted({one["participant"] for one in workers_of(document)}
                     | set(document["receipt_participants"].values())
                     | {document["integration_profile"]["integrator_participant"]})
     if not Path(places["authority_store"]).exists():
@@ -443,12 +682,21 @@ def _compose(authority, document, *, stream):
     """
     created = []
     integrator = document["integration_profile"]["integrator_participant"]
-    for worker in document["workers"]:
+    for worker in workers_of(document):
         route = ROUTES[worker["role"]]
         authority.add_route_handler(route, worker["participant"])
         print("route %-14s -> %s" % (route, worker["participant"]), file=stream)
 
-    for job in document["jobs"]:
+    # NO JOB, NO WORK, NO GRANT. OWNER-FRESH-INSTALL-20260916.md: "Do not
+    # create placeholder Work, Jobs or per-Work grants to satisfy the old
+    # composition validator." A grant is made in a bound Work's OWN scope, so
+    # an instance with no Work has no scope to grant anything in; the receipt
+    # participants and the integrator are configured and granted when a Job
+    # brings a Work with it.
+    if not jobs_of(document):
+        print("job   none; no Work, grant or placeholder was created",
+              file=stream)
+    for job in jobs_of(document):
         held_work = _work(authority, job["work_id"])
         if held_work is None:
             authority.create_work(job["work_id"], ROUTES["implementation"],
@@ -508,7 +756,7 @@ def record_of(document):
                 "line_declared_base": job["line_declared_base"],
                 "canonical_target_id": job["canonical_target_id"],
                 "source_worker_id": job["source_worker_id"]}
-                for job in document["jobs"]}}
+                for job in jobs_of(document)}}
 
 
 def _previous(places):
@@ -563,8 +811,16 @@ def _malformed_record(held, place):
     if type(uuid) is not str or len(uuid) != 32:
         return ("the record at " + str(place) + " names no readable Authority")
     bindings = held.get("bindings")
-    if type(bindings) is not dict or not bindings:
-        return ("the record at " + str(place) + " names no bindings, so what "
+    # AN EMPTY MAPPING IS AN ANSWER NOW, AND [G1]'s FAULT IS NOT.
+    # OWNER-FRESH-INSTALL-20260916.md: an installed instance binds zero Jobs,
+    # so "this root holds no bindings" is a thing a record has to be able to
+    # SAY. What [G1] found remains refused below: a record that names a Job and
+    # then does not say that Job's Work, base, target or producer is not
+    # evidence about it, and `conflicts` would authorize every one of them to
+    # be replaced.
+    if type(bindings) is not dict:
+        return ("the record at " + str(place) + " names its bindings as "
+                + type(bindings).__name__ + " rather than a mapping, so what "
                 "this root holds cannot be established")
     for job_id, binding in bindings.items():
         if type(job_id) is not str or not job_id:
@@ -657,6 +913,47 @@ def _drifted(places, held):
                         + named + member + " " + repr(binding[member])
                         + " and its record says " + repr(previous[member]))
     return None
+
+
+# WHAT AN INSTALLATION DERIVED AND A LATER REPEAT MUST NOT LOSE.
+# Review 2026-09-16T23-16-06Z [P2]: the destination branch runs
+# `workspace_bound`, `repositories_bound` and `storage_bound`; the one-operand
+# branch does not. So the documented reconfiguration returned zero and quietly
+# removed `integration_workspace` from the emitted configuration -- the
+# selector, the runtime and the identity were all unchanged, and the
+# deployment had stopped naming where integration works.
+DERIVED_PATHS = ("integration_target", "integration_workspace")
+_DERIVED_WORKER_PATHS = ("workspace_storage", "nominated_source")
+
+
+def dropped_selections(places, configured):
+    """Everything the emitted configuration here names and this one does not.
+
+    A REPEAT PRESERVES. `conflicts` already refuses a CHANGED binding; this is
+    the other half, and it is the half an installed instance actually needs:
+    a member that simply stops being named is not thereby unselected, for
+    exactly the reason a Job that stops being named is not unconfigured.
+    """
+    place = Path(places["configuration"])
+    try:
+        held = json.loads(place.read_bytes())
+    except (FileNotFoundError, ValueError, OSError):
+        return []
+    if type(held) is not dict:
+        return []
+    found = [name for name in DERIVED_PATHS
+             if held.get(name) and not configured.get(name)]
+    previous = {one.get("worker_id"): one.get("deployment") or {}
+                for one in held.get("workers") or [] if type(one) is dict}
+    for one in configured.get("workers") or []:
+        was = previous.get(one.get("worker_id"))
+        if type(was) is not dict:
+            continue
+        deployment = one.get("deployment") or {}
+        found += ["workers[" + str(one.get("worker_id")) + "]." + name
+                  for name in _DERIVED_WORKER_PATHS
+                  if was.get(name) and not deployment.get(name)]
+    return sorted(found)
 
 
 def conflicts(places, record):
@@ -770,6 +1067,17 @@ def prepare(document, *, stream=sys.stdout, opener=None, installing=False):
             "outside the working tree, and `stage_execution` would refuse this "
             "deployment for the same reason after it had been created.")
 
+    # THE IDENTITY IS THIS INSTANCE'S, AND IT IS RESOLVED BEFORE ANYTHING IS
+    # COMPARED. A root that already has a record keeps the Authority that
+    # record names; a fresh one is given a new identity here, which is what
+    # makes two installations two instances rather than two names for one.
+    uuid, generated = identity(places)
+    document = dict(document, authority_uuid=uuid)
+    print("authority %-14s %s" % (uuid[:8] + "...",
+                                  "generated for this instance" if generated
+                                  else "reused from this root's record"),
+          file=stream)
+
     # THE EXISTING ROOT IS SETTLED FIRST, before this even READS an Authority.
     # [F2] asks for exactly that: uncertain existing state must be refused
     # before anything is opened, and opening a store whose uuid disagrees would
@@ -786,8 +1094,30 @@ def prepare(document, *, stream=sys.stdout, opener=None, installing=False):
     principals = principals_for(places, document, opener=opener)
     configured = validated(configuration(document, principals))
 
+    # AND WHAT THIS ROOT IS ALREADY CONFIGURED WITH IS NOT SILENTLY LOST.
+    # [P2]: the installation DERIVES the repository and storage paths under the
+    # destination; a later one-operand repeat composes from the input alone and
+    # dropped them, returning zero.
+    lost = dropped_selections(places, configured)
+    if lost:
+        raise BootstrapRefusal(
+            "this root is already configured with " + ", ".join(lost)
+            + " and this document does not name " + ("it" if len(lost) == 1
+                                                     else "them")
+            + ". A repeated bootstrap preserves what is there, and a selection "
+              "that stops being named is not thereby unselected -- an "
+              "installation DERIVES these under its destination, and composing "
+              "from the input alone would quietly unconfigure where "
+              "integration works. Copy the current values out of "
+            + places["configuration"] + " into your input document, or install "
+              "a new destination if you mean a different deployment. Nothing "
+              "was changed.")
+
     # -- and only now -----------------------------------------------------
     Path(places["state_root"]).mkdir(parents=True, exist_ok=True)
+    # THE IDENTITY IS PERSISTED BEFORE THE AUTHORITY IT NAMES IS CREATED, so a
+    # store that exists is always one this root can still account for.
+    uuid = persist_identity(places, uuid)
     Path(places["deployment_state"]).mkdir(parents=True, exist_ok=True)
     Path(places["authority_store"]).parent.mkdir(parents=True, exist_ok=True)
     authority = _authority(places, document["authority_uuid"], opener=opener)
@@ -815,7 +1145,8 @@ def prepare(document, *, stream=sys.stdout, opener=None, installing=False):
         print(commands(places, configured), file=stream)
     return {"places": places, "configuration": configured,
             "principals": principals, "created_works": created,
-            "record": record, "capacity": capacity(document)}
+            "record": record, "capacity": capacity(document),
+            "authority_uuid": uuid, "authority_generated": generated}
 
 
 # THE REPOSITORY git, named once. It is the host's -- this distribution
@@ -1307,7 +1638,7 @@ def custody(places, destination):
     resolved_destination = os.path.realpath(destination)
     for name in ("distro", "instance", "lock", "stores", "repository", "logs",
                  "state", "deployment_state", "deployment", "record",
-                 "justfile"):
+                 "identity", "justfile"):
         owned = places[name]
         if not os.path.lexists(owned):
             continue
@@ -1768,10 +2099,15 @@ def main(argv=None, *, stream=sys.stdout, runner=None):
             # is refused there, before an Authority is composed.
             prepared_repositories = prepare_repositories(
                 document, places, stream=stream, runner=runner, source=source)
-        prepare(document, stream=stream, installing=bool(taken.destination))
+        prepared = prepare(document, stream=stream,
+                           installing=bool(taken.destination))
         if taken.destination:
-            install(taken.destination, taken.distro, document, stream=stream,
-                    admitted=admitted)
+            # THE IDENTITY `prepare` RESOLVED, not one the input named: the
+            # input names none, and the selector installed at the destination
+            # has to select the Authority that was actually composed.
+            install(taken.destination, taken.distro,
+                    dict(document, authority_uuid=prepared["authority_uuid"]),
+                    stream=stream, admitted=admitted)
         return 0
     except BootstrapRefusal as refusal:
         print("refused: " + str(refusal), file=stream)

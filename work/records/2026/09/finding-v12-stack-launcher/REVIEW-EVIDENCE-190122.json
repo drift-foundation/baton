@@ -1,0 +1,93 @@
+{
+  "cases": {
+    "control-offer": {
+      "serve_returned_normally": true,
+      "sleep_calls": [
+        1
+      ],
+      "last_report": {
+        "observed_at": "2026-08-24T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [],
+        "spoken": [],
+        "refreshed": []
+      },
+      "unconfigured_work_after_tick": [
+        "1 live control offer(s) (unserved-offer)"
+      ],
+      "offer_states": {
+        "unserved-offer": "accepted"
+      },
+      "active_generation": null
+    },
+    "active-pool": {
+      "serve_returned_normally": true,
+      "sleep_calls": [
+        1
+      ],
+      "last_report": {
+        "observed_at": "2026-08-24T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [],
+        "spoken": [],
+        "refreshed": []
+      },
+      "unconfigured_work_after_tick": [
+        "an active pool generation 1, which names workers this deployment does not configure"
+      ],
+      "offer_states": {},
+      "active_generation": {
+        "generation": 1,
+        "variant": "primary",
+        "separation_class": "provider-diverse",
+        "document": "{\"schema\":\"baton.v12.worker-pool/1\",\"separation_class\":\"provider-diverse\",\"variant\":\"primary\",\"workers\":[{\"eligible_kinds\":[\"implementation\",\"integration\"],\"lane\":\"implementation\",\"participant\":\"baton.impl-a\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"impl-a\"},{\"eligible_kinds\":[\"implementation\"],\"lane\":\"implementation\",\"participant\":\"baton.impl-b\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"impl-b\"},{\"eligible_kinds\":[\"review\"],\"lane\":\"review\",\"participant\":\"baton.review-a\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"review-a\"},{\"eligible_kinds\":[\"review\"],\"lane\":\"review\",\"participant\":\"baton.review-b\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"review-b\"}]}",
+        "digest": "sha256:5def641f4061cfd92b45897f3b40be5557b76da8149390161a2eaec6a5bca7f8",
+        "activated_at": "2026-08-24T00:00:00.000Z"
+      }
+    },
+    "documented-reconfiguration": {
+      "returncode": 0,
+      "configuration_removed_members": {
+        "integration_workspace": "/tmp/v12-installed-vwpp4w13/destination/repo"
+      },
+      "configuration_added_members": {},
+      "configuration_changed_members": {},
+      "boundary": "no-Job repeat of guide input after simulated-runtime destination install, no repositories"
+    }
+  },
+  "boundary": "real serve loop; fixture offer APIs with strict fake Authority; installation uses explicitly simulated runtime",
+  "candidate_hashes": {
+    "v12/python/tools/stage_execution.py": {
+      "expected": "a6ad650ceb7289b5fdaabdc31b70cf0937874a8afc432690b2a9609e9a129cf0",
+      "actual": "a6ad650ceb7289b5fdaabdc31b70cf0937874a8afc432690b2a9609e9a129cf0"
+    },
+    "v12/python/src/baton_v12/worker_manager/offers.py": {
+      "expected": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+      "actual": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065"
+    },
+    "v12/python/src/baton_v12/worker_manager/__init__.py": {
+      "expected": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099",
+      "actual": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099"
+    },
+    "v12/STACK.md": {
+      "expected": "958e6f630e6e499e5fc63f6b9f56b3ce985e5905e732df6ebb51eb8ef5a7472f",
+      "actual": "958e6f630e6e499e5fc63f6b9f56b3ce985e5905e732df6ebb51eb8ef5a7472f"
+    },
+    "v12/python/tests/tools/test_bootstrap.py": {
+      "expected": "629986756cd187af7aa36923411a13a28aae3bc8d2c3ec5e6a15c463b8ba68a2",
+      "actual": "629986756cd187af7aa36923411a13a28aae3bc8d2c3ec5e6a15c463b8ba68a2"
+    }
+  },
+  "seconds": 0.0218375229742378,
+  "earlier_reproducer_attempt": {
+    "result": "reviewer helper KeyError using instance.layout configuration key; corrected to bootstrap.layout",
+    "tool_wall_seconds": 0.060025017,
+    "fixture_cleanup": "finally blocks ran"
+  }
+}

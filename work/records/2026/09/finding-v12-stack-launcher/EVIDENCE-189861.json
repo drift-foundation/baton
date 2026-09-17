@@ -1,0 +1,306 @@
+{
+ "work": "2b077949-W183883",
+ "claim": 189861,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-16T22-27-59Z.md",
+  "sha256": "f3f89063909eaf33225f5dd7e8a9dd5eb7238de7e8f4c38276ae1069ffc37a62",
+  "accepted_by_me_without_argument": "F1's reading is right and mine was wrong. The ruling excludes a generic scheduling project; it does not exclude the minimum empty-capacity handling the selected outcome needs. I treated the whole empty lifecycle as out of scope, and that was too broad."
+ },
+ "F3_the_identity_record_escaped_destination_custody": {
+  "status": "CLOSED",
+  "what_was_wrong": "`_identity_held` read through `Path.read_bytes`, which follows a symlink, and `persist_identity`'s FileExistsError fallback called the same reader -- so O_EXCL protected only the CREATE. Two destinations each carrying a link at `authority-identity.json` to one external file both read the same identity, both reported it already persisted, and both believed they were installed independently. The name was also absent from the custody sweep.",
+  "what_it_is_now": [
+   "`_identity_bytes` opens with O_RDONLY|O_NOFOLLOW and fstats the descriptor: a link, a dangling link and anything that is not a regular file are refused by name, before any effect.",
+   "the FileExistsError fallback reads through that same boundary, so an exclusive-create collision against somebody else's name is refused rather than followed.",
+   "`instance.layout` derives `identity` and `custody` sweeps it with the other owned names, so a link there is refused before the reader is reached.",
+   "FOREIGN BYTES AND LINKS ARE LEFT EXACTLY AS THEY ARE -- refused, never repaired or removed; the checks assert that afterwards."
+  ],
+  "held_by": [
+   "TheInstanceGeneratesItsOwnIdentity.test_a_LINKED_identity_record_is_refused_and_left_alone (the reviewer's own two-destination reproduction)",
+   "TheInstanceGeneratesItsOwnIdentity.test_a_DANGLING_identity_link_is_not_read_as_absent",
+   "TheInstanceGeneratesItsOwnIdentity.test_an_identity_that_is_not_a_regular_file_is_refused",
+   "TheInstanceGeneratesItsOwnIdentity.test_the_identity_is_a_name_the_DESTINATION_owns",
+   "and the five existing ones: reuse, distinct installs, collision, unreadable"
+  ],
+  "probes": [
+   "G1 link-following restored",
+   "G2 regular-file check removed",
+   "G3 identity dropped from custody"
+  ]
+ },
+ "F2_the_minimal_guide_block_was_overclaimed": {
+  "status": "PARTLY CLOSED -- the overclaim is corrected; the runnable example waits on F1",
+  "what_was_wrong": "The block does not parse: `\"deployment\": { \u2026 }` is not JSON, and the check only compared top-level member names while I described it as a complete runnable example. A later block still offered `authority_uuid`, which this implementation now refuses.",
+  "what_it_is_now": [
+   "`authority_uuid` is gone from the `What you must name` block, and a check asserts no block anywhere in the guide offers it.",
+   "the minimal block says about itself that it is a SHAPE and not yet runnable, and why -- the elided worker deployment cannot be written for a destination whose identity does not exist yet.",
+   "the check is renamed and its docstring states exactly what it proves and what it does not, rather than the stronger thing I claimed."
+  ],
+  "what_is_still_owed": "A genuinely runnable no-Job example, parsed and driven through the real fresh-install and idle path. It cannot exist while a worker document is required, because such a document is sealed to an identity that does not exist yet -- so this closes when F1 does, and not before. Inventing credentials, Work IDs or task manifests to make an example parse is exactly what the review forbids and I did not do it.",
+  "held_by": [
+   "AFreshInstallHasZeroJobs.test_the_guides_minimal_block_NAMES_what_is_required_and_no_more"
+  ],
+  "probes": [
+   "F9 the block drifts from REQUIRED",
+   "G4 the guide offers the member the helper refuses"
+  ]
+ },
+ "F1_the_empty_instance_lifecycle": {
+  "status": "RETURNED, with the precise remaining step and no claim that it is excluded",
+  "what_I_got_wrong": "I read the ruling's exclusion of a generic scheduling project as excluding the empty-capacity handling the selected outcome requires. The reviewer is right that those are different things, and the interpretation is theirs to make within existing scope. I am not re-arguing it.",
+  "why_it_is_not_in_this_claim": "Not scope: budget. The seams below are real and I read them this turn, but composing an empty-capacity serving path with fail-closed semantics over actual stores is not something to half-land in a dossier at the end of a turn. What is delivered here is complete and verified; this is not.",
+  "the_precise_remaining_step": {
+   "admit_no_capacity": [
+    "bootstrap.REQUIRED/held/configuration: `workers` becomes deferred like `jobs`, with every existing rule kept for when it is supplied.",
+    "stage_execution._held_workers: admit the EMPTY list only for the instance-only form (`_binds_nothing`), so an ordinary deployment's 'every role served' refusal is untouched."
+   ],
+   "compose_without_worker_execution": [
+    "stage_execution.operations_from: with no workers and no bindings, skip `worker_preflight` (nothing to preflight), skip `_pool_generation` and `scheduler.activate_pool`, and compose `PooledManagerOperations` over an empty mapping. `_minted`/`_bound_scope` need an answer for a deployment with no bound Work -- that is the one place a product decision may be needed, and the alternatives are (a) mint no stage sessions for an empty instance or (b) mint deployment-scoped sessions only for the receipt participants.",
+    "stage_execution.observation_from: the publisher's read path, which must report the REAL empty stores."
+   ],
+   "fail_closed": [
+    "before serving empty, prove the Job and control stores hold no work or allocations that would need an unconfigured worker, and refuse if any exists or arrives. Never substitute a constant zero for a store read.",
+    "scheduler.own_pool / activate_pool / PooledManagerOperations currently refuse empty capacity; whether they gain a narrow empty attachment or the composition simply does not attach one is the second decision."
+   ],
+   "then_F2": "parse the guide's example and drive it through that path"
+  },
+  "what_is_NOT_claimed_to_be_needed": "Moving every worker manifest and task document to an assignment model. The review says that is not established as a prerequisite and I am not asserting it; what I observed is only that a worker document AS IT STANDS is sealed to an Authority and a Work."
+ },
+ "verification": {
+  "focused_suites": [
+   {
+    "module": "tests.tools.test_version",
+    "tests": 27,
+    "result": "OK",
+    "seconds": 0.044
+   },
+   {
+    "module": "tests.tools.test_instance",
+    "tests": 117,
+    "result": "OK",
+    "seconds": 0.445
+   },
+   {
+    "module": "tests.tools.test_bootstrap",
+    "tests": 94,
+    "result": "OK",
+    "seconds": 1.39
+   },
+   {
+    "module": "tests.tools.test_stack",
+    "tests": 122,
+    "result": "OK",
+    "seconds": 26.272
+   },
+   {
+    "module": "tests.tools.test_environment",
+    "tests": 75,
+    "result": "OK",
+    "seconds": 0.935
+   },
+   {
+    "module": "tests.tools.test_packaging",
+    "tests": 11,
+    "result": "OK",
+    "seconds": 2.225
+   }
+  ],
+  "focused_total_tests": 446,
+  "focused_total_seconds": 31.311,
+  "new_this_claim": 4,
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_emitted_configuration_binds_NOTHING_and_says_so"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F1-the-emitted-configuration-invents-a-global-work-again",
+     "reverted_returncode": 1,
+     "seconds": 0.874,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_it_is_a_document_the_MANAGER_accepts",
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_emitted_configuration_binds_NOTHING_and_says_so"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F2-the-manager-refuses-a-deployment-that-binds-nothing",
+     "reverted_returncode": 1,
+     "seconds": 0.906,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_it_is_a_document_the_MANAGER_accepts"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F3-an-instance-only-document-may-carry-a-global-work-after-all",
+     "reverted_returncode": 1,
+     "seconds": 0.874,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_NO_placeholder_work_job_grant_or_binding_is_composed"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F4-a-fresh-install-composes-a-placeholder-work-and-grants",
+     "reverted_returncode": 1,
+     "seconds": 0.888,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_a_root_that_has_one_KEEPS_it"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F5-the-identity-is-minted-fresh-every-time",
+     "reverted_returncode": 1,
+     "seconds": 0.888,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_two_installations_are_two_instances"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F6-two-installations-may-be-one-instance",
+     "reverted_returncode": 1,
+     "seconds": 0.875,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_a_racing_second_writer_reads_what_the_first_wrote"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F7-the-persisted-identity-is-overwritten-rather-than-refused",
+     "reverted_returncode": 1,
+     "seconds": 0.851,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.RepeatingIt.test_a_document_may_not_NAME_an_authority_at_all"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F8-a-document-may-name-an-authority-again",
+     "reverted_returncode": 1,
+     "seconds": 0.864,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_a_LINKED_identity_record_is_refused_and_left_alone",
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_a_DANGLING_identity_link_is_not_read_as_absent"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "G1-the-identity-read-follows-a-link-again",
+     "reverted_returncode": 1,
+     "seconds": 0.84,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_an_identity_that_is_not_a_regular_file_is_refused"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "G2-a-non-regular-identity-record-is-accepted",
+     "reverted_returncode": 1,
+     "seconds": 0.843,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_the_identity_is_a_name_the_DESTINATION_owns"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "G3-the-identity-name-leaves-destination-custody",
+     "reverted_returncode": 1,
+     "seconds": 0.848,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_guides_minimal_block_NAMES_what_is_required_and_no_more"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F9-the-guide-s-minimal-input-drifts-from-what-is-required",
+     "reverted_returncode": 1,
+     "seconds": 0.862,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_guides_minimal_block_NAMES_what_is_required_and_no_more"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "G4-the-guide-offers-the-member-the-helper-refuses",
+     "reverted_returncode": 1,
+     "seconds": 0.863,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 13.173
+  },
+  "probe_seconds": 13.173,
+  "probe_script": "probes-189719.py (13 probes now: F1-F9, G1-G4)",
+  "probes_that_proved_nothing_first": [
+   {
+    "probe": "G2",
+    "why": "without the explicit regular-file check the reverted code does not ACCEPT a directory -- `os.read` raises IsADirectoryError, which escapes unhandled from the middle of `identity()`. That is the reason the guard is worth having: a sentence instead of a traceback.",
+    "corrected_token": "IsADirectoryError"
+   },
+   {
+    "probe": "F1",
+    "why": "recorded under claim189719; unchanged"
+   },
+   {
+    "probe": "F6",
+    "why": "recorded under claim189719; unchanged"
+   }
+  ],
+  "cumulative_this_line_of_work": {
+   "claim189471": "38.504s focused, 8.068s probes (contained an unmeasured rebuild)",
+   "claim189538": "31.634s focused, 1.212s probes",
+   "claim189719": "31.431s focused, 9.878s probes",
+   "claim189861": "31.311s focused, 13.173s probes",
+   "unknowns_preserved": "the number and separate durations of the builds run during claim189471 were never measured"
+  },
+  "no_build_no_clone_no_index_no_job_no_live_run": true,
+  "tests_stage_execution": "not rerun this claim; its 12 pre-existing errors stand as recorded"
+ },
+ "changed_this_claim": {
+  "v12/python/tools/bootstrap.py": "9b2f675d3b1345129ffd16fb02e04aaaede275e77c7410f08756b50e80d44d12",
+  "v12/python/tools/instance.py": "1541bc46951aef07dfddae5584f20340088b9e626611d75858e2a66d6b2a7106",
+  "v12/STACK.md": "5d5387766bbf91391eb22290db33790339056b26b1bd224f4c743b0d47362da7",
+  "v12/python/tests/tools/test_bootstrap.py": "8b73b881c312a4b6197c74e958bbdc3c840b80cd139fa16bacd700031a67cdcd",
+  "work/records/2026/09/finding-v12-stack-launcher/probes-189719.py": "c762defd3480fa59b9c545a009f45be40f367317c615775950cd2a3e0d72394b"
+ },
+ "operational_findings_preserved_unchanged": [
+  "five test modules are absent from parallel_test.py's registry",
+  "tests/tools/test_stage_execution.py has 12 pre-existing errors",
+  "the credential registry at /home/sl/.baton/credential-sources.json was never read",
+  "external-disk fixture coverage is unchanged"
+ ],
+ "no_owner_production_run_is_proposed": true,
+ "no_job_provider_engine_v11_operation_or_version_control_mutation": true
+}

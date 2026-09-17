@@ -1,0 +1,252 @@
+{
+ "work": "2b077949-W183883",
+ "claim": 189719,
+ "actor": "baton.claude",
+ "answering": {
+  "ruling": "OWNER-FRESH-INSTALL-20260916.md",
+  "sha256": "e91c831ca5e05d9b0e0556c40e8c39a33db287f9db261d72dfa0ecc006500471",
+  "handoff": "M189712, reroute 189715",
+  "selected": [
+   "installation initializes an empty instance with zero Jobs",
+   "the Authority identity is generated once, persisted at the destination, reused by later operations, and distinct per install",
+   "no placeholder Work, Job or per-Work grant",
+   "the smallest bootstrap/runtime-composition correction; no generic scheduler or migration project"
+  ]
+ },
+ "delivered": {
+  "the_input_names_no_job": {
+   "what_changed": "`jobs` left REQUIRED and became a DEFERRED member: absent is the ordinary fresh install, and present is validated by every rule it ever was.",
+   "held_by": [
+    "AFreshInstallHasZeroJobs.test_an_input_naming_no_jobs_is_accepted",
+    "AFreshInstallHasZeroJobs.test_EVERY_job_rule_still_holds_when_jobs_ARE_supplied"
+   ]
+  },
+  "the_identity_is_generated_and_persisted": {
+   "what_changed": "`authority_uuid` left REQUIRED and joined SUPERSEDED, so a document that names one is refused BY NAME with the reason. `bootstrap.identity` mints one per root and `persist_identity` writes it exclusively (O_CREAT|O_EXCL|O_NOFOLLOW) to <state_root>/authority-identity.json, before the Authority it names is created. `main` carries the resolved identity into the installed selector.",
+   "held_by": [
+    "TheInstanceGeneratesItsOwnIdentity (5 checks)",
+    "RepeatingIt.test_a_document_may_not_NAME_an_authority_at_all",
+    "RepeatingIt.test_an_unreadable_persisted_identity_is_refused_rather_than_replaced"
+   ]
+  },
+  "the_instance_only_deployment": {
+   "what_changed": "`stage_execution` admits a /2 document whose `job_bindings` is the EMPTY list: `_JOB_MEMBERS` (job_work_id, review_work_id, line_declared_base, canonical_target_id) are absent from it and `_binds_nothing` selects `_INSTANCE_MEMBERS`, so the two forms cannot be mixed -- a global Work beside an empty binding list is refused by the closed schema. `_global` replaces three `deployment.given[...]` fall-backs so a deployment that binds nothing refuses by name rather than raising KeyError inside a serving tick.",
+   "held_by": [
+    "AFreshInstallHasZeroJobs.test_the_emitted_configuration_binds_NOTHING_and_says_so",
+    "AFreshInstallHasZeroJobs.test_it_is_a_document_the_MANAGER_accepts"
+   ]
+  },
+  "no_placeholder_is_composed": {
+   "what_changed": "`_compose` iterates `jobs_of(document)`, so with none it adds the three route handlers and stops, printing \"job   none; no Work, grant or placeholder was created\". `_malformed_record` now admits an EMPTY bindings mapping as an answer and still refuses one that is not a mapping and one that names a Job without saying that Job's Work, base, target or producer [G1].",
+   "held_by": [
+    "AFreshInstallHasZeroJobs.test_NO_placeholder_work_job_grant_or_binding_is_composed",
+    "AFreshInstallHasZeroJobs.test_it_says_out_loud_that_it_composed_no_job",
+    "TheCustodyRecordIsEvidenceOrItIsNothing.test_an_EMPTY_binding_mapping_is_an_answer_and_is_still_compared"
+   ]
+  },
+  "the_guide": {
+   "what_changed": "STACK.md carries a complete minimal instance-only JSON -- exactly the required selections and nothing else -- the Job boundary, and the capability statement below.",
+   "held_by": [
+    "AFreshInstallHasZeroJobs.test_THE_GUIDE_S_MINIMAL_INPUT_IS_EXACTLY_WHAT_IS_REQUIRED"
+   ]
+  }
+ },
+ "NOT_DELIVERED_the_concrete_missing_capability": {
+  "what": "A fresh installation into an EMPTY destination that has configured workers cannot complete, and a real idle `just start` over a Job-free instance is therefore not yet reachable end to end.",
+  "why": [
+   "`single_worker._MEMBERS` requires every worker `deployment` to carry an `input_manifest`, and that manifest is DIGEST-SEALED (its `manifest_digest` recomputes over its own bytes) around a `work_ref` naming an Authority AND a Work.",
+   "So a worker document can only be written against an identity that already exists -- and this correction generates the identity during the same command. `_held_workers` refuses the mismatch with \"the bootstrap input manifest names another Authority\".",
+   "And a worker is bound to one Work, so the pool is not instance configuration in the way everything else in the input is.",
+   "Leaving the pool out is not available either: `baton_v12.job_manager.scheduler.own_pool` refuses an empty pool, so a manager cannot serve without one."
+  ],
+  "proved_not_described": [
+   "TheFreshInstallStillNeedsTheWORKERSToBeSeparable.test_a_worker_sealed_to_another_identity_is_refused_BY_NAME",
+   "TheFreshInstallStillNeedsTheWORKERSToBeSeparable.test_the_manifest_is_the_reason_and_it_is_SEALED"
+  ],
+  "what_it_would_take": "Move `input_manifest` and `task_document` from the worker deployment to the assignment, and admit an empty pool in `scheduler.own_pool` and in `stage_execution.operations_from` (per-worker preflight, `activate_pool`, `PooledManagerOperations` and `_job_eligibility` all assume a non-empty pool). That is a change to the accepted worker and scheduler contracts -- the 'generic scheduling expansion' the ruling excludes -- so it is RETURNED rather than started.",
+  "consequence_for_the_owner": "The two-operand bootstrap into a fresh destination is refused today unless that destination already carries the identity its worker documents were sealed to. No owner production run should be attempted against this until the boundary above is decided.",
+  "not_verified_because_it_is_not_reachable": [
+   "a real idle scheduler/publisher serving zero Jobs from an installed instance, and `just start|status|monitor|stop` over one"
+  ]
+ },
+ "verification": {
+  "focused_suites": [
+   {
+    "module": "tests.tools.test_version",
+    "tests": 27,
+    "result": "OK",
+    "seconds": 0.043
+   },
+   {
+    "module": "tests.tools.test_instance",
+    "tests": 117,
+    "result": "OK",
+    "seconds": 0.456
+   },
+   {
+    "module": "tests.tools.test_bootstrap",
+    "tests": 90,
+    "result": "OK",
+    "seconds": 1.408
+   },
+   {
+    "module": "tests.tools.test_stack",
+    "tests": 122,
+    "result": "OK",
+    "seconds": 26.351
+   },
+   {
+    "module": "tests.tools.test_environment",
+    "tests": 75,
+    "result": "OK",
+    "seconds": 0.936
+   },
+   {
+    "module": "tests.tools.test_packaging",
+    "tests": 11,
+    "result": "OK",
+    "seconds": 2.237
+   }
+  ],
+  "focused_total_tests": 442,
+  "focused_total_seconds": 31.431,
+  "new_this_claim": 18,
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_emitted_configuration_binds_NOTHING_and_says_so"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F1-the-emitted-configuration-invents-a-global-work-again",
+     "reverted_returncode": 1,
+     "seconds": 0.925,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_it_is_a_document_the_MANAGER_accepts",
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_emitted_configuration_binds_NOTHING_and_says_so"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F2-the-manager-refuses-a-deployment-that-binds-nothing",
+     "reverted_returncode": 1,
+     "seconds": 0.949,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_it_is_a_document_the_MANAGER_accepts"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F3-an-instance-only-document-may-carry-a-global-work-after-all",
+     "reverted_returncode": 1,
+     "seconds": 0.891,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_NO_placeholder_work_job_grant_or_binding_is_composed"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F4-a-fresh-install-composes-a-placeholder-work-and-grants",
+     "reverted_returncode": 1,
+     "seconds": 0.882,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_a_root_that_has_one_KEEPS_it"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F5-the-identity-is-minted-fresh-every-time",
+     "reverted_returncode": 1,
+     "seconds": 0.835,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_two_installations_are_two_instances"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F6-two-installations-may-be-one-instance",
+     "reverted_returncode": 1,
+     "seconds": 0.886,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_a_racing_second_writer_reads_what_the_first_wrote"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F7-the-persisted-identity-is-overwritten-rather-than-refused",
+     "reverted_returncode": 1,
+     "seconds": 0.879,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.RepeatingIt.test_a_document_may_not_NAME_an_authority_at_all"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F8-a-document-may-name-an-authority-again",
+     "reverted_returncode": 1,
+     "seconds": 0.877,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_THE_GUIDE_S_MINIMAL_INPUT_IS_EXACTLY_WHAT_IS_REQUIRED"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "F9-the-guide-s-minimal-input-drifts-from-what-is-required",
+     "reverted_returncode": 1,
+     "seconds": 0.859,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 9.878
+  },
+  "probe_seconds": 9.878,
+  "probe_script": "probes-189719.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probe": "F1",
+    "why": "the token was my own assertNotIn; the reverted code never reaches it, because the MANAGER's closed schema refuses an instance-only document carrying a global Work first -- the guard is one layer lower than I expected",
+    "corrected_token": "carries exactly"
+   },
+   {
+    "probe": "F6",
+    "why": "the token was backwards: assertEqual prints the FIRST operand first",
+    "corrected_token": "1 != 3"
+   }
+  ],
+  "no_build_no_clone_no_index_no_job_no_live_run": true,
+  "tests_stage_execution": "275 run, 12 pre-existing errors unchanged (8 'object has no attribute proposal', 4 'SimpleNamespace has no attribute reconciles'); none touches the code changed here"
+ },
+ "changed_this_claim": {
+  "v12/python/tools/bootstrap.py": "a248c36b81a9c903d7c468109948332ed7e990c4254de981b84fb17698e72e95",
+  "v12/python/tools/stage_execution.py": "50f665bb47a167c42e0c1e9142a0099dec26983a9a62ddea8cf816ed4fee9487",
+  "v12/STACK.md": "a40fecfadb2baa2113c71166990af02bc7303f2b2ccfddf378a9224a0ea4b505",
+  "v12/python/tests/tools/test_bootstrap.py": "99665ae3fbd73c3f302c976e389dd168bc92a9a432f2e45babf9802e3832a79a",
+  "v12/python/tests/tools/test_instance.py": "b7c3b2455173659f1d4bb62cec826b40ebc03fab297b417470ec0b38aad26fa0"
+ },
+ "operational_findings_preserved_unchanged": [
+  "five test modules are absent from parallel_test.py's registry: tests.manager.test_claude_context, tests.manager.test_provider_context, tests.manager.test_provider_context_delivery, tests.tools.test_correction_restart, tests.tools.test_managed_apply",
+  "tests/tools/test_stage_execution.py has 12 pre-existing errors",
+  "the credential registry at /home/sl/.baton/credential-sources.json was never read",
+  "external-disk fixture coverage is unchanged"
+ ],
+ "no_job_provider_engine_v11_operation_or_version_control_mutation": true
+}

@@ -73,6 +73,13 @@ def layout(destination):
         "state": str(root / STATE),
         "deployment": str(root / "deployment.json"),
         "record": str(root / "bootstrap.json"),
+        # THIS INSTANCE'S OWN AUTHORITY IDENTITY, generated once at install.
+        # It is an OWNED NAME like every other here, which is why it is derived
+        # rather than left to `tools.bootstrap` alone: review 2026-09-16T22-27-59Z
+        # [F3] found it absent from custody, so two destinations could both link
+        # this name at one external file and both read the same identity --
+        # which is the destination-owned isolation boundary, gone.
+        "identity": str(root / "authority-identity.json"),
         # The stage deployment's own mutable root, which `tools.bootstrap`
         # derives identically. It is NOT `state/`: that is this stack's process
         # records, and one path for two different things is how they collide.

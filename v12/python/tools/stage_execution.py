@@ -198,6 +198,98 @@ _MEMBERS = ("schema", "authority_store", "authority_uuid", "integration_store",
             "review_work_id", "retention_policy_digest",
             "retention_disposition", "line_declared_base",
             "receipt_participants", "policy_generation")
+# WHAT A DOCUMENT SAYS ABOUT THE ONE JOB IT BINDS GLOBALLY, named apart from
+# the rest because an INSTANCE that binds no Job has none of them.
+#
+# OWNER-FRESH-INSTALL-20260916.md: "installation starts with zero Jobs", and
+# a Work, a declared base and a canonical target are facts about a Job rather
+# than about a deployment -- which is why a fresh install cannot invent them
+# and must not carry placeholders in their place. A `/2` document whose
+# `job_bindings` is the EMPTY list is that instance: it configures the pool,
+# the profiles, the stores and the receipt participants, and binds nothing.
+# Every other document carries all four exactly as it did.
+_JOB_MEMBERS = ("job_work_id", "review_work_id", "line_declared_base",
+                "canonical_target_id")
+_INSTANCE_MEMBERS = tuple(one for one in _MEMBERS if one not in _JOB_MEMBERS)
+
+
+def unconfigured_work(job_store, control_store):
+    """Durable state this deployment configures NOBODY to serve. READ ONLY.
+
+    W183883, review 2026-09-16T22-58-33Z [P1]. An instance with no execution
+    capacity attaches no worker, so `PooledManagerOperations.recover` loops
+    over nothing and a real accepted offer in the control store was invisible:
+    the manager reported an ordinary idle tick while the control store's own
+    recovery called that offer recoverable. An empty report about work that
+    exists is worse than a refusal, because it reads as "there is nothing
+    here".
+
+    EVERY READ, AND NOTHING ELSE. Nothing here expires, abandons, repairs,
+    authorizes or executes anything: foreign state is left exactly as it is and
+    NAMED, which is the only honest thing an instance that cannot serve it can
+    do with it.
+
+    WHAT COUNTS. A Job row, an active pool generation, a live stage allocation
+    and a live control offer each describe work or capacity that needs a worker
+    this deployment does not configure -- including, as the review required,
+    control work with no matching Job row, which is why the offers are asked
+    about separately rather than derived from the Jobs.
+    """
+    from baton_v12.job_manager import scheduler, submission
+    from baton_v12.worker_manager import outstanding_offers
+
+    found = []
+    jobs = submission.job_rows(job_store)
+    if jobs:
+        found.append(f"{len(jobs)} Job(s) in the Job store "
+                     f"({', '.join(sorted(one['job_id'] for one in jobs))})")
+    active = scheduler.active_generation(job_store)
+    if active is not None:
+        found.append(f"an active pool generation {active['generation']}, which "
+                     f"names workers this deployment does not configure")
+    live = [one for one in scheduler.allocation_rows(job_store)
+            if one["allocation_state"] in ("reserved", "recovery-required")]
+    if live:
+        found.append(f"{len(live)} live stage allocation(s) "
+                     f"({', '.join(sorted(one['worker_id'] for one in live))})")
+    offers = outstanding_offers(control_store)
+    if offers:
+        found.append(f"{len(offers)} live control offer(s) "
+                     f"({', '.join(sorted(one['offer_id'] for one in offers))})")
+    return found
+
+
+def _refuse_unconfigured(found, when):
+    _refuse(f"this deployment configures no execution capacity and this "
+            f"instance holds work it could not serve, so it refuses {when} "
+            f"rather than reporting an idle stack: {'; '.join(found)}. Nothing "
+            f"was expired, abandoned, repaired or executed -- configure the "
+            f"workers this work needs, or point this instance at its own "
+            f"stores.", category="refused", code="precondition")
+
+
+def _serves_nothing(given):
+    """Has this deployment no configured execution capacity at all?
+
+    OWNER-FRESH-INSTALL-20260916.md: an installation initializes an instance
+    and binds no Job, so it configures no worker either -- a worker is
+    configured with the Job it serves. This is the one predicate the
+    composition branches on, so "empty" means the same thing everywhere.
+    """
+    return not given["workers"] and not given["job_bindings"]
+
+
+def _binds_nothing(document):
+    """Is this the instance-only form -- a /2 document binding no Job?
+
+    THE EMPTY LIST IS SAID, NOT INFERRED FROM ABSENCE. A `/2` document that
+    omits `job_bindings` has always been refused for omitting them, and that
+    refusal is the right answer to a deployment that meant to name some; an
+    instance that binds nothing says so.
+    """
+    return (type(document) is dict
+            and document.get("schema") == MULTI_CONFIG_SCHEMA
+            and document.get("job_bindings") == [])
 _WORKER_MEMBERS = ("worker_id", "role", "deployment")
 # W119405: WHAT ONE JOB BINDS, and it is closed.
 #
@@ -418,8 +510,10 @@ def held_configuration(document, *, checkout=None):
     # validator that rewrote its caller's operand would leave that caller
     # holding something it never wrote, and the observation surface below
     # reads the original for exactly that reason.
+    binds_nothing = _binds_nothing(document)
     given = dict(_document(document, "a stage-execution configuration",
-                           _MEMBERS, optional=_OPTIONAL_MEMBERS))
+                           _INSTANCE_MEMBERS if binds_nothing else _MEMBERS,
+                           optional=_OPTIONAL_MEMBERS))
     if given["schema"] not in CONFIG_SCHEMAS:
         _refuse(f"this deployment reads {' or '.join(CONFIG_SCHEMAS)} and this "
                 f"document is {given['schema']!r}")
@@ -434,12 +528,13 @@ def held_configuration(document, *, checkout=None):
     # failure than the one the operator actually made.
     _prepares(given)
     _text(given["authority_uuid"], "the configured Authority")
-    _text(given["job_work_id"], "the implementation Work")
-    _text(given["review_work_id"], "the review Work")
-    _text(given["canonical_target_id"], "the canonical target")
+    if not binds_nothing:
+        _text(given["job_work_id"], "the implementation Work")
+        _text(given["review_work_id"], "the review Work")
+        _text(given["canonical_target_id"], "the canonical target")
+        _text(given["line_declared_base"], "the line's declared base revision")
     _text(given["checkpoint_profile"], "the checkpoint profile name")
     _text(given["retention_disposition"], "the retention disposition")
-    _text(given["line_declared_base"], "the line's declared base revision")
     _digest(given["retention_policy_digest"], "the retention policy digest")
     _document(given["receipt_participants"], "the receipt participants",
               _RECEIPT_MEMBERS)
@@ -482,7 +577,7 @@ def held_configuration(document, *, checkout=None):
     # another Work would attach a reviewer to a checkpoint from a line this Job
     # never wrote, and the lifecycle would be perfectly happy about it: both
     # sides are valid, they are simply not the same Work.
-    if given["job_work_id"] != given["review_work_id"]:
+    if not binds_nothing and given["job_work_id"] != given["review_work_id"]:
         _refuse(f"the implementation stage names Work "
                 f"{given['job_work_id']!r} and the review stage names "
                 f"{given['review_work_id']!r}; one Job's review is over its "
@@ -493,7 +588,8 @@ def held_configuration(document, *, checkout=None):
               _PROFILE_MEMBERS)
     given["workers"] = _held_workers(
         given["workers"], here, given["authority_uuid"],
-        many=given["schema"] == MULTI_CONFIG_SCHEMA)
+        many=given["schema"] == MULTI_CONFIG_SCHEMA,
+        empty_ok=binds_nothing)
     given["job_bindings"] = _held_bindings(given)
     given["result_judgment_workers"] = _held_judgments(given, here)
     return given
@@ -617,10 +713,17 @@ def _held_bindings(given):
                  "canonical_target_id": given["canonical_target_id"],
                  "source_worker_id": sorted(producers)[0]}]
     bindings = given.get("job_bindings")
+    # AN INSTANCE BINDS NOTHING, AND SAYS SO. OWNER-FRESH-INSTALL-20260916.md:
+    # a fresh installation has zero Jobs and starts a real idle scheduler over
+    # empty stores. `_document` has already refused such a document if it also
+    # carried a global Work, base or target, so the two forms cannot be mixed.
+    if bindings == []:
+        return []
     if type(bindings) is not list or not bindings:
         _refuse(f"a {MULTI_CONFIG_SCHEMA} deployment names its job_bindings as "
-                f"a non-empty list; a Job this deployment cannot bind is one "
-                f"it cannot serve")
+                f"a list -- the empty one when it binds no Job at all, and "
+                f"otherwise one entry per Job; a Job this deployment cannot "
+                f"bind is one it cannot serve")
     held, seen = [], set()
     for one in bindings:
         binding = _document(one, "a configured Job binding", _BINDING_MEMBERS)
@@ -648,7 +751,8 @@ def _held_bindings(given):
     return held
 
 
-def _held_workers(workers, checkout, authority_uuid, *, many=False):
+def _held_workers(workers, checkout, authority_uuid, *, many=False,
+                  empty_ok=False):
     """The pool, and every rule that decides whether it could serve.
 
     W119403 ADDS ONE ADMISSION AND NOTHING ELSE. `many` is the multi-worker
@@ -663,8 +767,18 @@ def _held_workers(workers, checkout, authority_uuid, *, many=False):
     be configured under one identity and the pool would then have two entries
     the scheduler cannot tell apart. So identity uniqueness is stated here.
     """
-    if type(workers) is not list or not workers:
+    if type(workers) is not list:
         _refuse("a stage-execution configuration names its workers as a list")
+    if not workers:
+        # NO CAPACITY, AND ONLY FOR THE INSTANCE THAT BINDS NOTHING.
+        # A deployment that binds a Job and configures nobody to serve it is
+        # still refused below, by the every-role-served rule it has always
+        # had; `empty_ok` is the instance-only document, which binds no Job.
+        if not empty_ok:
+            _refuse("a stage-execution configuration names its workers as a "
+                    "non-empty list; a deployment that binds a Job and "
+                    "configures nobody to serve it could never serve it")
+        return []
     held = []
     seen_roles, participants, principals = {}, {}, {}
     identities = set()
@@ -837,6 +951,12 @@ def _minted(authority, given, scope):
     which handles this module's `ContractRefusal`, did not recognise it as a
     configuration fault at all.
     """
+    if _serves_nothing(given):
+        # NOTHING TO MINT FOR. A session is an actor's authority to write a
+        # receipt in a bound Work's own scope, and this deployment binds none.
+        # Minting deployment-scoped ones instead would be granting capability
+        # nobody configured -- see `_bound_scope`, which answers None here.
+        return None
     participants = dict(given["receipt_participants"])
     participants["integrator"] = \
         given["integration_profile"]["integrator_participant"]
@@ -920,6 +1040,13 @@ def _bound_scope(authority, given):
     do, so the disagreement is named here instead.
     """
     held = {}
+    if not given["job_bindings"]:
+        # NO BOUND WORK, SO NO SCOPE -- and no receipt session is minted for
+        # one. Review 2026-09-16T22-36-58Z: "no bound Work/no capacity means no
+        # stage-execution sessions or per-Work grants; do not invent
+        # deployment-scoped receipt capability." A scope invented here would be
+        # exactly that invention.
+        return None
     for binding in given["job_bindings"]:
         work_id = binding["job_work_id"]
         if work_id not in held:
@@ -1024,6 +1151,24 @@ def _no_verdict(control, attempt_id):
             category="refused", code="capability")
 
 
+def _global(deployment, name, what):
+    """A document's own global answer, or a refusal when it binds no Job.
+
+    The `job_id is None` paths below are for stages that carry no Job and for
+    legacy doubles without binding readers: both fall back to what the document
+    says globally. An INSTANCE-ONLY deployment says none of it, because it binds
+    no Job -- so this is a refusal naming that, rather than a KeyError from the
+    middle of a serving tick.
+    """
+    held = deployment.given.get(name)
+    if not held:
+        _refuse(f"this deployment binds no Job, so it has no {what}; a Work, a "
+                f"declared base and a canonical target are configured when a "
+                f"Job is, and an instance that binds none serves none",
+                category="refused", code="precondition")
+    return held
+
+
 def _bound_id(deployment, stage, job=None):
     """This stage's Job id, or None when the answer is the global one.
 
@@ -1046,8 +1191,8 @@ def _bound(deployment, stage):
     if job_id is None:
         return (next(one["deployment"] for one in deployment.given["workers"]
                      if one["role"] == "integration"),
-                deployment.given["job_work_id"],
-                deployment.given["canonical_target_id"])
+                _global(deployment, "job_work_id", "implementation Work"),
+                _global(deployment, "canonical_target_id", "canonical target"))
     return (deployment.worker_for(stage)["deployment"],
             deployment.works_for(job_id)[0],
             deployment.target_for(job_id))
@@ -2702,7 +2847,8 @@ class Integration:
                     f"behind an accepted verdict and never ahead of one",
                     category="refused", code="precondition")
         operands = {
-            "canonical_target_id": (deployment.given["canonical_target_id"]
+            "canonical_target_id": (_global(deployment, "canonical_target_id",
+                                            "canonical target")
                                     if job_id is None
                                     else deployment.target_for(job_id)),
             "line_id": line["line_id"],
@@ -3527,7 +3673,7 @@ class StageDeployment:
         self.publications = {
             who[len(PUBLISHER_PREFIX):] if who.startswith(PUBLISHER_PREFIX)
             else _sole_producer(given): Publication(control, session)
-            for who, session in sessions.items()
+            for who, session in (sessions or {}).items()
             if who == "publisher" or who.startswith(PUBLISHER_PREFIX)}
         self.publication = (list(self.publications.values())[0]
                             if len(self.publications) == 1
@@ -3544,7 +3690,16 @@ class StageDeployment:
         # answers -- an integer is the identifier of a group, not the proof
         # that this manager configured it. No consumer in this five-path scope
         # needs the integer; one that did would take `.gid` at its own call.
-        self.workspace_group = configured_workspace_group(control)
+        # NO CAPACITY, NO WORKSPACE GROUP -- and none is inferred.
+        # W183883, OWNER-FRESH-INSTALL-20260916.md: the group is provisioned by
+        # `worker_preflight`, which an instance configuring no worker never
+        # runs, and it is needed only to allocate an EXECUTION workspace. An
+        # instance that serves no stage allocates none. Asking for one here
+        # would make a fresh installation refuse to start over a grant nothing
+        # was going to use; inferring one is what `configured_workspace_group`
+        # itself refuses to do, and this does not do it either.
+        self.workspace_group = (None if _serves_nothing(given)
+                                else configured_workspace_group(control))
         # W119403: ROLE TO WORKERS, NOT ROLE TO WORKER. The seam the next cut
         # selects an eligible worker on; `sole_worker` is what the consumers
         # that genuinely need one producer today ask instead.
@@ -3555,12 +3710,12 @@ class StageDeployment:
         # producer that is the single `publisher` session this deployment has
         # always minted, under its own participant's name.
         self.publishers = {who[len(PUBLISHER_PREFIX):]: session
-                           for who, session in sessions.items()
+                           for who, session in (sessions or {}).items()
                            if who.startswith(PUBLISHER_PREFIX)}
         producers = sorted({one["deployment"]["participant"]
                             for one in given["workers"]
                             if one["role"] == "implementation"})
-        if len(producers) == 1 and "publisher" in sessions:
+        if len(producers) == 1 and "publisher" in (sessions or {}):
             self.publishers[producers[0]] = sessions["publisher"]
 
     def binding_for(self, job_id):
@@ -4284,6 +4439,12 @@ class StageExecution:
         self.publication = None if deployment is None else deployment.publication
         self.integration_profile = (None if deployment is None
                                     else deployment.integration_profile)
+        # THE TWO STORES A NO-CAPACITY DEPLOYMENT RE-ASKS ON EVERY RESUME.
+        # [P1]: the constructor comparison in `PooledManagerOperations` is one
+        # answer at one moment, and work that ARRIVES afterwards was ignored by
+        # every later tick. `recover` runs on every resume, so that is where an
+        # ongoing guard belongs.
+        self.no_capacity_stores = None
 
     def __getattr__(self, name):
         # THE POOLED SURFACE IS STILL THE SURFACE for everything a stage does
@@ -4300,6 +4461,54 @@ class StageExecution:
         if pooled is None:
             raise AttributeError(name)
         return getattr(pooled, name)
+
+    def _nothing_unserved(self, when):
+        """Ask, before anything this tick could act on. READ ONLY.
+
+        [P1]: `PooledManagerOperations.recover` loops over the attached
+        workers, so with none attached it answered an empty report no matter
+        what the stores held.
+        """
+        if self.no_capacity_stores is None:
+            return
+        job_store, control_store = self.no_capacity_stores
+        found = unconfigured_work(job_store, control_store)
+        if found:
+            _refuse_unconfigured(found, when)
+
+    def recover(self, *, now):
+        """The pooled recovery -- or a refusal, when this serves nothing.
+
+        `reconcile` calls this ONCE, at the start of a run. That is a resume,
+        and it is worth asking at, but it is not the ongoing guard -- see
+        `drain`.
+        """
+        self._nothing_unserved("on resume")
+        return self.pooled.recover(now=now)
+
+    def drain(self, handlers, *, quiescent=()):
+        """The transport drain -- and the EVERY-TICK boundary.
+
+        REVIEW 2026-09-16T23-16-06Z [P1], and my own claim was the wrong one.
+        I said `manager.reconcile` runs each tick; it does not.
+        `manager.serve` calls `reconcile` ONCE and then `sweep` for every tick
+        after it, so a guard that lived only in `recover` was asked once at
+        startup and never again -- and an offer or a pool arriving during a
+        run was met by an ordinary empty sweep.
+
+        `sweep`'s FIRST act is `_observe`, and `_observe`'s call into these
+        operations is this one. So this is the boundary every ordinary tick
+        reaches, before anything that tick could observe, adopt, delegate,
+        launch or converse. Asking here costs one read of two stores per tick
+        and answers the question the empty report could not.
+
+        NOT `recover` ON EVERY TICK. Recovery EXPIRES and ABANDONS, and doing
+        that each tick to find out whether there is anything here would be
+        settling durable state to observe it -- which is the thing this whole
+        correction exists to avoid.
+        """
+        self._nothing_unserved("on this serving tick")
+        return self.pooled.drain(handlers, quiescent=quiescent)
 
     # -- the owned observation and the two stage driver operations -----------
 
@@ -4988,7 +5197,8 @@ class PreparationResolver:
             "schema": managed_execution.REQUEST_SCHEMA,
             "orchestration_id": orchestration_id,
             "canonical_target_id": (
-                deployment.given["canonical_target_id"] if job_id is None
+                _global(deployment, "canonical_target_id",
+                        "canonical target") if job_id is None
                 else deployment.target_for(job_id)),
             "job_id": job_id, "line_id": line["line_id"],
             "source_proposal_id": deployment.published_proposal(accepted),
@@ -5576,7 +5786,22 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
         # with somebody's candidate already frozen and unacceptable.
         composed.sessions = _minted(composed.authority, given,
                                     _bound_scope(composed.authority, given))
-        pool = _pool_generation(job_store, given, resolved)
+        # NO CAPACITY MEANS NO POOL TO PREDICT OR ACTIVATE. A pool document
+        # is a list of workers, and `scheduler.own_pool` refuses an empty one
+        # for the good reason that a pool nobody serves from is not a pool.
+        # An instance that configures no capacity does not have one at all --
+        # so nothing is activated, and `PooledManagerOperations` attaches to
+        # exactly what the STORE still requires, which for a fresh instance is
+        # nothing and for a store holding live work is a refusal.
+        empty = _serves_nothing(given)
+        if empty:
+            # AT ADMISSION, and before the first durable act below. An instance
+            # that cannot serve what is already here must say so rather than
+            # start and report nothing.
+            found = unconfigured_work(job_store, control_store)
+            if found:
+                _refuse_unconfigured(found, "at startup")
+        pool = None if empty else _pool_generation(job_store, given, resolved)
         # -- and everything below this line does ----------------------------
         #
         # `worker_preflight` is the half of a worker deployment the engine,
@@ -5689,9 +5914,10 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                     # shared handle would take the other two down with it.
                     dispose=lambda: None)
             composed.workers.append(dict(one, operations=operations))
-        generation = scheduler.activate_pool(job_store, pool,
-                                             resolved)["generation"]
-        if generation != given["pool_generation"]:
+        generation = (None if empty else
+                      scheduler.activate_pool(job_store, pool,
+                                              resolved)["generation"])
+        if not empty and generation != given["pool_generation"]:
             # THE ACCEPTED OPERATION'S OWN ANSWER, KEPT. `_pool_generation`
             # above predicts this from the same durable state and refuses
             # before the activation; this compares what actually happened, so
@@ -5703,10 +5929,12 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                     f"refuses rather than serving under a generation nobody "
                     f"configured", category="refused",
                     code="operation-collision")
+        if empty:
+            composed.no_capacity_stores = (job_store, control_store)
         composed.pooled = PooledManagerOperations(
             job_store,
-            {(generation, one["worker_id"]): one["operations"]
-             for one in composed.workers},
+            {} if empty else {(generation, one["worker_id"]): one["operations"]
+                              for one in composed.workers},
             resolved_principals=resolved,
             independence=_job_eligibility(composed))
         return composed

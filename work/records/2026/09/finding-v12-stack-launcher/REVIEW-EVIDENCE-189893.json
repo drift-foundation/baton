@@ -1,0 +1,48 @@
+{
+  "scratch": "/tmp/w183883-review189893-p732quah",
+  "changed_candidate_mismatches": [],
+  "link_read": {
+    "accepted": false,
+    "type": "BootstrapRefusal",
+    "detail": "the instance identity at /tmp/w183883-review189893-p732quah/linked/authority-identity.json is not a file this destination owns (OSError: [Errno 40] Too many levels of symbolic links: '/tmp/w183883-review189893-p732quah/linked/authority-identity.json'). A link or a dangling link at that name is refused rather than followed: an instance owns what is under its own destination, and two destinations pointing at one identity would be one Authority wearing two names. Nothing here removed it."
+  },
+  "link_collision": {
+    "accepted": false,
+    "type": "BootstrapRefusal",
+    "detail": "the instance identity at /tmp/w183883-review189893-p732quah/linked/authority-identity.json is not a file this destination owns (OSError: [Errno 40] Too many levels of symbolic links: '/tmp/w183883-review189893-p732quah/linked/authority-identity.json'). A link or a dangling link at that name is refused rather than followed: an instance owns what is under its own destination, and two destinations pointing at one identity would be one Authority wearing two names. Nothing here removed it."
+  },
+  "link_custody": {
+    "accepted": false,
+    "type": "BootstrapRefusal",
+    "detail": "the destination already carries a link at /tmp/w183883-review189893-p732quah/linked/authority-identity.json (to /tmp/w183883-review189893-p732quah/foreign.json); an instance owns what is under its own destination, and nothing here writes through a name somebody else controls."
+  },
+  "fifo_custody": {
+    "accepted": true,
+    "value": null
+  },
+  "fifo_read": {
+    "timeout": true,
+    "limit_seconds": 2,
+    "child_killed_and_reaped_by_subprocess_run": true
+  },
+  "fifo_seconds": 2.0026056300266646,
+  "trailing_invalid_bytes_read": {
+    "accepted": true,
+    "value": [
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      false
+    ]
+  },
+  "entire_record_json": {
+    "accepted": false,
+    "type": "JSONDecodeError",
+    "detail": "Extra data: line 1 column 65537 (char 65536)"
+  },
+  "audit_seconds": 2.0038832249701954,
+  "tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.002s\n\nOK\n",
+    "seconds": 0.17559671198250726
+  }
+}

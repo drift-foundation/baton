@@ -19,10 +19,12 @@ it refuses, and what it leaves alone.
 import io
 import json
 import os
+import pathlib
 from pathlib import Path
 import shutil
 import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -79,7 +81,7 @@ class Fixture(Helpers, unittest.TestCase):
     def document(self, **members):
         given = {
             "schema": bootstrap.SCHEMA, "state_root": self.root,
-            "authority_uuid": "0" * 31 + "a", "checkpoint_profile": PROFILE_KIND,
+            "checkpoint_profile": PROFILE_KIND,
             "integration_profile": {
                 "profile_kind": PROFILE_KIND, "profile_version": 1,
                 "integrator_participant": "baton.integrator",
@@ -118,6 +120,30 @@ class ValidFixture(Helpers, _stage_case.ServingCase if _stage_case else unittest
         self.addCleanup(chosen.stop)
         super().setUp()
         self.state = os.path.join(self.root, "bootstrap-deployment")
+        # AN INSTANCE THAT IS ALREADY INSTALLED, and Jobs added to it.
+        # OWNER-FRESH-INSTALL-20260916.md: the Authority identity is generated
+        # at install and persisted at the destination, so a worker document --
+        # whose input manifest is digest-sealed over that identity -- can only
+        # be written against an instance that already has one. These cases
+        # supply Jobs, so they run against a root whose identity is the one the
+        # accepted stage fixture's workers were built for.
+        self.persisted_identity(self.config["authority_uuid"])
+
+    def persisted_identity(self, uuid):
+        places = bootstrap.layout(self.state)
+        return bootstrap.persist_identity(places, uuid)
+
+    def nothing_was_composed(self):
+        """No record, no configuration and no Authority.
+
+        NOT "the state root does not exist": this instance's identity is
+        persisted there, by the fixture, before anything is composed -- which
+        is the fresh-install order itself. What a refusal must leave behind is
+        nothing that BINDS anything.
+        """
+        places = bootstrap.layout(self.state)
+        for name in ("record", "configuration", "authority_store"):
+            self.assertFalse(os.path.exists(places[name]), name)
 
     def stage_worker(self, worker_id, role, participant, **members):
         """One accepted worker, spelled the way this helper's input spells it.
@@ -149,7 +175,6 @@ class ValidFixture(Helpers, _stage_case.ServingCase if _stage_case else unittest
     def document(self, **members):
         given = {
             "schema": bootstrap.SCHEMA, "state_root": self.state,
-            "authority_uuid": self.config["authority_uuid"],
             "checkpoint_profile": PROFILE_KIND,
             "integration_profile": {
                 "profile_kind": PROFILE_KIND, "profile_version": 1,
@@ -176,6 +201,221 @@ class ValidFixture(Helpers, _stage_case.ServingCase if _stage_case else unittest
 
 
 # -- what is refused before a deployment is ever built -------------------------
+
+
+class TheInstanceGeneratesItsOwnIdentity(Fixture):
+    """OWNER-FRESH-INSTALL-20260916.md: generated once, persisted at the
+    destination, reused by every later operation, and distinct per install.
+
+    OVER THE IDENTITY ITSELF, not over a composed deployment: what is under
+    test is where the identity comes from and where it stays, and a deployment
+    is not needed to ask that.
+    """
+
+    def places(self, name="one"):
+        return bootstrap.layout(os.path.join(self.temp.name, name))
+
+    def test_a_fresh_root_mints_one_and_writes_it_down(self):
+        places = self.places()
+        uuid, generated = bootstrap.identity(places)
+        self.assertIs(generated, True)
+        self.assertEqual(len(uuid), 32)
+        self.assertTrue(all(one in "0123456789abcdef" for one in uuid), uuid)
+        self.assertFalse(os.path.exists(places["identity"]))
+        self.assertEqual(bootstrap.persist_identity(places, uuid), uuid)
+        held = json.loads(Path(places["identity"]).read_bytes())
+        self.assertEqual(held, {"schema": bootstrap.IDENTITY_SCHEMA,
+                                "authority_uuid": uuid})
+
+    def test_a_root_that_has_one_KEEPS_it(self):
+        places = self.places()
+        first, _ = bootstrap.identity(places)
+        bootstrap.persist_identity(places, first)
+        again, generated = bootstrap.identity(places)
+        self.assertEqual(again, first)
+        self.assertIs(generated, False)
+
+    def test_two_installations_are_two_instances(self):
+        """Separate installs have separate identities: the whole reason this is
+        generated per root rather than named in a document that could be
+        copied to a second destination."""
+        made = set()
+        for name in ("one", "two", "three"):
+            places = self.places(name)
+            uuid, _ = bootstrap.identity(places)
+            bootstrap.persist_identity(places, uuid)
+            made.add(uuid)
+        self.assertEqual(len(made), 3)
+
+    def test_a_racing_second_writer_reads_what_the_first_wrote(self):
+        """O_EXCL: two bootstraps racing for one fresh root do not both believe
+        they minted it."""
+        places = self.places()
+        first, _ = bootstrap.identity(places)
+        bootstrap.persist_identity(places, first)
+        self.assertEqual(bootstrap.persist_identity(places, first), first)
+        with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+            bootstrap.persist_identity(places, "b" * 32)
+        self.assertIn("rebinds an instance somebody else installed",
+                      str(raised.exception))
+
+    def test_a_LINKED_identity_record_is_refused_and_left_alone(self):
+        """Review 2026-09-16T22-27-59Z [F3]: the read followed a symlink, so two
+        destinations each carrying a link at this name to ONE external file
+        both read the same identity and both believed they were installed
+        independently. That is the destination-owned isolation boundary gone."""
+        outside = pathlib.Path(self.temp.name) / "somebody-elses-identity.json"
+        outside.write_text(json.dumps({"schema": bootstrap.IDENTITY_SCHEMA,
+                                       "authority_uuid": "c" * 32}))
+        made = []
+        for name in ("one", "two"):
+            places = self.places(name)
+            Path(places["identity"]).parent.mkdir(parents=True, exist_ok=True)
+            os.symlink(str(outside), places["identity"])
+            with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+                bootstrap.identity(places)
+            said = str(raised.exception)
+            self.assertIn("not a file this destination owns", said)
+            self.assertIn("Nothing here removed it", said)
+            # AND THE FOREIGN NAME IS EXACTLY AS IT WAS.
+            self.assertTrue(os.path.islink(places["identity"]))
+            made.append(places)
+        self.assertEqual(json.loads(outside.read_bytes())["authority_uuid"],
+                         "c" * 32)
+        # AND PERSISTING THROUGH IT IS REFUSED TOO: O_EXCL fails against the
+        # link, and the fallback read is the same safe one.
+        with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+            bootstrap.persist_identity(made[0], "d" * 32)
+        self.assertIn("not a file this destination owns", str(raised.exception))
+        self.assertEqual(json.loads(outside.read_bytes())["authority_uuid"],
+                         "c" * 32)
+
+    def test_a_DANGLING_identity_link_is_not_read_as_absent(self):
+        """The [K3] shape, here: `exists` follows the final link, so a dangling
+        one reads as absent -- and a fresh identity would then be written
+        THROUGH it, into wherever it points."""
+        places = self.places()
+        Path(places["identity"]).parent.mkdir(parents=True, exist_ok=True)
+        gone = os.path.join(self.temp.name, "never-existed.json")
+        os.symlink(gone, places["identity"])
+        with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+            bootstrap.identity(places)
+        self.assertIn("dangling link", str(raised.exception))
+        self.assertFalse(os.path.exists(gone))
+        self.assertTrue(os.path.islink(places["identity"]))
+
+    def test_an_identity_that_is_not_a_regular_file_is_refused(self):
+        places = self.places()
+        os.makedirs(places["identity"], exist_ok=True)
+        with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+            bootstrap.identity(places)
+        self.assertIn("is a directory rather than a regular file",
+                      str(raised.exception))
+        self.assertTrue(os.path.isdir(places["identity"]))
+
+    def test_the_identity_is_a_name_the_DESTINATION_owns(self):
+        """It is in the custody sweep, so a link at it is refused before any
+        effect rather than discovered by the reader."""
+        from tools import instance as instances
+
+        places = instances.layout(os.path.join(self.temp.name, "destination"))
+        self.assertEqual(os.path.basename(places["identity"]),
+                         "authority-identity.json")
+        os.makedirs(places["destination"], exist_ok=True)
+        os.symlink("/etc/hostname", places["identity"])
+        with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+            bootstrap.custody(places, places["destination"])
+        self.assertIn("already carries a link at", str(raised.exception))
+
+    def test_a_NAMED_PIPE_is_refused_WITHOUT_waiting_for_a_writer(self):
+        """Review 2026-09-16T22-36-58Z: `os.open` on a FIFO blocks for a writer
+        -- before `fstat` can say it is one -- so a setup command met a named
+        pipe somebody left in a destination by hanging forever. O_NONBLOCK
+        makes the read-only open return at once, and the no-follow descriptor
+        proof is untouched."""
+        import signal
+
+        places = self.places()
+        Path(places["identity"]).parent.mkdir(parents=True, exist_ok=True)
+        os.mkfifo(places["identity"])
+
+        def ring(signum, frame):
+            raise TimeoutError("the identity read blocked on a named pipe")
+
+        previous = signal.signal(signal.SIGALRM, ring)
+        signal.setitimer(signal.ITIMER_REAL, 5.0)
+        try:
+            with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+                bootstrap.identity(places)
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+            signal.signal(signal.SIGALRM, previous)
+        self.assertIn("named pipe", str(raised.exception))
+        self.assertIn("Nothing here replaced it", str(raised.exception))
+        # AND THE FOREIGN NODE IS STILL THERE.
+        import stat as modes
+
+        self.assertTrue(modes.S_ISFIFO(os.lstat(places["identity"]).st_mode))
+
+    def test_an_identity_LARGER_than_a_record_is_refused_rather_than_truncated(self):
+        """The other half of the same review: the read took the first 64 KiB
+        and discarded the rest, so a valid record padded past that bound and
+        followed by rubbish PARSED -- while the file on disk does not. A reader
+        that sees part of a document answers about a document nobody wrote."""
+        places = self.places()
+        Path(places["identity"]).parent.mkdir(parents=True, exist_ok=True)
+        # THE REVIEWER'S EXACT CASE, and the padding is inside the document on
+        # purpose: the first IDENTITY_LIMIT bytes are a COMPLETE, VALID record,
+        # so a reader that took exactly that many and stopped would accept it
+        # and never see the rubbish after. A shorter document cut mid-string
+        # would be caught by the parser and would prove nothing about the bound.
+        held = {"schema": bootstrap.IDENTITY_SCHEMA,
+                "authority_uuid": "e" * 32, "padding": ""}
+        held["padding"] = "x" * (bootstrap.IDENTITY_LIMIT
+                                 - len(json.dumps(held)))
+        whole = json.dumps(held)
+        self.assertEqual(len(whole), bootstrap.IDENTITY_LIMIT)
+        self.assertEqual(json.loads(whole)["authority_uuid"], "e" * 32)
+        Path(places["identity"]).write_text(whole + "\nNOT JSON\n")
+        with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+            bootstrap.identity(places)
+        self.assertIn("larger than", str(raised.exception))
+        self.assertIn(str(bootstrap.IDENTITY_LIMIT), str(raised.exception))
+
+    def test_TRAILING_rubbish_within_the_bound_is_refused_too(self):
+        """Under the bound there is nothing to truncate, so the parse is over
+        the whole file and trailing rubbish is a document that does not read."""
+        places = self.places()
+        Path(places["identity"]).parent.mkdir(parents=True, exist_ok=True)
+        Path(places["identity"]).write_text(
+            json.dumps({"schema": bootstrap.IDENTITY_SCHEMA,
+                        "authority_uuid": "e" * 32}) + "\nNOT JSON\n")
+        with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+            bootstrap.identity(places)
+        self.assertIn("could not be read", str(raised.exception))
+
+    def test_a_record_AT_the_bound_still_reads(self):
+        """The bound refuses what is over it and nothing else: an ordinary
+        record, and one padded to just under, both still answer."""
+        places = self.places()
+        Path(places["identity"]).parent.mkdir(parents=True, exist_ok=True)
+        held = {"schema": bootstrap.IDENTITY_SCHEMA,
+                "authority_uuid": "e" * 32}
+        held["padding"] = "x" * (bootstrap.IDENTITY_LIMIT
+                                 - len(json.dumps(held)) - 16)
+        Path(places["identity"]).write_text(json.dumps(held))
+        self.assertEqual(bootstrap.identity(places), ("e" * 32, False))
+
+    def test_an_unreadable_identity_is_unknown_rather_than_absent(self):
+        for written in ("{not json", json.dumps({"schema": "other"}),
+                        json.dumps({"schema": bootstrap.IDENTITY_SCHEMA,
+                                    "authority_uuid": "short"})):
+            places = self.places("root-" + str(len(written)))
+            Path(places["identity"]).parent.mkdir(parents=True, exist_ok=True)
+            Path(places["identity"]).write_text(written)
+            with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+                bootstrap.identity(places)
+            self.assertIn("is unknown", str(raised.exception), written)
 
 
 class EveryMissingInputIsNamedAtOnce(Fixture):
@@ -484,14 +724,14 @@ class AnOptionalSelectionTravelsOrIsRefused(ValidFixture):
         said = self.refused(integration_preparation=None)
         self.assertIn("managed preparation selection", said)
         self.assertIn("not one the manager would accept", said)
-        self.assertFalse(os.path.exists(self.state))
+        self.nothing_was_composed()
 
     def test_another_optional_member_in_an_unusable_form_is_refused(self):
         """`result_judgment_workers` is held by `held_configuration` too, so an
         unusable form is refused here, before anything is made."""
         said = self.refused(result_judgment_workers=17)
         self.assertIn("not one the manager would accept", said)
-        self.assertFalse(os.path.exists(self.state))
+        self.nothing_was_composed()
 
     def test_an_accepted_form_of_another_optional_member_travels(self):
         chosen = os.path.join(self.root, "target-tree")
@@ -588,13 +828,31 @@ class TheCustodyRecordIsEvidenceOrItIsNothing(ValidFixture):
             self.assertIn("rather than a document", said, repr(value))
         self.unchanged(answer, before, "configuration")
 
-    def test_a_record_naming_no_bindings_is_refused(self):
+    def test_a_record_whose_bindings_are_not_a_mapping_is_refused(self):
         answer, before = self.composed()
         held = json.loads(Path(answer["places"]["record"]).read_bytes())
-        for value in ({}, [], None, "none"):
+        for value in ([], None, "none"):
             held["bindings"] = value
             self.rewrite(answer, "record", held)
-            self.assertIn("names no bindings", self.refusing(), repr(value))
+            self.assertIn("rather than a mapping", self.refusing(), repr(value))
+        self.unchanged(answer, before, "configuration")
+
+    def test_an_EMPTY_binding_mapping_is_an_answer_and_is_still_compared(self):
+        """OWNER-FRESH-INSTALL-20260916.md: an installed instance binds zero
+        Jobs, so "this root holds no bindings" is a thing a record has to be
+        able to SAY -- it is no longer read as a record that says nothing.
+
+        AND IT IS STILL EVIDENCE. The configuration beside it binds one Job, so
+        the pair disagrees and the repeat is refused; what changed is which
+        sentence is true about the record, not whether it is checked.
+        """
+        answer, before = self.composed()
+        held = json.loads(Path(answer["places"]["record"]).read_bytes())
+        held["bindings"] = {}
+        self.rewrite(answer, "record", held)
+        said = self.refusing()
+        self.assertNotIn("rather than a mapping", said)
+        self.assertIn("binds one Job and its record names 0", said)
         self.unchanged(answer, before, "configuration")
 
     def test_a_record_naming_no_readable_authority_is_refused(self):
@@ -798,6 +1056,900 @@ class WhatItTELLSYouToDoNext(ValidFixture):
         self.assertIn("no Job was submitted", said)
 
 
+def guide_example():
+    """The no-Job input document THIS GUIDE offers, parsed out of it.
+
+    Review 2026-09-16T22-27-59Z [F2] and 2026-09-16T22-36-58Z: the example has
+    to be runnable, and the way to keep it runnable is to run THAT ONE rather
+    than a copy of it that can drift.
+    """
+    guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+    heading = "### A fresh installation has zero Jobs"
+    block = guide.split(heading, 1)[1].split("```json", 1)[1]
+    return json.loads(block.split("```", 1)[0])
+
+
+class TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE(unittest.TestCase):
+    """The SOURCE-RUN empty lifecycle, and the name says which one it is.
+
+    CORRECTED LABEL. Review 2026-09-16T22-58-33Z [P2]: this class was called
+    `..._INSTALLS_AND_SERVES` and its helper `installed()`, and it does neither:
+    it calls `bootstrap.prepare`, exports the four source-run variables and
+    calls `tools.stack` in process. No destination installer, no runtime copy,
+    no selector and no destination justfile. What it proves is real and worth
+    having -- the REAL manager and publisher, over real SQLite stores, started
+    and stopped -- and it is the source-run form of it.
+
+    `TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY` below is the installation
+    boundary, and it says exactly what it substitutes.
+
+    OWNER-FRESH-INSTALL-20260916.md: start runs the real idle scheduler and
+    publisher with honest empty status rather than a dummy success branch.
+
+    NO PROVIDER, ENGINE, CONTAINER, JOB OR NETWORK. What is absent is a
+    workload, which is the whole point.
+    """
+
+    def setUp(self):
+        outside = os.environ.get("BATON_V12_STACK_TEST_ROOT", "/var/tmp")
+        self.temp = tempfile.TemporaryDirectory(prefix="v12-idle-", dir=outside)
+        self.addCleanup(self.cleanup)
+        self.root = self.temp.name
+
+    def cleanup(self):
+        from tools import stack
+
+        try:
+            stack.main(["stop"], stream=io.StringIO(), environ=self.environ)
+        except Exception:                                    # noqa: BLE001
+            pass
+        self.temp.cleanup()
+
+    def composed_from_source(self):
+        document = dict(guide_example(),
+                        state_root=os.path.join(self.root, "deployment"))
+        answer = bootstrap.prepare(document, stream=io.StringIO())
+        self.environ = dict(
+            os.environ,
+            BATON_V12_JOB_STORE=answer["places"]["job_store"],
+            BATON_V12_CONTROL_STORE=answer["places"]["control_store"],
+            BATON_V12_AUTHORITY_UUID=answer["authority_uuid"],
+            BATON_V12_STAGE_EXECUTION_CONFIG=answer["places"]["configuration"],
+            BATON_V12_STACK_ROOT=os.path.join(self.root, "stack"))
+        return answer
+
+    def ran(self, *argv):
+        from tools import stack
+
+        said = io.StringIO()
+        code = stack.main(list(argv), stream=said, environ=self.environ)
+        return code, said.getvalue()
+
+    def test_the_guides_example_is_a_document_that_PARSES(self):
+        """[F2]: the previous example did not, and a check that compared member
+        names said nothing about it."""
+        held = guide_example()
+        self.assertEqual(set(held), set(bootstrap.REQUIRED))
+        self.assertNotIn("jobs", held)
+        self.assertNotIn("workers", held)
+        self.assertNotIn("authority_uuid", held)
+
+    def test_it_COMPOSES_and_then_STARTS_STATUS_MONITOR_STOPS(self):
+        self.composed_from_source()
+        code, said = self.ran("start")
+        self.assertEqual(code, 0, said)
+        self.assertIn("started: manager", said)
+        self.assertIn("started: publisher", said)
+        # THE REAL GATE, not a claim: every manager acknowledged that its
+        # deployment COMPOSED, and the publisher wrote a freshly observed
+        # snapshot during this start.
+        self.assertIn("acknowledged that its deployment composed", said)
+        self.assertIn("empty configured stack is a valid idle state", said)
+
+        code, said = self.ran("status")
+        self.assertEqual(code, 0, said)
+        self.assertIn("manager    running", said)
+        self.assertIn("publisher  running", said)
+        self.assertIn("jobs       0 observed (canonical=True)", said)
+        self.assertIn("serving    acknowledged", said)
+        self.assertIn("snapshot   fresh", said)
+
+        code, said = self.ran("monitor", "--ticks", "2", "--interval", "0.1")
+        self.assertEqual(code, 0, said)
+        self.assertEqual(said.count("this snapshot reports no Jobs"), 2)
+
+        code, said = self.ran("stop")
+        self.assertEqual(code, 0, said)
+        self.assertIn("stopped: manager", said)
+        self.assertIn("stopped: publisher", said)
+
+        code, said = self.ran("status")
+        self.assertEqual(code, 0, said)
+        self.assertIn("manager    absent", said)
+        self.assertIn("publisher  absent", said)
+
+    def test_the_zeros_are_READ_rather_than_asserted(self):
+        """"Never replace real store observation with constant zero." The
+        snapshot is written by the publisher out of the actual Job store, so
+        the count comes from a read; this proves the file exists, is canonical
+        and was observed during this run rather than copied into place."""
+        answer = self.composed_from_source()
+        self.started = time.time() - 1
+        code, said = self.ran("start")
+        self.assertEqual(code, 0, said)
+        self.addCleanup(self.ran, "stop")
+        from tools import stack
+
+        place = stack.snapshot_path(os.path.join(self.root, "stack"))
+        published = json.loads(Path(place).read_bytes())
+        # CANONICAL means the publisher read the REAL store rather than
+        # answering from a cache or a default; `jobs` is what that read found.
+        self.assertIs(published.get("canonical"), True)
+        self.assertEqual(published.get("jobs"), [])
+        self.assertTrue(published.get("observed_at"))
+        self.assertEqual(published.get("schema"), "baton.v12.job-status/5")
+        # AND IT IS THIS RUN'S: `start` refuses unless a snapshot was written
+        # DURING it, which is the gate the message above reports.
+        self.assertGreater(os.path.getmtime(place), self.started)
+        del answer
+
+
+class TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY(unittest.TestCase):
+    """The DESTINATION installer, its selector, and the lifecycle through it.
+
+    Review 2026-09-16T22-58-33Z [P2] asked for acceptance at the selected
+    installation boundary, and for the substitutions to be named rather than
+    implied. They are:
+
+      THE RUNTIME IS A STAND-IN, not a frozen bundle. It is a directory
+        carrying the launcher's NAME and a file beside it, exactly as
+        `test_instance` composes one -- so what is exercised here is the
+        install, the manifest, the selector and the deployed justfile, over a
+        runtime whose bytes are this test's. `tests/tools/test_packaging.py`
+        asks the REAL bundle its own questions, and no claim is made here
+        about frozen behaviour or about any retained bundle.
+      THE LIFECYCLE RUNS THROUGH THE SELECTOR, in process. `stack.main
+        --instance <destination>/instance.json` is the path the deployed
+        justfile's recipes resolve to; what a stand-in runtime cannot do is
+        EXECUTE, so the bundled executable itself is not run here.
+      REPOSITORIES ARE NOT PREPARED. `--no-repositories` is passed, so no
+        clone and no version-control command happens at all.
+
+    What is NOT substituted: the destination layout, `instance.emit`/`create`,
+    the manifest digest over the copied runtime, the deployed justfile, the
+    persisted identity, and the real manager and publisher over real stores.
+    """
+
+    def setUp(self):
+        outside = os.environ.get("BATON_V12_STACK_TEST_ROOT", "/var/tmp")
+        self.temp = tempfile.TemporaryDirectory(prefix="v12-installed-",
+                                                dir=outside)
+        self.addCleanup(self.cleanup)
+        self.root = self.temp.name
+        self.environ = dict(os.environ)
+
+    def cleanup(self):
+        from tools import stack
+
+        try:
+            stack.main(["--instance", self.places["instance"], "stop"],
+                       stream=io.StringIO(), environ=self.environ)
+        except Exception:                                    # noqa: BLE001
+            pass
+        self.temp.cleanup()
+
+    def stand_in_runtime(self):
+        """A directory shaped like a one-folder bundle, and nothing more."""
+        source = Path(self.root) / "stand-in-distro"
+        (source / "_internal").mkdir(parents=True, exist_ok=True)
+        (source / "baton-v12-stack").write_text("a stand-in for the launcher")
+        (source / "_internal" / "lib.so").write_text("stand-in bytes")
+        return str(source)
+
+    def install(self, name="destination"):
+        from tools import instance as instances
+
+        destination = os.path.join(self.root, name)
+        self.places = instances.layout(destination)
+        document = dict(guide_example())
+        document.pop("state_root", None)
+        inputs = os.path.join(self.root, name + "-inputs.json")
+        Path(inputs).write_text(json.dumps(document))
+        said = {"command": "baton-v12-stack", "frozen": True,
+                "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                "schema_assets": {"agent-session-1.0": 10,
+                                  "worker-control-1.0": 20},
+                "native_rpds": str(Path(self.stand_in_runtime())
+                                   / "_internal" / "lib.so")}
+        out = io.StringIO()
+        with mock.patch.object(
+                bootstrap, "_identity_of",
+                lambda command, runtime=None, distro=None: said):
+            code = bootstrap.main(
+                ["--inputs", inputs, "--destination", destination,
+                 "--distro", self.stand_in_runtime(), "--no-repositories"],
+                stream=out)
+        self.assertEqual(code, 0, out.getvalue())
+        return destination, out.getvalue()
+
+    def test_the_guides_document_INSTALLS_into_a_destination(self):
+        destination, said = self.install()
+        # THE SELECTOR, THE INTERFACE AND THE RUNTIME.
+        self.assertTrue(os.path.isfile(self.places["instance"]))
+        self.assertTrue(os.path.isfile(self.places["justfile"]))
+        self.assertTrue(os.path.isfile(
+            os.path.join(self.places["distro"], "baton-v12-stack")))
+        # AND THE IDENTITY IS THIS DESTINATION'S, persisted where it says.
+        held = json.loads(Path(self.places["identity"]).read_bytes())
+        self.assertEqual(held["schema"], bootstrap.IDENTITY_SCHEMA)
+        selector = json.loads(Path(self.places["instance"]).read_bytes())
+        self.assertEqual(selector["authority_uuid"], held["authority_uuid"])
+        self.assertIn("authority", said)
+        # NO REPOSITORY WAS PREPARED, which is what --no-repositories means.
+        self.assertFalse(os.listdir(self.places["repository"]))
+
+    def test_two_destinations_are_two_instances(self):
+        first, _ = self.install("one")
+        from tools import instance as instances
+
+        one = json.loads(Path(self.places["identity"]).read_bytes())
+        second, _ = self.install("two")
+        two = json.loads(Path(self.places["identity"]).read_bytes())
+        self.assertNotEqual(one["authority_uuid"], two["authority_uuid"])
+        del first, second, instances
+
+    def test_the_INSTALLED_SELECTOR_drives_the_empty_lifecycle(self):
+        from tools import stack
+
+        self.install()
+        for argv, expected in (
+                (["start"], "started: manager"),
+                (["status"], "jobs       0 observed (canonical=True)"),
+                (["monitor", "--ticks", "1", "--interval", "0.1"],
+                 "this snapshot reports no Jobs"),
+                (["stop"], "stopped: manager")):
+            said = io.StringIO()
+            code = stack.main(["--instance", self.places["instance"]] + argv,
+                              stream=said, environ=self.environ)
+            self.assertEqual(code, 0, said.getvalue())
+            self.assertIn(expected, said.getvalue(), " ".join(argv))
+
+    def effective(self):
+        """What the installed deployment actually selects, read from it."""
+        return json.loads(Path(self.places["deployment"]).read_bytes())
+
+    def test_a_repeat_that_would_DROP_a_derived_selection_is_refused(self):
+        """Review 2026-09-16T23-16-06Z [P2], and the reviewer's own case.
+
+        The installation DERIVES the repository and storage paths under the
+        destination; the one-operand branch composes from the input alone. So
+        the reconfiguration I documented returned zero and quietly removed
+        `integration_workspace` -- selector, runtime and identity all
+        unchanged, and the deployment no longer naming where integration
+        works. Adding `state_root` alone is NOT sufficient, and saying so is
+        now the helper's job rather than the guide's.
+        """
+        destination, _ = self.install()
+        self.assertTrue(self.effective().get("integration_workspace"))
+        inputs = os.path.join(self.root, "naive.json")
+        Path(inputs).write_text(json.dumps(
+            dict(guide_example(), state_root=destination)))
+        out = io.StringIO()
+        self.assertEqual(bootstrap.main(["--inputs", inputs], stream=out), 2,
+                         out.getvalue())
+        said = out.getvalue()
+        self.assertIn("already configured with integration_workspace", said)
+        self.assertIn("Copy the current values out of", said)
+        self.assertIn("Nothing was changed", said)
+        # AND NOTHING WAS: the selection is still there.
+        self.assertTrue(self.effective().get("integration_workspace"))
+
+    def test_RECONFIGURING_an_installed_instance_keeps_everything_else(self):
+        """The supported later-configuration path, run rather than described.
+
+        The two-operand installer refuses an existing runtime, so it is NOT
+        how an installed instance is updated. The one-operand form -- an input
+        whose `state_root` IS the destination AND which carries the selections
+        that installation derived -- recomposes in place.
+
+        WHAT IS COMPARED IS THE CONFIGURATION AS WELL AS THE FILES. [P2]: the
+        earlier version of this case compared only the immutable ones, which
+        is exactly why it passed while the deployment lost a path.
+        """
+        destination, _ = self.install()
+        before = {name: Path(self.places[name]).read_bytes()
+                  for name in ("instance", "justfile", "identity")}
+        runtime_before = instance_manifest(self.places["distro"])
+        effective_before = self.effective()
+
+        document = dict(guide_example(), state_root=destination)
+        for name in bootstrap.DERIVED_PATHS:
+            if effective_before.get(name):
+                document[name] = effective_before[name]
+        inputs = os.path.join(self.root, "again.json")
+        Path(inputs).write_text(json.dumps(document))
+        out = io.StringIO()
+        self.assertEqual(bootstrap.main(["--inputs", inputs], stream=out), 0,
+                         out.getvalue())
+        self.assertIn("reused from this root's record", out.getvalue())
+        for name, bytes_before in before.items():
+            self.assertEqual(Path(self.places[name]).read_bytes(),
+                             bytes_before, name)
+        self.assertEqual(instance_manifest(self.places["distro"])["digest"],
+                         runtime_before["digest"])
+        # THE EFFECTIVE SELECTIONS, member by member.
+        after = self.effective()
+        for name in ("integration_target", "integration_workspace",
+                     "authority_store", "authority_uuid", "job_store"
+                     if "job_store" in effective_before else "state_root",
+                     "integration_store", "state_root"):
+            self.assertEqual(after.get(name), effective_before.get(name), name)
+        self.assertEqual(after["job_bindings"],
+                         effective_before["job_bindings"])
+
+    def test_the_two_operand_installer_REFUSES_an_installed_destination(self):
+        """And it says so, which is why the form above exists."""
+        destination, _ = self.install()
+        inputs = os.path.join(self.root, "twice.json")
+        document = dict(guide_example())
+        document.pop("state_root", None)
+        Path(inputs).write_text(json.dumps(document))
+        out = io.StringIO()
+        code = bootstrap.main(["--inputs", inputs, "--destination", destination,
+                               "--distro", self.stand_in_runtime(),
+                               "--no-repositories"], stream=out)
+        self.assertEqual(code, 2, out.getvalue())
+        self.assertIn("there is already a runtime at", out.getvalue())
+
+
+def instance_manifest(distro):
+    from tools import instance as instances
+
+    return instances.manifest(distro)
+
+
+class AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE(unittest.TestCase):
+    """[P1], review 2026-09-16T22-58-33Z, and the reviewer's own reproduction.
+
+    An empty attachment made `PooledManagerOperations.recover` loop over no
+    workers, so a REAL accepted control offer was invisible: the manager
+    reported an ordinary idle tick while the same control store's own recovery
+    called that offer recoverable. An empty report about work that exists reads
+    as "there is nothing here", which is the one thing it must not say.
+
+    BOTH BOUNDARIES, because the constructor comparison answers one moment:
+    state already present when the deployment composes, and state that ARRIVES
+    after it has attached. And nothing is repaired -- each case asserts the
+    foreign work is exactly where it was afterwards.
+
+    REAL STORES AND PUBLIC APIS. The control offer is seeded through
+    `certify_profile`/`issue_offer`/`accept_offer` with the accepted strict fake
+    Authority session at its normal boundary, which is how the rest of this tree
+    exercises them. No raw SQL, no provider, no engine, no Job.
+    """
+
+    def setUp(self):
+        outside = os.environ.get("BATON_V12_STACK_TEST_ROOT", "/var/tmp")
+        self.temp = tempfile.TemporaryDirectory(prefix="v12-unserved-",
+                                                dir=outside)
+        self.addCleanup(self.temp.cleanup)
+        self.handles = []
+        self.addCleanup(self.close)
+
+    def close(self):
+        for one in reversed(self.handles):
+            try:
+                one.close()
+            except Exception:                                # noqa: BLE001
+                pass
+
+    def composed(self, name):
+        from baton_v12.job_manager import JobStore
+        from baton_v12.worker_manager import ControlStore
+        from tests.manager.test_offers import NOW
+
+        document = dict(guide_example(),
+                        state_root=os.path.join(self.temp.name, name))
+        prepared = bootstrap.prepare(document, stream=io.StringIO())
+        places = prepared["places"]
+        self.uuid = prepared["authority_uuid"]
+        self.jobs = JobStore.open(places["job_store"], authority_uuid=self.uuid,
+                                  incarnation="case-jobs", clock=lambda: NOW)
+        self.control_path = places["control_store"]
+        self.control = ControlStore.open(places["control_store"],
+                                         incarnation="case-control",
+                                         clock=lambda: NOW)
+        self.handles += [self.jobs, self.control]
+        return prepared
+
+    def seed_offer(self):
+        """One accepted offer, through the public Worker Manager operations."""
+        from baton_v12.worker_manager import (AuthorityPort, accept_offer,
+                                              certify_profile, issue_offer)
+        from tests.manager.test_offers import (FakeSession, PROFILE, NOW,
+                                               fake_claim_signature)
+
+        session = FakeSession()
+        session._work["authority_uuid"] = self.uuid
+        port = AuthorityPort(session, fake_claim_signature)
+        work_id = self.uuid[:8] + "-W1"
+        certify_profile(self.control, "runtime", "reference", PROFILE)
+        issue_offer(self.control, port, offer_id="unserved-offer",
+                    work_id=work_id, runtime_attempt_id="unserved-attempt",
+                    input_digest="sha256:" + "1" * 64,
+                    policy_digest="sha256:" + "2" * 64, profile_digest=PROFILE,
+                    profile_name="reference",
+                    mint_bearer=lambda: "test-only-bearer")
+        accept_offer(self.control, port, offer_id="unserved-offer",
+                     decision="accept", bearer="test-only-bearer", now=NOW,
+                     runtime_attempt_id="unserved-attempt",
+                     work_ref={"authority_uuid": self.uuid,
+                               "work_id": work_id})
+
+    def still_there(self):
+        """The foreign work, exactly as it was. Nothing repaired it."""
+        from baton_v12.worker_manager import outstanding_offers
+
+        held = {one["offer_id"]: one["state"]
+                for one in outstanding_offers(self.control)}
+        self.assertEqual(held.get("unserved-offer"), "accepted")
+
+    def test_control_work_ALREADY_HERE_refuses_at_startup(self):
+        from baton_v12.contracts import ContractRefusal
+        from tools import stage_execution
+
+        prepared = self.composed("already-here")
+        self.seed_offer()
+        with self.assertRaises(ContractRefusal) as raised:
+            stage_execution.operations_from(prepared["configuration"],
+                                            self.jobs, self.control)
+        said = str(raised.exception)
+        self.assertIn("configures no execution capacity", said)
+        self.assertIn("live control offer(s)", said)
+        self.assertIn("unserved-offer", said)
+        self.assertIn("Nothing was expired, abandoned, repaired or executed",
+                      said)
+        self.still_there()
+
+    def test_control_work_ARRIVING_AFTER_attachment_refuses_on_resume(self):
+        """The half a constructor check cannot answer: the deployment composed
+        when the stores were empty, and the offer appeared afterwards. The
+        manager's own `reconcile` is what must not report an idle tick."""
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.job_manager import manager
+        from tests.manager.test_offers import NOW
+        from tools import stage_execution
+
+        prepared = self.composed("arriving")
+        composed = stage_execution.operations_from(prepared["configuration"],
+                                                   self.jobs, self.control)
+        self.addCleanup(composed.release)
+        # IDLE IS STILL IDLE while there is genuinely nothing.
+        self.assertEqual(manager.reconcile(self.jobs, composed, now=NOW)
+                         ["recovered"], {"abandoned": [], "recoverable": []})
+        self.seed_offer()
+        with self.assertRaises(ContractRefusal) as raised:
+            manager.reconcile(self.jobs, composed, now=NOW)
+        said = str(raised.exception)
+        self.assertIn("refuses on resume", said)
+        self.assertIn("unserved-offer", said)
+        self.still_there()
+
+    def test_a_POOL_activated_after_attachment_is_not_ignored(self):
+        """The reviewer's third case: capacity that arrives naming workers this
+        deployment does not configure."""
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.job_manager import manager, scheduler
+        from tests.job_manager.test_scheduling import pool, principals
+        from tests.manager.test_offers import NOW
+        from tools import stage_execution
+
+        prepared = self.composed("pool-arrives")
+        composed = stage_execution.operations_from(prepared["configuration"],
+                                                   self.jobs, self.control)
+        self.addCleanup(composed.release)
+        document = pool()
+        scheduler.activate_pool(self.jobs, document, principals(document))
+        with self.assertRaises(ContractRefusal) as raised:
+            manager.reconcile(self.jobs, composed, now=NOW)
+        said = str(raised.exception)
+        self.assertIn("active pool generation", said)
+        self.assertIn("workers this deployment does not configure", said)
+        # AND THE POOL IS STILL ACTIVE: refusing is not deactivating.
+        self.assertIsNotNone(scheduler.active_generation(self.jobs))
+
+    def seed_foreign_issued_offer(self):
+        """An ISSUED offer from ANOTHER incarnation -- the state
+        `recover_on_restart` abandons, and the state this reader must not.
+
+        A reversal probe made this case necessary: the first version of it
+        seeded only an ACCEPTED offer, which recovery leaves alone, so a reader
+        that expired and abandoned would have passed it. This is the state that
+        can tell the two apart.
+        """
+        from baton_v12.worker_manager import (AuthorityPort, ControlStore,
+                                              certify_profile, issue_offer)
+        from tests.manager.test_offers import (FakeSession, PROFILE, NOW,
+                                               fake_claim_signature)
+
+        elsewhere = ControlStore.open(self.control.path
+                                      if hasattr(self.control, "path")
+                                      else self.control_path,
+                                      incarnation="somebody-else",
+                                      clock=lambda: NOW)
+        self.handles.append(elsewhere)
+        session = FakeSession()
+        session._work["authority_uuid"] = self.uuid
+        port = AuthorityPort(session, fake_claim_signature)
+        certify_profile(elsewhere, "runtime", "foreign", PROFILE)
+        issue_offer(elsewhere, port, offer_id="foreign-offer",
+                    work_id=self.uuid[:8] + "-W9",
+                    runtime_attempt_id="foreign-attempt",
+                    input_digest="sha256:" + "3" * 64,
+                    policy_digest="sha256:" + "4" * 64, profile_digest=PROFILE,
+                    profile_name="foreign",
+                    mint_bearer=lambda: "test-only-foreign-bearer")
+
+    def state_of(self, offer_id):
+        from baton_v12.worker_manager import outstanding_offers
+
+        for one in outstanding_offers(self.control):
+            if one["offer_id"] == offer_id:
+                return one["state"]
+        return None
+
+    def serve_until_refused(self, seed_on_tick):
+        """The REAL `manager.serve` loop, with the injected wait doing the
+        seeding -- which is where work actually arrives during a run."""
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.job_manager import manager
+        from tests.manager.test_offers import NOW
+        from tools import stage_execution
+
+        prepared = self.composed("serving")
+        composed = stage_execution.operations_from(prepared["configuration"],
+                                                   self.jobs, self.control)
+        self.addCleanup(composed.release)
+        self.ticks = 0
+
+        def sleep(_seconds):
+            self.ticks += 1
+            if self.ticks == 2:
+                seed_on_tick()
+
+        with self.assertRaises(ContractRefusal) as raised:
+            manager.serve(self.jobs, composed, clock=lambda: NOW, sleep=sleep,
+                          should_continue=lambda: self.ticks < 8, interval=1)
+        self.assertGreaterEqual(self.ticks, 2)
+        return str(raised.exception)
+
+    def test_SERVE_itself_refuses_an_offer_that_arrives_mid_run(self):
+        """[P1], review 2026-09-16T23-16-06Z, and my claim was the wrong one.
+
+        `manager.serve` calls `reconcile` ONCE and then `sweep` every tick
+        after it, so a guard living only in `recover` was asked at startup and
+        never again. This drives the real loop: empty when it starts, an
+        accepted control offer arriving in the injected wait, and the NEXT
+        ordinary tick is what must refuse.
+        """
+        said = self.serve_until_refused(self.seed_offer)
+        self.assertIn("on this serving tick", said)
+        self.assertIn("live control offer(s)", said)
+        self.assertIn("unserved-offer", said)
+        self.assertIn("Nothing was expired, abandoned, repaired or executed",
+                      said)
+        self.still_there()
+
+    def test_SERVE_itself_refuses_a_pool_that_arrives_mid_run(self):
+        from baton_v12.job_manager import scheduler
+        from tests.job_manager.test_scheduling import pool, principals
+
+        def activate():
+            document = pool()
+            scheduler.activate_pool(self.jobs, document, principals(document))
+
+        said = self.serve_until_refused(activate)
+        self.assertIn("on this serving tick", said)
+        self.assertIn("active pool generation", said)
+        # AND THE POOL IS UNTOUCHED: refusing is not deactivating.
+        self.assertIsNotNone(scheduler.active_generation(self.jobs))
+
+    def test_serve_over_genuinely_empty_stores_just_ticks(self):
+        """The control for both: with nothing there, nothing is refused."""
+        from baton_v12.job_manager import manager
+        from tests.manager.test_offers import NOW
+        from tools import stage_execution
+
+        prepared = self.composed("quiet")
+        composed = stage_execution.operations_from(prepared["configuration"],
+                                                   self.jobs, self.control)
+        self.addCleanup(composed.release)
+        self.ticks = 0
+
+        def sleep(_seconds):
+            self.ticks += 1
+
+        report = manager.serve(self.jobs, composed, clock=lambda: NOW,
+                               sleep=sleep, should_continue=lambda: self.ticks < 5,
+                               interval=1)
+        self.assertEqual(self.ticks, 5)
+        self.assertEqual(report["observed"], 0)
+
+    def test_the_READER_itself_changes_nothing(self):
+        """`unconfigured_work` is the question WITHOUT the actions.
+
+        `recover_on_restart` answers a related question and ACTS: it expires
+        overdue offers and abandons another incarnation's issued ones. A
+        deployment that called it merely to look would be settling somebody
+        else's durable state to decide whether it may start -- which is exactly
+        what the review said must not happen to foreign work.
+        """
+        from tools import stage_execution
+
+        self.composed("read-only")
+        self.seed_offer()
+        self.seed_foreign_issued_offer()
+        self.assertEqual(self.state_of("foreign-offer"), "issued")
+        for _ in range(3):
+            found = stage_execution.unconfigured_work(self.jobs, self.control)
+            self.assertEqual(len(found), 1, found)
+            self.assertIn("2 live control offer(s)", found[0])
+        # THE FOREIGN OFFER IS STILL ISSUED. Recovery would have abandoned it;
+        # this looked at it.
+        self.assertEqual(self.state_of("foreign-offer"), "issued")
+        self.still_there()
+
+
+class AnInstanceWithNoCAPACITY_FAILS_CLOSED(ValidFixture):
+    """"Refuse existing/arriving work needing absent workers."
+
+    An empty attachment is safe only because the STORE decides what must be
+    attached: `scheduler._required_workers` answers nothing when there is no
+    active generation and no live allocation, and the comparison against it is
+    what refuses the moment either exists. Nothing here relaxes that -- this
+    proves the refusal rather than asserting the rule.
+    """
+
+    def test_a_store_with_an_ACTIVE_POOL_refuses_an_empty_composition(self):
+        from baton_v12.contracts import ContractRefusal
+        from tools import stage_execution
+
+        document = self.document()
+        document.pop("jobs", None)
+        prepared = bootstrap.prepare(document, stream=io.StringIO())
+        configured = dict(prepared["configuration"], workers=[],
+                          job_bindings=[])
+        configured.pop("job_work_id", None)
+        configured.pop("review_work_id", None)
+        configured.pop("line_declared_base", None)
+        configured.pop("canonical_target_id", None)
+        # A store that HAS an active generation, which is what a previously
+        # configured instance leaves behind.
+        with mock.patch.object(
+                __import__("baton_v12.job_manager.scheduler", fromlist=["x"]),
+                "_required_workers",
+                lambda store: [{"generation": 1, "worker_id": "impl-a",
+                                "participant": "baton.impl-a",
+                                "canonical_principal": "principal:x"}]):
+            from baton_v12.job_manager.scheduler import PooledManagerOperations
+
+            with self.assertRaises(ContractRefusal) as raised:
+                PooledManagerOperations(object(), {},
+                                        resolved_principals={"baton.impl-a":
+                                                             "principal:x"})
+        self.assertIn("exactly the active generation", str(raised.exception))
+        del stage_execution, configured
+
+    def test_an_attached_deployment_with_no_worker_answers_no_operation(self):
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.job_manager import scheduler
+
+        with mock.patch.object(scheduler, "_required_workers",
+                               lambda store: []):
+            pooled = scheduler.PooledManagerOperations(
+                object(), {}, resolved_principals={})
+        with self.assertRaises(ContractRefusal) as raised:
+            pooled._any()
+        self.assertIn("no configured execution capacity", str(raised.exception))
+
+
+def _work_or_none(authority, work_id):
+    try:
+        return authority.project_work(work_id)
+    except Exception:                                        # noqa: BLE001
+        return None
+
+
+class AFreshInstallHasZeroJobs(ValidFixture):
+    """OWNER-FRESH-INSTALL-20260916.md, and every sentence here is one of its.
+
+    "Why are we asking for any job, this is a fresh install." An installation
+    initializes an INSTANCE -- stores, profiles, pool, identity -- and a Work,
+    a declared base, a canonical target and a producer assignment are facts
+    about a JOB, supplied and validated when one is created.
+
+    WHAT IS PROVED: that such an input is accepted at all, that what it emits
+    is a document the MANAGER's own validator accepts, and above all that
+    nothing was invented to make it so -- no placeholder Work, no Job, no grant
+    and no fabricated binding.
+    """
+
+    def instance_only(self, **members):
+        document = self.document(**members)
+        document.pop("jobs", None)
+        with open(os.devnull, "w") as quiet:
+            return bootstrap.prepare(document, stream=quiet)
+
+    def test_an_input_naming_no_jobs_is_accepted(self):
+        held = bootstrap.held({name: self.document()[name]
+                               for name in bootstrap.REQUIRED})
+        self.assertNotIn("jobs", held)
+        self.assertNotIn("jobs", bootstrap.REQUIRED)
+        self.assertNotIn("authority_uuid", bootstrap.REQUIRED)
+
+    def test_the_emitted_configuration_binds_NOTHING_and_says_so(self):
+        configured = self.instance_only()["configuration"]
+        self.assertEqual(configured["schema"], bootstrap.MULTI_JOB_SCHEMA)
+        self.assertEqual(configured["job_bindings"], [])
+        # AND CARRIES NO JOB FACTS AT ALL. A global Work, base or target beside
+        # an empty binding list would be two answers to "what does this serve".
+        for name in ("job_work_id", "review_work_id", "line_declared_base",
+                     "canonical_target_id"):
+            self.assertNotIn(name, configured, name)
+
+    def test_it_is_a_document_the_MANAGER_accepts(self):
+        """`prepare` calls the accepted validator itself, so reaching this line
+        is already the proof; asking it again here is what makes the
+        instance-only form a case rather than a side effect."""
+        from tools import stage_execution
+
+        configured = self.instance_only()["configuration"]
+        normalized = stage_execution.held_configuration(configured)
+        self.assertEqual(normalized["job_bindings"], [])
+
+    def test_NO_placeholder_work_job_grant_or_binding_is_composed(self):
+        answer = self.instance_only()
+        self.assertEqual(answer["created_works"], [])
+        self.assertEqual(answer["record"]["bindings"], {})
+        self.assertEqual(answer["capacity"]["jobs"], 0)
+        self.assertIn("binds no Job", answer["capacity"]["note"])
+        # AND THE AUTHORITY HOLDS NO WORK AND NO GRANT. A grant is made in a
+        # bound Work's OWN scope, so an instance with no Work has no scope to
+        # grant anything in -- and a receipt participant that already held one
+        # would be authorized over something nobody configured.
+        from baton_v12.authority import Authority
+
+        authority = Authority.open(
+            answer["places"]["authority_store"],
+            expected_authority_uuid=answer["authority_uuid"])
+        try:
+            self.assertIsNone(_work_or_none(authority, self.work))
+            for who in answer["configuration"]["receipt_participants"].values():
+                self.assertEqual(authority.grants_of(who), [], who)
+        finally:
+            dispose = getattr(authority, "dispose", None)
+            if dispose is not None:
+                dispose()
+
+    def test_it_says_out_loud_that_it_composed_no_job(self):
+        said = io.StringIO()
+        document = self.document()
+        document.pop("jobs", None)
+        bootstrap.prepare(document, stream=said)
+        self.assertIn("no Work, grant or placeholder was created",
+                      said.getvalue())
+
+    def test_a_JOB_ADDED_LATER_is_bound_and_the_instance_is_not_rebuilt(self):
+        """The subsequent-Job path, which is the other half of the boundary:
+        the instance keeps its identity and the Job brings its own Work."""
+        first = self.instance_only()
+        again = self.prepared()
+        self.assertEqual(again["authority_uuid"], first["authority_uuid"])
+        self.assertIs(again["authority_generated"], False)
+        self.assertEqual(again["created_works"], [self.work])
+        self.assertEqual(sorted(again["record"]["bindings"]), ["job-a"])
+
+    def test_the_guides_minimal_block_NAMES_what_is_required_and_no_more(self):
+        """WHAT THIS PROVES AND WHAT IT DOES NOT, said here because review
+        2026-09-16T22-27-59Z [F2] found me claiming the stronger thing.
+
+        It proves the member NAMES are exactly the required set. It does NOT
+        prove the block parses or runs: the elided `deployment` is not JSON,
+        and a runnable no-Job example cannot exist while a worker document is
+        required and is sealed to an identity that does not exist yet. The
+        guide now says that about itself rather than being contradicted by it.
+        """
+        guide = (_DISTRIBUTION.parent / "STACK.md").read_text()
+        heading = "### A fresh installation has zero Jobs"
+        self.assertIn(heading, guide)
+        block = guide.split(heading, 1)[1].split("```json", 1)[1]
+        block = block.split("```", 1)[0]
+        named = {line.split('"')[1] for line in block.splitlines()
+                 if line.startswith('  "')}
+        self.assertEqual(named, set(bootstrap.REQUIRED))
+        self.assertNotIn("jobs", named)
+        self.assertNotIn("authority_uuid", named)
+        # AND NO OTHER BLOCK IN THE GUIDE CONTRADICTS IT by offering a member
+        # this implementation refuses.
+        self.assertNotIn('"authority_uuid": "<32 lowercase hex>"', guide)
+        # AND NO SECTION STILL SAYS THE OPPOSITE OF WHAT THIS BUILD DOES.
+        # Review 2026-09-16T22-58-33Z [P2]: the later-Job section still said a
+        # manager cannot serve without a pool, the repetition section still
+        # required a non-empty binding record, and the member table said every
+        # Job-specific member was required of every document.
+        for contradiction in ("a manager cannot serve without one",
+                              "a non-empty set of bindings",
+                              "and every one of these is\nrequired:"):
+            self.assertNotIn(contradiction, guide, contradiction)
+        self.assertIn("An empty pool serves", guide)
+        self.assertIn("Reconfiguring an instance that is already installed",
+                      guide)
+
+    def test_EVERY_job_rule_still_holds_when_jobs_ARE_supplied(self):
+        """"Preserve validation when real Jobs are later supplied." The rules
+        did not become optional; only the Jobs did."""
+        said = self.refused(jobs=[self.job(work_id=self.work),
+                                  self.job(work_id=self.work)])
+        self.assertIn("distinct", said)
+        self.assertIn("job-a", said)
+        incomplete = self.job(work_id=self.work)
+        del incomplete["canonical_target_id"]
+        self.assertIn("jobs[0].canonical_target_id",
+                      self.refused(jobs=[incomplete]))
+        self.assertIn("not a configured implementation worker",
+                      self.refused(jobs=[self.job(work_id=self.work,
+                                                  producer="nobody")]))
+
+
+class TheFreshInstallStillNeedsTheWORKERSToBeSeparable(ValidFixture):
+    """THE CAPABILITY THIS CORRECTION DOES NOT REACH, named rather than
+    discovered by an owner running the command.
+
+    OWNER-FRESH-INSTALL-20260916.md removes Job, Work, base, target and
+    per-Job worker assignment from a fresh input, and this delivery removes
+    them: `jobs` is optional, the identity is generated, and no placeholder
+    Work, Job or grant is composed.
+
+    WHAT REMAINS IS THE POOL. `single_worker` requires every worker to carry an
+    `input_manifest`, and that manifest is DIGEST-SEALED over a `work_ref`
+    naming an Authority and a Work. So a configured worker is bound to one Work
+    and to one Authority identity -- and an identity generated during the same
+    command cannot be one a document written beforehand was sealed to. A pool
+    is therefore not yet instance configuration in this build, and it cannot be
+    left out either: `scheduler.own_pool` refuses an empty pool, so a manager
+    cannot serve without one.
+
+    This case PROVES the refusal rather than describing it, so the remaining
+    scope is a fact about the build instead of a claim in a dossier.
+    """
+
+    def test_a_worker_sealed_to_another_identity_is_refused_BY_NAME(self):
+        fresh = os.path.join(self.root, "never-installed")
+        with self.assertRaises(bootstrap.BootstrapRefusal) as raised:
+            with open(os.devnull, "w") as quiet:
+                bootstrap.prepare(self.document(state_root=fresh), stream=quiet)
+        said = str(raised.exception)
+        self.assertIn("bootstrap input manifest names another Authority", said)
+        # AND THE INSTANCE'S OWN IDENTITY IS THE ONE THAT WAS MINTED, so what
+        # differs is the worker document rather than this root.
+        self.assertNotEqual(bootstrap.identity(bootstrap.layout(fresh))[0],
+                            self.config["authority_uuid"])
+
+    def test_the_manifest_is_the_reason_and_it_is_SEALED(self):
+        """Not a member this helper could fill in, the way it fills in
+        `authority_uuid`, `authority_store`, `participant`, `principal` and
+        `launch_role`: the manifest carries its own digest over its own bytes,
+        so rewriting the Authority it names would make it a document whose
+        declared digest no longer recomputes."""
+        worker = self.workers()[0]["deployment"]
+        self.assertIn("input_manifest", worker)
+        manifest = worker["input_manifest"]
+        self.assertIn("manifest_digest", manifest)
+        self.assertEqual(manifest["work_ref"]["authority_uuid"],
+                         self.config["authority_uuid"])
+        self.assertTrue(manifest["work_ref"]["work_id"])
+
+
 class TheInstallerOperandNeverReachesTheManager(ValidFixture):
     """The input document carries NO installer operand at all now.
 
@@ -880,6 +2032,15 @@ class TheInstallerOperandNeverReachesTheManager(ValidFixture):
         inputs = os.path.join(self.root, "inputs.json")
         Path(inputs).write_text(json.dumps(document))
 
+        # THE IDENTITY THIS DESTINATION IS BOUND TO, PERSISTED FIRST.
+        # OWNER-FRESH-INSTALL-20260916.md generates it at install, and a worker
+        # `deployment` carries a DIGEST-SEALED `input_manifest` naming the
+        # Authority -- so a worker document can only be written against an
+        # identity that already exists. Until the pool is separable from the
+        # instance, a destination with configured workers has to be given the
+        # identity those workers were sealed to; the case below names that.
+        bootstrap.persist_identity(bootstrap.layout(destination),
+                                   self.config["authority_uuid"])
         out = io.StringIO()
         with mock.patch.object(bootstrap, "_identity_of",
                                lambda command, runtime=None, distro=None: said):
@@ -974,10 +2135,36 @@ class RepeatingIt(ValidFixture):
         Path(answer["places"]["record"]).write_text(json.dumps({"schema": "other"}))
         self.assertIn(bootstrap.RECORD_SCHEMA, self.refused())
 
-    def test_a_conflicting_authority_is_refused(self):
-        self.prepared()
-        self.assertIn("already bound to Authority",
-                      self.refused(authority_uuid="f" * 32))
+    def test_a_document_may_not_NAME_an_authority_at_all(self):
+        """OWNER-FRESH-INSTALL-20260916.md: the identity is generated once and
+        persisted at the destination. A document that named one would be a
+        second place for a fact the instance owns, so it is refused by name
+        rather than quietly overriding what this root already is."""
+        said = self.refused(authority_uuid="f" * 32)
+        self.assertIn("authority_uuid", said)
+        self.assertIn("generates its own Authority identity once", said)
+
+    def test_a_record_naming_ANOTHER_authority_than_this_root_is_refused(self):
+        """The conflict that can still happen: the persisted identity and the
+        record disagree about what this root is bound to."""
+        answer = self.prepared()
+        held = json.loads(Path(answer["places"]["record"]).read_bytes())
+        held["authority_uuid"] = "f" * 32
+        Path(answer["places"]["record"]).write_text(json.dumps(held))
+        # CAUGHT ONE LAYER EARLIER, and by the accepted validator's own
+        # reading: the emitted configuration names the Authority this root
+        # actually composed and the record now names another, so the pair
+        # cannot both be true and the repeat stops there.
+        said = self.refused()
+        self.assertIn("names Authority", said)
+        self.assertIn("its record names 'ffffffffffffffffffffffffffffffff'",
+                      said)
+
+    def test_an_unreadable_persisted_identity_is_refused_rather_than_replaced(self):
+        answer = self.prepared()
+        Path(answer["places"]["identity"]).write_text("{not json")
+        self.assertIn("what Authority this root is bound to is unknown",
+                      self.refused())
 
     def test_the_conflict_is_found_before_the_authority_is_composed(self):
         """Validated before durable mutation: the refusal must not arrive after

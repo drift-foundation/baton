@@ -1550,3 +1550,208 @@ claim189383 install's does not. How many builds ran and what each cost was never
 measured and is not reconstructed. And the count was 421, not the 420 I wrote;
 the evidence JSON was right and my arithmetic was not. It is 424 now, 3 new,
 with four reversal probes, all valid kills.
+
+### claim189719 -- a fresh install has zero Jobs, and where that stops being true
+
+The owner's question was the right one: why is a fresh install asking for a Job?
+It was, and it also asked for an Authority identity, which is not an operator's
+selection either. Both are gone. `jobs` is deferred -- absent is the ordinary
+install, present is held to every rule it ever was -- and a document that names
+an `authority_uuid` is refused by name, because the instance mints its own once
+and persists it at the destination before the Authority it names exists. Two
+destinations are now two instances rather than two names for one.
+
+The emitted configuration follows: an installation that binds nothing is the
+multi-Job document with an EMPTY binding list and none of the four global Job
+members, and the two forms cannot be mixed -- a global Work beside an empty
+list is refused by the manager's own closed schema, which a probe found before
+I did. Nothing is invented to get there: no placeholder Work, no seed Job, no
+grant. A grant is made in a bound Work's own scope, and an instance with no
+Work has no scope to grant anything in.
+
+What I could not finish is worth more than what I did. A worker's `deployment`
+carries an `input_manifest`, and that manifest is digest-sealed around a
+`work_ref` naming an Authority and a Work. So a worker document can only be
+written against an identity that already exists -- and the identity is now
+minted during the same command. Installing into a genuinely fresh destination
+with configured workers is therefore refused: *the bootstrap input manifest
+names another Authority*. Leaving the pool out instead is not available either,
+because `scheduler.own_pool` refuses an empty pool. The pool is not yet
+instance configuration, and making it one means moving `input_manifest` and
+`task_document` to the assignment and admitting an empty pool through the
+manager's composition -- the scheduler expansion the ruling excludes.
+
+I wrote that as two checks rather than a paragraph, so the remaining scope is a
+fact about the build instead of a claim in a dossier. The consequence for the
+owner is blunt: do not attempt a production run against this yet.
+
+442 focused checks pass, 18 new. Nine reversal probes, all valid kills; two
+proved nothing first -- F1 because the guard turned out to live one layer below
+my assertion, and F6 because my expected token was written backwards.
+
+### claim189861 -- the identity was not as owned as I said it was
+
+F3 is the one that should not have got past me. I wrote "an instance owns what
+is under its own destination" into a docstring and then read the identity
+record with `Path.read_bytes`, which follows a symlink -- and the
+`FileExistsError` fallback called the same reader, so `O_EXCL` was protecting
+only the create. The reviewer reproduced the consequence exactly: two separate
+destinations, each with a link at that name pointing at one external file, both
+read the same identity, both report it already persisted, and both believe they
+were installed independently. That is the isolation boundary the whole
+generated-identity design exists for.
+
+It is one safe read now -- `O_RDONLY|O_NOFOLLOW` and an `fstat` regular-file
+check -- used by both paths, and the name is in the custody sweep so a link
+there is refused before the reader is even reached. Foreign bytes and foreign
+links are refused and left exactly as they are, which the checks assert
+afterwards rather than assume.
+
+F2 I overclaimed. I called the guide block a complete runnable example and
+wrote a check that compares member NAMES; the block does not parse, because the
+elided worker deployment is not JSON. The check is renamed and its docstring
+says what it proves and what it does not, the block says about itself that it
+is a shape, and the contradictory `authority_uuid` example is gone. A genuinely
+runnable one waits on F1, and inventing a credential or a Work ID to make it
+parse is exactly what must not happen.
+
+F1: the reviewer is right and I was wrong. The ruling excludes a generic
+scheduling project; it does not exclude the minimum empty-capacity handling the
+selected outcome needs, and I read the exclusion too broadly. I am not
+re-arguing it. What kept it out of this claim is budget, not scope, and the
+remaining step is pinned seam by seam rather than as a category -- including
+the one place I think a product decision may genuinely be needed, which is what
+`_minted`/`_bound_scope` should answer for a deployment with no bound Work.
+
+446 focused checks pass, 4 new. Thirteen reversal probes, all valid kills; G2
+proved nothing first, and the reason is the point: without the regular-file
+check the reverted code does not accept a directory, it raises
+`IsADirectoryError` from the middle of `identity()`. The guard buys a sentence
+instead of a traceback.
+
+### claim189914 -- it starts
+
+The thing I said was not reachable is reachable, and the reviewer was right
+that the work to get there was inside the owner's scope rather than outside it.
+A fresh installation naming no Job and no worker now installs, and `just start`
+runs the real manager and the real publisher over it: the publisher writes a
+canonical snapshot it actually observed, `status` reports `jobs 0 observed
+(canonical=True)` and `serving acknowledged`, `monitor` refreshes, `stop` stops
+both. Nothing about that is a dummy branch; the zeros come from store reads and
+the check asserts the snapshot was written during that start.
+
+What made it work was smaller than I feared, and most of it was deciding what
+NOT to invent. `workers` joins `jobs` as deferred, because a worker is
+configured with the Job it serves. `_serves_nothing` is the one predicate
+everything branches on. With no bound Work there is no scope, so `_minted`
+mints nothing -- no session, no per-Work grant, no deployment-scoped receipt
+capability, which is exactly what the review told me not to invent and also the
+only honest answer. The workspace group is not asked for, because it exists to
+allocate an execution workspace and none is allocated; it is not inferred
+either, which is the thing `configured_workspace_group` itself refuses to do.
+
+The one change outside this module is one line in the scheduler:
+`PooledManagerOperations` accepts an empty mapping. Nothing else is relaxed,
+and that matters more than the change -- `_required_workers` already answers
+nothing only when the store has no active generation and no live allocation, so
+the existing comparison is what makes an empty attachment fail closed the
+moment work exists. I proved that by weakening the comparison and watching it
+stop refusing.
+
+The guide's example is a real document now, and the acceptance parses it out of
+STACK.md rather than keeping a copy, so it cannot drift into being unrunnable
+again. The identity reader no longer blocks on a named pipe -- which it did,
+forever -- and no longer takes the first 64 KiB of a longer file.
+
+455 focused checks pass, 9 new. Nine reversal probes, all valid kills. Two
+proved nothing first: H6 because my oversize document was cut mid-string so the
+PARSER caught it and the bound proved nothing, and H7 because a weakened
+comparison raises KeyError rather than accepting -- the guard still earns its
+place, by turning that into a refusal that names the mismatch.
+
+### claim190047 -- an empty report about work that exists
+
+P1 was the one worth finding, and the reviewer found it with a real store and
+public APIs rather than by reading my code. An instance with no capacity
+attached no worker, so recovery looped over nothing: a genuine accepted control
+offer sat in the store while the manager reported an ordinary idle tick. An
+empty report about work that exists reads as "there is nothing here", which is
+the one sentence it must never say.
+
+The fix needed a question that did not exist: `recover_on_restart` answers
+something close, and ACTS -- it expires overdue offers and abandons another
+incarnation's issued ones. A deployment that called it merely to look would be
+settling somebody else's durable state to decide whether it may start. So
+`outstanding_offers` is that question without the actions, through the same
+owned crossing, and `unconfigured_work` puts it beside the Job rows, the active
+pool generation and the live allocations. It runs at startup and on every
+resume, because the constructor comparison I had leaned on answers one moment
+and says nothing about what arrives afterwards.
+
+A probe made that honest. My first version of the read-only check seeded only an
+accepted offer -- which recovery leaves alone -- so a reader that expired and
+abandoned would have sailed through it. It now seeds a foreign ISSUED offer too,
+the state recovery does abandon, and the reversal is visible.
+
+P2: I called a source-run lifecycle an installation. It was not. The class is
+renamed, the evidence correction is recorded rather than quietly fixed, and
+there is now a real installation boundary beside it -- installer, selector,
+deployed justfile, copied runtime, persisted identity, lifecycle through the
+selector -- with its stand-in runtime and in-process execution named as
+substitutions rather than implied to be a bundle.
+
+And the guide had gone on saying things this build no longer does: that a
+manager cannot serve without a pool, that a record needs a non-empty binding
+set, that every member is required of every document. All three are superseded
+in place, and the later-configuration path is now exact rather than gestured at:
+stop, one-operand bootstrap with `state_root` pointing at the destination,
+start. I ran that path and asserted what it preserves, and I ran the two-operand
+command against an installed destination to show it refuses.
+
+464 focused checks pass, 9 new. Eight reversal probes, all valid kills; K5
+proved nothing first because the check could not see a mutation, and then
+because my expected token named a state the reader no longer reports.
+
+### claim190149 -- the tick I never looked at
+
+P1 was mine twice over: the guard was in the wrong place, and I had asserted in
+writing that it was in the right one. `manager.serve` calls `reconcile` once
+and then `sweep` for every tick after it, so a check living in `recover` is
+asked at startup and never again. It is asked from `drain` now as well --
+`sweep`'s first pass is `_observe`, and `drain` is what `_observe` calls into
+these operations, before anything that tick could observe, adopt, delegate,
+launch or converse. What it is NOT is recovery every tick: recovery expires and
+abandons, and settling durable state in order to observe it is the exact thing
+this correction exists to prevent. The proof drives the real loop, with the
+offer arriving inside the injected wait.
+
+P2 was subtler and worse. My documented reconfiguration returned zero and
+removed `integration_workspace` from the deployment -- the installation derives
+it under the destination and the one-operand branch composes from the input
+alone. Selector, runtime and identity all unchanged, and the deployment had
+quietly stopped naming where integration works. My own preservation check
+compared exactly the files that did not change, which is how it passed. It
+compares the configuration now, and a repeat that would drop a derived
+selection is refused by name with where to copy the values from. A copy step,
+not a merge: a document that filled its own gaps from the previous
+configuration would make "what this deployment selects" two files.
+
+And the frozen lifecycle finally ran. The candidate built, installed with
+`--no-repositories`, and answered for itself with nothing from this checkout on
+PATH: `baton 12.0.0 (fb5d39d6, dirty)`, then start, status, a bounded monitor,
+stop, status -- honest zeros from a canonical snapshot the publisher observed,
+and the destination removed afterwards.
+
+Two things about that run I would rather say than have found. The first attempt
+hung: `just monitor` is unbounded by design, a harness cannot press Ctrl-C, and
+it sat there for its whole 600s timeout and left live processes behind. I
+stopped and removed them by hand, the watch is asked of the bundled command
+with its own `--ticks` bound, and the stop runs in a `finally`. The second is
+that the cold build's duration is gone with that attempt -- the 7.1s recorded
+is a warm rebuild, and I am not presenting it as the cost of building from
+nothing.
+
+468 focused checks pass, 4 new. Five reversal probes, all valid kills; L3 and
+L4 proved nothing first because both tokens were backwards -- the third time in
+this line of work I have written an `assertEqual` token in the wrong operand
+order, which is worth recording rather than quietly fixing.

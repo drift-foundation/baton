@@ -416,7 +416,8 @@ that is a different thing from an explicit `false`.
 
 ### What it derives, so you do not name it
 
-Principals (`Authority.principal_of` — never spelled twice), each Job's Work,
+Principals (`Authority.principal_of` — never spelled twice), this instance's
+Authority identity, each Job's Work,
 the `impl`/`rview`/`integration` route handlers, the `verify`/`review`/
 `approve`/`integrate` grants in each Work's own scope, the whole layout under
 one `state_root`, the configuration document, and the four exports below.
@@ -428,13 +429,165 @@ IDs are **the same Work** — the review-cycle provider keys one line by one
 `(authority, work)` pair, so a deployment with two Works there could never
 attach its review — which is why the input names `work_id` once.
 
+**An installation with no Jobs is `/2` with an empty `job_bindings`**, and it
+carries no global Work, declared base or canonical target at all: those are
+facts about a Job, and a document that named them beside an empty binding list
+would be two answers to "what does this serve".
+
+### A fresh installation has zero Jobs
+
+OWNER-FRESH-INSTALL-20260916.md. Installing prepares an **instance** — the
+runtime, the empty stores, the profiles, the routes and this instance's own
+Authority identity. It does not prepare a workload. So the input document names
+**no Job**, **no Work**, **no declared base**, **no canonical target** and **no
+producer assignment**, and nothing here invents one: no placeholder Work, no
+seed Job and no grant is composed to satisfy a validator.
+
+**The Authority identity is generated, never named.** It is minted once, at
+install, and persisted at `<state_root>/authority-identity.json`; every later
+operation reuses it, and two destinations are two instances rather than two
+names for one. An input document that carries `authority_uuid` is **refused by
+name** with that said — a second place for a fact the instance owns is how the
+two drift apart.
+
+```json
+{
+  "schema": "baton.v12.stack-bootstrap/1",
+  "state_root": "/var/lib/baton-v12/deployment",
+  "checkpoint_profile": "git",
+  "integration_profile": {
+    "profile_kind": "git",
+    "profile_version": 1,
+    "integrator_participant": "baton.integrator",
+    "instructions_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "retention_policy_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "retention_disposition": "retain",
+  "pool_generation": 1,
+  "policy_generation": 1,
+  "receipt_participants": {
+    "verification": "baton.verifier",
+    "review": "baton.reviewer",
+    "approval": "baton.approver"
+  }
+}
+```
+
+Everything above this line is an **instance** selection: which profiles this
+deployment runs under and which participants its receipts are written as.
+Nothing above this line is about a Job.
+
+**That is the whole document.** It parses, it is every required selection and
+nothing else, and a focused check reads it out of this file, installs it and
+drives the real lifecycle over it — so an example that stops being runnable
+stops the checks too. Substitute your own participants, your own retention
+policy digest and your own integration instructions digest; those two digests
+are yours to choose rather than members you may omit.
+
+**No `workers`.** A worker is configured with the Job it serves: its
+`deployment` carries a digest-sealed input manifest naming an Authority and a
+Work, so it is neither writable before the instance exists nor an instance
+selection. An installation configures no execution capacity, and `just start`
+runs the real scheduler and publisher over empty stores — honest zeros from
+actual store reads, not a dummy success branch.
+
+### The Job boundary, and what it still costs
+
+A Job arrives later, as a `jobs` entry in a repeated bootstrap, and **every rule
+that ever applied to one still applies**: distinct `job_id`s, a `work_id` that
+is one Work on both axes, a `source_worker_id` naming a configured
+implementation worker, a declared base that is a commit in the target, and a
+binding that may not silently change once it is made.
+
+**A worker arrives WITH its Job, and that is not a limitation to work
+around.** Each worker's `deployment` is the single-worker launch document
+`v12/python/DEPLOYMENT.md` specifies, and that document carries an
+`input_manifest` which is **digest-sealed** over a `work_ref` naming an
+Authority and a **Work**. So a worker document is written against an identity
+that already exists — the one this destination persisted at install — and it
+names the Work it will serve. Supplying `workers` and `jobs` together in the
+same repeated bootstrap is therefore the ordinary path, not a workaround.
+
+**An empty pool serves.** An earlier draft of this section said a manager
+cannot serve without a pool, and that is **superseded**: an instance that
+configures no execution capacity attaches no worker and runs the real
+scheduler and publisher over its own stores. What it refuses to do is pretend.
+If that instance's stores hold a Job, an active pool generation, a live stage
+allocation or a live control offer — work it configures nobody to serve — it
+**refuses by name, at startup and on every resume**, and expires, abandons,
+repairs and executes exactly nothing:
+
+```
+this deployment configures no execution capacity and this instance holds work
+it could not serve, so it refuses at startup rather than reporting an idle
+stack: 1 live control offer(s) (…). Nothing was expired, abandoned, repaired
+or executed …
+```
+
+### Reconfiguring an instance that is already installed
+
+**Not with the two-operand command.** That one installs, and it refuses a
+destination that already holds a runtime — *there is already a runtime at
+…/distro; nothing here upgrades a deployment in place*. Repeating it does not
+update anything.
+
+The supported path is the **one-operand** form, with an input document whose
+`state_root` **is the destination**:
+
+```sh
+just stop                                    # from the destination
+just --justfile /path/to/checkout/v12/justfile bootstrap /absolute/updated-inputs.json
+just start                                   # from the destination again
+```
+
+**`state_root` alone is not enough, and the helper will tell you so.** The
+INSTALLATION derives paths under the destination that a one-operand repeat
+composes from your input alone — `integration_target` and
+`integration_workspace`, and each worker's `workspace_storage` and
+`nominated_source`. A repeat that stopped naming one of them would quietly
+unconfigure where integration works while the selector, the runtime and the
+identity all stayed exactly the same. So it is **refused**:
+
+```
+refused: this root is already configured with integration_workspace and this
+document does not name it. A repeated bootstrap preserves what is there …
+Copy the current values out of /srv/baton-v12/deployment.json into your input
+document … Nothing was changed.
+```
+
+`updated-inputs.json` is therefore the instance document above, plus:
+
+- `"state_root": "/srv/baton-v12"`,
+- every derived selection **copied out of
+  `/srv/baton-v12/deployment.json`** — `integration_target` and
+  `integration_workspace` as they stand there,
+- and whatever you are now configuring: the `workers` that will serve, and the
+  `jobs` they are bound to. A worker's `deployment` carries its own
+  `workspace_storage` and `nominated_source`; copy those from the same file
+  for a worker that is already configured.
+
+It then recomposes the deployment **in place**: same layout, same Authority
+identity read back from `authority-identity.json`, same `instance.json`, same
+destination `justfile`, same runtime bytes, and the same effective paths. The
+Authority, the Works and the grants it already holds are preserved, and a
+binding that would CHANGE is refused rather than moved.
+
+**This is a copy step, not a merge.** Nothing here reads your previous
+configuration and fills the gaps in for you: a document that silently inherited
+what it does not say would make "what this deployment selects" two files
+instead of one.
+
+**Stopped, then started.** The emitted configuration is read when the manager
+composes, so an instance serving under the old one keeps serving it until it is
+restarted. There is no dynamic onboarding of a worker into a running manager in
+this build, and none is implied.
+
 ### What you must name
 
 ```json
 {
   "schema": "baton.v12.stack-bootstrap/1",
   "state_root": "/var/lib/baton-v12/deployment",
-  "authority_uuid": "<32 lowercase hex>",
   "checkpoint_profile": "…",
   "integration_profile": {"profile_kind": "…", "profile_version": 1,
                           "integrator_participant": "baton.…",
@@ -449,6 +602,10 @@ attach its review — which is why the input names `work_id` once.
             "canonical_target_id": "…", "source_worker_id": "impl-a"}]
 }
 ```
+
+`jobs` is **optional** and `authority_uuid` is **refused**; the rest is the
+instance. See "A fresh installation has zero Jobs" above for the form that
+names no Job at all.
 
 Each worker's `deployment` is the single-worker launch document
 `v12/python/DEPLOYMENT.md` specifies — its image digest, adapter identity,
@@ -475,10 +632,12 @@ longer mentioned is not thereby unconfigured, since its Work, its grants and
 whatever it has already produced are all still there.
 
 That record has to be **evidence**, not just a recognizable file. Its whole
-shape is validated — the Authority it names, a non-empty set of bindings, and
-every binding carrying its Work, declared base, canonical target and producer —
+shape is validated — the Authority it names, a bindings **mapping**, and every
+binding in it carrying its Work, declared base, canonical target and producer —
 because a record that does not say what is bound cannot say that something
-changed. And the configuration beside it is read and **related to it**: a
+changed. An **empty** mapping is an answer, not a malformed record: an
+installation binds no Job, and "this root holds no bindings" is a thing the
+record has to be able to say. And the configuration beside it is read and **related to it**: a
 `deployment.json` that is missing, corrupt, or that binds anything the record
 does not, means the state here is unknown.
 
@@ -576,16 +735,23 @@ correction below, in the output of `just start` itself.
 ### What a valid deployment document has to name
 
 Stated here so the gap is visible rather than deferred to a manual. The closed
-member list is `stage_execution`'s own (`_MEMBERS`), and every one of these is
-required:
+member list is `stage_execution`'s own (`_MEMBERS`), and **which members are
+required depends on whether this deployment binds a Job**. An installation
+binds none; the two shapes are named in the last column.
 
-| Member | What produces it |
-| --- | --- |
-| `authority_store`, `authority_uuid` | a v12 Authority store holding every configured participant, with `verify` / `review` / `approve` / `integrate` granted in the bound Work's scope, and a route handler for each worker's outgoing route |
-| `integration_store`, `state_root` | created by the composition on first start; both must be absolute and **outside the checkout** |
-| `workers` | exactly one per `implementation` / `review` / `integration` role, each a complete single-worker launch document (image, profile, participant, principal, credential slots) |
-| `job_work_id`, `review_work_id`, `canonical_target_id`, `line_declared_base` | the Work, target and line this deployment is bound to |
-| `checkpoint_profile`, `integration_profile`, `retention_policy_digest`, `retention_disposition`, `receipt_participants`, `pool_generation`, `policy_generation` | deployment policy, digest-bound |
+| Member | What produces it | Instance with no Job |
+| --- | --- | --- |
+| `authority_store`, `authority_uuid` | a v12 Authority store holding every configured participant, with `verify` / `review` / `approve` / `integrate` granted in the bound Work's scope, and a route handler for each worker's outgoing route | required; the grants come with the Works, so an instance that binds none holds no grant |
+| `integration_store`, `state_root` | created by the composition on first start; both must be absolute and **outside the checkout** | required |
+| `checkpoint_profile`, `integration_profile`, `retention_policy_digest`, `retention_disposition`, `receipt_participants`, `pool_generation`, `policy_generation` | deployment policy, digest-bound | required |
+| `workers` | one per `implementation` / `review` / `integration` role — `/1` permits exactly one each — and each a complete single-worker launch document (image, profile, participant, principal, credential slots) | **the empty list**; no execution capacity is configured |
+| `job_bindings` | one entry per bound Job, on the `/2` document | **the empty list**, which is what says "this binds nothing" |
+| `job_work_id`, `review_work_id`, `canonical_target_id`, `line_declared_base` | the Work, target and line this deployment is bound to | **absent**, and refused if present: they are facts about a Job |
+
+**Superseded:** an earlier version of this table said every member above was
+required of every document. It is not, and the closed schema now refuses the
+mixture — a global Work beside an empty `job_bindings` is two answers to "what
+does this serve".
 
 Two things are worth knowing before you build one:
 

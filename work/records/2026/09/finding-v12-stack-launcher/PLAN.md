@@ -1,4 +1,158 @@
-# Current — implementation and final corrections accepted; owner execution pending
+# Current — implementation accepted; owner review and disposition
+
+review-2026-09-17T00-17-18Z.md, claim190454 accepts all remaining corrections:
+ordinary-tick read-only guard, refusal of dropped installed selections with exact
+guide instructions, and actual current-bundle no-repository installed lifecycle.
+13 independent focused checks pass. All24 delivery paths match their handoff chain;
+REVIEW-CANDIDATE-190454.json binds them. Current81-file bundle digest is
+f675e883ad0e752c1d2881702d9d6b40189e2f565bc21242268cd05abfe99911 and its own version
+is baton12.0.0 (fb5d39d6, dirty). Earlier bundles remain historical.
+
+Next baton.ops for Slawomir review/Git ownership and owner execution or explicit
+resolution. OWNER-READY-190454.md is the current packet; no mandatory Job/Work/
+base/worker selections or former owner-input gate. No further implementation,
+blanket test rerun, live-model campaign or agent Git operation requested.
+W183883 remains open, W177936 parked, v11 authoritative; PROGRESS author-owned.
+
+Reviewer tests5.465995617967565s; artifact audit0.0938894179998897s; candidate audit
+0.0011403600219637156s. Author47.660s focused/22.051s probes/successful frozen
+sequence13.242s (warm build7.146s). Failed monitor timeout600s, unmeasured cold build,
+finally-stop duration and earlier unknowns preserved. The later claim190149
+"one build, one install" summary is superseded as total accounting by the review's
+explicit failed-attempt account. No cumulative upper bound asserted.
+
+# Historical — guard ordinary serving ticks; preserve installed configuration
+
+review-2026-09-16T23-16-06Z.md, claim190122: startup and explicit-resume refusal
+accepted; read-only outstanding-offer reader accepted. Nine focused checks pass,
+five hashes match. Earlier source-run overclaim corrected and simulated-runtime
+destination tests accepted as component evidence. Real frozen lifecycle still due.
+
+Next baton.impl then baton.feat, within OWNER-FRESH-INSTALL-20260916.md:
+1. Guard every ordinary serving tick. manager.serve reconciles once then sweeps;
+   recover-only guard misses accepted control offers/pools introduced in sleep.
+   Independently reproduced both through actual serve, with foreign state intact.
+   Use read-only validation on the real tick path, not repeated restart recovery.
+2. Correct documented reconfiguration: source-form repeat drops the destination's
+   derived integration_workspace. Preserve/test effective deployment path bindings
+   via exact supported inputs, or state the missing installed-update capability.
+   Comparing only identity/selector/justfile/runtime does not prove preservation.
+3. After P1, one focused current-candidate bundle build/install and empty lifecycle
+   through actual destination commands, with manifests, source independence, logs
+   and measured cleanup/cost. No live model/engine/Job or Git mutation; use
+   --no-repositories for this proof and reuse substituted default-repository tests.
+   Simulated runtime tests and old-bundle packaging checks do not close this item.
+
+Reviewer tests5.444025699980557s; reproduction0.0218375229742378s; earlier helper
+KeyError attempt tool wall0.060025017s, recorded as reviewer misuse. Author47.462s
+focused/24.689s probes/55.163s current stage suite; historical unknowns preserved.
+Detailed acceptance in newest review. No owner production run; PROGRESS author-owned.
+
+# Historical — refuse unexpected control work; prove installed empty lifecycle
+
+review-2026-09-16T22-58-33Z.md, claim190015 supersedes the outstanding identity
+details and source-run lifecycle status below. F3 accepted;16 independent tests
+pass. Empty source-run manager/publisher genuinely serves and stops; guide JSON
+parses. Five changed candidate hashes match EVIDENCE-189914.json.
+
+Next baton.impl then baton.feat, within OWNER-FRESH-INSTALL-20260916.md:
+1. Fix confirmed empty recovery omission: an accepted control offer before or
+   after composition is invisible to real manager.reconcile, which reports no
+   recoverable work. Public control recovery sees it. Guard actual relevant
+   Job/control state at admission and during serving, visibly refusing unexpected
+   work needing missing workers without modifying that work. A pool activated
+   after empty attachment is also ignored; constructor-only checks are insufficient.
+2. Correct source-run versus installed-instance evidence. Current lifecycle tests
+   call prepare plus source tools.stack, never install/runtime/selector/justfile.
+   Add focused destination-install/current-runtime acceptance, keeping actual Git
+   substituted and reusing unchanged earlier evidence explicitly. No live models.
+3. Remove contradictory guide claims that an empty manager cannot serve and every
+   document needs workers/Job fields/nonempty bindings. Give an actual supported
+   later-Job configuration/restart command or honestly state the missing installed
+   update capability. Repeating the two-operand installer refuses existing runtime.
+
+Detailed boundaries/reproduction in newest review. Reviewer10.60917818499729s
+tests plus0.01748515199869871s audit; author42.259s focused/62.593s probes separate.
+All earlier unknowns retained. No further identity redesign, generic scheduler
+expansion or owner production run. PROGRESS remains implementer-owned.
+
+# Historical — prioritize real no-capacity instance; finish identity reader details
+
+review-2026-09-16T22-36-58Z.md, claim189893: original F3 symlink/reuse/collision issue is
+accepted as fixed;9 identity tests pass and changed hashes match. F2 worksheet is
+now labelled honestly but runnable example and F1 lifecycle remain due.
+
+Next baton.impl then baton.feat, completion within existing owner scope:
+- No bound Work/no capacity means no stage-execution sessions or per-Work grants;
+  do not add deployment-scoped capabilities merely to initialize idle state.
+- Empty pool attachment versus deferred attachment is an internal implementation
+  choice, held to real manager/recovery/store observation and visible refusal on
+  existing/arriving work requiring missing workers. No new approval gate or broad
+  worker-manifest relocation. Finish actual bootstrap/start/status/monitor/stop
+  and parsed runnable no-Job JSON; retain real Job validation/later configuration.
+- Finish _identity_bytes: FIFO currently passes custody then blocks before fstat;
+  reject special nodes without blocking. Current65536-byte read accepts malformed
+  trailing bytes beyond the limit; detect oversize and validate the whole admitted
+  record, preserving foreign state and no-follow reuse/collision behavior.
+
+Prioritize the outstanding lifecycle implementation over repeated unchanged
+six-suite/probe cycles for another partial return. Focused deterministic checks;
+standing ordinary-verification time ruling applies, measurements preserved.
+Reviewer audit2.0038832249701954s includes FIFO2.0026056300266646s;9 tests
+0.17559671198250726s; author31.311s focused/13.173s probes separate. No owner run,
+no reviewer build/store/credential operation. W183883 open, W177936 parked, v11
+authoritative; PROGRESS implementer-owned. OWNER-READY-189577 still superseded.
+
+# Historical — finish selected fresh-install lifecycle and identity custody
+
+review-2026-09-16T22-27-59Z.md, claim189832: partial schema/identity work is not fresh-install
+acceptance. Owner OWNER-FRESH-INSTALL-20260916.md remains governing. The reading
+that all empty-capacity runtime handling is excluded as generic scheduling is
+superseded by this review interpretation: minimal real empty lifecycle is explicitly
+selected; broad worker/assignment relocation is not a prerequisite established by
+the evidence. No owner production run or preselected-Job input gate.
+
+Next baton.impl then baton.feat:
+1. Complete a no-worker/no-Job instance path through actual stores and real
+   manager/observer/publisher/lifecycle, with narrow composition/capacity changes
+   as needed. Refuse nonempty durable work/allocations needing absent configuration;
+   preserve recovery and configured-job contracts. No dummy empty snapshots or
+   generic dynamic-worker/migration project. Pin exact paths/ownership first.
+2. Replace placeholder/invalid minimal JSON with a complete runnable instance
+   example; parse and use it for acceptance. Correct contradictory authority_uuid
+   example; preserve accurate later-Job configuration/restart limits.
+3. New authority-identity.json currently bypasses custody and follows external
+   symlinks on both reuse and create-collision fallback. Refuse unsafe record types
+   before effects, preserve foreign state, cover reuse/distinct/link/collision.
+
+Evidence REVIEW-EVIDENCE-189832.json/reproduce-review-189832.py;5 identity unit
+tests pass, changed hashes match, real fresh lifecycle remains unverified.
+Reviewer audit0.0010764109902083874s, tests0.181396814994514s; author31.431s focused,
+9.878s probes and prior unknowns preserved. No reviewer build/store/credential/
+clone/live operation. W183883 open, W177936 parked, v11 authoritative. PROGRESS
+implementer-owned. Detailed acceptance and bounded seams are in the review.
+
+# Historical — fresh installation with zero Jobs; owner correction 2026-09-16
+
+Owner confirmed that installation must initialize an empty instance without any
+Job selections. See OWNER-FRESH-INSTALL-20260916.md and the corresponding latest
+FINDING entry. This supersedes the owner-input/deployment gate below and in
+OWNER-READY-189577.md. Earlier component acceptance remains historical evidence.
+
+Next: baton.impl, then baton.feat. Correct bootstrap and the minimum affected
+runtime composition so the ordinary two-argument bootstrap produces an independent
+instance with generated persistent identity, empty databases, installed justfile
+and a genuinely serving idle scheduler/monitor. Remove mandatory Job/Work/base/
+target/assignment inputs from fresh installation; bind them at Job creation.
+Document a complete minimal instance-only JSON and the subsequent Job boundary.
+Use focused deterministic verification of empty install, idle lifecycle, identity
+persistence and distinct instances; retain relevant existing execution validation.
+No placeholder Jobs, live providers, backlog migration or new scheduling project.
+Implementer owns product/tests and PROGRESS after claim; prompt changes only this
+plan, FINDING and owner ruling before handoff. No owner deployment run requested
+against the superseded Job-preconfigured input contract.
+
+# Historical — implementation and final corrections accepted; owner execution pending
 
 review-2026-09-16T21-42-31Z.md, claim189577: both test/documentation corrections accepted,
 explicitly superseding outstanding status below. V1/V2/V3 and earlier implementation
@@ -2139,6 +2293,159 @@ and the retained claim189383 install's does not, which is what proves it. The
 count is 421, not the 420 the narrative said; it is 424 now.
 
 **Still to do**: the owner's step -- actual inputs and the owner-run bootstrap.
+
+No v11 path, service, store or configuration is touched, and no version-control
+mutation is performed by this agent.
+
+## Pinned, W183883 claim189719
+
+Answering OWNER-FRESH-INSTALL-20260916.md via M189712. Edited:
+`tools/bootstrap.py`, `tools/stage_execution.py`, `v12/STACK.md`,
+`tests/tools/test_bootstrap.py`, `tests/tools/test_instance.py`. No build, no
+live run, no Job.
+
+**Delivered.** `jobs` and `authority_uuid` leave the required input: `jobs` is
+deferred and still fully validated when supplied, and a document naming an
+`authority_uuid` is refused by name. The identity is minted per root and
+persisted exclusively at `<state_root>/authority-identity.json` before the
+Authority it names exists. `stage_execution` admits the instance-only `/2`
+document -- empty `job_bindings`, none of the four global Job members -- and no
+placeholder Work, Job, grant or binding is composed. The guide carries a
+complete minimal instance-only JSON and the Job boundary.
+
+**Returned, and proved rather than described.** A fresh destination with
+configured workers still cannot be installed: `single_worker` requires each
+worker to carry a digest-sealed `input_manifest` naming an Authority and a
+Work, so a worker document cannot be written against an identity that does not
+exist yet, and the pool cannot be left out because `scheduler.own_pool` refuses
+an empty one. Making the pool a genuine instance selection means moving
+`input_manifest` and `task_document` to the assignment and admitting an empty
+pool through `operations_from` -- the scheduler expansion the ruling excludes.
+So the real idle lifecycle over a Job-free instance is NOT verified here.
+
+No v11 path, service, store or configuration is touched, and no version-control
+mutation is performed by this agent.
+
+## Pinned, W183883 claim189861
+
+Answering review 2026-09-16T22-27-59Z. Edited: `tools/bootstrap.py`,
+`tools/instance.py`, `v12/STACK.md`, `tests/tools/test_bootstrap.py`,
+`probes-189719.py`. No build, no live run, no Job.
+
+**F3 closed.** The identity record is read with `O_RDONLY|O_NOFOLLOW` and an
+`fstat` regular-file check, the exclusive-create fallback reads through that
+same boundary, and `instance.layout` derives `identity` so `custody` sweeps it.
+A link, a dangling link and a non-regular file are refused by name and left
+exactly as they are. The reviewer's two-destination reproduction is a check.
+
+**F2 partly closed.** The contradictory `authority_uuid` example is gone, the
+minimal block says about itself that it is a shape and not yet runnable, and
+the check's name and docstring say exactly what it proves. A genuinely runnable
+no-Job example waits on F1, because a worker document is sealed to an identity
+that does not exist yet.
+
+**F1 returned with its seams pinned, and the reviewer's reading accepted.** The
+ruling excludes a generic scheduling project, not the minimum empty-capacity
+handling the selected outcome needs; my earlier reading was too broad. The
+remaining step is in EVIDENCE-189861.json: admit no capacity in
+`bootstrap.held`/`configuration` and `stage_execution._held_workers`; compose
+without worker execution in `operations_from`/`observation_from`, where
+`_minted`/`_bound_scope` for a deployment with no bound Work is the one place a
+product decision may be needed; fail closed on work that exists or arrives; and
+decide whether `scheduler.own_pool`/`activate_pool`/`PooledManagerOperations`
+gain a narrow empty attachment or simply are not attached.
+
+No v11 path, service, store or configuration is touched, and no version-control
+mutation is performed by this agent.
+
+## Pinned, W183883 claim189914
+
+Answering review 2026-09-16T22-36-58Z. Edited: `tools/bootstrap.py`,
+`tools/stage_execution.py`, `src/baton_v12/job_manager/scheduler.py`,
+`v12/STACK.md`, `tests/tools/test_bootstrap.py`. No build, no provider, no
+engine, no Job.
+
+**The selected outcome is complete.** A fresh installation naming no Job and no
+worker installs, and `start`, `status`, `monitor` and `stop` run the REAL
+manager and publisher over it: honest zeros read from the actual stores, a
+canonical snapshot written during the start, and both processes stopped again.
+
+`workers` joins `jobs` in DEFERRED. `_serves_nothing` is the one predicate the
+composition branches on: `_held_workers` admits the empty list only for the
+instance-only document, `_bound_scope` answers None, `_minted` mints nothing --
+no session and no per-Work grant invented -- the workspace group is not asked
+for or inferred, and no pool is predicted or activated.
+`PooledManagerOperations` accepts an empty mapping and nothing else is relaxed:
+`_required_workers` still decides what must be attached, so the moment a store
+holds an active generation or a live allocation the attachment refuses.
+
+STACK.md's fresh-install block is a real JSON document, and the acceptance
+parses it OUT OF THE GUIDE and installs it, so an example that stops being
+runnable stops the checks. The identity reader no longer blocks on a named pipe
+and no longer truncates an oversize record.
+
+**The later-Job boundary, stated:** a Job arrives as a repeated bootstrap
+supplying `jobs` and the workers that serve them, and the instance is restarted
+to serve it. There is no dynamic onboarding in this build and none is claimed.
+
+No v11 path, service, store or configuration is touched, and no version-control
+mutation is performed by this agent.
+
+## Pinned, W183883 claim190047
+
+Answering review 2026-09-16T22-58-33Z. Edited: `tools/stage_execution.py`,
+`src/baton_v12/worker_manager/offers.py` and its `__init__`, `v12/STACK.md`,
+`tests/tools/test_bootstrap.py`. No build, no clone, no provider, no engine.
+
+**P1 closed.** `outstanding_offers` is a new READ-ONLY question the offers
+table can already answer; `unconfigured_work` names Job rows, an active pool
+generation, live allocations and live control offers; and it runs at startup in
+`operations_from` AND on every resume in a spelled `StageExecution.recover`, so
+work that arrives after attachment is seen. Nothing is expired, abandoned,
+repaired or executed, and each check asserts the foreign work is untouched.
+
+**P2 label closed.** The source-run class is named for what it is, with an
+evidence correction recorded: claim189914 called it an installation and it was
+not. `TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY` is the installation boundary --
+real installer, selector, deployed justfile, copied runtime, persisted identity,
+lifecycle through the selector -- with its stand-in runtime and in-process
+execution labelled, and no retained bundle presented as this candidate.
+
+**P2 guide closed.** The pool claim and the non-empty-binding claim are
+superseded in place, the member table distinguishes the two shapes, and the
+later-configuration path is exact: stop, one-operand bootstrap with
+`state_root` = the destination, start. The two-operand installer refuses an
+installed destination, and the guide says so.
+
+No v11 path, service, store or configuration is touched, and no version-control
+mutation is performed by this agent.
+
+## Pinned, W183883 claim190149
+
+Answering review 2026-09-16T23-16-06Z. Edited: `tools/stage_execution.py`,
+`tools/bootstrap.py`, `v12/STACK.md`, `tests/tools/test_bootstrap.py`. One
+build, one install, one frozen lifecycle; no clone, provider, engine or Job.
+
+**P1 closed.** `manager.serve` calls `reconcile` once and then `sweep` every
+tick, so the guard is asked from `drain` -- what `sweep`'s first pass calls
+into these operations, before anything that tick could act on -- as well as
+from `recover`. Not recovery on every tick: recovery expires and abandons, and
+that is not an observation. Proved by driving the real `serve` loop with the
+work arriving in the injected wait.
+
+**P2 reconfiguration closed.** `dropped_selections` refuses a repeat that would
+stop naming `integration_target`, `integration_workspace` or a worker's
+`workspace_storage`/`nominated_source`, and the guide gives the exact input:
+`state_root` plus those values copied out of `<destination>/deployment.json`.
+It is a copy step, not a merge, and the preservation check now compares the
+effective configuration as well as the immutable files.
+
+**P2 frozen lifecycle done.** The current candidate was built, installed with
+`--no-repositories`, and driven through the destination-local commands with no
+checkout, no PYTHONPATH and no build environment: `baton 12.0.0 (fb5d39d6,
+dirty)`, start, status, a bounded monitor, stop, status. Logs, the canonical
+snapshot and the measured costs are in FROZEN-LIFECYCLE-190149.json, and the
+destination was removed.
 
 No v11 path, service, store or configuration is touched, and no version-control
 mutation is performed by this agent.

@@ -1,0 +1,112 @@
+{
+  "scratch": "/tmp/w183883-review190015-7c17nj88",
+  "cases": {
+    "existing-control-offer": {
+      "composition_succeeded": true,
+      "manager_report": {
+        "observed_at": "2026-08-24T00:00:00.000Z",
+        "recovered": {
+          "abandoned": [],
+          "recoverable": []
+        },
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [],
+        "spoken": [],
+        "refreshed": []
+      },
+      "control_public_recovery": {
+        "abandoned": [],
+        "recoverable": [
+          {
+            "offer_id": "review-offer",
+            "claim_operation_id": "claim:abc278bce92bfe5dd120a02289769dccee413aa12bd3e42d28993fafa0afb291",
+            "settle_by": "2026-08-24T00:01:00.000Z"
+          }
+        ]
+      },
+      "seed_boundary": "real control offer APIs with strict fake Authority session"
+    },
+    "arriving-control-offer": {
+      "composition_succeeded": true,
+      "manager_report": {
+        "observed_at": "2026-08-24T00:00:00.000Z",
+        "recovered": {
+          "abandoned": [],
+          "recoverable": []
+        },
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [],
+        "spoken": [],
+        "refreshed": []
+      },
+      "control_public_recovery": {
+        "abandoned": [],
+        "recoverable": [
+          {
+            "offer_id": "review-offer",
+            "claim_operation_id": "claim:03d6b041b12aa966e24855a4ac979d8f1ed3f55cfcc969580f9e8dbb11bc66c4",
+            "settle_by": "2026-08-24T00:01:00.000Z"
+          }
+        ]
+      },
+      "seed_boundary": "real control offer APIs with strict fake Authority session"
+    },
+    "pool-arrives-after-attachment": {
+      "activation": {
+        "generation": 1,
+        "variant": "primary",
+        "separation_class": "provider-diverse",
+        "digest": "sha256:5def641f4061cfd92b45897f3b40be5557b76da8149390161a2eaec6a5bca7f8",
+        "activated_at": "2026-08-24T00:00:00.000Z"
+      },
+      "sweep": {
+        "observed_at": "2026-08-24T00:00:00.000Z",
+        "recovered": {
+          "abandoned": [],
+          "recoverable": []
+        },
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [],
+        "spoken": [],
+        "refreshed": []
+      },
+      "active": {
+        "generation": 1,
+        "variant": "primary",
+        "separation_class": "provider-diverse",
+        "document": "{\"schema\":\"baton.v12.worker-pool/1\",\"separation_class\":\"provider-diverse\",\"variant\":\"primary\",\"workers\":[{\"eligible_kinds\":[\"implementation\",\"integration\"],\"lane\":\"implementation\",\"participant\":\"baton.impl-a\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"impl-a\"},{\"eligible_kinds\":[\"implementation\"],\"lane\":\"implementation\",\"participant\":\"baton.impl-b\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"impl-b\"},{\"eligible_kinds\":[\"review\"],\"lane\":\"review\",\"participant\":\"baton.review-a\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"review-a\"},{\"eligible_kinds\":[\"review\"],\"lane\":\"review\",\"participant\":\"baton.review-b\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"profile_name\":\"reference\",\"worker_id\":\"review-b\"}]}",
+        "digest": "sha256:5def641f4061cfd92b45897f3b40be5557b76da8149390161a2eaec6a5bca7f8",
+        "activated_at": "2026-08-24T00:00:00.000Z"
+      }
+    }
+  },
+  "candidate_hashes": {
+    "v12/python/tools/bootstrap.py": {
+      "expected": "af8c918af9d77baf56d5f8140edd1ce7a78d759bcd7836b34d5b915d1cbb39b7",
+      "actual": "af8c918af9d77baf56d5f8140edd1ce7a78d759bcd7836b34d5b915d1cbb39b7"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "expected": "f015c4dff29f9fc4e53f7decf947d340c05116ec887381016fe4c69cfda77584",
+      "actual": "f015c4dff29f9fc4e53f7decf947d340c05116ec887381016fe4c69cfda77584"
+    },
+    "v12/python/src/baton_v12/job_manager/scheduler.py": {
+      "expected": "8b51c2f410d667fca7e293c9ded3c9fb375e1872e5dda48c61faf47c4698ba0f",
+      "actual": "8b51c2f410d667fca7e293c9ded3c9fb375e1872e5dda48c61faf47c4698ba0f"
+    },
+    "v12/STACK.md": {
+      "expected": "34cb3cf35ca28d0b6b08a439ab56724182920dc9d6207b2db9e534c009a8dcfe",
+      "actual": "34cb3cf35ca28d0b6b08a439ab56724182920dc9d6207b2db9e534c009a8dcfe"
+    },
+    "v12/python/tests/tools/test_bootstrap.py": {
+      "expected": "4d353fe1e333976bf5d78f61b99af012d3c27d10f934e0c79a88c98785b8f335",
+      "actual": "4d353fe1e333976bf5d78f61b99af012d3c27d10f934e0c79a88c98785b8f335"
+    }
+  },
+  "seconds": 0.01748515199869871
+}

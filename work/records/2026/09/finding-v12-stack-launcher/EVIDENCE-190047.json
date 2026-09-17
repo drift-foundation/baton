@@ -1,0 +1,265 @@
+{
+ "work": "2b077949-W183883",
+ "claim": 190047,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-16T22-58-33Z.md",
+  "sha256": "81e50455e3b6f5915fde94b2ceef2be4c89a2445a731643e40029648c8f7ff28",
+  "accepted_by_the_reviewer": [
+   "the empty source-run composition works: 16 independent tests pass",
+   "F3's FIFO and oversize corrections",
+   "the minimal JSON parses and supplies no Jobs or workers"
+  ]
+ },
+ "P1_unconfigured_work_was_invisible": {
+  "status": "CLOSED",
+  "what_was_wrong": "An empty attachment made `PooledManagerOperations.recover` loop over no workers, so a REAL accepted control offer was invisible: the manager reported `recovered={abandoned:[], recoverable:[]}` and an ordinary idle tick, while the same control store's own recovery called that offer recoverable. The constructor comparison against `_required_workers` is one answer at one moment and says nothing about work that arrives after attachment, or about control work with no matching Job row.",
+  "what_it_is_now": [
+   "`worker_manager.outstanding_offers(store)` -- a new READ through the same owned crossing every other offer read uses. It answers the live states (issued, accepted, claimed) and ACTS ON NOTHING; `recover_on_restart` answers a related question and expires and abandons, which is why it could not be the reader.",
+   "`stage_execution.unconfigured_work(job_store, control_store)` names Job rows, an active pool generation, live stage allocations and live control offers -- offers separately, so control work with no Job row counts.",
+   "it runs AT STARTUP in `operations_from`, before the first durable act, and ON EVERY RESUME in a spelled `StageExecution.recover`, which is what `manager.reconcile` calls each tick.",
+   "the refusal names each thing and says `Nothing was expired, abandoned, repaired or executed`; every check asserts the foreign work is exactly where it was afterwards."
+  ],
+  "held_by": [
+   "AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_control_work_ALREADY_HERE_refuses_at_startup",
+   "...test_control_work_ARRIVING_AFTER_attachment_refuses_on_resume (and asserts an genuinely empty tick is still an ordinary idle report)",
+   "...test_a_POOL_activated_after_attachment_is_not_ignored (and the pool is still active afterwards: refusing is not deactivating)",
+   "...test_the_READER_itself_changes_nothing"
+  ],
+  "seeded_how": "the reviewer's own boundary: certify_profile / issue_offer / accept_offer with the accepted strict fake Authority session. No raw SQL, no provider, no engine, no Job.",
+  "the_reviewers_reproducer": "reproduce-review-190015.py's first scenario now refuses at startup by name rather than composing; run and recorded this claim.",
+  "probes": [
+   "K1 startup check removed",
+   "K2 resume check removed",
+   "K3 offers no longer counted",
+   "K4 pool no longer counted",
+   "K5 the reader made to act",
+   "K6 the stores not carried"
+  ]
+ },
+ "P2_the_label_was_wrong": {
+  "status": "CLOSED",
+  "what_was_wrong": "`TheGUIDES_OWN_EXAMPLE_INSTALLS_AND_SERVES` and its `installed()` helper did neither: they call `bootstrap.prepare`, export the four source-run variables and call `tools.stack` in process. No destination installer, no runtime copy, no selector, no destination justfile. What it proved was real and I described it as more than it was.",
+  "the_correction": "The class is `TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE`, its helper is `composed_from_source`, and its docstring says which form it is and points at the installed one.",
+  "EVIDENCE_CORRECTION_for_claim189914": "EVIDENCE-189914.json and M189994 called that class's result a standalone INSTALLATION. It was the SOURCE-RUN empty lifecycle. The manager and publisher processes, the real stores and the canonical zero-Job snapshot are unchanged and remain true; the word 'installed' was not.",
+  "the_installed_acceptance_now": {
+   "class": "TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY",
+   "what_it_exercises": [
+    "`bootstrap.main --inputs <the guide's document> --destination --distro --no-repositories`: the real destination installer",
+    "the emitted `instance.json`, the deployed destination `justfile`, the copied runtime and its manifest digest",
+    "the persisted identity, and that two destinations get two identities",
+    "the empty lifecycle through the SELECTOR: `stack.main --instance <destination>/instance.json start|status|monitor|stop`",
+    "the reconfiguration path below, and the two-operand installer's refusal of an already-installed destination"
+   ],
+   "what_is_SUBSTITUTED_and_labelled": [
+    "THE RUNTIME IS A STAND-IN -- a directory carrying the launcher's NAME and a file beside it, as `test_instance` composes one. No claim is made here about frozen behaviour, and NO retained bundle is presented as this candidate. `tests/tools/test_packaging.py` asks the real bundle its own questions.",
+    "THE LIFECYCLE RUNS IN PROCESS through the selector, which is what the deployed recipes resolve to; a stand-in runtime cannot EXECUTE, so the bundled executable is not run here.",
+    "REPOSITORIES ARE NOT PREPARED: `--no-repositories`, so no clone and no version-control command happens at all."
+   ],
+   "no_build_was_run": "no bundle was built this claim, and none is presented; the retained bundles predate this candidate and are not cited as evidence for it."
+  }
+ },
+ "P2_the_guide_contradicted_the_implementation": {
+  "status": "CLOSED",
+  "corrected": [
+   "the later-Job section said `a manager cannot serve without one`. It is superseded in place: an empty pool serves, and what it refuses to do is pretend -- with the refusal text quoted.",
+   "the repetition section required `a non-empty set of bindings`. It is a bindings MAPPING, and an empty one is an answer.",
+   "the member table said every member was required of every document. It now has an 'Instance with no Job' column: `workers` and `job_bindings` are the empty list and the four global Job members are ABSENT and refused if present, with the old claim marked superseded."
+  ],
+  "the_later_configuration_path_is_now_exact": {
+   "not_this": "the two-operand installer, which refuses an existing runtime -- `there is already a runtime at .../distro` -- so repeating it updates nothing. The guide says so.",
+   "this": [
+    "just stop  (from the destination)",
+    "just --justfile <checkout>/v12/justfile bootstrap /absolute/updated-inputs.json",
+    "just start  (from the destination)"
+   ],
+   "what_it_preserves": "same layout, same Authority identity read back from authority-identity.json, same instance.json, same destination justfile, same runtime bytes; the Authority, Works and grants already held are kept and a changed binding is refused",
+   "the_restart_boundary": "the emitted configuration is read when the manager composes, so an instance keeps serving the old one until restarted. No dynamic onboarding exists in this build and none is implied.",
+   "held_by": "TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_RECONFIGURING_an_installed_instance_keeps_everything_else and ...test_the_two_operand_installer_REFUSES_an_installed_destination",
+   "version_control_substitution": "none was needed: --no-repositories, so no repository command is reached"
+  },
+  "probes": [
+   "K7 the pool claim restored",
+   "K8 the binding claim restored"
+  ]
+ },
+ "verification": {
+  "focused_suites": [
+   {
+    "module": "tests.tools.test_version",
+    "tests": 27,
+    "result": "OK",
+    "seconds": 0.108
+   },
+   {
+    "module": "tests.tools.test_instance",
+    "tests": 117,
+    "result": "OK",
+    "seconds": 0.507
+   },
+   {
+    "module": "tests.tools.test_bootstrap",
+    "tests": 112,
+    "result": "OK",
+    "seconds": 17.213
+   },
+   {
+    "module": "tests.tools.test_stack",
+    "tests": 122,
+    "result": "OK",
+    "seconds": 26.317
+   },
+   {
+    "module": "tests.tools.test_environment",
+    "tests": 75,
+    "result": "OK",
+    "seconds": 1.008
+   },
+   {
+    "module": "tests.tools.test_packaging",
+    "tests": 11,
+    "result": "OK",
+    "seconds": 2.309
+   }
+  ],
+  "focused_total_tests": 464,
+  "focused_total_seconds": 47.462,
+  "new_this_claim": 9,
+  "tests_stage_execution": {
+   "tests": 275,
+   "errors": 12,
+   "seconds": 55.163,
+   "note": "the same 12 pre-existing errors; the duration the previous review asked for is recorded here"
+  },
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_control_work_ALREADY_HERE_refuses_at_startup"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "K1-startup-stops-asking-what-this-instance-already-holds",
+     "reverted_returncode": 1,
+     "seconds": 0.885,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_control_work_ARRIVING_AFTER_attachment_refuses_on_resume",
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_a_POOL_activated_after_attachment_is_not_ignored"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "K2-resume-stops-asking-and-reports-an-idle-tick-again",
+     "reverted_returncode": 1,
+     "seconds": 0.924,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_control_work_ALREADY_HERE_refuses_at_startup"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "K3-control-work-with-no-Job-row-stops-being-looked-for",
+     "reverted_returncode": 1,
+     "seconds": 0.883,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_a_POOL_activated_after_attachment_is_not_ignored"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "K4-a-pool-arriving-after-attachment-stops-counting",
+     "reverted_returncode": 1,
+     "seconds": 0.89,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_the_READER_itself_changes_nothing"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "K5-the-read-only-question-starts-acting-on-foreign-state",
+     "reverted_returncode": 1,
+     "seconds": 0.877,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_control_work_ARRIVING_AFTER_attachment_refuses_on_resume"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "K6-the-installed-selector-stops-being-written",
+     "reverted_returncode": 1,
+     "seconds": 0.886,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_guides_minimal_block_NAMES_what_is_required_and_no_more"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "K7-the-guide-says-again-that-a-manager-needs-a-pool",
+     "reverted_returncode": 1,
+     "seconds": 0.869,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AFreshInstallHasZeroJobs.test_the_guides_minimal_block_NAMES_what_is_required_and_no_more"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "K8-the-guide-requires-a-non-empty-binding-record-again",
+     "reverted_returncode": 1,
+     "seconds": 0.865,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 24.689
+  },
+  "probe_seconds": 24.689,
+  "probe_script": "probes-190047.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probe": "K5",
+    "why": "the CHECK was too weak, not the token: it seeded only an ACCEPTED offer, which recovery leaves alone, so a reader that expired and abandoned would have passed. It now also seeds a FOREIGN ISSUED offer -- the state `recover_on_restart` abandons. The token was then wrong too: once abandoned the offer leaves the live states, so the assertion reads `None != 'issued'`.",
+    "corrected": "the check and the token"
+   }
+  ],
+  "no_build_no_clone_no_index_no_job_no_provider_no_engine": true
+ },
+ "changed_this_claim": {
+  "v12/python/tools/stage_execution.py": "a6ad650ceb7289b5fdaabdc31b70cf0937874a8afc432690b2a9609e9a129cf0",
+  "v12/python/src/baton_v12/worker_manager/offers.py": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+  "v12/python/src/baton_v12/worker_manager/__init__.py": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099",
+  "v12/STACK.md": "958e6f630e6e499e5fc63f6b9f56b3ce985e5905e732df6ebb51eb8ef5a7472f",
+  "v12/python/tests/tools/test_bootstrap.py": "629986756cd187af7aa36923411a13a28aae3bc8d2c3ec5e6a15c463b8ba68a2"
+ },
+ "cumulative_this_line_of_work": {
+  "claim189471": "38.504s focused, 8.068s probes (contained an unmeasured rebuild)",
+  "claim189538": "31.634s focused, 1.212s probes",
+  "claim189719": "31.431s focused, 9.878s probes",
+  "claim189861": "31.311s focused, 13.173s probes",
+  "claim189914": "42.259s focused, 62.593s probes",
+  "claim190047": "47.462s focused, 24.689s probes, 55.163s stage_execution",
+  "unknowns_preserved": "the number and separate durations of the builds run during claim189471 were never measured"
+ },
+ "operational_findings_preserved_unchanged": [
+  "five test modules are absent from parallel_test.py's registry",
+  "tests/tools/test_stage_execution.py has 12 pre-existing errors",
+  "the credential registry at /home/sl/.baton/credential-sources.json was never read",
+  "external-disk fixture coverage is unchanged; the no-worker cases run under /var/tmp"
+ ],
+ "no_owner_production_run_is_proposed": true,
+ "no_job_provider_engine_v11_operation_or_version_control_mutation": true
+}

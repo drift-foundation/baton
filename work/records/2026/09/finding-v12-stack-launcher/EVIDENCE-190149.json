@@ -1,0 +1,282 @@
+{
+ "work": "2b077949-W183883",
+ "claim": 190149,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-16T23-16-06Z.md",
+  "sha256": "cb3184b2dce7720027869e5480c8c181ff6f19dd19343871c932abb6dd6d897d"
+ },
+ "P1_steady_serving_bypassed_the_guard": {
+  "status": "CLOSED",
+  "what_was_wrong": "`manager.serve` calls `reconcile` ONCE and then `sweep` on every tick after it. My guard lived only in `StageExecution.recover`, so it was asked at startup and never again -- and my handoff asserted the opposite, that reconcile runs each tick. It does not.",
+  "what_it_is_now": "`_nothing_unserved` is spelled once and asked from TWO places: `recover`, which is the resume, and `drain`, which is what `sweep`'s first pass -- `_observe` -- calls into these operations before anything that tick could observe, adopt, delegate, launch or converse. So every ordinary tick asks, before effects.",
+  "what_it_is_NOT": "recovery on every tick. `recover_on_restart` EXPIRES and ABANDONS, and running it each tick to find out whether anything is here would be settling durable state in order to observe it -- the thing this whole correction exists to avoid.",
+  "held_by": [
+   "AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_SERVE_itself_refuses_an_offer_that_arrives_mid_run -- the REAL `manager.serve` loop, empty when it starts, with the accepted offer seeded inside the injected wait, so the next ordinary tick is what refuses",
+   "...test_SERVE_itself_refuses_a_pool_that_arrives_mid_run, which also asserts the pool is still active afterwards",
+   "...test_serve_over_genuinely_empty_stores_just_ticks -- the control: five ticks, no refusal, observed 0"
+  ],
+  "probes": [
+   "L1 the every-tick call removed",
+   "L2 the boundary renamed"
+  ]
+ },
+ "P2_the_documented_reconfiguration_dropped_a_selection": {
+  "status": "CLOSED",
+  "what_was_wrong": "The destination branch runs `workspace_bound`, `repositories_bound` and `storage_bound`; the one-operand branch composes from the input alone. So the reconfiguration I documented returned ZERO and removed `integration_workspace` from the emitted configuration -- selector, runtime and identity unchanged, and the deployment no longer naming where integration works. My preservation check compared only the immutable files, which is exactly why it passed.",
+  "what_it_is_now": [
+   "`dropped_selections(places, configured)` compares the emitted configuration already at this root against the one about to be written: `integration_target`, `integration_workspace`, and each worker's `workspace_storage` and `nominated_source`.",
+   "a repeat that would stop naming one is REFUSED before any durable act, with the members named, where to copy the current values from, and `Nothing was changed`.",
+   "IT IS A COPY STEP, NOT A MERGE. Nothing inherits silently: a document that filled its own gaps from the previous configuration would make 'what this deployment selects' two files instead of one. The guide says that in those words."
+  ],
+  "the_guide_now_gives_the_exact_input": [
+   "`state_root` = the destination",
+   "every derived selection copied out of `<destination>/deployment.json` -- `integration_target` and `integration_workspace` as they stand there",
+   "a worker's own `workspace_storage` and `nominated_source` copied from the same file when that worker is already configured",
+   "and whatever is being configured now: the workers and their jobs"
+  ],
+  "held_by": [
+   "TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_a_repeat_that_would_DROP_a_derived_selection_is_refused",
+   "...test_RECONFIGURING_an_installed_instance_keeps_everything_else, which now compares the effective CONFIGURATION member by member as well as the immutable files"
+  ],
+  "probes": [
+   "L3 the refusal removed",
+   "L4 the comparison emptied",
+   "L5 the workspace dropped from the preserved set"
+  ]
+ },
+ "P2_the_current_candidate_frozen_and_served": {
+  "status": "DONE, and measured",
+  "what_ran": "`just build` (pip from the committed lock, then PyInstaller --clean), then the two-operand installer with the built bundle and `--no-repositories`, then the DESTINATION-LOCAL commands.",
+  "build": {
+   "seconds": 7.146,
+   "returncode": 0
+  },
+  "bundle": {
+   "digest": "f675e883ad0e752c1d2881702d9d6b40189e2f565bc21242268cd05abfe99911",
+   "files": 81,
+   "bytes": 29805796,
+   "stamp": {
+    "changed_entries": 52,
+    "commit": "fb5d39d6ea7825baf4091acfe3a3dea9713ebff7",
+    "detail": null,
+    "dirty": true,
+    "excused_build_output": 0,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton"
+   }
+  },
+  "the_installed_launcher_answered_for_itself": "baton 12.0.0 (fb5d39d6, dirty)",
+  "environment_independence": {
+   "kept": [
+    "HOME",
+    "PATH",
+    "XDG_RUNTIME_DIR"
+   ],
+   "PATH": "/usr/bin:/usr/bin:/bin",
+   "no_pythonpath": true,
+   "no_baton_v12_variables": true,
+   "cwd": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment"
+  },
+  "lifecycle": [
+   {
+    "label": "just start",
+    "through": "recipe",
+    "returncode": 0,
+    "seconds": 0.502,
+    "said": "started: manager pid 4046401\nstarted: publisher pid 4046402\nready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot\nstate root: /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/state\nno Job was submitted; an empty configured stack is a valid idle state"
+   },
+   {
+    "label": "just status",
+    "through": "recipe",
+    "returncode": 0,
+    "seconds": 0.1,
+    "said": "manager    running pid 4046401\npublisher  running pid 4046402\nsnapshot   fresh (observed 0.2s ago, written 0.2s ago)\njobs       0 observed (canonical=True)\nserving    acknowledged\nruntime   0 open episode(s), 0 with a recorded runtime, observed 0.2s ago"
+   },
+   {
+    "label": "the installed command, monitor bounded to two refreshes (`just monitor` itself is unbounded by design)",
+    "through": "command",
+    "returncode": 0,
+    "seconds": 1.25,
+    "said": "observed at 2026-09-17T00:10:47.678Z   (0s old, read 0s ago)\n  (this snapshot reports no Jobs)\nobserved at 2026-09-17T00:10:47.678Z   (1s old, read 0s ago)\n  (this snapshot reports no Jobs)"
+   },
+   {
+    "label": "just stop",
+    "through": "recipe",
+    "returncode": 0,
+    "seconds": 3.601,
+    "said": "stopped: manager pid 4046401\nstopped: publisher pid 4046402\nruntime   0 open episode(s), 0 with a recorded runtime, observed 5.1s ago\nstores and evidence retained under the configured paths"
+   },
+   {
+    "label": "just status (after stop)",
+    "through": "recipe",
+    "returncode": 0,
+    "seconds": 0.093,
+    "said": "manager    absent\npublisher  absent\nsnapshot   fresh (observed 5.2s ago, written 5.1s ago)\njobs       0 observed (canonical=True)\nruntime   0 open episode(s), 0 with a recorded runtime, observed 5.2s ago"
+   }
+  ],
+  "published_snapshot": {
+   "schema": "baton.v12.job-status/5",
+   "observed_at": "2026-09-17T00:10:47.678Z",
+   "incarnation": "v12-stack-publisher",
+   "canonical": true,
+   "jobs": []
+  },
+  "manager_log": "serving initialization complete: incarnation='v12-stack-4046400-1789603847383389938' operations='tools.stage_execution:factory'\n{\n  \"observed_at\": \"2026-09-17T00:10:52.627Z\",\n  \"recovered\": null,\n  \"observed\": 0,\n  \"replaced\": [],\n  \"acts\": [],\n  \"started\": [],\n  \"spoken\": [],\n  \"refreshed\": []\n}\n",
+  "cleanup": {
+   "removed": "/var/tmp/w183883-frozen-190149-5vsmmap9",
+   "still_there": false,
+   "seconds": 0.002
+  },
+  "measured_total_seconds": 13.242,
+  "A_CORRECTION_ABOUT_THE_BUILD_DURATION": "The FIRST attempt at this harness in this claim performed the cold build -- a fresh pip install of the build lock and a PyInstaller run from a clean work directory -- and its duration was NOT captured, because that attempt died later, at `just monitor`. The 7.1s recorded above is this run's warm rebuild on a machine that already had the build environment and PyInstaller's caches. I am not presenting it as the cost of a cold build, and I did not measure that one.",
+  "a_defect_the_harness_found_in_my_own_harness": "`just monitor` is UNBOUNDED by design -- STACK.md says Ctrl-C is the way out -- so a harness cannot drive it through the recipe. The first attempt hung there for its whole 600s timeout and left a destination with live processes behind. The watch is asked of the bundled command with its own `--ticks` bound now, the recipe forms are used for everything that returns on its own, and the stop runs in a `finally` so nothing this harness starts outlives it. The two destinations the failed attempts left were stopped and removed by hand, recorded here.",
+  "what_this_does_and_does_not_bind": "The bundle was built FROM this checkout in this claim and its stamp names the commit and the dirty flag; `--version` above is the bundle's own answer, produced with no checkout, no PYTHONPATH and no build environment on PATH. It is not a byte-level proof that a particular source file is inside the archive -- PyInstaller freezes modules into it -- and I am not claiming one.",
+  "no_git_no_provider_no_engine_no_job": true
+ },
+ "verification": {
+  "focused_suites": [
+   {
+    "module": "tests.tools.test_version",
+    "tests": 27,
+    "result": "OK",
+    "seconds": 0.108
+   },
+   {
+    "module": "tests.tools.test_instance",
+    "tests": 117,
+    "result": "OK",
+    "seconds": 0.507
+   },
+   {
+    "module": "tests.tools.test_bootstrap",
+    "tests": 116,
+    "result": "OK",
+    "seconds": 17.313
+   },
+   {
+    "module": "tests.tools.test_stack",
+    "tests": 122,
+    "result": "OK",
+    "seconds": 26.415
+   },
+   {
+    "module": "tests.tools.test_environment",
+    "tests": 75,
+    "result": "OK",
+    "seconds": 1.008
+   },
+   {
+    "module": "tests.tools.test_packaging",
+    "tests": 11,
+    "result": "OK",
+    "seconds": 2.309,
+    "note": "run against THIS claim's bundle, which is the one now in build/out/distro"
+   }
+  ],
+  "focused_total_tests": 468,
+  "focused_total_seconds": 47.66,
+  "new_this_claim": 4,
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_SERVE_itself_refuses_an_offer_that_arrives_mid_run",
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_SERVE_itself_refuses_a_pool_that_arrives_mid_run"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "L1-the-every-tick-guard-goes-and-serve-is-quiet-again",
+     "reverted_returncode": 1,
+     "seconds": 0.949,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE.test_SERVE_itself_refuses_an_offer_that_arrives_mid_run"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "L2-the-every-tick-boundary-stops-being-this-ones",
+     "reverted_returncode": 1,
+     "seconds": 0.888,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_a_repeat_that_would_DROP_a_derived_selection_is_refused"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "L3-a-repeat-may-drop-the-derived-selections-again",
+     "reverted_returncode": 1,
+     "seconds": 0.867,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_a_repeat_that_would_DROP_a_derived_selection_is_refused"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "L4-the-dropped-path-stops-being-looked-for",
+     "reverted_returncode": 1,
+     "seconds": 0.868,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY.test_RECONFIGURING_an_installed_instance_keeps_everything_else"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "L5-the-reconfiguration-stops-preserving-the-workspace",
+     "reverted_returncode": 1,
+     "seconds": 0.87,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 22.051
+  },
+  "probe_seconds": 22.051,
+  "probe_script": "probes-190149.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probes": "L3 and L4",
+    "why": "both tokens were backwards -- `assertEqual(main(...), 2)` prints the FIRST operand first, so the reverted run reads `0 != 2`. This is the THIRD time in this line of work I have written an assertEqual token in the wrong order; it is recorded rather than quietly fixed.",
+    "corrected_token": "0 != 2"
+   }
+  ],
+  "tests_stage_execution": "not rerun this claim; 275 run / 12 pre-existing errors / 55.163s recorded under claim190047",
+  "no_clone_no_index_no_job_no_provider_no_engine": true
+ },
+ "changed_this_claim": {
+  "v12/python/tools/stage_execution.py": "f198d1aa5664a092b3452ff0838e1ddb48b536a297c2d776753e1e9f5ca2a472",
+  "v12/python/tools/bootstrap.py": "5d2adf808a52d8bd3ec673804c946732c2585e52d623d0d7d03424384959b0ba",
+  "v12/STACK.md": "8f117f0f30b0b4d8c73f4dc7fd51f9109b68e5b9feefc71058896ecac88cf4e0",
+  "v12/python/tests/tools/test_bootstrap.py": "b6836acbc131a5b917a4af3d1f5e36ea26dc4c68d830ccfb7aa6602148f055c2"
+ },
+ "cumulative_this_line_of_work": {
+  "claim189471": "38.504s focused, 8.068s probes (contained an unmeasured rebuild)",
+  "claim189538": "31.634s focused, 1.212s probes",
+  "claim189719": "31.431s focused, 9.878s probes",
+  "claim189861": "31.311s focused, 13.173s probes",
+  "claim189914": "42.259s focused, 62.593s probes",
+  "claim190047": "47.462s focused, 24.689s probes, 55.163s stage suite",
+  "claim190149": "47.660s focused, 22.051s probes, 13.242s frozen build+install+lifecycle (warm build)",
+  "unknowns_preserved": [
+   "the builds run during claim189471: count and durations never measured",
+   "this claim's COLD build duration: not captured, for the reason recorded above"
+  ]
+ },
+ "operational_findings_preserved_unchanged": [
+  "five test modules are absent from parallel_test.py's registry",
+  "tests/tools/test_stage_execution.py has 12 pre-existing errors",
+  "the credential registry at /home/sl/.baton/credential-sources.json was never read",
+  "external-disk fixture coverage is unchanged"
+ ],
+ "no_owner_production_run_is_proposed": true,
+ "no_job_provider_engine_v11_operation_or_version_control_mutation": true
+}

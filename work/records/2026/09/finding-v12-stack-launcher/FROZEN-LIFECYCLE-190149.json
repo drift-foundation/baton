@@ -1,0 +1,192 @@
+{
+ "claim": 190149,
+ "what": "the current candidate, frozen and served",
+ "candidate_source": {
+  "v12/python/tools/stage_execution.py": "f198d1aa5664a092b3452ff0838e1ddb48b536a297c2d776753e1e9f5ca2a472",
+  "v12/python/tools/bootstrap.py": "5d2adf808a52d8bd3ec673804c946732c2585e52d623d0d7d03424384959b0ba",
+  "v12/python/src/baton_v12/worker_manager/offers.py": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+  "v12/python/src/baton_v12/job_manager/scheduler.py": "8b51c2f410d667fca7e293c9ded3c9fb375e1872e5dda48c61faf47c4698ba0f",
+  "v12/STACK.md": "8f117f0f30b0b4d8c73f4dc7fd51f9109b68e5b9feefc71058896ecac88cf4e0"
+ },
+ "build": {
+  "label": "just build (pip from the committed lock, then PyInstaller --clean)",
+  "returncode": 0,
+  "seconds": 7.146,
+  "stderr_tail": "/stack/warn-stack.txt\n5186 INFO: Graph cross-reference written to /home/sl/src/baton/v12/python/build/work/stack/xref-stack.html\n5192 INFO: checking PYZ\n5192 INFO: Building PYZ because PYZ-00.toc is non existent\n5192 INFO: Building PYZ (ZlibArchive) /home/sl/src/baton/v12/python/build/work/stack/PYZ-00.pyz\n5458 INFO: Building PYZ (ZlibArchive) /home/sl/src/baton/v12/python/build/work/stack/PYZ-00.pyz completed successfully.\n5463 INFO: checking PKG\n5463 INFO: Building PKG because PKG-00.toc is non existent\n5463 INFO: Building PKG (CArchive) baton-v12-stack.pkg\n5470 INFO: Building PKG (CArchive) baton-v12-stack.pkg completed successfully.\n5470 INFO: Bootloader /home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run\n5470 INFO: checking EXE\n5470 INFO: Building EXE because EXE-00.toc is non existent\n5470 INFO: Building EXE from EXE-00.toc\n5471 INFO: Copying bootloader EXE to /home/sl/src/baton/v12/python/build/work/stack/baton-v12-stack\n5471 INFO: Appending PKG archive to custom ELF section in EXE\n5478 INFO: Building EXE from EXE-00.toc completed successfully.\n5478 INFO: checking COLLECT\n5478 INFO: Building COLLECT because COLLECT-00.toc is non existent\n5478 INFO: Removing dir /home/sl/src/baton/v12/python/build/out/distro\n5481 INFO: Building COLLECT COLLECT-00.toc\n5487 INFO: Building COLLECT COLLECT-00.toc completed successfully.\n5487 INFO: Build complete! The results are available in: /home/sl/src/baton/v12/python/build/out\n"
+ },
+ "bundle": {
+  "path": "/home/sl/src/baton/v12/python/build/out/distro",
+  "digest": "f675e883ad0e752c1d2881702d9d6b40189e2f565bc21242268cd05abfe99911",
+  "files": 81,
+  "stamp": {
+   "changed_entries": 52,
+   "commit": "fb5d39d6ea7825baf4091acfe3a3dea9713ebff7",
+   "detail": null,
+   "dirty": true,
+   "excused_build_output": 0,
+   "schema": "baton.v12.build-stamp/1",
+   "source": "/home/sl/src/baton"
+  },
+  "bytes": 29805796,
+  "binds_candidate": {
+   "how": "the build ran from this checkout; the stamp records its commit and dirty state, and `--version` below is the bundle's own answer",
+   "source_digests": {
+    "v12/python/tools/stage_execution.py": "f198d1aa5664a092b3452ff0838e1ddb48b536a297c2d776753e1e9f5ca2a472",
+    "v12/python/tools/bootstrap.py": "5d2adf808a52d8bd3ec673804c946732c2585e52d623d0d7d03424384959b0ba",
+    "v12/python/src/baton_v12/worker_manager/offers.py": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+    "v12/python/src/baton_v12/job_manager/scheduler.py": "8b51c2f410d667fca7e293c9ded3c9fb375e1872e5dda48c61faf47c4698ba0f",
+    "v12/STACK.md": "8f117f0f30b0b4d8c73f4dc7fd51f9109b68e5b9feefc71058896ecac88cf4e0"
+   }
+  }
+ },
+ "input": {
+  "path": "/var/tmp/w183883-frozen-190149-5vsmmap9/inputs.json",
+  "members": [
+   "checkpoint_profile",
+   "integration_profile",
+   "policy_generation",
+   "pool_generation",
+   "receipt_participants",
+   "retention_disposition",
+   "retention_policy_digest",
+   "schema",
+   "state_root"
+  ],
+  "from": "STACK.md's fresh-install block"
+ },
+ "install": {
+  "label": "just bootstrap (two operands + no repositories)",
+  "returncode": 0,
+  "seconds": 0.47,
+  "stdout": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 3ad2992c...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/instance.json\nruntime       81 files, digest f675e883ad0e752c...\nstores        /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/db\nrepository    /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/repo\njustfile      /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /var/tmp/w183883-frozen-190149-5vsmmap9/deployment && just status\n    just --justfile /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/distro/baton-v12-stack status --instance /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/instance.json\n",
+  "stderr": ""
+ },
+ "installed": {
+  "selector": {
+   "authority_uuid": "3ad2992c333944f2b9c5f07547ccfd83",
+   "command": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment/distro/baton-v12-stack",
+   "control_store": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment/db/control.sqlite3",
+   "deployment": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment/deployment.json",
+   "destination": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment",
+   "identity": {
+    "build_stamp": {
+     "changed_entries": 52,
+     "commit": "fb5d39d6ea7825baf4091acfe3a3dea9713ebff7",
+     "detail": null,
+     "dirty": true,
+     "excused_build_output": 0,
+     "schema": "baton.v12.build-stamp/1",
+     "source": "/home/sl/src/baton"
+    },
+    "command": "baton-v12-stack",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "frozen": true,
+    "machine": "x86_64",
+    "native_rpds": "/home/sl/src/baton/v12/python/build/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+    "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+    "python": "3.13.7",
+    "resources": "/home/sl/src/baton/v12/python/build/out/distro/_internal",
+    "schema_assets": {
+     "agent-session-1.0": 48212,
+     "worker-control-1.0": 51419
+    },
+    "sha256": "7172ded029ce73f2e46beb534ef682032e99679329833553ae0258e98a123be4",
+    "version": "12.0.0"
+   },
+   "job_store": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment/db/jobs.sqlite3",
+   "logs": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment/logs",
+   "prepared_at": null,
+   "repository": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment/repo",
+   "runtime": {
+    "digest": "f675e883ad0e752c1d2881702d9d6b40189e2f565bc21242268cd05abfe99911",
+    "files": 81
+   },
+   "schema": "baton.v12.stack-instance/1",
+   "state": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment/state"
+  },
+  "justfile_present": true,
+  "runtime_digest": "f675e883ad0e752c1d2881702d9d6b40189e2f565bc21242268cd05abfe99911",
+  "identity": {
+   "authority_uuid": "3ad2992c333944f2b9c5f07547ccfd83",
+   "schema": "baton.v12.instance-identity/1"
+  },
+  "repository_entries": []
+ },
+ "environment": {
+  "kept": [
+   "HOME",
+   "PATH",
+   "XDG_RUNTIME_DIR"
+  ],
+  "PATH": "/usr/bin:/usr/bin:/bin",
+  "no_pythonpath": true,
+  "no_baton_v12_variables": true,
+  "cwd": "/var/tmp/w183883-frozen-190149-5vsmmap9/deployment"
+ },
+ "version": {
+  "label": "the installed launcher --version",
+  "returncode": 0,
+  "seconds": 0.08,
+  "stdout": "baton 12.0.0 (fb5d39d6, dirty)\n",
+  "stderr": ""
+ },
+ "lifecycle": [
+  {
+   "label": "just start",
+   "returncode": 0,
+   "seconds": 0.502,
+   "stdout": "started: manager pid 4046401\nstarted: publisher pid 4046402\nready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot\nstate root: /var/tmp/w183883-frozen-190149-5vsmmap9/deployment/state\nno Job was submitted; an empty configured stack is a valid idle state\n",
+   "stderr": "",
+   "through": "recipe"
+  },
+  {
+   "label": "just status",
+   "returncode": 0,
+   "seconds": 0.1,
+   "stdout": "manager    running pid 4046401\npublisher  running pid 4046402\nsnapshot   fresh (observed 0.2s ago, written 0.2s ago)\njobs       0 observed (canonical=True)\nserving    acknowledged\nruntime   0 open episode(s), 0 with a recorded runtime, observed 0.2s ago\n",
+   "stderr": "",
+   "through": "recipe"
+  },
+  {
+   "label": "the installed command, monitor bounded to two refreshes (`just monitor` itself is unbounded by design)",
+   "returncode": 0,
+   "seconds": 1.25,
+   "stdout": "observed at 2026-09-17T00:10:47.678Z   (0s old, read 0s ago)\n  (this snapshot reports no Jobs)\nobserved at 2026-09-17T00:10:47.678Z   (1s old, read 0s ago)\n  (this snapshot reports no Jobs)\n",
+   "stderr": "",
+   "through": "command"
+  },
+  {
+   "label": "just stop",
+   "returncode": 0,
+   "seconds": 3.601,
+   "stdout": "stopped: manager pid 4046401\nstopped: publisher pid 4046402\nruntime   0 open episode(s), 0 with a recorded runtime, observed 5.1s ago\nstores and evidence retained under the configured paths\n",
+   "stderr": "",
+   "through": "recipe"
+  },
+  {
+   "label": "just status (after stop)",
+   "returncode": 0,
+   "seconds": 0.093,
+   "stdout": "manager    absent\npublisher  absent\nsnapshot   fresh (observed 5.2s ago, written 5.1s ago)\njobs       0 observed (canonical=True)\nruntime   0 open episode(s), 0 with a recorded runtime, observed 5.2s ago\n",
+   "stderr": "",
+   "through": "recipe"
+  }
+ ],
+ "logs": {
+  "manager.log": "serving initialization complete: incarnation='v12-stack-4046400-1789603847383389938' operations='tools.stage_execution:factory'\n{\n  \"observed_at\": \"2026-09-17T00:10:52.627Z\",\n  \"recovered\": null,\n  \"observed\": 0,\n  \"replaced\": [],\n  \"acts\": [],\n  \"started\": [],\n  \"spoken\": [],\n  \"refreshed\": []\n}\n",
+  "publisher.log": ""
+ },
+ "published_snapshot": {
+  "schema": "baton.v12.job-status/5",
+  "observed_at": "2026-09-17T00:10:47.678Z",
+  "incarnation": "v12-stack-publisher",
+  "canonical": true,
+  "jobs": []
+ },
+ "cleanup": {
+  "removed": "/var/tmp/w183883-frozen-190149-5vsmmap9",
+  "still_there": false,
+  "seconds": 0.002
+ },
+ "total_seconds": 13.242
+}

@@ -1162,3 +1162,185 @@ live campaign. Reviewer measured0.8180373870418407s total including
 history/unknowns preserved. No reviewer real build/clone/lifecycle/Job/provider/
 engine/store/credential operation. Disk-backed fixture availability limit stands.
 W183883 open pending owner execution/resolution, W177936 parked, v11 unchanged.
+
+## 2026-09-16 — owner correction: a fresh install has zero Jobs
+
+Observed in bootstrap.REQUIRED/_JOB and STACK.md: installation demands a jobs
+list with Work, immutable base, target and source-worker bindings. After inspecting
+the input contract, Slawomir explicitly rejected requiring any Job for a fresh
+installation and confirmed the empty-instance correction.
+
+OWNER-FRESH-INSTALL-20260916.md is now authoritative. Bootstrap generates and
+persists identity, initializes empty databases and instance settings, installs
+the standalone bundle/justfile, and starts a real idle scheduler/monitor with
+zero Jobs. Job-specific bindings belong at Job creation, with no fabricated seed
+Work/Jobs. This explicitly supersedes OWNER-READY-189577.md's preselected-Job gate
+and the preceding no-further-implementation/owner-execution-only conclusion.
+Earlier component acceptance/evidence is retained. PLAN now selects bounded
+bootstrap/runtime correction, focused deterministic checks and accurate minimal
+instance inputs, routed impl then feat. No product edits or tests by prompt.
+
+## 2026-09-16T22:27:59Z — fresh-install review: incomplete lifecycle and unsafe identity reuse
+
+Claim189832 review review-2026-09-16T22-27-59Z.md withholds fresh-install sign-off. Author
+correctly reports no fresh install/real idle lifecycle. Confirmed current nonempty
+worker/pool requirements and Work-sealed manifests. The owner already selected
+minimal real empty lifecycle; treating all necessary empty-capacity handling as
+excluded generic scheduling is superseded as scope interpretation by this review.
+A broad manifest/assignment relocation is not established as necessary for idle
+initialization. Research direction: no-capacity instance composition using actual
+manager/observer/store behavior, failing closed on any unconfigured existing work.
+Preserve configured execution contracts and report later-Job limits accurately.
+
+Confirmed new guide minimal block is invalid JSON (bare ellipsis), only tested by
+key names; later example still supplies refused authority_uuid. Require runnable
+no-Job inputs and actual idle acceptance. Also confirmed authority-identity.json
+is missing from custody and read through symlinks, including exclusive-create
+collision fallback. Two destinations accept one externally linked identity.
+Refuse unsafe records before effects and preserve foreign links/bytes.
+
+Five existing identity unit tests pass; changed hashes match. Independent evidence
+REVIEW-EVIDENCE-189832.json/reproduce-review-189832.py. Scratch
+/tmp/w183883-review189832-94czecyn retained; no Authority/Job/control store opened.
+Audit0.0010764109902083874s, tests0.181396814994514s; author31.431s focused/9.878s
+probes and all unknowns preserved. No reviewer build/clone/provider/engine/Job or
+product/test edit. Return bounded completion impl then feat, no owner production
+run or superseded Job-input gate. W183883 open, W177936 parked, v11 unchanged.
+
+## 2026-09-16T22:36:58Z — original link defect resolved; lifecycle still outstanding
+
+Claim189893 review review-2026-09-16T22-36-58Z.md accepts original F3 symlink/reuse/collision
+correction;9 tests pass and changed hashes match. F2 overclaim corrected but no
+runnable JSON/F1 lifecycle yet. Planning clarification within owner scope: mint
+no stage sessions with no Work/capacity; do not introduce new deployment-scoped
+receipt capabilities. Minimal empty/deferred pool attachment is an implementation
+choice subject to real recovery/observation and fail-closed unexpected-work checks,
+not a new product-approval gate. Prioritize actual empty lifecycle and guide now.
+
+Confirmed new reader details: FIFO passes custody and blocks at O_RDONLY before
+fstat (2s subprocess killed/reaped); reading only65536 bytes accepts invalid
+trailing content beyond that boundary. Bound/reject special files and oversize
+records without following or modifying foreign state. Exact evidence in
+REVIEW-EVIDENCE-189893.json/reproduce-review-189893.py; scratch
+/tmp/w183883-review189893-p732quah retained, no live helper remains.
+Audit2.0038832249701954s includes FIFO2.0026056300266646s;tests0.17559671198250726s.
+Author31.311s focused/13.173s probes and all prior unknowns preserved. No reviewer
+build/clone/Authority/Job/control/credential operation or product/test edit.
+Return bounded completion impl then feat; no owner production run. W183883 open,
+W177936 parked, v11 unchanged; PROGRESS implementer-owned.
+
+## 2026-09-16T22:58:33Z — source idle works; empty recovery misses control work
+
+Claim190015 review review-2026-09-16T22-58-33Z.md accepts F3 FIFO/oversize fixes
+and real source-run empty lifecycle, superseding those outstanding statuses.
+16 focused checks pass and five candidate hashes match. The lifecycle tests call
+prepare and source tools.stack; they do not install a runtime/selector/justfile.
+Correct the standalone-install overclaim and supply focused installed acceptance.
+
+Confirmed through real v12 fixture APIs: an accepted control offer present before
+or introduced after empty composition remains recoverable, but manager.reconcile
+reports an empty recovery result. Pooled recovery loops over zero workers and
+never asks the control store. A pool activated after attachment likewise leaves
+the manager reporting ordinary empty reconciliation. Constructor-only Job-store
+comparison is not ongoing proof of absence. Require visible refusal for relevant
+unexpected Job/control work, preserving it, at startup and during serving.
+
+Confirmed guide contradictions: later section still says no pool cannot serve,
+repetition still requires nonempty bindings, and old deployment table presents
+Job/worker members as universal. Repeated two-operand install refuses an existing
+runtime, so the claimed later-Job repeat/restart path needs exact supported
+configuration operands or an honest missing-capability statement. No dynamic
+onboarding expansion required by this review.
+
+Evidence REVIEW-TESTS-190015.json and REVIEW-EVIDENCE-190015.json, reproducible with
+reproduce-review-190015.py. Reviewer10.60917818499729s tests and0.01748515199869871s
+audit; author42.259s focused/62.593s probes separate. All historical unknowns
+retained. Scratch /tmp/w183883-review190015-7c17nj88 preserved; owned handles/helpers
+released. Deterministic control offers use strict fake Authority sessions, no live
+Work/provider/engine, production store, build or actual Git mutation. Return impl
+then feat; W183883 open, W177936 parked, v11 unchanged, PROGRESS author-owned.
+
+## 2026-09-16T23:16:06Z — resume guard misses steady serving; reconfiguration loses workspace
+
+Claim190122 review review-2026-09-16T23-16-06Z.md accepts the new read-only offer
+reader and startup/explicit-reconcile refusal. Nine focused checks pass and five
+candidate hashes match. Source-run labels/evidence are corrected, simulated-runtime
+installation tests add component coverage, and earlier guide contradictions are
+superseded. These accepted portions replace their outstanding review status.
+
+Confirmed via actual manager.serve with state injected during its sleep callback:
+accepted control offers and an active pool arriving after initial recovery are
+ignored by ordinary ticks. The loop reconciles once then sweeps; recover-only
+validation is not ongoing. Both runs return normal empty reports while the public
+unconfigured_work reader names the state. Require read-only guard on every actual
+tick and preserve foreign state, not repeated full restart recovery.
+
+Confirmed documented one-operand reconfiguration removes integration_workspace
+from deployment.json after destination install. Immutable selector/runtime bytes
+stay unchanged, which the current test checks, but effective path binding does not.
+Require exact supported inputs preserving installed selections or honest statement
+of missing installed-update capability; no generic migration expansion needed.
+
+Current frozen installed lifecycle remains unverified: simulated launcher cannot
+execute and test_packaging examines old retained bundle identity/manifest, not the
+new empty runtime. After the tick fix, use one focused current build/install and
+destination-local lifecycle with manifests/logs/costs, no Git/model/engine effects.
+
+Evidence REVIEW-TESTS-190122.json, REVIEW-EVIDENCE-190122.json and
+reproduce-review-190122.py. Reviewer5.444025699980557s tests and0.0218375229742378s
+reproduction; earlier wrong layout key caused reviewer KeyError, tool wall
+0.060025017s, corrected with fixture cleanup. Author47.462s focused/24.689s probes/
+55.163s current stage suite, prior unknown costs retained. No reviewer product/test
+edits, build, actual Git mutation, provider/engine or production store operation.
+Return impl then feat; W183883 open, W177936 parked, v11 unchanged.
+
+## 2026-09-17T00:17:18Z — fresh-instance corrections independently accepted
+
+Claim190454 review review-2026-09-17T00-17-18Z.md accepts the ordinary-tick guard
+through drain, path-selection preservation/refusal and current frozen installed
+lifecycle evidence. This supersedes all outstanding corrections from the previous
+review.13 focused checks pass; all24 delivery-path hashes match their handoff chain.
+REVIEW-CANDIDATE-190454.json consolidates the accepted bytes and originating records.
+
+Independently verified current81-file bundle digest
+f675e883ad0e752c1d2881702d9d6b40189e2f565bc21242268cd05abfe99911 and version
+baton12.0.0 (fb5d39d6, dirty). It matches the author's actual no-repository installed
+lifecycle manifest. Frozen start/status/bounded monitor/stop/status all returned0;
+canonical empty snapshot/logs and stopped status are retained. This is source-cwd/
+environment independence, not a claim the checkout was inaccessible on the host.
+
+Accounting clarification: successful frozen13.242s excludes finally-stop duration
+and separate removal0.002s. Warm build7.146s is not cold cost. At least one600s
+monitor timeout and unknown cold-build time, plus prior claim189471 unknowns,
+remain history; "one build/install" PLAN shorthand is superseded as accounting.
+Author reports two earlier destinations manually stopped/removed without identities.
+No matching /var/tmp/w183883-frozen-190149-* paths remain visible; reviewer cannot
+prove host-wide process absence through its local PID namespace. Successful run's
+own stop/absent evidence stands. If reusing the harness, verify finally-stop success
+before removing evidence; no rerun required for this acceptance.
+
+Reviewer tests5.465995617967565s, bundle audit0.0938894179998897s, full candidate
+audit0.0011403600219637156s. No reviewer product/test edits, build, actual Git,
+provider/engine/credential or production-store operation. Evidence
+REVIEW-TESTS-190454.json and REVIEW-EVIDENCE-190454.json.
+
+OWNER-READY-190454.md replaces the superseded Job-preconfigured owner packet;
+pass ops for owner review/Git ownership and execution or explicit resolution.
+No workload inputs needed for empty installation. Actual default clones are owner
+operations; no live Job/provider qualification or cutover. W183883 remains open,
+W177936 parked, v11 authoritative, PROGRESS implementer-owned.
+
+
+## 2026-09-17 — owner requests concrete instance-inputs.json
+
+Slawomir requested creation of the instance input file after accepting the empty
+installation boundary. Prompt prepares v12/instance-inputs.json with zero Jobs,
+workers or credentials and no supplied Authority UUID. Routine initial selections:
+Git profiles; baton.merge integrator; baton.codex verification/review receipts;
+baton.slaw approval receipts; generation 1; retain all artifacts under the exact
+bytes of v12/instance-retention.md. Integration instructions digest binds current
+AGENTS.md bytes, not a synthetic digest. Default state_root is
+/home/sl/baton-v12-instance; the two-argument installer overrides it with its
+chosen destination. This is input preparation only, not installation, worker
+assignment or Job execution. Recheck instruction bytes when configuring real
+Jobs; later changes to AGENTS.md do not silently change the captured digest.

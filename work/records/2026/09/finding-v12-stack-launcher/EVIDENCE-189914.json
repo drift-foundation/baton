@@ -1,0 +1,289 @@
+{
+ "work": "2b077949-W183883",
+ "claim": 189914,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-16T22-36-58Z.md",
+  "sha256": "27247b9c4a69adbafa82ecbf5da1ddd6c842f1d6647e3ef3a46f15af2f27dd9e",
+  "ruling": "OWNER-FRESH-INSTALL-20260916.md"
+ },
+ "F1_the_real_empty_lifecycle": {
+  "status": "COMPLETE",
+  "what_it_does_now": "A fresh installation whose input names no Job and no worker installs, and `start`, `status`, `monitor` and `stop` run over it -- the REAL manager and publisher, reading the real stores.",
+  "observed": {
+   "start": [
+    "started: manager <pid>",
+    "started: publisher <pid>",
+    "ready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot",
+    "no Job was submitted; an empty configured stack is a valid idle state"
+   ],
+   "status": [
+    "manager    running",
+    "publisher  running",
+    "snapshot   fresh",
+    "jobs       0 observed (canonical=True)",
+    "serving    acknowledged",
+    "runtime   0 open episode(s), 0 with a recorded runtime"
+   ],
+   "monitor": "two refreshes, each reporting no Jobs",
+   "stop": [
+    "stopped: manager",
+    "stopped: publisher",
+    "stores and evidence retained under the configured paths"
+   ],
+   "status_after_stop": [
+    "manager    absent",
+    "publisher  absent"
+   ]
+  },
+  "how_it_was_made_to_work": {
+   "bootstrap": "`workers` joins `jobs` in DEFERRED: an installation configures no execution capacity. Every worker rule is kept for a repeated bootstrap that supplies one -- including 'every role served', which now applies whenever ANY worker is configured, so a pool with a hole in it is still refused.",
+   "stage_execution": [
+    "`_serves_nothing(given)` is the one predicate the composition branches on: no workers and no bindings.",
+    "`_held_workers` admits the empty list ONLY for the instance-only document; a deployment that binds a Job and configures nobody is refused by the sentence it always had.",
+    "`_bound_scope` answers None with no bound Work and `_minted` mints NOTHING -- no stage-execution session and no per-Work grant is invented, which is the review's own instruction.",
+    "`StageDeployment` has no workspace group when it serves nothing: the group is provisioned by `worker_preflight` and is needed only to allocate an EXECUTION workspace, and none is allocated. It is not inferred -- `configured_workspace_group` refuses to infer one and this does not either.",
+    "`operations_from` predicts and activates no pool when there is no capacity, and attaches `PooledManagerOperations` over an empty mapping."
+   ],
+   "scheduler": "`PooledManagerOperations` accepts an empty mapping. NOTHING ELSE IS RELAXED: `_required_workers` answers `[]` only when the store has no active generation AND no live allocation, and the existing comparison against it is what makes an empty attachment fail closed the moment either exists. `_any()` refuses by name rather than indexing an empty mapping."
+  },
+  "fail_closed": {
+   "held_by": [
+    "AnInstanceWithNoCAPACITY_FAILS_CLOSED.test_a_store_with_an_ACTIVE_POOL_refuses_an_empty_composition",
+    "AnInstanceWithNoCAPACITY_FAILS_CLOSED.test_an_attached_deployment_with_no_worker_answers_no_operation"
+   ],
+   "probes": [
+    "H7 the comparison weakened",
+    "H8 the empty-answer guard removed"
+   ]
+  },
+  "the_zeros_are_read": "The published snapshot is `baton.v12.job-status/5` with `canonical: true` and `jobs: []`, written by the real publisher during this start -- the check reads the file `stack.snapshot_path` names and asserts its mtime is after the start began. No constant zero anywhere.",
+  "held_by": [
+   "TheGUIDES_OWN_EXAMPLE_INSTALLS_AND_SERVES.test_it_INSTALLS_and_then_STARTS_STATUS_MONITOR_STOPS",
+   "TheGUIDES_OWN_EXAMPLE_INSTALLS_AND_SERVES.test_the_zeros_are_READ_rather_than_asserted"
+  ],
+  "probes": [
+   "H1 no-capacity document refused",
+   "H2 empty attachment refused",
+   "H3 pool activated anyway",
+   "H4 sessions minted for no Work"
+  ]
+ },
+ "F2_the_runnable_no_job_json": {
+  "status": "COMPLETE",
+  "what_it_is": "STACK.md's fresh-install block is now a real JSON document: nine members, exactly `bootstrap.REQUIRED`, no `jobs`, no `workers`, no `authority_uuid`. Nothing was invented to make it parse -- no credential, no Work ID, no task manifest, no grant.",
+  "how_it_is_kept_runnable": "The acceptance above PARSES THAT BLOCK OUT OF THE GUIDE and installs it, then drives start/status/monitor/stop over it. An example that stops being runnable stops the checks.",
+  "held_by": [
+   "TheGUIDES_OWN_EXAMPLE_INSTALLS_AND_SERVES.test_the_guides_example_is_a_document_that_PARSES",
+   "and the lifecycle check, which installs that same document"
+  ],
+  "probes": [
+   "H9 the example stops being a document"
+  ]
+ },
+ "F3_the_two_bounded_identity_reader_details": {
+  "status": "COMPLETE",
+  "the_blocking_open": "`os.open` on a FIFO waited for a writer BEFORE `fstat` could say it was one, so a named pipe left in a destination made a setup command hang. The open is `O_RDONLY|O_NOFOLLOW|O_NONBLOCK` now -- read-only and non-blocking returns at once with no writer, the no-follow proof is unchanged, and the refusal names what the node actually is.",
+  "the_silent_truncation": "`os.read(handle, 64 * 1024)` discarded everything after, so a VALID record padded to exactly the bound and followed by rubbish parsed while the file on disk does not. The whole file is read now, and anything over `IDENTITY_LIMIT` is refused as oversize.",
+  "held_by": [
+   "test_a_NAMED_PIPE_is_refused_WITHOUT_waiting_for_a_writer (with a 5s SIGALRM so a blocking open FAILS rather than hangs)",
+   "test_an_identity_LARGER_than_a_record_is_refused_rather_than_truncated (the reviewer's exact case: the first IDENTITY_LIMIT bytes are a complete valid record)",
+   "test_TRAILING_rubbish_within_the_bound_is_refused_too",
+   "test_a_record_AT_the_bound_still_reads"
+  ],
+  "probes": [
+   "H5 the blocking open restored",
+   "H6 the truncating read restored"
+  ],
+  "foreign_nodes_preserved": "every refusal leaves the link, the pipe or the directory exactly as it was, asserted after"
+ },
+ "verification": {
+  "focused_suites": [
+   {
+    "module": "tests.tools.test_version",
+    "tests": 27,
+    "result": "OK",
+    "seconds": 0.107
+   },
+   {
+    "module": "tests.tools.test_instance",
+    "tests": 117,
+    "result": "OK",
+    "seconds": 0.508
+   },
+   {
+    "module": "tests.tools.test_bootstrap",
+    "tests": 103,
+    "result": "OK",
+    "seconds": 11.911
+   },
+   {
+    "module": "tests.tools.test_stack",
+    "tests": 122,
+    "result": "OK",
+    "seconds": 26.416
+   },
+   {
+    "module": "tests.tools.test_environment",
+    "tests": 75,
+    "result": "OK",
+    "seconds": 1.009
+   },
+   {
+    "module": "tests.tools.test_packaging",
+    "tests": 11,
+    "result": "OK",
+    "seconds": 2.308
+   }
+  ],
+  "focused_total_tests": 455,
+  "focused_total_seconds": 42.259,
+  "new_this_claim": 9,
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_INSTALLS_AND_SERVES.test_it_INSTALLS_and_then_STARTS_STATUS_MONITOR_STOPS"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "H1-a-document-configuring-no-capacity-is-refused-again",
+     "reverted_returncode": 1,
+     "seconds": 6.258,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_INSTALLS_AND_SERVES.test_it_INSTALLS_and_then_STARTS_STATUS_MONITOR_STOPS"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "H2-the-scheduler-refuses-an-empty-attachment-again",
+     "reverted_returncode": 1,
+     "seconds": 11.565,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_INSTALLS_AND_SERVES.test_it_INSTALLS_and_then_STARTS_STATUS_MONITOR_STOPS"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "H3-an-instance-with-no-capacity-activates-a-pool-anyway",
+     "reverted_returncode": 1,
+     "seconds": 11.656,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_INSTALLS_AND_SERVES.test_it_INSTALLS_and_then_STARTS_STATUS_MONITOR_STOPS"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "H4-sessions-are-minted-for-a-Work-nobody-bound",
+     "reverted_returncode": 1,
+     "seconds": 11.611,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_a_NAMED_PIPE_is_refused_WITHOUT_waiting_for_a_writer"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "H5-a-named-pipe-blocks-the-identity-open-again",
+     "reverted_returncode": 1,
+     "seconds": 5.839,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity.test_an_identity_LARGER_than_a_record_is_refused_rather_than_truncated"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "H6-an-oversize-identity-record-is-truncated-again",
+     "reverted_returncode": 1,
+     "seconds": 0.841,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCAPACITY_FAILS_CLOSED.test_a_store_with_an_ACTIVE_POOL_refuses_an_empty_composition"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "H7-an-empty-attachment-stops-failing-closed",
+     "reverted_returncode": 1,
+     "seconds": 0.883,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.AnInstanceWithNoCAPACITY_FAILS_CLOSED.test_an_attached_deployment_with_no_worker_answers_no_operation"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "H8-a-deployment-with-no-worker-answers-SOME-operation",
+     "reverted_returncode": 1,
+     "seconds": 0.868,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_INSTALLS_AND_SERVES.test_the_guides_example_is_a_document_that_PARSES"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "H9-the-guides-example-stops-being-a-document",
+     "reverted_returncode": 1,
+     "seconds": 0.835,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 62.593
+  },
+  "probe_seconds": 62.593,
+  "probe_script": "probes-189914.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probe": "H6",
+    "why": "my first padded document was cut mid-string, so the truncated read failed to PARSE and the refusal came from the parser -- which proves nothing about the bound. The case is now the reviewer's: the first IDENTITY_LIMIT bytes are a complete valid record.",
+    "corrected": "the test, not the token"
+   },
+   {
+    "probe": "H7",
+    "why": "with the comparison weakened the attachment does not succeed -- it reaches `self.workers[key]` for a worker it was never given and raises KeyError. The guard is still load-bearing; what it buys is a refusal naming the mismatch instead of a KeyError two frames down.",
+    "corrected_token": "KeyError"
+   }
+  ],
+  "tests_stage_execution": "275 run, 12 pre-existing errors unchanged -- no regression from the session, workspace-group or pool changes",
+  "no_build_no_clone_no_index_no_job_no_provider_no_engine": true,
+  "what_DID_run": "the real v12 manager and snapshot publisher as child processes over real SQLite stores, started and stopped by `tools.stack`. No container, provider, engine, network or Job.",
+  "cumulative_this_line_of_work": {
+   "claim189471": "38.504s focused, 8.068s probes (contained an unmeasured rebuild)",
+   "claim189538": "31.634s focused, 1.212s probes",
+   "claim189719": "31.431s focused, 9.878s probes",
+   "claim189861": "31.311s focused, 13.173s probes",
+   "claim189914": "42.259s focused, 62.593s probes",
+   "unknowns_preserved": "the number and separate durations of the builds run during claim189471 were never measured"
+  }
+ },
+ "changed_this_claim": {
+  "v12/python/tools/bootstrap.py": "af8c918af9d77baf56d5f8140edd1ce7a78d759bcd7836b34d5b915d1cbb39b7",
+  "v12/python/tools/stage_execution.py": "f015c4dff29f9fc4e53f7decf947d340c05116ec887381016fe4c69cfda77584",
+  "v12/python/src/baton_v12/job_manager/scheduler.py": "8b51c2f410d667fca7e293c9ded3c9fb375e1872e5dda48c61faf47c4698ba0f",
+  "v12/STACK.md": "34cb3cf35ca28d0b6b08a439ab56724182920dc9d6207b2db9e534c009a8dcfe",
+  "v12/python/tests/tools/test_bootstrap.py": "4d353fe1e333976bf5d78f61b99af012d3c27d10f934e0c79a88c98785b8f335"
+ },
+ "the_later_Job_boundary_stated_honestly": "A Job arrives as a repeated bootstrap that supplies `jobs` AND the workers that serve them, and every existing rule applies to both. That repeat changes the emitted configuration, so the instance is RESTARTED to serve it -- there is no dynamic onboarding of a worker into a running manager in this build, and none is claimed. A worker document is written against the identity the install persisted, which is readable at <destination>/authority-identity.json.",
+ "operational_findings_preserved_unchanged": [
+  "five test modules are absent from parallel_test.py's registry",
+  "tests/tools/test_stage_execution.py has 12 pre-existing errors",
+  "the credential registry at /home/sl/.baton/credential-sources.json was never read",
+  "external-disk fixture coverage is unchanged"
+ ],
+ "no_job_provider_engine_v11_operation_or_version_control_mutation": true
+}

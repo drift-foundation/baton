@@ -1,0 +1,61 @@
+{
+  "scratch": "/tmp/w183883-review189832-94czecyn",
+  "scope": "identity/schema/read checks only; no Authority or Job/control store opened",
+  "changed_candidate_mismatches": [],
+  "empty_pool": {
+    "accepted": false,
+    "type": "ContractRefusal",
+    "detail": "a worker pool carries a non-empty workers list"
+  },
+  "guide_json": {
+    "accepted": false,
+    "type": "JSONDecodeError",
+    "detail": "Expecting property name enclosed in double quotes: line 16 column 58 (char 693)"
+  },
+  "linked_identity": [
+    {
+      "destination": "/tmp/w183883-review189832-94czecyn/one",
+      "custody": {
+        "accepted": true,
+        "value": null
+      },
+      "identity": {
+        "accepted": true,
+        "value": [
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          false
+        ]
+      },
+      "persist": {
+        "accepted": true,
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "destination": "/tmp/w183883-review189832-94czecyn/two",
+      "custody": {
+        "accepted": true,
+        "value": null
+      },
+      "identity": {
+        "accepted": true,
+        "value": [
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          false
+        ]
+      },
+      "persist": {
+        "accepted": true,
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    }
+  ],
+  "foreign_unchanged": true,
+  "audit_seconds": 0.0010764109902083874,
+  "tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.001s\n\nOK\n",
+    "seconds": 0.181396814994514
+  }
+}

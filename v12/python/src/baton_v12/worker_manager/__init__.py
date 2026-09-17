@@ -70,7 +70,8 @@ from .attempts import (AXES, TRANSITIONS, activate_assignment,
                        request_cancellation, request_runtime_start)
 from .offers import (OFFER_TTL_SECONDS, SETTLE_SECONDS, accept_offer,
                      certify_profile, claim_operation_id, claimed_offers_for,
-                     expire_overdue, issue_offer, recover_on_restart,
+                     expire_overdue, issue_offer, outstanding_offers,
+                     recover_on_restart,
                      settle_claim, submit_claim)
 from .handshake import (ACP_CLIENT_CAPABILITIES,
                         ACP_CLIENT_CAPABILITY_MEMBERS, SESSION_CAPABILITIES,

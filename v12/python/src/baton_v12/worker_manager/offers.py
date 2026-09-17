@@ -951,6 +951,25 @@ def settle_claim(store, port, *, offer_id, now, refused_evidence=None):
             f"observed, never retired")
 
 
+def outstanding_offers(store):
+    """Every offer this store still holds live, READ ONLY.
+
+    W183883, review 2026-09-16T22-58-33Z [P1]: an instance that configures no
+    execution capacity has to be able to ASK whether this control store holds
+    work nobody is configured to serve -- and it must ask without changing
+    anything. `recover_on_restart` answers a related question and ACTS:
+    it expires overdue offers and abandons another incarnation's issued ones.
+    A deployment that called it merely to look would be settling somebody
+    else's durable state to decide whether it may start.
+
+    So this is the question without the actions, through the same owned
+    crossing every other offer read uses. `issued`, `accepted` and `claimed`
+    are the live states: an offer in any of them names work that is not over.
+    """
+    return _offers(store, "WHERE state IN ('issued', 'accepted', 'claimed') "
+                          "ORDER BY issued_at")
+
+
 def recover_on_restart(store, *, now):
     """The restart rules, and they are deliberately asymmetric.
 

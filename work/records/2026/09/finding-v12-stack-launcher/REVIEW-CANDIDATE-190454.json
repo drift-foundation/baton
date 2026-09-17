@@ -1,0 +1,127 @@
+{
+  "claim": 190454,
+  "entries": {
+    "v12/STACK.md": {
+      "expected": "8f117f0f30b0b4d8c73f4dc7fd51f9109b68e5b9feefc71058896ecac88cf4e0",
+      "actual": "8f117f0f30b0b4d8c73f4dc7fd51f9109b68e5b9feefc71058896ecac88cf4e0",
+      "last_handoff": "EVIDENCE-190149.json"
+    },
+    "v12/justfile": {
+      "expected": "5b261079e035f06371b6f0a88b7c0ce2bdd55a2fb8b152c4c38f101146598368",
+      "actual": "5b261079e035f06371b6f0a88b7c0ce2bdd55a2fb8b152c4c38f101146598368",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/packaging/stack.spec": {
+      "expected": "bd949228761abaff4ab339c4651c9abe6268968c88adc1a46803f4453f54aeaf",
+      "actual": "bd949228761abaff4ab339c4651c9abe6268968c88adc1a46803f4453f54aeaf",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/pyproject.toml": {
+      "expected": "ac925c1f73ea3309dfd1d844978f24fc31c4d9dd9acd026f79edb275ce53ee38",
+      "actual": "ac925c1f73ea3309dfd1d844978f24fc31c4d9dd9acd026f79edb275ce53ee38",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/requirements.build.lock": {
+      "expected": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+      "actual": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/src/baton_v12/job_manager/scheduler.py": {
+      "expected": "8b51c2f410d667fca7e293c9ded3c9fb375e1872e5dda48c61faf47c4698ba0f",
+      "actual": "8b51c2f410d667fca7e293c9ded3c9fb375e1872e5dda48c61faf47c4698ba0f",
+      "last_handoff": "EVIDENCE-189914.json"
+    },
+    "v12/python/src/baton_v12/version.py": {
+      "expected": "8f854cd7b3e8ee5ae7216f226ce484f1a3e112c453e27e1e116fe3fb8e4ffd69",
+      "actual": "8f854cd7b3e8ee5ae7216f226ce484f1a3e112c453e27e1e116fe3fb8e4ffd69",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/src/baton_v12/worker_manager/__init__.py": {
+      "expected": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099",
+      "actual": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099",
+      "last_handoff": "EVIDENCE-190047.json"
+    },
+    "v12/python/src/baton_v12/worker_manager/offers.py": {
+      "expected": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+      "actual": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+      "last_handoff": "EVIDENCE-190047.json"
+    },
+    "v12/python/tests/tools/test_bootstrap.py": {
+      "expected": "b6836acbc131a5b917a4af3d1f5e36ea26dc4c68d830ccfb7aa6602148f055c2",
+      "actual": "b6836acbc131a5b917a4af3d1f5e36ea26dc4c68d830ccfb7aa6602148f055c2",
+      "last_handoff": "EVIDENCE-190149.json"
+    },
+    "v12/python/tests/tools/test_environment.py": {
+      "expected": "3a8b2fe313bb3ab97c970a61d594c164dc6c5e1d6f11872cc9b63fc695f09233",
+      "actual": "3a8b2fe313bb3ab97c970a61d594c164dc6c5e1d6f11872cc9b63fc695f09233",
+      "last_handoff": "EVIDENCE-189538.json"
+    },
+    "v12/python/tests/tools/test_instance.py": {
+      "expected": "b7c3b2455173659f1d4bb62cec826b40ebc03fab297b417470ec0b38aad26fa0",
+      "actual": "b7c3b2455173659f1d4bb62cec826b40ebc03fab297b417470ec0b38aad26fa0",
+      "last_handoff": "EVIDENCE-189719.json"
+    },
+    "v12/python/tests/tools/test_packaging.py": {
+      "expected": "f2ba0e039a9e0fa58c071506decf82958986fd17edde87e7f75ea51c87568d60",
+      "actual": "f2ba0e039a9e0fa58c071506decf82958986fd17edde87e7f75ea51c87568d60",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/tests/tools/test_stack.py": {
+      "expected": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+      "actual": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/tests/tools/test_version.py": {
+      "expected": "0b2e2191a99f071c65b1c39cf680e6ada8feef4eddc64773c3e0e31bbe8ca8e2",
+      "actual": "0b2e2191a99f071c65b1c39cf680e6ada8feef4eddc64773c3e0e31bbe8ca8e2",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/tools/bootstrap.py": {
+      "expected": "5d2adf808a52d8bd3ec673804c946732c2585e52d623d0d7d03424384959b0ba",
+      "actual": "5d2adf808a52d8bd3ec673804c946732c2585e52d623d0d7d03424384959b0ba",
+      "last_handoff": "EVIDENCE-190149.json"
+    },
+    "v12/python/tools/build_stamp.py": {
+      "expected": "6b4fed17742702e9dc3577d8f4a54a9bf01d7ca947c1eacf739b18cad7c91218",
+      "actual": "6b4fed17742702e9dc3577d8f4a54a9bf01d7ca947c1eacf739b18cad7c91218",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/tools/environment.py": {
+      "expected": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+      "actual": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/tools/instance.py": {
+      "expected": "1541bc46951aef07dfddae5584f20340088b9e626611d75858e2a66d6b2a7106",
+      "actual": "1541bc46951aef07dfddae5584f20340088b9e626611d75858e2a66d6b2a7106",
+      "last_handoff": "EVIDENCE-189861.json"
+    },
+    "v12/python/tools/job_manager.py": {
+      "expected": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+      "actual": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/tools/parallel_test.py": {
+      "expected": "ea1ef7b298f33c856b90cb73dd205d2c6cd1ee3b758bc3add063944596831085",
+      "actual": "ea1ef7b298f33c856b90cb73dd205d2c6cd1ee3b758bc3add063944596831085",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/tools/stack.py": {
+      "expected": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+      "actual": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/tools/stack_command.py": {
+      "expected": "da81a6950b4d6d9a87118816013a6a4499bdf651d78eb2845e9bc27ba124d51f",
+      "actual": "da81a6950b4d6d9a87118816013a6a4499bdf651d78eb2845e9bc27ba124d51f",
+      "last_handoff": "EVIDENCE-189471.json"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "expected": "f198d1aa5664a092b3452ff0838e1ddb48b536a297c2d776753e1e9f5ca2a472",
+      "actual": "f198d1aa5664a092b3452ff0838e1ddb48b536a297c2d776753e1e9f5ca2a472",
+      "last_handoff": "EVIDENCE-190149.json"
+    }
+  },
+  "mismatches": [],
+  "seconds": 0.0011403600219637156
+}

@@ -1173,13 +1173,18 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
                                   "worker-control-1.0": 20},
                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
         inputs = self.root / "inputs.json"
-        inputs.write_text(json.dumps({"schema": self.bootstrap.SCHEMA,
-                                      "authority_uuid": "0" * 31 + "a"}))
+        inputs.write_text(json.dumps({"schema": self.bootstrap.SCHEMA}))
         out = io.StringIO()
         with mock.patch.object(self.bootstrap, "_identity_of",
                                lambda command, runtime=None, distro=None: said), \
-                mock.patch.object(self.bootstrap, "prepare",
-                                  lambda document, **named: None), \
+                mock.patch.object(
+                    self.bootstrap, "prepare",
+                    # THE IDENTITY `prepare` RESOLVED, because that is what
+                    # `install` carries into the selector now: this stand-in
+                    # stands in for composing a deployment, not for answering
+                    # what instance it composed.
+                    lambda document, **named: {
+                        "authority_uuid": "0" * 31 + "a"}), \
                 mock.patch.object(instance, "create",
                                   side_effect=OSError("the disk went away")):
             code = self.bootstrap.main(
@@ -1211,8 +1216,7 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
                                   "worker-control-1.0": 20},
                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
         inputs = self.root / "inputs.json"
-        inputs.write_text(json.dumps({"schema": self.bootstrap.SCHEMA,
-                                      "authority_uuid": "0" * 31 + "a"}))
+        inputs.write_text(json.dumps({"schema": self.bootstrap.SCHEMA}))
         real = os.unlink
 
         def refusing(place, *operands, **named):
@@ -1223,8 +1227,14 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
         out = io.StringIO()
         with mock.patch.object(self.bootstrap, "_identity_of",
                                lambda command, runtime=None, distro=None: said), \
-                mock.patch.object(self.bootstrap, "prepare",
-                                  lambda document, **named: None), \
+                mock.patch.object(
+                    self.bootstrap, "prepare",
+                    # THE IDENTITY `prepare` RESOLVED, because that is what
+                    # `install` carries into the selector now: this stand-in
+                    # stands in for composing a deployment, not for answering
+                    # what instance it composed.
+                    lambda document, **named: {
+                        "authority_uuid": "0" * 31 + "a"}), \
                 mock.patch.object(instance, "create",
                                   side_effect=OSError("the disk went away")), \
                 mock.patch.object(os, "unlink", refusing):
@@ -1258,12 +1268,17 @@ class TheDeploymentCarriesItsOwnJustfile(Fixture):
                                   "worker-control-1.0": 20},
                 "native_rpds": str(source / "_internal" / "rpds" / "rpds.so")}
         inputs = self.root / "inputs.json"
-        inputs.write_text(json.dumps({"schema": self.bootstrap.SCHEMA,
-                                      "authority_uuid": "0" * 31 + "a"}))
+        inputs.write_text(json.dumps({"schema": self.bootstrap.SCHEMA}))
         with mock.patch.object(self.bootstrap, "_identity_of",
                                lambda command, runtime=None, distro=None: said), \
-                mock.patch.object(self.bootstrap, "prepare",
-                                  lambda document, **named: None), \
+                mock.patch.object(
+                    self.bootstrap, "prepare",
+                    # THE IDENTITY `prepare` RESOLVED, because that is what
+                    # `install` carries into the selector now: this stand-in
+                    # stands in for composing a deployment, not for answering
+                    # what instance it composed.
+                    lambda document, **named: {
+                        "authority_uuid": "0" * 31 + "a"}), \
                 mock.patch.object(instance, "create",
                                   side_effect=TypeError("a bug in here")):
             with self.assertRaises(TypeError):
@@ -1333,7 +1348,9 @@ class TheBootstrapPreparesTheRepositories(Fixture):
         given = {
             "schema": self.bootstrap.SCHEMA,
             "state_root": self.destination,
-            "authority_uuid": "0" * 31 + "a",
+            # NO IDENTITY. OWNER-FRESH-INSTALL-20260916.md: an instance
+            # generates its own once, at install, and a document that named
+            # one is refused by name.
             "checkpoint_profile": "profile",
             "integration_profile": {
                 "profile_kind": "profile", "profile_version": 1,

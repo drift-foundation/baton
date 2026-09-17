@@ -635,9 +635,17 @@ class PooledManagerOperations:
         happens to compare.
         """
         self.store = store
-        if type(workers) is not dict or not workers:
+        if type(workers) is not dict:
             _refuse("pooled operations need worker operations keyed by "
                     "(generation, worker id)")
+        # AN EMPTY MAPPING IS AN ANSWER, AND THE STORE STILL DECIDES.
+        # W183883, OWNER-FRESH-INSTALL-20260916.md: an installation starts with
+        # zero Jobs and no configured execution capacity, and it must serve for
+        # real rather than report a fabricated success. Nothing is relaxed to
+        # allow that: `_required_workers` below answers `[]` only when this
+        # store has no active generation AND no live allocation, and the
+        # comparison against it is what makes an empty attachment fail closed
+        # the moment either exists.
         self.workers = dict(workers)
         self._independence = independence
         rows = _required_workers(store)
@@ -676,6 +684,10 @@ class PooledManagerOperations:
         work, so neither needs an allocation -- which is exactly the thing
         `_worker` below must not do.
         """
+        if not self.workers:
+            _refuse("this deployment attached no worker, so there is no "
+                    "operation to answer with; an instance with no configured "
+                    "execution capacity serves no stage")
         return self.workers[sorted(self.workers)[0]]
 
     def _offer_exists(self, stage):
