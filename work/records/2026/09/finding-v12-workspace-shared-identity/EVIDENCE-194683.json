@@ -1,0 +1,197 @@
+{
+ "work": "2b077949-W194457",
+ "claim": 194683,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-17T12-58-44Z.md",
+  "sha256": "3a287dcd77778cb61164324ef7e5e4f1f3f8853a8030a2da629703cb099e828d",
+  "finding_2": "the shared execution identity, which was the whole remainder"
+ },
+ "delivered_this_claim": {
+  "the_identity_reaches_both_vectors": {
+   "how_without_a_signature_growing_a_uid": "`workspaces.identity_for(group)` derives the identity behind the deployment's already-minted `WorkspaceGroup`: the gid is the group's, and the uid is `os.geteuid()` -- who this manager actually is. Both vectors already receive that capability, so NOTHING anywhere grew a uid operand a caller could choose. That is the property the pinned `65532:65532` was protecting, and it is kept.",
+   "execution": "`oci.run_vector` substitutes `--user <uid>:<gid>` at the RESTRICTIONS table, exactly where `--network` is already substituted, so there is still one `--user` in the argv and a reader still sees the whole posture in the table.",
+   "custody": "`custody.custody_vector` substitutes the same pair. The custodian exists to OWN what the worker created -- that is the whole mechanism, and under a shared identity 'the same uid the worker ran as' is this manager's own.",
+   "consent_is_untouched": "a consent runtime mounts nothing and writes nothing this manager reads back, so it keeps the pinned pair and is still refused a supplementary group. A probe proved the posture condition is what keeps consent COMPOSING at all, not merely what keeps its uid pinned."
+  },
+  "requested_is_not_observed": {
+   "why_it_matters_here": "`test_worker_entry_engine` measured THIS host relabelling a container-created file to uid 65534, the kernel's overflow id. A daemon with an id mapping silently relabels everything the worker writes, and an identity shared on only one side of the boundary is not shared.",
+   "what_was_added": "`workspaces.supported_identity_mapping(identity, observed_identity)` asks of an OBSERVATION -- the host-side (uid, gid) of something the runtime actually created. An unmeasured mapping is refused with its own sentence, a remapped one is refused naming both pairs and what an operator can do about it, and a matching one answers the identity.",
+   "NOT_YET_WIRED_TO_A_LIVE_OBSERVATION": "the decision function exists and is checked; the seam that feeds it a real host-side observation at start, before affected effects, is NOT written. Stated plainly rather than implied: today nothing calls it in the launch path, so a remapping engine is not yet refused in production."
+  },
+  "the_supplementary_group_revalidated_rather_than_dropped": "under the shared identity the PRIMARY gid is already the workspace group, so `--group-add` is redundant -- and it is kept because it is the grant that survives if a deployment ever runs the manager under another primary group, which is the case W33936/M34916 was written for. A check asserts both the substituted `--user` and the retained `--group-add`."
+ },
+ "superseded_test_expectations_updated": {
+  "tests/manager/test_oci.py": "the restriction sweeps and two launch cases assert the shared pair for EXECUTION; the consent case still asserts the pinned one",
+  "tests/manager/test_custody.py": "the custodian's identity assertion",
+  "tests/manager/test_lifecycle_composition.py": "the real Docker composition's `Config.User`",
+  "what_was_NOT_blindly_replaced": "the review warned against replacing every 65532. The credential-engine, worker-image, entry-engine and image assertions are untouched: they are about the IMAGE's own user and the transport, not about this deployment's execution identity."
+ },
+ "STILL_NOT_DONE": {
+  "the_live_mapping_observation": "wire `supported_identity_mapping` to a real host-side observation at start, before affected effects",
+  "private_writable_HOME_cache": "not written. With the image's fixed defaults kept and the runtime `--user` overridden, a worker whose HOME is the image's 65532 home may have nowhere writable; the review named this and it is not addressed.",
+  "restrictive_file_checks_BOTH_directions": "not written. The manager-to-worker direction in particular is the one the review added.",
+  "simulated_mapping_fixtures": "not written",
+  "the_remaining_re_decisions": "the 0640 credential slot (W52800), `custody.normalize_directory`'s group grant (W39358) and /input readability (W33935) are UNCHANGED and not yet re-decided under the shared identity; only the supplementary group was revalidated this claim",
+  "written_compatibility_and_update_recovery_instructions": "not written",
+  "therefore": "this is still a partial candidate and still not deployable; no owner production run or installed update is proposed"
+ },
+ "verification": {
+  "suites": [
+   {
+    "module": "tests.manager.test_workspaces",
+    "tests": 122,
+    "result": "OK",
+    "seconds": 0.808
+   },
+   {
+    "module": "tests.manager.test_review_cycles",
+    "tests": 162,
+    "result": "OK",
+    "seconds": 1.909
+   },
+   {
+    "module": "tests.manager.test_custody",
+    "tests": 121,
+    "result": "OK",
+    "seconds": 3.409
+   },
+   {
+    "module": "tests.manager.test_oci",
+    "tests": 129,
+    "result": "OK",
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.tools.test_single_worker",
+    "tests": 153,
+    "result": "OK",
+    "seconds": 9.311
+   },
+   {
+    "module": "tests.manager.test_launch",
+    "tests": 37,
+    "result": "OK",
+    "seconds": 0.708
+   },
+   {
+    "module": "tests.manager.test_worker_image",
+    "tests": 106,
+    "result": "OK",
+    "seconds": 0.307
+   }
+  ],
+  "total_tests": 830,
+  "total_seconds": 17.36,
+  "new_this_claim": 7,
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_EXECUTION_vector_runs_as_the_shared_identity"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "P1-the-execution-vector-runs-as-the-pinned-pair-again",
+     "reverted_returncode": 1,
+     "seconds": 0.434,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_UNMEASURED_mapping_is_refused_rather_than_assumed"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "P2-an-unmeasured-mapping-is-assumed-supported",
+     "reverted_returncode": 1,
+     "seconds": 0.437,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_REMAPPED_runtime_is_refused_by_name"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "P3-a-remapped-runtime-is-accepted",
+     "reverted_returncode": 1,
+     "seconds": 0.437,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_root_manager_gets_no_shared_identity"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "P4-a-root-manager-shares-its-identity-with-a-worker",
+     "reverted_returncode": 1,
+     "seconds": 0.437,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_CONSENT_vector_keeps_the_pinned_pair"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "P5-the-consent-runtime-is-given-the-shared-identity-too",
+     "reverted_returncode": 1,
+     "seconds": 0.438,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 7.17
+  },
+  "probe_seconds": 7.17,
+  "probe_script": "probes-194683.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probe": "P2",
+    "why": "without the None guard the unpack raises TypeError and the generic handler still refuses -- with the WRONG sentence. That difference is the guard's value to an operator.",
+    "corrected_token": "does not match"
+   },
+   {
+    "probe": "P5",
+    "why": "twice. The second attempt taught me what the guard actually protects: a consent start carries no workspace group at all, so dropping the posture condition asks `identity_for(None)` and the consent vector stops composing entirely.",
+    "corrected_token": "not from an integer"
+   }
+  ],
+  "no_engine_model_store_deployment_or_version_control_operation": true
+ },
+ "an_operational_finding": {
+  "what": "tests/manager/test_dependencies.py has 56 PRE-EXISTING failures in `test_every_public_parameter_is_a_declared_operand` -- `deadline_policy`, `gate`, `control` and others are public parameters absent from that suite's declared operand vocabulary.",
+  "how_it_was_established": "measured on a copy of the tree, and my own addition briefly made it 57: `supported_identity_mapping`'s parameter was `observed`, which is not declared. It is `observed_identity` now, which is -- so this candidate adds none.",
+  "not_mine_to_fix_here": "unrelated to this Work's scope"
+ },
+ "changed_this_claim": {
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "07d99e1486d8c1710e05c8d95b6fd504ccf856c7484e98d0e3be82fe62eb415c",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "cc18ac084d8df6cd3da6ffbebc41349358201dabf99f4433ba65a610a4f5298e",
+  "v12/python/src/baton_v12/worker_manager/custody.py": "e4bf9cc569a15434f119cdcee6ae42c31ac7a71094b43f279b0fcead38135678",
+  "v12/python/tests/manager/test_workspaces.py": "dc777b16c104b137a61313075bc2d15e81fd548b57de52cd0b76aa87f22684af",
+  "v12/python/tests/manager/test_oci.py": "231998a54d5978dd11221102c7a48480c549459b4114052401556b91079fced4",
+  "v12/python/tests/manager/test_custody.py": "d315fdb7193e304421413b64caf09ae85d9c646ffd9948e767b8721475b8459d",
+  "v12/python/tests/manager/test_lifecycle_composition.py": "3fb38036bacfb09b050d69ea3712b8766002e7b0775bffce51a415ca5f6a337e"
+ },
+ "cumulative_verification_spending": {
+  "claim194465": "none -- revalidation only",
+  "claim194532": "16.242s suites, 7.171s probes, 0.304s reviewer-script rerun, 55.434s stage suite",
+  "claim194622": "16.144s suites, 4.867s probes",
+  "claim194683": "17.360s suites, 7.170s probes",
+  "known_component_sum": "about 124.7s of measured components across four claims; a sum of what I measured, not a proven full historical total -- earlier failed probe attempts were never separately timed",
+  "unknowns_preserved": [
+   "the installed incident's original errno",
+   "18,078 is an entry count, not a measured peak",
+   "the 12 stage-execution errors are carried from W183883 and not re-verified here",
+   "the 56 test_dependencies failures are pre-existing and unrelated"
+  ]
+ },
+ "preserved_untouched": {
+  "failed_v12_work": "a2b0d14b-W1",
+  "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+  "how": "no v12 store opened, no claim released, no partial line removed, no resubmission, no installed runtime updated, no production retry"
+ }
+}

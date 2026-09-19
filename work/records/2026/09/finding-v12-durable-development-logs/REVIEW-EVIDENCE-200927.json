@@ -1,0 +1,125 @@
+{
+  "fifo": {
+    "timed_out_seconds": 2,
+    "child": "killed and reaped by subprocess.run"
+  },
+  "alias": {
+    "outside": "raw provider bytes"
+  },
+  "restart": {
+    "declaration_while_second_writer_is_open": {
+      "declared": "finished",
+      "reason": "the writer saw this stream to its end"
+    },
+    "raw": "firstsecond",
+    "declaration_after_unfinished_capture": {
+      "declared": "finished",
+      "reason": "the writer saw this stream to its end"
+    },
+    "operator_follow_after_unfinished": {
+      "declaration": "declared",
+      "stream": "provider.stdout",
+      "state": "captured",
+      "bytes": 11,
+      "why": "the writer saw this stream to its end",
+      "file": "present",
+      "from_byte": 0,
+      "bytes_read": 11,
+      "text": "firstsecond",
+      "at_end": true,
+      "next_from_byte": 11,
+      "more_may_arrive": false
+    }
+  },
+  "seconds": 2.0030114649562165,
+  "root": "/tmp/w198667-review200927-o0nta3_f",
+  "work": "W198667",
+  "claim": 200927,
+  "reviewer": "baton.rvpc",
+  "candidate": {
+    "v12/worker/claude_agent.py": {
+      "expected": "63302a7de1d8710bc7b658fe187c19341ebad7e2e29d49bc72936ea1063debbe",
+      "actual": "63302a7de1d8710bc7b658fe187c19341ebad7e2e29d49bc72936ea1063debbe"
+    },
+    "v12/python/tests/manager/test_attempt_logs.py": {
+      "expected": "1673aff9fef75a78d58179b180f6ee40043f00e10645d15d08d26d266ba3cad2",
+      "actual": "1673aff9fef75a78d58179b180f6ee40043f00e10645d15d08d26d266ba3cad2"
+    }
+  },
+  "tests": [
+    {
+      "suite": "tests.manager.test_attempt_logs tests.tools.test_attempt_logs_command",
+      "count": 185,
+      "result": "OK",
+      "seconds_unittest": 1.556,
+      "seconds_wall": 1.582545716
+    },
+    {
+      "suite": "tests.manager.test_claude_agent tests.manager.test_integration_worker tests.manager.test_worker_entry tests.manager.test_launch tests.manager.test_oci tests.manager.test_exchange",
+      "count": 658,
+      "result": "OK",
+      "seconds_unittest": 24.436,
+      "seconds_wall": null
+    }
+  ],
+  "prior_probe": {
+    "hardlink": {
+      "answer": {
+        "retained": {
+          "": [
+            "a retained native file is also linked elsewhere, so writing into it would put this attempt's bytes outside its own room; the bytes already there are kept and the source is retained separately"
+          ],
+          "retention": {
+            "s.jsonl": {
+              "identity": [
+                43,
+                12821269
+              ],
+              "destination": "s.jsonl%232",
+              "retained": 19,
+              "head": "da3ed6f0927237ad941f77d04130e23dc433631d98cd013df009c4c0d128bfa1"
+            }
+          }
+        },
+        "failed": [
+          "a retained native file is also linked elsewhere, so writing into it would put this attempt's bytes outside its own room; the bytes already there are kept and the source is retained separately"
+        ],
+        "reached": true
+      },
+      "native_files": {
+        ".retention.json": "{\"s.jsonl\": {\"destination\": \"s.jsonl%232\", \"head\": \"da3ed6f0927237ad941f77d04130e23dc433631d98cd013df009c4c0d128bfa1\", \"identity\": [43, 12821269], \"retained\": 19}}",
+        "s.jsonl%232": "provider transcript",
+        "s.jsonl": ""
+      },
+      "outside": ""
+    },
+    "reserved": {
+      "answer": {
+        "retained": {
+          "": [],
+          "retention": {
+            "%2Eretention.json": {
+              "identity": [
+                43,
+                12821281
+              ],
+              "destination": "%2Eretention.json",
+              "retained": 19,
+              "head": "da3ed6f0927237ad941f77d04130e23dc433631d98cd013df009c4c0d128bfa1"
+            }
+          }
+        },
+        "failed": [],
+        "reached": true
+      },
+      "native_files": {
+        ".retention.json": "{\"%2Eretention.json\": {\"destination\": \"%2Eretention.json\", \"head\": \"da3ed6f0927237ad941f77d04130e23dc433631d98cd013df009c4c0d128bfa1\", \"identity\": [43, 12821281], \"retained\": 19}}",
+        "%2Eretention.json": "provider transcript"
+      },
+      "outside": null
+    },
+    "seconds": 0.0004977049538865685,
+    "root": "/tmp/w198667-review200560-0s6wm9h0"
+  },
+  "costs": "All tests ResourceWarning-as-error. Overall wall total not measured; full second test wall unknown. Author reports400s; historical costs preserved."
+}

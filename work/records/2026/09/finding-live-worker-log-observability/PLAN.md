@@ -1,3 +1,7 @@
+# Follow-up — raw development logs selected 2026-09-17
+
+W198667 owns the newly selected durable raw-log implementation under ../finding-v12-durable-development-logs/FINDING.md and PLAN.md. The prior raw-log prohibition and basic sink deferral no longer apply to these private development deployments. W61599 remains historically closed for its accepted activity subset; the entries below preserve that history.
+
 # Current action — corrected viewer accepted; return owner disposition
 
 review-2026-09-15T15-04-29Z.md accepts viewer-candidate-178930.json SHA256

@@ -1,0 +1,92 @@
+{
+ "work": "2b077949-W194457",
+ "claim": 194465,
+ "actor": "baton.claude",
+ "what_this_claim_did": "PLAN step 1 only: revalidated the current workspace preparation, the engine identity and mount configuration, the manager's consumption path and the affected tests. NO product or test file was edited.",
+ "why_it_stops_here": "The turn's remaining budget was not enough to land a change of this size well, and the change is security-sensitive: it moves the container's pinned execution identity, which five accepted decisions were written around. Half-landing it would be worse than returning it, so it is returned with the revalidation recorded rather than repeated.",
+ "the_defect_site": {
+  "function": "workspaces._provision_line_access",
+  "file": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+  "line": 881,
+  "why_it_exhausts": "`visit` appends (descriptor, fstat) to `held` for EVERY entry it reaches and closes them only in the `finally`, after the whole preflight and the whole fchown/fchmod pass. Peak descriptors = one per entry + the root: 18,078 measured, against the manager's soft RLIMIT_NOFILE of 1024.",
+  "the_permission_only_pass": "the second loop over `held` -- os.fchown(-1, gid) then os.fchmod(mode) for every entry -- is the whole-tree permission preparation the ruling removes.",
+  "where_the_errno_was_lost": "the `except OSError` branch reports `type(failure).__name__` and drops `failure.errno`, which is why the incident has EMFILE strongly supported rather than recorded.",
+  "its_one_production_caller": {
+   "file": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+   "line": 1014,
+   "context": "inside create_line's act(connection), so the walk runs within the review-line.create transaction -- which is why a failure leaves the line materializing and ungranted"
+  }
+ },
+ "what_is_NOT_the_defect": {
+  "workspaces._prove_line_access": "line 864. It measures the ROOT only -- identity pin, group, mode 02775 -- and repairs nothing. Called from review_cycles.py:1090 and :2633. It is the shape creation-time access should leave behind.",
+  "workspaces._prove_line_consumable": "line 965. An open-based proof that the manager can read what the worker wrote; it changes nothing and is the check that a shared UID makes pass for worker-created 0600/0700 entries."
+ },
+ "the_split_identity_this_decision_moves": {
+  "pinned_at": [
+   "v12/python/src/baton_v12/worker_manager/oci.py:181 (--user 65532:65532)",
+   "v12/python/src/baton_v12/worker_manager/custody.py:1672 (the custodian's own pinned pair)"
+  ],
+  "deliberately_not_per_deployment": "oci.py:1158 records that a rejected cut composed `--user 65532:<gid>`, and that W6632's vector cases and W6633's image assert the pinned pair.",
+  "five_accepted_decisions_written_AROUND_the_split": [
+   "--group-add <workspace gid> (W33936, approver ruling M34916) exists because 65532 is not the manager's uid",
+   "the credential slot is 0640 rather than 0600 (W52800, approver ruling 2026-08-31) because a manager-owned owner-only file is one uid 65532 can stat and cannot open",
+   "custody.normalize_directory grants the workspace GROUP rwx instead of chowning (W39358) because the manager does not own what 65532 created",
+   "/input is world-readable (W33935) for the same reason",
+   "workspaces.py:2316 records a measured EPERM from exactly that asymmetry"
+  ],
+  "why_this_is_not_a_new_owner_question": "FINDING.md says the exact numeric identities and the supported engine mapping are implementation choices to revalidate against the current deployment. It is mine to decide -- it is simply larger than one remaining turn, and each of those five decisions needs re-deciding on its own terms rather than being left to mean something new by accident."
+ },
+ "affected_tests_identified": {
+  "assert_the_pinned_uid": [
+   "tests/manager/__pycache__/test_claude_agent.cpython-313.pyc",
+   "tests/manager/__pycache__/test_custody.cpython-313.pyc",
+   "tests/manager/test_claude_agent.py",
+   "tests/manager/test_credentials.py",
+   "tests/manager/test_credentials_engine.py",
+   "tests/manager/test_custody.py",
+   "tests/manager/test_custody_engine.py",
+   "tests/manager/test_dependencies.py",
+   "tests/manager/test_dogfood_image.py",
+   "tests/manager/test_failed_start_destroy.py",
+   "tests/manager/test_input_delivery.py",
+   "tests/manager/test_integration_image.py",
+   "tests/manager/test_launch.py",
+   "tests/manager/test_lifecycle_composition.py",
+   "tests/manager/test_oci.py",
+   "tests/manager/test_private_line_access_engine.py",
+   "tests/manager/test_worker_container.py",
+   "tests/manager/test_worker_entry_engine.py",
+   "tests/manager/test_worker_image.py",
+   "tests/tools/test_dogfood_retry_engine.py",
+   "tests/tools/test_worker_image_build.py"
+  ],
+  "drive_the_provisioning_directly": [
+   "tests/manager/test_workspaces.py (lines 1811, 1844, 1846, 1850)",
+   "tests/manager/test_review_cycles.py (lines 929, 939, 976, 977)"
+  ]
+ },
+ "the_remaining_scope_in_order": [
+  "decide the shared identity's shape -- the manager's own euid/egid carried into the container, or a deployment-configured pair both sides map to -- and mint it beside WorkspaceGroup, from the deployment's record, never as an integer a caller supplies",
+  "replace the create_line call with creation-time access: the parent workspace root is already 02770/setgid, so a materialized line needs its ROOT put in the configured group at 02775 and nothing else; _prove_line_access becomes the whole admission check and _provision_line_access goes",
+  "re-decide each of the five accepted decisions above, explicitly",
+  "the deterministic checks the acceptance names: a tree larger than 1,024 entries with the PEAK descriptor count measured, an operation count showing no permission walk proportional to unrelated entries, a worker-created 0600/0700 entry the manager consumes, and a repeated preparation",
+  "separate the unavoidable materialization and integrity costs from permission setup honestly",
+  "the installed-runtime update and failed-attempt recovery procedure, written but NOT executed against /home/sl/baton-v12-instance"
+ ],
+ "verification_spending_this_claim": {
+  "tests_run": "none -- nothing was changed",
+  "probes_run": "none",
+  "what_was_done": "reading: the dossier, workspaces.py, review_cycles.py, oci.py, custody.py, credentials.py, launch.py and the test index"
+ },
+ "preserved_untouched": {
+  "failed_v12_work": "a2b0d14b-W1",
+  "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+  "how": "no v12 store was opened, no claim released, no partial line removed, no resubmission, no installed runtime updated"
+ },
+ "no_provider_engine_model_network_or_version_control_mutation": true,
+ "dossier_state": {
+  "FINDING.md": "cfd40524ca3963ffdd074b2441e93ce62d86d7610399ad87862d571e055f614e",
+  "PLAN.md": "4b72d5041d7c9e856b7c1ac55a23c43fbe3ef64adf4eb42a4bfa12b498ab8e66",
+  "PROGRESS.md": "491de427b4056dce14c23ca177706bbd10222c92da1cdd6520aa3895a0f323d5"
+ }
+}

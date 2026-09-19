@@ -1,0 +1,20 @@
+{
+  "claim": 201931,
+  "review": "review-2026-09-18T08-58-46Z.md",
+  "author_claim": 201869,
+  "digests": {
+    "instance-201492/CAPTURED-terminal-201869.json": "2a899b74106fae3a9e2a8a05b7297231fda7977fb7bfe9cf45cb6b0bc34460d1",
+    "instance-201492/verification-201869-final.json": "3adbb8d9356789cd3fb6dfcd65783435b36f4884f60811f3e0fe616b9bbeb94c",
+    "instance-201492/verify_lifecycle.py": "fb506832cbb51a2971c0b415a2937a5c89b1e2a2022643281d2511896bb003c7",
+    "v12/python/tests/manager/test_w197661_verifier.py": "ad16b73b62e68656efec8bdf6c62d9abb0ffd5edf5c21d6d82e797cc916312bd"
+  },
+  "hashes_match": true,
+  "tests": {
+    "count": 117,
+    "passed": true,
+    "seconds": 0.15058347495505586
+  },
+  "prior_three_probes": "all refuse",
+  "engine_runs": 0,
+  "disposition": "R1 accepted; complete bounded F5 prerequisite"
+}

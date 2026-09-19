@@ -1,0 +1,48 @@
+{
+  "claim": 198094,
+  "probe": "AST-extracted actual held_open, fake process and engine seams only",
+  "primary_error": "launch lost name race",
+  "cleanup_targets": [
+    "review-collision"
+  ],
+  "owned_id": null,
+  "regressions_independent": {
+    "vector": 8,
+    "absence": 15,
+    "judgement": 23,
+    "all_pass": true,
+    "wall_seconds": 0.12222874199505895
+  },
+  "first_probe": "fixture omitted subprocess.PIPE; failed before reaching helper launch, then corrected",
+  "hash_checks": {
+    "corrected-198054/smoke/command-11.stderr": true,
+    "corrected-198054/smoke/command-12.stderr": true,
+    "corrected-198054/smoke/command-16.stderr": true,
+    "corrected-198054/smoke/command-17.stderr": true,
+    "corrected-198054/smoke/command-2.stderr": true,
+    "corrected-198054/smoke/command-21.stderr": true,
+    "corrected-198054/smoke/command-22.stderr": true,
+    "corrected-198054/smoke/command-26.stderr": true,
+    "corrected-198054/smoke/command-27.stderr": true,
+    "corrected-198054/smoke/command-31.stderr": true,
+    "corrected-198054/smoke/command-6.stderr": true,
+    "corrected-198054/smoke/command-7.stderr": true,
+    "corrected-198054/smoke/integration_reads.container.inspect.json": true,
+    "corrected-198054/smoke/integration_unreadable_generation_held_open.container.inspect.json": true,
+    "corrected-198054/smoke/negative_control_invalid_one.container.inspect.json": true,
+    "corrected-198054/smoke/provider_describe.container.inspect.json": true,
+    "corrected-198054/smoke/provider_reads.container.inspect.json": true,
+    "corrected-198054/smoke/provider_unreadable_generation_held_open.container.inspect.json": true,
+    "corrected-198054/smoke/result.json": true,
+    "corrected-198054/smoke-scratch/launch-five.json": true,
+    "corrected-198054/smoke-scratch/launch-one_invalid.json": true,
+    "corrected-198054/smoke-scratch/launch-one_valid.json": true,
+    "corrected-198054/smoke-scratch/launch-three.json": true,
+    "corrected-198054/smoke_images.py": true,
+    "v12/worker/baton_worker.py": true,
+    "v12/python/tests/manager/test_worker_entry.py": true,
+    "v12/python/tests/manager/test_exchange.py": true,
+    "v12/python/tests/manager/test_worker_container.py": true,
+    "v12/python/tests/tools/test_execution_limits.py": true
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "claim": 199876,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true,
+    "v12/python/tests/tools/test_attempt_logs_command.py": true,
+    "v12/worker/claude_agent.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "seconds": 0.7787457259837538,
+    "output": "................................................................................................................................\n----------------------------------------------------------------------\nRan 128 tests in 0.612s\n\nOK\n"
+  },
+  "repeated_truncated_ticks": {
+    "session#3": "XY",
+    "session#2": "XY",
+    "session": "abcdef"
+  },
+  "restart_changed_source": {
+    "files": {
+      "session#3": "XY",
+      "session#2": "XY",
+      "session": "abcdef"
+    },
+    "failed": []
+  },
+  "utf8_fixed": {
+    "rc": 0,
+    "text": "\u20acx"
+  },
+  "probe_seconds": 0.0010567840072326362,
+  "retained_probe_path": "/tmp/w198667-review199876-pdz8ozhx"
+}

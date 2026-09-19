@@ -1,0 +1,16 @@
+{
+  "claim": 198974,
+  "manifests": {
+    "implementation": "sha256:4c8eef0b54917497516fc72c8a65fe676fc5e743500130edbbc299e9ab1d2428",
+    "review": "sha256:65d1c423350ac719bdcbcb91a942d6e264a5c5adc327ec5b9b0c9492153b1af0",
+    "integration": "sha256:3e7ad29bd88bef29b6839f69aee6335f198e3c826332e31360e94696bcdb32df"
+  },
+  "matches": {
+    "implementation": "accepted",
+    "review": "the Job names another bootstrap input",
+    "integration": "the Job names another bootstrap input"
+  },
+  "submission_shape": "accepted",
+  "configuration": "an assignment that authorizes a credential names at least one slot; a delivery describing nothing is one every comparison agrees with",
+  "seconds": 0.005258884048089385
+}

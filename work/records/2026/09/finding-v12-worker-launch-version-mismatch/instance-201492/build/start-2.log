@@ -1,0 +1,13 @@
+refused: manager did not stay up (gone). Its log says:
+      File "stack_command.py", line 257, in <module>
+      File "stack_command.py", line 253, in main
+      File "stack_command.py", line 82, in _manager
+      File "tools/job_manager.py", line 485, in main
+      File "tools/job_manager.py", line 367, in _serve
+      File "tools/job_manager.py", line 316, in _operations_from
+      File "tools/stage_execution.py", line 6096, in factory
+      File "tools/stage_execution.py", line 5804, in operations_from
+      File "tools/stage_execution.py", line 5974, in _pool_generation
+      File "tools/stage_execution.py", line 388, in _refuse
+    baton_v12.contracts.errors.ContractRefusal: activating this deployment's pool would answer generation 2 and the configuration names 1; a deployment resuming against a pool that has moved on refuses before it activates one rather than after
+    [PYI-941828:ERROR] Failed to execute script 'stack_command' due to unhandled exception!

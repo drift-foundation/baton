@@ -1,0 +1,206 @@
+{
+  "claim": 198750,
+  "work": "2b077949-W197661",
+  "role": "impl",
+  "corrects": {
+    "review": "review-2026-09-18T00-36-37Z.md sha256 17cdad0e1aa243f6461a07c3a67bed27cff1c5e44aa13a75f0756594d7a985ce",
+    "authority": "owner seq198635, continued"
+  },
+  "package": "instance-198750/",
+  "package_sha256": {
+    "instance-198750/bootstrap-inputs.json": "263a3ff09f4ae507e13a42fe459ad0d6993b3ee9df72a2fc40ab9bd898b948a9",
+    "instance-198750/build/bootstrap.log": "238a9e58c272786f3dc65af2d836838be75298b55b8b65e1153e0e374d7c0b7a",
+    "instance-198750/build/fixture.build.log": "0568e441b90f5074a122dd79f3afbc01857c7152d50078c5e3a916cf326d4ad5",
+    "instance-198750/build/fixture.iid": "fb133e41079c465215bfed082cbbd336869f13424d16ec1667b309a1c6e234f8",
+    "instance-198750/build/start.log": "bc5ba13565a4e4bc5b5afcf089a69d7a831a333dc434d8ddaad7c0d79ec99d31",
+    "instance-198750/build/status-after-submit.json": "c51a0b70061b0e65cf214539b3f6268dd30b054bea921264a7cbbe7530ad114f",
+    "instance-198750/build/status-running.log": "1ddc8412f575d6c97d31736aa637331f769ce0d3a80bb103c9c73dddc39f5717",
+    "instance-198750/build/status.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "instance-198750/build/submission-refusals.json": "63b767e73a93cd3b7f20d99c87fe0c495ea79464ae9096a3d8c7e87aafe58ca8",
+    "instance-198750/build/submit.log": "5ce2eb100bb18b18203d2451a6009d945463bd5201f503639d68d4ae60e1a54c",
+    "instance-198750/build/try.json": "1669d25f31f7ed898e918d789654df889b6a57984e013b0e5c68a01c9c868743",
+    "instance-198750/exercise.json": "da014e0a8d0a16c38d657e374d3e1650b7484fa23197b0894dbbceb9eadb2abc",
+    "instance-198750/fixture-context/Dockerfile.fixture": "242825a2ba0138ba30462fd5db0a01e54fe9f5f1623e270d03cb7b9590fe4490",
+    "instance-198750/fixture-context/python/src/baton_v12/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+    "instance-198750/fixture-context/python/src/baton_v12/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+    "instance-198750/fixture-context/worker/baton_worker.py": "8a5f4895ff7f6609934c0b2078ae294233c1c2ebbb28390da1c1966af5dcd8a1",
+    "instance-198750/fixture-context/worker/scripted_agent.py": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+    "instance-198750/fixture-context/worker/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+    "instance-198750/runtime-manifest.json": "19f8e4a3009803c984885234eea10829aad82d2ffff127921d287f2932ef7839",
+    "instance-198750/submission.json": "1669d25f31f7ed898e918d789654df889b6a57984e013b0e5c68a01c9c868743",
+    "instance-198750/verification.json": "a00595a549ff951bb0ad25b663b950d6afa044ea08f906be6acb26886eff7dda",
+    "instance-198750/verify.py": "1525b228391e931c66aa108fd61fc4dc34d398dea7f939983b39fe223b0e72a7"
+  },
+  "draft_preserved": {
+    "packet-198640": {
+      "files": 4,
+      "drifted": [],
+      "unchanged": true
+    }
+  },
+  "source_unchanged": {
+    "v12/worker/baton_worker.py": "8a5f4895ff7f6609934c0b2078ae294233c1c2ebbb28390da1c1966af5dcd8a1",
+    "v12/python/tests/manager/test_worker_entry.py": "3c830b88336a6247301be1f38e060a668a519f4c48df5c32efc410c64f14567b",
+    "v12/python/tests/manager/test_exchange.py": "2888f570b6268daeb323674e5b55492fa7a4ae881b2393bf7011307a26f1928e",
+    "v12/python/tests/manager/test_worker_container.py": "340a51a033a5de8a47ae16d32c5a03154042a76f3850c9bcb51e527ffe14a957",
+    "v12/python/tests/tools/test_execution_limits.py": "2a8f724cd636b7579a854b2a0b403a708765a658f88af409db92d0852511c27c"
+  },
+  "correction_1_premise_withdrawn": {
+    "what_was_wrong": "packet-198640 and this dossier repeatedly asserted that W194457 awaits independent review",
+    "canonical_truth": "W194457 is CLOSED, outcome satisfying \u2014 confirmed against canonical detail in this claim and in claim198698 of W198667",
+    "what_survives": "the installed bundle's SOURCE COMPOSITION remains unknown. That is a separate fact and is not evidence of unreviewed bytes: timestamps and a failed byte search establish neither reviewed nor unreviewed payload.",
+    "consequence": "binding the existing installed distro for this isolated exercise needs no further owner gate; the provenance limitation is stated and is not a production approval"
+  },
+  "correction_2_full_runtime": {
+    "selected_distro": "/home/sl/src/baton/v12/python/build/out/distro",
+    "files": 81,
+    "digest": "73b8cab34a7e47857695cad4e80551de607d82aa77ee3ca39b72f7c89166ded6",
+    "manifest": "runtime-manifest.json \u2014 every file's digest, symlinks as link text, produced by tools.instance.manifest rather than a second implementation",
+    "disposable_copy_verified": {
+      "destination": "/home/sl/baton-v12-disposable-198750/distro",
+      "files": 81,
+      "digest": "73b8cab34a7e47857695cad4e80551de607d82aa77ee3ca39b72f7c89166ded6",
+      "byte_identical": true,
+      "method": "the same manifest function over the installed copy, compared entry by entry"
+    }
+  },
+  "correction_3_concrete": {
+    "fixture_digest": "sha256:edd20e9c3f0a15bdd445c7b83fcb8b5f8a52f6dc42d1d639a0fef9db3ccfacf4",
+    "destination": "/home/sl/baton-v12-disposable-198750",
+    "authority_uuid": "742fe75be3924967b48d181e3b2f490a",
+    "bootstrap_inputs": "instance-198750/bootstrap-inputs.json",
+    "accepted_submission": "instance-198750/submission.json",
+    "still_placeholder": "the CAPACITY selection, which is the blocker below"
+  },
+  "correction_4_fail_closed": {
+    "verifier": "instance-198750/verify.py (new file; the draft and its verification.json are untouched)",
+    "checks": 41,
+    "all_true": true,
+    "fail_closed_regression": {
+      "a_failed_base_inspection_fails_the_ancestry_check": true,
+      "a_failed_base_inspection_is_not_omitted": true,
+      "a_refusing_engine_makes_every_check_false": true
+    }
+  },
+  "correction_5_exercise": {
+    "task_receipt": {
+      "state": "PROVED, canonically",
+      "how": "a baton.v12.job-submission/2 document submitted through the installed `manager submit`, then read back through `manager status` \u2014 no store was opened directly",
+      "submission": "instance-198750/submission.json",
+      "accepted_returncode": 0,
+      "projection": {
+        "job": "w197661-fixture-lifecycle",
+        "terminal_policy": "report-and-hold",
+        "stages": [
+          {
+            "kind": "implementation",
+            "state": "queued"
+          },
+          {
+            "kind": "review",
+            "state": "blocked"
+          },
+          {
+            "kind": "integration",
+            "state": "blocked"
+          }
+        ]
+      },
+      "what_the_refusals_taught": [
+        {
+          "label": "the shipped example, unchanged but for identities",
+          "returncode": 1,
+          "refusal": "baton_v12.contracts.errors.ContractRefusal: a Job's input digest is durable text; this is none"
+        },
+        {
+          "label": "with an input_digest",
+          "returncode": 1,
+          "refusal": "baton_v12.contracts.errors.ContractRefusal: a Job's policy digest is durable text; this is none"
+        },
+        {
+          "label": "with a policy_digest",
+          "returncode": 1,
+          "refusal": "baton_v12.contracts.errors.ContractRefusal: the Work implementation stage names is durable text; this is none"
+        },
+        {
+          "label": "with a work_id on every stage",
+          "returncode": 1,
+          "refusal": "baton_v12.contracts.errors.ContractRefusal: a requested profile name is durable text; this is none"
+        },
+        {
+          "label": "with a profile name and digest on every stage",
+          "returncode": 0,
+          "refusal": "{\n  \"submission_id\": \"w197661-disposable-198750\",\n  \"signature\": \"{\\\"kind\\\":\\\"submission.record\\\",\\\"operands\\\":{\\\"jobs\\\":[{\\\"input_digest\\\":\\\"sha256:13c419d3a2cecabdfb368daddadb4fe6054c9cff0e330bf4feb8cfc6dfa4071b\\\",\\\"job_id\\\":\\\"w197661-fixture-lifecycle\\\",\\\"policy_digest\\\":\\\"sha256:7ab4e55b1ff86f7d"
+        }
+      ],
+      "note": "the shipped example document carries placeholders; five selections had to be supplied before the canonical reader accepted it, each named by its own refusal"
+    },
+    "candidate_collection": {
+      "state": "BLOCKED \u2014 measured, not inferred",
+      "the_scheduler_s_own_words": "baton_v12.contracts.errors.ContractRefusal: this deployment configures no execution capacity and this instance holds work it could not serve, so it refuses at startup rather than reporting an idle stack: 1 Job(s) in the Job store (w197661-fixture-lifecycle). Nothing was expired, abandoned, repaired or executed -- configure the workers this work needs, or point this instance at its own stores.",
+      "meaning": "the installed scheduler refuses at startup rather than reporting an idle stack, which is the correct fail-closed behaviour and names exactly what is missing"
+    },
+    "independent_review": {
+      "state": "NOT REACHED \u2014 depends on candidate collection"
+    },
+    "report_and_hold": {
+      "state": "NOT REACHED \u2014 the Job's terminal_policy is report-and-hold and the projection confirms it, but no stage executed"
+    }
+  },
+  "THE_BLOCKER": {
+    "what": "a fresh instance cannot execute anything until a CAPACITY selection exists, and the deployment deliberately refuses to invent one",
+    "why_it_is_not_an_inference": "measured three ways in this claim: the bootstrap reports workers_by_role all empty; the scheduler refuses at startup naming the Job it could not serve; and the submission reader refused five placeholder selections one at a time",
+    "what_composing_it_requires": [
+      "three worker deployments (implementation, review, integration) \u2014 bootstrap.ROLES requires all three once any worker is configured",
+      "each is a baton.v12.single-worker-deployment/4 document of 29 members, including adapter name and digest, engine, image_digest (the FIXTURE digest here), credential sources/slots/profile, profile and policy digests, workspace group/storage/capacity, launch home/contract/role, nominated source, retention selections and a task_document path",
+      "and a digest-sealed input_manifest of 23 members whose manifest_digest MUST equal the Job's input_digest \u2014 single_worker.py line 1303 compares them \u2014 so the manifest, its seal, the submission and the worker deployment are one coherent chain rather than four documents",
+      "no shipped tool emits any of it: tools.single_worker and tools.stage_execution have no command-line entry, and bootstrap holds `workers` and `jobs` in DEFERRED precisely because a worker's sealed manifest cannot be written before the instance exists"
+    ],
+    "next_step_exactly": "compose that chain against the canonical refusals the way the submission was composed here \u2014 each refusal names the next missing selection \u2014 then repeat the bootstrap supplying `jobs` and `workers`, start the scheduler, and carry the Job through candidate collection, independent review and report-and-hold, reading every stage from `manager status` rather than from a store"
+  },
+  "cleanup": {
+    "containers_started": "none \u2014 the scheduler refused before launching a worker, so no container was created by this exercise. The fixture image was BUILT, not run.",
+    "processes": "the disposable manager and publisher never started; `status` reports both absent",
+    "retained": "the disposable instance at /home/sl/baton-v12-disposable-198750 is retained as the exercise's evidence, with its stores, configuration and instance.json"
+  },
+  "verification_this_claim": {
+    "components": [
+      {
+        "what": "fixture image build",
+        "engine": "docker build --pull=false --no-cache --network none",
+        "result": "sha256:edd20e9c3f0a15bdd445c7b83fcb8b5f8a52f6dc42d1d639a0fef9db3ccfacf4"
+      },
+      {
+        "what": "bootstrap of the disposable instance",
+        "wall_seconds": 4.003,
+        "result": "installed; 81-file runtime; no capacity, as it reports"
+      },
+      {
+        "what": "submission refusal enumeration then acceptance",
+        "result": "five selections named one at a time; accepted rc=0"
+      },
+      {
+        "what": "manager status",
+        "result": "implementation queued, review and integration blocked, terminal_policy report-and-hold"
+      },
+      {
+        "what": "scheduler start",
+        "result": "refused at startup naming the Job it could not serve \u2014 the measured blocker"
+      },
+      {
+        "what": "instance-198750/verify.py",
+        "checks": 41,
+        "wall_seconds": 0.402,
+        "result": "all true"
+      }
+    ],
+    "measured_seconds_this_claim": 26.0,
+    "work_cumulative": 547.0
+  },
+  "engine": "one image build and read-only inspections; NO container started by this exercise, no model, no credential, no network, no production store or runtime touch, no version-control mutation",
+  "preserved_untouched": {
+    "packet-198640": "unchanged, verified",
+    "production": "the stopped instance, Work b6423787-W1 and its unresolved attempt; no restart, recovery or resubmission"
+  },
+  "git_diff_check": "passes; no whitespace defect"
+}

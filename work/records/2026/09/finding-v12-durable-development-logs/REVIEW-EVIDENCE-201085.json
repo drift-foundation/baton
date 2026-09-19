@@ -1,0 +1,173 @@
+{
+  "claim": 201085,
+  "reviewer": "baton.rvpc",
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "00246a9b102b1399e428d019587dd9d0c322258daf128fcdd60d16d71155be37",
+    "v12/worker/baton_worker.py": "e53a5dc522b4d2b73435ec5ae6a4cbacb3a6cd3bbd4a1ddf12a7d3d57548e3a9",
+    "v12/worker/claude_agent.py": "45e53ea349db983f0b1ee98932e89dae731c7e9249dd65980ed6ec4c1c281672",
+    "v12/python/tests/manager/test_attempt_logs.py": "4ccb8e8225f21813116d05a4f68f201437502769cfb682d8f3f6d650ef69c719",
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-201008/smoke.py": "ab72e75797cf395ddc00ebb856c7e48f60fbf5b664bf8ca6ec31620f9aa8218c"
+  },
+  "candidate_hashes_independently_match": true,
+  "focused_verification": {
+    "tests": 858,
+    "result": "OK",
+    "wall_seconds": 26.387669918010943,
+    "unittest_seconds": 26.179,
+    "flags": "-W error::ResourceWarning",
+    "suites": [
+      "tests.manager.test_attempt_logs",
+      "tests.tools.test_attempt_logs_command",
+      "tests.manager.test_claude_agent",
+      "tests.manager.test_integration_worker",
+      "tests.manager.test_worker_entry",
+      "tests.manager.test_launch",
+      "tests.manager.test_oci",
+      "tests.manager.test_exchange"
+    ]
+  },
+  "probe": {
+    "finished": {
+      "before": {
+        "state": "captured",
+        "more_may_arrive": false,
+        "text": "first-prefix",
+        "why": "the writer saw this stream to its end"
+      },
+      "during": {
+        "state": "live",
+        "more_may_arrive": true,
+        "text": "first-prefixsecond-whole",
+        "why": "bytes are here and no writer has said this stream ended; completeness is unknown"
+      },
+      "after": {
+        "state": "captured",
+        "more_may_arrive": false,
+        "text": "first-prefixsecond-whole",
+        "why": "the writer saw this stream to its end"
+      }
+    },
+    "partial": {
+      "before": {
+        "state": "partial",
+        "more_may_arrive": false,
+        "text": "first-prefix",
+        "why": "the drain ended on its own clock rather than at end of file, so this is a prefix of the stream rather than the stream"
+      },
+      "during": {
+        "state": "live",
+        "more_may_arrive": true,
+        "text": "first-prefixsecond-whole",
+        "why": "bytes are here and no writer has said this stream ended; completeness is unknown"
+      },
+      "after": {
+        "state": "captured",
+        "more_may_arrive": false,
+        "text": "first-prefixsecond-whole",
+        "why": "the writer saw this stream to its end"
+      }
+    },
+    "failed": {
+      "before": {
+        "state": "failed",
+        "more_may_arrive": false,
+        "text": "first-prefix",
+        "why": "the writer could not write this stream; whatever is here is what reached the file before it failed, and there may be no file at all"
+      },
+      "during": {
+        "state": "live",
+        "more_may_arrive": true,
+        "text": "first-prefixsecond-whole",
+        "why": "bytes are here and no writer has said this stream ended; completeness is unknown"
+      },
+      "after": {
+        "state": "captured",
+        "more_may_arrive": false,
+        "text": "first-prefixsecond-whole",
+        "why": "the writer saw this stream to its end"
+      }
+    },
+    "truncated": {
+      "before": {
+        "state": "truncated",
+        "more_may_arrive": false,
+        "text": "first-prefix",
+        "why": "the stream reached this deployment's retention ceiling and the rest was dropped as it arrived"
+      },
+      "during": {
+        "state": "live",
+        "more_may_arrive": true,
+        "text": "first-prefixsecond-whole",
+        "why": "bytes are here and no writer has said this stream ended; completeness is unknown"
+      },
+      "after": {
+        "state": "captured",
+        "more_may_arrive": false,
+        "text": "first-prefixsecond-whole",
+        "why": "the writer saw this stream to its end"
+      }
+    },
+    "None": {
+      "before": {
+        "state": "live",
+        "more_may_arrive": true,
+        "text": "first-prefix",
+        "why": "bytes are here and no writer has said this stream ended; completeness is unknown"
+      },
+      "during": {
+        "state": "live",
+        "more_may_arrive": true,
+        "text": "first-prefixsecond-whole",
+        "why": "bytes are here and no writer has said this stream ended; completeness is unknown"
+      },
+      "after": {
+        "state": "captured",
+        "more_may_arrive": false,
+        "text": "first-prefixsecond-whole",
+        "why": "the writer saw this stream to its end"
+      }
+    },
+    "actual_lost_write_then_success": {
+      "before": {
+        "declaration": "declared",
+        "stream": "provider.stdout",
+        "state": "failed",
+        "bytes": 5,
+        "why": "the writer could not write this stream; whatever is here is what reached the file before it failed, and there may be no file at all",
+        "file": "present",
+        "from_byte": 0,
+        "bytes_read": 5,
+        "text": "first",
+        "at_end": true,
+        "next_from_byte": 5,
+        "more_may_arrive": false
+      },
+      "after": {
+        "declaration": "declared",
+        "stream": "provider.stdout",
+        "state": "captured",
+        "bytes": 17,
+        "why": "the writer saw this stream to its end",
+        "file": "present",
+        "from_byte": 0,
+        "bytes_read": 17,
+        "text": "firstsecond-whole",
+        "at_end": true,
+        "next_from_byte": 17,
+        "more_may_arrive": false
+      },
+      "lost_tail_not_restored": true
+    },
+    "seconds": 0.0008435680065304041,
+    "scratch": "/tmp/w198667-review201085-s5eqyx7j"
+  },
+  "probe_process_wall_seconds": [
+    0.019742161,
+    0.014431008,
+    0.030373314
+  ],
+  "probe_development": "First invocation refused a bare workspace group integer before any capture. Corrected synthetic setup to construct AttemptLogs over a local temporary room; no real store or materialization acceptance claimed. Second invocation exercised state matrix; third added an actual short-write injection. All subprocesses completed.",
+  "prior_scratch": "/tmp/w198667-review201085-g6si96wh",
+  "image_evidence": "Read author fixture-201008 smoke.json: eight checks true at recorded image d1a9021c99b8d0f6722993676267d49f95712721119ee49360dcc225e9403fd6. Independently matched context copies of format, worker, scripted_agent to current source. No image build or container run repeated.",
+  "probe_sha256": "077bd68360750308b5843d9d7a483e0880087d5a258ed409d184c1793274fbe3"
+}

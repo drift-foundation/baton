@@ -320,7 +320,17 @@ class AnIntegrationStageIsProjectedFromItsOwnObservation(StatusCase):
                 "state": state, "completion": completion}
 
     def completion(self):
+        # PRE-EXISTING AND FOUND IN PASSING (W197661 claim199391): this
+        # fixture omitted `source_proposal_id` and `result_id`, which
+        # `delegation.INTEGRATION_COMPLETION_MEMBERS` requires, so three cases
+        # errored on a completion account the product would never accept. The
+        # fixture lagged the contract; the contract is right.
         return {"proposal_id": "proposal-1",
+                "source_proposal_id": "proposal-0",
+                # NULL, and that is the statement: a reconciliation result id
+                # means a reconciled import, which "starts no runtime" -- and
+                # this fixture's integration ran a container and destroyed it.
+                "result_id": None,
                 "integration_receipt_id": "receipt-1", "entry_id": "entry-1",
                 "lease_id": "lease-1", "fence": 2,
                 "handoff_operation_id": "pass:attempt-1",

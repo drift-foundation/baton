@@ -1,0 +1,86 @@
+{
+  "claim": 198977,
+  "work": "2b077949-W198667",
+  "role": "impl",
+  "corrects": "review-2026-09-18T01-15-42Z.md sha256 56ecdf2803be547b4853595ace8da602c172b8327db063cd031e8f5412d440e5",
+  "candidate_sha256": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "9f3e07da5553b0c776524902d47d3ac0cfa4b639593d27b58fd2ae96df889fa4",
+    "v12/python/tests/manager/test_attempt_logs.py": "53e83936494457ea65872d70a14c361c2958cf2fe66501e70ec499071d70ebcd",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "717d892e66551285679cb36e4ceace9d056cf77fb6a4bd0a4b1a76687a674c4f",
+    "v12/python/tests/manager/test_oci.py": "0fa732ea7d806f59ef589a3b6efa236bb13d04bbcf83ae04cef7fc594c224844",
+    "v12/python/tests/manager/test_dependencies.py": "edb6659cd899aead58aa4deb9ed73795e982cfb498bca89f88bc04baf9e7c561",
+    "v12/worker/integration_entry.py": "cd77fd5c071dc16d31e35ad9f04338fa92b324db4e334c172e510da6cab085c8",
+    "v12/python/tests/manager/test_integration_worker.py": "7f6664dc2e1668660fb517cfdb7a42e686b58666f706a5346c6f7ba81e71b1cd"
+  },
+  "note": "three of the four findings are defects I introduced WHILE fixing the previous ones: the streams were confined and the metadata about them was not",
+  "R1_sidecar_escaped_the_boundary": {
+    "confirmed": [
+      "_status read capture-status.json with an ordinary open, so a symlink supplied ANOTHER attempt's word and a prefix log was reported as captured",
+      "record_capture opened .staging with an ordinary truncating open, so a symlink there made it OVERWRITE the file it pointed at -- an actual write outside the attempt's room"
+    ],
+    "correction": "metadata obeys the stream rules: opened relative to the held room, no-follow, regular-file, bounded read; staging created O_CREAT|O_EXCL|O_NOFOLLOW; the replace anchored to that descriptor at both ends; on failure the staging entry is removed and the stream's own log is untouched",
+    "cases": [
+      "a status symlink does not supply another attempt's word",
+      "a staging symlink does not overwrite what it points at, and the sibling still says what it said",
+      "a status that is a special file is corrupt, not a blocked read"
+    ]
+  },
+  "R2_atomic_replacement_is_not_an_atomic_update": {
+    "confirmed": "record_capture loaded one shared document, changed one entry and replaced the whole thing; a second writer recording stderr=failed while the first was mid-update had its failure vanish",
+    "correction": "ONE SIDECAR PER STREAM rather than a lock. No two writers touch one file, because a stream is written by the one thing that writes that stream, and the staging name is per-stream so overlapping writes cannot collide",
+    "cases": [
+      "two streams declared concurrently both survive",
+      "both declarations survive a restart",
+      "declaring one stream leaves the others alone"
+    ]
+  },
+  "R3_corrupt_metadata_must_not_take_down_the_view": {
+    "confirmed": "a valid JSON object whose entry was the integer 1 crashed locators with a TypeError",
+    "correction": "every member checked -- shape, declared state, bounded reason, bounded document. Anything else is `corrupt`: REPORTED, never raised, and never silently turned into an assertion of completeness. The raw log stays readable and the other streams still answer. Every result carries a `declaration` field so 'no writer's word' and 'the writer said nothing' are distinguishable.",
+    "cases": [
+      "nine malformed shapes: integer, list, string, non-JSON, non-UTF-8, invented state, missing reason, non-text reason, oversized document",
+      "the whole operator view still answers with corrupt metadata, and the raw log is still readable"
+    ]
+  },
+  "two_expectations_I_got_wrong": [
+    "I asserted an oversized reason is REFUSED; it is truncated, as every other bounded diagnostic in this package is, with MAX_STATUS as the document backstop. Corrected the case, not the code.",
+    "a fixture declared `partial` for a stream with no file and expected `partial` back; `partial` says what is HERE is a prefix, so with nothing there `absent` is the honest answer. The fixture writes the log first."
+  ],
+  "R4_NOT_DONE": {
+    "what": "no lifecycle passes the delivery, no tee fills it, no native retention, no operator command",
+    "agreed": "the reviewer is right that these must be integrated so the concurrency, failure and shutdown contract can be reviewed together rather than as primitives",
+    "remaining_in_order": [
+      "the tee in claude_agent.py declaring capture state through record_capture, with the owner's supersession of the W39357 no-read rule recorded AT THE SITE",
+      "the wrapper's earliest output in baton_worker.py -- no reviewer hold exists on its accepted bytes",
+      "lifecycle wiring in tools/single_worker.py so a real start creates the room and passes logs_delivered",
+      "a real operator read/follow command",
+      "the focused failure and concurrency matrix across all producers and readers together, plus the remaining integration-refusal coverage"
+    ]
+  },
+  "verification": {
+    "components": [
+      {
+        "what": "tests.manager.test_attempt_logs",
+        "checks": 38,
+        "unittest_seconds": 0.09,
+        "result": "OK",
+        "flags": "-W error::ResourceWarning"
+      },
+      {
+        "what": "attempt_logs + oci + exchange + integration_worker",
+        "checks": 387,
+        "unittest_seconds": 14.156,
+        "wall_seconds": 14.407,
+        "result": "OK"
+      },
+      {
+        "what": "tests.manager.test_dependencies",
+        "failures": 57,
+        "note": "unchanged baseline; zero added"
+      }
+    ],
+    "measured_seconds_this_claim": 50.0
+  },
+  "engine": "no container, image build, model, credential, network, production store or runtime touch, or version-control mutation",
+  "git_diff_check": "passes; no whitespace defect"
+}

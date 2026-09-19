@@ -825,8 +825,16 @@ ORDINARY_TESTS_MEMBERS = ("argv", "base", "head", "status", "task_digest",
 # SELECTION rather than an answer. There is no `status` here and there never
 # will be: a caller that could supply the observation would be certifying its
 # own candidate, which is the exact defect the unconditional `passed` was.
-REQUIRED_TESTS_MEMBERS = ("argv", "input_manifest_digest", "task_digest",
-                          "task_id")
+# W202663: AND THE JOB INPUT IDENTITY THE PRODUCER'S MANIFEST PROJECTS TO.
+# The selection already names the producer's WHOLE manifest digest, which is a
+# fact about that one worker's runtime -- its image included. Since a Job's
+# workers may now each select their own image, the digest a JOB names is the
+# manifest's Job-scoped projection, and a selection that could only state the
+# runtime one could not say which Job it corresponds to. Both travel, because
+# they answer different questions and a reader that had to derive one from the
+# other would be re-deriving a producer's manifest it does not hold.
+REQUIRED_TESTS_MEMBERS = ("argv", "input_manifest_digest",
+                          "job_input_identity", "task_digest", "task_id")
 
 # The marker that rides in the receipt and operation identity. Deliberately not
 # a word like `verified` or `certified`: what happened is that the author's own
@@ -855,6 +863,8 @@ def _owned_requirements(required_tests):
     boundaries.text(held["task_digest"], "a required-test task digest")
     boundaries.text(held["input_manifest_digest"],
                     "a required-test input manifest digest")
+    boundaries.text(held["job_input_identity"],
+                    "a required-test Job input identity")
     argv = held["argv"]
     if type(argv) is not list or not argv \
             or not all(type(one) is str and one for one in argv):

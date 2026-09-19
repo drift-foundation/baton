@@ -46,6 +46,16 @@ FROM ${PROVIDER_BASE}
 # THE BUILD CONTEXT IS `v12`, NOT `v12/worker`, and every path below is spelled
 # from there: the image needs material from two sibling directories and a
 # context cannot reach above itself.
+# W198667: THE SHARED CAPTURE FORMAT, carried as a TOP-LEVEL module.
+# `baton_v12.attempt_log_format` imports nothing from `baton_v12`, so it travels
+# under its own name exactly as `source_profiles` does -- a worker that could
+# import the manager is a worker one bug away from holding the manager's
+# capabilities. Without this layer the worker degrades to NO capture, which is
+# honest and useless: review 2026-09-18T02-31-51Z [1] found the private fixture
+# carrying it while neither supported recipe did, so a green fixture smoke
+# proved nothing about either production image.
+COPY python/src/baton_v12/attempt_log_format.py \
+     /opt/baton/attempt_log_format.py
 COPY worker/baton_worker.py /opt/baton/baton_worker.py
 COPY worker/claude_agent.py /opt/baton/claude_agent.py
 COPY worker/integration_contract.py /opt/baton/integration_contract.py

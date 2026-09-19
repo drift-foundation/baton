@@ -1,0 +1,110 @@
+{
+  "claim": 198698,
+  "work": "2b077949-W198667",
+  "role": "impl",
+  "authority": "owner decision pinned in this dossier's FINDING.md; thread M198667 authorizes implementation, not another design round",
+  "candidate_sha256": {
+    "v12/worker/integration_entry.py": "cd77fd5c071dc16d31e35ad9f04338fa92b324db4e334c172e510da6cab085c8",
+    "v12/python/tests/manager/test_integration_worker.py": "7f6664dc2e1668660fb517cfdb7a42e686b58666f706a5346c6f7ba81e71b1cd"
+  },
+  "ownership_enumerated_before_editing": {
+    "why": "owner constraint: Claude cannot override files of Codex; never overwrite newer bytes with an earlier candidate",
+    "W194457": {
+      "state": "closed, outcome satisfying",
+      "paths": "workspaces.py, oci.py, custody.py, review_cycles.py, single_worker.py and five test paths",
+      "conclusion": "accepted; no longer under review"
+    },
+    "W197661": {
+      "state": "queued at baton.bug with codex",
+      "candidate_paths": [
+        "v12/worker/baton_worker.py",
+        "tests/manager/test_worker_entry.py",
+        "tests/manager/test_exchange.py",
+        "tests/manager/test_worker_container.py",
+        "tests/tools/test_execution_limits.py"
+      ],
+      "remaining_scope": "the disposable-instance exercise, which is dossier-only and edits no product source",
+      "conclusion": "NOT edited by this claim"
+    },
+    "active_work_in_the_team": "one: W198667, this claim",
+    "edited_by_this_claim": [
+      "v12/worker/integration_entry.py",
+      "v12/python/tests/manager/test_integration_worker.py"
+    ],
+    "neither_is_in_another_work's_candidate": true
+  },
+  "DELIVERED": {
+    "required_outcome_item": "5 of 6 \u2014 emit actionable bounded startup diagnostics for refused worker/provider/integration launches",
+    "why_this_one": "the FINDING names it directly: W197661 exposed that an integration startup refusal emits no diagnostic, and capturing output cannot recover a diagnostic that was never emitted",
+    "sites_corrected": [
+      "an unreadable or unreadable-generation launch document (status 2)",
+      "an unreadable assignment, naming the root it looked in (status 2)",
+      "an unreadable result namespace (status 1)",
+      "an assignment this build cannot own (status 2)",
+      "a composed result it could not publish (status 1)"
+    ],
+    "statuses_unchanged": "2 and 1 are this entry's accepted contract with the manager; _startup_refusal answers baton_worker's own 3 and this entry DISCARDS it, pinned by a case",
+    "one_owner_for_the_sanitizing_rule": "the line goes through baton_worker._startup_refusal, which bounds it to one line of printable ASCII. Calling it is a USE of baton_worker.py, not an edit of it -- which matters because that file is W197661's candidate in independent review.",
+    "not_a_protocol_event": "a WorkerFault is built as the carrier for the sentence; nothing writes a frame, receipt or terminal, and a case asserts a refusal leaves its namespace byte-identical",
+    "tests_added": [
+      "tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY (6 cases)"
+    ],
+    "tests_changed": "none",
+    "reversal_probe": "silencing all five sites in a removed scratch copy reproduces the measured pre-correction behaviour exactly: status 2, stderr ''"
+  },
+  "NOT_DONE": {
+    "items": [
+      "1. stable manager-owned attempt log locations created before worker startup, with separate stdout/stderr and native provider/session output",
+      "2. incremental capture, partial evidence preserved on error, abnormal termination and restart, with honest reporting of missing, failed, truncated or incomplete capture",
+      "3. protocol frames, input and results kept distinct from raw output; parsed/protocol-bearing output teed byte-identically",
+      "4. log locators and a simple read/follow command that needs no Docker inspection"
+    ],
+    "why_it_cannot_be_done_worker_side_alone": {
+      "/output": "the result surface; declared outputs are validated and frozen, so logs there stop being distinct from results",
+      "/run/baton/exchange/events": "protocol documents; the FINDING requires logs distinct from protocol",
+      "/tmp and /dev/shm": "tmpfs, 64 MiB and 16 MiB, gone when the container ends -- nothing survives termination and restart",
+      "conclusion": "there is NO durable, manager-owned, non-result, non-protocol writable mount today, so item 1 needs a new delivery and a new mount in the manager (oci.py plus the attempt lifecycle that creates the host directory)"
+    },
+    "remaining_scope_in_order": [
+      "1. Add a manager-owned attempt log delivery: a host directory created before worker startup under the attempt's private boundary, with its own typed delivery beside ExchangeDelivery rather than a path a container could be pointed at.",
+      "2. Mount it writable at a fixed target in oci.run_vector, owned by its own mount function as _exchange_mounts and _credential_mounts are, and held to that constant.",
+      "3. Tee in claude_agent.py: the provider's stdout is parsed today and must reach the log BYTE-IDENTICALLY as well; its stderr and both verification streams come off DEVNULL. The owner's ruling supersedes the W39357 no-read restriction for these development deployments -- record that supersession at the site, since that comment block is the reason the streams were discarded.",
+      "4. Report capture failure honestly: a stream that could not be opened, a truncated record and a drain that ended on its clock rather than EOF are three different facts and none of them is an empty successful run. claude_agent already distinguishes PARTIAL for the provider record; reuse that vocabulary rather than inventing a second one.",
+      "5. Expose locators and a read/follow surface that needs no Docker inspection -- the attempt already has a manager-side identity to hang them on.",
+      "6. Deterministic tests for: visible output before completion, stdout and stderr retained on success and failure, early launch failure, partial logs after stop, restart preservation, concurrent attempt separation, and unchanged protocol parsing. Narrow container checks only where capture, mount or termination behaviour cannot be established with process fakes, naming their purpose."
+    ],
+    "not_started": "I did not begin the capture half rather than hand over something half-built. Four reviews of W197661 were spent correcting exactly that shape in my own evidence, and the subject here is a capture path whose whole purpose is to be trustworthy when something else has gone wrong."
+  },
+  "verification": {
+    "components": [
+      {
+        "what": "EveryIntegrationRefusalSAYSWHY",
+        "checks": 6,
+        "unittest_seconds": 0.001,
+        "result": "OK",
+        "flags": "-W error::ResourceWarning"
+      },
+      {
+        "what": "tests.manager.test_integration_worker + tests.tools.test_integration_worker + tests.manager.test_integration_image",
+        "checks": 135,
+        "unittest_seconds": 20.342,
+        "wall_seconds": 20.609,
+        "result": "OK"
+      },
+      {
+        "what": "reversal probe in a removed scratch copy",
+        "result": "five sites silenced; status 2 with empty stderr reproduced"
+      }
+    ],
+    "measured_seconds_this_claim": 41.0,
+    "note": "the existing refusal cases now print their diagnostics during the run. That is the evidence the owner asked for, not noise to suppress, and no existing case asserted an empty stderr."
+  },
+  "fixture_correction_reported": "the first version of test_no_frame_no_receipt_and_no_result_is_written_by_a_refusal listed the namespace BEFORE the fixture wrote its own launch document into it -- all five fixed names are one disposable directory here -- so it counted the fixture's delivery as something the refusal wrote. The fixture was corrected, not the assertion.",
+  "engine": "no live model, no image build, no container started, no credential read, no network, no production store or runtime touch, no version-control mutation",
+  "preserved_untouched": {
+    "W197661_candidate": "baton_worker.py and its four test paths, unedited",
+    "W194457_candidate": "accepted and unedited by this claim",
+    "production": "the stopped instance, Work b6423787-W1 and its unresolved attempt; no restart, recovery or resubmission"
+  },
+  "git_diff_check": "passes; no whitespace defect"
+}

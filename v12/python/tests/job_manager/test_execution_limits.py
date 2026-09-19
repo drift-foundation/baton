@@ -273,7 +273,7 @@ class TheStoreKeepsWhatTheJobAskedFor(JobManagerCase):
         submit(store, limited(verification_command_seconds=120))
         held = projection.status(store, self.operations(),
                                  observed_at=NOW)
-        self.assertEqual(held["schema"], "baton.v12.job-status/5")
+        self.assertEqual(held["schema"], "baton.v12.job-status/6")
         [entry] = [one for one in held["jobs"] if one["job_id"] == "job-a"]
         answer = entry["execution_limits"]
         self.assertEqual(answer["requested"],
@@ -521,6 +521,11 @@ class TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant(JobManagerCase):
             # creates is named, and everything else is installed unchanged.
             for statement in _statements(schema.SCHEMA):
                 if any(created in statement for created in (
+                        # W197661: the 6 -> 7 step's table too. A fixture
+                        # impersonating schema 4 must not install a relation
+                        # added two steps later, or the migration it is about
+                        # fails on an object that is already there.
+                        "CREATE TABLE deferrals",
                         "CREATE TABLE job_execution_limits",
                         "CREATE TABLE integration_capacity_roots",
                         "CREATE TABLE integration_capacity_members",

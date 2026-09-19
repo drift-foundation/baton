@@ -56,6 +56,7 @@ import stat
 
 from ..contracts import ContractRefusal, check_no_durable_secret
 from ..contracts.errors import name_value
+from . import attempt_logs
 from . import boundaries
 from . import exchange
 
@@ -480,11 +481,27 @@ class LaunchDelivery:
     """
 
     def __init__(self, *, attempt_id, root, place, document,
-                 delivery=None):
+                 delivery=None, logs=None):
         self.attempt_id = attempt_id
         self.root = root
         self.place = place
         self.document = document
+        # W198667: THE LOG ROOM RIDES WITH THE LAUNCH TOO, for the reason the
+        # exchange does and stated one line further down: both are non-secret
+        # material fixed before the container is created, and a composition
+        # that could hold one without the other is one that starts a container
+        # with a namespace nothing told it about.
+        #
+        # IT IS NOT UNDER THIS ROOT, deliberately. `discard` removes the launch
+        # root and the required outcome is that partial evidence survives error,
+        # abnormal termination and restart -- so the room is a SIBLING of the
+        # attempt roots, under `<launch storage>/logs/<attempt>`, and a launch
+        # teardown leaves it exactly where it is.
+        #
+        # `None` MEANS NO ROOM WAS MADE, which is the diagnostic `/1` case: the
+        # deployment that has no workspace group to share the namespace with
+        # has no way to give a container a writable room either.
+        self.logs = logs
         # W81857: THE EXCHANGE RIDES WITH THE LAUNCH, and it is one object
         # rather than two capabilities the adapter has to relate. Both are
         # non-secret control material fixed before start, both belong to the
@@ -507,6 +524,59 @@ class LaunchDelivery:
         about it.
         """
         return (self.place, LAUNCH_TARGET)
+
+
+# W198667: THE LOG DELIVERY'S ROOT, beside the attempt launch roots rather than
+# inside one. An attempt id is `attempt-<hex>`, so nothing can collide with this
+# name, and being outside every attempt root is what lets `discard` tear a
+# launch down without taking the evidence with it.
+LOG_DIRECTORY = "logs"
+
+
+def _log_root(home):
+    return os.path.join(home, LOG_DIRECTORY)
+
+
+def _logs_materialized(home, attempt, workspace_group):
+    """This attempt's log room, made BEFORE the container is created.
+
+    W198667. The mounts are fixed when the container is created, so a namespace
+    that did not exist then is one nothing will ever hold -- the same sentence
+    `exchange.materialize` is placed by.
+
+    NO GROUP, NO ROOM, and that is honest rather than lenient. The container's
+    fixed uid is not this manager's, so without the deployment's configured
+    group a room this manager made would be one the worker cannot write; a
+    delivery that promised a writable log and delivered an unwritable one is
+    worse than saying there is none.
+    """
+    if workspace_group is None:
+        return None
+    root = _log_root(home)
+    os.makedirs(root, mode=0o700, exist_ok=True)
+    return attempt_logs.materialize(root, attempt_id=attempt,
+                                    workspace_group=workspace_group)
+
+
+def _logs_adopted(home, attempt, workspace_group):
+    """The room a previous incarnation made, or a new one.
+
+    A RESTART MUST NOT LOSE THE EVIDENCE and must not refuse for its absence
+    either: the room survives `discard`, so a re-entry ordinarily finds one --
+    and an attempt whose room was never made (an older incarnation, or one that
+    failed before it got that far) is given one now rather than being refused
+    for a namespace that is nobody's fault.
+    """
+    if workspace_group is None:
+        return None
+    root = _log_root(home)
+    os.makedirs(root, mode=0o700, exist_ok=True)
+    try:
+        return attempt_logs.adopt(root, attempt_id=attempt,
+                                  workspace_group=workspace_group)
+    except FileNotFoundError:
+        return attempt_logs.materialize(root, attempt_id=attempt,
+                                        workspace_group=workspace_group)
 
 
 def materialize(storage, *, attempt_id, session, contract, role,
@@ -579,6 +649,8 @@ def materialize(storage, *, attempt_id, session, contract, role,
             os.close(handle)
         delivery = _exchange_materialized(root, attempt, document,
                                           workspace_group)
+        logs = _logs_materialized(os.path.realpath(home), attempt,
+                                  workspace_group)
         # THE ROOT IS CLOSED LAST, AFTER EVERY ENTRY IT WILL EVER HOLD EXISTS.
         # `READ_ONLY_DIR` is what stops the container renaming or replacing
         # `command` and `events` themselves -- those are permissions of this
@@ -596,7 +668,7 @@ def materialize(storage, *, attempt_id, session, contract, role,
         discard(root)
         raise
     return LaunchDelivery(attempt_id=attempt, root=root, place=place,
-                          document=document, delivery=delivery)
+                          document=document, delivery=delivery, logs=logs)
 
 
 def _exchange_materialized(root, attempt, document, workspace_group):
@@ -777,7 +849,9 @@ def adopt(storage, *, attempt_id, session, contract, role,
                               session=session, contract=contract, role=role,
                               transport=transport,
                               job_execution=job_execution, provider_context=provider_context),
-                          delivery=delivery)
+                          delivery=delivery,
+                          logs=_logs_adopted(os.path.dirname(root), attempt,
+                                             workspace_group))
 
 
 def _root_entries(transport):
@@ -795,6 +869,14 @@ def discard(root):
     module created, never by walking something a worker could have replaced --
     the document is read-only and the root is the manager's, so there is
     nothing here to discover.
+
+    W198667: AND IT LEAVES THE LOG ROOM ALONE, which is the required outcome
+    rather than an oversight. The room is a sibling of this root, under
+    `<launch storage>/logs/<attempt>`, precisely so that a teardown cannot take
+    the evidence with it: partial output must survive error, abnormal
+    termination and restart, and a directory emptied by the act of tearing its
+    attempt down would lose exactly what it exists for. Retention is the
+    retention policy's question, not a teardown's.
     """
     if not os.path.isdir(root):
         return not os.path.lexists(root)

@@ -1,0 +1,14 @@
+{
+  "claim": 207195,
+  "tests": 164,
+  "passed": true,
+  "seconds": 52.262895400985144,
+  "boundary": "local deterministic simulated engine/provider; no reviewer container execution",
+  "sha256": {
+    "v12/python/tools/single_worker.py": "4ced6eccef1302d32909bd3091480475161f04f38fe750f6f3d1270b43b192fc",
+    "v12/python/tests/tools/test_stage_execution.py": "3365f83a8cef3ccd6fc1ec79646acca67887e723a651724fe5723ae46555604e",
+    "v12/python/tests/integration/test_reconciliation.py": "85c582c08ae09b7c71adcbfcda01f2bad91d4e0226b559ac8eed74892458a412",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/COPIED-INPUTS-207111.json": "055599201eb0ef2411014207f1fb7cb6cfc775b5226b1780fd706ffdea5cf79a",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/copied-inputs-207111.py": "ae2763f4a99e7be3f07532ca7c64051d64ebe439d83971172161583e8c9e2265"
+  }
+}

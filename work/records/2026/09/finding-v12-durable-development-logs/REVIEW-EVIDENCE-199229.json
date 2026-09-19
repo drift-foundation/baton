@@ -1,0 +1,26 @@
+{
+  "review_claim": 199229,
+  "canonical_author_claim": 199159,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true
+  },
+  "probe_setup_correction": "Initial invocation assumed candidate_sha256 key; failed before tests or filesystem probes. Correct key is candidate.",
+  "tests": {
+    "rc": 0,
+    "output": "...........................................................\n----------------------------------------------------------------------\nRan 59 tests in 0.135s\n\nOK\n",
+    "seconds": 0.30151648801984265
+  },
+  "retained_probe_path": "/tmp/w198667-review199229-4dhfrs_w",
+  "traversal_refused": true,
+  "unowned_staging_preserved": true,
+  "short_write_readback": {
+    "declaration": "declared",
+    "stream": "provider.stderr",
+    "state": "failed",
+    "bytes": 0,
+    "why": "the writer could not write this stream; whatever is here is what reached the file before it failed, and there may be no file at all",
+    "file": "absent"
+  },
+  "short_write_preserved": true
+}

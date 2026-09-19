@@ -1,0 +1,50 @@
+{
+  "work": "W198667",
+  "claim": 200300,
+  "reviewer": "baton.rvpc",
+  "disposition": "changes-requested",
+  "candidate": {
+    "v12/python/tests/manager/test_attempt_logs.py": "1dea8e09399d6f03a4429810b9a93d803501d0d845e0ccaf7fb20d881c3ce43d",
+    "v12/worker/claude_agent.py": "1d75a0435bcf6f75e39765b2d6bf4263f102304154bae276085499e2ccd5b6b4"
+  },
+  "hashes_match": true,
+  "verification": {
+    "command": "PYTHONPATH=src python3 -W error::ResourceWarning -m unittest tests.manager.test_attempt_logs tests.tools.test_attempt_logs_command",
+    "cwd": "v12/python",
+    "tests": 162,
+    "result": "OK",
+    "unittest_seconds": 1.439,
+    "wall_seconds": 1.468319673,
+    "initial_invocation_error": {
+      "reason": "reviewer omitted PYTHONPATH=src",
+      "wall_seconds": 0.026581326
+    }
+  },
+  "probes": {
+    "unicode": {
+      "exception": "ValueError",
+      "message": "invalid literal for int() with base 10: '\u00b2'",
+      "actual_retain_native": {
+        "exception": "ValueError",
+        "message": "invalid literal for int() with base 10: '\u00b2'"
+      }
+    },
+    "long_digits": {
+      "exception": "ValueError",
+      "message": "Exceeds the limit (4300 digits) for integer string conversion: value has 4301 digits; use sys.set_int_max_str_digits() to increase the limit",
+      "actual_retain_native": {
+        "exception": "ValueError",
+        "message": "Exceeds the limit (4300 digits) for integer string conversion: value has 4301 digits; use sys.set_int_max_str_digits() to increase the limit"
+      }
+    },
+    "fifo": {
+      "timed_out_seconds": 2,
+      "child_killed_and_reaped_by_subprocess_run": true
+    },
+    "elapsed": 2.0027659999905154,
+    "root": "/tmp/w198667-review200300-v4ju1mdt",
+    "actual_boundary_elapsed": 0.000580699008423835
+  },
+  "review": "review-2026-09-18T04-53-08Z.md",
+  "prior_costs": "Preserved in existing author/reviewer evidence; no reconstruction of recovered claim200243 spending."
+}

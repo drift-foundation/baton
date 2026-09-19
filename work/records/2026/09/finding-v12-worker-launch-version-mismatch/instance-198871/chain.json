@@ -1,0 +1,36 @@
+{
+  "claim": 198943,
+  "composes_only": "bootstraps nothing, starts nothing, submits nothing, runs no provider",
+  "corrects": "review-2026-09-18T01-08-25Z.md R1: compose.py claimed validation it never performed",
+  "derived_from_the_seal": true,
+  "fixture_image": "sha256:edd20e9c3f0a15bdd445c7b83fcb8b5f8a52f6dc42d1d639a0fef9db3ccfacf4",
+  "sealed_manifests": {
+    "implementation": "sha256:4c8eef0b54917497516fc72c8a65fe676fc5e743500130edbbc299e9ab1d2428",
+    "integration": "sha256:3e7ad29bd88bef29b6839f69aee6335f198e3c826332e31360e94696bcdb32df",
+    "review": "sha256:65d1c423350ac719bdcbcb91a942d6e264a5c5adc327ec5b9b0c9492153b1af0"
+  },
+  "submission_input_digest": "sha256:4c8eef0b54917497516fc72c8a65fe676fc5e743500130edbbc299e9ab1d2428",
+  "validator_calls": [
+    {
+      "result": "accepted",
+      "validator": "dogfood_operator.input_manifest + check_manifest_structure (implementation)"
+    },
+    {
+      "result": "accepted",
+      "validator": "dogfood_operator.input_manifest + check_manifest_structure (review)"
+    },
+    {
+      "result": "accepted",
+      "validator": "dogfood_operator.input_manifest + check_manifest_structure (integration)"
+    },
+    {
+      "refusal": "ContractRefusal: an assignment that authorizes a credential names at least one slot; a delivery describing nothing is one every comparison agrees with",
+      "result": "REFUSED",
+      "validator": "stage_execution.held_configuration"
+    },
+    {
+      "result": "accepted",
+      "validator": "job_manager.documents.owned_submission"
+    }
+  ]
+}

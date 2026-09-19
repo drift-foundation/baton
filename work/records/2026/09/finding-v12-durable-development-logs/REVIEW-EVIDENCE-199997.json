@@ -1,0 +1,26 @@
+{
+  "claim": 199997,
+  "hashes": {
+    "v12/python/src/baton_v12/attempt_log_format.py": true,
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true,
+    "v12/worker/claude_agent.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "seconds": 1.5033687200048007,
+    "output": "...............................................................................................................................................\n----------------------------------------------------------------------\nRan 143 tests in 1.338s\n\nOK\n"
+  },
+  "failed_metadata_write": {
+    "failure_report": [],
+    "after_restart": "abcdefdef",
+    "restart_failed": []
+  },
+  "record_destination_escape": {
+    "outside_native_exists": true,
+    "bytes": "abcdef",
+    "failed": []
+  },
+  "probe_seconds": 0.0007245169836096466,
+  "retained_probe_path": "/tmp/w198667-review199997-8sv0ioc6"
+}

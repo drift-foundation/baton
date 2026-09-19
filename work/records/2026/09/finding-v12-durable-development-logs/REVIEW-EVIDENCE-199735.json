@@ -1,0 +1,36 @@
+{
+  "claim": 199735,
+  "hashes": {
+    "v12/python/src/baton_v12/attempt_log_format.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true,
+    "v12/python/tests/manager/test_claude_agent.py": true,
+    "v12/python/tests/tools/test_attempt_logs_command.py": true,
+    "v12/python/tools/attempt_logs_command.py": true,
+    "v12/python/tools/stack_command.py": true,
+    "v12/worker/Dockerfile.claude": true,
+    "v12/worker/Dockerfile.integration": true,
+    "v12/worker/baton_worker.py": true,
+    "v12/worker/claude_agent.py": true,
+    "v12/worker/integration_entry.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "seconds": 0.4285520300036296,
+    "output": ".............................................................................................................\n----------------------------------------------------------------------\nRan 109 tests in 0.263s\n\nOK\n"
+  },
+  "native_actual_caller": {
+    "source": "abc",
+    "retained": "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc"
+  },
+  "follow_completed": {
+    "rc": 0,
+    "expected": "abcdefghij",
+    "actual": "abc"
+  },
+  "follow_absent": {
+    "returned": 0,
+    "output": ""
+  },
+  "probe_seconds": 0.15217729599680752,
+  "retained_probe_path": "/tmp/w198667-review199735-oxhpl2pd"
+}

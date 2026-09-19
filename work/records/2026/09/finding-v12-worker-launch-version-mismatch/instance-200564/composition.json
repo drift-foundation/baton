@@ -1,0 +1,90 @@
+{
+  "adapter": {
+    "does_not_prove": "the adapter bytes inside the installed frozen distribution, which was built before W198667 edited this file; the installed runtime's own identity is its runtime digest",
+    "measures": "the adapter source in this checkout",
+    "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+    "sha256": "sha256:b8bf738ca04548143eb3598e89d5ce2b412efed75ad700e0ec973edead65ba0a"
+  },
+  "claim": 200564,
+  "complete": true,
+  "composes_only": "writes documents; bootstraps nothing, starts nothing, submits nothing, runs no provider",
+  "corrects": "review-2026-09-18T01-21-09Z.md R1, R2, R3",
+  "credential_fixture": {
+    "mapping": {
+      "provider": "w197661-synthetic-fixture",
+      "reference": "non-bearer-marker"
+    },
+    "registry": "/home/sl/baton-v12-lifecycle-200564-clean/credential-fixture/registry.json",
+    "slot": "claude",
+    "source": "/home/sl/baton-v12-lifecycle-200564-clean/credential-fixture/w197661-synthetic-non-bearer",
+    "what_is_behind_the_name": "the same synthetic non-bearer marker; the fixture agent never opens the slot",
+    "what_it_is": "a synthetic non-bearer marker this run wrote",
+    "what_it_is_not": "no credential from any real deployment was read or reused, and no authentication coverage is claimed from it",
+    "why_it_exists": "tools/single_worker.py calls credentials.resolved_delivery unconditionally and its slot validator refuses an empty list, so this deployed composition cannot express the no-credential path the adapter supports",
+    "why_this_name": "tools/integration_worker.REQUIRED_CREDENTIAL_SLOT is the literal 'claude' -- the slot the real provider image reads its bearer from -- and the port refuses a resolution without it before composing anything, so a fixture integrator that reads no bearer must still present that name"
+  },
+  "declared_base": "e486652c4ddebfb696e030b4b867e914248db542",
+  "deployment_limitation": {
+    "consequence": "a baton.v12.single-worker-deployment/4 must authorize at least one credential slot even for a worker that calls no provider",
+    "in_tension_with": "credentials.py's own comment that an assignment authorizing no credential gets no delivery, which the adapter expresses as credential_delivery=None",
+    "recorded_as": "a deployment limitation; the synthetic fixture above is a labelled stopgap and changes no product credential semantics",
+    "what": "tools/single_worker.py:344 calls credentials.resolved_delivery unconditionally and credentials._authorized_slots refuses an empty list"
+  },
+  "image_in_engine": {
+    "asked": true,
+    "held": true,
+    "reported_id": "sha256:a56768b9cc525ecd22f69d0a05ae46773eef46f5fde740eec6ac2c746b0d567a",
+    "returncode": 0
+  },
+  "one_manifest_for_every_stage": "sha256:d1d32b7a109a5f9dbd0516d6a2156c9960136274f19461c064d920e24151262f",
+  "principals": {
+    "baton.w197661-approver": "principal:baton.w197661-approver",
+    "baton.w197661-author": "principal:baton.w197661-author",
+    "baton.w197661-integrator": "principal:baton.w197661-integrator",
+    "baton.w197661-judge": "principal:baton.w197661-judge",
+    "baton.w197661-reviewer": "principal:baton.w197661-reviewer",
+    "baton.w197661-verifier": "principal:baton.w197661-verifier"
+  },
+  "record_binding": {
+    "finding_digest": "sha256:d5538e5f8b4bf8025ba591cb7b8eb16de75f861b9ff38fc629f207cdd3adf868",
+    "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch",
+    "plan_digest": "sha256:695faa0b885e38168f48505d1300e064fcb3a177dbcd8b086981d1d18cd305d8",
+    "root": "baton"
+  },
+  "refused": [],
+  "required": [
+    "check_manifest_structure",
+    "bootstrap.held",
+    "stage_execution.held_configuration",
+    "bootstrap.validated",
+    "job_manager.documents.owned_submission",
+    "stage_execution.held_configuration (over the written files)"
+  ],
+  "toolchain_digest": "sha256:429005aafad2ceb4f7cc48bfae07c4f321655732f4a1ff394b48c3d166ac6bc1",
+  "validator_calls": [
+    {
+      "result": "accepted",
+      "validator": "check_manifest_structure"
+    },
+    {
+      "result": "accepted",
+      "validator": "bootstrap.held"
+    },
+    {
+      "result": "accepted",
+      "validator": "stage_execution.held_configuration"
+    },
+    {
+      "result": "accepted",
+      "validator": "bootstrap.validated"
+    },
+    {
+      "result": "accepted",
+      "validator": "job_manager.documents.owned_submission"
+    },
+    {
+      "result": "accepted",
+      "validator": "stage_execution.held_configuration (over the written files)"
+    }
+  ]
+}

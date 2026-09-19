@@ -64,8 +64,8 @@ import re
 from ..contracts import ContractRefusal, check_no_durable_secret
 from ..contracts.pod import own
 from ..contracts.errors import name_value
-from . import (boundaries, credentials, documents, exchange, launch,
-               sealing, source_boundary, workspaces)
+from . import (attempt_logs, boundaries, credentials, documents, exchange,
+               launch, sealing, source_boundary, workspaces)
 
 __all__ = ["ENGINES", "EnginePort", "LABEL_PREFIX", "LABEL_CONTEXT",
            "MAX_DIAGNOSTIC",
@@ -924,6 +924,53 @@ def _exchange_mounts(exchange_delivered):
     return tuple(composed)
 
 
+def _log_mounts(logs_delivered):
+    """THE ONE bind an attempt-log delivery authorizes, and nothing else.
+
+    W198667. The owner selected durable raw output for these private
+    development deployments, and a stream that is discarded cannot be captured
+    later -- so the room has to be mounted when the container is created, like
+    every other namespace a worker writes.
+
+    A SEPARATE OWNER FROM `_exchange_mounts`, and the separation is the point
+    of the whole delivery: the exchange carries PROTOCOL documents this manager
+    reads as receipts, states and terminals, and this carries RAW OUTPUT that
+    nothing in this manager ever reads to decide anything. One target for each,
+    both constants of their own contract rather than operands.
+
+    WRITABLE, NECESSARILY. A worker that cannot write its log cannot leave the
+    evidence this exists for; that is the same reason the event namespace is
+    writable and the command namespace is not.
+    """
+    if logs_delivered is None:
+        return ()
+    if type(logs_delivered) not in (list, tuple) or len(logs_delivered) != 1:
+        _denied(f"an attempt-log delivery is exactly one writable bind at "
+                f"{name_value(attempt_logs.LOG_TARGET)}; this names "
+                f"{name_value(logs_delivered)}")
+    one = logs_delivered[0]
+    if type(one) not in (list, tuple) or len(one) != 3:
+        _refuse(f"an attempt-log bind is a source, a target and a direction; "
+                f"this is {name_value(one)}")
+    source = canonical_source(one[0], "an attempt-log delivery source")
+    if boundaries.text(one[1], "an attempt-log delivery target") \
+            != attempt_logs.LOG_TARGET:
+        _denied(f"an attempt-log delivery lands on {name_value(one[1])}; the "
+                f"worker writes its raw output under "
+                f"{name_value(attempt_logs.LOG_TARGET)}, which is a constant "
+                f"of this contract rather than an operand")
+    if one[2] is not True:
+        _denied(f"an attempt-log delivery asks for "
+                f"{name_value(attempt_logs.LOG_TARGET)} "
+                f"writable={name_value(one[2])}; a worker that cannot write "
+                f"its log cannot leave the evidence this delivery exists for")
+    if not os.path.isdir(source):
+        _refuse(f"an attempt-log delivery names {name_value(source)}, which "
+                f"is not a directory; the room is one namespace at one path",
+                code="path")
+    return ((source, attempt_logs.LOG_TARGET, True),)
+
+
 def _source_mount(source_delivered, assigned, roots):
     """W71917: THE NOMINATED SOURCE, read-only, ON TOP OF the input root.
 
@@ -1109,6 +1156,7 @@ def _integration_mounts(integration_delivered, posture=None, others=()):
 def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                mounts=(), credentials_delivered=(), launch_delivered=None,
                exchange_delivered=None, source_delivered=None,
+               logs_delivered=None,
                integration_delivered=None, context_delivered=None,
                name, workspace_group=None, network=NETWORK_NONE,
                interactive=False):
@@ -1198,13 +1246,47 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
     # place means there is exactly one network in the argv whatever was asked
     # for, and a reader can still see the whole posture in `RESTRICTIONS`.
     network = _network(network)
+    # AND THE SECOND SUBSTITUTION, for the same reason and at the same place.
+    #
+    # W194457, FINDING 2026-09-17: the owner selected a trusted execution
+    # identity SHARED by the manager and the worker. The pinned `65532:65532`
+    # was written when the two were deliberately different -- which is what
+    # made a worker-created `0600` file one this manager could not open, and
+    # what made the manager normalize permissions over a whole tree so the
+    # worker could write into one it owned. Neither is true under a shared
+    # identity, and the earlier rejection of a composed `--user` was made for
+    # the split identity this ruling supersedes for THIS path.
+    #
+    # THE UID IS NOT AN OPERAND. `workspaces.identity_for` derives it from
+    # `os.geteuid()` behind the deployment's own minted group, so there is
+    # nothing here a caller could have chosen -- which is the property the
+    # pinned pair was protecting and is the one kept.
+    #
+    # A CONSENT RUNTIME KEEPS THE PINNED PAIR. It mounts nothing and writes
+    # nothing this manager reads back, so it needs no share in anything and
+    # gets none; its identity is unchanged by this Work.
+    held, posture = _roots(assignment_roots, posture)
+    identity = None
+    if posture == "execution" and type(workspace_group) is workspaces.WorkspaceGroup:
+        identity = workspaces.identity_for(workspace_group)
     for flag, value in RESTRICTIONS:
         argv.append(flag)
         if flag == "--network":
             value = network
+        if flag == "--user" and identity is not None:
+            # THE CHEAP DECLARED CHECK, and it is here because here is where
+            # the two spellings could disagree. W194457, owner decision
+            # 2026-09-17: the arrangement itself is TRUSTED configuration and
+            # is not measured; what is checked is that the argv this manager is
+            # about to hand the engine declares the same pair the workspace was
+            # created under. No engine round trip, no filesystem, no claim that
+            # the mapping was verified -- see
+            # `workspaces.SUPPORTED_IDENTITY_MAPPING`.
+            value = workspaces.declared_identity_mapping(
+                identity, f"{identity.uid}:{identity.gid}")
         if value is not None:
             argv.append(value)
-    roots, posture = _roots(assignment_roots, posture)
+    roots, posture = held, posture
     if posture == "execution":
         if workspace_group is None:
             _denied("an execution runtime is given the deployment's configured "
@@ -1280,6 +1362,27 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                         f"{name_value(target)}, which this start already "
                         f"mounts; the worker would read one of the two and "
                         f"neither this manager nor the engine says which")
+        argv += ["--mount",
+                 f"type=bind,source={source},target={target},"
+                 f"readonly={'false' if writable else 'true'}"]
+    # W198667: THE ATTEMPT'S LOG ROOM, composed after the exchange and refused
+    # if any earlier family would contain it. Raw output is neither a result
+    # nor a protocol document, and a log landing inside either would be read as
+    # the wrong kind of thing by whatever owns that surface.
+    for source, target, writable in _log_mounts(logs_delivered):
+        for taken in ([one[1] for one in assigned]
+                      + [one[1] for one in
+                         _credential_mounts(credentials_delivered)]
+                      + ([_launch_mount(launch_delivered)[1]]
+                         if launch_delivered is not None else [])
+                      + [one[1] for one in
+                         _exchange_mounts(exchange_delivered)]):
+            if taken == target or _within(target, taken) \
+                    or _within(taken, target):
+                _denied(f"an attempt-log room lands on {name_value(target)}, "
+                        f"which this start already mounts as "
+                        f"{name_value(taken)}; raw output and the surface it "
+                        f"landed in would each be read as the other")
         argv += ["--mount",
                  f"type=bind,source={source},target={target},"
                  f"readonly={'false' if writable else 'true'}"]
@@ -2026,6 +2129,28 @@ class OciAdapter:
         carries these labels BEFORE anything is created, because two runtimes
         for one assignment is the state no later reconciliation can undo.
         """
+        # W194457, owner decision 2026-09-17 (OWNER-TRUSTED-IDENTITY): THERE IS
+        # NO RUNTIME PROBE HERE AND THERE IS NOTHING TO ACTIVATE.
+        #
+        # An earlier cut of this Work started a throwaway container to MEASURE
+        # what the host sees for a file the runtime creates, and made an
+        # execution launch refuse until that measurement had been taken. The
+        # owner selected a deliberately configured, trusted arrangement
+        # instead: the deployment documents the supported host/container
+        # mapping, this manager trusts it, and what is checked here is
+        # CONFIGURATION rather than an experiment.
+        #
+        # The check is `run_vector`'s own -- it composes `--user` from the
+        # deployment's minted identity and proves the composed argv declares
+        # exactly that pair -- so it costs no engine round trip, and it is
+        # below rather than here because argv composition is where a declared
+        # setting can actually disagree with itself.
+        #
+        # WHEN THE ARRANGEMENT IS WRONG, THE FILESYSTEM SAYS SO. An engine that
+        # remaps ids leaves entries this manager cannot open, and every one of
+        # those refusals names the operation, the path and the errno -- see
+        # `workspaces._prove_line_consumable` and `workspaces._access_failure`.
+        # Nothing here claims the mapping was verified.
         if self.context_delivery is not None:
             # A's custody policy is manager-UID only. No production context
             # profile/normalization is qualified yet; deterministic tests
@@ -2207,6 +2332,16 @@ class OciAdapter:
                     self.launch_delivery.exchange.mounts()
                     if self.launch_delivery is not None
                     and self.launch_delivery.exchange is not None
+                    else None),
+                # W198667: AND THE LOG ROOM, from the same delivery and for the
+                # same reason. A stream discarded at start cannot be captured
+                # later, so the room is bound when the container is created or
+                # never. `None` is the honest answer for a launch that made no
+                # room -- `_log_mounts` composes nothing from it.
+                logs_delivered=(
+                    self.launch_delivery.logs.mounts()
+                    if self.launch_delivery is not None
+                    and getattr(self.launch_delivery, "logs", None) is not None
                     else None),
                 source_delivered=self.source_delivery,
                 integration_delivered=self.integration_delivery,

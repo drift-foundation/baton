@@ -1,0 +1,18 @@
+{
+  "claim": 201475,
+  "candidate": {
+    "v12/python/tests/manager/test_importing_fixture.py": "146a19ae833785a63fc5bb2b1f3b683bb954899194c81171187b38d66dc4fb0e",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/worker/importing_agent.py": "9bf6e62a9e7d78ce97d7cbc8fc32d3091a9e74ce86c7a2656a24f3f8008b61e6",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/worker/importing_entry.py": "c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1"
+  },
+  "hashes_match": true,
+  "verification": {
+    "tests": 23,
+    "outcome": "OK",
+    "seconds": 0.01660107000498101,
+    "excluded": "test_and_the_RETAINED_RUN_composed_no_apply_input performs os.walk over external installed deployment; not independently repeated",
+    "flags": "ordinary unittest, no additional warning flag in this reviewer run"
+  },
+  "confirmed": "Repository bootstrap/install inputs omit integration_preparation; _prepares defaults false. Real entry branch dispatch tests pass. Fresh one-image dispatcher remains unbuilt.",
+  "scope": "No real deployment/store/engine/model access"
+}

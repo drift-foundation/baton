@@ -1,0 +1,109 @@
+{
+  "R1_the_protocol_buffer_bypassed_the_tee": {
+    "correction": "_ByteTee wraps the binary stream and `_TeeStream.buffer` returns it, so both layers append to one log handle and neither reorders, re-encodes, delays or splits a frame. The stale comment claiming stdout was deliberately not teed is superseded at the site.",
+    "probe_rerun": "the reviewer's binary frame now reaches the caller exactly AND is persisted exactly: worker.stdout `captured`, 16 bytes, byte-identical",
+    "what": "_TeeStream.__getattr__ handed back the REAL buffer, and baton_worker.main passes sys.stdout.buffer to serve -- so every protocol frame reached the caller byte-identically and reached the log not at all",
+    "why_my_test_missed_it": "the case I wrote exercised the TEXT layer, which is not the layer the protocol uses. Preserving the bytes and RETAINING them are two requirements and I had only met the first."
+  },
+  "R2_native_retention_had_four_defects": {
+    "cases": 9,
+    "colliding_names": {
+      "now": "components are ESCAPED before they are joined (`%` -> `%25`, separator `%2F`), which is what makes the mapping injective. Choosing a different literal separator would have moved the collision rather than removed it, because any character a separator can be is one a component can contain.",
+      "was": "`a/b` and `a__b` both flattened to `a__b` -- three files counted retained, two present, one source's bytes overwritten"
+    },
+    "end_only": {
+      "now": "it runs from the DRAIN THREAD, which already ticks while the provider runs, and appends only what is new; the final pass adds whatever arrived after the last tick",
+      "was": "_retain_native ran in _ran_provider's finally, so a wrapper killed before that copied nothing"
+    },
+    "silent_truncation": {
+      "now": "bytes stream in bounded chunks; the bound is on MEMORY rather than on the file and nothing is capped away",
+      "was": "it read MAX_NATIVE_FILE bytes and counted the file retained, so anything larger was truncated while reported complete"
+    },
+    "skipped_failures": {
+      "now": "_retain_native answers what it retained and what it could not, and _declare_native puts a retention failure where a reader will meet it -- on provider.stdout, whose turn produced the files",
+      "was": "failed reads and writes were skipped and the count was ignored by the caller, so an empty corner read as 'the provider wrote nothing'"
+    },
+    "toctou": {
+      "now": "every component is opened relative to the descriptor above it with O_NOFOLLOW, so the credential slot is excluded by the open failing rather than by a name check a swap could outrun, and a linked DIRECTORY is not walked out of either",
+      "was": "`islink` then `open(path)`: a check on one object and an open of whatever the name resolved to next, with every ancestor followed"
+    }
+  },
+  "R3_the_follow_loop": {
+    "cases": 3,
+    "deployed_route_verified": "the `logs` subcommand of baton-v12-stack was driven through stack_command.COMMANDS rather than by calling the helper directly",
+    "interruption": "Ctrl-C leaves the follower and prints the exact byte to resume from, so a long tail is picked up where it was dropped rather than re-read or skipped",
+    "now": "it follows until the writer says the stream ended -- the termination rule is the delivery's own (`more_may_arrive` is false once a writer has declared) rather than one this command invents. Silence is not an ending and the follower keeps waiting, which is correct.",
+    "one_shot_preserved": "--once keeps the slice-and-position form a script wants",
+    "what": "follow answered one slice and asked the operator to write the loop, which the previous review had already declined"
+  },
+  "an_expectation_I_got_wrong": "my own earlier case expected the flattened name `projects__one__session.jsonl`. That spelling IS the collision, so the case now expects the escaped form.",
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "ffb7fac7bb6d1dcc752626056187f1797553b2137c477e9a18dae3cad5dfcce0",
+    "v12/python/tests/manager/test_attempt_logs.py": "f4994e93ab47c9f7f8d57532c8fe31cba3fba6f5563c32c2465c3dc7eb00d217",
+    "v12/python/tests/manager/test_claude_agent.py": "488f0ccc46979dc13a51bb411e9140c61f336d3870c1aaa2c5286b64ce79af70",
+    "v12/python/tests/tools/test_attempt_logs_command.py": "cbc09b56eaea55c5ec55e07ce4a45dfbe65082b78935ba6cfd0208b5607cfc94",
+    "v12/python/tools/attempt_logs_command.py": "e522bd97859d3298e25d5db2e5ce82f8280a9b047d3f64b91d21c2c9cae583e3",
+    "v12/python/tools/stack_command.py": "26393cd3dd2c6c134d1706e520427291d04e46d7cfd094d18d95c58819fb8c43",
+    "v12/worker/Dockerfile.claude": "c0913fd8eebe11d79e91fd62b83f9e973b36fc72f5b785eb0a014b40c6084f32",
+    "v12/worker/Dockerfile.integration": "925e064ed6144a80e63c78b97956cc8c916ae8d81a51af337df4be2d8e7bd2c9",
+    "v12/worker/baton_worker.py": "198a6fe96f93c27f539cfcfeee0206643048d3045fc94f3701603c36a749192f",
+    "v12/worker/claude_agent.py": "3fdfa48f78c610e29386bb72f3ebec73575f05f43656044b1924fe3fea06b04b",
+    "v12/worker/integration_entry.py": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e"
+  },
+  "claim": 199683,
+  "fixture_image": "sha256:e46641312a0872522a6f7ff12fc0c1b09d05ed3d0207db581450abc91b82b7a0",
+  "no": [
+    "live model",
+    "provider call",
+    "network",
+    "production action",
+    "version-control mutation",
+    "direct store access"
+  ],
+  "preserved": {
+    "W197661": "queued at baton.bug; its candidate is the job_manager paths and tools/stack.py. None is touched here.",
+    "history": "no prior evidence file or review is rewritten",
+    "images": "no accepted image is rebuilt or re-attributed; the recipes carry the shared writer and this Work's own fixture is the only image built"
+  },
+  "schema": "baton.w198667.evidence/1",
+  "verification": {
+    "affected_set": {
+      "checks": 818,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 55.509,
+      "suites": [
+        "attempt_logs",
+        "attempt_logs_command",
+        "claude_agent",
+        "integration_worker",
+        "worker_entry",
+        "launch",
+        "oci",
+        "exchange",
+        "worker_container"
+      ]
+    },
+    "container_smoke": {
+      "all_true": true,
+      "checks": 8,
+      "image": "sha256:e46641312a0872522a6f7ff12fc0c1b09d05ed3d0207db581450abc91b82b7a0",
+      "note": "rebuilt on this claim's corrected worker bytes"
+    },
+    "seconds_measured_this_claim": 200,
+    "test_attempt_logs": {
+      "checks": 96,
+      "was": 87
+    },
+    "test_attempt_logs_command": {
+      "checks": 13,
+      "was": 11
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    }
+  },
+  "work": "2b077949-W198667"
+}

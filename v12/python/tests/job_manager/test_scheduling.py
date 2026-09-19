@@ -104,7 +104,9 @@ class PoolDocuments(PoolCase):
         # W156162: `job_execution_limits` is the 4 -> 5 step's object and was
         # never in schema 3 either, so a fixture impersonating 3 by subtracting
         # later objects has to subtract it too.
-        for table in ("integration_capacity_members",
+        # W197661: and `deferrals` is the 6 -> 7 step's, on the same rule.
+        for table in ("deferrals",
+                      "integration_capacity_members",
                       "integration_capacity_roots",
                       "job_execution_limits", "worker_affinity",
                       "stage_allocations", "pool_workers",
@@ -428,7 +430,12 @@ class TheMigrationProvesTheSchemaItMigratesFrom(PoolCase):
         connection = sqlite3.connect(self.job_path, isolation_level=None)
         try:
             # W156162: and the 4 -> 5 step's object, for the same reason.
-            for table in ("integration_capacity_members",
+            # W197661: and the 6 -> 7 step's, for the same reason again -- a
+            # fixture impersonating an older version has to subtract every
+            # relation added after it, or its "schema 3" store carries an
+            # object schema 3 never had.
+            for table in ("deferrals",
+                          "integration_capacity_members",
                           "integration_capacity_roots",
                           "job_execution_limits", "worker_affinity",
                           "stage_allocations", "pool_workers",

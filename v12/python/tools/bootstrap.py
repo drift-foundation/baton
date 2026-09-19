@@ -455,6 +455,23 @@ def held(document):
             faults.append("job " + repr(job["job_id"]) + " names the producer "
                           + repr(job["source_worker_id"])
                           + ", which is not a configured implementation worker")
+
+    # ONE AUTHORITY HOLDS ONE CANONICAL TARGET, and that is a fact about the
+    # INPUT, so it belongs here. W197661 review200179 [R2]: this refusal lived
+    # in `_canonical_target`, which runs AFTER routes, Work and grants have
+    # been written -- so a document naming two bases composed durable Authority
+    # state and then refused, contradicting this module's own documented
+    # promise that nothing durable happens until every check has passed. A
+    # preflight that one constraint skips is not one.
+    declared = sorted({job["line_declared_base"] for job in jobs_of(document)})
+    if len(declared) > 1:
+        faults.append("an Authority holds ONE canonical target and this "
+                      "deployment's Jobs declare " + str(len(declared))
+                      + " different bases (" + ", ".join(declared)
+                      + "); the first publication compares a worker's declared "
+                        "base against that one value, so a deployment that "
+                        "cannot express its own bases is refused here rather "
+                        "than at the first proposal")
     if faults:
         raise BootstrapRefusal("this deployment cannot be prepared: "
                                + "; ".join(faults))
@@ -717,7 +734,71 @@ def _compose(authority, document, *, stream):
         print("grant %-14s %s in its own scope"
               % (job["work_id"], "/".join(sorted(GRANTS.values())
                                           + [INTEGRATOR_GRANT])), file=stream)
+    _canonical_target(authority, document, stream=stream)
     return created
+
+
+def _canonical_target(authority, document, *, stream):
+    """THE REVISION THE FIRST PROPOSAL IS OFFERED AGAINST, established here.
+
+    W197661, found by running the installed lifecycle to its first publication.
+    `integration.driver.publish_candidate` compares the worker's declared base
+    with `Authority.canonical_target()`, and nothing in a fresh deployment ever
+    set it -- so it answered its own placeholder, `"base-1"`, and every first
+    publication was refused with "the Authority's canonical target is a full
+    lower-case object name ...; this is 'base-1'". The stage deferred
+    `conclude` and asked again forever: a runtime that finished, a manager that
+    looked well, and nothing that said why. That is the same shape as the
+    incident this Work came from.
+
+    `set_policy` ALREADY EXISTS for the other end of the line -- integration
+    advances the target with it when a proposal is accepted. What was missing
+    is the FIRST value, and a deployment that names `line_declared_base` per
+    Job is a deployment that has already been told it.
+
+    ONE VALUE, AND THE CONSTRAINT IS HELD IN PREFLIGHT. The policy is a single
+    revision, so Jobs declaring DIFFERENT bases cannot all be expressed --
+    which `held` refuses, before this module opens a writable Authority or
+    composes one route, Work or grant. Review200179 [R2] found that refusal
+    here instead, which left partial Authority state behind. By the time this
+    runs the document has already been proved to name exactly one base.
+
+    REPEATABLE, AND IT NEVER MOVES A TARGET THAT HAS ADVANCED. A deployment
+    whose Authority already holds a real target keeps it: re-running setup
+    after integration accepted a proposal must not rewind the line.
+    """
+    jobs = jobs_of(document)
+    if not jobs:
+        return
+    declared = sorted({job["line_declared_base"] for job in jobs})
+    # THE PLACEHOLDER BELONGS TO THE ACCESSOR THAT FALLS BACK TO IT, and is
+    # read from `Core` rather than restated here: a second copy of the string
+    # is how the two would drift. Taken from the CLASS rather than from the
+    # instance, because a double standing in for an Authority answers
+    # `canonical_target()` and need not carry its constants.
+    from baton_v12.authority.core import UNESTABLISHED_TARGET
+
+    held = authority.canonical_target()
+    if held != UNESTABLISHED_TARGET:
+        if len(declared) == 1 and declared[0] == held:
+            print("target%-15s already established; left alone" % "", file=stream)
+        else:
+            print("target%-15s %s already established and NOT moved; this "
+                  "setup declares %s" % ("", held, ", ".join(declared)),
+                  file=stream)
+        return
+    if len(declared) != 1:
+        # UNREACHABLE THROUGH `prepare`, and it is a refusal rather than an
+        # assumption: this function is also importable, and a caller that
+        # skipped the preflight must not silently establish one Job's base.
+        raise BootstrapRefusal(
+            "an Authority holds ONE canonical target and this deployment's "
+            "Jobs declare %d different bases (%s); this is proved in preflight "
+            "and reaching it here means the document was never held"
+            % (len(declared), ", ".join(declared)))
+    authority.set_policy("canonical_target", declared[0])
+    print("target%-15s %s established from line_declared_base"
+          % ("", declared[0]), file=stream)
 
 
 def _work(authority, work_id):

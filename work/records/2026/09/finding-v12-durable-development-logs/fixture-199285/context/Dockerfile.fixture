@@ -1,0 +1,32 @@
+# THE DETERMINISTIC FAKE-PROVIDER FIXTURE, W198667 claim199285.
+#
+# W197661's OWN FIXTURE CONTEXT IS NOT TOUCHED. `instance-198750/fixture-context`
+# and the image it produced are that Work's retained evidence, and the review
+# requires its attribution preserved -- so this is a SEPARATE context under this
+# Work's own dossier, and it produces its own new digest. The accepted provider
+# and integration images (sha256:35f36286…, sha256:dac354d8…) are immutable and
+# are neither rebuilt nor re-attributed by this Work.
+#
+# THE ONE ADDED BYTE-SET, and it is the whole point of this rebuild:
+# `attempt_log_format.py`, the shared capture-declaration format. The manager
+# reaches the same file as `baton_v12.attempt_log_format`; the image carries it
+# as a TOP-LEVEL module, exactly the way `source_profiles` travels, because
+# nothing from `baton_v12` may be importable inside a worker.
+#
+# EVERYTHING ELSE IS HELD IDENTICAL ON PURPOSE: the same immutable base, the
+# same control schema, the same source profiles, the same scripted agent, the
+# same fixed non-root pair. One labelled difference is a fixture; several
+# unlabelled ones are a different artefact nobody can reason about. The worker
+# program is this campaign's current accepted bytes plus this Work's own
+# wrapper-capture change.
+#
+# `--pull=false --no-cache --network none`: nothing is downloaded and nothing is
+# installed, so the only new bytes are this repository's own reviewed source.
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+COPY worker/scripted_agent.py /opt/baton/scripted_agent.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/baton_worker.py"]

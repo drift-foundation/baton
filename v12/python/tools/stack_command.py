@@ -32,7 +32,7 @@ COMMAND = "baton-v12-stack"
 # The children the supervisor starts. `manager` is `job_manager`, whose OWN
 # verb (`serve` or `status`) is one of its operands -- naming the subcommand
 # after one of those verbs would have made the other one read as a lie.
-CHILDREN = ("manager", "publish", "view")
+CHILDREN = ("manager", "publish", "view", "logs")
 
 
 def frozen():
@@ -85,6 +85,20 @@ def _manager(operands):
 def _view(operands):
     from tools import job_viewer
     return job_viewer.main(operands)
+
+
+def _logs(operands):
+    """W198667: one attempt's retained raw output, from the DEPLOYED command.
+
+    Review 2026-09-18T02-31-51Z [5]: the module advertised a
+    `baton-attempt-logs` program that nothing installed, and it lives outside
+    the packaged `src` tree so a console script could not reach it either. An
+    operator reading evidence after an incident has the DEPLOYED bundle, not a
+    checkout -- so the supported invocation is this bundle's own subcommand,
+    which is the same surface `status` and `monitor` are reached by.
+    """
+    from tools import attempt_logs_command
+    return attempt_logs_command.main(operands)
 
 
 def _stack(subcommand):
@@ -192,7 +206,7 @@ COMMANDS = {
     # "what is this deployment's repository, actually?" -- is asked of a
     # deployment, from wherever it is installed.
     "repository": _stack("repository"),
-    "manager": _manager, "view": _view,
+    "manager": _manager, "view": _view, "logs": _logs,
     "identity": _identity,
 }
 

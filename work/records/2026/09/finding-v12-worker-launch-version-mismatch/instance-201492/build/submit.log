@@ -1,0 +1,13 @@
+{
+  "submission_id": "w197661-lifecycle-201492",
+  "signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:84ecb893fa990e01a064aac8b003e92473feff3d375527e99281026ec697187f\",\"job_id\":\"w197661-lifecycle\",\"policy_digest\":\"sha256:8b45f78e5f85bb016d9fcbdc183c8cdf9aded74297a6e48db845423a4c0aaf55\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:a765ae66b1ac8dc9d941c0785efac642bca12b924b578acf481682b91b094277\",\"profile_name\":\"w197661-fixture-profile\",\"work_id\":\"e87d3316-W1\"},{\"depends_on\":[{\"job_id\":\"w197661-lifecycle\",\"kind\":\"implementation\"}],\"kind\":\"review\",\"profile_digest\":\"sha256:a765ae66b1ac8dc9d941c0785efac642bca12b924b578acf481682b91b094277\",\"profile_name\":\"w197661-fixture-profile\",\"work_id\":\"e87d3316-W1\"},{\"depends_on\":[{\"job_id\":\"w197661-lifecycle\",\"kind\":\"review\"}],\"kind\":\"integration\",\"profile_digest\":\"sha256:a765ae66b1ac8dc9d941c0785efac642bca12b924b578acf481682b91b094277\",\"profile_name\":\"w197661-fixture-profile\",\"work_id\":\"e87d3316-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[]}],\"schema\":\"baton.v12.job-submission/2\",\"submission_id\":\"w197661-lifecycle-201492\"}}",
+  "jobs": [
+    "w197661-lifecycle"
+  ],
+  "stages": [
+    "w197661-lifecycle/implementation",
+    "w197661-lifecycle/review",
+    "w197661-lifecycle/integration"
+  ],
+  "recorded_at": "2026-09-18T07:49:20.657Z"
+}

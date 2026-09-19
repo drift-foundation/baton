@@ -1,0 +1,1 @@
+Import exactly the accepted candidate onto the canonical target. Refuse anything outside the candidate rather than repairing it.

@@ -1,0 +1,127 @@
+{
+  "work": "W197661",
+  "claim": 200867,
+  "reviewer": "baton.rvpc",
+  "candidate": {
+    "v12/python/src/baton_v12/job_manager/manager.py": {
+      "expected": "cc0439946aa3648441665e75f92163e8546d29fff3514d9f2ab5a13ebdd5e0ad",
+      "actual": "cc0439946aa3648441665e75f92163e8546d29fff3514d9f2ab5a13ebdd5e0ad"
+    },
+    "v12/python/tests/job_manager/test_ending.py": {
+      "expected": "e1f4c1959625ba72117af9e6da84203c321e210ee2eb08a4615dd1255035b12b",
+      "actual": "e1f4c1959625ba72117af9e6da84203c321e210ee2eb08a4615dd1255035b12b"
+    },
+    "v12/python/tests/manager/test_proposing_fixture.py": {
+      "expected": "18a0468ae7d496ccde1d58dddedd08da9f52e51a37f3f168282d556f0e669a1c",
+      "actual": "18a0468ae7d496ccde1d58dddedd08da9f52e51a37f3f168282d556f0e669a1c"
+    },
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/proposing_agent.py": {
+      "expected": "a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd",
+      "actual": "a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd"
+    },
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/compose_lifecycle.py": {
+      "expected": "72aa605624289b257362197b7a242f5f7735f4fda08a46b0b0f849003a2f62bb",
+      "actual": "72aa605624289b257362197b7a242f5f7735f4fda08a46b0b0f849003a2f62bb"
+    },
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json": {
+      "expected": "303eb9107d1494deb5cb42c7f8eff7fb370254a0d90f856e90c012b90c2e7134",
+      "actual": "303eb9107d1494deb5cb42c7f8eff7fb370254a0d90f856e90c012b90c2e7134"
+    }
+  },
+  "tests": {
+    "command": "env PYTHONPATH=src python3 -W error::ResourceWarning -m unittest tests.job_manager.test_ending tests.manager.test_proposing_fixture tests.manager.test_exchange",
+    "cwd": "v12/python",
+    "count": 224,
+    "result": "OK",
+    "unittest_seconds": 1.03,
+    "wall_seconds": 1.053853974
+  },
+  "retained_snapshot": {
+    "path": "/home/sl/baton-v12-lifecycle-200564-clean/state/status.json",
+    "sha256": "f873fb5aed29ac384977571d83c6aaec0a678bd6b759c6b923dba702f1153ce8",
+    "canonical": true,
+    "observed_at": "2026-09-18T06:11:33.383Z",
+    "stages": [
+      {
+        "kind": "implementation",
+        "state": "completed",
+        "attempt_id": "attempt-498e9046beb476573288149beeb9ed5cc61971f80417ccc42614771885f72565",
+        "runtime": {
+          "runtime_id": "4fe0dd643b753f0550b37b170ddda7af4dcd217842438ce6eb4e4d5161b5a964",
+          "execution_runtime": "destroyed",
+          "assignment": {
+            "work_ref": {
+              "authority_uuid": "af29c003da434c3aa311b5de4a09f2ee",
+              "work_id": "af29c003-W1"
+            },
+            "participant": "baton.w197661-author",
+            "generation": 1
+          },
+          "activity": {
+            "attempt_id": "attempt-498e9046beb476573288149beeb9ed5cc61971f80417ccc42614771885f72565",
+            "bytes_observed": null,
+            "observed_at": null
+          }
+        },
+        "deferral": null
+      },
+      {
+        "kind": "review",
+        "state": "completed",
+        "attempt_id": "attempt-743c069b653d076346a203d9f3bdb8be0bcc2a91be1e8acec25df27de464fd1e",
+        "runtime": {
+          "runtime_id": "c5664cc25be0a525a36ca4626086886c2b1cf4c6057a7a28322c5304c3286f25",
+          "execution_runtime": "destroyed",
+          "assignment": {
+            "work_ref": {
+              "authority_uuid": "af29c003da434c3aa311b5de4a09f2ee",
+              "work_id": "af29c003-W1"
+            },
+            "participant": "baton.w197661-reviewer",
+            "generation": 2
+          },
+          "activity": {
+            "attempt_id": "attempt-743c069b653d076346a203d9f3bdb8be0bcc2a91be1e8acec25df27de464fd1e",
+            "bytes_observed": null,
+            "observed_at": null
+          }
+        },
+        "deferral": null
+      },
+      {
+        "kind": "integration",
+        "state": "exceptional",
+        "attempt_id": "attempt-5b89b1d79ea23e3f53b032268759439d2cd7a050d168e1b34582dace8aa829ba",
+        "runtime": {
+          "runtime_id": "edbb3acafaebaa9fd7610ef5a9f18bb5ccdd5dece6f4f64ffa77aecfa7158fe8",
+          "execution_runtime": "quiescent",
+          "assignment": {
+            "work_ref": {
+              "authority_uuid": "af29c003da434c3aa311b5de4a09f2ee",
+              "work_id": "af29c003-W1"
+            },
+            "participant": "baton.w197661-integrator",
+            "generation": 3
+          },
+          "activity": {
+            "attempt_id": "attempt-5b89b1d79ea23e3f53b032268759439d2cd7a050d168e1b34582dace8aa829ba",
+            "bytes_observed": null,
+            "observed_at": null
+          }
+        },
+        "deferral": null
+      }
+    ]
+  },
+  "manager_log": {
+    "path": "/home/sl/baton-v12-lifecycle-200564-clean/state/manager.log",
+    "sha256": "1b577a67428062cec4a7ff1f321c2f1015405b0db526a9fe8ff02a56a95d7765",
+    "observed": "05:59:25 policy pin 1 versus Authority9 refusal; 06:07:51 conclude running/waiting with verification passed, review accepted, approval approved generation23; three serving initialization lines."
+  },
+  "limits": [
+    "Retained snapshot, not a fresh engine observation.",
+    "No Authority opened or database read; log receipts not independently re-queried.",
+    "No container, live provider, deployment modification or production action.",
+    "Author3300s and all historical costs preserved, not remeasured."
+  ]
+}

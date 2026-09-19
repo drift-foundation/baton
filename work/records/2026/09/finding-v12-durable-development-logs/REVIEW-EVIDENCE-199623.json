@@ -1,0 +1,37 @@
+{
+  "claim": 199623,
+  "hashes": {
+    "v12/python/src/baton_v12/attempt_log_format.py": true,
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": true,
+    "v12/python/src/baton_v12/worker_manager/launch.py": true,
+    "v12/python/src/baton_v12/worker_manager/oci.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true,
+    "v12/python/tests/manager/test_claude_agent.py": true,
+    "v12/python/tests/tools/test_attempt_logs_command.py": true,
+    "v12/python/tools/attempt_logs_command.py": true,
+    "v12/python/tools/stack_command.py": true,
+    "v12/worker/Dockerfile.claude": true,
+    "v12/worker/Dockerfile.integration": true,
+    "v12/worker/baton_worker.py": true,
+    "v12/worker/claude_agent.py": true,
+    "v12/worker/integration_entry.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "seconds": 13.42675640800735,
+    "output": "........................................................................................................................................baton-worker: launch: the integration runtime cannot read its launch: /tmp/v12-w110935-219banvl/run/launch.json is writable from inside this container; a launch document this worker could rewrite is not one the manager can hold it to\n..baton-worker: launch: the integration runtime cannot read the result namespace under /tmp/v12-w110935-7owkux3r/linked-result: the integration result namespace is not a directory this runtime can open without following a link (20); whether this attempt has already answered is exactly the question that just went unanswered\n.baton-worker: launch: the integration runtime cannot read its assignment under /tmp/v12-w110935-cui3mrxu/delivery/integration/assignment: the integration assignment is not readable as an ordinary file (2)\n.baton-worker: launch: the integration runtime cannot read its launch: this container has no readable /tmp/v12-w110935-h8k3j7mj/run/launch.json; the launch document is how a worker is told what it is\n.........................................\n----------------------------------------------------------------------\nRan 181 tests in 13.228s\n\nOK\n"
+  },
+  "binary_tee": {
+    "visible_hex": "0070726f746f636f6c2d6672616d65ff",
+    "retained": false
+  },
+  "native_copy": {
+    "kept_count": 3,
+    "files": {
+      "large": "12345678",
+      "a__b": "nested"
+    }
+  },
+  "probe_seconds": 0.0005323000368662179,
+  "retained_probe_path": "/tmp/w198667-review199623-9_4lijlo"
+}

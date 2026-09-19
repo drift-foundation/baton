@@ -1,0 +1,85 @@
+{
+  "work": "W197661",
+  "claim": 201215,
+  "author": "baton.claude",
+  "disposition": "RETURNED INCOMPLETE — both review findings and the terminal reading corrected; the deterministic integrator and report-and-hold remain",
+  "answering": {
+    "review": "review-2026-09-18T07-01-24Z.md",
+    "sha256": "c6fc7184300a635eefb77f2369735f3d2c82bfdac44350f4b18a363d4753e586",
+    "review_evidence": "REVIEW-EVIDENCE-201153.json",
+    "review_evidence_sha256": "8bb5e8a1caf95453db64405bac3a26d7c2fdb13252587f520067ccab8ea9cc91",
+    "probes": "review-probes-201153.py",
+    "accepted_by_that_review": "the joint-absence correction, the read-only policy-pin default, and exclusive verification creation"
+  },
+  "candidate": {
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/verify_lifecycle.py": "49e4d0ee4a83f8cc85e3b2bf928fb1abb42e31d42a6099c0917f1dcee8d7cbb0",
+    "v12/python/tests/manager/test_w197661_verifier.py": "bde339f80f1edc4020941f2a0908aab43d4350141aaf2f628dfae5ea601026af"
+  },
+  "corrections": {
+    "R1_presence_is_not_validation": {
+      "defect": "_present accepted every non-container scalar, so setting all five provenance members to False on BOTH sides passed every check; and Checks.named treated wanted=None as 'no binding requested', so removing records.verdict.checkpoint_id turned that check off",
+      "change": [
+        "_well_formed validates the shape each kind promises: identity, digest, manifest, list, text; a boolean is never any of them",
+        "Checks.bound takes the kind and validates before comparing",
+        "Checks.binding is a REQUIRED two-sided reference with no optional-operand escape",
+        "Checks.present covers only the values that genuinely have no counterpart"
+      ],
+      "reviewer_probes_after": {
+        "all_five_provenance_False": "5 failed checks",
+        "verdict_checkpoint_id_removed": "['the accepted checkpoint is the one the verdict names']",
+        "positive_shape": "still passes with zero failures"
+      }
+    },
+    "R2_tests_that_were_not_what_they_looked_like": {
+      "collision_case": {
+        "defect": "it patched the readers and left check_policy_pin, whose default reads the emitted deployment.json and the INSTALLED Authority, so a unit case about a file collision made one real deployment call",
+        "change": "every boundary main reaches is replaced, including check_policy_pin"
+      },
+      "read_only_default": {
+        "change": "exercised on its own under a mocked Authority: the default opener is open_readonly with Authority.open raising if reached, a wrong prediction answers not-equal, and the Authority is always disposed"
+      },
+      "captured_records_case": {
+        "defect": "it compared the keys of a saved JSON file and never called an adapter, so an adapter regression could not fail it",
+        "change": "read_records is driven over faithful owner doubles -- the attachment answering runtime_attempt_id, the frozen row answering assignment_ref null with the identity in the retained manifest, missing checkpoint and missing result each reported as missing, the terminal unread with its reason, and the adapter's output agreeing with the captured record member for member"
+      }
+    },
+    "the_terminal_reading_was_backwards": {
+      "defect": "I asserted terminal.state == 'held' as proof of a successful report-and-hold; stage_execution.managed_account writes held for a held queue entry or an ending that was not answered, answered for an imported settled execution, and completed once the integration receipt exists. I read the Job's terminal POLICY name as an integration state and asserted the opposite of what the contract says.",
+      "change": "the predicate is completed, with a second check that held is never mistaken for it, and the unread reason states that vocabulary"
+    }
+  },
+  "artifacts_preserved": {
+    "retained": ["verification-200930.json", "verification-201089b.json",
+                 "verification-201089-final.json", "verification-201215.json"],
+    "note": "nothing is removed this claim; the previous claim's disclosed deletion of verification-201089.json stands as the disclosure it is, and future runs keep their own names"
+  },
+  "live_result": {
+    "file": "instance-200564/verification-201215.json",
+    "checks": 38, "held": 35, "failed": 3,
+    "failing": ["the integration stage COMPLETED", "the terminal record was READ",
+                "the integration account reached its COMPLETED state"]
+  },
+  "not_done": {
+    "1": "the deterministic integrating workload through integration_entry.main(agent=...)",
+    "2": "its terminal reader, once managed_account's state exists on a path a verifier may take, and report-and-hold behind it"
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.653},
+      {"suite": "test_w197661_verifier + test_proposing_fixture + test_ending + test_exchange", "tests": 200, "result": "OK", "seconds": 0.738},
+      {"suite": "tests.tools.test_bootstrap", "tests": 125, "result": "OK", "seconds": 17.255},
+      {"suite": "W198667 shared tests.manager.test_attempt_logs", "tests": 191, "result": "OK", "seconds": 1.576},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "new_cases": 17,
+    "verifier_suite_total": 58,
+    "measured_seconds_this_claim": 700,
+    "prior_spending": "preserved in EVIDENCE-197743 through EVIDENCE-201089 and the reviewers' own evidence; approximately 900s reported for claim201089 is retained as the estimate it is, and no exact cumulative total is asserted"
+  },
+  "read_only_throughout": "no engine, model, container, bootstrap, submission, deployment mutation or version control; both destinations remain retained and stopped",
+  "ownership": {
+    "not_edited": "reviewer-owned reviews and REVIEW-EVIDENCE-*.json; prior EVIDENCE-*.json; instance-200254; every retained verification-*.json; W198667's paths, whose suite runs green against this tree"
+  }
+}

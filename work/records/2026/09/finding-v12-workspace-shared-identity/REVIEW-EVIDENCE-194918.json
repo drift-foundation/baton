@@ -1,0 +1,93 @@
+{
+  "fixture": "/tmp/w194457-review194918-vv9uifm_",
+  "source_sha256": "0649a486b12c26cabcfb74c44b2859026a6b9c8c3ccebb70f853ae577071389f",
+  "control": {
+    "answer": [
+      1000,
+      1000
+    ],
+    "accepted": true,
+    "verbs": [
+      "run",
+      "inspect",
+      "rm"
+    ],
+    "state": {
+      "nonce": "dfbdceb982834bea832f1466",
+      "removed_object": "probe-object-id",
+      "removal_target": "baton-identity-2-dfbdceb98283"
+    },
+    "unresolved": [],
+    "remaining": []
+  },
+  "inspection-unavailable": {
+    "answer": [
+      1000,
+      1000
+    ],
+    "accepted": true,
+    "verbs": [
+      "run",
+      "inspect"
+    ],
+    "state": {
+      "nonce": "0b9f9c84bffef2908ef22ec7",
+      "object": "probe-object-id"
+    },
+    "unresolved": [],
+    "remaining": []
+  },
+  "replacement-after-inspect": {
+    "answer": [
+      1000,
+      1000
+    ],
+    "accepted": true,
+    "verbs": [
+      "run",
+      "inspect",
+      "rm"
+    ],
+    "state": {
+      "nonce": "e91538de59fa85851f024405",
+      "removed_object": "unrelated-replacement-id",
+      "removal_target": "baton-identity-2-e91538de59fa"
+    },
+    "unresolved": [],
+    "remaining": []
+  },
+  "directory-cleanup-fails": {
+    "answer": [
+      1000,
+      1000
+    ],
+    "accepted": true,
+    "verbs": [
+      "run",
+      "inspect",
+      "rm"
+    ],
+    "state": {
+      "nonce": "3ff28fcd54deb7ff27dc26d9",
+      "removed_object": "probe-object-id",
+      "removal_target": "baton-identity-2-3ff28fcd54de"
+    },
+    "unresolved": [
+      {
+        "engine_object": "/tmp/w194457-review194918-vv9uifm_/directory-cleanup-fails/.identity-probe-ghy7t0ab",
+        "why": "an entry inside the probe could not be removed"
+      }
+    ],
+    "remaining": [
+      "/tmp/w194457-review194918-vv9uifm_/directory-cleanup-fails/.identity-probe-ghy7t0ab",
+      "/tmp/w194457-review194918-vv9uifm_/directory-cleanup-fails/.identity-probe-ghy7t0ab/identity-probe"
+    ]
+  },
+  "tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "..........................................................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 266 tests in 1.382s\n\nOK\n",
+    "seconds": 1.5512076300219633
+  },
+  "total_seconds": 1.5523588589858264
+}

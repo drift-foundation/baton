@@ -1,0 +1,131 @@
+{
+  "all_true": true,
+  "checks": [
+    {
+      "check": "the adapter's boundary accepts the delivery's own bind",
+      "detail": [
+        [
+          "/tmp/w198667-smoke-199285-f7zfbid9/logs/attempt-smoke",
+          "/run/baton/logs",
+          true
+        ]
+      ],
+      "held": true
+    },
+    {
+      "check": "the container refused the launch and exited 3",
+      "detail": {
+        "returncode": 3,
+        "stderr": "baton-worker: launch: /run/baton/launch.json says it is 'baton.worker-launch/9' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of\n"
+      },
+      "held": true
+    },
+    {
+      "check": "its diagnostic reached the terminal, as it already did",
+      "detail": "baton-worker: launch: /run/baton/launch.json says it is 'baton.worker-launch/9' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'",
+      "held": true
+    },
+    {
+      "check": "the wrapper's earliest output was RETAINED in the room",
+      "detail": "baton-worker: launch: /run/baton/launch.json says it is 'baton.worker-launch/9' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of\n",
+      "held": true
+    },
+    {
+      "check": "and it is reported as a whole capture rather than a guess",
+      "detail": "captured",
+      "held": true
+    },
+    {
+      "check": "its writer's own word was recorded",
+      "detail": "declared",
+      "held": true
+    },
+    {
+      "check": "a stream nobody wrote is ABSENT and not an empty success",
+      "detail": {
+        "provider.stderr": "absent",
+        "provider.stdout": "absent",
+        "verification.stderr": "absent",
+        "verification.stdout": "absent",
+        "worker.stderr": "captured",
+        "worker.stdout": "absent"
+      },
+      "held": true
+    },
+    {
+      "check": "the container is gone and the evidence is not",
+      "detail": null,
+      "held": true
+    }
+  ],
+  "claim": 199285,
+  "image": "sha256:2d8f3ed4e7c85404b599418e4975a8bc2d5817a06659b80e9e70d76d3a8855da",
+  "locators": {
+    "attempt_id": "attempt-smoke",
+    "log_root": "/tmp/w198667-smoke-199285-f7zfbid9/logs/attempt-smoke",
+    "native": {
+      "entries": [],
+      "place": "/tmp/w198667-smoke-199285-f7zfbid9/logs/attempt-smoke/native",
+      "state": "empty",
+      "why": "the room exists and the provider wrote nothing in it"
+    },
+    "streams": [
+      {
+        "bytes": 0,
+        "declaration": "none",
+        "file": "absent",
+        "place": "/tmp/w198667-smoke-199285-f7zfbid9/logs/attempt-smoke/worker.stdout.log",
+        "state": "absent",
+        "stream": "worker.stdout",
+        "why": "no log was created for this stream"
+      },
+      {
+        "bytes": 291,
+        "declaration": "declared",
+        "file": "present",
+        "place": "/tmp/w198667-smoke-199285-f7zfbid9/logs/attempt-smoke/worker.stderr.log",
+        "state": "captured",
+        "stream": "worker.stderr",
+        "why": "the writer saw this stream to its end"
+      },
+      {
+        "bytes": 0,
+        "declaration": "none",
+        "file": "absent",
+        "place": "/tmp/w198667-smoke-199285-f7zfbid9/logs/attempt-smoke/provider.stdout.log",
+        "state": "absent",
+        "stream": "provider.stdout",
+        "why": "no log was created for this stream"
+      },
+      {
+        "bytes": 0,
+        "declaration": "none",
+        "file": "absent",
+        "place": "/tmp/w198667-smoke-199285-f7zfbid9/logs/attempt-smoke/provider.stderr.log",
+        "state": "absent",
+        "stream": "provider.stderr",
+        "why": "no log was created for this stream"
+      },
+      {
+        "bytes": 0,
+        "declaration": "none",
+        "file": "absent",
+        "place": "/tmp/w198667-smoke-199285-f7zfbid9/logs/attempt-smoke/verification.stdout.log",
+        "state": "absent",
+        "stream": "verification.stdout",
+        "why": "no log was created for this stream"
+      },
+      {
+        "bytes": 0,
+        "declaration": "none",
+        "file": "absent",
+        "place": "/tmp/w198667-smoke-199285-f7zfbid9/logs/attempt-smoke/verification.stderr.log",
+        "state": "absent",
+        "stream": "verification.stderr",
+        "why": "no log was created for this stream"
+      }
+    ],
+    "target": "/run/baton/logs"
+  },
+  "schema": "baton.w198667.capture-smoke/1"
+}

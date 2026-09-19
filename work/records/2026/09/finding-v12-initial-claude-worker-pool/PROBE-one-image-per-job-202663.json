@@ -1,0 +1,27 @@
+{
+  "control_unchanged_document": null,
+  "prior_instance": {
+    "implementation_image": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+    "implementation_manifest_digest": "sha256:17081efd3f8d59e6a7f7182b3f7f8e95161139b369acd6bc72044a044c3d9751",
+    "integration_image": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+    "integration_manifest_digest": "sha256:c0e1f23853de8ae86cac3923d8e99bb06c70effe42000476ad17c1e9bda58059",
+    "note": "READ as evidence only; not started, changed or reused.",
+    "path": "/home/sl/baton-v12-instance-2026-09-17T20-29-21Z/deployment.json",
+    "review_image": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+    "review_manifest_digest": "sha256:17081efd3f8d59e6a7f7182b3f7f8e95161139b369acd6bc72044a044c3d9751",
+    "two_images": true,
+    "two_manifests": true
+  },
+  "probe_integration_worker_on_the_provider_image": "ContractRefusal: the bootstrap input manifest names another worker image",
+  "probe_w202663_pair": "ContractRefusal: the bootstrap input manifest names another worker image",
+  "probe_w202663_pair_note": "the integration worker on this Work's integration image, under the manifest the implementation and review workers would have to share (it names the provider image); the manifest is resealed so the only disagreement left is the image",
+  "read_only": true,
+  "schema": "baton.w202663.probe/1",
+  "the_second_rule_read_not_measured": {
+    "already_measured_by": "W197661 compose_lifecycle.py R2 -- 'three role-specific manifests produce three seals of which the Job can name exactly one'",
+    "job_carries_one": "baton.v12.job-submission/2 gives a Job a single input_digest and a list of stages",
+    "text": "if job.get('input_digest') != manifest['manifest_digest']: _refuse('the Job names another bootstrap input')",
+    "where": "v12/python/tools/single_worker.py:1303"
+  },
+  "what": "can one Job's pool name two worker images"
+}

@@ -1,0 +1,114 @@
+{
+  "claim": 200453,
+  "participant": "baton.rvpc",
+  "candidate_hashes": {
+    "v12/python/src/baton_v12/job_manager/manager.py": {
+      "expected": "47d0b998c740afcb725da8197dcc7665e39305a64d04f0502103f91fbea9a07b",
+      "actual": "47d0b998c740afcb725da8197dcc7665e39305a64d04f0502103f91fbea9a07b"
+    },
+    "v12/python/tests/job_manager/test_exchange.py": {
+      "expected": "efe9496d00bf016d4c723da7551d80563484460556dc005532c80bfce8d45f45",
+      "actual": "efe9496d00bf016d4c723da7551d80563484460556dc005532c80bfce8d45f45"
+    },
+    "v12/python/tests/manager/test_proposing_fixture.py": {
+      "expected": "9c16b58d621a389c89dd13296599f916f6d9b06bb026c48abb872803893e980c",
+      "actual": "9c16b58d621a389c89dd13296599f916f6d9b06bb026c48abb872803893e980c"
+    },
+    "v12/python/tests/tools/test_bootstrap.py": {
+      "expected": "d1367aedd402f2e9d93cb4dcad0b180038acff0ea90a5155fa84a4320172da8c",
+      "actual": "d1367aedd402f2e9d93cb4dcad0b180038acff0ea90a5155fa84a4320172da8c"
+    },
+    "v12/python/tools/bootstrap.py": {
+      "expected": "6e7ff379e6d9accb9ffbc80eba2beb436639b94354622201c59303cf5a701e0c",
+      "actual": "6e7ff379e6d9accb9ffbc80eba2beb436639b94354622201c59303cf5a701e0c"
+    },
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/context/Dockerfile.fixture": {
+      "expected": "bf5dfe7085d0c38fecfcf9e1e61de30497485fe6f5aad1b9270b33c0bd8b7348",
+      "actual": "bf5dfe7085d0c38fecfcf9e1e61de30497485fe6f5aad1b9270b33c0bd8b7348"
+    },
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/context/worker/proposing_agent.py": {
+      "expected": "457e728c12c9bf8d9eaead8808ff7525a670943b66d226d9a46a72ef1dd1c528",
+      "actual": "457e728c12c9bf8d9eaead8808ff7525a670943b66d226d9a46a72ef1dd1c528"
+    },
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/context/worker/proposing_entry.py": {
+      "expected": "0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760",
+      "actual": "0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760"
+    },
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/verify_lifecycle.py": {
+      "expected": "9cc1a8d126638df6ffcc3264b814ad535ab5b3992177381e67f3c0e2965100fa",
+      "actual": "9cc1a8d126638df6ffcc3264b814ad535ab5b3992177381e67f3c0e2965100fa"
+    }
+  },
+  "hashes_match": true,
+  "bootstrap_preflight": {
+    "refusal": "this deployment cannot be prepared: an Authority holds ONE canonical target and this deployment's Jobs declare 2 different bases (bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, e486652c4ddebfb696e030b4b867e914248db542); the first publication compares a worker's declared base against that one value, so a deployment that cannot express its own bases is refused here rather than at the first proposal",
+    "opener_calls": 0,
+    "compose_calls": 0
+  },
+  "recovered_profile_refusal": {
+    "escaped_type": "ProfileRefusal",
+    "message": "review probe: checkpoint unavailable",
+    "defer_calls": 0
+  },
+  "retained_status": {
+    "observed_at": "2026-09-18T05:01:22.081Z",
+    "canonical": true,
+    "submission_id": "w197661-lifecycle-200254",
+    "stages": [
+      {
+        "kind": "implementation",
+        "state": "completed",
+        "attempt_id": "attempt-6b72b7c538a85fec9c18693aba740646d884e7b1af0f50ba5ca28d0d9863fda6",
+        "deferral": null
+      },
+      {
+        "kind": "review",
+        "state": "completed",
+        "attempt_id": "attempt-83a799f867e1b47dc053ecea4c37f6a472d384e069b90c029aab5e2d626036ea",
+        "deferral": null
+      },
+      {
+        "kind": "integration",
+        "state": "claimed",
+        "attempt_id": "attempt-35830f71560636280d00a8351eb68def584ff788d62f5d7d5419e6dd9c76c31d",
+        "deferral": null
+      }
+    ],
+    "started": [
+      {
+        "stage_id": "w197661-lifecycle/integration",
+        "episode": 1,
+        "attempt_id": "attempt-35830f71560636280d00a8351eb68def584ff788d62f5d7d5419e6dd9c76c31d",
+        "outcome": "deferred",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "the configured implementation task names no verification command; an integration is admitted behind an ordinary test run and never ahead of one"
+        }
+      }
+    ]
+  },
+  "retained_files": {
+    "/home/sl/baton-v12-lifecycle-200254/state/status.json": "d927c552405fb3ec5e97cfd8e66bd7b0229c9a25fdc3677a97446398f81dd8be",
+    "/home/sl/baton-v12-lifecycle-200254/state/manager.log": "ca50b6493a9fde26376ca6fc1bf68b21a35b3d75e6a55ce87f1961e7ac4474b6"
+  },
+  "seconds": 0.0009762849658727646,
+  "verification": {
+    "command": "python3 -W error::ResourceWarning -m unittest tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED tests.job_manager.test_exchange.ACHECKPOINTPROFILESOwnRefusalDoesNotEndTheLoop tests.manager.test_proposing_fixture",
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "tests": 45,
+    "passed": 36,
+    "setup_failures": 9,
+    "unittest_seconds": 0.277,
+    "wall_seconds": 0.4600465959520079,
+    "operational_limit": "All nine bootstrap tests failed in setup: no writable disk-backed directory outside checkout. /var/tmp and /home/sl/.cache not writable; /tmp is tmpfs. No escalation or workaround attempted. Independent mocked-opener preflight probe passes.",
+    "prior_probe_seconds": 0.0009307599975727499,
+    "historical_costs": "Author reports approximately 2700s for claim200254; prior measured/unknown costs remain in prior evidence, not reconstructed."
+  },
+  "limits": [
+    "No installed CLI, raw store, engine, model, build, production or Git mutation by reviewer. Fixture tests create their own temporary repositories through the authorized test harness.",
+    "Status and manager log are retained publisher/serving observations, not new live observations or proof of current engine cleanup.",
+    "Reviewer did not run candidate verifier: it overwrites historical verification.json and opens Authority writable."
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "claim": 198868,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": true,
+    "v12/python/src/baton_v12/worker_manager/oci.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true,
+    "v12/python/tests/manager/test_oci.py": true,
+    "v12/python/tests/manager/test_dependencies.py": true,
+    "v12/worker/integration_entry.py": true,
+    "v12/python/tests/manager/test_integration_worker.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "output": "...............................\n----------------------------------------------------------------------\nRan 31 tests in 0.070s\n\nOK\n",
+    "seconds": 0.23914300702745095
+  },
+  "retained_probe_path": "/tmp/w198667-review198868-z1r1alt6",
+  "missing_failed": {
+    "stream": "provider.stdout",
+    "state": "absent",
+    "bytes": 0,
+    "why": "no log was created for this stream"
+  },
+  "declared_partial": {
+    "stream": "provider.stdout",
+    "state": "partial",
+    "bytes": 7,
+    "why": "the drain ended on its own clock rather than at end of file, so this is a prefix of the stream rather than the stream",
+    "place": "/tmp/w198667-review198868-z1r1alt6/attempt-a/provider.stdout.log"
+  },
+  "read_partial": {
+    "stream": "provider.stdout",
+    "state": "captured",
+    "bytes": 7,
+    "why": "the whole stream was retained",
+    "from_byte": 0,
+    "bytes_read": 7,
+    "text": "prefix\n",
+    "eof": true
+  },
+  "stat_permission_error": {
+    "stream": "worker.stderr",
+    "state": "absent",
+    "bytes": 0,
+    "why": "no log was created for this stream"
+  },
+  "symlink_read": {
+    "stream": "worker.stdout",
+    "state": "captured",
+    "bytes": 29,
+    "why": "the whole stream was retained",
+    "from_byte": 0,
+    "bytes_read": 29,
+    "text": "OTHER ATTEMPT PRIVATE OUTPUT\n",
+    "eof": true
+  }
+}

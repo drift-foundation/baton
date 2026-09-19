@@ -991,7 +991,12 @@ class TheIdentityIsWhatMakesItUnconditional(CustodyCase):
         out, which is what `unconditional` means here.
         """
         argv = self.vector()
-        self.assertEqual(argv[argv.index("--user") + 1], "65532:65532")
+        # W194457: and "the same uid the worker ran as" now means the
+        # deployment's SHARED execution identity -- this manager's own euid
+        # with the configured workspace group. The mechanism above is
+        # unchanged; what changed is which identity both sides are.
+        self.assertEqual(argv[argv.index("--user") + 1],
+                         f"{os.geteuid()}:{self.group.gid}")
 
     def test_it_carries_the_configured_group_it_needs_to_traverse(self):
         """Measured on a real daemon before it was written: without the group

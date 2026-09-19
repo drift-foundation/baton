@@ -260,9 +260,15 @@ class TheContainerEntryReadsTheThirdVersion(unittest.TestCase):
                                  baton_worker.LAUNCH_BOUNDARY_SETTING[name])
 
     def test_an_unknown_version_is_still_refused(self):
-        """The module's own rule is unchanged: an unknown schema is held to
-        `/1`'s member set so the refusal names the VERSION rather than the
-        members, which is why this case carries a `/1`-shaped document."""
+        """The module's own rule is unchanged and its mechanism is not.
+
+        W197661: the refusal named the version because an unknown schema was
+        held to `/1`'s member set and this document is `/1`-shaped, so the
+        member comparison happened to pass first. The VERSION is now compared
+        FIRST, which is what the reader always claimed to do -- so the same
+        refusal arrives for a document of any shape, and this case keeps its
+        `/1` shape only because that is what it was written with.
+        """
         held = launch.launch_document(session="s", contract="c",
                                       role="implementation")
         held["schema"] = "baton.worker-launch/9"

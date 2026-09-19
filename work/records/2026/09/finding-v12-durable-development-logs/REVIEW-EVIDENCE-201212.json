@@ -1,0 +1,76 @@
+{
+  "claim": 201212,
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "ef5c5302c82981a672cc7c9bd5603aa36745c6f90b3fa3dec99c870c91e08fc6",
+    "v12/worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+    "v12/worker/claude_agent.py": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+    "v12/python/tests/manager/test_attempt_logs.py": "92f6fab3e1fdc7915c80fa583fc65b96c1050364c019c0fddf9e99081139be67",
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-201156/smoke.py": "42d5039911c7fb284be8189d9958e80f006521bc2ed1408c550c229bb9af1e3f"
+  },
+  "hashes_match": true,
+  "tests": {
+    "count": 213,
+    "result": "OK",
+    "wall_seconds": 1.802988616982475,
+    "unittest_seconds": 1.636,
+    "suites": [
+      "tests.manager.test_attempt_logs",
+      "tests.tools.test_attempt_logs_command"
+    ],
+    "flags": "-W error::ResourceWarning"
+  },
+  "probe": {
+    "finished": {
+      "state": "captured",
+      "text": "first-prefixsecond-whole",
+      "more_may_arrive": false,
+      "why": "the writer saw this stream to its end"
+    },
+    "failed": {
+      "state": "failed",
+      "text": "first-prefixsecond-whole",
+      "more_may_arrive": false,
+      "why": "an earlier capture of this stream declared 'failed' and those bytes were never restored; this writer's own turn ended 'finished', and what is in the file is not whole"
+    },
+    "partial": {
+      "state": "partial",
+      "text": "first-prefixsecond-whole",
+      "more_may_arrive": false,
+      "why": "an earlier capture of this stream declared 'partial' and those bytes were never restored; this writer's own turn ended 'finished', and what is in the file is not whole"
+    },
+    "truncated": {
+      "state": "truncated",
+      "text": "first-prefixsecond-whole",
+      "more_may_arrive": false,
+      "why": "an earlier capture of this stream declared 'truncated' and those bytes were never restored; this writer's own turn ended 'finished', and what is in the file is not whole"
+    },
+    "None": {
+      "state": "captured",
+      "text": "first-prefixsecond-whole",
+      "more_may_arrive": false,
+      "why": "the writer saw this stream to its end"
+    },
+    "failed_persistence_before_third": {
+      "declaration": null,
+      "carried": null
+    },
+    "failed_persistence_after_third": {
+      "state": "captured",
+      "text": "first-prefixsecond-prefixthird-whole",
+      "more_may_arrive": false,
+      "why": "the writer saw this stream to its end"
+    },
+    "unreadable_carry_after_third": {
+      "state": "captured",
+      "text": "first-prefixsecond-prefixthird-whole",
+      "more_may_arrive": false,
+      "why": "the writer saw this stream to its end"
+    },
+    "seconds": 0.0009634309681132436,
+    "scratch": "/tmp/w198667-review201212-ie6_vpeu"
+  },
+  "probe_process_wall_seconds": 0.016552137,
+  "probe_sha256": "8727e90bee79d846ac0c19b46e48a1effc258e8d23ef2b068d0d42594082ab66",
+  "image_evidence": "Inspected retained fixture-201156/build/smoke.json: eight true checks for sha256:23edb0ca2a9a7e93a4101908e1e6333d2cbe419fd7851f910077e095b145751e. Context copies worker/format/scripted agent match source. No new container run.",
+  "scope": "Synthetic local capture/follow and injected failure boundaries only; no real provider, deployment or store."
+}

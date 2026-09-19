@@ -1,0 +1,53 @@
+{
+  "claim": 198871,
+  "work": "2b077949-W197661",
+  "role": "impl",
+  "corrects": "review-2026-09-18T00-56-06Z.md sha256 e02d204724196d6d30131ed678923cdaaf7037fa0010eea8c3be0b258321a152",
+  "R1_withdrawn_claim": {
+    "what": "EVIDENCE-198750 said this episode 'addresses all five corrections' and delivers a concrete complete packet",
+    "withdrawn": true,
+    "correct_statement": "three lifecycle outcomes remain unproved \u2014 candidate collection, independent review and report-and-hold. Task receipt and the runtime/inspection corrections stand; the rest was not delivered.",
+    "also_withdrawn": "the framing of missing capacity as a BLOCKER. The reviewer is right: it is unfinished configuration under a selection already made, and the composition APIs exist. `tools.dogfood_operator.input_manifest` seals a manifest from explicit selections and `prepared-149053/deployment.py:documents` composes tasks, policies, worker deployments, stage configuration and a submission bound to that seal. Absence of a single_worker CLI is not absence of a supported composition API, and I should not have called it one."
+  },
+  "DELIVERED_THIS_CLAIM": {
+    "package": "instance-198871/",
+    "package_sha256": {
+      "instance-198871/compose.py": "a4f07a933b03aece4ef7d67af09334645b1c9fc9e5da01013a0a1f467eed416b",
+      "instance-198871/composition.json": "0bd7f85c46387b4d357f23ca610f0d11cae66954f99ff76a2adbee3ded68f3ce",
+      "instance-198871/policies.json": "ba936b5d896735c3ece155060c66cd92c6c1cfe5832dd8d46c84cff5bb33a3b8"
+    },
+    "what": "the composition is STARTED and its first layer validates: this episode's own policy documents (policy, resource, network, mount, tool, credential, retention) and their seven digests, composed and written rather than inherited",
+    "adapted_not_inherited": "no old authority, identity, credential, network, mutable tag, version-control write or execution selection travels from the referenced record",
+    "selections_made": {
+      "image": "the LABELLED FIXTURE sha256:edd20e9c3f0a15bdd445c7b83fcb8b5f8a52f6dc42d1d639a0fef9db3ccfacf4, distinct from both accepted production digests",
+      "network": "none \u2014 a scripted agent reaches nothing",
+      "credential": "none selected and none inherited",
+      "participants": "implementation baton.claude-author, review baton.codex-reviewer, integration baton.merge \u2014 distinct participants and principals as DEPLOYMENT-INPUTS-185653 requires",
+      "destination": "/home/sl/baton-v12-lifecycle-198871, a FRESH disposable instance; instance-198750 is preserved"
+    }
+  },
+  "REMAINING_SCOPE_IN_ORDER": [
+    "1. Compose the rest of the chain with the named APIs: runtime profile, toolchain, role instructions, record binding and the task document; then dogfood_operator.input_manifest per role, resealing manifest_digest after setting outputs, as deployment.py:253-272 does.",
+    "2. Compose three worker deployments (all roles) as deployment.py:278-304 does, each naming the FIXTURE digest, this episode's paths and no credential.",
+    "3. Compose the baton.v12.stage-execution-deployment/2 configuration with job_bindings and validate it with stage_execution.held_configuration \u2014 its refusals name the next missing selection.",
+    "4. Derive the submission's input_digest FROM the sealed manifest (deployment.py:334 onward); do NOT manufacture a manifest to fit the digest already submitted in instance-198750, and use a fresh disposable Job/instance.",
+    "5. Bootstrap the fresh destination supplying `jobs` and `workers`, start the scheduler, and exercise candidate collection, independent review and report-and-hold, reading every stage from canonical commands only.",
+    "6. Stop and dispose with the accepted ownership discipline \u2014 private cidfile creation ownership, positive absence proof, no destructive name fallback.",
+    "7. Write a NEW verifier binding the EXACT identities: job_id, authority and work identity, input/profile/policy digests and the collected and reviewed result identity, failing if any required obligation is absent. Not an extension of the existing all_true label, and a recorded refusal string is not lifecycle completion."
+  ],
+  "why_not_finished_here": "the chain is a dozen composed documents whose digests must agree with each other and with the submission, and each is validated by a canonical refusal that has to be iterated. I composed and validated the first layer rather than guessing the rest in one pass. This is partial implementation with the next step named, not another design slice.",
+  "prior_episodes_preserved": {
+    "instance-198750": {
+      "files": 22,
+      "drifted": [],
+      "unchanged": true
+    }
+  },
+  "engine": "none this claim: no container, image build, bootstrap, scheduler, submission, model, credential, network, production store or runtime touch, or version-control mutation",
+  "verification_this_claim": {
+    "what": "compose.py composed and wrote the policy layer and its digests",
+    "measured_seconds": 1.0,
+    "work_cumulative": 548.0
+  },
+  "git_diff_check": "passes; no whitespace defect"
+}

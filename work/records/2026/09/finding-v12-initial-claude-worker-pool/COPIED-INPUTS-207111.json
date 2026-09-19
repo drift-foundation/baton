@@ -1,0 +1,121 @@
+{
+  "all_equal": true,
+  "claim": 207111,
+  "images": {
+    "integration": {
+      "all_equal": true,
+      "copied_paths": 9,
+      "entries": {
+        "/opt/baton/attempt_log_format.py": {
+          "checkout_path": "v12/python/src/baton_v12/attempt_log_format.py",
+          "checkout_sha256": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+          "equal": true,
+          "image_sha256": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b"
+        },
+        "/opt/baton/baton_worker.py": {
+          "checkout_path": "v12/worker/baton_worker.py",
+          "checkout_sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+          "equal": true,
+          "image_sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34"
+        },
+        "/opt/baton/claude_agent.py": {
+          "checkout_path": "v12/worker/claude_agent.py",
+          "checkout_sha256": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+          "equal": true,
+          "image_sha256": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092"
+        },
+        "/opt/baton/integration_contract.py": {
+          "checkout_path": "v12/worker/integration_contract.py",
+          "checkout_sha256": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+          "equal": true,
+          "image_sha256": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d"
+        },
+        "/opt/baton/integration_entry.py": {
+          "checkout_path": "v12/worker/integration_entry.py",
+          "checkout_sha256": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e",
+          "equal": true,
+          "image_sha256": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e"
+        },
+        "/opt/baton/integration_workload.py": {
+          "checkout_path": "v12/worker/integration_workload.py",
+          "checkout_sha256": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+          "equal": true,
+          "image_sha256": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a"
+        },
+        "/opt/baton/source_profiles/__init__.py": {
+          "checkout_path": "v12/python/src/baton_v12/source_profiles/__init__.py",
+          "checkout_sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+          "equal": true,
+          "image_sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+        },
+        "/opt/baton/source_profiles/checkout.py": {
+          "checkout_path": "v12/python/src/baton_v12/source_profiles/checkout.py",
+          "checkout_sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+          "equal": true,
+          "image_sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+        },
+        "/opt/baton/worker-control-1.0.schema.json": {
+          "checkout_path": "v12/worker/worker-control-1.0.schema.json",
+          "checkout_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+          "equal": true,
+          "image_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+        }
+      },
+      "image_digest": "sha256:b9b75acc300170d99649d0497f9f93876ab5d8d73a9157c9861c5763f17c9561",
+      "recipe": "v12/worker/Dockerfile.integration"
+    },
+    "provider": {
+      "all_equal": true,
+      "copied_paths": 7,
+      "entries": {
+        "/opt/baton/attempt_log_format.py": {
+          "checkout_path": "v12/python/src/baton_v12/attempt_log_format.py",
+          "checkout_sha256": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+          "equal": true,
+          "image_sha256": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b"
+        },
+        "/opt/baton/baton_worker.py": {
+          "checkout_path": "v12/worker/baton_worker.py",
+          "checkout_sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+          "equal": true,
+          "image_sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34"
+        },
+        "/opt/baton/claude_agent.py": {
+          "checkout_path": "v12/worker/claude_agent.py",
+          "checkout_sha256": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+          "equal": true,
+          "image_sha256": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092"
+        },
+        "/opt/baton/dogfood_entry.py": {
+          "checkout_path": "v12/worker/dogfood_entry.py",
+          "checkout_sha256": "bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+          "equal": true,
+          "image_sha256": "bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3"
+        },
+        "/opt/baton/source_profiles/__init__.py": {
+          "checkout_path": "v12/python/src/baton_v12/source_profiles/__init__.py",
+          "checkout_sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+          "equal": true,
+          "image_sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+        },
+        "/opt/baton/source_profiles/checkout.py": {
+          "checkout_path": "v12/python/src/baton_v12/source_profiles/checkout.py",
+          "checkout_sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+          "equal": true,
+          "image_sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+        },
+        "/opt/baton/worker-control-1.0.schema.json": {
+          "checkout_path": "v12/worker/worker-control-1.0.schema.json",
+          "checkout_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+          "equal": true,
+          "image_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+        }
+      },
+      "image_digest": "sha256:9ff3322f58f08275bfc4bb2cd511fb7a6b156e991449ee36f365d05e2133529d",
+      "recipe": "v12/worker/Dockerfile.claude"
+    }
+  },
+  "limitation": "EQUALITY AT OBSERVATION TIME and nothing more: the checkout bytes and the artefact bytes agree at the instant this ran. It is not prospective input attestation, and it is not evidence that nothing ever moved since the build -- a file changed after the build and changed back would satisfy it.",
+  "schema": "baton.w202663.copied-inputs/1",
+  "what": "every path both supported recipes COPY, checkout-side and image-side"
+}

@@ -1,0 +1,24 @@
+{
+  "claim": 198695,
+  "hash_checks": {
+    "packet-198640/PACKET.md": true,
+    "packet-198640/deployment-packet.json": true,
+    "packet-198640/verification.json": true,
+    "packet-198640/verify_packet.py": true,
+    "v12/worker/baton_worker.py": true,
+    "v12/python/tests/manager/test_worker_entry.py": true,
+    "v12/python/tests/manager/test_exchange.py": true,
+    "v12/python/tests/manager/test_worker_container.py": true,
+    "v12/python/tests/tools/test_execution_limits.py": true,
+    "launcher": true
+  },
+  "all_match": true,
+  "W194457_canonical_state": {
+    "snapshot_seq": 198697,
+    "status": "closed",
+    "outcome": "satisfying",
+    "last_change_seq": 197265,
+    "accepted_candidate": "REVIEW-CANDIDATE-195787.json"
+  },
+  "review_scope": "read/static; verifier not rerun because it overwrites historical verification.json; no lifecycle exercise claimed"
+}

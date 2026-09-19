@@ -49,7 +49,7 @@ from types import SimpleNamespace
 
 from baton_v12 import checkpoint_profiles
 from baton_v12.authority import MAX_SAFE_INTEGER, Authority, Refusal
-from baton_v12.contracts import ContractRefusal, digest
+from baton_v12.contracts import ContractRefusal, digest, job_input_identity
 from baton_v12.integration import (IntegrationStore, admit_accepted,
                                    continue_accepted, entries_of, lease_of, integration_profile,
                                    publication_for_attempt, publish_candidate,
@@ -2632,10 +2632,20 @@ class Integration:
                     "command; an integration is admitted behind an ordinary "
                     "test run and never ahead of one",
                     category="refused", code="precondition")
+        # W202663: BOTH IDENTITIES, BECAUSE TWO CALLERS WANT DIFFERENT ONES.
+        # `input_manifest_digest` stays the PRODUCER's own runtime manifest
+        # digest, which is what the harness identity below is composed from and
+        # what every attribution of this producer already names. The Job-scoped
+        # projection is added beside it for `_correspondent`, which asks a
+        # different question -- whether this Job and this producer are about one
+        # input -- and must not be answered with a digest that now legitimately
+        # differs per worker.
         return {"task_id": task["task_id"],
                 "task_digest": "sha256:" + hashlib.sha256(payload).hexdigest(),
                 "argv": list(argv),
-                "input_manifest_digest": manifest["manifest_digest"]}
+                "input_manifest_digest": manifest["manifest_digest"],
+                "job_input_identity": job_input_identity(
+                    manifest, what="the configured producer's input")}
 
     def _correspondent(self, job, requirement):
         """The Job, the producer and the input this requirement names AGREE.
@@ -2648,10 +2658,18 @@ class Integration:
         if type(job) is not dict:
             return
         held = job.get("input_digest")
-        if held is not None and held != requirement["input_manifest_digest"]:
+        # W202663: THE JOB-SCOPED PROJECTION, because a Job names one input
+        # identity and its workers now legitimately carry different runtime
+        # manifests. Comparing the producer's WHOLE manifest digest here made
+        # the Job's input identity a statement about one worker's image, which
+        # is the coupling the owner ruling of 2026-09-18T22:01:51Z corrects.
+        # The question this asks is unchanged -- is this Job about the input
+        # this configured producer ran -- and it is now asked of the part of
+        # the manifest that answers it.
+        wanted = requirement["job_input_identity"]
+        if held is not None and held != wanted:
             _refuse(f"this Job names input {held!r} and the configured "
-                    f"producer's manifest is "
-                    f"{requirement['input_manifest_digest']!r}; a required "
+                    f"producer's Job input identity is {wanted!r}; a required "
                     f"test selection describes the producer this Job ran",
                     category="refused", code="precondition")
 
@@ -4786,7 +4804,15 @@ def _disagreements(given, stage, job, binding):
                                       stage.get("profile_name")),
              "the workload profile digest": (given["profile_digest"],
                                              stage.get("profile_digest")),
-             "the submitted input": (manifest["manifest_digest"],
+             # W202663: THE JOB-SCOPED PROJECTION. This is the rule that
+             # decides WHICH configured workers may serve a Job's stage, so
+             # comparing a worker's whole manifest digest here is what actually
+             # excluded every heterogeneous pool: a review or integration
+             # worker on its own image disagreed about "the submitted input"
+             # and was filtered out before anything could refuse it out loud.
+             # Everything else in this table still compares whole.
+             "the submitted input": (job_input_identity(
+                 manifest, what="a configured worker's input"),
                                      job["input_digest"]),
              "the submitted policy": (given["policy_digest"],
                                       job["policy_digest"])}

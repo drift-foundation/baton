@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.manager.test_workspaces",
+    "tests.manager.test_oci",
+    "tests.manager.test_custody",
+    "tests.manager.test_launch"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ".........................................................................................................................................................................................................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 409 tests in 5.026s\n\nOK\n",
+  "seconds": 5.196772166993469,
+  "candidate_sha256": {
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "07d99e1486d8c1710e05c8d95b6fd504ccf856c7484e98d0e3be82fe62eb415c",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "cc18ac084d8df6cd3da6ffbebc41349358201dabf99f4433ba65a610a4f5298e",
+    "v12/python/src/baton_v12/worker_manager/custody.py": "e4bf9cc569a15434f119cdcee6ae42c31ac7a71094b43f279b0fcead38135678",
+    "v12/python/tests/manager/test_workspaces.py": "dc777b16c104b137a61313075bc2d15e81fd548b57de52cd0b76aa87f22684af",
+    "v12/python/tests/manager/test_oci.py": "231998a54d5978dd11221102c7a48480c549459b4114052401556b91079fced4",
+    "v12/python/tests/manager/test_custody.py": "d315fdb7193e304421413b64caf09ae85d9c646ffd9948e767b8721475b8459d",
+    "v12/python/tests/manager/test_lifecycle_composition.py": "3fb38036bacfb09b050d69ea3712b8766002e7b0775bffce51a415ca5f6a337e"
+  },
+  "mapping_launch_callers": "Static rg finds definition/export only in production source; no launch caller."
+}

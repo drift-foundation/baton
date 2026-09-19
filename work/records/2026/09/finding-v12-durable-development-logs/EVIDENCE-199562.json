@@ -1,0 +1,123 @@
+{
+  "COMPLETION_CLAIM_CORRECTED": {
+    "how": "appended in FINDING.md; EVIDENCE-199285.json keeps its name, bytes and hashes as history, and the reviewer's own re-run of 86 tests against them stands",
+    "what": "claim199285's handoff and EVIDENCE-199285.json are headed 'R4 IS COMPLETE AND WIRED END TO END'. That label is WITHDRAWN.",
+    "why": "five things it covered were not done, one of them a defect I shipped"
+  },
+  "R1_production_recipes": {
+    "correction": "both recipes carry it as a TOP-LEVEL module, the way source_profiles travels",
+    "historical_digests": "preserved; no accepted image is rebuilt or re-attributed by this Work",
+    "the_allowlist_widened_deliberately": "test_nothing_from_the_manager_is_copied_in named exactly one permitted path under baton_v12. It names two now, and a NEW case holds the property the allowlist is a proxy for: the admitted module's import graph is itertools, json, os, stat and nothing from baton_v12.",
+    "what": "neither Dockerfile.claude nor Dockerfile.integration copied attempt_log_format.py, so the private fixture's green smoke proved nothing about either supported image -- worker imports degrade to NO capture when the module is missing"
+  },
+  "R2_integration_startup_and_wrapper_stdout": {
+    "cases": 3,
+    "integration": "integration_entry.main's ordinary branch now enters the same _WorkerCapture the managed-apply branch reached through baton_worker.main, so the five _refused diagnostics this Work added can no longer disappear with the container -- which is the half of the incident that made it expensive",
+    "stdout": "the wrapper tees stdout as well as stderr; omitting it was my narrowing rather than the contract's",
+    "the_protocol_bytes_are_untouched": "`serve` frames on sys.stdout.buffer, passed as an operand, so a TEXT wrapper never sees a frame and cannot reorder, re-encode or delay one. A case asserts the caller-visible bytes are identical to the persisted ones, and another holds the buffer fact as a property of the signature."
+  },
+  "R3_native_session_retention": {
+    "cases": 4,
+    "correction": "_retain_native copies the provider's own session files into the delivery's native corner at the end of the turn, which is the one moment the bytes are both complete and still there",
+    "covering": [
+      "the files are retained",
+      "they survive the scratch being removed",
+      "the credential symlink is not followed",
+      "a child that never started retains none"
+    ],
+    "proved_with": "a deterministic fake provider that really creates and writes session files at the normal provider boundary",
+    "the_credential_symlink_is_never_followed": "the one symlink this adapter puts in that home is the credential slot; following it would be this function reading the bearer, which no logging ruling supersedes. A case plants a symlink to a secret and asserts it is neither copied nor read.",
+    "what_it_was": "a constant and an empty directory. _prepared_home builds the provider's home under a SCRATCH tree destroyed with the turn, and the activity observation reads metadata only and opens no native content -- nothing connected those files to anything durable"
+  },
+  "R4_a_failed_to_start_child_was_reported_CAPTURED": {
+    "an_exit_status_is_not_an_outcome": "a child that exits 1 wrote what it wrote and then stopped; conflating the two would report every failing verification as a broken log, and a case pins that",
+    "cases": 3,
+    "correction": "_Outcome names the three cases that differ -- NEVER_STARTED, INTERRUPTED, COMPLETED -- and _ran and _ran_provider declare from what actually happened. `None` no longer means `finished`: it asserts nothing, so a stream nobody spoke for reads back from the file alone.",
+    "probe_rerun": "the reviewer's own injected FileNotFoundError now leaves both streams `failed` with 'could not write this stream', where it left them `captured`",
+    "severity": "the defect of this round, and mine",
+    "what": "_ran's `finally` called declare() with no operand, which defaulted to `finished` -- so an injected FileNotFoundError at the subprocess boundary left BOTH verification streams reported captured, zero bytes, carrying 'the writer saw this stream to its end'",
+    "why_it_is_the_worst_kind": "a failure to start reported as a complete capture is the exact sentence this vocabulary exists to forbid, and it is worse than the discard it replaced because an operator would believe it"
+  },
+  "R5_operator_delivery": {
+    "correction": "`baton-v12-stack logs`, a subcommand of the DEPLOYED bundle -- the same surface `status` and `monitor` are reached by, and what an operator actually has after an incident",
+    "operand_order": "the examples put the parent parser's --logs/--attempt AFTER the subcommand, which the program itself would have refused. Corrected to the order argparse accepts.",
+    "the_follow_gap_is_DOCUMENTED_rather_than_claimed": "follow answers one slice and where to ask from next; the loop is the operator's, and the docstring says why a blocking command would have to invent a termination rule for a stream whose writer it does not control",
+    "what": "the module advertised `baton-attempt-logs`, which nothing installed, and it lives outside the packaged src tree so a console script could not reach it either"
+  },
+  "TWO_EXPECTATIONS_I_GOT_WRONG": [
+    "three older cases called declare() bare and relied on it defaulting to `finished` -- which is the defect. They name the outcome now.",
+    "I expected a child that never started to leave the native corner ABSENT. `materialize` makes the corner before anything runs, so `empty` is the honest answer: 'the room exists and the provider wrote nothing in it' is a different sentence from 'there is no corner'."
+  ],
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "ffb7fac7bb6d1dcc752626056187f1797553b2137c477e9a18dae3cad5dfcce0",
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "6c278da09fbbf985d99eded634f25c86e9711ec1bf7d3d7286e8980cbf993557",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "b8bf738ca04548143eb3598e89d5ce2b412efed75ad700e0ec973edead65ba0a",
+    "v12/python/tests/manager/test_attempt_logs.py": "54df8a1a038cc315f616a71967551f5392487d4befc7a750b0f666e5fc4fbcd3",
+    "v12/python/tests/manager/test_claude_agent.py": "488f0ccc46979dc13a51bb411e9140c61f336d3870c1aaa2c5286b64ce79af70",
+    "v12/python/tests/tools/test_attempt_logs_command.py": "d2dcfa5b7c0cd8c198b5bd851f0a50ab791ad12f36686d077bc80874863b3b70",
+    "v12/python/tools/attempt_logs_command.py": "da8cbb9c8ae5eb8d011c4ef86dd0bb2e58ea64d1ad21df48c9b84fdb3675880f",
+    "v12/python/tools/stack_command.py": "26393cd3dd2c6c134d1706e520427291d04e46d7cfd094d18d95c58819fb8c43",
+    "v12/worker/Dockerfile.claude": "c0913fd8eebe11d79e91fd62b83f9e973b36fc72f5b785eb0a014b40c6084f32",
+    "v12/worker/Dockerfile.integration": "925e064ed6144a80e63c78b97956cc8c916ae8d81a51af337df4be2d8e7bd2c9",
+    "v12/worker/baton_worker.py": "bf731e6bf219e50fe33baeab19d818b80a456b6c75f07a5a91ed835b427bf9c4",
+    "v12/worker/claude_agent.py": "8f75c1996801b047372cb756b76aae55e30029bcf17a48548ad21390c8a46aa7",
+    "v12/worker/integration_entry.py": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e"
+  },
+  "claim": 199562,
+  "fixture_image": "sha256:7357ede48dfa241f21d94802216c60ec3eea71d73b95ef030f201b84cdc5c9ed",
+  "no": [
+    "live model",
+    "provider call",
+    "network",
+    "production action",
+    "version-control mutation",
+    "direct store access",
+    "rebuild or re-attribution of any accepted image"
+  ],
+  "preserved": {
+    "W197661": "queued at baton.bug; its candidate is job_manager/schema.py, manager.py, projection.py, documents.py, tools/stack.py and its job-manager test paths. None is touched here, and its immutable image digests and retained failed disposable attempt are unchanged.",
+    "history": "EVIDENCE-199285.json and every earlier evidence file keep their bytes; the completion claim over them is corrected by appending"
+  },
+  "schema": "baton.w198667.evidence/1",
+  "verification": {
+    "affected_set": {
+      "checks": 756,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 24.57,
+      "suites": [
+        "attempt_logs",
+        "attempt_logs_command",
+        "claude_agent",
+        "integration_worker",
+        "worker_entry",
+        "launch",
+        "oci",
+        "exchange"
+      ]
+    },
+    "container_smoke": {
+      "all_true": true,
+      "checks": 8,
+      "image": "sha256:7357ede48dfa241f21d94802216c60ec3eea71d73b95ef030f201b84cdc5c9ed",
+      "note": "rebuilt on this claim's corrected worker bytes"
+    },
+    "seconds_measured_this_claim": 180,
+    "test_attempt_logs": {
+      "checks": 87,
+      "was": 75
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    },
+    "test_stack": {
+      "checks": 122,
+      "result": "OK",
+      "seconds": 26.128
+    }
+  },
+  "work": "2b077949-W198667"
+}

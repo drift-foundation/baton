@@ -666,12 +666,28 @@ def _accepted_digests(reader, held):
     """The accepted owning Job's input and policy digests, PROVED.
 
     The amendment requires publication to pin these against the accepted Job
-    rather than accept arbitrary strings. It needs no new reader and no
-    `admission` change: `admission._proved` already refuses unless the
-    producer's proposal and the owning Job agree on both members, so the
-    producer's own proposal -- re-read here, through the caller's ordinary
-    Authority proposal read -- IS the accepted Job's answer. Claim136400
-    measured that read from a real scoped session.
+    rather than accept arbitrary strings. It needs no new reader: the producer's
+    own proposal, re-read here through the caller's ordinary Authority proposal
+    read, is what a derived publication must carry. Claim136400 measured that
+    read from a real scoped session.
+
+    W202663 CORRECTS WHY, AND THE OLD REASON IS NOW FALSE. This used to say the
+    producer's proposal "IS the accepted Job's answer", because
+    `admission._proved` refused unless the two were equal. They are no longer
+    the same value: a Job names its input's JOB-SCOPED PROJECTION, so that its
+    workers may each select their own immutable image, while a proposal names
+    the producing worker's WHOLE runtime manifest digest. Admission still
+    proves they correspond -- it projects the producer's manifest before
+    comparing -- but correspondence is not equality, and a reader who acted on
+    the old sentence would pin a derived publication to the wrong one of two
+    digests.
+
+    WHAT THIS PINS IS, AND ALWAYS WAS, THE RUNTIME IDENTITY. A derived
+    publication is about the producer's result, so it carries the producer's own
+    input digest; `_custody_basis` below binds the same value. Nothing here
+    reads the Job, and after this correction nothing here should: the Job
+    membership of that manifest is established once, at admission, by the rule
+    that owns it.
     """
     boundaries.capability(getattr(reader, "proposal", None),
                           "the Authority's proposal read")

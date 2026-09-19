@@ -1,0 +1,90 @@
+{
+  "claim": 198803,
+  "work": "2b077949-W198667",
+  "role": "impl",
+  "corrects": "review-2026-09-18T00-44-19Z.md sha256 1afa99a6893f219e5b8849dc3e7aad055e3ebd6157c0779e240c18f654fa26a9",
+  "candidate_sha256": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "97d120a24f5fd942a3bd6cabeebc91f9d2a946642431d664ef91180c432d563c",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "717d892e66551285679cb36e4ceace9d056cf77fb6a4bd0a4b1a76687a674c4f",
+    "v12/python/tests/manager/test_attempt_logs.py": "6d56e19f4331f82f5ca386fdb6a65bf8d823f1a657e6c35e52f8d5b2ad1061f3",
+    "v12/python/tests/manager/test_oci.py": "0fa732ea7d806f59ef589a3b6efa236bb13d04bbcf83ae04cef7fc594c224844",
+    "v12/python/tests/manager/test_dependencies.py": "edb6659cd899aead58aa4deb9ed73795e982cfb498bca89f88bc04baf9e7c561",
+    "v12/worker/integration_entry.py": "cd77fd5c071dc16d31e35ad9f04338fa92b324db4e334c172e510da6cab085c8",
+    "v12/python/tests/manager/test_integration_worker.py": "7f6664dc2e1668660fb517cfdb7a42e686b58666f706a5346c6f7ba81e71b1cd"
+  },
+  "ownership_enumerated_before_edits": {
+    "where": "PLAN.md, 'Path ownership, enumerated before edits \u2014 claim198803'",
+    "W197661": "queued at baton.bug; its candidate includes baton_worker.py, which this claim did NOT edit. Its accepted images carry the OLD integration_entry bytes and this Work does not retroactively change them or their silent-exit observation.",
+    "W194457": "closed satisfying; this claim builds on the accepted current bytes and restored no earlier version",
+    "reviewer_owned": "every review and REVIEW-EVIDENCE-*.json, untouched"
+  },
+  "DELIVERED": {
+    "1_the_delivery": {
+      "module": "v12/python/src/baton_v12/worker_manager/attempt_logs.py (NEW)",
+      "what": "the manager-owned attempt log room, created BEFORE the runtime starts, with its own fixed container target /run/baton/logs, six named streams, a native corner for the provider's own session files, an honest capture vocabulary and an operator locator/read/follow surface that needs no engine",
+      "why_a_third_namespace": "an attempt already has a RESULT surface (/output, validated and frozen) and a PROTOCOL surface (/run/baton/exchange, read as receipts/states/terminals). A log under either would be read as the wrong kind of thing by whatever owns that surface.",
+      "restart": "adopt() re-enters without destroying anything, so partial evidence survives error, abnormal termination and restart",
+      "missing_is_not_empty": "absent | empty | captured | truncated | partial | failed. The writer's own word is trusted over the file for partial/truncated/failed, because a file cannot tell you it is a prefix.",
+      "mode_has_one_owner": "LOG_DIR is workspaces.WORKSPACE_DIR, the constant the establishing function chmods to, so adopt cannot start refusing rooms this module made"
+    },
+    "2_the_mount": {
+      "where": "oci._log_mounts, beside _exchange_mounts and _credential_mounts, wired into run_vector as logs_delivered",
+      "rules": "exactly one bind, writable, at the constant target, a real directory, and refused if any earlier family already holds or contains that target"
+    },
+    "3_the_startup_diagnostics": "the accepted two-file slice from claim198698, unchanged and carried forward"
+  },
+  "NOT_DONE": {
+    "items": [
+      "the tee in claude_agent.py: provider stdout parsed AND retained byte-identically, provider stderr and both verification streams off DEVNULL, native session output retained, explicit partial/failed capture reported through the vocabulary above",
+      "the wrapper's own earliest output (worker.stdout/worker.stderr), which a provider-side tee cannot reach -- this needs baton_worker.py, which is W197661's candidate and requires the serial coordination PLAN records",
+      "wiring the delivery into the attempt lifecycle in tools/single_worker.py so a real start creates the room and passes logs_delivered",
+      "the owner's full capture matrix: incremental visibility, both channels on success and failure, early startup refusal, partial output after termination, restart preservation, concurrent separation, unchanged protocol parsing, and log open/write/drain failures",
+      "the three later integration refusal sites review198746 asked for focused fake-boundary coverage on"
+    ],
+    "why": "the delivery and its mount are the bricks everything else stands on: a tee with nowhere durable to write is not capture, and the lifecycle wiring needs the delivery to exist first. This claim built those and stopped at a coherent boundary rather than leaving a half-written tee."
+  },
+  "verification": {
+    "components": [
+      {
+        "what": "tests.manager.test_attempt_logs (NEW)",
+        "checks": 22,
+        "unittest_seconds": 0.05,
+        "result": "OK",
+        "flags": "-W error::ResourceWarning"
+      },
+      {
+        "what": "tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount (NEW)",
+        "checks": 9,
+        "unittest_seconds": 0.021,
+        "result": "OK"
+      },
+      {
+        "what": "attempt_logs + oci + exchange + workspaces + integration_worker",
+        "checks": 507,
+        "unittest_seconds": 14.762,
+        "wall_seconds": 15.009,
+        "result": "OK"
+      }
+    ],
+    "dependency_registry": {
+      "measured_baseline_before_this_claim": 57,
+      "after_this_claim": 57,
+      "added_by_this_claim": 0,
+      "how": "a scratch copy of src/ with this claim's manager changes reverted, run against the same tests",
+      "what_it_caught": "the suite lists `offset` among operands that are BOOKKEEPING BY NATURE, beside `cursor` and `index`. My reader took `offset=`. That is the suite catching a real API boundary rather than a registry gap, so the OPERAND WAS RENAMED to `from_byte` -- the way this package spells `from_instant` -- rather than forcing the name past the rule.",
+      "registered": [
+        "stream",
+        "reported",
+        "from_byte",
+        "bound",
+        "limit",
+        "logs_delivered"
+      ],
+      "note": "the 57 are pre-existing and unrelated (context_delivery, provider_context, launch, workspaces imports); this claim neither added nor fixed any of them"
+    },
+    "measured_seconds_this_claim": 62.0,
+    "a_measurement_i_withdrew": "one baseline comparison in this claim ran from the wrong directory after a cwd reset and reported '0 pre-claim failures'. That was an artifact, not a measurement; I checked that the test file was undamaged and re-measured properly from v12/python. The real numbers are the 57/57 above."
+  },
+  "engine": "no container, no image build, no model, no credential, no network, no production store or runtime touch, no version-control mutation",
+  "git_diff_check": "passes; no whitespace defect"
+}

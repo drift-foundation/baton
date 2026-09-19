@@ -1,0 +1,37 @@
+{
+  "fixture": "/tmp/w194457-review194488-lnybdqu6",
+  "entries": 1101,
+  "cases": {
+    "provision": {
+      "returncode": 0,
+      "stdout": {
+        "peak_open_descriptors_from_os_open": 0,
+        "successful_opens": 0,
+        "first_open_errno": null,
+        "limit": 1024,
+        "outcome": "AttributeError",
+        "message": "module 'baton_v12.worker_manager.workspaces' has no attribute '_provision_line_access'",
+        "remaining_tracked_descriptors": 0,
+        "seconds": 9.19698504731059e-06
+      },
+      "stderr": ""
+    },
+    "consume": {
+      "returncode": 0,
+      "stdout": {
+        "peak_open_descriptors_from_os_open": 2,
+        "successful_opens": 1101,
+        "first_open_errno": null,
+        "limit": 1024,
+        "outcome": "returned",
+        "remaining_tracked_descriptors": 0,
+        "seconds": 0.002548034011851996
+      },
+      "stderr": ""
+    }
+  },
+  "ownership_and_modes_unchanged": true,
+  "source_sha256": "f345de03262fb6a332d6e221c1c3367736a1e3d6b6d47f1254f04cb62b9dac2a",
+  "total_seconds": 0.30397578596603125,
+  "limits": "open tracking excludes scandir's internal descriptor and interpreter baseline; installed incident errno remains unknown"
+}

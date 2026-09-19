@@ -1,0 +1,38 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  773.6kB
+Step 1/13 : ARG PROVIDER_BASE
+Step 2/13 : FROM ${PROVIDER_BASE}
+ ---> 9ff3322f58f0
+Step 3/13 : COPY python/src/baton_v12/attempt_log_format.py      /opt/baton/attempt_log_format.py
+ ---> 48b235bed4fe
+Step 4/13 : COPY worker/baton_worker.py /opt/baton/baton_worker.py
+ ---> 2d810ec4034d
+Step 5/13 : COPY worker/claude_agent.py /opt/baton/claude_agent.py
+ ---> 1fc3f5a462b2
+Step 6/13 : COPY worker/integration_contract.py /opt/baton/integration_contract.py
+ ---> 4d5b54654bfc
+Step 7/13 : COPY worker/integration_workload.py /opt/baton/integration_workload.py
+ ---> faddd97d2eb1
+Step 8/13 : COPY worker/integration_entry.py /opt/baton/integration_entry.py
+ ---> 6078057d5566
+Step 9/13 : COPY worker/worker-control-1.0.schema.json      /opt/baton/worker-control-1.0.schema.json
+ ---> 075bd8f29d79
+Step 10/13 : COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+ ---> 16a44e4b5481
+Step 11/13 : USER 65532:65532
+ ---> Running in e86286c96890
+ ---> Removed intermediate container e86286c96890
+ ---> c7169d6df425
+Step 12/13 : ENTRYPOINT ["python3", "/opt/baton/integration_entry.py"]
+ ---> Running in ee14c97dceb8
+ ---> Removed intermediate container ee14c97dceb8
+ ---> 9baee8b15350
+Step 13/13 : ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PYTHONPATH=/opt/baton     PYTHONHASHSEED=0     NODE_NO_WARNINGS=1
+ ---> Running in 974e766d1841
+ ---> Removed intermediate container 974e766d1841
+ ---> b9b75acc3001
+Successfully built b9b75acc3001
+Successfully tagged baton-v12-w202663-integration:e486652c

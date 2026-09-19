@@ -42,6 +42,7 @@ from baton_v12.worker_manager import (abandon_attempt,
                                       request_runtime_start, retain_operation,
                                       retentions_of)
 from baton_v12.worker_manager import documents
+from baton_v12.worker_manager import intake
 from baton_v12.worker_manager import load_manifest
 
 from .test_offers import NOW, WHO
@@ -1181,6 +1182,206 @@ class RestartOrderingIsPreserved(IntakeCase):
         again = record_intake(self.store, self.port, attempt_id=ATTEMPT,
                               collected=self.collection())
         self.assertEqual(again["receipt_digest"], receipt["receipt_digest"])
+
+
+# -- W197661: finalization after a committed intake ---------------------------
+
+
+class FinalizationAfterCommittedIntakeCanREENTER(IntakeCase):
+    """W197661, and it was measured on a real deployment before it was read.
+
+    `review_driver.end_implementation` promises that every one of its nine
+    steps replays and that a death between any two re-enters and finishes.
+    STEP FIVE DID NOT: `request_intake` asked `_collectable` -- which admits
+    `frozen` only -- ahead of `record_intake`'s replay, and `sealed` is the
+    state a SUCCESSFUL intake leaves behind. So an ending that got past intake
+    and failed at retention, publication or the freeze refused here forever,
+    and the stage stayed `answering` and asked again on every tick.
+
+    THE SUITE ALREADY PROVED THE INNER DOOR AND NOT THE OUTER ONE.
+    `RestartOrderingIsPreserved.test_a_retry_of_intake_replays_after_the_axis
+    _moved` calls `record_intake` directly and passes; the entry an ending
+    actually uses is `request_intake`, and nothing asked it the same question.
+    """
+
+    def reentered(self):
+        """The ending's own entry, asked a second time. Its adapter is fresh,
+        so whether the collection happened again is a fact the case can read."""
+        adapter = Custodian(self.collection())
+        return request_intake(self.store, self.port, adapter,
+                              attempt_id=ATTEMPT), adapter
+
+    def custody_rows(self):
+        return self.store._connection.execute(
+            "SELECT COUNT(*) FROM intake_artifacts").fetchone()[0]
+
+    def test_the_endings_own_entry_replays_its_committed_receipt(self):
+        receipt, _ = self.intaken()
+        self.assertEqual(self.attempt_axis("output"), "sealed")
+        again, _ = self.reentered()
+        self.assertEqual(again, receipt)
+
+    def test_the_adapter_is_NOT_asked_to_collect_a_second_time(self):
+        """No duplicate collection, which is the property the ruling names
+        first. The replay path never reaches an adapter at all."""
+        self.intaken()
+        _, adapter = self.reentered()
+        self.assertEqual(adapter.collected_with, [])
+
+    def test_custody_is_still_taken_exactly_once(self):
+        self.intaken()
+        self.assertEqual(self.custody_rows(), 1)
+        self.reentered()
+        self.assertEqual(self.custody_rows(), 1)
+
+    def test_the_receipt_identity_and_the_result_are_UNCHANGED(self):
+        receipt, _ = self.intaken()
+        again, _ = self.reentered()
+        for member in ("receipt_digest", "result_id", "attempt_id"):
+            self.assertEqual(again[member], receipt[member])
+        self.assertEqual([one["artifact_id"] for one in again["artifacts"]],
+                         [one["artifact_id"] for one in receipt["artifacts"]])
+        self.assertEqual(
+            [one["custody_locator"] for one in again["artifacts"]],
+            [one["custody_locator"] for one in receipt["artifacts"]])
+
+    def test_the_committed_receipt_is_the_JOURNAL_S_own_bytes(self):
+        """Resumed, not recomputed. The receipt an ending continues from has
+        to be the one it recorded, member for member."""
+        receipt, _ = self.intaken()
+        row = self.store.operation_record(
+            intake_operation(self.attempt_row())["operation_id"])
+        self.assertEqual(row["state"], "committed")
+        again, _ = self.reentered()
+        self.assertEqual(again, json.loads(row["result"]))
+        self.assertEqual(again, receipt)
+
+    def test_a_SEALED_output_is_still_refused_by_the_precondition(self):
+        """The correction resumes a receipt; it does NOT admit sealed outputs.
+        Letting one through would carry a second, possibly different collection
+        into the custody comparison, which is the opposite of taking custody
+        once."""
+        self.intaken()
+        with self.assertRaisesRegex(ContractRefusal,
+                                    "custody is taken of a FROZEN result"):
+            intake._collectable(self.store, self.attempt_row(), ATTEMPT)
+
+    def test_a_FIRST_entry_is_untouched_by_the_new_path(self):
+        self.frozen_attempt()
+        self.assertEqual(self.attempt_axis("output"), "frozen")
+        adapter = Custodian(self.collection())
+        receipt = request_intake(self.store, self.port, adapter,
+                                 attempt_id=ATTEMPT)
+        self.assertEqual(len(adapter.collected_with), 1)
+        self.assertEqual(receipt["attempt_id"], ATTEMPT)
+
+    def test_only_a_COMMITTED_record_replays(self):
+        """A refused record must keep raising through the ordinary path, and
+        an absent one is an ordinary first entry. Answering either from the
+        journal would be inventing an outcome."""
+        self.frozen_attempt()
+        row = self.attempt_row()
+        self.assertIsNone(intake._settled_intake(self.store, row))
+        # A REFUSED RECORD MADE THE WAY ONE REALLY APPEARS: the journal writes
+        # it when the act raises, so the row's own shape is the store's rather
+        # than this fixture's idea of it.
+        operation = intake_operation(row)
+        def refusing(_connection):
+            raise ContractRefusal("refused", "precondition",
+                                  "an earlier one", durable=True)
+        with self.assertRaises(ContractRefusal):
+            self.store.transact(
+                operation["operation_id"], "intake.record",
+                manager_signature("intake.record", {"attempt_id": ATTEMPT}),
+                refusing)
+        self.assertEqual(
+            self.store.operation_record(
+                operation["operation_id"])["state"], "refused")
+        self.assertIsNone(intake._settled_intake(self.store,
+                                                 self.attempt_row()))
+
+    def test_a_committed_record_of_ANOTHER_kind_does_not_replay(self):
+        self.frozen_attempt()
+        row = self.attempt_row()
+        self.store.transact(
+            intake_operation(row)["operation_id"], "output.collect",
+            manager_signature("output.collect", {"attempt_id": ATTEMPT}),
+            lambda _connection: {"not": "a receipt"})
+        self.assertIsNone(intake._settled_intake(self.store,
+                                                 self.attempt_row()))
+
+    def test_the_assignment_and_participant_are_still_proved_FIRST(self):
+        """The replay is not a way past the checks that decide whether this
+        caller may be asking at all."""
+        self.intaken()
+        held = self.port.participant
+        self.port.participant = "baton.somebody-else"
+        self.addCleanup(setattr, self.port, "participant", held)
+        with self.assertRaisesRegex(ContractRefusal, "this session acts for"):
+            request_intake(self.store, self.port,
+                           Custodian(self.collection()), attempt_id=ATTEMPT)
+
+
+class TheENDINGFinishesFromEveryCutPointAfterIntake(IntakeCase):
+    """The ruling's regression boundary: deterministic failure immediately
+    after successful intake, during retention, and before publication -- then
+    re-entry, each proving the ending can still finish and that nothing was
+    done twice."""
+
+    def collected_and_retained(self):
+        """`review_driver._collected`'s two steps, in its own order."""
+        receipt = request_intake(self.store, self.port,
+                                 Custodian(self.collection()),
+                                 attempt_id=ATTEMPT)
+        decided = decide_retention(
+            self.store, self.port, Custodian(), attempt_id=ATTEMPT,
+            artifact_ids=[one["artifact_id"] for one in receipt["artifacts"]],
+            disposition="retain",
+            retention_policy_digest=RETENTION)
+        return receipt, decided
+
+    def test_a_failure_IMMEDIATELY_after_intake_re_enters_and_finishes(self):
+        self.frozen_attempt()
+        receipt = request_intake(self.store, self.port,
+                                 Custodian(self.collection()),
+                                 attempt_id=ATTEMPT)
+        # The process dies here. Everything after intake never ran.
+        again, decided = self.collected_and_retained()
+        self.assertEqual(again, receipt)
+        self.assertEqual(decided["disposition"], "retain")
+
+    def test_a_failure_DURING_retention_re_enters_and_finishes(self):
+        self.frozen_attempt()
+        first, _ = self.collected_and_retained()
+        again, decided = self.collected_and_retained()
+        self.assertEqual(again, first)
+        self.assertEqual(decided["disposition"], "retain")
+        self.assertEqual(
+            self.store._connection.execute(
+                "SELECT COUNT(*) FROM intake_artifacts").fetchone()[0], 1)
+
+    def test_re_entering_THREE_times_changes_nothing(self):
+        """A stage that has owed one act for many ticks re-enters many times,
+        which is exactly what the measured deployment did."""
+        self.frozen_attempt()
+        first, _ = self.collected_and_retained()
+        for _ in range(3):
+            again, _ = self.collected_and_retained()
+            self.assertEqual(again, first)
+        self.assertEqual(
+            self.store._connection.execute(
+                "SELECT COUNT(*) FROM intake_artifacts").fetchone()[0], 1)
+        self.assertEqual(
+            self.store._connection.execute(
+                "SELECT COUNT(*) FROM operations WHERE kind = 'intake.record'"
+            ).fetchone()[0], 1)
+
+    def test_the_output_axis_is_never_moved_backwards_by_a_replay(self):
+        self.frozen_attempt()
+        self.collected_and_retained()
+        self.assertEqual(self.attempt_axis("output"), "sealed")
+        self.collected_and_retained()
+        self.assertEqual(self.attempt_axis("output"), "sealed")
 
 
 # -- §13, for the four doors `test_secrets` cannot reach ----------------------

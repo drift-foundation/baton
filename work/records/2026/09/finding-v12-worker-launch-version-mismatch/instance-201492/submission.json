@@ -1,0 +1,46 @@
+{
+  "jobs": [
+    {
+      "input_digest": "sha256:5c17ca1ff4a8321eba21b906a3a811356bd2dd6dc20a98fe7da3045b878fbb37",
+      "job_id": "w197661-lifecycle",
+      "policy_digest": "sha256:8b45f78e5f85bb016d9fcbdc183c8cdf9aded74297a6e48db845423a4c0aaf55",
+      "stages": [
+        {
+          "depends_on": [],
+          "kind": "implementation",
+          "profile_digest": "sha256:2581bf416ac976c549f2c31150e200d83c10ea4abe30d99f00ca8ab0ec8e4403",
+          "profile_name": "w197661-fixture-profile",
+          "work_id": "d8a04219-W1"
+        },
+        {
+          "depends_on": [
+            {
+              "job_id": "w197661-lifecycle",
+              "kind": "implementation"
+            }
+          ],
+          "kind": "review",
+          "profile_digest": "sha256:2581bf416ac976c549f2c31150e200d83c10ea4abe30d99f00ca8ab0ec8e4403",
+          "profile_name": "w197661-fixture-profile",
+          "work_id": "d8a04219-W1"
+        },
+        {
+          "depends_on": [
+            {
+              "job_id": "w197661-lifecycle",
+              "kind": "review"
+            }
+          ],
+          "kind": "integration",
+          "profile_digest": "sha256:2581bf416ac976c549f2c31150e200d83c10ea4abe30d99f00ca8ab0ec8e4403",
+          "profile_name": "w197661-fixture-profile",
+          "work_id": "d8a04219-W1"
+        }
+      ],
+      "terminal_policy": "report-and-hold",
+      "test_scope": []
+    }
+  ],
+  "schema": "baton.v12.job-submission/2",
+  "submission_id": "w197661-lifecycle-201492"
+}

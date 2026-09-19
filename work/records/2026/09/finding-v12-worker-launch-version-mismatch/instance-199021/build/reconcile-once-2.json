@@ -1,0 +1,46 @@
+serving initialization complete: incarnation='w197661-once2-199021' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-09-18T01:45:00.520Z",
+  "recovered": {
+    "abandoned": [],
+    "recoverable": []
+  },
+  "observed": 3,
+  "replaced": [],
+  "acts": [],
+  "started": [],
+  "spoken": [
+    {
+      "stage_id": "w197661-lifecycle/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408acb6f617c7af9",
+      "act": "conclude",
+      "outcome": "deferred",
+      "detail": {
+        "category": "refused",
+        "code": "precondition",
+        "message": "attempt 'attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408… output is sealed; custody is taken of a FROZEN result, and no other state is one"
+      }
+    }
+  ],
+  "refreshed": [
+    {
+      "stage_id": "w197661-lifecycle/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408acb6f617c7af9",
+      "state": "quiescent"
+    },
+    {
+      "stage_id": "w197661-lifecycle/review",
+      "episode": 1,
+      "attempt_id": "attempt-764c404a67a3ae9d1d467e659fc261473620678fe1fb3200e54e557ede9ebcbd",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w197661-lifecycle/integration",
+      "episode": 1,
+      "attempt_id": "attempt-61a487b9e7d73f504d6c4752dd03f0bb9793ee4a58faa8903a5a88549f3ec5cd",
+      "state": "not-asked"
+    }
+  ]
+}

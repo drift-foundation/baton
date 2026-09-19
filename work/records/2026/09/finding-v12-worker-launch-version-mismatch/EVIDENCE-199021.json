@@ -1,0 +1,135 @@
+{
+  "OPERATIONAL_FINDING": {
+    "NOT_DIAGNOSED_HERE": "which step after intake failed the FIRST time is not established. The fixture's scripted agent writes result_metadata {} for its git-change-proposal output, so it carries no baton.git-proposal/1 claim and publication could not succeed -- that is a FIXTURE GAP and a plausible cause, not a measured one. No product change is proposed on it.",
+    "measured": "two independent `serve --once` reconciles, 72 seconds apart, each owed `conclude` for the attempt and each DEFERRED it with the identical refusal refused/precondition: \"attempt '...' output is sealed; custody is taken of a FROZEN result, and no other state is one\" (intake.py::_collectable)",
+    "related_comment": "end_implementation's own W124784 note describes this outcome exactly -- \"the stage stays `answering` and asks again forever\" -- for a DIFFERENT cut point, and added `_cleaning_implementation` for that one. This cut point has no such branch.",
+    "the_observability_half": "the operator surface shows ONLY `answering`. The stage's receipts are admit and claim and nothing else; `status` reports a healthy manager, a fresh snapshot and one observed Job. The deferral exists solely in the reconcile report, which the serving loop does not persist. That is the same shape as the reported incident: a runtime that finished, a manager that looks well, and nothing that says why.",
+    "what": "the implementation ending cannot re-enter once intake has sealed the output",
+    "why_it_matters": "review_driver.end_implementation documents that EVERY step replays and that a process death between any two steps re-enters and finishes. Step 5 does not: `_collectable` refuses an output that is already `sealed`, which is the state its own success leaves behind. So an ending that got past intake and failed afterwards can never be completed."
+  },
+  "authority": "owner seq198635, continued under review-2026-09-18T01-21-09Z.md; the labelled synthetic credential fixture needs no further owner gate per that review",
+  "claim": 199021,
+  "corrects": {
+    "R1": "the credential-empty refusal is recorded as a DEPLOYMENT LIMITATION and worked around with a private disposable synthetic non-bearer source this run wrote; no real credential file was read or reused and no authentication coverage is claimed",
+    "R2": "ONE input manifest per Job, shared by all three stage workers; the real _SingleWorker._matches now accepts implementation, review AND integration. The product equality check is untouched and no seal is spoofed.",
+    "R3": "every placeholder replaced by a measured identity, and main() fails closed"
+  },
+  "lifecycle_reached": {
+    "candidate_collection": {
+      "container": "d10ed9224639 from the labelled fixture image, Exited (0)",
+      "exchange": "describe and work answered; terminal disposition=completed ending=answered",
+      "output_axis": "reached `sealed`, so intake and custody DID complete",
+      "state": "THE CONTAINER RAN AND THE WORKER FINISHED; the stage did not conclude",
+      "worker_result": "a baton.worker-manifest/completion with three present outputs and measured content manifests"
+    },
+    "capacity_bootstrapped": {
+      "capacity": "1 Job, one worker per role, schema baton.v12.stage-execution-deployment/1",
+      "grants": "approve/review/verify/integrate in its own scope",
+      "how": "the installed `baton-v12-stack bootstrap --inputs ...` WITHOUT --destination, which is prepare-only and is what a repeated bootstrap supplying workers is",
+      "identity": "reused from this root's record (b0657dfa...)",
+      "routes": [
+        "impl -> baton.w197661-author",
+        "rview -> baton.w197661-reviewer",
+        "integration -> baton.w197661-integrator"
+      ],
+      "seconds": 0.25,
+      "the_refusal_that_taught_it": "with --destination it refuses: 'there is already a runtime at <dest>/distro; nothing here upgrades a deployment in place'",
+      "work_created": "b0657dfa-W1 on impl"
+    },
+    "independent_review": "NOT REACHED; blocked behind the implementation stage",
+    "job_submitted": {
+      "returncode": 0,
+      "seconds": 0.268,
+      "submission_id": "w197661-lifecycle-199021",
+      "through": "the installed `manager submit`"
+    },
+    "report_and_hold": "NOT REACHED; the Job's terminal_policy is report-and-hold and the projection confirms it, but no stage ended",
+    "scheduler_started": {
+      "manager_pid": 525208,
+      "publisher_pid": 525209,
+      "returncode": 0,
+      "seconds": 0.499,
+      "through": "the installed `start`"
+    },
+    "stage_state": "answering, and it will never leave it -- see the finding"
+  },
+  "no": [
+    "live model",
+    "production restart, recovery or resubmission",
+    "credential harvesting",
+    "public log publication",
+    "version-control mutation",
+    "direct store read or write",
+    "new image build"
+  ],
+  "not_done_this_claim": [
+    "the fixture agent composes no baton.git-proposal/1 claim, so no candidate can be published",
+    "independent review and report-and-hold are unreached",
+    "the deferred-conclude finding is measured but not diagnosed to its first failing step",
+    "no cleanup or disposal of the disposable instance, deliberately: it holds the unresolved attempt"
+  ],
+  "package": {
+    "bootstrap_inputs.json": "0e52ca203ab64ddf5f6f540ac8217202527786f233755fc80e3cc117ab90ee6c",
+    "build/append_progress.py": "231fde6f83fc9555c1680cffcea17a9fa7cf7d57314b61dacfd9a4a1d6e1a4db",
+    "build/bootstrap.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/bootstrap.log": "938dac0bbf50fde2aff5eba81b4e8bbe806f66e576ed939341e6f45038df2731",
+    "build/make_evidence.py": "3593bb04070de5f09b4d5ddbe7909b4aae50a5690006849981f0d15e0d8bce42",
+    "build/reconcile-once-2.json": "33cfd4d2e34e09c7cbd25bbcda0edc80cb1e616fa08d037797ff07e21899ff3f",
+    "build/reconcile-once.err": "76b325419eeac5374566fded82bf91a18171892adb4cd324353ecb782af57838",
+    "build/reconcile-once.json": "9cae02440352c5164b510021663b32c162a4bcc66326a59dd7e1637316c80063",
+    "build/start.log": "b08873c4923e28236f5f64ca052c61bfd99825fa40d7d8563f3b0e44d1f35977",
+    "build/status-observed.err": "a28684d65cdf0fe43c55735030f5eabddff616201faca01103e75e3901b376c7",
+    "build/status-observed.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/submit.log": "bb2b38ab462b28a00ca0ee46e210ece727053b15d91832f62b19b55b80e8a179",
+    "compose_lifecycle.py": "34f48e8ce6d3462a7f7ffd6e38c4c159c750e131491b364b7a22279570c8c3e8",
+    "composition.json": "e4530df159beacb93ece677dff99c23724ea05ac3737beb86d933036906b33ef",
+    "integration-instructions.txt": "e4416e2dc925b49bbd8336bf102feaf6e70ee9a52cf4066db5ac83a7560c3dcc",
+    "policies.json": "41fdbc951a4da3befe26012820bc872379104d5230166218037cfd01ce42e5bc",
+    "record-snapshot/FINDING.md": "43a17a4efb57bcaec3862cdaad437d83cc3693e14f07b51a1727a57c950c366e",
+    "record-snapshot/PLAN.md": "450b3b0add1f75d8a7a45e268007f211585a85ff5a4c7decaae4fab21e8e5532",
+    "role_instructions.json": "b9fd5f8d811d4d7bca82ca115bc22cdc7d27bdcaa83870d8f4623fdc4f555961",
+    "runtime_profile.json": "b2a1721b15aee958b732e200cb827eeb3e95d39132d5ec193fd82368c7fa0723",
+    "stage_execution.json": "073cb0dc54cd3e97602c6737c7cd44bc1ca4a33425c317f8f578d03f94d87f3f",
+    "submission.json": "d9839406a8b886eeacb81c1d1e94c0745cb1e1625b7838a26e4a69f0b14d518f",
+    "task.json": "e990b3b22704859657fa9a99c0931bdf304b195f7f7e19538bd05919bc6e0089",
+    "test_composition.py": "9d1daca3b2bd48a3c8fde75cd1b8d445fe3a737b1abcf4ab6f4f33040f423048",
+    "toolchain.json": "b906e20e08c7467310dbb2494356aea9852d322771f09d6576f1b7479e706032",
+    "verification.json": "018f9e54f9313deb3cca4fe999081e6b50f1fb2ed7f24f11531dd2138e2caf19",
+    "verify_lifecycle.py": "1dc6f5d049fd51ba77a96c4d31c801050e315bccc6d735fd5be672d5faf3b7dd"
+  },
+  "preserved": {
+    "earlier_packets": "instance-198871 (compose.py, compose_chain.py and every output), instance-198750, packet-198640 and the corrected-* packages are untouched",
+    "processes": "the manager and publisher this claim started are STOPPED through the installed `stop`; no process of this claim runs",
+    "production": "the stopped production instance /home/sl/baton-v12-instance-2026-09-17T20-29-21Z was not read from, written to, started or changed",
+    "the_unresolved_attempt": "attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408acb6f617c7af9 and its container are RETAINED, not disposed of: the ending never authorized cleanup and removing it would destroy the evidence of an unfinished attempt"
+  },
+  "schema": "baton.w197661.evidence/1",
+  "validators": {
+    "all_accepted": true,
+    "named": [
+      "check_manifest_structure",
+      "bootstrap.held",
+      "stage_execution.held_configuration",
+      "bootstrap.validated",
+      "job_manager.documents.owned_submission",
+      "stage_execution.held_configuration (over the written files)"
+    ]
+  },
+  "verification": {
+    "fail_closed_probes": {
+      "composer": "six cases drive a refusal at each validator and assert rc=1 plus INCOMPLETE on stderr; one asserts that a refused seal stops everything downstream",
+      "verifier": "an injected missing status.json makes the run record an explicit failed check and return 1 rather than raising"
+    },
+    "test_composition": {
+      "checks": 27,
+      "clean_under": "-W error::ResourceWarning",
+      "seconds": 0.303
+    },
+    "verify_lifecycle": {
+      "all_true": true,
+      "checks": 33,
+      "seconds": 0.022
+    }
+  },
+  "work": "2b077949-W197661"
+}

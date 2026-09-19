@@ -1,0 +1,34 @@
+{
+  "source_sha256": "5b78cfae1f0840f7c550e0b28e274f6bb5fa60a37b80b2d6a1b76c7ef8e63073",
+  "focused_tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ".....................................................................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 277 tests in 2.324s\n\nOK\n",
+    "seconds": 2.485970124020241
+  },
+  "fixture": "/tmp/w194457-review194666-3wdv5uot",
+  "race": {
+    "historical": {
+      "outcome": "ContractRefusal",
+      "message": "an initial development-line entry changed before provisioning",
+      "visited": [
+        "second",
+        "first"
+      ],
+      "final_link_count": 2,
+      "final_root_mode": "0o700"
+    },
+    "candidate": {
+      "outcome": "ContractRefusal",
+      "message": "a development-line entry changed while it was proved; nothing was granted",
+      "visited": [
+        "second",
+        "first",
+        "second"
+      ],
+      "final_link_count": 2,
+      "final_root_mode": "0o700"
+    }
+  },
+  "total_seconds": 2.492985299031716
+}

@@ -1,0 +1,12 @@
+{
+  "claim": 199839,
+  "hashes": {
+    "v12/python/tests/integration/test_driver.py": true,
+    "v12/python/tests/job_manager/test_review_driver.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "seconds": 0.5725221799802966,
+    "output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.407s\n\nOK\n"
+  }
+}

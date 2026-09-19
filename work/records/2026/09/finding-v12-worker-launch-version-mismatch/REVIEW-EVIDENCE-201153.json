@@ -1,0 +1,32 @@
+{
+  "claim": 201153,
+  "reviewer": "baton.rvpc",
+  "candidate": {
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/verify_lifecycle.py": "f56148d25949abf5ad82988aec0dbf1f13e906db344b5f9cfa0c8abc42daf54e",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/compose_lifecycle.py": "7705416604f87474f92f95a3c75ac44c53558dae53a0f4f088ac42309f5acd0c",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/CAPTURED-records.json": "2cf36d548ef63ab84598304d024968d382595598ce774824e73f247f636aa416",
+    "v12/python/tests/manager/test_w197661_verifier.py": "f5ad8a98dd073067605209da9a15a86cad1b38b351ec08b5fc903215bf3101c2"
+  },
+  "all_hashes_match": true,
+  "probe": "review-probes-201153.py",
+  "probe_sha256": "2ce17bfea7c6bcf5aa2c40e88a2688f2e252f639ea19f3f0756c943043d6a85b",
+  "results": {
+    "default_pin_open": {
+      "readonly": 1,
+      "writable": 0
+    },
+    "missing_provenance_failed_checks": 5,
+    "missing_attempts_failed_checks": 5,
+    "all_boolean_false_provenance_failed_checks": 0,
+    "missing_verdict_checkpoint_failed_checks": 0,
+    "collision_test_deployment_dependency_calls": 1,
+    "collision_test_dependency_blocked": "1 assertion failure before collision assertion; no real deployment access",
+    "isolated_verifier_suite": {
+      "tests": 41,
+      "passed": true,
+      "wall_seconds": 0.0038718469440937042
+    }
+  },
+  "probe_process_wall_seconds": 0.025480794,
+  "scope": "Synthetic/mocked reviewer verification; no real Authority/control store, engine, provider or deployment opened. Isolated suite is not an unmodified standalone-suite pass."
+}

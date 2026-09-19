@@ -406,3 +406,10 @@ The working process is unchanged by the layout:
 - Never work around a Baton defect without logging a finding for it first. Log the finding, then a short-term workaround is acceptable — but only as a stated stopgap, never as the fix, and the finding is what carries the real correction.
 - This applies with particular force to agents working inside Baton's own source tree. Privileged access to the source and the store lets an agent reach past a gap that every other team hits head-on. Doing so hides the defect, produces a false report of success, and advances nothing: other teams have the CLI and nothing else, and cannot route around what this repository can.
 - The finding states what was observed, separates what is genuinely Baton's defect from the agent's own misuse of the tool, and proposes a direction. Filing it is not optional because the workaround happened to be easy.
+
+
+## Additional managed reviewer — owner 2026-09-18 UTC
+
+Owner selects reviewer `rview-pc` (canonical `baton.rvpc`), role `rview`, as an additional Codex app-server reviewer using its own Codex home and separate supervised context/readiness consumer. This supersedes the sole-managed-reviewer wording above: `baton.codex` remains a reviewer and `baton.rvpc` joins the review pool after configuration acceptance. Resolve generic review handoffs through the configured route; each reviewer uses only its own participant identity and claims Work atomically. Never reuse another participant's context or readiness path. Coordinate exact file ownership before parallel changes; Claude must not overwrite Codex-owned files or changes, and reviewers must not overwrite each other's work. Historical reviews remain append-only. Prompt remains non-routable. Decision and deployment preparation: `work/records/2026/09/finding-rview-pc-reviewer/` (W200075).
+
+Owner follow-up 2026-09-18 UTC: for now, all Baton rview routing goes through `baton.rvpc` alone. This supersedes the two-handler pool selection above once generation11 is accepted. Keep `baton.codex` registered but outside that route; do not interrupt existing claims. Other teams and non-review roles are unchanged.

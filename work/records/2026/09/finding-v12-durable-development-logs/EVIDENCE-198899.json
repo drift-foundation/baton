@@ -1,0 +1,92 @@
+{
+  "claim": 198899,
+  "work": "2b077949-W198667",
+  "role": "impl",
+  "corrects": "review-2026-09-18T01-04-54Z.md sha256 41313c4f324a2f4fa2362fd6b2f4c733333c30aa89181bbf27f912e4f98193c1",
+  "candidate_sha256": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "1b905b03f7fdfb1ab6e1b3d4e42409e97610d176a1cfe42a6018547ca07559b7",
+    "v12/python/tests/manager/test_attempt_logs.py": "29a415ec364b486afebd64192c5d80cc5de9a618e4a983d19a4e1031d80412c4",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "717d892e66551285679cb36e4ceace9d056cf77fb6a4bd0a4b1a76687a674c4f",
+    "v12/python/tests/manager/test_oci.py": "0fa732ea7d806f59ef589a3b6efa236bb13d04bbcf83ae04cef7fc594c224844",
+    "v12/python/tests/manager/test_dependencies.py": "edb6659cd899aead58aa4deb9ed73795e982cfb498bca89f88bc04baf9e7c561",
+    "v12/worker/integration_entry.py": "cd77fd5c071dc16d31e35ad9f04338fa92b324db4e334c172e510da6cab085c8",
+    "v12/python/tests/manager/test_integration_worker.py": "7f6664dc2e1668660fb517cfdb7a42e686b58666f706a5346c6f7ba81e71b1cd"
+  },
+  "R1_capture_state_did_not_survive_being_looked_at": {
+    "confirmed_defects": [
+      "reported=failed with NO file returned absent -- a failure reported as a run that had nothing to say, which the required outcome forbids",
+      "a PermissionError from stat also became absent -- 'I could not ask' is not 'there is nothing there'",
+      "a stream declared partial in locators came back from read as captured, 'the whole stream was retained', because read had no reported operand and there was no persisted status at all"
+    ],
+    "my_test_endorsed_one": "test_locators_name_every_stream_with_its_honest_state asserted absent for a reported failure, so a green suite certified the defect. Corrected under standing test authority.",
+    "correction": "the writer's word is DURABLE (capture-status.json in the room, beside the streams), failed outranks an absent file, absent and inaccessible are separate answers, and BYTES ALONE ARE NEVER COMPLETENESS -- content with no declaration is `live` and only a writer's `finished` reaches `captured`. `at_end` is named that rather than `eof` because catching up with a live stream is an instant, not an ending.",
+    "states": [
+      "absent",
+      "inaccessible",
+      "empty",
+      "live",
+      "captured",
+      "truncated",
+      "partial",
+      "failed"
+    ],
+    "new_cases": [
+      "a writer that could not OPEN is failed with no file at all",
+      "an inaccessible stream is not an absent one, and the operator surface still answers for every stream",
+      "the declaration is durable and reaches capture_state, read and follow",
+      "a declaration survives a restart through adopt",
+      "bytes alone are not completeness: live, then captured only after `finished`",
+      "an invented state is refused from both directions"
+    ]
+  },
+  "R2_reader_could_leave_the_attempts_room": {
+    "confirmed_defect": "a worker.stdout.log symlink inside one attempt, pointing at a sibling file, was followed and returned as THIS attempt's captured output; capture_state used a following stat, read an ordinary open, and the native listing followed its path",
+    "correction": "the room is opened once no-follow and every entry is named relative to that descriptor; a symlink or non-regular entry is `inaccessible` with the reason; the open is O_NONBLOCK and the DESCRIPTOR is checked with fstat, because a path checked before an ordinary open is a different object from the one that gets opened, and a FIFO must not wedge a bounded reader",
+    "judgement": "a room this manager cannot open at all is REPORTED, not raised: locators is the operator's whole picture and one unreadable room must not take the other five streams' answers away with it",
+    "withdrawn": "the description of `adopt` as a complete descriptor-relative proof of the room's identity. It checks the final directory's mode and accepts an existing native corner through a following isdir; that is less than was claimed.",
+    "new_cases": [
+      "a stream that is a symlink is refused, not followed, and the sibling is untouched",
+      "a stream that is not a regular file is refused and the read returns rather than blocking on a FIFO",
+      "a native corner that is a link is refused, not walked",
+      "an ordinary partial log still reads normally (the control)"
+    ]
+  },
+  "R3_NOT_DONE": {
+    "what_remains": [
+      "the tee in claude_agent.py (provider stdout parsed AND retained byte-identically; provider stderr and both verification streams off DEVNULL; native session retention), declaring capture state through record_capture",
+      "the wrapper's earliest output, which needs baton_worker.py -- the review confirms there is NO reviewer hold on its accepted bytes, so this is serial work on current bytes",
+      "lifecycle wiring in tools/single_worker.py so a real start creates the room and passes logs_delivered",
+      "a real operator COMMAND for read/follow; Python functions are not the command the outcome asks for",
+      "capture open/write/drain/termination failure cases and the remaining integration-refusal coverage"
+    ],
+    "honesty": "a coherent internal boundary is not completion and I am not calling it one. This claim delivers two correctness fixes to code I had already shipped, plus the cases that prove them."
+  },
+  "dependency_registry": {
+    "before": 57,
+    "with_why_operand": 58,
+    "after_using_reason": 57,
+    "added": 0,
+    "what_it_caught": "record_capture(..., why=) is not a declared operand; `reason` is the word this package already uses, so the API uses it rather than registering a second spelling"
+  },
+  "verification": {
+    "components": [
+      {
+        "what": "tests.manager.test_attempt_logs",
+        "checks": 29,
+        "unittest_seconds": 0.066,
+        "result": "OK",
+        "flags": "-W error::ResourceWarning"
+      },
+      {
+        "what": "attempt_logs + oci + exchange + workspaces + integration_worker",
+        "checks": 514,
+        "unittest_seconds": 14.866,
+        "wall_seconds": 15.107,
+        "result": "OK"
+      }
+    ],
+    "measured_seconds_this_claim": 55.0
+  },
+  "engine": "no container, image build, model, credential, network, production store or runtime touch, or version-control mutation",
+  "git_diff_check": "passes; no whitespace defect"
+}

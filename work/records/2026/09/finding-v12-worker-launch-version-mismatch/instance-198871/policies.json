@@ -1,0 +1,59 @@
+{
+  "credential_policy": {
+    "payload_in_configuration": false,
+    "registry": null,
+    "slots": {}
+  },
+  "mount_policy": {
+    "mutable_storage": "/home/sl/baton-v12-lifecycle-198871/storage",
+    "source": "read-only original source and a manager-held private development line",
+    "target": "/home/sl/baton-v12-lifecycle-198871/repo/target.git",
+    "target_reference": "refs/heads/main"
+  },
+  "network_policy": {
+    "engine_network": "none",
+    "purpose": "a deterministic fixture reaches nothing"
+  },
+  "policy": {
+    "automatic_retry": false,
+    "review_before_execution": true,
+    "ruling": "owner seq198635: a bounded disposable deterministic lifecycle exercised with a fake provider",
+    "submission": [
+      "w197661-lifecycle"
+    ],
+    "work": "W197661"
+  },
+  "resource_policy": {
+    "deadline_action": "stop; retain evidence; no retry",
+    "implementation_attempt_seconds": 120,
+    "integration_seconds": 60,
+    "review_or_judge_attempt_seconds": 90,
+    "runtime_cpus": 2,
+    "runtime_memory_bytes": 2147483648,
+    "runtime_pids": 512,
+    "scratch_mounts": [
+      [
+        "/tmp",
+        67108864
+      ],
+      [
+        "/dev/shm",
+        16777216
+      ]
+    ],
+    "wall_seconds": 600,
+    "workspace_capacity_is_quota": false,
+    "workspace_declared_capacity_bytes": 536870912
+  },
+  "retention_policy": {
+    "automatic_deletion": false,
+    "disposition": "retain",
+    "root": "/home/sl/baton-v12-lifecycle-198871"
+  },
+  "tool_policy": {
+    "final_verification": [],
+    "model_selection": "NONE; a scripted deterministic agent",
+    "provider_arguments": [],
+    "verification": []
+  }
+}

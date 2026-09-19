@@ -1,0 +1,44 @@
+[
+  {
+    "path": "tools/acp-baton-bridge/src/acp_agent_session.mjs",
+    "base_sha256": "62f6b98efdc9716f2fe59b9e2ed4d3cdb92ed68369ff19c1b14efd534cb562e8",
+    "candidate_sha256": "f8fd2763ab7f7fc019ede763b370a8a7bc822d9618162becc324edec49d3a43e",
+    "candidate_mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/src/acp_baton_bridge.mjs",
+    "base_sha256": "874d740fe190d9f8eb681a885d41296d0bbc1b14057cdd8cdcbd923d9733a179",
+    "candidate_sha256": "37addd33b5289f7f2d2fd5256b1c708ce294fd40a5b0fffe08b611598a477ef4",
+    "candidate_mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/src/operator_control.mjs",
+    "base_sha256": null,
+    "candidate_sha256": "0117d25e643711bf9f57aea2d33ba23cce61b6e435e479facc179d99664a7ff0",
+    "candidate_mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/test/operator_control.test.mjs",
+    "base_sha256": null,
+    "candidate_sha256": "6be4a3f209dcd57b78f431d7544486f1183a8efc85ca6a1409b7779b772e129a",
+    "candidate_mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/test/fake_acp_agent.mjs",
+    "base_sha256": "998ff7e432c865d283c1e0b2e038039f245d401ad9aad69b528fc818ee06b9ff",
+    "candidate_sha256": "b1a262d9bf160c1428e94a91d27396d321143a125c99331b7aa344d56c9825db",
+    "candidate_mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/package.json",
+    "base_sha256": "2e3716a7fef5fe992e50105a099a0157e62ed6a285133649a09254b76667dbf5",
+    "candidate_sha256": "b4d55bec40b2ce8f1deeea2a262f3905a252a64c690a2a5c7bc665b2e81ca13a",
+    "candidate_mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/README.md",
+    "base_sha256": "2bfc2f580dce7ec7806ac15fc00e3ee9d4d3381ffe38bfe15d7fe23f82258921",
+    "candidate_sha256": "598639fc9f854129c6e1049d3ab2b8f28b07444eba7d973bf4b9e04f2a4f01f6",
+    "candidate_mode": "0o664"
+  }
+]

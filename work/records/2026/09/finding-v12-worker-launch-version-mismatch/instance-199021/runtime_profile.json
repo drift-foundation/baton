@@ -1,0 +1,20 @@
+{
+  "credentials": {
+    "provider": "w197661-synthetic-fixture",
+    "reference": "non-bearer-marker"
+  },
+  "image_variants": {
+    "fixture": "sha256:edd20e9c3f0a15bdd445c7b83fcb8b5f8a52f6dc42d1d639a0fef9db3ccfacf4"
+  },
+  "model_selection": "NONE; the scripted agent inside the labelled fixture image",
+  "name": "w197661-fixture-profile",
+  "network": "none",
+  "provider": "scripted deterministic fixture",
+  "roles": [
+    "implementation",
+    "review",
+    "integration"
+  ],
+  "selected_base": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "source_profile": "git-line"
+}

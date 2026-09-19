@@ -1,0 +1,70 @@
+{
+  "CITATION_CORRECTED": {
+    "disposition": "appended, never rewritten. EVIDENCE-199738.json keeps its bytes; the docstring is corrected at the site and says plainly what the fake establishes and what it does not.",
+    "the_local_journal_evidence_is_retained": "it is useful and it is accurate about what it covers; only the claim over it was wrong",
+    "what_I_claimed": "claim199738's handoff, EVIDENCE-199738.json and the cut-point class docstring cited TheCommittedPublicationSurvivesTheProcessThatMadeIt as the real publication seam's replay-and-restart proof",
+    "what_is_true": "that class inherits ProducerCase, whose publisher is LinePublisher -- an IN-MEMORY DOUBLE that appends operands to a list, overwrites its own `recorded` and returns a copy. Those cases drive the real integration.driver and do establish that the LOCAL publication journal replays; they establish nothing about the Authority half. Its exact-republication case also reopens the manager AFTER the repeat and then compares self.read(held) with itself."
+  },
+  "NOT_DONE_THIS_CLAIM": [
+    "R2: the fixture proposal metadata, the deterministic independent reviewer, and the installed disposable lifecycle through candidate publication, independent review and report-and-hold"
+  ],
+  "R1_the_Authority_half_now_has_its_own_proof": {
+    "cases": [
+      "an exact republication makes NO second Authority proposal and returns the same proposal id, with the Authority's own record unchanged",
+      "the published proposal SURVIVES reopening the manager store -- read back from the AUTHORITY rather than from the local journal alone, which is the comparison the cited case never made",
+      "the local record and the Authority agree about one identity"
+    ],
+    "measured": {
+      "checks": 324,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 8.04,
+      "suites": [
+        "tests.integration.test_driver",
+        "tests.job_manager.test_review_driver",
+        "tests.job_manager.test_sweep"
+      ]
+    },
+    "what_makes_it_real": "_OrdinaryAdmissionWorld -- the fixture the review named as a lead -- creates a real Authority with Authority.create, mints the WRITER's session, claims a live assignment and publishes a candidate through driver.publish_candidate against it. What is exercised is the durable Authority proposal rather than a double.",
+    "where": "tests/integration/test_driver.py::TheREALAuthorityPublicationReplaysAndSURVIVESARestart"
+  },
+  "candidate": {
+    "v12/python/tests/integration/test_driver.py": "c5da119151b63cdbc3a83e1ffd9daed2f9aeb3936aea53083b632869c1f2fdb5",
+    "v12/python/tests/job_manager/test_review_driver.py": "d63b5d877bbd5425bbfed44d21246fe3c4afffe11a50c621e4f74405b68687fe"
+  },
+  "claim": 199817,
+  "no": [
+    "live model",
+    "container",
+    "image build",
+    "production action",
+    "lifecycle re-run",
+    "version-control mutation"
+  ],
+  "preserved": {
+    "W198667": "queued at baton.bug; none of its candidate files is touched",
+    "history": "no prior evidence file or review is rewritten",
+    "production": "not read from, written to, started or changed",
+    "the_failed_disposable": "retained and untouched"
+  },
+  "schema": "baton.w197661.evidence/1",
+  "verification": {
+    "integration_and_drivers": {
+      "checks": 324,
+      "result": "OK",
+      "seconds": 8.04
+    },
+    "job_manager_whole_suite": {
+      "checks": 837,
+      "result": "OK",
+      "seconds": 9.631
+    },
+    "seconds_measured_this_claim": 90,
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    }
+  },
+  "work": "2b077949-W197661"
+}

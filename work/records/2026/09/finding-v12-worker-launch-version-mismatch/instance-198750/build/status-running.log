@@ -1,0 +1,5 @@
+manager    absent
+publisher  absent
+snapshot   absent (the publisher has not written one yet)
+jobs       absent
+runtime   unknown: no snapshot was ever published under /home/sl/baton-v12-disposable-198750/state, so what is still executing was NOT resolved here

@@ -1,0 +1,5 @@
+{
+  "implementation": "Produce exactly the candidate the frozen task describes and nothing else.",
+  "integration": "Import exactly the accepted candidate onto the canonical target. Refuse anything outside the candidate rather than repairing it.",
+  "review": "Read the frozen checkpoint. Accept it only if it adds exactly w197661-fixture.txt with exactly the declared line and changes nothing else; otherwise request changes and say which rule was broken."
+}

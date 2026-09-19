@@ -1,0 +1,179 @@
+{
+ "work": "2b077949-W194457",
+ "claim": 194830,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-17T13-22-50Z.md",
+  "sha256": "fcb6bf6919ea46ab1831e7dc6eb99fd8bade34e5560f348146e2c0a3471bd705",
+  "note": "five simulated-engine defects in the probe, fixed BEFORE wiring"
+ },
+ "fixed_this_claim": {
+  "1_fixed_probe_name_and_unowned_rmtree": "was `place/.identity-probe` plus `shutil.rmtree(..., ignore_errors=True)` -- it would delete whatever a previous attempt or anybody else had left at that name. It is `tempfile.mkdtemp` now, and `_remove_probe` pins the directory's (dev, ino) at creation and REFUSES to remove a name that has since become something else.",
+  "2_the_global_cache": "REMOVED entirely. The key named neither the port nor the place, so a second unavailable engine was answered 'supported' with zero calls. The review says removing it is acceptable, and conservative is the only safe direction for a question whose wrong answer is 'you may launch'.",
+  "3_symlink_and_hardlink_output": "`os.stat` follows a link, so a runtime that wrote one pointing at a manager-owned file outside the mount had THAT file's ownership read back as its own. `_probe_owner` opens `O_NOFOLLOW` and requires a regular file with ONE link.",
+  "4_cleanup_and_its_failure": "a client-side timeout stops waiting, not the engine. The helper is removed by name on EVERY path in a `finally`, a reclamation that fails makes the observation unmeasured rather than being swallowed, and an unremovable probe directory is refused rather than ignored.",
+  "5_the_remapped_fixture": "patching `stat` inside the producer proved nothing about a remapped OBSERVATION. The fixture replaces what the host reports for the produced file -- the read boundary -- and is labelled SIMULATED.",
+  "6_the_fixture_root": "my new class hard-coded /var/tmp, which is read-only on the reviewer's host and cost 13 fixture errors. It honours BATON_V12_STACK_TEST_ROOT and otherwise uses the interpreter's own default; verified both ways."
+ },
+ "STILL_NOT_WIRED": {
+  "what": "the call in single_worker.worker_preflight, still a comment at its exact line",
+  "why": "every deployment fixture stands the engine in with an ad-hoc object that answers a status for any argv and creates no file, so the probe correctly reports unmeasured and preflight correctly refuses -- roughly a hundred cases fail for a fixture reason. Teaching those stand-ins to model the probe is the next task; weakening the guard to fit them is the one thing this correction exists to avoid.",
+  "and_still_open": [
+   "private writable HOME/cache",
+   "0600/0700 checks both directions",
+   "the 0640 credential slot, custody normalization and /input readability re-decisions",
+   "written unexecuted installed-update and recovery instructions"
+  ]
+ },
+ "not_deployable": true,
+ "verification": {
+  "suites": [
+   {
+    "module": "tests.manager.test_workspaces",
+    "tests": 134,
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.manager.test_oci",
+    "tests": 129,
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.manager.test_custody",
+    "tests": 121,
+    "seconds": 3.409
+   },
+   {
+    "module": "tests.manager.test_review_cycles",
+    "tests": 162,
+    "seconds": 1.909
+   },
+   {
+    "module": "tests.tools.test_single_worker",
+    "tests": 153,
+    "seconds": 9.111
+   },
+   {
+    "module": "tests.manager.test_launch",
+    "tests": 37,
+    "seconds": 0.708
+   }
+  ],
+  "all_result": "OK",
+  "total_tests": 736,
+  "total_seconds": 16.953,
+  "new_this_claim": 8,
+  "also_run_without_a_configured_test_root": "the identity class passes with BATON_V12_STACK_TEST_ROOT unset",
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_SOMETHING_ALREADY_AT_THE_PROBE_NAME_survives"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "R1-the-probe-directory-goes-back-to-a-fixed-name",
+     "reverted_returncode": 1,
+     "seconds": 0.442,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_SYMLINK_is_not_read_as_the_runtimes_own_output"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "R2-a-symlink-output-is-read-as-the-runtimes-own",
+     "reverted_returncode": 1,
+     "seconds": 0.447,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_HARDLINK_to_something_outside_is_refused_too"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "R3-a-hardlinked-output-is-accepted",
+     "reverted_returncode": 1,
+     "seconds": 0.443,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_engine_that_CANNOT_BE_ASKED_is_unmeasured_and_still_reclaimed"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "R4-the-helper-is-not-reclaimed-when-the-engine-fails",
+     "reverted_returncode": 1,
+     "seconds": 0.44,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_helper_that_cannot_be_RECLAIMED_is_unmeasured"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "R5-a-failed-reclamation-is-swallowed",
+     "reverted_returncode": 1,
+     "seconds": 0.45,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_probe_directory_that_was_REPLACED_is_left_alone"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "R6-an-unremovable-probe-directory-is-ignored",
+     "reverted_returncode": 1,
+     "seconds": 0.463,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 7.734
+  },
+  "probe_seconds": 7.734,
+  "probe_script": "probes-194830.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probes": "R1 and R6",
+    "why": "the gap was mine again: the uniqueness case compared a directory LISTING, which a fixed name that is created and removed leaves unchanged. What a fixed name actually costs is somebody else's directory, and what an unpinned removal costs is a replaced one -- two cases that did not exist until these probes earned them.",
+    "corrected": "the coverage"
+   },
+   {
+    "probe": "R4",
+    "why": "the token named a missing vector; the last one is then the `run`, so the case reports 'run' != 'rm'",
+    "corrected": "the token"
+   }
+  ]
+ },
+ "changed_this_claim": {
+  "v12/python/src/baton_v12/worker_manager/oci.py": "e2298ac629e0d3c7a43a7fa212dcb9e5696eb58d701eec3fb5b88e6c0a21107b",
+  "v12/python/tests/manager/test_workspaces.py": "b9de1c686ea7833094ef790c5e6b4a01d360b5566a16cb9442cbb156208c2faf"
+ },
+ "cumulative_verification_spending": {
+  "claim194465": "none",
+  "claim194532": "16.242s suites, 7.171s probes, 0.304s rerun, 55.434s stage suite",
+  "claim194622": "16.144s + 4.867s",
+  "claim194683": "17.360s + 7.170s",
+  "claim194767": "17.052s + 7.216s",
+  "claim194830": "16.953s + 7.734s",
+  "known_component_sum": "about 173.65s of measured components across six claims, plus one attempted preflight wiring run whose duration I did not capture; not a proven full historical total",
+  "unknowns_preserved": [
+   "the installed incident's original errno",
+   "18,078 is an entry count, not a measured peak",
+   "the 12 stage-execution errors and 56 test_dependencies failures are carried baselines, not re-verified here"
+  ]
+ },
+ "preserved_untouched": {
+  "failed_v12_work": "a2b0d14b-W1",
+  "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+  "how": "no v12 store opened, no claim released, no partial line removed, no resubmission, no installed runtime updated, no production retry"
+ },
+ "no_engine_model_store_deployment_or_version_control_operation": true
+}

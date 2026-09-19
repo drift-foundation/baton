@@ -1,0 +1,98 @@
+{
+  "answers_review": "review-2026-09-18T08-58-46Z.md (claim201931)",
+  "claim": "201954",
+  "digests": {
+    "instance-201492/verification-201954-final.json": "748b79339ac70bb2fe2b8172e770fb9874fce1c6ad18cc3dd5f1d1452fe84d16",
+    "instance-201492/verify_lifecycle.py": "7eeb38236f5c65aaefa0381674af26fbb6f31e8bf5cb0e1aa4fdbe8d102eea94",
+    "v12/python/src/baton_v12/job_manager/store.py": "84141e0aab2ee45a58d7e51420c3c991802f037eeac7a51b3f4f3e686fa35c6d",
+    "v12/python/tests/job_manager/test_store_readonly.py": "fcd555b5904c724b98bd7cd02cefa7ece69960fec84d54a738fb281cb3e671f2",
+    "v12/python/tests/manager/test_w197661_verifier.py": "297af03b656937d14f5bd4c1326a3620b053999d41f08d2ec9bfe72d4e552eb6"
+  },
+  "headline": "F5's prerequisite IMPLEMENTED, not handed back: JobStore.open_readonly exists, the verifier opens through it, and judge now REQUIRES a read-only owner. Retained run4 reverified: 78 of 79 checks hold.",
+  "my_own_case_defects_found_while_writing_them": [
+    "a WAL assertion that read the store's PERSISTED mode, which the writable opener had already set -- it would have passed a reader that requested WAL on every open",
+    "a sidecar-leak assertion comparing against an empty list, which blamed the refusal for the writable opener's own files"
+  ],
+  "preserved": [
+    "retained run4",
+    "the post-run pin9/current10 observation, kept separate from the receipt's accepted generation 9",
+    "the post-build seal limitation; EXPECTED.json not rewritten",
+    "F3/F4 as bounded observations; no bootstrap or pool redesign",
+    "instance-200564 and every earlier episode"
+  ],
+  "schema": "baton.w197661.evidence/1",
+  "still_open": [
+    "F2's cause and readiness implication, unclassified",
+    "full report-and-hold acceptance, blocked on the pin check"
+  ],
+  "the_case_the_review_named": {
+    "test": "test_a_VALID_OLD_SCHEMA_store_is_refused_WITHOUT_migration",
+    "why": "a syntactically valid schema-1 store with this build's own store kind passes a file-header check and reaches _adopt -> _migrate. The interim guard could not stop it; the opener refuses at the version and leaves every byte."
+  },
+  "the_opener": {
+    "adopt_untouched": "_adopt's nonmutating half was factored into _recognized and shared; _adopt calls it and then binds and migrates exactly as before. test_the_ORDINARY_opener_still_migrates_it and TheORDINARYOpenerIsUNCHANGED pin that.",
+    "ownership": "store.py had no in-flight changes; test discovery is `unittest discover` so there is no registry to update; the new suite is its own file",
+    "signature": "JobStore.open_readonly(path, *, authority_uuid, incarnation, clock)",
+    "what_it_does": [
+      "a quoted mode=ro URI, NOT immutable",
+      "refuses a path that is not an existing regular store",
+      "refuses an empty database rather than initializing one",
+      "requires this build's schema EXACTLY; no migration",
+      "proves the Authority binding",
+      "requests no WAL",
+      "attempts no write-capable fallback",
+      "closes its handle on every failure path"
+    ],
+    "where": "v12/python/src/baton_v12/job_manager/store.py"
+  },
+  "the_verifier": {
+    "interim_guard": "_store_refusal and _SQLITE_MAGIC DELETED",
+    "obsolete_claims_removed": [
+      "read_only_opener_available: False",
+      "the bounded_resolution text",
+      "read_terminal's READ-ONLY first sentence over a writable opener"
+    ],
+    "one_check_reframed": {
+      "from": "the read left NO new file beside the store",
+      "pinned_by": [
+        "SQLiteManagedSidecarsAreNOTDatabaseMutation",
+        "test_SQLITE_sidecars_alone_do_NOT_fail_the_run",
+        "test_a_read_that_left_something_OTHER_than_a_sidecar_is_refused"
+      ],
+      "to": "the read created NOTHING BUT SQLite's own WAL machinery",
+      "why_not_a_weakening": "the old form was right while the opener was writable and a created -wal WAS the gap. A CORRECT read-only opener cannot satisfy it on a WAL store: SQLite needs -shm/-wal to READ one and mode=ro can neither checkpoint nor remove them. The database-bytes check is unchanged beside it, and a case asserts sidecars alone do not fail a run while anything else does."
+    },
+    "opens_through": "JobStore.open_readonly",
+    "requirement_inverted": "claim201869's check required opener_is_read_only: False, which described an interim and would have refused this fix. It now requires True, plus that the refusals are the OWNER's."
+  },
+  "verification_result": {
+    "accepted": false,
+    "checks": 79,
+    "file": "instance-201492/verification-201954-final.json",
+    "held": 78,
+    "read_through": "the accepted owner, on the RETAINED run4, no new lifecycle",
+    "the_one_failure": "the configured approval pin EQUALS the Authority's generation -- configured 9, Authority 10. Not erased, not weakened, and the deployment was not re-pinned."
+  },
+  "verification_spending_cumulative": {
+    "broad_suite": {
+      "attribution": "the total rose by my 2 new verifier cases and the failure and error counts did not move. Evidence my changes added none; NOT proof the rest are pre-existing.",
+      "claim201869": "4200 tests, 109 failures / 7 errors",
+      "claim201954": "4202 tests, 109 failures / 7 errors"
+    },
+    "flags": "-W error::ResourceWarning",
+    "new": {
+      "tests/job_manager/test_store_readonly.py": "30 cases, OK"
+    },
+    "new_lifecycle_runs_this_turn": 0,
+    "owned_suites": {
+      "tests/job_manager": "849 -> 879 tests, OK",
+      "tests/job_manager/test_store.py": "47 cases, OK, unchanged",
+      "tests/manager/test_attempt_logs.py": "213 cases, OK",
+      "tests/manager/test_fixture_dispatch.py": "15 cases, OK",
+      "tests/manager/test_importing_fixture.py": "32 cases, OK",
+      "tests/manager/test_w197661_verifier.py": "117 -> 119 cases, OK"
+    },
+    "reversal_probe": "letting the read-only opener migrate and accept an empty store fails 3 cases: the valid-old-schema one, the empty-file one and the no-objects one"
+  },
+  "work": "W197661"
+}

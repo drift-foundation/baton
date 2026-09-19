@@ -1,0 +1,164 @@
+{
+ "work": "2b077949-W194457",
+ "claim": 195007,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-17T13-52-10Z.md",
+  "sha256": "266c02d4464ff9eadde78bbd547fd56718db08ece6873e48b44df03254488687"
+ },
+ "fixed_this_claim": {
+  "1_a_prefix_is_not_an_identity": "`{{.ID}}` defaults to a TWELVE-CHARACTER PREFIX, so the inspection and the removal both named a prefix and a replacement sharing it was inspected and removed. The listing asks `--no-trunc`, and anything that is not 64 lowercase hex characters is refused and named rather than used -- two objects can share a prefix, which makes it a name rather than an identity.",
+  "2_settlement_is_owed_by_the_ATTEMPT": "an OSError from the ownership read escaped past the reclamation entirely, so a container this call started was never asked about and never named. The reclamation is in a `finally` now: whatever the read does, the engine is settled and what could not be settled is recorded."
+ },
+ "STILL_NOT_DONE": [
+  "the preflight wiring and its fake-engine fixtures",
+  "private writable HOME/cache",
+  "0600/0700 checks both directions",
+  "the 0640 credential slot, custody normalization and /input readability re-decisions",
+  "written unexecuted installed-update and recovery instructions"
+ ],
+ "not_deployable": true,
+ "verification": {
+  "suites": [
+   {
+    "module": "tests.manager.test_workspaces",
+    "tests": 143,
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.manager.test_oci",
+    "tests": 129,
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.manager.test_custody",
+    "tests": 121,
+    "seconds": 3.408
+   },
+   {
+    "module": "tests.manager.test_review_cycles",
+    "tests": 162,
+    "seconds": 1.908
+   },
+   {
+    "module": "tests.tools.test_single_worker",
+    "tests": 153,
+    "seconds": 9.111
+   },
+   {
+    "module": "tests.manager.test_launch",
+    "tests": 37,
+    "seconds": 0.708
+   }
+  ],
+  "all_result": "OK",
+  "total_tests": 745,
+  "total_seconds": 16.951,
+  "new_this_claim": 2,
+  "also_run_without_a_configured_test_root": true,
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_TRUNCATED_id_is_not_treated_as_an_identity"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "U1-the-listing-goes-back-to-a-truncated-id",
+     "reverted_returncode": 1,
+     "seconds": 0.46,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_TRUNCATED_id_is_not_treated_as_an_identity"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "U2-a-prefix-is-accepted-as-an-identity",
+     "reverted_returncode": 1,
+     "seconds": 0.456,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_OSError_while_READING_still_settles_the_engine"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "U3-a-failed-read-escapes-past-the-settlement-again",
+     "reverted_returncode": 1,
+     "seconds": 0.447,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_daemon_that_CANNOT_ANSWER_is_not_read_as_absence"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "U4-a-nonzero-listing-is-read-as-absence-again",
+     "reverted_returncode": 1,
+     "seconds": 0.454,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_FILESYSTEM_cleanup_that_did_not_finish_refuses",
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_the_probe_directory_is_removed_through_ITS_OWN_descriptor"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "U5-the-filesystem-cleanup-outcome-stops-mattering",
+     "reverted_returncode": 1,
+     "seconds": 0.446,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_object_THIS_PROBE_DOES_NOT_OWN_is_never_removed"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "U6-the-ownership-label-is-not-compared",
+     "reverted_returncode": 1,
+     "seconds": 0.451,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 7.703
+  },
+  "probe_seconds": 7.703,
+  "probe_script": "probes-195007.py",
+  "probes_that_proved_nothing_first": []
+ },
+ "changed_this_claim": {
+  "v12/python/src/baton_v12/worker_manager/oci.py": "34ee17040441c688bb4019659962019d055f6818cbf6c86c128f642124b1c750",
+  "v12/python/tests/manager/test_workspaces.py": "2baf279fa21e8aa3869c4b1506bc2cdfeaa3e052226ecbf6f3280da57f88a440"
+ },
+ "cumulative_verification_spending": {
+  "claim194465": "none",
+  "claim194532": "16.242s + 7.171s + 0.304s + 55.434s stage suite",
+  "claim194622": "16.144s + 4.867s",
+  "claim194683": "17.360s + 7.170s",
+  "claim194767": "17.052s + 7.216s",
+  "claim194830": "16.953s + 7.734s",
+  "claim194882": "16.951s + 7.627s",
+  "claim194939": "16.849s + 8.201s",
+  "claim195007": "16.951s + 7.703s",
+  "known_component_sum": "about 247s of measured components across nine claims, plus one attempted preflight wiring run I did not time; not a proven full historical total",
+  "unknowns_preserved": [
+   "the installed incident's original errno",
+   "18,078 is an entry count, not a measured peak",
+   "the 12 stage-execution errors and 56 test_dependencies failures are carried baselines"
+  ]
+ },
+ "preserved_untouched": {
+  "failed_v12_work": "a2b0d14b-W1",
+  "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+  "how": "no v12 store opened, no claim released, no partial line removed, no resubmission, no installed runtime updated, no production retry"
+ },
+ "no_real_engine_container_model_store_deployment_or_version_control_operation": true
+}

@@ -1,0 +1,15 @@
+{
+  "claim": 207292,
+  "tests": 16,
+  "passed": true,
+  "seconds": 3.822349519992713,
+  "installed_executable_sha256": "378ec93221c367195da88b352efac132bcedc0fb940727ece209abe05932f0ba",
+  "deployment_equals_prepared": true,
+  "sha256": {
+    "v12/python/tests/tools/test_stage_execution.py": "4276ef28959100245aa711d1f9cbe356fe82c4d7c65773ebd513d683873616e2",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/compose-pool-207219.py": "a7cff59de80a654a76304d58e12ad9e917a40d5fd944d3e9b6b3de95185137dc",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/pool-stage-execution.json": "a35fb6b3018f9c1e1ff469b9e75de0777fbd9925bb70e792fec313bfd15800a8",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/pool-submission.json": "39c9fc05fa3a3d193cc111e0dcb73f76f4fed478602319ac95dae01c1284037d",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/COMMANDS-202663.md": "e10b37d396a468e4dfdd243d6ffbf7a87d0c93af1ab0cc58feb6ad0931df3d68"
+  }
+}

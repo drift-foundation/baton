@@ -1,0 +1,85 @@
+{
+  "work": "W198667",
+  "claim": 201274,
+  "author": "baton.claude",
+  "answering": {
+    "review": "review-2026-09-18T07-09-49Z.md",
+    "sha256": "fab45aafc597858df4429f46b4b6c02248ef862ff2deccd7aee9eabd6b6c5778",
+    "review_evidence": "REVIEW-EVIDENCE-201212.json",
+    "review_evidence_sha256": "f21547974f9fdd463bf4841cd48150c32abe9187fb6893612cc19f6ea7b5e40e",
+    "probes": "review-probes-201212.py",
+    "accepted_by_that_review": "the declared-loss carry across an ordinary successful restart, and the all-successful control"
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "2152f717dbe384721c2fede03364d4a4548d13ce0bd73b230224b7441f6b985d",
+    "v12/python/tests/manager/test_attempt_logs.py": "1b6bc1f1406c977b64616d1e5e4a92712bbea3fe3c14873ea55d29954424f652",
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-201274/smoke.py": "02a73bef172dce20ca9eaf79d1bc246a133da09fc04d19cdfee07fdd6febecde"
+  },
+  "unchanged_this_claim": {
+    "v12/worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+    "v12/worker/claude_agent.py": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092"
+  },
+  "reproduced_before_correcting": {
+    "script": "/tmp/w198667-claim201274/probe_before.py",
+    "r1_unknown_then_success": {"state": "captured", "more_may_arrive": false,
+                                "text": "first-prefixsecond-whole"},
+    "r2_persistence_failure": {"state": "captured", "carried": null,
+                               "sidecar": "finished"},
+    "r3_inaccessible_history": {"state": "captured", "more_may_arrive": false}
+  },
+  "corrections": {
+    "R1": {
+      "defect": "carry_declaration carried only what a previous writer SAID, so declare(None) -- the interrupted writer, which exists to assert that nobody knows how this ended -- and a corrupt sidecar both reached the 'nothing to carry' branch",
+      "change": "bytes with no declaration carry `partial`; _has_bytes distinguishes prior bytes from an empty new stream and answers True when it cannot tell",
+      "after": "the reviewer's probe answers partial, not captured"
+    },
+    "R2": {
+      "defect": "carry_declaration discarded _write_carried's answer, unlinked the prior sidecar and reported success, so an ordinary OSError destroyed the only record of a loss",
+      "change": "the sidecar is cleared only when the carry succeeded; otherwise the acquisition refuses and the evidence stays",
+      "containment": "a refused handle leaves the stream on DEVNULL and declared failed, so the provider runs exactly as it would have -- asserted by a case",
+      "after": "the loss survives and the third writer publishes failed"
+    },
+    "R3": {
+      "defect": "read_carried answered None for every open or read failure and for a non-regular record, so inaccessible history read exactly like absent history; only malformed JSON was conservative",
+      "change": "ENOENT is None; every other failure and every non-regular record is failed",
+      "after": "the reviewer's injected PermissionError leaves the stream failed"
+    }
+  },
+  "reversal_probe": {
+    "how": "a scratch copy with all three corrections undone, then removed",
+    "result": "9 of the 13 new cases fail",
+    "an_expectation_of_mine_it_corrected": "I expected the REFUSED writer to declare nothing; it declares failed, correctly, because its own bytes never reached a file. The prior sidecar is untouched and the new word says the same thing about the same bytes, which is why the refusal is safe."
+  },
+  "images": {
+    "changed_this_claim": true,
+    "why": "attempt_log_format.py changed; baton_worker.py and claude_agent.py did not",
+    "consequence_stated_plainly": "fixture-201156's smoke no longer describes these bytes; it keeps its own attribution",
+    "new_episode": {
+      "path": "work/records/2026/09/finding-v12-durable-development-logs/fixture-201274",
+      "image": "sha256:f62733c6f85d320c49e3096b6a85195aa4c2a572a9a03f93462ca0fef982253c",
+      "built": "--pull=false --no-cache --network none, same immutable base",
+      "smoke": "8 of 8 checks hold"
+    },
+    "untouched": "fixture-199285, fixture-199918, fixture-201008, fixture-201156 and the accepted provider and integration images"
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "attempt_logs + attempt_logs_command", "tests": 226, "new": 13, "result": "OK", "seconds": 1.677},
+      {"suite": "affected set: attempt_logs, attempt_logs_command, claude_agent, integration_worker, worker_entry, launch, oci, exchange", "tests": 884, "result": "OK", "seconds": 26.035},
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.618},
+      {"suite": "W197661 shared: test_w197661_verifier, test_proposing_fixture", "tests": 100, "result": "OK", "seconds": 0.424},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "container": "one image build and one smoke, 8/8",
+    "measured_seconds_this_claim": 600,
+    "prior_spending": "preserved in EVIDENCE-198698 through EVIDENCE-201156 and the reviewers' own evidence; approximately 600s reported for claim201156 is retained as the estimate it is, and no exact cumulative total is asserted"
+  },
+  "ownership": {
+    "shared_overlap_checked_first": "W197661's live candidate is instance-200564/* plus tests/manager/test_w197661_verifier.py; none is touched here and its suites run green against this tree",
+    "not_edited": "every reviewer-owned review and REVIEW-EVIDENCE-*.json; every prior EVIDENCE-*.json; every earlier fixture episode"
+  },
+  "not_done": "no live model, provider call, network (the build and smoke run --network none), production action, recovery, resubmission, version-control mutation, direct coordination-store access, credential read, public log publication, or new permission gate",
+  "synthetic_state": "/tmp/w198667-claim201274; the reviewer's /tmp/w198667-review201212-ie6_vpeu is untouched"
+}

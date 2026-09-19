@@ -885,3 +885,8 @@ closure or deployment is asserted here. W161234 owns its separate shared paths.
 W39649/v13 richer stream/viewer work and W165786/post-v12 baseline repair remain
 deferred. Reviewer changed only dossier evidence/FINDING/PLAN, not candidate
 source/tests/docs, author PROGRESS or Git state.
+
+
+## 2026-09-17 — development raw-log capture restored, W198667
+
+Owner explicitly accepts potential sensitive content in retained process logs for private development use and requires evidence capture. The September 1 prohibition on durable raw stdout/stderr/native transcripts and the September 14 basic-log-sink deferral above are SUPERSEDED for these development deployments by [the confirmed W198667 decision](../finding-v12-durable-development-logs/FINDING.md). Filtering/redaction is not a capture gate. Historical W61599 acceptance remains intact; W198667 owns implementation, partial-log preservation, startup diagnostics and simple operator access. No public publication or production retry is authorized.

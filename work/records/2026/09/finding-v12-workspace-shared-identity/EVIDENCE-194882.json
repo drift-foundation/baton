@@ -1,0 +1,175 @@
+{
+ "work": "2b077949-W194457",
+ "claim": 194882,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-17T13-32-10Z.md",
+  "sha256": "c4bdec2326e763d1d8ce15056692d26cb105981245dd22f3ca1289e10086b632"
+ },
+ "fixed_this_claim": {
+  "1_the_removal_status_is_read": "an engine reports failure with a STATUS, not an exception, and the document was discarded -- run=0 with rm=1 answered a matching identity while the helper persisted. `_reclaim_probe` now distinguishes three outcomes: VERIFIED ABSENCE (the inspection finds no object of that name, which is what `--rm` ordinarily leaves), a removal that reported zero, and anything else -- which makes the observation unmeasured.",
+  "2_ownership_is_proved_before_removal": "a unique NAME is not ownership. The container carries a nonce this invocation minted as a `baton.v12.identity_probe` label, and nothing is removed whose label is not that nonce. The reviewer's case -- `run` failing 125 on a name conflict, then `rm --force` deleting somebody else's object -- now inspects, finds another nonce, removes NOTHING, and names the object.",
+  "3_removal_is_identity_bound": "an `lstat` pin followed by a path-based `rmtree` resolves the name a SECOND time, so a replacement in between was what got deleted while the owned directory survived elsewhere. Every unlink goes through the descriptor opened when the directory was created, the pin is compared on THAT descriptor, and the final `rmdir` is relative to a pinned PARENT descriptor.",
+  "and_what_cannot_be_reclaimed_is_NAMED": "`oci.UNRESOLVED` collects {engine_object, why} -- an unresolved resource nobody can name is one nobody can clean up. Kept rather than printed, so a caller can report it."
+ },
+ "STILL_NOT_DONE": [
+  "the preflight wiring (fixture support first)",
+  "private writable HOME/cache",
+  "0600/0700 checks both directions",
+  "the 0640 credential slot, custody normalization and /input readability re-decisions",
+  "written unexecuted installed-update and recovery instructions"
+ ],
+ "not_deployable": true,
+ "verification": {
+  "suites": [
+   {
+    "module": "tests.manager.test_workspaces",
+    "tests": 137,
+    "seconds": 0.808
+   },
+   {
+    "module": "tests.manager.test_oci",
+    "tests": 129,
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.manager.test_custody",
+    "tests": 121,
+    "seconds": 3.409
+   },
+   {
+    "module": "tests.manager.test_review_cycles",
+    "tests": 162,
+    "seconds": 1.908
+   },
+   {
+    "module": "tests.tools.test_single_worker",
+    "tests": 153,
+    "seconds": 9.21
+   },
+   {
+    "module": "tests.manager.test_launch",
+    "tests": 37,
+    "seconds": 0.708
+   }
+  ],
+  "all_result": "OK",
+  "total_tests": 739,
+  "total_seconds": 16.951,
+  "new_this_claim": 5,
+  "the_engine_fixture_now_models_statuses_not_exceptions": "every failure mode is a STATUS -- inspect answering absence or another nonce, rm reporting non-zero, run conflicting 125 -- which is the shape the review found missing; exceptions remain for an unreachable engine",
+  "also_run_without_a_configured_test_root": "the identity class passes with BATON_V12_STACK_TEST_ROOT unset",
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_FAILED_REMOVAL_is_unmeasured_and_names_what_is_left"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "S1-the-removal-status-is-discarded-again",
+     "reverted_returncode": 1,
+     "seconds": 0.438,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_object_THIS_PROBE_DOES_NOT_OWN_is_never_removed"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "S2-the-ownership-label-is-not-compared",
+     "reverted_returncode": 1,
+     "seconds": 0.442,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_COMPLIANT_engine_is_observed_and_accepted"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "S3-the-inspection-is-skipped-and-removal-is-unconditional",
+     "reverted_returncode": 1,
+     "seconds": 0.444,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_the_probe_directory_is_removed_through_ITS_OWN_descriptor"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "S4-the-directory-is-removed-by-PATH-again",
+     "reverted_returncode": 1,
+     "seconds": 0.441,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_probe_directory_that_is_no_longer_ours_is_left_alone"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "S5-the-descriptor-pin-stops-being-compared",
+     "reverted_returncode": 1,
+     "seconds": 0.441,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_SYMLINK_is_not_read_as_the_runtimes_own_output"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "S6-a-symlink-output-is-read-as-the-runtimes-own",
+     "reverted_returncode": 1,
+     "seconds": 0.443,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 7.627
+  },
+  "probe_seconds": 7.627,
+  "probe_script": "probes-194882.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probe": "S5",
+    "why": "NO BASELINE: I had rewritten the class and the case this pointed at no longer existed, so the probe proved nothing about anything. The descriptor pin now has a case that asks it directly.",
+    "corrected": "the coverage"
+   },
+   {
+    "probe": "S4",
+    "why": "the token was backwards once more -- the reversal deletes the REPLACEMENT, so the case's assertTrue reports 'False is not true'",
+    "corrected": "the token"
+   }
+  ]
+ },
+ "changed_this_claim": {
+  "v12/python/src/baton_v12/worker_manager/oci.py": "0649a486b12c26cabcfb74c44b2859026a6b9c8c3ccebb70f853ae577071389f",
+  "v12/python/tests/manager/test_workspaces.py": "aecc57a6164b7aec4074ccc41b0e5b6aba98a704ae27c709c3376bee360b2e46"
+ },
+ "cumulative_verification_spending": {
+  "claim194465": "none",
+  "claim194532": "16.242s + 7.171s probes + 0.304s rerun + 55.434s stage suite",
+  "claim194622": "16.144s + 4.867s",
+  "claim194683": "17.360s + 7.170s",
+  "claim194767": "17.052s + 7.216s",
+  "claim194830": "16.953s + 7.734s",
+  "claim194882": "16.951s + 7.627s",
+  "known_component_sum": "about 198.23s of measured components across seven claims, plus one attempted preflight wiring run I did not time; not a proven full historical total",
+  "unknowns_preserved": [
+   "the installed incident's original errno",
+   "18,078 is an entry count, not a measured peak",
+   "the 12 stage-execution errors and 56 test_dependencies failures are carried baselines"
+  ]
+ },
+ "preserved_untouched": {
+  "failed_v12_work": "a2b0d14b-W1",
+  "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+  "how": "no v12 store opened, no claim released, no partial line removed, no resubmission, no installed runtime updated, no production retry"
+ },
+ "no_real_engine_container_model_store_deployment_or_version_control_operation": true
+}

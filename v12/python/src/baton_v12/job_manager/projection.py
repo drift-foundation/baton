@@ -40,7 +40,8 @@ from . import (delegation, documents, ending, episodes, execution_limits,
                submission)
 
 __all__ = ["ACT_OUTCOMES", "EXCHANGE_OWED", "gates_of", "owed_acts",
-           "owed_exchange", "receipt_rows", "receipts_of", "replaceable",
+           "deferral_of", "owed_exchange", "receipt_rows", "receipts_of",
+           "replaceable",
            "stage_states", "status"]
 
 # What one sweep can answer about one owed act.
@@ -470,6 +471,19 @@ def stage_states(store, operations, stages=None):
                 operations, episodes.attempting(stage, live),
                 submission.job_of(store, stage["job_id"]))
                 if live is not None else delegation.unobserved()),
+            # W197661: AND NULL FOR A STAGE WITH NO LIVE EPISODE, on the same
+            # rule the receipts beneath follow -- a deferral belongs to the
+            # episode that owed the act, and a stage between an ending and its
+            # replacement owes nothing.
+            # ASKED WHETHER OR NOT THERE IS A LIVE EPISODE, because an
+            # unfinished ending outlives the attempt that owed it -- and the
+            # earlier note here saying it is null without a live episode is
+            # superseded by exactly that.
+            #
+            # `_settled_acts` is what tells an outstanding reason from a
+            # retained one; see `deferral_of`.
+            "deferral": deferral_of(store, stage_id,
+                                    _settled_acts(store, stage_id, live)),
             "receipts": (receipts_of(store, stage_id, live["episode"])
                          if live is not None else {}),
             # W119733: THE OBLIGATION THIS STORE REGISTERED FOR THE LIVE
@@ -589,6 +603,128 @@ def owed_exchange(held):
     return owed
 
 
+
+
+def _settled_acts(store, stage_id, live):
+    """Every (episode, act) this stage has SETTLED, from their own owners.
+
+    W197661 review 2026-09-18T03-18-24Z [3]. A deferral is deleted when its act
+    settles; a DELETE that failed leaves the row, and a reader that called
+    every stored row outstanding would present a settled act's retained reason
+    as a live condition. So the question "has this act settled" is asked of the
+    records that own it rather than of the deferral table:
+
+      `admit` and `claim` settle by writing a RECEIPT, which `receipts_of`
+      already reads for the live episode.
+
+      `conclude` writes no receipt -- the substeps are journalled by their own
+      owners -- so what settles it is that the ending is no longer REGISTERED
+      as pending. `pending_endings` enumerates every unsettled one including
+      prior episodes, which is precisely the set this needs.
+    """
+    settled = set()
+    if live is not None:
+        for act in receipts_of(store, stage_id, live["episode"]):
+            settled.add((live["episode"], act))
+    outstanding = {(one["stage_id"], one["episode"])
+                   for one in ending.pending_endings(store)}
+    # AND AN UNREADABLE TABLE ANSWERS NOTHING RATHER THAN RAISING, for the
+    # reason `deferral_of` gives: an evidence surface must not take the
+    # projection down with it.
+    try:
+        held = store._connection.execute(
+            "SELECT DISTINCT episode FROM deferrals WHERE stage_id = ? "
+            "AND act = 'conclude'", (stage_id,)).fetchall()
+    except Exception:                                        # noqa: BLE001
+        return settled
+    for row in held:
+        episode = row["episode"]
+        # REGISTERED **AND** NO LONGER PENDING. Absence of a pending record is
+        # not settlement: an ending that was never registered has nothing that
+        # settled it, and reading its reason as retained would be this function
+        # quietly deciding an outstanding condition is over. A first cut did
+        # exactly that, and the safe direction is the other one -- an
+        # unregistered `conclude` reason stays OUTSTANDING.
+        try:
+            registered = ending.ending_of(store, stage_id, episode)
+        except Exception:                                    # noqa: BLE001
+            continue
+        if registered is not None and (stage_id, episode) not in outstanding:
+            settled.add((episode, "conclude"))
+    return settled
+
+
+def deferral_of(store, stage_id, settled=()):
+    """Any outstanding reason one of this stage's owed acts did not happen.
+
+    W197661. EXPLICITLY NOT A RECEIPT, and explicitly not a state. `state_of`
+    above does not read this and must not: a deferral is a RE-ENTERABLE
+    condition -- an ending that will finish on the next tick, a worker that has
+    not accepted its offer yet -- and turning one into `exceptional` would
+    report a recoverable stage as a dead one. What it adds is the sentence an
+    operator could not get before without reading a store or an engine: which
+    act, for which attempt, why, since when, and whether it is still happening.
+
+    `since` AND `observed` TOGETHER are what make staleness readable. A reason
+    whose `observed` stopped advancing is one whose manager is no longer
+    running, which is a different fact from a condition that is still recurring.
+    """
+    # EVERY OUTSTANDING REASON FOR THIS STAGE, not only the live episode's.
+    # Review 2026-09-18T02-59-56Z [R1]: `_recover_endings` explicitly services
+    # endings registered by a PRIOR episode -- a stage can have a live episode
+    # owing nothing and an older one holding an unfinished ending -- so a
+    # reader that selected the live episode alone would hide exactly the case
+    # that pass exists for. The episode travels on each entry, so an operator
+    # can still tell which attempt a reason belongs to.
+    try:
+        found = store._connection.execute(
+            "SELECT * FROM deferrals WHERE stage_id = ?",
+            (stage_id,)).fetchall()
+    except Exception as failure:                             # noqa: BLE001
+        # AN EVIDENCE SURFACE MUST NOT TAKE THE PROJECTION DOWN. This is the
+        # reason an act has not happened; a reader that raised because it could
+        # not find that out would replace an operator's whole picture with the
+        # failure of its footnote. It is REPORTED, the way a corrupt capture
+        # declaration is, and every other axis still answers.
+        return [{"act": None, "episode": None, "attempt_id": None,
+                 "operation_id": None, "category": "unavailable",
+                 "code": "unreadable",
+                 "message": f"this stage's outstanding reasons could not be "
+                            f"read ({type(failure).__name__}); this says "
+                            f"nothing about the stage itself",
+                 "since": None, "observed": None, "incarnation": None}]
+    if not found:
+        return None
+    held = [boundaries.row(one, "a persisted deferral", schema.DEFERRAL_COLUMNS)
+            for one in found]
+    # A ROW WHOSE ACT HAS SINCE SETTLED IS STALE, AND SAYS SO. Review
+    # 2026-09-18T03-18-24Z [3]: `_resolve` deletes the row when the act
+    # settles, and a DELETE that FAILED left it behind -- after which this
+    # reader labelled every stored row outstanding, so a settled act's retained
+    # reason was presented as a live one. The failure is reported to the
+    # reconcile report, but a transient report is not the operator surface.
+    #
+    # WHAT DECIDES IS SOMEBODY ELSE'S RECORD rather than this table's. `settled`
+    # is the (episode, act) pairs the caller already read from the receipts and
+    # the ending register, so a stale row is identified by the act's own
+    # settlement rather than by anything the deferral says about itself.
+    stale = set(settled)
+    return [{"act": one["act"], "episode": one["episode"],
+             "outstanding": (one["episode"], one["act"]) not in stale,
+             "attempt_id": one["attempt_id"],
+             "operation_id": one["operation_id"],
+             "category": one["category"], "code": one["code"],
+             "message": one["message"],
+             "since": one["first_seen_at"], "observed": one["last_seen_at"],
+             "incarnation": one["incarnation"],
+             "why_retained": (None if (one["episode"], one["act"]) not in stale
+                              else "this act has since settled and its reason "
+                                   "could not be cleared; it is retained "
+                                   "evidence rather than an outstanding "
+                                   "condition")}
+            for one in sorted(held, key=lambda one: (one["episode"],
+                                                       one["act"]))]
+
 def status(store, operations, *, observed_at):
     """The read-only status document, versioned and whole.
 
@@ -687,6 +823,10 @@ def _stage_status(store, entry, held):
             recorded_at=record["recorded_at"],
             detail=json.loads(record["detail"]))
             for _, record in sorted(entry["receipts"].items())],
+        # W197661: WHY AN OWED ACT DID NOT HAPPEN, beside the state and never
+        # deciding it. `null` is "nothing is outstanding", which is a different
+        # answer from a stage that has never been asked to do anything.
+        deferral=entry.get("deferral"),
         # W81857: THE EXCHANGE, REPORTED AS THE DEPLOYMENT ANSWERED IT and
         # never resolved, opened or walked here. `null` says this control plane
         # holds no exchange read, which is a different answer from an exchange

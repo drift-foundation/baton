@@ -1,0 +1,69 @@
+{
+  "claim": 195685,
+  "scratch": "/tmp/w194457-review195685-d0_v__uw",
+  "engine": "none; local filesystem only",
+  "candidate_sha256": {
+    "src/baton_v12/worker_manager/workspaces.py": "b5ac103e7e03a19d77013331fb8032755fba137dcd9475ff498820b57b89acc4",
+    "src/baton_v12/worker_manager/oci.py": "ed055dbc2e75026b34a10a7aae32fbc1ce346b192a3a40728e114efba449dcd9",
+    "src/baton_v12/worker_manager/custody.py": "360772a109909cb382ae815d17f60ed7903252bf1b56a3944de8b301f33ac31b",
+    "src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "tools/single_worker.py": "7992f2d7485dcccff64b5f945357b1132d71c0f65fd9520cf42fd7940a611854",
+    "tests/__init__.py": "ed81ea906939740dc126615a631de97b2785fb958b1d15dc394f995603d63c06",
+    "tests/manager/test_workspaces.py": "8c77d4b6a811e0cbc5c4d65ad9dd0378e769ad18eec1b321aaa13f1bf48a06b8",
+    "tests/manager/test_review_cycles.py": "e4025453cfc9ea74fe0eaeb302dc742db6209f678fa78c4601c1200f530e5155",
+    "tests/manager/test_custody.py": "d315fdb7193e304421413b64caf09ae85d9c646ffd9948e767b8721475b8459d",
+    "tests/manager/test_oci.py": "231998a54d5978dd11221102c7a48480c549459b4114052401556b91079fced4",
+    "tests/manager/test_lifecycle_composition.py": "3fb38036bacfb09b050d69ea3712b8766002e7b0775bffce51a415ca5f6a337e"
+  },
+  "author_hashes_match": true,
+  "historical_source_sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+  "replacement": {
+    "candidate": {
+      "returned": true,
+      "interleaving": [
+        "/tmp/w194457-review195685-d0_v__uw/file-to-symlink-candidate/checkout/two"
+      ],
+      "root_mode": "0o2775",
+      "outside_unchanged": true
+    },
+    "historical": {
+      "returned": false,
+      "error": "ContractRefusal",
+      "message": "an initial development-line entry changed before provisioning",
+      "interleaving": [
+        "/tmp/w194457-review195685-d0_v__uw/file-to-symlink-historical/checkout/two"
+      ],
+      "root_mode": "0o700",
+      "outside_unchanged": true
+    },
+    "control": {
+      "returned": true,
+      "interleaving": [],
+      "root_mode": "0o2775",
+      "outside_unchanged": true
+    }
+  },
+  "integrity_access_error": {
+    "returned": false,
+    "error": "ContractRefusal",
+    "message": "the development line cannot be proved: PermissionError (errno 13); nothing was changed",
+    "root_mode": "0o700",
+    "names_failed_path": false
+  },
+  "tests": {
+    "selection": [
+      "tests.manager.test_workspaces.InitialStableLineAccess",
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS",
+      "tests.manager.test_workspaces.TheConsumptionWalkIsBoundedToo",
+      "tests.manager.test_workspaces.TheManagerProvesItCanReadTheLineItConsumes",
+      "tests.manager.test_review_cycles.StableLineLifecycle",
+      "tests.manager.test_oci.StableLineLaunch",
+      "tests.manager.test_custody.TheIdentityIsWhatMakesItUnconditional"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "................................................................\n----------------------------------------------------------------------\nRan 64 tests in 0.501s\n\nOK\n",
+    "seconds": 0.6673900620080531
+  },
+  "total_seconds": 0.6761692930012941
+}

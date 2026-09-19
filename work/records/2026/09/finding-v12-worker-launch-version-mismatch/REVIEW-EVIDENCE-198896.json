@@ -1,0 +1,18 @@
+{
+  "claim": 198896,
+  "checks": {
+    "instance-198871/compose.py": true,
+    "instance-198871/composition.json": true,
+    "instance-198871/policies.json": true,
+    "credential_policy_digest": true,
+    "mount_policy_digest": true,
+    "network_policy_digest": true,
+    "policy_digest": true,
+    "resource_policy_digest": true,
+    "retention_policy_digest": true,
+    "tool_policy_digest": true
+  },
+  "all_true": true,
+  "seconds": 0.00018480396829545498,
+  "scope": "three retained file hashes and seven policy content digests only; no configuration validation or lifecycle execution"
+}

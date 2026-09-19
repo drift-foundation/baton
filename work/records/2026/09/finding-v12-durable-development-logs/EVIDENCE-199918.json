@@ -1,0 +1,155 @@
+{
+  "THE_BINDING_IS_NOW_DURABLE": {
+    "and_the_head_digest_is_why": "the reviewer's second probe replaced a two-byte source with two different bytes. Device, inode and size all still agreed, so identity and length between them saw nothing and the bytes were lost while the capture reported no failure. FINGERPRINT bounds it at 4096 bytes and the limit is stated rather than hidden: a rewrite preserving that head AND not shortening the file is treated as an append.",
+    "measured_through_the_descriptor": "the source is fstat'd through the descriptor that will read it rather than lstat'd by name -- a name measured and then opened is two objects whenever anything moves in between, and what the measurement decides is which stream the bytes belong to",
+    "one_place_decides": "the truncation, rewrite and unprovable-record branches were split between _appended and its helper; they are all in _destination now, because a split decision is one that disagrees with itself the first time either half changes",
+    "the_record_decides_never_the_length": "review 2026-09-18T03-48-00Z in its own words: 'after restart never infer correspondence from length alone'. A destination that exists with NO record of which source filled it is not resumed: the old bytes stay where they are, the new source starts its own generation, and the uncertainty is DECLARED.",
+    "what_it_holds_per_source": [
+      "identity (dev, ino)",
+      "destination (which retained file)",
+      "retained (the offset)",
+      "head (a digest of the retained head)"
+    ],
+    "what_was_wrong": "the source-to-generation binding lived in kept['identities'] and the chosen generation filename was a local variable in _appended, so every tick after a rotation measured the ORIGINAL retained file again and opened one more generation -- and a fresh map after a restart proved nothing at all",
+    "where_it_lives_now": "a record inside the native corner itself, attempt_log_format.RETENTION ('.retention.json'), replaced atomically through the corner's own directory descriptor. It lives with the bytes it describes because a binding that does not outlive its process is not a binding."
+  },
+  "THE_GENERATION_NAMESPACE": {
+    "what_it_is": "'%23', so the Nth generation of `s.jsonl` is `s.jsonl%232`",
+    "what_was_wrong_before": "the '#N' suffix could equal a real source filename, so it was not an injective source-plus-generation mapping",
+    "why_it_is_disjoint": "_flat escapes a source path's components and emits ONLY '%25' for a literal per-cent and '%2F' for the separator, so no flattened source name can contain '%23'. A provider file genuinely called `s.jsonl%232` escapes to `s.jsonl%25232` and a file called `s.jsonl#2` stays itself -- both are held apart from a generation by cases."
+  },
+  "THE_REVIEWERS_OWN_PROBES_RE_RUN": {
+    "probe_one_repeated_ticks": {
+      "and_no_more_on_further_ticks": true,
+      "now": [
+        "session.jsonl = abcdef",
+        "session.jsonl%232 = XY"
+      ],
+      "was": "session=abcdef, session#2=XY and session#3=XY -- the same unchanged generation copied again on every tick"
+    },
+    "probe_two_fresh_map_after_change_to_ZZ": {
+      "now": {
+        "content": {
+          "session.jsonl": "abcdef",
+          "session.jsonl%232": "XY",
+          "session.jsonl%233": "ZZ"
+        },
+        "entries": [
+          "session.jsonl",
+          "session.jsonl%232",
+          "session.jsonl%233"
+        ],
+        "failed": [
+          "a native source was rewritten in place while it was being retained; its later bytes are kept as a separate generation"
+        ]
+      },
+      "was": "no new bytes retained and failed=[]"
+    },
+    "script": "/tmp/w198667-probe-199918.py, run against the worker module directly"
+  },
+  "answers": "review-2026-09-18T03-48-00Z.md",
+  "authority": "existing; standing test-change authority (AGENTS.md 2026-09-13); no new permission gate sought or needed",
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "b138410504336969eebdb05ebcd544b9eed896c4e1c293a633f6cf4ab4e45f42",
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "eb41c1b393d6f1fac3163c0406e6a0d0a5ded2aba0ffce9b2e9a637b386c6d7b",
+    "v12/python/tests/manager/test_attempt_logs.py": "ea525620da9ec8e494d13a87e4051b90a298bf65cb010f65c3c945660e128fe0",
+    "v12/worker/claude_agent.py": "cc88df49c0004838684c7a040522b9e87f02aa8612783a52201e5b9aee096639"
+  },
+  "cases_the_review_named": {
+    "a_real_source_named_like_a_generation": [
+      "caller: test_a_REAL_source_NAMED_LIKE_a_generation_is_kept_apart (a provider file literally called session.jsonl#2)",
+      "helper: test_a_REAL_source_named_like_a_GENERATION_does_not_collide (one called s.jsonl%232)"
+    ],
+    "and_the_ones_that_keep_the_fix_honest": [
+      "test_an_ORDINARY_APPEND_is_not_mistaken_for_a_rewrite -- the digest covers the RETAINED head, so growth leaves it alone; otherwise every append would rotate and the capture would be useless for the one thing it is for",
+      "test_a_DESTINATION_WITH_NO_RECORD_is_never_resumed_BY_LENGTH",
+      "test_a_CORRUPT_record_is_treated_as_ABSENT_rather_than_believed"
+    ],
+    "append_after_rotation": [
+      "caller: test_an_APPEND_AFTER_a_rotation_continues_the_NEW_generation",
+      "helper: test_a_new_generation_that_GROWS_PAST_the_old_one_never_splices -- the second failure the review names, where a size comparison changes its mind once the new source passes the original retained size"
+    ],
+    "at_the_actual_caller": "the caller-level cases run through ClaudeAgent._ran_provider and its own shared map -- the review asked for exactly this, and it is the distinction that hid the previous defect: helper cases threading a dict by hand passed while the wiring was wrong",
+    "changed_source_across_restart": [
+      "caller: test_a_source_CHANGED_BETWEEN_runs_is_retained_and_DECLARED",
+      "caller: test_a_source_REWRITTEN_BETWEEN_runs_at_the_SAME_length",
+      "helper: test_a_REWRITE_ACROSS_a_restart_is_caught_by_the_RECORD"
+    ],
+    "multiple_ticks_after_rotation": [
+      "helper: test_TICKING_AGAIN_after_a_rotation_makes_no_THIRD_generation",
+      "caller: test_a_ROTATION_then_MANY_TICKS_makes_exactly_TWO_generations"
+    ],
+    "restart_after_rotation": [
+      "caller: test_a_RESTART_after_a_rotation_RESUMES_the_new_generation",
+      "helper: test_a_FRESH_map_after_a_rotation_resumes_from_the_RECORD"
+    ]
+  },
+  "claim": 199918,
+  "no": [
+    "live model",
+    "production action",
+    "recovery or resubmission",
+    "version-control mutation of this repository",
+    "direct read or mutation of the SQLite coordination store",
+    "new permission gate"
+  ],
+  "preserved": {
+    "W197661": "queued at baton.bug; its immutable image attribution, its instance-199877 episode and its candidate paths are untouched. The shared paths between the two Works are v12/worker/baton_worker.py (unchanged this claim) and the worker image recipes; this claim's fixture context is this Work's own.",
+    "accepted_images": "neither rebuilt nor re-attributed",
+    "history": "no prior evidence file, review or PROGRESS entry is rewritten; FINDING and PLAN gain new dated entries above the old ones",
+    "production": "not read from, written to, started or changed",
+    "the_failed_disposable": "retained and untouched"
+  },
+  "schema": "baton.w198667.evidence/1",
+  "the_record_is_not_a_session_file": "attempt_logs.locators and the native listing exclude RETENTION. Counting the capture's own bookkeeping as something the PROVIDER wrote would be this reader inventing one more session file on every attempt.",
+  "the_smoke_is_a_FRESH_episode": {
+    "fixture_199285_is_untouched": "its context, build log, iid and smoke.json remain exactly as they were",
+    "path": "work/records/2026/09/finding-v12-durable-development-logs/fixture-199918",
+    "what_it_does_and_does_not_prove": "it proves the room the manager makes is the room the container writes into, with the current shared format. It does NOT prove the native retention changed this claim: the fixture image carries no claude_agent.py. That half is proved by the helper and caller cases above, and saying otherwise would be this evidence claiming more than it holds.",
+    "why_rebuilt": "attempt_log_format.py gained RETENTION, and the fixture image carries that module -- so the smoke was re-run against the current bytes rather than against a stale copy"
+  },
+  "verification": {
+    "affected_set": {
+      "checks": 548,
+      "result": "OK",
+      "seconds": 55.083,
+      "suites": [
+        "manager.test_attempt_logs",
+        "manager.test_claude_agent",
+        "tools.test_attempt_logs_command",
+        "manager.test_integration_worker",
+        "manager.test_worker_entry",
+        "manager.test_worker_container"
+      ]
+    },
+    "clean_under": "-W error::ResourceWarning",
+    "container_smoke": {
+      "all_true": true,
+      "checks": 8,
+      "episode": "work/records/2026/09/finding-v12-durable-development-logs/fixture-199918",
+      "image": "sha256:8105d3c0deca2a1f04da619ddabf0ec4a1173fee681baf63a87d613fae1a82db"
+    },
+    "cumulative_note": "prior claims' measured spending is preserved in their own evidence files and is not restated or replaced here",
+    "delivery_and_operator": {
+      "checks": 143,
+      "result": "OK",
+      "seconds": 1.337
+    },
+    "job_manager_whole_suite": {
+      "checks": 837,
+      "result": "OK",
+      "seconds": 9.618
+    },
+    "seconds_measured_this_claim": 180,
+    "test_attempt_logs": {
+      "checks": 121,
+      "result": "OK"
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    }
+  },
+  "work": "2b077949-W198667"
+}

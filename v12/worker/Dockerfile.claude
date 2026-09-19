@@ -111,6 +111,16 @@ RUN apt-get update \
 # cannot reach above itself. The reference `Dockerfile` keeps the narrower
 # `v12/worker` context on purpose: it ships no profile package and widening it
 # would grant a reach it has no use for.
+# W198667: THE SHARED CAPTURE FORMAT, carried as a TOP-LEVEL module.
+# `baton_v12.attempt_log_format` imports nothing from `baton_v12`, so it travels
+# under its own name exactly as `source_profiles` does -- a worker that could
+# import the manager is a worker one bug away from holding the manager's
+# capabilities. Without this layer the worker degrades to NO capture, which is
+# honest and useless: review 2026-09-18T02-31-51Z [1] found the private fixture
+# carrying it while neither supported recipe did, so a green fixture smoke
+# proved nothing about either production image.
+COPY python/src/baton_v12/attempt_log_format.py \
+     /opt/baton/attempt_log_format.py
 COPY worker/baton_worker.py /opt/baton/baton_worker.py
 COPY worker/claude_agent.py /opt/baton/claude_agent.py
 COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py

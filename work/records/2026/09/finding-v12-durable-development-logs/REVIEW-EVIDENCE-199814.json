@@ -1,0 +1,43 @@
+{
+  "claim": 199814,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true,
+    "v12/python/tests/tools/test_attempt_logs_command.py": true,
+    "v12/python/tools/attempt_logs_command.py": true,
+    "v12/worker/claude_agent.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "seconds": 0.7548897590022534,
+    "output": ".......................................................................................................................\n----------------------------------------------------------------------\nRan 119 tests in 0.590s\n\nOK\n"
+  },
+  "native_poll_fixed": "abc",
+  "small_bound_utf8": {
+    "rc": 0,
+    "expected": "\u20acx",
+    "actual": "",
+    "slice": {
+      "declaration": "declared",
+      "stream": "worker.stdout",
+      "state": "captured",
+      "bytes": 4,
+      "why": "the writer saw this stream to its end",
+      "file": "present",
+      "from_byte": 0,
+      "bytes_read": 0,
+      "text": "",
+      "at_end": false,
+      "next_from_byte": 0,
+      "more_may_arrive": false
+    }
+  },
+  "native_fresh_offsets": "abcabc",
+  "native_truncation": {
+    "source": "XY",
+    "retained": "abcdef",
+    "failed": []
+  },
+  "probe_seconds": 0.05198495596414432,
+  "retained_probe_path": "/tmp/w198667-review199814-qxmavg_u"
+}

@@ -443,6 +443,19 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # document, so a launch that could be materialized without naming it
         # would be one whose mounts and whose document disagree.
         "transport",
+        # W198667: THE ATTEMPT LOG DELIVERY'S OWN OPERANDS. `stream` is which
+        # of the named streams a reader is asking about -- named rather than
+        # discovered, so a reader can say a log is MISSING rather than only
+        # report what is there. `reported` is the WRITER's own word about its
+        # capture (`partial`, `truncated`, `failed`), which is trusted over the
+        # file because a file cannot tell you it is a prefix. `from_byte` and
+        # `bound` are the operator surface's window: a follow is the caller's
+        # loop, so where to resume is an operand rather than state this
+        # manager keeps. `logs_delivered` is the single writable bind the
+        # delivery authorizes, reaching the argv composer exactly as
+        # `exchange_delivered` and `launch_delivered` do.
+        "stream", "reported", "from_byte", "bound", "limit",
+        "logs_delivered",
         # `launch_delivered` is the PAIR the adapter's capability answers with,
         # reaching the argv composer exactly as a credential delivery's pairs
         # do. The capability itself is adapter construction and is not an

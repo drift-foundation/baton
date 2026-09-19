@@ -1029,6 +1029,127 @@ class WhatItComposesOnTheAuthority(ValidFixture):
             self.assertNotIn(absent, code, absent)
 
 
+class TheFIRSTCanonicalTargetIsESTABLISHED(ValidFixture):
+    """W197661, found by running the installed lifecycle to its first
+    publication.
+
+    `integration.driver.publish_candidate` compares the worker's declared base
+    against `Authority.canonical_target()`, and NOTHING in a fresh deployment
+    ever set it -- so it answered its own placeholder and the first
+    publication was refused with "the Authority's canonical target is a full
+    lower-case object name ...; this is 'base-1'". The stage deferred
+    `conclude` and asked again forever: a runtime that finished, a manager that
+    looked well, and nothing that said why. `set_policy` already existed for
+    the OTHER end of the line -- integration advances the target with it -- and
+    what was missing was the first value.
+    """
+
+    def opened(self, answer):
+        from baton_v12.authority import Authority
+        return Authority.open(
+            answer["places"]["authority_store"],
+            expected_authority_uuid=self.config["authority_uuid"])
+
+    def target(self, answer):
+        authority = self.opened(answer)
+        try:
+            return authority.canonical_target()
+        finally:
+            authority.dispose()
+
+    def test_it_is_the_JOBS_declared_base_and_not_the_placeholder(self):
+        from baton_v12.authority.core import UNESTABLISHED_TARGET
+
+        answer = self.prepared()
+        found = self.target(answer)
+        self.assertEqual(found, "a" * 40)
+        self.assertNotEqual(found, UNESTABLISHED_TARGET)
+
+    def test_REPEATING_the_setup_leaves_it_exactly_as_it_is(self):
+        """Repeatable, like everything else here."""
+        self.prepared()
+        answer = self.prepared()
+        self.assertEqual(self.target(answer), "a" * 40)
+
+    def test_a_target_that_has_ADVANCED_is_never_rewound(self):
+        """Integration moves the target when it accepts a proposal. A setup
+        re-run afterwards must not put the line back where it started."""
+        answer = self.prepared()
+        authority = self.opened(answer)
+        try:
+            authority.set_policy("canonical_target", "b" * 40)
+        finally:
+            authority.dispose()
+        again = self.prepared()
+        self.assertEqual(self.target(again), "b" * 40)
+
+    def test_it_SAYS_SO_rather_than_advancing_silently(self):
+        import io
+
+        stream = io.StringIO()
+        bootstrap.prepare(self.document(), stream=stream)
+        self.assertIn("established from line_declared_base", stream.getvalue())
+
+    def disagreeing(self):
+        return [self.job(),
+                self.job(job_id="job-b", work_id="0000000b-W1",
+                         producer="impl-a", target="target-1", base="c" * 40)]
+
+    def test_JOBS_THAT_DISAGREE_are_refused_by_name(self):
+        """One Authority holds ONE canonical target, so bases that cannot all
+        be expressed are refused rather than resolved by picking one -- where
+        the reason would be a deferral nothing recorded."""
+        found = self.refused(jobs=self.disagreeing())
+        self.assertIn("ONE canonical target", found)
+        self.assertIn("c" * 40, found)
+
+    def test_that_refusal_LEAVES_NOTHING_DURABLE_BEHIND(self):
+        """Review200179 [R2]: the refusal lived past routes, Work and grants,
+        so a document naming two bases composed real Authority state and then
+        refused -- contradicting `prepare`'s own promise that nothing durable
+        happens until every check has passed. It is a preflight fault now, and
+        this asserts the PROMISE rather than the exception text."""
+        self.refused(jobs=self.disagreeing())
+        self.nothing_was_composed()
+
+    def test_it_is_refused_BEFORE_the_authority_is_even_OPENED(self):
+        """A writable Authority is itself a durable effect: opening one creates
+        the store. Nothing may reach the opener at all."""
+        opened = []
+
+        def watching(path, uuid):
+            opened.append(path)
+            raise AssertionError("no Authority is opened for a document this "
+                                 "preflight refuses")
+
+        with self.assertRaises(bootstrap.BootstrapRefusal):
+            with open(os.devnull, "w") as quiet:
+                bootstrap.prepare(self.document(jobs=self.disagreeing()),
+                                  stream=quiet, opener=watching)
+        self.assertEqual(opened, [])
+
+    def test_an_EXISTING_authority_is_untouched_by_that_refusal(self):
+        """The dangerous case is a second run over a deployment that already
+        works: a partial composition there would edit a LIVE Authority."""
+        answer = self.prepared()
+        before = self.target(answer)
+        self.refused(jobs=self.disagreeing())
+        self.assertEqual(self.target(answer), before)
+        authority = self.opened(answer)
+        try:
+            self.assertIsNotNone(authority.project_work(self.work))
+        finally:
+            authority.dispose()
+
+    def test_a_deployment_with_NO_JOBS_establishes_nothing(self):
+        """A fresh install binds no Job, so it has been told no base. Writing
+        one would be this command inventing a target."""
+        from baton_v12.authority.core import UNESTABLISHED_TARGET
+
+        answer = self.prepared(jobs=[])
+        self.assertEqual(self.target(answer), UNESTABLISHED_TARGET)
+
+
 class WhatItTELLSYouToDoNext(ValidFixture):
     """W183883, from the first real installed run: the composed deployment
     printed "Now export these and run `just start` from v12/" to an operator
@@ -1187,7 +1308,7 @@ class TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE(unittest.TestCase):
         self.assertIs(published.get("canonical"), True)
         self.assertEqual(published.get("jobs"), [])
         self.assertTrue(published.get("observed_at"))
-        self.assertEqual(published.get("schema"), "baton.v12.job-status/5")
+        self.assertEqual(published.get("schema"), "baton.v12.job-status/6")
         # AND IT IS THIS RUN'S: `start` refuses unless a snapshot was written
         # DURING it, which is the gate the message above reports.
         self.assertGreater(os.path.getmtime(place), self.started)

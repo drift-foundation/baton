@@ -1,0 +1,28 @@
+{
+  "claim": 201853,
+  "author_claim": 201770,
+  "review": "review-2026-09-18T08-46-39Z.md",
+  "digests": {
+    "instance-201492/CAPTURED-records.json": "f06f382418f526bc7afaf675a449d7bcfc1f284a1be17e439c3cd97cb92b97c4",
+    "instance-201492/CAPTURED-terminal.json": "7c4a3114af403e6e45b3ebf101d63d78d3e3b54600aa27acd42084adf0c81ad8",
+    "instance-201492/build/projection-observed-run4.json": "e3ee126a9a7e5ab3eb229c890456f9b2b11480fa27b503676c9e8415e4fc8ef7",
+    "instance-201492/build/projection-run4.json": "9eccaad61caf22c0ddf51e63e5fa574e2bac7cbaa08ac7555aedbb1fc6d11cd9",
+    "instance-201492/verification-201770-final.json": "be96e5328bd16abd0c18e6b2c104896960e54fbb7a3bbbb0c12692454f32844c",
+    "instance-201492/verify_lifecycle.py": "24057f2cee09f6e1821515c9902f243ebd749f465afe20b7637eecac0457f264",
+    "v12/python/tests/manager/test_w197661_verifier.py": "367f5c6990e85bdcb92f9f0ce5a975b80fe580a027fd67bae2bf11dffa94da7b"
+  },
+  "all_hashes_match": true,
+  "tests": {
+    "count": 89,
+    "passed": true,
+    "seconds": 0.14424948999658227
+  },
+  "independent_probes": {
+    "baseline_accepted": true,
+    "terminal_episode_999_accepted": true,
+    "terminal_episode_missing_accepted": true,
+    "proposal_authority_wrong_accepted": true
+  },
+  "engine_runs": 0,
+  "disposition": "changes-requested"
+}

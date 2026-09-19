@@ -1,0 +1,129 @@
+{
+  "work": "W197661",
+  "claim": 200564,
+  "author": "baton.claude",
+  "disposition": "RETURNED INCOMPLETE — R2 and R1a complete, R1c advanced five walls and stopped at a sixth, R1b/R3 not started",
+  "answering": {
+    "review": "review-2026-09-18T05-14-53Z.md",
+    "sha256": "cd3905d20dd82196eb44d0b5bba72819fbca7f05946333100d897a23abb8ff39",
+    "review_evidence": "REVIEW-EVIDENCE-200453.json",
+    "review_evidence_sha256": "736af14059cd45b8029288265df58a59296a1df034bad233906c298104e22196",
+    "hashes_verified_against_tree": true
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/job_manager/manager.py": "cc0439946aa3648441665e75f92163e8546d29fff3514d9f2ab5a13ebdd5e0ad",
+    "v12/python/tests/job_manager/test_ending.py": "e1f4c1959625ba72117af9e6da84203c321e210ee2eb08a4615dd1255035b12b",
+    "v12/python/tests/manager/test_proposing_fixture.py": "18a0468ae7d496ccde1d58dddedd08da9f52e51a37f3f168282d556f0e669a1c",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/proposing_agent.py": "a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/compose_lifecycle.py": "72aa605624289b257362197b7a242f5f7735f4fda08a46b0b0f849003a2f62bb",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json": "303eb9107d1494deb5cb42c7f8eff7fb370254a0d90f856e90c012b90c2e7134"
+  },
+  "R1a_withdrawn": {
+    "why": "instance-200254/verify_lifecycle.py:status omitted --control and --observe, so tools/job_manager._status supplied Unobserved() and answered canonical=false, and the verifier never checked that flag",
+    "withdrawn_claims": [
+      "all three stages sit at claimed",
+      "independent review was reached and did not complete",
+      "the manager did not crash this time and manager.log holds one line"
+    ],
+    "what_the_canonical_record_says": "implementation completed, review completed, integration claimed, at 2026-09-18T05:01:22.081Z, with a full reconcile report in manager.log naming the missing verification command",
+    "invented_predicates_confirmed_mine": [
+      "episodes[].ended_state is null on an ordinarily completed stage",
+      "no conclude receipt exists by design; receipt acts are admit and claim",
+      "job.status has no outcome member"
+    ],
+    "corrected_by": "appending to FINDING/PLAN/PROGRESS; instance-200254 and its verifier keep their bytes"
+  },
+  "R2_fixed": {
+    "site": "job_manager/manager.py:_recover_endings",
+    "defect": "it caught only ContractRefusal while _converse caught the typed pair, so a ProfileRefusal from a RESUMED conclude escaped the sweep and ended serve",
+    "change": "both boundaries catch _CHECKPOINT_REFUSAL; _as_condition is the one owner of the translation",
+    "cases": 7,
+    "reversal_probe": "4 of the 7 fail against the uncorrected function; the ContractRefusal and TypeError controls pass both ways",
+    "driven_through": "the REAL sweep over a real prior-episode obligation via end_episode/open_next, not doubles"
+  },
+  "R1c_advanced": {
+    "required_command": [
+      "python3", "-c",
+      "import pathlib,sys;sys.exit(0 if pathlib.Path('w197661-fixture.txt').read_text() == 'w197661 deterministic fixture candidate\\n' else 1)"
+    ],
+    "is_a_real_check": "a case corrupts the candidate and the same argv exits 1",
+    "observed_in_the_live_container": {
+      "namespace": "baton.git-ordinary-tests/1",
+      "status": 0,
+      "task_digest": "sha256:303eb9107d1494deb5cb42c7f8eff7fb370254a0d90f856e90c012b90c2e7134",
+      "head": "2636151cff1908a475caee6d8e44d9a0df37d5bb",
+      "read_from": "the frozen result the manager sealed, at the first destination"
+    },
+    "walls_in_the_order_the_deployment_hit_them": [
+      {"n": 1, "refusal": "the configured implementation task names no verification command",
+       "owner": "the fixture's task", "corrected": true},
+      {"n": 2, "refusal": "this deployment configures no integration_instructions",
+       "owner": "this composition", "corrected": true},
+      {"n": 3, "refusal": "the selected integrator reads its bearer from slot 'claude'",
+       "owner": "this composition", "corrected": true,
+       "note": "the slot carries the required name and the same synthetic NON-BEARER marker; nothing opens it"},
+      {"n": 4, "refusal": "this Job names input 'sha256:ed93aff0...' and the configured producer's manifest is 'sha256:066268e7...'",
+       "owner": "ME, mid-flight recomposition", "corrected": "by composing the clean run ONCE from the final wiring at its own destination"},
+      {"n": 5, "refusal": "the deployment pins approval policy generation 1 and the Authority is at 9",
+       "owner": "THE DEPLOYMENT, and this is a finding",
+       "measured": "every bootstrap run bumps the Authority's approval policy generation by exactly 7, measured twice (9 -> 16, 16 -> 23), while the emitted configuration pins the value from its input",
+       "consequence": "a freshly bootstrapped deployment cannot satisfy its own pin unless its composition predicts the bump",
+       "worked_around": "compose_lifecycle.policy_pin measures the Authority and adds the measured bump, fail-closed; the prediction was checked against the Authority and matched at 23",
+       "not_fixed": "this needs an owner's decision; predicting a bump is not a deployment interface"}
+    ],
+    "reached": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "launched; the Authority issued verification=passed (baton.w197661-verifier), review=accepted (baton.w197661-judge), approval=approved (baton.w197661-approver); the stage then went exceptional",
+      "report_and_hold": "UNREACHED"
+    },
+    "sixth_wall_not_corrected": "the fixture image carries a PROPOSING agent and no integrating one, so the integration container entered proposing_entry.py and proposed instead of importing"
+  },
+  "R1b_R3_not_started": {
+    "what": "the verifier rewrite, both findings",
+    "why_not": "a verifier is written for an episode, and this episode's lifecycle does not finish yet; writing predicates for a run that stops at its integrator would be the same instrument error review200453 found",
+    "exact_remaining_scope": [
+      "canonical status through --control/--observe, with canonical actually checked",
+      "the accepted verdict, checkpoint, result and integration completion/hold records instead of ended_state, a conclude receipt and job.outcome",
+      "an immutable expected manifest for the image COPY inputs and the runtime, including links and the paths tree_digest skipped",
+      "custody attempt identity bound rather than counted",
+      "read-only Authority inspection",
+      "a fresh result file that overwrites no history",
+      "positive and negative replay fixtures, including a real successful shape the verifier accepts"
+    ]
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.717},
+      {"suite": "test_proposing_fixture + test_exchange + test_ending", "tests": 142, "result": "OK", "seconds": 0.759},
+      {"suite": "tests.tools.test_bootstrap", "tests": 125, "result": "OK", "seconds": 17.253},
+      {"suite": "W198667 shared tests.manager.test_attempt_logs", "tests": 152, "result": "OK", "seconds": 1.474},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "new_cases": 18,
+    "skipped": "one fixture case skips until this episode is composed, then binds the composed argv",
+    "measured_seconds_this_claim": 3300,
+    "prior_spending": "preserved in EVIDENCE-197743 through EVIDENCE-200254 and the reviewers' own evidence; nothing recomputed or reattributed"
+  },
+  "live_work": {
+    "runtime_builds": 1,
+    "image_builds": 1,
+    "fixture_image": "sha256:a56768b9cc525ecd22f69d0a05ae46773eef46f5fde740eec6ac2c746b0d567a",
+    "destinations": [
+      {"path": "/home/sl/baton-v12-lifecycle-200564",
+       "authority": "4321271f97f1485e80b844251d746ec4",
+       "what": "the diagnostic that measured walls 1-3; retained and stopped, with build/superseded-200564/WHAT-THIS-IS.json"},
+      {"path": "/home/sl/baton-v12-lifecycle-200564-clean",
+       "authority": "af29c003da434c3aa311b5de4a09f2ee",
+       "what": "the lifecycle composed ONCE from the final wiring; retained and stopped"}
+    ],
+    "operational_observation": "install prepares db, repo, distro and deployment-state but not the storage, launch and credential roots the composed configuration names, so the first start refused with 'the configured workspace store is not a directory this manager can see'; the directories were created by hand at the modes the earlier episode used"
+  },
+  "ownership": {
+    "not_edited": "every reviewer-owned review and REVIEW-EVIDENCE-*.json; every prior EVIDENCE-*.json; instance-200254 and its verifier; W198667's candidate paths (v12/worker/claude_agent.py, v12/python/tests/manager/test_attempt_logs.py), whose suite runs green against this tree",
+    "W198667": "queued at baton.bug with this claim's own corrections passed for review; its paths are untouched here"
+  },
+  "not_done": "no live model, provider call, network beyond the local engine, production action, recovery, resubmission, version-control mutation, direct coordination-store access, credential read or harvest, image re-attribution, or new permission gate. The stopped -200254 deployment and every earlier episode are untouched."
+}

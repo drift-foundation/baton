@@ -29,7 +29,7 @@ from datetime import datetime, timezone
 from baton_v12.authority import Authority, Refusal, claim_signature
 from baton_v12.contracts import (ContractRefusal, check_manifest_structure,
                                  check_no_durable_secret, digest,
-                                 digest_of_bytes)
+                                 digest_of_bytes, job_input_identity)
 from baton_v12.contracts.errors import label_of
 from baton_v12.job_manager import ManagerOperations, RefreshUnavailable
 from baton_v12.worker_manager import (AuthorityPort, DISPOSITIONS,
@@ -58,7 +58,8 @@ from baton_v12.worker_manager.oci import ENGINES, EnginePort, OciAdapter
 from tools.user_credentials import SourceRefusal, UserCredentialSources
 
 __all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "factory", "operations_from",
-           "worker_operations", "worker_preflight", "JudgmentExecution"]
+           "worker_operations", "worker_preflight",
+           "JudgmentExecution"]
 
 CONFIG_ENV = "BATON_V12_SINGLE_WORKER_CONFIG"
 # W81115 MOVED THIS TO `/2`, and its reason is kept because the rule is the
@@ -1299,7 +1300,61 @@ class _SingleWorker:
                         f"{stage.get(member)!r}; this single worker accepts "
                         f"only {value!r}", category="refused",
                         code="precondition")
-        if job.get("input_digest") != manifest["manifest_digest"]:
+        # W202663: THE JOB'S INPUT IDENTITY, NOT THIS WORKER'S RUNTIME ONE.
+        #
+        # This compared `manifest_digest` -- the digest of the WHOLE manifest,
+        # including the worker's own image -- against the ONE `input_digest` a
+        # Job carries. Every worker serving a Job was therefore forced onto one
+        # manifest, one image and, because a runtime runs its image's own
+        # ENTRYPOINT, one PROGRAM. The supported recipes are three programs, so
+        # an ordinary implementation/review/integration pool could not be
+        # expressed: the refusal read "the Job names another bootstrap input"
+        # and the composition it was refusing was correct.
+        #
+        # `launch.py`'s Job execution context had already ruled on this, and
+        # carried `job_input_digest` and `runtime_input_digest` as two members
+        # precisely because "requiring them equal would refuse the ordinary
+        # case". This comparison had not been told. Owner ruling
+        # 2026-09-18T22:01:51Z (W202663) classifies it as a gap in realizing the
+        # provider-diverse architecture rather than a property of it.
+        #
+        # SO THE JOB-SCOPED PROJECTION IS WHAT IS COMPARED, and the check is
+        # not weakened by one member: `job_input_identity` re-owns this
+        # manifest and digests everything in it EXCEPT the worker-runtime axis,
+        # so a worker that moved the Work, the sources, the outputs, the record
+        # binding, the human contract or any shared policy is refused exactly
+        # as before. What it may now differ in is its own image, toolchain,
+        # runtime profile and credential policy -- which is the whole of what
+        # the ruling makes separate.
+        #
+        # THE WORKER'S OWN IMAGE IS STILL BOUND, one rule up: `_held` refuses
+        # unless `image_digest` equals this manifest's `worker_image_digest`.
+        # That is what keeps "each worker selects its own image" from becoming
+        # "any worker may run any image".
+        identity = job_input_identity(
+            manifest, what="this single worker's configured input")
+        if job.get("input_digest") != identity:
+            # W202663 REVIEW 206898 [R3]: A LEGACY JOB IS SAID OUT LOUD.
+            #
+            # This IS a semantic change and not a widening: the projection
+            # differs from the whole digest even for one unchanged homogeneous
+            # manifest, so every Job submitted before this correction refuses
+            # here. Fail-closed is right -- a manager that quietly accepted the
+            # old identity would be admitting a Job under a rule nobody chose,
+            # and rewriting the retained submission would destroy provenance.
+            # But refusing a migratable Job with the same four words as a Job
+            # about someone else's input sends its operator looking for the
+            # wrong fault, so the two are distinguished and neither is repaired
+            # here.
+            if job.get("input_digest") == manifest["manifest_digest"]:
+                _refuse(f"this Job names the whole runtime manifest digest "
+                        f"{manifest['manifest_digest']!r}, which identified a "
+                        f"Job's input before its workers could select their "
+                        f"own images; a Job now names that manifest's "
+                        f"Job-scoped projection {identity!r}. Resubmit the Job "
+                        f"against the projection -- the retained submission is "
+                        f"evidence and is not rewritten for it",
+                        category="refused", code="precondition")
             _refuse("the Job names another bootstrap input",
                     category="refused", code="precondition")
         if job.get("policy_digest") != given["policy_digest"]:
@@ -1313,13 +1368,28 @@ class _SingleWorker:
                     "claimed offers; one launch requires exactly one",
                     category="refused", code="precondition")
         row = found[0]
+        # W202663: THE OFFER CARRIES THE JOB'S INTENT, SO IT IS COMPARED AS ONE.
+        #
+        # `delegation.admit` mints this offer from "the Job's immutable input
+        # and policy identities" -- its own words -- and this comparison read
+        # that member as though it were the worker's runtime manifest digest.
+        # It is the third site of the one conflation `_matches` above describes,
+        # and it is the site that actually stops a heterogeneous pool: an offer
+        # is minted per stage, so every stage's worker was required to hold the
+        # single manifest the Job was submitted with.
+        #
+        # The projection is what is compared, exactly as at admission, and
+        # nothing else about the offer moves: the offer id, the Authority, the
+        # Work, the participant, the profile and the policy are still matched
+        # whole.
         expected = {"offer_id": stage["offer_id"],
                     "authority_uuid": self.given["authority_uuid"],
                     "work_id": stage["work_id"],
                     "participant": self.given["participant"],
                     "profile_digest": self.given["profile_digest"],
-                    "input_digest": self.given["input_manifest"]
-                    ["manifest_digest"],
+                    "input_digest": job_input_identity(
+                        self.given["input_manifest"],
+                        what="this single worker's configured input"),
                     "policy_digest": self.given["policy_digest"]}
         for member, value in expected.items():
             if row.get(member) != value:
@@ -2835,6 +2905,24 @@ def worker_preflight(given, control_store, *, credential_provider=None,
     certify_profile(control_store, "runtime", given["profile_name"],
                     given["profile_digest"])
     group = configured_workspace_group(control_store)
+    # W194457, owner decision 2026-09-17: PREFLIGHT STARTS NO CONTAINER, and
+    # there is no longer anything for it to activate.
+    #
+    # An earlier cut of this Work observed the engine's host-side identity
+    # here. It HUNG the suite: this function is reached by bootstrap
+    # composition, by staged worker composition and by result-judgment
+    # composition, and its `engine_run` DEFAULTS to
+    # `effective_engine_run(None)` -- `subprocess.run` on the real argv -- so
+    # an observation here is a container start acquired silently by three
+    # composers that are not launching anything.
+    #
+    # The owner then superseded the measurement entirely: the supported
+    # host/container mapping is TRUSTED deployment configuration, documented at
+    # `workspaces.SUPPORTED_IDENTITY_MAPPING`. What preflight does about
+    # identity is what it already did -- construct the adapter's static half,
+    # which mints the identity from the configured workspace group and refuses
+    # a root manager or an unconfigured group before admission. That is a
+    # structural configuration check and it reaches no engine.
     credentials.CredentialHome(given["credential_home"])
     # Construct the adapter's static half now.  No runtime or assignment root
     # exists yet, so two distinct absent placeholders are used only to force
@@ -2985,7 +3073,23 @@ class JudgmentExecution:
         # actually given -- the configured manifest this execution mounts and
         # the policy it runs under, which `_claim` compares its claimed offer
         # against. Two facts, both stated, neither invented.
-        self.input = {"input_digest": given["input_manifest"]["manifest_digest"],
+        #
+        # W202663: IT IS ALSO THE OPERAND `_matches` READS AS A JOB, and that
+        # is why the projection appears in a document about a runtime. `poll`
+        # hands this dictionary to `operations.admit` in the Job's place -- a
+        # derived judgment has no stage row and no pool allocation to read a
+        # real Job from -- so its `input_digest` is compared by the rule that
+        # compares a JOB's. Left as the whole manifest digest it refused every
+        # derived judgment against the judge's own configuration, which is the
+        # one shape that cannot be a mismatch.
+        #
+        # THE RUNTIME HALF IS NOT LOST. `_claim` reads the same projection off
+        # the offer this judgment mints for itself, and what the LAUNCH states
+        # as the runtime input is composed separately, from
+        # `given["input_manifest"]["manifest_digest"]`, where it always was.
+        self.input = {"input_digest": job_input_identity(
+                          given["input_manifest"],
+                          what="this derived judgment's configured input"),
                       "policy_digest": given["policy_digest"]}
         self.operations = worker_operations(
             self.given, control, authority, provider, engine_run=engine_run,

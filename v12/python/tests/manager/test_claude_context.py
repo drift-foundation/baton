@@ -12,7 +12,8 @@ import subprocess
 import sys
 from unittest import mock
 
-from baton_v12.contracts import ContractRefusal, digest, digest_of_bytes
+from baton_v12.contracts import (ContractRefusal, digest, digest_of_bytes,
+                                 job_input_identity)
 from baton_v12.job_manager import submit, sweep, ending, submission, episodes
 from baton_v12.worker_manager import provider_context as context, context_delivery as custody
 from baton_v12.worker_manager import oci, frozen_output_of, load_manifest
@@ -40,7 +41,11 @@ class ServingContextCase(ComposedOneJobCase):
         manifest.pop("manifest_digest")
         manifest["manifest_digest"] = digest(manifest)
         self.manifest = self.config["input_manifest"] = manifest
-        self.submission["jobs"][0]["input_digest"] = manifest["manifest_digest"]
+        # W202663: THE JOB NAMES ITS INPUT'S JOB-SCOPED PROJECTION. The whole
+        # manifest digest is the WORKER's runtime identity and is asserted as
+        # such further down, where the launch's `runtime_input_digest` is read.
+        self.submission["jobs"][0]["input_digest"] = job_input_identity(
+            manifest)
         self.context_profile = profile(runtime_profile_digest=self.config["profile_digest"], image_digest=self.config["image_digest"], adapter_digest=self.config["adapter_digest"], retention_policy_digest=self.config["retention_policy_digest"], argv_policy_digest=digest(context.ARGV_POLICY), environment_policy_digest=digest(context.ENVIRONMENT_POLICY))
         self.context_digest = digest(self.context_profile)
         patch = mock.patch.object(oci.OciAdapter, "_context_execution", return_value=None)

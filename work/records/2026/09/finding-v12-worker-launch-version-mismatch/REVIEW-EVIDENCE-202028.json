@@ -1,0 +1,29 @@
+{
+  "claim": 202028,
+  "review": "review-2026-09-18T09-13-34Z.md",
+  "author_claim": 201954,
+  "candidate_hashes": {
+    "instance-201492/verification-201954-final.json": "748b79339ac70bb2fe2b8172e770fb9874fce1c6ad18cc3dd5f1d1452fe84d16",
+    "instance-201492/verify_lifecycle.py": "7eeb38236f5c65aaefa0381674af26fbb6f31e8bf5cb0e1aa4fdbe8d102eea94",
+    "v12/python/src/baton_v12/job_manager/store.py": "84141e0aab2ee45a58d7e51420c3c991802f037eeac7a51b3f4f3e686fa35c6d",
+    "v12/python/tests/job_manager/test_store_readonly.py": "fcd555b5904c724b98bd7cd02cefa7ece69960fec84d54a738fb281cb3e671f2",
+    "v12/python/tests/manager/test_w197661_verifier.py": "297af03b656937d14f5bd4c1326a3620b053999d41f08d2ec9bfe72d4e552eb6"
+  },
+  "all_match": true,
+  "tests": {
+    "count": 196,
+    "passed": true,
+    "seconds": 0.1683501519728452
+  },
+  "synthetic_integration_probe": {
+    "fixture": "tests.authority.test_contract.WorkflowCase",
+    "before_generation": 7,
+    "after_generation": 8,
+    "receipt_decision_generation": 7,
+    "base": "base-1",
+    "target": "sha256:candidate-1",
+    "seconds": 0.0021948390058241785
+  },
+  "deployment_runs": 0,
+  "disposition": "F5 accepted; historical completion/readiness classification remaining"
+}

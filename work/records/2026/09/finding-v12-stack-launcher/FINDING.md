@@ -1354,3 +1354,49 @@ Add narrow v12/.gitignore rules for python/build/ and the generated
 python/packaging/build-stamp.json, preserving visibility of runtime state paths.
 The owner must remove these generated paths from the Git index; prompt only
 edits ignore rules and does not delete artifacts or mutate Git state.
+
+
+## 2026-09-17 — prompt-authored first-Job provisioning failure
+
+Owner ran /tmp/baton-codex-adapter-job/KICKOFF.sh. Work a2b0d14b-W1 and
+Job codex-adapter-first were recorded in the v12 instance, but manager startup
+failed in check_workspace_storage because the prompt-authored packet did not
+create its configured storage directory. This is a preparation error, not
+evidence that the Job executed or failed its task. The same packet incorrectly
+selected distinct storage roots for workers sharing one control store;
+configure_workspace_storage binds one common root per control store.
+
+Short-term correction: retain the first configured implementation storage path
+as the common root, create only missing manager-owned directories, keep
+participant/credential/launch identities distinct, and recompose through the
+bundled bootstrap before starting. Preserve the immutable submitted document
+and all existing state; no resubmission, database edits, root deletion or
+credential changes. This correction does not close the human-facing Job
+preparation gap or reopen the completed installer Work. Structural document
+validation alone did not prove host provisioning and should not have been
+presented as sufficient kickoff readiness.
+
+
+## 2026-09-17 — installed status omits retained preparation failure
+
+The first v12-owned Job is exceptional before runtime start, but status exposes
+no preparation refusal and the serving loop prints only its final sweep. The
+public attempt_preparation_failure_of reader exists. The CLI exposure gap is
+recorded before a diagnostic workaround: a small read-only CLI wrapper will use
+ControlStore.open_readonly and the public failure readers, with no SQL or
+workflow mutation. This wrapper is a stopgap, not the product fix or a claim that
+the installed CLI already exposes failure detail. Owner explicitly requested
+continued diagnosis. Preserve the existing Job and exact attempt identity.
+
+
+## 2026-09-17 — first Job failure localized to initial line access
+
+Public read-only failure reader reports attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072 as preparation-failed, runtime not-started,
+message: initial development-line access failed: OSError; no permissions were
+changed; keep the line materializing and ungranted. No start-failure record exists.
+Source initial line access retains descriptors for every visited regular file
+and directory until the entire proof/application finishes. The private checkout
+has 18078 files/directories. Descriptor exhaustion is a hypothesis; the retained
+refusal drops errno. The manager PID is not visible in the diagnostic namespace;
+owner was asked for its Max open files limit. Do not assert EMFILE or change
+permissions/retry based on this hypothesis alone. No live state was modified.

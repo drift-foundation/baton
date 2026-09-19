@@ -26,6 +26,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 from baton_v12.contracts import ContractRefusal, digest
+from baton_v12.worker_manager import intake_receipt_of
 from baton_v12.job_manager import (POOL_SCHEMA, JobStore, Unobserved,
                                    activate_pool, episodes, reserve,
                                    review_driver, status, submit)
@@ -669,6 +670,173 @@ class TheImplementationEndingPublishesBeforeItFences(DriverCase):
                                  self.line["line_id"])["state"], "writing")
 
 
+class TheENDINGReEntersFromEveryCutPointAfterIntake(DriverCase):
+    """W197661, and review 2026-09-18T02-10-32Z R1 is why it lives HERE.
+
+    My previous cases called `request_intake` and `decide_retention` directly.
+    They never reached `end_implementation`, published nothing, froze no
+    checkpoint and injected no failure during retention -- so they established
+    intake/retention replay and not the ending. These drive the real one.
+
+    WHAT THIS SUITE CAN AND CANNOT SEE, stated rather than implied. `_endings`
+    fakes the four deployment calls -- freeze, intake, retention, cleanup --
+    because they need a real OCI adapter, a delivered workspace and a custody
+    root that `tests/manager` owns. So what is proved HERE is the
+    ORCHESTRATION: that `end_implementation` re-enters after a deterministic
+    failure at each cut point and reaches the same checkpoint.
+
+    IT DOES NOT PROVE PUBLICATION EXACTLY ONCE, and an earlier version of this
+    docstring said it did. Review 2026-09-18T02-59-56Z [R3] is right: the
+    after-publication case asks two independent FAKE seams and asserts their
+    operands match. `_Seam` publishes whatever it is asked, so no property of
+    `integration.driver.publish_candidate` is established by any case here --
+    that seam publishes through the Authority on every call and its
+    non-duplication rests on `Authority.publish` taking the producer's live
+    assignment as a compare-and-swap operand, which is the Authority's
+    behaviour and is not exercised in this file.
+
+    AND WHERE THE REAL SEAM IS PROVED, named rather than left as prose -- with
+    a correction to what I first named. Review 2026-09-18T03-33-36Z [R1]:
+    `TheCommittedPublicationSurvivesTheProcessThatMadeIt` inherits
+    `ProducerCase`, whose publisher is `LinePublisher`, an IN-MEMORY DOUBLE
+    that appends operands to a list and overwrites its own `recorded`. Those
+    cases drive the real `integration.driver` and they establish that the LOCAL
+    publication journal replays; they establish nothing about the Authority
+    half, and citing them for it was an overstatement.
+
+    THE AUTHORITY HALF IS `tests/integration/test_driver.py::TheREALAuthority
+    PublicationReplaysAndSURVIVESARestart`, which builds
+    `_OrdinaryAdmissionWorld` -- a real `Authority.create`, a real writer
+    session, a live claimed assignment -- and publishes through it:
+
+      an exact republication makes no second Authority proposal;
+      the published proposal survives REOPENING the manager, read back from
+      the Authority rather than from the local journal alone;
+      and the local record and the Authority agree about one identity.
+
+    That the intake ENTRY replays a committed receipt without a second
+    collection is `tests/manager/test_intake`'s, over the real custody fixture.
+    Neither suite is the whole proof and this one does not claim to be.
+    """
+
+    def prepared(self):
+        attempt_id = self.attempt("writer-attempt-1", 1, WRITER,
+                                  "writer-principal-1")
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"], attempt_id=attempt_id,
+            generation=1, worker_id="impl-worker-1", profile=self.profile)
+        self.completed(attempt_id)
+        return attempt_id, writer
+
+    def ending(self, attempt_id, writer, publication, recorded=None):
+        adapter = _Adapter("runtime-" + attempt_id, recorder=recorded)
+        return review_driver.end_implementation(
+            self.control, self.port(WRITER), adapter, publication,
+            attempt_id=attempt_id, disposition="completed", terminal=None,
+            writer_id=writer["writer_id"], generation=1,
+            profile=self.profile, retention_disposition="retain",
+            retention_policy_digest="sha256:" + "9" * 64,
+            proposal={"target": "revision-1"})
+
+    def cut(self, where):
+        """One deterministic failure, injected at exactly one step."""
+        return mock.patch.object(
+            review_driver, where,
+            lambda *operands, **named: (_ for _ in ()).throw(
+                RuntimeError("the process died at " + where)))
+
+    def test_a_failure_DURING_RETENTION_re_enters_and_finishes(self):
+        attempt_id, writer = self.prepared()
+        with _endings():
+            with self.cut("decide_retention"):
+                with self.assertRaises(RuntimeError):
+                    self.ending(attempt_id, writer, _Seam(self))
+            answered = self.ending(attempt_id, writer, _Seam(self))
+        self.assertEqual(answered["checkpoint_id"],
+                         answered["checkpoint"]["checkpoint_id"])
+
+    def test_a_failure_BEFORE_PUBLICATION_re_enters_and_finishes(self):
+        attempt_id, writer = self.prepared()
+        seam = _Seam(self)
+        seam.fail_once = True
+        with _endings():
+            with self.assertRaises(RuntimeError):
+                self.ending(attempt_id, writer, seam)
+            # NOTHING WAS PUBLISHED, which is what makes this cut point
+            # different from the one below.
+            self.assertEqual(seam.states, [])
+            answered = self.ending(attempt_id, writer, _Seam(self))
+        self.assertEqual(answered["checkpoint_id"],
+                         answered["checkpoint"]["checkpoint_id"])
+
+    def test_a_failure_AFTER_PUBLICATION_ASKS_THE_SEAM_AGAIN(self):
+        """AND THAT IS THE HONEST RESULT, not the one I expected to write.
+
+        I wrote this asserting the re-entry publishes nothing. It asks again:
+        between a publication that succeeded and a freeze that failed,
+        `_fence_settled` is false -- the FREEZE is what fences -- so the
+        ordinary path runs the whole way through a second time.
+
+        WHAT THAT DOES AND DOES NOT ESTABLISH. `_Seam` here is a fake that
+        publishes whatever it is asked, so this case measures the ENDING's
+        control flow and not the product's duplicate-publication guarantee.
+        That guarantee is the real seam's: `end_implementation`'s own docstring
+        says it is "effectively-once by the caller's own identity", and the
+        caller identity is unchanged across this re-entry. Asserting no second
+        publication HERE would have been asserting a property of my own double.
+
+        So this pins the reachable fact -- the seam is asked again with the
+        same identity -- and names where the guarantee actually lives.
+        """
+        attempt_id, writer = self.prepared()
+        seam = _Seam(self)
+        again = _Seam(self)
+        with _endings():
+            with mock.patch.object(
+                    review_driver.review_cycles, "freeze_checkpoint",
+                    lambda *operands, **named: (_ for _ in ()).throw(
+                        RuntimeError("the process died after publication"))):
+                with self.assertRaises(RuntimeError):
+                    self.ending(attempt_id, writer, seam)
+            published = list(seam.calls)
+            answered = self.ending(attempt_id, writer, again)
+        self.assertEqual(len(published), 1)
+        self.assertEqual(len(again.calls), 1)
+        # THE SAME OPERANDS, which is what makes the real seam's
+        # effectively-once identity the thing that settles it.
+        self.assertEqual(again.calls[0]["result_id"],
+                         published[0]["result_id"])
+        self.assertEqual(answered["checkpoint_id"],
+                         answered["checkpoint"]["checkpoint_id"])
+
+    def test_a_REOPENED_manager_finishes_what_the_previous_one_started(self):
+        """The restart the owner named: the ending is re-entered by a process
+        that did not perform the first half."""
+        attempt_id, writer = self.prepared()
+        with _endings():
+            with self.cut("decide_retention"):
+                with self.assertRaises(RuntimeError):
+                    self.ending(attempt_id, writer, _Seam(self))
+            self.control.close()
+            self.control = ControlStore.open(
+                os.path.join(self.root, "control.sqlite3"),
+                incarnation="manager-after-restart", clock=self.clock)
+            self.addCleanup(self.control.close)
+            answered = self.ending(attempt_id, writer, _Seam(self))
+        self.assertEqual(answered["checkpoint_id"],
+                         answered["checkpoint"]["checkpoint_id"])
+
+    def test_the_ORDINARY_ending_still_runs_every_step_once(self):
+        """The correction must not have turned the happy path into a replay."""
+        attempt_id, writer = self.prepared()
+        with _endings() as recorded:
+            self.ending(attempt_id, writer, _Seam(self), recorded=recorded)
+        self.assertEqual([one for one in recorded
+                          if one in review_driver.IMPLEMENTATION_ENDING],
+                         [one for one in review_driver.IMPLEMENTATION_ENDING
+                          if one != "correlate"])
+
+
 class OldRoundsStayExactlyWhereTheyWere(DriverCase):
     """A correction supersedes a checkpoint; it does not revise one."""
 
@@ -1073,8 +1241,15 @@ class _Seam:
         self.case = case
         self.states = []
         self.calls = []
+        # W197661: ONE DETERMINISTIC FAILURE AT PUBLICATION, for the cut point
+        # the owner named. It raises BEFORE recording anything, so a case can
+        # tell "never published" from "published and then died".
+        self.fail_once = False
 
     def publish(self, **operands):
+        if self.fail_once:
+            self.fail_once = False
+            raise RuntimeError("the process died before publication")
         self.states.append(line_of(self.case.control,
                                    self.case.line["line_id"])["state"])
         self.calls.append(operands)

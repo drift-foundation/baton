@@ -1,0 +1,47 @@
+# THE DETERMINISTIC FIXTURE THAT PRODUCES A REAL CANDIDATE, W197661 c200254.
+#
+# WHAT CHANGED SINCE instance-200000, AND WHY. Independent review199914 found
+# that the previous recipe COPIED `proposing_agent.py` and then entered
+# `baton_worker.py` directly -- so `main` saw `agent=None`, took the
+# `_scripted_default()` branch and imported `scripted_agent.ScriptedAgent`, the
+# original fixture that writes `result_metadata: {}`. The built image still ran
+# the old agent. Copying a module is not composing with it.
+#
+# So this recipe enters `proposing_entry.py`, which injects `ProposingAgent`
+# through `baton_worker.main(agent=...)` -- the same documented seam and the
+# same shape as the accepted provider image's `dogfood_entry.py`. AND IT NO
+# LONGER CARRIES `scripted_agent.py`: two agents in one image, one selected by a
+# branch nobody reads, is exactly what produced the defect. `_scripted_default`
+# is unreachable here because its module is absent, so a recipe that loses this
+# entrypoint fails loudly instead of quietly running the wrong agent.
+#
+# WHAT IS NEW AND WHY THE FIXTURE EXISTS AT ALL. Every earlier fixture wrote
+# `result_metadata: {}` for its git-change-proposal, so it carried no
+# `baton.git-proposal/1` claim, nothing could be published, and independent
+# review and report-and-hold were unreachable by construction.
+# `proposing_agent.py` commits on the private line the manager already hands the
+# worker and reports the four facts the claim is made of.
+#
+# THIS WORK'S OWN CONTEXT. W198667's `fixture-199285`/`fixture-199918` contexts
+# and images, and the accepted provider and integration images
+# (sha256:35f36286..., dac354d8...), are neither used, rebuilt nor
+# re-attributed here. instance-200000's image digest keeps its own attribution
+# and is not reassigned to this build.
+#
+# ONE LABELLED DIFFERENCE FROM THE ACCEPTED PROVIDER IMAGE: it carries a
+# scripted proposing agent and its own entry module, where the accepted image
+# carries the REAL adapter and enters `dogfood_entry.py`. Same immutable base,
+# same worker program bytes, same control schema, same source profiles, same
+# fixed non-root pair.
+#
+# `--pull=false --no-cache --network none`: nothing is downloaded and nothing is
+# installed, so the only new bytes are this repository's own reviewed source.
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+COPY worker/proposing_agent.py /opt/baton/proposing_agent.py
+COPY worker/proposing_entry.py /opt/baton/proposing_entry.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/proposing_entry.py"]

@@ -1,0 +1,103 @@
+# The v12 INTEGRATION worker image: the selected provider artefact, one
+# entrypoint further on.
+#
+# W110935, `work/records/2026/09/finding-v12-integration-worker-workload/`.
+# Every line carries the decision behind it, as W6633's and W39357's recipes
+# do, because each one is either inherited from a measured fact or is a
+# deliberate departure from the image it is derived from.
+#
+# THE BASE IS AN EXPLICITLY SELECTED EXISTING PROVIDER IMAGE, AND IT HAS NO
+# DEFAULT. `Dockerfile.claude` installs the provider runtime and the system
+# trust store over a moving `apt-get` and a moving `npm install`, and W55361
+# measured that two builds of an unchanged tree differ in exactly those two
+# layers. Reinstalling them here would mint a SECOND unreviewed provider
+# installation for the same deployment and make "which runtime answered" a
+# question with two answers.
+#
+# So the operand is required rather than defaulted: a build must name the
+# digest the deployment has already validated and selected, and a recipe that
+# carried a floating tag would let an unselected artefact become the base by
+# omission. Approver event 55641's rule is unchanged by this file -- building
+# an image here produces a CANDIDATE, and selecting a digest is a separate
+# deployment act that this recipe cannot perform and does not claim.
+ARG PROVIDER_BASE
+FROM ${PROVIDER_BASE}
+
+# THE WORKER MODULES, RE-COPIED FROM THE REVIEWED TREE ON PURPOSE.
+#
+# `baton_worker.py`, `claude_agent.py` and the profile package are already in
+# the selected base, and copying them again is not redundancy: it makes byte
+# identity with this tree a property of THIS artefact rather than an inherited
+# assumption about the base. W39357's own gate paid for that lesson -- an image
+# that asserted a file merely EXISTED passed every case after the adapter it
+# was certifying had changed underneath it, and byte identity is the
+# discriminator between a rebuilt candidate and a stale cached one.
+#
+# `baton_worker.py` travels because this entry reuses its launch readers, and
+# the frozen contract document travels with it: a module whose data was left
+# behind is one that imports cleanly and fails at the first call that needs it.
+#
+# NOTHING FROM `baton_v12` IS COPIED IN, exactly as in the two images before
+# this one: a worker that could import the manager is a worker one bug away
+# from holding the manager's capabilities. `integration_contract.py` is
+# standard-library-only for that reason and this recipe is where that pays --
+# there is no manager, Authority or store package here for it to have needed.
+#
+# THE BUILD CONTEXT IS `v12`, NOT `v12/worker`, and every path below is spelled
+# from there: the image needs material from two sibling directories and a
+# context cannot reach above itself.
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/integration_contract.py /opt/baton/integration_contract.py
+COPY worker/integration_workload.py /opt/baton/integration_workload.py
+COPY worker/integration_entry.py /opt/baton/integration_entry.py
+COPY worker/worker-control-1.0.schema.json \
+     /opt/baton/worker-control-1.0.schema.json
+
+# THE SOURCE PROFILES TRAVEL BECAUSE `claude_agent` IMPORTS THEM, and under the
+# top-level name the image gives them. W71917's rule is kept intact: this
+# package imports nothing from `baton_v12` and `baton_v12.worker_manager`
+# imports nothing from it, which `tests/manager/test_source_boundary` holds in
+# both directions. No `baton_v12` package directory is created here, so the
+# image still has no way to spell the manager's namespace.
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+
+# THE SAME FIXED NON-ROOT PAIR as every other image in this campaign and as the
+# adapter's `--user` restriction. Restated rather than inherited: the identity
+# this container runs as is a property a reviewer should be able to read in the
+# recipe that produced it, and `read_launch`'s read-only proof depends on this
+# process not being root.
+USER 65532:65532
+
+# ONE SHOT, EXEC FORM, NO SHELL IN THE PROCESS TREE. The manager stops this
+# container by signalling PID 1, and PID 1 is Python. `integration_entry.py`
+# is the composition -- a reviewable artefact rather than a shell incantation.
+ENTRYPOINT ["python3", "/opt/baton/integration_entry.py"]
+
+# Deterministic bytes and an explicit module path, as in the two images before
+# this one. `PYTHONDONTWRITEBYTECODE` is for the interpreter's OWN imports
+# inside the container and is NOT the cache boundary: `claude_agent` composes
+# its children's environments member by member rather than inheriting this
+# process's, so `PYTHONPYCACHEPREFIX` there is what actually bounds a child's
+# bytecode.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0 \
+    NODE_NO_WARNINGS=1
+
+# THERE IS DELIBERATELY NO `ENV ANTHROPIC_*` OF ANY KIND, and the reason is
+# sharper than "secrets don't belong in images". The provider resolves its
+# credential from the environment FIRST: an `ANTHROPIC_API_KEY` present here
+# would silently outrank the mounted slot and decide which account every
+# container built from this image ran as. The adapter composes the child's
+# environment itself and forwards nothing, and this image inherits that posture
+# rather than adding a fallback to it.
+#
+# There is also no `ENV BATON_WORKER_*`: that transport was retired with no
+# fallback (W26291), and this image's programs do not read those names at all.
+#
+# No `VOLUME`, no `EXPOSE`, no `HEALTHCHECK`: the assignment, the result, the
+# bundle and the target are mounts the manager names per attempt, and this
+# container's health is observed by the adapter through the engine rather than
+# announced by the container.

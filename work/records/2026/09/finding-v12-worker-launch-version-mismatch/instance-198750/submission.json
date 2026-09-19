@@ -1,0 +1,48 @@
+{
+  "schema": "baton.v12.job-submission/2",
+  "submission_id": "w197661-disposable-198750",
+  "jobs": [
+    {
+      "job_id": "w197661-fixture-lifecycle",
+      "input_digest": "sha256:13c419d3a2cecabdfb368daddadb4fe6054c9cff0e330bf4feb8cfc6dfa4071b",
+      "policy_digest": "sha256:7ab4e55b1ff86f7df16156fc16705b76dde58d4e69da3fbf243dc30b64d81e4d",
+      "test_scope": [
+        "v12/python/tests/tools/test_integration_worker.py"
+      ],
+      "terminal_policy": "report-and-hold",
+      "stages": [
+        {
+          "kind": "implementation",
+          "work_id": "742fe75b-W1",
+          "profile_name": "w197661-fixture",
+          "profile_digest": "sha256:7b496650e14192e5f8a26cd2b29fa616d5d2ea57c631bd61cf335eb628a0347f",
+          "depends_on": []
+        },
+        {
+          "kind": "review",
+          "work_id": "742fe75b-W1",
+          "profile_name": "w197661-fixture",
+          "profile_digest": "sha256:7b496650e14192e5f8a26cd2b29fa616d5d2ea57c631bd61cf335eb628a0347f",
+          "depends_on": [
+            {
+              "job_id": "w197661-fixture-lifecycle",
+              "kind": "implementation"
+            }
+          ]
+        },
+        {
+          "kind": "integration",
+          "work_id": "742fe75b-W1",
+          "profile_name": "w197661-fixture",
+          "profile_digest": "sha256:7b496650e14192e5f8a26cd2b29fa616d5d2ea57c631bd61cf335eb628a0347f",
+          "depends_on": [
+            {
+              "job_id": "w197661-fixture-lifecycle",
+              "kind": "review"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

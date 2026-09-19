@@ -1,0 +1,248 @@
+{
+  "all_true": true,
+  "attempt": "attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408acb6f617c7af9",
+  "checks": 35,
+  "claim": 199021,
+  "detail": [
+    {
+      "check": "every required validator accepted",
+      "detail": [],
+      "held": true
+    },
+    {
+      "check": "each required validator is in the accepted set",
+      "detail": [
+        "bootstrap.held",
+        "bootstrap.validated",
+        "check_manifest_structure",
+        "job_manager.documents.owned_submission",
+        "stage_execution.held_configuration",
+        "stage_execution.held_configuration (over the written files)"
+      ],
+      "held": true
+    },
+    {
+      "check": "the installed deployment carries ONE manifest for all three stages",
+      "detail": [
+        "sha256:0a2e92ca6d42345b12b0f5ca98e5a4bdc7e5dcfe61181a4b6789b0ed30b903c4"
+      ],
+      "held": true
+    },
+    {
+      "check": "that seal is the one the Job names",
+      "detail": "sha256:0a2e92ca6d42345b12b0f5ca98e5a4bdc7e5dcfe61181a4b6789b0ed30b903c4",
+      "held": true
+    },
+    {
+      "check": "the composed and emitted configurations agree member for member",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "three roles are configured",
+      "detail": [
+        "implementation",
+        "integration",
+        "review"
+      ],
+      "held": true
+    },
+    {
+      "check": "every role has its own participant",
+      "detail": [
+        "baton.w197661-author",
+        "baton.w197661-integrator",
+        "baton.w197661-reviewer"
+      ],
+      "held": true
+    },
+    {
+      "check": "every role has its own principal",
+      "detail": [
+        "principal:baton.w197661-author",
+        "principal:baton.w197661-integrator",
+        "principal:baton.w197661-reviewer"
+      ],
+      "held": true
+    },
+    {
+      "check": "every role has its own launch_home",
+      "detail": [
+        "/home/sl/baton-v12-lifecycle-198943/launch/implementation",
+        "/home/sl/baton-v12-lifecycle-198943/launch/integration",
+        "/home/sl/baton-v12-lifecycle-198943/launch/review"
+      ],
+      "held": true
+    },
+    {
+      "check": "every role has its own credential_home",
+      "detail": [
+        "/home/sl/baton-v12-lifecycle-198943/credentials/implementation",
+        "/home/sl/baton-v12-lifecycle-198943/credentials/integration",
+        "/home/sl/baton-v12-lifecycle-198943/credentials/review"
+      ],
+      "held": true
+    },
+    {
+      "check": "the declared base is the target repository's own main revision",
+      "detail": {
+        "declared": "e486652c4ddebfb696e030b4b867e914248db542",
+        "target": [
+          "e486652c4ddebfb696e030b4b867e914248db542"
+        ]
+      },
+      "held": true
+    },
+    {
+      "check": "the declared base is not the all-zero placeholder",
+      "detail": "e486652c4ddebfb696e030b4b867e914248db542",
+      "held": true
+    },
+    {
+      "check": "the adapter digest is the measured bytes of the named file",
+      "detail": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "held": true
+    },
+    {
+      "check": "the record binding digests the retained snapshot bytes",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the task document on disk is the width the manifest declares",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the task document on disk is the digest the manifest declares",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the bootstrap record binds this Job to this Work, base, target AND producer -- every member, present or absent",
+      "detail": {
+        "bound": {
+          "canonical_target_id": "w197661-target",
+          "line_declared_base": "e486652c4ddebfb696e030b4b867e914248db542",
+          "source_worker_id": "w197661-implementation",
+          "work_id": "b0657dfa-W1"
+        },
+        "expected": {
+          "canonical_target_id": "w197661-target",
+          "line_declared_base": "e486652c4ddebfb696e030b4b867e914248db542",
+          "source_worker_id": "w197661-implementation",
+          "work_id": "b0657dfa-W1"
+        }
+      },
+      "held": true
+    },
+    {
+      "check": "the producer it names is this deployment's implementation worker",
+      "detail": "w197661-implementation",
+      "held": true
+    },
+    {
+      "check": "the Job the record binds is the Job that was submitted",
+      "detail": [
+        "w197661-lifecycle"
+      ],
+      "held": true
+    },
+    {
+      "check": "the instance identity is the Authority every document names",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the synthetic source is a private file this user owns",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the synthetic source declares in its own text that it is not one",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "no real deployment's registry is named anywhere",
+      "detail": "/home/sl/baton-v12-lifecycle-198943/credential-fixture/registry.json",
+      "held": true
+    },
+    {
+      "check": "the configured image is the labelled fixture",
+      "detail": "sha256:edd20e9c3f0a15bdd445c7b83fcb8b5f8a52f6dc42d1d639a0fef9db3ccfacf4",
+      "held": true
+    },
+    {
+      "check": "the configured image is not the accepted_provider digest",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the configured image is not the accepted_integration digest",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the engine positively holds that exact image",
+      "detail": "sha256:edd20e9c3f0a15bdd445c7b83fcb8b5f8a52f6dc42d1d639a0fef9db3ccfacf4",
+      "held": true
+    },
+    {
+      "check": "the Job in the store is this submission's",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the implementation stage allocated THIS attempt",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the implementation stage is answering and NOT concluded",
+      "detail": "answering",
+      "held": true
+    },
+    {
+      "check": "review and integration are blocked behind it",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the worker answered the whole exchange and ended completed",
+      "detail": "answered",
+      "held": true
+    },
+    {
+      "check": "one reconcile tick owes conclude and DEFERS it",
+      "detail": {
+        "act": "conclude",
+        "attempt_id": "attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408acb6f617c7af9",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "attempt 'attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408\u2026 output is sealed; custody is taken of a FROZEN result, and no other state is one"
+        },
+        "episode": 1,
+        "outcome": "deferred",
+        "stage_id": "w197661-lifecycle/implementation"
+      },
+      "held": true
+    },
+    {
+      "check": "the deferral is the already-sealed precondition",
+      "detail": "attempt 'attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408\u2026 output is sealed; custody is taken of a FROZEN result, and no other state is one",
+      "held": true
+    },
+    {
+      "check": "nothing in the operator status surface records that deferral",
+      "detail": [
+        "admit",
+        "claim"
+      ],
+      "held": true
+    }
+  ],
+  "failed": [],
+  "schema": "baton.w197661.lifecycle-verification/1"
+}

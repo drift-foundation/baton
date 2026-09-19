@@ -1,0 +1,51 @@
+# THE DETERMINISTIC FIXTURE INTEGRATOR, W197661 claim201324.
+#
+# WHY A SECOND IMAGE AT ALL. The proposing fixture carries an agent that
+# PROPOSES, and `deployment(role)` handed it to every role -- so the
+# integration container entered `proposing_entry.py` and proposed instead of
+# importing. The stage went `exceptional` and report-and-hold was unreachable
+# by construction, which is the same shape as the earlier blocker one stage
+# further on. An integrator is a different workload and gets its own artefact.
+#
+# IT COMPOSES THE REAL ENTRY AND THE REAL WORKLOAD. `importing_entry.py`
+# injects `ImportingAgent` through `integration_entry.main(agent=...)` -- the
+# documented seam, the same one `proposing_entry.py` uses and the same one the
+# accepted integration image reaches when it constructs `ClaudeAgent`. Every
+# rule the manager validates is the accepted code's: the launch reader, the
+# bundle correlation, the whole-path preflight, the read-back of every
+# scheduled path and the conservative ending. Copying a module is not composing
+# with it, which review199914 already paid for once in this campaign.
+#
+# WHAT IS LABELLED. `ImportingAgent` is a DETERMINISTIC STAND-IN for a
+# model-driven provider turn -- `integration_workload` says in its own words
+# that the provider performs the import and that a host-side copier wearing the
+# provider's name is a different capability. It claims no model coverage. The
+# accepted integration image (sha256:dac354d8...) is neither used, rebuilt nor
+# re-attributed here, and neither is the accepted provider image.
+#
+# THE WORKER PROGRAMS ARE THIS TREE'S CURRENT BYTES, recorded in this claim's
+# evidence: `attempt_log_format.py` and `baton_worker.py` are W198667's live
+# candidate bytes, read rather than edited, and `claude_agent.py` travels
+# because `integration_entry` imports it on the branch this fixture does not
+# take. The proposing image's own context is untouched and its sealed COPY
+# inputs still describe it.
+#
+# `--pull=false --no-cache --network none`: nothing is downloaded and nothing is
+# installed, so the only new bytes are this repository's own reviewed source.
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/integration_contract.py /opt/baton/integration_contract.py
+COPY worker/integration_workload.py /opt/baton/integration_workload.py
+COPY worker/integration_entry.py /opt/baton/integration_entry.py
+COPY worker/importing_agent.py /opt/baton/importing_agent.py
+COPY worker/importing_entry.py /opt/baton/importing_entry.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/importing_entry.py"]
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0

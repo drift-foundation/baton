@@ -1,0 +1,24 @@
+# THE DETERMINISTIC FAKE-PROVIDER FIXTURE, W197661 claim198750.
+#
+# NOT THE ACCEPTED PROVIDER IMAGE, and the difference is the point. Owner
+# seq198635 requires a deterministic fake provider for the disposable-instance
+# exercise and requires fixture differences labelled explicitly. This carries
+# `scripted_agent.py` and enters `baton_worker.py` directly, so `main()` finds
+# `agent=None` and loads the scripted default; the accepted provider image
+# carries no scripted agent and enters `dogfood_entry.py`, which injects the
+# REAL adapter.
+#
+# EVERYTHING ELSE IS HELD IDENTICAL ON PURPOSE: the same immutable base, the
+# same worker program bytes, the same control schema, the same source profiles,
+# the same fixed non-root pair. One labelled difference is a fixture; several
+# unlabelled ones are a different artefact nobody can reason about.
+#
+# `--pull=false --no-cache --network none`: nothing is downloaded and nothing
+# is installed, so the only new bytes are this repository's own reviewed source.
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/scripted_agent.py /opt/baton/scripted_agent.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/baton_worker.py"]

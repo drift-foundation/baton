@@ -22,7 +22,7 @@ from ..contracts import ContractRefusal
 from ..worker_manager.boundaries import Column
 
 __all__ = ["ALLOCATION_COLUMNS", "AFFINITY_COLUMNS", "EPISODE_COLUMNS",
-           "GENERATION_COLUMNS", "MIGRATIONS", "POOL_WORKER_COLUMNS", "SCHEMA", "SCHEMA_VERSION",
+           "DEFERRAL_COLUMNS", "GENERATION_COLUMNS", "MIGRATIONS", "POOL_WORKER_COLUMNS", "SCHEMA", "SCHEMA_VERSION",
            "check_authority",
            "STORE_KIND", "TABLES", "JOB_COLUMNS",
            "JOB_EXECUTION_LIMIT_COLUMNS", "OPERATION_COLUMNS",
@@ -85,11 +85,16 @@ def check_authority(value, *, what):
 # mechanical as well as tidy: `JobStore._schema_three_shape` derives the
 # schema-3 expectation by subtracting what the migrations after 3 CREATE, and a
 # step that ALTERED an existing table could not be subtracted from it.
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
+# W197661 review 2026-09-18T02-59-56Z [R2]: `deferrals` was in `SCHEMA` and in
+# the migration and NOT here, and `JobStore`'s required-table validation reads
+# exactly this tuple -- so a schema-7 store missing the new relation would have
+# opened as valid and then faulted at the first deferral. A relation the build
+# creates is a relation the build requires.
 TABLES = ("meta", "operations", "submissions", "jobs",
           "job_execution_limits", "stages", "episodes",
-          "receipts", "pool_generations", "pool_workers",
+          "receipts", "deferrals", "pool_generations", "pool_workers",
           "stage_allocations", "worker_affinity")
 
 OPERATION_STATES = ("committed", "refused")
@@ -439,6 +444,55 @@ CREATE TABLE worker_affinity (
   recorded_at TEXT NOT NULL,
   PRIMARY KEY (development_line, lane)
 );
+
+CREATE TABLE deferrals (
+  -- W197661: A DEFERRED ACT'S OWN REASON, and deliberately NOT a receipt.
+  --
+  -- `manager._delegate` performs each owed act. An ordinary non-durable refusal
+  -- is an ANSWER rather than a failure -- the worker has not accepted its offer
+  -- yet, the ending cannot re-enter, the runtime is still quiescing -- and until
+  -- now that answer persisted NOWHERE: `_record` writes only when the Worker
+  -- Manager journalled a row, so the reason lived for exactly one tick. A real
+  -- deployment then sat at `answering` for the whole of an incident with a
+  -- healthy-looking manager and a fresh snapshot, and the only place the reason
+  -- existed was a reconcile report nobody had kept.
+  --
+  -- WHY NOT `receipts`. That table's `act` is closed to ('admit','claim') and its
+  -- `state` to ('performed','adopted','refused') -- and `projection` reads ANY
+  -- refused receipt as `exceptional`. A deferral is re-enterable and not refused,
+  -- so recording one there would turn a recoverable condition into a terminal
+  -- one, which is a worse falsehood than the silence it replaces.
+  --
+  -- ONE ROW PER (STAGE, EPISODE, ACT), updated in place. A deferral repeats on
+  -- every tick; a row per occurrence would be an unbounded write driven by a
+  -- condition that is not changing. `first_seen_at` is when it started and
+  -- `last_seen_at` is how an operator tells "still" from "stale".
+  --
+  -- AND IT IS DELETED WHEN THE ACT SETTLES. A reason left behind after the act
+  -- succeeded would be worse than none at all.
+  stage_id TEXT NOT NULL,
+  episode INTEGER NOT NULL,
+  act TEXT NOT NULL,
+  -- THE EXACT ATTEMPT, which is the half the owner asked for by name: a
+  -- deferral an operator cannot attribute to one attempt is a reason without
+  -- a subject.
+  attempt_id TEXT NOT NULL,
+  -- NULLABLE, because not every owed act HAS a canonical operation identity.
+  -- `admit` and `claim` are delegated under one this build derives; `conclude`
+  -- is the composed ending's own re-entry and has none. Review
+  -- 2026-09-18T02-59-56Z: "do not invent an unrelated canonical operation
+  -- identity merely to satisfy the new table" -- so absence is recorded as
+  -- absence.
+  operation_id TEXT,
+  category TEXT NOT NULL,
+  code TEXT NOT NULL,
+  message TEXT NOT NULL,
+  first_seen_at TEXT NOT NULL,
+  last_seen_at TEXT NOT NULL,
+  incarnation TEXT NOT NULL,
+  PRIMARY KEY (stage_id, episode, act),
+  FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode)
+);
 """
 
 # version already recorded -> the statements that carry it to the next one.
@@ -759,6 +813,63 @@ ALTER TABLE stages_2 RENAME TO stages;
 
 ALTER TABLE receipts_2 RENAME TO receipts;
 """,
+    # W197661, CREATE ONLY: a new relation adds nothing to migrate and
+    # `_schema_three_shape` subtracts exactly what every step after 3 creates.
+    #
+    # THE KEY IS THE VERSION THIS STEP RUNS *FROM*. `JobStore._migrate` reads
+    # `MIGRATIONS[at]` and then increments, so a step to schema 7 is keyed 6.
+    # A first cut of this keyed it 7 and left a store at 6 with no step to
+    # take -- an infinite loop in the migration driver rather than a refusal.
+    6: """
+CREATE TABLE deferrals (
+  -- W197661: A DEFERRED ACT'S OWN REASON, and deliberately NOT a receipt.
+  --
+  -- `manager._delegate` performs each owed act. An ordinary non-durable refusal
+  -- is an ANSWER rather than a failure -- the worker has not accepted its offer
+  -- yet, the ending cannot re-enter, the runtime is still quiescing -- and until
+  -- now that answer persisted NOWHERE: `_record` writes only when the Worker
+  -- Manager journalled a row, so the reason lived for exactly one tick. A real
+  -- deployment then sat at `answering` for the whole of an incident with a
+  -- healthy-looking manager and a fresh snapshot, and the only place the reason
+  -- existed was a reconcile report nobody had kept.
+  --
+  -- WHY NOT `receipts`. That table's `act` is closed to ('admit','claim') and its
+  -- `state` to ('performed','adopted','refused') -- and `projection` reads ANY
+  -- refused receipt as `exceptional`. A deferral is re-enterable and not refused,
+  -- so recording one there would turn a recoverable condition into a terminal
+  -- one, which is a worse falsehood than the silence it replaces.
+  --
+  -- ONE ROW PER (STAGE, EPISODE, ACT), updated in place. A deferral repeats on
+  -- every tick; a row per occurrence would be an unbounded write driven by a
+  -- condition that is not changing. `first_seen_at` is when it started and
+  -- `last_seen_at` is how an operator tells "still" from "stale".
+  --
+  -- AND IT IS DELETED WHEN THE ACT SETTLES. A reason left behind after the act
+  -- succeeded would be worse than none at all.
+  stage_id TEXT NOT NULL,
+  episode INTEGER NOT NULL,
+  act TEXT NOT NULL,
+  -- THE EXACT ATTEMPT, which is the half the owner asked for by name: a
+  -- deferral an operator cannot attribute to one attempt is a reason without
+  -- a subject.
+  attempt_id TEXT NOT NULL,
+  -- NULLABLE, because not every owed act HAS a canonical operation identity.
+  -- `admit` and `claim` are delegated under one this build derives; `conclude`
+  -- is the composed ending's own re-entry and has none. Review
+  -- 2026-09-18T02-59-56Z: "do not invent an unrelated canonical operation
+  -- identity merely to satisfy the new table" -- so absence is recorded as
+  -- absence.
+  operation_id TEXT,
+  category TEXT NOT NULL,
+  code TEXT NOT NULL,
+  message TEXT NOT NULL,
+  first_seen_at TEXT NOT NULL,
+  last_seen_at TEXT NOT NULL,
+  incarnation TEXT NOT NULL,
+  PRIMARY KEY (stage_id, episode, act),
+  FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode)
+);
+""",
 }
 
 OPERATION_COLUMNS = {
@@ -828,6 +939,16 @@ RECEIPT_COLUMNS = {
     "state": Column("text", allowed=RECEIPT_STATES),
     "detail": Column("json"),
     "recorded_at": Column("instant"),
+    "incarnation": Column("text"),
+}
+
+DEFERRAL_COLUMNS = {
+    "stage_id": Column("identity"), "episode": Column("count"),
+    "act": Column("text"), "attempt_id": Column("identity"),
+    "operation_id": Column("identity", nullable=True),
+    "category": Column("text"),
+    "code": Column("text"), "message": Column("text"),
+    "first_seen_at": Column("instant"), "last_seen_at": Column("instant"),
     "incarnation": Column("text"),
 }
 

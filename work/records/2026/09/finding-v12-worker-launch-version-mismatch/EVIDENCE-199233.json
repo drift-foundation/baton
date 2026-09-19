@@ -1,0 +1,122 @@
+{
+  "ALSO_CORRECTED": {
+    "verifier_binding": "the previous form compared the whole expected mapping ONLY when the binding was ABSENT; in the case that actually happens it compared work_id and the base alone. Every member is compared now -- Work, base, canonical target AND source worker -- plus two new checks that the producer is this deployment's implementation worker and that the bound Job is the submitted one. 33 checks became 35, all true."
+  },
+  "NOT_DONE_THIS_CLAIM": [
+    "the fixture agent still composes no baton.git-proposal/1 claim over its private line, so no candidate can be published",
+    "the deterministic independent-review response is not written",
+    "the lifecycle is therefore not completed through publication, independent review and report-and-hold",
+    "durable operator visibility is TRACED and enumerated, not implemented",
+    "which step after intake failed the FIRST time on the retained attempt is still unknown, and the fixture gap remains a plausible trigger rather than a recovered exception"
+  ],
+  "OPERATOR_VISIBILITY_traced_not_implemented": {
+    "acceptance_still_owed": "a deferred finalization exposes its actionable reason and exact attempt without direct store or Docker inspection",
+    "the_path_established": [
+      "job_manager/manager.py::_delegate is where an owed act is performed",
+      "an ordinary (non-durable) ContractRefusal produces a `deferred` reconciliation document carrying category, code and message",
+      "and PERSISTS NOTHING: _record is called only when a journal row exists, so the deferred branch returns and the reason lives for one tick",
+      "_record is the only persistence path and writes to the `receipts` table"
+    ],
+    "what_the_ruling_asked": "expose deferred-finalization reasons and exact attempts through the operator status surface, AFTER establishing the actual serving-loop persistence path",
+    "why_no_field_was_chosen_yet": {
+      "and_widening_it_would_lie": "projection.py's FIRST state branch reads any receipt with state `refused` as `exceptional`. A deferral is re-enterable and NOT durably refused, so recording it there would turn a recoverable condition into a terminal one -- which is a worse falsehood than the silence it replaces",
+      "receipts_cannot_hold_it": "schema.py constrains receipts.act to ('admit','claim') and receipts.state to ('performed','adopted','refused'); a conclude deferral is neither act nor state",
+      "therefore": "durable exposure needs its own table and a Job-store migration, or a new nullable column plus a projection axis that is explicitly not an act receipt. That is a schema change and it is enumerated rather than started."
+    }
+  },
+  "THE_CORRECTION": {
+    "defect": "review_driver.end_implementation promises every step replays and that a death between any two re-enters and finishes. Step five did not: request_intake asked _collectable -- which admits `frozen` only -- ahead of record_intake's replay, and `sealed` is the state a SUCCESSFUL intake leaves behind.",
+    "no_signature_comparison_and_why_that_is_not_a_weakening": "store.replay compares the signature because a CALLER supplies the identity there. This identity is derived from the persisted attempt, and the signature it would be compared against is over the collected bytes -- which is exactly what this path exists to avoid asking the adapter for twice. The `kind` is still compared, because that is a fact about the row rather than about today's operands.",
+    "properties_the_ruling_requires": {
+      "assignment_and_participant_still_first": "_require_assignment and _require_participant run ahead of the replay; a case proves a foreign participant is still refused with a committed receipt in place",
+      "custody_unchanged": "_collectable and _compared still govern every genuinely new record; a case asserts _collectable STILL refuses a sealed output",
+      "exact_receipt_and_result_identity": "the journal's own byte-stable result is returned; a case asserts the answer equals json.loads(row.result) AND the first receipt",
+      "fencing_and_cleanup_preserved": "nothing in the destroyed/fence-settled branches or in authorize_cleanup is touched",
+      "no_duplicate_collection": "the adapter is not called at all on the replay path; a case asserts collected_with == []",
+      "no_false_success": "only a `committed` journal state replays -- an absent record and a refused record both fall through to today's behaviour, each with its own case"
+    },
+    "shape": "a COMMITTED intake.record receipt is resumed by its own attempt-derived identity BEFORE _collectable is consulted",
+    "why_not_the_other_option": "admitting `sealed` through _collectable would carry a SECOND, possibly different collection into the custody comparison, which is the opposite of taking custody once. The review asked for research rather than a guess and this is the answer: intake_operation derives its identity from the attempt row alone -- no adapter bytes -- so the committed answer can be found without collecting anything again."
+  },
+  "authority": "owner ruling seq199199, selecting review-2026-09-18T01-52-22Z.md; PINNED IN FINDING AND PLAN BEFORE ANY EDIT",
+  "candidate": {
+    "v12/python/src/baton_v12/worker_manager/intake.py": "37ff14ffcad49e0eb744949fb3b0b4ef98103c94dd6c0459398492efae1fadb2",
+    "v12/python/tests/manager/test_intake.py": "bf2b9a0b340bf6c62eb750cb9e6ebd5bb38e2eeb80466754fba90fb3e837369a",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-199021/verify_lifecycle.py": "ec165a9d693300f9f44806b615dc6afc5fc395b54da5d6b940c2a7cd6718f307"
+  },
+  "claim": 199233,
+  "cut_point_and_restart_cases": {
+    "a_gap_this_names": "the suite already proved the INNER door and not the outer one: RestartOrderingIsPreserved.test_a_retry_of_intake_replays_after_the_axis_moved calls record_intake directly and passes, and nothing asked request_intake -- the entry an ending actually uses -- the same question",
+    "added": 14,
+    "classes": [
+      "FinalizationAfterCommittedIntakeCanREENTER",
+      "TheENDINGFinishesFromEveryCutPointAfterIntake"
+    ],
+    "cut_points": [
+      "immediately after committed intake",
+      "during retention",
+      "three consecutive re-entries",
+      "the output axis after a replay"
+    ]
+  },
+  "no": [
+    "live model",
+    "production restart, recovery or resubmission",
+    "lifecycle re-run",
+    "container start or removal",
+    "image build",
+    "credential harvesting",
+    "version-control mutation",
+    "direct store read or write outside the focused suite's own fixture"
+  ],
+  "preserved": {
+    "W198667": "queued at baton.bug with its own candidate (attempt_logs.py and tests/manager/test_attempt_logs.py); neither is touched here",
+    "earlier_packets": "instance-198871, instance-198750, packet-198640 and the corrected-* packages are untouched",
+    "production": "the stopped production instance and its unresolved attempt were not read from, written to, started or changed",
+    "the_unresolved_attempt": "attempt-432eb7b7... and its container are RETAINED and were not re-run, stopped, removed or rewritten. The correction was proved in the focused suite; the retained deployment was not touched."
+  },
+  "schema": "baton.w197661.evidence/1",
+  "verification": {
+    "intake_adjacent": {
+      "checks": 974,
+      "result": "OK",
+      "seconds": 12.608,
+      "suites": [
+        "intake",
+        "output",
+        "attempts",
+        "custody",
+        "review_cycles"
+      ]
+    },
+    "orchestration": {
+      "checks": 166,
+      "result": "OK",
+      "seconds": 48.539,
+      "suites": [
+        "lifecycle_composition",
+        "worker_container",
+        "integration_worker"
+      ]
+    },
+    "seconds_measured_this_claim": 70,
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    },
+    "test_intake": {
+      "added": 14,
+      "checks": 204,
+      "clean_under": "-W error::ResourceWarning",
+      "seconds": 3.405,
+      "was": 190
+    },
+    "verify_lifecycle": {
+      "all_true": true,
+      "checks": 35,
+      "was": 33
+    }
+  },
+  "work": "2b077949-W197661"
+}

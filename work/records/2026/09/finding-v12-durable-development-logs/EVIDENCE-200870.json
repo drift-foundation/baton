@@ -1,0 +1,97 @@
+{
+  "work": "W198667",
+  "claim": 200870,
+  "author": "baton.claude",
+  "answering": {
+    "review": "review-2026-09-18T05-32-05Z.md",
+    "sha256": "677b72c3777da85e24c37dea0bc0fcf22b46a41364c74e2f88005705c9685212",
+    "review_evidence": "REVIEW-EVIDENCE-200560.json",
+    "review_evidence_sha256": "fe7f594e95cbaecc05f72f71ac3547b890cf2d46ce869432d3e0013c8af3bd36",
+    "probes": "review-probes-200560.py",
+    "hashes_verified_against_tree": true
+  },
+  "candidate": {
+    "v12/worker/claude_agent.py": "63302a7de1d8710bc7b658fe187c19341ebad7e2e29d49bc72936ea1063debbe",
+    "v12/python/tests/manager/test_attempt_logs.py": "1673aff9fef75a78d58179b180f6ee40043f00e10645d15d08d26d266ba3cad2"
+  },
+  "prior_candidate_verified_before_editing": {
+    "v12/worker/claude_agent.py": "a0ff45308fbb4c3d548511439a1eb1cd89ef7ba86a96b277c2cad0d705a7f07b",
+    "v12/python/tests/manager/test_attempt_logs.py": "a084c71714563cbc58da6f8d9a9207fd951f5ddecb5ce41f718a4ca3fbfcf6a7"
+  },
+  "reproduced_before_correcting": {
+    "script": "/tmp/w198667-claim200870/probe_before.py",
+    "hardlink": {
+      "failed": [],
+      "native": [".retention.json", "s.jsonl"],
+      "bytes_written_OUTSIDE_the_corner": "provider transcript"
+    },
+    "reserved_name": {
+      "reached": true, "failed": [], "native": [],
+      "note": "a regular provider file named .retention.json was neither retained nor reported"
+    },
+    "reserved_prefix": {
+      "note": "a source named .retention.json.1 WAS retained under that name, but _confined refuses it as a record destination, so its entry is dropped on every restart and it can never resume"
+    }
+  },
+  "corrections": {
+    "R1": {
+      "site": "claude_agent.py:_acquired, called by _appended",
+      "defect": "S_ISREG proves the opened thing is a file and not that it is THIS corner's file; a hard link is a second name for the inode, which O_NOFOLLOW and a confined pathname cannot see",
+      "change": [
+        "the destination descriptor must be S_ISREG AND st_nlink == 1",
+        "a destination believed free is claimed with O_CREAT|O_EXCL rather than adopted with O_CREAT",
+        "a refusal keeps the existing bytes, declares the uncertainty and retains the source as its own generation",
+        "exactly ONE rotation, so a corner whose fresh name is also unusable stops rather than looping inside the provider's drain",
+        "_appended acquires the destination BEFORE positioning the source, because acquiring can rotate"
+      ],
+      "after": "the reviewer's probe declares 'a retained native file is also linked elsewhere...', leaves the sibling and the alias byte-identical, and retains the source at s.jsonl%232"
+    },
+    "R2": {
+      "site": "claude_agent.py:_flat and _walked",
+      "defect": "_walked skipped a SOURCE named .retention.json because the DESTINATION keeps its record under that name, so a real provider transcript was neither retained nor reported",
+      "change": [
+        "_flat escapes a flattened name colliding with the record or its staging namespace: a leading . becomes %2E, in the same scheme that already escapes a literal per-cent as %25",
+        "_walked skips no source name at all"
+      ],
+      "after": ".retention.json is retained as %2Eretention.json; .retention.json.1 as %2Eretention.json.1, resumed across a restart from its own record; a provider file really called %2Eretention.json becomes %252Eretention.json",
+      "also_closed": "those names were refused by _confined as record destinations, so before this even a retained one could never be resumed"
+    }
+  },
+  "reversal_probe": {
+    "how": "a scratch copy of claude_agent.py with both corrections undone, run against the new cases, then removed; the tree carries only the corrections",
+    "result": "10 of the 11 new cases fail; the eleventh is the ordinary single-link append, which is the control and passes both ways",
+    "transcript": "/tmp/w198667-claim200870/reversal.txt",
+    "corrected_my_own_expectations": [
+      "I asserted a destination aliased AFTER creation would leave only the appended tail in the new generation; it holds the whole source, because a new generation is a fresh copy exactly as a truncation or rewrite produces",
+      "I called locators() with a root and an attempt id; it takes the delivery"
+    ]
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "tests.manager.test_attempt_logs", "tests": 185, "new": 11, "result": "OK"},
+      {"suite": "attempt_logs + attempt_logs_command", "tests": 185, "result": "OK", "seconds": 1.562},
+      {"suite": "affected set: attempt_logs, attempt_logs_command, claude_agent, integration_worker, worker_entry, launch, oci, exchange", "tests": 843, "result": "OK", "seconds": 25.958},
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.663},
+      {"suite": "W197661 shared: test_proposing_fixture, test_ending", "tests": 96, "result": "OK", "seconds": 0.600},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "measured_seconds_this_claim": 400,
+    "prior_spending": "preserved in EVIDENCE-198698 through EVIDENCE-200454 and the reviewers' own evidence; nothing recomputed or reattributed"
+  },
+  "images": {
+    "changed_this_claim": false,
+    "why": "attempt_log_format.py b138410504336969eebdb05ebcd544b9eed896c4e1c293a633f6cf4ab4e45f42, baton_worker.py 198a6fe96f93c27f539cfcfeee0206643048d3045fc94f3701603c36a749192f and scripted_agent.py f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c are byte-identical to fixture-199918's context copies",
+    "smoke": "claim199918's 8/8 still describes the current bytes; not re-run, rewritten or re-attributed",
+    "stated_limitation_stands": "that image carries no claude_agent.py and does not prove native capture"
+  },
+  "ownership": {
+    "edited": ["v12/worker/claude_agent.py", "v12/python/tests/manager/test_attempt_logs.py",
+               "FINDING.md", "PLAN.md", "PROGRESS.md", "EVIDENCE-200870.json"],
+    "not_edited": "every reviewer-owned review and REVIEW-EVIDENCE-*.json; all prior evidence files; attempt_log_format.py, attempt_logs.py, baton_worker.py, launch.py, oci.py, the tools command and every image recipe",
+    "W197661": "queued at baton.bug with its own candidate; its paths are untouched and its two suites run green against this tree"
+  },
+  "not_done": "no live model, provider call, network, production action, recovery, resubmission, version-control mutation, direct coordination-store access, image build or re-attribution, credential read, public log publication, or new permission gate",
+  "synthetic_state": "/tmp/w198667-claim200870 (probes and the reversal transcript); the reviewer's /tmp/w198667-review200560-zq6yz0kb is untouched"
+}

@@ -10,7 +10,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 from baton_v12.authority.errors import Refusal as AuthorityRefusal
-from baton_v12.contracts import ContractRefusal, digest
+from baton_v12.contracts import ContractRefusal, digest, job_input_identity
 from baton_v12.integration import driver, execution, runtime
 from baton_v12.integration import entries_of, lease_of
 
@@ -890,9 +890,17 @@ def observation(**changed):
     return held
 
 
+# W202663: THE JOB INPUT IDENTITY, A DISTINCT VALUE ON PURPOSE. A selection now
+# names the producer's runtime manifest AND the Job-scoped projection it
+# corresponds to, and giving both the same fixture value would make every case
+# below pass whichever member the code happened to read.
+JOB_INPUT = "sha256:" + "b" * 64
+
+
 def requirements(input_digest, **changed):
     held = {"task_id": TASK_ID, "task_digest": TASK_DIGEST,
-            "argv": list(ARGV), "input_manifest_digest": input_digest}
+            "argv": list(ARGV), "input_manifest_digest": input_digest,
+            "job_input_identity": JOB_INPUT}
     held.update(changed)
     return held
 
@@ -1722,6 +1730,73 @@ class TheReaderConsumesTheOwnersActualAnswer(unittest.TestCase):
         self.assertEqual(evidence["observation"]["base"], held["evidence"]["base"])
 
 
+class TheREALAuthorityPublicationReplaysAndSURVIVESARestart(unittest.TestCase):
+    """W197661, review 2026-09-18T03-33-36Z [R1]. The evidence I cited was not
+    what I said it was.
+
+    `TheCommittedPublicationSurvivesTheProcessThatMadeIt` inherits
+    `ProducerCase`, whose publisher is `LinePublisher` -- an in-memory double
+    that appends operands to a list, overwrites `recorded` and returns a copy.
+    Those cases do drive the real `integration.driver` and they do prove the
+    LOCAL publication journal replays. They prove nothing about the Authority
+    half, and citing them for it was an overstatement I am correcting rather
+    than defending. Its exact-republication case also reopens the manager AFTER
+    the repeat and then compares `self.read(held)` with itself.
+
+    THIS DRIVES A REAL `Authority`. `_OrdinaryAdmissionWorld` creates one with
+    `Authority.create`, mints the writer's session, claims a live assignment
+    and publishes a candidate through `driver.publish_candidate` against it --
+    so what is exercised here is the durable Authority proposal, not a double.
+    """
+
+    def world(self):
+        return _OrdinaryAdmissionWorld(self)
+
+    def test_an_exact_REPUBLICATION_makes_no_second_Authority_proposal(self):
+        world = self.world()
+        first = world.published
+        held = world.publisher.proposal(first["proposal_id"])
+        again = driver.publish_candidate(
+            world.manager, world.publisher, attempt_id="public-writer",
+            proposal_manifest_digest=world.proposal_manifest)
+        # THE SAME RECORD, and the Authority still holds the same one proposal
+        # under the same identity.
+        self.assertEqual(again["proposal_id"], first["proposal_id"])
+        self.assertEqual(world.publisher.proposal(first["proposal_id"]), held)
+
+    def test_the_published_proposal_SURVIVES_reopening_the_manager(self):
+        """The restart half, read back from the AUTHORITY rather than from the
+        local journal alone -- which is the comparison the cited case never
+        made."""
+        world = self.world()
+        first = world.published
+        held = world.publisher.proposal(first["proposal_id"])
+        place = os.path.join(world.owner.root, "control.sqlite3")
+        if not os.path.exists(place):
+            place = world.manager._connection.execute(
+                "PRAGMA database_list").fetchall()[0]["file"]
+        world.manager.close()
+        reopened = ControlStore.open(place, incarnation="after-restart",
+                                     clock=world.owner.clock)
+        self.addCleanup(reopened.close)
+        again = driver.publish_candidate(
+            reopened, world.publisher, attempt_id="public-writer",
+            proposal_manifest_digest=world.proposal_manifest)
+        self.assertEqual(again["proposal_id"], first["proposal_id"])
+        # THE AUTHORITY'S OWN RECORD, unchanged by the re-entry.
+        self.assertEqual(world.publisher.proposal(first["proposal_id"]), held)
+
+    def test_the_local_record_and_the_AUTHORITY_agree_about_one_identity(self):
+        world = self.world()
+        local = driver.publication_for_attempt(world.manager,
+                                       attempt_id="public-writer")
+        self.assertIsNotNone(local)
+        self.assertEqual(local["proposal_id"], world.published["proposal_id"])
+        self.assertEqual(
+            world.publisher.proposal(local["proposal_id"])["proposal_id"],
+            local["proposal_id"])
+
+
 class _OrdinaryAdmissionWorld:
     """Actual command and custody owners, real Authority receipts/admission.
 
@@ -1849,7 +1924,8 @@ class _OrdinaryAdmissionWorld:
         decide_retention(self.manager, self.port, self.adapter, attempt_id="public-writer",
             artifact_ids=[one["artifact_id"] for one in self.intake["artifacts"]], disposition="retain", retention_policy_digest=self.policy)
         self.required = {"task_id": task["task_id"], "task_digest": "sha256:" + sha256(task_bytes).hexdigest(),
-                         "argv": task["verification"], "input_manifest_digest": self.adapter.input_digest}
+                         "argv": task["verification"], "input_manifest_digest": self.adapter.input_digest,
+                         "job_input_identity": JOB_INPUT}
         self.proposal_id = "no-published-proposal"
         if self.answered["disposition"] != "completed":
             from baton_v12.worker_manager.attempts import finalize_quiescent_assignment
@@ -1877,7 +1953,16 @@ class _OrdinaryAdmissionWorld:
         self.jobs = JobStore.open(os.path.join(owner.root, "ordinary-jobs.sqlite3"), authority_uuid=owner.AUTHORITY, incarnation="jobs-ordinary", clock=owner.clock)
         case.addCleanup(self.jobs.close)
         submission = lifecycle.one_work_submission("ordinary-admission")
-        submission["jobs"][0].update(input_digest=self.adapter.input_digest, policy_digest=self.adapter.policy)
+        # W202663: THE JOB NAMES THE JOB-SCOPED PROJECTION, not the producing
+        # worker's whole runtime manifest digest. The manifest is read back
+        # from the store it was retained in, so this fixture derives the value
+        # the same way the product does rather than restating it.
+        from baton_v12.worker_manager.manifests import load_manifest
+
+        submission["jobs"][0].update(
+            input_digest=job_input_identity(load_manifest(
+                self.manager, self.adapter.input_digest, "inputManifest")),
+            policy_digest=self.adapter.policy)
         submit(self.jobs, submission)
 
     def assert_retained_history(self):

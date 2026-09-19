@@ -15,6 +15,7 @@ stops a second provider turn is a durable file -- so the interesting cases are
 the ones where a process disappears between two of them.
 """
 
+import io
 import json
 import os
 import shutil
@@ -1252,6 +1253,80 @@ class TheWorkerIsTheOtherEnd(Home):
         self.worker(held, agent=Watching())
         self.assertIn(exchange.RECEIPT_DOCUMENT, seen[0])
 
+    def test_a_REFUSED_LAUNCH_writes_nothing_and_the_exchange_says_WAITING(
+            self):
+        """W197661, the composed shape of the reported incident.
+
+        THE INCIDENT. The manager published this exact command, the container
+        came up with a launch document its image could not read, and `serve`
+        fell into `read_frame` on a stdin the exchange never uses. The
+        container stayed up, the exchange stayed empty, and the manager
+        observed a healthy runtime for as long as anybody was willing to wait.
+
+        WHAT THIS PINS IS BOTH HALVES. The worker refuses promptly without
+        reading the channel at all -- `_Unreadable` fails the case if it is
+        touched -- and the manager's own projection of that attempt is
+        unchanged by the failure: `waiting`, the manager's own command, and
+        NOT ONE worker-authored member. A startup refusal may not be read as a
+        receipt, a state, a terminal or an ending, and this asks the real
+        `observation` rather than asserting it.
+
+        The attempt is named by the manager's own sequence, so the projection
+        is about THIS attempt and could not be a stale or foreign one.
+        """
+        import baton_worker
+
+        held, document = self.commanded()
+        place = os.path.join(self.home, "incompatible-launch.json")
+        with open(place, "w", encoding="utf-8") as writing:
+            # A `/3` document at an image that reads `/1` and `/2` is what was
+            # actually mounted; here it is simply invalid, which is the same
+            # refusal from `launched`'s point of view.
+            json.dump({"schema": "baton.worker-launch/3",
+                       "session": self.SESSION, "contract": "do the thing",
+                       "role": "implementation",
+                       "transport": exchange.EXCHANGE_TRANSPORT,
+                       "job_execution": {"job_id": "codex-adapter-first"}},
+                      writing)
+        os.chmod(place, 0o444)
+
+        class Unreadable:
+            def read(inner, _count=None):
+                raise AssertionError("the refused launch read stdin")
+
+        class NeverDispatched:
+            def __getattr__(inner, name):
+                raise AssertionError(f"the refused launch reached {name}")
+
+        stdout = io.BytesIO()
+        stderr = io.StringIO()
+        status = baton_worker.serve(Unreadable(), stdout, NeverDispatched(),
+                                    place, held.command_root, held.event_root,
+                                    stderr=stderr)
+        self.assertEqual(status, baton_worker.STARTUP_REFUSED)
+        self.assertEqual(stdout.getvalue(), b"")
+        self.assertIn("baton-worker: ", stderr.getvalue())
+        # NOTHING WAS WRITTEN INTO THE EXCHANGE. The manager's own command is
+        # the only thing in either namespace.
+        self.assertEqual(os.listdir(held.event_root), [])
+        self.assertEqual(os.listdir(held.command_root),
+                         [document["sequence_id"] + ".json"])
+
+        view = exchange.observation(held)
+        self.assertEqual(view["state"], "waiting")
+        self.assertIsNone(view["receipt"])
+        self.assertIsNone(view["terminal"])
+        self.assertEqual(view["states"], [])
+        self.assertEqual(view["foreign"], [])
+        self.assertIsNone(view["unreadable"])
+        # AND IT IS THIS ATTEMPT'S EXCHANGE, by the manager's own sequence.
+        self.assertEqual(view["sequence_id"],
+                         exchange.sequence_of(self.ATTEMPT))
+        self.assertEqual(view["command"]["sequence_id"],
+                         document["sequence_id"])
+        self.assertEqual(view["command"]["operations"],
+                         [one["operation"] for one in document["operations"]])
+
     def test_a_second_worker_over_one_receipt_starts_no_second_turn(self):
         held, _document = self.commanded()
         calls = []
@@ -1491,7 +1566,21 @@ class TheWorkerIsTheOtherEnd(Home):
                                held.event_root), 0)
         self.assertEqual(sorted(os.listdir(held.event_root)), [])
 
-    def test_a_launch_document_naming_an_unknown_transport_is_latched(self):
+    def test_a_launch_document_naming_an_unknown_transport_is_REFUSED(self):
+        """A `/2` that selects a channel nothing is listening to.
+
+        W197661 CHANGED THE STATUS AND NOT THE PROPERTY. This ended `1`: the
+        fault was latched and the framing loop then ended at once because the
+        fixture handed it a CLOSED stdin. A real `/2` container's stdin is an
+        open pipe with no writer, and there the same path waited forever --
+        which is the incident this Work corrects. `/2` speaks the exchange, so
+        the refusal now goes to stderr and ends `3` without reading at all.
+
+        WHAT IS UNCHANGED is what this case was always about: the exchange
+        beside it is untouched, because a worker that picked its transport
+        from the filesystem would be a worker with two live contracts and no
+        version.
+        """
         import io
 
         import baton_worker
@@ -1507,7 +1596,8 @@ class TheWorkerIsTheOtherEnd(Home):
         self.assertEqual(
             baton_worker.serve(io.BytesIO(b""), io.BytesIO(),
                                _CountingAgent(), place, held.command_root,
-                               held.event_root), 1)
+                               held.event_root, stderr=io.StringIO()),
+            baton_worker.STARTUP_REFUSED)
         self.assertEqual(sorted(os.listdir(held.event_root)), [])
 
 

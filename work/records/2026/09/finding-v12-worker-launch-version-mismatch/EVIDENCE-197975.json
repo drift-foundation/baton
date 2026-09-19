@@ -1,0 +1,535 @@
+{
+  "claim": 197975,
+  "work": "2b077949-W197661",
+  "role": "impl",
+  "corrects": {
+    "review": "review-2026-09-17T22-27-16Z.md sha256 d1e4fccebe2b7a503475fb47422c874e5e6a8f5a7c331a59771f7801d7ceb4db",
+    "review_evidence": "REVIEW-EVIDENCE-197955.json sha256 828a1749f09b43ac0ea8a78c8ebea37ed37c2b3643366ec68463ed958083d412",
+    "authority": "owner seq197881, already selected; no new permission needed",
+    "scope": "EVIDENCE ONLY. No product or test file changed, no image rebuilt, no digest selected."
+  },
+  "source_unchanged_since_acceptance": {
+    "v12/worker/baton_worker.py": "8a5f4895ff7f6609934c0b2078ae294233c1c2ebbb28390da1c1966af5dcd8a1",
+    "v12/python/tests/manager/test_worker_entry.py": "3c830b88336a6247301be1f38e060a668a519f4c48df5c32efc410c64f14567b",
+    "v12/python/tests/manager/test_exchange.py": "2888f570b6268daeb323674e5b55492fa7a4ae881b2393bf7011307a26f1928e",
+    "v12/python/tests/manager/test_worker_container.py": "340a51a033a5de8a47ae16d32c5a03154042a76f3850c9bcb51e527ffe14a957",
+    "v12/python/tests/tools/test_execution_limits.py": "2a8f724cd636b7579a854b2a0b403a708765a658f88af409db92d0852511c27c"
+  },
+  "images_unchanged": {
+    "integration": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407",
+    "provider": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06"
+  },
+  "rebuilt": false,
+  "R1_confinement": {
+    "finding": "prepared-197885/build_images.py:confined appended the restriction table to an argv its callers had already ended with the IMAGE, so docker read those flags as the container's arguments",
+    "verified_in_the_previous_episode": "all six retained smoke vectors put the image before --cap-drop (provider validation image@7 cap-drop@10; provider refusal image@5 cap-drop@6)",
+    "WITHDRAWN_CLAIMS": [
+      "network none",
+      "read-only root",
+      "capability drop",
+      "no-new-privileges / label=disable",
+      "pids/memory/cpu limits"
+    ],
+    "still_true_of_that_episode": "the image's own USER 65532:65532 applied, because it is baked into the artefact; that is not evidence of anything else. No model or network traffic is alleged to have occurred.",
+    "correction": "options/image/arguments are three separate operands; oci.RESTRICTIONS with NO fallback and a refusal without it; a focused vector regression before any container starts; confinement asserted from the engine's own HostConfig for the exact container",
+    "vector_regression": {
+      "image_named_once": true,
+      "only_arguments_follow_image": true,
+      "refuses_a_mutable_tag": true,
+      "refuses_malformed_restrictions": true,
+      "refuses_no_restrictions": true,
+      "refuses_not_a_flag": true,
+      "restrictions_precede_image": true,
+      "superseded_shape_puts_restrictions_after_image": true
+    },
+    "measured_confinement": {
+      "CapDrop": [
+        "ALL"
+      ],
+      "Memory": 2147483648,
+      "Mounts": [
+        {
+          "Destination": "/run/baton/launch.json",
+          "RW": false,
+          "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-five.json"
+        }
+      ],
+      "NanoCpus": 2000000000,
+      "NetworkMode": "none",
+      "PidsLimit": 512,
+      "ReadonlyRootfs": true,
+      "SecurityOpt": [
+        "no-new-privileges",
+        "label=disable"
+      ],
+      "Tmpfs": {
+        "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+        "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+      },
+      "User": "65532:65532"
+    }
+  },
+  "R2_held_open_stdin": {
+    "finding": "ran(stdin=b'') used subprocess.run(input=...), and both that and Popen.communicate() close the writer (_communicate closes stdin whenever input is falsy); --interactive does not hold a producer's pipe open",
+    "WITHDRAWN_CLAIM": "that claim197885 measured a candidate exiting while stdin remained open. It measured an EOF smoke. The exit status 3 it recorded remains true for that input.",
+    "preserved": "prepared-197885 and all its outputs are unchanged and are to be read as EOF smoke",
+    "correction": "an owned Popen writer never written to and never closed until the container's own exit is observed; communicate() never called; both streams drained by threads with read1 so a bounded answer from a running container is visible; one bounded observation; then stop, remove and a confirmed positive absence from the engine for the exact named container",
+    "negative_control": {
+      "confinement": {
+        "CapDrop": [
+          "ALL"
+        ],
+        "Memory": 2147483648,
+        "Mounts": [
+          {
+            "Destination": "/run/baton/launch.json",
+            "RW": false,
+            "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-one_invalid.json"
+          }
+        ],
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 512,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges",
+          "label=disable"
+        ],
+        "Tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+          "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+        },
+        "User": "65532:65532"
+      },
+      "observed_seconds": 15.013283624954056,
+      "removal": {
+        "absent": true,
+        "engine_said": "error: no such object: w197661-smoke197975-negcontrol\n"
+      },
+      "returncode": null,
+      "shape": "an owned writer held OPEN until the observed exit",
+      "stderr": "",
+      "stdin_held_open_until_exit": true,
+      "stdout": "",
+      "stdout_bytes": 0,
+      "still_running_at_bound": true
+    },
+    "why_it_matters": "an invalid /1 is contractually obliged to WAIT for a frame; it was still running at 15.013s with the writer held open. Had it ended, no held-open claim beside it would be established."
+  },
+  "corrected_smoke": {
+    "package": "corrected-197975/",
+    "package_sha256": {
+      "corrected-197975/smoke/command-0.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "corrected-197975/smoke/command-1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "corrected-197975/smoke/integration-five.container.inspect.json": "17cee5ca087637ff1e5ca7cf38379b5579257b7e88267165e9ecd3cacaa46314",
+      "corrected-197975/smoke/integration-reads.container.inspect.json": "9950769c6cb7a9d50ce5d8855b53b95b001cd5aea00c74cef8dba5e69fccede0",
+      "corrected-197975/smoke/negcontrol.container.inspect.json": "9930d534b5fd8d0d1a52fefcb7f7c6a6d575519c5361ab5b3479b82b14eb015d",
+      "corrected-197975/smoke/provider-describe.container.inspect.json": "72f4af6eb4d8fae9ac4b0c553ff5170d29ffc7973c230491e3292a01f0e95f0d",
+      "corrected-197975/smoke/provider-five.container.inspect.json": "66285599720d4178f8606b12d299598aba5161be04017efaf0b19b41b3dd0d21",
+      "corrected-197975/smoke/provider-reads.container.inspect.json": "dd634fa433051aedbce7ca4c3e2aa2166af380b05b9cac1342775824369081a7",
+      "corrected-197975/smoke/result.json": "0a718154b8861c2d7e8ba2fb0c2853178abd0ab2a14520077dba2dfe2c1f1de0",
+      "corrected-197975/smoke-scratch/launch-five.json": "6115211339c307b282d52f06763d6dc3c66a8dc5c54d1b8403e9bdc68c30ec06",
+      "corrected-197975/smoke-scratch/launch-one_invalid.json": "e61fca74e2aba05b903b374f5c5ab4ff5e4c6d7b1fb7b474bdf7cb91d06a864b",
+      "corrected-197975/smoke-scratch/launch-one_valid.json": "7076c4cec0fa21cdbaf1d671201962ab1ae8add3c048791c312fb240525a5213",
+      "corrected-197975/smoke-scratch/launch-three.json": "ff0f05aaba24172661a3e718208325449ca31fbcb2217f04941140986620b999",
+      "corrected-197975/smoke_images.py": "9a6152805dba6b098b9fdec32dcc8f40b4a470c057eacfb3a82c73207af01e34"
+    },
+    "engine": "six confined containers against the EXISTING immutable candidates; no build, no model, no credential, no network, no mount but the launch document",
+    "runs": {
+      "integration_reads": {
+        "confinement": {
+          "CapDrop": [
+            "ALL"
+          ],
+          "Memory": 2147483648,
+          "Mounts": [
+            {
+              "Destination": "/run/baton/launch.json",
+              "RW": false,
+              "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-three.json"
+            }
+          ],
+          "NanoCpus": 2000000000,
+          "NetworkMode": "none",
+          "PidsLimit": 512,
+          "ReadonlyRootfs": true,
+          "SecurityOpt": [
+            "no-new-privileges",
+            "label=disable"
+          ],
+          "Tmpfs": {
+            "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+            "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+          },
+          "User": "65532:65532"
+        },
+        "observed_seconds": 0.15040607703849673,
+        "removal": {
+          "absent": true,
+          "engine_said": "error: no such object: w197661-smoke197975-integration-reads\n"
+        },
+        "returncode": 0,
+        "shape": "an owned writer held OPEN until the observed exit",
+        "stderr": "",
+        "stdin_held_open_until_exit": true,
+        "stdout": "{\"supported\": [\"baton.worker-launch/1\", \"baton.worker-launch/2\", \"baton.worker-launch/3\", \"baton.worker-launch/4\"], \"validated\": [\"contract\", \"job_execution\", \"role\", \"schema\", \"session\", \"transport\"]}\n",
+        "stdout_bytes": 202,
+        "still_running_at_bound": false
+      },
+      "integration_unreadable_generation_held_open": {
+        "confinement": {
+          "CapDrop": [
+            "ALL"
+          ],
+          "Memory": 2147483648,
+          "Mounts": [
+            {
+              "Destination": "/run/baton/launch.json",
+              "RW": false,
+              "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-five.json"
+            }
+          ],
+          "NanoCpus": 2000000000,
+          "NetworkMode": "none",
+          "PidsLimit": 512,
+          "ReadonlyRootfs": true,
+          "SecurityOpt": [
+            "no-new-privileges",
+            "label=disable"
+          ],
+          "Tmpfs": {
+            "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+            "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+          },
+          "User": "65532:65532"
+        },
+        "observed_seconds": 0.15043471002718434,
+        "removal": {
+          "absent": true,
+          "engine_said": "error: no such object: w197661-smoke197975-integration-five\n"
+        },
+        "returncode": 2,
+        "shape": "an owned writer held OPEN until the observed exit",
+        "stderr": "",
+        "stdin_held_open_until_exit": true,
+        "stdout": "",
+        "stdout_bytes": 0,
+        "still_running_at_bound": false
+      },
+      "negative_control_invalid_one": {
+        "confinement": {
+          "CapDrop": [
+            "ALL"
+          ],
+          "Memory": 2147483648,
+          "Mounts": [
+            {
+              "Destination": "/run/baton/launch.json",
+              "RW": false,
+              "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-one_invalid.json"
+            }
+          ],
+          "NanoCpus": 2000000000,
+          "NetworkMode": "none",
+          "PidsLimit": 512,
+          "ReadonlyRootfs": true,
+          "SecurityOpt": [
+            "no-new-privileges",
+            "label=disable"
+          ],
+          "Tmpfs": {
+            "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+            "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+          },
+          "User": "65532:65532"
+        },
+        "observed_seconds": 15.013283624954056,
+        "removal": {
+          "absent": true,
+          "engine_said": "error: no such object: w197661-smoke197975-negcontrol\n"
+        },
+        "returncode": null,
+        "shape": "an owned writer held OPEN until the observed exit",
+        "stderr": "",
+        "stdin_held_open_until_exit": true,
+        "stdout": "",
+        "stdout_bytes": 0,
+        "still_running_at_bound": true
+      },
+      "provider_describe": {
+        "answers": [
+          {
+            "answer": {
+              "launch": [
+                "contract",
+                "role",
+                "schema",
+                "session"
+              ],
+              "operations": [
+                "describe",
+                "work"
+              ],
+              "protocol": "baton.worker-entry/1"
+            },
+            "ok": true,
+            "operation_id": "op-smoke-197975",
+            "protocol": "baton.worker-entry/1",
+            "session": "session-w197661-smoke"
+          }
+        ],
+        "confinement": {
+          "CapDrop": [
+            "ALL"
+          ],
+          "Memory": 2147483648,
+          "Mounts": [
+            {
+              "Destination": "/run/baton/launch.json",
+              "RW": false,
+              "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-one_valid.json"
+            }
+          ],
+          "NanoCpus": 2000000000,
+          "NetworkMode": "none",
+          "PidsLimit": 512,
+          "ReadonlyRootfs": true,
+          "SecurityOpt": [
+            "no-new-privileges",
+            "label=disable"
+          ],
+          "Tmpfs": {
+            "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+            "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+          },
+          "User": "65532:65532"
+        },
+        "observed_seconds": 0.19072691997280344,
+        "removal": {
+          "absent": true,
+          "engine_said": "error: no such object: w197661-smoke197975-provider-describe\n"
+        },
+        "returncode": 0,
+        "shape": "the manager's send-then-close conversation",
+        "stderr": "",
+        "stdin_held_open_until_exit": false,
+        "stdout": "238\n{\"answer\":{\"launch\":[\"contract\",\"role\",\"schema\",\"session\"],\"operations\":[\"describe\",\"work\"],\"protocol\":\"baton.worker-entry/1\"},\"ok\":true,\"operation_id\":\"op-smoke-197975\",\"protocol\":\"baton.worker-entry/1\",\"session\":\"session-w197661-smoke\"}",
+        "stdout_bytes": 242,
+        "still_running_at_bound": false
+      },
+      "provider_reads": {
+        "confinement": {
+          "CapDrop": [
+            "ALL"
+          ],
+          "Memory": 2147483648,
+          "Mounts": [
+            {
+              "Destination": "/run/baton/launch.json",
+              "RW": false,
+              "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-three.json"
+            }
+          ],
+          "NanoCpus": 2000000000,
+          "NetworkMode": "none",
+          "PidsLimit": 512,
+          "ReadonlyRootfs": true,
+          "SecurityOpt": [
+            "no-new-privileges",
+            "label=disable"
+          ],
+          "Tmpfs": {
+            "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+            "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+          },
+          "User": "65532:65532"
+        },
+        "observed_seconds": 0.15039669902762398,
+        "removal": {
+          "absent": true,
+          "engine_said": "error: no such object: w197661-smoke197975-provider-reads\n"
+        },
+        "returncode": 0,
+        "shape": "an owned writer held OPEN until the observed exit",
+        "stderr": "",
+        "stdin_held_open_until_exit": true,
+        "stdout": "{\"supported\": [\"baton.worker-launch/1\", \"baton.worker-launch/2\", \"baton.worker-launch/3\", \"baton.worker-launch/4\"], \"validated\": [\"contract\", \"job_execution\", \"role\", \"schema\", \"session\", \"transport\"]}\n",
+        "stdout_bytes": 202,
+        "still_running_at_bound": false
+      },
+      "provider_unreadable_generation_held_open": {
+        "confinement": {
+          "CapDrop": [
+            "ALL"
+          ],
+          "Memory": 2147483648,
+          "Mounts": [
+            {
+              "Destination": "/run/baton/launch.json",
+              "RW": false,
+              "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-five.json"
+            }
+          ],
+          "NanoCpus": 2000000000,
+          "NetworkMode": "none",
+          "PidsLimit": 512,
+          "ReadonlyRootfs": true,
+          "SecurityOpt": [
+            "no-new-privileges",
+            "label=disable"
+          ],
+          "Tmpfs": {
+            "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+            "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+          },
+          "User": "65532:65532"
+        },
+        "observed_seconds": 0.20049604499945417,
+        "removal": {
+          "absent": true,
+          "engine_said": "error: no such object: w197661-smoke197975-provider-five\n"
+        },
+        "returncode": 3,
+        "shape": "an owned writer held OPEN until the observed exit",
+        "stderr": "baton-worker: launch: /run/baton/launch.json says it is 'baton.worker-launch/5' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of\n",
+        "stdin_held_open_until_exit": true,
+        "stdout": "",
+        "stdout_bytes": 0,
+        "still_running_at_bound": false
+      }
+    },
+    "every_container_removed_and_confirmed_absent": true,
+    "custody": "the two never-started inspection containers from claim197885 (w197661-check-provider-197885, w197661-check-integration-197885) are untouched; every container this correction created was stopped, removed and confirmed absent",
+    "labelling": {
+      "held_open": [
+        "integration_reads",
+        "integration_unreadable_generation_held_open",
+        "negative_control_invalid_one",
+        "provider_reads",
+        "provider_unreadable_generation_held_open"
+      ],
+      "conversation": [
+        "provider_describe"
+      ]
+    }
+  },
+  "integration_limit_remeasured": {
+    "run": {
+      "confinement": {
+        "CapDrop": [
+          "ALL"
+        ],
+        "Memory": 2147483648,
+        "Mounts": [
+          {
+            "Destination": "/run/baton/launch.json",
+            "RW": false,
+            "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-five.json"
+          }
+        ],
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 512,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges",
+          "label=disable"
+        ],
+        "Tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+          "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+        },
+        "User": "65532:65532"
+      },
+      "observed_seconds": 0.15043471002718434,
+      "removal": {
+        "absent": true,
+        "engine_said": "error: no such object: w197661-smoke197975-integration-five\n"
+      },
+      "returncode": 2,
+      "shape": "an owned writer held OPEN until the observed exit",
+      "stderr": "",
+      "stdin_held_open_until_exit": true,
+      "stdout": "",
+      "stdout_bytes": 0,
+      "still_running_at_bound": false
+    },
+    "beside_it": {
+      "confinement": {
+        "CapDrop": [
+          "ALL"
+        ],
+        "Memory": 2147483648,
+        "Mounts": [
+          {
+            "Destination": "/run/baton/launch.json",
+            "RW": false,
+            "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-197975/smoke-scratch/launch-five.json"
+          }
+        ],
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 512,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges",
+          "label=disable"
+        ],
+        "Tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+          "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+        },
+        "User": "65532:65532"
+      },
+      "observed_seconds": 0.20049604499945417,
+      "removal": {
+        "absent": true,
+        "engine_said": "error: no such object: w197661-smoke197975-provider-five\n"
+      },
+      "returncode": 3,
+      "shape": "an owned writer held OPEN until the observed exit",
+      "stderr": "baton-worker: launch: /run/baton/launch.json says it is 'baton.worker-launch/5' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of\n",
+      "stdin_held_open_until_exit": true,
+      "stdout": "",
+      "stdout_bytes": 0,
+      "still_running_at_bound": false
+    },
+    "disposition": "unchanged recorded follow-on; the product patch was NOT widened, as the review directed"
+  },
+  "verification_this_claim": {
+    "script_runs": [
+      {
+        "what": "first pass, before the describe case was added",
+        "wall_seconds": 16.01,
+        "outcome": "complete; output NOT retained, superseded by the final run"
+      },
+      {
+        "what": "second pass, failed on a blocking drain (read vs read1)",
+        "wall_seconds": 76.2,
+        "outcome": "no container left behind; confirmed by docker ps -a"
+      },
+      {
+        "what": "final complete run",
+        "wall_seconds": 16.25990877300501,
+        "outcome": "complete; this is the retained output"
+      }
+    ],
+    "local_tests": "the eight targeted startup cases the reviewer ran are unchanged and were not re-run for accounting",
+    "measured_seconds_this_claim": 108.6,
+    "work_cumulative": 452.0,
+    "note": "claim197743 corrected 235.6s + claim197885 107.8s + this claim 108.6s. Claim197664 ran zero tests. Reviewer claim197850's earlier lost-output invocation is now identified as engine-executing and its duration remains unknown; reviewer claim197955 measured 0.16864424099912867s."
+  },
+  "not_this_claim": {
+    "why": "the tree also carries W194457's shared-workspace-identity candidate, awaiting its own review; untouched here and absent from both images",
+    "product_files_changed_this_claim": []
+  },
+  "preserved_untouched": {
+    "prepared_197885": "every file and output, including its EOF smoke",
+    "instance": "/home/sl/baton-v12-instance-2026-09-17T20-29-21Z",
+    "work": "b6423787-W1",
+    "attempt": "attempt-a79dc740be49f5f6bf1897e639eda2eecd3172854cc5507a4f8702fdcd7726db",
+    "old_pair": "2e222e4c / d739fefe, still incompatible, kept as evidence",
+    "also": "no selection, installation, deployment, resubmission, production store or runtime touch, model, credential, network or version-control mutation"
+  },
+  "git_diff_check": "passes; no whitespace defect"
+}

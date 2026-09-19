@@ -1,0 +1,138 @@
+{
+  "ALSO_FOUND_IN_PASSING": {
+    "claimed_as": "a pre-existing defect corrected in a path this claim owns, not as one of mine",
+    "correction": "a type guard raising TaskRefusal, ahead of the scan",
+    "pre_existing": "the failure is at work()'s context-receipt scan, a function this claim does not touch and does not reach through any path it added; test_exactly_one_declared_output_is_honoured has been asserting a TaskRefusal for exactly that operand",
+    "what": "claude_agent.work faulted with a TypeError when `declared` was not a list, instead of refusing"
+  },
+  "PROVENANCE_CORRECTION": {
+    "and_one_explanatory_claim": "that note called the per-call staging identity 'unguessable'. It is not: pid plus a counter is per-call NAMING, not secrecy. O_CREAT|O_EXCL|O_NOFOLLOW and the creation-ownership tracking are what make the act safe. Corrected by appending, as the review directs.",
+    "canonical": "work-events identifies this Work's previous implementation episode as claim199159 (2026-09-18 01:50:12-02:00:22 UTC)",
+    "disposition": "the mislabelled file keeps its name and its bytes as history; this correction is appended in FINDING and here, and nothing about the code it records is affected",
+    "what": "EVIDENCE-199021.json in this dossier, and the PROGRESS note and thread message beside it, name the author claim as 199021. That is W197661's claim number."
+  },
+  "R4_COMPLETE": {
+    "native": "attempt_log_format.NATIVE and the delivery's native corner are carried; the fixture provider writes no session files, so the corner is reported absent rather than asserted captured",
+    "the_lifecycle": {
+      "and_survives_teardown": "launch.discard deliberately leaves it, because partial evidence surviving error, abnormal termination and restart is the required outcome; a case proves the launch root is gone and the log still readable",
+      "no_group_no_room": "a deployment with no configured workspace group gets None rather than a room its container could not write",
+      "restart": "launch.adopt recovers the same room and a second incarnation APPENDS beside the first",
+      "rides_with": "LaunchDelivery.logs, for the reason the exchange does",
+      "where": "<launch_home>/logs/<attempt>/, a SIBLING of the attempt launch roots"
+    },
+    "the_mount": "oci passes logs_delivered from the launch delivery's own mounts() at the one run_vector call site; _log_mounts had a rule and nothing composed a bind for it until now",
+    "the_operator_command": {
+      "acceptance": "it opens no store and reaches no engine, and a case holds that as a property of its IMPORT GRAPH rather than as a comment",
+      "path": "v12/python/tools/attempt_logs_command.py",
+      "verbs": [
+        "locators",
+        "read",
+        "follow"
+      ]
+    },
+    "the_shared_writer": {
+      "does_not_own": "the capture STATE, which relates a writer's word to what is on disk and is a manager's judgement",
+      "how": "it imports itertools, json, os and stat and NOTHING from baton_v12, so the manager reaches it as baton_v12.attempt_log_format and the image carries the same bytes as a top-level attempt_log_format -- exactly how source_profiles travels",
+      "owns": "the stream allowlist, the declarable states, their prose, the sidecar name, the exclusive-create/write-whole/replace act and the validated read",
+      "path": "v12/python/src/baton_v12/attempt_log_format.py",
+      "why": "a worker writes these declarations and a manager reads them, and baton_v12 does not travel into worker images. Two implementations of one format is how they drift."
+    },
+    "the_tee": "claude_agent no longer discards four streams. provider.stdout is retained byte-identically BESIDE being parsed (the returned record is unchanged); provider.stderr and both verification streams go to the log's own descriptor, so this process never holds those bytes at all -- which keeps the exact property W39357's discard was protecting. The owner's supersession is recorded AT THE SITE, in _Captured.",
+    "the_wrapper": "baton_worker._WorkerCapture tees sys.stderr into worker.stderr from before the launch document is read, which is before anything that can refuse it. The REAL stream is written first, always. STDOUT IS NOT TEED: on the framed transport it is the protocol channel and its bytes are exact."
+  },
+  "THE_CONTAINER_FOUND_A_DEFECT_A_UNIT_CASE_COULD_NOT": {
+    "correction": "0640: group-readable like the log it describes, never world-readable and never group-writable",
+    "found_by": "fixture-199285/smoke.py, on the first real container run",
+    "what": "write_declaration created the sidecar 0600",
+    "why_it_mattered": "the worker writes it as the image's fixed uid 65532 and the manager reads it as its own, sharing only the deployment's workspace group -- so the declaration was one ONLY ITS WRITER COULD SEE, and the manager reported the stream `live` with `declaration: corrupt`. A writer's word lost to a file mode."
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "ffb7fac7bb6d1dcc752626056187f1797553b2137c477e9a18dae3cad5dfcce0",
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "6c278da09fbbf985d99eded634f25c86e9711ec1bf7d3d7286e8980cbf993557",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "b8bf738ca04548143eb3598e89d5ce2b412efed75ad700e0ec973edead65ba0a",
+    "v12/python/tests/manager/test_attempt_logs.py": "0b86fafe791d066a274c356414eff2bf91eb571f83f034472ea697d81e562ef3",
+    "v12/python/tests/tools/test_attempt_logs_command.py": "d2dcfa5b7c0cd8c198b5bd851f0a50ab791ad12f36686d077bc80874863b3b70",
+    "v12/python/tools/attempt_logs_command.py": "a859ee8c7aefe07963557428d3a70512dc7ed2a921d1dc8c9e898b7249bd7850",
+    "v12/worker/baton_worker.py": "a49bf1cfabd10542aab440290dbe7a84987647a85340968891c591b327bc99a7",
+    "v12/worker/claude_agent.py": "a14bc5fc62f114c75810ceda7b5296fdaa5e6aeb3b0f0e476e7eea6e913a0aae",
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-199285/context/Dockerfile.fixture": "941e90ab0c64068e7651ac341a56ebbe3727c0482dc299597010b32eb54d16cc",
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-199285/smoke.py": "8bc436c5bcef7f85c6f8c9310a6908729e94ab9d207d3cb7855c9a45e6f84d17"
+  },
+  "claim": 199285,
+  "no": [
+    "live model",
+    "provider call",
+    "network",
+    "production action",
+    "version-control mutation",
+    "direct store access",
+    "rebuild or re-attribution of any accepted image"
+  ],
+  "preserved": {
+    "W197661": "queued at baton.bug; its candidate is intake.py, tests/manager/test_intake.py and instance-199021/verify_lifecycle.py, none of which is touched here. Its immutable image attribution and its retained failed disposable attempt are unchanged.",
+    "prior_acceptance": "the R1/R2/R3 corrections accepted at review-2026-09-18T02-02-21Z are carried forward intact; the format module is where their rules now live, unchanged in substance",
+    "production": "the stopped production instance was not read from, written to, started or changed"
+  },
+  "schema": "baton.w198667.evidence/1",
+  "the_smoke": {
+    "all_true": true,
+    "build_flags": [
+      "--pull=false",
+      "--no-cache",
+      "--network none",
+      "--platform linux/amd64"
+    ],
+    "context": "work/records/2026/09/finding-v12-durable-development-logs/fixture-199285/context -- this Work's OWN context. W197661's instance-198750/fixture-context and the image it produced are untouched, and the accepted provider/integration images (sha256:35f36286..., sha256:dac354d8...) are neither rebuilt nor re-attributed.",
+    "image": "sha256:ba8ce7bb20edde491cdafc59879da87a60924f64fd83fe4af1acdf6a7528acd8",
+    "one_added_byte_set": "attempt_log_format.py; same base, same control schema, same source profiles, same scripted agent, same 65532:65532",
+    "restrictions": "oci.RESTRICTIONS, flattened the way the adapter flattens it, and --group-add from the deployment's configured workspace group; a smoke confining itself with this record's idea of the rules would prove nothing",
+    "what_it_proved": [
+      "the adapter's own boundary accepts the delivery's own bind",
+      "a container refused at startup exits 3 and says why on the terminal, as it already did",
+      "AND THE SAME SENTENCE IS NOW ON DISK in the manager's room, readable after the container is gone -- which is the whole finding",
+      "the writer's own word was recorded and read back",
+      "a stream nobody wrote is ABSENT and not an empty success"
+    ]
+  },
+  "verification": {
+    "a_fixture_mistake_of_mine": "a first cut of the image-layout helper evicted claude_agent and baton_worker from sys.modules on cleanup, which broke three cases in OTHER suites that still held the old class objects. A fixture that tidies a shared import cache decides what every later case is testing.",
+    "affected_set": {
+      "checks": 794,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 55.718,
+      "suites": [
+        "attempt_logs",
+        "attempt_logs_command",
+        "launch",
+        "oci",
+        "exchange",
+        "worker_entry",
+        "claude_agent",
+        "integration_worker",
+        "worker_container"
+      ]
+    },
+    "container_smoke": {
+      "all_true": true,
+      "checks": 8
+    },
+    "seconds_measured_this_claim": 150,
+    "test_attempt_logs": {
+      "added": 16,
+      "checks": 75,
+      "was": 59
+    },
+    "test_attempt_logs_command": {
+      "checks": 11,
+      "new": true
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    }
+  },
+  "work": "2b077949-W198667"
+}

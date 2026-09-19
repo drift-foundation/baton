@@ -25,8 +25,10 @@ import unittest
 from unittest import mock
 
 from baton_v12.contracts import ContractRefusal
-from baton_v12.worker_manager import (ControlStore, documents, launch,
-                                      oci, workspaces)
+from baton_v12.worker_manager import (ControlStore, attempt_logs,
+                                      configure_workspace_group,
+                                      configured_workspace_group, documents,
+                                      exchange, launch, oci, workspaces)
 
 from . import input_roots
 from baton_v12.worker_manager.oci import (ENGINES, LABEL_PREFIX,
@@ -167,7 +169,10 @@ class TheContextMountIsAnExactUse(unittest.TestCase):
         self.assertEqual(oci._context_mounts(self.mount, "execution", []), [(source, target, True)])
         starts = [one for one in self.case.engine.starts if "--entrypoint" not in one]
         self.assertEqual(len(starts), 1)
-        self.assertIn("65532:65532", starts[0])
+        # W194457: the shared execution identity, not the historical pair.
+        self.assertIn("--user", starts[0])
+        self.assertEqual(starts[0][starts[0].index("--user") + 1],
+                         f"{os.geteuid()}:{starts[0][starts[0].index('--group-add') + 1]}")
 
     def test_untyped_wrong_purpose_and_both_overlap_directions_refuse(self):
         from baton_v12.worker_manager import oci
@@ -232,15 +237,24 @@ class TheVectorsAreClosedAndOrdered(Configured):
         # second one go missing without this noticing.
         pairs = [(argv[at], argv[at + 1] if at + 1 < len(argv) else None)
                  for at in range(len(argv))]
+        # W194457: THE EXECUTION IDENTITY IS THE DEPLOYMENT'S SHARED ONE.
+        # `--user` is substituted at composition from
+        # `workspaces.identity_for`, whose uid is this manager's own
+        # euid and whose gid is the minted workspace group. The pinned
+        # pair in `RESTRICTIONS` is what a reader sees when nothing
+        # overrides it, and a CONSENT runtime still gets exactly it.
+        shared = f"{os.geteuid()}:{self.group.gid}"
         for flag, value in RESTRICTIONS:
             with self.subTest(flag=flag, value=value):
+                if flag == "--user":
+                    value = shared
                 if value is None:
                     self.assertIn(flag, argv)
                 else:
                     self.assertIn((flag, value), pairs)
         self.assertIn("--read-only", argv)
         self.assertEqual(argv[argv.index("--network") + 1], "none")
-        self.assertEqual(argv[argv.index("--user") + 1], "65532:65532")
+        self.assertEqual(argv[argv.index("--user") + 1], shared)
         self.assertEqual(argv[argv.index("--cap-drop") + 1], "ALL")
 
     def test_the_labels_are_the_frozen_contracts_own_set_in_its_own_order(self):
@@ -1749,6 +1763,11 @@ class TheTwoExplicitStartOperands(Adapting):
         for flag, value in RESTRICTIONS:
             if flag == "--network":
                 continue
+            if flag == "--user":
+                # W194457: substituted with the shared execution identity, and
+                # that substitution is what these two operands must not
+                # disturb either.
+                value = f"{os.geteuid()}:{self.group.gid}"
             with self.subTest(flag=flag, value=value):
                 if value is None:
                     self.assertIn(flag, argv)
@@ -2080,7 +2099,12 @@ class StableLineLaunch(unittest.TestCase):
         self.start()
         argv = self.engine.vectors[-1]
         self.assertIn("run", argv)
-        self.assertIn("65532:65532", argv)
+        # W194457: an execution runtime runs AS the deployment's shared
+        # identity -- this manager's own euid with the configured workspace
+        # group -- which is what lets it write a line the manager owns and
+        # lets the manager read back what it wrote.
+        self.assertEqual(argv[argv.index("--user") + 1],
+                         f"{os.geteuid()}:{self.fixture.group.gid}")
         self.assertIn(str(self.fixture.group.gid), argv)
         self.assertIn(f"type=bind,source={self.line['path']},target=/output,readonly=false", argv)
         self.assertEqual(os.stat(self.line["path"]).st_mode & 0o7777, 0o2775)
@@ -2251,3 +2275,104 @@ class TheAdapterBindsConsumptionToTheResolvedLine(unittest.TestCase):
         os.makedirs(ordinary, 0o2775)
         with self.assertRaises(ContractRefusal):
             self.prove(self.adapter(ordinary))
+
+
+class TheAttemptLogRoomIsItsOwnMount(unittest.TestCase):
+    """W198667. Raw output is neither a result nor a protocol document, so it
+    gets its own delivery, its own target and its own refusals.
+
+    The owner selected durable capture for these private development
+    deployments, and a stream discarded at creation cannot be captured later:
+    the room has to be mounted when the container is made, like every other
+    namespace a worker writes into.
+    """
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.home = self.temporary.name
+        self.logs = os.path.join(self.home, "logs", "attempt-1")
+        os.makedirs(self.logs, 0o2770)
+        self.control = ControlStore.open(
+            os.path.join(self.home, "control.sqlite3"), incarnation="i-1",
+            clock=lambda: "2026-09-18T00:00:00.000Z")
+        self.addCleanup(self.control.close)
+        configure_workspace_group(self.control, os.getgid())
+        self.group = configured_workspace_group(self.control)
+
+    def composed(self, delivered, **named):
+        return run_vector("docker", image_digest=IMAGE, labels=LABELS,
+                          assignment_roots=ROOTS, posture="execution",
+                          workspace_group=self.group, name="baton-op-logs",
+                          logs_delivered=delivered, **named)
+
+    def mounts(self, argv):
+        return [argv[at + 1] for at, one in enumerate(argv) if one == "--mount"]
+
+    def test_the_room_is_mounted_WRITABLE_at_its_own_target(self):
+        argv = self.composed(((self.logs, attempt_logs.LOG_TARGET, True),))
+        wanted = (f"type=bind,source={self.logs},"
+                  f"target={attempt_logs.LOG_TARGET},readonly=false")
+        self.assertIn(wanted, self.mounts(argv))
+
+    def test_no_delivery_mounts_nothing(self):
+        """The delivery is a capability. A start that was given none composes
+        no log mount at all, rather than a default room somewhere."""
+        argv = self.composed(None)
+        self.assertFalse([one for one in self.mounts(argv)
+                          if attempt_logs.LOG_TARGET in one])
+
+    def test_the_target_is_a_CONSTANT_and_never_an_operand(self):
+        """A target a caller could vary is a container pointed somewhere
+        else -- the same rule the launch document and the exchange have."""
+        with self.assertRaisesRegex(ContractRefusal, "constant of this"):
+            self.composed(((self.logs, "/output/logs", True),))
+
+    def test_a_READ_ONLY_room_is_refused(self):
+        """A worker that cannot write its log cannot leave the evidence."""
+        with self.assertRaisesRegex(ContractRefusal, "cannot write its log"):
+            self.composed(((self.logs, attempt_logs.LOG_TARGET, False),))
+
+    def test_more_or_fewer_than_one_bind_is_refused(self):
+        for delivered in ((), ((self.logs, attempt_logs.LOG_TARGET, True),
+                               (self.logs, attempt_logs.LOG_TARGET, True))):
+            with self.subTest(binds=len(delivered)):
+                with self.assertRaisesRegex(ContractRefusal, "exactly one"):
+                    self.composed(delivered)
+
+    def test_a_bind_that_is_not_a_triple_is_refused(self):
+        with self.assertRaises(ContractRefusal):
+            self.composed(((self.logs, attempt_logs.LOG_TARGET),))
+
+    def test_a_room_that_is_not_a_directory_is_refused(self):
+        place = os.path.join(self.home, "not-a-room")
+        with open(place, "w", encoding="utf-8") as handle:
+            handle.write("a file is not a namespace")
+        with self.assertRaisesRegex(ContractRefusal, "not a directory"):
+            self.composed(((place, attempt_logs.LOG_TARGET, True),))
+
+    def test_a_room_landing_INSIDE_another_family_is_refused(self):
+        """Raw output and the surface it landed in would each be read as the
+        other: an undeclared entry under `/output` is validated as a result,
+        and a file under the exchange is read as a protocol event."""
+        # The exchange's own targets, asked of the composer directly: a real
+        # delivery is not needed to prove a target collision is refused.
+        for taken in (exchange.EVENT_TARGET, exchange.COMMAND_TARGET):
+            with self.subTest(taken=taken):
+                argv = None
+                try:
+                    argv = run_vector(
+                        "docker", image_digest=IMAGE, labels=LABELS,
+                        assignment_roots=ROOTS, posture="execution",
+                        workspace_group=self.group, name="baton-op-logs",
+                        logs_delivered=((self.logs, taken, True),))
+                except ContractRefusal:
+                    continue
+                self.fail(f"a log room was composed at {taken}: {argv}")
+
+    def test_the_two_targets_are_DISTINCT_surfaces(self):
+        """Said as a fact rather than left to the mount table: this is the
+        whole reason the delivery exists rather than a subdirectory."""
+        self.assertNotEqual(attempt_logs.LOG_TARGET, exchange.EVENT_TARGET)
+        self.assertNotEqual(attempt_logs.LOG_TARGET, exchange.COMMAND_TARGET)
+        self.assertFalse(attempt_logs.LOG_TARGET.startswith("/output"))

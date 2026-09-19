@@ -1,0 +1,60 @@
+# THE ONE DETERMINISTIC FIXTURE IMAGE, W197661 claim201492.
+#
+# WHY ONE AND NOT TWO. `tools/single_worker.py:267` refuses a worker whose
+# `image_digest` differs from its Job input manifest's `worker_image_digest`,
+# and a Job names exactly ONE input manifest -- so a deployment cannot give its
+# integrator a different artefact from its producer. claim201324 built a second
+# image and three validators refused the composition. Every role runs this one,
+# and what differs is which workload the DELIVERY selects.
+#
+# THE ENTRY DISPATCHES ON A FACT THE MANAGER PUT ON DISK. `fixture_entry.py`
+# asks whether an integration ASSIGNMENT is readable at the contract's own
+# target: present means integrator, absent means producer or reviewer, and
+# present-but-unreadable REFUSES rather than falling back to either. The
+# proposing recipe's warning was about a silent FALLBACK -- `_scripted_default`
+# reached by omission, which ran the wrong agent and failed nothing. An explicit
+# dispatch with no default is the opposite of that, and the case that proves it
+# is `test_a_delivery_it_cannot_CLASSIFY_refuses_both_workloads`.
+#
+# THE REVIEWED BYTES, SNAPSHOTTED WITH ATTRIBUTION rather than inherited by
+# filename. W198667 was independently signed off at its
+# review-2026-09-18T07-40-38Z.md, and these are the bytes that review names:
+#   attempt_log_format.py  8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b
+#   baton_worker.py        56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34
+#   claude_agent.py        cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092
+# `claude_agent.py` travels because `integration_entry` imports it on the branch
+# this fixture does not take; nothing here runs a provider or reads a credential.
+#
+# THE INTEGRATION MODULES ARE THE ACCEPTED ONES: `integration_entry`,
+# `integration_workload` and `integration_contract` are this tree's, so the
+# launch reader, bundle correlation, whole-path preflight, per-path read-back
+# and conservative ending are the manager-validated code's rather than a
+# fixture's imitation of them.
+#
+# WHAT IS LABELLED. `ImportingAgent` is a DETERMINISTIC STAND-IN for a
+# model-driven provider turn and claims no model coverage; `ProposingAgent` is
+# the same for a producing one. The accepted provider and integration images
+# (sha256:35f36286..., dac354d8...) are neither used, rebuilt nor re-attributed.
+#
+# `--pull=false --no-cache --network none`: nothing is downloaded and nothing is
+# installed, so the only new bytes are this repository's own reviewed source.
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/integration_contract.py /opt/baton/integration_contract.py
+COPY worker/integration_workload.py /opt/baton/integration_workload.py
+COPY worker/integration_entry.py /opt/baton/integration_entry.py
+COPY worker/proposing_agent.py /opt/baton/proposing_agent.py
+COPY worker/proposing_entry.py /opt/baton/proposing_entry.py
+COPY worker/importing_agent.py /opt/baton/importing_agent.py
+COPY worker/importing_entry.py /opt/baton/importing_entry.py
+COPY worker/fixture_entry.py /opt/baton/fixture_entry.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/fixture_entry.py"]
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0

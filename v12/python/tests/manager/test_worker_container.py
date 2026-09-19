@@ -346,7 +346,7 @@ class ContainerCase(unittest.TestCase):
         return (place, LAUNCH_TARGET, writable)
 
     def talk(self, document, *requests, timeout=120, mounts=(),
-             environment=(), writable=False):
+             environment=(), writable=False, want_stderr=False):
         """Run one container, speak the framed channel, read what it says.
 
         W19784: `mounts` exists because an EXECUTION container has two
@@ -375,6 +375,13 @@ class ContainerCase(unittest.TestCase):
         finished = engine(*arguments, stdin=b"".join(
             frame(request) for request in requests),
             timeout=timeout, check=False)
+        if want_stderr:
+            # W197661: A CONTAINER THAT REFUSES TO START SAYS SO ON STDERR and
+            # writes no frame, so a case about that refusal needs the stream
+            # the diagnostic is actually on. Opt-in, because every other case
+            # here is about what crossed the framed channel.
+            return (finished.returncode, unframe(finished.stdout),
+                    finished.stderr.decode("utf-8", "replace"))
         return finished.returncode, unframe(finished.stdout)
 
 
@@ -1084,14 +1091,45 @@ class RealContainersHoldTheTopology(ContainerCase):
     # the container says NOTHING and exits 2 -- the manager already owns the
     # start operation and settles it from the engine.
 
-    def test_a_container_whose_document_names_another_generation_latches(self):
-        status, given = self.talk(
+    def test_a_container_whose_document_names_another_generation_REFUSES(
+            self):
+        """W197661, at the artefact: the incident's own document shape.
+
+        THIS CASE CHANGED SIDES AND IS THE SAME CASE. It asserted one latched
+        fault FRAME, because the fixture writes its requests and then closes
+        stdin, so the framing loop ended at once. A real `/2` or `/3`
+        container's stdin is an open pipe with no writer -- the manager speaks
+        to it through the file exchange -- and there the same path waited
+        forever with empty logs and empty events until the operator killed it.
+
+        So a launch document from a generation this container does not speak
+        now ends non-zero having written NO frame, and says why on stderr.
+        The version is named before any member is argued about, and the
+        sentence lists every generation this image reads.
+        """
+        status, given, said = self.talk(
             {**LAUNCH, "schema": "baton.worker-launch/2"},
-            ask("describe", EXECUTION_SESSION))
+            ask("describe", EXECUTION_SESSION), want_stderr=True)
         self.assertNotEqual(status, 0)
-        self.assertEqual(len(given), 1)
-        self.assertEqual(given[0]["code"], "launch")
-        self.assertEqual(given[0]["session"], EXECUTION_SESSION)
+        self.assertEqual(given, [])
+        self.assertIn("baton-worker: ", said)
+        self.assertIn("launch", said)
+        # AND THE DIAGNOSTIC IS ONE BOUNDED LINE, from the real image.
+        self.assertEqual(said.strip().count("\n"), 0)
+
+    def test_a_container_given_the_REPORTED_document_refuses_promptly(self):
+        """The exact shape reported in
+        `/home/sl/baton-v12-instance-2026-09-17T20-29-21Z`: a `/3` launch
+        carrying `job_execution` and `transport`, at an image whose worker
+        refuses it. It hung; it now ends, and an operator can read why."""
+        status, given, said = self.talk(
+            {**LAUNCH, "schema": "baton.worker-launch/3",
+             "transport": "baton.worker-exchange/1",
+             "job_execution": {"job_id": "codex-adapter-first"}},
+            ask("describe", EXECUTION_SESSION), want_stderr=True)
+        self.assertNotEqual(status, 0)
+        self.assertEqual(given, [])
+        self.assertIn("baton-worker: ", said)
 
     def test_a_container_whose_document_carries_an_unknown_member_latches(
             self):

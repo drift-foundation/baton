@@ -1,0 +1,58 @@
+{
+  "fixture": "/tmp/w194457-review194860-nr002cbz",
+  "source_sha256": "e2298ac629e0d3c7a43a7fa212dcb9e5696eb58d701eec3fb5b88e6c0a21107b",
+  "successful_cleanup": {
+    "answer": [
+      1000,
+      1000
+    ],
+    "engine_verbs": [
+      "run",
+      "rm"
+    ],
+    "modeled_state": {
+      "owned": false,
+      "unrelated": false
+    },
+    "remaining_probe_directories": []
+  },
+  "nonzero_cleanup_status": {
+    "answer": [
+      1000,
+      1000
+    ],
+    "engine_verbs": [
+      "run",
+      "rm"
+    ],
+    "modeled_state": {
+      "owned": true,
+      "unrelated": false
+    },
+    "remaining_probe_directories": []
+  },
+  "name_collision": {
+    "answer": null,
+    "engine_verbs": [
+      "run",
+      "rm"
+    ],
+    "modeled_state": {
+      "owned": false,
+      "unrelated": false
+    },
+    "remaining_probe_directories": []
+  },
+  "replacement_after_pin_check": {
+    "outcome": "returned",
+    "unrelated_sentinel_survives": false,
+    "original_directory_survives": true
+  },
+  "focused_tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ".......................................................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 263 tests in 1.383s\n\nOK\n",
+    "seconds": 1.5571451819851063
+  },
+  "total_seconds": 1.5580223629949614
+}

@@ -1,0 +1,27 @@
+{
+  "claim": 207096,
+  "author_claim": 206923,
+  "review": "review-2026-09-18T23-07-21Z.md",
+  "hashes": {
+    "v12/python/src/baton_v12/contracts/manifest.py": "77cc26266af73d490db8b3bd2514ab62a3d5a563858339d02783e661217fff8b",
+    "v12/python/src/baton_v12/integration/admission.py": "9bf4cab3831255e341c01c2d06dc3f5ac07a817e5bb3ece197b4e365c97ea131",
+    "v12/python/src/baton_v12/integration/driver.py": "531662e23bd419fc69b9a67757614f472a0359f9eb73859b3df7321c7d88bc93",
+    "v12/python/src/baton_v12/integration/reconciliation.py": "158d255e9799794f7af127ff9d0837803e27489d4d8c80e4d38efe7610c3bd54",
+    "v12/python/tools/single_worker.py": "00f83ff30ac7451a72480bd1fbc74bd1abcd46bba4f94d57d4e185f5af889087",
+    "v12/python/tools/stage_execution.py": "d1f14258cede51ffdc62fbe9c7d639cd736779d6226997f7c730e89a12b5f553",
+    "v12/python/tools/dogfood_operator.py": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620",
+    "v12/python/tests/manager/test_manifest_rules.py": "e1464251945eb3f5da77303e99ad3ec76b2e29fe0df8180c221f7c26b9f4e4bd",
+    "v12/python/tests/tools/test_single_worker.py": "2e112440b03fc0330386945c3c41b2b220c199e2d2574061b2b1931d82b873dc",
+    "v12/python/tests/integration/test_driver.py": "439e6812ea972720a1970f7f1de410b7d0959fcaa9009ee5408500db03249386",
+    "v12/python/tests/integration/test_execution.py": "4acecb62910ecc14a1769391774318dd7cb87976c9786b4ee19476d08aa566aa",
+    "v12/python/tests/integration/test_reconciliation.py": "c785db9e74a2d8e58e036f949e6643147ff1767ac2dbd0ba8bc874cf61cb9d73"
+  },
+  "verification": {
+    "tests": 325,
+    "passed": true,
+    "seconds": 14.416291660978459,
+    "flags": "-W error::ResourceWarning"
+  },
+  "engine_runs": 0,
+  "disposition": "bounded projection/preflight slice accepted; whole Work incomplete"
+}

@@ -1,0 +1,1006 @@
+{
+  "absence_regression": {
+    "claims_a_free_name": true,
+    "claims_a_taken_name": true,
+    "claims_a_unknown_name": true,
+    "cleanup_not_claimed_when_uncertain": true,
+    "cleanup_proved_when_absent": true,
+    "cleanup_refuses_a_foreign_absence_sentence": true,
+    "cleanup_retains_engine_answers": true,
+    "cleanup_survives_an_unrunnable_engine": true,
+    "daemon_unavailable_is_uncertain": true,
+    "foreign_absence_is_uncertain": true,
+    "matching_absence_is_absent": true,
+    "not_json_is_uncertain": true,
+    "permission_denied_is_uncertain": true,
+    "present_is_present": true,
+    "two_objects_for_one_identity_is_uncertain": true
+  },
+  "claim": 198115,
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.0063913080375641584
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.00567873299587518
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "w197661-smoke198115-negative_control_invalid_one"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.008064938010647893
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "07dc6c301de0a09252154c048b473c6ac388904aa4be4ed663084fa4a1d499a5"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.00641309900674969
+    },
+    {
+      "argv": [
+        "docker",
+        "stop",
+        "--time",
+        "5",
+        "07dc6c301de0a09252154c048b473c6ac388904aa4be4ed663084fa4a1d499a5"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.06149647803977132
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "--force",
+        "07dc6c301de0a09252154c048b473c6ac388904aa4be4ed663084fa4a1d499a5"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006441019999329001
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "07dc6c301de0a09252154c048b473c6ac388904aa4be4ed663084fa4a1d499a5"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.007456617022398859
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "w197661-smoke198115-integration_unreadable_generation_held_open"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.007037809991743416
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "5767957875baee53bdc01d49cf848a15c6e69a6e2688819286c62c7470113523"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004942525993101299
+    },
+    {
+      "argv": [
+        "docker",
+        "stop",
+        "--time",
+        "5",
+        "5767957875baee53bdc01d49cf848a15c6e69a6e2688819286c62c7470113523"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004444849968422204
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "--force",
+        "5767957875baee53bdc01d49cf848a15c6e69a6e2688819286c62c7470113523"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006757989001926035
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "5767957875baee53bdc01d49cf848a15c6e69a6e2688819286c62c7470113523"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.007155188010074198
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "w197661-smoke198115-provider_unreadable_generation_held_open"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.007004177023191005
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "8484f1a4e28a8e5c5c667973e291720578fa467a8e137231915cbec935962157"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004784901975654066
+    },
+    {
+      "argv": [
+        "docker",
+        "stop",
+        "--time",
+        "5",
+        "8484f1a4e28a8e5c5c667973e291720578fa467a8e137231915cbec935962157"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005069420963991433
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "--force",
+        "8484f1a4e28a8e5c5c667973e291720578fa467a8e137231915cbec935962157"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.0070713210152462125
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "8484f1a4e28a8e5c5c667973e291720578fa467a8e137231915cbec935962157"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.007096518005710095
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "w197661-smoke198115-integration_reads"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.006739025004208088
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "1b4c20244dabb4f871ec40c48499d6c12bcee273502688f5b09aaec8440bc5cd"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005521532031707466
+    },
+    {
+      "argv": [
+        "docker",
+        "stop",
+        "--time",
+        "5",
+        "1b4c20244dabb4f871ec40c48499d6c12bcee273502688f5b09aaec8440bc5cd"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004511143022682518
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "--force",
+        "1b4c20244dabb4f871ec40c48499d6c12bcee273502688f5b09aaec8440bc5cd"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006411465990822762
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "1b4c20244dabb4f871ec40c48499d6c12bcee273502688f5b09aaec8440bc5cd"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.0067620459594763815
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "w197661-smoke198115-provider_reads"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.006809765996877104
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "d2acaf54af51ad65887ce24617b1d17fbdf995ebe25e5ec33fb16aee1e574f97"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005655910994391888
+    },
+    {
+      "argv": [
+        "docker",
+        "stop",
+        "--time",
+        "5",
+        "d2acaf54af51ad65887ce24617b1d17fbdf995ebe25e5ec33fb16aee1e574f97"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005188111972529441
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "--force",
+        "d2acaf54af51ad65887ce24617b1d17fbdf995ebe25e5ec33fb16aee1e574f97"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006394534022547305
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "d2acaf54af51ad65887ce24617b1d17fbdf995ebe25e5ec33fb16aee1e574f97"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.007104553980752826
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "w197661-smoke198115-provider_describe"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.007278485980350524
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "0dbbdd2b3463b16ddfe158372ada961f2740378763b98ae62870a95b759aaa7d"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004726362996734679
+    },
+    {
+      "argv": [
+        "docker",
+        "stop",
+        "--time",
+        "5",
+        "0dbbdd2b3463b16ddfe158372ada961f2740378763b98ae62870a95b759aaa7d"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005107311997562647
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "--force",
+        "0dbbdd2b3463b16ddfe158372ada961f2740378763b98ae62870a95b759aaa7d"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006645941000897437
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "0dbbdd2b3463b16ddfe158372ada961f2740378763b98ae62870a95b759aaa7d"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.007198316976428032
+    }
+  ],
+  "complete": true,
+  "corrects": "review-2026-09-17T22-50-56Z.md",
+  "images": {
+    "integration": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407",
+    "provider": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06"
+  },
+  "judgement_regression": {
+    "refuses_a_container_left_behind": true,
+    "refuses_a_held_open_run_relabelled_a_conversation": true,
+    "refuses_a_missing_negative_control_invalid_one": true,
+    "refuses_a_missing_provider_unreadable_generation_held_open": true,
+    "refuses_cleanup_of_a_container_this_run_did_not_create": true,
+    "refuses_confinement_with_a_network": true,
+    "refuses_confinement_with_a_writable_root": true,
+    "refuses_confinement_without_a_memory_bound": true,
+    "refuses_confinement_without_the_tmpfs": true,
+    "refuses_describe_for_another_session": true,
+    "refuses_describe_refused": true,
+    "refuses_integration_five_exiting_three": true,
+    "refuses_integration_five_speaking": true,
+    "refuses_negative_control_that_ended": true,
+    "refuses_negative_control_the_engine_says_is_not_running": true,
+    "refuses_ownership_that_was_never_proved": true,
+    "refuses_provider_five_diagnostic_missing_a_version": true,
+    "refuses_provider_five_exiting_one": true,
+    "refuses_provider_five_traceback": true,
+    "refuses_provider_five_with_no_diagnostic": true,
+    "refuses_provider_five_writing_to_stdout": true,
+    "refuses_reads_failing": true,
+    "refuses_reads_missing_a_generation": true,
+    "refuses_reads_not_validating_the_three": true,
+    "the_accepted_results_pass": true
+  },
+  "no_model": true,
+  "orchestration_regression": {
+    "a_empty_cidfile_is_unproved": true,
+    "a_missing_cidfile_is_unproved": true,
+    "a_prose_cidfile_is_unproved": true,
+    "a_short_cidfile_is_unproved": true,
+    "a_stolen_name_issues_no_stop_or_rm": true,
+    "a_stolen_name_never_adopts_an_id": true,
+    "a_stolen_name_refuses_rather_than_reporting_success": true,
+    "a_written_cidfile_is_ownership": true,
+    "an_owned_failure_cleans_only_its_own_id": true,
+    "an_owned_failure_cleans_up": true,
+    "an_uncertain_creation_adopts_nothing": true,
+    "an_uncertain_creation_refuses": true,
+    "an_unreadable_engine_does_not_claim_cleanup": true,
+    "an_unreadable_engine_still_cleans_its_own_id": true
+  },
+  "ownership": {
+    "integration_reads": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/integration_reads.cid",
+      "id": "1b4c20244dabb4f871ec40c48499d6c12bcee273502688f5b09aaec8440bc5cd",
+      "state": "owned"
+    },
+    "integration_unreadable_generation_held_open": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/integration_unreadable_generation_held_open.cid",
+      "id": "5767957875baee53bdc01d49cf848a15c6e69a6e2688819286c62c7470113523",
+      "state": "owned"
+    },
+    "negative_control_invalid_one": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/negative_control_invalid_one.cid",
+      "id": "07dc6c301de0a09252154c048b473c6ac388904aa4be4ed663084fa4a1d499a5",
+      "state": "owned"
+    },
+    "provider_describe": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/provider_describe.cid",
+      "id": "0dbbdd2b3463b16ddfe158372ada961f2740378763b98ae62870a95b759aaa7d",
+      "state": "owned"
+    },
+    "provider_reads": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/provider_reads.cid",
+      "id": "d2acaf54af51ad65887ce24617b1d17fbdf995ebe25e5ec33fb16aee1e574f97",
+      "state": "owned"
+    },
+    "provider_unreadable_generation_held_open": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/provider_unreadable_generation_held_open.cid",
+      "id": "8484f1a4e28a8e5c5c667973e291720578fa467a8e137231915cbec935962157",
+      "state": "owned"
+    }
+  },
+  "rebuilt": false,
+  "restrictions": [
+    [
+      "--cap-drop",
+      "ALL"
+    ],
+    [
+      "--security-opt",
+      "no-new-privileges"
+    ],
+    [
+      "--security-opt",
+      "label=disable"
+    ],
+    [
+      "--user",
+      "65532:65532"
+    ],
+    [
+      "--read-only",
+      null
+    ],
+    [
+      "--network",
+      "none"
+    ],
+    [
+      "--pids-limit",
+      "512"
+    ],
+    [
+      "--memory",
+      "2g"
+    ],
+    [
+      "--cpus",
+      "2"
+    ],
+    [
+      "--tmpfs",
+      "/tmp:rw,noexec,nosuid,nodev,size=64m"
+    ],
+    [
+      "--tmpfs",
+      "/dev/shm:rw,noexec,nosuid,nodev,size=16m"
+    ]
+  ],
+  "runs": {
+    "integration_reads": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/integration_reads.cid",
+      "confinement": {
+        "CapDrop": [
+          "ALL"
+        ],
+        "Memory": 2147483648,
+        "Mounts": [
+          {
+            "Destination": "/run/baton/launch.json",
+            "RW": false,
+            "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/smoke-scratch/launch-three.json"
+          }
+        ],
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 512,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges",
+          "label=disable"
+        ],
+        "Tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+          "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+        },
+        "User": "65532:65532"
+      },
+      "engine_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 0,
+        "FinishedAt": "2026-09-17T22:56:01.3957014Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-09-17T22:56:01.311178219Z",
+        "Status": "exited"
+      },
+      "name": "w197661-smoke198115-integration_reads",
+      "name_preflight": {
+        "engine_said": "error: no such object: w197661-smoke198115-integration_reads\n",
+        "state": "absent",
+        "why": "the engine's own absence sentence names this identity"
+      },
+      "observed_seconds": 0.12054241000441834,
+      "owned_id": "1b4c20244dabb4f871ec40c48499d6c12bcee273502688f5b09aaec8440bc5cd",
+      "ownership": {
+        "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/integration_reads.cid",
+        "id": "1b4c20244dabb4f871ec40c48499d6c12bcee273502688f5b09aaec8440bc5cd",
+        "state": "owned"
+      },
+      "removal": {
+        "final": {
+          "engine_said": "error: no such object: 1b4c20244dabb4f871ec40c48499d6c12bcee273502688f5b09aaec8440bc5cd\n",
+          "state": "absent",
+          "why": "the engine's own absence sentence names this identity"
+        },
+        "id": "1b4c20244dabb4f871ec40c48499d6c12bcee273502688f5b09aaec8440bc5cd",
+        "proved_absent": true,
+        "rm": {
+          "returncode": 0,
+          "stderr": ""
+        },
+        "stop": {
+          "returncode": 0,
+          "stderr": ""
+        }
+      },
+      "returncode": 0,
+      "shape": "an owned writer held OPEN until the observed exit",
+      "stderr": "",
+      "stdin_held_open_until_exit": true,
+      "stdout": "{\"supported\": [\"baton.worker-launch/1\", \"baton.worker-launch/2\", \"baton.worker-launch/3\", \"baton.worker-launch/4\"], \"validated\": [\"contract\", \"job_execution\", \"role\", \"schema\", \"session\", \"transport\"]}\n",
+      "stdout_bytes": 202,
+      "still_running_at_bound": false
+    },
+    "integration_unreadable_generation_held_open": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/integration_unreadable_generation_held_open.cid",
+      "confinement": {
+        "CapDrop": [
+          "ALL"
+        ],
+        "Memory": 2147483648,
+        "Mounts": [
+          {
+            "Destination": "/run/baton/launch.json",
+            "RW": false,
+            "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/smoke-scratch/launch-five.json"
+          }
+        ],
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 512,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges",
+          "label=disable"
+        ],
+        "Tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+          "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+        },
+        "User": "65532:65532"
+      },
+      "engine_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 2,
+        "FinishedAt": "2026-09-17T22:56:01.023052125Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-09-17T22:56:00.908888599Z",
+        "Status": "exited"
+      },
+      "name": "w197661-smoke198115-integration_unreadable_generation_held_open",
+      "name_preflight": {
+        "engine_said": "error: no such object: w197661-smoke198115-integration_unreadable_generation_held_open\n",
+        "state": "absent",
+        "why": "the engine's own absence sentence names this identity"
+      },
+      "observed_seconds": 0.17052640300244093,
+      "owned_id": "5767957875baee53bdc01d49cf848a15c6e69a6e2688819286c62c7470113523",
+      "ownership": {
+        "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/integration_unreadable_generation_held_open.cid",
+        "id": "5767957875baee53bdc01d49cf848a15c6e69a6e2688819286c62c7470113523",
+        "state": "owned"
+      },
+      "removal": {
+        "final": {
+          "engine_said": "error: no such object: 5767957875baee53bdc01d49cf848a15c6e69a6e2688819286c62c7470113523\n",
+          "state": "absent",
+          "why": "the engine's own absence sentence names this identity"
+        },
+        "id": "5767957875baee53bdc01d49cf848a15c6e69a6e2688819286c62c7470113523",
+        "proved_absent": true,
+        "rm": {
+          "returncode": 0,
+          "stderr": ""
+        },
+        "stop": {
+          "returncode": 0,
+          "stderr": ""
+        }
+      },
+      "returncode": 2,
+      "shape": "an owned writer held OPEN until the observed exit",
+      "stderr": "",
+      "stdin_held_open_until_exit": true,
+      "stdout": "",
+      "stdout_bytes": 0,
+      "still_running_at_bound": false
+    },
+    "negative_control_invalid_one": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/negative_control_invalid_one.cid",
+      "confinement": {
+        "CapDrop": [
+          "ALL"
+        ],
+        "Memory": 2147483648,
+        "Mounts": [
+          {
+            "Destination": "/run/baton/launch.json",
+            "RW": false,
+            "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/smoke-scratch/launch-one_invalid.json"
+          }
+        ],
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 512,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges",
+          "label=disable"
+        ],
+        "Tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+          "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+        },
+        "User": "65532:65532"
+      },
+      "engine_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 0,
+        "FinishedAt": "0001-01-01T00:00:00Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 477569,
+        "Restarting": false,
+        "Running": true,
+        "StartedAt": "2026-09-17T22:55:45.791431399Z",
+        "Status": "running"
+      },
+      "name": "w197661-smoke198115-negative_control_invalid_one",
+      "name_preflight": {
+        "engine_said": "error: no such object: w197661-smoke198115-negative_control_invalid_one\n",
+        "state": "absent",
+        "why": "the engine's own absence sentence names this identity"
+      },
+      "observed_seconds": 15.033099375956226,
+      "owned_id": "07dc6c301de0a09252154c048b473c6ac388904aa4be4ed663084fa4a1d499a5",
+      "ownership": {
+        "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/negative_control_invalid_one.cid",
+        "id": "07dc6c301de0a09252154c048b473c6ac388904aa4be4ed663084fa4a1d499a5",
+        "state": "owned"
+      },
+      "removal": {
+        "final": {
+          "engine_said": "error: no such object: 07dc6c301de0a09252154c048b473c6ac388904aa4be4ed663084fa4a1d499a5\n",
+          "state": "absent",
+          "why": "the engine's own absence sentence names this identity"
+        },
+        "id": "07dc6c301de0a09252154c048b473c6ac388904aa4be4ed663084fa4a1d499a5",
+        "proved_absent": true,
+        "rm": {
+          "returncode": 0,
+          "stderr": ""
+        },
+        "stop": {
+          "returncode": 0,
+          "stderr": ""
+        }
+      },
+      "returncode": null,
+      "shape": "an owned writer held OPEN until the observed exit",
+      "stderr": "",
+      "stdin_held_open_until_exit": true,
+      "stdout": "",
+      "stdout_bytes": 0,
+      "still_running_at_bound": true
+    },
+    "provider_describe": {
+      "answers": [
+        {
+          "answer": {
+            "launch": [
+              "contract",
+              "role",
+              "schema",
+              "session"
+            ],
+            "operations": [
+              "describe",
+              "work"
+            ],
+            "protocol": "baton.worker-entry/1"
+          },
+          "ok": true,
+          "operation_id": "op-smoke-198115",
+          "protocol": "baton.worker-entry/1",
+          "session": "session-w197661-smoke"
+        }
+      ],
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/provider_describe.cid",
+      "confinement": {
+        "CapDrop": [
+          "ALL"
+        ],
+        "Memory": 2147483648,
+        "Mounts": [
+          {
+            "Destination": "/run/baton/launch.json",
+            "RW": false,
+            "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/smoke-scratch/launch-one_valid.json"
+          }
+        ],
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 512,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges",
+          "label=disable"
+        ],
+        "Tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+          "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+        },
+        "User": "65532:65532"
+      },
+      "engine_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 0,
+        "FinishedAt": "2026-09-17T22:56:01.744452873Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-09-17T22:56:01.614411039Z",
+        "Status": "exited"
+      },
+      "name": "w197661-smoke198115-provider_describe",
+      "name_preflight": {
+        "engine_said": "error: no such object: w197661-smoke198115-provider_describe\n",
+        "state": "absent",
+        "why": "the engine's own absence sentence names this identity"
+      },
+      "observed_seconds": 0.1908462350256741,
+      "owned_id": "0dbbdd2b3463b16ddfe158372ada961f2740378763b98ae62870a95b759aaa7d",
+      "ownership": {
+        "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/provider_describe.cid",
+        "id": "0dbbdd2b3463b16ddfe158372ada961f2740378763b98ae62870a95b759aaa7d",
+        "state": "owned"
+      },
+      "removal": {
+        "final": {
+          "engine_said": "error: no such object: 0dbbdd2b3463b16ddfe158372ada961f2740378763b98ae62870a95b759aaa7d\n",
+          "state": "absent",
+          "why": "the engine's own absence sentence names this identity"
+        },
+        "id": "0dbbdd2b3463b16ddfe158372ada961f2740378763b98ae62870a95b759aaa7d",
+        "proved_absent": true,
+        "rm": {
+          "returncode": 0,
+          "stderr": ""
+        },
+        "stop": {
+          "returncode": 0,
+          "stderr": ""
+        }
+      },
+      "returncode": 0,
+      "shape": "the manager's send-then-close conversation",
+      "stderr": "",
+      "stdin_held_open_until_exit": false,
+      "stdout": "238\n{\"answer\":{\"launch\":[\"contract\",\"role\",\"schema\",\"session\"],\"operations\":[\"describe\",\"work\"],\"protocol\":\"baton.worker-entry/1\"},\"ok\":true,\"operation_id\":\"op-smoke-198115\",\"protocol\":\"baton.worker-entry/1\",\"session\":\"session-w197661-smoke\"}",
+      "stdout_bytes": 242,
+      "still_running_at_bound": false
+    },
+    "provider_reads": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/provider_reads.cid",
+      "confinement": {
+        "CapDrop": [
+          "ALL"
+        ],
+        "Memory": 2147483648,
+        "Mounts": [
+          {
+            "Destination": "/run/baton/launch.json",
+            "RW": false,
+            "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/smoke-scratch/launch-three.json"
+          }
+        ],
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 512,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges",
+          "label=disable"
+        ],
+        "Tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+          "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+        },
+        "User": "65532:65532"
+      },
+      "engine_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 0,
+        "FinishedAt": "2026-09-17T22:56:01.554787262Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-09-17T22:56:01.462629382Z",
+        "Status": "exited"
+      },
+      "name": "w197661-smoke198115-provider_reads",
+      "name_preflight": {
+        "engine_said": "error: no such object: w197661-smoke198115-provider_reads\n",
+        "state": "absent",
+        "why": "the engine's own absence sentence names this identity"
+      },
+      "observed_seconds": 0.1205488929990679,
+      "owned_id": "d2acaf54af51ad65887ce24617b1d17fbdf995ebe25e5ec33fb16aee1e574f97",
+      "ownership": {
+        "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/provider_reads.cid",
+        "id": "d2acaf54af51ad65887ce24617b1d17fbdf995ebe25e5ec33fb16aee1e574f97",
+        "state": "owned"
+      },
+      "removal": {
+        "final": {
+          "engine_said": "error: no such object: d2acaf54af51ad65887ce24617b1d17fbdf995ebe25e5ec33fb16aee1e574f97\n",
+          "state": "absent",
+          "why": "the engine's own absence sentence names this identity"
+        },
+        "id": "d2acaf54af51ad65887ce24617b1d17fbdf995ebe25e5ec33fb16aee1e574f97",
+        "proved_absent": true,
+        "rm": {
+          "returncode": 0,
+          "stderr": ""
+        },
+        "stop": {
+          "returncode": 0,
+          "stderr": ""
+        }
+      },
+      "returncode": 0,
+      "shape": "an owned writer held OPEN until the observed exit",
+      "stderr": "",
+      "stdin_held_open_until_exit": true,
+      "stdout": "{\"supported\": [\"baton.worker-launch/1\", \"baton.worker-launch/2\", \"baton.worker-launch/3\", \"baton.worker-launch/4\"], \"validated\": [\"contract\", \"job_execution\", \"role\", \"schema\", \"session\", \"transport\"]}\n",
+      "stdout_bytes": 202,
+      "still_running_at_bound": false
+    },
+    "provider_unreadable_generation_held_open": {
+      "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/provider_unreadable_generation_held_open.cid",
+      "confinement": {
+        "CapDrop": [
+          "ALL"
+        ],
+        "Memory": 2147483648,
+        "Mounts": [
+          {
+            "Destination": "/run/baton/launch.json",
+            "RW": false,
+            "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/smoke-scratch/launch-five.json"
+          }
+        ],
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 512,
+        "ReadonlyRootfs": true,
+        "SecurityOpt": [
+          "no-new-privileges",
+          "label=disable"
+        ],
+        "Tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+          "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+        },
+        "User": "65532:65532"
+      },
+      "engine_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 3,
+        "FinishedAt": "2026-09-17T22:56:01.22409464Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-09-17T22:56:01.109279694Z",
+        "Status": "exited"
+      },
+      "name": "w197661-smoke198115-provider_unreadable_generation_held_open",
+      "name_preflight": {
+        "engine_said": "error: no such object: w197661-smoke198115-provider_unreadable_generation_held_open\n",
+        "state": "absent",
+        "why": "the engine's own absence sentence names this identity"
+      },
+      "observed_seconds": 0.1705823059892282,
+      "owned_id": "8484f1a4e28a8e5c5c667973e291720578fa467a8e137231915cbec935962157",
+      "ownership": {
+        "cidfile": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198115/owned-ids/provider_unreadable_generation_held_open.cid",
+        "id": "8484f1a4e28a8e5c5c667973e291720578fa467a8e137231915cbec935962157",
+        "state": "owned"
+      },
+      "removal": {
+        "final": {
+          "engine_said": "error: no such object: 8484f1a4e28a8e5c5c667973e291720578fa467a8e137231915cbec935962157\n",
+          "state": "absent",
+          "why": "the engine's own absence sentence names this identity"
+        },
+        "id": "8484f1a4e28a8e5c5c667973e291720578fa467a8e137231915cbec935962157",
+        "proved_absent": true,
+        "rm": {
+          "returncode": 0,
+          "stderr": ""
+        },
+        "stop": {
+          "returncode": 0,
+          "stderr": ""
+        }
+      },
+      "returncode": 3,
+      "shape": "an owned writer held OPEN until the observed exit",
+      "stderr": "baton-worker: launch: /run/baton/launch.json says it is 'baton.worker-launch/5' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of\n",
+      "stdin_held_open_until_exit": true,
+      "stdout": "",
+      "stdout_bytes": 0,
+      "still_running_at_bound": false
+    }
+  },
+  "selected": false,
+  "vector_regression": {
+    "image_named_once": true,
+    "only_arguments_follow_image": true,
+    "refuses_a_mutable_tag": true,
+    "refuses_malformed_restrictions": true,
+    "refuses_no_restrictions": true,
+    "refuses_not_a_flag": true,
+    "restrictions_precede_image": true,
+    "superseded_shape_puts_restrictions_after_image": true
+  },
+  "verdict": {
+    "describe_exits_zero": true,
+    "describe_is_a_conversation_not_a_held_open_run": true,
+    "describe_is_one_correlated_answer": true,
+    "integration_five_exits_two": true,
+    "integration_five_held_open": true,
+    "integration_five_is_silent": true,
+    "integration_reads_cleaned_up": true,
+    "integration_reads_confined": true,
+    "integration_reads_exits_zero": true,
+    "integration_reads_ownership_proved_at_creation": true,
+    "integration_reads_the_four_generations": true,
+    "integration_unreadable_generation_held_open_cleaned_up": true,
+    "integration_unreadable_generation_held_open_confined": true,
+    "integration_unreadable_generation_held_open_ownership_proved_at_creation": true,
+    "integration_validates_the_managers_three": true,
+    "negative_control_held_open": true,
+    "negative_control_invalid_one_cleaned_up": true,
+    "negative_control_invalid_one_confined": true,
+    "negative_control_invalid_one_ownership_proved_at_creation": true,
+    "negative_control_still_running": true,
+    "provider_describe_cleaned_up": true,
+    "provider_describe_confined": true,
+    "provider_describe_ownership_proved_at_creation": true,
+    "provider_five_diagnostic": true,
+    "provider_five_exits_three": true,
+    "provider_five_held_open": true,
+    "provider_five_says_nothing_on_stdout": true,
+    "provider_reads_cleaned_up": true,
+    "provider_reads_confined": true,
+    "provider_reads_exits_zero": true,
+    "provider_reads_ownership_proved_at_creation": true,
+    "provider_reads_the_four_generations": true,
+    "provider_unreadable_generation_held_open_cleaned_up": true,
+    "provider_unreadable_generation_held_open_confined": true,
+    "provider_unreadable_generation_held_open_ownership_proved_at_creation": true,
+    "provider_validates_the_managers_three": true
+  },
+  "wall_seconds": 16.194143414031714
+}

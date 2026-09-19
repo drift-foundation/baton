@@ -1,0 +1,113 @@
+{
+  "claim": 198640,
+  "work": "2b077949-W197661",
+  "role": "impl",
+  "authority": "owner seq198635 \u2014 accept step 4; pin the next selection; prepare ONE reproducible deployment packet; exercise a SEPARATE DISPOSABLE INSTANCE with a deterministic fake provider through task receipt, candidate collection, independent review and report-and-hold; label fixture image differences; bounded local builds and container execution authorized; no live models, no broad suites",
+  "step_4_accepted_by": "review-2026-09-17T23-00-20Z.md sha256 55caf0ad65d649a5fabc5b7d34836a65e05391742682c0b08b62fefd064b3d03",
+  "DELIVERED": {
+    "pinned": "FINDING 'step 4 ACCEPTED; the next bounded selection PINNED' and the PLAN current-state section, before any other work",
+    "packet": "packet-198640/ \u2014 deployment-packet.json, PACKET.md, verify_packet.py, verification.json",
+    "package_sha256": {
+      "packet-198640/PACKET.md": "2de85b8ad29ec87dfa2824e1c1cb7c7ccfa881f9d4cacfc90252d2311b280458",
+      "packet-198640/deployment-packet.json": "308690dc7b569e02837b43e7f2763fe01d0eb9ec9442ccafeeeef818d36533a9",
+      "packet-198640/verification.json": "1a64b1fe4ab50387d60d129c6ec2d9d9c36f7e6be17df32b27eb80d525a57c60",
+      "packet-198640/verify_packet.py": "227ea052effb767af498130df2012f669e4b567120ea06034b998af3bc89f62a"
+    },
+    "verifier": {
+      "checks": 27,
+      "all_true": true,
+      "failed": [],
+      "deploys_nothing": "no bootstrap, scheduler, container, Job, model, credential, network or production touch; every engine call is a read-only image inspection"
+    },
+    "binds": {
+      "installed_manager": "launcher sha256 04d69e37a6e99621b5e7342aa6d6dfbdd7dcae0624301f827abf258c66c89e6c, version 12.0.0, build stamp e486652c dirty/25 changed entries, re-read and compared by the verifier",
+      "accepted_images": "provider sha256:35f36286..., integration sha256:dac354d8..., base sha256:0697b659..., each checked for id equality, 65532:65532, the expected entrypoint, no credential override and ordered base-layer ancestry",
+      "configuration": "the instance selection (baton.v12.stack-bootstrap/1) AND the separate capacity selection, which is where image_digest is bound because bootstrap.DEFERRED holds `workers` out of the instance document",
+      "required_directories": "derived by calling bootstrap.layout() and re-derived by the verifier, not transcribed"
+    },
+    "measured_incident_binding": {
+      "stopped_instance_worker_image_digests": [
+        "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+        "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+        "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533"
+      ],
+      "meaning": "the stopped production instance still names the stale sha256:2e222e4c... and names NEITHER accepted image; that capacity selection is where the reported incident lives"
+    },
+    "provenance_caveat_measured": {
+      "claim": "the installed manager was built from a DIRTY tree and W194457's candidate (awaiting its own review) has modification times earlier than the build, so the bundle very likely embeds unreviewed manager bytes",
+      "status": "INFERENCE, not proof",
+      "method_that_failed": "a byte search of the launcher and base_library.zip for declared_identity_mapping and SUPPORTED_IDENTITY_MAPPING found nothing AND NEITHER DID THE CONTROL (establish_line_access, _provision_line_access), because module bytes live compiled inside the PYZ. Recorded so nobody repeats it.",
+      "unaffected": "W197661's accepted correction lives in v12/worker/baton_worker.py, which travels in the IMAGES"
+    },
+    "fixture_rule_recorded": "the accepted provider injects the REAL adapter; a deterministic fake provider uses the reference recipe's scripted_agent.py seam, so a fixture run is NOT the accepted image. Evidence must name both digests and claim no live provider coverage. The verifier holds both recipes to this.",
+    "note": "one verifier check failed on its first run and was CORRECTED, not waived: it searched the whole provider recipe for 'scripted_agent' and matched the long comment explaining that the module deliberately does NOT travel. It now reads the instruction lines only."
+  },
+  "NOT_DONE": {
+    "what": "the disposable-instance exercise: a separate disposable instance running the real installed coordination and worker path with a deterministic fake provider through task receipt, candidate collection, independent review and report-and-hold",
+    "why": "it was not started. It needs a fixture image built from the reference recipe's scripted_agent seam, a bootstrap install into a fresh destination, a capacity selection carrying a digest-sealed input manifest, a started scheduler, a submitted task and four lifecycle stages -- each with first-time unknowns in this deployment. Starting it late in this claim and landing it half-finished while reporting success is the exact failure mode four reviews of this Work have already corrected.",
+    "remaining_scope_in_order": [
+      "1. Build the deterministic fake-provider fixture image from the reference recipe's scripted_agent.py seam, over the SAME immutable base, and record its digest as a FIXTURE digest distinct from the accepted provider digest.",
+      "2. `just setup` is already satisfied and a distro already exists (launcher sha256 04d69e37...); decide explicitly whether to bind that build or produce one whose provenance does not carry the W194457 inference above, and say which.",
+      "3. Bootstrap a FRESH disposable destination from a baton.v12.stack-bootstrap/1 document whose state_root is that destination -- never the stopped production instance.",
+      "4. Compose the capacity selection: one implementation worker naming the FIXTURE image digest, plus the review and integration roles bootstrap.ROLES requires, with adapter, profile, policy and credential selections.",
+      "5. Start the scheduler, submit one task, and carry it through task receipt, candidate collection, independent review and report-and-hold, recording each stage from canonical state rather than from a log line.",
+      "6. Stop and dispose of the instance, proving positive absence of every container it created -- the ownership and absence discipline this Work already established in corrected-198115.",
+      "7. Label the fixture difference in every artefact and claim no live provider coverage."
+    ],
+    "explicitly_preserved": "the stopped production instance /home/sl/baton-v12-instance-2026-09-17T20-29-21Z, Work b6423787-W1 and attempt attempt-a79dc740be49f5f6bf1897e639eda2eecd3172854cc5507a4f8702fdcd7726db are untouched; no production restart, recovery or resubmission was performed or attempted"
+  },
+  "source_unchanged": {
+    "v12/worker/baton_worker.py": "8a5f4895ff7f6609934c0b2078ae294233c1c2ebbb28390da1c1966af5dcd8a1",
+    "v12/python/tests/manager/test_worker_entry.py": "3c830b88336a6247301be1f38e060a668a519f4c48df5c32efc410c64f14567b",
+    "v12/python/tests/manager/test_exchange.py": "2888f570b6268daeb323674e5b55492fa7a4ae881b2393bf7011307a26f1928e",
+    "v12/python/tests/manager/test_worker_container.py": "340a51a033a5de8a47ae16d32c5a03154042a76f3850c9bcb51e527ffe14a957",
+    "v12/python/tests/tools/test_execution_limits.py": "2a8f724cd636b7579a854b2a0b403a708765a658f88af409db92d0852511c27c"
+  },
+  "prior_episodes_preserved": {
+    "prepared-197885": {
+      "files": 15,
+      "drifted": [],
+      "unchanged": true
+    },
+    "corrected-197975": {
+      "files": 14,
+      "drifted": [],
+      "unchanged": true
+    },
+    "corrected-198054": {
+      "files": 24,
+      "drifted": [],
+      "unchanged": true
+    },
+    "corrected-198115": {
+      "files": 30,
+      "drifted": [],
+      "unchanged": true
+    }
+  },
+  "verification_this_claim": {
+    "components": [
+      {
+        "what": "verify_packet.py, first run",
+        "checks": 27,
+        "wall_seconds": 0.301,
+        "outcome": "26 passed, 1 failed on its own wording; corrected"
+      },
+      {
+        "what": "verify_packet.py, corrected",
+        "checks": 27,
+        "wall_seconds": 0.3,
+        "outcome": "all true"
+      },
+      {
+        "what": "read-only manager identity and image metadata queries",
+        "outcome": "recorded in verification.json"
+      }
+    ],
+    "measured_seconds_this_claim": 3.0,
+    "work_cumulative": 521.0,
+    "note": "claim197743 corrected 235.6s + claim197885 107.8s + claim197975 108.6s + claim198054 33.0s + claim198115 33.0s + this claim ~3.0s. No container was started and no image was built in this claim. Nothing was rerun for accounting."
+  },
+  "engine": "read-only docker image inspection only; NO container started, NO image built, NO bootstrap, NO scheduler, NO Job, NO model, NO credential, NO network, NO production store or runtime touch, NO version-control mutation",
+  "git_diff_check": "passes; no whitespace defect"
+}

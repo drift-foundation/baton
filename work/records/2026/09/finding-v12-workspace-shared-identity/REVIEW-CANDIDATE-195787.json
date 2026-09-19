@@ -1,0 +1,17 @@
+{
+  "paths_sha256": {
+    "v12/python/src/baton_v12/worker_manager/custody.py": "360772a109909cb382ae815d17f60ed7903252bf1b56a3944de8b301f33ac31b",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "ed055dbc2e75026b34a10a7aae32fbc1ce346b192a3a40728e114efba449dcd9",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "b6eb2dc3fcc811f8ad933eb80fbedbaf2a98def7e4cff3eacffef905e7ca70d2",
+    "v12/python/tests/__init__.py": "ed81ea906939740dc126615a631de97b2785fb958b1d15dc394f995603d63c06",
+    "v12/python/tests/manager/test_custody.py": "d315fdb7193e304421413b64caf09ae85d9c646ffd9948e767b8721475b8459d",
+    "v12/python/tests/manager/test_lifecycle_composition.py": "3fb38036bacfb09b050d69ea3712b8766002e7b0775bffce51a415ca5f6a337e",
+    "v12/python/tests/manager/test_oci.py": "231998a54d5978dd11221102c7a48480c549459b4114052401556b91079fced4",
+    "v12/python/tests/manager/test_review_cycles.py": "e4025453cfc9ea74fe0eaeb302dc742db6209f678fa78c4601c1200f530e5155",
+    "v12/python/tests/manager/test_workspaces.py": "e27e9c07340e57258088e12cab1960776514932f5ff2a90a6462f813066247e6",
+    "v12/python/tools/single_worker.py": "7992f2d7485dcccff64b5f945357b1132d71c0f65fd9520cf42fd7940a611854"
+  },
+  "review_claim": 195787,
+  "work": "W194457"
+}

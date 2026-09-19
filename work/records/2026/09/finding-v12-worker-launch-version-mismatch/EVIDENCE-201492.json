@@ -1,0 +1,149 @@
+{
+  "FINDINGS_to_record": [
+    {
+      "evidence": [
+        "instance-201492/build/status-run4.json",
+        "instance-201492/build/projection-run4.json"
+      ],
+      "id": "projection-disagreement",
+      "reproduction": "start the stack, let all three stages complete, then run the manager status subcommand directly against db/jobs.sqlite3 with a NEW --incarnation",
+      "severity": "high",
+      "what": "Two canonical readers of the SAME store disagree about a completed integration. The publisher's observed snapshot says integration `completed`; `baton-v12-stack manager --store ... status --control ...` under a fresh incarnation says `starting` -- with identical receipts (admit/claim performed) and the integration result document on disk saying outcome `integrated`.",
+      "why_it_matters": "an operator or verifier who trusts the canonical status verb concludes the lifecycle is still executing when it has terminated"
+    },
+    {
+      "evidence": [
+        "instance-201492/verification-201492-run4.json"
+      ],
+      "id": "approval-generation-moves-under-a-run",
+      "severity": "medium",
+      "what": "the configured approval pin was EQUAL (9 == 9) immediately before the start and is UNEQUAL (9 configured, 10 in the Authority) after the lifecycle completed",
+      "why_it_matters": "integration.driver._accepted_receipts refuses unless these are equal, so a deployment RESUMED after its own successful run defers at its integration, with the reason only in a tick report"
+    },
+    {
+      "id": "bootstrap-moves-the-approval-generation",
+      "severity": "medium",
+      "what": "every bootstrap bumps the policy generation: +7 on a repeat, +8 on a first. A composition that pinned the number it read before bootstrapping is stale by the time the manager reads it."
+    },
+    {
+      "evidence": [
+        "instance-201492/build/start-2.log"
+      ],
+      "id": "pool-generation-pins-a-destination",
+      "severity": "medium",
+      "what": "stage_execution._pool_generation refuses with \"activating this deployment's pool would answer generation 2 and the configuration names 1\"; a re-bootstrap over an existing pool moves it, so a destination is effectively SINGLE-USE for a new image.",
+      "why_it_matters": "this is why each live attempt needed a fresh destination root, which is the dominant cost of every run in this campaign"
+    }
+  ],
+  "REMAINING_SCOPE_not_done": [
+    {
+      "state": "verify_lifecycle.py declares this check FAILED rather than guessing, which is why the verification is not accepted",
+      "what": "the contract-bound read-only TERMINAL reader",
+      "why_unwritten": "the integration account's state is produced by tools.stage_execution.managed_account, which composes an Authority, sessions and worker preflights; it is NOT a read-only path a verifier may take. Writing a reader that imitates it would be the invented-predicate defect review 2026-09-18T05-14-53Z already rejected."
+    },
+    {
+      "detail": "it wants canonical_target == the declared base e486652c4dde..., but a completed integration ADVANCES the target; the run answered 2802030e06e0.... The check should assert the declared base is an ANCESTOR, not equal. This is a VERIFIER defect, not a product one, and it is not fixed here.",
+      "state": "reproduced, unfixed",
+      "what": "verify_lifecycle's declared-base check is WRONG after a successful import"
+    }
+  ],
+  "artifacts": {
+    "preserved": "instance-200564 (including context-integration and its five verification-*.json) and every earlier episode are untouched",
+    "this_episode": "instance-201492"
+  },
+  "claim": "201492",
+  "defects_this_turn_REPRODUCED_AND_FIXED": [
+    {
+      "cause": "ImportingAgent read held[\"bundle_digest\"], which contract.read_bundle does not answer",
+      "covered_by": "tests/manager/test_importing_fixture.py",
+      "fix": "the digest is taken from the prompt the manager actually wrote, and KeyError is contained",
+      "held_as": "provider-uncertain",
+      "manager_said": "an unexpected KeyError ended this turn after the provider had writable work",
+      "run": 1
+    },
+    {
+      "cause": "the imported report's phase was not \"verification\"; worker/integration_workload.py:1471 requires phase == \"verification\" and paths == sorted(row[\"path\"])",
+      "covered_by": "tests/manager/test_importing_fixture.py",
+      "fix": "the agent writes phase \"verification\"",
+      "held_as": "report-inconsistent",
+      "run": "2 and 3"
+    }
+  ],
+  "destination": {
+    "authority_uuid": "d8a042193ef54af182b1e3ee85240c5a",
+    "job_id": "w197661-lifecycle",
+    "note": "A FRESH destination, because a re-bootstrap over an existing one moves both the approval and the pool generation; see the generation findings below.",
+    "root": "/home/sl/baton-v12-lifecycle-201492-run4",
+    "work_id": "d8a04219-W1"
+  },
+  "digests": {
+    "instance-201492/EXPECTED.json": "fbde136dece3b907c49626a1c5bf6e103fef0e8b50b6daad51b94f627164fff1",
+    "instance-201492/build/projection-run4.json": "9eccaad61caf22c0ddf51e63e5fa574e2bac7cbaa08ac7555aedbb1fc6d11cd9",
+    "instance-201492/build/status-run4.json": "9f2ab65a24471ef4a3ddb5799f8278d654a3cf4ec0deeea91cd2e856773aedc8",
+    "instance-201492/compose_lifecycle.py": "4ae3b1c02ff838abdc099a11be012a468313c903d9a1f8f8b4987d41b9ddde8b",
+    "instance-201492/context/Dockerfile.fixture": "636bec58cef2e3397254de5e952797354dc2f4ac596bc05e0d39e3ba571cd0b1",
+    "instance-201492/context/worker/fixture_entry.py": "b3b2e731c42deea6f2122d68a31d00691521b8297e18edf4d635ab909363de5f",
+    "instance-201492/context/worker/importing_agent.py": "6e01c65b2e485a94e332af51df8e16676325d333cb5b2912638836aebf34da17",
+    "instance-201492/verification-201492-run4.json": "b84bb827c554aea034e94c76c1163db8eacecff6c2d311144fa6be6a49c0958d",
+    "instance-201492/verification-201492-run4b.json": "7b0d39cf0c990891d8177812105f14f8ff648f3ef68acec668a7195d7503f612",
+    "instance-201492/verification-201492-run4c.json": "2d6d7cc3f6cd82ea80844ab2c079964f1922a3926fb840c4188715d2d3d8f0d0",
+    "instance-201492/verify_lifecycle.py": "c6fb288d8916d51a88addfdea33871f0d1d393ca18b26dbfee9477933bf16f2c"
+  },
+  "headline": "The one-image deterministic lifecycle RAN TO ITS TERMINAL STATE. implementation, review and integration all reached `completed` under terminal_policy `report-and-hold`, and the integration's own result document answers outcome `integrated` with the required verification command exiting 0 inside the integration. This is the first time this campaign has reached report-and-hold.",
+  "image": {
+    "build_flags": "--pull=false --no-cache --network none",
+    "digest": "sha256:92639d1e10c3d6c435ad58ba78c6fd696cccb8cd2cc115ebc6ce0fa06c1ad13e",
+    "one_image": "tools/single_worker.py:267 refuses a worker whose image_digest differs from its Job input manifest's worker_image_digest, and a Job names exactly one input manifest, so producer and integrator MUST share an artefact. The entry dispatches on the delivered integration assignment, with NO fallback."
+  },
+  "schema": "baton.w197661.evidence/1",
+  "verification_spending_cumulative": {
+    "flags": "-W error::ResourceWarning on every suite",
+    "live_runs_this_turn": 4,
+    "runs_that_reached_report_and_hold": 1,
+    "suite_wide": {
+      "tests/job_manager": "849 tests, OK",
+      "tests/manager": "4141 tests, 109 failures / 7 errors / 20 skipped -- PRE-EXISTING AND NOT THIS CLAIM'S. The failures are tree-wide architectural checks (test_every_public_parameter_is_a_declared_operand x52, test_no_declared_owner_is_stale x15) naming modules this claim never touched: attempts.py, authority_port.py, context_delivery.py. Reported rather than absorbed; NOT attributed and NOT fixed here."
+    },
+    "suites_owned_and_passing": {
+      "tests/manager/test_attempt_logs.py": "235 cases, OK",
+      "tests/manager/test_fixture_dispatch.py": "15 cases, OK",
+      "tests/manager/test_importing_fixture.py": "32 cases, OK",
+      "tests/manager/test_w197661_verifier.py": "58 cases, OK"
+    }
+  },
+  "what_ran_for_real": {
+    "episodes_per_stage": 1,
+    "gate": {
+      "open": true,
+      "stage_id": "w197661-lifecycle/review",
+      "state": "completed"
+    },
+    "integration_result": {
+      "attempt_id": "attempt-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+      "entry_id": "integration-driver.entry:7a0af3af3d985df7c5ff66985829d0281c53e07ef59d8cb1dea1bb27dd16ed79",
+      "fence": 1,
+      "imported_paths": [
+        "w197661-fixture.txt"
+      ],
+      "lease_id": "integration-driver.lease:ced30a7e115d83f0be959e0691b5f61ce276d8493e5def7fb71a14d8c60b3300",
+      "outcome": "integrated",
+      "verification_status": 0
+    },
+    "receipts": {
+      "implementation": [
+        "admit/performed",
+        "claim/performed"
+      ],
+      "integration": [
+        "admit/performed",
+        "claim/performed"
+      ],
+      "review": [
+        "admit/performed",
+        "claim/performed"
+      ]
+    },
+    "the_integrator_entered_the_ACCEPTED_code": "fixture_entry -> integration_entry.main -> integration_workload.integrate -> ImportingAgent. The launch reader, bundle correlation, whole-path preflight, per-path read-back and conservative ending are this tree's manager-validated modules, not a fixture's imitation."
+  },
+  "work": "W197661"
+}

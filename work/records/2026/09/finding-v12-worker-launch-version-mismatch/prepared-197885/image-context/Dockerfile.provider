@@ -1,0 +1,27 @@
+# The COPY-ONLY provider recipe, W197661 claim197885.
+#
+# THIS IS NOT A SECOND `Dockerfile.claude` AND MUST NOT BECOME ONE.
+# `v12/worker/Dockerfile.claude` installs the provider runtime over a moving
+# `npm install` and a moving `apt-get`, and W55361 measured two builds of an
+# unchanged tree differing in exactly those two layers. Reinstalling here would
+# mint a SECOND unreviewed provider installation for this deployment and make
+# "which runtime answered" a question with two answers.
+#
+# SO THE BASE IS THE ALREADY-VALIDATED INSTALLATION, BY IMMUTABLE DIGEST, and
+# the only thing this recipe does is copy this repository's own reviewed source
+# over it. Identical in shape to the accepted `prepared-149053` recipe, whose
+# independent review bound this same base -- what changes is the source bytes,
+# which is the entire point of the rebuild.
+#
+# The build runs `--pull=false --no-cache --network none`, so nothing is
+# downloaded and nothing is installed. Building here produces a CANDIDATE;
+# selecting a digest is a separate deployment act this recipe cannot perform
+# and does not claim.
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/dogfood_entry.py"]

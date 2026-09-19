@@ -1,0 +1,14 @@
+{
+  "built_runtime": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59",
+  "configuration": "sha256:7dbbb8df156e3a695438a747c2d34dad0fd96069db8a59764dd1ed0ba6537b9e",
+  "image": "sha256:a56768b9cc525ecd22f69d0a05ae46773eef46f5fde740eec6ac2c746b0d567a",
+  "image_inputs": {
+    "python/src/baton_v12/source_profiles": "sha256:0d7b71ee28cb6fd43314fcec6c0c18f0bf203db1e7a808b479a8e0919b0afca0",
+    "worker/attempt_log_format.py": "sha256:b138410504336969eebdb05ebcd544b9eed896c4e1c293a633f6cf4ab4e45f42",
+    "worker/baton_worker.py": "sha256:198a6fe96f93c27f539cfcfeee0206643048d3045fc94f3701603c36a749192f",
+    "worker/proposing_agent.py": "sha256:a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd",
+    "worker/proposing_entry.py": "sha256:0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760",
+    "worker/worker-control-1.0.schema.json": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  "installed_runtime": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59"
+}

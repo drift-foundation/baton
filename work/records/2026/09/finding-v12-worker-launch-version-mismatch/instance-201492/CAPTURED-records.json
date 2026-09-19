@@ -1,0 +1,41 @@
+{
+  "_what": "What read_records ACTUALLY read out of THIS episode's run4 destination through review_cycles.integration_checkpoint, verdict_of, review_of, frozen_output_of and load_manifest. instance-200564's own capture is preserved and belongs to that episode; this one is this episode's.",
+  "checkpoint": {
+    "checkpoint_id": "checkpoint-dad6541e6848f1bb605088bfb8c406e4949d3c0164fe23d1ffac349cfe6b8ac3",
+    "evidence": {
+      "base": "e486652c4ddebfb696e030b4b867e914248db542",
+      "head": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+      "path_set_digest": "sha256:30819c1bc2ea4b8b39d22798ef2919ed5b124c8766a9bb19a6077ab0425be2b2",
+      "paths": [
+        "w197661-fixture.txt"
+      ],
+      "profile": "git",
+      "reference": "refs/baton/checkpoints/line-2100741bceb15cb6c31c368f92cef1b0c5a7c2f583267004e3527d0a94b9984c/1",
+      "tree": "2a43bb4fd3353934cb2efa5b6592479450551f8e"
+    }
+  },
+  "result": {
+    "assignment_ref": {
+      "generation": 1,
+      "participant": "baton.w197661-author",
+      "work_ref": {
+        "authority_uuid": "d8a042193ef54af182b1e3ee85240c5a",
+        "work_id": "d8a04219-W1"
+      }
+    },
+    "attempt_id": "attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+    "disposition": "completed",
+    "manifest_digest": "sha256:1903215591a3a5ced2dd946fd21747baf186f9547875056049eee24aa22c64f5",
+    "result_id": "result-attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8"
+  },
+  "terminal": {
+    "unread": "read_terminal was not called"
+  },
+  "verdict": {
+    "attempt_id": "attempt-48f0f791e9f0ad9a663deec310cc55a2fe15944272ff8b10ece2043d4e289df8",
+    "checkpoint_id": "checkpoint-dad6541e6848f1bb605088bfb8c406e4949d3c0164fe23d1ffac349cfe6b8ac3",
+    "disposition": "accepted",
+    "verdict_id": "verdict-d4f09038f4df3bae0c091449207b69e930af965b4492e7875f76a4ff470d6620",
+    "work_id": "d8a04219-W1"
+  }
+}

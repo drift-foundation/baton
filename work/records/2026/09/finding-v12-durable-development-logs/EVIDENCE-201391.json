@@ -1,0 +1,90 @@
+{
+  "work": "W198667",
+  "claim": 201391,
+  "author": "baton.claude",
+  "answering": {
+    "review": "review-2026-09-18T07-23-56Z.md",
+    "sha256": "45834a2a158852f5a8182aa9050e4e9e08a1905034a8fc101bdc30d091172c94",
+    "review_evidence": "REVIEW-EVIDENCE-201318.json",
+    "review_evidence_sha256": "967128179ca8e1d3e26b4033f5359cbb4b9892a33b7b640c9ccee890db021698",
+    "probes": "review-probes-201318.py",
+    "accepted_by_that_review": "all three restart corrections of claim201274 -- the unknown ending, the ignored persistence failure and the inaccessible history"
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+    "v12/python/tests/manager/test_attempt_logs.py": "a79646a99a06683ca264418aa02cb35d68d3a4c1432fba0030dcf74b7a4bbe9d",
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-201391/smoke.py": "4ed49d3df0ab66499e214535ecdcbb413f004fdabf229a43500040f57edc2fd1"
+  },
+  "unchanged_this_claim": {
+    "v12/worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+    "v12/worker/claude_agent.py": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092"
+  },
+  "reproduced_before_correcting": {
+    "script": "/tmp/w198667-claim201391/probe_before.py",
+    "declared_list": {"raised": "TypeError", "message": "unhashable type: 'list'"},
+    "declared_object": {"raised": "TypeError", "message": "unhashable type: 'dict'"},
+    "valid_failed_string": {"raised": null, "declared": "failed"},
+    "worst_with_a_list": {"raised": "TypeError"},
+    "worst_with_an_object": {"raised": "TypeError"},
+    "where_it_escaped": "read_carried -> carry_declaration -> append_writer -> _Captured.__init__, which runs BEFORE the provider starts; the wrapper's tee reaches the same opener before its own startup diagnostic"
+  },
+  "correction": {
+    "the_same_shape_as": "_generation_of, which asked str.isdigit and then acted on int(); this asked a DICTIONARY MEMBERSHIP a list or an object cannot answer",
+    "change": [
+      "declared_state is the one place a value becomes a state: a string that is one, or None for every other JSON value",
+      "read_carried decodes totally over every JSON value type and answers failed for anything that is not a state",
+      "worst routes BOTH operands through it -- the review asked for that boundary and it had the identical assumption",
+      "carry_declaration guards its severity lookup rather than trusting a caller's invariant"
+    ],
+    "after": "every malformed shape declares failed; the valid string controls are unchanged; worst answers on either side"
+  },
+  "cases": {
+    "count": 9,
+    "includes": ["every JSON value type through the real provider capture",
+                 "valid states still reading as themselves (the control)",
+                 "a clean stream untouched",
+                 "the CHILD still getting a usable stream and the earlier bytes still there -- the containment itself",
+                 "no descriptor leaked by twenty malformed constructions",
+                 "worst answering on either side",
+                 "declared_state directly",
+                 "the wrapper's stream contained",
+                 "the wrapper's REAL stream still receiving its text"]
+  },
+  "reversal_probe": {
+    "how": "a scratch copy with the three guards undone, then removed",
+    "result": "10 assertions fail across the 9 new cases"
+  },
+  "a_fixture_mistake_I_have_now_made_twice": "my first draft rebuilt the shared room inside a subTest while the case held its DESCRIPTOR, so later writes failed for an unrelated reason -- the same mistake as claim201156. This suite takes a FRESH delivery and its own room per case, and the helper says so at the site.",
+  "images": {
+    "changed_this_claim": true,
+    "why": "attempt_log_format.py changed; baton_worker.py and claude_agent.py did not",
+    "consequence_stated_plainly": "fixture-201274's smoke no longer describes these bytes; it keeps its own attribution",
+    "new_episode": {
+      "path": "work/records/2026/09/finding-v12-durable-development-logs/fixture-201391",
+      "image": "sha256:f7bcc60319a23c84e069f58e6c4c48ecc2a4bad442d8421b34dd2c612861d341",
+      "built": "--pull=false --no-cache --network none, same immutable base",
+      "smoke": "8 of 8 checks hold"
+    },
+    "untouched": "fixture-199285, fixture-199918, fixture-201008, fixture-201156, fixture-201274 and the accepted provider and integration images"
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "attempt_logs + attempt_logs_command", "tests": 235, "new": 9, "result": "OK", "seconds": 1.685},
+      {"suite": "affected set: attempt_logs, attempt_logs_command, claude_agent, integration_worker, worker_entry, launch, oci, exchange", "tests": 893, "result": "OK", "seconds": 26.162},
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.776},
+      {"suite": "W197661 shared: test_w197661_verifier, test_importing_fixture, test_proposing_fixture", "tests": 119, "result": "OK", "seconds": 0.407},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "container": "one image build and one smoke, 8/8",
+    "measured_seconds_this_claim": 500,
+    "prior_spending": "preserved in EVIDENCE-198698 through EVIDENCE-201274 and the reviewers' own evidence; approximately 600s reported for claim201274 is retained as the estimate it is, and no exact cumulative total is asserted"
+  },
+  "ownership": {
+    "shared_overlap_checked_first": "W197661's live candidate is instance-200564/* plus tests/manager/test_w197661_verifier.py and tests/manager/test_importing_fixture.py; none is touched here and its suites run green against this tree",
+    "not_edited": "every reviewer-owned review and REVIEW-EVIDENCE-*.json; every prior EVIDENCE-*.json; every earlier fixture episode"
+  },
+  "not_done": "no live model, provider call, network (the build and smoke run --network none), production action, recovery, resubmission, version-control mutation, direct coordination-store access, credential read, public log publication, or new permission gate",
+  "synthetic_state": "/tmp/w198667-claim201391; the reviewer's /tmp/w198667-review201318-vw8gtvid and /tmp/w198667-review201212-8kqb_hpw are untouched"
+}

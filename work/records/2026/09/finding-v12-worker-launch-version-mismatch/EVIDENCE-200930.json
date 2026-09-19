@@ -1,0 +1,105 @@
+{
+  "work": "W197661",
+  "claim": 200930,
+  "author": "baton.claude",
+  "disposition": "RETURNED INCOMPLETE — the two corrections and the R1b/R3 verifier are done; the integrating workload and report-and-hold are not",
+  "answering": {
+    "review": "review-2026-09-18T06-19-15Z.md",
+    "sha256": "5d8b85c945bd71c554a4d270dab7af0d23e7147bbfc60820a0d9eabb44bf0d8a",
+    "review_evidence": "REVIEW-EVIDENCE-200867.json",
+    "review_evidence_sha256": "cbbd5de0b4afb724d99c69a193a146742ddd976972b10662624efdeded425123",
+    "accepted_by_that_review": "R2 recovery containment at manager.py cc0439946a... and test_ending.py e1f4c19596...; the R1a withdrawal; the producer's required-command evidence"
+  },
+  "candidate": {
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/verify_lifecycle.py": "02fb9dbeb7788c315c7313f3f3036fcce2928571b8835b7b070e96cca510ee83",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/compose_lifecycle.py": "e86fa1ae2714c943b959f78e78c987d9fde77f02a5e970952267e82c06bc86e2",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/EXPECTED.json": "b4899bd54c91dd58f758fbaf5a6894241ee50e3402a2dd22bdce8232c3f59133",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/PROVENANCE-clean.json": "45a7f91c846e1b3e7eb4a4b4d82b8b234542a0b08da27c508955234ed1f64070",
+    "v12/python/tests/manager/test_w197661_verifier.py": "9c0349e4f4e65de1ad3acfd69ff83495c6923a612f06b66801961dbb98f496b8"
+  },
+  "corrected_a_false_claim_of_mine": {
+    "what_I_wrote": "main REFUSES if the Authority does not end up where this said it would",
+    "why_it_was_false": "policy_pin reads the generation and adds an observed bump; main composes documents and does not bootstrap, so nothing compared the prediction against the result. A manual post-check I performed and reported is not an executable gate.",
+    "corrected_by": [
+      "BOOTSTRAP_POLICY_BUMP is labelled an observation of this tree, seen twice, explicitly not a bootstrap contract",
+      "policy_pin says it only PROPOSES a pin",
+      "check_policy_pin compares the pin the emitted configuration carries against the generation the Authority is at, both read when it runs",
+      "the verifier calls it and treats the answer as a required check",
+      "a fixture drives a WRONG PREDICTION through the predicate and proves the refusal"
+    ],
+    "weakens_nothing": "_accepted_receipts still requires equality when receipts are issued; this only refuses to call a deployment ready when that equality is already known to be false"
+  },
+  "provenance_clarification": {
+    "file": "instance-200564/PROVENANCE-clean.json",
+    "measured": {
+      "job_input_manifest_digest_as_submitted": "sha256:d4cd8ad2dab14d958adec490f72e140457c853936337eec8f254e1c385e33d23",
+      "job_input_manifest_digest_as_currently_composed": "sha256:d4cd8ad2dab14d958adec490f72e140457c853936337eec8f254e1c385e33d23",
+      "equal": true,
+      "the_one_member_that_changed": {"member": "policy_generation", "before": 1, "after": 23,
+                                      "where": ["bootstrap_inputs.json", "deployment.json"]},
+      "serving_initializations_in_the_log": 3,
+      "pin_refusals_recorded": ["the deployment pins approval policy generation 1 and the Authority is at 9"]
+    },
+    "the_corrected_statement": "installed once, submitted once against a sealed input manifest that never changed, capacity bootstrapped twice with exactly one configuration member differing; later policy activity at a destination is NOT evidence that a Job's sealed input drifted",
+    "also_carries": "the reproducible run instructions, including the root-creation step install does not perform"
+  },
+  "R1b_R3_verifier": {
+    "replaces": "instance-200254/verify_lifecycle.py, whose bytes are untouched",
+    "design": "the predicates are PURE FUNCTIONS over a closed observed document, so negative fixtures are possible without a live run; main is a thin shell that fetches",
+    "corrections": [
+      "canonical status through the installed command WITH --control, and canonical is a required check",
+      "the accepted verdict's disposition AND that it names this episode's review attempt",
+      "an accepted integration checkpoint recording the declared base",
+      "the producer's frozen result completed and naming this Work",
+      "the Job's terminal held",
+      "custody BOUND to the implementation stage's attempt id rather than counted",
+      "Authority.open_readonly rather than open",
+      "an immutable EXPECTED.json sealed once; a reseal over an existing one is refused",
+      "a manifest binding symlinks by target and no longer skipping __pycache__",
+      "the measured post-bootstrap pin equality as a required check",
+      "a FRESH verification-<claim>.json that overwrites no history"
+    ],
+    "fixtures": {
+      "file": "v12/python/tests/manager/test_w197661_verifier.py",
+      "cases": 31,
+      "positive": "one successful shape accepted, plus a guard that it asserts a meaningful number of things",
+      "negative": "one per way a run can be wrong, each bending exactly one member of the successful shape"
+    },
+    "live_result": {
+      "file": "instance-200564/verification-200930.json",
+      "checks": 26, "held": 18, "failed": 8, "exit": 1,
+      "holding": "canonical projection, both completed stages, submission, terminal policy, candidate bytes, bound custody attempt, canonical target, Work, measured pin equality, and all five provenance bindings",
+      "failing": "the integration stage and the four record predicates, which is the truth; read_records answers 'unread' and says why rather than handing the predicates an empty document"
+    },
+    "a_defect_of_mine_the_run_caught": "main parsed an empty operand list when nobody passed one, so --seal typed at a terminal was silently dropped and the seal step ran a verification instead; fixed and noted at the site"
+  },
+  "not_done": {
+    "1_the_integrating_workload": {
+      "seam": "integration_entry.main(agent=...)",
+      "contract": "integration_workload.integrate: invoke_provider returns a closed document with ok; every scheduled path carries the approved candidate afterwards; the report at report_place claims imported with the assignment and bundle digests; the target's version-control metadata does not move",
+      "labelling_required": "a deterministic importer is a stand-in for a model-driven provider turn and must say so",
+      "also_needs": "an integration image variant carrying integration_entry.py, integration_contract.py, integration_workload.py and that agent"
+    },
+    "2_report_and_hold": "behind (1)",
+    "3_read_records": "answers 'unread' today and fails its four predicates honestly; wire it once a run produces records",
+    "4_policy_generation_product_finding": "open, and separate from this fixture's prediction"
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.542},
+      {"suite": "test_w197661_verifier + test_proposing_fixture + test_ending + test_exchange", "tests": 173, "result": "OK", "seconds": 0.762},
+      {"suite": "tests.tools.test_bootstrap", "tests": 125, "result": "OK", "seconds": 17.201},
+      {"suite": "W198667 shared tests.manager.test_attempt_logs", "tests": 163, "result": "OK", "seconds": 1.499},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "new_cases": 31,
+    "measured_seconds_this_claim": 1500,
+    "prior_spending": "preserved in EVIDENCE-197743 through EVIDENCE-200564 and the reviewers' own evidence; nothing recomputed or reattributed"
+  },
+  "live_work": "the verifier ran READ-ONLY against the retained clean destination and EXPECTED.json was sealed once. No engine, model, container, bootstrap, submission, production action, Authority opened for writing, image build or version-control mutation. Both destinations remain retained and stopped.",
+  "ownership": {
+    "not_edited": "every reviewer-owned review and REVIEW-EVIDENCE-*.json; every prior EVIDENCE-*.json; instance-200254 and its verifier; W198667's candidate paths, whose suite runs green against this tree"
+  }
+}

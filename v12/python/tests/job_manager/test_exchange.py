@@ -226,7 +226,7 @@ class AStartedContainerIsNotWorkInProgress(ExchangeCase):
     def test_the_status_schema_says_the_vocabulary_moved(self):
         self.assertEqual(status(self.jobs, self.acts,
                                 observed_at=NOW)["schema"],
-                         "baton.v12.job-status/5")
+                         "baton.v12.job-status/6")
 
 
 class AReaderWithNoExchangeStillTellsTheTruth(ExchangeCase):
@@ -574,6 +574,83 @@ class TheEndingIsLevelTriggeredToo(ExchangeCase):
                          "status is a read; it asks nobody to do anything")
 
 
+class ACHECKPOINTPROFILESOwnRefusalDoesNotEndTheLoop(ExchangeCase):
+    """W197661 c200000 measured this against the installed deployment.
+
+    `checkpoint_profiles.freeze` refused a dirty private line, and
+    `source_profiles.checkout.ProfileRefusal` is an `Exception` rather than a
+    `ContractRefusal` -- so it propagated out of `sweep` and ENDED `serve` with
+    a traceback. One unfreezable checkpoint stopped every Job that manager
+    served, and the deferral machinery that exists for exactly this cut point
+    never saw it.
+
+    INJECTED BY TYPE, not by reaching into a real profile: what is at issue is
+    which exception this loop treats as a condition.
+    """
+
+    def refusal(self):
+        from baton_v12.source_profiles.checkout import ProfileRefusal
+
+        return ProfileRefusal("a checkpoint freezes a clean committed "
+                              "candidate; the private line still has tracked "
+                              "or untracked worktree changes")
+
+    def test_the_sweep_SURVIVES_it(self):
+        self.answered()
+        self.acts.endings[STAGE] = self.refusal()
+        report = sweep(self.jobs, self.acts, now=SOON)
+        self.assertEqual([(one["act"], one["outcome"])
+                          for one in report["spoken"]],
+                         [("conclude", "deferred")])
+
+    def test_the_REASON_is_durable_and_names_the_type(self):
+        """An operator meets this in the projection, not in a log nobody
+        kept."""
+        self.answered()
+        self.acts.endings[STAGE] = self.refusal()
+        sweep(self.jobs, self.acts, now=SOON)
+        found = self.state()
+        held = found.get("deferral") or []
+        self.assertTrue(held, found)
+        self.assertEqual(held[0]["act"], "conclude")
+        self.assertIn("ProfileRefusal", held[0]["message"])
+        self.assertIn("clean committed candidate", held[0]["message"])
+
+    def test_it_is_ASKED_AGAIN_and_succeeds_once_the_line_is_clean(self):
+        """Level-triggered: the refusal is a condition, so the ending is still
+        owed."""
+        self.answered()
+        self.acts.endings[STAGE] = self.refusal()
+        sweep(self.jobs, self.acts, now=SOON)
+        self.acts.endings[STAGE] = {"disposition": "completed"}
+        report = sweep(self.jobs, self.acts, now=SOON)
+        self.assertEqual([(one["act"], one["outcome"])
+                          for one in report["spoken"]],
+                         [("conclude", "performed")])
+
+    def test_a_PROGRAMMING_ERROR_still_escapes(self):
+        """Not a catch-all. There is no record proving a programming error was
+        contained, and burying one as a transient per-stage condition is how it
+        never gets fixed."""
+        self.answered()
+        self.acts.endings[STAGE] = TypeError("this is a defect, not a "
+                                             "condition")
+        with self.assertRaises(TypeError):
+            sweep(self.jobs, self.acts, now=SOON)
+
+    def test_an_ORDINARY_refusal_keeps_its_own_category_and_code(self):
+        """Only the foreign type is translated; a ContractRefusal already says
+        what it is, and rewriting it would lose the reason."""
+        from baton_v12.contracts import ContractRefusal
+
+        self.answered()
+        self.acts.endings[STAGE] = ContractRefusal(
+            "refused", "capability", "this deployment has no such capability")
+        sweep(self.jobs, self.acts, now=SOON)
+        held = (self.state().get("deferral") or [])[0]
+        self.assertEqual(held["code"], "capability")
+
+
 class AnIntegrationStageOwesConcludeAndNeverDispatch(ExchangeCase):
     """W126558: what the sweep asks for, which is the point of the state.
 
@@ -646,8 +723,15 @@ class AnIntegrationStageOwesConcludeAndNeverDispatch(ExchangeCase):
                 self.observing(state)
                 if state == "completed":
                     held = self.acts.observations[self.STAGE_ID]
+                    # PRE-EXISTING (W197661 claim199391): this account omitted
+                    # `source_proposal_id` and `result_id`, which
+                    # `delegation.INTEGRATION_COMPLETION_MEMBERS` requires.
+                    # `result_id` is NULL because a reconciliation result id
+                    # means a reconciled import, which starts no runtime.
                     held["integration"]["completion"] = {
                         "proposal_id": "proposal-1",
+                        "source_proposal_id": "proposal-0",
+                        "result_id": None,
                         "integration_receipt_id": "receipt-1",
                         "entry_id": "entry-1", "lease_id": "lease-1",
                         "fence": 2,

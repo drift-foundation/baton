@@ -1,0 +1,798 @@
+{
+  "accepted": false,
+  "authority_uuid": "d8a042193ef54af182b1e3ee85240c5a",
+  "checks": [
+    {
+      "check": "the status projection is CANONICAL",
+      "detail": {
+        "canonical": true,
+        "why": "an unobserved projection answers canonical=false and says nothing about where a run stopped"
+      },
+      "held": true
+    },
+    {
+      "check": "the projection names this Job",
+      "detail": "w197661-lifecycle",
+      "held": true
+    },
+    {
+      "check": "it is the submission this episode recorded",
+      "detail": {
+        "found": "w197661-lifecycle-201492",
+        "kind": "identity",
+        "wanted": "w197661-lifecycle-201492",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "its terminal policy is report-and-hold",
+      "detail": {
+        "found": "report-and-hold",
+        "kind": "text",
+        "wanted": "report-and-hold",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "it has the three stages",
+      "detail": {
+        "found": [
+          "implementation",
+          "integration",
+          "review"
+        ],
+        "wanted": [
+          "implementation",
+          "integration",
+          "review"
+        ]
+      },
+      "held": true
+    },
+    {
+      "check": "the implementation stage COMPLETED",
+      "detail": {
+        "found": "completed",
+        "kind": "text",
+        "wanted": "completed",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the implementation stage names an attempt",
+      "detail": {
+        "found": "attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the review stage COMPLETED",
+      "detail": {
+        "found": "completed",
+        "kind": "text",
+        "wanted": "completed",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the review stage names an attempt",
+      "detail": {
+        "found": "attempt-48f0f791e9f0ad9a663deec310cc55a2fe15944272ff8b10ece2043d4e289df8",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the integration stage COMPLETED",
+      "detail": {
+        "found": "completed",
+        "kind": "text",
+        "wanted": "completed",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the integration stage names an attempt",
+      "detail": {
+        "found": "attempt-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the verdict record was READ",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the checkpoint record was READ",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the result record was READ",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the terminal record was READ",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "a review verdict was ACCEPTED",
+      "detail": {
+        "found": "accepted",
+        "kind": "text",
+        "wanted": "accepted",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the accepted verdict names this episode's review attempt",
+      "detail": {
+        "found": "attempt-48f0f791e9f0ad9a663deec310cc55a2fe15944272ff8b10ece2043d4e289df8",
+        "kind": "identity",
+        "wanted": "attempt-48f0f791e9f0ad9a663deec310cc55a2fe15944272ff8b10ece2043d4e289df8",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the verdict names this Work",
+      "detail": {
+        "found": "d8a04219-W1",
+        "kind": "identity",
+        "wanted": "d8a04219-W1",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "an integration CHECKPOINT was accepted",
+      "detail": {
+        "found": "checkpoint-dad6541e6848f1bb605088bfb8c406e4949d3c0164fe23d1ffac349cfe6b8ac3",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the accepted checkpoint is the one the verdict names",
+      "detail": {
+        "found": "checkpoint-dad6541e6848f1bb605088bfb8c406e4949d3c0164fe23d1ffac349cfe6b8ac3",
+        "kind": "identity",
+        "wanted": "checkpoint-dad6541e6848f1bb605088bfb8c406e4949d3c0164fe23d1ffac349cfe6b8ac3",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the checkpoint records the declared base",
+      "detail": {
+        "found": "e486652c4ddebfb696e030b4b867e914248db542",
+        "kind": "identity",
+        "wanted": "e486652c4ddebfb696e030b4b867e914248db542",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the checkpoint holds the candidate path",
+      "detail": {
+        "found": [
+          "w197661-fixture.txt"
+        ],
+        "kind": "list",
+        "wanted": [
+          "w197661-fixture.txt"
+        ],
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the producer's frozen RESULT is completed",
+      "detail": {
+        "found": "completed",
+        "kind": "text",
+        "wanted": "completed",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the frozen result names this Work",
+      "detail": {
+        "found": "d8a04219-W1",
+        "kind": "identity",
+        "wanted": "d8a04219-W1",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the frozen result is THIS implementation attempt's",
+      "detail": {
+        "found": "attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+        "kind": "identity",
+        "wanted": "attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the integration account reached its COMPLETED state",
+      "detail": {
+        "found": "completed",
+        "kind": "text",
+        "wanted": "completed",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "and `held` is not mistaken for that",
+      "detail": {
+        "state": "completed",
+        "why": "the ordinary account writes held for a held queue entry or an ending that was not answered; it is a hold rather than a successful terminal"
+      },
+      "held": true
+    },
+    {
+      "check": "the opener this read went through is REPORTED",
+      "detail": {
+        "opener": "baton_v12.job_manager.JobStore.open",
+        "why": "a write-capable opener described as read-only is the defect; naming it is the honest interim"
+      },
+      "held": true
+    },
+    {
+      "check": "an absent store is refused BEFORE the write-capable opener",
+      "detail": "an absent store is refused before the opener runs",
+      "held": true
+    },
+    {
+      "check": "this read moved no byte of the store's DATA",
+      "detail": {
+        "after": "43f1bb04b752391b5cd0157ede55ad4b759bf5971214573e35fabe2ee5f4d3ab",
+        "before": "43f1bb04b752391b5cd0157ede55ad4b759bf5971214573e35fabe2ee5f4d3ab",
+        "why": "an empirical measurement over an existing store, NOT a substitute for the capability the opener lacks"
+      },
+      "held": true
+    },
+    {
+      "check": "the read left NO new file beside the store",
+      "detail": {
+        "after": {
+          "-shm": null,
+          "-wal": null,
+          "main": "43f1bb04b752391b5cd0157ede55ad4b759bf5971214573e35fabe2ee5f4d3ab"
+        },
+        "before": {
+          "-shm": null,
+          "-wal": null,
+          "main": "43f1bb04b752391b5cd0157ede55ad4b759bf5971214573e35fabe2ee5f4d3ab"
+        },
+        "bounded_resolution": "add JobStore.open_readonly(path, *, authority_uuid, incarnation, clock) mirroring baton_v12/worker_manager/store.py:323 ControlStore.open_readonly -- a mode=ro URI, a refusal for a path that is not an existing regular file, a refusal for an empty store rather than initializing it, adopt-verify without migrating, no WAL request, and no write-capable fallback on a read failure. NOT added here: this is product API and review201853 [R2] requires the gap and its resolution to be recorded for authorization first.",
+        "created": [],
+        "why": "review201853 [R2]: the Job store has no read-only opener in this tree, so the outer handle requests WAL; this is that capability gap OBSERVED rather than merely argued from the source"
+      },
+      "held": true
+    },
+    {
+      "check": "the observation is the integration-stage-observation contract",
+      "detail": {
+        "found": "baton.v12.integration-stage-observation/1",
+        "kind": "identity",
+        "wanted": "baton.v12.integration-stage-observation/1",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the observation names THIS stage",
+      "detail": {
+        "found": "w197661-lifecycle/integration",
+        "kind": "identity",
+        "wanted": "w197661-lifecycle/integration",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the observed attempt is the stage's attempt",
+      "detail": {
+        "found": "attempt-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+        "kind": "identity",
+        "wanted": "attempt-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the observed offer is the stage's offer",
+      "detail": {
+        "found": "offer-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+        "kind": "identity",
+        "wanted": "offer-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the observed episode is a typed episode number",
+      "detail": {
+        "episode": 1,
+        "why": "a missing episode, a boolean or a string is not an episode; review201853 accepted all three"
+      },
+      "held": true
+    },
+    {
+      "check": "the observed episode IS the stage's selected episode",
+      "detail": {
+        "found": 1,
+        "kind": "count",
+        "wanted": 1,
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "this proof's integration ran ONE episode",
+      "detail": {
+        "found": 1,
+        "kind": "count",
+        "wanted": 1,
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "and the projection agrees it ran one",
+      "detail": {
+        "found": 1,
+        "kind": "count",
+        "wanted": 1,
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the observed assignment names this Authority",
+      "detail": {
+        "found": "d8a042193ef54af182b1e3ee85240c5a",
+        "kind": "identity",
+        "wanted": "d8a042193ef54af182b1e3ee85240c5a",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the observed assignment names this Work",
+      "detail": {
+        "found": "d8a04219-W1",
+        "kind": "identity",
+        "wanted": "d8a04219-W1",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the completion names its proposal_id",
+      "detail": {
+        "found": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the completion names its integration_receipt_id",
+      "detail": {
+        "found": "integration-driver.integration-receipt:6b6e9ed149fb80158be709489f0e8d316f55cc3616db4cb06dc6b5a0a062d0a1",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the completion names its entry_id",
+      "detail": {
+        "found": "integration-driver.entry:7a0af3af3d985df7c5ff66985829d0281c53e07ef59d8cb1dea1bb27dd16ed79",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the completion names its lease_id",
+      "detail": {
+        "found": "integration-driver.lease:ced30a7e115d83f0be959e0691b5f61ce276d8493e5def7fb71a14d8c60b3300",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the completion names its handoff_operation_id",
+      "detail": {
+        "found": "integration-pass:attempt-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the completion names its runtime_id",
+      "detail": {
+        "found": "cb62f302d67f34c36e2c109af49433952e32762d0dc95f3ee3ab67d9c4e4bc8d",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the completion's fence is this episode's",
+      "detail": {
+        "found": 1,
+        "kind": "count",
+        "wanted": 1,
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the completion routes to integration",
+      "detail": {
+        "found": "integration",
+        "kind": "identity",
+        "wanted": "integration",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the completion's execution runtime is quiescent",
+      "detail": {
+        "found": "quiescent",
+        "kind": "identity",
+        "wanted": "quiescent",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the completion's source proposal IS its proposal",
+      "detail": {
+        "found": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+        "kind": "identity",
+        "wanted": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the owned proposal was READ",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the owned proposal is the one the completion names",
+      "detail": {
+        "found": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+        "kind": "identity",
+        "wanted": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the owned proposal was made FROM the declared base",
+      "detail": {
+        "found": "e486652c4ddebfb696e030b4b867e914248db542",
+        "kind": "identity",
+        "wanted": "e486652c4ddebfb696e030b4b867e914248db542",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the owned proposal names this Work",
+      "detail": {
+        "found": "d8a04219-W1",
+        "kind": "identity",
+        "wanted": "d8a04219-W1",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the owned proposal names this Authority",
+      "detail": {
+        "found": "d8a042193ef54af182b1e3ee85240c5a",
+        "kind": "identity",
+        "wanted": "d8a042193ef54af182b1e3ee85240c5a",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "its Authority is the one the OBSERVATION names",
+      "detail": {
+        "found": "d8a042193ef54af182b1e3ee85240c5a",
+        "kind": "identity",
+        "wanted": "d8a042193ef54af182b1e3ee85240c5a",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the owned proposal is THIS episode's frozen result",
+      "detail": {
+        "found": "result-attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+        "kind": "identity",
+        "wanted": "result-attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the owned proposal produced a candidate revision",
+      "detail": {
+        "found": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+        "kind": "identity"
+      },
+      "held": true
+    },
+    {
+      "check": "the canonical target IS the revision this proposal produced",
+      "detail": {
+        "found": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+        "kind": "identity",
+        "wanted": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "and the target actually ADVANCED from the base",
+      "detail": {
+        "base": "e486652c4ddebfb696e030b4b867e914248db542",
+        "candidate": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+        "why": "a completed import advances the target, so base equality is wrong after completion; ancestry alone is too weak because an unrelated later descendant satisfies it"
+      },
+      "held": true
+    },
+    {
+      "check": "the integration receipt is the completion's",
+      "detail": {
+        "found": "integration-driver.integration-receipt:6b6e9ed149fb80158be709489f0e8d316f55cc3616db4cb06dc6b5a0a062d0a1",
+        "kind": "identity",
+        "wanted": "integration-driver.integration-receipt:6b6e9ed149fb80158be709489f0e8d316f55cc3616db4cb06dc6b5a0a062d0a1",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the receipt settles the owned proposal",
+      "detail": {
+        "found": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+        "kind": "identity",
+        "wanted": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the receipt's disposition is INTEGRATED",
+      "detail": {
+        "found": "integrated",
+        "kind": "identity",
+        "wanted": "integrated",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the receipt settled the same candidate",
+      "detail": {
+        "found": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+        "kind": "identity",
+        "wanted": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the receipt names the declared base as its target",
+      "detail": {
+        "found": "e486652c4ddebfb696e030b4b867e914248db542",
+        "kind": "identity",
+        "wanted": "e486652c4ddebfb696e030b4b867e914248db542",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the candidate file carries exactly the declared bytes",
+      "detail": {
+        "found": "w197661 deterministic fixture candidate\n",
+        "kind": "text",
+        "wanted": "w197661 deterministic fixture candidate\n",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "custody holds THIS implementation attempt",
+      "detail": {
+        "found": "attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+        "kind": "identity",
+        "wanted": "attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the Authority answers a well-formed canonical target",
+      "detail": {
+        "canonical_target": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+        "why": "base equality is wrong after a completed import; the owned base->result->target chain above is what proves whose revision this is"
+      },
+      "held": true
+    },
+    {
+      "check": "the Job's Work exists on this Authority",
+      "detail": "d8a04219-W1",
+      "held": true
+    },
+    {
+      "check": "the configured approval pin EQUALS the Authority's generation",
+      "detail": {
+        "authority_generation": 10,
+        "configured_pin": 9,
+        "not_established_here": "which event moved the generation, and whether a resume would in fact defer; neither was reproduced, so neither is claimed",
+        "observed": "a POST-RUN mismatch between the configured pin and the Authority's current generation",
+        "why_it_is_still_checked": "integration.driver._accepted_receipts compares these, so a mismatch is a real difference between what this deployment is configured for and what its Authority now answers"
+      },
+      "held": false
+    },
+    {
+      "check": "the integration receipt was accepted under the configured pin",
+      "detail": {
+        "found": 9,
+        "kind": "count",
+        "wanted": 9,
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "an immutable expected manifest is SEALED",
+      "detail": "EXPECTED.json",
+      "held": true
+    },
+    {
+      "check": "the image matches the sealed expectation",
+      "detail": {
+        "found": "sha256:92639d1e10c3d6c435ad58ba78c6fd696cccb8cd2cc115ebc6ce0fa06c1ad13e",
+        "kind": "identity",
+        "wanted": "sha256:92639d1e10c3d6c435ad58ba78c6fd696cccb8cd2cc115ebc6ce0fa06c1ad13e",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the image_inputs matches the sealed expectation",
+      "detail": {
+        "found": {
+          "python/src/baton_v12/source_profiles": "sha256:0d7b71ee28cb6fd43314fcec6c0c18f0bf203db1e7a808b479a8e0919b0afca0",
+          "worker/attempt_log_format.py": "sha256:8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+          "worker/baton_worker.py": "sha256:56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+          "worker/claude_agent.py": "sha256:cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+          "worker/fixture_entry.py": "sha256:b3b2e731c42deea6f2122d68a31d00691521b8297e18edf4d635ab909363de5f",
+          "worker/importing_agent.py": "sha256:6e01c65b2e485a94e332af51df8e16676325d333cb5b2912638836aebf34da17",
+          "worker/importing_entry.py": "sha256:c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1",
+          "worker/integration_contract.py": "sha256:12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+          "worker/integration_entry.py": "sha256:edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e",
+          "worker/integration_workload.py": "sha256:001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+          "worker/proposing_agent.py": "sha256:a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd",
+          "worker/proposing_entry.py": "sha256:0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760",
+          "worker/worker-control-1.0.schema.json": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+        },
+        "kind": "manifest",
+        "wanted": {
+          "python/src/baton_v12/source_profiles": "sha256:0d7b71ee28cb6fd43314fcec6c0c18f0bf203db1e7a808b479a8e0919b0afca0",
+          "worker/attempt_log_format.py": "sha256:8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+          "worker/baton_worker.py": "sha256:56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+          "worker/claude_agent.py": "sha256:cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+          "worker/fixture_entry.py": "sha256:b3b2e731c42deea6f2122d68a31d00691521b8297e18edf4d635ab909363de5f",
+          "worker/importing_agent.py": "sha256:6e01c65b2e485a94e332af51df8e16676325d333cb5b2912638836aebf34da17",
+          "worker/importing_entry.py": "sha256:c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1",
+          "worker/integration_contract.py": "sha256:12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+          "worker/integration_entry.py": "sha256:edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e",
+          "worker/integration_workload.py": "sha256:001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+          "worker/proposing_agent.py": "sha256:a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd",
+          "worker/proposing_entry.py": "sha256:0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760",
+          "worker/worker-control-1.0.schema.json": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+        },
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the built_runtime matches the sealed expectation",
+      "detail": {
+        "found": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59",
+        "kind": "digest",
+        "wanted": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the installed_runtime matches the sealed expectation",
+      "detail": {
+        "found": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59",
+        "kind": "digest",
+        "wanted": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59",
+        "well_formed": true
+      },
+      "held": true
+    },
+    {
+      "check": "the configuration matches the sealed expectation",
+      "detail": {
+        "found": "sha256:e04f41354d9d01f377d5636d2ffa6093c1ff3e84ccdefc6d91b3b499544bdc42",
+        "kind": "digest",
+        "wanted": "sha256:e04f41354d9d01f377d5636d2ffa6093c1ff3e84ccdefc6d91b3b499544bdc42",
+        "well_formed": true
+      },
+      "held": true
+    }
+  ],
+  "claim": "201869-b",
+  "destination": "/home/sl/baton-v12-lifecycle-201492-run4",
+  "failed": [
+    "the configured approval pin EQUALS the Authority's generation"
+  ],
+  "job_id": "w197661-lifecycle",
+  "measured": {
+    "built_runtime": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59",
+    "configuration": "sha256:e04f41354d9d01f377d5636d2ffa6093c1ff3e84ccdefc6d91b3b499544bdc42",
+    "image": "sha256:92639d1e10c3d6c435ad58ba78c6fd696cccb8cd2cc115ebc6ce0fa06c1ad13e",
+    "image_inputs": {
+      "python/src/baton_v12/source_profiles": "sha256:0d7b71ee28cb6fd43314fcec6c0c18f0bf203db1e7a808b479a8e0919b0afca0",
+      "worker/attempt_log_format.py": "sha256:8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+      "worker/baton_worker.py": "sha256:56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+      "worker/claude_agent.py": "sha256:cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+      "worker/fixture_entry.py": "sha256:b3b2e731c42deea6f2122d68a31d00691521b8297e18edf4d635ab909363de5f",
+      "worker/importing_agent.py": "sha256:6e01c65b2e485a94e332af51df8e16676325d333cb5b2912638836aebf34da17",
+      "worker/importing_entry.py": "sha256:c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1",
+      "worker/integration_contract.py": "sha256:12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+      "worker/integration_entry.py": "sha256:edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e",
+      "worker/integration_workload.py": "sha256:001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+      "worker/proposing_agent.py": "sha256:a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd",
+      "worker/proposing_entry.py": "sha256:0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760",
+      "worker/worker-control-1.0.schema.json": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    "installed_runtime": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59"
+  },
+  "observation_gap": {
+    "explains_the_gap": true,
+    "factory": "tools.stage_execution:observing_factory",
+    "only_difference": "the --observe operand and the configuration it requires; store, incarnation, authority and control store are identical",
+    "with_observe": "completed",
+    "without_observe": "starting"
+  },
+  "pin": {
+    "authority_generation": 10,
+    "configured_pin": 9,
+    "equal": false,
+    "why_it_matters": "integration.driver._accepted_receipts refuses unless these are equal, and a deployment that cannot satisfy its own pin defers at its integration with the reason only in a tick report"
+  },
+  "schema": "baton.w197661.verification/2",
+  "submission_id": "w197661-lifecycle-201492",
+  "work_id": "d8a04219-W1"
+}

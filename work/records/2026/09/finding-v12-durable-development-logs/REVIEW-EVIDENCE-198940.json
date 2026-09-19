@@ -1,0 +1,38 @@
+{
+  "claim": 198940,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true,
+    "v12/python/src/baton_v12/worker_manager/oci.py": true,
+    "v12/python/tests/manager/test_oci.py": true,
+    "v12/python/tests/manager/test_dependencies.py": true,
+    "v12/worker/integration_entry.py": true,
+    "v12/python/tests/manager/test_integration_worker.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "output": ".............................\n----------------------------------------------------------------------\nRan 29 tests in 0.065s\n\nOK\n",
+    "seconds": 0.2185973390005529
+  },
+  "retained_probe_path": "/tmp/w198667-review198940-gvpod8q6",
+  "malformed_status_exception": "TypeError: 'int' object is not iterable",
+  "linked_status": {
+    "stream": "provider.stdout",
+    "state": "captured",
+    "bytes": 6,
+    "why": "the writer saw this stream to its end",
+    "file": "present",
+    "from_byte": 0,
+    "bytes_read": 6,
+    "text": "prefix",
+    "at_end": true
+  },
+  "staging_overwrote_sibling": true,
+  "concurrent_status": {
+    "provider.stdout": {
+      "declared": "partial",
+      "why": "the drain ended on its own clock rather than at end of file, so this is a prefix of the stream rather than the stream"
+    }
+  },
+  "concurrent_errors": []
+}

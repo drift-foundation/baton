@@ -1,0 +1,13 @@
+refused: manager did not stay up (gone). Its log says:
+      File "stack_command.py", line 243, in <module>
+      File "stack_command.py", line 239, in main
+      File "stack_command.py", line 82, in _manager
+      File "tools/job_manager.py", line 485, in main
+      File "tools/job_manager.py", line 367, in _serve
+      File "tools/job_manager.py", line 316, in _operations_from
+      File "tools/stage_execution.py", line 6096, in factory
+      File "tools/stage_execution.py", line 5803, in operations_from
+      File "tools/stage_execution.py", line 263, in _refuse_unconfigured
+      File "tools/stage_execution.py", line 388, in _refuse
+    baton_v12.contracts.errors.ContractRefusal: this deployment configures no execution capacity and this instance holds work it could not serve, so it refuses at startup rather than reporting an idle stack: 1 Job(s) in the Job store (w197661-fixture-lifecycle). Nothing was expired, abandoned, repaired or executed -- configure the workers this work needs, or point this instance at its own stores.
+    [PYI-499382:ERROR] Failed to execute script 'stack_command' due to unhandled exception!

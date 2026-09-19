@@ -1,0 +1,39 @@
+{
+  "claim": 197850,
+  "hashes": {
+    "v12/worker/baton_worker.py": {
+      "expected": "dcd35334ce1de5ed992569e46e8714f6614182a8f880a34d3f68557b5b77398f",
+      "actual": "dcd35334ce1de5ed992569e46e8714f6614182a8f880a34d3f68557b5b77398f"
+    },
+    "v12/python/tests/manager/test_worker_entry.py": {
+      "expected": "af383ee96dc1f6b7e4103ee8ca40d3b17818d0f19b51ad9315a4d0673898415a",
+      "actual": "af383ee96dc1f6b7e4103ee8ca40d3b17818d0f19b51ad9315a4d0673898415a"
+    },
+    "v12/python/tests/manager/test_exchange.py": {
+      "expected": "2888f570b6268daeb323674e5b55492fa7a4ae881b2393bf7011307a26f1928e",
+      "actual": "2888f570b6268daeb323674e5b55492fa7a4ae881b2393bf7011307a26f1928e"
+    },
+    "v12/python/tests/manager/test_worker_container.py": {
+      "expected": "340a51a033a5de8a47ae16d32c5a03154042a76f3850c9bcb51e527ffe14a957",
+      "actual": "340a51a033a5de8a47ae16d32c5a03154042a76f3850c9bcb51e527ffe14a957"
+    },
+    "v12/python/tests/tools/test_execution_limits.py": {
+      "expected": "2a8f724cd636b7579a854b2a0b403a708765a658f88af409db92d0852511c27c",
+      "actual": "2a8f724cd636b7579a854b2a0b403a708765a658f88af409db92d0852511c27c"
+    }
+  },
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_worker_entry",
+    "tests.manager.test_exchange",
+    "tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion",
+    "tests.manager.test_oci.AbsenceIsProvedRatherThanInferred"
+  ],
+  "returncode": 0,
+  "wall_seconds": 0.6543339140480384,
+  "stdout": "",
+  "stderr": "......../usr/lib/python3.13/unittest/case.py:253: ResourceWarning: unclosed file <_io.FileIO name=3 mode='rb' closefd=True>\n  def __exit__(self, exc_type, exc_value, tb):\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n.............................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 229 tests in 0.449s\n\nOK\n",
+  "scope": "local deterministic only; no image build or runtime operations"
+}

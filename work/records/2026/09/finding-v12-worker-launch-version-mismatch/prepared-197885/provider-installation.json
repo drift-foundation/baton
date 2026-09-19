@@ -1,0 +1,37 @@
+{
+  "files": {
+    "/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe": {
+      "bytes": 250162696,
+      "mode": 493,
+      "owner_copy": "/tmp/w71879-148768-provider-claude.exe",
+      "sha256": "sha256:5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15"
+    },
+    "/usr/local/lib/node_modules/@anthropic-ai/claude-code/cli-wrapper.cjs": {
+      "bytes": 4997,
+      "mode": 420,
+      "owner_copy": "/tmp/w71879-148768-provider-cli-wrapper.cjs",
+      "sha256": "sha256:61ad63033d9c8155d5e60a29f45dc4665afa07631c0b108e62cc83bf45ba490e"
+    },
+    "/usr/local/lib/node_modules/@anthropic-ai/claude-code/install.cjs": {
+      "bytes": 7196,
+      "mode": 420,
+      "owner_copy": "/tmp/w71879-148768-provider-install.cjs",
+      "sha256": "sha256:5cbab1670597f492cd4eeb946f3c344ebcb1fbd43c623ba192c9b33744461b85"
+    },
+    "/usr/local/lib/node_modules/@anthropic-ai/claude-code/package.json": {
+      "bytes": 1476,
+      "mode": 420,
+      "owner_copy": "/tmp/w71879-148686-provider-package.json",
+      "sha256": "sha256:204e690591b935992fff95f6d2af6aeac86be074719da7900f1c4e4056f37efe"
+    }
+  },
+  "immutable_base": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "owner_copy_events": [
+    148760,
+    148865
+  ],
+  "review": "review-2026-09-12T02-08-32Z.md",
+  "source_container": "a2b00b62bdbb3f413b6e4e9539cf71190b237430a8856367567315b4f98ef5af",
+  "source_image": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+  "version": "2.1.247"
+}

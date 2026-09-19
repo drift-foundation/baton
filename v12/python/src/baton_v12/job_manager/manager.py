@@ -28,6 +28,13 @@ than provenance.
 import json
 
 from ..contracts import ContractRefusal
+from ..source_profiles.checkout import ProfileRefusal
+
+# THE REFUSAL TYPES THIS LOOP TREATS AS CONDITIONS, named once. `ProfileRefusal`
+# is the checkpoint profile's own and is an `Exception`, not a
+# `ContractRefusal`; W197661 measured it escaping `serve` entirely. Everything
+# NOT in this tuple still escapes, which is the point of writing it down.
+_CHECKPOINT_REFUSAL = (ContractRefusal, ProfileRefusal)
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from ..worker_manager import events
@@ -217,7 +224,22 @@ def _converse(store, operations, held):
             performed = (operations.dispatch(attempt, job)
                          if act == "dispatch"
                          else operations.conclude(attempt, job))
-        except ContractRefusal as refusal:
+        except _CHECKPOINT_REFUSAL as refusal:
+            # A CHECKPOINT PROFILE'S OWN REFUSAL IS A CONDITION TOO, and it
+            # reaches here as its own type. W197661 c200000 measured this:
+            # `checkpoint_profiles.freeze` refused a dirty private line, and
+            # `source_profiles.checkout.ProfileRefusal` is an `Exception`
+            # rather than a `ContractRefusal` -- so it escaped this loop and
+            # ENDED `serve`. One unfreezable checkpoint stopped every Job that
+            # manager served, and the deferral machinery that exists for
+            # exactly this cut point never saw it.
+            #
+            # NAMED, NOT SWALLOWED. Only this one declared refusal type joins
+            # `ContractRefusal` here. A programming error still escapes, for
+            # the reason the docstring above gives: there is no record proving
+            # it was contained, and burying one as a transient per-stage
+            # condition is how it never gets fixed.
+            refusal = _as_condition(refusal)
             # EVERY REFUSAL HERE IS A CONDITION AND NOT AN ENDING, DURABLE OR
             # NOT, and the difference from `_launch` is a fact about who owns
             # the record. A durable launch refusal that nobody journalled would
@@ -227,17 +249,83 @@ def _converse(store, operations, held):
             # next projection reads them through the observation this leaf
             # already takes. There is no state this pass could leave that the
             # exchange and the canonical readers do not already describe.
+            # W197661 review 2026-09-18T02-59-56Z [R1]: AND THE REASON IS
+            # DURABLE HERE TOO. I wired `_defer` into `_delegate` only, whose
+            # acts are `admit` and `claim` -- and the defect the owner selected
+            # this visibility FOR is a deferred `conclude`, which is this path.
+            # So the probe still found `answering` with `deferral: null` for
+            # the exact attempt whose finalization was blocked.
+            #
+            # NOTHING ELSE ABOUT THIS PASS CHANGES. The ruling above still
+            # holds: no receipt is written here, because the substeps are
+            # journalled by their own owners. A deferral is not a receipt --
+            # it is why an act this leaf owes has not happened yet.
+            reason = {"category": refusal.category, "code": refusal.code,
+                      "message": refusal.message}
             spoken.append(documents.stage_exchange(
                 stage_id=stage_id, episode=attempt["episode"],
                 attempt_id=attempt["attempt_id"], act=act, outcome="deferred",
-                detail={"category": refusal.category, "code": refusal.code,
-                        "message": refusal.message}))
+                detail=dict(reason, **_noted(
+                    _defer(store, _owed_of(attempt, act), reason)))))
             continue
         spoken.append(documents.stage_exchange(
             stage_id=stage_id, episode=attempt["episode"],
             attempt_id=attempt["attempt_id"], act=act, outcome="performed",
-            detail=performed if type(performed) is dict else None))
+            detail=_settled(performed,
+                            _resolve(store, _owed_of(attempt, act)))))
     return spoken
+
+
+def _as_condition(refusal):
+    """One declared refusal, as the `ContractRefusal` a deferral is written from.
+
+    NAMED, NOT SWALLOWED, and named in ONE place. `_CHECKPOINT_REFUSAL` is the
+    closed pair this loop treats as conditions; a `ProfileRefusal` carries no
+    category or code of its own, so it is translated into the vocabulary the
+    deferral axis is written in, with its own type name kept in the message
+    because that is what tells an operator which leaf refused.
+
+    AN ORDINARY `ContractRefusal` IS RETURNED UNTOUCHED: it already says what
+    it is, and rewriting its category would lose the reason.
+
+    W197661 review 2026-09-18T05-14-53Z [R2]: this was written inline on the
+    live path and simply absent on the recovered one. Two copies of a rule is
+    how the second one is forgotten, so there is one.
+    """
+    if isinstance(refusal, ContractRefusal):
+        return refusal
+    return ContractRefusal("refused", "precondition",
+                           f"{type(refusal).__name__}: {refusal}")
+
+
+def _owed_of(attempt, act):
+    """One owed act, in the shape `_defer` and `_resolve` read.
+
+    The exchange passes an ATTEMPT and the delegated path passes an OWED act;
+    both name the same three things, and composing the shape here keeps one
+    reader rather than two.
+    """
+    return {"stage_id": attempt["stage_id"], "episode": attempt["episode"],
+            "act": act, "attempt_id": attempt["attempt_id"]}
+
+
+def _noted(answer):
+    """An evidence outcome, carried only when it has something to say.
+
+    A deferral that recorded normally adds nothing to the report: the report
+    is about the ACT, and a line saying the note was filed would be noise on
+    every tick. A failure to record is the exception, and it travels.
+    """
+    return {} if answer is None or answer.get("recorded") else {
+        "evidence": answer}
+
+
+def _settled(performed, cleared):
+    """A performed act's own detail, plus a failed clear if there was one."""
+    detail = performed if type(performed) is dict else None
+    if cleared is not None and not cleared.get("cleared"):
+        return dict(detail or {}, evidence=cleared)
+    return detail
 
 
 def _recover_endings(store, operations, spoken):
@@ -283,19 +371,39 @@ def _recover_endings(store, operations, spoken):
         job = submission.job_of(store, intent["job_id"])
         try:
             performed = operations.conclude(attempt, job)
-        except ContractRefusal as refusal:
+        except _CHECKPOINT_REFUSAL as refusal:
+            # THE SAME TWO TYPES, because this is the same act. W197661 review
+            # 2026-09-18T05-14-53Z [R2]: the live path learned that a
+            # checkpoint profile refuses in its OWN type and this one did not,
+            # so a `ProfileRefusal` raised by a RESUMED `conclude` escaped the
+            # sweep and ended `serve` -- the very failure the live-path fix was
+            # for, still reachable by the restart path it is most likely to be
+            # met on. A containment boundary that holds for one caller of an
+            # act and not the other is not a boundary.
+            refusal = _as_condition(refusal)
+            # AND HERE, which is the path the review names explicitly: this
+            # services an ending registered by a PRIOR episode, so its reason
+            # has to be attributable to that episode rather than to the live
+            # one. `projection.deferral_of` reads both.
+            reason = {"category": refusal.category, "code": refusal.code,
+                      "message": refusal.message}
+            owed = {"stage_id": intent["stage_id"],
+                    "episode": intent["episode"], "act": "conclude",
+                    "attempt_id": intent["attempt_id"]}
             resumed.append(documents.stage_exchange(
                 stage_id=intent["stage_id"], episode=intent["episode"],
                 attempt_id=intent["attempt_id"], act="conclude",
                 outcome="deferred",
-                detail={"category": refusal.category, "code": refusal.code,
-                        "message": refusal.message}))
+                detail=dict(reason, **_noted(_defer(store, owed, reason)))))
             continue
         resumed.append(documents.stage_exchange(
             stage_id=intent["stage_id"], episode=intent["episode"],
             attempt_id=intent["attempt_id"], act="conclude",
             outcome="performed",
-            detail=performed if type(performed) is dict else None))
+            detail=_settled(performed, _resolve(
+                store, {"stage_id": intent["stage_id"],
+                        "episode": intent["episode"], "act": "conclude",
+                        "attempt_id": intent["attempt_id"]}))))
     return resumed
 
 
@@ -773,6 +881,20 @@ def _delegate(store, operations, owed, stage, job):
         record = _proved(operations, canonical_id, stage, job)
         if record is None:
             if deferred is not None:
+                # W197661: AND THE REASON IS NOW DURABLE. This branch used to
+                # return the reason and persist nothing -- `_record` below
+                # writes only when the Worker Manager journalled a row -- so a
+                # stage that had owed one act for an hour looked exactly like a
+                # stage that had just been offered, and the only account of why
+                # was a reconcile report nobody kept. A real deployment sat at
+                # `answering` through a whole incident that way.
+                #
+                # IT IS NOT A RECEIPT AND IT IS NOT TERMINAL. `deferrals` is its
+                # own relation for exactly that reason; see the table's own
+                # comment, and `projection._deferral`, which carries it beside
+                # the stage state without being allowed to decide one.
+                deferred = dict(deferred,
+                                **_noted(_defer(store, owed, deferred, operation_id=canonical_id)))
                 return documents.reconciliation(
                     stage_id=owed["stage_id"], episode=owed["episode"],
                     act=owed["act"], outcome="deferred",
@@ -794,10 +916,18 @@ def _delegate(store, operations, owed, stage, job):
         performed = True
     state = ("refused" if record["state"] == "refused"
              else ("performed" if performed else "adopted"))
+    # AND A SETTLED ACT HAS NO OUTSTANDING REASON. A deferral left behind after
+    # its act succeeded would be worse than none: an operator would be reading
+    # a live explanation of something that is over.
+    cleared = _resolve(store, owed)
     _record(store, owed, record, state)
     return documents.reconciliation(
         stage_id=owed["stage_id"], episode=owed["episode"], act=owed["act"],
-        outcome=state, operation_id=canonical_id)
+        outcome=state, operation_id=canonical_id,
+        # A FAILED CLEAR TRAVELS WITH THE ACT THAT SETTLED. Silence here would
+        # leave an operator reading a live explanation of something that is
+        # over, which is the same class of falsehood as an unrecorded reason.
+        **({} if cleared.get("cleared") else {"detail": {"evidence": cleared}}))
 
 
 def _perform(operations, act, stage, job):
@@ -805,6 +935,83 @@ def _perform(operations, act, stage, job):
         return operations.admit(stage, job)
     return operations.claim(stage)
 
+
+
+def _defer(store, owed, reason, *, operation_id=None):
+    """Record why one owed act did not happen, ONCE, and keep it current.
+
+    W197661. UPSERT rather than insert: a deferral repeats on every tick, and a
+    row per occurrence would be an unbounded durable write driven by a condition
+    that is not changing. `first_seen_at` is when this started; `last_seen_at`
+    is how an operator tells "still" from "stale".
+
+    BEST EFFORT, DELIBERATELY. This is an observation ABOUT a failure to act,
+    and a manager that failed its whole tick because it could not write one
+    would have made the diagnostic more dangerous than the silence it replaces.
+    A tick whose store is unwritable has larger problems and reports them
+    elsewhere.
+    """
+    now = store._now()
+    try:
+        store._connection.execute(
+            "INSERT INTO deferrals (stage_id, episode, act, attempt_id, "
+            "operation_id, category, code, message, first_seen_at, "
+            "last_seen_at, incarnation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+            "?) ON CONFLICT (stage_id, episode, act) DO UPDATE SET "
+            "attempt_id = excluded.attempt_id, "
+            "operation_id = excluded.operation_id, "
+            "category = excluded.category, code = excluded.code, "
+            "message = excluded.message, last_seen_at = excluded.last_seen_at, "
+            "incarnation = excluded.incarnation",
+            (owed["stage_id"], owed["episode"], owed["act"],
+             owed["attempt_id"], operation_id,
+             str(reason.get("category")),
+             str(reason.get("code")), str(reason.get("message"))[:_MAX_REASON],
+             now, now, store.incarnation))
+    except Exception as failure:                             # noqa: BLE001
+        # W197661 review 2026-09-18T02-59-56Z [R2]: A SWALLOWED FAILURE IS NOT
+        # A SUCCESS. This returned `None` either way, so a deferral that was
+        # never written was indistinguishable from one that was -- an evidence
+        # surface that silently has no evidence, which is the class of defect
+        # this whole Work exists to remove.
+        #
+        # IT STILL DOES NOT RAISE, and that is deliberate: this is an
+        # observation ABOUT a failure to act, and a manager whose tick died
+        # because it could not write a diagnostic would have made the
+        # diagnostic more dangerous than the silence. What it does instead is
+        # ANSWER, so the caller puts the evidence failure in its own report --
+        # beside the stage's execution state and never inside it.
+        return {"recorded": False,
+                "why": f"this deferral could not be recorded "
+                       f"({type(failure).__name__})"}
+    return {"recorded": True}
+
+
+def _resolve(store, owed):
+    """This act is settled, so its outstanding reason is not a reason.
+
+    AND A FAILED CLEAR IS SAID OUT LOUD. A reason left behind because the
+    DELETE failed would present a settled act as outstanding, which is the
+    opposite of what this table is for -- so the caller is told, rather than
+    an operator being left to read a live explanation of something that is
+    over.
+    """
+    try:
+        store._connection.execute(
+            "DELETE FROM deferrals WHERE stage_id = ? AND episode = ? "
+            "AND act = ?",
+            (owed["stage_id"], owed["episode"], owed["act"]))
+    except Exception as failure:                             # noqa: BLE001
+        return {"cleared": False,
+                "why": f"this act settled and its earlier reason could not be "
+                       f"cleared ({type(failure).__name__}); it may still be "
+                       f"reported as outstanding"}
+    return {"cleared": True}
+
+
+# A deferral's prose is an operand from another layer's refusal, so it is
+# bounded here the way every other durable diagnostic in this campaign is.
+_MAX_REASON = 2000
 
 def _record(store, owed, record, state):
     """Write the receipt for one settled canonical act.

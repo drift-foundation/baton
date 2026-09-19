@@ -1,0 +1,95 @@
+{
+  "claim": 198943,
+  "work": "2b077949-W197661",
+  "role": "impl",
+  "corrects": "review-2026-09-18T01-08-25Z.md sha256 c7305999f862844d4569560cf706df471b0ae2ce3793a396ef47c2eecbe27b97",
+  "R1_CORRECTION": {
+    "withdrawn": "compose.py's module text, its output and EVIDENCE-198871's statement that the first layer VALIDATES a configuration. It called no validator: it serialized seven dictionaries and hashed them. Hash agreement establishes content identity and nothing else.",
+    "also_withdrawn": "that the actor strings prove minted distinct principals. They are strings in a document; minting is a bootstrap/authority fact and is not established here.",
+    "preserved": "compose.py and its outputs are unchanged; compose_chain.py is the correction and reports the ACTUAL calls and results",
+    "results": [
+      {
+        "result": "accepted",
+        "validator": "dogfood_operator.input_manifest + check_manifest_structure (implementation)"
+      },
+      {
+        "result": "accepted",
+        "validator": "dogfood_operator.input_manifest + check_manifest_structure (review)"
+      },
+      {
+        "result": "accepted",
+        "validator": "dogfood_operator.input_manifest + check_manifest_structure (integration)"
+      },
+      {
+        "refusal": "ContractRefusal: an assignment that authorizes a credential names at least one slot; a delivery describing nothing is one every comparison agrees with",
+        "result": "REFUSED",
+        "validator": "stage_execution.held_configuration"
+      },
+      {
+        "result": "accepted",
+        "validator": "job_manager.documents.owned_submission"
+      }
+    ]
+  },
+  "R2_PROGRESS": {
+    "sealed_manifests_ACCEPTED": {
+      "implementation": "sha256:4c8eef0b54917497516fc72c8a65fe676fc5e743500130edbbc299e9ab1d2428",
+      "integration": "sha256:3e7ad29bd88bef29b6839f69aee6335f198e3c826332e31360e94696bcdb32df",
+      "review": "sha256:65d1c423350ac719bdcbcb91a942d6e264a5c5adc327ec5b9b0c9492153b1af0"
+    },
+    "how": "dogfood_operator.input_manifest per role, outputs set, the seal RECOMPUTED after them, then check_manifest_structure against the frozen schema \u2014 three accepted",
+    "submission_ACCEPTED": "owned_submission accepted a baton.v12.job-submission/2 whose input_digest is taken FROM the implementation seal",
+    "input_digest": "sha256:4c8eef0b54917497516fc72c8a65fe676fc5e743500130edbbc299e9ab1d2428",
+    "derived_from_the_seal": true,
+    "fresh_instance_bootstrapped": {
+      "destination": "/home/sl/baton-v12-lifecycle-198943",
+      "authority_uuid": "b0657dfa4b4b4eb4b19f6c7b5252d709",
+      "wall_seconds": 4.003,
+      "note": "a FRESH disposable identity; instance-198750 and every earlier packet are preserved"
+    },
+    "two_refusals_iterated_and_fixed": [
+      "the nominated source did not exist \u2014 fixed by bootstrapping first",
+      "the configured task document was 153 bytes against a declared 135: an indented rewrite is a different document from the one measured, so the exact declared bytes are written now"
+    ],
+    "still_refusing": "stage_execution.held_configuration"
+  },
+  "THE_CONSTRAINT_FOUND_BY_ITERATING": {
+    "refusal": "an assignment that authorizes a credential names at least one slot; a delivery describing nothing is one every comparison agrees with",
+    "where": "credentials.resolved_delivery, called UNCONDITIONALLY by tools/single_worker.py:344",
+    "what_it_means": "a baton.v12.single-worker-deployment/4 must authorize at least one credential slot even for a worker that calls no provider; there is no 'no credential' configuration at this layer, although credentials.py's own comment says an assignment authorizing no credential gets no delivery",
+    "why_not_just_filled_in": "the review forbids inheriting the reference record's live credentials, and inventing a slot plus a source file would fabricate a credential arrangement for a fixture that authenticates to nothing. The options are a disposable slot naming a disposable source holding no real bearer, or establishing whether the members may be omitted. Both are configuration decisions worth stating rather than guessing."
+  },
+  "REMAINING_SCOPE_IN_ORDER": [
+    "1. Resolve the credential-slot constraint, then re-run compose_chain.py until held_configuration accepts.",
+    "2. Bootstrap the fresh destination supplying `jobs` and `workers`.",
+    "3. Start the scheduler and exercise candidate collection, independent review and report-and-hold from canonical commands only.",
+    "4. Stop and dispose with the accepted ownership discipline.",
+    "5. Write the verifier binding the EXACT identities."
+  ],
+  "package": "instance-198871/",
+  "package_sha256": {
+    "instance-198871/bootstrap-inputs.json": "a4d2c57dcb4b4e3c226ae5dcf2cf4cf6d0fccceba944a8c0774c1ce5ee63e25b",
+    "instance-198871/bootstrap.log": "93a347c602eb8d3ce74479db097c5ca31fc3331ec7d2da21655f89d3724d4318",
+    "instance-198871/chain.json": "8d7188df3e0cd6ca5d68668e6ee5037ed0dba63c9a0a74b6d6bc5cf7971c18ec",
+    "instance-198871/compose.py": "a4f07a933b03aece4ef7d67af09334645b1c9fc9e5da01013a0a1f467eed416b",
+    "instance-198871/compose_chain.py": "91845a7df83800135af5cb7021d4b46d517f1f29a6c15d2f228ec9d7a51c9009",
+    "instance-198871/composition.json": "0bd7f85c46387b4d357f23ca610f0d11cae66954f99ff76a2adbee3ded68f3ce",
+    "instance-198871/manifest-implementation.json": "dab99bd084c60d96b1bf1880fcdde25cf3d146b968e7de35b966dafa607b5f4f",
+    "instance-198871/manifest-integration.json": "6c243ab634812d32edf7a3302766e6ef8fbd9ffd5c95a177b2b5bce292583a1e",
+    "instance-198871/manifest-review.json": "861b925864106aee4f0ad8f193dc2ab52c71847df35916937f393b7858abfd88",
+    "instance-198871/policies.json": "ba936b5d896735c3ece155060c66cd92c6c1cfe5832dd8d46c84cff5bb33a3b8",
+    "instance-198871/stage-execution.json": "7ce98af3194984dfba72b1791287dffb5caac8a553865ac1da7e9e8241d01b90",
+    "instance-198871/submission.json": "b576de4909c534de12b9a80323c01c5b708a9db7b8aa990f109ac2cda32264b1",
+    "instance-198871/task.json": "c12636f5bf774362fcdb73a2b5c55690406767883c5a51dba34441a7e8143be5"
+  },
+  "verification_this_claim": {
+    "what": [
+      "compose_chain.py: three manifests sealed and accepted, the submission accepted and derived from the seal, two configuration refusals iterated and fixed, one named constraint remaining",
+      "one bootstrap of a fresh disposable instance, 4.003s"
+    ],
+    "measured_seconds_this_claim": 12.0,
+    "work_cumulative": 560.0
+  },
+  "engine": "one bootstrap of a disposable instance; no container, image build, scheduler, submission, model, credential, network, production store or runtime touch, or version-control mutation",
+  "git_diff_check": "passes; no whitespace defect"
+}

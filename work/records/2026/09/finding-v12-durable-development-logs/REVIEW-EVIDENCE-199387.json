@@ -1,0 +1,41 @@
+{
+  "claim": 199387,
+  "hashes": {
+    "v12/python/src/baton_v12/attempt_log_format.py": true,
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": true,
+    "v12/python/src/baton_v12/worker_manager/launch.py": true,
+    "v12/python/src/baton_v12/worker_manager/oci.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true,
+    "v12/python/tests/tools/test_attempt_logs_command.py": true,
+    "v12/python/tools/attempt_logs_command.py": true,
+    "v12/worker/baton_worker.py": true,
+    "v12/worker/claude_agent.py": true,
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-199285/context/Dockerfile.fixture": true,
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-199285/smoke.py": true
+  },
+  "setup_correction": "Initial worker import lacked top-level source_profiles image layout; failed before tests/probes. Added its source root.",
+  "tests": {
+    "rc": 0,
+    "output": "......................................................................................\n----------------------------------------------------------------------\nRan 86 tests in 0.203s\n\nOK\n",
+    "seconds": 0.368187680025585
+  },
+  "retained_probe_path": "/tmp/w198667-review199387-ghxvl3cc",
+  "failed_launch_capture": {
+    "verification.stdout": {
+      "declaration": "declared",
+      "stream": "verification.stdout",
+      "state": "captured",
+      "bytes": 0,
+      "why": "the writer saw this stream to its end",
+      "file": "present"
+    },
+    "verification.stderr": {
+      "declaration": "declared",
+      "stream": "verification.stderr",
+      "state": "captured",
+      "bytes": 0,
+      "why": "the writer saw this stream to its end",
+      "file": "present"
+    }
+  }
+}

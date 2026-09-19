@@ -1,0 +1,79 @@
+{
+  "NOT_DONE_THIS_CLAIM": [
+    "R2: the fixture proposal metadata, the deterministic independent reviewer, and the installed disposable lifecycle through candidate publication, independent review and report-and-hold. instance-199391/ remains enumerated in PLAN and unbuilt."
+  ],
+  "R1_the_real_publication_seam": {
+    "disposition": "the review offered 'identify an exact applicable existing test and measured evidence' as an alternative to writing a new one, and there is one",
+    "measured": {
+      "checks": 109,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 2.052,
+      "suite": "tests.integration.test_driver"
+    },
+    "recorded_where_a_reader_meets_it": "the cut-point class docstring in test_review_driver now NAMES both cases, so the property and its proof are one click apart rather than one asserted in prose beside the other",
+    "test_a_publish_whose_record_was_lost_is_not_upgraded_to_success": "the other side: the Authority holds the proposal, the local record was lost, and recovery re-enters the SAME publication identity rather than making a second proposal",
+    "test_an_exact_republication_replays_one_record": "publishes, publishes AGAIN under the same durable identity, asserts the second call returns the FIRST record with ONE row retained, then REOPENS the manager and reads the same record back -- which is the replay-and-restart property the fake seams in test_review_driver cannot show",
+    "what_this_does_and_does_not_settle": "it establishes replay and restart at the publication identity. It is existing coverage rather than new, and I am citing it rather than claiming to have proved it this claim.",
+    "where": "tests/integration/test_driver.py::TheCommittedPublicationSurvivesTheProcessThatMadeIt"
+  },
+  "R3_the_stale_row": {
+    "a_first_cut_of_that_rule_was_wrong": "I read 'nothing is pending' as settlement, which quietly calls an outstanding condition over whenever no ending was ever registered. A registered record is now required, and a case pins the safe direction: an unregistered conclude reason stays OUTSTANDING.",
+    "cases": 3,
+    "contradictory_comments": "corrected at projection.stage_states; the null-without-a-live-episode note is superseded at the site by the always-read rule",
+    "correction": "every entry carries `outstanding` and, when false, `why_retained` saying it is retained evidence rather than an outstanding condition",
+    "older_pending_ending": "covered -- a deferral recorded for a prior episode is reported with its own episode and attempt and reads outstanding",
+    "the_defect": "the status reader labelled every stored row outstanding, so a settled act whose DELETE failed was presented as a live condition",
+    "what_decides_it": "somebody else's record rather than the deferral table's: `admit` and `claim` settle by writing a RECEIPT, and `conclude` writes none, so what settles it is a REGISTERED ending that is no longer pending",
+    "what_my_previous_case_did_not_prove": "it DROPPED THE TABLE, so the reconcile report said the clear failed and there was no row left to read -- which establishes nothing about the operator surface, because the surface's whole problem was a SURVIVING row"
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/job_manager/manager.py": "1f304a79232852eb9c21cafa395d7c610c8f392a595fe43c4839119ee3b78334",
+    "v12/python/src/baton_v12/job_manager/projection.py": "595008b9ddb06d947c3720eb5bd8928a53b65f2e7458bbd151f4a77d52fc6742",
+    "v12/python/src/baton_v12/job_manager/schema.py": "0f8601611257c78d4b7102938980977b5e256fa772729e70f3104ece6edd8704",
+    "v12/python/tests/job_manager/test_review_driver.py": "2d8f9879a048250728e3203917854322bb03452d706bb7f447fd48f209a820c6",
+    "v12/python/tests/job_manager/test_sweep.py": "503c99261937f946fb683fec36ee50067321b5edef8b4227a9b6dac53eea1371"
+  },
+  "claim": 199738,
+  "no": [
+    "live model",
+    "container",
+    "image build",
+    "production action",
+    "lifecycle re-run",
+    "version-control mutation"
+  ],
+  "preserved": {
+    "W198667": "queued at baton.bug; none of its candidate files is touched",
+    "history": "no prior evidence file or review is rewritten",
+    "production": "not read from, written to, started or changed",
+    "the_failed_disposable": "retained and untouched"
+  },
+  "schema": "baton.w197661.evidence/1",
+  "verification": {
+    "integration_driver": {
+      "checks": 109,
+      "result": "OK",
+      "seconds": 2.052
+    },
+    "job_manager_whole_suite": {
+      "checks": 837,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 9.514,
+      "was": 834
+    },
+    "seconds_measured_this_claim": 110,
+    "stack_and_bootstrap": {
+      "checks": 238,
+      "result": "OK",
+      "seconds": 43.272
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    }
+  },
+  "work": "2b077949-W197661"
+}

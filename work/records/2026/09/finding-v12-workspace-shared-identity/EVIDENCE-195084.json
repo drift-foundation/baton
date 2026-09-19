@@ -1,0 +1,155 @@
+{
+  "work": "2b077949-W194457",
+  "claim": 195084,
+  "participant": "baton.claude",
+  "role": "impl",
+  "contract": "OWNER-TRUSTED-IDENTITY-20260917.md (14:28Z) and OWNER-VERIFICATION-CADENCE-20260917.md (14:13Z); both supersede the activation/probe design and the update/recovery deliverable",
+  "claim_is": "complete candidate for independent review",
+  "removed": {
+    "oci.py": [
+      "observe_runtime_identity",
+      "_reclaim_probe",
+      "_probe_owner",
+      "_remove_probe",
+      "UNRESOLVED",
+      "_unresolved",
+      "_FULL_ID",
+      "_PROBE_NAME",
+      "_PROBE_ROOT",
+      "_PROBE_PROGRAM",
+      "_PROBE_LABEL",
+      "the execution-identity gate at the top of OciAdapter.start",
+      "the `shutil` import this Work had added and nobody else used"
+    ],
+    "workspaces.py": [
+      "ExecutionIdentityMapping",
+      "_ACTIVE_IDENTITY",
+      "activate_execution_identity",
+      "require_execution_identity",
+      "proved_execution_identity",
+      "forget_execution_identity",
+      "_mapping_place",
+      "_mapping_engine",
+      "_mapping_digest",
+      "supported_identity_mapping"
+    ],
+    "tools/single_worker.py": [
+      "activate_execution_identity",
+      "its __all__ entry",
+      "the `oci as oci_module` import"
+    ],
+    "tests/__init__.py": [
+      "prove_execution_identity",
+      "unactivated_deployment",
+      "_ACTIVATED",
+      "_install_activated_deployment"
+    ],
+    "tests/manager/test_workspaces.py": [
+      "the probe_engine fixture and 26 probe lifecycle cases",
+      "FULL_ID/OTHER_ID"
+    ],
+    "kept_deliberately": {
+      "tests/__init__.py": "the live-engine fail-fast guard; installed because of the probe but not about it -- one environment lookup that turns an unintended `docker run` from an untraceable hang into a failure with a stack"
+    }
+  },
+  "added": {
+    "workspaces.SUPPORTED_IDENTITY_MAPPING": "the supported host/container arrangement, documented rather than measured, with the unsupported case and the operator remedy named",
+    "workspaces.declared_identity_mapping": "the owner's cheap structural check: the `uid:gid` a vector is about to declare against the minted capability. No engine, no filesystem.",
+    "workspaces._access_failure": "operation, path, exception, errno NAME, kernel sentence; plus an id-mapping pointer for EACCES/EPERM that says what to CHECK and does not claim a cause",
+    "callers": [
+      "oci.run_vector (--user substitution)",
+      "custody._custody_vector (--user substitution)",
+      "workspaces.establish_line_access (two OSError sites)",
+      "workspaces._prove_line_consumable (three OSError sites)"
+    ]
+  },
+  "scope_closed": {
+    "owner_only_both_directions": "worker->manager proved by a case: 0700 dir + 0600 file created after materialization is consumed with identical modes before/after and no PERMISSION_ACTS delta. manager->worker asserted as the ownership fact the access depends on (entries owned by the uid the vector declares); the case states it cannot run as another uid here and claims nothing it did not measure.",
+    "private_home_cache": "PRESERVED, no product change needed. claude_agent._scratch makes the home with tempfile.mkdtemp under the adapter's /tmp tmpfs at 0700 and _child_environments composes HOME/TMPDIR/XDG_CACHE_HOME/PYTHONPYCACHEPREFIX member by member, so nothing depends on the image-owned /home/nonroot or on the ambient HOME. Case asserts both bounded scratch mounts and --read-only survive under the shared identity. NO --env was added; the retired BATON_WORKER_* transport stays retired.",
+    "compatibility_conclusions": {
+      "--group-add (W33936 / M34916)": "compatible, kept, now redundant",
+      "0640 credential slot (W52800, 2026-08-31)": "compatible, kept. 0600 would now suffice; the ruling's second half (manager-owned 0700 root above the slot) still bounds the exposure. Narrowing re-opens an approver ruling and is named as a follow-on rather than taken.",
+      "custody.normalize_directory group grant (W39358)": "compatible, kept, still the least-privilege act",
+      "world-readable /input (W33935)": "unchanged; evidence rather than a bearer, mounted read-only",
+      "claude_agent per-command safe.directory": "noted as now-redundant, left alone"
+    },
+    "update_and_recovery_instructions": "NOT WRITTEN, on owner instruction. Superseded by the fresh timestamped deployment after acceptance, old instance preserved, task resubmitted. Recovery tooling for the failed Job is out of scope."
+  },
+  "verification": {
+    "cadence": "OWNER-VERIFICATION-CADENCE-20260917: focused first, broadened once for the complete candidate",
+    "focused_loops": [
+      {
+        "selection": "tests.manager.test_workspaces",
+        "checks": 126,
+        "seconds": 0.636
+      },
+      {
+        "selection": "tests.manager.test_workspaces",
+        "checks": 129,
+        "seconds": 0.64
+      },
+      {
+        "selection": "tests.manager.test_oci + tests.tools.test_single_worker",
+        "checks": 282,
+        "seconds": 9.645
+      },
+      {
+        "selection": "tests.manager.test_review_cycles + test_custody",
+        "checks": 283,
+        "seconds": 4.877
+      },
+      {
+        "selection": "tests.manager.test_lifecycle_composition + test_launch",
+        "checks": 69,
+        "seconds": 5.008,
+        "skipped": 1
+      }
+    ],
+    "complete_candidate": {
+      "selection": [
+        "tests.manager.test_workspaces",
+        "tests.manager.test_oci",
+        "tests.manager.test_custody",
+        "tests.manager.test_review_cycles",
+        "tests.manager.test_lifecycle_composition",
+        "tests.manager.test_launch",
+        "tests.tools.test_single_worker"
+      ],
+      "checks": 763,
+      "result": "OK",
+      "skipped": 1,
+      "unittest_seconds": 20.131,
+      "measured_wall_seconds": 20.410025954,
+      "skip_reason": "the real-engine lifecycle case needs Docker"
+    },
+    "new_checks": 7,
+    "changed_checks": [
+      "test_workspaces.test_a_failure_while_establishing_NAMES_its_errno -- asserted the literal `errno 1`, now asserts EPERM, the kernel's sentence and the mapping hint",
+      "test_review_cycles.test_a_failure_while_establishing_keeps_materializing_and_retry_finishes -- same reason"
+    ],
+    "reported_not_claimed": {
+      "suite": "tests.manager.test_boundary_inventory",
+      "candidate_failures": 25,
+      "head_failures": 129,
+      "head_errors": 8,
+      "limitation": "no pre-claim CANDIDATE baseline was established: the pre-edit bytes of the seven files were not preserved before editing. 'this claim did not change that number' is reasoned from the failure names -- OciAdapter.observe, OciAdapter.destroy*, canonical_source, compose_input_root, _configured_gid and the declared-operand tables, none of which this claim added or removed -- and is NOT measured. Same family as the 56 pre-existing test_dependencies failures already in FINDING."
+    },
+    "git_diff_check": "clean"
+  },
+  "candidate_sha256": {
+    "src/baton_v12/worker_manager/workspaces.py": "b5ac103e7e03a19d77013331fb8032755fba137dcd9475ff498820b57b89acc4",
+    "src/baton_v12/worker_manager/oci.py": "ed055dbc2e75026b34a10a7aae32fbc1ce346b192a3a40728e114efba449dcd9",
+    "src/baton_v12/worker_manager/custody.py": "360772a109909cb382ae815d17f60ed7903252bf1b56a3944de8b301f33ac31b",
+    "src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "tools/single_worker.py": "7992f2d7485dcccff64b5f945357b1132d71c0f65fd9520cf42fd7940a611854",
+    "tests/__init__.py": "ed81ea906939740dc126615a631de97b2785fb958b1d15dc394f995603d63c06",
+    "tests/manager/test_workspaces.py": "8c77d4b6a811e0cbc5c4d65ad9dd0378e769ad18eec1b321aaa13f1bf48a06b8",
+    "tests/manager/test_review_cycles.py": "e4025453cfc9ea74fe0eaeb302dc742db6209f678fa78c4601c1200f530e5155"
+  },
+  "preserved_untouched": {
+    "v12_work": "a2b0d14b-W1",
+    "v12_attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+    "statement": "no v12 store opened, no claim released, no partial line removed, no resubmission, no installed runtime updated, no production retry. No provider, engine, model, network or version-control mutation. No container was started by anything in this claim."
+  },
+  "not_approved": "integration and deployment remain unapproved; a fresh timestamped instance follows independent acceptance"
+}

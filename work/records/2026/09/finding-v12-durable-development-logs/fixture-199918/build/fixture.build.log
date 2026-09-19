@@ -1,0 +1,27 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  265.2kB
+Step 1/8 : FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+ ---> 0697b6595aff
+Step 2/8 : COPY worker/baton_worker.py /opt/baton/baton_worker.py
+ ---> fbaf6219266c
+Step 3/8 : COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+ ---> b23a683fee6b
+Step 4/8 : COPY worker/scripted_agent.py /opt/baton/scripted_agent.py
+ ---> 0de739fb44d5
+Step 5/8 : COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+ ---> 1988b5c73657
+Step 6/8 : COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+ ---> 8b1c0ebf661f
+Step 7/8 : USER 65532:65532
+ ---> Running in 0a07b0c93169
+ ---> Removed intermediate container 0a07b0c93169
+ ---> d219a6ebff01
+Step 8/8 : ENTRYPOINT ["python3", "/opt/baton/baton_worker.py"]
+ ---> Running in 928400e8aa87
+ ---> Removed intermediate container 928400e8aa87
+ ---> 8105d3c0deca
+Successfully built 8105d3c0deca
+Successfully tagged baton-v12-w198667-fixture-199918:latest

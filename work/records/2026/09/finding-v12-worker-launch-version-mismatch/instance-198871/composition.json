@@ -1,0 +1,21 @@
+{
+  "actors": {
+    "implementation": "baton.claude-author",
+    "integration": "baton.merge",
+    "review": "baton.codex-reviewer"
+  },
+  "claim": 198871,
+  "composes_only": "this script validates a configuration; it bootstraps nothing, starts nothing, submits nothing and runs no provider",
+  "destination": "/home/sl/baton-v12-lifecycle-198871",
+  "fixture_image": "sha256:edd20e9c3f0a15bdd445c7b83fcb8b5f8a52f6dc42d1d639a0fef9db3ccfacf4",
+  "job_id": "w197661-lifecycle",
+  "policy_digests": {
+    "credential_policy_digest": "sha256:245fd422e6bffb759bdec266eee1cef403c436fd311453ad9f23ad551433d2ee",
+    "mount_policy_digest": "sha256:595d306d243b5a215ab75e1544e1658113b87fbc0c105332489a8fdeefc89b94",
+    "network_policy_digest": "sha256:f42ff0e53ccae7a0a5287b8456fe0637a3028a96b5be97fbfd00636c4ded8028",
+    "policy_digest": "sha256:58e55539dbbdd964096efd7526121ca5f1fdf0e0160ab08c3f72d0c893347180",
+    "resource_policy_digest": "sha256:f8a4a2a05a4fd549f2acbecd601909f0006c5251eb98fa83a41dbfbd3f1b9b12",
+    "retention_policy_digest": "sha256:5b2cbe97997fe67e1d2bc750495ab0a8d35330471dfc8db35a14d0fc3f61aa35",
+    "tool_policy_digest": "sha256:06bd83da073da1a5961caa0d6caaddcfd1520639aecd62775c2607a1b6a9cc16"
+  }
+}

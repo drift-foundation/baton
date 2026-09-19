@@ -1,0 +1,96 @@
+{
+  "R1_the_defect": {
+    "including": [
+      "a positive consistent-destination case that reports READY",
+      "both reviewer probes as fixtures",
+      "a mismatched-pin negative proving ready still turns off",
+      "two cases proving that changing ONLY the diagnostic flips neither verdict",
+      "a structural case asserting at most one generation comparison may be a readiness precondition"
+    ],
+    "moved_to_diagnostic": {
+      "the one-step advance": "it describes what this COMPLETED integration did; no future action has to satisfy it",
+      "the sealed image inputs": "review202123: input attestation is separately documented evidence quality. A stale pin and an unattested build are unrelated facts."
+    },
+    "new_cases": 13,
+    "readiness_language_bounded": "ready: false means ONE checked precondition does not hold right now. It is not a prediction that every possible new Job must fail; the callers reaching driver._accepted_receipts are not all traced and the detail says so.",
+    "reversal_probe": "putting the one-step advance back into readiness reproduces the defect and fails 8 cases",
+    "the_fix": "Checks has three categories: `check` REQUIRED decides whether the run completed; `readiness` is a checked precondition; `diagnostic` enters NEITHER conjunction. readiness_failed selects on kind == 'readiness', so a diagnostic can never reach it.",
+    "the_reviewers_probes_reproduced_as_fixtures": {
+      "configured 23 / current 23": "no required failures; readiness failed the one-step advance",
+      "configured 23 / current 24": "no required failures; readiness failed pin equality"
+    },
+    "what_it_was": "judge recorded BOTH current==configured AND current==configured+1 as readiness requirements, and main set ready = not readiness_failed. Mutually exclusive for consistent readings, so ready could never be true."
+  },
+  "answers_review": "review-2026-09-18T09-27-13Z.md (claim202123)",
+  "claim": "202140",
+  "digests": {
+    "instance-201492/verification-202140-final.json": "f6493b43070da467b8a62834b138a59a418fa849e9974b379cbd99775fa89ab3",
+    "instance-201492/verify_lifecycle.py": "4e6f6d5ed9dc8b3633718d52ea9daf9065b3a4c95c67f3afc8f0cd3d8401a127",
+    "v12/python/tests/manager/test_w197661_verifier.py": "b9d91f105d8d7b820a4ef5a1efeefa86efe8d0028942f3d78788814483886c52"
+  },
+  "headline": "`ready` was unsatisfiable by construction. A third category -- diagnostics entering NEITHER verdict -- fixes it. Run4 stays accepted and its readiness report is now meaningful.",
+  "locator_corrections_appended_not_rewritten": [
+    {
+      "actual": "v12/python/tests/manager/test_integration_generation.py",
+      "said": "v12/python/tests/authority/test_integration_generation.py",
+      "where": "FINDING.md F2",
+      "why": "the file moved because tests/authority/test_catalog.py enumerates that suite by name and it is a registry this Work does not own; the citation kept the original location"
+    },
+    {
+      "actual": "verification-202052-accepted.json",
+      "note": "both exist. -final.json was an earlier run of the same claim, before the provenance classification was added, and is retained under this verifier's evidence-preservation rule. The digest-bound one in EVIDENCE-202052.json is -accepted.json.",
+      "said": "verification-202052-final.json",
+      "where": "PROGRESS.md claim202052"
+    }
+  ],
+  "schema": "baton.w197661.evidence/1",
+  "standing_limitations_restated": {
+    "F3_F4": "recorded observations, not resolved product defects",
+    "fixture_scope": "ImportingAgent and ProposingAgent are deterministic stand-ins for model-driven provider turns and claim no model coverage",
+    "post_build_seal": "EXPECTED.json was written after the build, so it proves only that nothing moved since. The build IID corroborates image IDENTITY, not per-input contents, and post-build equality is not prospective input attestation.",
+    "untraced": "whether a deployment with new work reaches driver._accepted_receipts through any particular caller",
+    "what_acceptance_is_NOT": "accepted historical fixture completion is NOT approval to deploy the claimed source bytes"
+  },
+  "verification_result": {
+    "accepted": true,
+    "checks": 82,
+    "diagnostics": [
+      {
+        "held": true,
+        "observation": "the advance is the ONE STEP a single integration makes"
+      },
+      {
+        "held": false,
+        "observation": "the sealed image INPUTS are independently attested"
+      }
+    ],
+    "failed": [],
+    "file": "instance-201492/verification-202140-final.json",
+    "read_through": "the accepted read-only owner, on the RETAINED run4",
+    "readiness_failed": [
+      "the deployment could authorize a NEW action"
+    ],
+    "ready": false
+  },
+  "verification_spending_cumulative": {
+    "broad_suite": {
+      "attribution": "the total rose by exactly my 13 new cases and the failure and error counts did not move. Evidence my changes added none; NOT proof the rest are pre-existing, and they remain author reports.",
+      "claim202052": "4226 tests, 109 failures / 7 errors",
+      "claim202140": "4239 tests, 109 failures / 7 errors"
+    },
+    "flags": "-W error::ResourceWarning",
+    "new_lifecycle_runs_this_turn": 0,
+    "owned_suites": {
+      "tests/job_manager": "879 tests, OK",
+      "tests/job_manager/test_store.py": "47 cases, OK, unchanged",
+      "tests/job_manager/test_store_readonly.py": "30 cases, OK",
+      "tests/manager/test_attempt_logs.py": "213 cases, OK",
+      "tests/manager/test_fixture_dispatch.py": "15 cases, OK",
+      "tests/manager/test_importing_fixture.py": "32 cases, OK",
+      "tests/manager/test_integration_generation.py": "9 cases, OK",
+      "tests/manager/test_w197661_verifier.py": "134 -> 147 cases, OK"
+    },
+    "repins_or_product_policy_changes": 0
+  },
+  "work": "W197661"
+}

@@ -1,0 +1,188 @@
+{
+ "work": "2b077949-W194457",
+ "claim": 194939,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-17T13-40-44Z.md",
+  "sha256": "3d8ff0c02b16ecf0b56f8b78e68b0192e9bd4e1295c9627f54383a4d852e7e9f"
+ },
+ "the_outcome_matrix_is_now_the_answer": {
+  "accepted_only_when_all_four_hold": [
+   "the RUN succeeded",
+   "the OBSERVATION is a fresh regular file with one link, read O_NOFOLLOW",
+   "the ENGINE is settled -- absence POSITIVELY established, or an authenticated owned ID removed successfully",
+   "the FILESYSTEM cleanup this call owns finished"
+  ],
+  "1_absence_is_established_not_inferred": "I read a non-zero `inspect` as 'no such object', and a daemon this manager cannot reach answers non-zero too -- so an unreachable engine was reported clean and the observation accepted. The question is a LISTING now: `ps --all --filter name=^<helper>$ --format {{.ID}}`. A command that SUCCEEDS and names nothing is absence; a command that fails at all, or raises, is unknown, and unknown refuses.",
+  "2_removal_is_by_the_IMMUTABLE_ID": "inspecting a NAME and then removing that name is two lookups, and the object behind a name can be replaced in between -- which deleted an unrelated container in the reviewer's simulation. The id the listing named is what is inspected for the nonce and what `rm` is given.",
+  "3_the_cleanup_outcome_propagates": "a failed unlink appended to UNRESOLVED and the observation was accepted anyway -- a diagnostic nobody read. `_remove_probe` answers whether it finished and the caller requires it.",
+  "and_the_run_term_is_load_bearing_now": "a probe found it was not: a failing run that wrote nothing is refused by the OBSERVATION term anyway, so the run term carried nothing. The observation is taken whatever the status -- a container can write its file and then exit non-zero -- and the matrix is where the run's failure is decided. The case uses exactly that shape."
+ },
+ "STILL_NOT_DONE": [
+  "the preflight wiring (fixture support first)",
+  "private writable HOME/cache",
+  "0600/0700 checks both directions",
+  "the 0640 credential slot, custody normalization and /input readability re-decisions",
+  "written unexecuted installed-update and recovery instructions"
+ ],
+ "not_deployable": true,
+ "verification": {
+  "suites": [
+   {
+    "module": "tests.manager.test_workspaces",
+    "tests": 141,
+    "seconds": 0.807
+   },
+   {
+    "module": "tests.manager.test_oci",
+    "tests": 129,
+    "seconds": 0.907
+   },
+   {
+    "module": "tests.manager.test_custody",
+    "tests": 121,
+    "seconds": 3.409
+   },
+   {
+    "module": "tests.manager.test_review_cycles",
+    "tests": 162,
+    "seconds": 1.908
+   },
+   {
+    "module": "tests.tools.test_single_worker",
+    "tests": 153,
+    "seconds": 9.11
+   },
+   {
+    "module": "tests.manager.test_launch",
+    "tests": 37,
+    "seconds": 0.708
+   }
+  ],
+  "all_result": "OK",
+  "total_tests": 743,
+  "total_seconds": 16.849,
+  "new_this_claim": 9,
+  "the_fixture_speaks_the_settlement_protocol": "`ps` lists what the engine holds under a name, `inspect` reads a label off an immutable ID, `rm` reports a status; an unreachable daemon is an exception and an engine failure is a STATUS, which is how 'nothing is there' is told apart from 'I could not ask'",
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_daemon_that_CANNOT_ANSWER_is_not_read_as_absence"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "T1-a-nonzero-listing-is-read-as-absence-again",
+     "reverted_returncode": 1,
+     "seconds": 0.447,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_daemon_that_CANNOT_ANSWER_is_not_read_as_absence"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "T2-an-unreachable-daemon-is-read-as-absence-again",
+     "reverted_returncode": 1,
+     "seconds": 0.444,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_surviving_object_is_removed_by_its_IMMUTABLE_ID"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "T3-the-survivor-is-removed-by-NAME-rather-than-by-its-id",
+     "reverted_returncode": 1,
+     "seconds": 0.442,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_FILESYSTEM_cleanup_that_did_not_finish_refuses",
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_the_probe_directory_is_removed_through_ITS_OWN_descriptor"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "T4-the-filesystem-cleanup-outcome-stops-mattering",
+     "reverted_returncode": 1,
+     "seconds": 0.444,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_RUN_that_failed_is_unmeasured_however_clean_the_rest"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "T5-a-failed-run-is-accepted-when-the-cleanup-was-clean",
+     "reverted_returncode": 1,
+     "seconds": 0.448,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_MORE_THAN_ONE_object_under_the_name_removes_nothing"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "T6-more-than-one-object-under-the-name-is-removed-anyway",
+     "reverted_returncode": 1,
+     "seconds": 0.448,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_object_THIS_PROBE_DOES_NOT_OWN_is_never_removed"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "T7-the-ownership-label-is-not-compared",
+     "reverted_returncode": 1,
+     "seconds": 0.451,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 8.201
+  },
+  "probe_seconds": 8.201,
+  "probe_script": "probes-194939.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probe": "T5",
+    "why": "and the finding was about the CODE as much as the case: the run term in the matrix carried nothing, because a failing run that wrote nothing is refused by the observation term anyway. The observation is now taken whatever the status, so the run term decides something.",
+    "corrected": "the code and the case"
+   }
+  ]
+ },
+ "changed_this_claim": {
+  "v12/python/src/baton_v12/worker_manager/oci.py": "2c951f0861125f8d7480b2a1a9b92559794595a660994621b443e1562d13f443",
+  "v12/python/tests/manager/test_workspaces.py": "ab08f800b1b62988226df2f6641121696d291d934c142aac61311f63269e3e40"
+ },
+ "cumulative_verification_spending": {
+  "claim194465": "none",
+  "claim194532": "16.242s + 7.171s + 0.304s + 55.434s stage suite",
+  "claim194622": "16.144s + 4.867s",
+  "claim194683": "17.360s + 7.170s",
+  "claim194767": "17.052s + 7.216s",
+  "claim194830": "16.953s + 7.734s",
+  "claim194882": "16.951s + 7.627s",
+  "claim194939": "16.849s + 8.201s",
+  "known_component_sum": "about 223.28s of measured components across eight claims, plus one attempted preflight wiring run I did not time; not a proven full historical total",
+  "unknowns_preserved": [
+   "the installed incident's original errno",
+   "18,078 is an entry count, not a measured peak",
+   "the 12 stage-execution errors and 56 test_dependencies failures are carried baselines"
+  ]
+ },
+ "preserved_untouched": {
+  "failed_v12_work": "a2b0d14b-W1",
+  "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+  "how": "no v12 store opened, no claim released, no partial line removed, no resubmission, no installed runtime updated, no production retry"
+ },
+ "no_real_engine_container_model_store_deployment_or_version_control_operation": true
+}

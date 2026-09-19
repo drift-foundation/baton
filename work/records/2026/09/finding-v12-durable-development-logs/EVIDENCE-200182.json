@@ -1,0 +1,170 @@
+{
+  "BOTH_FINDINGS_WERE_MINE": true,
+  "R1_the_data_record_commit_window": {
+    "_reconciled": {
+      "ahead": "believed only when the RETAINED file's head and THE SOURCE'S agree over the whole reconciled length -- a stronger statement than the record's own stale digest, which describes fewer bytes than are there. Then retention resumes from what is on disk and the recovery is DECLARED.",
+      "behind_or_unreadable_or_disagreeing": "the destination holds bytes nothing can account for; the old bytes are kept, a new generation begins and the uncertainty is declared",
+      "bounded": "at the same FINGERPRINT the rest uses, and the bound is stated at the site: bytes past the window are covered by the prefix agreeing and by nothing else",
+      "same": "the ordinary tick; nothing declared"
+    },
+    "and_a_short_write_still_records_what_DID_land": "otherwise the next tick re-copies bytes that are already there. The DATA failure is said first, because it is the one an operator is looking for.",
+    "and_my_own_description_was_wrong_too": "I called an atomic REPLACE of the record a transaction over the separately appended data. It is not, and the review is right to say so. What is true is narrower and is what the recovery rests on.",
+    "the_order_is_the_recovery": "the bytes go down FIRST and the record follows, so the destination can only ever be AHEAD of the record -- and being ahead is a fact on disk that can be read. The other order would leave a record claiming bytes that are not there, which nothing can reconstruct.",
+    "the_write_answer_is_propagated": "_recorded declares a record that could not be written, and the tick stops there so the two stay one append apart rather than many",
+    "what_was_wrong": "_write_retention could fail and _appended DISCARDED the answer, so a record that never reached disk was reported as no failure at all. A fresh map then trusted the stale offset, seeked the source to 3, opened the destination O_APPEND and produced abcdefdef -- again with failed empty."
+  },
+  "R2_the_record_is_INPUT": {
+    "_believed": "validates the whole record where the document becomes a decision: every key a confined single-component name; every entry a CLOSED document of exactly identity, destination, retained, head; identity a pair of ints; retained a non-negative int; head empty or one lower-case sha256; and the destination either the flattened source itself or one of its own generations",
+    "entry_by_entry": "a bad entry is DROPPED rather than taking the rest with it -- the record describes many sources and one unreadable entry is not a reason to lose the bindings that are provable. The caller declares the uncertainty; nothing substitutes a value.",
+    "the_descriptors_too": "the record is refused unless fstat says a REGULAR file (O_NOFOLLOW says nothing about a fifo, which would block this drain forever), opened O_NONBLOCK, and read back under MAX_RETENTION because metadata read back is input like any other",
+    "the_source_destination_relationship": "part of the record's meaning, so one entry cannot redirect another source's bytes",
+    "the_staging_is_OWNED": "O_CREAT|O_EXCL|O_NOFOLLOW at a name carrying a per-call counter, and only an entry THIS call created is ever removed -- the two lessons attempt_log_format.write_declaration already carries, applied rather than restated differently. A fixed pid name opened O_TRUNC is not exclusively owned: two threads draining two sources share a pid.",
+    "what_was_wrong": "_read_retention accepted any JSON object and _destination used its nested destination, retained, identity and head straight out of it -- so a synthetic record naming destination '../escaped' had the source's bytes appended OUTSIDE the native corner, with failed empty. O_NOFOLLOW governs the FINAL component only and dir_fd resolves '..' exactly as any path does: a descriptor-relative open is not confinement, the NAME is."
+  },
+  "THE_REVIEWERS_PROBES_RE_RUN": {
+    "R1_failed_record_write": {
+      "now": [
+        "a native retention record could not be written; the bytes already retained are unaffected and the next tick reconciles from what is on disk, but until then this corner cannot say which source filled which retained file"
+      ],
+      "was": "no failure declared"
+    },
+    "R1_fresh_map_recovery": {
+      "now": {
+        "content": {
+          "session.jsonl": "abcdef"
+        },
+        "declared": [
+          "a retention record was behind the bytes it describes, which is what a failed or interrupted record update leaves; retention resumed from what is on disk rather than from the stale offset"
+        ],
+        "entries": [
+          "session.jsonl"
+        ]
+      },
+      "was": "session.jsonl = abcdefdef, failed empty"
+    },
+    "R2_escaping_destination": {
+      "now": {
+        "anything_written_beside_the_corner": [],
+        "declared": [
+          "the retention record held entries this capture will not act on, so the sources they named start their own generations rather than resuming a correspondence nothing proves"
+        ],
+        "escaped_file_exists": false,
+        "native_entries": [
+          "session.jsonl"
+        ]
+      },
+      "was": "the source's bytes appended outside the native directory, failed empty"
+    },
+    "script": "/tmp/w198667-probe-200182.py, run against the worker module directly"
+  },
+  "answers": "review-2026-09-18T04-07-54Z.md",
+  "authority": "existing; standing test-change authority (AGENTS.md 2026-09-13); no new permission gate sought or needed",
+  "candidate": {
+    "v12/python/tests/manager/test_attempt_logs.py": "1dea8e09399d6f03a4429810b9a93d803501d0d845e0ccaf7fb20d881c3ce43d",
+    "v12/worker/claude_agent.py": "1d75a0435bcf6f75e39765b2d6bf4263f102304154bae276085499e2ccd5b6b4"
+  },
+  "cases_the_review_named": {
+    "disposable_files_only": "every case runs under its own temporary room; no real deployment file is read or written",
+    "fresh_map_recovery": [
+      "test_a_FRESH_map_after_that_failure_does_NOT_duplicate",
+      "test_a_record_AHEAD_of_its_bytes_is_never_resumed",
+      "test_a_reconciled_prefix_that_DISAGREES_starts_a_generation"
+    ],
+    "interrupted_or_failed_updates": [
+      "test_a_FAILED_record_write_is_DECLARED_and_not_swallowed",
+      "test_an_INTERRUPTED_update_is_the_same_case_and_recovers"
+    ],
+    "malformed_offsets_and_fields": [
+      "test_a_MALFORMED_offset_is_not_believed (str, negative, float, bool, None)",
+      "test_a_MALFORMED_head_or_identity_is_not_believed",
+      "test_an_ENTRY_WITH_AN_EXTRA_MEMBER_is_not_believed",
+      "test_ONE_BAD_ENTRY_does_not_lose_the_provable_ones"
+    ],
+    "nonregular_records": [
+      "test_a_NONREGULAR_record_is_refused_rather_than_read (a fifo)",
+      "test_an_OVERSIZED_record_is_treated_as_ABSENT"
+    ],
+    "short_writes": [
+      "test_a_SHORT_WRITE_still_records_what_DID_reach_the_room"
+    ],
+    "through_the_actual_capture_caller": [
+      "test_it_recovers_through_the_ACTUAL_caller_too -- a failed record update inside one _ran_provider turn, then a SECOND incarnation with an empty map, ending at abcdefghi retained once"
+    ],
+    "traversal_and_absolute_destinations": [
+      "test_a_TRAVERSING_destination_writes_NOTHING_outside_the_corner",
+      "test_an_ABSOLUTE_destination_is_refused_the_same_way",
+      "test_a_destination_naming_ANOTHER_SOURCES_file_is_refused",
+      "test_the_record_cannot_name_ITSELF_or_its_own_staging"
+    ],
+    "unowned_staging": [
+      "test_the_STAGING_entry_is_CREATED_and_never_opened -- the actual open flags are observed, O_EXCL|O_CREAT and never O_TRUNC, and two calls never share one name",
+      "test_a_staging_entry_THIS_CALL_DID_NOT_MAKE_is_never_removed"
+    ]
+  },
+  "claim": 200182,
+  "no": [
+    "live model",
+    "production action",
+    "recovery or resubmission",
+    "version-control mutation of this repository",
+    "direct read or mutation of the SQLite coordination store",
+    "image build, rebuild or re-attribution",
+    "new permission gate"
+  ],
+  "preserved": {
+    "W197661": "queued at baton.bug. Its instance-200000 episode, its fixture image attribution and its candidate paths (proposing_entry.py, proposing_agent.py, Dockerfile.fixture, tools/bootstrap.py, authority/core.py and their two test paths) are untouched here; this claim changes claude_agent.py and test_attempt_logs.py only, and both of W197661's suites were run green against this tree",
+    "fixture_199285_and_199918": "untouched, including their build logs, iids and smoke.json",
+    "history": "no prior evidence file, review, PROGRESS entry or fixture episode is rewritten; FINDING and PLAN gain new dated entries above the old ones",
+    "production": "not read from, written to, started or changed",
+    "the_failed_disposable": "retained and untouched"
+  },
+  "schema": "baton.w198667.evidence/1",
+  "verification": {
+    "W197661_shared_paths": {
+      "checks": 146,
+      "result": "OK",
+      "seconds": 17.392,
+      "suites": [
+        "manager.test_proposing_fixture",
+        "tools.test_bootstrap"
+      ]
+    },
+    "affected_set": {
+      "checks": 568,
+      "result": "OK",
+      "seconds": 55.275,
+      "suites": [
+        "manager.test_attempt_logs",
+        "tools.test_attempt_logs_command",
+        "manager.test_claude_agent",
+        "manager.test_integration_worker",
+        "manager.test_worker_entry",
+        "manager.test_worker_container"
+      ]
+    },
+    "clean_under": "-W error::ResourceWarning",
+    "container_smoke": {
+      "and_its_limitation_stands": "that image carries no claude_agent.py, so it does not prove native capture -- the reviewer restated this correctly and it remains true",
+      "re_run": false,
+      "why_not": "NO IMAGE INPUT CHANGED this claim. The candidate is claude_agent.py and its test path; attempt_log_format.py and baton_worker.py are byte-identical to the copies in fixture-199918's context, so claim199918's 8/8 smoke on image sha256:8105d3c0deca... still describes the current bytes and is not re-attributed or rewritten."
+    },
+    "cumulative_note": "prior claims' measured spending is preserved in their own evidence files and is not restated",
+    "job_manager_whole_suite": {
+      "checks": 837,
+      "result": "OK",
+      "seconds": 9.622
+    },
+    "seconds_measured_this_claim": 600,
+    "test_attempt_logs": {
+      "checks": 140,
+      "new": 19,
+      "result": "OK"
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    }
+  },
+  "work": "2b077949-W198667"
+}

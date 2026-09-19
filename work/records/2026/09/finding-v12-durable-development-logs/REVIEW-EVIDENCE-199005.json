@@ -1,0 +1,44 @@
+{
+  "claim": 199005,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": true,
+    "v12/python/tests/manager/test_attempt_logs.py": true,
+    "v12/python/src/baton_v12/worker_manager/oci.py": true,
+    "v12/python/tests/manager/test_oci.py": true,
+    "v12/python/tests/manager/test_dependencies.py": true,
+    "v12/worker/integration_entry.py": true,
+    "v12/python/tests/manager/test_integration_worker.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "output": "......................................\n----------------------------------------------------------------------\nRan 38 tests in 0.086s\n\nOK\n",
+    "seconds": 0.23892072000307962
+  },
+  "retained_probe_path": "/tmp/w198667-review199005-sbvvq3rs",
+  "traversal_read": {
+    "declaration": "none",
+    "stream": "../other",
+    "state": "live",
+    "bytes": 24,
+    "why": "bytes are here and no writer has said this stream ended; completeness is unknown",
+    "file": "present",
+    "from_byte": 0,
+    "bytes_read": 24,
+    "text": "SYNTHETIC OTHER ATTEMPT\n",
+    "at_end": true
+  },
+  "existing_staging_refusal": "this capture declaration could not be written (FileExistsError); the stream's own log is unaffected",
+  "preexisting_staging_survives": false,
+  "short_write_return": {
+    "declared": "failed",
+    "reason": "the writer could not write this stream; whatever is here is what reached the file before it failed, and there may be no file at all"
+  },
+  "short_write_readback": {
+    "declaration": "corrupt",
+    "stream": "provider.stderr",
+    "state": "absent",
+    "bytes": 0,
+    "why": "no log was created for this stream",
+    "file": "absent"
+  }
+}

@@ -125,3 +125,12 @@
 22. [next, operator acceptance] Return W52821 to `baton.ops`. The final review
     accepts the bounded W52821 integration but does not accept parked W61599,
     close W62098, or turn the whole dirty worktree into one candidate.
+
+
+## 2026-09-17 — post-completion clarification
+
+W52821 is closed satisfying on the ledger; the earlier next-acceptance entry is
+historical. Host-login refresh behavior is confirmed in the latest FINDING entry.
+Claude delivery compatibility was inspected without credential content or live
+authentication. Codex production worker compatibility remains unproved; no new
+implementation or test execution is selected under this completed Work.

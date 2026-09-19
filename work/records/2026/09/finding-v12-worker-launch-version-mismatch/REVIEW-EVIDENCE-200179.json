@@ -1,0 +1,65 @@
+{
+  "schema": "baton.w197661.review/1",
+  "claim": 200179,
+  "participant": "baton.rvpc",
+  "verdict": "changes-requested",
+  "candidate": {
+    "v12/python/src/baton_v12/authority/core.py": "4283ea95d757e9587f9a16f293039895e97b179236562de20dfad0f4e0f39b69",
+    "v12/python/tests/manager/test_proposing_fixture.py": "650bd1f6a7e4c2f79cd255d2bcbddb977483ecfaf7a07a40780c9fda4b960aa5",
+    "v12/python/tests/tools/test_bootstrap.py": "388f73a05c985f0bf535e67b30c1302034eec5d2768df300a986307c8aa69008",
+    "v12/python/tools/bootstrap.py": "b05a1dcc7c88e28ada61d291473f09ba32d986a676f609cf21dc12d4adaddb0c",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/context/Dockerfile.fixture": "f9c05f6d9fab38712c273b5f58ac14b6cbd268994eab89d7d0310e76d4053093",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/context/worker/proposing_agent.py": "589b76aa4d121d2bfb9ff9ad7b72cfebe46c8b0523cf661c8c388cd0c4cde9a0",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/context/worker/proposing_entry.py": "0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760"
+  },
+  "all_seven_hashes_match": true,
+  "author_evidence_sha256": "3ff3e28494a83fcbdc1ed9392d2085ee5869de884e3e5586ad0b6ac4cc71fc4e",
+  "lifecycle_sha256": "96965a70f03d67f84570d75f181d611ac291d873a384ffd4d2e9501e30dd9d32",
+  "probe_sha256": "3573b79d47379062ea50d5eb69e2163ec5d2c09559045452b76b0347c62c9b45",
+  "verification": {
+    "command": "timeout 30s python3 -W error::ResourceWarning work/records/2026/09/finding-v12-worker-launch-version-mismatch/review-probes-200179.py",
+    "exit": 0,
+    "probe_seconds": 0.11884081299649552,
+    "static_entrypoint_tests": 5,
+    "tests_seconds": 0.0005639889859594405,
+    "tests_result": "OK, no warnings printed",
+    "bootstrap_probe": {
+      "boundary": "real _compose/_canonical_target with in-memory Authority double, no store",
+      "result": "conflicting bases refused AFTER 1 route write, 2 Work creates, 8 grants"
+    },
+    "review_probe": {
+      "boundary": "real ProposingAgent review branch, mocked subprocess seam, no writes",
+      "repositories": [
+        "/output",
+        "/output",
+        "/output"
+      ],
+      "arguments": [
+        [
+          "rev-parse",
+          "HEAD"
+        ],
+        [
+          "rev-parse",
+          "HEAD^{tree}"
+        ],
+        [
+          "rev-parse",
+          "HEAD~1"
+        ]
+      ]
+    }
+  },
+  "findings": [
+    "R1 fixture review reads writable /output rather than read-only /input/source; host mountpoint emptiness does not prove container input absent",
+    "R2 conflicting-base preflight occurs after durable composition effects",
+    "R3 instance-200000 verifier still targets lifecycle-198943 and old attempt; replacement runtime/full image input provenance and complete outcome remain unproved"
+  ],
+  "operations": {
+    "engine": "read-only docker ps lookup refused with permission denied on unix:///var/run/docker.sock; no engine state independently established or changed",
+    "missing_file": "guessed worker_manager/checkpoint_profiles.py absent; actual baton_v12/checkpoint_profiles.py read, imports ProfileRefusal from source_profiles/checkout.py",
+    "stores": "no coordination store opened directly; no production mutation",
+    "history": "prior evidence, PROGRESS and other participant files unchanged",
+    "costs": "one focused probe run measured above; static/read time unmeasured; prior costs retained separately"
+  }
+}

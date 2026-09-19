@@ -1,0 +1,100 @@
+{
+  "authority_canonical_target": "e486652c4ddebfb696e030b4b867e914248db542",
+  "authority_uuid": "cd9b284650a144749acfcb7af0dca912",
+  "claim": 200000,
+  "destination": "/home/sl/baton-v12-lifecycle-200000c",
+  "exchange": {
+    "review": {
+      "attempt": "attempt-aa9eb7ec5a8de0a13e78bec5f3db920c0bcb5460c3b1a34ae72f0782bd3a0d6e",
+      "documents": [
+        "receipt.json",
+        "state-describe.json",
+        "state-work.json",
+        "terminal.json"
+      ],
+      "inputs_source_entries": [],
+      "terminal": {
+        "answered": [
+          "describe"
+        ],
+        "attempt_id": "attempt-aa9eb7ec5a8de0a13e78bec5f3db920c0bcb5460c3b1a34ae72f0782bd3a0d6e",
+        "command_digest": "sha256:ae2209592c39b55953deb3d46eba87ba81e3df67afc69180943f874eb1c8a6de",
+        "disposition": null,
+        "ending": "faulted",
+        "fault_code": "agent",
+        "manifest_digest": null,
+        "schema": "baton.worker-exchange.terminal/1",
+        "sequence_id": "sequence-a07bc95cdafc6f610c23b3fe6b31e3f4",
+        "session": "session-3a42ab7833a3a7a4df8c2d16"
+      },
+      "workspace_entries": [
+        "result-attempt-aa9eb7ec5a8de0a13e78bec5f3db920c0bcb5460c3b1a34ae72f0782bd3a0d6e"
+      ]
+    }
+  },
+  "job": {
+    "job_id": "w197661-lifecycle",
+    "submission_id": "w197661-lifecycle-200000",
+    "terminal_policy": "report-and-hold"
+  },
+  "review_line": {
+    "custody_attempts": [
+      "attempt-4b3799886d54d330d9cc8fca246d1e8013891077948886edb564a86bb8b4a3e6"
+    ],
+    "custody_entries": {
+      "findings": [
+        "result.txt"
+      ],
+      "logs": [
+        "result.txt"
+      ],
+      "proposal": [
+        "objects.bundle",
+        "patch.diff",
+        "result.json",
+        "verification.txt"
+      ]
+    },
+    "declared_proposal_tree": [
+      "objects.bundle",
+      "patch.diff",
+      "result.json",
+      "verification.txt"
+    ],
+    "its_bytes": "w197661 deterministic fixture candidate\n",
+    "lines": [
+      "line-8b1d8c5b805efa3d07c43e6a4d9ae6e677ce22e0ee06e5455ac6341763080930"
+    ],
+    "the_candidate_file_is_on_the_line": true
+  },
+  "schema": "baton.w197661.lifecycle/1",
+  "stages": [
+    {
+      "attempt_id": "attempt-4b3799886d54d330d9cc8fca246d1e8013891077948886edb564a86bb8b4a3e6",
+      "deferral": null,
+      "kind": "implementation",
+      "receipts": [
+        "admit:performed",
+        "claim:performed"
+      ],
+      "state": "claimed"
+    },
+    {
+      "attempt_id": "attempt-aa9eb7ec5a8de0a13e78bec5f3db920c0bcb5460c3b1a34ae72f0782bd3a0d6e",
+      "deferral": null,
+      "kind": "review",
+      "receipts": [
+        "admit:performed",
+        "claim:performed"
+      ],
+      "state": "claimed"
+    },
+    {
+      "attempt_id": "attempt-e0722c9248f5bc1e8a7a856702ee90998469485637acf3063d69cc6cd21250b8",
+      "deferral": null,
+      "kind": "integration",
+      "receipts": [],
+      "state": "blocked"
+    }
+  ]
+}

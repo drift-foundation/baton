@@ -1,0 +1,23 @@
+Sending build context to Docker daemon  571.4kB
+Step 1/8 : FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+ ---> 0697b6595aff
+Step 2/8 : COPY worker/baton_worker.py /opt/baton/baton_worker.py
+ ---> 1b4994fdbb09
+Step 3/8 : COPY worker/claude_agent.py /opt/baton/claude_agent.py
+ ---> de04efbfe4b9
+Step 4/8 : COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
+ ---> 273a00ee4baf
+Step 5/8 : COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+ ---> 00c6e0ba22ee
+Step 6/8 : COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+ ---> bc7bc86cdfe4
+Step 7/8 : USER 65532:65532
+ ---> Running in ecd60396fb83
+ ---> Removed intermediate container ecd60396fb83
+ ---> a7f095322eb0
+Step 8/8 : ENTRYPOINT ["python3", "/opt/baton/dogfood_entry.py"]
+ ---> Running in 81de5a163aa4
+ ---> Removed intermediate container 81de5a163aa4
+ ---> 35f36286cb16
+Successfully built 35f36286cb16
+Successfully tagged baton-w197661-provider:candidate-197885

@@ -1,0 +1,5 @@
+started: manager pid 796046
+started: publisher pid 796047
+ready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot
+state root: /home/sl/baton-v12-lifecycle-200254/state
+no Job was submitted; an empty configured stack is a valid idle state

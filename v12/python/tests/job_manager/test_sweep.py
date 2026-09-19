@@ -19,6 +19,7 @@ from baton_v12.contracts import ContractRefusal
 from baton_v12.job_manager import (JobStore, RefreshUnavailable, owed_acts,
                                    receipt_rows, receipts_of, status, sweep,
                                    submit)
+from baton_v12.job_manager import episodes, manager, projection
 from baton_v12.job_manager.episodes import identities
 
 if __package__:
@@ -233,6 +234,396 @@ class Refusals(SweepCase):
             sweep(self.jobs, Silent(), now=NOW)
         self.assertEqual((caught.exception.category, caught.exception.code),
                          ("integrity", "schema"))
+
+
+class ADeferredActSaysWHYAndForWHICHAttempt(SweepCase):
+    """W197661, owner ruling seq199199's visibility half.
+
+    THE DEFECT THIS CLOSES. `Refusals.test_an_ordinary_refusal_defers_the_act
+    _and_records_nothing` above is still correct about receipts: a deferral is
+    NOT one. But "records nothing" was also literally true of the REASON, and
+    that is what an operator needed. A real deployment sat at `answering` for a
+    whole incident with a healthy manager, a fresh snapshot and one observed
+    Job, and the only account of why was a reconcile report nobody had kept.
+
+    AND IT IS NOT TERMINAL. `projection` reads a durably REFUSED receipt as
+    `exceptional`; a deferral is re-enterable and must never be read that way,
+    which is why it is its own relation rather than a widened receipt.
+    """
+
+    REASON = ContractRefusal("refused", "precondition",
+                             "offer job-a is not accepted")
+
+    LATEST = "2026-09-02T00:10:00.000Z"
+
+    def at(self, instant):
+        """The STORE's clock, which is what stamps a durable write. `now=` is
+        the sweep's own operand and does not decide when a row was recorded."""
+        self.instants.append(instant)
+
+    def deferring(self, act="claim"):
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refuse("job-a/implementation", act, self.REASON)
+        self.at(LATER)
+        return sweep(self.jobs, self.acts, now=LATER)
+
+    def held(self):
+        """Every outstanding reason for this stage, whichever episode owed it."""
+        return projection.deferral_of(self.jobs, "job-a/implementation")
+
+    def test_the_reason_and_the_exact_attempt_are_DURABLE(self):
+        self.deferring()
+        found = self.held()
+        self.assertEqual(len(found), 1)
+        one = found[0]
+        self.assertEqual(one["act"], "claim")
+        self.assertEqual(one["category"], "refused")
+        self.assertEqual(one["code"], "precondition")
+        self.assertIn("is not accepted", one["message"])
+        # THE HALF THE OWNER ASKED FOR BY NAME: a reason without a subject is
+        # not actionable.
+        self.assertEqual(
+            one["attempt_id"],
+            projection.stage_states(self.jobs, self.acts)
+            ["job-a/implementation"]["episode"]["attempt_id"])
+
+    def test_it_is_NOT_a_receipt(self):
+        self.deferring()
+        self.assertEqual(sorted(receipts_of(self.jobs,
+                                            "job-a/implementation", 1)),
+                         ["admit"])
+
+    def test_the_stage_is_NOT_made_exceptional_by_it(self):
+        """The whole reason this is not a widened receipt."""
+        self.deferring()
+        held = projection.stage_states(self.jobs, self.acts)
+        self.assertNotEqual(held["job-a/implementation"]["state"],
+                            "exceptional")
+
+    def test_repeating_keeps_ONE_row_and_advances_only_what_it_observed(self):
+        """A deferral repeats on every tick. A row per occurrence would be an
+        unbounded durable write driven by a condition that is not changing."""
+        self.deferring()
+        first = self.held()[0]
+        self.at(self.LATEST)
+        for _ in range(3):
+            # RE-ARMED EACH TICK, because the fake refuses once and the
+            # condition this is about is one that keeps recurring. A loop that
+            # let it succeed would be measuring resolution, not repetition.
+            self.acts.refuse("job-a/implementation", "claim", self.REASON)
+            sweep(self.jobs, self.acts, now=self.LATEST)
+        found = self.held()
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["since"], first["since"])
+        self.assertEqual(found[0]["observed"], self.LATEST)
+        self.assertNotEqual(found[0]["observed"], found[0]["since"])
+
+    def test_a_SETTLED_act_leaves_no_outstanding_reason(self):
+        """A reason left behind after its act succeeded would be worse than
+        none: an operator would be reading a live explanation of something
+        that is over."""
+        self.deferring()
+        self.assertIsNotNone(self.held())
+        self.assertEqual(self.outcomes(sweep(self.jobs, self.acts, now=LATER)),
+                         [("job-a/implementation", "claim", "performed")])
+        self.assertIsNone(self.held())
+
+    def test_it_SURVIVES_a_restart_of_the_manager(self):
+        """The reason has to outlive the process that observed it, or an
+        operator arriving after a crash is exactly where they were before."""
+        self.deferring()
+        before = self.held()
+        self.jobs.close()
+        self.jobs = JobStore.open(self.job_path, authority_uuid=UUID,
+                                  incarnation="jobs-after-restart",
+                                  clock=self.clock)
+        self.addCleanup(self.jobs.close)
+        self.assertEqual(self.held(), before)
+
+    def test_the_status_document_carries_it_beside_the_state(self):
+        """The acceptance in the review's own words: the reason and the exact
+        attempt, without direct store or Docker inspection."""
+        self.deferring()
+        document = projection.status(self.jobs, self.acts,
+                                     observed_at=self.LATEST)
+        stage = [one for one in document["jobs"][0]["stages"]
+                 if one["stage_id"] == "job-a/implementation"][0]
+        self.assertEqual(len(stage["deferral"]), 1)
+        self.assertEqual(stage["deferral"][0]["code"], "precondition")
+        self.assertEqual(stage["deferral"][0]["attempt_id"],
+                         stage["attempt_id"])
+        self.assertNotEqual(stage["state"], "exceptional")
+
+    def test_a_stage_with_nothing_outstanding_says_NULL(self):
+        """Which is a different answer from a stage nobody has asked to do
+        anything, and both are different from an empty list."""
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        document = projection.status(self.jobs, self.acts, observed_at=NOW)
+        for one in document["jobs"][0]["stages"]:
+            self.assertIsNone(one["deferral"])
+
+    def test_a_DURABLE_refusal_records_a_receipt_and_no_deferral(self):
+        """The two are different answers and must not be conflated: one is
+        settled and terminal, the other is outstanding and re-enterable."""
+        self.submit(submission(jobs=[job("job-a")]))
+        self.acts.refuse("job-a/implementation", "admit",
+                         ContractRefusal("policy", "profile-uncertified",
+                                         "nothing certifies it", durable=True))
+        sweep(self.jobs, self.acts, now=NOW)
+        self.assertEqual(
+            receipts_of(self.jobs, "job-a/implementation", 1)["admit"]
+            ["state"], "refused")
+        self.assertIsNone(self.held())
+
+
+class ADeferredFINALIZATIONIsVisibleToo(SweepCase):
+    """W197661 review 2026-09-18T02-59-56Z [R1], and it is the defect this
+    whole visibility was selected FOR.
+
+    I wired `_defer` into `_delegate`, whose acts are `admit` and `claim`. The
+    owner selected this for a deferred `conclude` -- which goes through
+    `_converse` and `_recover_endings` -- so the reviewer's probe still found
+    `answering` with `deferral: null` for the exact attempt whose finalization
+    was blocked, and my "R2a DONE" was wrong about the half that mattered.
+    """
+
+    REASON = ContractRefusal("refused", "precondition",
+                             "synthetic finalization blocked after intake")
+
+    def answering(self):
+        """One stage whose worker answered and whose ending is owed."""
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.observed("job-a/implementation", claimed_by=True,
+                           runtime={"runtime_id": "runtime-1",
+                                    "execution_runtime": "quiescent"},
+                           exchange={"state": "answered"})
+        return "job-a/implementation"
+
+    def held(self):
+        return projection.deferral_of(self.jobs, "job-a/implementation")
+
+    def stage(self, observed_at=NOW):
+        document = projection.status(self.jobs, self.acts,
+                                     observed_at=observed_at)
+        return [one for one in document["jobs"][0]["stages"]
+                if one["stage_id"] == "job-a/implementation"][0]
+
+    def test_a_deferred_CONCLUDE_is_recorded_with_its_exact_attempt(self):
+        stage_id = self.answering()
+        self.acts.refuse(stage_id, "conclude", self.REASON)
+        report = sweep(self.jobs, self.acts, now=LATER)
+        self.assertIn(("conclude", "deferred"),
+                      [(one["act"], one["outcome"])
+                       for one in report.get("spoken", [])])
+        found = self.held()
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["act"], "conclude")
+        # THE FAKE'S OWN REFUSAL, whatever it says: what this case is about
+              # is that the PATH records one, not which prose it carries.
+        self.assertTrue(found[0]["message"])
+        self.assertIsNone(found[0]["operation_id"])
+
+    def test_the_STATUS_SURFACE_no_longer_says_answering_with_nothing(self):
+        """The reviewer's probe, asserted: `answering` with `deferral: null`
+        for the exact attempt whose finalization was blocked."""
+        stage_id = self.answering()
+        self.acts.refuse(stage_id, "conclude", self.REASON)
+        sweep(self.jobs, self.acts, now=LATER)
+        found = self.stage(observed_at=LATER)
+        self.assertEqual(found["state"], "answering")
+        self.assertIsNotNone(found["deferral"])
+        self.assertEqual(found["deferral"][0]["act"], "conclude")
+        self.assertEqual(found["deferral"][0]["attempt_id"],
+                         found["attempt_id"])
+        # AND IT IS STILL NOT TERMINAL. A re-enterable condition reported as
+        # `exceptional` would be a worse falsehood than the silence.
+        self.assertNotEqual(found["state"], "exceptional")
+
+    def test_a_SUCCEEDING_conclude_clears_the_reason(self):
+        stage_id = self.answering()
+        self.acts.refuse(stage_id, "conclude", self.REASON)
+        sweep(self.jobs, self.acts, now=LATER)
+        self.assertIsNotNone(self.held())
+        # THE FAKE IS GIVEN AN ENDING, so the next tick's conclude SUCCEEDS.
+        # Its default is a refusal, which is honest -- a deployment given no
+        # conclude cannot end anything -- and would have made this case
+        # measure the refusal path twice.
+        self.acts.endings[stage_id] = {"ended": True}
+        sweep(self.jobs, self.acts, now=LATER)
+        self.assertIsNone(self.held())
+        self.assertIsNone(self.stage(observed_at=LATER)["deferral"])
+
+    def test_a_REPEATED_refusal_keeps_one_row_and_advances_observed(self):
+        stage_id = self.answering()
+        self.acts.refuse(stage_id, "conclude", self.REASON)
+        sweep(self.jobs, self.acts, now=LATER)
+        first = self.held()[0]
+        self.instants.append(self.LATEST)
+        for _ in range(3):
+            self.acts.refuse(stage_id, "conclude", self.REASON)
+            sweep(self.jobs, self.acts, now=self.LATEST)
+        found = self.held()
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["since"], first["since"])
+        self.assertEqual(found[0]["observed"], self.LATEST)
+
+    def test_it_SURVIVES_a_restart(self):
+        stage_id = self.answering()
+        self.acts.refuse(stage_id, "conclude", self.REASON)
+        sweep(self.jobs, self.acts, now=LATER)
+        before = self.held()
+        self.jobs.close()
+        self.jobs = JobStore.open(self.job_path, authority_uuid=UUID,
+                                  incarnation="jobs-after-restart",
+                                  clock=self.clock)
+        self.addCleanup(self.jobs.close)
+        self.assertEqual(self.held(), before)
+
+    LATEST = "2026-09-02T00:10:00.000Z"
+
+
+class AFailureToRecordTheREASONIsNotASuccess(SweepCase):
+    """Review [R2]: blanket exception swallowing made failed persistence
+    indistinguishable from success -- an evidence surface that silently has no
+    evidence, which is the class of defect this Work exists to remove."""
+
+    REASON = ContractRefusal("refused", "precondition", "offer not accepted")
+
+    def test_a_deferral_that_could_not_be_written_SAYS_SO(self):
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refuse("job-a/implementation", "claim", self.REASON)
+        self.jobs._connection.execute("DROP TABLE deferrals")
+        report = sweep(self.jobs, self.acts, now=LATER)
+        detail = report["acts"][0]["detail"]
+        self.assertEqual(detail["code"], "precondition")
+        self.assertFalse(detail["evidence"]["recorded"])
+        self.assertIn("could not be recorded", detail["evidence"]["why"])
+
+    def test_an_ORDINARY_deferral_adds_no_evidence_noise(self):
+        """The report is about the ACT. A line saying the note was filed would
+        be noise on every tick."""
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refuse("job-a/implementation", "claim", self.REASON)
+        report = sweep(self.jobs, self.acts, now=LATER)
+        self.assertNotIn("evidence", report["acts"][0]["detail"])
+
+    def test_a_FAILED_CLEAR_is_reported_rather_than_left_to_mislead(self):
+        """A reason left behind because the DELETE failed would present a
+        settled act as outstanding."""
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refuse("job-a/implementation", "claim", self.REASON)
+        sweep(self.jobs, self.acts, now=LATER)
+        self.jobs._connection.execute("DROP TABLE deferrals")
+        report = sweep(self.jobs, self.acts, now=LATER)
+        detail = report["acts"][0]["detail"] or {}
+        self.assertFalse(detail["evidence"]["cleared"])
+        self.assertIn("may still be reported as outstanding",
+                      detail["evidence"]["why"])
+
+    def test_the_STAGE_is_unaffected_by_an_evidence_failure(self):
+        """Evidence failure is kept separate from execution state."""
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refuse("job-a/implementation", "claim", self.REASON)
+        self.jobs._connection.execute("DROP TABLE deferrals")
+        sweep(self.jobs, self.acts, now=LATER)
+        held = projection.stage_states(self.jobs, self.acts)
+        self.assertNotEqual(held["job-a/implementation"]["state"],
+                            "exceptional")
+
+
+class ARETAINEDReasonIsNotAnOUTSTANDINGOne(SweepCase):
+    """Review 2026-09-18T03-18-24Z [3], and my previous case did not prove it.
+
+    `_resolve` deletes the row when the act settles. A DELETE that FAILED left
+    it behind, and the status reader called every stored row outstanding -- so
+    a settled act's retained reason was presented as a live condition. My
+    earlier case dropped the TABLE, which proves the reconcile report says so
+    and proves nothing at all about the operator surface, because with the
+    table gone there is no row to read.
+
+    THE CASE THAT ACTUALLY PROVES IT leaves the row READABLE and settles the
+    act, which is the state an operator would really meet.
+    """
+
+    REASON = ContractRefusal("refused", "precondition", "offer not accepted")
+
+    def stage(self):
+        document = projection.status(self.jobs, self.acts, observed_at=LATER)
+        return [one for one in document["jobs"][0]["stages"]
+                if one["stage_id"] == "job-a/implementation"][0]
+
+    def test_a_settled_act_whose_row_SURVIVED_is_marked_RETAINED(self):
+        from unittest import mock
+
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        self.acts.refuse("job-a/implementation", "claim", self.REASON)
+        sweep(self.jobs, self.acts, now=LATER)
+        held = self.stage()["deferral"]
+        self.assertTrue(held[0]["outstanding"])
+        self.assertIsNone(held[0]["why_retained"])
+        # THE CLEAR FAILS AND THE ROW STAYS READABLE, which is the state the
+        # previous case could not produce.
+        with mock.patch.object(manager, "_resolve",
+                               lambda store, owed: {"cleared": False,
+                                                    "why": "it did not"}):
+            sweep(self.jobs, self.acts, now=LATER)
+        found = self.stage()["deferral"]
+        self.assertEqual(len(found), 1)
+        self.assertFalse(found[0]["outstanding"])
+        self.assertIn("retained evidence rather than an outstanding",
+                      found[0]["why_retained"])
+        # AND THE STAGE MOVED ON, which is what makes the row stale.
+        self.assertEqual(
+            sorted(receipts_of(self.jobs, "job-a/implementation", 1)),
+            ["admit", "claim"])
+
+    def test_an_OLDER_pending_ending_is_reported_and_attributed(self):
+        """`_recover_endings` services endings registered by a prior episode,
+        and a reader bound to the live episode would hide them."""
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        # A DEFERRAL RECORDED FOR AN EARLIER EPISODE, the way
+        # `_recover_endings` records one.
+        manager._defer(
+            self.jobs,
+            {"stage_id": "job-a/implementation", "episode": 1,
+             "act": "conclude", "attempt_id": "attempt-older"},
+            {"category": "refused", "code": "precondition",
+             "message": "an older ending never settled"})
+        found = self.stage()["deferral"]
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["act"], "conclude")
+        self.assertEqual(found[0]["episode"], 1)
+        self.assertEqual(found[0]["attempt_id"], "attempt-older")
+        # OUTSTANDING, because nothing has settled that ending.
+        self.assertTrue(found[0]["outstanding"])
+
+    def test_an_UNREGISTERED_conclude_reason_stays_OUTSTANDING(self):
+        """`conclude` writes no receipt, so what settles it is a REGISTERED
+        ending that is no longer pending. A first cut of that rule read
+        "nothing is pending" as settlement -- which quietly calls an
+        outstanding condition over whenever no ending was ever registered.
+        The safe direction is this one."""
+        self.submit(submission(jobs=[job("job-a")]))
+        sweep(self.jobs, self.acts, now=NOW)
+        manager._defer(
+            self.jobs,
+            {"stage_id": "job-a/implementation", "episode": 1,
+             "act": "conclude", "attempt_id": "attempt-never-registered"},
+            {"category": "refused", "code": "precondition",
+             "message": "no ending was ever registered for this"})
+        found = self.stage()["deferral"]
+        self.assertTrue(found[0]["outstanding"])
+        self.assertIsNone(found[0]["why_retained"])
 
 
 class Containment(SweepCase):

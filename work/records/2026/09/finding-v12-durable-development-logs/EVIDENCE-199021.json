@@ -1,0 +1,93 @@
+{
+  "R1": {
+    "cases": 8,
+    "correction": "one `named()` function applied at every public entry -- place, status_name, record_capture, capture_state, read, follow -- and at the two internals that join a suffix, before a descriptor is opened or a room is held",
+    "the_pattern": "THE THIRD APPEARANCE OF ONE MISTAKE. I confined the streams, then the metadata about them, and left the public reader operands unconfined. `place` held the allowlist and nothing else called it.",
+    "what": "a stream operand reached the filesystem without passing the allowlist, so read(delivery, '../other') returned a sibling's log from outside the attempt's room",
+    "why_descriptor_relative_was_not_enough": "O_NOFOLLOW governs the FINAL component only and dir_fd resolves '..' like any path, so a parent-relative or absolute operand walks straight out of a held room. The ALLOWLIST is the confinement."
+  },
+  "R2": {
+    "cases": 4,
+    "correction": "creation ownership is tracked and only an entry this call made is ever unlinked; the staging identity is per CALL (pid plus a module counter)",
+    "fixture_note": "the per-call counter also makes the staging name unguessable from outside, so the collision cases patch the module's own `_STAGING` seam rather than guessing a name",
+    "second_half": "the staging name was os.getpid(), which every thread in a process shares, and the tee this delivery exists for is two threads draining two streams at once",
+    "what": "the failure handler unlinked the staging entry on ANY failure, including the FileExistsError from the exclusive create itself -- so a refusal to touch somebody else's entry deleted it"
+  },
+  "R3": {
+    "cases": 6,
+    "correction": "every byte is written before the replace; no progress is a failure rather than a reason to ask forever; nothing is published unless it was written whole, so a valid declaration already recorded survives a failed attempt to replace it",
+    "what": "one os.write had its return count ignored, so a writer that accepted four bytes published a truncated sidecar -- read back as corrupt with the stream reported absent -- while record_capture returned the full declaration as though it had been recorded"
+  },
+  "R4_NOT_DONE": {
+    "state": "no lifecycle passes the delivery, no tee fills it, no native retention, no operator command",
+    "the_reviewer_asked_for_the_opposite": "review-2026-09-18T01-25-03Z says 'return complete candidate or exact operational refusal, not another primitive-only milestone'. This is neither a complete candidate nor an operational refusal, and I am not calling it one.",
+    "what_changed_this_claim": "R4 is no longer an open QUESTION. Both design constraints are resolved and written into PLAN with enumerated paths: the host room lives at <launch_home>/logs/<attempt>/ and rides with the LaunchDelivery, and the declaration format gets one owner that travels into the image the way source_profiles does.",
+    "why_not_started_here": "creating a log room on every launch changes what test_launch, test_oci, test_worker_entry and the integration-worker suites observe on disk, and the shared writer means both image recipes change and both images rebuild. A partially wired lifecycle with the adjacent suites unverified is worse than an unwired one with the decision recorded."
+  },
+  "also_added": {
+    "AttemptLogs.mounts": "the composer half of the bind `oci._log_mounts` already refuses badly -- the boundary had a rule and the delivery had no way to satisfy it. Three cases, including the boundary accepting what the delivery composes."
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "09bbee0a23cd6273ecedaf9a21d37a751b0aa7ad9c835dce6a22c0791f6cf216",
+    "v12/python/tests/manager/test_attempt_logs.py": "b29d5b4fd03988e97ba94cee55fe9c27ed3c2562eb7312539cd599769c235414"
+  },
+  "claim": 199021,
+  "corrects": "review-2026-09-18T01-25-03Z.md R1, R2, R3",
+  "no": [
+    "live model",
+    "container",
+    "image build",
+    "engine call",
+    "production action",
+    "version-control mutation",
+    "direct store read or write"
+  ],
+  "preserved": {
+    "W197661": "queued at baton.bug with its own candidate; baton_worker.py and claude_agent.py are untouched at the hashes above and its accepted immutable image attribution is unchanged",
+    "prior_acceptance": "the integration-diagnostic slice accepted at review198746 is untouched"
+  },
+  "reviewer_probes_rerun": {
+    "method": "the three probes from REVIEW-EVIDENCE-199005.json, rebuilt from the review's own prose rather than from my tests",
+    "preexisting_staging_survives": true,
+    "short_write": "NO LONGER REFUSED, and that is the correct outcome: a writer that accepts four bytes at a time is a legitimate writer. The defect was ignoring the count, not the short write. The declaration is now written whole and reads back declaration=declared state=failed, where before it read declaration=corrupt state=absent.",
+    "traversal_read": "REFUSED -- '../other' is not a stream this delivery names"
+  },
+  "schema": "baton.w198667.evidence/1",
+  "unchanged": {
+    "v12/python/src/baton_v12/worker_manager/oci.py": "717d892e66551285679cb36e4ceace9d056cf77fb6a4bd0a4b1a76687a674c4f",
+    "v12/python/tests/manager/test_dependencies.py": "edb6659cd899aead58aa4deb9ed73795e982cfb498bca89f88bc04baf9e7c561",
+    "v12/python/tests/manager/test_integration_worker.py": "7f6664dc2e1668660fb517cfdb7a42e686b58666f706a5346c6f7ba81e71b1cd",
+    "v12/python/tests/manager/test_oci.py": "0fa732ea7d806f59ef589a3b6efa236bb13d04bbcf83ae04cef7fc594c224844",
+    "v12/worker/baton_worker.py": "8a5f4895ff7f6609934c0b2078ae294233c1c2ebbb28390da1c1966af5dcd8a1",
+    "v12/worker/claude_agent.py": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+    "v12/worker/integration_entry.py": "cd77fd5c071dc16d31e35ad9f04338fa92b324db4e334c172e510da6cab085c8"
+  },
+  "verification": {
+    "adjacent": {
+      "checks": 474,
+      "result": "OK",
+      "seconds": 14.173,
+      "suites": [
+        "attempt_logs",
+        "oci",
+        "exchange",
+        "integration_worker",
+        "worker_entry"
+      ]
+    },
+    "seconds_measured_this_claim": 30,
+    "test_attempt_logs": {
+      "checks": 59,
+      "clean_under": "-W error::ResourceWarning",
+      "seconds": 0.135,
+      "was": 38
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57,
+      "note": "an `import errno` I added briefly took this to 58; the module raises a plain OSError instead, because errno is not an operand and registering it would have been fixing the baseline rather than the code"
+    }
+  },
+  "work": "2b077949-W198667"
+}

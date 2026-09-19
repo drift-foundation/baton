@@ -83,7 +83,7 @@ ABSENT, LIVE, GONE, UNKNOWN = "absent", "live", "gone", "unknown"
 # `just status` still answers on an installation too broken to import the
 # package -- which is exactly when an operator needs it. The copy cannot drift
 # silently: `tests/tools/test_stack.py` holds it equal to the original.
-STATUS_SCHEMA = "baton.v12.job-status/5"
+STATUS_SCHEMA = "baton.v12.job-status/6"
 
 # What `job_manager serve` prints on stderr once its deployment has composed.
 # REVIEW 2026-09-16T06-00-07Z [C3]: an observer's published snapshot is

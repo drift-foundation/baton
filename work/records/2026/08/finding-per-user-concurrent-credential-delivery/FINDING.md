@@ -320,3 +320,31 @@ occurred. W62098 owns the separately bound import-lineage defect.
 For W52821 only, a recorded bounded manual integration preserves both reviewed
 changes in the overlapping operator file and then reruns the exact gate. A
 failure stops the import and returns to review.
+
+
+## 2026-09-17 — confirmed host-login refresh flow
+
+Owner confirmed during first v12 Job preparation: use the normal provider CLI
+on the host to log in or refresh credentials. The user registry points to the
+normal credential file; a new attempt resolves its current contents lazily and
+receives an isolated delivery. No instance rebuild, Job edit or manual token
+copy is required merely because the host login was refreshed at that path.
+
+Already delivered attempts do not receive automatic credential replacement. If
+authentication expires, preserve the failure, refresh on the host, and use the
+ordinary fresh-attempt recovery path. Refreshes inside a worker are not written
+back to the host login. This confirms the selected delivery behavior, not a
+claim that a particular OAuth session is currently valid or refreshable.
+
+Read-only inspection found an existing private user registry selecting the normal
+Claude login file; registry and source are owner-only regular files. The Claude
+worker adapter uses the delivered credential file in its private home. No
+credential bytes were displayed and no provider call was performed. The normal
+Codex login file exists, but the inspected production worker tree has no Codex
+worker adapter; the located Codex image is explicitly a spike. That compatibility
+gap remains unresolved and is not repaired merely by adding a registry entry.
+W111793 concerns API-only adapters and is not automatically the owner of this
+CLI worker gap. No background work or new live run is scheduled by this ruling.
+
+This is post-completion operational clarification; W52821 remains closed with
+its historical acceptance intact.

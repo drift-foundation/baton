@@ -1,0 +1,9 @@
+{
+ "changed_entries": 70,
+ "commit": "e486652c4ddebfb696e030b4b867e914248db542",
+ "detail": null,
+ "dirty": true,
+ "excused_build_output": 0,
+ "schema": "baton.v12.build-stamp/1",
+ "source": "/home/sl/src/baton"
+}

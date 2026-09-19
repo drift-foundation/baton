@@ -1,0 +1,32 @@
+Sending build context to Docker daemon  571.4kB
+Step 1/12 : ARG PROVIDER_BASE
+Step 2/12 : FROM ${PROVIDER_BASE}
+ ---> 0697b6595aff
+Step 3/12 : COPY worker/baton_worker.py /opt/baton/baton_worker.py
+ ---> e1983f1e9386
+Step 4/12 : COPY worker/claude_agent.py /opt/baton/claude_agent.py
+ ---> 5c1fab27bcc6
+Step 5/12 : COPY worker/integration_contract.py /opt/baton/integration_contract.py
+ ---> cec912e62db0
+Step 6/12 : COPY worker/integration_workload.py /opt/baton/integration_workload.py
+ ---> 3904d1abfb4a
+Step 7/12 : COPY worker/integration_entry.py /opt/baton/integration_entry.py
+ ---> ad4e63e1a8a6
+Step 8/12 : COPY worker/worker-control-1.0.schema.json      /opt/baton/worker-control-1.0.schema.json
+ ---> 5efa160f5c0a
+Step 9/12 : COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+ ---> c3e2e5f9d286
+Step 10/12 : USER 65532:65532
+ ---> Running in dd47ad13cbd9
+ ---> Removed intermediate container dd47ad13cbd9
+ ---> 16ea87a73463
+Step 11/12 : ENTRYPOINT ["python3", "/opt/baton/integration_entry.py"]
+ ---> Running in dcda73c864a2
+ ---> Removed intermediate container dcda73c864a2
+ ---> adf276197818
+Step 12/12 : ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PYTHONPATH=/opt/baton     PYTHONHASHSEED=0     NODE_NO_WARNINGS=1
+ ---> Running in e501cf50d93d
+ ---> Removed intermediate container e501cf50d93d
+ ---> dac354d89aa8
+Successfully built dac354d89aa8
+Successfully tagged baton-w197661-integration:candidate-197885

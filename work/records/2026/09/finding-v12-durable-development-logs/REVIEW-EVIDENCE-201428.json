@@ -1,0 +1,58 @@
+{
+  "claim": 201428,
+  "reviewer": "baton.rvpc",
+  "verdict": "signed-off for approver disposition; no deployment or Git action",
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+    "v12/python/tests/manager/test_attempt_logs.py": "a79646a99a06683ca264418aa02cb35d68d3a4c1432fba0030dcf74b7a4bbe9d",
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-201391/smoke.py": "4ed49d3df0ab66499e214535ecdcbb413f004fdabf229a43500040f57edc2fd1",
+    "v12/worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+    "v12/worker/claude_agent.py": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092"
+  },
+  "hashes_match": true,
+  "tests": {
+    "count": 235,
+    "result": "OK",
+    "wall_seconds": 1.845310827018693,
+    "unittest_seconds": 1.684,
+    "suites": [
+      "tests.manager.test_attempt_logs",
+      "tests.tools.test_attempt_logs_command"
+    ],
+    "flags": "-W error::ResourceWarning"
+  },
+  "prior_probe_rerun": {
+    "list": {
+      "declared": {
+        "declared": "failed",
+        "reason": "an earlier capture of this stream declared 'failed' and those bytes were never restored; this writer's own turn ended 'finished', and what is in the file is not whole"
+      }
+    },
+    "object": {
+      "declared": {
+        "declared": "failed",
+        "reason": "an earlier capture of this stream declared 'failed' and those bytes were never restored; this writer's own turn ended 'finished', and what is in the file is not whole"
+      }
+    },
+    "string": {
+      "declared": {
+        "declared": "failed",
+        "reason": "an earlier capture of this stream declared 'failed' and those bytes were never restored; this writer's own turn ended 'finished', and what is in the file is not whole"
+      }
+    },
+    "seconds": 0.0002751320134848356,
+    "scratch": "/tmp/w198667-review201318-7s2iqykw"
+  },
+  "image_evidence": {
+    "image": "sha256:f7bcc60319a23c84e069f58e6c4c48ecc2a4bad442d8421b34dd2c612861d341",
+    "all_true": true,
+    "checks": 8,
+    "context_matches": {
+      "v12/worker/baton_worker.py": true,
+      "v12/python/src/baton_v12/attempt_log_format.py": true,
+      "v12/worker/scripted_agent.py": true
+    },
+    "source": "Retained author container smoke inspected; no new independent engine run"
+  },
+  "scope": "Latest correction independent tests/probe plus cumulative prior reviews. No production deployment/model/engine/real store or Git mutation."
+}

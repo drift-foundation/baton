@@ -1,0 +1,92 @@
+{
+  "claim": 199151,
+  "hashes": {
+    "bootstrap_inputs.json": true,
+    "build/append_progress.py": true,
+    "build/bootstrap.err": true,
+    "build/bootstrap.log": true,
+    "build/make_evidence.py": true,
+    "build/reconcile-once-2.json": true,
+    "build/reconcile-once.err": true,
+    "build/reconcile-once.json": true,
+    "build/start.log": true,
+    "build/status-observed.err": true,
+    "build/status-observed.json": true,
+    "build/submit.log": true,
+    "compose_lifecycle.py": true,
+    "composition.json": true,
+    "integration-instructions.txt": true,
+    "policies.json": true,
+    "record-snapshot/FINDING.md": true,
+    "record-snapshot/PLAN.md": true,
+    "role_instructions.json": true,
+    "runtime_profile.json": true,
+    "stage_execution.json": true,
+    "submission.json": true,
+    "task.json": true,
+    "test_composition.py": true,
+    "toolchain.json": true,
+    "verification.json": true,
+    "verify_lifecycle.py": true
+  },
+  "matches": {
+    "implementation": "accepted",
+    "review": "accepted",
+    "integration": "accepted"
+  },
+  "reconcile": [
+    {
+      "observed_at": "2026-09-18T01:43:48.467Z",
+      "spoken": [
+        {
+          "stage_id": "w197661-lifecycle/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408acb6f617c7af9",
+          "act": "conclude",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "attempt 'attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408\u2026 output is sealed; custody is taken of a FROZEN result, and no other state is one"
+          }
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-18T01:45:00.520Z",
+      "spoken": [
+        {
+          "stage_id": "w197661-lifecycle/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408acb6f617c7af9",
+          "act": "conclude",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "attempt 'attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408\u2026 output is sealed; custody is taken of a FROZEN result, and no other state is one"
+          }
+        }
+      ]
+    }
+  ],
+  "retained_stage_states": [
+    {
+      "kind": "implementation",
+      "state": "answering",
+      "attempt_id": "attempt-432eb7b77502fbb65e041e5400c54464ae47353749dc5fa9408acb6f617c7af9"
+    },
+    {
+      "kind": "review",
+      "state": "blocked",
+      "attempt_id": "attempt-764c404a67a3ae9d1d467e659fc261473620678fe1fb3200e54e557ede9ebcbd"
+    },
+    {
+      "kind": "integration",
+      "state": "blocked",
+      "attempt_id": "attempt-61a487b9e7d73f504d6c4752dd03f0bb9793ee4a58faa8903a5a88549f3ec5cd"
+    }
+  ],
+  "seconds": 0.00420504598878324,
+  "scope": "package hashes, manifest/submission validation, actual _matches, retained reconcile and published status files; no store access or lifecycle execution"
+}

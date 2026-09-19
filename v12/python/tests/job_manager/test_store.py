@@ -709,6 +709,10 @@ class MigratingPinsTheAuthorityWithoutRenamingAnything(MigratingFromSchemaOne):
         # version it is impersonating, so every later migration's object has to
         # be subtracted too -- otherwise a "schema 2" store carries an object
         # schema 2 never had, and the schema-3 check correctly says so.
+        # W197661: AND THE TABLE THE 6 -> 7 STEP CREATES, for the same reason
+        # the note above gives. Each new relation added after the impersonated
+        # version has to be subtracted here too.
+        connection.execute("DROP TABLE deferrals")
         connection.execute("DROP TABLE integration_capacity_members")
         connection.execute("DROP TABLE integration_capacity_roots")
         connection.execute("DROP TABLE job_execution_limits")

@@ -1,0 +1,1 @@
+--observe names a factory whose object has no observe_exchange; an observation surface that cannot read the exchange is the default this operand exists to replace

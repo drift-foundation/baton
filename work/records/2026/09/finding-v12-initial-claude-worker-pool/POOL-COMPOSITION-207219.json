@@ -1,0 +1,112 @@
+{
+  "actors": {
+    "implementation": "baton.claude-coder",
+    "integration": "baton.merge",
+    "review": "baton.claude-reviewer"
+  },
+  "adapter": {
+    "adapter_name": "docker-single-worker",
+    "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+    "sha256": "sha256:b8bf738ca04548143eb3598e89d5ce2b412efed75ad700e0ec973edead65ba0a",
+    "what_it_does_not_prove": "a file digest identifies the adapter this deployment names; it is not evidence that the adapter ran"
+  },
+  "authority_uuid": "a92e1d717fcc40fe9972df8b2497c055",
+  "claim": 207219,
+  "complete": true,
+  "composes_only": "writes documents; bootstraps nothing, starts nothing, submits nothing, runs no provider",
+  "declared_base": "e486652c4ddebfb696e030b4b867e914248db542",
+  "heterogeneous": true,
+  "image_in_engine": {
+    "implementation": {
+      "asked": true,
+      "held": true,
+      "reported_id": "sha256:9ff3322f58f08275bfc4bb2cd511fb7a6b156e991449ee36f365d05e2133529d"
+    },
+    "integration": {
+      "asked": true,
+      "held": true,
+      "reported_id": "sha256:b9b75acc300170d99649d0497f9f93876ab5d8d73a9157c9861c5763f17c9561"
+    },
+    "review": {
+      "asked": true,
+      "held": true,
+      "reported_id": "sha256:9ff3322f58f08275bfc4bb2cd511fb7a6b156e991449ee36f365d05e2133529d"
+    }
+  },
+  "images": {
+    "implementation": "sha256:9ff3322f58f08275bfc4bb2cd511fb7a6b156e991449ee36f365d05e2133529d",
+    "integration": "sha256:b9b75acc300170d99649d0497f9f93876ab5d8d73a9157c9861c5763f17c9561",
+    "review": "sha256:9ff3322f58f08275bfc4bb2cd511fb7a6b156e991449ee36f365d05e2133529d"
+  },
+  "instance": "/home/sl/baton-v12-instance-2026-09-18T10-38-52Z",
+  "job_input_identity": "sha256:514f591dc9d7fcd6968a1f4262b2de834563f1e8b7cb8da7f97a012c7bdc4960",
+  "no_credential_read": "the credential registry and reference are LOCATORS written into the deployment. Nothing here opened, copied, hashed or staged a bearer.",
+  "no_live_model": "composing this reaches no provider and no model. The provider image contains a real provider, so a Job that reaches it makes a model turn -- which owner 206702 excludes from this Work. This package configures and does not run.",
+  "policy_generation_predicted": 16,
+  "principals": {
+    "baton.claude-coder": "principal:baton.claude-coder",
+    "baton.claude-reviewer": "principal:baton.claude-reviewer",
+    "baton.codex": "principal:baton.codex",
+    "baton.merge": "principal:baton.merge",
+    "baton.slaw": "principal:baton.slaw"
+  },
+  "record_binding": {
+    "finding_digest": "sha256:a626bf81a78f419daf4aeaf26f4a41d81254716c113ab108e1a419aee4ecd49b",
+    "path": "work/records/2026/09/finding-v12-initial-claude-worker-pool",
+    "plan_digest": "sha256:4db112ec0382710a7e531e12f42c45be06f0f7dace0f80c1370766fa15d8107c",
+    "root": "baton"
+  },
+  "refused": [],
+  "required": [
+    "check_manifest_structure",
+    "bootstrap.held",
+    "bootstrap.configuration",
+    "stage_execution.held_configuration",
+    "bootstrap.validated",
+    "job_manager.documents.owned_submission"
+  ],
+  "runtime_manifest_digests": {
+    "implementation": "sha256:e3bd954704f997af166b4f7d3fa6802bf743818657b34e8fa27cdc4de36e43cf",
+    "integration": "sha256:98ff830ff42068240e1e91cf90bc607cf190237809a5a0dfe006315164175610",
+    "review": "sha256:ecbca685c0bf54e439f1250a6afbc7187bc69a6056e2056a7b5f7ab06c39d761"
+  },
+  "schema": "baton.w202663.pool-composition/1",
+  "validator_calls": [
+    {
+      "result": "accepted",
+      "validator": "check_manifest_structure"
+    },
+    {
+      "result": "accepted",
+      "validator": "check_manifest_structure"
+    },
+    {
+      "result": "accepted",
+      "validator": "check_manifest_structure"
+    },
+    {
+      "result": "accepted",
+      "validator": "one Job input identity"
+    },
+    {
+      "result": "accepted",
+      "validator": "bootstrap.held"
+    },
+    {
+      "result": "accepted",
+      "validator": "bootstrap.configuration"
+    },
+    {
+      "result": "accepted",
+      "validator": "stage_execution.held_configuration"
+    },
+    {
+      "result": "accepted",
+      "validator": "bootstrap.validated"
+    },
+    {
+      "result": "accepted",
+      "validator": "job_manager.documents.owned_submission"
+    }
+  ]
+}

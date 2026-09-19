@@ -1593,5 +1593,120 @@ class TheRevisionReaderIsReadOnly(unittest.TestCase):
             workload.git_revision(elsewhere)
 
 
+class EveryIntegrationRefusalSAYSWHY(unittest.TestCase):
+    """W198667. The owner's words: "capture evidence so we don't chase tails".
+
+    An integration runtime that refuses to start used to end in SILENCE. W197661
+    measured it at the artefact: the integration candidate given a launch
+    generation it cannot read exits `2` with an EMPTY stderr, while the provider
+    candidate under the identical delivery exits `3` with a bounded sentence. It
+    does not hang -- that defect is absent here -- but an operator gets nothing,
+    and **capturing output cannot recover a diagnostic that was never emitted.**
+
+    THE THREE STATUSES ARE UNCHANGED. They are this entry's accepted contract
+    with the manager, and a diagnostic is not a reason to move one.
+    """
+
+    def setUp(self):
+        self.home = tempfile.mkdtemp(prefix="v12-w198667-")
+        self.addCleanup(shutil.rmtree, self.home, True)
+
+    def launched(self, document):
+        place = os.path.join(self.home, "launch.json")
+        with open(place, "w", encoding="utf-8") as handle:
+            json.dump(document, handle)
+        # 0444, as `launch.materialize` writes it: `read_launch` proves the
+        # document is not writable from inside the container.
+        os.chmod(place, 0o444)
+        return place
+
+    def ran(self, place):
+        """`integration_entry.main` with its five fixed names disposable, and
+        stderr captured rather than inherited."""
+        import contextlib
+        import io
+
+        said = io.StringIO()
+        with contextlib.redirect_stderr(said):
+            status = integration_entry.main(
+                launch_place=place, assignment_root=self.home,
+                result_root=self.home, bundle_root=self.home,
+                target_root=self.home)
+        return status, said.getvalue()
+
+    def valid(self, **overrides):
+        body = {"schema": baton_worker.LAUNCH_SCHEMA, "session": "session-w198667",
+                "contract": "integrate the candidate", "role": "integration"}
+        body.update(overrides)
+        return body
+
+    def test_a_generation_this_runtime_cannot_read_SAYS_SO(self):
+        status, said = self.ran(self.launched(
+            self.valid(schema="baton.worker-launch/5")))
+        self.assertEqual(status, 2, "the accepted status is unchanged")
+        self.assertIn("baton-worker: ", said)
+        self.assertIn("cannot read its launch", said)
+        # AND IT NAMES THE GENERATIONS, because the operator's next question is
+        # which image this is.
+        self.assertIn("baton.worker-launch/5", said)
+        for one in baton_worker.SUPPORTED_LAUNCH_SCHEMAS:
+            self.assertIn(one, said)
+
+    def test_an_unreadable_launch_document_SAYS_SO(self):
+        status, said = self.ran(os.path.join(self.home, "nonexistent.json"))
+        self.assertEqual(status, 2)
+        self.assertIn("cannot read its launch", said)
+
+    def test_an_unreadable_assignment_NAMES_THE_ROOT_IT_LOOKED_IN(self):
+        """A valid launch and no assignment beside it. The operator's next act
+        is to look at that exact path, so the refusal names it."""
+        status, said = self.ran(self.launched(self.valid()))
+        self.assertEqual(status, 2)
+        self.assertIn("cannot read its assignment", said)
+        self.assertIn(self.home, said)
+
+    def test_the_diagnostic_is_ONE_BOUNDED_PRINTABLE_LINE(self):
+        """It quotes a document this runtime has just refused to trust, so it
+        cannot forge a frame header, move an operator's cursor or become an
+        unbounded durable write. The sanitizing rule has ONE owner --
+        `baton_worker`'s -- and this case is what holds this entry to it."""
+        status, said = self.ran(self.launched(self.valid(
+            role="a\nfake\r\n12\n{\"ok\":true}" + "\x1b[2J" + "x" * 8000)))
+        self.assertEqual(status, 2)
+        self.assertTrue(said.endswith("\n"))
+        self.assertEqual(said.count("\n"), 1, "one line and nothing else")
+        body = said[:-1]
+        self.assertLessEqual(
+            len(body),
+            len("baton-worker: ") + baton_worker.MAX_STARTUP_DIAGNOSTIC)
+        self.assertTrue(all(" " <= one <= "~" for one in body), repr(body))
+        self.assertNotIn("\x1b", body)
+
+    def test_the_status_vocabulary_is_this_entry_s_and_NOT_the_worker_s(self):
+        """`_startup_refusal` answers `baton_worker`'s own `3`, and this entry
+        discards it. A diagnostic that moved a status the manager reads would
+        be a protocol change wearing a log's clothes."""
+        self.assertEqual(baton_worker.STARTUP_REFUSED, 3)
+        status, _said = self.ran(self.launched(
+            self.valid(schema="baton.worker-launch/5")))
+        self.assertEqual(status, 2)
+        self.assertNotEqual(status, baton_worker.STARTUP_REFUSED)
+
+    def test_no_frame_no_receipt_and_no_result_is_written_by_a_refusal(self):
+        """The diagnostic is a DIAGNOSTIC. Nothing about it is a protocol
+        event, and a refused start composes no result."""
+        # AFTER the fixture writes the launch document, not before: the five
+        # fixed names are all disposable here and three of them are this one
+        # directory, so a listing taken first would count the fixture's own
+        # delivery as something the refusal wrote.
+        place = self.launched(self.valid(schema="baton.worker-launch/5"))
+        before = sorted(os.listdir(self.home))
+        status, said = self.ran(place)
+        self.assertEqual(status, 2)
+        self.assertTrue(said)
+        self.assertEqual(sorted(os.listdir(self.home)), before,
+                         "a refusal wrote something into its own namespace")
+
+
 if __name__ == "__main__":
     unittest.main()

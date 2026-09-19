@@ -1,0 +1,21 @@
+{
+  "built_runtime": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59",
+  "configuration": "sha256:e04f41354d9d01f377d5636d2ffa6093c1ff3e84ccdefc6d91b3b499544bdc42",
+  "image": "sha256:92639d1e10c3d6c435ad58ba78c6fd696cccb8cd2cc115ebc6ce0fa06c1ad13e",
+  "image_inputs": {
+    "python/src/baton_v12/source_profiles": "sha256:0d7b71ee28cb6fd43314fcec6c0c18f0bf203db1e7a808b479a8e0919b0afca0",
+    "worker/attempt_log_format.py": "sha256:8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+    "worker/baton_worker.py": "sha256:56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+    "worker/claude_agent.py": "sha256:cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+    "worker/fixture_entry.py": "sha256:b3b2e731c42deea6f2122d68a31d00691521b8297e18edf4d635ab909363de5f",
+    "worker/importing_agent.py": "sha256:6e01c65b2e485a94e332af51df8e16676325d333cb5b2912638836aebf34da17",
+    "worker/importing_entry.py": "sha256:c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1",
+    "worker/integration_contract.py": "sha256:12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+    "worker/integration_entry.py": "sha256:edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e",
+    "worker/integration_workload.py": "sha256:001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+    "worker/proposing_agent.py": "sha256:a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd",
+    "worker/proposing_entry.py": "sha256:0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760",
+    "worker/worker-control-1.0.schema.json": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  "installed_runtime": "sha256:3afb70f15691c0508424fd9278edd5857fd68df3598b0f1147b7ab9115b9ae59"
+}

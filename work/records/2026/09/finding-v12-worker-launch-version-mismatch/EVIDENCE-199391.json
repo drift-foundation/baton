@@ -1,0 +1,140 @@
+{
+  "ALSO_FOUND_IN_PASSING": {
+    "correction": "the members are supplied, with `result_id` NULL because a reconciliation result id means a reconciled import, which 'starts no runtime' -- and those fixtures destroy one",
+    "pre_existing": "the fixtures lagged the product contract; the contract is right",
+    "what": "three test_status cases and one test_exchange case built an integration completion account omitting `source_proposal_id` and `result_id`, which delegation.INTEGRATION_COMPLETION_MEMBERS requires"
+  },
+  "A_BREAK_I_INTRODUCED_AND_FOUND": {
+    "after": "116 bootstrap tests OK in 17.059s, down from 187.475s spent waiting on snapshots that were being rejected",
+    "effect": "three tests.tools.test_bootstrap cases that bootstrap and serve the real stack each waited the full 60s for a snapshot that could never validate, then failed",
+    "the_guard_worked_as_designed": "the copy's own comment says it cannot drift silently because a test holds it equal to the original -- which is exactly how this surfaced",
+    "what": "tools/stack.py pins its own copy of STATUS_SCHEMA so `just status` answers on an installation too broken to import the package. I moved documents.STATUS_SCHEMA to /6 and left the copy at /5."
+  },
+  "EVIDENCE_SUPERSESSION": {
+    "nothing_repaired": "EVIDENCE-199021.json keeps its bytes and its hashes; no prior review is rewritten",
+    "recorded_in": "FINDING.md, appended -- a table of what EVIDENCE-199021 recorded against what is there now, and by which claim",
+    "rule_adopted": "a verifier revision and its result go under a FRESH episode path; instance-199021/ is not written to again",
+    "what": "instance-199021/verify_lifecycle.py was edited in place in claim199233 and instance-199021/verification.json regenerated over the old one, so EVIDENCE-199021.json no longer describes all bytes at that path"
+  },
+  "NOT_DONE_THIS_CLAIM": [
+    "R2b: the fixture agent still composes no baton.git-proposal/1 claim over its private line, and no deterministic reviewer response is written",
+    "the installed disposable lifecycle is therefore still not completed through publication, independent review and report-and-hold",
+    "instance-199391/ is enumerated in PLAN and not built"
+  ],
+  "R1_orchestration_cut_points": {
+    "AN_EXPECTATION_I_GOT_WRONG": {
+      "how_it_is_recorded": "the case is renamed to what it really establishes and asserts the reachable fact: the seam is asked again with the SAME result_id. The duplicate-publication guarantee is the REAL seam's effectively-once caller identity, and `_Seam` here is a double that publishes whatever it is asked -- asserting no second publication here would have been asserting a property of my own fake.",
+      "what": "I wrote the after-publication case asserting the re-entry publishes nothing. It asks the seam again.",
+      "why": "between a publication that succeeded and a freeze that failed, _fence_settled is FALSE -- the freeze is what fences -- so the ordinary path runs the whole way through a second time"
+    },
+    "WHAT_THIS_SUITE_CAN_AND_CANNOT_SEE": "`_endings` fakes the four deployment calls -- freeze, intake, retention, cleanup -- because they need a real OCI adapter, a delivered workspace and a custody root that tests/manager owns. So what is proved here is the ORCHESTRATION; that the intake ENTRY replays a committed receipt without a second collection is tests/manager/test_intake's, over the real custody fixture. The class docstring says so; neither suite is the whole proof.",
+    "cases": 5,
+    "cut_points": [
+      "during retention",
+      "before publication",
+      "after publication",
+      "a REOPENED manager",
+      "the ordinary ending still runs every step once"
+    ],
+    "where": "tests/job_manager/test_review_driver.py, which is where end_implementation really runs",
+    "why_moved": "the reviewer was right that my previous classes called request_intake and decide_retention directly, never reached end_implementation, published nothing, froze no checkpoint and injected no failure during retention"
+  },
+  "R2a_durable_deferral_visibility": {
+    "cases": 8,
+    "covering": [
+      "the reason and the exact attempt are durable",
+      "it is NOT a receipt",
+      "the stage is NOT made exceptional",
+      "repeating keeps one row and advances only `observed`",
+      "a settled act leaves no outstanding reason",
+      "it survives a manager restart",
+      "the status document carries it beside the state",
+      "a durable refusal records a receipt and no deferral"
+    ],
+    "manager": "_defer UPSERTs on every tick (a row per occurrence would be an unbounded write driven by a condition that is not changing) and _resolve DELETES when the act settles, because a reason left behind after its act succeeded is worse than none",
+    "projection": "deferral_of, carried on the stage beside the state and explicitly not deciding one; null for a stage with no live episode and for one with nothing outstanding",
+    "schema": {
+      "a_defect_I_made_and_caught": "I first keyed the migration 7. JobStore._migrate reads MIGRATIONS[at] and THEN increments, so a step to schema 7 is keyed 6 -- keying it 7 left a store at 6 with no step to take, an infinite loop in the driver rather than a refusal.",
+      "carries": [
+        "attempt_id",
+        "operation_id",
+        "category",
+        "code",
+        "message",
+        "first_seen_at",
+        "last_seen_at",
+        "incarnation"
+      ],
+      "key": "(stage_id, episode, act)",
+      "table": "deferrals",
+      "version": "6 -> 7"
+    },
+    "status_schema": "baton.v12.job-status/5 -> /6, because a reader that must not mistake a deferral for a state has to know which shape it holds",
+    "the_finding_it_rests_on": "manager._delegate produced a `deferred` reconciliation and persisted NOTHING; _record is the only persistence path and writes to `receipts`, whose act is closed to ('admit','claim') and whose state is closed to ('performed','adopted','refused') -- and projection reads ANY refused receipt as `exceptional`",
+    "why_its_own_relation": "recording a re-enterable deferral as a receipt would turn a recoverable condition into a terminal one, which is a worse falsehood than the silence it replaces"
+  },
+  "authority": "owner ruling seq199199, continued under review-2026-09-18T02-10-32Z.md",
+  "candidate": {
+    "v12/python/src/baton_v12/job_manager/documents.py": "5fcd58b57c4b89c79bea0f72ce41df3da9b2aab4926d77ee22fd65ad7d3956d1",
+    "v12/python/src/baton_v12/job_manager/manager.py": "d5dbb977e442eba1f08e2a56eeab51594f3f2ac5a0e51e9d719ba6889d0e26cd",
+    "v12/python/src/baton_v12/job_manager/projection.py": "71d50070821df7eef1a933af3d147e7c9b991bf9fe61436849521d34fa3abf38",
+    "v12/python/src/baton_v12/job_manager/schema.py": "3573d1edb2b909e195c71a7a1478a7b9b91c85cbf7370e0707c86f486d16ce26",
+    "v12/python/tests/job_manager/test_exchange.py": "9b69b71f3be7664a3c9b0315193a2cdae9185a87bcfddb3ca825517f21d117bf",
+    "v12/python/tests/job_manager/test_execution_limits.py": "cc13f267597ff1068e1b6becb94ef6bb3e724d65b459fa45a3a834ea4e817ade",
+    "v12/python/tests/job_manager/test_review_driver.py": "9fb89b9266306c4705902311618de26e3b6bd984ae291113293c4375457147d7",
+    "v12/python/tests/job_manager/test_scheduling.py": "2a9ab42b98d6a532c3909aff89be55d9a9614f706edd4b0f8a13e359f433832b",
+    "v12/python/tests/job_manager/test_status.py": "5a996d94580054f587763cd184278f39065b8bf03e60a1e5a681c986a763e4cf",
+    "v12/python/tests/job_manager/test_store.py": "6e971a7722dc507af2f274d44f2c3f7d7e0ef2c575937db386f4c696f215c2c4",
+    "v12/python/tests/job_manager/test_sweep.py": "e0e182f7d59cbdaf32ffe07e6da0e51d4c18e6622a8f28305b145741a42a08ee",
+    "v12/python/tests/job_manager/test_tool.py": "4ad119070ed517a268326e4d0738f155f8ed5b4e60bb9df324594e79999534d8",
+    "v12/python/tests/tools/test_bootstrap.py": "04c8f5fe698a30045387d7a6f8071448edf768b06edd19a0a57652aab7994a6e",
+    "v12/python/tools/stack.py": "32c92bb1b077c7858164ae2ab5bcc74e395aac0e3ee65ad81ca5651c8db5b8fe"
+  },
+  "claim": 199391,
+  "no": [
+    "live model",
+    "container",
+    "image build",
+    "production action",
+    "lifecycle re-run",
+    "version-control mutation",
+    "rewriting of any prior evidence or review"
+  ],
+  "preserved": {
+    "W198667": "queued at baton.bug; its candidate is attempt_log_format.py, worker_manager/attempt_logs.py, launch.py, oci.py, tools/attempt_logs_command.py, worker/baton_worker.py, worker/claude_agent.py and two test paths. None is touched here.",
+    "production": "the stopped production instance was not read from, written to, started or changed",
+    "the_failed_disposable": "attempt-432eb7b7... and its container were not re-run, stopped, removed or rewritten"
+  },
+  "schema": "baton.w197661.evidence/1",
+  "verification": {
+    "job_manager_whole_suite": {
+      "checks": 825,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 9.405
+    },
+    "seconds_measured_this_claim": 300,
+    "test_bootstrap": {
+      "checks": 116,
+      "result": "OK",
+      "seconds": 17.059,
+      "was": "187.475s with 3 failures before the pinned copy was moved"
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    },
+    "test_intake": {
+      "checks": 204,
+      "result": "OK",
+      "seconds": 3.444
+    },
+    "test_stack": {
+      "checks": 122,
+      "result": "OK",
+      "seconds": 26.169
+    }
+  },
+  "work": "2b077949-W197661"
+}

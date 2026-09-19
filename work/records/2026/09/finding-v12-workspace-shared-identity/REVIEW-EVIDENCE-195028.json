@@ -1,0 +1,288 @@
+{
+  "fixture": "/tmp/w194457-review195028-9gvnicq4",
+  "source_sha256": "34ee17040441c688bb4019659962019d055f6818cbf6c86c128f642124b1c750",
+  "id_format_source": "https://raw.githubusercontent.com/docker/cli/master/cli/command/formatter/container.go",
+  "control": {
+    "answer": [
+      1000,
+      1000
+    ],
+    "calls": [
+      [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "baton-identity-2-7dc04cbdb45d",
+        "--label",
+        "baton.v12.identity_probe=7dc04cbdb45dafbc27901e99",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--security-opt",
+        "label=disable",
+        "--user",
+        "1000:1000",
+        "--read-only",
+        "--network",
+        "none",
+        "--pids-limit",
+        "16",
+        "--memory",
+        "128m",
+        "--cpus",
+        "1",
+        "--mount",
+        "type=bind,source=/tmp/w194457-review195028-9gvnicq4/control/.identity-probe-ovgs408_,target=/run/baton/identity,readonly=false",
+        "--entrypoint",
+        "python3",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "-c",
+        "import os,sys;p=os.path.join(sys.argv[1], sys.argv[2]);open(p, 'w').write('probe');print(os.getuid(), os.getgid())",
+        "/run/baton/identity",
+        "identity-probe"
+      ],
+      [
+        "docker",
+        "ps",
+        "--all",
+        "--filter",
+        "name=^baton-identity-2-7dc04cbdb45d$",
+        "--format",
+        "{{.ID}}",
+        "--no-trunc"
+      ],
+      [
+        "docker",
+        "inspect",
+        "--format",
+        "{{index .Config.Labels \"baton.v12.identity_probe\"}}",
+        "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      [
+        "docker",
+        "rm",
+        "--force",
+        "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ]
+    ],
+    "state": {
+      "nonce": "7dc04cbdb45dafbc27901e99",
+      "target": "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "removed_id": "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "unresolved": []
+  },
+  "unavailable": {
+    "answer": null,
+    "calls": [
+      [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "baton-identity-2-ed674e96f12e",
+        "--label",
+        "baton.v12.identity_probe=ed674e96f12eb4e5efa30bfb",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--security-opt",
+        "label=disable",
+        "--user",
+        "1000:1000",
+        "--read-only",
+        "--network",
+        "none",
+        "--pids-limit",
+        "16",
+        "--memory",
+        "128m",
+        "--cpus",
+        "1",
+        "--mount",
+        "type=bind,source=/tmp/w194457-review195028-9gvnicq4/unavailable/.identity-probe-7w6ontl8,target=/run/baton/identity,readonly=false",
+        "--entrypoint",
+        "python3",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "-c",
+        "import os,sys;p=os.path.join(sys.argv[1], sys.argv[2]);open(p, 'w').write('probe');print(os.getuid(), os.getgid())",
+        "/run/baton/identity",
+        "identity-probe"
+      ],
+      [
+        "docker",
+        "ps",
+        "--all",
+        "--filter",
+        "name=^baton-identity-2-ed674e96f12e$",
+        "--format",
+        "{{.ID}}",
+        "--no-trunc"
+      ]
+    ],
+    "state": {
+      "nonce": "ed674e96f12eb4e5efa30bfb",
+      "current_id": "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "unresolved": [
+      {
+        "engine_object": "baton-identity-2-ed674e96f12e",
+        "why": "the engine could not answer whether anything of that name is there (status 1)"
+      }
+    ]
+  },
+  "prefix-replacement": {
+    "answer": null,
+    "calls": [
+      [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "baton-identity-2-a3798296bbe8",
+        "--label",
+        "baton.v12.identity_probe=a3798296bbe8241bc5d4f336",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--security-opt",
+        "label=disable",
+        "--user",
+        "1000:1000",
+        "--read-only",
+        "--network",
+        "none",
+        "--pids-limit",
+        "16",
+        "--memory",
+        "128m",
+        "--cpus",
+        "1",
+        "--mount",
+        "type=bind,source=/tmp/w194457-review195028-9gvnicq4/prefix-replacement/.identity-probe-keuj1du9,target=/run/baton/identity,readonly=false",
+        "--entrypoint",
+        "python3",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "-c",
+        "import os,sys;p=os.path.join(sys.argv[1], sys.argv[2]);open(p, 'w').write('probe');print(os.getuid(), os.getgid())",
+        "/run/baton/identity",
+        "identity-probe"
+      ],
+      [
+        "docker",
+        "ps",
+        "--all",
+        "--filter",
+        "name=^baton-identity-2-a3798296bbe8$",
+        "--format",
+        "{{.ID}}",
+        "--no-trunc"
+      ],
+      [
+        "docker",
+        "inspect",
+        "--format",
+        "{{index .Config.Labels \"baton.v12.identity_probe\"}}",
+        "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      [
+        "docker",
+        "rm",
+        "--force",
+        "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ]
+    ],
+    "state": {
+      "nonce": "a3798296bbe8241bc5d4f336",
+      "current_id": "abcdef123456bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "target": "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "unresolved": [
+      {
+        "engine_object": "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "why": "its removal reported status 1"
+      }
+    ]
+  },
+  "observation-error": {
+    "error": "OSError",
+    "message": "injected ownership-read failure",
+    "calls": [
+      [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "baton-identity-2-8f052461c312",
+        "--label",
+        "baton.v12.identity_probe=8f052461c3128a6a142e0717",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--security-opt",
+        "label=disable",
+        "--user",
+        "1000:1000",
+        "--read-only",
+        "--network",
+        "none",
+        "--pids-limit",
+        "16",
+        "--memory",
+        "128m",
+        "--cpus",
+        "1",
+        "--mount",
+        "type=bind,source=/tmp/w194457-review195028-9gvnicq4/observation-error/.identity-probe-p9l_o4r1,target=/run/baton/identity,readonly=false",
+        "--entrypoint",
+        "python3",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "-c",
+        "import os,sys;p=os.path.join(sys.argv[1], sys.argv[2]);open(p, 'w').write('probe');print(os.getuid(), os.getgid())",
+        "/run/baton/identity",
+        "identity-probe"
+      ],
+      [
+        "docker",
+        "ps",
+        "--all",
+        "--filter",
+        "name=^baton-identity-2-8f052461c312$",
+        "--format",
+        "{{.ID}}",
+        "--no-trunc"
+      ],
+      [
+        "docker",
+        "inspect",
+        "--format",
+        "{{index .Config.Labels \"baton.v12.identity_probe\"}}",
+        "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      [
+        "docker",
+        "rm",
+        "--force",
+        "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ]
+    ],
+    "state": {
+      "nonce": "8f052461c3128a6a142e0717",
+      "target": "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "removed_id": "abcdef123456aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "unresolved": []
+  },
+  "tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "................................................................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 272 tests in 1.367s\n\nOK\n",
+    "seconds": 1.5400868899887428
+  },
+  "total_seconds": 1.5411735699744895
+}

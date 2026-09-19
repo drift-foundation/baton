@@ -1,0 +1,163 @@
+{
+  "schema": "baton.v12.job-status/5",
+  "observed_at": "2026-09-18T00:47:08.511Z",
+  "incarnation": "w197661-198750",
+  "canonical": false,
+  "jobs": [
+    {
+      "job_id": "w197661-fixture-lifecycle",
+      "submission_id": "w197661-disposable-198750",
+      "input_digest": "sha256:13c419d3a2cecabdfb368daddadb4fe6054c9cff0e330bf4feb8cfc6dfa4071b",
+      "policy_digest": "sha256:7ab4e55b1ff86f7df16156fc16705b76dde58d4e69da3fbf243dc30b64d81e4d",
+      "test_scope": [
+        "v12/python/tests/tools/test_integration_worker.py"
+      ],
+      "terminal_policy": "report-and-hold",
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {},
+        "boundaries": {
+          "host_verification": {
+            "seconds": 300,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 1800,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "compatibility",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "w197661-fixture-lifecycle/implementation",
+          "job_id": "w197661-fixture-lifecycle",
+          "kind": "implementation",
+          "state": "queued",
+          "work_id": "742fe75b-W1",
+          "profile_name": "w197661-fixture",
+          "profile_digest": "sha256:7b496650e14192e5f8a26cd2b29fa616d5d2ea57c631bd61cf335eb628a0347f",
+          "episode": 1,
+          "offer_id": "offer-024150686703292ecf914762f263c42c21bf3b35ddd72f31ef1645ea622e1f39",
+          "attempt_id": "attempt-024150686703292ecf914762f263c42c21bf3b35ddd72f31ef1645ea622e1f39",
+          "episodes": [
+            {
+              "stage_id": "w197661-fixture-lifecycle/implementation",
+              "episode": 1,
+              "offer_id": "offer-024150686703292ecf914762f263c42c21bf3b35ddd72f31ef1645ea622e1f39",
+              "attempt_id": "attempt-024150686703292ecf914762f263c42c21bf3b35ddd72f31ef1645ea622e1f39",
+              "opened_at": "2026-09-18T00:46:57.412Z",
+              "incarnation": "w197661-198750",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [],
+          "receipts": [],
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        },
+        {
+          "stage_id": "w197661-fixture-lifecycle/review",
+          "job_id": "w197661-fixture-lifecycle",
+          "kind": "review",
+          "state": "blocked",
+          "work_id": "742fe75b-W1",
+          "profile_name": "w197661-fixture",
+          "profile_digest": "sha256:7b496650e14192e5f8a26cd2b29fa616d5d2ea57c631bd61cf335eb628a0347f",
+          "episode": 1,
+          "offer_id": "offer-1600f1fe9f0d69a480c6ba229428333f13c690034482b639d1c3b08aaaf5034b",
+          "attempt_id": "attempt-1600f1fe9f0d69a480c6ba229428333f13c690034482b639d1c3b08aaaf5034b",
+          "episodes": [
+            {
+              "stage_id": "w197661-fixture-lifecycle/review",
+              "episode": 1,
+              "offer_id": "offer-1600f1fe9f0d69a480c6ba229428333f13c690034482b639d1c3b08aaaf5034b",
+              "attempt_id": "attempt-1600f1fe9f0d69a480c6ba229428333f13c690034482b639d1c3b08aaaf5034b",
+              "opened_at": "2026-09-18T00:46:57.412Z",
+              "incarnation": "w197661-198750",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [
+            {
+              "stage_id": "w197661-fixture-lifecycle/implementation",
+              "state": "queued",
+              "open": false
+            }
+          ],
+          "receipts": [],
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        },
+        {
+          "stage_id": "w197661-fixture-lifecycle/integration",
+          "job_id": "w197661-fixture-lifecycle",
+          "kind": "integration",
+          "state": "blocked",
+          "work_id": "742fe75b-W1",
+          "profile_name": "w197661-fixture",
+          "profile_digest": "sha256:7b496650e14192e5f8a26cd2b29fa616d5d2ea57c631bd61cf335eb628a0347f",
+          "episode": 1,
+          "offer_id": "offer-44331b6e0f86061eea5852a8b714df5c51ab8eee38addd0249696ba5abe5e137",
+          "attempt_id": "attempt-44331b6e0f86061eea5852a8b714df5c51ab8eee38addd0249696ba5abe5e137",
+          "episodes": [
+            {
+              "stage_id": "w197661-fixture-lifecycle/integration",
+              "episode": 1,
+              "offer_id": "offer-44331b6e0f86061eea5852a8b714df5c51ab8eee38addd0249696ba5abe5e137",
+              "attempt_id": "attempt-44331b6e0f86061eea5852a8b714df5c51ab8eee38addd0249696ba5abe5e137",
+              "opened_at": "2026-09-18T00:46:57.412Z",
+              "incarnation": "w197661-198750",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [
+            {
+              "stage_id": "w197661-fixture-lifecycle/review",
+              "state": "blocked",
+              "open": false
+            }
+          ],
+          "receipts": [],
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        }
+      ]
+    }
+  ]
+}

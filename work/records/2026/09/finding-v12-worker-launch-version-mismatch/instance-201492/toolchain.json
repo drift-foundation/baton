@@ -1,0 +1,6 @@
+{
+  "build_context_entries": 24,
+  "fixture_base": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "fixture_image": "sha256:92639d1e10c3d6c435ad58ba78c6fd696cccb8cd2cc115ebc6ce0fa06c1ad13e",
+  "worker_source_manifest": "sha256:537d0ed46b6dac44f97552e833da5cb00ef1d9b786c1f55037bf82e1fda3495d"
+}

@@ -1,0 +1,163 @@
+{
+  "NOT_DONE_THIS_CLAIM": [
+    "independent review does not COMPLETE: the frozen checkpoint is not delivered into the review container's input root, and whether that is this composition's doing or the review-stage delivery's is not diagnosed",
+    "report-and-hold is unreached, blocked behind the review stage",
+    "the manager dying on a ProfileRefusal during conclude is recorded and not fixed"
+  ],
+  "THE_INSTALLED_LIFECYCLE_RAN_AND_FOUND_TWO_REAL_DEFECTS": {
+    "AND_ONE_MORE_NOT_FIXED_reported_as_a_finding": {
+      "honestly": "it did NOT hang silently -- it died loudly with a traceback in state/manager.log, which is a different failure from the one this Work reported. No product change is proposed on it this claim; it is recorded for selection.",
+      "the_exact_path": [
+        "job_manager/manager.py::serve",
+        "manager.py::sweep",
+        "manager.py::_converse",
+        "stage_execution.py::conclude",
+        "scheduler.py::conclude",
+        "delegation.py::conclude",
+        "single_worker.py::ending",
+        "stage_execution.py::end",
+        "review_driver.py::end_implementation",
+        "review_cycles.py::freeze_checkpoint",
+        "checkpoint_profiles.py::freeze",
+        "checkpoint_profiles.py::_clean"
+      ],
+      "what": "a ProfileRefusal raised inside conclude propagated out of manager.serve and KILLED the manager process",
+      "why_it_matters": "the deferral machinery exists precisely so a refusal at this cut point is recorded and retried. A profile refusal takes the whole serving loop down instead, so one bad checkpoint stops every Job the manager serves."
+    },
+    "DEFECT_ONE_the_canonical_target_was_never_established": {
+      "and_what_it_never_does": "rewind a target that has ADVANCED; a setup re-run after integration accepted a proposal leaves it alone",
+      "and_what_it_refuses": "Jobs declaring DIFFERENT bases, by name: an Authority holds ONE canonical target, so silently establishing one Job's base would leave the others refused at publication for a reason nothing recorded",
+      "cases": 6,
+      "it_was_VISIBLE_though": "the deferral reached the status projection with its exact refusal, which is this campaign's own earlier correction working",
+      "the_fix": "tools/bootstrap.py::_canonical_target establishes it from the Jobs' line_declared_base. set_policy already existed for the OTHER end of the line -- integration advances the target with it when a proposal is accepted -- and what was missing was the FIRST value.",
+      "what": "integration.driver.publish_candidate compares the worker's declared base with Authority.canonical_target(), and NOTHING in a fresh deployment ever set it -- so it answered its own placeholder and the first publication was refused with \"the Authority's canonical target is a full lower-case object name ...; this is 'base-1'\"",
+      "what_the_operator_saw": "the stage deferred conclude and asked again forever. A runtime that finished, a manager that looked well, and nothing that said why -- the same shape as the incident this Work came from."
+    },
+    "DEFECT_TWO_the_declared_outputs_dirtied_the_private_line": {
+      "cases": 6,
+      "the_fix": "ProposingAgent._reserve writes the declared paths and the worker's own completion envelope, root-anchored, into the repository's local exclude file before anything is written. Repository-local, never committed, dies with the line.",
+      "what": "checkpoint_profiles.freeze refuses a line with 'tracked or untracked worktree changes', and on the git-line profile the declared outputs are written INTO the worktree -- so writing them is what made the line dirty. The lifecycle stopped at freeze_checkpoint with the candidate already committed and nothing wrong with it.",
+      "whose_defect": "the FIXTURE's. claude_agent._reserve already does the right thing and this follows it rather than inventing something."
+    },
+    "why_a_fresh_runtime": "the installed distro at /home/sl/baton-v12-lifecycle-198943 was built at 14:29 and predates this campaign's intake replay fix, so running against it would have reproduced an already-diagnosed stall. A runtime was rebuilt from the current tree (PyInstaller, the pinned build lock, no network) and installed at a fresh disposable destination."
+  },
+  "WHAT_THE_LIFECYCLE_ACTUALLY_REACHED": {
+    "candidate_publication": {
+      "REACHED": true,
+      "line": "line-8b1d8c5b805efa3d07c43e6a4d9ae6e677ce22e0ee06e5455ac6341763080930",
+      "the_proof": "the manager materialized a review line whose checkout carries w197661-fixture.txt with exactly the declared bytes, and custody holds the attempt's proposal tree -- objects.bundle, patch.diff, result.json, verification.txt -- plus findings and logs"
+    },
+    "capacity_bootstrapped": "1 Job, three roles, target established from line_declared_base",
+    "implementation": "THE CONTAINER RAN from the new fixture image, the agent committed on the private line and the stage CONCLUDED",
+    "independent_review": {
+      "REACHED_BUT_NOT_COMPLETED": true,
+      "not_yet_diagnosed": "whether that is the composition's doing (this claim's deployment document) or the review-stage delivery's. It is stated as unknown rather than assigned.",
+      "the_blocker_measured": "the review attempt's inputs/source is EMPTY and its workspace holds only an empty result root, so the frozen checkpoint the review turn is supposed to read was not delivered into the review container. The agent's review turn asks the line for HEAD and there is no line.",
+      "what_happened": "the review stage was admitted and claimed and its container ran and exited 1; its terminal document says ending=faulted, fault_code=agent, answered=[describe]"
+    },
+    "job_submitted": "w197661-lifecycle-200000, three stages, terminal_policy report-and-hold",
+    "measured_in": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/lifecycle.json",
+    "report_and_hold": "NOT REACHED; blocked behind the review stage",
+    "scheduler_started": "manager and publisher, snapshot fresh"
+  },
+  "YOU_WERE_RIGHT_ABOUT_THE_COMPOSITION": {
+    "PROVED_INSIDE_THE_BUILT_IMAGE": {
+      "agent_class": "ProposingAgent",
+      "agent_module": "proposing_agent",
+      "how": "docker run --entrypoint python3 <image>, patching baton_worker.main and running the entrypoint with runpy, so what is observed is what main RECEIVES rather than what the recipe says",
+      "scripted_agent_absent_from_/opt/baton": true,
+      "the_old_agent_is_importable": false
+    },
+    "and_by_static_cases": "five in TheIMAGEActuallySELECTSThisAgent -- the ENTRYPOINT line, the injection through the documented seam, the absent fallback agent, every COPY input present with nothing uncovered in the context, and the default branch this Work's own worker program still carries",
+    "and_the_old_agent_is_GONE_from_the_image": "scripted_agent.py is no longer copied, so _scripted_default() cannot run at all: a recipe that loses this entrypoint now fails loudly instead of quietly running the wrong agent",
+    "what_selects_it_now": "proposing_entry.py, which injects ProposingAgent through baton_worker.main(agent=...) -- the documented seam and the same shape as the accepted provider image's dogfood_entry.py",
+    "what_was_wrong": "instance-199877's recipe COPIED proposing_agent.py into the image and then entered baton_worker.py directly, so main() saw agent=None, took the _scripted_default() branch and imported scripted_agent.ScriptedAgent -- the ORIGINAL fixture that writes result_metadata {}. The new agent travelled in the image and nothing selected it. Copying a module is not composing with it, and 'the blocker is removed' was premature."
+  },
+  "answers": "review-2026-09-18T03-53-16Z.md",
+  "authority": "owner ruling seq199199 for the installed lifecycle; standing test-change authority (AGENTS.md 2026-09-13); no new permission gate sought or needed",
+  "candidate": {
+    "v12/python/src/baton_v12/authority/core.py": "4283ea95d757e9587f9a16f293039895e97b179236562de20dfad0f4e0f39b69",
+    "v12/python/tests/manager/test_proposing_fixture.py": "650bd1f6a7e4c2f79cd255d2bcbddb977483ecfaf7a07a40780c9fda4b960aa5",
+    "v12/python/tests/tools/test_bootstrap.py": "388f73a05c985f0bf535e67b30c1302034eec5d2768df300a986307c8aa69008",
+    "v12/python/tools/bootstrap.py": "b05a1dcc7c88e28ada61d291473f09ba32d986a676f609cf21dc12d4adaddb0c",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/context/Dockerfile.fixture": "f9c05f6d9fab38712c273b5f58ac14b6cbd268994eab89d7d0310e76d4053093",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/context/worker/proposing_agent.py": "589b76aa4d121d2bfb9ff9ad7b72cfebe46c8b0523cf661c8c388cd0c4cde9a0",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/context/worker/proposing_entry.py": "0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760"
+  },
+  "claim": 200000,
+  "fixture_image": "sha256:a15f51fdbbf7d4f5ddc805412aa587b8fc83e86e14434553670ab14bad1bbdd5",
+  "no": [
+    "live model",
+    "production action",
+    "recovery or resubmission",
+    "credential harvesting",
+    "public log publication",
+    "version-control mutation of this repository",
+    "direct read or mutation of the SQLite coordination store",
+    "rebuild or re-attribution of any accepted image",
+    "new permission gate"
+  ],
+  "preserved": {
+    "W198667": "queued at baton.bug. The shared image input attempt_log_format.py is W198667's candidate and this fixture image carries the CURRENT tree bytes of it, stated here rather than left implicit; W198667's own fixture-199285 and fixture-199918 contexts and images are neither used, rebuilt nor re-attributed",
+    "history": "no prior evidence file or review is rewritten; FINDING and PLAN gain new dated entries",
+    "instance_199021_198871_198750": "untouched",
+    "instance_199877": "its context, build log, image digest and attribution are untouched; this is a fresh episode and the historical digest is not reassigned",
+    "production": "the stopped instance at /home/sl/baton-v12-instance-2026-09-17T20-29-21Z was not read from, written to, started or changed",
+    "the_failed_disposable": "retained and untouched"
+  },
+  "schema": "baton.w197661.evidence/1",
+  "the_ResourceWarning_is_FIXED": "test_proposing_fixture.py:200 left an ast.parse handle open; it is a with-block now and the suite is clean under -W error::ResourceWarning. The earlier claim of warning-clean verification was wrong and is withdrawn rather than defended.",
+  "the_disposables_this_claim_made": {
+    "kept": "/home/sl/baton-v12-lifecycle-200000c -- the deployment the measured run above belongs to, stopped and retained with its stores, its review line and its exchange documents",
+    "removed": [
+      "/home/sl/baton-v12-lifecycle-200000 and -200000b, this claim's own earlier disposable roots, removed after their runs were superseded within this claim"
+    ]
+  },
+  "verification": {
+    "affected_set": {
+      "checks": 422,
+      "result": "OK",
+      "seconds": 25.143,
+      "suites": [
+        "tools.test_bootstrap",
+        "manager.test_proposing_fixture",
+        "integration.test_driver",
+        "job_manager.test_review_driver"
+      ]
+    },
+    "authority_suite": {
+      "added_by_this_claim": 0,
+      "failures": 3,
+      "named": [
+        "test_boundary::ExportedSurface::test_the_bootstrap_face_configures_and_reads_and_never_acts -- the exported face carries `open_readonly`, which this claim did not add",
+        "test_boundary::EveryDiagnosticIsBoundedByTheRule::test_no_refusal_renders_an_unbounded_value -- store.py _writable",
+        "test_boundary::EveryDiagnosticIsBoundedByTheRule::test_every_named_site_covers_the_paths_it_was_written_for"
+      ],
+      "one_WAS_mine_and_is_fixed": "test_session::Minting::test_the_two_faces_are_disjoint_by_construction -- UNESTABLISHED_TARGET was a public CLASS attribute and the two faces are pinned by name; it is a module constant now"
+    },
+    "clean_under": "-W error::ResourceWarning",
+    "cumulative_note": "prior claims' measured spending is preserved in their own evidence files and is not restated",
+    "job_manager_whole_suite": {
+      "checks": 837,
+      "result": "OK",
+      "seconds": 9.547
+    },
+    "seconds_measured_this_claim": 2400,
+    "test_bootstrap": {
+      "checks": 122,
+      "new": 6,
+      "result": "OK"
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    },
+    "test_proposing_fixture": {
+      "checks": 24,
+      "new": 11,
+      "result": "OK"
+    }
+  },
+  "work": "2b077949-W197661"
+}

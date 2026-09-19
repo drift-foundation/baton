@@ -1,0 +1,238 @@
+{
+ "work": "2b077949-W194457",
+ "claim": 194532,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-17T12-32-56Z.md",
+  "sha256": "af42dd57e6e2dc920def7de070b1b3d760455755337262f483d5be5afd8f4c79",
+  "ruling": "FINDING.md, owner-confirmed 2026-09-17"
+ },
+ "delivered": {
+  "the_permission_only_whole_tree_pass_is_GONE": {
+   "was": "workspaces._provision_line_access held a no-follow descriptor for EVERY entry through the whole preflight and then fchown'ed and fchmod'ed each one -- a descriptor peak and a syscall count both proportional to the checkout.",
+   "is": "`establish_line_access(place, pin, identity)`: the ROOT's group and mode `02775`, whose setgid bit is what keeps everything created inside it in that group afterwards. TWO permission acts, whatever the tree holds.",
+   "counted_not_timed": "`workspaces.PERMISSION_ACTS` counts chown and chmod, so the check asserts the SHAPE. 'It got faster' would be a different and weaker claim."
+  },
+  "the_shared_execution_identity": {
+   "what": "`WorkspaceIdentity(uid, gid)`, minted only by `configured_workspace_identity(store)` -- the same capability shape `WorkspaceGroup` has, for the same reason: a pair a caller can construct is a pair a caller chose.",
+   "where_it_comes_from": "the uid is this manager's own effective uid, which is the one trustworthy statement available here; the gid is the deployment's configured workspace group. Root is refused outright.",
+   "not_isolation": "stated in the docstring: confinement stays with private mounts, read-only input and review roots, per-assignment workspaces and the credential boundary, and nothing here widens any of them."
+  },
+  "both_traversals_are_bounded_by_DEPTH": {
+   "consumption": "`_prove_line_consumable` closes each child as soon as its subtree is proved; `held` is the open PATH. The no-follow open at every component, the root pin, the symlink count-without-following and the special-file refusal are all unchanged.",
+   "integrity": "`prove_line_integrity` keeps every constraint that used to ride along with the removed pass -- special files, hardlinked regular files, the entry/byte/depth ceilings, and that the tree belongs to this deployment's execution identity -- and performs NO permission act.",
+   "attributed_honestly": "the integrity walk is materialization/integrity cost and is proportional to content. Calling it constant-time would be a different false claim from the one this corrects."
+  },
+  "the_errno_is_no_longer_lost": "both refusal paths in `establish_line_access` name `getattr(failure, 'errno', None)` beside the exception type. The incident's own errno stays unknown -- this only stops the next one being unknown.",
+  "create_line": "`review_cycles.create_line` proves integrity and then establishes access, both inside the creation transaction while the line is still `materializing`, exactly once. The honest failure semantics are kept: a failure leaves the line materializing with no writer granted, and a retry finishes."
+ },
+ "the_reviewers_own_reproducer_rerun": {
+  "script": "reproduce-review-194488.py",
+  "provision_case": {
+   "peak_open_descriptors_from_os_open": 0,
+   "successful_opens": 0,
+   "first_open_errno": null,
+   "limit": 1024,
+   "outcome": "AttributeError",
+   "message": "module 'baton_v12.worker_manager.workspaces' has no attribute '_provision_line_access'",
+   "remaining_tracked_descriptors": 0,
+   "seconds": 9.19698504731059e-06
+  },
+  "consume_case": {
+   "peak_open_descriptors_from_os_open": 2,
+   "successful_opens": 1101,
+   "first_open_errno": null,
+   "limit": 1024,
+   "outcome": "returned",
+   "remaining_tracked_descriptors": 0,
+   "seconds": 0.002548034011851996
+  },
+  "what_it_shows": "provision: the function is GONE (AttributeError), which is the ruling. consume: 1,101 successful opens at a PEAK OF 2 tracked descriptors and `outcome: returned`, where the reviewer measured EMFILE at 1,021.",
+  "entries": 1101,
+  "ownership_and_modes_unchanged": true,
+  "total_seconds": 0.30397578596603125
+ },
+ "NOT_DELIVERED": {
+  "what": "review finding 3's second half: carrying the configuration-derived identity through the EXECUTION VECTORS -- `oci.py`'s `--user 65532:65532` and `custody.py`'s pinned pair -- and rejecting unsupported or unknown host/container mapping before affected effects.",
+  "why": "budget, not scope. The workspace half is complete and verified on its own, and the vector half needs the four dependent decisions re-decided (the supplementary group, the 0640 credential slot, custody's group-grant-instead-of-chown, and /input readability) rather than having 65532 replaced everywhere -- which the review explicitly warns against.",
+  "what_it_does_and_does_not_mean_today": "The manager side is consistent: it materializes as its own uid, proves and grants as that identity, and no longer walks the tree. The WORKER still runs as 65532 with the workspace group added, so a worker-created 0600 entry is still one this manager cannot open -- which `_prove_line_consumable` already refuses honestly rather than repairing. The descriptor exhaustion this Work was raised for is fixed; the owner-only consumption case the FINDING also names is NOT, and needs the vector half.",
+  "exact_remaining_scope": [
+   "compose the execution vector's --user from the minted identity, and refuse an engine whose observed mapping differs from what was requested -- test_worker_entry_engine.py describes a host-observed remapped owner, so equal requested numbers are not proof",
+   "do the same for custody's launch, preserving consent semantics",
+   "re-decide, each on its own terms: --group-add (W33936/M34916), the 0640 credential slot (W52800), custody.normalize_directory's group grant (W39358), /input readability (W33935)",
+   "a private writable HOME/cache for the worker if the image's fixed defaults are kept, which the review says may be sufficient",
+   "simulated mapping/vector fixtures covering incompatible configurations, labelled as simulated",
+   "the written installed-runtime update and failed-attempt recovery procedure, not executed"
+  ]
+ },
+ "verification": {
+  "suites": [
+   {
+    "module": "tests.manager.test_workspaces",
+    "tests": 110,
+    "result": "OK",
+    "seconds": 0.807
+   },
+   {
+    "module": "tests.manager.test_review_cycles",
+    "tests": 162,
+    "result": "OK",
+    "seconds": 1.908
+   },
+   {
+    "module": "tests.manager.test_custody",
+    "tests": 121,
+    "result": "OK",
+    "seconds": 3.409
+   },
+   {
+    "module": "tests.manager.test_oci",
+    "tests": 129,
+    "result": "OK",
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.tools.test_single_worker",
+    "tests": 153,
+    "result": "OK",
+    "seconds": 9.21
+   }
+  ],
+  "total_tests": 675,
+  "total_seconds": 16.242,
+  "new_or_rewritten_checks": 15,
+  "tests_stage_execution": "275 run, the same 12 pre-existing errors recorded under W183883, 55.434s; unchanged by this candidate",
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheConsumptionWalkIsBoundedToo"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "M1-the-consumption-walk-holds-every-descriptor-again",
+     "reverted_returncode": 1,
+     "seconds": 0.917,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_the_peak_descriptor_count_is_bounded_by_DEPTH",
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_it_runs_UNDER_a_soft_limit_the_old_pass_exhausted"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "M2-the-integrity-walk-holds-every-descriptor-again",
+     "reverted_returncode": 1,
+     "seconds": 0.93,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_the_permission_work_is_TWO_ACTS_whatever_the_tree_holds"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "M3-establishing-access-walks-the-tree-again",
+     "reverted_returncode": 1,
+     "seconds": 0.448,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_the_ceilings_and_a_foreign_owner_are_STILL_refused"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "M4-an-entry-this-identity-does-not-own-is-accepted",
+     "reverted_returncode": 1,
+     "seconds": 0.439,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_hardlinks_and_special_files_are_STILL_refused"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "M5-hardlinks-stop-being-refused-with-the-removed-pass",
+     "reverted_returncode": 1,
+     "seconds": 0.452,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_a_bad_identity_root_or_pin_refuses_before_any_act"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "M6-the-identity-becomes-a-pair-of-integers-again",
+     "reverted_returncode": 1,
+     "seconds": 0.45,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_a_failure_while_establishing_NAMES_its_errno"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "M7-the-failure-stops-naming-its-errno",
+     "reverted_returncode": 1,
+     "seconds": 0.451,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_review_cycles.StableLineLifecycle.test_creating_a_line_PROVES_its_integrity_before_granting_access"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "M8-create_line-stops-proving-integrity-at-all",
+     "reverted_returncode": 1,
+     "seconds": 0.47,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 7.171
+  },
+  "probe_seconds": 7.171,
+  "probe_script": "probes-194532.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probes": "M1 and M8",
+    "why": "the gaps were MINE. M1 pointed at consumption cases whose fixtures are small enough that holding every descriptor costs nothing, and M8 at a case that only looks at modes -- which stay 0600 whether the integrity walk runs or not. Two checks now exist that ask those questions: a wide tree for the consumption bound, and a hardlinked file for the walk.",
+    "corrected": "the coverage, not the tokens"
+   },
+   {
+    "probes": "M6 and M7",
+    "why": "the tokens named the wrong outcome. Without the isinstance guard a tuple reaches `identity.uid` and the reversal dies on AttributeError -- which IS the guard's value. Without the errno text the refusal is still raised and assertRaisesRegex reports a mismatch.",
+    "corrected": "the tokens"
+   }
+  ],
+  "no_engine_model_store_deployment_or_version_control_operation": true
+ },
+ "changed_this_claim": {
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "f345de03262fb6a332d6e221c1c3367736a1e3d6b6d47f1254f04cb62b9dac2a",
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+  "v12/python/tests/manager/test_workspaces.py": "02a47b538abfcad5f991592171e19400c1d1f5a0b4a9e7ffafd4a7b258f45d2c",
+  "v12/python/tests/manager/test_review_cycles.py": "74ef6d2a259d70cbc9a4c3850a1e4069c95f3e3f3ec04ed4520871456e15a9ab"
+ },
+ "test_changes_and_why": {
+  "InitialStableLineAccess": "rewritten. The superseded expectations are the PER-ENTRY MODES and only those; the hardlink, special-file, ceiling, foreign-owner, canonical-root and pin cases are kept, and the new ones are the permission-act count, the depth-bounded peak, a 1,400-entry tree under a 1,024 soft limit in a child, owner-only entries left alone, repeated preparation, and the named errno.",
+  "TheConsumptionWalkIsBoundedToo": "new; the consumption bound on a wide tree and under the incident's limit",
+  "StableLineLifecycle": "three cases renamed/retargeted to establish_line_access, plus a new one proving create_line refuses a hardlinked materialization"
+ },
+ "preserved_untouched": {
+  "failed_v12_work": "a2b0d14b-W1",
+  "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+  "how": "no v12 store opened, no claim released, no partial line removed, no resubmission, no installed runtime updated, no production retry"
+ },
+ "cumulative_verification_spending": {
+  "claim194465": "none -- revalidation only",
+  "claim194532": "16.242s suites, 7.171s probes, plus the reviewer's reproducer rerun",
+  "unknowns_preserved": "the installed incident's original errno remains unknown; 18,078 is an entry count, not a measured descriptor peak"
+ }
+}

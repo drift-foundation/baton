@@ -1,0 +1,46 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  1.073MB
+Step 1/17 : FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+ ---> 0697b6595aff
+Step 2/17 : COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+ ---> f139c97b7c2f
+Step 3/17 : COPY worker/baton_worker.py /opt/baton/baton_worker.py
+ ---> 17a9cd662dba
+Step 4/17 : COPY worker/claude_agent.py /opt/baton/claude_agent.py
+ ---> d373bcdbad24
+Step 5/17 : COPY worker/integration_contract.py /opt/baton/integration_contract.py
+ ---> bfe177b54cc0
+Step 6/17 : COPY worker/integration_workload.py /opt/baton/integration_workload.py
+ ---> 8e3222a2983f
+Step 7/17 : COPY worker/integration_entry.py /opt/baton/integration_entry.py
+ ---> 142fbc2bdb50
+Step 8/17 : COPY worker/proposing_agent.py /opt/baton/proposing_agent.py
+ ---> 91be388b1d6d
+Step 9/17 : COPY worker/proposing_entry.py /opt/baton/proposing_entry.py
+ ---> 1ae136e3ee84
+Step 10/17 : COPY worker/importing_agent.py /opt/baton/importing_agent.py
+ ---> 0ba004494583
+Step 11/17 : COPY worker/importing_entry.py /opt/baton/importing_entry.py
+ ---> 8a8a7fdf08d6
+Step 12/17 : COPY worker/fixture_entry.py /opt/baton/fixture_entry.py
+ ---> d7c6e4410e31
+Step 13/17 : COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+ ---> a53f9faaabb7
+Step 14/17 : COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+ ---> e0835e24c9cb
+Step 15/17 : USER 65532:65532
+ ---> Running in bb2de86aed28
+ ---> Removed intermediate container bb2de86aed28
+ ---> 1434e837a2d7
+Step 16/17 : ENTRYPOINT ["python3", "/opt/baton/fixture_entry.py"]
+ ---> Running in c7bc5d7e7f10
+ ---> Removed intermediate container c7bc5d7e7f10
+ ---> 5aed2f724072
+Step 17/17 : ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PYTHONPATH=/opt/baton     PYTHONHASHSEED=0
+ ---> Running in ec30a71fa070
+ ---> Removed intermediate container ec30a71fa070
+ ---> 61581acfe22c
+Successfully built 61581acfe22c

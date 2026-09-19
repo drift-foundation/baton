@@ -1,0 +1,97 @@
+{
+  "work": "W198667",
+  "claim": 201156,
+  "author": "baton.claude",
+  "answering": {
+    "review": "review-2026-09-18T06-53-11Z.md",
+    "sha256": "d8e60f502790ce0cbef6fedab9639546ee155e2fd7fdf59aafa01f1b3ee758e4",
+    "review_evidence": "REVIEW-EVIDENCE-201085.json",
+    "review_evidence_sha256": "ce88338dad1fa22df4e905463fcbe2f907d1bb3d33a7dc4e4e191228c0ef60b2",
+    "probes": "review-probes-201085.py",
+    "accepted_by_that_review": "the bounded shared FIFO and hard-link corrections and the stale-finished-while-open correction, at claim201008's five hashes"
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "ef5c5302c82981a672cc7c9bd5603aa36745c6f90b3fa3dec99c870c91e08fc6",
+    "v12/worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+    "v12/worker/claude_agent.py": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+    "v12/python/tests/manager/test_attempt_logs.py": "92f6fab3e1fdc7915c80fa583fc65b96c1050364c019c0fddf9e99081139be67",
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-201156/smoke.py": "42d5039911c7fb284be8189d9958e80f006521bc2ed1408c550c229bb9af1e3f"
+  },
+  "reproduced_before_correcting": {
+    "script": "/tmp/w198667-claim201156/probe_before.py",
+    "detected_short_write": {
+      "first_declared": "failed",
+      "second_declared": "finished",
+      "declaration_after": "finished",
+      "bytes_on_disk": "firstsecond-whole",
+      "note": "the capture DETECTED its own short write and the later success published finished over a file whose middle was never restored"
+    },
+    "every_prior_loss_state": {"after_truncated": "finished",
+                               "after_partial": "finished"}
+  },
+  "correction": {
+    "the_two_questions": {
+      "sidecar": "what did the writer that published it see -- clearing it on reopen is what keeps a reopened stream honestly live, and that correction stands",
+      "cumulative_record": "is the WHOLE FILE complete -- those bytes include every earlier generation's, and no later writer can improve it"
+    },
+    "sites": [
+      "attempt_log_format.SEVERITY and worst: an order that is the vocabulary's own meaning",
+      "attempt_log_format.carried_name, read_carried, carry_declaration: a per-stream cumulative record",
+      "attempt_log_format.append_writer: carries the prior word into that record and hands the worst back",
+      "claude_agent._aggregate and baton_worker._aggregate: each writer publishes the worse of carried and its own outcome, with a reason naming the earlier generation"
+    ],
+    "only_loss_is_carried": "a finished generation writes no record, so the ordinary clean restart costs nothing and still ends captured",
+    "unreadable_record": "treated as the worst state it could have said; it is not permission to claim completeness",
+    "after": {
+      "reviewer_probe": "the second writer publishes failed naming the earlier loss; bytes preserved as firstsecond-whole",
+      "every_prior_state": {"failed": "failed", "truncated": "truncated", "partial": "partial"},
+      "all_successful_control": "finished, and the reader says captured with more_may_arrive false",
+      "active_second_writer": "no sidecar, follow alive, and the carried loss durable on disk"
+    }
+  },
+  "reversal_probe": {
+    "how": "a scratch copy that clears instead of carrying, then removed",
+    "result": "8 of the 13 new cases fail",
+    "controls_passing_both_ways": ["the all-successful restart",
+                                   "the active writer keeping follow alive",
+                                   "a clean first capture writing no record",
+                                   "the record not appearing as a stream",
+                                   "the wrapper's all-successful restart"]
+  },
+  "two_fixture_defects_of_mine_caught_by_running_them": [
+    "the bounded-write shim replaced the format module wholesale, which broke the wrapper's tee because it opens LAZILY and met a shim that had never heard of append_writer; it delegates everything but the write now",
+    "a subTest loop rebuilt the room under a descriptor the case holds, so later writes failed for an unrelated reason; it uses one stream per prior state instead"
+  ],
+  "images": {
+    "changed_this_claim": true,
+    "why": "attempt_log_format.py, baton_worker.py and claude_agent.py all changed",
+    "consequence_stated_plainly": "fixture-201008's smoke no longer describes these bytes; it keeps its own attribution and proves what it always proved",
+    "new_episode": {
+      "path": "work/records/2026/09/finding-v12-durable-development-logs/fixture-201156",
+      "image": "sha256:23edb0ca2a9a7e93a4101908e1e6333d2cbe419fd7851f910077e095b145751e",
+      "built": "--pull=false --no-cache --network none, same immutable base",
+      "smoke": "8 of 8 checks hold"
+    },
+    "untouched": "fixture-199285, fixture-199918, fixture-201008 and the accepted provider and integration images"
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "attempt_logs + attempt_logs_command", "tests": 213, "new": 13, "result": "OK", "seconds": 1.633},
+      {"suite": "affected set: attempt_logs, attempt_logs_command, claude_agent, integration_worker, worker_entry, launch, oci, exchange", "tests": 871, "result": "OK", "seconds": 26.038},
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.576},
+      {"suite": "W197661 shared: test_w197661_verifier, test_proposing_fixture", "tests": 83, "result": "OK", "seconds": 0.425},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "container": "one image build and one smoke, 8/8",
+    "measured_seconds_this_claim": 600,
+    "prior_spending": "preserved in EVIDENCE-198698 through EVIDENCE-201008 and the reviewers' own evidence; approximately 700s reported for claim201008 is retained as the estimate it is, and no exact cumulative total is asserted"
+  },
+  "ownership": {
+    "shared_overlap_checked_first": "W197661's live candidate is instance-200564/* plus tests/manager/test_w197661_verifier.py; none is touched here and its suites run green against this tree",
+    "not_edited": "every reviewer-owned review and REVIEW-EVIDENCE-*.json; every prior EVIDENCE-*.json; fixture-199285, fixture-199918 and fixture-201008"
+  },
+  "not_done": "no live model, provider call, network (the build and smoke run --network none), production action, recovery, resubmission, version-control mutation, direct coordination-store access, credential read, public log publication, or new permission gate",
+  "synthetic_state": "/tmp/w198667-claim201156; the reviewer's /tmp/w198667-review201085-s5eqyx7j and -g6si96wh are untouched"
+}

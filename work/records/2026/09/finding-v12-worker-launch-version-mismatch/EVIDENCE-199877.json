@@ -1,0 +1,90 @@
+{
+  "NOT_DONE_THIS_CLAIM": [
+    "the installed disposable lifecycle has NOT been re-run with this image: bootstrapping capacity, submitting, starting the scheduler and observing publication, independent review and report-and-hold end to end remain",
+    "instance-199877/ holds the agent, the recipe and the built image and no lifecycle run"
+  ],
+  "THE_BLOCKER_IS_REMOVED": {
+    "and_the_review_turn": "it observes base, head and tree off the same line and answers baton.checkpoint-review/1 with a deterministic verdict, editing nothing",
+    "what_it_may_not_say": "no artifact id, content digest, byte count or custody locator -- those would be the container certifying its own output, and a case asserts their absence in both claims",
+    "what_it_produces": "a real commit on the private line; the declared proposal tree (patch, verification transcript, result record and the objects); and baton.git-proposal/1 with base, head, transport and recap",
+    "what_it_was": "every earlier fixture wrote result_metadata {} for its git-change-proposal, so it carried no baton.git-proposal/1 claim, nothing could be published, and independent review and report-and-hold were unreachable BY CONSTRUCTION. The lifecycle exercise kept stopping at the same wall for a reason that was the FIXTURE's rather than the deployment's.",
+    "why_it_was_removable": "claude_agent says it in its own words: on the git-line profile THE CANDIDATE IS /output -- 'the workspace IS the durable private repository the manager materialized and detached before this container existed'. So the agent does not have to find, clone or construct anything; it commits in the tree it was handed and reports the four facts the claim is made of."
+  },
+  "authority": "owner ruling seq199199; no further permission sought or needed",
+  "candidate": {
+    "v12/python/tests/manager/test_proposing_fixture.py": "dd292df671c5a578f33c5c6e3a34100628fd52cf8f38bdc5fd108ac24fc8b45a",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-199877/context/Dockerfile.fixture": "a51a94bbf0ab72f8ca79c9fe63f5f9c0257463cbca980cba2ffc1f34fe698ab9",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-199877/context/worker/proposing_agent.py": "5d9b1828debe75b8550939b2d8511e623b328ac4123e36a3873ea0a2176713af"
+  },
+  "claim": 199877,
+  "fixture_image": "sha256:3edb3fc976562f2bbf0fb2c2b29f9899a6ef151a2a151013af2fe96c85c1dd5d",
+  "image": {
+    "build_flags": [
+      "--pull=false",
+      "--no-cache",
+      "--network none",
+      "--platform linux/amd64"
+    ],
+    "context": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-199877/context -- this Work's OWN, fresh episode",
+    "one_labelled_difference": "it carries a scripted agent and enters baton_worker.py directly; the accepted provider image carries none and enters dogfood_entry.py, which injects the REAL adapter",
+    "untouched": "W198667's fixture-199285 context and image, and the accepted provider/integration digests, are neither used, rebuilt nor re-attributed"
+  },
+  "no": [
+    "live model",
+    "production action",
+    "lifecycle re-run",
+    "version-control mutation of this repository",
+    "rebuild or re-attribution of any accepted image"
+  ],
+  "preserved": {
+    "W198667": "queued at baton.bug; none of its candidate files is touched",
+    "history": "no prior evidence file or review is rewritten",
+    "instance_199021": "not written to; this is a fresh episode path",
+    "production": "not read from, written to, started or changed",
+    "the_failed_disposable": "retained and untouched"
+  },
+  "proved_without_a_container": {
+    "cases": 13,
+    "covering": [
+      "it commits and the head is a new revision touching exactly the one declared file",
+      "the claim's four members are this turn's own",
+      "it names no manager identity",
+      "the declared proposal tree is written",
+      "the objects carry the commit the claim names",
+      "the other outputs carry no claim",
+      "a stale transport from an earlier turn is removed first",
+      "the bytes are deterministic",
+      "a non-list declaration is refused",
+      "a review turn answers a verdict claim over the same line",
+      "a review turn edits nothing",
+      "the review claim names no manager identity either",
+      "the agent imports nothing from baton_v12"
+    ],
+    "how": "on the git-line profile the candidate is the worker's own output root, so a temporary repository is the SAME arrangement the container gets -- which is what makes this deterministic and container-free"
+  },
+  "schema": "baton.w197661.evidence/1",
+  "verification": {
+    "clean_under": "-W error::ResourceWarning",
+    "fixture_and_integration": {
+      "checks": 125,
+      "result": "OK",
+      "seconds": 2.501
+    },
+    "job_manager_whole_suite": {
+      "checks": 837,
+      "result": "OK",
+      "seconds": 9.543
+    },
+    "seconds_measured_this_claim": 140,
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    },
+    "test_proposing_fixture": {
+      "checks": 13,
+      "new": true
+    }
+  },
+  "work": "2b077949-W197661"
+}

@@ -1,0 +1,24 @@
+{
+  "claim": 206578,
+  "review": "review-2026-09-18T21-44-22Z.md",
+  "disposition": "incomplete; owner selection on confirmed D2",
+  "record_hashes": {
+    "PROVENANCE-202663.json": "b917bf2863147c0842aaf6a4e69e7a477a8a7dc11bc0d2099196dafe23912991",
+    "PROBE-one-image-per-job-202663.json": "3260fda7ceff2e57d08c2e6e173ad4dc6a45532c05d32c7836728b4f60b85027",
+    "probe-one-image-per-job-202663.py": "47d074197f4fb29ae9b4290f8da77b91e22ba25546b2ff474bf3cc4575514d56",
+    "COMMANDS-202663.md": "0c1184351645cddbd9b9d156f75957e29feabcb1010338b1710d6d94f195e8c1"
+  },
+  "dockerignore_sha256": "7aae9bcf1a62bf98ef26c6c7ac284430d4d253da456283cda018db39f9fa96c6",
+  "recipe_hashes_match": 3,
+  "enumerated_module_hashes_match": 8,
+  "independent_validator_probe": {
+    "control": "accepted",
+    "both_variants": "ContractRefusal: the bootstrap input manifest names another worker image",
+    "elapsed_seconds": 0.021269528
+  },
+  "image_inspect": "both recorded IDs/entrypoints/nonroot user confirmed",
+  "reviewer_builds": 0,
+  "reviewer_container_runs": 0,
+  "pool_changed": false,
+  "recommendation": "owner select one combined delivery-dispatched image under preserved manifest equality"
+}

@@ -1,0 +1,67 @@
+{
+  "credential_policy": {
+    "payload_in_configuration": false,
+    "registry": "/home/sl/baton-v12-lifecycle-200564-clean/credential-fixture/registry.json",
+    "slots": {
+      "claude": {
+        "provider": "w197661-synthetic-fixture",
+        "reference": "non-bearer-marker"
+      }
+    },
+    "synthetic_non_bearer": true
+  },
+  "mount_policy": {
+    "mutable_storage": "/home/sl/baton-v12-lifecycle-200564-clean/storage",
+    "source": "read-only nominated source and a manager-held private development line",
+    "target": "/home/sl/baton-v12-lifecycle-200564-clean/repo/target.git",
+    "target_reference": "refs/heads/main",
+    "workspace_group": 1000
+  },
+  "network_policy": {
+    "engine_network": "none",
+    "purpose": "a deterministic fixture reaches nothing; the synthetic slot grants access to no service"
+  },
+  "policy": {
+    "automatic_retry": false,
+    "base": "e486652c4ddebfb696e030b4b867e914248db542",
+    "review_before_execution": true,
+    "ruling": "owner seq198635, continued under review-2026-09-18T01-21-09Z.md: a bounded disposable deterministic lifecycle exercised with a fake provider",
+    "submission": [
+      "w197661-lifecycle"
+    ],
+    "work": "W197661"
+  },
+  "resource_policy": {
+    "deadline_action": "stop; retain evidence; no retry",
+    "implementation_attempt_seconds": 120,
+    "integration_seconds": 60,
+    "review_or_judge_attempt_seconds": 90,
+    "runtime_cpus": 2,
+    "runtime_memory_bytes": 2147483648,
+    "runtime_pids": 512,
+    "scratch_mounts": [
+      [
+        "/tmp",
+        67108864
+      ],
+      [
+        "/dev/shm",
+        16777216
+      ]
+    ],
+    "wall_seconds": 600,
+    "workspace_capacity_is_quota": false,
+    "workspace_declared_capacity_bytes": 536870912
+  },
+  "retention_policy": {
+    "automatic_deletion": false,
+    "disposition": "retain",
+    "root": "/home/sl/baton-v12-lifecycle-200564-clean"
+  },
+  "tool_policy": {
+    "final_verification": [],
+    "model_selection": "NONE; the scripted deterministic agent inside the labelled fixture image",
+    "provider_arguments": [],
+    "verification": []
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "claim": 201732,
+  "work": "W197661",
+  "review": "review-2026-09-18T08-30-08Z.md",
+  "candidate_hashes": {
+    "instance-201492/EXPECTED.json": "fbde136dece3b907c49626a1c5bf6e103fef0e8b50b6daad51b94f627164fff1",
+    "instance-201492/build/projection-run4.json": "9eccaad61caf22c0ddf51e63e5fa574e2bac7cbaa08ac7555aedbb1fc6d11cd9",
+    "instance-201492/build/status-run4.json": "9f2ab65a24471ef4a3ddb5799f8278d654a3cf4ec0deeea91cd2e856773aedc8",
+    "instance-201492/compose_lifecycle.py": "4ae3b1c02ff838abdc099a11be012a468313c903d9a1f8f8b4987d41b9ddde8b",
+    "instance-201492/context/Dockerfile.fixture": "636bec58cef2e3397254de5e952797354dc2f4ac596bc05e0d39e3ba571cd0b1",
+    "instance-201492/context/worker/fixture_entry.py": "b3b2e731c42deea6f2122d68a31d00691521b8297e18edf4d635ab909363de5f",
+    "instance-201492/context/worker/importing_agent.py": "6e01c65b2e485a94e332af51df8e16676325d333cb5b2912638836aebf34da17",
+    "instance-201492/verification-201492-run4.json": "b84bb827c554aea034e94c76c1163db8eacecff6c2d311144fa6be6a49c0958d",
+    "instance-201492/verification-201492-run4b.json": "7b0d39cf0c990891d8177812105f14f8ff648f3ef68acec668a7195d7503f612",
+    "instance-201492/verification-201492-run4c.json": "2d6d7cc3f6cd82ea80844ab2c079964f1922a3926fb840c4188715d2d3d8f0d0",
+    "instance-201492/verify_lifecycle.py": "c6fb288d8916d51a88addfdea33871f0d1d393ca18b26dbfee9477933bf16f2c",
+    "v12/python/tools/stage_execution.py": "f198d1aa5664a092b3452ff0838e1ddb48b536a297c2d776753e1e9f5ca2a472",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tests/manager/test_fixture_dispatch.py": "4670f5b763c3db2912a5e55a25ab8d249308aa87807bcfca927547dbbb7b16c5",
+    "v12/python/tests/manager/test_importing_fixture.py": "e2ceb68bfef4f403ab1bd1d76dff6a057f0b82113f5976fb59d8897b1dae6b41"
+  },
+  "tests": {
+    "count": 46,
+    "passed": true,
+    "duration_seconds": 0.006744607002474368,
+    "excluded": "test_and_the_RETAINED_RUN_composed_no_apply_input",
+    "flags": "-W error::ResourceWarning"
+  },
+  "engine_runs": 0,
+  "disposition": "changes-requested",
+  "author_evidence": "EVIDENCE-201492.json"
+}

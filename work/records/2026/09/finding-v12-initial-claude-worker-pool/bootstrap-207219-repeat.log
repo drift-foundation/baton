@@ -1,0 +1,17 @@
+authority a92e1d71...    reused from this root's record
+route impl           -> baton.claude-coder
+route rview          -> baton.claude-reviewer
+route integration    -> baton.merge
+work  a92e1d71-W1    already exists; left alone
+grant a92e1d71-W1    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /home/sl/baton-v12-instance-2026-09-18T10-38-52Z/deployment.json
+capacity      {"job_affinity": {"w202663-first-development-job": "w202663-first-development-job-implementation"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/1", "targets": ["w202663-target"], "workers_by_role": {"implementation": ["w202663-first-development-job-implementation"], "integration": ["w202663-first-development-job-integration"], "review": ["w202663-first-development-job-review"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/baton-v12-instance-2026-09-18T10-38-52Z/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/baton-v12-instance-2026-09-18T10-38-52Z/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="a92e1d717fcc40fe9972df8b2497c055"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/baton-v12-instance-2026-09-18T10-38-52Z/deployment.json"

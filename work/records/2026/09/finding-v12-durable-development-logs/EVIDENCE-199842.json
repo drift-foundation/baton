@@ -1,0 +1,86 @@
+{
+  "R1_the_holdback_could_make_no_progress": {
+    "a_defect_the_first_fix_introduced": "the top-up first read THREE bytes, which can carry the whole of the NEXT character's lead -- so `\u2192\u2190\u2191\u2193` came back with a replacement character in the middle of it. It reads exactly what is missing now.",
+    "and_the_two_endings_are_kept_apart": "after the top-up, a still-incomplete tail means the FILE ends mid-character. A LIVE writer may append the rest, so it is held and the follower asks again; a FINISHED writer will not, so it is reported with replacement rather than withheld forever -- terminal malformed data is the writer's, and waiting for it would be the hang this Work removes",
+    "cases": 4,
+    "correction": "the reader TOPS UP a split character instead of withholding it -- a bound is a bound on how much is handed back at once, and reading the bytes that finish a character the caller has already paid for is not a second slice",
+    "probe_rerun": "the completed euro-sign log at --bound 1 prints \u20acx",
+    "what": "a completed log holding `\u20acx` followed at --bound 1 withheld the one lead byte it had read, reported bytes_read 0, and the command read that as completion with nothing printed. A live stream would have reread the same prefix forever.",
+    "why_my_fix_was_half_right": "withholding a split character is correct; withholding it when it is ALL there is makes no progress, and a bound smaller than one character is an ordinary operand rather than an exotic one"
+  },
+  "R2_native_offsets_had_no_source_identity": {
+    "absence_vs_inaccessibility": {
+      "now": "ENOENT is the ordinary early tick and stays silent; anything else is a reason the caller declares",
+      "was": "_descended collapsed every OSError into None and its caller called that an ordinary not-yet-created directory, so a permission failure or a link where the state directory belongs produced an EMPTY CORNER reported as 'the provider wrote nothing'"
+    },
+    "cases": 5,
+    "restart": {
+      "now": "the resume position is the RETAINED COPY'S OWN SIZE, read from disk. What is already retained is a fact on disk; asking the disk makes restart work by construction rather than by remembering.",
+      "was": "offsets were per-call-lifetime integers, so a FRESH map over the same durable room appended `abc` a second time -- a restarted capture could not recover its position"
+    },
+    "truncation_and_replacement": {
+      "now": "the source's (dev, ino) and size are bound to the retained copy. A shorter or different source is a NEW GENERATION with its own retained name and a declared note, so an operator sees two files and an explanation rather than one plausible lie. Neither duplicated nor omitted.",
+      "was": "truncating a retained source to `XY` left `abcdef` retained with failed empty -- the new bytes silently omitted"
+    }
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "9cb270d7693a28e81919bd91daf748d520346b60bde3d42c2bbe8f237b7137e5",
+    "v12/python/tests/manager/test_attempt_logs.py": "4d84486153e064607a3bff485985a6437c141c0568ebeee286246b96cd4d83f9",
+    "v12/python/tests/tools/test_attempt_logs_command.py": "59a73d0e84a5de5b3e3baa71c1d75dff913a2aec90f8f5c9f667fe509d8dc617",
+    "v12/worker/claude_agent.py": "1d088c31e9aed6deb76c16c599a40575804f3dc72540853fe76f8de0fa9859db"
+  },
+  "claim": 199842,
+  "fixture_image": "sha256:2d8f3ed4e7c85404b599418e4975a8bc2d5817a06659b80e9e70d76d3a8855da",
+  "no": [
+    "live model",
+    "provider call",
+    "network",
+    "production action",
+    "version-control mutation",
+    "direct store access"
+  ],
+  "preserved": {
+    "W197661": "queued at baton.bug; none of its candidate files is touched",
+    "history": "no prior evidence file or review is rewritten",
+    "images": "no accepted image is rebuilt or re-attributed"
+  },
+  "schema": "baton.w198667.evidence/1",
+  "verification": {
+    "affected_set": {
+      "checks": 786,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 25.0,
+      "suites": [
+        "attempt_logs",
+        "attempt_logs_command",
+        "claude_agent",
+        "integration_worker",
+        "worker_entry",
+        "launch",
+        "oci",
+        "exchange"
+      ]
+    },
+    "container_smoke": {
+      "all_true": true,
+      "checks": 8,
+      "image": "sha256:2d8f3ed4e7c85404b599418e4975a8bc2d5817a06659b80e9e70d76d3a8855da"
+    },
+    "seconds_measured_this_claim": 160,
+    "test_attempt_logs": {
+      "checks": 106,
+      "was": 101
+    },
+    "test_attempt_logs_command": {
+      "checks": 22,
+      "was": 18
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    }
+  },
+  "work": "2b077949-W198667"
+}

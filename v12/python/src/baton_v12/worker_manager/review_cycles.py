@@ -1011,8 +1011,18 @@ def create_line(store, *, source, declared_base, profile,
         if _object(path, "the materialized development line") != (device, inode):
             raise ContractRefusal("runtime-observation", "identity-mismatch",
                                   "the materialized development line changed before publication")
-        workspaces._provision_line_access(
-            path, (device, inode), workspaces.configured_workspace_group(store).gid)
+        # W194457: PROVE, then ESTABLISH -- and the two are different costs.
+        # `prove_line_integrity` keeps every constraint the removed
+        # whole-tree provisioning pass also enforced (special files,
+        # hardlinks, the entry/byte/depth ceilings, and that the tree belongs
+        # to this deployment's execution identity) and is bounded by DEPTH
+        # rather than by entry count. `establish_line_access` then does the
+        # permission work, which under a shared execution identity is the
+        # ROOT's group and mode and nothing else -- two acts, whatever the
+        # checkout holds.
+        identity = workspaces.configured_workspace_identity(store)
+        workspaces.prove_line_integrity(path, (device, inode), identity)
+        workspaces.establish_line_access(path, (device, inode), identity)
         connection.execute(
             "UPDATE review_lines SET line_device = ?, line_inode = ?, "
             "state = 'idle' WHERE line_id = ? AND state = 'materializing'",

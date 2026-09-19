@@ -28,3 +28,16 @@ This is failure-handling hardening, outside W71830/W71879 containment/dependency
 Correct provisioning avoids this observed failure on the first successful path;
 this Work neither changes group requirements nor makes an incompatible target
 writable. Keep it deferred with W144335 and other unrelated hardening.
+
+
+## 2026-09-17 — first v12 execution selected; submission example requested
+
+Slawomir approved using this existing v11 Work for a corresponding v12 execution
+Job, with W183883 as deployment context and v11 retaining tracking authority.
+The owner then requested a submission file to inspect. Prompt creates
+v12/w144813-submission.example.json as an illustrative three-stage submission,
+not a submitted Job. Null fields explicitly mark unprepared input/policy digests,
+v12 Work binding and certified worker profile names/digests. These nulls are
+intentionally rejected by the submission validator. The proposed focused test
+path is tests/tools/test_integration_worker.py under v12/python. No worker was
+configured, no store changed, no live execution started and no claim acquired.

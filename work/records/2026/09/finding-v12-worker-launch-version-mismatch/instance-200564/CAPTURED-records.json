@@ -1,0 +1,42 @@
+{
+ "_destination": "/home/sl/baton-v12-lifecycle-200564-clean",
+ "_what_this_is": "records READ from the retained clean episode through their owning read-only contracts by verify_lifecycle.read_records, captured so the verifier fixtures are calibrated against shapes an owner really produced rather than shapes this campaign invented",
+ "checkpoint": {
+  "checkpoint_id": "checkpoint-69634255e456ea553e7f87cd7fd4c02e6e47fa8076aeb05985bfbae9952f7340",
+  "evidence": {
+   "base": "e486652c4ddebfb696e030b4b867e914248db542",
+   "head": "f9422b49a20f10e004a5be0ac22f15e0fdd45383",
+   "path_set_digest": "sha256:30819c1bc2ea4b8b39d22798ef2919ed5b124c8766a9bb19a6077ab0425be2b2",
+   "paths": [
+    "w197661-fixture.txt"
+   ],
+   "profile": "git",
+   "reference": "refs/baton/checkpoints/line-381b95a4de84cad72fd6878165469a0da638eaacc8f1962b77dcc4a88ad5b3ef/1",
+   "tree": "2a43bb4fd3353934cb2efa5b6592479450551f8e"
+  }
+ },
+ "result": {
+  "assignment_ref": {
+   "generation": 1,
+   "participant": "baton.w197661-author",
+   "work_ref": {
+    "authority_uuid": "af29c003da434c3aa311b5de4a09f2ee",
+    "work_id": "af29c003-W1"
+   }
+  },
+  "attempt_id": "attempt-498e9046beb476573288149beeb9ed5cc61971f80417ccc42614771885f72565",
+  "disposition": "completed",
+  "manifest_digest": "sha256:e9906e78b17c789882367083357d5a6dd0b063fd373071b33823d59d761c43c9",
+  "result_id": "result-attempt-498e9046beb476573288149beeb9ed5cc61971f80417ccc42614771885f72565"
+ },
+ "terminal": {
+  "unread": "the report-and-hold terminal is the integration stage observation's own state, produced by the deployment reader in tools.stage_execution, which composes an Authority and sessions and is not a read-only path this verifier may take"
+ },
+ "verdict": {
+  "attempt_id": "attempt-743c069b653d076346a203d9f3bdb8be0bcc2a91be1e8acec25df27de464fd1e",
+  "checkpoint_id": "checkpoint-69634255e456ea553e7f87cd7fd4c02e6e47fa8076aeb05985bfbae9952f7340",
+  "disposition": "accepted",
+  "verdict_id": "verdict-0f84fc1be9fc65c70eeb3c884e70ad7722814b7c31bcde9d4d10c0f9c4060783",
+  "work_id": "af29c003-W1"
+ }
+}

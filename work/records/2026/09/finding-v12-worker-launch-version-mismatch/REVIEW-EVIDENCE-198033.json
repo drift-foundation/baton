@@ -1,0 +1,93 @@
+{
+  "claim": 198033,
+  "hashes": {
+    "corrected-197975/smoke/command-0.stderr": true,
+    "corrected-197975/smoke/command-1.stderr": true,
+    "corrected-197975/smoke/integration-five.container.inspect.json": true,
+    "corrected-197975/smoke/integration-reads.container.inspect.json": true,
+    "corrected-197975/smoke/negcontrol.container.inspect.json": true,
+    "corrected-197975/smoke/provider-describe.container.inspect.json": true,
+    "corrected-197975/smoke/provider-five.container.inspect.json": true,
+    "corrected-197975/smoke/provider-reads.container.inspect.json": true,
+    "corrected-197975/smoke/result.json": true,
+    "corrected-197975/smoke-scratch/launch-five.json": true,
+    "corrected-197975/smoke-scratch/launch-one_invalid.json": true,
+    "corrected-197975/smoke-scratch/launch-one_valid.json": true,
+    "corrected-197975/smoke-scratch/launch-three.json": true,
+    "corrected-197975/smoke_images.py": true,
+    "v12/worker/baton_worker.py": true,
+    "v12/python/tests/manager/test_worker_entry.py": true,
+    "v12/python/tests/manager/test_exchange.py": true,
+    "v12/python/tests/manager/test_worker_container.py": true,
+    "v12/python/tests/tools/test_execution_limits.py": true
+  },
+  "all_hashes_match": true,
+  "gone_daemon_unavailable_reproduction": {
+    "absent": true,
+    "engine_said": "Cannot connect to the Docker daemon"
+  },
+  "probe_wall_seconds": 3.4060212783515453e-06,
+  "retained_inspections": {
+    "integration-five.container.inspect.json": {
+      "id": "3097b76f45f40eb90f37808767e1ab669e2e39095c0cee844930b0d8289746bf",
+      "image": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407",
+      "running": false,
+      "exit": 2,
+      "network": "none",
+      "readonly": true,
+      "memory": 2147483648,
+      "cpu": 2000000000
+    },
+    "integration-reads.container.inspect.json": {
+      "id": "a282e3116b6d4084c8f84b9ab80363ee353c4531438e54de0e7680e0bfa10c54",
+      "image": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407",
+      "running": false,
+      "exit": 0,
+      "network": "none",
+      "readonly": true,
+      "memory": 2147483648,
+      "cpu": 2000000000
+    },
+    "provider-five.container.inspect.json": {
+      "id": "4347dd5156840483f83ecf603ba6a4ff5e961eee80fdc8f5bf75d5914675b8aa",
+      "image": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06",
+      "running": false,
+      "exit": 3,
+      "network": "none",
+      "readonly": true,
+      "memory": 2147483648,
+      "cpu": 2000000000
+    },
+    "provider-reads.container.inspect.json": {
+      "id": "d47d462d2f9ea48196f5617f1c0a23f5ba78f71b6fd6b27c62777181b4deab3f",
+      "image": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06",
+      "running": false,
+      "exit": 0,
+      "network": "none",
+      "readonly": true,
+      "memory": 2147483648,
+      "cpu": 2000000000
+    },
+    "provider-describe.container.inspect.json": {
+      "id": "f123b9ff05dc0301f8e4ffeb935c0348da420a24d4103f2e5072b925e6940475",
+      "image": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06",
+      "running": false,
+      "exit": 0,
+      "network": "none",
+      "readonly": true,
+      "memory": 2147483648,
+      "cpu": 2000000000
+    },
+    "negcontrol.container.inspect.json": {
+      "id": "d7ea0cae6dabeb486b4aab42444e0695856c005e2ed33d8c67506df8b9a27f53",
+      "image": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06",
+      "running": true,
+      "exit": 0,
+      "network": "none",
+      "readonly": true,
+      "memory": 2147483648,
+      "cpu": 2000000000
+    }
+  },
+  "evidence_limit": "AST-extracted actual gone function with fake subprocess only; no Docker execution"
+}

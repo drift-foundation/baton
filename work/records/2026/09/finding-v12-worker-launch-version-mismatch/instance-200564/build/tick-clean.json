@@ -1,0 +1,67 @@
+{
+ "spoken": [
+  {
+   "stage_id": "w197661-lifecycle/integration",
+   "episode": 1,
+   "attempt_id": "attempt-5b89b1d79ea23e3f53b032268759439d2cd7a050d168e1b34582dace8aa829ba",
+   "act": "conclude",
+   "outcome": "performed",
+   "detail": {
+    "outcome": "running",
+    "entry": "integration-driver.entry:560b2d709dfd9cc61976b0026416d8fa79d92e768d78a6506336ad3069f3eb6f",
+    "assignment": {
+     "schema": "baton.v12.integration-assignment/1",
+     "canonical_target_id": "w197661-target",
+     "entry_id": "integration-driver.entry:560b2d709dfd9cc61976b0026416d8fa79d92e768d78a6506336ad3069f3eb6f",
+     "lease_id": "integration-driver.lease:f6ce0787954e161673cac8fae169ba6e01b03923bf3b94c893081bd5d8938026",
+     "fence": 1,
+     "attempt_id": "attempt-5b89b1d79ea23e3f53b032268759439d2cd7a050d168e1b34582dace8aa829ba",
+     "integrator_participant": "baton.w197661-integrator",
+     "profile_kind": "git",
+     "profile_version": 1,
+     "instructions_digest": "sha256:e4416e2dc925b49bbd8336bf102feaf6e70ee9a52cf4066db5ac83a7560c3dcc",
+     "target_access": "writable"
+    },
+    "observed": {
+     "state": "waiting",
+     "result": null,
+     "hold": null
+    },
+    "authority_receipt": null,
+    "receipts": {
+     "verification": {
+      "kind": "verification",
+      "receipt_id": "integration-driver.ordinary-tests-verification-receipt:48334df3962754e6d712b7710e2c1068604767964bcc3fd703c5d65ff72dedc2",
+      "proposal_id": "integration-driver.proposal:d94146408f99eeffc8c2240486b54f5eebde57469ec74a2dd9a81605ad0ec37c",
+      "actor": "baton.w197661-verifier",
+      "disposition": "passed",
+      "policy_generation": null,
+      "candidate_digest": "f9422b49a20f10e004a5be0ac22f15e0fdd45383",
+      "target": "e486652c4ddebfb696e030b4b867e914248db542"
+     },
+     "review": {
+      "kind": "review",
+      "receipt_id": "integration-driver.review-receipt:77ebc0c2a77f9c089911d87d4ccbdd5f92fe31243307834f46ebb09cc9d5fcfc",
+      "proposal_id": "integration-driver.proposal:d94146408f99eeffc8c2240486b54f5eebde57469ec74a2dd9a81605ad0ec37c",
+      "actor": "baton.w197661-judge",
+      "disposition": "accepted",
+      "policy_generation": null,
+      "candidate_digest": "f9422b49a20f10e004a5be0ac22f15e0fdd45383",
+      "target": "e486652c4ddebfb696e030b4b867e914248db542"
+     },
+     "approval": {
+      "kind": "approval",
+      "receipt_id": "integration-driver.approval-receipt:4e461a0c8d7aaef7638aee0b4d926ff3c5b30190a263b547bf9d2e4d04ec5be1",
+      "proposal_id": "integration-driver.proposal:d94146408f99eeffc8c2240486b54f5eebde57469ec74a2dd9a81605ad0ec37c",
+      "actor": "baton.w197661-approver",
+      "disposition": "approved",
+      "policy_generation": 23,
+      "candidate_digest": "f9422b49a20f10e004a5be0ac22f15e0fdd45383",
+      "target": "e486652c4ddebfb696e030b4b867e914248db542"
+     }
+    }
+   }
+  }
+ ],
+ "started": []
+}

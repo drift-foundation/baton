@@ -1,0 +1,191 @@
+{
+ "work": "2b077949-W194457",
+ "claim": 194622,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-17T12-47-56Z.md",
+  "sha256": "621d1b8b8956928e542890ca3823b4fe04feea4b1227487ebe19393f14591f3f"
+ },
+ "finding_1_the_pre_grant_revalidation": {
+  "status": "REPAIRED",
+  "the_regression_was_real_and_mine": "The removed pass re-`fstat`ed every RETAINED descriptor after the walk and compared (uid, nlink, mode) against what it had seen. Closing each child to bound the descriptors threw that guard away with it, so a file that acquired an outside hardlink while a later sibling was being opened was granted on. The reviewer's interleaving walked straight through it.",
+  "the_repair": "The FINGERPRINTS are kept instead of the descriptors. One pass records (dev, ino, uid, nlink, mode) per relative path -- memory, not file descriptors -- and a SECOND bounded pass re-opens each entry no-follow and compares. A replaced entry fails on identity; a hardlinked, chowned or chmoded one fails on the rest; a directory that gained or lost an entry fails on its child count. The peak stays one descriptor per LEVEL in both passes, so no O(entries) retention returns.",
+  "held_by": [
+   "InitialStableLineAccess.test_a_link_added_AFTER_an_entry_was_checked_is_refused -- the reviewer's own race",
+   "...test_an_entry_REPLACED_during_the_walk_is_refused",
+   "...test_an_entry_that_APPEARS_during_the_walk_is_refused",
+   "...test_an_entry_that_DISAPPEARS_during_the_walk_is_refused",
+   "...test_an_unchanged_tree_still_passes_BOTH_passes -- the control"
+  ],
+  "the_interleaving_observes_the_order_rather_than_assuming_it": "A first cut hard-coded which sibling to act on. `os.scandir` answers in DIRECTORY order, not creation order, so the interleaving fired before that entry had been fingerprinted at all and proved nothing. The helper acts on whichever child was opened FIRST, observed at run time.",
+  "the_static_hardlink_fixture_is_not_counted_as_this_coverage": "the review said so explicitly, and it is a separate case: there the link exists when the entry is first seen",
+  "probes": [
+   "N1 the second pass removed",
+   "N2 it records instead of comparing",
+   "N4 the child-count comparison removed",
+   "N5 object identity dropped from the comparison"
+  ]
+ },
+ "finding_3_operation_counts_measure_ACTUAL_calls": {
+  "status": "REPAIRED",
+  "what_was_wrong": "the check asserted `PERMISSION_ACTS`, a counter the product increments beside its two calls, so a chmod or chown added BESIDE the counter would have passed. And the M3 probe incremented that same counter rather than restoring a syscall, so its kill did not cover the blind spot.",
+  "what_it_is_now": "`watching_permission_syscalls` wraps `os.fchown`, `os.fchmod`, `os.chown` and `os.chmod` in the module under test and records every call. The check asserts the kernel was asked exactly twice -- one fchown, one fchmod -- on both a small tree and one three times larger, and that proving integrity asks for NOTHING.",
+  "the_probe_now_restores_a_REAL_syscall": "N3 inserts an `os.fchmod` per file and increments no counter, which is exactly the blind spot; the check kills it.",
+  "held_by": [
+   "InitialStableLineAccess.test_the_permission_work_is_TWO_ACTS_whatever_the_tree_holds"
+  ]
+ },
+ "finding_4_evidence_custody": {
+  "what_I_did_wrong": "I reran the reviewer's `reproduce-review-194488.py`, whose output path is fixed, so it overwrote the digest-bound baseline. The reviewer restored the original bytes and preserved my rerun separately.",
+  "what_I_do_now": "this claim writes only claim-specific names: probes-194622.py, results-194622.json, EVIDENCE-194622.json. I did not rerun their script this claim, and will not run a script whose output path I do not own."
+ },
+ "finding_2_shared_identity_STILL_INCOMPLETE": {
+  "status": "NOT DONE, and not deployable as a pair",
+  "what_remains": "`oci.py:181` and `custody.py:1672` still pin 65532:65532. The review is right that this is worse than one-sided: removing the normalization without changing launch also leaves MANAGER-created restrictive contents unreachable by the old worker identity, not only the reverse.",
+  "do_not_deploy_this_combination": true,
+  "exact_remaining_scope": [
+   "carry the minted identity through the execution and custody vectors, refusing an incompatible or unknown host/container mapping EARLY -- test_worker_entry_engine.py describes a host-observed remapped owner, so equal requested numbers are not proof",
+   "preserve consent-container semantics, which mount nothing",
+   "a private writable HOME/cache if the image's fixed defaults are kept",
+   "revalidate explicitly: --group-add (W33936/M34916), the 0640 credential slot (W52800), custody.normalize_directory's group grant (W39358), /input readability (W33935) -- each on its own terms",
+   "restrictive-file checks BOTH ways: worker-to-manager and manager-to-worker",
+   "simulated mapping/vector fixtures for incompatible configurations, labelled simulated",
+   "the written compatibility statement and installed-runtime update and recovery instructions, not executed"
+  ]
+ },
+ "verification": {
+  "suites": [
+   {
+    "module": "tests.manager.test_workspaces",
+    "tests": 115,
+    "result": "OK",
+    "seconds": 0.808
+   },
+   {
+    "module": "tests.manager.test_review_cycles",
+    "tests": 162,
+    "result": "OK",
+    "seconds": 1.908
+   },
+   {
+    "module": "tests.manager.test_custody",
+    "tests": 121,
+    "result": "OK",
+    "seconds": 3.309
+   },
+   {
+    "module": "tests.manager.test_oci",
+    "tests": 129,
+    "result": "OK",
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.tools.test_single_worker",
+    "tests": 153,
+    "result": "OK",
+    "seconds": 9.211
+   }
+  ],
+  "total_tests": 680,
+  "total_seconds": 16.144,
+  "new_this_claim": 6,
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_a_link_added_AFTER_an_entry_was_checked_is_refused",
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_REPLACED_during_the_walk_is_refused"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "N1-the-pre-grant-revalidation-pass-is-removed-again",
+     "reverted_returncode": 1,
+     "seconds": 0.441,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_a_link_added_AFTER_an_entry_was_checked_is_refused",
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_REPLACED_during_the_walk_is_refused"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "N2-the-second-pass-records-instead-of-comparing",
+     "reverted_returncode": 1,
+     "seconds": 0.433,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_the_permission_work_is_TWO_ACTS_whatever_the_tree_holds"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "N3-an-EXTRA-REAL-permission-syscall-goes-uncounted",
+     "reverted_returncode": 1,
+     "seconds": 0.449,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_that_DISAPPEARS_during_the_walk_is_refused"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "N4-a-directory-that-gains-an-entry-mid-walk-is-accepted",
+     "reverted_returncode": 1,
+     "seconds": 0.448,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.InitialStableLineAccess.test_an_entry_REPLACED_during_the_walk_is_refused"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "N5-the-revalidation-stops-comparing-object-identity",
+     "reverted_returncode": 1,
+     "seconds": 0.449,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 4.867
+  },
+  "probe_seconds": 4.867,
+  "probe_script": "probes-194622.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probe": "N4",
+    "why": "with the child-count comparison gone an entry that APPEARS is still refused -- a new name has no fingerprint and the per-entry check catches it. What ONLY the count catches is an entry that GOES, which the second pass simply never visits. The disappearance case did not exist until this probe earned it.",
+    "corrected": "the coverage"
+   }
+  ],
+  "no_engine_model_store_deployment_or_version_control_operation": true
+ },
+ "changed_this_claim": {
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "5b78cfae1f0840f7c550e0b28e274f6bb5fa60a37b80b2d6a1b76c7ef8e63073",
+  "v12/python/tests/manager/test_workspaces.py": "5d7245bb435d57fce4956182bcac61ea5f3d3729a7626d89aa5b40a023731143"
+ },
+ "unchanged_since_claim194532": [
+  "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+  "v12/python/tests/manager/test_review_cycles.py"
+ ],
+ "cumulative_verification_spending": {
+  "claim194465": "none -- revalidation only",
+  "claim194532": "16.242s suites, 7.171s probes, 0.303975786s reviewer-script rerun, and 55.434s for the stage-execution suite which I omitted from that claim's cumulative field -- the reviewer was right to add it",
+  "claim194622": "16.144s suites, 4.867s probes",
+  "known_component_sum": "about 100.2s across the three claims; this is a sum of COMPONENTS I measured, not a proven full historical total -- earlier failed probe attempts were not separately timed",
+  "unknowns_preserved": [
+   "the installed incident's original errno",
+   "18,078 is an entry count, not a measured peak",
+   "the 12 pre-existing stage-execution errors are carried from W183883 and are not independently re-verified here"
+  ]
+ },
+ "preserved_untouched": {
+  "failed_v12_work": "a2b0d14b-W1",
+  "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+  "how": "no v12 store opened, no claim released, no partial line removed, no resubmission, no installed runtime updated, no production retry"
+ }
+}

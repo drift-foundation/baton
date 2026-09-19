@@ -104,6 +104,14 @@ def _utc_now():
     return f"{moment.strftime('%Y-%m-%dT%H:%M:%S')}.{moment.microsecond // 1000:03d}Z"
 
 
+# WHAT AN AUTHORITY SAYS WHEN NOBODY HAS TOLD IT YET, named so that a caller
+# can ask whether a target has been ESTABLISHED rather than compare against a
+# literal of its own. W197661: `bootstrap` needs exactly that question when it
+# establishes the FIRST canonical target, and a second copy of this string is
+# how the two would drift.
+UNESTABLISHED_TARGET = "base-1"
+
+
 class Core:
 
     def __init__(self, store, *, clock=None, new_uuid=None):
@@ -208,7 +216,8 @@ class Core:
         Generic storage plus a specific meaning is exactly where a type has to
         be asserted, and this is the only place that knows the meaning.
         """
-        return check_text(self.policy("canonical_target", "base-1"),
+        return check_text(self.policy("canonical_target",
+                                      UNESTABLISHED_TARGET),
                           "the configured canonical_target")
 
     # -- the principal mapping (W16821) --------------------------------------

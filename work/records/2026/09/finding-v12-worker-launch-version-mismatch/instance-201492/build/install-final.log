@@ -1,0 +1,20 @@
+repositories  2 prepared under /home/sl/baton-v12-lifecycle-201492-final/repo: target, workspace
+authority 43af309d...    generated for this instance
+job   none; no Work, grant or placeholder was created
+configuration /home/sl/baton-v12-lifecycle-201492-final/deployment.json
+capacity      {"job_affinity": {}, "jobs": 0, "note": "this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created", "schema": "baton.v12.stage-execution-deployment/2", "targets": [], "workers_by_role": {"implementation": [], "integration": [], "review": []}}
+no Job was submitted and nothing was executed
+instance      /home/sl/baton-v12-lifecycle-201492-final/instance.json
+runtime       81 files, digest 14457dc3bd150406...
+stores        /home/sl/baton-v12-lifecycle-201492-final/db
+repository    /home/sl/baton-v12-lifecycle-201492-final/repo
+justfile      /home/sl/baton-v12-lifecycle-201492-final/justfile
+
+The deployment is operated from the destination, and needs nothing else:
+
+    cd /home/sl/baton-v12-lifecycle-201492-final && just status
+    just --justfile /home/sl/baton-v12-lifecycle-201492-final/justfile start        # from anywhere
+
+or the command directly, which is the same program:
+
+    /home/sl/baton-v12-lifecycle-201492-final/distro/baton-v12-stack status --instance /home/sl/baton-v12-lifecycle-201492-final/instance.json

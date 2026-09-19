@@ -48,6 +48,7 @@ The reasoning that was superseded lives in
 W6631's own record. It does not need to survive as the live module contract.
 """
 
+import errno
 import json
 import os
 import stat
@@ -98,6 +99,10 @@ __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "prove_workspace_group", "WorkspaceGroup", "AllocatedRoots",
            "WORKSPACE_GROUP_KEY", "CONFIGURE_OPERATION",
            "configure_workspace_group", "configured_workspace_group",
+           "WorkspaceIdentity", "configured_workspace_identity",
+           "identity_for", "declared_identity_mapping",
+           "SUPPORTED_IDENTITY_MAPPING",
+           "PERMISSION_ACTS", "establish_line_access", "prove_line_integrity",
            "WORKSPACE_STORAGE_KEY", "STORAGE_CONFIGURE_OPERATION",
            "WorkspaceStorage", "check_workspace_storage",
            "configure_workspace_storage", "configured_workspace_storage",
@@ -377,6 +382,220 @@ class WorkspaceGroup:
 
     def __hash__(self):
         return hash(("WorkspaceGroup", self.gid))
+
+
+class WorkspaceIdentity:
+    """The trusted execution identity the manager and the worker BOTH run as.
+
+    W194457, FINDING 2026-09-17. The deployment's answer to "who owns what is
+    in an execution workspace", as a frozen capability rather than a pair of
+    integers a caller composed -- exactly the shape `WorkspaceGroup` has, for
+    exactly the reason it has it.
+
+    WHY IT EXISTS. Initial line provisioning used to hold one descriptor per
+    entry and then `fchown`/`fchmod` the whole tree, because the manager
+    materialized the line as itself and the worker ran as somebody else. That
+    walk is what exhausted `RLIMIT_NOFILE` on a real checkout. Under a SHARED
+    identity the tree is already owned by the identity that will use it, so the
+    walk has nothing to do -- and the manager can read a `0600` file the worker
+    created, which a shared GROUP alone never fixed.
+
+    WHAT IT IS NOT. Shared identity is not isolation. Confinement still comes
+    from private mounts, read-only input and review roots, per-assignment
+    workspaces and the credential boundary, and nothing here widens any of them.
+
+    THE UID IS THIS MANAGER'S OWN and is not configurable. A uid a caller could
+    name is a uid a caller chose; the one trustworthy statement available here
+    is who this process actually is. The GID is the deployment's configured
+    workspace group, which `configured_workspace_group` already mints.
+    """
+
+    __slots__ = ("uid", "gid")
+
+    def __init__(self, uid, gid, _minted=None):
+        if _minted is not _MINT:
+            _denied("a shared execution identity is obtained from this "
+                    "manager's own record of what the deployment configured, "
+                    "and is not constructed")
+        if type(uid) is not int or type(uid) is bool or uid <= 0:
+            _denied("a shared execution identity runs as a non-root user; "
+                    "uid 0 is not an execution identity")
+        object.__setattr__(self, "uid", uid)
+        object.__setattr__(self, "gid", check_workspace_group(gid))
+
+    def __setattr__(self, name, value):
+        _refuse("a shared execution identity is immutable", code="schema")
+
+    def __repr__(self):
+        return f"WorkspaceIdentity({self.uid}, {self.gid})"
+
+    def __eq__(self, other):
+        return (isinstance(other, WorkspaceIdentity)
+                and (other.uid, other.gid) == (self.uid, self.gid))
+
+    def __hash__(self):
+        return hash(("WorkspaceIdentity", self.uid, self.gid))
+
+
+def identity_for(group):
+    """The shared execution identity behind a minted workspace group.
+
+    THE VECTORS OBTAIN IT HERE rather than being handed a pair. `run_vector`
+    and the custody vector already receive the deployment's minted
+    `WorkspaceGroup` -- the capability that says which group the deployment
+    provisioned -- and the uid half is not a selection at all: it is
+    `os.geteuid()`, who this manager actually is. So there is no operand a
+    caller could choose, and no signature anywhere has to grow one.
+
+    `configured_workspace_identity` is the same answer from the STORE, for
+    callers that hold one; both mint through `WorkspaceIdentity`, so root and a
+    malformed group are refused identically.
+    """
+    if type(group) is not WorkspaceGroup:
+        _denied("a shared execution identity is derived from this "
+                "deployment's minted workspace group, not from an integer")
+    uid = os.geteuid()
+    if uid == 0:
+        _denied("this manager runs as root, and an execution identity shared "
+                "with a worker may not be root; the deployment runs the "
+                "manager as the dedicated non-root account it provisions")
+    return WorkspaceIdentity(uid, group.gid, _MINT)
+
+
+# THE SUPPORTED HOST/CONTAINER MAPPING, WRITTEN DOWN RATHER THAN MEASURED.
+#
+# W194457, owner decision 2026-09-17 (`OWNER-TRUSTED-IDENTITY-20260917.md`).
+# Slawomir selected a deliberately configured, trusted arrangement over
+# automatic runtime validation, so this is the contract an operator satisfies
+# and this manager then TRUSTS. It is documentation with a check attached, not
+# a proof:
+#
+#   THE HOST SIDE. The manager runs as a dedicated non-root account. That
+#   account's effective uid is one half of the execution identity and is never
+#   an operand -- `identity_for` reads `os.geteuid()`. The account is a member
+#   of the deployment's configured workspace group, which is the other half.
+#
+#   THE CONTAINER SIDE. The engine is configured WITHOUT an id mapping for
+#   this deployment: a rootful daemon with no `userns-remap`, or a rootless
+#   daemon whose subuid/subgid ranges map this account to itself. Then the
+#   `--user <uid>:<gid>` the adapter composes is the same pair on both sides
+#   of the boundary, and a file either party creates is owned by the other.
+#
+#   WHAT IS NOT SUPPORTED, named because a refusal should name a remedy: a
+#   daemon that remaps ids for this deployment. `test_worker_entry_engine`
+#   measured such a host answering uid 65534 -- the kernel's overflow id -- for
+#   a file a container created as 65532. Under a remapping daemon nothing the
+#   worker writes can be consumed as this manager's own, and the remedy is an
+#   engine setting rather than a manager one. Changing which account the
+#   manager runs as is NOT a general fix: the requested container identity is
+#   DERIVED from that account, so moving it moves both sides at once.
+#
+# NOTHING BELOW CLAIMS THIS WAS VERIFIED. The earlier cut of this Work started
+# a throwaway container to measure it and the owner superseded that design.
+# What replaces it is this paragraph, the cheap declared check below, and
+# access failures that name the operation, the path and the errno when the
+# arrangement is in fact wrong -- see `_access_failure`.
+SUPPORTED_IDENTITY_MAPPING = (
+    "this deployment's manager account and its container runtime share one "
+    "uid and gid because the engine is configured without an id mapping for "
+    "it; the arrangement is deployment configuration this manager trusts "
+    "rather than something it measures")
+
+
+def declared_identity_mapping(identity, declared):
+    """Does the composed argv DECLARE exactly the identity that was minted?
+
+    W194457, the owner's "cheap structural configuration check". The expensive
+    question -- what the host actually observes for what the runtime creates --
+    is the one the owner ruled out asking. This is the cheap one, and it is
+    worth asking because it is the failure a change to this module can
+    actually introduce: a vector that composes an identity DIFFERENT from the
+    one the workspace was created under produces a worker that cannot read its
+    own workspace, and the two spellings live in two functions.
+
+    So it compares a STRING the caller is about to hand the engine against the
+    minted capability, and refuses anything that is not `uid:gid` exactly.
+    It runs no engine, opens no file and makes no claim about mapping.
+    """
+    if not isinstance(identity, WorkspaceIdentity):
+        _denied("a declared execution identity is checked against this "
+                "deployment's minted execution identity")
+    if not isinstance(declared, str):
+        _denied(f"an execution runtime declares its identity as `uid:gid`; "
+                f"this start declares {name_value(declared)}")
+    parts = declared.split(":")
+    if len(parts) != 2 or not all(one.isdigit() for one in parts):
+        _denied(f"an execution runtime declares its identity as `uid:gid`; "
+                f"this start declares {name_value(declared)}")
+    if (int(parts[0]), int(parts[1])) != (identity.uid, identity.gid):
+        _denied(f"this start would declare the runtime identity "
+                f"{name_value(declared)} while its workspace is created under "
+                f"{identity.uid}:{identity.gid}; the manager and the worker "
+                f"share ONE configured identity, and a worker asked for a "
+                f"different one cannot read or write the workspace it was "
+                f"given. {SUPPORTED_IDENTITY_MAPPING}")
+    return declared
+
+
+# THE ERRNOS A WRONG IDENTITY ARRANGEMENT ACTUALLY PRODUCES, so the refusal
+# that carries one can say what to look at. Nothing infers a cause from them --
+# a `0000` file the worker made is `EACCES` too -- but an operator reading
+# "permission denied on a path the worker created" is one sentence from the
+# question that matters, and the sentence is cheaper than the probe the owner
+# ruled out.
+_IDENTITY_ERRNOS = (errno.EACCES, errno.EPERM)
+
+
+def _access_failure(operation, place, failure, *, what, identity_hint=True):
+    """The refusal an ACTUAL access failure gets, with what to act on in it.
+
+    W194457, owner decision 2026-09-17: "Report actual access failures directly
+    with actionable operation/path/error context." This is the other half of
+    trusting the configuration. The manager does not prove the arrangement in
+    advance any more, so when the arrangement is wrong the first symptom is an
+    `EACCES` or an `EPERM` on a real path -- and this refusal is then the
+    operator's whole diagnostic.
+
+    THE ERRNO IS THE POINT. The refusal this replaces said `OSError` and
+    dropped the number, which is exactly why this Work's own incident has its
+    cause strongly supported rather than recorded. The operation, the path, the
+    errno NAME and the kernel's own sentence for it all survive.
+    """
+    number = getattr(failure, "errno", None)
+    named = errno.errorcode.get(number, "unknown") if number is not None \
+        else "unknown"
+    spelled = os.strerror(number) if number is not None else "no errno"
+    said = (f"{operation} {name_value(place)} "
+            f"({type(failure).__name__} {named}: {spelled}); {what}")
+    if identity_hint and number in _IDENTITY_ERRNOS:
+        said += (f" A permission failure on material the worker created is "
+                 f"what an unsupported identity arrangement looks like from "
+                 f"here: {SUPPORTED_IDENTITY_MAPPING}. Check the engine's id "
+                 f"mapping for this deployment before treating the entry "
+                 f"itself as the fault.")
+    _denied(said)
+
+
+def configured_workspace_identity(store):
+    """The shared execution identity, minted from what IS rather than what was
+    asked for: this manager's effective uid, and the deployment's group."""
+    group = configured_workspace_group(store)
+    uid = os.geteuid()
+    if uid == 0:
+        _denied("this manager runs as root, and an execution identity shared "
+                "with a worker may not be root; the deployment runs the "
+                "manager as the dedicated non-root account it provisions")
+    return WorkspaceIdentity(uid, group.gid, _MINT)
+
+
+# HOW MANY PERMISSION ACTS THE SELECTED PATH PERFORMS, counted so a check can
+# assert the shape rather than the duration. W194457: the defect was a count
+# proportional to the tree, and "it got faster" is not the property.
+PERMISSION_ACTS = {"chown": 0, "chmod": 0}
+
+
+def _permission_act(kind):
+    PERMISSION_ACTS[kind] = PERMISSION_ACTS[kind] + 1
 
 
 def configure_workspace_group(store, gid):
@@ -878,88 +1097,307 @@ def _prove_line_access(place, pinned, gid):
     return place
 
 
-def _provision_line_access(place, pinned, gid):
-    """Provision one initially materialized tree; the lifecycle owns exclusion.
+def establish_line_access(place, pinned, identity):
+    """Make one materialized line usable AT CREATION. Constant permission work.
 
-    Hold no-follow descriptors through complete preflight and mutation. Nothing
-    is changed on a preflight refusal. An OS failure during application can leave
-    partial permissions; the caller must keep the line materializing/ungranted.
+    W194457, FINDING 2026-09-17. What stood here walked the whole materialized
+    tree holding a no-follow descriptor for every entry and then `fchown`ed and
+    `fchmod`ed each one -- a permission-only pass whose descriptor peak and
+    whose syscall count were both proportional to the checkout. On the incident
+    tree that was the failure: one descriptor per entry against a soft
+    `RLIMIT_NOFILE` of 1,024.
+
+    THE RULING REMOVES THE PASS RATHER THAN MAKING IT CHEAPER. Under a shared
+    execution identity the materialized tree is ALREADY owned by the identity
+    that will use it, so there is nothing per-entry to change. What a line root
+    still needs is what `_prove_line_access` measures: this deployment's group
+    and mode `02775`, whose setgid bit is what keeps everything created inside
+    it in that group afterwards. That is TWO acts, whatever the tree holds, and
+    `PERMISSION_ACTS` counts them so a check can assert the shape.
+
+    THE INTEGRITY WALK IS SEPARATE AND IS NOT PERMISSION WORK. `prove_line_integrity`
+    keeps the constraints that used to ride along here -- special files,
+    hardlinked regular files, the entry, byte and depth ceilings, and that
+    everything belongs to the shared identity -- and it is bounded by DEPTH.
+    Attributing it honestly matters: it is materialization/integrity cost, and
+    calling it constant-time would be a different false claim from the one this
+    corrects.
     """
-    check_workspace_group(gid)
+    if not isinstance(identity, WorkspaceIdentity):
+        _denied("establishing development-line access needs this deployment's "
+                "minted execution identity, not a pair of integers")
     if os.path.realpath(place) != place:
         _denied("initial development-line access requires a canonical root")
+    try:
+        root = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
+    except OSError as failure:
+        _access_failure(
+            "initial development-line access could not open", place, failure,
+            what="no permissions were changed; keep the line materializing "
+                 "and ungranted")
+    try:
+        found = os.fstat(root)
+        if (found.st_dev, found.st_ino) != tuple(pinned):
+            _denied("the initial development line no longer has its recorded pin")
+        if found.st_uid != identity.uid:
+            _denied(f"the materialized development line is owned by "
+                    f"{found.st_uid} and this deployment's execution identity "
+                    f"is {identity.uid}; a line this manager did not "
+                    f"materialize is not one it grants access to")
+        os.fchown(root, -1, identity.gid)
+        _permission_act("chown")
+        os.fchmod(root, _LINE_DIR)
+        _permission_act("chmod")
+    except OSError as failure:
+        # AN `EPERM` HERE IS THE ARRANGEMENT TALKING. `fchown` to a group this
+        # manager does not hold, or a root some other identity materialized, is
+        # exactly what a wrong deployment configuration produces at the first
+        # act that matters -- so the refusal names the syscall's own errno and
+        # points at the mapping rather than saying `OSError`.
+        _access_failure(
+            "initial development-line access could not set the group and mode "
+            "of", place, failure,
+            what="the root may carry a partial change; keep the line "
+                 "materializing and ungranted")
+    finally:
+        os.close(root)
+    return _prove_line_access(place, pinned, identity.gid)
+
+
+def prove_line_integrity(place, pinned, identity):
+    """Every constraint the removed provisioning pass also enforced, and NO
+    permission act at all. Bounded by depth rather than by entry count.
+
+    The descriptor discipline is `_prove_line_consumable`'s: `held` is the open
+    PATH, a child is closed as soon as its subtree is proved, and the peak is
+    one per level. The checks are the ones that used to ride along with the
+    `fchown`/`fchmod` loop, which is why they are kept here rather than lost
+    with it: a special file, a hardlinked regular file, an entry this identity
+    does not own, and the entry/byte/depth ceilings.
+
+    AND IT REVALIDATES BEFORE IT ANSWERS, which my first cut dropped and review
+    2026-09-17T12-47-56Z caught. The removed pass re-`fstat`ed every RETAINED
+    descriptor after the walk and compared `(uid, nlink, mode)` against what it
+    had seen, so a file that acquired an outside hardlink while a later sibling
+    was being opened was refused before anything was granted. Closing each
+    child bounds the descriptors and also throws that guard away -- and the
+    reviewer's interleaving reproduction walked straight through it.
+
+    SO THE FINGERPRINTS ARE KEPT INSTEAD OF THE DESCRIPTORS. One pass records
+    `(dev, ino, uid, nlink, mode)` per entry -- memory, not file descriptors --
+    and a SECOND bounded pass re-opens each entry no-follow and compares. An
+    entry that was replaced fails on identity; one that was hardlinked,
+    chowned or chmoded fails on the rest. The peak stays one descriptor per
+    level in both passes, and the invariant the grant rests on is the one the
+    retained descriptors used to provide.
+
+    EVERY ENTRY IS FINGERPRINTED, INCLUDING THE ONES NEVER OPENED -- see
+    `account`. Review 2026-09-17T15-42-06Z finding 1: a symlink was skipped
+    before it was compared, so a recorded regular file replaced by one walked
+    through the revalidation the grant depends on.
+
+    AND A FAILURE HERE NAMES WHAT FAILED -- see `_access_failure`. This is the
+    FIRST preparation path `create_line` takes, so a refusal that said only
+    `PermissionError (errno 13)`, as finding 2 recorded, was the operator's
+    whole diagnostic for one unreadable entry somewhere in a checkout.
+    """
+    if not isinstance(identity, WorkspaceIdentity):
+        _denied("proving a development line needs this deployment's minted "
+                "execution identity")
+    if os.path.realpath(place) != place:
+        _denied("a development line is its own canonical directory")
     held = []
     count = 0
     total = 0
-    applying = False
+    deepest = 0
+    seen = {}
+    counted_children = {}
+    recording = seen
 
-    def visit(descriptor, depth):
-        nonlocal count, total
-        found = os.fstat(descriptor)
-        held.append((descriptor, found))
+    def named(relative):
+        """The failing entry as an operator can act on it. The RELATIVE path
+        goes in the rendered slot and the root is named in the sentence after
+        it, rather than the other way round: a refusal renders a bounded
+        prefix of a value, and an absolute checkout path spends all of it
+        before reaching the entry that actually failed."""
+        return relative if relative else place
+
+    inside = (f"it is an entry in the development line at {name_value(place)} "
+              f"this manager is proving; nothing was changed and the line "
+              f"stays materializing and ungranted")
+
+    def account(relative, fingerprint):
+        """RECORD on the first pass, COMPARE on the second -- for every entry
+        the walk observes, including the ones it never opens.
+
+        W194457, review 2026-09-17T15-42-06Z finding 1. A symlink used to be
+        skipped outright here, which meant a recorded REGULAR FILE replaced by
+        a symlink between the passes had nothing to compare against: its
+        directory's entry count was unchanged, `visit` never saw it, and the
+        line was granted `02775` on a tree the first pass had proved and the
+        second had not. The historical permission walk refused that exact
+        interleaving, so it was a regression in the invariant the grant rests
+        on rather than a new guarantee.
+
+        FINGERPRINTING THE SYMLINK ITSELF is what closes it, and it closes the
+        transition in BOTH directions, because `st_mode` carries the type: a
+        file that became a link and a link that became a file are each a
+        mismatch. Nothing about stable symlinks changes -- one that stays put
+        matches itself, is still never followed and is still never opened.
+        """
+        if recording is not None:
+            recording[relative] = fingerprint
+            return
+        was = seen.get(relative)
+        if was is None:
+            _denied("a development-line entry appeared while it was proved")
+        if was != fingerprint:
+            _denied("a development-line entry changed while it was proved; "
+                    "nothing was granted")
+
+    def visit(descriptor, depth, relative):
+        nonlocal count, total, deepest
+        deepest = max(deepest, len(held))
+        try:
+            found = os.fstat(descriptor)
+        except OSError as failure:
+            _access_failure(
+                "proving the development line could not inspect",
+                named(relative), failure, what=inside)
+        account(relative, (found.st_dev, found.st_ino, found.st_uid,
+                           found.st_nlink, found.st_mode))
         count += 1
         if count > MAX_ENTRIES or depth > MAX_DEPTH:
-            _refuse("initial development-line access exceeds the filesystem ceiling", code="limit")
-        if found.st_uid != os.geteuid():
-            _denied("initial development-line access changes only manager-owned entries")
+            _refuse("the development line exceeds the filesystem ceiling",
+                    code="limit")
+        if found.st_uid != identity.uid:
+            _denied("the development line carries an entry this deployment's "
+                    "execution identity does not own")
         if stat.S_ISREG(found.st_mode):
             if found.st_nlink != 1:
-                _denied("initial development-line access refuses hardlinked files")
+                _denied("the development line carries a hardlinked file")
             total += found.st_size
             if total > MAX_BYTES:
-                _refuse("initial development-line access exceeds the byte ceiling", code="limit")
+                _refuse("the development line exceeds the byte ceiling",
+                        code="limit")
             return
         if not stat.S_ISDIR(found.st_mode):
-            _denied("initial development-line access refuses special files")
-        with os.scandir(descriptor) as listing:
-            for entry in listing:
-                if count >= MAX_ENTRIES or depth >= MAX_DEPTH:
-                    _refuse("initial development-line access exceeds the filesystem ceiling", code="limit")
+            _denied("the development line carries a special file")
+        try:
+            with os.scandir(descriptor) as listing:
+                entries = list(listing)
+        except OSError as failure:
+            _access_failure(
+                "proving the development line could not list",
+                named(relative), failure, what=inside)
+        if recording is None and len(entries) != counted_children.get(relative):
+            _denied("a development-line directory gained or lost an entry "
+                    "while it was proved; nothing was granted")
+        if recording is not None:
+            counted_children[relative] = len(entries)
+        for entry in entries:
+            if count >= MAX_ENTRIES or depth >= MAX_DEPTH:
+                _refuse("the development line exceeds the filesystem ceiling",
+                        code="limit")
+            below = f"{relative}/{entry.name}" if relative else entry.name
+            try:
                 observed = entry.stat(follow_symlinks=False)
-                if stat.S_ISLNK(observed.st_mode):
-                    count += 1
-                    continue
-                if not (stat.S_ISDIR(observed.st_mode) or stat.S_ISREG(observed.st_mode)):
-                    _denied("initial development-line access refuses special files")
-                flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
-                if stat.S_ISDIR(observed.st_mode):
-                    flags |= os.O_DIRECTORY
+            except OSError as failure:
+                _access_failure(
+                    "proving the development line could not inspect",
+                    named(below), failure, what=inside)
+            if stat.S_ISLNK(observed.st_mode):
+                account(below, (observed.st_dev, observed.st_ino,
+                                observed.st_uid, observed.st_nlink,
+                                observed.st_mode))
+                count += 1
+                continue
+            if not (stat.S_ISDIR(observed.st_mode) or stat.S_ISREG(observed.st_mode)):
+                _denied("the development line carries a special file")
+            flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+            if stat.S_ISDIR(observed.st_mode):
+                flags |= os.O_DIRECTORY
+            try:
                 child = os.open(entry.name, flags, dir_fd=descriptor)
-                opened = os.fstat(child)
-                if (opened.st_dev, opened.st_ino) != (observed.st_dev, observed.st_ino):
-                    os.close(child)
-                    _denied("an initial development-line entry changed during preflight")
-                visit(child, depth + 1)
+            except OSError as failure:
+                # AN `ELOOP` HERE IS THE RACE, NOT A PERMISSION PROBLEM.
+                # `O_NOFOLLOW` fails this way for an entry that became a
+                # symlink between the `stat` above and this open -- the same
+                # transition `account` catches across the passes, caught
+                # within one. Reporting it as an access failure would point
+                # the operator at the engine's id mapping for something that
+                # is a changing tree.
+                if getattr(failure, "errno", None) == errno.ELOOP:
+                    _denied("a development-line entry changed while it was "
+                            "proved; nothing was granted")
+                _access_failure(
+                    "proving the development line could not open",
+                    named(below), failure, what=inside)
+            held.append(child)
+            try:
+                try:
+                    opened = os.fstat(child)
+                except OSError as failure:
+                    _access_failure(
+                        "proving the development line could not inspect",
+                        named(below), failure, what=inside)
+                if (opened.st_dev, opened.st_ino) != (observed.st_dev,
+                                                      observed.st_ino):
+                    _denied("a development-line entry changed while it was "
+                            "proved")
+                visit(child, depth + 1, below)
+            finally:
+                held.pop()
+                os.close(child)
 
     try:
         root = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
-        found = os.fstat(root)
-        if (found.st_dev, found.st_ino) != tuple(pinned):
-            os.close(root)
-            _denied("the initial development line no longer has its recorded pin")
-        visit(root, 0)
-        current = os.lstat(place)
-        if (current.st_dev, current.st_ino) != tuple(pinned):
-            _denied("the initial development-line root changed before provisioning")
-        for descriptor, original in held:
-            current = os.fstat(descriptor)
-            if (current.st_uid, current.st_nlink, current.st_mode) != (
-                    original.st_uid, original.st_nlink, original.st_mode):
-                _denied("an initial development-line entry changed before provisioning")
-        applying = True
-        for descriptor, original in held:
-            mode = (_LINE_DIR if stat.S_ISDIR(original.st_mode)
-                    else 0o775 if original.st_mode & stat.S_IXUSR else 0o664)
-            os.fchown(descriptor, -1, gid)
-            os.fchmod(descriptor, mode)
-        return _prove_line_access(place, pinned, gid)
     except OSError as failure:
-        stage = "partial provisioning may remain" if applying else "no permissions were changed"
-        _denied(f"initial development-line access failed: {type(failure).__name__}; "
-                f"{stage}; keep the line materializing and ungranted")
+        # THIS IS THE FIRST PREPARATION PATH `create_line` TAKES, so it is the
+        # refusal an operator sees first. Review 2026-09-17T15-42-06Z finding
+        # 2: it used to say `PermissionError (errno 13)` and name neither the
+        # operation nor the path, which is the shape that lost this Work's own
+        # incident errno one function further along.
+        _access_failure(
+            "proving the development line could not open the line root at",
+            place, failure,
+            what="nothing was changed; the line stays materializing and "
+                 "ungranted")
+    held.append(root)
+    try:
+        try:
+            found = os.fstat(root)
+        except OSError as failure:
+            _access_failure(
+                "proving the development line could not inspect the line root "
+                "at", place, failure,
+                what="nothing was changed; the line stays materializing and "
+                     "ungranted")
+        if (found.st_dev, found.st_ino) != tuple(pinned):
+            _denied("the development line no longer has its recorded pin")
+        visit(root, 0, "")
+        peak = deepest
+        # THE SECOND PASS IS THE PRE-GRANT REVALIDATION. Same bounded walk,
+        # same no-follow opens, and this time every entry is compared against
+        # the fingerprint the first pass recorded for that exact path.
+        recording = None
+        count = 0
+        total = 0
+        visit(root, 0, "")
+    except OSError as failure:
+        # BACKSTOP. Every boundary that touches the filesystem above reports
+        # its own operation and path; this only keeps an unforeseen one from
+        # reaching a caller as a bare `OSError`, and it still carries the
+        # errno rather than dropping it.
+        _access_failure(
+            "proving the development line failed while walking", place,
+            failure,
+            what="nothing was changed; the line stays materializing and "
+                 "ungranted")
     finally:
-        for descriptor, _ in reversed(held):
+        for descriptor in reversed(held):
             os.close(descriptor)
+    return {"entries": count, "bytes": total, "peak_descriptors": peak}
 
 
 def _prove_line_consumable(place, pinned):
@@ -1003,9 +1441,11 @@ def _prove_line_consumable(place, pinned):
     held = []
     count = 0
     total = 0
+    deepest = 0
 
     def visit(descriptor, relative):
-        nonlocal count, total
+        nonlocal count, total, deepest
+        deepest = max(deepest, len(held))
         found = os.fstat(descriptor)
         count += 1
         if count > MAX_ENTRIES:
@@ -1026,10 +1466,11 @@ def _prove_line_consumable(place, pinned):
         try:
             names = sorted(os.listdir(descriptor))
         except OSError as failure:
-            _denied(f"this manager cannot list {name_value(relative)} in the "
-                    f"development line it is about to consume "
-                    f"({type(failure).__name__}); the line is left exactly as "
-                    f"it is and nothing is repaired")
+            _access_failure(
+                "this manager cannot list", relative, failure,
+                what="it is a directory in the development line this manager "
+                     "is about to consume; the line is left exactly as it is "
+                     "and nothing is repaired")
         for name in names:
             below = f"{relative}/{name}" if relative else name
             flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
@@ -1056,18 +1497,41 @@ def _prove_line_consumable(place, pinned):
                         _refuse("the development line exceeds the filesystem "
                                 "ceiling", code="limit")
                     continue
-                _denied(f"this manager cannot open {name_value(below)} in the "
-                        f"development line it is about to consume "
-                        f"({type(failure).__name__}); the line is left exactly "
-                        f"as it is and nothing is repaired")
+                _access_failure(
+                    "this manager cannot open", below, failure,
+                    what="it is an entry in the development line this manager "
+                         "is about to consume; the line is left exactly as it "
+                         "is and nothing is repaired")
+            # CLOSED AS SOON AS ITS SUBTREE IS PROVED. W194457, review
+            # 2026-09-17T12-32-56Z finding 2: this appended every child and
+            # closed nothing until the end, so the peak was one descriptor per
+            # ENTRY -- measured EMFILE at 1,021 tracked descriptors against a
+            # soft limit of 1,024. The proof does not need them all at once:
+            # what it establishes about an entry is established by the time
+            # `visit` returns. `held` is now the open PATH, so the peak is one
+            # per level and the outer `finally` still closes the ancestors on
+            # any refusal.
+            #
+            # NOTHING ELSE CHANGES. The open is still `O_NOFOLLOW` at every
+            # component, the root is still pinned, a symlink is still counted
+            # and never followed, a special file is still refused, and no mode
+            # is touched anywhere in here.
             held.append(child)
-            visit(child, below)
+            try:
+                visit(child, below)
+            finally:
+                held.pop()
+                os.close(child)
 
     try:
         root = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
     except OSError as failure:
-        _denied(f"this manager cannot open the development line at "
-                f"{name_value(place)} ({type(failure).__name__})")
+        _access_failure(
+            "this manager cannot open the development line at", place,
+            failure,
+            what="it is the root of the line this manager is about to "
+                 "consume; the line is left exactly as it is and nothing is "
+                 "repaired")
     held.append(root)
     try:
         found = os.fstat(root)
@@ -1075,10 +1539,11 @@ def _prove_line_consumable(place, pinned):
             _denied("the development line no longer has the object identity "
                     "its lifecycle recorded")
         visit(root, "")
+        peak = deepest
     finally:
         for descriptor in reversed(held):
             os.close(descriptor)
-    return {"entries": count, "bytes": total}
+    return {"entries": count, "bytes": total, "peak_descriptors": peak}
 
 
 def _prove_execution_workspace(roots, gid, labels):

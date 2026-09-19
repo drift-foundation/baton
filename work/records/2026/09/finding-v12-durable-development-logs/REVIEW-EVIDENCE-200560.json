@@ -1,0 +1,56 @@
+{
+  "hardlink": {
+    "answer": {
+      "retained": {
+        "": [],
+        "retention": {
+          "s.jsonl": {
+            "identity": [
+              43,
+              12721278
+            ],
+            "destination": "s.jsonl",
+            "retained": 19,
+            "head": "da3ed6f0927237ad941f77d04130e23dc433631d98cd013df009c4c0d128bfa1"
+          }
+        }
+      },
+      "failed": [],
+      "reached": true
+    },
+    "native_files": {
+      ".retention.json": "{\"s.jsonl\": {\"destination\": \"s.jsonl\", \"head\": \"da3ed6f0927237ad941f77d04130e23dc433631d98cd013df009c4c0d128bfa1\", \"identity\": [43, 12721278], \"retained\": 19}}",
+      "s.jsonl": "provider transcript"
+    },
+    "outside": "provider transcript"
+  },
+  "reserved": {
+    "answer": {
+      "retained": {
+        "": []
+      },
+      "failed": [],
+      "reached": true
+    },
+    "native_files": {},
+    "outside": null
+  },
+  "seconds": 0.00040177698247134686,
+  "root": "/tmp/w198667-review200560-zq6yz0kb",
+  "work": "W198667",
+  "claim": 200560,
+  "reviewer": "baton.rvpc",
+  "candidate": {
+    "v12/worker/claude_agent.py": "a0ff45308fbb4c3d548511439a1eb1cd89ef7ba86a96b277c2cad0d705a7f07b",
+    "v12/python/tests/manager/test_attempt_logs.py": "a084c71714563cbc58da6f8d9a9207fd951f5ddecb5ce41f718a4ca3fbfcf6a7"
+  },
+  "tests": {
+    "command": "env PYTHONPATH=src python3 -W error::ResourceWarning -m unittest tests.manager.test_attempt_logs tests.tools.test_attempt_logs_command",
+    "cwd": "v12/python",
+    "tests": 174,
+    "result": "OK",
+    "unittest_seconds": 1.532,
+    "wall_seconds": 1.561095343
+  },
+  "prior_costs": "Preserved in historical evidence; author reports approximately 420s for claim200454. No new engine/provider execution."
+}

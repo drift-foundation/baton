@@ -1,0 +1,48 @@
+{
+  "schema": "baton.v12.job-submission/2",
+  "submission_id": "w144813-first-submission",
+  "jobs": [
+    {
+      "job_id": "w144813-launch-refusal",
+      "input_digest": null,
+      "policy_digest": null,
+      "test_scope": [
+        "v12/python/tests/tools/test_integration_worker.py"
+      ],
+      "terminal_policy": "report-and-hold",
+      "stages": [
+        {
+          "kind": "implementation",
+          "work_id": null,
+          "profile_name": null,
+          "profile_digest": null,
+          "depends_on": []
+        },
+        {
+          "kind": "review",
+          "work_id": null,
+          "profile_name": null,
+          "profile_digest": null,
+          "depends_on": [
+            {
+              "job_id": "w144813-launch-refusal",
+              "kind": "implementation"
+            }
+          ]
+        },
+        {
+          "kind": "integration",
+          "work_id": null,
+          "profile_name": null,
+          "profile_digest": null,
+          "depends_on": [
+            {
+              "job_id": "w144813-launch-refusal",
+              "kind": "review"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

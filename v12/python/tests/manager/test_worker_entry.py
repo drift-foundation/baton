@@ -27,6 +27,7 @@ import os
 import pathlib
 import shutil
 import sys
+import tempfile
 import threading
 import unittest
 
@@ -63,7 +64,8 @@ PROGRAM = ["python3", "/opt/baton/baton_worker.py"]
 SECONDS = 30
 
 
-def launch_document(case, session=SESSION, schema="baton.worker-launch/1"):
+def launch_document(case, session=SESSION, schema="baton.worker-launch/1",
+                    **overrides):
     """One read-only launch document, as the adapter binds one.
 
     MODE 0444 IS PART OF THE FIXTURE rather than tidiness. `read_launch`
@@ -76,10 +78,15 @@ def launch_document(case, session=SESSION, schema="baton.worker-launch/1"):
     home = tempfile.mkdtemp(prefix="v12-w38956-launch-")
     case.addCleanup(shutil.rmtree, home, True)
     place = os.path.join(home, "launch.json")
+    body = {"schema": schema, "session": session,
+            "contract": "add the missing coverage", "role": "coder"}
+    # W197661: AN OVERRIDE SEAM, so a case can make a SUPPORTED generation
+    # invalid rather than reaching for an unsupported one. The two are
+    # different failures now and a fixture that could only produce the second
+    # could not drive the first.
+    body.update(overrides)
     with open(place, "w", encoding="utf-8") as handle:
-        json.dump({"schema": schema, "session": session,
-                   "contract": "add the missing coverage", "role": "coder"},
-                  handle)
+        json.dump(body, handle)
     os.chmod(place, 0o444)
     return place
 
@@ -411,13 +418,51 @@ class TheRealWorkerAnswersTheRealTransport(unittest.TestCase):
         The worker latches, answers one correlated fault and exits non-zero.
         `faulted` — the channel worked and the container said what was wrong
         with it, which is exactly what an operator needs to see.
+
+        W197661 CHANGED WHICH DOCUMENT DRIVES THIS, and the behaviour it pins
+        is unchanged. It used an invalid `/2`, which is the case the owner's
+        ruling supersedes: `/2` speaks the file exchange, so waiting here for
+        a frame is waiting for a channel nobody writes to. An invalid `/1` is
+        the shape this case was always about -- the generation `converse`
+        really does drive over this stdin -- and it still latches, still
+        answers exactly once and still ends 1. The superseded `/2` shape is
+        covered by `AnInvalidLaunchNeverWAITSForAChannelNobodyWrites`.
         """
-        place = launch_document(self, schema="baton.worker-launch/2")
+        place = launch_document(self, unexpected_member="from another manager")
         answered = spoken(self, LiveWorker(ScriptedAgent(), place),
                           ["describe"], ["op-1"])
         self.assertEqual(answered["ending"], "faulted")
         self.assertEqual(answered["answers"][0]["code"], "launch")
         self.assertEqual(answered["status"], 1)
+
+    def test_a_supported_NULL_TRANSPORT_launch_still_uses_the_framing_loop(
+            self):
+        """The one-shot behaviour the ruling preserves, in the generation that
+        carries a transport member and deliberately leaves it null.
+
+        A VALID document is never on the startup-refusal path at all, whatever
+        its version: the transport is still selected by the validated document
+        and nothing else.
+        """
+        from baton_v12.job_manager import execution_limits
+        from baton_v12.worker_manager import launch as launch_module
+
+        held = execution_limits.resolved({},
+                                         execution_limits.CURRENT_GENERATION)
+        place = launch_document(
+            self, schema="baton.worker-launch/3", transport=None,
+            job_execution={
+                "job_id": "job-1", "attempt_id": "attempt-1",
+                "job_input_digest": "sha256:" + "a" * 64,
+                "job_policy_digest": "sha256:" + "b" * 64,
+                "runtime_input_digest": "sha256:" + "a" * 64,
+                "runtime_policy_digest": "sha256:" + "b" * 64,
+                "execution_limits": held,
+                "execution_limits_digest": launch_module._digest(held)})
+        answered = spoken(self, LiveWorker(ScriptedAgent(), place),
+                          ["describe"], ["op-1"])
+        self.assertEqual(answered["ending"], "answered", answered["why"])
+        self.assertEqual(answered["status"], 0)
 
 
 class TransportLossIsNeverCompletion(unittest.TestCase):
@@ -842,6 +887,269 @@ class TheOperandsAreOwnedBeforeAnythingIsSent(unittest.TestCase):
                          ["describe", "describe"])
         self.assertEqual([one["operation_id"] for one in sent],
                          ["op-1", "op-2"])
+
+
+class AnInvalidLaunchNeverWAITSForAChannelNobodyWrites(unittest.TestCase):
+    """W197661. The reported incident, and the boundary that caused it.
+
+    A `/3` launch document reached a worker that reads `/1` and `/2`. Validation
+    refused it, `seen` stayed empty, the exchange branch became unreachable and
+    `serve` fell into `read_frame(stdin)` -- on a container whose production
+    channel is the FILE EXCHANGE, so its stdin is an open pipe with no writer.
+    The read never returned. The container stayed up with empty logs and empty
+    events, the manager observed a healthy runtime, and an incompatible image
+    was indistinguishable from a working one until it was killed.
+
+    THE SPLIT IS BY THE CHANNEL SOMEBODY IS ACTUALLY ON. `/1` is the generation
+    `converse` drives over this stdin, so an invalid `/1` still latches and
+    answers its one correlated fault. Every later generation speaks the
+    exchange, so an invalid one says why on stderr and stops.
+    """
+
+    SESSION = "session-w197661"
+
+    def setUp(self):
+        self.home = tempfile.mkdtemp(prefix="v12-w197661-")
+        self.addCleanup(shutil.rmtree, self.home, True)
+        self.command_root = os.path.join(self.home, "command")
+        self.event_root = os.path.join(self.home, "events")
+        os.makedirs(self.command_root)
+        os.makedirs(self.event_root)
+
+    def placed(self, document):
+        place = os.path.join(self.home, f"launch-{len(os.listdir(self.home))}.json")
+        with open(place, "w", encoding="utf-8") as handle:
+            json.dump(document, handle)
+        os.chmod(place, 0o444)
+        return place
+
+    def document(self, schema, **overrides):
+        body = {"schema": schema, "session": self.SESSION,
+                "contract": "do the thing", "role": "coder"}
+        body.update(overrides)
+        return body
+
+    def started(self, document, stdin=None):
+        """`serve` over a stdin that FAILS IF IT IS READ AT ALL.
+
+        A timing bound would prove the read did not block for as long as the
+        case was willing to wait. This proves the stronger thing: the read
+        never happened. `_Unreadable` is what the container's own stdin is
+        during a startup failure -- something nothing will ever put a byte
+        into -- and a case that let it answer would be testing a channel the
+        incident did not have.
+        """
+        stdout = io.BytesIO()
+        stderr = io.StringIO()
+        status = baton_worker.serve(
+            _Unreadable() if stdin is None else stdin, stdout,
+            _NeverDispatched(), self.placed(document),
+            self.command_root, self.event_root, stderr=stderr)
+        return {"status": status, "stdout": stdout.getvalue(),
+                "stderr": stderr.getvalue()}
+
+    def test_every_generation_that_speaks_the_exchange_refuses_PROMPTLY(self):
+        """The reported document and its neighbours, none of which may read."""
+        cases = {
+            "the reported /3": self.document(
+                "baton.worker-launch/3",
+                transport=baton_worker.EXCHANGE_TRANSPORT,
+                job_execution={"job_id": "codex-adapter-first"}),
+            "an invalid /2": self.document("baton.worker-launch/2"),
+            "an invalid /4": self.document(
+                "baton.worker-launch/4",
+                transport=baton_worker.EXCHANGE_TRANSPORT,
+                job_execution={}, provider_context={}),
+            "a generation after this one": self.document(
+                "baton.worker-launch/5"),
+            "a schema that is not text at all": self.document(3),
+            "a document that names no schema": {
+                "session": self.SESSION, "contract": "c", "role": "r"},
+        }
+        for what, document in cases.items():
+            with self.subTest(what=what):
+                answered = self.started(document)
+                self.assertEqual(answered["status"],
+                                 baton_worker.STARTUP_REFUSED)
+                # NOTHING WAS SAID ON A WIRE. No frame, no exchange document:
+                # a refusal to start may not be mistaken for an answer, and no
+                # protocol event is improvised out of an invalid launch.
+                self.assertEqual(answered["stdout"], b"")
+                self.assertEqual(os.listdir(self.event_root), [])
+                self.assertEqual(os.listdir(self.command_root), [])
+                # AND IT SAID WHY, which is the whole difference from the
+                # incident: the container that hung wrote nothing anywhere.
+                self.assertTrue(answered["stderr"].startswith("baton-worker: "))
+                self.assertIn("launch", answered["stderr"])
+
+    def test_an_unknown_generation_is_named_BEFORE_its_members(self):
+        """The diagnostic the operator actually needs, and the one they got.
+
+        `launched` compared MEMBERS first, so a `/3` from a newer manager was
+        refused by listing `/1`'s four members and calling `job_execution` and
+        `transport` "unexpected" -- a sentence that reads like a corrupt file
+        rather than a worker from another generation. The version decides
+        first now, and the sentence lists EVERY version this worker reads,
+        which the hand-written list did not: it named three and omitted `/4`.
+        """
+        said = self.started(self.document(
+            "baton.worker-launch/5",
+            transport=baton_worker.EXCHANGE_TRANSPORT,
+            job_execution={}, something_from_the_future={}))["stderr"]
+        self.assertIn("baton.worker-launch/5", said)
+        self.assertIn("from another generation", said)
+        for one in baton_worker.SUPPORTED_LAUNCH_SCHEMAS:
+            self.assertIn(one, said)
+        # AND IT DOES NOT ARGUE ABOUT MEMBERS of a document whose contract it
+        # does not have.
+        self.assertNotIn("unexpected", said)
+        self.assertNotIn("is exactly", said)
+
+    def test_the_supported_versions_are_the_ones_this_worker_actually_READS(
+            self):
+        """The tuple and the reader cannot drift apart.
+
+        Every member of it is accepted AS A VERSION -- a document carrying one
+        is refused for its members, never for its generation -- and the
+        refusal above names the same set.
+        """
+        self.assertEqual(baton_worker.SUPPORTED_LAUNCH_SCHEMAS,
+                         (baton_worker.LAUNCH_SCHEMA,
+                          baton_worker.EXCHANGE_LAUNCH_SCHEMA,
+                          baton_worker.JOB_LAUNCH_SCHEMA,
+                          baton_worker.CONTEXT_LAUNCH_SCHEMA))
+        # `/1` IS NOT IN THIS LOOP because the four base members ARE a valid
+        # `/1`: there is no way to make it invalid that does not also put it
+        # on the framing loop it is supposed to stay on. Its own preserved
+        # behaviour is pinned by
+        # `test_a_latched_launch_fault_answers_once_and_is_not_an_answer`.
+        for schema in baton_worker.SUPPORTED_LAUNCH_SCHEMAS[1:]:
+            with self.subTest(schema=schema):
+                said = self.started(self.document(schema))["stderr"]
+                self.assertNotIn("from another generation", said)
+                self.assertIn("is exactly", said)
+
+    def test_a_valid_ONE_SHOT_document_is_not_on_this_path_at_all(self):
+        """The startup refusal is for documents that FAILED validation. A
+        valid `/1` is the framing loop's, and reading stdin is what it is
+        for -- so this case proves the read HAPPENS rather than that it does
+        not."""
+        with self.assertRaises(AssertionError) as raised:
+            self.started(self.document(baton_worker.LAUNCH_SCHEMA))
+        self.assertIn("read the stdin channel", str(raised.exception))
+
+    def test_a_held_open_empty_stdin_does_not_hold_the_container(self):
+        """The incident's own shape: a real pipe, open, with no writer.
+
+        `_Unreadable` above proves the read never happens; this proves the
+        program ENDS when the channel is the one the engine actually gives a
+        container. Without the correction this thread is still alive at the
+        bound -- a reversal probe measured exactly that.
+        """
+        to_worker, held = os.pipe()
+        stdin = io.BufferedReader(io.FileIO(to_worker, "rb"))
+        # BOTH ENDS ARE OWNED. Review 2026-09-17T22-10-41Z finding 3: only the
+        # writer was registered, so the reader leaked and the suite emitted a
+        # `ResourceWarning` from whichever later case happened to collect it.
+        self.addCleanup(stdin.close)
+        released = []
+
+        def release():
+            """Give the worker an EOF, so a failing case cannot leave the
+            thread parked on a pipe for the rest of the run."""
+            if not released:
+                released.append(True)
+                os.close(held)
+
+        self.addCleanup(release)
+        answered = {}
+
+        def serve():
+            answered["status"] = self.started(
+                self.document("baton.worker-launch/3",
+                              transport=baton_worker.EXCHANGE_TRANSPORT,
+                              job_execution={}),
+                stdin=stdin)["status"]
+
+        thread = threading.Thread(target=serve, daemon=True)
+        thread.start()
+        thread.join(10)
+        if thread.is_alive():
+            # RELEASE, THEN JOIN, THEN FAIL. The assertion is the point, but a
+            # thread still inside `read_frame` holds the reader this case is
+            # about to close.
+            release()
+            thread.join(10)
+            self.fail("the worker is still waiting on a stdin nobody writes")
+        self.assertEqual(answered["status"], baton_worker.STARTUP_REFUSED)
+
+    def test_the_startup_diagnostic_is_ONE_BOUNDED_PRINTABLE_LINE(self):
+        """It quotes a document this program has just refused to trust.
+
+        So it cannot forge a frame header, cannot move an operator's cursor,
+        and cannot become an unbounded durable write -- and it fits inside the
+        `MAX_STDERR` the manager actually carries back.
+        """
+        said = self.started(self.document(
+            "baton.worker-launch/2",
+            role="a\nfake\r\n12\n{\"ok\":true}" + "\x1b[2J" + "x" * 8000,
+            transport=baton_worker.EXCHANGE_TRANSPORT))["stderr"]
+        self.assertTrue(said.endswith("\n"))
+        self.assertEqual(said.count("\n"), 1, "one line and nothing else")
+        body = said[:-1]
+        self.assertLessEqual(len(body),
+                             len("baton-worker: ")
+                             + baton_worker.MAX_STARTUP_DIAGNOSTIC)
+        self.assertLessEqual(len(said), worker_entry.MAX_STDERR)
+        self.assertTrue(all(" " <= one <= "~" for one in body), repr(body))
+        self.assertNotIn("\x1b", body)
+
+    def test_a_stderr_that_cannot_be_WRITTEN_is_still_a_refusal_to_start(self):
+        """The failure of the message may not outrank the failure it is about:
+        a traceback here would carry image paths out of the container and
+        would replace a bounded exit with a crash."""
+        class Breaking:
+            def write(inner, _text):
+                raise OSError("no room for a diagnostic")
+
+            def flush(inner):
+                raise AssertionError("never reached")
+
+        stdout = io.BytesIO()
+        status = baton_worker.serve(
+            _Unreadable(), stdout, _NeverDispatched(),
+            self.placed(self.document("baton.worker-launch/3", transport=None,
+                                      job_execution={})),
+            self.command_root, self.event_root, stderr=Breaking())
+        self.assertEqual(status, baton_worker.STARTUP_REFUSED)
+        self.assertEqual(stdout.getvalue(), b"")
+
+    def test_an_UNREADABLE_document_is_still_uncorrelated_and_silent(self):
+        """Unchanged, and it is a different failure: there is no session to
+        answer under, so the manager settles the start it already owns."""
+        stdout = io.BytesIO()
+        stderr = io.StringIO()
+        self.assertEqual(
+            baton_worker.serve(_Unreadable(), stdout, _NeverDispatched(),
+                               "/nonexistent/launch.json", self.command_root,
+                               self.event_root, stderr=stderr),
+            2)
+        self.assertEqual(stdout.getvalue(), b"")
+        self.assertEqual(stderr.getvalue(), "")
+
+
+class _Unreadable:
+    """A stdin that fails if it is read at all."""
+
+    def read(self, _count=None):
+        raise AssertionError("an invalid launch read the stdin channel")
+
+
+class _NeverDispatched:
+    """An agent that fails if the worker reaches it."""
+
+    def __getattr__(self, name):
+        raise AssertionError(f"a refused launch reached the agent: {name}")
 
 
 if __name__ == "__main__":

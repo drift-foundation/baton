@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "stack_command.py", line 243, in <module>
+  File "stack_command.py", line 239, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 485, in main
+  File "tools/job_manager.py", line 95, in _submit
+  File "baton_v12/job_manager/documents.py", line 308, in read_submission
+  File "baton_v12/job_manager/documents.py", line 333, in owned_submission
+  File "baton_v12/job_manager/documents.py", line 374, in _job
+  File "baton_v12/worker_manager/boundaries.py", line 93, in text
+  File "baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+baton_v12.contracts.errors.ContractRefusal: a Job's input digest is durable text; this is none
+[PYI-499289:ERROR] Failed to execute script 'stack_command' due to unhandled exception!

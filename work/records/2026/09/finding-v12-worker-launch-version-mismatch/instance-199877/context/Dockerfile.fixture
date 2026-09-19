@@ -1,0 +1,31 @@
+# THE DETERMINISTIC FIXTURE THAT PRODUCES A REAL CANDIDATE, W197661 c199877.
+#
+# WHAT IS NEW AND WHY. Every earlier fixture wrote `result_metadata: {}` for its
+# git-change-proposal, so it carried no `baton.git-proposal/1` claim, nothing
+# could be published, and independent review and report-and-hold were
+# unreachable by construction. `proposing_agent.py` commits on the private line
+# the manager already hands the worker and reports the four facts the claim is
+# made of.
+#
+# THIS WORK'S OWN CONTEXT. W198667's `fixture-199285` context and image, and the
+# accepted provider and integration images (sha256:35f36286..., dac354d8...),
+# are neither used, rebuilt nor re-attributed here.
+#
+# ONE LABELLED DIFFERENCE FROM THE ACCEPTED PROVIDER IMAGE: it carries a
+# scripted agent and enters `baton_worker.py` directly, so `main()` finds
+# `agent=None` and loads the scripted default. The accepted image carries no
+# scripted agent and enters `dogfood_entry.py`, which injects the REAL adapter.
+# Same immutable base, same worker program bytes, same control schema, same
+# source profiles, same fixed non-root pair.
+#
+# `--pull=false --no-cache --network none`: nothing is downloaded and nothing is
+# installed, so the only new bytes are this repository's own reviewed source.
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+COPY worker/scripted_agent.py /opt/baton/scripted_agent.py
+COPY worker/proposing_agent.py /opt/baton/proposing_agent.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/baton_worker.py"]

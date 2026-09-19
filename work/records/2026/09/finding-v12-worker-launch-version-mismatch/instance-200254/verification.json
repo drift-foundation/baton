@@ -1,0 +1,281 @@
+{
+  "accepted": false,
+  "authority_uuid": "b6157ee13ec54abbb458d2d2f0a7becb",
+  "built_runtime_files": 81,
+  "checks": [
+    {
+      "check": "the installed destination exists",
+      "detail": "/home/sl/baton-v12-lifecycle-200254",
+      "held": true
+    },
+    {
+      "check": "the Authority identity is this episode's",
+      "detail": "b6157ee13ec54abbb458d2d2f0a7becb",
+      "held": true
+    },
+    {
+      "check": "this episode BUILT a complete runtime",
+      "detail": {
+        "files": 81
+      },
+      "held": true
+    },
+    {
+      "check": "the installed runtime is that exact build",
+      "detail": {
+        "found": "sha256:b1d037a1de70102d49f4ca19abce4e248e958a102b76a79ab65402a2f4635ac1",
+        "wanted": "sha256:b1d037a1de70102d49f4ca19abce4e248e958a102b76a79ab65402a2f4635ac1"
+      },
+      "held": true
+    },
+    {
+      "check": "this episode built its own fixture image",
+      "detail": "sha256:89b352fa301e2fe31720a3411808c4708fcf53500b0ca90e636f156db0f5334e",
+      "held": true
+    },
+    {
+      "check": "every COPY input is measured",
+      "detail": [
+        "python/src/baton_v12/source_profiles",
+        "worker/attempt_log_format.py",
+        "worker/baton_worker.py",
+        "worker/proposing_agent.py",
+        "worker/proposing_entry.py",
+        "worker/worker-control-1.0.schema.json"
+      ],
+      "held": true
+    },
+    {
+      "check": "the recipe selects THIS episode's entrypoint",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the image carries no second agent to fall back to",
+      "detail": [
+        "worker/baton_worker.py",
+        "worker/attempt_log_format.py",
+        "worker/proposing_agent.py",
+        "worker/proposing_entry.py",
+        "worker/worker-control-1.0.schema.json",
+        "python/src/baton_v12/source_profiles"
+      ],
+      "held": true
+    },
+    {
+      "check": "the composed bootstrap_inputs.json is retained",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the composed submission.json is retained",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the composed task.json is retained",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the composed stage_execution.json is retained",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the composed policies.json is retained",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the composed runtime_profile.json is retained",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the composed toolchain.json is retained",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the composed composition.json is retained",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the composition reported complete",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the composition pinned this episode's image",
+      "detail": {
+        "found": "sha256:89b352fa301e2fe31720a3411808c4708fcf53500b0ca90e636f156db0f5334e",
+        "wanted": "sha256:89b352fa301e2fe31720a3411808c4708fcf53500b0ca90e636f156db0f5334e"
+      },
+      "held": true
+    },
+    {
+      "check": "the canonical target was ESTABLISHED from the declared base",
+      "detail": {
+        "found": "e486652c4ddebfb696e030b4b867e914248db542",
+        "wanted": "e486652c4ddebfb696e030b4b867e914248db542"
+      },
+      "held": true
+    },
+    {
+      "check": "the Job's Work exists on this Authority",
+      "detail": "b6157ee1-W1",
+      "held": true
+    },
+    {
+      "check": "the installed command answers a status projection",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the projection names this Job",
+      "detail": "w197661-lifecycle",
+      "held": true
+    },
+    {
+      "check": "it is the submission this episode recorded",
+      "detail": {
+        "found": "w197661-lifecycle-200254",
+        "wanted": "w197661-lifecycle-200254"
+      },
+      "held": true
+    },
+    {
+      "check": "its terminal policy is report-and-hold",
+      "detail": {
+        "found": "report-and-hold",
+        "wanted": "report-and-hold"
+      },
+      "held": true
+    },
+    {
+      "check": "it has the three stages",
+      "detail": {
+        "found": [
+          "implementation",
+          "integration",
+          "review"
+        ],
+        "wanted": [
+          "implementation",
+          "integration",
+          "review"
+        ]
+      },
+      "held": true
+    },
+    {
+      "check": "exactly one review line was materialized",
+      "detail": "/home/sl/baton-v12-lifecycle-200254/storage/.baton-review-lines/line-5cb7b7eccaadbfe54c49eed969e12d389cfc119e1dd49eb92f3de8805048c819",
+      "held": true
+    },
+    {
+      "check": "the candidate file is on that line",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "with exactly the declared bytes",
+      "detail": {
+        "found": "w197661 deterministic fixture candidate\n",
+        "wanted": "w197661 deterministic fixture candidate\n"
+      },
+      "held": true
+    },
+    {
+      "check": "one implementation attempt took custody",
+      "detail": {
+        "found": 1,
+        "wanted": 1
+      },
+      "held": true
+    },
+    {
+      "check": "the declared proposal tree is present",
+      "detail": {
+        "found": [
+          "objects.bundle",
+          "patch.diff",
+          "result.json",
+          "verification.txt"
+        ],
+        "wanted": [
+          "objects.bundle",
+          "patch.diff",
+          "result.json",
+          "verification.txt"
+        ]
+      },
+      "held": true
+    },
+    {
+      "check": "the output is SEALED",
+      "detail": null,
+      "held": true
+    },
+    {
+      "check": "the seal names this Work",
+      "detail": {
+        "found": "b6157ee1-W1",
+        "wanted": "b6157ee1-W1"
+      },
+      "held": true
+    },
+    {
+      "check": "its disposition is completed",
+      "detail": {
+        "found": "completed",
+        "wanted": "completed"
+      },
+      "held": true
+    },
+    {
+      "check": "the review stage reached an ending",
+      "detail": "claimed",
+      "held": false
+    },
+    {
+      "check": "a review verdict was accepted",
+      "detail": [
+        "admit",
+        "claim"
+      ],
+      "held": false
+    },
+    {
+      "check": "the Job reached its report-and-hold terminal",
+      "detail": null,
+      "held": false
+    }
+  ],
+  "claim": 200254,
+  "destination": "/home/sl/baton-v12-lifecycle-200254",
+  "failed": [
+    "the review stage reached an ending",
+    "a review verdict was accepted",
+    "the Job reached its report-and-hold terminal"
+  ],
+  "image": "sha256:89b352fa301e2fe31720a3411808c4708fcf53500b0ca90e636f156db0f5334e",
+  "image_inputs": {
+    "python/src/baton_v12/source_profiles": {
+      "__init__.py": "sha256:c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "checkout.py": "sha256:037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+    },
+    "worker/attempt_log_format.py": "sha256:b138410504336969eebdb05ebcd544b9eed896c4e1c293a633f6cf4ab4e45f42",
+    "worker/baton_worker.py": "sha256:198a6fe96f93c27f539cfcfeee0206643048d3045fc94f3701603c36a749192f",
+    "worker/proposing_agent.py": "sha256:457e728c12c9bf8d9eaead8808ff7525a670943b66d226d9a46a72ef1dd1c528",
+    "worker/proposing_entry.py": "sha256:0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760",
+    "worker/worker-control-1.0.schema.json": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  "installed_runtime_files": 81,
+  "job_id": "w197661-lifecycle",
+  "schema": "baton.w197661.verification/1",
+  "submission_id": "w197661-lifecycle-200254",
+  "work_id": "b6157ee1-W1"
+}

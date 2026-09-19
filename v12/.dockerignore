@@ -28,6 +28,15 @@
 *
 !worker
 !python/src/baton_v12/source_profiles
+# W202663: AND THE SHARED CAPTURE FORMAT, which W198667 added to BOTH supported
+# recipes as `COPY python/src/baton_v12/attempt_log_format.py`. This allowlist
+# was not widened with them, so every build of `Dockerfile.claude` and
+# `Dockerfile.integration` in this tree failed at that COPY with "file not found
+# in build context or excluded by .dockerignore". A re-include naming the ONE
+# file keeps the rule the paragraphs above set out -- nothing else can appear in
+# the context, so nothing else can change under it -- which a re-included
+# `python/src/baton_v12` directory would not.
+!python/src/baton_v12/attempt_log_format.py
 
 # Not even inside the two directories above.
 **/__pycache__

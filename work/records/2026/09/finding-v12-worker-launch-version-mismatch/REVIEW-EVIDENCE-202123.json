@@ -1,0 +1,25 @@
+{
+  "claim": 202123,
+  "review": "review-2026-09-18T09-27-13Z.md",
+  "author_claim": 202052,
+  "digests": {
+    "instance-201492/verification-202052-accepted.json": "4ada1bf18188d1e50ffcbba4394164170d796de1798cd5f290be4f83c962b216",
+    "instance-201492/verify_lifecycle.py": "50b4d65a16f51604b3d9f17422b97696e38922bbd07e8bc184b21c1d9260a215",
+    "v12/python/tests/manager/test_integration_generation.py": "b6a5d1c2a2a5b570e60cc298a6c1ee7b5468c88f1367b9d4895a00b436eed83d",
+    "v12/python/tests/manager/test_w197661_verifier.py": "57c2007a9f945450b28386c271f580b4daa743b20024679d3ac47d00ec37e3fd"
+  },
+  "hashes_match": true,
+  "tests": {
+    "count": 143,
+    "passed": true,
+    "seconds": 0.05169208103325218
+  },
+  "probes": {
+    "configured23_current23": "required pass; readiness fails one-step",
+    "configured23_current24": "required pass; readiness fails equality",
+    "input_attestation": "set true in both synthetic documents"
+  },
+  "deployment_runs": 0,
+  "historical_completion": "accepted with declared provenance limits",
+  "disposition": "narrow readiness reporting correction"
+}

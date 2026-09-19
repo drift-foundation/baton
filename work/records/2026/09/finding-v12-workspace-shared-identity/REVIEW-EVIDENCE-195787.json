@@ -1,0 +1,68 @@
+{
+  "claim": 195787,
+  "scratch": "/tmp/w194457-review195787-6rdp6_mk",
+  "engine": "none; local filesystem only",
+  "candidate_sha256": {
+    "src/baton_v12/worker_manager/workspaces.py": "b6eb2dc3fcc811f8ad933eb80fbedbaf2a98def7e4cff3eacffef905e7ca70d2",
+    "src/baton_v12/worker_manager/oci.py": "ed055dbc2e75026b34a10a7aae32fbc1ce346b192a3a40728e114efba449dcd9",
+    "src/baton_v12/worker_manager/custody.py": "360772a109909cb382ae815d17f60ed7903252bf1b56a3944de8b301f33ac31b",
+    "src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "tools/single_worker.py": "7992f2d7485dcccff64b5f945357b1132d71c0f65fd9520cf42fd7940a611854",
+    "tests/__init__.py": "ed81ea906939740dc126615a631de97b2785fb958b1d15dc394f995603d63c06",
+    "tests/manager/test_workspaces.py": "e27e9c07340e57258088e12cab1960776514932f5ff2a90a6462f813066247e6",
+    "tests/manager/test_review_cycles.py": "e4025453cfc9ea74fe0eaeb302dc742db6209f678fa78c4601c1200f530e5155",
+    "tests/manager/test_custody.py": "d315fdb7193e304421413b64caf09ae85d9c646ffd9948e767b8721475b8459d",
+    "tests/manager/test_oci.py": "231998a54d5978dd11221102c7a48480c549459b4114052401556b91079fced4",
+    "tests/manager/test_lifecycle_composition.py": "3fb38036bacfb09b050d69ea3712b8766002e7b0775bffce51a415ca5f6a337e"
+  },
+  "author_hashes_match": true,
+  "historical_source_sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+  "replacement": {
+    "candidate": {
+      "returned": false,
+      "error": "ContractRefusal",
+      "message": "a development-line entry changed while it was proved; nothing was granted",
+      "interleaving": [
+        "/tmp/w194457-review195787-6rdp6_mk/file-to-symlink-candidate/checkout/two"
+      ],
+      "root_mode": "0o700",
+      "outside_unchanged": true
+    },
+    "historical": {
+      "returned": false,
+      "error": "ContractRefusal",
+      "message": "an initial development-line entry changed before provisioning",
+      "interleaving": [
+        "/tmp/w194457-review195787-6rdp6_mk/file-to-symlink-historical/checkout/two"
+      ],
+      "root_mode": "0o700",
+      "outside_unchanged": true
+    },
+    "control": {
+      "returned": true,
+      "interleaving": [],
+      "root_mode": "0o2775",
+      "outside_unchanged": true
+    }
+  },
+  "integrity_access_error": {
+    "returned": false,
+    "error": "ContractRefusal",
+    "message": "proving the development line could not open 'blocked-entry' (PermissionError EACCES: Permission denied); it is an entry in the development line at '/tmp/w194457-review195787-6rdp6_mk/unreadable-checkout' this manager is proving; nothing was changed and the line stays materializing and ungranted A permission failure on material the worker created is what an unsupported identity arrangement looks like from here: this deployment's manager account and its container runtime share one uid and gid because the engine is configured without an id mapping for it; the arrangement is deployment configuration this manager trusts rather than something it measures. Check the engine's id mapping for this deployment before treating the entry itself as the fault.",
+    "root_mode": "0o700",
+    "names_failed_path": true
+  },
+  "tests": {
+    "selection": [
+      "tests.manager.test_workspaces.InitialStableLineAccess",
+      "tests.manager.test_review_cycles.StableLineLifecycle.test_establishing_access_is_serialized_before_idle_and_never_repeated",
+      "tests.manager.test_review_cycles.StableLineLifecycle.test_creating_a_line_PROVES_its_integrity_before_granting_access",
+      "tests.manager.test_review_cycles.StableLineLifecycle.test_a_failure_while_establishing_keeps_materializing_and_retry_finishes"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "...........................\n----------------------------------------------------------------------\nRan 27 tests in 0.231s\n\nOK\n",
+    "seconds": 0.40757100796326995
+  },
+  "total_seconds": 0.4159654240356758
+}

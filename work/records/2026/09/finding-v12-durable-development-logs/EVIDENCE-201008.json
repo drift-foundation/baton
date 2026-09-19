@@ -1,0 +1,101 @@
+{
+  "work": "W198667",
+  "claim": 201008,
+  "author": "baton.claude",
+  "answering": {
+    "review": "review-2026-09-18T06-27-53Z.md",
+    "sha256": "0bcce55652a4a05f66fa547bdcc5e6d52fd0263f3ca6dc9742306cb8b97f839b",
+    "review_evidence": "REVIEW-EVIDENCE-200927.json",
+    "review_evidence_sha256": "6988e3796e84b35d586e16ee80d80aad21cb856d7910d300e342612041ae69a8",
+    "probes": "review-probes-200927.py",
+    "hashes_verified_against_tree": true,
+    "accepted_by_that_review": "the native alias and reserved-name corrections at claude_agent.py 63302a7de1... and test_attempt_logs.py 1673aff9fe..."
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "00246a9b102b1399e428d019587dd9d0c322258daf128fcdd60d16d71155be37",
+    "v12/worker/baton_worker.py": "e53a5dc522b4d2b73435ec5ae6a4cbacb3a6cd3bbd4a1ddf12a7d3d57548e3a9",
+    "v12/worker/claude_agent.py": "45e53ea349db983f0b1ee98932e89dae731c7e9249dd65980ed6ec4c1c281672",
+    "v12/python/tests/manager/test_attempt_logs.py": "4ccb8e8225f21813116d05a4f68f201437502769cfb682d8f3f6d650ef69c719",
+    "work/records/2026/09/finding-v12-durable-development-logs/fixture-201008/smoke.py": "ab72e75797cf395ddc00ebb856c7e48f60fbf5b664bf8ca6ec31620f9aa8218c"
+  },
+  "prior_candidate_verified_before_editing": {
+    "v12/worker/claude_agent.py": "63302a7de1d8710bc7b658fe187c19341ebad7e2e29d49bc72936ea1063debbe",
+    "v12/python/tests/manager/test_attempt_logs.py": "1673aff9fef75a78d58179b180f6ee40043f00e10645d15d08d26d266ba3cad2",
+    "v12/python/src/baton_v12/attempt_log_format.py": "b138410504336969eebdb05ebcd544b9eed896c4e1c293a633f6cf4ab4e45f42",
+    "v12/worker/baton_worker.py": "198a6fe96f93c27f539cfcfeee0206643048d3045fc94f3701603c36a749192f"
+  },
+  "reproduced_before_correcting": {
+    "script": "/tmp/w198667-claim201008/probe_before.py",
+    "shared_fifo": {"timed_out": true, "seconds": 2,
+                    "note": "killed and reaped by subprocess.run, through the real _Captured constructor"},
+    "shared_alias": {"declared": "finished",
+                     "bytes_written_OUTSIDE_the_room": "raw provider bytes"},
+    "inherited_declaration": {"while_the_second_is_open": "finished",
+                              "after_declare_none": "finished",
+                              "bytes_on_disk": "firstsecond"}
+  },
+  "corrections": {
+    "R1": {
+      "site": "attempt_log_format.append_writer, reached by all six streams, both tees and the wrapper's earliest output",
+      "defect": "the shared opener had none of the three properties _acquired had just learned, and this open happens BEFORE the provider starts",
+      "change": [
+        "O_NONBLOCK, so a fifo cannot strand the capture the startup diagnostic is written through",
+        "fstat on the descriptor: S_ISREG",
+        "st_nlink == 1, because a hard link is a second name for the inode and no pathname check can see it",
+        "a fresh entry is CREATED with O_EXCL rather than adopted with O_CREAT",
+        "the refusal travels into the declaration through an optional refused list, so failed says WHY"
+      ],
+      "after": "the fifo is refused without blocking and declared failed with its reason; the aliased sibling and the alias both keep their bytes"
+    },
+    "R2": {
+      "site": "attempt_log_format.clear_declaration, called by append_writer",
+      "defect": "a second writer inherited the first's terminal word on ordinary sequential capture; the real reader answered captured/more_may_arrive:false over a growing file, and declare(None) left the stale word standing",
+      "change": "a declaration that no longer describes the bytes is removed before a handle is answered; metadata only, never the bytes; a clearing that fails REFUSES the handle",
+      "not_a_cheap_pass": "a second writer that finishes normally still publishes finished and the reader then says captured with more_may_arrive false"
+    }
+  },
+  "reversal_probe": {
+    "how": "a scratch copy with both corrections undone, run PER CASE under a 15s bound, then removed",
+    "result": "9 of 15 discriminate: 8 fail and test_a_FIFO_stream_is_DECLARED_failed_and_says_why HANGS, exiting 124 under the bound",
+    "controls_passing_both_ways": ["the ordinary stream", "the restart append",
+                                   "the earlier bytes preserved",
+                                   "a second writer that finishes",
+                                   "clearing nothing",
+                                   "a directory at the stream name, which the old opener refused with EISDIR"],
+    "transcript": "/tmp/w198667-claim201008/reversal.txt"
+  },
+  "images": {
+    "changed_this_claim": true,
+    "why": "attempt_log_format.py and baton_worker.py are both image inputs and both changed",
+    "consequence_stated_plainly": "fixture-199918's context copies no longer describe this tree and ITS SMOKE NO LONGER DESCRIBES THESE BYTES; it proves what it always proved, about the bytes it was built from, and keeps its own attribution",
+    "new_episode": {
+      "path": "work/records/2026/09/finding-v12-durable-development-logs/fixture-201008",
+      "image": "sha256:d1a9021c99b8d0f6722993676267d49f95712721119ee49360dcc225e9403fd6",
+      "built": "--pull=false --no-cache --network none, same immutable base",
+      "smoke": "8 of 8 checks hold, including the wrapper's earliest output retained in the room and the container gone with the evidence kept"
+    },
+    "untouched": "the accepted provider and integration images and fixture-199285 and fixture-199918"
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "tests.manager.test_attempt_logs", "tests": 200, "new": 15, "result": "OK"},
+      {"suite": "attempt_logs + attempt_logs_command", "tests": 200, "result": "OK", "seconds": 1.602},
+      {"suite": "affected set: attempt_logs, attempt_logs_command, claude_agent, integration_worker, worker_entry, launch, oci, exchange", "tests": 858, "result": "OK", "seconds": 26.071},
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.668},
+      {"suite": "W197661 shared: test_w197661_verifier, test_proposing_fixture, test_ending", "tests": 127, "result": "OK", "seconds": 0.609},
+      {"suite": "tests.tools.test_bootstrap", "tests": 125, "result": "OK", "seconds": 17.201},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "container": "one image build and one smoke, 8/8",
+    "measured_seconds_this_claim": 700,
+    "prior_spending": "preserved in EVIDENCE-198698 through EVIDENCE-200870 and the reviewers' own evidence; nothing recomputed or reattributed"
+  },
+  "ownership": {
+    "shared_overlap_checked_first": "W197661's live candidate is instance-200564/* plus tests/manager/test_w197661_verifier.py; none is touched here and its suites run green against this tree",
+    "not_edited": "every reviewer-owned review and REVIEW-EVIDENCE-*.json; every prior EVIDENCE-*.json; fixture-199285 and fixture-199918"
+  },
+  "not_done": "no live model, provider call, network (the build and smoke run --network none), production action, recovery, resubmission, version-control mutation, direct coordination-store access, credential read, public log publication, or new permission gate",
+  "synthetic_state": "/tmp/w198667-claim201008; the reviewer's /tmp/w198667-review200927-o0nta3_f and /tmp/w198667-review200560-0s6wm9h0 are untouched"
+}

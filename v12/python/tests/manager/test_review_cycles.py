@@ -924,19 +924,22 @@ class StableLineLifecycle(unittest.TestCase):
         from baton_v12.worker_manager.attempts import assignment_of
         return assignment_of(self.store, "writer-attempt-1")
 
-    def test_provisioning_is_serialized_before_idle_and_never_repeated(self):
+    def test_establishing_access_is_serialized_before_idle_and_never_repeated(self):
+        """W194457: the act is `establish_line_access` now, and the property is
+        unchanged -- it happens inside the creation transaction, while the line
+        is still `materializing`, exactly once."""
         from baton_v12.worker_manager import workspaces
-        original = workspaces._provision_line_access
+        original = workspaces.establish_line_access
         calls = []
 
-        def provision(place, pinned, gid):
+        def establish(place, pinned, identity):
             self.assertTrue(self.store._connection.in_transaction)
             self.assertEqual(self.store._connection.execute("SELECT state FROM review_lines").fetchone()[0],
                              "materializing")
             calls.append(place)
-            return original(place, pinned, gid)
+            return original(place, pinned, identity)
 
-        with mock.patch.object(workspaces, "_provision_line_access", side_effect=provision):
+        with mock.patch.object(workspaces, "establish_line_access", side_effect=establish):
             line, writer, delivered = self.mounted_writer()
             self.assertEqual(workspaces._prove_execution_workspace(
                 delivered["roots"], self.group.gid, self.labels()), line["path"])
@@ -973,17 +976,55 @@ class StableLineLifecycle(unittest.TestCase):
             return result
 
         with mock.patch.object(self.profile, "materialize", side_effect=interleave):
-            with mock.patch.object(workspaces, "_provision_line_access",
-                                   wraps=workspaces._provision_line_access) as provision:
+            with mock.patch.object(workspaces, "establish_line_access",
+                                   wraps=workspaces.establish_line_access) as establish:
                 self.assertEqual(self.line(), saved["line"])
-                self.assertEqual(provision.call_count, 1)
+                self.assertEqual(establish.call_count, 1)
+        # AND THE LIVE WORKER'S OWNER-ONLY FILE IS UNTOUCHED -- which used to be
+        # true because the second provisioning never ran, and is true now
+        # because no permission act ever reaches an entry below the root.
         self.assertEqual(os.stat(os.path.join(saved["line"]["path"], "live-worker-file")).st_mode & 0o7777, 0o600)
 
-    def test_partial_initial_failure_keeps_materializing_and_retry_can_finish(self):
-        from baton_v12.worker_manager import workspaces
-        with mock.patch.object(workspaces.os, "fchmod", side_effect=PermissionError("injected")):
-            with self.assertRaisesRegex(ContractRefusal, "partial provisioning"):
+    def test_creating_a_line_PROVES_its_integrity_before_granting_access(self):
+        """A reversal probe found this gap: removing the integrity proof from
+        `create_line` changed nothing any check could see, because the
+        remaining cases only look at modes. A hardlinked file is a property
+        ONLY that walk refuses, so it is what asks the question."""
+        materialize = self.profile.materialize
+
+        def with_a_hardlink(source, path, base):
+            result = materialize(source, path, base)
+            original = os.path.join(path, "original")
+            with open(original, "w") as stream:
+                stream.write("payload")
+            os.link(original, os.path.join(path, "hardlinked"))
+            return result
+
+        with mock.patch.object(self.profile, "materialize",
+                               side_effect=with_a_hardlink):
+            with self.assertRaisesRegex(ContractRefusal, "hardlinked"):
                 self.line()
+        self.assertEqual(
+            self.store._connection.execute(
+                "SELECT state FROM review_lines").fetchone()[0], "materializing")
+
+    def test_a_failure_while_establishing_keeps_materializing_and_retry_finishes(self):
+        """The honest failure semantics the ruling requires kept: the line stays
+        `materializing`, no writer is granted, and a retry finishes. What
+        changed is the message -- there is no per-entry partial state to warn
+        about any more, and the errno is named instead.
+
+        W194457, owner decision 2026-09-17: the errno is named BY NAME now, and
+        a permission failure also points at the engine's id mapping, because
+        the arrangement is trusted rather than probed and an actual access
+        failure is the whole diagnostic an operator gets."""
+        from baton_v12.worker_manager import workspaces
+        with mock.patch.object(workspaces.os, "fchmod",
+                               side_effect=PermissionError(1, "injected")):
+            with self.assertRaisesRegex(ContractRefusal, "EPERM") as raised:
+                self.line()
+        self.assertIn("Operation not permitted", str(raised.exception))
+        self.assertIn("id mapping", str(raised.exception))
         self.assertEqual(self.store._connection.execute("SELECT state FROM review_lines").fetchone()[0],
                          "materializing")
         self.assertEqual(self.store._connection.execute("SELECT count(*) FROM line_writers").fetchone()[0], 0)

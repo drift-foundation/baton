@@ -1,0 +1,42 @@
+{
+ "what_this_is": "the FIRST destination of claim200564, retained because it is what MEASURED the three deployment-wiring walls between a completed review and a started integration",
+ "destination": "/home/sl/baton-v12-lifecycle-200564",
+ "superseded_because": "each wall was corrected in compose_lifecycle.py and recomposed against a Job already running, so the fourth refusal is an artifact of recomposing mid-flight rather than a deployment finding: this Job's input digest was sealed before the credential slot name changed",
+ "walls_measured_in_order": [
+  {
+   "refusal": "the configured implementation task names no verification command; an integration is admitted behind an ordinary test run and never ahead of one",
+   "category": "refused",
+   "code": "precondition",
+   "owner": "the FIXTURE's task document, which declared an empty verification list",
+   "corrected_by": "task_document names a real deterministic command and proposing_agent runs it and reports the observation"
+  },
+  {
+   "refusal": "this deployment configures no integration_instructions; the integrator's instruction bytes are sealed into the bundle it runs and where they live is deployment wiring",
+   "category": "refused",
+   "code": "capability",
+   "owner": "this COMPOSITION, which wrote the instructions file and pinned its digest but never named its path in the bootstrap input",
+   "corrected_by": "bootstrap_inputs names integration_instructions at a copy delivered into the destination"
+  },
+  {
+   "refusal": "the selected integrator reads its bearer from slot 'claude' and this deployment's credential resolution carries a list",
+   "category": "policy",
+   "code": "denied",
+   "owner": "this COMPOSITION, which named its synthetic slot 'fixture'; tools/integration_worker.REQUIRED_CREDENTIAL_SLOT is the literal 'claude'",
+   "corrected_by": "the slot carries the required name and the same synthetic NON-BEARER marker; nothing reads it"
+  },
+  {
+   "refusal": "this Job names input 'sha256:ed93aff0...' and the configured producer's manifest is 'sha256:066268e7...'",
+   "category": "refused",
+   "code": "precondition",
+   "owner": "ME, mid-flight: the credential slot rename changed the input manifest under a Job whose seal was already recorded",
+   "corrected_by": "a CLEAN run of the whole lifecycle at its own destination, composed once, from the final wiring"
+  }
+ ],
+ "reached_here": {
+  "implementation": "completed",
+  "review": "completed",
+  "integration": "claimed, deferred at launch"
+ },
+ "what_it_proves_on_its_own": "that the producer really runs the configured required command in its container and carries the observation into its frozen result: status 0 under baton.git-ordinary-tests/1",
+ "retained": "nothing here is deleted; the clean run uses its own destination"
+}

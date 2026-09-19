@@ -1,0 +1,221 @@
+{
+  "AppArmorProfile": "docker-default",
+  "Args": [
+    "-c",
+    "import json,sys;sys.path.insert(0,'/opt/baton');import baton_worker as w;d=json.load(open('/run/baton/launch.json'));print(json.dumps({'supported':list(w.SUPPORTED_LAUNCH_SCHEMAS),'validated':sorted(w.launched(d,'/run/baton/launch.json'))}))"
+  ],
+  "Config": {
+    "AttachStderr": true,
+    "AttachStdin": true,
+    "AttachStdout": true,
+    "Cmd": [
+      "-c",
+      "import json,sys;sys.path.insert(0,'/opt/baton');import baton_worker as w;d=json.load(open('/run/baton/launch.json'));print(json.dumps({'supported':list(w.SUPPORTED_LAUNCH_SCHEMAS),'validated':sorted(w.launched(d,'/run/baton/launch.json'))}))"
+    ],
+    "Domainname": "",
+    "Entrypoint": [
+      "python3"
+    ],
+    "Env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "NODE_VERSION=22.23.2",
+      "YARN_VERSION=1.22.22",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "PYTHONUNBUFFERED=1",
+      "PYTHONPATH=/opt/baton",
+      "PYTHONHASHSEED=0",
+      "NODE_NO_WARNINGS=1"
+    ],
+    "Hostname": "8a675d609c97",
+    "Image": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407",
+    "Labels": {},
+    "OpenStdin": true,
+    "StdinOnce": true,
+    "Tty": false,
+    "User": "65532:65532",
+    "Volumes": null,
+    "WorkingDir": ""
+  },
+  "Created": "2026-09-17T22:45:54.795121417Z",
+  "Driver": "overlay2",
+  "ExecIDs": null,
+  "GraphDriver": {
+    "Data": {
+      "ID": "8a675d609c97fa211d5fd5c39bd0ac6ba9efe90f6ab7c023e310716309180f5f",
+      "LowerDir": "/var/lib/docker/overlay2/34b817570e09d11ce5c5983ad9877d67688859143a2b245da9abeac06af732e8-init/diff:/var/lib/docker/overlay2/e53197d73902e6824937665a3b0858043898df18f5bda8f3090f32453ad54ed1/diff:/var/lib/docker/overlay2/3220f7de008492e79381ff090ace667936f3313c481d7e808f08fc7b9cae2435/diff:/var/lib/docker/overlay2/6b37fe7c5005742f02f769caeaa13ccc1626b8f553cff877f714319f40e1e94a/diff:/var/lib/docker/overlay2/300b9c8cefacefe9bd1c824446e62f23ed2852935f26c7c09de5a68a452495e8/diff:/var/lib/docker/overlay2/95beb8bdabb7d7da9b856208bc2ebdbe5c1466e22cda2b2ea12259de42223a90/diff:/var/lib/docker/overlay2/3df758db5461452dbf9f86a166a65a4519e78236b06b40820ffc9eeec65a1fc1/diff:/var/lib/docker/overlay2/1ac0c6108117b2c05ee02c2dd109b069a00beb6bd1436981593164d9e9e469df/diff:/var/lib/docker/overlay2/af2c934d14fb62f310c437a4d5524242f397d561ae670a1b099b5fa82c5bc82d/diff:/var/lib/docker/overlay2/742ed00adf7e9d2452a0e5595ce3409b3857af61742cc3ab7c8ec0a9cf6ad2af/diff:/var/lib/docker/overlay2/1290ec0d0d5c90cedc0d2ec4ff714b8e50bee783fb4692be483e7f7224d870e8/diff:/var/lib/docker/overlay2/ab05f3861ed589d35af64ca567e4612157ef1e5609e12b913a894274e6bc5196/diff:/var/lib/docker/overlay2/9d9f5ed7c79323227e93af256c1f48c6bc55a2af07584e41e3830f96d868e38a/diff:/var/lib/docker/overlay2/d10e6fe74a4ad603078c6aa24ae9e27f99a8a22dc9ec4c457d1aacdfcdc1e45e/diff:/var/lib/docker/overlay2/a780637dc0f8615f6bf0acd1cef3e46ee6639773001ede121de01d81da64e821/diff:/var/lib/docker/overlay2/f3f5f2215d6cac2aebfa6b3632366d94b2d2178dd5b67d97077888ae32ade3ea/diff:/var/lib/docker/overlay2/00e9e5ef85a9a36d6f1253a083693cc94715db0b2ec7f02919bffb0401ede4cc/diff:/var/lib/docker/overlay2/8108d8074799de71e77c0f6029a09f26871ec2896a8fb44ebef8f35e845a5aad/diff:/var/lib/docker/overlay2/bfee542e94d18ea54304fbe7bb7ec599dec5428e03d20083251c6bf872f9d42a/diff:/var/lib/docker/overlay2/a5ac5b94c69ca5987980769ebf3365794ea85b85882f908a5a41d693e82d8c87/diff:/var/lib/docker/overlay2/b4e113dd9e9b7d3f1517fb5693a05430d1e688110d163a6b2ea51b4d723f806c/diff",
+      "MergedDir": "/var/lib/docker/overlay2/34b817570e09d11ce5c5983ad9877d67688859143a2b245da9abeac06af732e8/merged",
+      "UpperDir": "/var/lib/docker/overlay2/34b817570e09d11ce5c5983ad9877d67688859143a2b245da9abeac06af732e8/diff",
+      "WorkDir": "/var/lib/docker/overlay2/34b817570e09d11ce5c5983ad9877d67688859143a2b245da9abeac06af732e8/work"
+    },
+    "Name": "overlay2"
+  },
+  "HostConfig": {
+    "AutoRemove": false,
+    "Binds": null,
+    "BlkioDeviceReadBps": [],
+    "BlkioDeviceReadIOps": [],
+    "BlkioDeviceWriteBps": [],
+    "BlkioDeviceWriteIOps": [],
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": [],
+    "CapAdd": null,
+    "CapDrop": [
+      "ALL"
+    ],
+    "Cgroup": "",
+    "CgroupParent": "",
+    "CgroupnsMode": "private",
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "ContainerIDFile": "",
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpuShares": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "DeviceCgroupRules": null,
+    "DeviceRequests": null,
+    "Devices": [],
+    "Dns": null,
+    "DnsOptions": [],
+    "DnsSearch": [],
+    "ExtraHosts": null,
+    "GroupAdd": null,
+    "IOMaximumBandwidth": 0,
+    "IOMaximumIOps": 0,
+    "IpcMode": "private",
+    "Isolation": "",
+    "Links": null,
+    "LogConfig": {
+      "Config": {},
+      "Type": "json-file"
+    },
+    "MaskedPaths": [
+      "/proc/acpi",
+      "/proc/asound",
+      "/proc/interrupts",
+      "/proc/kcore",
+      "/proc/keys",
+      "/proc/latency_stats",
+      "/proc/sched_debug",
+      "/proc/scsi",
+      "/proc/timer_list",
+      "/proc/timer_stats",
+      "/sys/devices/virtual/powercap",
+      "/sys/firmware"
+    ],
+    "Memory": 2147483648,
+    "MemoryReservation": 0,
+    "MemorySwap": 4294967296,
+    "MemorySwappiness": null,
+    "Mounts": [
+      {
+        "ReadOnly": true,
+        "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198054/smoke-scratch/launch-three.json",
+        "Target": "/run/baton/launch.json",
+        "Type": "bind"
+      }
+    ],
+    "NanoCpus": 2000000000,
+    "NetworkMode": "none",
+    "OomKillDisable": null,
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "PidsLimit": 512,
+    "PortBindings": {},
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyPaths": [
+      "/proc/bus",
+      "/proc/fs",
+      "/proc/irq",
+      "/proc/sys",
+      "/proc/sysrq-trigger"
+    ],
+    "ReadonlyRootfs": true,
+    "RestartPolicy": {
+      "MaximumRetryCount": 0,
+      "Name": "no"
+    },
+    "Runtime": "runc",
+    "SecurityOpt": [
+      "no-new-privileges",
+      "label=disable"
+    ],
+    "ShmSize": 67108864,
+    "Tmpfs": {
+      "/dev/shm": "rw,noexec,nosuid,nodev,size=16m",
+      "/tmp": "rw,noexec,nosuid,nodev,size=64m"
+    },
+    "UTSMode": "",
+    "Ulimits": [],
+    "UsernsMode": "",
+    "VolumeDriver": "",
+    "VolumesFrom": null
+  },
+  "HostnamePath": "/var/lib/docker/containers/8a675d609c97fa211d5fd5c39bd0ac6ba9efe90f6ab7c023e310716309180f5f/hostname",
+  "HostsPath": "/var/lib/docker/containers/8a675d609c97fa211d5fd5c39bd0ac6ba9efe90f6ab7c023e310716309180f5f/hosts",
+  "Id": "8a675d609c97fa211d5fd5c39bd0ac6ba9efe90f6ab7c023e310716309180f5f",
+  "Image": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407",
+  "LogPath": "/var/lib/docker/containers/8a675d609c97fa211d5fd5c39bd0ac6ba9efe90f6ab7c023e310716309180f5f/8a675d609c97fa211d5fd5c39bd0ac6ba9efe90f6ab7c023e310716309180f5f-json.log",
+  "MountLabel": "",
+  "Mounts": [
+    {
+      "Destination": "/run/baton/launch.json",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "/home/sl/src/baton/work/records/2026/09/finding-v12-worker-launch-version-mismatch/corrected-198054/smoke-scratch/launch-three.json",
+      "Type": "bind"
+    }
+  ],
+  "Name": "/w197661-smoke198054-integration_reads",
+  "NetworkSettings": {
+    "Networks": {
+      "none": {
+        "Aliases": null,
+        "DNSNames": null,
+        "DriverOpts": null,
+        "EndpointID": "",
+        "Gateway": "",
+        "GlobalIPv6Address": "",
+        "GlobalIPv6PrefixLen": 0,
+        "GwPriority": 0,
+        "IPAMConfig": null,
+        "IPAddress": "",
+        "IPPrefixLen": 0,
+        "IPv6Gateway": "",
+        "Links": null,
+        "MacAddress": "",
+        "NetworkID": "d98eb99a3242fbe1d6807607f8725950ed2563566801d6528722a30b1ea89d93"
+      }
+    },
+    "Ports": {},
+    "SandboxID": "",
+    "SandboxKey": ""
+  },
+  "Path": "python3",
+  "Platform": "linux",
+  "ProcessLabel": "",
+  "ResolvConfPath": "/var/lib/docker/containers/8a675d609c97fa211d5fd5c39bd0ac6ba9efe90f6ab7c023e310716309180f5f/resolv.conf",
+  "RestartCount": 0,
+  "State": {
+    "Dead": false,
+    "Error": "",
+    "ExitCode": 0,
+    "FinishedAt": "2026-09-17T22:45:54.901904265Z",
+    "OOMKilled": false,
+    "Paused": false,
+    "Pid": 0,
+    "Restarting": false,
+    "Running": false,
+    "StartedAt": "2026-09-17T22:45:54.806641855Z",
+    "Status": "exited"
+  }
+}

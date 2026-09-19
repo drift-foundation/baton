@@ -1,0 +1,157 @@
+{
+  "accepted_images": {
+    "accepted_by": "review-2026-09-17T23-00-20Z.md (claim198155) under owner seq197881",
+    "engine_check": {
+      "integration": {
+        "digest": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407",
+        "engine_said": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407 linux/amd64 65532:65532 [\"python3\",\"/opt/baton/integration_entry.py\"]",
+        "present": true
+      },
+      "provider": {
+        "digest": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06",
+        "engine_said": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06 linux/amd64 65532:65532 [\"python3\",\"/opt/baton/dogfood_entry.py\"]",
+        "present": true
+      }
+    },
+    "immutable_base": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+    "integration": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407",
+    "provider": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06"
+  },
+  "authority": "owner seq198635: prepare ONE reproducible deployment packet binding the installed manager, accepted image IDs, configuration and required directories",
+  "claim": 198640,
+  "configuration": {
+    "optional_members": [
+      "integration_target",
+      "integration_target_reference",
+      "integration_workspace",
+      "integration_observer",
+      "integration_instructions",
+      "integration_preparation",
+      "result_judgment_workers"
+    ],
+    "part_one_instance_selection": {
+      "document": "baton.v12.stack-bootstrap/1",
+      "example": {
+        "checkpoint_profile": "git",
+        "integration_profile": {
+          "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+          "integrator_participant": "baton.merge",
+          "profile_kind": "git",
+          "profile_version": 1
+        },
+        "policy_generation": 1,
+        "pool_generation": 1,
+        "receipt_participants": {
+          "approval": "baton.slaw",
+          "review": "baton.codex",
+          "verification": "baton.codex"
+        },
+        "retention_disposition": "retain",
+        "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+        "schema": "baton.v12.stack-bootstrap/1",
+        "state_root": "/home/sl/baton-v12-instance"
+      },
+      "note": "state_root is the destination; every other member is a production selection the bootstrap refuses by name rather than inventing"
+    },
+    "part_two_capacity_selection": {
+      "job_members": [
+        "job_id",
+        "work_id",
+        "line_declared_base",
+        "canonical_target_id",
+        "source_worker_id"
+      ],
+      "owner_only_selections": [
+        "image_digest, per worker -- the accepted IDs above",
+        "adapter_name and adapter_digest",
+        "profile_name, profile_digest, policy_digest",
+        "credential_sources, credential_slots, credential_profile"
+      ],
+      "reference": "work/records/2026/09/finding-v12-stack-launcher/DEPLOYMENT-INPUTS-185653.md",
+      "roles": [
+        "implementation",
+        "review",
+        "integration"
+      ],
+      "the_incident_lives_here": "the stopped production instance's deployment.json still names sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13 as its worker image_digest, which is the stale pair the reported Job launched with",
+      "why_separate": "bootstrap.DEFERRED = ('jobs', 'workers'). A worker's `deployment` carries a digest-sealed input manifest naming an Authority and a Work, so it CANNOT be written for an instance that does not exist yet. image_digest is bound HERE, not in the instance document.",
+      "worker_members": [
+        "worker_id",
+        "role",
+        "participant",
+        "deployment"
+      ]
+    }
+  },
+  "fixture_image_rule": {
+    "rule": "the accepted digests are what a production selection would use; the fixture digest is what a lifecycle was actually exercised with, and evidence must name both and never substitute one for the other. No live provider coverage may be claimed from a fixture run.",
+    "the_difference": "the accepted provider image's entrypoint injects the REAL adapter (dogfood_entry.py -> ClaudeAgent). A deterministic fake provider uses the reference recipe's scripted_agent.py seam, so an instance exercise that runs it runs an image that is NOT the accepted one.",
+    "why": "owner seq198635 requires a DETERMINISTIC FAKE PROVIDER for the disposable-instance exercise, and requires fixture differences labelled explicitly"
+  },
+  "installed_manager": {
+    "identity": {
+      "build_stamp": {
+        "changed_entries": 25,
+        "commit": "e486652c4ddebfb696e030b4b867e914248db542",
+        "detail": null,
+        "dirty": true,
+        "excused_build_output": 0,
+        "schema": "baton.v12.build-stamp/1",
+        "source": "/home/sl/src/baton"
+      },
+      "command": "baton-v12-stack",
+      "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+      "frozen": true,
+      "machine": "x86_64",
+      "native_rpds": "/home/sl/src/baton/v12/python/build/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+      "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+      "python": "3.13.7",
+      "resources": "/home/sl/src/baton/v12/python/build/out/distro/_internal",
+      "schema_assets": {
+        "agent-session-1.0": 48212,
+        "worker-control-1.0": 51419
+      },
+      "sha256": "04d69e37a6e99621b5e7342aa6d6dfbdd7dcae0624301f827abf258c66c89e6c",
+      "version": "12.0.0"
+    },
+    "launcher": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "launcher_sha256": "04d69e37a6e99621b5e7342aa6d6dfbdd7dcae0624301f827abf258c66c89e6c",
+    "provenance_caveat": {
+      "built_from_a_dirty_tree": true,
+      "changed_entries": 25,
+      "inference": "W194457's shared-workspace-identity candidate -- awaiting its own independent review -- has file modification times EARLIER than this build, so the bundle very likely embeds those unreviewed manager bytes",
+      "not_proved": "a byte search of the launcher and base_library.zip for declared_identity_mapping and SUPPORTED_IDENTITY_MAPPING found nothing AND NEITHER DID THE CONTROL (establish_line_access, _provision_line_access), because module bytes live compiled inside the PYZ. The method cannot answer the question; it is recorded so nobody repeats it.",
+      "unaffected": "W197661's accepted product correction lives in v12/worker/baton_worker.py, which travels in the IMAGES and not in this bundle"
+    }
+  },
+  "reproduce": [
+    "cd v12 && just setup                      # ONE TIME: the build environment",
+    "cd v12 && just build                      # ONE TIME: the one-folder runtime",
+    "cd v12 && just bootstrap <INPUTS> <DESTINATION> <DISTRO>",
+    "<DESTINATION>/distro/baton-v12-stack identity   # bind what was installed",
+    "then the capacity selection above, per worker, naming the accepted image"
+  ],
+  "required_directories": {
+    "derived_by": "tools.bootstrap.layout(destination), not typed here",
+    "for_destination": "<DESTINATION>",
+    "installed_beside_them": [
+      "<DESTINATION>/distro (the copied runtime)",
+      "<DESTINATION>/instance.json",
+      "<DESTINATION>/justfile"
+    ],
+    "layout": {
+      "authority_store": "<DESTINATION>/db/authority.sqlite3",
+      "configuration": "<DESTINATION>/deployment.json",
+      "control_store": "<DESTINATION>/db/control.sqlite3",
+      "deployment_state": "<DESTINATION>/deployment-state",
+      "identity": "<DESTINATION>/authority-identity.json",
+      "integration_store": "<DESTINATION>/db/integration.sqlite3",
+      "job_store": "<DESTINATION>/db/jobs.sqlite3",
+      "record": "<DESTINATION>/bootstrap.json",
+      "state_root": "<DESTINATION>"
+    }
+  },
+  "schema": "baton.w197661.deployment-packet/1",
+  "selects_nothing": "this packet BINDS what a deployment would use. It selects no digest, installs nothing, starts nothing and submits no Job. Selection is an owner act.",
+  "work": "2b077949-W197661"
+}

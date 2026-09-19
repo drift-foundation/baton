@@ -1,0 +1,114 @@
+{
+  "F2_resolved_as_to_mechanism": {
+    "NOT_ESTABLISHED": "whether a deployment with NEW work reaches that guard through any particular caller. driver.py:1111-1115 is read; its callers are not all traced.",
+    "WITHDRAWN": "that a resumed deployment would defer, AS TO COMPLETED WORK. run4 was restarted at generation 10 with pin 9 during claim201770 and all three stages reported completed with one episode each; reading a completed stage does not reach _accepted_receipts.",
+    "corroborated_in_product_source": "tools/stage_execution.py:3103 already states that _accepted_receipts 'checks the deployment pin against the Authority's CURRENT generation before it issues anything, so issuing at reconciliation time -- after the first Job's integration bumped that generation -- can only ever refuse'. The design routes around it: _source_receipts issues each Job's three while its pin is current, and the later branch proves them historically.",
+    "no_product_change_proposed": true,
+    "reproduced": {
+      "cases": 9,
+      "file": "v12/python/tests/manager/test_integration_generation.py",
+      "matches_the_reviewers_independent_numbers": true,
+      "measured": "generation 7 -> 8, receipt decision.policy_generation 7, canonical target advanced to the proposal's candidate",
+      "no_raw_store_access": true
+    },
+    "revalidated_against_the_tree": "authority/core.py integrate takes its decision through _require_capability, THEN calls set_policy(canonical_target, candidate_digest); set_policy unconditionally calls _bump_policy_generation; the receipt carries the earlier decision",
+    "verdict": "the advance is BY DESIGN; my original framing was wrong"
+  },
+  "F5_supersession": "appended as a note identifying the stale not-added / interim paragraphs as historical, rather than rewriting old history again",
+  "answers_review": "review-2026-09-18T09-13-34Z.md (claim202028)",
+  "claim": "202052",
+  "digests": {
+    "instance-201492/verification-202052-accepted.json": "4ada1bf18188d1e50ffcbba4394164170d796de1798cd5f290be4f83c962b216",
+    "instance-201492/verify_lifecycle.py": "50b4d65a16f51604b3d9f17422b97696e38922bbd07e8bc184b21c1d9260a215",
+    "v12/python/tests/manager/test_integration_generation.py": "b6a5d1c2a2a5b570e60cc298a6c1ee7b5468c88f1367b9d4895a00b436eed83d",
+    "v12/python/tests/manager/test_w197661_verifier.py": "57c2007a9f945450b28386c271f580b4daa743b20024679d3ac47d00ec37e3fd"
+  },
+  "headline": "The retained run4 lifecycle is ACCEPTED for the first time: 82 checks, no required failure. Two readiness facts are reported separately and stay visible. No new lifecycle.",
+  "ownership": {
+    "decision": "the new suite was placed under tests/manager and IMPORTS the Authority fixture, rather than editing a catalog this Work does not own. The Authority gate is back at its baseline 3 pre-existing failures.",
+    "registry_found": "tests/authority/test_catalog.py test_the_suite_is_one_gate_and_not_a_pile_of_files enumerates the Authority suite's files by name"
+  },
+  "preserved": [
+    "retained run4",
+    "F3/F4 as bounded observations",
+    "the post-build seal limitation, now classified",
+    "instance-200564 and every earlier episode"
+  ],
+  "provenance_classified_without_rewriting_the_seal": {
+    "EXPECTED.json": "untouched; main still refuses to reseal",
+    "image_identity": {
+      "by": "build/fixture.iid, written by the build at 08:00:40Z against a seal written at 08:08:41Z, so it is not the seal read back to itself",
+      "check": "REQUIRED",
+      "corroborated": true
+    },
+    "image_inputs": {
+      "check": "READINESS -- a fact about how well the build is attested, not about whether the run completed",
+      "corroborated": false,
+      "why_not": "the build log names the COPY lines but records no content digest per input, so the sealed manifest was measured at seal time"
+    },
+    "recipe_digests": {
+      "is_attestation": false,
+      "what_it_is": "attribution of W198667's reviewed bytes"
+    }
+  },
+  "schema": "baton.w197661.evidence/1",
+  "the_classification": {
+    "acceptance_is_NOT_inferred_from_the_advance": "a second readiness check records that current == configured + 1 and carries its own note that this is not acceptance; a case proves bending the owned chain still fails while the pin is mismatched",
+    "readiness": "could this deployment authorize a NEW action right now -- recorded, reported, never a verdict on the past",
+    "required": "did this run's integration COMPLETE, provably, on evidence this episode owns",
+    "the_pin_check": {
+      "moved_to": "readiness",
+      "removed": false,
+      "softened": false,
+      "still_reported": [
+        "configured_pin",
+        "authority_generation",
+        "the_mechanism",
+        "corroborated_in_product_source",
+        "not_established_here"
+      ],
+      "why": "it was an unconditional gate on historical completion, and the mechanism above means every success fails it"
+    },
+    "what_remains_REQUIRED": [
+      "the owned terminal, proposal, result, target and receipt bindings",
+      "the receipt's acceptance-time policy generation",
+      "the sealed image's build-time corroboration"
+    ]
+  },
+  "verification_result": {
+    "accepted": true,
+    "checks": 82,
+    "failed": [],
+    "file": "instance-201492/verification-202052-accepted.json",
+    "read_through": "the accepted read-only owner, on the RETAINED run4",
+    "readiness_failed": [
+      "the deployment could authorize a NEW action",
+      "the sealed image INPUTS are independently attested"
+    ],
+    "ready": false
+  },
+  "verification_spending_cumulative": {
+    "broad_suite": {
+      "attribution": "the total rose by my 24 new cases and the failure and error counts did not move. Evidence my changes added none; NOT proof the rest are pre-existing.",
+      "authority_gate": "388 tests, 3 failures with my file present and 3 without it -- measured both ways after the move",
+      "claim201954": "4202 tests, 109 failures / 7 errors",
+      "claim202052": "4226 tests, 109 failures / 7 errors"
+    },
+    "flags": "-W error::ResourceWarning",
+    "new": {
+      "tests/manager/test_integration_generation.py": "9 cases, OK"
+    },
+    "new_lifecycle_runs_this_turn": 0,
+    "owned_suites": {
+      "tests/job_manager": "879 tests, OK",
+      "tests/job_manager/test_store.py": "47 cases, OK, unchanged",
+      "tests/job_manager/test_store_readonly.py": "30 cases, OK",
+      "tests/manager/test_attempt_logs.py": "213 cases, OK",
+      "tests/manager/test_fixture_dispatch.py": "15 cases, OK",
+      "tests/manager/test_importing_fixture.py": "32 cases, OK",
+      "tests/manager/test_w197661_verifier.py": "119 -> 134 cases, OK"
+    },
+    "reversal_probe": "making `readiness` required again fails 12 cases, including the positive shape and every case that distinguishes the two verdicts"
+  },
+  "work": "W197661"
+}

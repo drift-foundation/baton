@@ -1,0 +1,13 @@
+{
+  "claim": 199281,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/intake.py": "37ff14ffcad49e0eb744949fb3b0b4ef98103c94dd6c0459398492efae1fadb2",
+    "v12/python/tests/manager/test_intake.py": "bf2b9a0b340bf6c62eb750cb9e6ebd5bb38e2eeb80466754fba90fb3e837369a",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-199021/verify_lifecycle.py": "ec165a9d693300f9f44806b615dc6afc5fc395b54da5d6b940c2a7cd6718f307"
+  },
+  "tests": {
+    "returncode": 0,
+    "output": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.209s\n\nOK\n",
+    "seconds": 0.3722017770051025
+  }
+}

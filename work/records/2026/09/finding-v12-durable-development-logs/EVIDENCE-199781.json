@@ -1,0 +1,81 @@
+{
+  "R1_the_drain_discarded_the_offsets": {
+    "cases": 5,
+    "correction": "the caller's own map is mutated in place -- a caller that must remember something across calls is given the thing to remember, not a copy of it",
+    "failures_now_accumulate": "they were per-call, so an intermediate retention failure followed by a clean final tick vanished from the declared outcome. They live in the same map the offsets do and survive the turn.",
+    "probe_rerun": "3 bytes, not 51",
+    "root_acquisition_confined": "os.open(a/b/c, O_NOFOLLOW) holds only `c`. The earlier cut opened the composite scratch/home/.claude path, so the claim that every component is held no-follow was not true of root acquisition. `_descended` walks them one at a time, and a case plants a symlink at the root's own ancestor.",
+    "skipped_failures_recorded": "every stat, open, position, read and write failure is noted once rather than silently continued",
+    "what": "_retain_native returned a NEW offset map and the drain discarded it, so every poll started at byte zero and appended the whole file again -- `abc` seventeen times in the reviewer's probe",
+    "why_my_tests_missed_it": "every helper-level case threaded the returned map BY HAND. Nothing exercised the wiring that ignored it, which is exactly the difference between a helper test and an actual-caller one."
+  },
+  "R2_follow_exited_early_and_mistook_absence_for_completion": {
+    "absence_is_waited_for": "following an ABSENT stream returned 0 at once, contradicting this command's own promise. Absence is exactly the state a follower started before its writer is in, and treating it as completion reports a run that never began as one that finished.",
+    "cases": 5,
+    "drained": "a completed ten-byte stream at --bound 3 printed `abc` and returned SUCCESS. `more_may_arrive` says the WRITER may append; it says nothing about whether the slices already retained have been emitted. The follower takes every byte that is here before it decides anything.",
+    "inaccessible_kept_apart": "a room this manager cannot read is a condition to report rather than one to sit on; absence, inaccessibility and completion are three different answers",
+    "multibyte": "a bounded read ending mid-sequence decoded with `replace`, so every character straddling a slice boundary was destroyed and the caller could not tell -- `bytes_read` counted the bytes handed over rather than the bytes that decoded. `_whole` holds back a trailing incomplete sequence and reports only what decoded, so the next slice resumes at the character boundary. At true end of file nothing is held back, because a truncated sequence there is the writer's and a follower that waited for it would never finish.",
+    "probe_rerun": "the completed stream at --bound 3 now prints abcdefghij"
+  },
+  "candidate": {
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "910544cdb87137b885623d7151fdfcc188f046a7473d4fa392363dba3a8aaa49",
+    "v12/python/tests/manager/test_attempt_logs.py": "8aacb4410a84dae8156db900392bb771dfca89c492714e287817be6b43692b93",
+    "v12/python/tests/tools/test_attempt_logs_command.py": "898ff1d63ede4459dcb4f75080573c424369c2bb712985374363646bc0585169",
+    "v12/python/tools/attempt_logs_command.py": "c360591014aeafc1f3fcd39253cba38de81e88d3e5691c842553faec694372f5",
+    "v12/worker/claude_agent.py": "da4a9ced42f6effd9f9e1d40e1f859a53ccd78b0fa9745642d84f11c78992fa6"
+  },
+  "claim": 199781,
+  "fixture_image": "sha256:543459d69e21458c05f5832b7ba57409a31b4b9925655047224addb2aae701f9",
+  "no": [
+    "live model",
+    "provider call",
+    "network",
+    "production action",
+    "version-control mutation",
+    "direct store access"
+  ],
+  "preserved": {
+    "W197661": "queued at baton.bug; none of its candidate files is touched",
+    "history": "no prior evidence file or review is rewritten",
+    "images": "no accepted image is rebuilt or re-attributed; this Work's own fixture is the only image built"
+  },
+  "schema": "baton.w198667.evidence/1",
+  "verification": {
+    "affected_set": {
+      "checks": 777,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 25.052,
+      "suites": [
+        "attempt_logs",
+        "attempt_logs_command",
+        "claude_agent",
+        "integration_worker",
+        "worker_entry",
+        "launch",
+        "oci",
+        "exchange"
+      ]
+    },
+    "container_smoke": {
+      "all_true": true,
+      "checks": 8,
+      "image": "sha256:543459d69e21458c05f5832b7ba57409a31b4b9925655047224addb2aae701f9"
+    },
+    "seconds_measured_this_claim": 180,
+    "test_attempt_logs": {
+      "checks": 101,
+      "was": 96
+    },
+    "test_attempt_logs_command": {
+      "checks": 18,
+      "was": 13
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    }
+  },
+  "work": "2b077949-W198667"
+}

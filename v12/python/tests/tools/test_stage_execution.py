@@ -24,7 +24,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 from baton_v12.authority import MAX_SAFE_INTEGER
-from baton_v12.contracts import ContractRefusal
+from baton_v12.contracts import ContractRefusal, job_input_identity
 from baton_v12.integration import driver
 from baton_v12.job_manager import review_driver
 
@@ -1313,7 +1313,9 @@ class TheIntegrationStageConsumesTheAcceptedPort(StageCase):
             "task_digest": "sha256:" + hashlib.sha256(payload).hexdigest(),
             "argv": _json.loads(payload)["verification"],
             "input_manifest_digest":
-                given["input_manifest"]["manifest_digest"]})
+                given["input_manifest"]["manifest_digest"],
+            "job_input_identity":
+                job_input_identity(given["input_manifest"])})
         # AND THE ACCEPTED DRIVER'S OWN READER ADMITS IT.
         self.assertEqual(driver._owned_requirements(derived), derived)
 
@@ -1369,8 +1371,8 @@ class TheIntegrationStageConsumesTheAcceptedPort(StageCase):
         # THE OPERAND THAT WAS MISSING ENTIRELY travels now.
         self.assertIn("required_tests", seen["admit"])
         self.assertEqual(sorted(seen["admit"]["required_tests"]),
-                         ["argv", "input_manifest_digest", "task_digest",
-                          "task_id"])
+                         ["argv", "input_manifest_digest",
+                          "job_input_identity", "task_digest", "task_id"])
 
     def test_a_later_tick_refreshes_before_it_continues(self):
         """Owner ruling M115946: refresh FIRST, then the port's own marker."""
@@ -1783,7 +1785,7 @@ class TheServingPathReachesTheAcceptedDrivers(ServingCase):
                  "profile_name": worker.given["profile_name"],
                  "profile_digest": worker.given["profile_digest"]}
         job = {"input_digest":
-               worker.given["input_manifest"]["manifest_digest"],
+               job_input_identity(worker.given["input_manifest"]),
                "policy_digest": worker.given["policy_digest"]}
         # No refusal: the stage matches the worker composed for it.
         self.assertIsNone(worker._matches(stage, job))
@@ -1912,7 +1914,7 @@ class TheFactorysOwnOperandsReachTheIntegrationStage(ServingCase):
         derived = integration.required_tests()
         # The Job this deployment's producer really ran passes.
         self.assertIsNone(integration._correspondent(
-            {"input_digest": derived["input_manifest_digest"]}, derived))
+            {"input_digest": derived["job_input_identity"]}, derived))
         with self.assertRaises(ContractRefusal) as caught:
             integration._correspondent({"input_digest": "sha256:" + "f" * 64},
                                        derived)
@@ -2519,7 +2521,7 @@ class ComposedOneJobCase(ServingCase):
         self.config["input_manifest"] = manifest
         self.manifest = manifest
         self.submission = fixtures.submission(jobs=[fixtures.job(
-            "job-a", input_digest=manifest["manifest_digest"],
+            "job-a", input_digest=job_input_identity(manifest),
             policy_digest=fixtures.POLICY_DIGEST,
             stages=[
                 fixtures.stage("implementation", self.work),
@@ -4414,7 +4416,7 @@ import json
 import sys
 from unittest.mock import patch
 from baton_v12.authority import Authority
-from baton_v12.contracts import ContractRefusal
+from baton_v12.contracts import ContractRefusal, job_input_identity
 from baton_v12.integration import IntegrationStore
 from baton_v12.job_manager import JobStore, status
 from baton_v12.worker_manager import ControlStore
@@ -5350,7 +5352,7 @@ class TwoIndependentlyBoundWorkersShareOneSweep(SingleWorkerCase):
         from tests.job_manager import fixtures
 
         return fixtures.job(
-            job_id, input_digest=given["input_manifest"]["manifest_digest"],
+            job_id, input_digest=job_input_identity(given["input_manifest"]),
             policy_digest=fixtures.POLICY_DIGEST,
             stages=[fixtures.stage(work_id=work_id,
                                    profile_name=profile_name,
@@ -6051,8 +6053,8 @@ class EachJobBindsItsOwnDeploymentAndLine(ComposedOneJobCase):
         from tests.job_manager import fixtures
 
         given = {"job_id": "job-b",
-                 "input_digest": self.manifest_for(SECOND_WORK)[
-                     "manifest_digest"],
+                 "input_digest": job_input_identity(
+                     self.manifest_for(SECOND_WORK)),
                  "policy_digest": fixtures.POLICY_DIGEST,
                  "stages": [
                      fixtures.stage("implementation", SECOND_WORK),
@@ -6343,7 +6345,7 @@ class EveryJobRoleIsValidatedBeforeAllocation(EachJobBindsItsOwnDeploymentAndLin
         from tests.job_manager import fixtures
 
         given = {"input_digest":
-                 self.manifest_for(work_id)["manifest_digest"],
+                 job_input_identity(self.manifest_for(work_id)),
                  "policy_digest": fixtures.POLICY_DIGEST,
                  "stages": [fixtures.stage(kind, work_id)]}
         given.update(members)
@@ -6775,6 +6777,261 @@ class _ConcurrentEngine:
         return {"status": status, "stdout": stdout, "stderr": stderr}
 
 
+class TheHeterogeneousPoolTraversesTheSameLifecycle(
+        TheComposedJobTraversesReviewAndAcceptance):
+    """W202663 — the SAME accepted lifecycle, with three different images.
+
+    REVIEW207096 IS WHY THIS EXISTS. `ThreeWorkersOneJobThreeImages` in
+    `test_single_worker` constructs its worker through `__new__` and calls
+    `_held`/`_matches`; that is configuration and preflight eligibility, and
+    the review is right that it is not launch, claim or execution. This class
+    INHERITS every case of the accepted one-Job lifecycle and re-runs all of
+    them over a pool whose three workers select three different immutable
+    images.
+
+    WHAT IT ACTUALLY DRIVES, said exactly, because review207195 found my first
+    description of it overstated and was right:
+
+      REAL -- the Job store and the control store, the scheduler's admission
+      and allocation, the offer, the claim, the attempt rows, the launch
+      document composition, the mount boundary, the endings and their route
+      changes, the review verdict's effect on the Work, and the integration
+      port's composition from this deployment;
+      NOT REAL -- the container. `ComposedOneJobCase.serving` uses the
+      simulated `Engine` from `test_single_worker`, and `turn` calls
+      `baton_worker.serve_exchange` IN THIS PROCESS with `ClaudeAgent` over a
+      fake provider. No image is pulled, started or executed, so this proves
+      nothing about the SELECTED artefacts running -- only about the
+      coordination and workload code around them.
+
+    SO THE THREE IMAGE DIGESTS HERE ARE IDENTITIES THE DEPLOYMENT CARRIES AND
+    THE MANAGER RECORDS, not three artefacts that ran. That is the right
+    boundary for what this proves -- the correction is about which identity a
+    Job compares -- and it is emphatically not completed heterogeneous
+    integration. `test_the_integration_stage_advances_through_that_port`,
+    inherited above, asserts a port was reached; another inherited case expects
+    a deferred capability because `integration_instructions` is absent. Full
+    terminal heterogeneous integration stays OPEN and is named as such in PLAN.
+    """
+
+    # THREE IMAGES, one per role. Distinct by construction, and each worker's
+    # own manifest names its own, so `single_worker:267` binds each worker to
+    # the image its manifest declares exactly as it always did.
+    IMAGES = {"implementation": "sha256:" + "1" * 64,
+              "review": "sha256:" + "2" * 64,
+              "integration": "sha256:" + "3" * 64}
+
+    # THE OTHER WORKER-RUNTIME MEMBERS, varied so these are INDEPENDENTLY
+    # COMPOSED manifests rather than clones with one member moved -- which is
+    # the distinction review206898 [R2] drew and this class has to keep.
+    #
+    # `runtime_profile_digest` is deliberately NOT varied here: `_held`
+    # requires it to equal the worker's `profile_digest` and `_matches`
+    # requires that to equal the STAGE's, so varying it needs per-stage profile
+    # rows in the submission, which is a wider fixture change than this proof
+    # needs. That member's independence is fixed by
+    # `test_manifest_rules.TheJobInputIdentityIsAClassification`, which varies
+    # it directly.
+    # EVERY CHARACTER IS HEX. A first draft reached past 'f' for distinct
+    # values and the frozen schema refused the digest's PATTERN before any of
+    # this could run.
+    VARIED = {"implementation": ("4", "7", "a", "01"),
+              "review": ("5", "8", "b", "02"),
+              "integration": ("6", "9", "c", "03")}
+
+    def worker(self, role, **members):
+        """One role's worker, on its OWN image and its OWN runtime manifest."""
+        import copy
+
+        from baton_v12.contracts import digest
+
+        held = super().worker(role, **members)
+        deployment = held["deployment"]
+        manifest = copy.deepcopy(deployment["input_manifest"])
+        toolchain, credential, instructions, month = self.VARIED[role]
+        manifest.update(
+            manifest_id=f"input-{role}-attempt",
+            created_at=f"2031-{month}-01T00:00:00.000Z",
+            worker_image_digest=self.IMAGES[role],
+            toolchain_digest="sha256:" + toolchain * 64,
+            credential_policy_digest="sha256:" + credential * 64,
+            role_instructions_digest="sha256:" + instructions * 64)
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        deployment["input_manifest"] = manifest
+        deployment["image_digest"] = self.IMAGES[role]
+        return held
+
+    def test_the_three_workers_really_are_on_three_images(self):
+        """The control. Every case inherited above would still pass over a
+        homogeneous pool if this override silently stopped working, so the
+        heterogeneity itself is asserted rather than assumed."""
+        given = self.composed_document()
+        images = {one["role"]: one["deployment"]["image_digest"]
+                  for one in given["workers"]}
+        runtimes = {one["role"]:
+                    one["deployment"]["input_manifest"]["manifest_digest"]
+                    for one in given["workers"]}
+        self.assertEqual(len(set(images.values())), 3, images)
+        self.assertEqual(len(set(runtimes.values())), 3, runtimes)
+        self.assertEqual(images, dict(self.IMAGES))
+
+    def test_every_worker_produces_the_one_job_input_identity(self):
+        """Three runtime manifests, one Job. This is what the whole correction
+        is for, asserted against the Job the fixture actually submitted."""
+        given = self.composed_document()
+        submitted = self.submission["jobs"][0]["input_digest"]
+        for one in given["workers"]:
+            with self.subTest(role=one["role"]):
+                self.assertEqual(
+                    job_input_identity(one["deployment"]["input_manifest"]),
+                    submitted)
+
+    def test_each_attempt_keeps_its_own_runtime_manifest_and_image(self):
+        """RUNTIME ATTRIBUTION SURVIVES, which is what owner206702 requires
+        preserved. The implementation and review stages really ran here, so
+        the attempt rows are the manager's own record of which image answered
+        -- not a fixture's restatement of what it configured."""
+        from baton_v12.worker_manager import attempts as attempt_reads
+
+        def attempt_of(store, attempt_id):
+            """The manager's own durable attempt row.
+
+            Read through the module's private reader rather than restated by
+            this fixture: what these cases are about is what the MANAGER
+            recorded, and a row this suite hand-assembled would be testing
+            itself.
+            """
+            row = attempt_reads._attempt_row(store, attempt_id)
+            self.assertIsNotNone(row, attempt_id)
+            return row
+
+        held = self.reviewed()
+        for role in ("implementation", "review"):
+            with self.subTest(role=role):
+                attempt = self.only_attempt(held.composed, role)
+                row = attempt_of(held.control, attempt)
+                given = self.worker_of(held.composed, role).given
+                self.assertEqual(row["image_digest"], self.IMAGES[role])
+                self.assertEqual(
+                    row["input_digest"],
+                    given["input_manifest"]["manifest_digest"])
+                self.assertEqual(row["toolchain_digest"],
+                                 given["input_manifest"]["toolchain_digest"])
+        # AND THE TWO ROLES DID NOT RECORD THE SAME RUNTIME.
+        rows = [attempt_of(held.control, self.only_attempt(held.composed, one))
+                for one in ("implementation", "review")]
+        self.assertNotEqual(rows[0]["image_digest"], rows[1]["image_digest"])
+        self.assertNotEqual(rows[0]["input_digest"], rows[1]["input_digest"])
+
+    def test_a_worker_whose_image_is_not_its_manifests_refuses_composition(self):
+        """The own-image rule at the boundary that composes a real deployment,
+        rather than at a preflight helper: `operations_from` refuses before any
+        stage is served."""
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+
+        job, control = self.stores("heterogeneous-refusal")
+        spoiled = self.composed_document()
+        for one in spoiled["workers"]:
+            if one["role"] == "review":
+                one["deployment"]["image_digest"] = "sha256:" + "f" * 64
+        with self.assertRaises(ContractRefusal) as caught:
+            stage_execution.operations_from(
+                spoiled, job, control, engine_run=Engine(),
+                credential_provider=lambda provider, reference: self.secret,
+                clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.assertIn("names another worker image", caught.exception.message)
+
+    # THE THREE ACCEPTED READERS, borrowed rather than reimplemented.
+    #
+    # `EveryJobRoleIsValidatedBeforeAllocation` owns these and this class does
+    # not descend from it -- it descends from the one-Job lifecycle case. They
+    # are bound here from that class rather than copied so that a correction to
+    # either reader reaches both, which is the whole reason they are public
+    # readers instead of table scans.
+    attempted = EveryJobRoleIsValidatedBeforeAllocation.attempted
+    admitting = EveryJobRoleIsValidatedBeforeAllocation.admitting
+    allocated = EveryJobRoleIsValidatedBeforeAllocation.allocated
+    receipted = EveryJobRoleIsValidatedBeforeAllocation.receipted
+
+    def moved_shared_member(self):
+        """This deployment with the implementation worker's manifest moved on
+        ONE shared member, resealed.
+
+        The record binding, not the Work: `_matches` compares the stage's own
+        `work_id` against the manifest first, so a moved Work refuses one rule
+        earlier and would make the case below pass for the wrong reason.
+        """
+        from baton_v12.contracts import digest
+
+        moved = self.composed_document()
+        for one in moved["workers"]:
+            if one["role"] != "implementation":
+                continue
+            manifest = one["deployment"]["input_manifest"]
+            binding = dict(manifest["record_binding"],
+                           path=manifest["record_binding"]["path"]
+                           + "/elsewhere")
+            manifest = dict(manifest, record_binding=binding)
+            manifest.pop("manifest_digest")
+            manifest["manifest_digest"] = digest(manifest)
+            one["deployment"]["input_manifest"] = manifest
+        return moved
+
+    def test_a_worker_that_moved_a_shared_member_cannot_serve_the_job(self):
+        """THE JOB HALF, AT REAL ADMISSION, WITH NO ALLOCATION AND NO EFFECT.
+
+        Review207195 [R1]: my first version of this changed a document and
+        asserted only that `job_input_identity` differed. That is arithmetic
+        about a projection, not the exclusion it advertised -- it never handed
+        the moved configuration to anything that admits. This one submits it
+        through the module's own public admission and asserts what the
+        deployment actually did: refused, reserved nothing, and wrote no
+        receipt.
+        """
+        from baton_v12.job_manager import submit as submit_jobs
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+
+        job, control = self.stores("moved-shared-member")
+        composed = stage_execution.operations_from(
+            self.moved_shared_member(), job, control, engine_run=Engine(),
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        submit_jobs(job, self.submission)
+        stage_id = "job-a/implementation"
+        refusal = self.admitting(job, composed, stage_id)
+        self.assertIsNotNone(refusal, "a moved shared member was admitted")
+        self.assertIn("the submitted input", refusal.message)
+        # NO CAPACITY WAS HELD AND NOTHING WAS RECORDED. A refusal that had
+        # already reserved a worker would hold that worker's capacity for a
+        # stage nobody can serve, which is the failure this whole rule exists
+        # to keep on the assembly side.
+        self.assertIsNone(self.allocated(job, stage_id))
+        self.assertIsNone(self.receipted(job, composed, stage_id))
+
+    def test_the_same_pool_with_that_member_intact_is_admitted(self):
+        """The control, so the refusal above is about the moved member and not
+        about anything else this composition happens to do."""
+        from baton_v12.job_manager import submit as submit_jobs
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+
+        job, control = self.stores("intact-shared-member")
+        composed = stage_execution.operations_from(
+            self.composed_document(), job, control, engine_run=Engine(),
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        submit_jobs(job, self.submission)
+        stage_id = "job-a/implementation"
+        self.assertIsNone(self.admitting(job, composed, stage_id))
+        self.assertEqual(self.allocated(job, stage_id),
+                         "implementation-worker")
+
+
 class TwoBoundJobsTraverseServingAndCorrection(
         EveryJobRoleIsValidatedBeforeAllocation):
     """W130224: two bound Jobs through the ACTUAL serving path, on ticks.
@@ -6951,8 +7208,8 @@ class TwoBoundJobsTraverseServingAndCorrection(
             copy.deepcopy(self.submission["jobs"][0]),
             fixtures.job(
                 "job-b",
-                input_digest=self.manifest_over(
-                    SECOND_WORK, self.shared_task_bytes)["manifest_digest"],
+                input_digest=job_input_identity(self.manifest_over(
+                    SECOND_WORK, self.shared_task_bytes)),
                 policy_digest=fixtures.POLICY_DIGEST,
                 stages=[
                     fixtures.stage("implementation", SECOND_WORK),

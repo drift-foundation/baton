@@ -890,5 +890,128 @@ class ACorrectionRoundDoesNotStrandTheEndingItReplaced(EndingCase):
         self.assertEqual(len(self.concluded()), 1)
 
 
+class ATYPEDCheckpointRefusalDoesNotEndTheLOOPHereEither(EndingCase):
+    """W197661 review 2026-09-18T05-14-53Z [R2], and the defect was mine.
+
+    The live path learned in claim200254 that a checkpoint profile refuses in
+    its OWN type -- `source_profiles.checkout.ProfileRefusal` is an
+    `Exception` and not a `ContractRefusal` -- and this path did not. So a
+    `ProfileRefusal` raised by a RESUMED `conclude` escaped `_recover_endings`,
+    escaped the sweep and ended `serve`: the exact failure the live-path fix
+    was written for, still reachable through the restart path it is most
+    likely to be met on. The reviewer's probe drove the real function and
+    recorded zero deferral calls.
+
+    A CONTAINMENT BOUNDARY THAT HOLDS FOR ONE CALLER OF AN ACT AND NOT THE
+    OTHER IS NOT A BOUNDARY, so these cases drive the REAL sweep over a real
+    prior-episode obligation rather than calling the pass with doubles.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.acts.endings[STAGE] = {"disposition": "completed"}
+
+    def corrected(self):
+        """The old episode ended and its successor opened, as a round does."""
+        from baton_v12.job_manager import live_of
+
+        ended = end_episode(self.jobs, live_of(self.jobs, STAGE),
+                            "superseded-by-correction", 1)
+        return open_next(self.jobs, STAGE, ended)
+
+    def refusal(self):
+        from baton_v12.source_profiles.checkout import ProfileRefusal
+
+        return ProfileRefusal("a checkpoint freezes a clean committed "
+                              "candidate; the private line still has tracked "
+                              "or untracked worktree changes")
+
+    def stranded(self, raising=None):
+        """One obligation left by a prior episode, and a live successor."""
+        registered = self.register()
+        self.corrected()
+        if raising is not None:
+            self.acts.endings[STAGE] = raising
+        return registered
+
+    def deferred(self, episode=1):
+        """The durable deferral for one episode, through the public reader."""
+        from baton_v12.job_manager.projection import deferral_of
+
+        return [one for one in (deferral_of(self.jobs, STAGE) or [])
+                if one["episode"] == episode]
+
+    def test_the_RESUMED_conclude_SURVIVES_it(self):
+        self.stranded(raising=self.refusal())
+        report = sweep(self.jobs, self.acts, now=SOON)
+        self.assertEqual(self.spoken(report),
+                         [(STAGE, 1, "conclude", "deferred")])
+
+    def test_it_is_attributed_to_the_PRIOR_episode_and_its_attempt(self):
+        """The whole reason this pass exists: the obligation outlives the
+        attempt that owed it, so a reason attributed to the LIVE episode would
+        describe a different attempt."""
+        registered = self.stranded(raising=self.refusal())
+        report = sweep(self.jobs, self.acts, now=SOON)
+        spoken = [one for one in report["spoken"]
+                  if one["act"] == "conclude"][0]
+        self.assertEqual(spoken["episode"], 1)
+        self.assertEqual(spoken["attempt_id"], registered["attempt_id"])
+        self.assertNotEqual(registered["attempt_id"],
+                            self.attempting(self.jobs)["attempt_id"])
+
+    def test_the_REASON_is_DURABLE_and_names_the_type(self):
+        """An operator meets this in the projection, not in a traceback the
+        serving loop took with it on the way out."""
+        registered = self.stranded(raising=self.refusal())
+        sweep(self.jobs, self.acts, now=SOON)
+        held = self.deferred()
+        self.assertTrue(held, self.projected(STAGE))
+        self.assertEqual(held[0]["act"], "conclude")
+        self.assertEqual(held[0]["attempt_id"], registered["attempt_id"])
+        self.assertIn("ProfileRefusal", held[0]["message"])
+        self.assertIn("clean committed candidate", held[0]["message"])
+
+    def test_it_is_ASKED_AGAIN_and_CLEARS_once_the_line_is_clean(self):
+        """Level-triggered here too: the refusal is a condition, so the
+        obligation stays registered and the next tick asks again."""
+        registered = self.stranded(raising=self.refusal())
+        sweep(self.jobs, self.acts, now=SOON)
+        self.assertEqual(ending.pending_endings(self.jobs), [registered])
+        self.acts.endings[STAGE] = {"disposition": "completed"}
+        report = sweep(self.jobs, self.acts, now=LATER)
+        self.assertEqual(self.spoken(report),
+                         [(STAGE, 1, "conclude", "performed")])
+        ending.settle_ending(self.jobs,
+                             ending.attempt_of(self.jobs, registered),
+                             assignment=assignment(), evidence=evidence())
+        self.assertEqual(ending.pending_endings(self.jobs), [])
+
+    def test_an_ORDINARY_refusal_keeps_its_own_category_and_code(self):
+        """Only the foreign type is translated. A `ContractRefusal` already
+        says what it is, and rewriting it would lose the reason."""
+        self.stranded(raising=ContractRefusal(
+            "refused", "capability", "this deployment has no such capability"))
+        sweep(self.jobs, self.acts, now=SOON)
+        held = self.deferred()[0]
+        self.assertEqual(held["category"], "refused")
+        self.assertEqual(held["code"], "capability")
+        self.assertNotIn("ContractRefusal", held["message"])
+
+    def test_a_PROGRAMMING_ERROR_still_escapes(self):
+        """Not a catch-all. There is no record proving a programming error was
+        contained, and burying one as a transient per-stage condition is how it
+        never gets fixed."""
+        self.stranded(raising=TypeError("this is a defect, not a condition"))
+        with self.assertRaises(TypeError):
+            sweep(self.jobs, self.acts, now=SOON)
+
+    def test_the_obligation_SURVIVES_the_programming_error(self):
+        """What escapes must not also destroy the record the next incarnation
+        needs to ask again."""
+        registered = self.stranded(raising=TypeError("a defect"))
+        with self.assertRaises(TypeError):
+            sweep(self.jobs, self.acts, now=SOON)
+        self.assertEqual(ending.pending_endings(self.jobs), [registered])
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,78 @@
+{
+  "work": "W197661",
+  "claim": 201324,
+  "author": "baton.claude",
+  "disposition": "RETURNED INCOMPLETE — the deterministic integrator is built and tested; selecting it is refused by a contract, and that blocker is reproduced exactly",
+  "answering": {
+    "review": "review-2026-09-18T07-16-17Z.md",
+    "sha256": "1893064c621a7c8c98a8d72556ffa72418f15cd4f7ea662ede106f765e535c93",
+    "review_evidence": "REVIEW-EVIDENCE-201261.json",
+    "review_evidence_sha256": "c46e870d101a7408cc748eb397cfd897aa1698d56a35376dffc232a99c2c4a15",
+    "accepted_by_that_review": "the bounded verifier corrections of claim201215; this claim adds no verifier change"
+  },
+  "candidate": {
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/worker/importing_agent.py": "9bf6e62a9e7d78ce97d7cbc8fc32d3091a9e74ce86c7a2656a24f3f8008b61e6",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/worker/importing_entry.py": "c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/Dockerfile.integration-fixture": "49f3c5f5c29dbcf8a1f80ba5f3892c8eedff1f2c4f3d2d76a8b17701f69ccc6e",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/compose_lifecycle.py": "86086ce7ee52a2d1e45a9ae589b4ede424d5c15028c3ef334b239e4d3a265496",
+    "v12/python/tests/manager/test_importing_fixture.py": "c8f797bbf8a3e7581670b47f11437ed392beeda4293a69bfd2ab521bcd045e9a"
+  },
+  "the_integrator": {
+    "what_it_does": "reads the ACCEPTED bundle through integration_contract and writes every scheduled row from the content-addressed blob that row declares, at the reviewed mode, through a staging entry replaced atomically, descending one no-follow component at a time; a delete row leaves absence; then it writes the contract's own baton.integration-report/1 document where the workload's prompt asked",
+    "seam": "importing_entry injects through integration_entry.main(agent=...), so the launch reader, bundle correlation, whole-path preflight, per-path read-back and conservative ending are all the accepted code's",
+    "labelled": "a DETERMINISTIC STAND-IN for a model-driven provider turn; integration_workload's own docstring says the provider performs the import and that a host-side copier wearing the provider's name is a different capability. No model coverage is claimed.",
+    "image": "sha256:7ae92b9c6d6b83de44e071b96de2f7c0e8bf137b6d07025322cbca117f01dc39, built --pull=false --no-cache --network none on the same immutable base",
+    "tests": {"file": "v12/python/tests/manager/test_importing_fixture.py", "cases": 19,
+              "includes": ["the contract's own check_report accepting what the agent writes",
+                           "sorted and unique reported paths",
+                           "the reviewed mode surviving the umask",
+                           "nothing outside the scheduled table written",
+                           "no staging entry left behind",
+                           "a blob that is not its own address refused",
+                           "a turn that cannot complete ANSWERING rather than raising",
+                           "the entry injecting through the seam rather than copying a module"]}
+  },
+  "the_concrete_blocker": {
+    "what": "a deployment cannot hand a different image to only its integrator",
+    "where": "tools/single_worker.py:267-269",
+    "the_check": "manifest['worker_image_digest'] != given['image_digest'] refuses with 'the bootstrap input manifest names another worker image'",
+    "why_it_binds": "a Job names exactly ONE input manifest, and every worker deployment must match its worker image",
+    "reproduction": "compose_lifecycle with image_digest selected per role returns complete=false with that refusal from stage_execution.held_configuration, bootstrap.validated and held_configuration over the written files",
+    "same_shape_as": "claim199285's finding that three ROLE-SPECIFIC manifests produce three seals of which the Job can name exactly one; this is that constraint met from the other side",
+    "reverted": "the per-role selection is reverted and the composition is complete again; the image is retained as evidence rather than dropped"
+  },
+  "the_shape_that_fits": {
+    "design": "one fixture image carrying both agents, whose entry dispatches on a FACT OF THE DELIVERY rather than on a name -- integration_entry already chooses its managed-apply branch on the presence of the apply-request document, so a fixture entry can ask whether this container was given an integration assignment",
+    "why_it_is_not_the_recipe_warning": "that warning is about a silent default selected by a branch nobody reads; a dispatch on what the manager actually delivered is the opposite",
+    "why_it_needs_its_own_episode": "it changes the proposing image's context and therefore the sealed EXPECTED.json inputs, and EXPECTED.json refuses to reseal by design"
+  },
+  "what_was_kept_intact": {
+    "proposing_context": "I first put the integration files in context/, which overwrote attempt_log_format.py there and would have invalidated the proposing image's sealed COPY inputs; it is restored to the sealed bytes and context/ is byte-identical to what EXPECTED.json records",
+    "verifier": "still holds 35 of 38 checks with the same three failures; verification-201324.json retained beside the earlier four"
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.585},
+      {"suite": "test_importing_fixture + test_w197661_verifier + test_proposing_fixture + test_ending", "tests": 173, "result": "OK", "seconds": 0.609},
+      {"suite": "tests.tools.test_bootstrap", "tests": 125, "result": "OK", "seconds": 17.272},
+      {"suite": "W198667 shared tests.manager.test_attempt_logs", "tests": 204, "result": "OK", "seconds": 1.601},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "new_cases": 19,
+    "container": "one image build; NO container was started",
+    "measured_seconds_this_claim": 1100,
+    "prior_spending": "preserved in EVIDENCE-197743 through EVIDENCE-201215 and the reviewers' own evidence; approximately 700s reported for claim201215 is retained as the estimate it is, and no exact cumulative total is asserted"
+  },
+  "not_done": {
+    "1": "the one-image dispatch, in its own episode with its own sealed expectation",
+    "2": "the lifecycle run behind it, and the terminal reader against records a successful run produces",
+    "3": "the policy-generation product finding, still open and separate"
+  },
+  "ownership": {
+    "W198667_image_inputs": "attempt_log_format.py 2152f717... and baton_worker.py 56cdee82... are W198667's live candidate bytes, READ into this integration context rather than edited; claude_agent.py cb380fd9... travels because integration_entry imports it on the branch this fixture does not take",
+    "not_edited": "reviewer-owned reviews and evidence; prior EVIDENCE-*.json; instance-200254; every retained verification-*.json; W198667's paths, whose suite runs green against this tree"
+  },
+  "not_done_operationally": "no live model, provider call, container start, network (the build runs --network none), production action, bootstrap, submission, deployment mutation, version-control mutation or new permission gate; both destinations remain retained and stopped"
+}

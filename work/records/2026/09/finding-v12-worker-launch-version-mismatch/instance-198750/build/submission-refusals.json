@@ -1,0 +1,27 @@
+[
+  {
+    "label": "the shipped example, unchanged but for identities",
+    "returncode": 1,
+    "refusal": "baton_v12.contracts.errors.ContractRefusal: a Job's input digest is durable text; this is none"
+  },
+  {
+    "label": "with an input_digest",
+    "returncode": 1,
+    "refusal": "baton_v12.contracts.errors.ContractRefusal: a Job's policy digest is durable text; this is none"
+  },
+  {
+    "label": "with a policy_digest",
+    "returncode": 1,
+    "refusal": "baton_v12.contracts.errors.ContractRefusal: the Work implementation stage names is durable text; this is none"
+  },
+  {
+    "label": "with a work_id on every stage",
+    "returncode": 1,
+    "refusal": "baton_v12.contracts.errors.ContractRefusal: a requested profile name is durable text; this is none"
+  },
+  {
+    "label": "with a profile name and digest on every stage",
+    "returncode": 0,
+    "refusal": "{\n  \"submission_id\": \"w197661-disposable-198750\",\n  \"signature\": \"{\\\"kind\\\":\\\"submission.record\\\",\\\"operands\\\":{\\\"jobs\\\":[{\\\"input_digest\\\":\\\"sha256:13c419d3a2cecabdfb368daddadb4fe6054c9cff0e330bf4feb8cfc6dfa4071b\\\",\\\"job_id\\\":\\\"w197661-fixture-lifecycle\\\",\\\"policy_digest\\\":\\\"sha256:7ab4e55b1ff86f7d"
+  }
+]

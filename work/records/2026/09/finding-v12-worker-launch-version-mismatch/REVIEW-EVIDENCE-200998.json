@@ -1,0 +1,30 @@
+{
+  "claim": 200998,
+  "reviewer": "baton.rvpc",
+  "scope": "Synthetic reviewer probes only; no deployment, engine or store opened",
+  "focused_tests": {
+    "count": 31,
+    "outcome": "pass",
+    "wall_seconds": 0.022287096
+  },
+  "probe_seconds": 0.0010075030149891973,
+  "probe_process_wall_seconds": 0.026748169,
+  "results": {
+    "missing_all_provenance_accepted": true,
+    "missing_all_attempt_identities_accepted": true,
+    "pin_check_writable_open_calls": 1,
+    "pin_check_readonly_open_calls": 0,
+    "synthetic_main_exit": 0,
+    "existing_evidence_overwritten": true
+  },
+  "scratch": "/tmp/w197661-review200998-q1kl4h0j",
+  "sha256": {
+    "instance-200564/verify_lifecycle.py": "02fb9dbeb7788c315c7313f3f3036fcce2928571b8835b7b070e96cca510ee83",
+    "instance-200564/compose_lifecycle.py": "e86fa1ae2714c943b959f78e78c987d9fde77f02a5e970952267e82c06bc86e2",
+    "instance-200564/EXPECTED.json": "b4899bd54c91dd58f758fbaf5a6894241ee50e3402a2dd22bdce8232c3f59133",
+    "instance-200564/PROVENANCE-clean.json": "45a7f91c846e1b3e7eb4a4b4d82b8b234542a0b08da27c508955234ed1f64070",
+    "EVIDENCE-200930.json": "2f6bec94a026ee75fc11974b020a289c31a45a16727fed7efe6296ebf5144adb",
+    "review-probes-200998.py": "529ec0b079f8c188533eda57cab436bb0569d8cb131d9adce8bcdfa58834493e",
+    "v12/python/tests/manager/test_w197661_verifier.py": "9c0349e4f4e65de1ad3acfd69ff83495c6923a612f06b66801961dbb98f496b8"
+  }
+}

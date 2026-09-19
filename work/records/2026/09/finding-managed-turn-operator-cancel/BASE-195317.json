@@ -1,0 +1,40 @@
+[
+  {
+    "path": "tools/acp-baton-bridge/src/acp_agent_session.mjs",
+    "exists": true,
+    "sha256": "62f6b98efdc9716f2fe59b9e2ed4d3cdb92ed68369ff19c1b14efd534cb562e8",
+    "mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/src/acp_baton_bridge.mjs",
+    "exists": true,
+    "sha256": "874d740fe190d9f8eb681a885d41296d0bbc1b14057cdd8cdcbd923d9733a179",
+    "mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/src/operator_control.mjs",
+    "exists": false
+  },
+  {
+    "path": "tools/acp-baton-bridge/test/operator_control.test.mjs",
+    "exists": false
+  },
+  {
+    "path": "tools/acp-baton-bridge/test/fake_acp_agent.mjs",
+    "exists": true,
+    "sha256": "998ff7e432c865d283c1e0b2e038039f245d401ad9aad69b528fc818ee06b9ff",
+    "mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/package.json",
+    "exists": true,
+    "sha256": "2e3716a7fef5fe992e50105a099a0157e62ed6a285133649a09254b76667dbf5",
+    "mode": "0o664"
+  },
+  {
+    "path": "tools/acp-baton-bridge/README.md",
+    "exists": true,
+    "sha256": "2bfc2f580dce7ec7806ac15fc00e3ee9d4d3381ffe38bfe15d7fe23f82258921",
+    "mode": "0o664"
+  }
+]

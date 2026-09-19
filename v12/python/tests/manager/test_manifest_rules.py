@@ -920,3 +920,193 @@ class ACompletionManifestIsTheWorkersAnswer(unittest.TestCase):
                     check_manifest_structure(
                         self.resealed([first, spoiled]),
                         "completionManifest")
+
+
+class TheJobInputIdentityIsAClassification(unittest.TestCase):
+    """W202663 — the projection a JOB names, over the published vector.
+
+    THE RULE IT ESTABLISHES. A Job names one input identity and its workers may
+    each select their own immutable image, so the digest a Job names cannot be
+    the digest of any one worker's whole manifest. `job_input_identity` is that
+    projection, and these cases fix which members are in it.
+
+    EVERY CASE SPOILS EXACTLY ONE MEMBER of the conformance vector and reseals
+    it, because a probe whose document is refused before it reaches the rule
+    under test measures nothing -- the shape `TheCanonicalVectorIsTheBaseline`
+    above already carries.
+
+    WHY IT IS A CLASSIFICATION AND NOT A DIGEST TWEAK. Review206898 [R2]
+    measured the first version of this projection and found it still moved when
+    `manifest_id`, `created_at` or `role_instructions_digest` moved -- so three
+    manifests independently composed for three workers could never have agreed,
+    and only three CLONES of one document would have. The positive case below is
+    therefore built from INDEPENDENTLY COMPOSED manifests with their own ids,
+    timestamps, images, toolchains, profiles, credential policies and role
+    instructions, which is the thing that had to be proved and could not be by a
+    clone.
+    """
+
+    def vector(self):
+        published = json.loads(VECTORS.read_text(encoding="utf-8"))
+        for case in published["valid"]:
+            document = case["document"]
+            if document.get("schema") == "baton.worker-manifest/input":
+                return document
+        raise AssertionError("the published vectors carry no input manifest")
+
+    def resealed(self, **members):
+        document = dict(self.vector(), **members)
+        document.pop("manifest_digest", None)
+        document["manifest_digest"] = digest(document)
+        return document
+
+    def other(self, name):
+        """A different, well-formed value for one member of the vector.
+
+        DERIVED FROM THE HELD VALUE, never written per member, so a vector that
+        changes shape cannot leave a case comparing a string against a digest
+        and passing for the wrong reason. Each branch is checked to have
+        actually CHANGED something -- a first draft returned a fixed digest
+        that the vector already carried at `toolchain_digest`, so the case
+        "spoiled" the document into itself and asserted a difference that could
+        not exist.
+        """
+        held = self.vector()[name]
+        if type(held) is str and held.startswith("sha256:"):
+            changed = "sha256:" + ("4" * 64 if not held.endswith("4" * 64)
+                                   else "5" * 64)
+        elif name == "created_at":
+            changed = ("2031-01-02T03:04:05.678Z"
+                       if held != "2031-01-02T03:04:05.678Z"
+                       else "2032-01-02T03:04:05.678Z")
+        elif type(held) is str:
+            changed = held + "-other"
+        elif name == "work_ref":
+            # THE PREFIX RULE IS KEPT. A Work id must carry its authority's
+            # first eight characters, so the WORK moves and the reference stays
+            # well-formed -- otherwise the document refuses at `check_work_ref`
+            # and never reaches the projection.
+            changed = dict(held, work_id=held["authority_uuid"][:8] + "-W99")
+        elif name == "human_contract":
+            changed = dict(held, artifact_id=held["artifact_id"] + "-other")
+        elif name == "record_binding":
+            changed = dict(held, path=held["path"] + "/other")
+        elif name in ("sources", "outputs"):
+            # ONE ENTRY'S NAME, so the list keeps its bounded shape and its
+            # unique-name and non-overlapping-path rules. Removing an entry
+            # would refuse against `required`/`minItems` instead.
+            first = dict(held[0], name=held[0]["name"] + "-other")
+            changed = [first] + [dict(one) for one in held[1:]]
+        else:
+            raise AssertionError(f"no spoiling rule for {name!r}; add one "
+                                 f"rather than letting this member go "
+                                 f"unmeasured")
+        self.assertNotEqual(changed, held, name)
+        return changed
+
+    def test_the_two_identities_are_different_documents(self):
+        """The whole digest and the projection are not the same value.
+
+        Review206898 [R3] is right that this is a semantic change rather than a
+        widening, and this is the case that says so out loud: for ONE unchanged
+        manifest the two identities already differ, which is why every Job
+        submitted against the old one refuses.
+        """
+        vector = self.vector()
+        self.assertNotEqual(manifest.job_input_identity(vector),
+                            vector["manifest_digest"])
+
+    def test_every_projected_member_moves_only_the_runtime_identity(self):
+        """The worker-runtime axis: change it, and the JOB still agrees."""
+        for name in manifest.JOB_INPUT_EXCLUDED:
+            if name == "manifest_digest":
+                continue                       # it IS the runtime identity
+            with self.subTest(member=name):
+                spoiled = self.resealed(**{name: self.other(name)})
+                self.assertNotEqual(spoiled["manifest_digest"],
+                                    self.vector()["manifest_digest"])
+                self.assertEqual(manifest.job_input_identity(spoiled),
+                                 manifest.job_input_identity(self.vector()))
+
+    def test_every_shared_member_still_moves_the_job_identity(self):
+        """The other half, and the one that keeps this from being a hole.
+
+        A projection that dropped a member it should have kept would let a
+        worker move the Work, the task, the sources, the outputs, the record or
+        a Job-wide policy and still be admitted. Each of these is asserted to
+        MOVE the Job identity, so removing one from the shared set fails here.
+        """
+        vector = self.vector()
+        shared = [name for name in vector if name not in
+                  manifest.JOB_INPUT_EXCLUDED]
+        self.assertIn("work_ref", shared)
+        self.assertIn("policy_digest", shared)
+        self.assertIn("extensions", shared)
+        for name in shared:
+            if name in ("schema", "version", "assignment_contract"):
+                continue        # const in the frozen schema; no other legal value
+            if name == "extensions":
+                # DECLARED INPUT, and shared -- but the schema bounds its shape
+                # and the vector carries none, so there is nothing to remove.
+                # Its membership of the shared set is asserted structurally
+                # below instead of by spoiling a value that does not exist.
+                continue
+            with self.subTest(member=name):
+                spoiled = self.resealed(**{name: self.other(name)})
+                self.assertNotEqual(manifest.job_input_identity(spoiled),
+                                    manifest.job_input_identity(vector))
+
+    def test_independently_composed_manifests_share_one_job_identity(self):
+        """THE POSITIVE THAT MATTERS, and it is not three clones.
+
+        Three manifests, one per role, each with its OWN manifest id, creation
+        instant, image, toolchain, runtime profile, credential policy and role
+        instructions -- every member a separately configured worker would
+        legitimately differ in. They agree about the Job and nothing else, and
+        one Job identity is what they produce.
+        """
+        composed = [
+            self.resealed(manifest_id=f"input-{role}-attempt",
+                          created_at=f"2031-0{index + 1}-01T00:00:00.000Z",
+                          worker_image_digest="sha256:" + str(index) * 64,
+                          toolchain_digest="sha256:" + chr(97 + index) * 64,
+                          runtime_profile_digest="sha256:" + chr(100 + index) * 64,
+                          credential_policy_digest="sha256:" + chr(97 + index) * 64,
+                          role_instructions_digest="sha256:" + str(index) * 64)
+            for index, role in enumerate(("implementation", "review",
+                                          "integration"))]
+        runtime = {one["manifest_digest"] for one in composed}
+        self.assertEqual(len(runtime), 3, "three workers, three runtimes")
+        shared = {manifest.job_input_identity(one) for one in composed}
+        self.assertEqual(len(shared), 1, "three workers, one Job")
+
+    def test_a_worker_that_moves_the_work_does_not_share_the_job(self):
+        """The refusal half of the same positive, at the member that matters
+        most: a heterogeneous pool must not become a pool that agrees about
+        nothing."""
+        vector = self.vector()
+        elsewhere = dict(vector["work_ref"])
+        elsewhere["work_id"] = elsewhere["authority_uuid"][:8] + "-W99"
+        self.assertNotEqual(
+            manifest.job_input_identity(self.resealed(work_ref=elsewhere)),
+            manifest.job_input_identity(vector))
+
+    def test_it_owns_its_operand_and_refuses_another_kind_of_manifest(self):
+        """A public rule owns what it is handed, like every other one here."""
+        for what, given in (("a bare dict", {"schema": "nonsense"}),
+                            ("not a document", ["inputManifest"]),
+                            ("an unsealed one",
+                             dict(self.vector(),
+                                  manifest_digest="sha256:" + "0" * 64))):
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal):
+                    manifest.job_input_identity(given)
+
+    def test_a_dict_subclass_cannot_execute_inside_the_contracts_layer(self):
+        """The [P1] this surface has already paid for once."""
+        class Sneaky(dict):
+            def __getitem__(self, name):
+                raise AssertionError("hostile __getitem__ executed")
+
+        with self.assertRaises(ContractRefusal):
+            manifest.job_input_identity(Sneaky(self.vector()))

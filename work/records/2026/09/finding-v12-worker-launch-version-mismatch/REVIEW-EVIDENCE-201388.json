@@ -1,0 +1,28 @@
+{
+  "claim": 201388,
+  "reviewer": "baton.rvpc",
+  "candidate": {
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/worker/importing_agent.py": "9bf6e62a9e7d78ce97d7cbc8fc32d3091a9e74ce86c7a2656a24f3f8008b61e6",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/worker/importing_entry.py": "c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/Dockerfile.integration-fixture": "49f3c5f5c29dbcf8a1f80ba5f3892c8eedff1f2c4f3d2d76a8b17701f69ccc6e",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/compose_lifecycle.py": "86086ce7ee52a2d1e45a9ae589b4ede424d5c15028c3ef334b239e4d3a265496",
+    "v12/python/tests/manager/test_importing_fixture.py": "c8f797bbf8a3e7581670b47f11437ed392beeda4293a69bfd2ab521bcd045e9a"
+  },
+  "hashes_match": true,
+  "tests": {
+    "count": 77,
+    "result": "OK",
+    "wall_seconds": 0.17133706796448678,
+    "unittest_seconds": 0.01,
+    "suites": [
+      "tests.manager.test_importing_fixture",
+      "tests.manager.test_w197661_verifier"
+    ],
+    "flags": "-W error::ResourceWarning"
+  },
+  "source_confirmations": [
+    "single_worker.held_configuration requires input manifest worker_image_digest equal configured image_digest",
+    "integration_entry.main apply-request branch constructs ManagedApplyAgent and ignores injected agent; ordinary branch passes injection to workload.integrate"
+  ],
+  "limits": "No composition replay, container run, real deployment/Authority/store access or live provider. Image build and three-validator refusal are retained author evidence."
+}

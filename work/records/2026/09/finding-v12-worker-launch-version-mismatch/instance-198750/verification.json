@@ -1,0 +1,77 @@
+{
+  "all_true": true,
+  "checks": {
+    "fixture_base_is_inspectable": true,
+    "fixture_image_carries_no_credential_override": true,
+    "fixture_image_id_is_bound": true,
+    "fixture_image_inherits_the_immutable_base": true,
+    "fixture_image_is_present": true,
+    "fixture_image_keeps_its_entrypoint": true,
+    "fixture_image_runs_as_the_fixed_pair": true,
+    "integration_base_is_inspectable": true,
+    "integration_image_carries_no_credential_override": true,
+    "integration_image_id_is_bound": true,
+    "integration_image_inherits_the_immutable_base": true,
+    "integration_image_is_present": true,
+    "integration_image_keeps_its_entrypoint": true,
+    "integration_image_runs_as_the_fixed_pair": true,
+    "provider_base_is_inspectable": true,
+    "provider_image_carries_no_credential_override": true,
+    "provider_image_id_is_bound": true,
+    "provider_image_inherits_the_immutable_base": true,
+    "provider_image_is_present": true,
+    "provider_image_keeps_its_entrypoint": true,
+    "provider_image_runs_as_the_fixed_pair": true,
+    "regression_a_failed_base_inspection_fails_the_ancestry_check": true,
+    "regression_a_failed_base_inspection_is_not_omitted": true,
+    "regression_a_refusing_engine_makes_every_check_false": true,
+    "the_capacity_blocker_is_recorded_verbatim": true,
+    "the_disposable_copy_is_byte_identical": true,
+    "the_disposable_copy_is_readable": true,
+    "the_disposable_instance_has_db_jobs.sqlite3": true,
+    "the_disposable_instance_has_deployment.json": true,
+    "the_disposable_instance_has_instance.json": true,
+    "the_disposable_instance_has_justfile": true,
+    "the_disposable_instance_is_not_production": true,
+    "the_fixture_is_distinct_from_both_accepted_images": true,
+    "the_implementation_stage_is_queued": true,
+    "the_installed_manager_answers_status": true,
+    "the_later_stages_are_blocked": true,
+    "the_selected_distro_is_readable": true,
+    "the_selected_distro_manifest_is_unchanged": true,
+    "the_stopped_production_instance_is_still_there": true,
+    "the_submitted_job_is_recorded": true,
+    "the_terminal_policy_is_report_and_hold": true
+  },
+  "engine": "read-only image inspection and file digests only",
+  "fail_closed_regression": {
+    "a_failed_base_inspection_fails_the_ancestry_check": true,
+    "a_failed_base_inspection_is_not_omitted": true,
+    "a_refusing_engine_makes_every_check_false": true
+  },
+  "failed": [],
+  "images": {
+    "fixture": {
+      "Id": "sha256:edd20e9c3f0a15bdd445c7b83fcb8b5f8a52f6dc42d1d639a0fef9db3ccfacf4"
+    },
+    "integration": {
+      "Id": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407"
+    },
+    "provider": {
+      "Id": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06"
+    }
+  },
+  "projection": {
+    "job": "w197661-fixture-lifecycle",
+    "stages": {
+      "implementation": "queued",
+      "integration": "blocked",
+      "review": "blocked"
+    }
+  },
+  "runtime": {
+    "digest": "73b8cab34a7e47857695cad4e80551de607d82aa77ee3ca39b72f7c89166ded6",
+    "files": 81
+  },
+  "supersedes": "packet-198640/verify_packet.py"
+}

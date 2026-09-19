@@ -1959,6 +1959,27 @@ class TheRecipeIsInspectableWithoutADaemon(unittest.TestCase):
         self.assertTrue(found)
         return found
 
+    def test_what_the_image_takes_from_the_distribution_IMPORTS_NO_MANAGER(self):
+        """The property the allowlist is a proxy for, held directly.
+
+        W198667: a second permitted path is only safe because of what is IN it.
+        A worker that can import the manager is a worker one bug away from
+        holding the manager's capabilities, so the admitted module is checked
+        for what it imports rather than for what it is called.
+        """
+        import ast
+
+        place = (pathlib.Path("/home/sl/src/baton/v12/python/src/baton_v12")
+                 / "attempt_log_format.py")
+        tree = ast.parse(place.read_text())
+        imported = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported.update(one.name for one in node.names)
+            elif isinstance(node, ast.ImportFrom):
+                imported.add(node.module or "")
+        self.assertEqual(sorted(imported), ["itertools", "json", "os", "stat"])
+
     def test_nothing_from_the_manager_is_copied_in(self):
         """The rule is about the MANAGER, and W71917 made that distinction
         load-bearing rather than incidental.
@@ -1973,15 +1994,25 @@ class TheRecipeIsInspectableWithoutADaemon(unittest.TestCase):
         the first correction named three manager directories, which is a
         denylist that a COPY of `attempts.py`, `offers.py` or any other module
         would have walked straight through while still violating the property
-        this case states. The distribution has exactly ONE path the image is
-        permitted to take, so that path is named and everything else under
-        `baton_v12` is refused whatever it is called.
+        this case states. So the permitted paths are NAMED and everything else
+        under `baton_v12` is refused whatever it is called.
+
+        W198667 ADDS THE SECOND NAME, and it is admitted on exactly the rule
+        that admitted the first. `attempt_log_format` is the capture
+        declaration format, which a worker WRITES and a manager READS -- two
+        implementations of one format is how they drift -- and it imports
+        `itertools`, `json`, `os` and `stat` and nothing from `baton_v12`. The
+        case below holds that property directly rather than trusting the name,
+        because a name is what the allowlist checks and the IMPORT GRAPH is
+        what the rule is actually about.
         """
+        allowed = ("python/src/baton_v12/source_profiles",
+                   "python/src/baton_v12/attempt_log_format.py")
         for sources, destination in self.copies():
             for source in sources:
                 if "baton_v12" not in source:
                     continue
-                self.assertEqual(source, "python/src/baton_v12/source_profiles",
+                self.assertIn(source, allowed,
                                  "the image copies material out of the "
                                  "manager's distribution that is not the "
                                  "profile package")

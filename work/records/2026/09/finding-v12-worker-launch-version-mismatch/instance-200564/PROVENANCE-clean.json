@@ -1,0 +1,53 @@
+{
+  "schema": "baton.w197661.episode-provenance/1",
+  "claim": 200930,
+  "destination": "/home/sl/baton-v12-lifecycle-200564-clean",
+  "authority_uuid": "af29c003da434c3aa311b5de4a09f2ee",
+  "why_this_file_exists": "Review 2026-09-18T06-19-15Z: claim200564 described this destination as 'composed ONCE from the final wiring', and its retained manager.log shows a pin-1-versus-Authority-9 refusal, later receipts at generation 23, and three serving initializations. The reviewer is right that the description was looser than the evidence. This records exactly which configuration bytes changed and when, measured rather than characterized.",
+  "what_the_log_actually_shows": {
+    "serving_initializations": 3,
+    "pin_refusals_recorded": [
+      "the deployment pins approval policy generation 1 and the Authority is at 9"
+    ],
+    "receipts_issued_at_generation": 23
+  },
+  "the_one_member_that_changed": {
+    "member": "policy_generation",
+    "before": 1,
+    "after": 23,
+    "where": [
+      "instance-200564/bootstrap_inputs.json",
+      "/home/sl/baton-v12-lifecycle-200564-clean/deployment.json"
+    ],
+    "when": "between build/capacity-clean.log (the bootstrap that CREATED the Work and ESTABLISHED the target) and build/capacity-clean-2.log (the bootstrap that found both already there and left them alone)",
+    "why": "compose_lifecycle.policy_pin replaced the literal 1 with a reading of the Authority plus the observed bootstrap bump"
+  },
+  "what_did_NOT_change": {
+    "job_input_manifest_digest": {
+      "as_submitted": "sha256:d4cd8ad2dab14d958adec490f72e140457c853936337eec8f254e1c385e33d23",
+      "as_currently_composed": "sha256:d4cd8ad2dab14d958adec490f72e140457c853936337eec8f254e1c385e33d23",
+      "equal": true,
+      "read_from": ["build/submit-clean.log signature operands", "bootstrap_inputs.json workers[].deployment.input_manifest"]
+    },
+    "job_policy_digest": "sha256:8b45f78e5f85bb016d9fcbdc183c8cdf9aded74297a6e48db845423a4c0aaf55",
+    "work_id": "af29c003-W1, created by the first capacity bootstrap and left alone by the second",
+    "canonical_target": "e486652c4ddebfb696e030b4b867e914248db542, established by the first and left alone by the second"
+  },
+  "the_corrected_statement": "This destination was INSTALLED once, its Job SUBMITTED once against a sealed input manifest that never changed, and its capacity bootstrapped twice -- the second time differing from the first in exactly one configuration member, the approval policy pin. It is not accurate to call the whole episode immutable, and the earlier phrasing 'composed once from the final wiring' is corrected by this record rather than repeated.",
+  "the_distinction_the_review_asks_for": "later policy and bootstrap activity at a destination is NOT evidence that the Job's sealed input drifted, and this file states both facts separately rather than inferring one from the other",
+  "reproducible_run_instructions": {
+    "note": "kept here because the install step does not create three roots the composed configuration names",
+    "steps": [
+      "just build <instance>/build/distro",
+      "just bootstrap <instance>/install_inputs.json <DESTINATION> <instance>/build/distro/out/distro",
+      "mkdir -p <DESTINATION>/storage <DESTINATION>/launch <DESTINATION>/credentials && chmod 750 <DESTINATION>/storage && chmod 775 <DESTINATION>/launch <DESTINATION>/credentials",
+      "docker build --pull=false --no-cache --network none -f <instance>/context/Dockerfile.fixture --iidfile <instance>/build/fixture.iid <instance>/context",
+      "python3 <instance>/compose_lifecycle.py",
+      "just bootstrap <instance>/bootstrap_inputs.json",
+      "python3 -c 'compose_lifecycle.check_policy_pin()' -- and REFUSE unless equal is true",
+      "<DESTINATION>/distro/baton-v12-stack manager ... submit --document <instance>/submission.json",
+      "<DESTINATION>/distro/baton-v12-stack start --instance <DESTINATION>/instance.json"
+    ],
+    "the_root_creation_step_is_step_three": "install prepares db, repo, distro and deployment-state but not the workspace storage, launch homes or credential homes the composed configuration names; without it the first start refuses with 'the configured workspace store is not a directory this manager can see'"
+  }
+}

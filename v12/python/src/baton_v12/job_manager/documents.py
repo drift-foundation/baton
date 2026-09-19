@@ -118,7 +118,7 @@ SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
 # W156162 moved this to /5. A Job now reports its requested and EFFECTIVE
 # execution limits with their units, scope and origins, and a reader written
 # against /4 would not know a ceiling had been configured at all.
-STATUS_SCHEMA = "baton.v12.job-status/5"
+STATUS_SCHEMA = "baton.v12.job-status/6"
 
 # The three stages this milestone's vertical slice has. They are a CLOSED
 # vocabulary rather than free text because the projection below maps each one
@@ -590,9 +590,12 @@ CONTRACTS = {
     "stage.status": (("stage_id", "job_id", "kind", "state", "work_id",
                       "profile_name", "profile_digest", "episode", "offer_id",
                       "attempt_id", "episodes", "corrections", "allocation",
-                      "allocations", "gates", "receipts",
+                      "allocations", "gates", "receipts", "deferral",
                       "runtime", "exchange", "artifacts"), ()),
     # W156162 added `execution_limits`, which is why STATUS_SCHEMA moved to /5.
+    # W197661 added `deferral` to `stage.status`, which is why it is at /6: a
+    # reader that must not mistake a re-enterable deferral for a state has to
+    # be able to tell which shape it is holding.
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",
                     "execution_limits", "stages"), ()),

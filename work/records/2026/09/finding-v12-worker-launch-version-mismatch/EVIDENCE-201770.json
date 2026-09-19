@@ -1,0 +1,115 @@
+{
+  "R1_terminal_reader": {
+    "my_claim_was_wrong": "claim201492 said no read-only reader existed and pointed at managed_account",
+    "no_serving_composition": "an AST case asserts the verifier CALLS observation_from and observe_integration and calls neither operations_from, factory nor managed_account; the first form of that case read the file as text and failed on the verifier's own comment saying it never calls them, which is a check that cannot tell a citation from an invocation",
+    "read_for_real": {
+      "episode": 1,
+      "execution_runtime": "quiescent",
+      "fence": 1,
+      "integration_receipt_id": "integration-driver.integration-receipt:6b6e9ed149fb80158be709489f0e8d316f55cc3616db4cb06dc6b5a0a062d0a1",
+      "proposal_id": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+      "stage_id": "w197661-lifecycle/integration",
+      "state": "completed",
+      "to_route": "integration"
+    },
+    "revalidated_against_the_tree": "its body contains Authority.open_readonly and IntegrationStore.open_readonly; a case asserts this by inspecting the live source rather than trusting the review",
+    "the_actual_owner": "tools/stage_execution.py:6173 StageObservation.observe_integration, built by observation_from at 6198",
+    "what_it_answers": "baton.v12.integration-stage-observation/1"
+  },
+  "R2_controlled_comparison": {
+    "evidence": [
+      "instance-201492/build/projection-run4.json",
+      "instance-201492/build/projection-observed-run4.json",
+      "instance-201492/CAPTURED-terminal.json (observation_gap)"
+    ],
+    "measurement": {
+      "only_difference": "the --observe operand and the configuration it requires; destination, store, incarnation c201492-verify, authority and control store identical",
+      "with_observe": "completed",
+      "without_observe": "starting"
+    },
+    "mechanism": "tools/job_manager.py composes _ReadOnly without --observe and _Observing with it; only _Observing contributes observe_integration, and the projection consults that account before its generic worker rules",
+    "verdict": "MY F1 IS REFUTED AND WITHDRAWN",
+    "what_may_remain": "a narrower UX question -- an operator omitting --observe is told `starting` with nothing naming the missing operand, and observing_factory additionally refuses unless BATON_V12_STAGE_EXECUTION_CONFIG is set. NOT claimed as a defect here; separate Work."
+  },
+  "R3_owned_chain": {
+    "chain": {
+      "authority.canonical_target": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+      "proposal.candidate_digest": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+      "proposal.target": "e486652c4ddebfb696e030b4b867e914248db542",
+      "receipt.disposition": "integrated",
+      "receipt.proposal_id": "the same proposal"
+    },
+    "negatives_covered": [
+      "wrong Work",
+      "wrong Authority",
+      "wrong attempt",
+      "wrong stage",
+      "wrong result",
+      "wrong proposal",
+      "wrong receipt",
+      "wrong candidate",
+      "wrong base",
+      "refused disposition",
+      "target that never advanced",
+      "bare completed with no references",
+      "held",
+      "unread"
+    ],
+    "pin_check": {
+      "detail_split_into": [
+        "observed",
+        "not_established_here"
+      ],
+      "kept": true,
+      "separate_check": "the receipt's decision.policy_generation 9 equals the configured pin, so acceptance-time is checked apart from readiness to authorize a new action"
+    },
+    "replaces": "both the wrong base-equality check and the too-weak ancestry one I proposed",
+    "the_negative_ancestry_cannot_reject": "test_an_UNRELATED_LATER_DESCENDANT_is_REFUSED"
+  },
+  "answers_review": "review-2026-09-18T08-30-08Z.md (claim201732)",
+  "claim": "201770",
+  "digests": {
+    "instance-201492/CAPTURED-records.json": "f06f382418f526bc7afaf675a449d7bcfc1f284a1be17e439c3cd97cb92b97c4",
+    "instance-201492/CAPTURED-terminal.json": "7c4a3114af403e6e45b3ebf101d63d78d3e3b54600aa27acd42084adf0c81ad8",
+    "instance-201492/build/projection-observed-run4.json": "e3ee126a9a7e5ab3eb229c890456f9b2b11480fa27b503676c9e8415e4fc8ef7",
+    "instance-201492/build/projection-run4.json": "9eccaad61caf22c0ddf51e63e5fa574e2bac7cbaa08ac7555aedbb1fc6d11cd9",
+    "instance-201492/verification-201770-final.json": "be96e5328bd16abd0c18e6b2c104896960e54fbb7a3bbbb0c12692454f32844c",
+    "instance-201492/verify_lifecycle.py": "24057f2cee09f6e1821515c9902f243ebd749f465afe20b7637eecac0457f264",
+    "v12/python/tests/manager/test_w197661_verifier.py": "367f5c6990e85bdcb92f9f0ce5a975b80fe580a027fd67bae2bf11dffa94da7b"
+  },
+  "findings_corrected": {
+    "F1": "WITHDRAWN as a product finding; it was my missing operand",
+    "F2": "narrowed to the OBSERVED post-run mismatch; the resume-defers conclusion and the generation-moving event are stated as inferred and unreproduced",
+    "F3_F4": "kept as recorded observations with their scope stated; start-2.log proves one generation2/config1 refusal, not universal single-use semantics"
+  },
+  "handoff_note": "claim201492's return used comment=@file, which this CLI does not expand. This turn's handoff uses one standalone canonical operation with the literal text as an argv element, and reads the recorded bytes back.",
+  "headline": "All three review points accepted and implemented against the RETAINED run4 destination, read-only. No new lifecycle was run, as the review directed. The verifier now holds 67 of 68 checks; the one failure is the real post-run pin mismatch.",
+  "provenance_limitation_preserved": "instance-201492's EXPECTED.json was sealed AFTER the build, so it proves subsequent equality only and is not prospective proof of build inputs. Not rewritten. instance-200564's earlier seal and its five verification-*.json remain untouched.",
+  "schema": "baton.w197661.evidence/1",
+  "verification_result": {
+    "accepted": false,
+    "checks": 68,
+    "file": "instance-201492/verification-201770-final.json",
+    "held": 67,
+    "the_one_failure": "the configured approval pin EQUALS the Authority's generation -- configured 9, Authority 10. This is the real post-run state, not a verifier defect, and the verifier is correct to refuse a deployment whose configured pin no longer matches its Authority."
+  },
+  "verification_spending_cumulative": {
+    "broad_suite": {
+      "after_this_turn": "4172 tests, 109 failures / 7 errors / 20 skipped",
+      "attribution": "the total rose by exactly my 31 new cases and the failure and error counts did not move. Review201732 was right that not editing a module does not PROVE a baseline; this is evidence my changes added none, which is a weaker and more honest claim. The failures remain author-reported and not independently proved pre-existing.",
+      "before_this_turn": "4141 tests, 109 failures / 7 errors / 20 skipped"
+    },
+    "correction_to_my_own_earlier_count": "EVIDENCE-201492.json reported test_attempt_logs as 235 cases. Measured twice this turn, by module and by discovery, it is 213. The 235 figure was wrong and is corrected here rather than left standing.",
+    "flags": "-W error::ResourceWarning",
+    "new_lifecycle_runs_this_turn": 0,
+    "owned_suites": {
+      "tests/job_manager": "849 tests, OK",
+      "tests/manager/test_attempt_logs.py": "213 cases, OK",
+      "tests/manager/test_fixture_dispatch.py": "15 cases, OK",
+      "tests/manager/test_importing_fixture.py": "32 cases, OK",
+      "tests/manager/test_w197661_verifier.py": "58 -> 89 cases, OK"
+    },
+    "reversal_probe": "undoing both corrections -- dropping --observe and restoring base-equality -- fails 7 cases including test_read_status_passes_observe_AND_the_configuration_it_needs, test_the_two_argv_differ_in_NOTHING_BUT_the_operand and test_BASE_EQUALITY_is_NOT_what_is_asserted; restoring returns 89 OK"
+  },
+  "work": "W197661"
+}

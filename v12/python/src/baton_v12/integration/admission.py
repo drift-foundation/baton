@@ -16,11 +16,12 @@ is read from its accepted producer in this call.
 import json
 
 from ..authority.errors import Refusal as AuthorityRefusal
-from ..contracts import ContractRefusal, check_relative_path, digest
+from ..contracts import (ContractRefusal, check_relative_path, digest,
+                        job_input_identity)
 from ..contracts.errors import name_value
 from ..job_manager import documents as job_documents
 from ..job_manager.submission import job_rows, stages_of
-from ..worker_manager import boundaries
+from ..worker_manager import boundaries, manifests
 from ..worker_manager.attempts import assignment_of
 from ..worker_manager.output import frozen_output_of
 from ..worker_manager.review_cycles import (checkpoint_of,
@@ -262,7 +263,31 @@ def _proved(manager, jobs, authority, *, line_id, proposal_id, freshness):
               current_target)
 
     job, scope = _job_for(jobs, proposal_work["work_id"])
-    _same("the input digest", proposal["input_digest"], job["input_digest"])
+    # W202663: THE SAME CORRECTION AS `single_worker._matches`, AT IMPORT TIME.
+    #
+    # `proposal["input_digest"]` is the PRODUCING WORKER's own runtime manifest
+    # digest -- `driver.py` sets it from the result's `input_manifest_digest` --
+    # and `job["input_digest"]` is the Job's shared input identity. Comparing
+    # them directly is the same conflation the deployment preflight carried,
+    # and correcting only that one would have been worse than correcting
+    # neither: a heterogeneous pool would have started, run three stages and
+    # then refused here, after the work was done.
+    #
+    # THE MANIFEST IS RE-READ RATHER THAN TRUSTED. `load_manifest` re-validates
+    # the retained document as an `inputManifest` and re-binds it to its key, so
+    # what is projected is the bytes the store actually holds for the digest the
+    # proposal names. An absent one is a refusal and not a skipped comparison:
+    # a candidate whose input manifest this manager cannot read is a candidate
+    # whose Job membership it cannot establish.
+    producing = manifests.load_manifest(manager, proposal["input_digest"],
+                                        "inputManifest")
+    if producing is None:
+        _refuse(f"the proposal names input manifest "
+                f"{name_value(proposal['input_digest'])} and this manager "
+                f"retains no such document, so which Job it belongs to cannot "
+                f"be established")
+    _same("the input digest", job_input_identity(producing),
+          job["input_digest"])
     _same("the policy digest", proposal["policy_digest"],
           job["policy_digest"])
     return {"accepted": accepted, "assignment": assignment,

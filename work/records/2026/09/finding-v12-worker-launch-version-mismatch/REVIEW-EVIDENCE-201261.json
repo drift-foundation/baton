@@ -1,0 +1,28 @@
+{
+  "claim": 201261,
+  "reviewer": "baton.rvpc",
+  "candidate": {
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/verify_lifecycle.py": "49e4d0ee4a83f8cc85e3b2bf928fb1abb42e31d42a6099c0917f1dcee8d7cbb0",
+    "v12/python/tests/manager/test_w197661_verifier.py": "bde339f80f1edc4020941f2a0908aab43d4350141aaf2f628dfae5ea601026af"
+  },
+  "candidate_hashes_match": true,
+  "tests": {
+    "command": "PYTHONPATH=src python3 -W error::ResourceWarning -m unittest tests.manager.test_w197661_verifier",
+    "cwd": "v12/python",
+    "count": 58,
+    "result": "OK",
+    "wall_seconds": 0.17288984003243968,
+    "unittest_seconds": 0.007
+  },
+  "retained_author_verifier_result": {
+    "file": "instance-200564/verification-201215.json",
+    "accepted": false,
+    "failed": [
+      "the integration stage COMPLETED",
+      "the terminal record was READ",
+      "the integration account reached its COMPLETED state"
+    ],
+    "sha256": "617b5ddd94ef679ee10812669bcb9f4ae60da58219c6308794c8ea1dbb51f2e8"
+  },
+  "scope": "Independent focused deterministic tests and source/retained evidence inspection. No new lifecycle execution, engine, live provider, real store or deployment access."
+}

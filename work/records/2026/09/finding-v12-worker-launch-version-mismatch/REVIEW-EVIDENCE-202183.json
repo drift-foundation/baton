@@ -1,0 +1,33 @@
+{
+  "claim": 202183,
+  "review": "review-2026-09-18T09-35-51Z.md",
+  "author_claim": 202140,
+  "digests": {
+    "instance-201492/verification-202140-final.json": "f6493b43070da467b8a62834b138a59a418fa849e9974b379cbd99775fa89ab3",
+    "instance-201492/verify_lifecycle.py": "4e6f6d5ed9dc8b3633718d52ea9daf9065b3a4c95c67f3afc8f0cd3d8401a127",
+    "v12/python/tests/manager/test_w197661_verifier.py": "b9d91f105d8d7b820a4ef5a1efeefa86efe8d0028942f3d78788814483886c52"
+  },
+  "all_hashes_match": true,
+  "tests": {
+    "count": 147,
+    "passed": true,
+    "seconds": 0.1623998989816755
+  },
+  "independent_probes": {
+    "23_23": {
+      "accepted": true,
+      "ready": true
+    },
+    "23_24": {
+      "accepted": true,
+      "ready": false
+    }
+  },
+  "retained_result": {
+    "accepted": true,
+    "failed": [],
+    "ready": false
+  },
+  "deployment_runs": 0,
+  "disposition": "signed-off for owner disposition with documented scope/provenance limits"
+}

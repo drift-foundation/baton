@@ -1,0 +1,91 @@
+{
+  "NOT_DONE_THIS_CLAIM": [
+    "R3's real-seam effectively-once evidence",
+    "R2b: the fixture proposal metadata, the deterministic independent reviewer, and the installed disposable lifecycle through publication, independent review and report-and-hold",
+    "instance-199391/ remains enumerated in PLAN and unbuilt"
+  ],
+  "R1_finalization_visibility": {
+    "cases": 6,
+    "converse": "records the reason on a deferred act and clears it when the act settles",
+    "covering": [
+      "a deferred conclude is recorded with its exact attempt and a null operation identity",
+      "the status surface no longer says answering with nothing",
+      "and is still NOT terminal",
+      "a succeeding conclude clears the reason",
+      "a repeated refusal keeps one row and advances only `observed`",
+      "it survives a restart"
+    ],
+    "no_invented_identity": "`operation_id` is NULLABLE now. `admit` and `claim` are delegated under an identity this build derives; `conclude` is the composed ending's own re-entry and has none, and the review said not to invent one to satisfy the table. Absence is recorded as absence.",
+    "projection": "deferral_of selects by STAGE rather than by live episode, because _recover_endings services older unfinished endings and a reader bound to the live episode would hide exactly the case that pass exists for. The episode travels on each entry, so attribution is preserved.",
+    "recover_endings": "the same, for an ending registered by a PRIOR episode"
+  },
+  "R2_schema_and_honest_failure": {
+    "TABLES": "`deferrals` is registered. JobStore's required-table validation reads exactly that tuple, so a schema-7 store missing the relation would have opened as valid and faulted at the first deferral -- a relation the build creates is one it requires.",
+    "and_the_reader_fails_soft_too": "deferral_of reports an unreadable `deferrals` table as one entry saying so, rather than raising -- an evidence surface that takes the projection down replaces an operator's whole picture with the failure of its footnote",
+    "cases": 4,
+    "evidence_failure_is_separate_from_execution_state": "a case asserts the stage is not made exceptional by a dropped table",
+    "no_more_blanket_swallowing": "_defer and _resolve ANSWER. A deferral that could not be written is reported as {recorded: false} on the act's own report, and a failed clear as {cleared: false} with 'it may still be reported as outstanding'. Neither raises: a manager whose tick died because it could not write a diagnostic would have made the diagnostic more dangerous than the silence."
+  },
+  "R2a_DONE_WAS_WRONG_ABOUT_THE_HALF_THAT_MATTERED": {
+    "correction": "both finalization paths record and clear; a case asserts the status surface for a deferred conclude by driving the real sweep",
+    "what_I_claimed": "claim199391's handoff said R2a DONE",
+    "what_was_true": "I wired _defer/_resolve into _delegate ONLY, whose acts are `admit` and `claim`. The owner selected this visibility FOR a deferred `conclude`, which goes through _converse and _recover_endings -- so the reviewer's probe still found `answering` with `deferral: null` for the exact attempt whose finalization was blocked, and my nine visibility tests all exercised admit/claim"
+  },
+  "R3_the_docstring_that_overstated": {
+    "STILL_OUTSTANDING": "real-seam effectively-once evidence -- an applicable existing proof or a focused deterministic test of repeated publication at the same durable identity including restart. Not supplied this claim.",
+    "correction": "the docstring says exactly that now",
+    "what": "the cut-point class docstring said this suite proves the ending 'publishes exactly once'",
+    "why_that_was_wrong": "the after-publication case asks two independent FAKE seams and asserts their operands match. `_Seam` publishes whatever it is asked, so NO property of integration.driver.publish_candidate is established by any case in that file -- that seam publishes through the Authority on every call and its non-duplication rests on Authority.publish taking the producer's live assignment as a compare-and-swap operand, which is not exercised there"
+  },
+  "authority": "owner ruling seq199199, continued under review-2026-09-18T02-59-56Z.md",
+  "candidate": {
+    "v12/python/src/baton_v12/job_manager/documents.py": "5fcd58b57c4b89c79bea0f72ce41df3da9b2aab4926d77ee22fd65ad7d3956d1",
+    "v12/python/src/baton_v12/job_manager/manager.py": "1f304a79232852eb9c21cafa395d7c610c8f392a595fe43c4839119ee3b78334",
+    "v12/python/src/baton_v12/job_manager/projection.py": "34b99581f0f79210252ef05c451f9900978217498dd4917d378b6c943fb2b650",
+    "v12/python/src/baton_v12/job_manager/schema.py": "0f8601611257c78d4b7102938980977b5e256fa772729e70f3104ece6edd8704",
+    "v12/python/tests/job_manager/test_review_driver.py": "9a75c7a6706b4c6fea594aae3b6d5dac882f04437f7a17fb77b9832ba80ec2e1",
+    "v12/python/tests/job_manager/test_sweep.py": "abbe685a6216dbe66fb45f4a0dc96e5be41737f6472e370a3b690b26565c679f",
+    "v12/python/tools/stack.py": "32c92bb1b077c7858164ae2ab5bcc74e395aac0e3ee65ad81ca5651c8db5b8fe"
+  },
+  "claim": 199622,
+  "no": [
+    "live model",
+    "container",
+    "image build",
+    "production action",
+    "lifecycle re-run",
+    "version-control mutation"
+  ],
+  "preserved": {
+    "W198667": "queued at baton.bug; its candidate is attempt_log_format.py, the worker paths, both Dockerfiles, the operator command and its test paths. None is touched here, and its fixture image provenance is unchanged.",
+    "history": "no prior evidence file or review is rewritten; the R2a DONE claim is corrected here by appending",
+    "production": "the stopped production instance was not read from, written to, started or changed",
+    "the_failed_disposable": "attempt-432eb7b7... and its container were not re-run, stopped, removed or rewritten"
+  },
+  "schema": "baton.w197661.evidence/1",
+  "verification": {
+    "job_manager_whole_suite": {
+      "checks": 834,
+      "clean_under": "-W error::ResourceWarning",
+      "result": "OK",
+      "seconds": 9.49,
+      "was": 825
+    },
+    "seconds_measured_this_claim": 120,
+    "stack_and_bootstrap": {
+      "checks": 238,
+      "result": "OK",
+      "seconds": 43.12,
+      "suites": [
+        "test_bootstrap",
+        "test_stack"
+      ]
+    },
+    "test_dependencies": {
+      "added": 0,
+      "baseline": 57,
+      "failures": 57
+    }
+  },
+  "work": "2b077949-W197661"
+}

@@ -1052,9 +1052,30 @@ def _custody_vector(engine, *, image_digest, store, assignment_id,
     # chose is a name a restarted manager cannot re-derive, which made the
     # reclamation this Work owes impossible rather than merely unwritten.
     name = _custody_identity(recorded, assignment_id, which, operation)
+    # W194457: THE CUSTODIAN RUNS AS WHOEVER THE WORKER RAN AS, which is the
+    # whole mechanism and is why this follows the execution identity rather
+    # than a constant. Under the shared identity that is the manager's own
+    # uid with the deployment's workspace group -- so the custodian still
+    # owns what the worker created, and owning it is what lets it `chmod`.
+    #
+    # MINTED FROM THE SAME DURABLE READ THE MOUNT AND THE GROUP COME FROM.
+    # `gid` was read from the store in this act; `identity_for` puts it behind
+    # the capability and derives the uid from `os.geteuid()`, so there is no
+    # integer here a caller chose -- the rule W33936 wrote for the group,
+    # applied to the pair.
+    from . import workspaces
+
+    custodian = workspaces.identity_for(
+        workspaces.WorkspaceGroup(gid, workspaces._MINT))
     argv = [engine, "run", "--rm", "--name", name]
     for flag, value in _CUSTODY_RESTRICTIONS:
         argv.append(flag)
+        if flag == "--user":
+            # THE SAME CHEAP DECLARED CHECK THE RUNTIME VECTOR MAKES, and for
+            # the same reason: this is the second place the pair is spelled,
+            # and two spellings agree until they don't. It reaches no engine.
+            value = workspaces.declared_identity_mapping(
+                custodian, f"{custodian.uid}:{custodian.gid}")
         if value is not None:
             argv.append(value)
     # THE CONFIGURED WORKSPACE GROUP, FOR THE SAME REASON THE WORKER GETS IT.
@@ -1669,6 +1690,12 @@ _CUSTODY_RESTRICTIONS = (
     ("--cap-drop", "ALL"),
     ("--security-opt", "no-new-privileges"),
     ("--security-opt", "label=disable"),
+    # W194457: SUBSTITUTED AT COMPOSITION, like the runtime's. The pair here
+    # is the historical one and is what a reader sees when nothing overrides
+    # it; `custody_vector` replaces it with the deployment's shared execution
+    # identity, because a custodian that is not the owner of the worker's
+    # objects cannot `chmod` them -- which is measured, at `workspaces.py`'s
+    # EPERM note.
     ("--user", "65532:65532"),
     ("--read-only", None),
     ("--network", "none"),

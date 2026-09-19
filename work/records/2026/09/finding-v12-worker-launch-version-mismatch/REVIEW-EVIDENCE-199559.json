@@ -1,0 +1,44 @@
+{
+  "claim": 199559,
+  "hashes": {
+    "v12/python/src/baton_v12/job_manager/documents.py": true,
+    "v12/python/src/baton_v12/job_manager/manager.py": true,
+    "v12/python/src/baton_v12/job_manager/projection.py": true,
+    "v12/python/src/baton_v12/job_manager/schema.py": true,
+    "v12/python/tests/job_manager/test_exchange.py": true,
+    "v12/python/tests/job_manager/test_execution_limits.py": true,
+    "v12/python/tests/job_manager/test_review_driver.py": true,
+    "v12/python/tests/job_manager/test_scheduling.py": true,
+    "v12/python/tests/job_manager/test_status.py": true,
+    "v12/python/tests/job_manager/test_store.py": true,
+    "v12/python/tests/job_manager/test_sweep.py": true,
+    "v12/python/tests/job_manager/test_tool.py": true,
+    "v12/python/tests/tools/test_bootstrap.py": true,
+    "v12/python/tools/stack.py": true
+  },
+  "tests": {
+    "rc": 0,
+    "seconds": 5.990314133989159,
+    "output": "................................................................................................................................................................................................................................................................................................\n----------------------------------------------------------------------\nRan 288 tests in 5.810s\n\nOK\n"
+  },
+  "finalization_probe": {
+    "spoken": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+        "act": "conclude",
+        "outcome": "deferred",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "synthetic finalization blocked after intake"
+        }
+      }
+    ],
+    "state": "answering",
+    "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+    "deferral": null
+  },
+  "probe_seconds": 0.006641362968366593
+}

@@ -1,0 +1,168 @@
+{
+ "work": "2b077949-W194457",
+ "claim": 194767,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-17T13-12-36Z.md",
+  "sha256": "fa2832a2cac8eae310a5d04013060473843dbe749d89e7c8bb529b3ce5592570"
+ },
+ "delivered_this_claim": {
+  "the_observation_exists_and_is_checked": {
+   "what": "`oci.observe_runtime_identity(engine, port, image_digest=, identity=, place=)` runs ONE bounded probe of the deployment's own image -- same restrictions, no network, read-only root, one writable mount of a directory this manager made -- and reports the HOST-side owner of the file that runtime creates. It removes the directory afterwards.",
+   "absence_is_not_success": "a failed run, an unreachable engine and a run that leaves no file all answer None, which `supported_identity_mapping` refuses as an unmeasured mapping in its own words",
+   "evidence_is_tied_to_what_it_was_taken_for": "keyed by (engine, image_digest, uid, gid), so any change invalidates reuse",
+   "deterministic_engine_boundary_fixtures": "SIMULATED and labelled as such in the helper's docstring: a compliant engine that creates the file, one that produces nothing, one that returns a failing status, one that cannot be asked at all, and a remapped observation. Five cases plus the reuse-key case.",
+   "a_defect_my_own_case_caught": "`EnginePort` answers a DOCUMENT, not a tuple. The first cut unpacked it, binding the KEYS, so a compliant engine reported an unmeasured mapping. The compliant-engine case is what found it."
+  },
+  "the_remedy_sentence_corrected": "the review is right that 'run the manager under the identity the mapping produces' is not a general fix -- the requested container identity is DERIVED from that account, so moving it moves both sides of the comparison. The refusal now names running the engine without an id mapping and re-checking, and says explicitly that changing the account is not a general fix."
+ },
+ "NOT_WIRED_AND_WHY": {
+  "what": "the call belongs in `single_worker.worker_preflight`, before the credential home and before any assignment root or runtime exists. It is written there as a comment at the exact line, not as code.",
+  "why": "I wired it, ran it, and roughly a hundred existing cases failed -- correctly. Every deployment fixture in this tree stands the engine in with its own ad-hoc object that answers a status for any argv and creates no file, so the probe reports an unmeasured mapping and preflight refuses. The failures are about the FIXTURES, not the product.",
+  "what_I_refused_to_do": "weaken the guard to fit them -- assuming compliance is the exact thing this correction exists to avoid",
+  "the_remaining_step": "teach the deployment fixtures' engine stand-ins to model the probe (create the mounted file and answer the document), then uncomment the call. Mechanical but broad; it is the next claim's first task."
+ },
+ "STILL_NOT_DONE": [
+  "the preflight wiring above",
+  "a private writable HOME/cache",
+  "0600/0700 checks in both directions",
+  "credential/custody/input compatibility re-decisions (0640 slot, custody normalization, /input readability)",
+  "written unexecuted installed-update and recovery instructions"
+ ],
+ "not_deployable": true,
+ "verification": {
+  "suites": [
+   {
+    "module": "tests.manager.test_workspaces",
+    "tests": 128,
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.manager.test_review_cycles",
+    "tests": 162,
+    "seconds": 1.909
+   },
+   {
+    "module": "tests.manager.test_custody",
+    "tests": 121,
+    "seconds": 3.409
+   },
+   {
+    "module": "tests.manager.test_oci",
+    "tests": 129,
+    "seconds": 0.908
+   },
+   {
+    "module": "tests.tools.test_single_worker",
+    "tests": 153,
+    "seconds": 9.21
+   },
+   {
+    "module": "tests.manager.test_launch",
+    "tests": 37,
+    "seconds": 0.708
+   }
+  ],
+  "all_result": "OK",
+  "total_tests": 730,
+  "total_seconds": 17.052,
+  "new_this_claim": 6,
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_engine_that_PRODUCES_NOTHING_is_unmeasured",
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_engine_that_FAILS_is_unmeasured"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "Q1-the-probe-answers-without-observing-anything",
+     "reverted_returncode": 1,
+     "seconds": 0.443,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_an_engine_that_CANNOT_BE_ASKED_is_unmeasured"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "Q2-an-engine-that-cannot-be-asked-is-treated-as-compliant",
+     "reverted_returncode": 1,
+     "seconds": 0.439,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_the_observation_is_keyed_to_the_runtime_it_was_taken_for"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "Q3-the-observation-is-reused-across-different-images",
+     "reverted_returncode": 1,
+     "seconds": 0.441,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_the_probe_leaves_nothing_behind"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "Q4-the-probe-leaves-its-directory-behind",
+     "reverted_returncode": 1,
+     "seconds": 0.444,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.manager.test_workspaces.TheSharedExecutionIdentityReachesTheVECTORS.test_a_REMAPPED_runtime_is_refused_by_name"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "Q5-the-remedy-promises-a-fix-that-moves-both-sides",
+     "reverted_returncode": 1,
+     "seconds": 0.436,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 7.216
+  },
+  "probe_seconds": 7.216,
+  "probe_script": "probes-194767.py",
+  "probes_that_proved_nothing_first": [
+   {
+    "probes": "Q1, Q2, Q4",
+    "why": "all three tokens named the wrong outcome: without the file guard `os.stat` raises FileNotFoundError rather than answering; the cannot-be-asked case asserts the observation is None before it asks for the refusal; and assertFalse prints 'True is not false', which is the fourth operand-order slip of this kind I have recorded.",
+    "corrected": "the tokens"
+   }
+  ]
+ },
+ "changed_this_claim": {
+  "v12/python/src/baton_v12/worker_manager/oci.py": "63a3cb656dd730871be0d03611fd92fb092aca0acb38080fa13e9ed93f4b5e83",
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "455e3d172f309373290ffc07ed04356d568362f07de4526a943a1badcf8fda9f",
+  "v12/python/tools/single_worker.py": "e45ee7855398508063fc0695d579249e9b397c1c828dabad040269ae46e57532",
+  "v12/python/tests/manager/test_workspaces.py": "31cb533ffc8d4cb2471a5e64ef2c8a17e4a58e94c8c0c8281995a33229d12845"
+ },
+ "cumulative_verification_spending": {
+  "claim194465": "none",
+  "claim194532": "16.242s suites, 7.171s probes, 0.304s rerun, 55.434s stage suite",
+  "claim194622": "16.144s suites, 4.867s probes",
+  "claim194683": "17.360s suites, 7.170s probes",
+  "claim194767": "17.052s suites, 7.216s probes",
+  "known_component_sum": "about 148.96s of measured components across five claims; not a proven full historical total",
+  "unknowns_preserved": [
+   "the installed incident's original errno",
+   "18,078 is an entry count, not a measured peak",
+   "the 12 stage-execution errors and the 56 test_dependencies failures are reported baselines, carried rather than independently re-verified here"
+  ]
+ },
+ "preserved_untouched": {
+  "failed_v12_work": "a2b0d14b-W1",
+  "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+  "how": "no v12 store opened, no claim released, no partial line removed, no resubmission, no installed runtime updated, no production retry"
+ },
+ "no_engine_model_store_deployment_or_version_control_operation": true
+}

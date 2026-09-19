@@ -26,8 +26,10 @@ not another store's, however identical the serialization looks.
 """
 
 import json
+import os
 import re
 import sqlite3
+from urllib.parse import quote
 
 from ..contracts import (ContractRefusal, canonical_text,
                          check_no_durable_secret, own)
@@ -256,6 +258,33 @@ class JobStore:
         a foreign database, so the probe runs inside the taxonomy rather than
         in front of it.
         """
+        version = cls._recognized(connection, path)
+        # Schema 3 introduced the immutable Authority binding.  A schema-3
+        # store that has lost or changed it is malformed evidence and must be
+        # refused before the scheduler's 3 -> 4 migration changes anything.
+        if version >= 3:
+            cls._bound(connection, path, authority_uuid)
+        cls._migrate(connection, version, path, authority_uuid)
+        cls._bound(connection, path, authority_uuid)
+        connection.execute("PRAGMA foreign_keys = ON")
+
+
+    @classmethod
+    def _recognized(cls, connection, path):
+        """Is this non-empty database one of ours, and at which schema?
+
+        THE NONMUTATING HALF OF `_adopt`, FACTORED OUT RATHER THAN COPIED.
+        W197661 review201931 asked for a read-only opener that shares
+        validation "where sound without changing writable open behavior", and
+        this is the part that is sound to share: it opens nothing, writes
+        nothing and migrates nothing. `_adopt` still does exactly what it did
+        -- it calls this and then goes on to bind and migrate.
+
+        The mere NAME `meta` is not permission to read `key, value` out of it:
+        a foreign database that happens to reuse a generic table name is still
+        a foreign database, so the probe runs inside the taxonomy rather than
+        in front of it.
+        """
         if "meta" not in cls._objects(connection):
             raise ContractRefusal(
                 "integrity", "schema",
@@ -274,15 +303,115 @@ class JobStore:
                 f"Job manager cannot read "
                 f"({name_value(type(failure).__name__)}), so it is not a Job "
                 f"store this build owns. Nothing was changed") from None
-        version = cls._validate(recorded, path)
-        # Schema 3 introduced the immutable Authority binding.  A schema-3
-        # store that has lost or changed it is malformed evidence and must be
-        # refused before the scheduler's 3 -> 4 migration changes anything.
-        if version >= 3:
+        return cls._validate(recorded, path)
+
+    @classmethod
+    def open_readonly(cls, path, *, authority_uuid, incarnation, clock):
+        """Read an existing store this build already owns; change nothing.
+
+        W197661. WHY THIS EXISTS. `open` above is the only opener this store
+        had, and it CREATES an absent store, ADOPTS or MIGRATES an existing one
+        and REQUESTS WAL. Those are right for a serving manager and wrong for a
+        reader: a verifier composing `stage_execution.observation_from` needs a
+        Job store, and going through `open` to get one meant a read-only
+        surface reached through a write-capable adapter. `ControlStore`,
+        `Authority` and `IntegrationStore` all already have this counterpart;
+        the Job store did not.
+
+        WHAT IT REFUSES RATHER THAN DOES, and each is one of `open`'s powers
+        deliberately withheld:
+
+          NO CREATION. `mode=ro` cannot create, and an absent or non-regular
+          path is refused before SQLite is asked, so the error names the path
+          rather than a driver's spelling of it.
+
+          NO INITIALIZATION. An empty database is a refusal. `open` would have
+          written this build's whole schema into it; a reader that did so would
+          manufacture the thing it claims to be reading.
+
+          NO MIGRATION. The recorded schema must be EXACTLY this build's.
+          `_adopt` accepts every version `MIGRATIONS` has a path from and then
+          carries the store forward, so calling it here would migrate a store
+          somebody handed this reader -- which is why the nonmutating part was
+          factored into `_recognized` and this calls that instead.
+
+          NO WAL REQUEST. `PRAGMA journal_mode = WAL` is a write to a store
+          this caller only reads.
+
+          NO WRITABLE FALLBACK. A read that fails is a refusal; it is never
+          retried with write access.
+
+        NOT `immutable=1`. That tells SQLite the file cannot change while it is
+        open, which is a promise this caller cannot make about a store a
+        serving manager may hold. `mode=ro` is the honest one.
+
+        THE AUTHORITY IS STILL PROVED, for `open`'s own reason: a store belongs
+        to one Authority for its whole life, and reading one under another
+        Authority's name would report somebody else's pipeline as this one's.
+        """
+        check_authority(authority_uuid,
+                        what="the Job store's Authority binding")
+        if type(path) is not str or path == "":
+            raise ContractRefusal(
+                "integrity", "path",
+                f"a read-only Job store needs an explicit path; this is "
+                f"{name_value(path)}")
+        if type(incarnation) is not str or incarnation == "":
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"a Job manager instance names its incarnation; this is "
+                f"{name_value(incarnation)}")
+        boundaries.capability(clock, "the Job manager's instant source")
+        if not os.path.isfile(path):
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"a read-only Job store requires an existing regular store; "
+                f"{name_value(path)} is not one, and this opener does not "
+                f"create what it was asked to read")
+        connection = None
+        try:
+            uri = "file:" + quote(os.path.abspath(path), safe="/") + "?mode=ro"
+            connection = sqlite3.connect(uri, uri=True, isolation_level=None,
+                                         timeout=_BUSY_TIMEOUT_MS / 1000)
+            connection.execute(f"PRAGMA busy_timeout = {_BUSY_TIMEOUT_MS}")
+            connection.row_factory = sqlite3.Row
+            if not cls._objects(connection):
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"the database at {name_value(path)} is empty; a read-only "
+                    f"Job store refuses it rather than initializing one")
+            version = cls._recognized(connection, path)
+            if version != SCHEMA_VERSION:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"the Job store at {name_value(path)} is schema "
+                    f"{name_value(version)} and this build is "
+                    f"{SCHEMA_VERSION}; a read-only open carries no migration "
+                    f"and will not change a store it was asked to read. "
+                    f"Nothing was changed")
             cls._bound(connection, path, authority_uuid)
-        cls._migrate(connection, version, path, authority_uuid)
-        cls._bound(connection, path, authority_uuid)
-        connection.execute("PRAGMA foreign_keys = ON")
+            connection.execute("PRAGMA foreign_keys = ON")
+            store = cls(connection, authority_uuid=authority_uuid,
+                        incarnation=incarnation, clock=clock)
+            store._now()
+            return store
+        except BaseException as failure:
+            # EVERY FAILURE CLOSES THE HANDLE, for `open`'s reason: a refused
+            # open that leaked one would hold access to a store this build has
+            # just said it must not touch.
+            if connection is not None:
+                try:
+                    connection.close()
+                except BaseException:
+                    pass
+            if isinstance(failure, sqlite3.Error):
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"the Job store at {name_value(path)} could not be read "
+                    f"through its non-writing opener "
+                    f"({name_value(type(failure).__name__)}); no write-capable "
+                    f"fallback was attempted") from None
+            raise
 
     @classmethod
     def _exactly_schema_three(cls, connection, path):

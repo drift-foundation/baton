@@ -1529,7 +1529,11 @@ class Composition(Lifecycle):
         # be about the boundary the launcher composed.
         self.assertEqual(host.get("PidsLimit"), 512)
         self.assertTrue(held["HostConfig"]["ReadonlyRootfs"])
-        self.assertEqual(held["Config"]["User"], "65532:65532")
+        # W194457: the deployment's SHARED execution identity, observed on a
+        # real composition. The historical pinned pair belonged to the split
+        # identity the 2026-09-17 ruling supersedes for this trusted path.
+        self.assertEqual(held["Config"]["User"],
+                         f"{os.geteuid()}:{self.group.gid}")
 
     # -- orphan recovery is bounded to the attempt that proved it stale ------
 

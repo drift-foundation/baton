@@ -48,6 +48,26 @@ from baton_v12.source_profiles import GIT_PROFILE
 NOW = "2026-09-10T05:00:00.000Z"
 UUID = "0123456789abcdef0123456789abcdef"
 WORK = "0123456f-W133117"
+
+# W202663: ONE PRODUCING WORKER'S INPUT MANIFEST, and the two identities it
+# carries. The conformance vector rather than a hand-built document, for the
+# reason the manifest suite gives: a manifest written to pass my own rules
+# proves less than the one the contract finding published.
+def _producer_manifest():
+    from tests.manager import input_roots
+
+    given, _assignment = input_roots.documents(
+        work_ref={"authority_uuid": UUID, "work_id": UUID[:8] + "-W1"},
+        participant="baton.impl", generation=1,
+        runtime_attempt_id="writer-b1")
+    return given
+
+
+def _producer_job_input():
+    from baton_v12.contracts import job_input_identity
+
+    return job_input_identity(_producer_manifest())
+
 TARGET = "target:mainline"
 REFERENCE = "refs/baton/integration/target"
 PRODUCER = "baton.producer"
@@ -238,7 +258,7 @@ class ResultCase(unittest.TestCase):
             "proposal_id": "proposal-b1", "result_id": "result-b1",
             "result_digest": "sha256:" + "1" * 64,
             "candidate_digest": self.candidate,
-            "input_digest": "sha256:" + "2" * 64,
+            "input_digest": _producer_manifest()["manifest_digest"],
             "policy_digest": "sha256:" + "3" * 64})
         self.issue_source_receipts()
         producer.pass_work({"expect": claimed["assignment"],
@@ -354,7 +374,8 @@ class ResultCase(unittest.TestCase):
                        "freeze_operation_id": "freeze-b1", "frozen_at": NOW,
                        "artifacts": []}
         self.job = {"job_id": "job-b", "submission_id": "submission-b",
-                    "ordinal": 0, "input_digest": "sha256:" + "2" * 64,
+                    "ordinal": 0,
+                    "input_digest": _producer_job_input(),
                     "policy_digest": "sha256:" + "3" * 64,
                     "test_scope": json.dumps(TEST_SCOPE),
                     "terminal_policy": "report-and-hold"}
@@ -377,6 +398,23 @@ class ResultCase(unittest.TestCase):
             "job_rows": lambda store: [copy.deepcopy(self.job)],
             "stages_of": lambda store, job_id: copy.deepcopy(self.stages),
         }
+        # W202663: THE PRODUCING WORKER'S OWN INPUT MANIFEST.
+        #
+        # Admission derives the Job-scoped projection from the manifest the
+        # producing attempt retained, so it now READS one. This double's
+        # manager is a `SimpleNamespace`, which is the honest shape for
+        # everything else it stands in for, so the retained document is
+        # supplied through the same `admission` patch surface the rest of this
+        # fixture already uses rather than by building a store.
+        #
+        # THE TWO IDENTITIES ARE KEPT DISTINCT HERE ON PURPOSE. The proposal
+        # names the manifest's WHOLE digest, as a real producer's does, and the
+        # Job names its projection -- so a case that confused them would fail
+        # rather than pass on a shared fixture constant.
+        self.producer_manifest = _producer_manifest()
+        patches["manifests"] = SimpleNamespace(
+            load_manifest=lambda store, digest, definition:
+                copy.deepcopy(self.producer_manifest))
         patch = mock.patch.multiple(admission, **patches)
         patch.start()
         self.addCleanup(patch.stop)
@@ -515,7 +553,12 @@ class ResultCase(unittest.TestCase):
         `admission` already binds to the Job, so the fixture supplies the same
         two values the Job row carries rather than arbitrary text.
         """
-        operands = {"input_digest": self.job["input_digest"],
+        # W202663: THE PRODUCER'S OWN RUNTIME DIGEST, which is what a derived
+        # publication carries and what `_accepted_digests` reads back off the
+        # producer's proposal. It used to be spelled as the Job's because the
+        # two were forced equal; they now correspond without being equal, and
+        # naming the Job's here would pin the publication to the wrong one.
+        operands = {"input_digest": _producer_manifest()["manifest_digest"],
                     "policy_digest": self.job["policy_digest"]}
         operands.update(over)
         return reconciliation.publish_result(
@@ -744,6 +787,30 @@ class TheSubmissionIsResolvedFromItsOwners(ResultCase):
         with self.assertRaises(ContractRefusal) as caught:
             self.prepare(proposal_id="never-published")
         self.assertIn("Authority refused", caught.exception.message)
+        self.assertEqual(self.store._connection.execute(
+            "SELECT COUNT(*) FROM integration_results").fetchone()[0], 0)
+
+    def test_a_producer_manifest_this_manager_does_not_retain_refuses(self):
+        """W202663, review207096. Admission establishes which JOB a candidate
+        belongs to by projecting the PRODUCING WORKER's own input manifest, so
+        it reads that manifest rather than trusting the proposal's digest. A
+        proposal naming a manifest this manager retains no document for is a
+        candidate whose Job membership cannot be established, and it is refused
+        as such rather than compared against nothing.
+        """
+        from baton_v12.integration import admission as admission_module
+
+        with mock.patch.object(
+                admission_module, "manifests",
+                SimpleNamespace(load_manifest=lambda *_a, **_k: None)):
+            with self.assertRaises(ContractRefusal) as caught:
+                self.prepare()
+        said = caught.exception.message
+        self.assertIn("retains no such document", said)
+        # THE DIGEST IS NAMED, and only its prefix is asserted: `name_value`
+        # bounds what a refusal quotes, so requiring the whole 71 characters
+        # would be asserting the diagnostic's width rather than its content.
+        self.assertIn(_producer_manifest()["manifest_digest"][:40], said)
         self.assertEqual(self.store._connection.execute(
             "SELECT COUNT(*) FROM integration_results").fetchone()[0], 0)
 
@@ -1115,9 +1182,16 @@ class TheEvidenceIsItsOwnersAndBindsTheseBytes(ResultCase):
         """
         authorized = self.through_authorization()
         proposal = self.authority.proposal(authorized["derived_proposal_id"])
+        # W202663: THE PRODUCER'S RUNTIME DIGEST, which is what
+        # `_accepted_digests` reads off the producer's proposal and what
+        # `publish` therefore binds into the custody basis. The Job's own
+        # digest is now its input's projection and is a different value, so
+        # naming it here would recompute a basis the receipts were never
+        # written against.
         basis = reconciliation._custody_basis(
             authorized, authorized["derived_result_id"],
-            self.job["input_digest"], self.job["policy_digest"])
+            _producer_manifest()["manifest_digest"],
+            self.job["policy_digest"])
         self.assertEqual(digest(basis), proposal["result_digest"])
         self.assertEqual(digest(basis), authorized["derived_result_digest"])
         for member, value in (

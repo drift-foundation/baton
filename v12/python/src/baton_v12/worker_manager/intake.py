@@ -59,6 +59,8 @@ positive observation. That is refused with the reason stated, rather than
 worked around by writing the terminal value some other way.
 """
 
+import json
+
 from ..contracts import (ContractRefusal, check_no_durable_secret, digest,
                          own)
 from ..contracts.errors import name_value, sample_of
@@ -502,6 +504,34 @@ def request_intake(store, port, adapter, *, attempt_id):
     attempt = _attempt_of(store._connection, attempt_id)
     expect = _require_assignment(attempt, attempt_id)
     _require_participant(port, expect, attempt_id)
+    # THE COMMITTED RECEIPT COMES BEFORE THE PRECONDITION, and W197661 is why.
+    #
+    # `review_driver.end_implementation` promises that every one of its nine
+    # steps replays and that a death between any two re-enters and finishes.
+    # STEP FIVE DID NOT. `_collectable` admits `frozen` only and runs ahead of
+    # `record_intake`'s replay -- but `sealed` is the state a SUCCESSFUL intake
+    # LEAVES BEHIND, observed at the end of `_seal`. So an ending that got past
+    # intake and failed at retention, publication or the freeze refused here
+    # forever, and the stage stayed `answering` and asked again on every tick.
+    #
+    # Measured on a real deployment rather than reasoned about: two reconciles
+    # 72 seconds apart each owed `conclude` for one attempt and each deferred
+    # it with this function's own precondition.
+    #
+    # WHY RESUMING THE RECEIPT RATHER THAN ADMITTING `sealed`. Letting a sealed
+    # output through `_collectable` would carry a SECOND, possibly different
+    # collection into the custody comparison, which is the opposite of taking
+    # custody once. `intake_operation` derives its identity from the attempt
+    # row alone -- no adapter bytes -- so the committed answer can be found
+    # without collecting anything again, and what is returned is the journal's
+    # own byte-stable result rather than a recomputed one.
+    #
+    # NARROW ON PURPOSE. Only a COMMITTED record replays. An absent one, and a
+    # refused one, fall through to exactly the behaviour they have today: this
+    # corrects a re-entry that could not finish, and decides nothing else.
+    settled = _settled_intake(store, attempt)
+    if settled is not None:
+        return settled
     frozen = _collectable(store, attempt, attempt_id)
     operation = collect_operation(attempt)
     signature = manager_signature(
@@ -523,6 +553,38 @@ def request_intake(store, port, adapter, *, attempt_id):
         "operation": dict(operation)})
     return record_intake(store, port, attempt_id=attempt_id,
                          collected=collected)
+
+
+def _settled_intake(store, attempt):
+    """This attempt's ALREADY COMMITTED intake receipt, or nothing.
+
+    W197661. The identity is `intake_operation`'s -- derived from the attempt
+    row, so it names THE ACT rather than any particular collection's bytes, and
+    it can be asked for without calling an adapter.
+
+    NO SIGNATURE COMPARISON HERE, AND THAT IS NOT A WEAKENING. `store.replay`
+    compares the signature because a CALLER supplies the identity there, and a
+    reused id must not replay somebody else's outcome. This identity is not
+    supplied: it is derived from the persisted attempt, and the signature it
+    would be compared against is over the collected bytes -- which is precisely
+    what this path exists to avoid asking the adapter for a second time. The
+    `kind` is still compared, because that is a fact about the row rather than
+    about today's operands.
+
+    ONLY `committed`. A refused record must keep raising through the ordinary
+    path, and an absent one is an ordinary first entry; answering either from
+    here would be inventing an outcome.
+    """
+    row = store.operation_record(intake_operation(attempt)["operation_id"])
+    if row is None or row["state"] != "committed" \
+            or row["kind"] != "intake.record":
+        return None
+    # BYTE-STABLE, from the journal. `store.replay` returns the recorded JSON
+    # rather than recomputing it, for the reason this needs too: the receipt an
+    # ending resumes has to be the receipt it recorded, member for member.
+    if row["result"] is None:
+        return None
+    return json.loads(row["result"])
 
 
 def _collectable(store, attempt, attempt_id):

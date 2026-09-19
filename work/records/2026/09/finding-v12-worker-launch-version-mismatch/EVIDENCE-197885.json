@@ -1,0 +1,325 @@
+{
+  "claim": 197885,
+  "work": "2b077949-W197661",
+  "role": "impl",
+  "authorizes": {
+    "owner": "baton.slaw seq197881 \u2014 accept the five-file source candidate; pin and update PLAN; record the excluded Docker executions and correct the timing WITHOUT rerunning for accounting; address the pipe-cleanup and documentation findings; SELECT PLAN step 4 (compatible provider and integration images, immutable base, exact provenance, final digests, authorized builds and bounded deterministic container smoke, no live models)",
+    "review": "review-2026-09-17T22-10-41Z.md sha256 10cce0abb1cffb380fd4d1e9e0e5cff1197964023a22ebf49d1119fb9712c01b",
+    "review_evidence": "REVIEW-EVIDENCE-197850.json sha256 fad622bd002d6318a2297dc204ca10031d0f8f272e171d991801d9861b3e1b56"
+  },
+  "engine": "a real Docker daemon: two authorized image builds, never-started inspection containers, and six bounded smoke containers. NO model, credential, network, package install, download, image selection, deployment, production store/runtime touch or Git mutation.",
+  "source_changed_this_claim": {
+    "v12/worker/baton_worker.py": {
+      "accepted_at_197850": "dcd35334ce1de5ed992569e46e8714f6614182a8f880a34d3f68557b5b77398f",
+      "now": "8a5f4895ff7f6609934c0b2078ae294233c1c2ebbb28390da1c1966af5dcd8a1"
+    },
+    "v12/python/tests/manager/test_worker_entry.py": {
+      "accepted_at_197850": "af383ee96dc1f6b7e4103ee8ca40d3b17818d0f19b51ad9315a4d0673898415a",
+      "now": "3c830b88336a6247301be1f38e060a668a519f4c48df5c32efc410c64f14567b"
+    }
+  },
+  "source_unchanged_since_acceptance": {
+    "v12/python/tests/manager/test_exchange.py": "2888f570b6268daeb323674e5b55492fa7a4ae881b2393bf7011307a26f1928e",
+    "v12/python/tests/manager/test_worker_container.py": "340a51a033a5de8a47ae16d32c5a03154042a76f3850c9bcb51e527ffe14a957",
+    "v12/python/tests/tools/test_execution_limits.py": "2a8f724cd636b7579a854b2a0b403a708765a658f88af409db92d0852511c27c"
+  },
+  "why_source_changed": {
+    "v12/worker/baton_worker.py": "COMMENTS ONLY, for review finding 4. No statement, expression, constant or control flow changed; the accepted behaviour is byte-for-byte the same program. Three comment blocks and two docstrings now describe a conservative refusal-channel policy instead of claiming every later generation speaks the exchange, and state that worker_entry.MAX_STDERR bounds the FRAMED transport's collection rather than proving the exchange path imports container stderr.",
+    "v12/python/tests/manager/test_worker_entry.py": "review finding 3: the held-open-pipe case now owns BOTH pipe ends and releases the writer before joining on failure. No assertion changed."
+  },
+  "review_finding_1_execution_scope": {
+    "what": "the reviewer required owner disposition for the real image builds and containers claim197743 ran through test_worker_container",
+    "outcome": "owner seq197881 selected PLAN step 4 and authorized necessary image builds and bounded deterministic container smoke checks",
+    "note": "the prior runs are recorded in the accounting correction below and in FINDING; no production runtime was changed by any of them"
+  },
+  "review_finding_2_accounting_correction": {
+    "method": "RECONSTRUCTED from the outputs those runs printed. Nothing was rerun to settle accounting, per the owner's instruction.",
+    "claim197743_reported": 116.5,
+    "claim197743_corrected": 235.6,
+    "docker_executing_runs": [
+      {
+        "what": "five-suite adjacent set, first attempt",
+        "unittest_seconds": 75.046,
+        "wall_seconds": 75.328,
+        "outcome": "1 failure (the superseded /2 container case)",
+        "previously_reported": false
+      },
+      {
+        "what": "tests.manager.test_worker_container alone",
+        "unittest_seconds": 31.103,
+        "wall_seconds": 31.314,
+        "outcome": "OK",
+        "previously_reported": true
+      },
+      {
+        "what": "six-suite adjacent set",
+        "unittest_seconds": 84.214,
+        "wall_seconds": 84.534,
+        "outcome": "OK",
+        "previously_reported": true
+      },
+      {
+        "what": "confirmation rerun, three worker suites",
+        "unittest_seconds": 31.367,
+        "wall_seconds": 31.615,
+        "outcome": "OK",
+        "previously_reported": "reported in pass197848, omitted from the total"
+      }
+    ],
+    "local_only_runs": [
+      {
+        "what": "tests.manager.test_worker_entry",
+        "unittest_seconds": [
+          0.009,
+          0.01
+        ]
+      },
+      {
+        "what": "tests.manager.test_exchange",
+        "unittest_seconds": [
+          0.41,
+          0.421
+        ]
+      }
+    ],
+    "reproduction_probes": "the PRE-correction reversal blocked four cases at a 3.0s bound and one at 1.0s, about 13.0s measured inside the script; post-correction runs are about 0.001s each and were run four times",
+    "not_a_gate": "owner ruling 2026-09-14: cumulative stopwatch budgets are not approval or execution gates"
+  },
+  "review_finding_3_fixture_cleanup": {
+    "fixed": "tests.manager.test_worker_entry.AnInvalidLaunchNeverWAITSForAChannelNobodyWrites.test_a_held_open_empty_stdin_does_not_hold_the_container",
+    "verified": "the reviewer's exact 229-test selection now runs clean under -W error::ResourceWarning, 0.444s"
+  },
+  "review_finding_4_documentation": {
+    "corrected": "/3 and /4 may validly carry no transport, so the split is a conservative refusal-channel policy and not a claim about the later generations; MAX_STDERR is the framed transport's bound and not proof of exchange-path stderr collection",
+    "where": "baton_worker.py comments and docstrings, FINDING clarification",
+    "integration_entry_limit": {
+      "read_by_reviewer": "the non-managed branch returns 2 silently on an invalid launch",
+      "MEASURED HERE": {
+        "returncode": 2,
+        "stderr": "",
+        "stdout": ""
+      },
+      "beside_it": {
+        "returncode": 3,
+        "stderr": "baton-worker: launch: /run/baton/launch.json says it is 'baton.worker-launch/5' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of\n",
+        "stdout": ""
+      },
+      "disposition": "recorded follow-on; deliberately NOT taken in this claim. It does not hang -- the corrected defect is absent there -- what is missing is the diagnostic."
+    }
+  },
+  "step_4_image_preparation": {
+    "package": "prepared-197885/",
+    "package_sha256": {
+      "prepared-197885/build_images.py": "9edc0c4b81d163d18b999e3967fcafd65541c678dc9764628254d27eddfb1b2b",
+      "prepared-197885/candidate-images.json": "eb1e25149472669e40c11fd0959e91246977341ca1abfd6069f66fa9c305ff33",
+      "prepared-197885/image-context/Dockerfile.provider": "8a31a0b03c4e249e104da474596d5c93d32e0934198ce6c67ccb5b83103b1f49",
+      "prepared-197885/image-context/python/src/baton_v12/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "prepared-197885/image-context/python/src/baton_v12/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "prepared-197885/image-context/worker/Dockerfile.integration": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "prepared-197885/image-context/worker/baton_worker.py": "8a5f4895ff7f6609934c0b2078ae294233c1c2ebbb28390da1c1966af5dcd8a1",
+      "prepared-197885/image-context/worker/claude_agent.py": "ac7c8e6e07172e49e354381788ad6b01b1377daf56034cf1d06df6e6be819955",
+      "prepared-197885/image-context/worker/dogfood_entry.py": "bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+      "prepared-197885/image-context/worker/integration_contract.py": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+      "prepared-197885/image-context/worker/integration_entry.py": "23cc2608732e885bda617c470f84de417b2f016c5a3bd3edf8e782097e81de66",
+      "prepared-197885/image-context/worker/integration_workload.py": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+      "prepared-197885/image-context/worker/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "prepared-197885/image-context-manifest.json": "b958dfbdf1ffb74a8837e65fddea51138b7adc9d151aa2765c48e683c0b32eb3",
+      "prepared-197885/provider-installation.json": "9e3d935af693105616a45bb4d61bedbcc5fd21ac9318ab44baf7fc314cffea80"
+    },
+    "shape_taken_from": "prepared-149053/build_images.py, independently accepted for exactly this act",
+    "immutable_base": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+    "base_provenance": "the already-validated provider installation (runtime 2.1.247, trust store, python3, git) bound by prepared-149053; its provider-installation.json is copied beside the script unchanged and every one of its files was re-verified inside BOTH candidates",
+    "build_flags": [
+      "--pull=false",
+      "--no-cache",
+      "--network none",
+      "--platform linux/amd64"
+    ],
+    "recipes": {
+      "provider": "prepared-197885/image-context/Dockerfile.provider (COPY-only; installs nothing)",
+      "integration": "the tree's own v12/worker/Dockerfile.integration with PROVIDER_BASE set to the immutable base, as prepared-149053 did"
+    },
+    "context_proved": "against image-context-manifest.json AND against the reviewed tree, before either build",
+    "context_unchanged_since_september_12": [
+      "worker/dogfood_entry.py",
+      "worker/worker-control-1.0.schema.json",
+      "worker/Dockerfile.integration",
+      "python/src/baton_v12/source_profiles/__init__.py",
+      "python/src/baton_v12/source_profiles/checkout.py"
+    ],
+    "candidate_digests": {
+      "integration": "sha256:dac354d89aa879fe0b802bda48f04d0b7e52c95c92fc22a97d84f6e1d23b4407",
+      "provider": "sha256:35f36286cb1653712dc3a62b3e5ba9b02d06e04ac4306a77e31a1c11777f0e06"
+    },
+    "selected": false,
+    "payload_binding": {
+      "method": "every image-delivered file read out of a NEVER-STARTED container with docker cp and compared byte for byte",
+      "baton_worker_in_both_images": {
+        "bytes": 136532,
+        "mode": 436,
+        "sha256": "sha256:8a5f4895ff7f6609934c0b2078ae294233c1c2ebbb28390da1c1966af5dcd8a1"
+      },
+      "also_checked": "ordered base-layer prefix, linux/amd64, user 65532:65532, the expected entrypoints, and no ANTHROPIC_/CLAUDE_CODE_OAUTH_TOKEN environment override"
+    },
+    "smoke": {
+      "confinement": "every smoke container runs under the manager's own oci.RESTRICTIONS, imported rather than retyped",
+      "no_model": "describe dispatches no provider by contract, and nothing else in the smoke reaches an agent; no credential, no network, no mount but the launch document",
+      "results": {
+        "integration": {
+          "reads": {
+            "supported": [
+              "baton.worker-launch/1",
+              "baton.worker-launch/2",
+              "baton.worker-launch/3",
+              "baton.worker-launch/4"
+            ],
+            "validated": [
+              "contract",
+              "job_execution",
+              "role",
+              "schema",
+              "session",
+              "transport"
+            ]
+          },
+          "unreadable_generation": {
+            "returncode": 2,
+            "stderr": "",
+            "stdout": ""
+          }
+        },
+        "provider": {
+          "describe": {
+            "answers": [
+              {
+                "answer": {
+                  "launch": [
+                    "contract",
+                    "role",
+                    "schema",
+                    "session"
+                  ],
+                  "operations": [
+                    "describe",
+                    "work"
+                  ],
+                  "protocol": "baton.worker-entry/1"
+                },
+                "ok": true,
+                "operation_id": "op-smoke-1",
+                "protocol": "baton.worker-entry/1",
+                "session": "session-w197661-smoke"
+              }
+            ],
+            "returncode": 0
+          },
+          "held_open_stdin": {
+            "returncode": 3,
+            "stderr": "baton-worker: launch: /run/baton/launch.json says it is 'baton.worker-launch/5' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of\n",
+            "stdout_bytes": 0
+          },
+          "reads": {
+            "supported": [
+              "baton.worker-launch/1",
+              "baton.worker-launch/2",
+              "baton.worker-launch/3",
+              "baton.worker-launch/4"
+            ],
+            "validated": [
+              "contract",
+              "job_execution",
+              "role",
+              "schema",
+              "session",
+              "transport"
+            ]
+          },
+          "unreadable_generation": {
+            "returncode": 3,
+            "stderr": "baton-worker: launch: /run/baton/launch.json says it is 'baton.worker-launch/5' and this worker reads 'baton.worker-launch/1', 'baton.worker-launch/2', 'baton.worker-launch/3', 'baton.worker-launch/4'; a launch document from another generation is not one to read the recognised parts out of\n",
+            "stdout": ""
+          }
+        }
+      },
+      "the_incident_at_the_artefact": "the provider candidate under a /5 delivery with stdin held OPEN and EMPTY for the whole run: exit 3, zero stdout bytes, the bounded sentence on stderr"
+    },
+    "retained_for_custody": {
+      "inspection_containers": {
+        "integration": "f3a421a2111820c3d68e789934abfff81c2788990ded5a899d172d9cc9b4ecc6",
+        "provider": "eeec6a5e77d98d7d8bc67a27c60e45c1ad6f3af89f740f7d7f32f6ca7e67cba3"
+      },
+      "note": "both are Created and were never started; the build log, every command stderr, both image inspections, both container inspections and result.json are under prepared-197885/image-build, and the exact mounted launch documents under prepared-197885/smoke-scratch"
+    },
+    "wall_seconds": 2.294392933952622,
+    "docker_commands": 39
+  },
+  "verification_this_claim": [
+    {
+      "what": "tests.manager.test_worker_entry under -W error::ResourceWarning",
+      "checks": 66,
+      "unittest_seconds": 0.009,
+      "result": "OK"
+    },
+    {
+      "what": "the reviewer's exact 229-test selection under -W error::ResourceWarning",
+      "checks": 229,
+      "unittest_seconds": 0.444,
+      "result": "OK"
+    },
+    {
+      "what": "worker_entry + exchange + tools.execution_limits after the comment corrections",
+      "checks": 335,
+      "unittest_seconds": 43.852,
+      "result": "OK",
+      "engine": "test_execution_limits runs container cases"
+    },
+    {
+      "what": "worker_container + worker_entry + exchange, confirming the corrected source AT THE ARTEFACT",
+      "checks": 245,
+      "unittest_seconds": 31.468,
+      "wall_seconds": 31.716,
+      "result": "OK",
+      "engine": "builds a real image from v12/worker"
+    },
+    {
+      "what": "prepared-197885/build_images.py",
+      "wall_seconds": 2.294392933952622,
+      "docker_commands": 39,
+      "result": "complete"
+    }
+  ],
+  "cumulative_verification": {
+    "claim197743_corrected": 235.6,
+    "claim197885": 107.8,
+    "work_total_measured": 343.4,
+    "note": "claim197664 ran zero tests and recorded its read/static time as unmeasured; reviewer claim197850 measured 0.6543339140480384s and reported one earlier invocation whose duration is unknown"
+  },
+  "not_this_claim": {
+    "why": "the working tree also carries W194457's shared-workspace-identity candidate, awaiting its own independent review. This claim did not read, run or edit any of it, and none of it enters either image: only source_profiles crosses from baton_v12 and it is untouched.",
+    "paths": [
+      "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "v12/python/src/baton_v12/worker_manager/oci.py",
+      "v12/python/src/baton_v12/worker_manager/custody.py",
+      "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "v12/python/tools/single_worker.py",
+      "v12/python/tests/__init__.py",
+      "v12/python/tests/manager/test_workspaces.py",
+      "v12/python/tests/manager/test_review_cycles.py",
+      "v12/python/tests/manager/test_custody.py",
+      "v12/python/tests/manager/test_oci.py",
+      "v12/python/tests/manager/test_lifecycle_composition.py"
+    ]
+  },
+  "preserved_untouched": {
+    "instance": "/home/sl/baton-v12-instance-2026-09-17T20-29-21Z",
+    "work": "b6423787-W1",
+    "attempt": "attempt-a79dc740be49f5f6bf1897e639eda2eecd3172854cc5507a4f8702fdcd7726db",
+    "old_pair": {
+      "provider": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+      "integration": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+      "note": "still incompatible with the manager's launch contract; preserved as evidence and not removed"
+    },
+    "also": "no v12 store opened, no runtime restarted, stopped, released or edited, no resubmission, no installed runtime updated, no production retry"
+  },
+  "git_diff_check": "passes; no whitespace defect"
+}

@@ -1,0 +1,24 @@
+{
+  "claim": 206898,
+  "author_claim": 206704,
+  "review": "review-2026-09-18T22-36-46Z.md",
+  "source_hashes": {
+    "v12/python/src/baton_v12/contracts/manifest.py": "8154e23c78b5adba0daf54788fe29d023b44e337a314cc3e8e430906b841d745",
+    "v12/python/src/baton_v12/integration/admission.py": "9bf4cab3831255e341c01c2d06dc3f5ac07a817e5bb3ece197b4e365c97ea131",
+    "v12/python/src/baton_v12/integration/driver.py": "531662e23bd419fc69b9a67757614f472a0359f9eb73859b3df7321c7d88bc93",
+    "v12/python/tools/single_worker.py": "ae3cea784e7396382fc73f14dbb089251e1d8a5433083f0e508b016008bea50c",
+    "v12/python/tools/stage_execution.py": "d1f14258cede51ffdc62fbe9c7d639cd736779d6226997f7c730e89a12b5f553",
+    "v12/python/tools/dogfood_operator.py": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620"
+  },
+  "probe": {
+    "worker_image_change_shared_equal": true,
+    "manifest_id_change_shared_equal": false,
+    "created_at_change_shared_equal": false,
+    "role_instructions_change_shared_equal": false,
+    "legacy_full_equals_projection": false,
+    "seconds": 0.0056628320016898215
+  },
+  "suite_runs": 0,
+  "deployment_runs": 0,
+  "disposition": "changes-requested; incomplete authorized migration"
+}

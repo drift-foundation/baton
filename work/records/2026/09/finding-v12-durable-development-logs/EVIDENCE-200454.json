@@ -1,0 +1,83 @@
+{
+  "work": "W198667",
+  "claim": 200454,
+  "author": "baton.claude",
+  "answering": {
+    "review": "review-2026-09-18T04-53-08Z.md",
+    "sha256": "b76f91d9451ae01d85f2f6c3404333568e1cc36b68bc221ba2f5a1eb07ea43d8",
+    "review_evidence": "REVIEW-EVIDENCE-200300.json",
+    "hashes_verified_against_tree": true
+  },
+  "candidate": {
+    "v12/worker/claude_agent.py": "a0ff45308fbb4c3d548511439a1eb1cd89ef7ba86a96b277c2cad0d705a7f07b",
+    "v12/python/tests/manager/test_attempt_logs.py": "a084c71714563cbc58da6f8d9a9207fd951f5ddecb5ce41f718a4ca3fbfcf6a7"
+  },
+  "prior_candidate_verified_before_editing": {
+    "v12/worker/claude_agent.py": "1d75a0435bcf6f75e39765b2d6bf4263f102304154bae276085499e2ccd5b6b4",
+    "v12/python/tests/manager/test_attempt_logs.py": "1dea8e09399d6f03a4429810b9a93d803501d0d845e0ccaf7fb20d881c3ce43d"
+  },
+  "reproduced_before_correcting": {
+    "script": "/tmp/w198667-claim200454/probe_before.py",
+    "unicode_generation": "ValueError: invalid literal for int() with base 10: '²'",
+    "long_digit_generation": "ValueError: Exceeds the limit (4300 digits) for integer string conversion: value has 4301 digits",
+    "retained_fifo": "bounded child exceeded 2s and was killed and reaped by subprocess.run; native still held .retention.json and the fifo"
+  },
+  "corrections": {
+    "R1": {
+      "site": "claude_agent.py:_generation_of, via _believed / _read_retention / _retain_native",
+      "change": "the generation suffix is decided as a bounded ASCII numeral (_GENERATION), with no integer conversion; unrecognised entries are dropped and declared, provable entries survive",
+      "after": "both documents now declare 'the retention record held entries this capture will not act on' and the source is retained normally"
+    },
+    "R1_sweep": {
+      "asked": "check other parser/validation exceptions under the same bounded malformed-document contract",
+      "found": "a bound on BYTES is not a bound on DEPTH: json.loads raises RecursionError, which is not a ValueError, on a document a fifth of MAX_RETENTION",
+      "sites_closed": ["_read_retention (the retention record)",
+                       "_review_report (the review report)",
+                       "_read_task (the task document)"],
+      "site_already_correct": "the provider record decode already caught RecursionError",
+      "scope_note": "self-declared addition beyond the record boundary the review named; same defect class, same candidate file, found by the check the review asked for"
+    },
+    "R2": {
+      "sites": ["claude_agent.py:_retained_size", "claude_agent.py:_reconciled",
+                "claude_agent.py:_appended (source open)",
+                "claude_agent.py:_appended (destination open)"],
+      "change": "a destination that is not a regular file answers None and becomes a new generation with the reason declared; BOTH data descriptors are acquired O_NONBLOCK and refused unless fstat says S_ISREG",
+      "why_two_layers": "the name-level check cannot close the check-then-open race, and O_NONBLOCK alone refuses only a fifo nobody is reading -- a peer that IS reading would otherwise receive this attempt's log bytes",
+      "after": "the reviewer's fifo probe returns with 'a retained native file is not a regular file this capture can account for' and the source's bytes are kept at s.jsonl%232"
+    }
+  },
+  "reversal_probe": {
+    "how": "a scratch copy of claude_agent.py with all five corrections undone, run against the new cases, then removed; the tree carries only the corrections",
+    "result": "all 12 new cases fail -- 3 bounded children time out at 10s, 5 raise ValueError or RecursionError, 5 assert the old wrong answer",
+    "transcript": "/tmp/w198667-claim200454/reversal.txt",
+    "corrected_my_own_description": "I had written that a source fifo makes the open itself wait; with a writer attached it does not -- the old code opened it, took it for a file and failed at the seek with 'a native file could not be positioned (OSError)'. The case is renamed and its docstring says what actually happens."
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "tests.manager.test_attempt_logs", "tests": 152, "new": 12, "result": "OK", "seconds": 1.469},
+      {"suite": "attempt_logs + attempt_logs_command", "tests": 174, "result": "OK", "seconds": 1.533},
+      {"suite": "affected set: attempt_logs, attempt_logs_command, claude_agent, integration_worker, worker_entry, launch, oci, exchange", "tests": 832, "result": "OK", "seconds": 25.877},
+      {"suite": "discover tests/job_manager", "tests": 842, "result": "OK", "seconds": 9.599},
+      {"suite": "W197661 shared: test_worker_container, test_execution_limits", "tests": 79, "result": "OK", "seconds": 31.086},
+      {"suite": "tests.manager.test_dependencies", "tests": 21, "result": "57 failures, 1 skipped", "baseline": "unchanged at 57, zero added", "seconds": 0.729}
+    ],
+    "measured_seconds_this_claim": 420,
+    "prior_spending": "preserved in EVIDENCE-198698 through EVIDENCE-200182 and the reviewers' own evidence; nothing recomputed or reattributed"
+  },
+  "images": {
+    "changed_this_claim": false,
+    "why": "attempt_log_format.py b138410504336969eebdb05ebcd544b9eed896c4e1c293a633f6cf4ab4e45f42, baton_worker.py 198a6fe96f93c27f539cfcfeee0206643048d3045fc94f3701603c36a749192f and scripted_agent.py f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c are byte-identical to fixture-199918's context copies",
+    "smoke": "claim199918's 8/8 still describes the current bytes; not re-run, rewritten or re-attributed",
+    "stated_limitation_stands": "that image carries no claude_agent.py and does not prove native capture"
+  },
+  "ownership": {
+    "edited": ["v12/worker/claude_agent.py", "v12/python/tests/manager/test_attempt_logs.py",
+               "FINDING.md", "PLAN.md", "PROGRESS.md", "EVIDENCE-200454.json"],
+    "not_edited": "every reviewer-owned review and REVIEW-EVIDENCE-*.json; all prior evidence files; attempt_log_format.py, attempt_logs.py, baton_worker.py, launch.py, oci.py, the tools command and every image recipe",
+    "W197661": "queued at baton.bug; its candidate paths, instance episode and image attribution untouched, and its two shared suites run green against this tree"
+  },
+  "not_done": "no live model, provider call, network, production action, recovery, resubmission, version-control mutation, direct coordination-store access, image build or re-attribution, credential read, public log publication, or new permission gate",
+  "synthetic_state": "/tmp/w198667-claim200454 (probes, reversal transcript, scratch copies); the reviewer's /tmp/w198667-review200300-v4ju1mdt is untouched"
+}

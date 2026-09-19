@@ -1,0 +1,168 @@
+{
+  "claim": 197743,
+  "work": "2b077949-W197661",
+  "role": "impl",
+  "authorizes": {
+    "owner": "baton.slaw seq197734 \u2014 PLAN steps 1-3, then independent review",
+    "research": "review-2026-09-17T21-44-59Z.md (claim197664)",
+    "decision_pinned_at": "FINDING.md, 2026-09-17 'owner decision PINNED'"
+  },
+  "engine": "a real Docker daemon builds and runs the worker image for tests.manager.test_worker_container; no model, provider, network, v12 store, installed runtime, production retry or Git mutation",
+  "candidate_sha256": {
+    "v12/worker/baton_worker.py": "dcd35334ce1de5ed992569e46e8714f6614182a8f880a34d3f68557b5b77398f",
+    "v12/python/tests/manager/test_worker_entry.py": "af383ee96dc1f6b7e4103ee8ca40d3b17818d0f19b51ad9315a4d0673898415a",
+    "v12/python/tests/manager/test_exchange.py": "2888f570b6268daeb323674e5b55492fa7a4ae881b2393bf7011307a26f1928e",
+    "v12/python/tests/manager/test_worker_container.py": "340a51a033a5de8a47ae16d32c5a03154042a76f3850c9bcb51e527ffe14a957",
+    "v12/python/tests/tools/test_execution_limits.py": "2a8f724cd636b7579a854b2a0b403a708765a658f88af409db92d0852511c27c"
+  },
+  "not_this_claim": {
+    "why": "the working tree also carries W194457's shared-workspace-identity candidate, which is awaiting independent review. This claim did not read, run or edit any of it.",
+    "paths": [
+      "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "v12/python/src/baton_v12/worker_manager/oci.py",
+      "v12/python/src/baton_v12/worker_manager/custody.py",
+      "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "v12/python/tools/single_worker.py",
+      "v12/python/tests/__init__.py",
+      "v12/python/tests/manager/test_workspaces.py",
+      "v12/python/tests/manager/test_review_cycles.py",
+      "v12/python/tests/manager/test_custody.py",
+      "v12/python/tests/manager/test_oci.py",
+      "v12/python/tests/manager/test_lifecycle_composition.py"
+    ]
+  },
+  "defect": {
+    "site": "v12/worker/baton_worker.py:serve \u2014 a WorkerFault from `launched` left `seen` empty, so `seen.get('transport')` could not reach the exchange branch and the loop entered read_frame(stdin) on a container whose production channel is the file exchange",
+    "second_site": "v12/worker/baton_worker.py:launched \u2014 MEMBERS were compared before the SCHEMA, so a newer generation was refused by listing /1's members; the supported-version sentence named three versions and omitted /4, which the same reader accepts",
+    "reported": "instance /home/sl/baton-v12-instance-2026-09-17T20-29-21Z, authority b6423787848c4a86a8c3a5df16b8e957, Work b6423787-W1, attempt attempt-a79dc740be49f5f6bf1897e639eda2eecd3172854cc5507a4f8702fdcd7726db, container 5fbc769b2159, PID1 in anon_pipe_read, empty logs and events; operator confirms it exited 137 at 2026-09-17T21:38:49.851872871Z"
+  },
+  "correction": {
+    "schema_first": "launched compares the version first and names every generation this worker reads, from SUPPORTED_LAUNCH_SCHEMAS",
+    "startup_channel": "serve waits on stdin for a REFUSED launch only when the document declares baton.worker-launch/1, the generation worker_entry.converse drives over stdin. Every other declared schema gets one bounded sanitized line on stderr and exit 3, with no stdin read, no stdout frame, no exchange document and no agent call.",
+    "trust_boundary": "the declared schema is the only member trusted from an invalid document and is trusted for exactly one decision: which failure channel to use. It selects no transport, execution, destination or peer.",
+    "no_manager_change": "none was needed; the manager already carries bounded worker stderr (worker_entry.MAX_STDERR) and already records how a runtime ended"
+  },
+  "reproduction": {
+    "script": "probes-197743.py",
+    "before": {
+      "every_exchange_generation": {
+        "blocked_for_the_whole_bound": true,
+        "seconds": 3.0,
+        "status": null,
+        "stderr": "",
+        "note": "measured this claim by reverting the serve branch in a scratch copy of baton_worker.py; the scratch copy was removed"
+      }
+    },
+    "after": {
+      "reported_three": {
+        "blocked_for_the_whole_bound": false,
+        "seconds": 0.0002,
+        "status": 3,
+        "error": null,
+        "stdout_bytes": 0
+      },
+      "future_five": {
+        "blocked_for_the_whole_bound": false,
+        "seconds": 0.0001,
+        "status": 3,
+        "error": null,
+        "stdout_bytes": 0
+      },
+      "invalid_two": {
+        "blocked_for_the_whole_bound": false,
+        "seconds": 0.0001,
+        "status": 3,
+        "error": null,
+        "stdout_bytes": 0
+      },
+      "schema_not_text": {
+        "blocked_for_the_whole_bound": false,
+        "seconds": 0.0001,
+        "status": 3,
+        "error": null,
+        "stdout_bytes": 0
+      },
+      "invalid_one_shot": {
+        "blocked_for_the_whole_bound": true,
+        "seconds": 1.0001,
+        "status": null,
+        "error": null,
+        "stdout_bytes": 0
+      }
+    },
+    "preserved_one_shot": "invalid_one_shot still blocks, deliberately: /1 is the generation a manager writes frames to"
+  },
+  "tests_added": [
+    "tests.manager.test_worker_entry.AnInvalidLaunchNeverWAITSForAChannelNobodyWrites (8 cases: every exchange generation refuses promptly; the version is named before its members; the supported set is the read set; a held-open empty pipe does not hold the container; the diagnostic is one bounded printable line; an unwritable stderr is still a refusal; an unreadable document is still uncorrelated and silent; a valid /1 still reads stdin)",
+    "tests.manager.test_worker_entry.TheRealWorkerAnswersTheRealTransport.test_a_supported_NULL_TRANSPORT_launch_still_uses_the_framing_loop",
+    "tests.manager.test_exchange.TheWorkerIsTheOtherEnd.test_a_REFUSED_LAUNCH_writes_nothing_and_the_exchange_says_WAITING",
+    "tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_given_the_REPORTED_document_refuses_promptly"
+  ],
+  "tests_changed": [
+    {
+      "case": "tests.manager.test_worker_entry.TheRealWorkerAnswersTheRealTransport.test_a_latched_launch_fault_answers_once_and_is_not_an_answer",
+      "why": "it drove an INVALID /2 \u2014 the exact shape the owner ruling supersedes \u2014 to pin the latched correlated fault. It now drives an invalid /1, which is the generation that behaviour is actually about. Same three assertions, unchanged.",
+      "authority": "standing test-change authority, AGENTS.md 2026-09-13"
+    },
+    {
+      "case": "tests.manager.test_exchange.TheWorkerIsTheOtherEnd.test_a_launch_document_naming_an_unknown_transport_is_latched -> ..._is_REFUSED",
+      "why": "it asserted status 1 for an invalid /2 over a CLOSED stdin. The status is 3 now; the property it exists for \u2014 the exchange beside it is untouched \u2014 is asserted unchanged.",
+      "authority": "standing test-change authority"
+    },
+    {
+      "case": "tests.manager.test_worker_container.RealContainersHoldTheTopology.test_a_container_whose_document_names_another_generation_latches -> ..._REFUSES",
+      "why": "same supersession at the artefact: a /2 document now ends non-zero having written NO frame, and says why on stderr. `talk` gained an opt-in want_stderr so a case about a stderr diagnostic can read it.",
+      "authority": "standing test-change authority"
+    },
+    {
+      "case": "tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_an_unknown_version_is_still_refused",
+      "why": "DOCSTRING ONLY. It explained the refusal by the old mechanism ('held to /1's member set'). No assertion changed.",
+      "authority": "standing test-change authority"
+    }
+  ],
+  "verification": {
+    "cadence": "failing reproduction, then the smallest adjacent regression set; no broad sweep",
+    "components": [
+      {
+        "what": "probes-197743.py before and after, plus a reversal probe in a removed scratch copy",
+        "seconds": 0.0002,
+        "result": "blocks for the whole bound before; ends in under a millisecond after"
+      },
+      {
+        "what": "tests.manager.test_worker_entry",
+        "checks": 66,
+        "unittest_seconds": 0.009,
+        "result": "OK"
+      },
+      {
+        "what": "tests.manager.test_exchange",
+        "checks": 128,
+        "unittest_seconds": 0.421,
+        "result": "OK"
+      },
+      {
+        "what": "tests.manager.test_worker_container \u2014 REAL image build and real containers against a live Docker daemon",
+        "checks": 51,
+        "unittest_seconds": 31.103,
+        "wall_seconds": 31.314,
+        "result": "OK"
+      },
+      {
+        "what": "the whole adjacent set: test_worker_entry, test_exchange, test_launch, test_worker_container, tools.test_execution_limits, tools.test_single_worker",
+        "checks": 576,
+        "unittest_seconds": 84.214,
+        "wall_seconds": 84.534,
+        "result": "OK"
+      }
+    ],
+    "total_measured_seconds_this_claim": 116.5,
+    "note": "the container suite builds the image from the current v12/worker directory, so the correction is verified at the artefact with the reported document shape, not only in process"
+  },
+  "not_done_and_why": {
+    "plan_step_4": "no compatible provider or integration image digest is established by this claim; digest-bound image preparation remains separate and unselected",
+    "plan_step_5": "the existing attempt's stop, fencing and fresh recovery remain the operator's, and nothing here restarted, stopped, released or edited it",
+    "manager_source": "no manager source change was enumerated or made",
+    "runtime_quiescence": "that a container which EXITS is observed quiescent for its exact identity is existing covered behaviour (test_oci.AbsenceIsProvedRatherThanInferred.test_the_four_states_are_distinct); this claim read that path rather than re-measuring it, and what it adds is that the container now exits at all"
+  },
+  "git_diff_check": "passes; no whitespace defect"
+}

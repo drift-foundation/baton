@@ -1,0 +1,147 @@
+Traceback (most recent call last):
+  File "baton_v12/worker_manager/workspaces.py", line 831, in check_workspace_storage
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/baton-v12-lifecycle-200564/storage'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "stack_command.py", line 257, in <module>
+  File "stack_command.py", line 253, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 485, in main
+  File "tools/job_manager.py", line 367, in _serve
+  File "tools/job_manager.py", line 316, in _operations_from
+  File "tools/stage_execution.py", line 6096, in factory
+  File "tools/stage_execution.py", line 5810, in operations_from
+  File "tools/single_worker.py", line 2834, in worker_preflight
+  File "baton_v12/worker_manager/workspaces.py", line 856, in configure_workspace_storage
+  File "baton_v12/worker_manager/workspaces.py", line 833, in check_workspace_storage
+  File "baton_v12/worker_manager/workspaces.py", line 1574, in _refuse
+baton_v12.contracts.errors.ContractRefusal: the configured workspace store '/home/sl/baton-v12-lifecycle-200564/storage' is not a directory this manager can see
+[PYI-846670:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+serving initialization complete: incarnation='v12-stack-846752-1789710106755922056' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-09-18T05:45:32.374Z",
+  "recovered": null,
+  "observed": 0,
+  "replaced": [],
+  "acts": [],
+  "started": [
+    {
+      "stage_id": "w197661-lifecycle/integration",
+      "episode": 1,
+      "attempt_id": "attempt-32c59006563e1d838fa182dc67cb97aa77fa02b4b5498f8216ce48079b3cba0a",
+      "outcome": "deferred",
+      "detail": {
+        "category": "refused",
+        "code": "capability",
+        "message": "this deployment configures no integration_instructions; the integrator's instruction bytes are sealed into the bundle it runs and where they live is deployment wiring"
+      }
+    }
+  ],
+  "spoken": [],
+  "refreshed": [
+    {
+      "stage_id": "w197661-lifecycle/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-8b7888de2ae25a6fa2abbab16e4ae06361c7400207f95584dee8c2a871e2d038",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w197661-lifecycle/review",
+      "episode": 1,
+      "attempt_id": "attempt-27b85aee204b6ab511e9254a3951b558ad13570624cb445333e38e51a7db8fac",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w197661-lifecycle/integration",
+      "episode": 1,
+      "attempt_id": "attempt-32c59006563e1d838fa182dc67cb97aa77fa02b4b5498f8216ce48079b3cba0a",
+      "state": "not-asked"
+    }
+  ]
+}
+serving initialization complete: incarnation='v12-stack-848714-1789710422423437584' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-09-18T05:50:03.869Z",
+  "recovered": null,
+  "observed": 0,
+  "replaced": [],
+  "acts": [],
+  "started": [
+    {
+      "stage_id": "w197661-lifecycle/integration",
+      "episode": 1,
+      "attempt_id": "attempt-32c59006563e1d838fa182dc67cb97aa77fa02b4b5498f8216ce48079b3cba0a",
+      "outcome": "deferred",
+      "detail": {
+        "category": "policy",
+        "code": "denied",
+        "message": "the selected integrator reads its bearer from slot 'claude' and this deployment's credential resolution carries a list"
+      }
+    }
+  ],
+  "spoken": [],
+  "refreshed": [
+    {
+      "stage_id": "w197661-lifecycle/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-8b7888de2ae25a6fa2abbab16e4ae06361c7400207f95584dee8c2a871e2d038",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w197661-lifecycle/review",
+      "episode": 1,
+      "attempt_id": "attempt-27b85aee204b6ab511e9254a3951b558ad13570624cb445333e38e51a7db8fac",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w197661-lifecycle/integration",
+      "episode": 1,
+      "attempt_id": "attempt-32c59006563e1d838fa182dc67cb97aa77fa02b4b5498f8216ce48079b3cba0a",
+      "state": "not-asked"
+    }
+  ]
+}
+serving initialization complete: incarnation='v12-stack-849078-1789710671960158951' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-09-18T05:54:03.328Z",
+  "recovered": null,
+  "observed": 0,
+  "replaced": [],
+  "acts": [],
+  "started": [
+    {
+      "stage_id": "w197661-lifecycle/integration",
+      "episode": 1,
+      "attempt_id": "attempt-32c59006563e1d838fa182dc67cb97aa77fa02b4b5498f8216ce48079b3cba0a",
+      "outcome": "deferred",
+      "detail": {
+        "category": "refused",
+        "code": "precondition",
+        "message": "this Job names input 'sha256:ed93aff03043a89cc6084c46a37e72eb4d23bb4f2ff950f98fd4d062fee92dcd' and the configured producer's manifest is 'sha256:066268e7264e2f81bc91ab20d6a04421c531c0497775125971086af51e05e3ce'; a required test selection describes the producer this Job ran"
+      }
+    }
+  ],
+  "spoken": [],
+  "refreshed": [
+    {
+      "stage_id": "w197661-lifecycle/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-8b7888de2ae25a6fa2abbab16e4ae06361c7400207f95584dee8c2a871e2d038",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w197661-lifecycle/review",
+      "episode": 1,
+      "attempt_id": "attempt-27b85aee204b6ab511e9254a3951b558ad13570624cb445333e38e51a7db8fac",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w197661-lifecycle/integration",
+      "episode": 1,
+      "attempt_id": "attempt-32c59006563e1d838fa182dc67cb97aa77fa02b4b5498f8216ce48079b3cba0a",
+      "state": "not-asked"
+    }
+  ]
+}

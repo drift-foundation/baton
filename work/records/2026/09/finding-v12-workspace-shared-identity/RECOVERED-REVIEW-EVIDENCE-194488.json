@@ -1,0 +1,38 @@
+{
+  "fixture": "/tmp/w194457-review194488-7kvc6kme",
+  "entries": 1101,
+  "cases": {
+    "provision": {
+      "returncode": 0,
+      "stdout": {
+        "peak_open_descriptors_from_os_open": 1020,
+        "successful_opens": 1020,
+        "first_open_errno": 24,
+        "limit": 1024,
+        "outcome": "ContractRefusal",
+        "message": "initial development-line access failed: OSError; no permissions were changed; keep the line materializing and ungranted",
+        "remaining_tracked_descriptors": 0,
+        "seconds": 0.00433459400665015
+      },
+      "stderr": ""
+    },
+    "consume": {
+      "returncode": 0,
+      "stdout": {
+        "peak_open_descriptors_from_os_open": 1021,
+        "successful_opens": 1021,
+        "first_open_errno": 24,
+        "limit": 1024,
+        "outcome": "ContractRefusal",
+        "message": "this manager cannot open '927' in the development line it is about to consume (OSError); the line is left exactly as it is and nothing is repaired",
+        "remaining_tracked_descriptors": 0,
+        "seconds": 0.002214805979747325
+      },
+      "stderr": ""
+    }
+  },
+  "ownership_and_modes_unchanged": true,
+  "source_sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+  "total_seconds": 0.31524335901485756,
+  "limits": "open tracking excludes scandir's internal descriptor and interpreter baseline; installed incident errno remains unknown"
+}

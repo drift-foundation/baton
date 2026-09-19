@@ -1,0 +1,18 @@
+{
+  "claim": 198746,
+  "command": [
+    "python3",
+    "-W",
+    "error::ResourceWarning",
+    "-m",
+    "unittest",
+    "tests.manager.test_integration_worker.EveryIntegrationRefusalSAYSWHY"
+  ],
+  "returncode": 0,
+  "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.001s\n\nOK\n",
+  "wall_seconds": 0.1765071590198204,
+  "sha256": {
+    "v12/worker/integration_entry.py": "cd77fd5c071dc16d31e35ad9f04338fa92b324db4e334c172e510da6cab085c8",
+    "v12/python/tests/manager/test_integration_worker.py": "7f6664dc2e1668660fb517cfdb7a42e686b58666f706a5346c6f7ba81e71b1cd"
+  }
+}

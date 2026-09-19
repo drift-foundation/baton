@@ -313,12 +313,38 @@ class ExecutionCase(CoordinatorCase):
                 "decision": {}, "result_id": result,
                 "result_digest": manifest,
                 "candidate_digest": "sha256:" + str(index) * 63 + "a",
-                "input_digest": "sha256:input",
+                "input_digest": self.producer_input,
                 "policy_digest": "sha256:policy",
                 "target": "revision-1", "published_at": self.NOW},
         }
 
     def _producers(self):
+        # W202663: A REAL RETAINED INPUT MANIFEST BEHIND THE PROPOSAL'S DIGEST.
+        # Admission now derives the Job-scoped projection from the producing
+        # worker's own manifest, read back out of the control store the
+        # attempt retained it in -- so a proposal naming a digest this manager
+        # holds no document for is refused rather than compared. That is the
+        # production shape (`single_worker` retains it before any result
+        # exists), and a double that named an unretained digest was describing
+        # a candidate this manager could never have admitted.
+        from baton_v12.contracts import job_input_identity
+        from baton_v12.worker_manager.manifests import retain_manifest
+        from tests.manager import input_roots
+
+        # THE WORK REFERENCE IS SELF-CONSISTENT, which this suite's own WORK
+        # is not: `check_work_ref` requires a Work id to carry its authority's
+        # eight-character prefix, and the retained manifest is validated on the
+        # way in. Admission never compares this manifest's work_ref, so a
+        # conforming one costs nothing and an ill-formed one would refuse for a
+        # reason that has nothing to do with what these cases measure.
+        given, _assignment = input_roots.documents(
+            work_ref={"authority_uuid": UUID_A,
+                      "work_id": UUID_A[:8] + "-W1"},
+            participant="baton.impl", generation=1,
+            runtime_attempt_id="writer-attempt-1")
+        retain_manifest(self.manager, given, "inputManifest")
+        self.producer_input = given["manifest_digest"]
+        self.producer_job_input = job_input_identity(given)
         self.candidates = {one: self._candidate(one) for one in (1, 2)}
         by_line = {c["line"]["line_id"]: c for c in self.candidates.values()}
         by_checkpoint = {c["checkpoint"]["checkpoint_id"]: c
@@ -345,7 +371,7 @@ class ExecutionCase(CoordinatorCase):
         self.jobs = SimpleNamespace(_connection=lambda: None,
                                     authority_uuid=UUID_A)
         self.job = {"job_id": "job-1", "submission_id": "submission-1",
-                    "ordinal": 0, "input_digest": "sha256:input",
+                    "ordinal": 0, "input_digest": self.producer_job_input,
                     "policy_digest": "sha256:policy",
                     "test_scope": json.dumps(TEST_SCOPE),
                     "terminal_policy": "report-and-hold"}

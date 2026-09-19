@@ -34,6 +34,7 @@ from .validate import validate_fragment, verify_manifest_digest
 __all__ = ["check_manifest_structure", "check_input_pair",
            "check_work_ref", "check_uri",
            "check_relative_path", "check_content_manifest",
+           "job_input_identity", "JOB_INPUT_EXCLUDED",
            "ARTIFACT_REF_MEMBERS", "CONTENT_MANIFEST_MEMBERS"]
 
 # EVERY EXPORTED RULE OWNS ITS OWN OPERAND.
@@ -618,6 +619,119 @@ def _check_input_manifest(owned, what):
     # What ended is this manager reading a source's acquisition locator, not
     # the grammar for locators it still receives.
     return owned
+
+
+# W202663: THE JOB'S INPUT IDENTITY, WHICH IS NOT THE WORKER'S.
+#
+# THE DEFECT THIS ANSWERS. `launch.py`'s Job execution context has always
+# carried `job_input_digest` and `runtime_input_digest` as TWO members, and
+# ruled on why: "JOB INPUTS AND RUNTIME INPUTS ARE DIFFERENT FACTS and are both
+# carried rather than compared ... requiring them equal would refuse the
+# ordinary case". Two comparisons were nevertheless written as though there
+# were one identity -- `single_worker._matches` and `integration.admission` --
+# and each compared a JOB-scoped digest against a WORKER-scoped document.
+#
+# What that cost is not abstract. A manifest carries the worker's own image, so
+# forcing every worker of a Job onto one manifest forced them onto one image;
+# and because a runtime runs its image's own ENTRYPOINT, it forced them onto one
+# PROGRAM. A deployment whose implementation, review and integration stages are
+# three different programs -- which is what the supported recipes are -- could
+# not be expressed at all. Owner ruling 2026-09-18T22:01:51Z (W202663): that is
+# a gap in realizing the provider-diverse architecture, not the architecture.
+#
+# SO THE SHARED IDENTITY IS DERIVED, NOT DECLARED. Nothing is added to the
+# document and no frozen schema asset moves, which is what keeps every built
+# worker image valid: a Job names the digest of its input manifest's JOB-SCOPED
+# PROJECTION, and each worker keeps its own full `manifest_digest` as the
+# runtime identity every attempt record, result manifest and recovery already
+# attributes to it. A second declared member would be a second place for one
+# fact, and the seal already proves a manifest identifies itself.
+#
+# WHAT IS PROJECTED OUT IS THE WORKER-RUNTIME AXIS AND NOTHING ELSE, and the
+# ruling's own words are the list: "provider image, credential profile, role and
+# participant remain separate". `toolchain_digest` travels with the image it
+# describes; `runtime_profile_digest` is already per-stage, because a Job's
+# stages each name their own `profile_name`/`profile_digest`; and
+# `manifest_digest` is the runtime identity itself, which cannot be part of what
+# it is being distinguished from.
+#
+# EVERYTHING ELSE STAYS SHARED AND THEREFORE STAYS COMPARED. `work_ref`,
+# `human_contract`, `sources`, `outputs`, `record_binding`,
+# `role_instructions_digest`, `policy_digest` and the resource, network, mount,
+# tool and retention policy digests are the Job's input, and a worker that moved
+# one of them is still refused. This widens WHICH DOCUMENTS AGREE, not WHETHER
+# they have to.
+# EVERY MEMBER IS CLASSIFIED, and the classification is the contract. Review
+# 206898 [R2] measured that the first version of this tuple was not enough:
+# changing only `manifest_id`, `created_at` or `role_instructions_digest`
+# changed the SHARED identity too, so three manifests independently composed for
+# three workers could never agree -- only three CLONES of one document could,
+# which proves nothing about the heterogeneity this exists to permit.
+# `dogfood_operator.input_manifest` authors `manifest_id` from the attempt id
+# and `created_at` from the clock, so neither was ever a common Job fact.
+#
+#   JOB INTENT, and therefore still compared, whole:
+#     schema, version, assignment_contract -- which contract this input is;
+#     work_ref                             -- which Work;
+#     human_contract                       -- which task, by content digest;
+#     sources, outputs                     -- what goes in and what may come out;
+#     record_binding                       -- which durable record it is bound to;
+#     policy_digest, resource_policy_digest, network_policy_digest,
+#     mount_policy_digest, tool_policy_digest, retention_policy_digest
+#                                          -- the Job-wide bounds;
+#     extensions                           -- declared input, not delivery.
+#
+#   WORKER RUNTIME OR PER-MANIFEST DELIVERY METADATA, and therefore projected
+#   out -- each one because the owner ruling names it separate, or because it
+#   is authored per manifest rather than per Job:
+#     worker_image_digest      the image this worker selects (the ruling);
+#     toolchain_digest         travels with that image;
+#     runtime_profile_digest   already per-stage: a Job's stages each name
+#                              their own profile_name/profile_digest;
+#     credential_policy_digest the credential profile (the ruling);
+#     role_instructions_digest the ROLE's own instructions -- an implementer
+#                              and a reviewer are told different things, and
+#                              the ruling makes role separate;
+#     manifest_id, created_at  authored per manifest, from an attempt id and a
+#                              clock; two manifests composed a second apart are
+#                              not two Jobs;
+#     manifest_digest          the runtime identity itself, which cannot be
+#                              part of what it is being distinguished from.
+#
+# THE SHARED POLICY DIGESTS ARE DELIBERATELY NOT DROPPED. Review 206898 [R2]
+# warned against mechanically projecting out every policy member, and it is
+# right: `policy_digest` and the resource, network, mount, tool and retention
+# bounds are what the JOB was admitted under, and a worker that moved one is
+# still refused. Only the credential profile leaves, because the ruling names
+# it separate.
+JOB_INPUT_EXCLUDED = ("worker_image_digest", "toolchain_digest",
+                      "runtime_profile_digest", "credential_policy_digest",
+                      "role_instructions_digest", "manifest_id", "created_at",
+                      "manifest_digest")
+
+
+def job_input_identity(input_manifest, *, what="an input manifest"):
+    """PUBLIC: the digest a JOB names, derived from one worker's manifest.
+
+    Two workers running one Job on two images produce two `manifest_digest`
+    values and ONE of these, which is the whole point.
+
+    IT OWNS ITS OPERAND, like every other exported rule here: a caller reaching
+    this directly may hand it anything, and a `dict` SUBCLASS executing hostile
+    `__getitem__` inside the contracts layer is the failure [P1] already
+    corrected on this surface. So the document is validated and owned first,
+    and the projection is taken from the owned copy.
+
+    IT REFUSES A MANIFEST THAT IS NOT AN INPUT ONE. A result or assignment
+    manifest has no Job input identity to derive, and deriving something
+    plausible from one would let a caller compare two things that were never
+    the same kind of document.
+    """
+    what = label_of(what)
+    owned = check_manifest_structure(input_manifest, "inputManifest",
+                                     what=what)
+    return digest({name: value for name, value in owned.items()
+                   if name not in JOB_INPUT_EXCLUDED})
 
 
 def check_manifest_structure(document, definition, *, what="a manifest"):

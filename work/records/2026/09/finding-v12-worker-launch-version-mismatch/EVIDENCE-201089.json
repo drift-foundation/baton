@@ -1,0 +1,86 @@
+{
+  "work": "W197661",
+  "claim": 201089,
+  "author": "baton.claude",
+  "disposition": "RETURNED INCOMPLETE — all four verifier findings corrected; the deterministic integrator and report-and-hold remain",
+  "answering": {
+    "review": "review-2026-09-18T06-41-32Z.md",
+    "sha256": "dfa1150277ba2ff05e17dced8657c348c6554fc8b5d2fcfcb61900b85f1ba604",
+    "review_evidence": "REVIEW-EVIDENCE-200998.json",
+    "review_evidence_sha256": "47f1874bffa7f09205314644d0a97f458ae8e656846d9500c5e7f9467f290f04",
+    "probes": "review-probes-200998.py"
+  },
+  "candidate": {
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/verify_lifecycle.py": "f56148d25949abf5ad82988aec0dbf1f13e906db344b5f9cfa0c8abc42daf54e",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/compose_lifecycle.py": "7705416604f87474f92f95a3c75ac44c53558dae53a0f4f088ac42309f5acd0c",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/CAPTURED-records.json": "2cf36d548ef63ab84598304d024968d382595598ce774824e73f247f636aa416",
+    "v12/python/tests/manager/test_w197661_verifier.py": "f5ad8a98dd073067605209da9a15a86cad1b38b351ec08b5fc903215bf3101c2"
+  },
+  "corrections": {
+    "R1": {
+      "defect": "judge accepted the ABSENCE of its own subject: expected replaced with an unrelated document and measured emptied made all five provenance comparisons None == None, and removing every stage attempt_id, the verdict's attempt and the line's custody made those compare equal too; zero failed checks in both reviewer probes",
+      "change": "_present decides whether a required value is there (None, empty string, empty document and empty list are all absent); Checks.bound requires both sides present before comparing; Checks.named requires an identity and matches it when one is given; each stage must also name an attempt",
+      "cases": "both reviewer probes exactly, plus empty-shape absence and the positive shape still passing under the stricter rule"
+    },
+    "R2": {
+      "defect": "check_policy_pin defaulted to Authority.open, which takes a write lock and sets a persistent journal mode; the reviewer's mocked-default probe recorded one writable call and zero read-only calls",
+      "change": "the default is Authority.open_readonly"
+    },
+    "R3": {
+      "defect": "the result was written with write_text under a reusable default claim, so a second run replaced the first's evidence and returned zero",
+      "change": "created with O_EXCL; a collision returns 2 with the previous bytes untouched; --claim is required with no default that can silently collide",
+      "cases": "a previous run's evidence written, main invoked, both the refusal and the surviving bytes asserted"
+    },
+    "R4": {
+      "defect": "read_records was an unconditional stub asserting 'this episode has no accepted verdict or checkpoint yet' -- which was FALSE, because implementation and review both completed there; I conflated an unimplemented reader with a refusal about the lifecycle",
+      "change": "real read-only adapters through ControlStore.open_readonly, review_cycles.integration_checkpoint, verdict_of, review_of and manifests.load_manifest; missing and unread are different answers and judge fails them separately",
+      "what_the_records_actually_say": {
+        "line": "accepted",
+        "verdict": "accepted, on checkpoint-69634255..., work af29c003-W1",
+        "checkpoint": "base e486652c..., head f9422b49..., paths [w197661-fixture.txt]",
+        "result": "completed"
+      },
+      "two_reader_guesses_of_mine_the_run_corrected": [
+        "I read attempt_id from the review attachment; its owner answers runtime_attempt_id",
+        "I read assignment_ref from the frozen output row; that row answers null and the identity lives in the retained result manifest"
+      ],
+      "what_is_honestly_unread": "the report-and-hold terminal is the integration stage observation's own state, produced by the deployment reader in tools.stage_execution, which composes an Authority and sessions and is not a read-only path a verifier may take",
+      "calibration": "CAPTURED-records.json holds what the adapters actually read, so the fixtures carry the owners' member names and a reader that drifts fails here rather than in a live run"
+    }
+  },
+  "live_result": {
+    "file": "instance-200564/verification-201089-final.json",
+    "checks": 37, "held": 34, "failed": 3, "exit": 1,
+    "failing": ["the integration stage COMPLETED", "the terminal record was READ",
+                "the Job reached its REPORT-AND-HOLD terminal"],
+    "note": "the three failures are the unreached integration, and no longer a claim about records that were there all along"
+  },
+  "an_artifact_I_removed": {
+    "file": "instance-200564/verification-201089.json",
+    "why": "it was produced by an intermediate state of THIS claim, before the two reader corrections; removed so two artifacts of one claim would not read as two runs of the finished verifier",
+    "untouched": "verification-200930.json and every earlier evidence file; the final run is verification-201089-final.json"
+  },
+  "not_done": {
+    "1": "the deterministic integrator through integration_entry.main(agent=...), satisfying the contract integration_workload.integrate states",
+    "2": "report-and-hold behind it, and the terminal reader once its record exists on a path a verifier may take"
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.655},
+      {"suite": "test_w197661_verifier + test_proposing_fixture + test_ending + test_exchange", "tests": 183, "result": "OK", "seconds": 0.764},
+      {"suite": "tests.tools.test_bootstrap", "tests": 125, "result": "OK", "seconds": 17.246},
+      {"suite": "W198667 shared tests.manager.test_attempt_logs", "tests": 178, "result": "OK", "seconds": 1.552},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "new_cases": 10,
+    "verifier_suite_total": 41,
+    "measured_seconds_this_claim": 900,
+    "prior_spending": "preserved in EVIDENCE-197743 through EVIDENCE-200930 and the reviewers' own evidence; approximately 1500s reported for claim200930 is retained as the estimate it is, and no exact cumulative total is asserted"
+  },
+  "read_only_throughout": "the control store opened mode=ro, the Authority through open_readonly, no engine, model, container, bootstrap, submission, deployment mutation or version control. Both destinations remain retained and stopped.",
+  "ownership": {
+    "not_edited": "reviewer-owned reviews and REVIEW-EVIDENCE-*.json; prior EVIDENCE-*.json; instance-200254; W198667's paths, whose suite runs green against this tree"
+  }
+}

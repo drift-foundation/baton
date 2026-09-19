@@ -1,0 +1,87 @@
+{
+  "_what": "What read_terminal and read_owned_proposal ACTUALLY read out of the retained run4 destination, through stage_execution.observation_from -> StageObservation.observe_integration and Authority.open_readonly. The verifier suite's positive fixture is built from these, so a reader that drifts from the owners' own member names fails its adapter case rather than passing against a hand-written shape.",
+  "observation_gap": {
+    "explains_the_gap": true,
+    "factory": "tools.stage_execution:observing_factory",
+    "only_difference": "the --observe operand and the configuration it requires; store, incarnation, authority and control store are identical",
+    "with_observe": "completed",
+    "without_observe": "starting"
+  },
+  "owned": {
+    "proposal": {
+      "assignment_ref": {
+        "generation": 1,
+        "participant": "baton.w197661-author",
+        "work_ref": {
+          "authority_uuid": "d8a042193ef54af182b1e3ee85240c5a",
+          "work_id": "d8a04219-W1"
+        }
+      },
+      "candidate_digest": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.w197661-author",
+        "grant": "direct",
+        "policy_generation": 9,
+        "principal": "principal:baton.w197661-author",
+        "role": "impl"
+      },
+      "input_digest": "sha256:5c17ca1ff4a8321eba21b906a3a811356bd2dd6dc20a98fe7da3045b878fbb37",
+      "policy_digest": "sha256:8b45f78e5f85bb016d9fcbdc183c8cdf9aded74297a6e48db845423a4c0aaf55",
+      "proposal_id": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+      "published_at": "2026-09-18T08:03:18.781Z",
+      "result_digest": "sha256:1903215591a3a5ced2dd946fd21747baf186f9547875056049eee24aa22c64f5",
+      "result_id": "result-attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+      "target": "e486652c4ddebfb696e030b4b867e914248db542"
+    },
+    "proposal_id": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+    "receipt": {
+      "actor": "baton.w197661-integrator",
+      "candidate_digest": "2802030e06e0a16d2991adc9e87e81842a6f0138",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.w197661-integrator",
+        "grant": "direct",
+        "policy_generation": 9,
+        "principal": "principal:baton.w197661-integrator",
+        "role": "integrate"
+      },
+      "disposition": "integrated",
+      "kind": "integration",
+      "policy_generation": null,
+      "proposal_id": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+      "receipt_id": "integration-driver.integration-receipt:6b6e9ed149fb80158be709489f0e8d316f55cc3616db4cb06dc6b5a0a062d0a1",
+      "recorded_at": "2026-09-18T08:03:50.217Z",
+      "target": "e486652c4ddebfb696e030b4b867e914248db542"
+    }
+  },
+  "terminal": {
+    "assignment": {
+      "generation": 3,
+      "participant": "baton.w197661-integrator",
+      "work_ref": {
+        "authority_uuid": "d8a042193ef54af182b1e3ee85240c5a",
+        "work_id": "d8a04219-W1"
+      }
+    },
+    "attempt_id": "attempt-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+    "completion": {
+      "entry_id": "integration-driver.entry:7a0af3af3d985df7c5ff66985829d0281c53e07ef59d8cb1dea1bb27dd16ed79",
+      "execution_runtime": "quiescent",
+      "fence": 1,
+      "handoff_operation_id": "integration-pass:attempt-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+      "integration_receipt_id": "integration-driver.integration-receipt:6b6e9ed149fb80158be709489f0e8d316f55cc3616db4cb06dc6b5a0a062d0a1",
+      "lease_id": "integration-driver.lease:ced30a7e115d83f0be959e0691b5f61ce276d8493e5def7fb71a14d8c60b3300",
+      "proposal_id": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+      "result_id": null,
+      "runtime_id": "cb62f302d67f34c36e2c109af49433952e32762d0dc95f3ee3ab67d9c4e4bc8d",
+      "source_proposal_id": "integration-driver.proposal:c929c2735ab2f55f167a5f6468278a9f1ea6f61a76c6baddb3d9aed5c8477225",
+      "to_route": "integration"
+    },
+    "episode": 1,
+    "offer_id": "offer-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+    "schema": "baton.v12.integration-stage-observation/1",
+    "stage_id": "w197661-lifecycle/integration",
+    "state": "completed"
+  }
+}

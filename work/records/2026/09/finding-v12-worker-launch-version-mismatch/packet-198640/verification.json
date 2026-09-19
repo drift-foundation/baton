@@ -1,0 +1,64 @@
+{
+  "all_true": true,
+  "checks": {
+    "a_deterministic_fake_provider_has_a_recipe_seam": true,
+    "the_accepted_provider_copies_no_scripted_agent": true,
+    "the_identity_is_unchanged": true,
+    "the_identity_reports_its_own_sha256": true,
+    "the_integration_image_carries_no_credential_override": true,
+    "the_integration_image_id_is_the_accepted_one": true,
+    "the_integration_image_inherits_the_immutable_base": true,
+    "the_integration_image_is_present": true,
+    "the_integration_image_keeps_its_entrypoint": true,
+    "the_integration_image_runs_as_the_fixed_pair": true,
+    "the_job_members_are_still_the_bootstrap's": true,
+    "the_launcher_bytes_match": true,
+    "the_launcher_is_present": true,
+    "the_manager_answers_identity": true,
+    "the_provider_image_carries_no_credential_override": true,
+    "the_provider_image_id_is_the_accepted_one": true,
+    "the_provider_image_inherits_the_immutable_base": true,
+    "the_provider_image_is_present": true,
+    "the_provider_image_keeps_its_entrypoint": true,
+    "the_provider_image_runs_as_the_fixed_pair": true,
+    "the_provider_recipe_injects_the_real_adapter": true,
+    "the_required_layout_is_still_the_bootstrap's": true,
+    "the_roles_are_still_the_bootstrap's": true,
+    "the_stopped_instance_does_not_name_an_accepted_image": true,
+    "the_stopped_instance_still_names_the_stale_image": true,
+    "the_worker_members_are_still_the_bootstrap's": true,
+    "workers_are_still_DEFERRED_from_the_instance_document": true
+  },
+  "engine": "read-only image inspection only",
+  "failed": [],
+  "identity": {
+    "build_stamp": {
+      "changed_entries": 25,
+      "commit": "e486652c4ddebfb696e030b4b867e914248db542",
+      "detail": null,
+      "dirty": true,
+      "excused_build_output": 0,
+      "schema": "baton.v12.build-stamp/1",
+      "source": "/home/sl/src/baton"
+    },
+    "command": "baton-v12-stack",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "frozen": true,
+    "machine": "x86_64",
+    "native_rpds": "/home/sl/src/baton/v12/python/build/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+    "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+    "python": "3.13.7",
+    "resources": "/home/sl/src/baton/v12/python/build/out/distro/_internal",
+    "schema_assets": {
+      "agent-session-1.0": 48212,
+      "worker-control-1.0": 51419
+    },
+    "sha256": "04d69e37a6e99621b5e7342aa6d6dfbdd7dcae0624301f827abf258c66c89e6c",
+    "version": "12.0.0"
+  },
+  "stopped_instance_image_digests": [
+    "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+    "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+    "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533"
+  ]
+}

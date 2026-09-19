@@ -1,0 +1,73 @@
+{
+  "work": "W197661",
+  "claim": 201432,
+  "author": "baton.claude",
+  "disposition": "RETURNED INCOMPLETE — the dispatch claim is corrected and covered at the real boundary; the fresh one-image episode, its lifecycle and the terminal reader remain",
+  "answering": {
+    "review": "review-2026-09-18T07-34-10Z.md",
+    "sha256": "74e244d4a88515f40c8d65dfbebe2a5a03c1fac37e7938349ea048c3955d0a1a",
+    "review_evidence": "REVIEW-EVIDENCE-201388.json",
+    "review_evidence_sha256": "76fe731ed8617dddecb8b012e4db4ce088af40ad671e1fbacce13c4b447e13d7",
+    "accepted_by_that_review": "the bounded importer helper slice and the recorded image-selection limitation"
+  },
+  "candidate": {
+    "v12/python/tests/manager/test_importing_fixture.py": "146a19ae833785a63fc5bb2b1f3b683bb954899194c81171187b38d66dc4fb0e"
+  },
+  "unchanged_this_claim": {
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/worker/importing_agent.py": "9bf6e62a9e7d78ce97d7cbc8fc32d3091a9e74ce86c7a2656a24f3f8008b61e6",
+    "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context-integration/worker/importing_entry.py": "c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1"
+  },
+  "the_gap_the_reviewer_caught": {
+    "what": "integration_entry.main checks for APPLY_REQUEST_DOCUMENT first; when it is present the entry constructs ManagedApplyAgent and IGNORES its agent= operand, reaching workload.managed_apply through baton_worker.main. Only the ordinary branch passes an injected agent into workload.integrate.",
+    "what_my_case_actually_proved": "it mocked integration_entry.main, so it established which agent importing_entry HANDS OVER, not which branch that function then takes",
+    "corrected_by": "five cases over the REAL main with only its two owners replaced, so the branch itself is what is observed"
+  },
+  "which_delivery_this_deployment_emits": {
+    "measured_from_the_composition": {
+      "rule": "stage_execution._prepares reads integration_preparation, defaults to False, and refuses anything that is not a real boolean; only the managed path composes an apply request",
+      "bootstrap_inputs.json": "integration_preparation absent",
+      "install_inputs.json": "integration_preparation absent",
+      "emitted deployment.json": "integration_preparation absent"
+    },
+    "measured_from_the_retained_run": "the clean destination holds no managed-results directory, no apply-input and no managed-apply.json anywhere",
+    "conclusion": "the ORDINARY delivery, which is the branch that runs an injected agent, so ImportingAgent is the right shape for this selection -- true when I claimed it, and unchecked until now"
+  },
+  "cases_added": {
+    "count": 5,
+    "class": "TheDISPATCHIsDecidedByTheDELIVERY",
+    "they_cover": [
+      "an apply request reaching baton_worker.main with a ManagedApplyAgent, and the injected agent NOT being the one used -- the reviewer's finding as a regression",
+      "an ordinary delivery reaching the workload with exactly this agent",
+      "this deployment's selection, measured from its composed documents",
+      "the retained run composing no apply input",
+      "an unreadable delivery REFUSING (exit 2) rather than falling back to proposing -- the fallback a one-image fixture must never have, covered before that fixture exists"
+    ],
+    "also": "the older injection case now states in its own docstring that it proves plumbing only"
+  },
+  "verification": {
+    "flags": "-W error::ResourceWarning",
+    "cwd": "v12/python",
+    "runs": [
+      {"suite": "discover tests/job_manager", "tests": 849, "result": "OK", "seconds": 9.669},
+      {"suite": "test_importing_fixture + test_w197661_verifier + test_proposing_fixture + test_integration_worker", "tests": 207, "result": "OK", "seconds": 13.496},
+      {"suite": "tests.tools.test_bootstrap", "tests": 125, "result": "OK", "seconds": 17.292},
+      {"suite": "W198667 shared tests.manager.test_attempt_logs", "tests": 213, "result": "OK", "seconds": 1.650},
+      {"suite": "tests.manager.test_dependencies", "result": "57 failures, 1 skipped", "baseline": "unchanged, zero added"}
+    ],
+    "new_cases": 5,
+    "importer_suite_total": 24,
+    "measured_seconds_this_claim": 500,
+    "prior_spending": "preserved in EVIDENCE-197743 through EVIDENCE-201324 and the reviewers' own evidence; approximately 1100s reported for claim201324 is retained as the estimate it is, and no exact cumulative total is asserted"
+  },
+  "not_done": {
+    "1": "the fresh one-image episode: one fixture image carrying both agents, dispatching on the delivery it was given, with its own context, image, runtime and configuration provenance pinned and its own sealed expectation; role and context isolation stay in the delivery",
+    "2": "the lifecycle run behind it",
+    "3": "the contract-bound terminal reader, correlating completion, receipt, cleanup/discharge and handoff to the episode's own identities",
+    "4": "the policy-generation product finding, still open and separate"
+  },
+  "no_bytes_changed": "importing_agent.py and importing_entry.py stand at their reviewed hashes; no product or fixture source changed this claim",
+  "not_done_operationally": "no engine, model, container, image build, bootstrap, submission, deployment mutation, real store access or version-control mutation; both destinations remain retained and stopped",
+  "ownership": {
+    "not_edited": "reviewer-owned reviews and evidence; prior EVIDENCE-*.json; instance-200254; every retained verification-*.json; W198667's paths, whose suite runs green against this tree"
+  }
+}

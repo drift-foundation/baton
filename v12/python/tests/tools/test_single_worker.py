@@ -38,7 +38,8 @@ if str(WORKER) not in sys.path:
 
 from baton_v12.authority import Authority
 from baton_v12.contracts import (ContractRefusal, digest, digest_of_bytes,
-                                 forget_secret, live_secret, remember_secret)
+                                 forget_secret, job_input_identity,
+                                 live_secret, remember_secret)
 from baton_v12.job_manager import (JobStore, reconcile, status, submit,
                                    sweep)
 from baton_v12.worker_manager import (ControlStore,
@@ -360,7 +361,7 @@ class SingleWorkerCase(unittest.TestCase):
         self.addCleanup(self._forget_secret)
         self.submission = fixtures.submission(
             jobs=[fixtures.job(
-                input_digest=self.manifest["manifest_digest"],
+                input_digest=job_input_identity(self.manifest),
                 policy_digest=fixtures.POLICY_DIGEST,
                 stages=[fixtures.stage(
                     work_id=fixtures.WORK_A,
@@ -1493,7 +1494,7 @@ class PreparationCase(SingleWorkerCase):
         super().setUp()
         self.submission["jobs"].append(fixtures.job(
             job_id="job-b",
-            input_digest=self.manifest["manifest_digest"],
+            input_digest=job_input_identity(self.manifest),
             policy_digest=fixtures.POLICY_DIGEST,
             stages=[fixtures.stage(work_id=fixtures.WORK_A,
                                    profile_name="reference",
@@ -4300,3 +4301,165 @@ class OptionalIntegrationContextDeclaration(SingleWorkerCase):
         for role in ("implementation", "unknown"):
             with self.subTest(role=role), self.assertRaises(baton_worker.WorkerFault):
                 baton_worker.context_declaration({"role": role}, [declaration()])
+
+
+class ThreeWorkersOneJobThreeImages(SingleWorkerCase):
+    """W202663 — heterogeneous capacity at the LAUNCH boundary, not just the
+    contract's.
+
+    `tests/manager/test_manifest_rules.py` fixes what the projection IS. This
+    fixes what the deployment DOES with it: `_held` still binds a worker to its
+    own image, `_matches` admits a worker whose runtime manifest differs from
+    the Job's producer in every worker-runtime member, and both halves of the
+    old coupling still refuse when they should.
+
+    Review206898 [R2] required the positive to use INDEPENDENTLY COMPOSED
+    manifests rather than clones, and `configured_as` below is written for that:
+    every member a separately configured worker would legitimately differ in is
+    given a different value, including the manifest's own id and creation
+    instant.
+    """
+
+    ROLES = ("implementation", "review", "integration")
+
+    def configured_as(self, index, role, **changed):
+        """One worker's own deployment and its own runtime manifest.
+
+        Nothing is cloned from `self.config` except the Job-scoped members,
+        which is the point: what these three agree about is the Job.
+        """
+        manifest = dict(self.manifest)
+        manifest.update(
+            manifest_id=f"input-{role}-attempt",
+            created_at=f"2031-0{index + 1}-01T00:00:00.000Z",
+            worker_image_digest="sha256:" + str(index) * 64,
+            toolchain_digest="sha256:" + chr(97 + index) * 64,
+            credential_policy_digest="sha256:" + chr(100 + index) * 64,
+            # HEX ONLY. A first draft reached past 'f' for a distinct
+            # character and the frozen schema refused the digest's PATTERN
+            # before any of this could be measured.
+            role_instructions_digest="sha256:" + str(index + 3) * 64)
+        manifest.update(changed)
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        given = dict(self.config,
+                     input_manifest=manifest,
+                     image_digest=manifest["worker_image_digest"],
+                     launch_role=role,
+                     participant=f"baton.{role}-worker",
+                     principal=f"principal:baton.{role}-worker",
+                     review_route={"implementation": "rview",
+                                   "review": "integration",
+                                   "integration": "integration"}[role],
+                     launch_home=os.path.join(self.root, "launch-" + role),
+                     credential_home=os.path.join(self.root, "cred-" + role))
+        return given, manifest
+
+    def held(self, given):
+        return single_worker._held(given, roles=(given["launch_role"],))
+
+    def stage_for(self, role):
+        return {"stage_id": f"job-a/{role}", "attempt_id": f"attempt-{role}",
+                "offer_id": f"offer-{role}", "kind": role,
+                "work_id": fixtures.WORK_A, "profile_name": "reference",
+                "profile_digest": fixtures.PROFILE}
+
+    def job_for(self, manifest):
+        return {"job_id": "job-a",
+                "input_digest": job_input_identity(manifest),
+                "policy_digest": fixtures.POLICY_DIGEST}
+
+    def worker_for(self, given):
+        """A `_SingleWorker` composed far enough to answer `_matches`.
+
+        `_matches` reads only the held configuration and its operands, so this
+        deliberately constructs no store, port, engine or credential provider:
+        a case that needed a live runtime to ask a preflight question would be
+        measuring the fixture.
+        """
+        worker = single_worker._SingleWorker.__new__(
+            single_worker._SingleWorker)
+        worker.given = self.held(given)
+        return worker
+
+    def test_three_roles_on_three_images_all_match_one_job(self):
+        """THE POSITIVE. Three workers, three images, three runtime manifests,
+        one Job -- and every one of them is admitted for its own stage."""
+        composed = [self.configured_as(index, role)
+                    for index, role in enumerate(self.ROLES)]
+        runtimes = {manifest["manifest_digest"] for _given, manifest in composed}
+        images = {given["image_digest"] for given, _manifest in composed}
+        self.assertEqual(len(runtimes), 3, "three workers, three runtimes")
+        self.assertEqual(len(images), 3, "three workers, three images")
+
+        job = self.job_for(composed[0][1])
+        for (given, manifest), role in zip(composed, self.ROLES):
+            with self.subTest(role=role):
+                # EACH ONE'S OWN MANIFEST PRODUCES THE JOB'S DIGEST.
+                self.assertEqual(job_input_identity(manifest),
+                                 job["input_digest"])
+                # AND THE DEPLOYMENT ADMITS IT FOR ITS OWN STAGE.
+                self.assertIsNone(
+                    self.worker_for(given)._matches(self.stage_for(role), job))
+
+    def test_a_worker_whose_image_is_not_its_own_manifests_is_refused(self):
+        """`single_worker.py:267` is intact, and it is what stops "each worker
+        picks its own image" becoming "any worker may run any image"."""
+        given, manifest = self.configured_as(0, "implementation")
+        given = dict(given, image_digest="sha256:" + "f" * 64)
+        with self.assertRaises(ContractRefusal) as caught:
+            self.held(given)
+        self.assertIn("names another worker image", caught.exception.message)
+
+    def test_a_worker_that_moved_a_shared_member_is_still_refused(self):
+        """The Job half. A heterogeneous pool must not become a pool that
+        agrees about nothing: move the WORK and the worker is not this Job's."""
+        first = self.configured_as(0, "implementation")[1]
+        # THE RECORD BINDING, not the Work. `_matches` compares the stage's
+        # own `work_id` against the manifest FIRST, so a moved Work refuses
+        # there and never reaches the rule under test -- which would make this
+        # a case that passes for the wrong reason. The record binding is
+        # shared, is not cross-checked anywhere earlier, and is exactly the
+        # kind of Job fact a worker must not be able to move.
+        moved = dict(first["record_binding"],
+                     path=first["record_binding"]["path"] + "/elsewhere")
+        given, _manifest = self.configured_as(1, "review",
+                                              record_binding=moved)
+        with self.assertRaises(ContractRefusal) as caught:
+            self.worker_for(given)._matches(self.stage_for("review"),
+                                            self.job_for(first))
+        self.assertIn("another bootstrap input", caught.exception.message)
+
+    def test_a_legacy_job_naming_the_whole_manifest_digest_says_so(self):
+        """Review206898 [R3]. This IS a semantic change, so a Job submitted
+        under the old rule refuses -- and is told which of the two digests it
+        named rather than being sent to look for someone else's input."""
+        given, manifest = self.configured_as(0, "implementation")
+        legacy = {"job_id": "job-a",
+                  "input_digest": manifest["manifest_digest"],
+                  "policy_digest": fixtures.POLICY_DIGEST}
+        with self.assertRaises(ContractRefusal) as caught:
+            self.worker_for(given)._matches(self.stage_for("implementation"),
+                                            legacy)
+        said = caught.exception.message
+        self.assertIn("whole runtime manifest digest", said)
+        self.assertIn(job_input_identity(manifest), said)
+        self.assertIn("is not rewritten", said)
+
+    def test_the_two_refusals_are_told_apart(self):
+        """The whole reason the legacy branch exists: a migratable Job and a
+        Job about someone else's input must not read the same."""
+        given, manifest = self.configured_as(0, "implementation")
+        stage = self.stage_for("implementation")
+        worker = self.worker_for(given)
+        messages = []
+        for job in ({"job_id": "job-a",
+                     "input_digest": manifest["manifest_digest"],
+                     "policy_digest": fixtures.POLICY_DIGEST},
+                    {"job_id": "job-a",
+                     "input_digest": "sha256:" + "e" * 64,
+                     "policy_digest": fixtures.POLICY_DIGEST}):
+            with self.assertRaises(ContractRefusal) as caught:
+                worker._matches(stage, job)
+            messages.append(caught.exception.message)
+        self.assertNotEqual(messages[0], messages[1])

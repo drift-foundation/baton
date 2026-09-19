@@ -1,0 +1,43 @@
+Traceback (most recent call last):
+  File "stack_command.py", line 257, in <module>
+  File "stack_command.py", line 253, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 485, in main
+  File "tools/job_manager.py", line 367, in _serve
+  File "tools/job_manager.py", line 316, in _operations_from
+  File "tools/stage_execution.py", line 6096, in factory
+  File "tools/stage_execution.py", line 5803, in operations_from
+  File "tools/stage_execution.py", line 263, in _refuse_unconfigured
+  File "tools/stage_execution.py", line 388, in _refuse
+baton_v12.contracts.errors.ContractRefusal: this deployment configures no execution capacity and this instance holds work it could not serve, so it refuses at startup rather than reporting an idle stack: 1 Job(s) in the Job store (w197661-lifecycle). Nothing was expired, abandoned, repaired or executed -- configure the workers this work needs, or point this instance at its own stores.
+[PYI-944675:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+serving initialization complete: incarnation='v12-stack-944818-1789718585905294468' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-09-18T08:05:21.183Z",
+  "recovered": null,
+  "observed": 0,
+  "replaced": [],
+  "acts": [],
+  "started": [],
+  "spoken": [],
+  "refreshed": [
+    {
+      "stage_id": "w197661-lifecycle/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-aad1a9784f8b5ce866e40df5ec58c34b2bfbe3cea4df61482d9c7d5530f31cc8",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w197661-lifecycle/review",
+      "episode": 1,
+      "attempt_id": "attempt-48f0f791e9f0ad9a663deec310cc55a2fe15944272ff8b10ece2043d4e289df8",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w197661-lifecycle/integration",
+      "episode": 1,
+      "attempt_id": "attempt-760959afdc277b3697560a86adbc556bcfa8cdb993985e4d64720767db37a402",
+      "state": "quiescent"
+    }
+  ]
+}

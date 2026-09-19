@@ -27,6 +27,8 @@ W6631's own record; it does not need to survive as this file's contract.
 """
 
 import concurrent.futures
+import contextlib
+import errno
 import json
 import os
 import pathlib
@@ -1796,7 +1798,22 @@ if __name__ == "__main__":
 
 
 class InitialStableLineAccess(unittest.TestCase):
-    """W106896: initial-only access without content replacement or repair."""
+    """W194457: access established AT CREATION, and integrity proved apart.
+
+    WHAT SUPERSEDED WHAT. W106896 provisioned one initially materialized tree
+    by holding a no-follow descriptor for every entry and then `fchown`/`fchmod`
+    -ing each one. The owner's 2026-09-17 ruling removes that permission-only
+    whole-tree pass: under a shared execution identity the tree already belongs
+    to the identity that will use it, so the ROOT's group and mode are the whole
+    of the permission work.
+
+    WHAT IS KEPT. Every constraint that used to ride along with that pass --
+    hardlinked files, special files, the entry/byte/depth ceilings, a foreign
+    owner, the canonical root, the pin -- is still enforced, by
+    `prove_line_integrity`, which performs NO permission act and is bounded by
+    depth rather than by entry count. The superseded expectations are the
+    per-entry MODES, and only those.
+    """
 
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -1806,105 +1823,765 @@ class InitialStableLineAccess(unittest.TestCase):
         self.line.mkdir(mode=0o700)
         self.gid = os.getgid()
         self.pin = (self.line.stat().st_dev, self.line.stat().st_ino)
+        self.identity = workspaces.WorkspaceIdentity(
+            os.geteuid(), self.gid, workspaces._MINT)
+        workspaces.PERMISSION_ACTS.update(chown=0, chmod=0)
 
-    def provision(self):
-        return workspaces._provision_line_access(str(self.line), self.pin, self.gid)
+    def prove(self, identity=None):
+        return workspaces.prove_line_integrity(
+            str(self.line), self.pin, identity or self.identity)
 
-    def test_populated_restrictive_tree_preserves_bytes_pins_and_executables(self):
+    def establish(self, identity=None):
+        return workspaces.establish_line_access(
+            str(self.line), self.pin, identity or self.identity)
+
+    def acts(self):
+        return dict(workspaces.PERMISSION_ACTS)
+
+    @contextlib.contextmanager
+    def watching_permission_syscalls(self):
+        """COUNT WHAT THE KERNEL IS ASKED, not what the product says it asked.
+
+        Review 2026-09-17T12-47-56Z finding 3: asserting `PERMISSION_ACTS`
+        alone would miss a chmod or a chown added beside the counter rather
+        than through it -- and the M3 reversal probe incremented the counter
+        without restoring a syscall, so its kill did not cover that blind spot.
+        These wrap `os.fchown`, `os.fchmod`, `os.chown` and `os.chmod` in the
+        module under test and record every call.
+        """
+        observed = {"fchown": [], "fchmod": [], "chown": [], "chmod": []}
+        originals = {name: getattr(workspaces.os, name) for name in observed}
+
+        def watcher(name):
+            def called(*operands, **named):
+                observed[name].append(operands)
+                return originals[name](*operands, **named)
+            return called
+
+        patches = [mock.patch.object(workspaces.os, name, watcher(name))
+                   for name in observed]
+        for one in patches:
+            one.start()
+        try:
+            yield observed
+        finally:
+            for one in reversed(patches):
+                one.stop()
+
+    def syscall_total(self, observed):
+        return sum(len(one) for one in observed.values())
+
+    def test_a_shared_identity_is_MINTED_and_never_root(self):
+        """The `WorkspaceGroup` shape, for the same reason: a pair a caller can
+        construct is a pair a caller chose."""
+        with self.assertRaisesRegex(ContractRefusal, "is not constructed"):
+            workspaces.WorkspaceIdentity(os.geteuid(), self.gid)
+        with self.assertRaisesRegex(ContractRefusal, "not an execution identity"):
+            workspaces.WorkspaceIdentity(0, self.gid, workspaces._MINT)
+        held = workspaces.WorkspaceIdentity(os.geteuid(), self.gid,
+                                            workspaces._MINT)
+        self.assertEqual((held.uid, held.gid), (os.geteuid(), self.gid))
+        with self.assertRaises(ContractRefusal):
+            held.uid = 1
+        self.assertEqual(held, self.identity)
+
+    def test_the_permission_work_is_TWO_ACTS_whatever_the_tree_holds(self):
+        """THE PROPERTY THIS WORK EXISTS FOR, and it is a COUNT rather than a
+        duration. The defect was a chown and a chmod per entry; 'it got faster'
+        would be a different claim and a weaker one."""
+        for index in range(200):
+            below = self.line / f"dir{index % 7}"
+            below.mkdir(exist_ok=True)
+            (below / f"file{index}").write_bytes(b"x" * 16)
+        with self.watching_permission_syscalls() as observed:
+            self.prove()
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0},
+                         "proving integrity performs no permission act")
+        self.assertEqual(self.syscall_total(observed), 0,
+                         f"proving integrity asked the kernel for {observed}")
+        with self.watching_permission_syscalls() as observed:
+            self.establish()
+        self.assertEqual(self.acts(), {"chown": 1, "chmod": 1})
+        # AND THE KERNEL AGREES WITH THE COUNTER.
+        self.assertEqual(self.syscall_total(observed), 2, observed)
+        self.assertEqual(len(observed["fchown"]), 1)
+        self.assertEqual(len(observed["fchmod"]), 1)
+        # AND IT DOES NOT GROW WITH THE TREE.
+        for index in range(200, 600):
+            (self.line / f"dir{index % 7}" / f"file{index}").write_bytes(b"y")
+        workspaces.PERMISSION_ACTS.update(chown=0, chmod=0)
+        with self.watching_permission_syscalls() as observed:
+            self.establish()
+        self.assertEqual(self.acts(), {"chown": 1, "chmod": 1})
+        # THE SAME TWO SYSCALLS OVER A TREE THREE TIMES THE SIZE.
+        self.assertEqual(self.syscall_total(observed), 2, observed)
+
+    def test_NO_permission_walk_touches_unrelated_entries(self):
+        """The other half of the same property: what the worker created keeps
+        the mode it was created with, including owner-only."""
+        (self.line / "metadata").mkdir(mode=0o700)
+        (self.line / "metadata" / "index").write_bytes(b"opaque")
+        os.chmod(self.line / "metadata" / "index", 0o600)
+        (self.line / "run").write_bytes(b"executable")
+        os.chmod(self.line / "run", 0o700)
+        before = {p: (p.stat().st_mode & 0o7777, p.stat().st_ino, p.read_bytes())
+                  for p in (self.line / "metadata" / "index", self.line / "run")}
+        self.prove()
+        self.establish()
+        for place, (mode, inode, payload) in before.items():
+            self.assertEqual(place.stat().st_mode & 0o7777, mode, place)
+            self.assertEqual(place.stat().st_ino, inode)
+            self.assertEqual(place.read_bytes(), payload)
+        self.assertEqual((self.line / "metadata").stat().st_mode & 0o7777, 0o700)
+        # THE ROOT, AND ONLY THE ROOT, CARRIES THE GRANT.
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o2775)
+        self.assertEqual(self.line.stat().st_gid, self.gid)
+        self.assertEqual((self.line.stat().st_dev, self.line.stat().st_ino),
+                         self.pin)
+
+    def test_the_peak_descriptor_count_is_bounded_by_DEPTH(self):
+        """W194457 review finding 1: the removed pass peaked at one descriptor
+        per ENTRY. A tree wider than any plausible soft limit is proved with a
+        handful."""
+        for index in range(1400):
+            (self.line / f"file{index}").write_bytes(b"x")
+        (self.line / "a" / "b" / "c").mkdir(parents=True)
+        (self.line / "a" / "b" / "c" / "deep").write_bytes(b"x")
+        held = self.prove()
+        self.assertEqual(held["entries"], 1400 + 3 + 1 + 1)
+        self.assertLessEqual(held["peak_descriptors"], 8, held)
+        self.assertGreaterEqual(held["peak_descriptors"], 3, held)
+
+    def test_it_runs_UNDER_a_soft_limit_the_old_pass_exhausted(self):
+        """The incident's shape, in a child with the incident's limit."""
+        import resource
         import subprocess
         import sys
 
-        subprocess.run([sys.executable, "-c",
-                        "import os,pathlib,sys; os.umask(0o077); "
-                        "p=pathlib.Path(sys.argv[1]); (p/'metadata').mkdir(); "
-                        "(p/'metadata'/'index').write_bytes(b'opaque'); "
-                        "(p/'run').write_bytes(b'executable'); "
-                        "os.chmod(p/'run',0o700)", str(self.line)], check=True)
-        outside = self.root / "outside"
-        outside.write_bytes(b"source")
-        outside.chmod(0o600)
-        (self.line / "link").symlink_to(outside)
-        files = [self.line / "metadata/index", self.line / "run"]
-        before = [(p.stat().st_ino, p.read_bytes()) for p in files]
-        self.assertEqual((self.line / "metadata/index").stat().st_mode & 0o7777, 0o600)
-        self.provision()
-        for p, mode in [(self.line, 0o2775), (self.line / "metadata", 0o2775),
-                        (files[0], 0o664), (files[1], 0o775)]:
-            self.assertEqual(p.stat().st_mode & 0o7777, mode)
-            self.assertEqual(p.stat().st_gid, self.gid)
-        self.assertEqual([(p.stat().st_ino, p.read_bytes()) for p in files], before)
-        self.assertEqual((self.line.stat().st_dev, self.line.stat().st_ino), self.pin)
-        self.assertEqual(outside.stat().st_mode & 0o7777, 0o600)
-        self.assertTrue((self.line / "link").is_symlink())
-        self.assertEqual(self.provision(), str(self.line))
+        for index in range(1400):
+            (self.line / f"file{index}").write_bytes(b"x")
+        script = (
+            "import json,os,resource,sys;"
+            "resource.setrlimit(resource.RLIMIT_NOFILE, (1024, %d));"
+            "sys.path[:0]=[%r,%r];"
+            "from baton_v12.worker_manager import workspaces as w;"
+            "line=sys.argv[1];"
+            "pin=(os.stat(line).st_dev, os.stat(line).st_ino);"
+            "identity=w.WorkspaceIdentity(os.geteuid(), os.getgid(), w._MINT);"
+            "held=w.prove_line_integrity(line, pin, identity);"
+            "w.establish_line_access(line, pin, identity);"
+            "print(json.dumps({'held': held, 'acts': dict(w.PERMISSION_ACTS)}))"
+            % (resource.getrlimit(resource.RLIMIT_NOFILE)[1],
+               str(pathlib.Path(workspaces.__file__).resolve().parents[2]),
+               str(pathlib.Path(workspaces.__file__).resolve().parents[3])))
+        done = subprocess.run([sys.executable, "-c", script, str(self.line)],
+                              capture_output=True, text=True, timeout=120)
+        self.assertEqual(done.returncode, 0, done.stderr[-2000:])
+        said = json.loads(done.stdout)
+        self.assertEqual(said["held"]["entries"], 1401)
+        self.assertLessEqual(said["held"]["peak_descriptors"], 8)
+        self.assertEqual(said["acts"], {"chown": 1, "chmod": 1})
 
-    def test_bad_group_root_or_pin_refuses_before_mutation(self):
-        for gid in (0, -1, True, max(os.getgroups() + [os.getgid()]) + 1):
-            with self.subTest(gid=gid), self.assertRaises(ContractRefusal):
-                workspaces._provision_line_access(str(self.line), self.pin, gid)
+    def test_REPEATED_preparation_is_idempotent_and_still_two_acts(self):
+        (self.line / "file").write_bytes(b"x")
+        self.establish()
+        first = self.line.stat()
+        workspaces.PERMISSION_ACTS.update(chown=0, chmod=0)
+        self.assertEqual(self.establish(), str(self.line))
+        self.assertEqual(self.acts(), {"chown": 1, "chmod": 1})
+        self.assertEqual((self.line.stat().st_dev, self.line.stat().st_ino),
+                         (first.st_dev, first.st_ino))
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o2775)
+
+    def test_a_bad_identity_root_or_pin_refuses_before_any_act(self):
+        with self.assertRaisesRegex(ContractRefusal, "minted execution identity"):
+            workspaces.establish_line_access(str(self.line), self.pin,
+                                             (os.geteuid(), self.gid))
         with self.assertRaises(ContractRefusal):
-            workspaces._provision_line_access(str(self.line), (self.pin[0], self.pin[1] + 1), self.gid)
+            workspaces.establish_line_access(
+                str(self.line), (self.pin[0], self.pin[1] + 1), self.identity)
         alias = self.root / "alias"
         alias.symlink_to(self.line, target_is_directory=True)
         with self.assertRaises(ContractRefusal):
-            workspaces._provision_line_access(str(alias), self.pin, self.gid)
+            workspaces.establish_line_access(str(alias), self.pin, self.identity)
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+
+    def interleaving(self, act):
+        """Run `act(first)` while the SECOND child is being opened.
+
+        THE ORDER IS OBSERVED, NOT ASSUMED. `os.scandir` answers in directory
+        order, which is not the order the names were created in -- a first cut
+        of these cases hard-coded a name and fired the interleaving before that
+        entry had been fingerprinted at all, which proved nothing. The first
+        child actually opened is the one acted on, whichever it is.
+        """
+        opened = []
+        fired = []
+        original = workspaces.os.open
+
+        def interleave(*operands, **named):
+            handle = original(*operands, **named)
+            if operands and isinstance(operands[0], str) and "/" not in operands[0]:
+                opened.append(operands[0])
+                if len(opened) == 2 and not fired:
+                    fired.append(opened[0])
+                    act(self.line / opened[0])
+            return handle
+
+        return mock.patch.object(workspaces.os, "open",
+                                 side_effect=interleave), fired
+
+    def test_a_link_added_AFTER_an_entry_was_checked_is_refused(self):
+        """Review 2026-09-17T12-47-56Z finding 1, and it was a real regression.
+
+        The removed pass re-`fstat`ed every RETAINED descriptor after the walk,
+        so a file that acquired an outside hardlink while a later sibling was
+        being opened was refused before anything was granted. Closing each
+        child bounds the descriptors and threw that guard away with it.
+
+        THE STATIC HARDLINK FIXTURE DOES NOT COVER THIS and the review says so:
+        there the link exists when the entry is first seen. Here it is created
+        DURING the walk, against an entry already checked, which is exactly the
+        window the retained descriptors used to close.
+        """
+        for name in ("one", "two"):
+            (self.line / name).write_bytes(b"payload")
+        outside = self.root / "outside-link"
+        patched, fired = self.interleaving(lambda place: os.link(place, outside))
+        with patched:
+            with self.assertRaisesRegex(ContractRefusal, "changed while it "
+                                        "was proved"):
+                self.prove()
+        self.assertTrue(fired, "the interleaving never fired")
+        self.assertEqual((self.line / fired[0]).stat().st_nlink, 2)
+        # AND NOTHING WAS GRANTED.
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+
+    def test_an_entry_REPLACED_during_the_walk_is_refused(self):
+        """The other half of the same invariant: same path, different object."""
+        for name in ("one", "two"):
+            (self.line / name).write_bytes(b"payload")
+
+        def replace(place):
+            replacement = self.root / "replacement"
+            replacement.write_bytes(b"another object")
+            os.replace(replacement, place)
+
+        patched, fired = self.interleaving(replace)
+        with patched:
+            with self.assertRaisesRegex(ContractRefusal, "changed while it "
+                                        "was proved"):
+                self.prove()
+        self.assertTrue(fired)
         self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
 
-    def test_hardlink_and_special_file_preflight_never_changes_other_entries(self):
+    def test_an_entry_that_APPEARS_during_the_walk_is_refused(self):
+        for name in ("one", "two"):
+            (self.line / name).write_bytes(b"payload")
+        patched, fired = self.interleaving(
+            lambda _place: (self.line / "arrived-late").write_bytes(b"new"))
+        with patched:
+            with self.assertRaises(ContractRefusal) as raised:
+                self.prove()
+        self.assertTrue(fired)
+        self.assertIn("while it was proved", str(raised.exception))
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
+
+    def test_an_entry_that_DISAPPEARS_during_the_walk_is_refused(self):
+        """A reversal probe earned this one. Removing the directory
+        entry-count comparison changed nothing for an entry that APPEARS --
+        a new name has no fingerprint, so the per-entry check already refuses
+        it. What only the count catches is an entry that GOES: the second pass
+        simply never visits it, and without the comparison the walk would
+        answer as though the tree it proved were still there."""
+        for name in ("one", "two"):
+            (self.line / name).write_bytes(b"payload")
+        patched, fired = self.interleaving(lambda place: place.unlink())
+        with patched:
+            with self.assertRaisesRegex(ContractRefusal, "gained or lost an "
+                                        "entry"):
+                self.prove()
+        self.assertTrue(fired)
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+
+    def test_an_entry_that_becomes_a_SYMLINK_during_the_walk_is_refused(self):
+        """Review 2026-09-17T15-42-06Z finding 1, and it was the same
+        regression in a shape the other interleavings did not reach.
+
+        A symlink was SKIPPED before it was compared, so an entry already
+        fingerprinted as a regular file and then replaced by one had nothing
+        to fail against: the directory's entry count was unchanged, the second
+        pass stepped over it, and the line was granted `02775` on a tree only
+        the first pass had proved. The historical permission walk refused this
+        exact interleaving. The fingerprint is taken of the LINK now, so the
+        type transition is the mismatch.
+        """
+        for name in ("one", "two"):
+            (self.line / name).write_bytes(b"payload")
+        outside = self.root / "outside-target"
+        outside.write_bytes(b"outside sentinel")
+
+        def become_a_link(place):
+            place.unlink()
+            place.symlink_to(outside)
+
+        patched, fired = self.interleaving(become_a_link)
+        with patched:
+            with self.assertRaisesRegex(ContractRefusal, "changed while it "
+                                        "was proved"):
+                self.prove()
+        self.assertTrue(fired, "the interleaving never fired")
+        self.assertTrue((self.line / fired[0]).is_symlink())
+        # AND NOTHING WAS GRANTED, and the link's target was never touched.
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+        self.assertEqual(outside.read_bytes(), b"outside sentinel")
+
+    def test_a_symlink_that_becomes_a_REGULAR_FILE_is_refused_too(self):
+        """The transition is refused in BOTH directions, because the recorded
+        fingerprint carries the type.
+
+        HONESTLY: this direction was ALREADY refused before the correction,
+        but for the wrong reason and with the wrong sentence -- an unrecorded
+        link that became a file had no fingerprint at all, so it was reported
+        as an entry that "appeared while it was proved". A reversal probe
+        showed exactly that. What is new here is that it is named as the
+        change it is. A link whose TARGET was swapped under it is not this
+        case: nothing here follows a link, so only the link's own identity is
+        the subject.
+        """
+        for name in ("one", "two"):
+            (self.line / name).write_bytes(b"payload")
+        link = self.line / "link"
+        link.symlink_to(self.root / "outside-target")
+
+        def become_a_file(_place):
+            link.unlink()
+            link.write_bytes(b"no longer a link")
+
+        patched, fired = self.interleaving(become_a_file)
+        with patched:
+            with self.assertRaisesRegex(ContractRefusal, "changed while it "
+                                        "was proved"):
+                self.prove()
+        self.assertTrue(fired)
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+
+    def test_a_STABLE_symlink_still_passes_and_is_still_NOT_followed(self):
+        """The control for the two above: what is refused is a CHANGE, not a
+        symlink. A link that stays put matches its own fingerprint, is counted
+        once and is never opened -- if it were followed, the entries below its
+        target would be counted and the number would say so."""
+        elsewhere = self.root / "elsewhere"
+        elsewhere.mkdir()
+        for index in range(20):
+            (elsewhere / f"target{index}").write_bytes(b"not part of the line")
+        (self.line / "one").write_bytes(b"payload")
+        (self.line / "link-to-a-tree").symlink_to(elsewhere)
+        (self.line / "link-to-a-file").symlink_to(elsewhere / "target0")
+        held = self.prove()
+        self.assertEqual(held["entries"], 4, "root, one file and two links")
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+        self.assertEqual(self.establish(), str(self.line))
+        # AND A SECOND PREPARATION OVER THE SAME STABLE LINKS STILL PASSES,
+        # which is what makes the fingerprints a comparison rather than a ban.
+        self.assertEqual(self.prove()["entries"], 4)
+
+    def test_an_unreadable_entry_NAMES_the_operation_and_the_entry(self):
+        """Review 2026-09-17T15-42-06Z finding 2. This is the FIRST
+        preparation path `create_line` takes, so its refusal is the one an
+        operator reads first -- and it used to say `PermissionError (errno 13)`
+        and name neither the failing operation nor the entry. On an
+        18,078-entry checkout that is not a diagnostic.
+
+        THE ENTRY GOES IN THE RENDERED SLOT and the root in the sentence after
+        it, because a refusal renders a bounded prefix of a value and an
+        absolute checkout path would spend it before reaching the name that
+        matters.
+        """
+        (self.line / "readable-entry").write_bytes(b"payload")
+        blocked = self.line / "blocked-entry"
+        blocked.write_bytes(b"retained")
+        blocked.chmod(0)
+        self.addCleanup(blocked.chmod, 0o600)
+        with self.assertRaises(ContractRefusal) as raised:
+            self.prove()
+        said = str(raised.exception)
+        self.assertIn("could not open", said)
+        self.assertIn("blocked-entry", said)
+        self.assertIn("EACCES", said)
+        self.assertIn(os.strerror(errno.EACCES), said)
+        self.assertIn(str(self.line), said)
+        self.assertIn("materializing and ungranted", said)
+        # THE HINT IS A HINT. A `0000` file the worker made is `EACCES` too.
+        self.assertIn("before treating the entry itself as the fault", said)
+        # AND NOTHING WAS CHANGED: no repair, no grant.
+        self.assertEqual(blocked.stat().st_mode & 0o7777, 0)
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+
+    def test_an_unreadable_line_ROOT_names_the_operation_and_the_root(self):
+        """The same refusal one level up, where there is no relative entry to
+        name and the root is the whole answer."""
+        self.line.chmod(0)
+        self.addCleanup(self.line.chmod, 0o700)
+        with self.assertRaises(ContractRefusal) as raised:
+            self.prove()
+        said = str(raised.exception)
+        self.assertIn("could not open the line root", said)
+        self.assertIn(str(self.line), said)
+        self.assertIn("EACCES", said)
+        self.assertIn("materializing and ungranted", said)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+
+    def test_a_directory_that_cannot_be_LISTED_names_that_operation(self):
+        """The enumeration boundary, which no real fixture reaches on this
+        host: a directory this manager can open and cannot read is the
+        arrangement's other symptom, so the injection is bounded to one call
+        and the refusal has to say `list` rather than `open`."""
+        nested = self.line / "nested"
+        nested.mkdir()
+        (nested / "below").write_bytes(b"payload")
+        original = workspaces.os.scandir
+        calls = []
+
+        def listing(descriptor):
+            calls.append(descriptor)
+            if len(calls) == 2:
+                raise PermissionError(errno.EACCES, "injected list fault")
+            return original(descriptor)
+
+        with mock.patch.object(workspaces.os, "scandir", side_effect=listing):
+            with self.assertRaises(ContractRefusal) as raised:
+                self.prove()
+        said = str(raised.exception)
+        self.assertIn("could not list", said)
+        self.assertIn("nested", said)
+        self.assertIn("EACCES", said)
+        self.assertIn(str(self.line), said)
+        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
+
+    def test_a_proof_failure_that_is_NOT_a_permission_one_gets_no_hint(self):
+        """An `ENOSPC` while walking is not an identity arrangement either."""
+        original = workspaces.os.scandir
+        calls = []
+
+        def listing(descriptor):
+            calls.append(descriptor)
+            if len(calls) == 1:
+                raise OSError(errno.ENOSPC, "injected no space")
+            return original(descriptor)
+
+        with mock.patch.object(workspaces.os, "scandir", side_effect=listing):
+            with self.assertRaisesRegex(ContractRefusal, "ENOSPC") as raised:
+                self.prove()
+        self.assertNotIn("id mapping", str(raised.exception))
+
+    def test_an_unchanged_tree_still_passes_BOTH_passes(self):
+        """The control: revalidation refuses change, not stability."""
+        for index in range(50):
+            (self.line / f"file{index}").write_bytes(b"x")
+        (self.line / "nested").mkdir()
+        (self.line / "nested" / "deep").write_bytes(b"y")
+        held = self.prove()
+        self.assertEqual(held["entries"], 53)
+        self.assertLessEqual(held["peak_descriptors"], 8)
+        self.assertEqual(self.establish(), str(self.line))
+
+    def test_hardlinks_and_special_files_are_STILL_refused(self):
+        """Kept from the removed pass, and still changing nothing."""
         good = self.line / "good"
         good.write_bytes(b"unchanged")
         good.chmod(0o600)
         linked = self.line / "linked"
         os.link(good, linked)
         with self.assertRaisesRegex(ContractRefusal, "hardlinked"):
-            self.provision()
+            self.prove()
         self.assertEqual(good.stat().st_mode & 0o7777, 0o600)
         self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
         linked.unlink()
         os.mkfifo(linked)
         with self.assertRaisesRegex(ContractRefusal, "special"):
-            self.provision()
+            self.prove()
         self.assertEqual(good.stat().st_mode & 0o7777, 0o600)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
 
-    def test_limits_and_foreign_owner_refuse_without_chmod(self):
+    def test_the_ceilings_and_a_foreign_owner_are_STILL_refused(self):
         (self.line / "child").mkdir()
-        for name, ceiling in (("MAX_ENTRIES", 1), ("MAX_DEPTH", 0), ("MAX_BYTES", 0)):
+        for name, ceiling in (("MAX_ENTRIES", 1), ("MAX_DEPTH", 0),
+                              ("MAX_BYTES", 0)):
             (self.line / "file").write_bytes(b"x")
-            with mock.patch.object(workspaces, name, ceiling), self.assertRaises(ContractRefusal):
-                self.provision()
+            with mock.patch.object(workspaces, name, ceiling), \
+                    self.assertRaises(ContractRefusal):
+                self.prove()
             self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
-        with mock.patch.object(workspaces.os, "geteuid", return_value=os.geteuid() + 1):
-            with self.assertRaisesRegex(ContractRefusal, "manager-owned"):
-                self.provision()
+        foreign = workspaces.WorkspaceIdentity(os.geteuid() + 1, self.gid,
+                                               workspaces._MINT)
+        with self.assertRaisesRegex(ContractRefusal, "does not own"):
+            self.prove(foreign)
+        with self.assertRaisesRegex(ContractRefusal, "is not one it grants"):
+            self.establish(foreign)
         self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
+        self.assertEqual(self.acts(), {"chown": 0, "chmod": 0})
 
-    def test_application_failure_reports_partial_state_and_initial_retry_finishes(self):
-        (self.line / "file").write_bytes(b"x")
-        original = os.fchmod
-        calls = []
+    def test_a_failure_while_establishing_NAMES_its_errno(self):
+        """The incident lost the errno. The refusal carries all of it now.
 
-        def fail_second(descriptor, mode):
-            calls.append(mode)
-            if len(calls) == 2:
-                raise PermissionError("injected permission fault")
-            return original(descriptor, mode)
+        W194457, owner decision 2026-09-17: the arrangement is trusted rather
+        than probed, so an ACTUAL access failure is the whole diagnostic. It
+        names the operation, the path, the exception, the errno NAME and the
+        kernel's own sentence -- and for `EPERM`/`EACCES` it points at the
+        engine's id mapping, which is the thing an operator can act on.
+        """
+        def failing(descriptor, mode):
+            raise PermissionError(1, "injected permission fault")
 
-        with mock.patch.object(workspaces.os, "fchmod", side_effect=fail_second):
-            with self.assertRaisesRegex(ContractRefusal, "partial provisioning"):
-                self.provision()
-        self.assertEqual(self.line.stat().st_mode & 0o7777, 0o2775)
-        self.provision()
-        self.assertEqual((self.line / "file").stat().st_mode & 0o7777, 0o664)
+        with mock.patch.object(workspaces.os, "fchmod", side_effect=failing):
+            with self.assertRaisesRegex(ContractRefusal, "EPERM") as raised:
+                self.establish()
+        said = str(raised.exception)
+        self.assertIn("keep the line materializing and ungranted", said)
+        self.assertIn("group and mode", said)
+        self.assertIn(str(self.line), said)
+        self.assertIn("Operation not permitted", said)
+        self.assertIn("id mapping", said)
+        # AND IT DOES NOT CLAIM A CAUSE IT DID NOT MEASURE: the hint says what
+        # to CHECK, and says the entry itself may still be the fault.
+        self.assertIn("before treating the entry itself as the fault", said)
 
-    def test_proof_does_not_retrofit_an_unprovisioned_line(self):
+    def test_a_failure_that_is_NOT_a_permission_one_gets_no_mapping_hint(self):
+        """An `ENOSPC` is not an identity arrangement, and saying so would send
+        an operator to read engine settings about a full disk."""
+        def failing(descriptor, gid, uid=None):
+            raise OSError(28, "injected no space")
+
+        with mock.patch.object(workspaces.os, "fchown", side_effect=failing):
+            with self.assertRaisesRegex(ContractRefusal, "ENOSPC") as raised:
+                self.establish()
+        self.assertNotIn("id mapping", str(raised.exception))
+        # AND A RETRY FINISHES, because nothing partial was left per entry.
+        self.assertEqual(self.establish(), str(self.line))
+
+    def test_the_proof_does_not_retrofit_an_unestablished_line(self):
         with self.assertRaises(ContractRefusal):
             workspaces._prove_line_access(str(self.line), self.pin, self.gid)
         self.assertEqual(self.line.stat().st_mode & 0o7777, 0o700)
-        self.provision()
+        self.establish()
         with self.assertRaises(ContractRefusal):
             workspaces.prove_workspace_group(str(self.line), self.gid)
         with self.assertRaises(ContractRefusal):
-            workspaces._prove_execution_workspace({"workspace": str(self.line)}, self.gid, {})
+            workspaces._prove_execution_workspace(
+                {"workspace": str(self.line)}, self.gid, {})
+
+
+class TheSharedExecutionIdentityReachesTheVECTORS(unittest.TestCase):
+    """W194457 finding 2: the identity has to arrive where the worker runs.
+
+    THE UID IS NOT AN OPERAND ANYWHERE. `identity_for` derives it from
+    `os.geteuid()` behind the deployment's own minted group, so no signature
+    grew a uid a caller could choose -- which is the property the pinned
+    `65532:65532` was protecting, kept.
+
+    AND THE ARRANGEMENT IS TRUSTED RATHER THAN MEASURED. Owner decision
+    2026-09-17: a deliberately configured UID/GID, documented at
+    `workspaces.SUPPORTED_IDENTITY_MAPPING`, checked structurally by
+    `declared_identity_mapping`, and contradicted -- if it ever is -- by an
+    actual access failure that names the operation, the path and the errno.
+    """
+
+    def setUp(self):
+        # THE CONFIGURED ROOT OR THE INTERPRETER'S OWN DEFAULT.
+        # Review 2026-09-17T13-22-50Z: a hard-coded /var/tmp is
+        # read-only on the reviewer's host and cost 13 fixture errors.
+        outside = os.environ.get("BATON_V12_STACK_TEST_ROOT") or None
+        self.temporary = tempfile.TemporaryDirectory(dir=outside)
+        self.addCleanup(self.temporary.cleanup)
+        self.gid = os.getgid()
+        self.group = workspaces.WorkspaceGroup(self.gid, workspaces._MINT)
+        self.identity = workspaces.identity_for(self.group)
+
+    def test_it_is_derived_from_the_MINTED_group_and_this_manager(self):
+        self.assertEqual((self.identity.uid, self.identity.gid),
+                         (os.geteuid(), self.gid))
+        with self.assertRaisesRegex(ContractRefusal, "not from an integer"):
+            workspaces.identity_for(self.gid)
+        with self.assertRaisesRegex(ContractRefusal, "not from an integer"):
+            workspaces.identity_for((os.geteuid(), self.gid))
+
+    def test_a_root_manager_gets_no_shared_identity(self):
+        with mock.patch.object(workspaces.os, "geteuid", return_value=0):
+            with self.assertRaisesRegex(ContractRefusal, "may not be root"):
+                workspaces.identity_for(self.group)
+
+    def test_a_DECLARED_pair_that_is_not_the_minted_one_is_refused(self):
+        """The owner's cheap structural check, and the only one there is now.
+
+        W194457, owner decision 2026-09-17: the arrangement is TRUSTED
+        deployment configuration. What a manager can still catch for free is
+        its own two spellings disagreeing -- a vector declaring an identity the
+        workspace was not created under -- and that refusal names the remedy
+        rather than claiming a measurement.
+        """
+        with self.assertRaises(ContractRefusal) as raised:
+            workspaces.declared_identity_mapping(self.identity, "65532:65532")
+        said = str(raised.exception)
+        self.assertIn("65532:65532", said)
+        self.assertIn(f"{self.identity.uid}:{self.identity.gid}", said)
+        self.assertIn("share ONE configured identity", said)
+        # AND IT DOES NOT CLAIM THE MAPPING WAS PROVED.
+        self.assertNotIn("observ", said)
+        self.assertIn("trusts", said)
+
+    def test_a_DECLARATION_that_is_not_a_pair_at_all_is_refused(self):
+        for bad in (None, 65532, "65532", "65532:", ":65532", "a:b",
+                    "65532:65532:65532", "-1:0"):
+            with self.assertRaises(ContractRefusal):
+                workspaces.declared_identity_mapping(self.identity, bad)
+
+    def test_the_minted_pair_is_ACCEPTED_and_answered_back(self):
+        declared = f"{self.identity.uid}:{self.identity.gid}"
+        self.assertEqual(
+            workspaces.declared_identity_mapping(self.identity, declared),
+            declared)
+
+    def test_it_is_asked_of_the_MINTED_capability_and_not_an_integer(self):
+        with self.assertRaisesRegex(ContractRefusal, "minted execution"):
+            workspaces.declared_identity_mapping(
+                (os.geteuid(), self.gid), f"{os.geteuid()}:{self.gid}")
+
+    def test_the_check_reaches_NO_ENGINE_AND_NO_FILESYSTEM(self):
+        """It is a string comparison, and the owner's word for that is cheap.
+
+        The superseded design started a container here. Nothing this function
+        does can reach one: `subprocess` and `os.open` are both made to raise,
+        and the accepted call still answers.
+        """
+        def never(*args, **named):
+            raise AssertionError("the declared check reached the system")
+
+        with mock.patch.object(workspaces.os, "open", side_effect=never):
+            with mock.patch.object(workspaces.os, "stat", side_effect=never):
+                self.assertEqual(
+                    workspaces.declared_identity_mapping(
+                        self.identity,
+                        f"{self.identity.uid}:{self.identity.gid}"),
+                    f"{self.identity.uid}:{self.identity.gid}")
+
+    def test_the_SUPPORTED_ARRANGEMENT_is_written_down_where_it_is_used(self):
+        """The owner asked for the mapping to be DOCUMENTED and trusted."""
+        said = workspaces.SUPPORTED_IDENTITY_MAPPING
+        self.assertIn("without an id mapping", said)
+        self.assertIn("trusts", said)
+        # AND THE PROBE IT REPLACED IS GONE, not merely unwired.
+        from baton_v12.worker_manager import oci
+
+        for name in ("observe_runtime_identity", "UNRESOLVED",
+                     "_reclaim_probe", "_probe_owner", "_remove_probe"):
+            self.assertFalse(hasattr(oci, name), name)
+        for name in ("activate_execution_identity", "require_execution_identity",
+                     "proved_execution_identity", "forget_execution_identity",
+                     "ExecutionIdentityMapping", "supported_identity_mapping"):
+            self.assertFalse(hasattr(workspaces, name), name)
+
+    def test_an_EXECUTION_vector_runs_as_the_shared_identity(self):
+        from baton_v12.worker_manager import oci
+
+        argv = oci.run_vector(
+            "docker", image_digest="sha256:" + "a" * 64,
+            labels={"runtime_attempt_id": "attempt-1",
+                    "authority_uuid": "0" * 31 + "a", "work_id": "0000000a-W1",
+                    "participant": "baton.one", "generation": 1,
+                    "principal": "principal:one",
+                    "effective_scope": "scope:deployment",
+                    "profile_digest": "sha256:" + "b" * 64,
+                    "policy_digest": "sha256:" + "c" * 64,
+                    "adapter_digest": "sha256:" + "d" * 64},
+            assignment_roots={"inputs": "/var/tmp/w194457-inputs",
+                              "workspace": "/var/tmp/w194457-workspace"},
+            posture="execution", workspace_group=self.group, name="baton-one")
+        self.assertEqual(argv[argv.index("--user") + 1],
+                         f"{os.geteuid()}:{self.gid}")
+        # THE SUPPLEMENTARY GROUP IS KEPT, and revalidated rather than dropped:
+        # under the shared identity the PRIMARY gid is already the workspace
+        # group, so the add is redundant -- and it is the grant that survives
+        # if a future deployment ever runs the manager under another primary
+        # group, which is the case it was written for.
+        self.assertEqual(argv[argv.index("--group-add") + 1], str(self.gid))
+
+    def test_a_CONSENT_vector_keeps_the_pinned_pair(self):
+        """It mounts nothing and writes nothing this manager reads back, so it
+        needs no share in anything and this Work does not give it one."""
+        from baton_v12.worker_manager import oci
+
+        argv = oci.run_vector(
+            "docker", image_digest="sha256:" + "a" * 64,
+            labels={"runtime_attempt_id": "attempt-1",
+                    "authority_uuid": "0" * 31 + "a", "work_id": "0000000a-W1",
+                    "participant": "baton.one", "generation": 1,
+                    "principal": "principal:one",
+                    "effective_scope": "scope:deployment",
+                    "profile_digest": "sha256:" + "b" * 64,
+                    "policy_digest": "sha256:" + "c" * 64,
+                    "adapter_digest": "sha256:" + "d" * 64},
+            assignment_roots={"inputs": "/var/tmp/w194457-inputs",
+                              "workspace": "/var/tmp/w194457-workspace"},
+            posture="consent", name="baton-consent")
+        self.assertEqual(argv[argv.index("--user") + 1], "65532:65532")
+        self.assertNotIn("--group-add", argv)
+
+
+class TheConsumptionWalkIsBoundedToo(unittest.TestCase):
+    """W194457 review finding 2, and a reversal probe found the gap in my own
+    coverage: I bounded `_prove_line_consumable`'s descriptors and then checked
+    it only against small fixtures, where holding every one costs nothing. The
+    bound is a property of a WIDE tree, so it is asked of one."""
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.line = pathlib.Path(self.temporary.name) / "checkout"
+        self.line.mkdir()
+        self.pin = (self.line.stat().st_dev, self.line.stat().st_ino)
+
+    def test_a_wide_tree_is_consumed_with_a_handful_of_descriptors(self):
+        for index in range(1400):
+            (self.line / f"file{index}").write_bytes(b"x")
+        (self.line / "a" / "b").mkdir(parents=True)
+        (self.line / "a" / "b" / "deep").write_bytes(b"x")
+        held = workspaces._prove_line_consumable(str(self.line), self.pin)
+        self.assertEqual(held["entries"], 1400 + 2 + 1 + 1)
+        self.assertLessEqual(held["peak_descriptors"], 8, held)
+        self.assertGreaterEqual(held["peak_descriptors"], 3, held)
+
+    def test_it_reads_the_wide_tree_UNDER_the_incident_soft_limit(self):
+        import resource
+        import subprocess
+        import sys
+
+        for index in range(1400):
+            (self.line / f"file{index}").write_bytes(b"x")
+        script = (
+            "import json,os,resource,sys;"
+            "resource.setrlimit(resource.RLIMIT_NOFILE, (1024, %d));"
+            "sys.path[:0]=[%r,%r];"
+            "from baton_v12.worker_manager import workspaces as w;"
+            "line=sys.argv[1];"
+            "pin=(os.stat(line).st_dev, os.stat(line).st_ino);"
+            "print(json.dumps(w._prove_line_consumable(line, pin)))"
+            % (resource.getrlimit(resource.RLIMIT_NOFILE)[1],
+               str(pathlib.Path(workspaces.__file__).resolve().parents[2]),
+               str(pathlib.Path(workspaces.__file__).resolve().parents[3])))
+        done = subprocess.run([sys.executable, "-c", script, str(self.line)],
+                              capture_output=True, text=True, timeout=120)
+        self.assertEqual(done.returncode, 0, done.stderr[-2000:])
+        said = json.loads(done.stdout)
+        self.assertEqual(said["entries"], 1401)
+        self.assertLessEqual(said["peak_descriptors"], 8)
 
 
 class TheManagerProvesItCanReadTheLineItConsumes(unittest.TestCase):
@@ -1984,6 +2661,118 @@ class TheManagerProvesItCanReadTheLineItConsumes(unittest.TestCase):
         with self.assertRaises(ContractRefusal) as caught:
             self.prove()
         self.assertIn("cannot open", caught.exception.message)
+
+    def test_an_OWNER_ONLY_worker_file_is_consumed_under_the_shared_identity(self):
+        """THE DIRECTION THIS WORK EXISTS TO FIX, and it is the whole point.
+
+        W194457. Before the shared identity the worker ran as 65532 and the
+        manager as somebody else, so a `0600` file the worker created was one
+        this manager could `stat` and could not open -- which is why the old
+        code walked the tree normalizing permissions, and why that walk held a
+        descriptor per entry. Under ONE configured identity the owner bit is
+        this manager's own, so the entry is simply readable and there is
+        nothing to repair.
+
+        `0700` for the directory is the same statement one level up: a private
+        directory the worker made is one the manager can traverse.
+        """
+        private = os.path.join(self.line, "worker-owner-only")
+        os.mkdir(private, 0o700)
+        secret = os.path.join(private, "state.json")
+        self.write(secret, '{"held": true}\n')
+        os.chmod(secret, 0o600)
+        before = self.snapshot()
+        acts = dict(workspaces.PERMISSION_ACTS)
+        walked = self.prove()
+        self.assertGreaterEqual(walked["entries"], 8)
+        # NOTHING WAS REPAIRED TO ACHIEVE IT. The modes are still the worker's.
+        self.assertEqual(self.snapshot(), before)
+        self.assertEqual(os.stat(private).st_mode & 0o777, 0o700)
+        self.assertEqual(os.stat(secret).st_mode & 0o777, 0o600)
+        self.assertEqual(dict(workspaces.PERMISSION_ACTS), acts)
+
+    def test_an_OWNER_ONLY_manager_file_is_reachable_by_the_worker_identity(self):
+        """AND THE OTHER DIRECTION, which is the one a reviewer asked twice for.
+
+        The manager writes `0600`/`0700` into the line and the worker must
+        still reach them. Under a shared identity that is an OWNERSHIP fact
+        rather than a mode fact, and this asserts the fact the worker's access
+        actually depends on: the entries are owned by the very uid the
+        execution vector declares, so the worker's own owner bits apply.
+
+        It cannot run as another uid to prove it -- that needs privilege this
+        suite does not have and an engine the owner ruled out starting -- so it
+        proves the thing that IS decidable here, and says so rather than
+        implying a measurement.
+        """
+        from baton_v12.worker_manager import oci
+
+        group = workspaces.WorkspaceGroup(os.getgid(), workspaces._MINT)
+        identity = workspaces.identity_for(group)
+        held = os.path.join(self.line, "manager-owner-only")
+        os.mkdir(held, 0o700)
+        document = os.path.join(held, "seal.json")
+        self.write(document, '{"sealed": true}\n')
+        os.chmod(document, 0o600)
+        for place in (held, document):
+            self.assertEqual(os.stat(place).st_uid, identity.uid)
+        argv = oci.run_vector(
+            "docker", image_digest="sha256:" + "a" * 64,
+            labels={"runtime_attempt_id": "attempt-1",
+                    "authority_uuid": "0" * 31 + "a", "work_id": "0000000a-W1",
+                    "participant": "baton.one", "generation": 1,
+                    "principal": "principal:one",
+                    "effective_scope": "scope:deployment",
+                    "profile_digest": "sha256:" + "b" * 64,
+                    "policy_digest": "sha256:" + "c" * 64,
+                    "adapter_digest": "sha256:" + "d" * 64},
+            assignment_roots={"inputs": os.path.join(self.temporary.name, "i"),
+                              "workspace": self.line},
+            posture="execution", workspace_group=group, name="baton-one")
+        # THE DECLARED IDENTITY IS THE OWNER OF WHAT THE MANAGER WROTE.
+        self.assertEqual(argv[argv.index("--user") + 1],
+                         f"{identity.uid}:{identity.gid}")
+
+    def test_the_workers_PRIVATE_HOME_AND_CACHE_do_not_depend_on_the_identity(self):
+        """The scope item, and the answer is that it is PRESERVED, not rebuilt.
+
+        W194457. The reference images own `/home/nonroot` at 65532, so moving
+        `--user` would break a worker that relied on an image-owned home. It
+        does not: `claude_agent` makes its home with `tempfile.mkdtemp` under
+        the adapter's `/tmp` tmpfs at mode `0700` and composes `HOME`,
+        `TMPDIR`, `XDG_CACHE_HOME` and `PYTHONPYCACHEPREFIX` for its children
+        member by member. A tmpfs is world-writable and sticky, so that home is
+        private and writable for ANY uid the vector declares.
+
+        What this asserts is the part the adapter owns: both bounded private
+        scratch mounts are still composed, with their sizes and their
+        `noexec,nosuid,nodev`, under the shared identity.
+        """
+        from baton_v12.worker_manager import oci, source_boundary
+
+        group = workspaces.WorkspaceGroup(os.getgid(), workspaces._MINT)
+        argv = oci.run_vector(
+            "docker", image_digest="sha256:" + "a" * 64,
+            labels={"runtime_attempt_id": "attempt-1",
+                    "authority_uuid": "0" * 31 + "a", "work_id": "0000000a-W1",
+                    "participant": "baton.one", "generation": 1,
+                    "principal": "principal:one",
+                    "effective_scope": "scope:deployment",
+                    "profile_digest": "sha256:" + "b" * 64,
+                    "policy_digest": "sha256:" + "c" * 64,
+                    "adapter_digest": "sha256:" + "d" * 64},
+            assignment_roots={"inputs": os.path.join(self.temporary.name, "i"),
+                              "workspace": self.line},
+            posture="execution", workspace_group=group, name="baton-one")
+        composed = [one for flag, one in zip(argv, argv[1:])
+                    if flag == "--tmpfs"]
+        for target, size in source_boundary.SCRATCH_MOUNTS:
+            self.assertIn(
+                f"{target}:rw,noexec,nosuid,nodev,size={size >> 20}m",
+                composed)
+        # AND THE ROOT FILESYSTEM IS STILL EVIDENCE RATHER THAN SCRATCH, which
+        # is what makes the private home have to be on the tmpfs at all.
+        self.assertIn("--read-only", argv)
 
     def test_a_symlink_is_counted_and_never_followed(self):
         outside = os.path.join(self.temporary.name, "outside")

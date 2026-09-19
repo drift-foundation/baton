@@ -1,0 +1,153 @@
+{
+  "claim": 195725,
+  "work": "2b077949-W194457",
+  "role": "impl",
+  "corrects": {
+    "review": "review-2026-09-17T15-42-06Z.md",
+    "review_sha256": "d25a8d875bc217ac91f54a070cf48a7609b9878472eabb605dd40b3af8fb8afc",
+    "reviewer_evidence": "REVIEW-EVIDENCE-195685.json",
+    "reviewer_evidence_sha256": "17a65a9f35d48c99f0b3d90ba314c2dc45f9e56aeb29d78666d1d1b980ec79d1",
+    "contract": [
+      "OWNER-TRUSTED-IDENTITY-20260917.md",
+      "OWNER-VERIFICATION-CADENCE-20260917.md"
+    ]
+  },
+  "engine": "none; no container, provider, model, network, v12 store, installed runtime or version-control mutation",
+  "changed_this_claim": {
+    "src/baton_v12/worker_manager/workspaces.py": {
+      "before": "b5ac103e7e03a19d77013331fb8032755fba137dcd9475ff498820b57b89acc4",
+      "after": "b6eb2dc3fcc811f8ad933eb80fbedbaf2a98def7e4cff3eacffef905e7ca70d2"
+    },
+    "tests/manager/test_workspaces.py": {
+      "before": "8c77d4b6a811e0cbc5c4d65ad9dd0378e769ad18eec1b321aaa13f1bf48a06b8",
+      "after": "e27e9c07340e57258088e12cab1960776514932f5ff2a90a6462f813066247e6"
+    }
+  },
+  "unchanged_since_review_195685": {
+    "src/baton_v12/worker_manager/oci.py": "ed055dbc2e75026b34a10a7aae32fbc1ce346b192a3a40728e114efba449dcd9",
+    "src/baton_v12/worker_manager/custody.py": "360772a109909cb382ae815d17f60ed7903252bf1b56a3944de8b301f33ac31b",
+    "src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "tools/single_worker.py": "7992f2d7485dcccff64b5f945357b1132d71c0f65fd9520cf42fd7940a611854",
+    "tests/__init__.py": "ed81ea906939740dc126615a631de97b2785fb958b1d15dc394f995603d63c06",
+    "tests/manager/test_review_cycles.py": "e4025453cfc9ea74fe0eaeb302dc742db6209f678fa78c4601c1200f530e5155",
+    "tests/manager/test_custody.py": "d315fdb7193e304421413b64caf09ae85d9c646ffd9948e767b8721475b8459d",
+    "tests/manager/test_oci.py": "231998a54d5978dd11221102c7a48480c549459b4114052401556b91079fced4",
+    "tests/manager/test_lifecycle_composition.py": "3fb38036bacfb09b050d69ea3712b8766002e7b0775bffce51a415ca5f6a337e"
+  },
+  "candidate_sha256": {
+    "src/baton_v12/worker_manager/workspaces.py": "b6eb2dc3fcc811f8ad933eb80fbedbaf2a98def7e4cff3eacffef905e7ca70d2",
+    "src/baton_v12/worker_manager/oci.py": "ed055dbc2e75026b34a10a7aae32fbc1ce346b192a3a40728e114efba449dcd9",
+    "src/baton_v12/worker_manager/custody.py": "360772a109909cb382ae815d17f60ed7903252bf1b56a3944de8b301f33ac31b",
+    "src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "tools/single_worker.py": "7992f2d7485dcccff64b5f945357b1132d71c0f65fd9520cf42fd7940a611854",
+    "tests/__init__.py": "ed81ea906939740dc126615a631de97b2785fb958b1d15dc394f995603d63c06",
+    "tests/manager/test_workspaces.py": "e27e9c07340e57258088e12cab1960776514932f5ff2a90a6462f813066247e6",
+    "tests/manager/test_review_cycles.py": "e4025453cfc9ea74fe0eaeb302dc742db6209f678fa78c4601c1200f530e5155",
+    "tests/manager/test_custody.py": "d315fdb7193e304421413b64caf09ae85d9c646ffd9948e767b8721475b8459d",
+    "tests/manager/test_oci.py": "231998a54d5978dd11221102c7a48480c549459b4114052401556b91079fced4",
+    "tests/manager/test_lifecycle_composition.py": "3fb38036bacfb09b050d69ea3712b8766002e7b0775bffce51a415ca5f6a337e"
+  },
+  "p1_symlink_revalidation": {
+    "defect": "prove_line_integrity skipped a symlink before comparing it, so a recorded regular file REPLACED by a symlink between the passes had no fingerprint to fail against; the directory entry count was unchanged and establish_line_access granted root 02775",
+    "correction": "every entry the walk observes is fingerprinted through account(), including the symlinks it never opens; st_mode carries the type, so a transition mismatches in either direction. A same-pass transition between entry.stat and os.open raises ELOOP under O_NOFOLLOW and is refused as a change rather than reported as an access failure.",
+    "before": {
+      "returned": true,
+      "root_mode": "0o2775",
+      "note": "measured this claim against the 195084 candidate before editing"
+    },
+    "after": {
+      "returned": false,
+      "error": "ContractRefusal",
+      "message": "a development-line entry changed while it was proved; nothing was granted",
+      "root_mode": "0o700",
+      "outside_unchanged": true
+    },
+    "control_unchanged_tree": {
+      "returned": true,
+      "interleaving": [],
+      "root_mode": "0o2775",
+      "outside_unchanged": true
+    },
+    "control_stable_symlink": {
+      "returned": true,
+      "result": {
+        "entries": 3,
+        "bytes": 8,
+        "peak_descriptors": 2
+      }
+    },
+    "reversal_probe": "restoring the two-line symlink skip in a scratch copy of src/ makes test_an_entry_that_becomes_a_SYMLINK_during_the_walk_is_refused raise nothing at all, and makes the reverse-direction case report 'appeared while it was proved' instead; scratch copy removed after the probe"
+  },
+  "p2_access_diagnostics": {
+    "defect": "two generic `except OSError` handlers turned every traversal failure into 'the development line cannot be proved: PermissionError (errno 13); nothing was changed' -- no operation, no path, no errno name",
+    "correction": "root open, root fstat, entry fstat, entry stat, entry open and directory enumeration each report through _access_failure with the operation, the failing entry, the errno NAME and the kernel's sentence; the relative entry goes in the rendered slot and the line root in the sentence after it, because name_value renders a bounded prefix. One backstop handler remains so an unforeseen OSError cannot reach a caller bare. No cause is inferred: the EACCES/EPERM hint still says 'before treating the entry itself as the fault', and a non-permission errno gets no mapping hint.",
+    "before": {
+      "message": "the development line cannot be proved: PermissionError (errno 13); nothing was changed",
+      "names_failed_path": false,
+      "names_errno_name": false,
+      "note": "measured this claim against the 195084 candidate before editing"
+    },
+    "after": {
+      "returned": false,
+      "error": "ContractRefusal",
+      "message": "proving the development line could not open 'blocked-entry' (PermissionError EACCES: Permission denied); it is an entry in the development line at '/tmp/w194457-probe195725-wo01cmah/unreadable-checkout' this manager is proving; nothing was changed and the line stays materializing and ungranted A permission failure on material the worker created is what an unsupported identity arrangement looks like from here: this deployment's manager account and its container runtime share one uid and gid because the engine is configured without an id mapping for it; the arrangement is deployment configuration this manager trusts rather than something it measures. Check the engine's id mapping for this deployment before treating the entry itself as the fault.",
+      "root_mode": "0o700",
+      "names_failed_path": true,
+      "names_errno": true
+    },
+    "reversal_probe": "restoring the two generic handlers in a scratch copy of src/ fails all four new diagnostic cases"
+  },
+  "tests_added": [
+    "InitialStableLineAccess.test_an_entry_that_becomes_a_SYMLINK_during_the_walk_is_refused",
+    "InitialStableLineAccess.test_a_symlink_that_becomes_a_REGULAR_FILE_is_refused_too",
+    "InitialStableLineAccess.test_a_STABLE_symlink_still_passes_and_is_still_NOT_followed",
+    "InitialStableLineAccess.test_an_unreadable_entry_NAMES_the_operation_and_the_entry",
+    "InitialStableLineAccess.test_an_unreadable_line_ROOT_names_the_operation_and_the_root",
+    "InitialStableLineAccess.test_a_directory_that_cannot_be_LISTED_names_that_operation",
+    "InitialStableLineAccess.test_a_proof_failure_that_is_NOT_a_permission_one_gets_no_hint"
+  ],
+  "tests_changed": "none; seven added, none removed, no existing assertion altered",
+  "verification": {
+    "cadence": "short failing reproduction, then the smallest adjacent regression set, as OWNER-VERIFICATION-CADENCE-20260917.md and the reviewer both directed; no broad sweep rerun",
+    "components": [
+      {
+        "what": "tests.manager.test_workspaces.InitialStableLineAccess",
+        "checks": 24,
+        "unittest_seconds": 0.205,
+        "result": "OK"
+      },
+      {
+        "what": "tests.manager.test_workspaces + tests.manager.test_review_cycles",
+        "checks": 298,
+        "unittest_seconds": 2.309,
+        "wall_seconds": 2.503,
+        "result": "OK",
+        "why": "review_cycles.create_line is the one production caller"
+      },
+      {
+        "what": "the reviewer's own 195685 selection, now 71 with the 7 new cases",
+        "checks": 71,
+        "unittest_seconds": 0.504,
+        "wall_seconds": 0.703,
+        "result": "OK"
+      },
+      {
+        "what": "probes-195725.py",
+        "seconds": 0.0009673780295997858,
+        "result": "both corrections hold"
+      }
+    ],
+    "reused_unchanged": "the 763-check seven-suite run recorded in EVIDENCE-195084.json is NOT re-measured here. Only workspaces.py and test_workspaces.py changed since it, and the product change is confined to prove_line_integrity, whose only production caller is covered above. That is reuse, not a fresh full-suite claim.",
+    "not_measured": "tests.manager.test_boundary_inventory was not re-run this claim; its reported failures and their stated baseline limits stand as recorded in EVIDENCE-195084.json"
+  },
+  "preserved_untouched": {
+    "v12_work": "a2b0d14b-W1",
+    "attempt": "attempt-7a06eb4497395f38e6d45044ec437f9c40e93ba47fd12fc10655958432c6b072",
+    "note": "no v12 store opened, no installed runtime updated, no production retry, no resubmission, no partial line removed"
+  },
+  "git_diff_check": "passes; no whitespace defect",
+  "scratch": [
+    "/tmp/w194457-probe195725-wo01cmah",
+    "reversal scratch copy of src/ removed after use"
+  ]
+}
