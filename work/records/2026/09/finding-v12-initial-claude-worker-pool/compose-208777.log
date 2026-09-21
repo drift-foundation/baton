@@ -1,0 +1,11 @@
+{"instance": "/home/sl/baton-v12/instance-2026-09-19T03-28-13Z", "authority_uuid": "56cebb70ab8449dfbefe927c676c5038", "work": "56cebb70-W1"}
+{
+ "complete": true,
+ "refused": [],
+ "job_input_identity": "sha256:ea20cc2da1970682f14f9db2f1b0e5a8ffc390497fa8e107fd351f41423695fc",
+ "runtime_manifest_digests": {
+  "implementation": "sha256:7f914343d8120124b627a6042c25961849d606bf5eaf0dd7e8701a0a3c64fbae",
+  "review": "sha256:44b7dd13013e1b5f787ee2fad630c0aa06391eab4673f6fa47cabcb866f5e8d3",
+  "integration": "sha256:dcaaa145a9db8076be7b8d42de401a8dc3400bb8c8a461a69f5dc5b865b0f1c0"
+ }
+}

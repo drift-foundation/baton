@@ -90,8 +90,21 @@ RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_VERSION}" \
 # It is a version-control client and not a network one for the traffic that
 # matters here: the clone's source is the read-only bind mount, and the
 # container's ordinary launch has no route to a remote.
+# W202663 (claim225590) ADDS `python3-jsonschema`, AND IT IS THE `git` RULE'S
+# SECOND INSTANCE, NOT A DEPARTURE. The dogfood worker VERIFIES candidates by
+# running the repository's own frozen test command inside this container, and
+# that suite imports the product under test -- whose single declared
+# third-party dependency is `jsonschema` (`v12/python/pyproject.toml`: the
+# Worker Manager consumes frozen JSON Schema and a handwritten substitute is
+# forbidden). An image that carries the verifier and not the verified code's
+# one dependency composes a gate it cannot execute: measured, not assumed --
+# the frozen `unittest` argv died `ModuleNotFoundError: jsonschema` at
+# collection inside this artefact before any test ran. The Debian package
+# brings its own closure (attrs, referencing, rpds); no pip and no build
+# toolchain appear.
 RUN apt-get update \
     && apt-get install --no-install-recommends -y ca-certificates git python3 \
+       python3-jsonschema \
     && rm -rf /var/lib/apt/lists/*
 
 # THE WORKER, UNMODIFIED, AND ITS FROZEN CONTRACT AS DATA.

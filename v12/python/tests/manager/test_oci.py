@@ -210,7 +210,9 @@ class TheVectorsAreClosedAndOrdered(Configured):
                 # read as an argument to the engine itself.
                 self.assertEqual(argv[-1], IMAGE)
                 # 5 for the head, 2 for the configured workspace group,
-                # 20 for the restrictions, 20 for the TEN
+                # 22 for the restrictions (W202663 adds the disposable
+                # legacy-log decoy tmpfs beside the two scratch tmpfs
+                # entries), 20 for the TEN
                 # labels, 1 for the image and 1 for `--read-only`, which is the
                 # only flag carrying no value. Eight since review [P1] put the
                 # policy digest among them: the engine reports the image it is
@@ -225,7 +227,7 @@ class TheVectorsAreClosedAndOrdered(Configured):
                 # given the deployment's configured workspace group, and one
                 # without it refuses before the engine rather than starting a
                 # worker that cannot write its own workspace.
-                self.assertEqual(len(argv), 49)
+                self.assertEqual(len(argv), 51)
 
     def test_every_restriction_is_present_and_unconditional(self):
         """A policy a caller can turn off is a default."""
@@ -2376,3 +2378,67 @@ class TheAttemptLogRoomIsItsOwnMount(unittest.TestCase):
         self.assertNotEqual(attempt_logs.LOG_TARGET, exchange.EVENT_TARGET)
         self.assertNotEqual(attempt_logs.LOG_TARGET, exchange.COMMAND_TARGET)
         self.assertFalse(attempt_logs.LOG_TARGET.startswith("/output"))
+
+
+class TheScratchDeliveryIsOneWritableDiskBind(Configured):
+    """W202663 (owner 2026-09-21T05:53:07Z) — the per-attempt scratch family.
+
+    The verifier's deployment-setup tests refuse a fixture root inside the
+    checkout or on a memory filesystem, and Job2 measured that the container
+    offered no compliant place by mount contract. The delivery is one
+    manager-allocated disk directory at the constant `/scratch`, execution
+    only, absent by default.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._scratch = tempfile.TemporaryDirectory(prefix="v12-scratch-")
+        self.addCleanup(self._scratch.cleanup)
+        self.place = self._scratch.name
+
+    def vector(self, **overrides):
+        options = dict(image_digest=IMAGE, labels=LABELS,
+                       assignment_roots=ROOTS, posture="execution",
+                       workspace_group=self.group, name="baton-op-1",
+                       scratch_delivered=self.place)
+        options.update(overrides)
+        return run_vector("docker", **options)
+
+    def test_the_bind_is_composed_writable_at_the_constant_target(self):
+        argv = self.vector()
+        self.assertIn(f"type=bind,source={os.path.realpath(self.place)},"
+                      f"target=/scratch,readonly=false", argv)
+
+    def test_absent_means_absent(self):
+        argv = self.vector(scratch_delivered=None)
+        self.assertFalse([one for one in argv if "/scratch" in one])
+
+    def test_a_missing_directory_refuses(self):
+        with self.assertRaisesRegex(ContractRefusal, "not a directory"):
+            self.vector(scratch_delivered=os.path.join(self.place, "absent"))
+
+    def test_a_consent_runtime_takes_no_scratch(self):
+        with self.assertRaisesRegex(ContractRefusal, "consent runtime"):
+            run_vector("docker", image_digest=IMAGE, labels=LABELS,
+                       assignment_roots=ROOTS, posture="consent",
+                       name="baton-op-1", scratch_delivered=self.place)
+
+    def test_the_adapter_owns_it_at_construction_and_consent_refuses(self):
+        adapter = OciAdapter(
+            "docker", lambda argv, **_: None,
+            identity={"image_digest": IMAGE,
+                      "profile_digest": "sha256:" + "b" * 64,
+                      "policy_digest": "sha256:" + "c" * 64,
+                      "adapter_digest": "sha256:" + "d" * 64},
+            assignment_roots=ROOTS, posture="execution",
+            workspace_group=self.group, scratch_delivery=self.place)
+        self.assertEqual(adapter.scratch_delivery, self.place)
+        with self.assertRaisesRegex(ContractRefusal, "consent runtime"):
+            OciAdapter(
+                "docker", lambda argv, **_: None,
+                identity={"image_digest": IMAGE,
+                          "profile_digest": "sha256:" + "b" * 64,
+                          "policy_digest": "sha256:" + "c" * 64,
+                          "adapter_digest": "sha256:" + "d" * 64},
+                assignment_roots=ROOTS, posture="consent",
+                scratch_delivery=self.place)

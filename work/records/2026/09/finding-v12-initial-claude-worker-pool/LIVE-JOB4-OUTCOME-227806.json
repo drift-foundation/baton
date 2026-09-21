@@ -1,0 +1,42 @@
+{
+ "schema": "baton.w202663.live-job4-outcome/1",
+ "claim": 227806,
+ "instance": "/home/sl/baton-v12/instance-2026-09-21T06-27-56Z",
+ "job": "w202663-first-development-job-4",
+ "attempt": "attempt-60008f5b05932ffb303316e8e8d96ca5fa337f47c9fef0e10b96b156525cefd0",
+ "what": "authentication SUCCEEDED after the owner's second relogin; the producer ran a full real episode and left the two-file candidate in its line; the work operation then faulted at the adapter's POST-PROVIDER TREE REVALIDATION -- reproduced deterministically outside the container: the real repository cannot pass `_checked_tree` as a line candidate",
+ "timeline_utc": {
+  "credential_file_updated": "06:48:30.575Z (owner's second relogin, into the correct file; first relogin had used CLAUDE_CONFIG_DIR=.../acp-baton-bridge/... per owner clarification)",
+  "submitted_and_claimed": "receipt accepted 06:49:52Z",
+  "runtime": "container 0f9fd4e5... ran 06:49:52.185Z -> 07:03:36.389Z (exit 1)",
+  "provider": "COMPLETED: is_error false, subtype success, terminal_reason completed, 74 turns, duration 819810 ms (~13.7 min), total_cost_usd 7.370573, full agent summary of the two produced files",
+  "terminal": "exchange: describe answered, work FAULTED fault_code 'agent'; implementation exceptional; review blocked; allocation reserved; episode unended"
+ },
+ "what_the_agent_produced": {
+  "line": ".baton-review-lines/line-a705b15d.../checkout",
+  "head": "446fa8f7 (exactly the accepted base; _unmoved holds)",
+  "git_status": "exactly two untracked files: v12/python/tools/pool.py and v12/python/tests/tools/test_pool.py",
+  "uncommitted": "the fault hit before commit/publish; no proposal, checkpoint or verdict"
+ },
+ "layers_proven_live_this_episode": {
+  "credential": "authentication succeeded; the freshness question is settled for this episode (review227766's qualification of the gate stands -- the gate was omitted per review and the relogin was simply correct this time)",
+  "scratch": "/scratch bind present; the attempt's scratch directory was USED during the episode (mtime 07:02Z) and left empty -- the agent's manual test runs consumed it",
+  "capture": "provider.stdout (5222 bytes) and provider.stderr captured in the moved room with both sidecars declaring finished; NO nested contamination anywhere",
+  "reaping_and_isolation": "no fork failures, no foreign writers, no decoy hits observed"
+ },
+ "root_cause": {
+  "site": "claude_agent.work() line-profile path: `written = _checked_tree(candidate, what, skip=walk_skip)` runs AFTER the provider and BEFORE `_verify` -- job-4's room holds no verification captures at all, which places the fault exactly there",
+  "deterministic_reproduction": "running the image's own `_checked_tree` against the retained job-4 line checkout with the exact composed skip set refuses: 'the candidate line carries a link at work/open/finding-protocol-11-reference-semantics'",
+  "first_blocker": "the repository COMMITS symlinks (work/open/finding-* are links into work/records/...); the walk refuses any link at any depth",
+  "second_blocker": "with links tolerated the same walk meets 19553 entries / 652339071 bytes against MAX_SOURCE_ENTRIES=2000 / MAX_SOURCE_BYTES=67108864 -- the whole-repository line candidate is an order of magnitude past both bounds",
+  "why_prior_jobs_differed": "the accepted A/B PR jobs ran over the SMALL w197661 fixture repository as their nominated source; job-2/3/4 are the first line candidates whose checkout is the REAL baton repository",
+  "job2_reinterpretation_hypothesis": "Job2's image carried the same walk and the same repository shape, so its work operation plausibly refused HERE too -- which would make ALL of Job2's verification.* room artifacts nested-test contamination rather than adapter captures, consistent with review226905's 'exact first failed writer unproved'; offered as hypothesis, not asserted"
+ },
+ "bounded_correction_for_owner_selection": {
+  "shape": "for the LINE profile, hold the provider to its CHANGES rather than to the committed base: the committed checkout is manager-delivered line custody already proven at materialization, and what this turn publishes is the patch -- so `_checked_tree`'s link/type/bounds rules should walk the CHANGED/PENDING set (plus anything publication copies), not the whole repository",
+  "alternative": "raising the bounds and skipping committed links weakens the boundary for every profile and is not recommended",
+  "not_done_this_claim": "the observation handoff authorizes no new implementation; this is a diagnosis with a reproducible probe, not a change"
+ },
+ "preserved": "job-4's attempt (allocation reserved, episode unended), job-3, Job1/Job2, all rooms, sidecars, lines and A/B evidence exactly as found; nothing retried, restarted, resubmitted or cleaned",
+ "spend": "one real producer episode: 74 turns, ~13.7 min, $7.370573; no reviewer episode; no verdict"
+}

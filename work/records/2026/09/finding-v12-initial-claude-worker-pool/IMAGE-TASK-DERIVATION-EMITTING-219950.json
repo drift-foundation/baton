@@ -1,0 +1,19 @@
+{
+ "proof": "task-derived-output-for-successive-distinct-tasks",
+ "turn_1": {
+  "task_id": "proof-task-1",
+  "head": "2abe86150629a2fed9b6a4174c7c240e71dde5c2",
+  "committed": [
+   "w197661-fixture-proof-task-1.txt"
+  ]
+ },
+ "turn_2": {
+  "task_id": "proof-task-2",
+  "head": "7a614d122dc51782c72d266b7c93e8fb0b706843",
+  "based_on": "2abe86150629a2fed9b6a4174c7c240e71dde5c2",
+  "committed": [
+   "w197661-fixture-proof-task-2.txt"
+  ]
+ },
+ "both_lines_exact": true
+}

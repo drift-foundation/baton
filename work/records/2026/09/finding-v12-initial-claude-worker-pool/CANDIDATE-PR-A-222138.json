@@ -1,0 +1,29 @@
+{
+  "candidate": {
+    "base": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+    "changed_paths": [
+      "w197661-fixture-verification-1.txt"
+    ],
+    "commit": "2fb0612ca1bd9fd8e2e254a11ff26b6b64a1eba8",
+    "line_checkout": "/home/sl/baton-v12/instance-2026-09-20T15-53-26Z/workers/implementation/storage/.baton-review-lines/line-37baa08d6f19fdeafe4d84157617eacff07325d91ada504b00a89b40653bb7a4/checkout",
+    "proposal_tree": "/home/sl/baton-v12/instance-2026-09-20T15-53-26Z/workers/implementation/storage/.baton-review-lines/line-37baa08d6f19fdeafe4d84157617eacff07325d91ada504b00a89b40653bb7a4/checkout/proposal"
+  },
+  "canonical_evidence": {
+    "association": "CANDIDATE-ASSOCIATION-222215.json (verdict-e5332c53... accepted -> checkpoint-9120b870... frozen 93da9d62->2fb0612c -> line accepted; all through review_cycles' public proving readers, verdict id derived by the writer's own rule)",
+    "canonical_status": "run-status-PR-A-canonical-222215.json (canonical: true; both stages completed)",
+    "log_locators": "A-LOCATORS-PR-222215.json"
+  },
+  "claim": 222138,
+  "independent_review": "review stage completed and released cleanup-retained (deterministic accepted verdict); run-status-PR-A-222138.json",
+  "instance": "/home/sl/baton-v12/instance-2026-09-20T15-53-26Z",
+  "job": "verification-1",
+  "lifecycle": "implementation reserved 15:58:46Z, both stages released by 15:59:22Z; capture assertions green; stack stopped, stores retained",
+  "owner_next": "OWNER-ACCEPT-A-222138.md",
+  "schema": "baton.w202663.pr-candidate/1",
+  "test_evidence": {
+    "recorded_at": "/home/sl/baton-v12/instance-2026-09-20T15-53-26Z/workers/implementation/storage/.baton-review-lines/line-37baa08d6f19fdeafe4d84157617eacff07325d91ada504b00a89b40653bb7a4/checkout/proposal/verification.txt",
+    "status": 0
+  },
+  "what": "the FIRST INSTALLED two-stage PR candidate, produced by the owner-selected recipe (--pr --emitting) on the owner-installed candidate-221940 instance; awaiting the OWNER's acceptance -- nothing here invents it",
+  "work": "62becc01-W1"
+}

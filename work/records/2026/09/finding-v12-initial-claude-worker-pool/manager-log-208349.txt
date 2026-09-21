@@ -1,0 +1,91 @@
+Traceback (most recent call last):
+  File "baton_v12/worker_manager/workspaces.py", line 831, in check_workspace_storage
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/storage'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "stack_command.py", line 257, in <module>
+  File "stack_command.py", line 253, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 485, in main
+  File "tools/job_manager.py", line 367, in _serve
+  File "tools/job_manager.py", line 316, in _operations_from
+  File "tools/stage_execution.py", line 6122, in factory
+  File "tools/stage_execution.py", line 5836, in operations_from
+  File "tools/single_worker.py", line 2903, in worker_preflight
+  File "baton_v12/worker_manager/workspaces.py", line 856, in configure_workspace_storage
+  File "baton_v12/worker_manager/workspaces.py", line 833, in check_workspace_storage
+  File "baton_v12/worker_manager/workspaces.py", line 1574, in _refuse
+baton_v12.contracts.errors.ContractRefusal: the configured workspace store '/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/im… is not a directory this manager can see
+[PYI-1922171:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+Traceback (most recent call last):
+  File "stack_command.py", line 257, in <module>
+  File "stack_command.py", line 253, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 485, in main
+  File "tools/job_manager.py", line 367, in _serve
+  File "tools/job_manager.py", line 316, in _operations_from
+  File "tools/stage_execution.py", line 6122, in factory
+  File "tools/stage_execution.py", line 5836, in operations_from
+  File "tools/single_worker.py", line 2903, in worker_preflight
+  File "baton_v12/worker_manager/workspaces.py", line 862, in configure_workspace_storage
+  File "baton_v12/worker_manager/workspaces.py", line 1578, in _denied
+baton_v12.contracts.errors.ContractRefusal: this manager is already configured with workspace store '/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/im… and is being told to use '/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/re…; every attempt already allocated under the first store would become unfindable, so a changed store is a fresh store rather than a reconfiguration
+[PYI-1922197:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+Traceback (most recent call last):
+  File "stack_command.py", line 257, in <module>
+  File "stack_command.py", line 253, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 485, in main
+  File "tools/job_manager.py", line 367, in _serve
+  File "tools/job_manager.py", line 316, in _operations_from
+  File "tools/stage_execution.py", line 6122, in factory
+  File "tools/stage_execution.py", line 5836, in operations_from
+  File "tools/single_worker.py", line 2903, in worker_preflight
+  File "baton_v12/worker_manager/workspaces.py", line 862, in configure_workspace_storage
+  File "baton_v12/worker_manager/workspaces.py", line 1578, in _denied
+baton_v12.contracts.errors.ContractRefusal: this manager is already configured with workspace store '/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/im… and is being told to use '/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/storage'; every attempt already allocated under the first store would become unfindable, so a changed store is a fresh store rather than a reconfiguration
+[PYI-1922270:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+serving initialization complete: incarnation='v12-stack-1922344-1789784013739949022' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-09-19T02:20:37.829Z",
+  "recovered": null,
+  "observed": 0,
+  "replaced": [],
+  "acts": [],
+  "started": [
+    {
+      "stage_id": "w202663-deterministic-verification/integration",
+      "episode": 1,
+      "attempt_id": "attempt-2016ee7100238244538d6ca7afe4bac3c4eb7588c5b6f28704a68a3697837dea",
+      "outcome": "deferred",
+      "detail": {
+        "category": "policy",
+        "code": "denied",
+        "message": "the required tests for task 'w202663-deterministic-verification' exited 1 in this producer's container; a failing required command is not admitted and an accepted technical review is not a substitute"
+      }
+    }
+  ],
+  "spoken": [],
+  "refreshed": [
+    {
+      "stage_id": "w202663-deterministic-verification/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w202663-deterministic-verification/review",
+      "episode": 1,
+      "attempt_id": "attempt-c9b678e1177e1271e78359e824ec4bcbebb8cd40732ea585a8bb8a7a87f14586",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "w202663-deterministic-verification/integration",
+      "episode": 1,
+      "attempt_id": "attempt-2016ee7100238244538d6ca7afe4bac3c4eb7588c5b6f28704a68a3697837dea",
+      "state": "not-asked"
+    }
+  ]
+}

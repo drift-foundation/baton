@@ -1,0 +1,16 @@
+{
+  "claim": 217558,
+  "sha256": {
+    "v12/python/src/baton_v12/integration/runtime.py": "e7447ebd4876254d890e75a3579d6bcc4ca7a4491c30e07ac7d00f279eb842c0",
+    "v12/python/src/baton_v12/integration/oci_delivery.py": "16033c38f56597a44d103ed77115b7160998f12d139bfef5fbfa483873bc5d08",
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+    "v12/python/tests/integration/test_runtime.py": "d91d4b90bf4a880ce93e418b66a740c3384bac86386a85262a1767b0bb87846c",
+    "v12/python/tests/tools/test_stage_execution.py": "412352ac0d32fe2886aceeb4f2b781ac84b1ed563814bf38af77e61d639995b1"
+  },
+  "tests": "26 passed0.148s",
+  "probes": [
+    "REVIEW-PROBE-217558.json",
+    "REVIEW-SYMLINK-217558.json"
+  ],
+  "candidate": "not accepted"
+}

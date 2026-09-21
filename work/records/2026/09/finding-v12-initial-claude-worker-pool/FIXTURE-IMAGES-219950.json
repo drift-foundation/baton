@@ -1,0 +1,37 @@
+{
+  "claim": 219950,
+  "context_inputs": {
+    "artefact": "FIXTURE-IMAGE-INPUTS-219950.json",
+    "inputs_digest": "sha256:bec3a2bff330f5feff7e837db75e60179db6e5ea05e54df00544f9ac3a679639",
+    "taken": "BEFORE the builds"
+  },
+  "images": {
+    "emitting-producer": {
+      "corrected_agent_inside": true,
+      "derivation_proof": "IMAGE-TASK-DERIVATION-EMITTING-219950.json",
+      "image": "sha256:4638bae661096c8169c446058b09c63507f06b63707349525f814c6ad5125c38",
+      "recipe": "fixture-context/Dockerfile.emitting",
+      "supersedes": {
+        "sha256:e48e72dfaaed321a34f1bfdd8ceca260c63d852c3fdc625da1458b02eaf7e9e8": "the claim208916 emitting producer; preserved, every already-bound Job keeps its image"
+      }
+    },
+    "integrator": {
+      "image": "sha256:9944eef7363e8f8fd0d917bd71fbe19dfb177b6232b7064f3c3a4785f307be0f",
+      "recipe": "fixture-context/Dockerfile.integrator",
+      "unchanged": "copies importing_agent.py, not ProposingAgent"
+    },
+    "silent-producer": {
+      "corrected_agent_inside": true,
+      "derivation_proof": "IMAGE-TASK-DERIVATION-PRODUCER-219950.json",
+      "image": "sha256:3c43c4e3ffa6e40e005f32a378738fc60fd897c0f93ba6fd2edcee4b9627fe57",
+      "recipe": "fixture-context/Dockerfile.producer",
+      "supersedes": {
+        "sha256:6ae290f9135c4c79bf2a74c2425deb839bccf77190927bf6529cf34bd622423f": "the claim207111 silent producer; preserved, every already-bound Job keeps its image"
+      }
+    }
+  },
+  "proof_shape": "each producer image ran test-image-task-derivation-219950.py inside itself: two work turns with distinct task ids, the second on a line whose head IS the first turn's output; both committed exactly the task-derived file with exact content",
+  "schema": "baton.w202663.fixture-images/1",
+  "what_it_is_not": "image identity and derivation behaviour; no claim about any installed deployment",
+  "why": "review219927: the task-derived candidate correction must be DELIVERED in the images the composer selects; both consumers of ProposingAgent rebuilt from the corrected context"
+}

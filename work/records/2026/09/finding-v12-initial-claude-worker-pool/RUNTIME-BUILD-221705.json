@@ -1,0 +1,29 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:10e7b23f86fc49ef4f64be5788a9d8af6327a531bc8fd29ab10ee22d449a55e2"
+  },
+  "claim": 221705,
+  "identity_note": "the EXECUTABLE hash equals candidate221639's because this correction changed only tools/accepted_base.py, which the bundle carries under _internal; the 81-file BUNDLE digest differs and is what distinguishes the candidates -- the installer verifies both",
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-221705.json",
+    "input_count": 110,
+    "inputs_digest": "sha256:3c2dac24ba1c9b9bf0747d0d9482cc68178a22bbecc651095a94e81f4ed9c4f9",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime carrying review221684's three accepted-base corrections: [R1] stopped-instance proved by the stack's own ownership records under its own admission, [R2] full validation and both-target prechecks before any repository effect, [R3] receipt replay only against the matching COMMITTED Authority operation, plus fsynced durable intent/receipt custody and the coincidence-is-not-resume rule",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "bundle-sha256:04df707166da5a3cbd120a32a64eab3014e18616fd9a48f7408f8fe85ebc49e1": "candidate221639, NOT accepted by review221684 and never installed; superseded BY BUNDLE DIGEST because the two candidates share one executable (see identity_note); its records remain as history"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

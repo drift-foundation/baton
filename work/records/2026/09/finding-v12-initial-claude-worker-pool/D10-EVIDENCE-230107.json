@@ -1,0 +1,35 @@
+{
+ "schema": "baton.w202663.d10-evidence/2",
+ "claim": 230107,
+ "supersedes": "D10-EVIDENCE-229926.json (preserved as history; invalid JSON at line 35 and its next-steps carried placeholders -- review230027 R2)",
+ "owner_ruling": "2026-09-21T12:47:17Z -- the owner is the integrator; remove whole-checkout rejection for the line workflow; collect the proposal and verification evidence; retain only narrow no-follow/external-file protection, verified-to-delivered byte/set integrity, and honest incomplete/failure reporting; unrelated ignored files are not vetoes; supersedes 12:41:22Z and review227929's broad-checker recommendations",
+ "product_change": {
+  "file": "v12/worker/claude_agent.py (sha256 5c216c03a89fd6b4d15d022093b6ed2bfc2aa523099bf469e2491fb21ce9d7c5)",
+  "collection": "the line profile's inventory is `git status --porcelain -z --untracked-files=all`, parsed closed -- NO baseline tree read, NO whole-tree walk or hashing, NO discovery ceilings over the repository, NO mode policing of unrelated baseline entries; a second --ignored=matching listing feeds the DISCLOSURE only; the status listing is bounded by MAX_LINE_STATUS_ENTRIES=20000 (actual collection, never the pre-existing checkout)",
+  "per_entry": "a regular changed file is measured through the anchored no-follow read under the unchanged payload ceilings (2000 entries / 64 MiB over exactly the changed set); a LINK among the changes refuses -- an unchanged committed link never appears in status, so this is precisely the retained no-follow/external-file protection; a special file is excluded and disclosed, never read; an absent path is a deletion, collected honestly; renames remain A+D",
+  "integrity_kept": "revalidation re-reads every measured path (same bytes) and re-proves every collected deletion after the provider-authored verification; _identical keeps post-commit cleanliness, A/M/D-only (a link-to-file replacement lands there as a refused 'T'), filterless, D-not-measured, committed A/M == measured BOTH directions, committed D == collected deletions BOTH directions, _identical_bytes over the measured set, and the committed-mode proof per measured path",
+  "disclosure_added": "the line result gains a `collection` member (capped lists + whole counts of excluded ignored/special paths, with the note that verification ran over a worktree containing them) -- the relied-upon question goes to the human integrator instead of being adjudicated by the adapter",
+  "retired_with_the_ruling": "_baseline_tree/_baseline_link/_git_blob_digest and the whole-tree discovery ceilings; the ignored-addition and assume-unchanged whole-tree guarantees are retired BY NAME in the two rewritten tests, which now assert the narrow truths that remain (the hidden edit is neither measured nor delivered; every delivered change carries exactly the verified bytes)",
+  "copy_profile": "byte-untouched"
+ },
+ "deterministic_proofs": {
+  "suite": "tests.manager.test_claude_agent: 221 tests OK",
+  "reviewers_probe_as_positive": "test_the_reviewers_unrelated_ignored_cache_probe_publishes -- review230027's exact R1 reproduction (unrelated ignored cache + constant-print harness) now PUBLISHES the edit and discloses the cache",
+  "ignored_dependency": "test_an_ignored_dependency_publishes_and_is_disclosed -- the verification-relied ignored file publishes with the disclosure naming it; the delivered change set provably excludes it",
+  "real_shape": "TheLineDeltaAdmitsTheRealRepositoryShape -- committed file+directory links, 2100 entries and a 66 MiB blob past both payload bounds: small patch publishes through actual verification and publication; baseline edit measured; payload bound still binds what the turn authors; the collection bound binds the change list",
+  "narrow_negatives": "provider-authored link and retargeted baseline link refuse among the changes; link-replaced-by-file refuses as the committed 'T' change; verification-time edit and verification-time deletion-undo/new-deletion refuse; HEAD-moved, reserved-path and post-commit-cleanliness cases unchanged and green",
+  "special_file": "a fifo is no veto: git status does not surface it, the turn publishes without it and nothing reads or delivers it",
+  "retained_checkout_closure": "the narrowed _line_delta over the RETAINED job-4 line checkout answers in 0.066 s: written == exactly [v12/python/tests/tools/test_pool.py, v12/python/tools/pool.py], measured sha256 digests EQUAL review-2026-09-21T07-13-00Z.md's independently recorded values (d8c8429e27f62470aaff600faf6b4a4b74df90b95fc5049f2c3bc1c010616991, 6c18c9f9bdb0f45b9e0af9c7db446c934d6630b94e45fcba76c96016a0a71192), removed == [], disclosure == null; read-only, the line untouched"
+ },
+ "image": {
+  "id": "sha256:5c2eb55d64a775cf939425941960289c3c98a49689f841a335bdf03f69afd5b6",
+  "tag": "w202663-d10-narrow",
+  "recipe": "v12/worker/Dockerfile.claude (unchanged)",
+  "supersedes": "sha256:d447cf38... (whole-baseline inventory) and sha256:d1e2869e... (whole-tree refusal)",
+  "gates": "tests.manager.test_dogfood_image 16 OK + test_dogfood_entry 6 OK; composer PROVIDER_IMAGE moved with history",
+  "doctrine": "a CANDIDATE until the owner's launch authorization selects it"
+ },
+ "job5_package": "JOB5-PACKAGE-230107.md -- one explicit fail-closed compose/apply/pin/stop/start/submit sequence with exact operands: instance /home/sl/baton-v12/instance-2026-09-21T06-27-56Z, authority baf2e7fe4ec04612aa9d28805cafea78, --job w202663-first-development-job-5 --work 3, incarnation w202663-claude-job5-submit, absolute document paths, no placeholders and no references to prior blocks",
+ "not_done": "no installation, operational apply, restart, submission, live episode, credential act or cleanup; Jobs 1-4 and every retained byte preserved as found; the retained pool.py/test_pool.py remain unreviewed evidence, not adopted code",
+ "spend_this_claim": "zero provider episodes; deterministic tests, two image builds' worth of local docker cache, and one 0.066 s read-only retained-checkout inventory"
+}

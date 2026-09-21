@@ -1,0 +1,474 @@
+{
+  "environment_not_captured": "the interpreter, the installed build toolchain and the platform are not in this set; it supports comparison on this host, not a cross-day reproducibility claim",
+  "excluded": [
+    "__pycache__",
+    ".pyc",
+    ".pyo",
+    "build/",
+    "packaging/build-stamp.json"
+  ],
+  "files": [
+    "pyproject.toml",
+    "requirements.lock",
+    "requirements.build.lock",
+    "packaging/stack.spec",
+    "v12/justfile"
+  ],
+  "input_count": 109,
+  "inputs": {
+    "packaging/stack.spec": {
+      "bytes": 3474,
+      "sha256": "bd949228761abaff4ab339c4651c9abe6268968c88adc1a46803f4453f54aeaf"
+    },
+    "pyproject.toml": {
+      "bytes": 2342,
+      "sha256": "ac925c1f73ea3309dfd1d844978f24fc31c4d9dd9acd026f79edb275ce53ee38"
+    },
+    "requirements.build.lock": {
+      "bytes": 1313,
+      "sha256": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70"
+    },
+    "requirements.lock": {
+      "bytes": 3204,
+      "sha256": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157"
+    },
+    "src/baton_v12/__init__.py": {
+      "bytes": 412,
+      "sha256": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0"
+    },
+    "src/baton_v12/attempt_log_format.py": {
+      "bytes": 29964,
+      "sha256": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b"
+    },
+    "src/baton_v12/authority/__init__.py": {
+      "bytes": 1906,
+      "sha256": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066"
+    },
+    "src/baton_v12/authority/api.py": {
+      "bytes": 13149,
+      "sha256": "54583b9a6f06dcb172e90ec13170541e6982a966ec3da76e7ee676f54085af90"
+    },
+    "src/baton_v12/authority/core.py": {
+      "bytes": 135524,
+      "sha256": "4283ea95d757e9587f9a16f293039895e97b179236562de20dfad0f4e0f39b69"
+    },
+    "src/baton_v12/authority/errors.py": {
+      "bytes": 8255,
+      "sha256": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce"
+    },
+    "src/baton_v12/authority/identity.py": {
+      "bytes": 22986,
+      "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189"
+    },
+    "src/baton_v12/authority/labels.py": {
+      "bytes": 4287,
+      "sha256": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec"
+    },
+    "src/baton_v12/authority/principals.py": {
+      "bytes": 11498,
+      "sha256": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30"
+    },
+    "src/baton_v12/authority/schema.py": {
+      "bytes": 23256,
+      "sha256": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb"
+    },
+    "src/baton_v12/authority/session.py": {
+      "bytes": 17111,
+      "sha256": "9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2"
+    },
+    "src/baton_v12/authority/store.py": {
+      "bytes": 38924,
+      "sha256": "4d651a2a985f38c118d60be466e0c6f6e3012eea0efaa87ae80cec3a4ba0e726"
+    },
+    "src/baton_v12/checkpoint_profiles.py": {
+      "bytes": 19642,
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b"
+    },
+    "src/baton_v12/contracts/__init__.py": {
+      "bytes": 3156,
+      "sha256": "e9656898d35869eebe3f906de5ee1722339e3e22c2088f8f48cbda26452ffeb7"
+    },
+    "src/baton_v12/contracts/canonical.py": {
+      "bytes": 9760,
+      "sha256": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8"
+    },
+    "src/baton_v12/contracts/errors.py": {
+      "bytes": 28112,
+      "sha256": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50"
+    },
+    "src/baton_v12/contracts/frozen.py": {
+      "bytes": 3554,
+      "sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed"
+    },
+    "src/baton_v12/contracts/manifest.py": {
+      "bytes": 41314,
+      "sha256": "77cc26266af73d490db8b3bd2514ab62a3d5a563858339d02783e661217fff8b"
+    },
+    "src/baton_v12/contracts/pod.py": {
+      "bytes": 8667,
+      "sha256": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99"
+    },
+    "src/baton_v12/contracts/schema/agent-session-1.0.schema.json": {
+      "bytes": 48212,
+      "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+    },
+    "src/baton_v12/contracts/schema/worker-control-1.0.schema.json": {
+      "bytes": 51419,
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    "src/baton_v12/contracts/secrets.py": {
+      "bytes": 10233,
+      "sha256": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b"
+    },
+    "src/baton_v12/contracts/validate.py": {
+      "bytes": 16210,
+      "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0"
+    },
+    "src/baton_v12/eventing.py": {
+      "bytes": 7851,
+      "sha256": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486"
+    },
+    "src/baton_v12/integration/__init__.py": {
+      "bytes": 3875,
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4"
+    },
+    "src/baton_v12/integration/admission.py": {
+      "bytes": 21529,
+      "sha256": "9bf4cab3831255e341c01c2d06dc3f5ac07a817e5bb3ece197b4e365c97ea131"
+    },
+    "src/baton_v12/integration/driver.py": {
+      "bytes": 103453,
+      "sha256": "531662e23bd419fc69b9a67757614f472a0359f9eb73859b3df7321c7d88bc93"
+    },
+    "src/baton_v12/integration/execution.py": {
+      "bytes": 64917,
+      "sha256": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e"
+    },
+    "src/baton_v12/integration/git_profile.py": {
+      "bytes": 30525,
+      "sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6"
+    },
+    "src/baton_v12/integration/managed_execution.py": {
+      "bytes": 38368,
+      "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936"
+    },
+    "src/baton_v12/integration/oci_delivery.py": {
+      "bytes": 45276,
+      "sha256": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282"
+    },
+    "src/baton_v12/integration/queue.py": {
+      "bytes": 117764,
+      "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea"
+    },
+    "src/baton_v12/integration/reconciliation.py": {
+      "bytes": 211131,
+      "sha256": "158d255e9799794f7af127ff9d0837803e27489d4d8c80e4d38efe7610c3bd54"
+    },
+    "src/baton_v12/integration/recovery.py": {
+      "bytes": 12424,
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732"
+    },
+    "src/baton_v12/integration/runtime.py": {
+      "bytes": 50412,
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb"
+    },
+    "src/baton_v12/integration/schema.py": {
+      "bytes": 37291,
+      "sha256": "2ff94a4d7509545c326e94b20020f23670482d6438e064653891072fd0a41e7a"
+    },
+    "src/baton_v12/integration/store.py": {
+      "bytes": 46545,
+      "sha256": "06936f989e13f55509b97559c7086b1019b349ab637af35de3b5979ba3bb4eec"
+    },
+    "src/baton_v12/job_manager/__init__.py": {
+      "bytes": 6040,
+      "sha256": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6"
+    },
+    "src/baton_v12/job_manager/delegation.py": {
+      "bytes": 62063,
+      "sha256": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8"
+    },
+    "src/baton_v12/job_manager/documents.py": {
+      "bytes": 37264,
+      "sha256": "5fcd58b57c4b89c79bea0f72ce41df3da9b2aab4926d77ee22fd65ad7d3956d1"
+    },
+    "src/baton_v12/job_manager/ending.py": {
+      "bytes": 34227,
+      "sha256": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99"
+    },
+    "src/baton_v12/job_manager/episodes.py": {
+      "bytes": 64375,
+      "sha256": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865"
+    },
+    "src/baton_v12/job_manager/execution_limits.py": {
+      "bytes": 11558,
+      "sha256": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442"
+    },
+    "src/baton_v12/job_manager/integration_capacity.py": {
+      "bytes": 92870,
+      "sha256": "87b92b347f0391b1c3487be9ef3176d64c9567f0b5bf3d3a91544c481963317b"
+    },
+    "src/baton_v12/job_manager/manager.py": {
+      "bytes": 56344,
+      "sha256": "cc0439946aa3648441665e75f92163e8546d29fff3514d9f2ab5a13ebdd5e0ad"
+    },
+    "src/baton_v12/job_manager/projection.py": {
+      "bytes": 44959,
+      "sha256": "595008b9ddb06d947c3720eb5bd8928a53b65f2e7458bbd151f4a77d52fc6742"
+    },
+    "src/baton_v12/job_manager/review_driver.py": {
+      "bytes": 91086,
+      "sha256": "b5b22535ef105f786aa74f61ff894614a1e91bb8e2739f1051151fb893ebe10c"
+    },
+    "src/baton_v12/job_manager/scheduler.py": {
+      "bytes": 46846,
+      "sha256": "c2e309d0924a7e946674d34ed07064915bf377682d190d5b6ea2ec4c1e75ec37"
+    },
+    "src/baton_v12/job_manager/schema.py": {
+      "bytes": 46433,
+      "sha256": "0f8601611257c78d4b7102938980977b5e256fa772729e70f3104ece6edd8704"
+    },
+    "src/baton_v12/job_manager/store.py": {
+      "bytes": 48116,
+      "sha256": "84141e0aab2ee45a58d7e51420c3c991802f037eeac7a51b3f4f3e686fa35c6d"
+    },
+    "src/baton_v12/job_manager/submission.py": {
+      "bytes": 17683,
+      "sha256": "204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1"
+    },
+    "src/baton_v12/source_profiles/__init__.py": {
+      "bytes": 3367,
+      "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+    },
+    "src/baton_v12/source_profiles/checkout.py": {
+      "bytes": 16345,
+      "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+    },
+    "src/baton_v12/version.py": {
+      "bytes": 1955,
+      "sha256": "8f854cd7b3e8ee5ae7216f226ce484f1a3e112c453e27e1e116fe3fb8e4ffd69"
+    },
+    "src/baton_v12/worker_manager/__init__.py": {
+      "bytes": 14592,
+      "sha256": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099"
+    },
+    "src/baton_v12/worker_manager/attempt_logs.py": {
+      "bytes": 31184,
+      "sha256": "eb41c1b393d6f1fac3163c0406e6a0d0a5ded2aba0ffce9b2e9a637b386c6d7b"
+    },
+    "src/baton_v12/worker_manager/attempts.py": {
+      "bytes": 184541,
+      "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6"
+    },
+    "src/baton_v12/worker_manager/authority_port.py": {
+      "bytes": 39206,
+      "sha256": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6"
+    },
+    "src/baton_v12/worker_manager/boundaries.py": {
+      "bytes": 25641,
+      "sha256": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+    },
+    "src/baton_v12/worker_manager/context_delivery.py": {
+      "bytes": 32375,
+      "sha256": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500"
+    },
+    "src/baton_v12/worker_manager/credentials.py": {
+      "bytes": 62701,
+      "sha256": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df"
+    },
+    "src/baton_v12/worker_manager/custody.py": {
+      "bytes": 86568,
+      "sha256": "360772a109909cb382ae815d17f60ed7903252bf1b56a3944de8b301f33ac31b"
+    },
+    "src/baton_v12/worker_manager/deadlines.py": {
+      "bytes": 24013,
+      "sha256": "536789e1a2947cf601ca191f675c24252078aa5ecddcf4243314c0d59d5855ae"
+    },
+    "src/baton_v12/worker_manager/documents.py": {
+      "bytes": 49020,
+      "sha256": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014"
+    },
+    "src/baton_v12/worker_manager/events.py": {
+      "bytes": 7441,
+      "sha256": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5"
+    },
+    "src/baton_v12/worker_manager/exchange.py": {
+      "bytes": 69908,
+      "sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8"
+    },
+    "src/baton_v12/worker_manager/handshake.py": {
+      "bytes": 35452,
+      "sha256": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e"
+    },
+    "src/baton_v12/worker_manager/intake.py": {
+      "bytes": 234933,
+      "sha256": "37ff14ffcad49e0eb744949fb3b0b4ef98103c94dd6c0459398492efae1fadb2"
+    },
+    "src/baton_v12/worker_manager/interrogation.py": {
+      "bytes": 38829,
+      "sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0"
+    },
+    "src/baton_v12/worker_manager/lanes.py": {
+      "bytes": 22464,
+      "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c"
+    },
+    "src/baton_v12/worker_manager/launch.py": {
+      "bytes": 49175,
+      "sha256": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc"
+    },
+    "src/baton_v12/worker_manager/manifests.py": {
+      "bytes": 7243,
+      "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866"
+    },
+    "src/baton_v12/worker_manager/oci.py": {
+      "bytes": 212419,
+      "sha256": "b8bf738ca04548143eb3598e89d5ce2b412efed75ad700e0ec973edead65ba0a"
+    },
+    "src/baton_v12/worker_manager/offers.py": {
+      "bytes": 53060,
+      "sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065"
+    },
+    "src/baton_v12/worker_manager/output.py": {
+      "bytes": 31447,
+      "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d"
+    },
+    "src/baton_v12/worker_manager/posture_slots.py": {
+      "bytes": 21721,
+      "sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81"
+    },
+    "src/baton_v12/worker_manager/provider_context.py": {
+      "bytes": 41494,
+      "sha256": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38"
+    },
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "bytes": 152145,
+      "sha256": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83"
+    },
+    "src/baton_v12/worker_manager/schema.py": {
+      "bytes": 72850,
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+    },
+    "src/baton_v12/worker_manager/sealing.py": {
+      "bytes": 46546,
+      "sha256": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada"
+    },
+    "src/baton_v12/worker_manager/sessions.py": {
+      "bytes": 42926,
+      "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd"
+    },
+    "src/baton_v12/worker_manager/source_boundary.py": {
+      "bytes": 51321,
+      "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f"
+    },
+    "src/baton_v12/worker_manager/store.py": {
+      "bytes": 43206,
+      "sha256": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b"
+    },
+    "src/baton_v12/worker_manager/worker_entry.py": {
+      "bytes": 31514,
+      "sha256": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba"
+    },
+    "src/baton_v12/worker_manager/workspaces.py": {
+      "bytes": 155260,
+      "sha256": "b6eb2dc3fcc811f8ad933eb80fbedbaf2a98def7e4cff3eacffef905e7ca70d2"
+    },
+    "tools/__init__.py": {
+      "bytes": 386,
+      "sha256": "26c21454b5f7cfde863e5f615ee1cb5a33564a7026147c4ae6c8cf5446c60bf7"
+    },
+    "tools/attempt_logs_command.py": {
+      "bytes": 10512,
+      "sha256": "c360591014aeafc1f3fcd39253cba38de81e88d3e5691c842553faec694372f5"
+    },
+    "tools/bootstrap.py": {
+      "bytes": 112406,
+      "sha256": "6e7ff379e6d9accb9ffbc80eba2beb436639b94354622201c59303cf5a701e0c"
+    },
+    "tools/build_stamp.py": {
+      "bytes": 7920,
+      "sha256": "6b4fed17742702e9dc3577d8f4a54a9bf01d7ca947c1eacf739b18cad7c91218"
+    },
+    "tools/dogfood_operator.py": {
+      "bytes": 255331,
+      "sha256": "e68dbe4030f95454ebc5af6561a2e87378a9bf9ef5ec8b33e0b4d4ffd34a4620"
+    },
+    "tools/environment.py": {
+      "bytes": 18019,
+      "sha256": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4"
+    },
+    "tools/instance.py": {
+      "bytes": 22296,
+      "sha256": "1541bc46951aef07dfddae5584f20340088b9e626611d75858e2a66d6b2a7106"
+    },
+    "tools/integration_bundle.py": {
+      "bytes": 82019,
+      "sha256": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942"
+    },
+    "tools/integration_placement.py": {
+      "bytes": 57322,
+      "sha256": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161"
+    },
+    "tools/integration_worker.py": {
+      "bytes": 106288,
+      "sha256": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295"
+    },
+    "tools/job_manager.py": {
+      "bytes": 23729,
+      "sha256": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12"
+    },
+    "tools/job_viewer.py": {
+      "bytes": 43333,
+      "sha256": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e"
+    },
+    "tools/parallel_test.py": {
+      "bytes": 69580,
+      "sha256": "ea1ef7b298f33c856b90cb73dd205d2c6cd1ee3b758bc3add063944596831085"
+    },
+    "tools/single_worker.py": {
+      "bytes": 188005,
+      "sha256": "4ced6eccef1302d32909bd3091480475161f04f38fe750f6f3d1270b43b192fc"
+    },
+    "tools/stack.py": {
+      "bytes": 64777,
+      "sha256": "32c92bb1b077c7858164ae2ab5bcc74e395aac0e3ee65ad81ca5651c8db5b8fe"
+    },
+    "tools/stack_command.py": {
+      "bytes": 10927,
+      "sha256": "26393cd3dd2c6c134d1706e520427291d04e46d7cfd094d18d95c58819fb8c43"
+    },
+    "tools/stage_execution.py": {
+      "bytes": 354153,
+      "sha256": "264bfe7adeb8fd022811fd47b0d53061551ba6ada06134243584466786799247"
+    },
+    "tools/user_credentials.py": {
+      "bytes": 32253,
+      "sha256": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b"
+    },
+    "tools/worker_image.py": {
+      "bytes": 24725,
+      "sha256": "6bc3f08363a13f70724001638340f21eeed21eb62ea5de9ff359fb0dcc22eeb1"
+    },
+    "v12/justfile": {
+      "bytes": 17484,
+      "sha256": "5b261079e035f06371b6f0a88b7c0ce2bdd55a2fb8b152c4c38f101146598368"
+    }
+  },
+  "inputs_digest": "sha256:e30141585c6547687b6954f4e0f684f3069a7f7d546c7b405ef2033eb85c4f7c",
+  "python_root": "/home/sl/src/baton/v12/python",
+  "revision": {
+    "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+    "read": true
+  },
+  "schema": "baton.w202663.prospective-build-inputs/2",
+  "scope": "the RUNTIME build only; the production and fixture image builds carry their own provenance artefacts and this snapshot does not retroactively attest them",
+  "source": "/home/sl/src/baton",
+  "supersedes_completeness_of": "PROSPECTIVE-INPUTS-208531.json (/1, partial: review208585 [R3])",
+  "taken": "BEFORE the build it describes",
+  "trees": [
+    "src/baton_v12",
+    "tools",
+    "packaging"
+  ],
+  "what_it_is": "the bytes the runtime build's inputs held at the instant this ran, recorded so a later comparison is against a prior record rather than against the same tree read twice",
+  "what_it_is_not": "not a claim that the build consumed exactly these bytes; that is what comparing the built artefact against this record establishes"
+}

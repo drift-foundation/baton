@@ -1,0 +1,14 @@
+refused: manager did not stay up (gone). Its log says:
+      File "tools/job_manager.py", line 367, in _serve
+      File "tools/job_manager.py", line 316, in _operations_from
+      File "tools/stage_execution.py", line 6122, in factory
+      File "tools/stage_execution.py", line 5894, in operations_from
+      File "tools/stage_execution.py", line 4046, in activate_targets
+      File "baton_v12/integration/queue.py", line 1564, in activate_target
+      File "baton_v12/integration/queue.py", line 925, in _transact
+      File "baton_v12/integration/store.py", line 766, in transact
+      File "baton_v12/integration/queue.py", line 1553, in perform
+      File "baton_v12/integration/queue.py", line 208, in _denied
+    baton_v12.contracts.errors.ContractRefusal: target 'w202663-verification-target' is already activated under another configuration; a live target's identity is not re-described
+    [PYI-1957320:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+error: Recipe `start` failed on line 28 with exit code 2

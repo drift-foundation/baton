@@ -1,0 +1,22 @@
+authority cf92cbff...    reused from this root's record
+route impl           -> baton.fixture-coder
+route rview          -> baton.fixture-reviewer
+route integration    -> baton.fixture-integrator
+route impl           -> baton.fixture-coder-2
+route rview          -> baton.fixture-reviewer-2
+route integration    -> baton.fixture-integrator-2
+work  cf92cbff-W1    already exists; left alone
+grant cf92cbff-W1    approve/review/verify/integrate in its own scope
+work  cf92cbff-W2    already exists; left alone
+grant cf92cbff-W2    approve/review/verify/integrate in its own scope
+target                already established; left alone
+configuration /home/sl/baton-v12/instance-2026-09-19T02-05-20Z/deployment.json
+capacity      {"job_affinity": {"w202663-deterministic-verification": "w202663-deterministic-verification-implementation", "w202663-deterministic-verification-2": "w202663-deterministic-verification-2-implementation"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["w202663-verification-target"], "workers_by_role": {"implementation": ["w202663-deterministic-verification-2-implementation", "w202663-deterministic-verification-implementation"], "integration": ["w202663-deterministic-verification-2-integration", "w202663-deterministic-verification-integration"], "review": ["w202663-deterministic-verification-2-review", "w202663-deterministic-verification-review"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="cf92cbff7ffc456c96e9a6345de293f5"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/deployment.json"

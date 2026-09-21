@@ -1,0 +1,60 @@
+{
+  "schema": "baton.w202663.review-evidence/1",
+  "claim": 226905,
+  "observed_at": "2026-09-21T04:48:39.341931+00:00",
+  "snapshot": "LIVE-STATUS-REVIEW-226905.json",
+  "snapshot_sha256": "a47b3a65564352019063c0afedf5f7c7b72f7acc3e0a610a3bef1a0f75addd97",
+  "files": [
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/storage/.baton-review-lines/line-22330448be7ac66bea65d4f898fdc6147c6a2e8124cbfae4ebe3a29d689ab957/checkout/v12/python/tools/pool.py",
+      "bytes": 26987,
+      "sha256": "84b4f1568673557b2975918c5d12c1afcec4af36e8ce2ce749f32d49656bfc61"
+    },
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/storage/.baton-review-lines/line-22330448be7ac66bea65d4f898fdc6147c6a2e8124cbfae4ebe3a29d689ab957/checkout/v12/python/tests/tools/test_pool.py",
+      "bytes": 30448,
+      "sha256": "9ff529daaacec6639b9ebb8018b3a93010059d2d32d89c784d7a94b5a5d56cb0"
+    },
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/launch/logs/attempt-073615c05e15a7f921884d256c7a77eec0673860c3b428e4840593a54d2b728d/provider.stdout.log",
+      "bytes": 7309,
+      "sha256": "e5e5e86154bfaeef66cbd35252bb99a63be5a629fd6abdcc102b7c062e5daddc"
+    },
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/launch/logs/attempt-073615c05e15a7f921884d256c7a77eec0673860c3b428e4840593a54d2b728d/provider.stderr.log",
+      "bytes": 157,
+      "sha256": "e705bbf8982385da2b1a03725921d0a6c6730bbaadd22c8f9168522573d067e0"
+    },
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/launch/logs/attempt-073615c05e15a7f921884d256c7a77eec0673860c3b428e4840593a54d2b728d/verification.stdout.log",
+      "bytes": 4535,
+      "sha256": "9563bab3acb7f136a3ab2279cfb20e12fb24c14eed1f78484b6184810fd087fb"
+    },
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/launch/logs/attempt-073615c05e15a7f921884d256c7a77eec0673860c3b428e4840593a54d2b728d/verification.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/launch/logs/attempt-073615c05e15a7f921884d256c7a77eec0673860c3b428e4840593a54d2b728d/verification.stdout.status.json",
+      "bytes": 202,
+      "sha256": "82d70e92f871970f75703ebca48284fc84eaa98b4319f0e124961853d269a070"
+    },
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/launch/logs/attempt-073615c05e15a7f921884d256c7a77eec0673860c3b428e4840593a54d2b728d/verification.stderr.status.json",
+      "bytes": 202,
+      "sha256": "82d70e92f871970f75703ebca48284fc84eaa98b4319f0e124961853d269a070"
+    },
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/launch/logs/attempt-073615c05e15a7f921884d256c7a77eec0673860c3b428e4840593a54d2b728d/verification.stdout.status.json.carried",
+      "bytes": 22,
+      "sha256": "49b6079534d217c7284269cddd435f3294fdd5af7d6113a5eabc80dc2bbc1eba"
+    },
+    {
+      "path": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/workers/implementation/launch/logs/attempt-073615c05e15a7f921884d256c7a77eec0673860c3b428e4840593a54d2b728d/verification.stderr.status.json.carried",
+      "bytes": 22,
+      "sha256": "49b6079534d217c7284269cddd435f3294fdd5af7d6113a5eabc80dc2bbc1eba"
+    }
+  ],
+  "limits": "Source/status/metadata review only; no independent candidate tests; producer-reported 160 OK and zombie count are not reviewer reproduction."
+}

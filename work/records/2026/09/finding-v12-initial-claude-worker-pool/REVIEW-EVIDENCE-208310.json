@@ -1,0 +1,12 @@
+{
+  "claim": 208310,
+  "kind": "retained-evidence review; no suite or deployment execution",
+  "sha256": {
+    "RUN-STATUS-208217.json": "bd2b7e6a3e17f28cbf97d7e75b505d289c548bfc6cdbf6d33b6fbd637e0c1488",
+    "HETEROGENEOUS-RUN-208217.json": "472cc8925154e559372c240cc9db1c28b4d330ab248dfc3d3340ce36c881b3a5",
+    "attempt-logs-208217.txt": "d855994878db1356156374c747bee9e438fc0c69cf826a4eb35c87e4ff990c6f",
+    "stop-208217.log": "9f9e8fd8352e5593df83babe94cc0786c2a2520d9661637c6f6ccf52a1e5586c",
+    "start-208217.log": "dc096f06f0de434b1b15de6447d75f106c6edfb9b7e626cd712b1c6f888bdd92",
+    "compose-verification-208217.py": "cee07dc49d35c28a661e8234da336e7820237a26918e4123f2be99ff0aac4feb"
+  }
+}

@@ -1,0 +1,2 @@
+command: python3 -c import pathlib,sys;sys.exit(0 if pathlib.Path('w202663-fixture.txt').read_text() == 'w202663 deterministic heterogeneous candidate\n' else 1)
+status: 1

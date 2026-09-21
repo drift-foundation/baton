@@ -1,0 +1,24 @@
+{
+  "authority_uuid": "13c91b695bfe4625b4f22dabd35a54a4",
+  "claim": 226109,
+  "defects_corrected": {
+    "missing_directories": "the pool composer named per-worker launch/credential homes and workspace storage in deployment_for but never created them (the verification composer has carried that preparation since start-208777.log); the owner's authorized start refused at configure_workspace_storage before any submission. The write section now creates per-role launch and credential homes and the one manager-scoped workspace store.",
+    "per_role_stores": "deployment_for named a workspace store PER ROLE; the manager refuses a second store ('a changed store is a fresh store rather than a reconfiguration', measured at this claim's own first start attempt). One store, the implementation worker's, manager-scoped -- per-worker separation stays in the private launch and credential homes, mirroring the verification composer and W197661's accepted composition."
+  },
+  "identity_movement": "job input identity moved 87033f1b... -> 4f18ef79... because the policy pin travels in the composed documents and the repeat applies moved the Authority 14 -> 20 -> 26; the frozen task/image did NOT change. Submission document, staged manifests and deployment all agree at 4f18ef79/a74c4c2d/b95f4852; pin gate equal at 26==26.",
+  "instance": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z",
+  "preserved": {
+    "image": "sha256:448c98c937... (candidate claim225590, unchanged)",
+    "instance": "same root; no reinstall; A/B and 01-12-21Z untouched",
+    "task_bytes": "1437 bytes, identical before and after (frozen)"
+  },
+  "remaining_owner_command": "cd /home/sl/src/baton/v12/python && PYTHONPATH=src:. python3 -m tools.job_manager --store /home/sl/baton-v12/instance-2026-09-21T01-28-41Z/db/jobs.sqlite3 --incarnation w202663-claude-job-submit --authority-uuid 13c91b695bfe4625b4f22dabd35a54a4 submit --document /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/pool-submission.json",
+  "schema": "baton.w202663.startup-demonstration/1",
+  "startup": {
+    "command": "just --justfile /home/sl/baton-v12/instance-2026-09-21T01-28-41Z/justfile start",
+    "left_running": true,
+    "result": "ready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot; no Job was submitted; an empty configured stack is a valid idle state",
+    "state_root": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z/state"
+  },
+  "what": "the live PR pool's ACTUAL STARTUP on the owner-selected instance, demonstrated after correcting the two preparation defects the owner's refused start exposed"
+}

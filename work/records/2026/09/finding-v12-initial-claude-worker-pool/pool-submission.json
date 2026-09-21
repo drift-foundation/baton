@@ -1,40 +1,28 @@
 {
   "jobs": [
     {
-      "input_digest": "sha256:514f591dc9d7fcd6968a1f4262b2de834563f1e8b7cb8da7f97a012c7bdc4960",
-      "job_id": "w202663-first-development-job",
-      "policy_digest": "sha256:3b0a4e9c6c4e47d2d14229e437042a4b4eb6c8a97928aaef5296f0bc6dcb6779",
+      "input_digest": "sha256:3883ee6c4d6504c3144d90c290a702e5286dce3e4a05965785ed5c9980719d37",
+      "job_id": "w202663-first-development-job-5",
+      "policy_digest": "sha256:a0f0e4e1dc708b9cec6cdcabb653d6d2f7a15407bc1aaba0ec7431224fd4cdbe",
       "stages": [
         {
           "depends_on": [],
           "kind": "implementation",
-          "profile_digest": "sha256:893e2884734aa708100f7f1767f4d0d17818cc107e8e42ff82350eecbd76a1e1",
-          "profile_name": "claude-w202663-first-development-job",
-          "work_id": "a92e1d71-W1"
+          "profile_digest": "sha256:19b44d79edcc7e2e159542e9c092e35ffef57ec3e6b3b9fe5e2cee11bc16a05f",
+          "profile_name": "claude-w202663-first-development-job-5",
+          "work_id": "baf2e7fe-W3"
         },
         {
           "depends_on": [
             {
-              "job_id": "w202663-first-development-job",
+              "job_id": "w202663-first-development-job-5",
               "kind": "implementation"
             }
           ],
           "kind": "review",
-          "profile_digest": "sha256:893e2884734aa708100f7f1767f4d0d17818cc107e8e42ff82350eecbd76a1e1",
-          "profile_name": "claude-w202663-first-development-job",
-          "work_id": "a92e1d71-W1"
-        },
-        {
-          "depends_on": [
-            {
-              "job_id": "w202663-first-development-job",
-              "kind": "review"
-            }
-          ],
-          "kind": "integration",
-          "profile_digest": "sha256:893e2884734aa708100f7f1767f4d0d17818cc107e8e42ff82350eecbd76a1e1",
-          "profile_name": "claude-w202663-first-development-job",
-          "work_id": "a92e1d71-W1"
+          "profile_digest": "sha256:19b44d79edcc7e2e159542e9c092e35ffef57ec3e6b3b9fe5e2cee11bc16a05f",
+          "profile_name": "claude-w202663-first-development-job-5",
+          "work_id": "baf2e7fe-W3"
         }
       ],
       "terminal_policy": "report-and-hold",
@@ -42,5 +30,5 @@
     }
   ],
   "schema": "baton.v12.job-submission/2",
-  "submission_id": "w202663-first-development-job-submission"
+  "submission_id": "w202663-first-development-job-5-submission"
 }

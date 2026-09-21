@@ -37,7 +37,8 @@ import json
 import os
 import stat
 
-__all__ = ["DECLARABLE", "DECLARED", "FormatRefusal", "MAX_REASON",
+__all__ = ["DECLARABLE", "DECLARED", "FormatRefusal", "LEGACY_TARGET",
+           "MAX_REASON",
            "MAX_STATUS", "NATIVE", "STREAMS", "TARGET", "append_writer",
            "RETENTION", "log_name", "named", "open_room",
            "read_declaration",
@@ -48,7 +49,21 @@ __all__ = ["DECLARABLE", "DECLARED", "FormatRefusal", "MAX_REASON",
 # pointed at wrongly, which is the whole reason the environment transport was
 # retired (W26291). The manager's `attempt_logs.LOG_TARGET` is this value, read
 # from here, so the mount and the writer cannot disagree about it.
-TARGET = "/run/baton/logs"
+#
+# W202663 (owner 2026-09-21T05:54:40Z) MOVES THE ROOM. Job2 measured what the
+# old spelling cost: nested test executions import the CANDIDATE'S OWN copy of
+# this module, whose constant still says `/run/baton/logs`, and their killed
+# writers declared failures into the real attempt evidence. The authoritative
+# room now lives at a target only CURRENT bytes name, and the legacy spelling
+# below is composed as a small DISPOSABLE tmpfs in every runtime -- so an
+# old-byte writer lands in memory that dies with the container, which is
+# exactly the owner's "own/disposable logs" selection. Nothing rewrites or
+# resets evidence already captured under the old spelling on old deployments.
+TARGET = "/run/baton/attempt-logs"
+
+# The spelling accepted images and retained candidates still carry. It is the
+# decoy's mount point and is never opened by current code.
+LEGACY_TARGET = "/run/baton/logs"
 
 # THE CAPTURE'S OWN BOOKKEEPING inside the native corner: which source filled
 # which retained file, and how far. It lives with the bytes it describes so it

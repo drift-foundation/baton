@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:7c3e5db22b01810792a59e142cb38d54c27aede01040d0e1960cba49258fa683"
+  },
+  "claim": 217672,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-217672.json",
+    "input_count": 109,
+    "inputs_digest": "sha256:01753be03d720ff6fa98ea3fc4da0677815cfdc10e2f4aab580b9349fb144f30",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime carrying D8 with review217641's R4 creation-custody corrections (descriptor-held creation, wrong-mode refusal, return-path validation, walk-re-proving reads), atop review217558's accepted R3 derivation, for the next owner installation",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "sha256:9d26430ea3840d33256287956fac6da9d893b6d5a0e2e9fe288b3d2b5fc5f4c7": "the claim217574 candidate, NOT accepted by review217641 (R4 creation custody remained open) and never installed; its records remain as history"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

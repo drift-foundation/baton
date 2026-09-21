@@ -1,0 +1,10 @@
+{
+  "claim": 212438,
+  "sha256": {
+    "v12/python/tools/bootstrap.py": "4fd1e4fd12588625c34322cb00469db518b1b39c9a61f8cece8e135f480135db",
+    "v12/python/tests/tools/test_bootstrap.py": "361062e3d807be7bceb5d976e27a3b5593f792f117c2a5b4b9ea1fa41ecebd66",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83"
+  },
+  "probe": "REVIEW-PROBE-212438.json",
+  "full_suite": "environment blocked;130 tests reported,80 failures16 errors; not product acceptance"
+}

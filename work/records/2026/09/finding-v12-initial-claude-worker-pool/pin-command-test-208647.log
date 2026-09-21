@@ -1,0 +1,10 @@
+ok   equal pin exits 0
+ok   answer says equal
+ok   configured pin is the fake's own
+ok   generation is the fake authority's
+ok   the instance answered for is the fake
+ok   the authority answered for is the fake's
+ok   the historical instance appears nowhere
+ok   moved pin exits nonzero
+ok   the refusal is on stderr, by name
+all pin-command checks passed

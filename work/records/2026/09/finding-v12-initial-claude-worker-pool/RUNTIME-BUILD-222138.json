@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:0b5455a333aefb74277de1ccf563261e5b7d687c6b4104b1b0ec67028e7ad4c8"
+  },
+  "claim": 222138,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-222138.json",
+    "input_count": 110,
+    "inputs_digest": "sha256:6dbd50f4b5bab3a6f4eb3f3728effb04e1c0afcf62516666130c5e8a0181744d",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime whose bootstrap role-coverage gate makes the integration worker OPTIONAL, mirroring stage_execution's accepted gate -- measured refusing the first installed PR composition on the fresh 221940 instance; serving is unchanged",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "bundle-sha256:360fa9a4a3864e0166c1d870228c129917a5d85bfce1efeca9f04e5340ca6ee2": "candidate221940, review222071-accepted and owner-installed as instance-2026-09-20T15-53-26Z; preserved with its instance -- the bootstrap gate was measured ON it (the APPLY runs from the checkout, so the installed experiment was unaffected)"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

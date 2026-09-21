@@ -1,0 +1,15 @@
+INCOMPLETE: a required validator did not accept; this composition is NOT validated readiness
+{"instance": "/home/sl/baton-v12/instance-2026-09-19T03-28-13Z", "authority_uuid": "56cebb70ab8449dfbefe927c676c5038", "work": "56cebb70-W1"}
+{"job": "w202663-deterministic-verification-3", "actors": {"implementation": "baton.fixture-coder-3", "review": "baton.fixture-reviewer-3", "integration": "baton.fixture-integrator-3"}}
+{
+ "complete": false,
+ "refused": [
+  "bootstrap.held"
+ ],
+ "job_input_identity": "sha256:dd5f4e040afe6835104c234d7bd3f31f9152c6f757e4c9128ec59e0c753ca4a1",
+ "runtime_manifest_digests": {
+  "implementation": "sha256:d609e3a81c116d2b75664c61630b49528a19946cb1de9aa4206ed9e9b1807b59",
+  "review": "sha256:ed6b95d1e6e11302a23b4107404430ce378f23363d749ad45ceb9e9bef99c24d",
+  "integration": "sha256:03947271ddf0069b085a4903a986044919474e06755e499121f4efa9bcf1377c"
+ }
+}

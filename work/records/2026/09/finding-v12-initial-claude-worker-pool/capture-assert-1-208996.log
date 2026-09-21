@@ -1,0 +1,10 @@
+
+2 capture assertion(s) failed
+instance: /home/sl/baton-v12/instance-2026-09-19T04-02-31Z
+attempt:  attempt-56cfb65d05c147a026e746f83c163375e294a4fc9507894f080db65f65a1f2c4
+ok   worker.stdout present and nonempty (state=captured, bytes=115)
+ok   worker.stderr present and nonempty (state=captured, bytes=51)
+FAIL worker.stdout carries 'w202663-emitting-fixture: consider begins; deterministic fix'
+ok   worker.stdout carries 'w202663-emitting-fixture: work ends disposition=completed'
+FAIL worker.stderr carries 'w202663-emitting-fixture: stderr is retained too; this line '
+ok   worker.stderr carries 'w202663-emitting-fixture: work stderr closing line'

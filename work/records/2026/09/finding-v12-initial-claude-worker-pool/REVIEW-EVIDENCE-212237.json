@@ -1,0 +1,16 @@
+{
+  "claim": 212237,
+  "sha256": {
+    "compose-verification-208217.py": "ec534c5810bf8956f3f664450612a75addf6723408f8d3467f3f6b90520de241",
+    "test-composer-isolation-208916.py": "3a18fea8448477bab5d0c5225174f1190a39c5072fcf34c53f84eea70e21702d",
+    "install-next-instance.sh": "0435e2c64680d32f7a86e7e8f7770fe95eb3408f44faff16458c7e57c878b04d",
+    "verify-next-instance.sh": "99f19600a65eb33c1b49a611ba6bd7e288af4af37f5ae48d96b33cc1ba6a8c6a",
+    "compose-212204-observer.log": "59fad16e683d848e811998cff1d8fc5101b613ec5d1fcf07299bb84619cb15e5",
+    "pool-bootstrap-inputs.json": "f149b1bd7cdc423b6a5acc37d6321ebfcaf128271e066ddfe691a9916ea5ec0c"
+  },
+  "verification": {
+    "composer_isolation": "19 checks passed",
+    "accepted_finalization_tests": "2 tests passed; unittest reports 3.313 seconds"
+  },
+  "installed_execution": "none"
+}

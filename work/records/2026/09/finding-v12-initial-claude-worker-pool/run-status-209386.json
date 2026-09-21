@@ -1,0 +1,803 @@
+{
+  "schema": "baton.v12.job-status/6",
+  "observed_at": "2026-09-19T05:12:56.840Z",
+  "incarnation": "w202663-final",
+  "canonical": true,
+  "jobs": [
+    {
+      "job_id": "w202663-deterministic-verification-2",
+      "submission_id": "w202663-deterministic-verification-2-submission",
+      "input_digest": "sha256:aab477c94b5e33ed77c08afe528d39a59a5623867e735870c4b4dd9373432e15",
+      "policy_digest": "sha256:93452800d46c046d7ad9421f461895cb98e57f4d874ec4ddfd228321349c925d",
+      "test_scope": [],
+      "terminal_policy": "report-and-hold",
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {},
+        "boundaries": {
+          "host_verification": {
+            "seconds": 300,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 1800,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "compatibility",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "w202663-deterministic-verification-2/implementation",
+          "job_id": "w202663-deterministic-verification-2",
+          "kind": "implementation",
+          "state": "completed",
+          "work_id": "9db3a29d-W1",
+          "profile_name": "fixture-w202663-deterministic-verification-2",
+          "profile_digest": "sha256:565037cfd77f34135cdc323d692b141eca96fa90ffb6a9e30a8c01a9c095a299",
+          "episode": 1,
+          "offer_id": "offer-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+          "attempt_id": "attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+          "episodes": [
+            {
+              "stage_id": "w202663-deterministic-verification-2/implementation",
+              "episode": 1,
+              "offer_id": "offer-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+              "attempt_id": "attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+              "opened_at": "2026-09-19T05:04:14.600Z",
+              "incarnation": "w202663-verification-submit",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+            "stage_id": "w202663-deterministic-verification-2/implementation",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "w202663-deterministic-verification-2-implementation",
+            "lane": "implementation",
+            "participant": "baton.fixture-coder-2",
+            "canonical_principal": "principal:baton.fixture-coder-2",
+            "preferred_worker_id": null,
+            "selection_outcome": "initial",
+            "allocation_state": "released",
+            "reserved_at": "2026-09-19T05:04:19.303Z",
+            "recovery_required_at": null,
+            "released_at": "2026-09-19T05:04:37.384Z",
+            "release_reason": "cleanup-retained",
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:e8d071d0301918a8dfea6cb3470e4c5747baf8882b0e888bd3528531afccff19",
+            "worker_profile_name": "fixture-w202663-deterministic-verification-2",
+            "worker_profile_digest": "sha256:565037cfd77f34135cdc323d692b141eca96fa90ffb6a9e30a8c01a9c095a299"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+              "stage_id": "w202663-deterministic-verification-2/implementation",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "w202663-deterministic-verification-2-implementation",
+              "lane": "implementation",
+              "participant": "baton.fixture-coder-2",
+              "canonical_principal": "principal:baton.fixture-coder-2",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "released",
+              "reserved_at": "2026-09-19T05:04:19.303Z",
+              "recovery_required_at": null,
+              "released_at": "2026-09-19T05:04:37.384Z",
+              "release_reason": "cleanup-retained",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:e8d071d0301918a8dfea6cb3470e4c5747baf8882b0e888bd3528531afccff19",
+              "worker_profile_name": "fixture-w202663-deterministic-verification-2",
+              "worker_profile_digest": "sha256:565037cfd77f34135cdc323d692b141eca96fa90ffb6a9e30a8c01a9c095a299"
+            }
+          ],
+          "gates": [],
+          "receipts": [
+            {
+              "stage_id": "w202663-deterministic-verification-2/implementation",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+              "state": "performed",
+              "recorded_at": "2026-09-19T05:04:19.314Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-09-19T05:06:19.311Z",
+                  "issued_at": "2026-09-19T05:04:19.311Z",
+                  "offer_id": "offer-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+                  "participant": "baton.fixture-coder-2",
+                  "runtime_attempt_id": "attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+                  "verifier": "sha256:282df5222e5a9027be091dbcc9c058159b34408faf7dbc4246ff77f09b54aa55",
+                  "work_id": "9db3a29d-W1"
+                },
+                "settled_at": "2026-09-19T05:04:19.312Z"
+              }
+            },
+            {
+              "stage_id": "w202663-deterministic-verification-2/implementation",
+              "episode": 1,
+              "act": "claim",
+              "operation_id": "offer.settle:offer-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+              "state": "performed",
+              "recorded_at": "2026-09-19T05:04:24.327Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "assignment": {
+                    "generation": 1,
+                    "participant": "baton.fixture-coder-2",
+                    "work_ref": {
+                      "authority_uuid": "9db3a29da14d40aab35e057abcdf9c44",
+                      "work_id": "9db3a29d-W1"
+                    }
+                  },
+                  "claim_event": 1,
+                  "decision": {
+                    "effective_scope": "scope:deployment",
+                    "endpoint": "baton.fixture-coder-2",
+                    "grant": "direct",
+                    "policy_generation": 9,
+                    "principal": "principal:baton.fixture-coder-2",
+                    "role": "impl"
+                  },
+                  "offer_id": "offer-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+                  "state": "claimed"
+                },
+                "settled_at": "2026-09-19T05:04:24.326Z"
+              }
+            }
+          ],
+          "deferral": null,
+          "runtime": {
+            "runtime_id": "5bfb61e85802ba8ed183769181c24e3713b56c0b39c657bdd13443a6bad13911",
+            "execution_runtime": "destroyed",
+            "assignment": {
+              "work_ref": {
+                "authority_uuid": "9db3a29da14d40aab35e057abcdf9c44",
+                "work_id": "9db3a29d-W1"
+              },
+              "participant": "baton.fixture-coder-2",
+              "generation": 1
+            },
+            "activity": {
+              "attempt_id": "attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88",
+              "bytes_observed": null,
+              "observed_at": null
+            }
+          },
+          "exchange": null,
+          "artifacts": [
+            {
+              "output_name": "findings",
+              "artifact_id": "attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88:findings",
+              "media_type": "application/octet-stream",
+              "bytes": 44,
+              "content_digest": "sha256:678a582e583dce0a5266f21cbc278980241beff3cabc55de0c73b6ebb5c953ce",
+              "locator": "file:///home/sl/baton-v12/instance-2026-09-19T05-02-46Z/workers/implementation/storage/.baton-review-lines/line-4b5300f943064e8a92874f400c603ba178d558be704bfe9db00b70bb88abcca7/custody/attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88/findings"
+            },
+            {
+              "output_name": "logs",
+              "artifact_id": "attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88:logs",
+              "media_type": "application/octet-stream",
+              "bytes": 40,
+              "content_digest": "sha256:d1ef78af46005782580925afb0db0b1269788bb9580a7aa2a822765596603774",
+              "locator": "file:///home/sl/baton-v12/instance-2026-09-19T05-02-46Z/workers/implementation/storage/.baton-review-lines/line-4b5300f943064e8a92874f400c603ba178d558be704bfe9db00b70bb88abcca7/custody/attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88/logs"
+            },
+            {
+              "output_name": "proposal",
+              "artifact_id": "attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88:proposal",
+              "media_type": "application/octet-stream",
+              "bytes": 1087,
+              "content_digest": "sha256:02693c2ba657d72fbc6c4bd5806d5763e5be01ead9bbcf4d97181f2c5711806a",
+              "locator": "file:///home/sl/baton-v12/instance-2026-09-19T05-02-46Z/workers/implementation/storage/.baton-review-lines/line-4b5300f943064e8a92874f400c603ba178d558be704bfe9db00b70bb88abcca7/custody/attempt-39ad12da3634df4b220ed532df649fe4f3e0b2456b79538592056bed284ccc88/proposal"
+            }
+          ]
+        },
+        {
+          "stage_id": "w202663-deterministic-verification-2/review",
+          "job_id": "w202663-deterministic-verification-2",
+          "kind": "review",
+          "state": "completed",
+          "work_id": "9db3a29d-W1",
+          "profile_name": "fixture-w202663-deterministic-verification-2",
+          "profile_digest": "sha256:565037cfd77f34135cdc323d692b141eca96fa90ffb6a9e30a8c01a9c095a299",
+          "episode": 1,
+          "offer_id": "offer-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+          "attempt_id": "attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+          "episodes": [
+            {
+              "stage_id": "w202663-deterministic-verification-2/review",
+              "episode": 1,
+              "offer_id": "offer-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+              "attempt_id": "attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+              "opened_at": "2026-09-19T05:04:14.600Z",
+              "incarnation": "w202663-verification-submit",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+            "stage_id": "w202663-deterministic-verification-2/review",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "w202663-deterministic-verification-2-review",
+            "lane": "review",
+            "participant": "baton.fixture-reviewer-2",
+            "canonical_principal": "principal:baton.fixture-reviewer-2",
+            "preferred_worker_id": null,
+            "selection_outcome": "initial",
+            "allocation_state": "released",
+            "reserved_at": "2026-09-19T05:04:37.390Z",
+            "recovery_required_at": null,
+            "released_at": "2026-09-19T05:04:53.026Z",
+            "release_reason": "cleanup-retained",
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:e8d071d0301918a8dfea6cb3470e4c5747baf8882b0e888bd3528531afccff19",
+            "worker_profile_name": "fixture-w202663-deterministic-verification-2",
+            "worker_profile_digest": "sha256:565037cfd77f34135cdc323d692b141eca96fa90ffb6a9e30a8c01a9c095a299"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+              "stage_id": "w202663-deterministic-verification-2/review",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "w202663-deterministic-verification-2-review",
+              "lane": "review",
+              "participant": "baton.fixture-reviewer-2",
+              "canonical_principal": "principal:baton.fixture-reviewer-2",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "released",
+              "reserved_at": "2026-09-19T05:04:37.390Z",
+              "recovery_required_at": null,
+              "released_at": "2026-09-19T05:04:53.026Z",
+              "release_reason": "cleanup-retained",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:e8d071d0301918a8dfea6cb3470e4c5747baf8882b0e888bd3528531afccff19",
+              "worker_profile_name": "fixture-w202663-deterministic-verification-2",
+              "worker_profile_digest": "sha256:565037cfd77f34135cdc323d692b141eca96fa90ffb6a9e30a8c01a9c095a299"
+            }
+          ],
+          "gates": [
+            {
+              "stage_id": "w202663-deterministic-verification-2/implementation",
+              "state": "completed",
+              "open": true
+            }
+          ],
+          "receipts": [
+            {
+              "stage_id": "w202663-deterministic-verification-2/review",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+              "state": "performed",
+              "recorded_at": "2026-09-19T05:04:37.395Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-09-19T05:06:37.393Z",
+                  "issued_at": "2026-09-19T05:04:37.393Z",
+                  "offer_id": "offer-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+                  "participant": "baton.fixture-reviewer-2",
+                  "runtime_attempt_id": "attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+                  "verifier": "sha256:b1014852d260113f6f8fe4e1220370bd98c0b6f63dd5dcda1e46a4f197ea0f01",
+                  "work_id": "9db3a29d-W1"
+                },
+                "settled_at": "2026-09-19T05:04:37.393Z"
+              }
+            },
+            {
+              "stage_id": "w202663-deterministic-verification-2/review",
+              "episode": 1,
+              "act": "claim",
+              "operation_id": "offer.settle:offer-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+              "state": "performed",
+              "recorded_at": "2026-09-19T05:04:42.415Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "assignment": {
+                    "generation": 2,
+                    "participant": "baton.fixture-reviewer-2",
+                    "work_ref": {
+                      "authority_uuid": "9db3a29da14d40aab35e057abcdf9c44",
+                      "work_id": "9db3a29d-W1"
+                    }
+                  },
+                  "claim_event": 3,
+                  "decision": {
+                    "effective_scope": "scope:deployment",
+                    "endpoint": "baton.fixture-reviewer-2",
+                    "grant": "direct",
+                    "policy_generation": 9,
+                    "principal": "principal:baton.fixture-reviewer-2",
+                    "role": "rview"
+                  },
+                  "offer_id": "offer-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+                  "state": "claimed"
+                },
+                "settled_at": "2026-09-19T05:04:42.414Z"
+              }
+            }
+          ],
+          "deferral": null,
+          "runtime": {
+            "runtime_id": "eef81048b2b73debe2e508f7be147fd51fc36cdd67e8fbe1aaa6f5a9f46e8543",
+            "execution_runtime": "destroyed",
+            "assignment": {
+              "work_ref": {
+                "authority_uuid": "9db3a29da14d40aab35e057abcdf9c44",
+                "work_id": "9db3a29d-W1"
+              },
+              "participant": "baton.fixture-reviewer-2",
+              "generation": 2
+            },
+            "activity": {
+              "attempt_id": "attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac",
+              "bytes_observed": null,
+              "observed_at": null
+            }
+          },
+          "exchange": null,
+          "artifacts": [
+            {
+              "output_name": "findings",
+              "artifact_id": "attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac:findings",
+              "media_type": "application/octet-stream",
+              "bytes": 44,
+              "content_digest": "sha256:678a582e583dce0a5266f21cbc278980241beff3cabc55de0c73b6ebb5c953ce",
+              "locator": "file:///home/sl/baton-v12/instance-2026-09-19T05-02-46Z/workers/implementation/storage/attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac/custody/attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac/findings"
+            },
+            {
+              "output_name": "logs",
+              "artifact_id": "attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac:logs",
+              "media_type": "application/octet-stream",
+              "bytes": 40,
+              "content_digest": "sha256:d1ef78af46005782580925afb0db0b1269788bb9580a7aa2a822765596603774",
+              "locator": "file:///home/sl/baton-v12/instance-2026-09-19T05-02-46Z/workers/implementation/storage/attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac/custody/attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac/logs"
+            },
+            {
+              "output_name": "proposal",
+              "artifact_id": "attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac:proposal",
+              "media_type": "application/octet-stream",
+              "bytes": 44,
+              "content_digest": "sha256:f607e417af25040edf93f4db519ae95b290d25c4ef5f1f61b02336e6f12dbd4f",
+              "locator": "file:///home/sl/baton-v12/instance-2026-09-19T05-02-46Z/workers/implementation/storage/attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac/custody/attempt-a34465f179e96a13f2851cc28d710b76e1e74c2eefbbde87691056349d205aac/proposal"
+            }
+          ]
+        },
+        {
+          "stage_id": "w202663-deterministic-verification-2/integration",
+          "job_id": "w202663-deterministic-verification-2",
+          "kind": "integration",
+          "state": "completed",
+          "work_id": "9db3a29d-W1",
+          "profile_name": "fixture-w202663-deterministic-verification-2",
+          "profile_digest": "sha256:565037cfd77f34135cdc323d692b141eca96fa90ffb6a9e30a8c01a9c095a299",
+          "episode": 1,
+          "offer_id": "offer-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+          "attempt_id": "attempt-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+          "episodes": [
+            {
+              "stage_id": "w202663-deterministic-verification-2/integration",
+              "episode": 1,
+              "offer_id": "offer-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+              "attempt_id": "attempt-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+              "opened_at": "2026-09-19T05:04:14.600Z",
+              "incarnation": "w202663-verification-submit",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+            "stage_id": "w202663-deterministic-verification-2/integration",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "w202663-deterministic-verification-2-integration",
+            "lane": "implementation",
+            "participant": "baton.fixture-integrator-2",
+            "canonical_principal": "principal:baton.fixture-integrator-2",
+            "preferred_worker_id": "w202663-deterministic-verification-2-implementation",
+            "selection_outcome": "fallback",
+            "allocation_state": "released",
+            "reserved_at": "2026-09-19T05:04:53.032Z",
+            "recovery_required_at": null,
+            "released_at": "2026-09-19T05:05:08.508Z",
+            "release_reason": "integration-completed",
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:e8d071d0301918a8dfea6cb3470e4c5747baf8882b0e888bd3528531afccff19",
+            "worker_profile_name": "fixture-w202663-deterministic-verification-2",
+            "worker_profile_digest": "sha256:565037cfd77f34135cdc323d692b141eca96fa90ffb6a9e30a8c01a9c095a299"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+              "stage_id": "w202663-deterministic-verification-2/integration",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "w202663-deterministic-verification-2-integration",
+              "lane": "implementation",
+              "participant": "baton.fixture-integrator-2",
+              "canonical_principal": "principal:baton.fixture-integrator-2",
+              "preferred_worker_id": "w202663-deterministic-verification-2-implementation",
+              "selection_outcome": "fallback",
+              "allocation_state": "released",
+              "reserved_at": "2026-09-19T05:04:53.032Z",
+              "recovery_required_at": null,
+              "released_at": "2026-09-19T05:05:08.508Z",
+              "release_reason": "integration-completed",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:e8d071d0301918a8dfea6cb3470e4c5747baf8882b0e888bd3528531afccff19",
+              "worker_profile_name": "fixture-w202663-deterministic-verification-2",
+              "worker_profile_digest": "sha256:565037cfd77f34135cdc323d692b141eca96fa90ffb6a9e30a8c01a9c095a299"
+            }
+          ],
+          "gates": [
+            {
+              "stage_id": "w202663-deterministic-verification-2/review",
+              "state": "completed",
+              "open": true
+            }
+          ],
+          "receipts": [
+            {
+              "stage_id": "w202663-deterministic-verification-2/integration",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+              "state": "performed",
+              "recorded_at": "2026-09-19T05:04:53.036Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-09-19T05:06:53.034Z",
+                  "issued_at": "2026-09-19T05:04:53.034Z",
+                  "offer_id": "offer-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+                  "participant": "baton.fixture-integrator-2",
+                  "runtime_attempt_id": "attempt-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+                  "verifier": "sha256:8a7b43dea79125f91745a688e32a7427950f69712c42c43d58d59d77ae000392",
+                  "work_id": "9db3a29d-W1"
+                },
+                "settled_at": "2026-09-19T05:04:53.035Z"
+              }
+            },
+            {
+              "stage_id": "w202663-deterministic-verification-2/integration",
+              "episode": 1,
+              "act": "claim",
+              "operation_id": "offer.settle:offer-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+              "state": "performed",
+              "recorded_at": "2026-09-19T05:04:58.064Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "assignment": {
+                    "generation": 3,
+                    "participant": "baton.fixture-integrator-2",
+                    "work_ref": {
+                      "authority_uuid": "9db3a29da14d40aab35e057abcdf9c44",
+                      "work_id": "9db3a29d-W1"
+                    }
+                  },
+                  "claim_event": 5,
+                  "decision": {
+                    "effective_scope": "scope:deployment",
+                    "endpoint": "baton.fixture-integrator-2",
+                    "grant": "direct",
+                    "policy_generation": 9,
+                    "principal": "principal:baton.fixture-integrator-2",
+                    "role": "integration"
+                  },
+                  "offer_id": "offer-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+                  "state": "claimed"
+                },
+                "settled_at": "2026-09-19T05:04:58.063Z"
+              }
+            }
+          ],
+          "deferral": null,
+          "runtime": {
+            "runtime_id": "5ae4a5e101a50f67c95584f7b054fbad94a8fc5dfe0fdb13cc4a1f3aa2f15856",
+            "execution_runtime": "quiescent",
+            "assignment": {
+              "work_ref": {
+                "authority_uuid": "9db3a29da14d40aab35e057abcdf9c44",
+                "work_id": "9db3a29d-W1"
+              },
+              "participant": "baton.fixture-integrator-2",
+              "generation": 3
+            },
+            "activity": {
+              "attempt_id": "attempt-391588f159777d91e29775a1f41055f4dedb2c2abba0ef2530d010a7f0396beb",
+              "bytes_observed": null,
+              "observed_at": null
+            }
+          },
+          "exchange": null,
+          "artifacts": null
+        }
+      ]
+    },
+    {
+      "job_id": "w202663-deterministic-verification-3",
+      "submission_id": "w202663-deterministic-verification-3-submission",
+      "input_digest": "sha256:5372ec83ef42857993e6b8f2d5d0f8696bd03af942e4dbdead2558a048cbb348",
+      "policy_digest": "sha256:eb7b4a81dde9443b284d07a3793f96b976cddb5e9627b291dc3146278c62c3e2",
+      "test_scope": [],
+      "terminal_policy": "report-and-hold",
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {},
+        "boundaries": {
+          "host_verification": {
+            "seconds": 300,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 1800,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "compatibility",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "w202663-deterministic-verification-3/implementation",
+          "job_id": "w202663-deterministic-verification-3",
+          "kind": "implementation",
+          "state": "offered",
+          "work_id": "9db3a29d-W1",
+          "profile_name": "fixture-w202663-deterministic-verification-3",
+          "profile_digest": "sha256:b05de4872aadb172064b201590e0f3f122691a8c91cd22282915ff9c00390368",
+          "episode": 1,
+          "offer_id": "offer-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+          "attempt_id": "attempt-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+          "episodes": [
+            {
+              "stage_id": "w202663-deterministic-verification-3/implementation",
+              "episode": 1,
+              "offer_id": "offer-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+              "attempt_id": "attempt-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+              "opened_at": "2026-09-19T05:09:19.971Z",
+              "incarnation": "w202663-verification-submit",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+            "stage_id": "w202663-deterministic-verification-3/implementation",
+            "episode": 1,
+            "generation": 2,
+            "worker_id": "w202663-deterministic-verification-3-implementation",
+            "lane": "implementation",
+            "participant": "baton.fixture-coder-3",
+            "canonical_principal": "principal:baton.fixture-coder-3",
+            "preferred_worker_id": "w202663-deterministic-verification-2-implementation",
+            "selection_outcome": "fallback",
+            "allocation_state": "reserved",
+            "reserved_at": "2026-09-19T05:09:21.942Z",
+            "recovery_required_at": null,
+            "released_at": null,
+            "release_reason": null,
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:31b8a04658d478ba042f9b1843eca9fcaa7d6cb85a2355a79b2a02220c085999",
+            "worker_profile_name": "fixture-w202663-deterministic-verification-3",
+            "worker_profile_digest": "sha256:b05de4872aadb172064b201590e0f3f122691a8c91cd22282915ff9c00390368"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+              "stage_id": "w202663-deterministic-verification-3/implementation",
+              "episode": 1,
+              "generation": 2,
+              "worker_id": "w202663-deterministic-verification-3-implementation",
+              "lane": "implementation",
+              "participant": "baton.fixture-coder-3",
+              "canonical_principal": "principal:baton.fixture-coder-3",
+              "preferred_worker_id": "w202663-deterministic-verification-2-implementation",
+              "selection_outcome": "fallback",
+              "allocation_state": "reserved",
+              "reserved_at": "2026-09-19T05:09:21.942Z",
+              "recovery_required_at": null,
+              "released_at": null,
+              "release_reason": null,
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:31b8a04658d478ba042f9b1843eca9fcaa7d6cb85a2355a79b2a02220c085999",
+              "worker_profile_name": "fixture-w202663-deterministic-verification-3",
+              "worker_profile_digest": "sha256:b05de4872aadb172064b201590e0f3f122691a8c91cd22282915ff9c00390368"
+            }
+          ],
+          "gates": [],
+          "receipts": [
+            {
+              "stage_id": "w202663-deterministic-verification-3/implementation",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+              "state": "performed",
+              "recorded_at": "2026-09-19T05:09:21.950Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-09-19T05:11:21.947Z",
+                  "issued_at": "2026-09-19T05:09:21.947Z",
+                  "offer_id": "offer-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+                  "participant": "baton.fixture-coder-3",
+                  "runtime_attempt_id": "attempt-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+                  "verifier": "sha256:41cda844ced8fa6b805f92e78717201c8962008402ec888ada235ed2ddd70807",
+                  "work_id": "9db3a29d-W1"
+                },
+                "settled_at": "2026-09-19T05:09:21.948Z"
+              }
+            }
+          ],
+          "deferral": [
+            {
+              "act": "claim",
+              "episode": 1,
+              "outstanding": true,
+              "attempt_id": "attempt-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+              "operation_id": "offer.settle:offer-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+              "category": "refused",
+              "code": "precondition",
+              "message": "the authority refused this claim: route 'integration' does not resolve to 'baton.fixture-coder-3'",
+              "since": "2026-09-19T05:09:27.012Z",
+              "observed": "2026-09-19T05:12:40.030Z",
+              "incarnation": "v12-stack-2066330-1789794511066258567",
+              "why_retained": null
+            }
+          ],
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        },
+        {
+          "stage_id": "w202663-deterministic-verification-3/review",
+          "job_id": "w202663-deterministic-verification-3",
+          "kind": "review",
+          "state": "blocked",
+          "work_id": "9db3a29d-W1",
+          "profile_name": "fixture-w202663-deterministic-verification-3",
+          "profile_digest": "sha256:b05de4872aadb172064b201590e0f3f122691a8c91cd22282915ff9c00390368",
+          "episode": 1,
+          "offer_id": "offer-549539e46b30c356b026f81487a7f14df7454ffcb0be4dcca9bceb030b011c3f",
+          "attempt_id": "attempt-549539e46b30c356b026f81487a7f14df7454ffcb0be4dcca9bceb030b011c3f",
+          "episodes": [
+            {
+              "stage_id": "w202663-deterministic-verification-3/review",
+              "episode": 1,
+              "offer_id": "offer-549539e46b30c356b026f81487a7f14df7454ffcb0be4dcca9bceb030b011c3f",
+              "attempt_id": "attempt-549539e46b30c356b026f81487a7f14df7454ffcb0be4dcca9bceb030b011c3f",
+              "opened_at": "2026-09-19T05:09:19.971Z",
+              "incarnation": "w202663-verification-submit",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [
+            {
+              "stage_id": "w202663-deterministic-verification-3/implementation",
+              "state": "offered",
+              "open": false
+            }
+          ],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        },
+        {
+          "stage_id": "w202663-deterministic-verification-3/integration",
+          "job_id": "w202663-deterministic-verification-3",
+          "kind": "integration",
+          "state": "blocked",
+          "work_id": "9db3a29d-W1",
+          "profile_name": "fixture-w202663-deterministic-verification-3",
+          "profile_digest": "sha256:b05de4872aadb172064b201590e0f3f122691a8c91cd22282915ff9c00390368",
+          "episode": 1,
+          "offer_id": "offer-8799075e14de1a92a6de382f8c2228412716816fd792160c2ba150f92fa0bdb4",
+          "attempt_id": "attempt-8799075e14de1a92a6de382f8c2228412716816fd792160c2ba150f92fa0bdb4",
+          "episodes": [
+            {
+              "stage_id": "w202663-deterministic-verification-3/integration",
+              "episode": 1,
+              "offer_id": "offer-8799075e14de1a92a6de382f8c2228412716816fd792160c2ba150f92fa0bdb4",
+              "attempt_id": "attempt-8799075e14de1a92a6de382f8c2228412716816fd792160c2ba150f92fa0bdb4",
+              "opened_at": "2026-09-19T05:09:19.971Z",
+              "incarnation": "w202663-verification-submit",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [
+            {
+              "stage_id": "w202663-deterministic-verification-3/review",
+              "state": "blocked",
+              "open": false
+            }
+          ],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        }
+      ]
+    }
+  ]
+}

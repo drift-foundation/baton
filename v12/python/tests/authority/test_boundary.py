@@ -122,6 +122,11 @@ class ExportedSurface(unittest.TestCase):
                     "permits_contract_transition", "policy",
                     "revoke_capability", "set_policy",
                     "withdraw_certification",
+                    # W202663 OWNER-HANDOFF-PR-JOBS: the OPERATOR's
+                    # accepted-base transition -- expected-old checked inside
+                    # the committed body, one operation identity per
+                    # acceptance document; a session must not carry it.
+                    "accept_base",
                     # W16821: binding an endpoint address to a canonical
                     # principal is CONFIGURATION.  It moves that identity's
                     # claim capacity, its grants and its attribution, so the

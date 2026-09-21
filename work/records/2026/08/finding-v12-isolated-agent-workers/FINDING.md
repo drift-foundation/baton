@@ -2764,3 +2764,61 @@ This explicitly supersedes all awaiting-owner-readiness/signoff wording in the
 prior plan and documentation handoffs, within this bounded scope only. Formal
 umbrella closure and broader qualification are not implied. baton.prompt pins
 the confirmed decision without a workflow claim, Git change or new verification.
+
+
+## 2026-09-20T09:32:05Z — owner: 24-hour v12 investment gate and conditional one-week improvement phase
+
+Recorded by baton.prompt from the owner's interactive ruling. Within 24 hours, v12 must demonstrate BOTH the working flow and a separately authorized real Claude Job producing an independently accepted useful result. Deadline anchored when recording the ruling: 2026-09-21T09:32:05Z (2026-09-21 03:32:05 America/Denver, MDT). This is an investment/cutover decision deadline, not a cumulative verification stopwatch budget.
+
+The flow discussed with the owner is A completing R0-to-R1, followed by newly created B completing R1-to-R2 on the SAME persistent v12 deployment, with distinct Works, retained history and restart without redispatch. Separate worker containers are expected; per-Job redeployment/reset does not demonstrate this outcome. Deterministic proof alone does not meet the investment gate. The useful real Claude Job needs a concrete selected task, separate live-execution authorization and independent result acceptance before the deadline. This ruling does not itself authorize an unspecified live model run.
+
+If both criteria pass within the window, owner selects continued investment and moving Jobs to v12: first v12 improvements, including TUI and robustness, with another week allocated; other business Jobs follow that phase. The week follows the successful go decision; its exact start/end and bounded Job selections are to be recorded then. This conditional phase does not authorize wholesale backlog migration or establish a second coordination authority.
+
+If evidence is incomplete at the deadline, the continuation condition has not been met; report the missing evidence for the owner's cutoff decision. Do not label another partial fix, experimental deployment or unaccepted output as success or assume an extension. No automatic cancellation or unsafe interruption of active execution is selected here.
+
+This supersedes any implication of open-ended investment or business cutover based solely on earlier bounded readiness signoff. Prior evidence, individual Work identities, active claims and correctness requirements remain intact. Deployment testing and focused coverage continue together; UX naming cleanup and broad optional coverage do not displace this immediate proof. Decision is cross-recorded at baton:work/records/2026/09/finding-v12-initial-claude-worker-pool/FINDING.md and baton:work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md.
+
+
+## 2026-09-20T10:56:55+00:00 — owner clarifies contributor and integration-Job flow
+
+Recorded by baton.prompt from the owner's interactive clarification. Contributors are independent workers: each takes a base commit, produces changes and submits a commit/PR proposal. Many contributors may work from the same base. Integration is itself another Job: it gathers selected commits 1 through N and produces a combined commit proposal. Prompt plus human test, evaluate, review and merge that proposal into official mainline. The resulting accepted mainline base supports the next wave of parallel work. Producing or internally accepting an integration candidate is not itself owner acceptance into official mainline.
+
+There is no requirement for one permanent integrator identity in this model. Integration Job identities/qualified workers may differ. Correct attribution, preserved history, and controlled/fenced writes to a shared target remain required; these do not imply a singleton worker identity. This clarification supersedes the foreground recommendation to treat one stable integrator as the intended long-term workflow. Review220212's stable-integrator recommendation remains historical decision support, NOT an owner-selected architecture. At most it is a possible temporary experiment, not proof of the full selected contributor flow; no selection of that workaround was made in this clarification.
+
+Revalidate D10 and integration selection/history against this ruling before implementation. Identify the exact relationship between current internal integration stages/Jobs, candidate targets and the official mainline acceptance boundary; do not assume existing automatic target finalization authorizes an official-mainline merge. This is not an instruction to mutate Git, bypass independent review, rewrite historical decisions, or change live claims. Preserve the prior accepted direct-target evidence; clarify any conflicting scope explicitly before changing implementation.
+
+Sequential A-to-B continuity remains a useful prerequisite, but does not by itself prove many contributors from one base feeding a distinct integration Job and owner-accepted next mainline. The existing 24-hour investment deadline remains unchanged; report evidence against its selected criteria honestly and make any delta explicit. Canonical cross-references: baton:work/records/2026/09/finding-v12-initial-claude-worker-pool/FINDING.md and baton:work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md.
+
+
+## 2026-09-20T10:57:26+00:00 — owner permits prompt/human integration for the 24-hour gate
+
+Recorded by baton.prompt: owner says “if integrator is a major milestone for our 24 deadline, we can be the integrator”. Prompt plus human may perform the integration role for the deadline demonstration. Automated integration execution, D10 singleton resolution and a dedicated automated integration Job are therefore not prerequisites to passing that demonstration. This explicitly supersedes the automated-integration requirement implied by the earlier A/B terminal-flow gate, for this bounded investment decision only; it does not declare D10 repaired or automated integration accepted.
+
+Minimum demonstrated flow: v12 produces a candidate from R0 with independent review; prompt/human evaluate and integrate it into official R1; a subsequent v12 Job uses accepted R1, produces another reviewed candidate, and prompt/human can accept it into R2. Use the same persistent deployment, preserve attribution/history and account for restart without redispatch. Separately selected and authorized real Claude execution must produce an independently accepted useful result. No unspecified live run is authorized by this role substitution. Deadline remains 2026-09-21T09:32:05Z.
+
+Human integration is an explicit selected workflow, not manual repair of a stuck runtime/store or policy. Git ownership is unchanged: Slawomir performs all Git mutations; prompt can review, test, prepare files and supply commands within authorized scope. Do not manufacture integration receipts, falsely mark held attempts complete, reset the deployment per Job, or claim automated end-to-end success. Establish the supported handback and next-base preparation path, and report any missing boundary as the concrete remaining blocker. Preserve automated-integration findings for subsequent work.
+
+
+## 2026-09-20T11-02-49Z — owner selects PR-producing Jobs as ongoing v12 model
+
+Owner confirms this can be the permanent operating setup and requests implementation handoff to Claude. Canonical ruling and execution handoff: baton:work/records/2026/09/finding-v12-initial-claude-worker-pool/OWNER-HANDOFF-PR-JOBS-2026-09-20T11-02-49Z.md. Independent Jobs produce reviewed proposals; prompt/human integrate, or explicitly request an integration Job producing another proposal. Dependents wait for an accepted commit containing their required results. This supersedes mandatory singleton/automatic integration and temporary-only framing of human integration, without claiming current product support or repairing historical failures. Investment deadline and separate live authorization remain unchanged.
+
+
+## 2026-09-20T14:57:48+00:00 — owner: generic artifact references, no Git semantics in coordination
+
+Recorded by baton.prompt from the owner's explicit confirmation: retain a commit ID or PR location as artifact information crucial to agent operations, without interpreting Git semantics. This is generic support, not Git-specific machinery. Agents interpret task instructions such as “take commit X, make changes, offer PR” or “combine PRs 1–3” and use their authorized tools. Commit IDs, PR locations and equivalent non-Git artifact references/metadata must be retained and delivered accurately to agents. They are operationally important context, not executable Git instructions for the coordinator.
+
+Baton coordinates explicit inputs/dependencies, isolated execution, attributable outputs, independent review and human acceptance. An accepted result can satisfy dependencies and be passed as an explicit input to later Jobs without the core parsing revisions, fetching objects, moving Git refs or enforcing one global Git base. Reference metadata does not alone prove content, review or acceptance; preserve provenance and evidence without assuming a Git-specific proof mechanism. Agent Git operations remain subject to the actual task's authority and repository Git policy; this ruling does not lift Slawomir's Git ownership here.
+
+This explicitly supersedes the selected-core interpretation in earlier accepted-base plans/reviews that recording human acceptance must synchronize a deployment Git ref and canonical Git policy, and that this cross-system Git transaction is required for the 24-hour demonstration. Earlier review findings about that implementation remain valid historical evidence, not requirements to finish the wrong abstraction. Revalidate the pending implementation against generic result acceptance and explicit successor inputs before further Git-transaction work. Preserve existing artifacts/partial code and active claims; do not silently delete, migrate or declare them accepted. Any exact product migration/patch scope must be pinned before editing. Deadline and separate authorization for the useful real Claude Job are unchanged.
+
+
+## 2026-09-20T15:40:33+00:00 — owner: typed artifact metadata, consumer-interpreted protocol
+
+Owner clarifies generic metadata may carry a MIME-like type/protocol hint saying this reference uses a Git workflow. Baton retains and transports the reference and its hint; agents or explicitly selected consumers interpret the protocol and perform authorized operations. Core metadata validation may check the generic envelope, but must not universally impose Git revision syntax (such as 40 hexadecimal characters), parse Git ancestry, fetch objects or move refs. Type hints are descriptive, not execution authority, acceptance proof or permission to invoke tools. Unknown types remain opaque metadata subject to generic structural limits; a consumer may explicitly refuse an unsupported type. Exact field names/type identifiers remain unselected; no new registry or automatic adapter dispatch is required for the deadline.
+
+This refines the generic-artifact ruling and supersedes treating reference typing itself as forbidden Git coupling: retaining a Git type hint is allowed; coordinator Git semantics are not. Any Git-specific validation must be confined to an explicitly selected Git workflow/consumer, not the general artifact-reference contract. Revalidate the current --base 40-hex check against that distinction. Recorded by baton.prompt; no implementation changed.
+
+## 2026-09-21T06:32:41Z — owner: session reuse first after successful cutoff
+
+Owner selects W177936 production session reuse as the first follow-up IF v12 meets the investment cutoff. Review feedback should return via a separately scheduled correction execution to the original implementer conversation; reviewer execution remains independent. Canonical detailed ruling: baton:work/records/2026/09/finding-v12-production-context-qualification-preparation/FINDING.md, matching timestamp. This supersedes unspecified post-cutoff ordering, not the Sep16 minimum-release deferral. Keep W177936 parked until cutoff success and explicit routing; no live qualification or enabling now. Recorded by baton.prompt.

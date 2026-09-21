@@ -1,0 +1,10 @@
+{
+  "claim": 212486,
+  "sha256": {
+    "v12/python/tools/bootstrap.py": "9c214b6c8b31c9b7cbc69b325e89185044c3074d93774a0cdf1993809d740cf7",
+    "v12/python/tests/tools/test_bootstrap.py": "867f54315271d3a3dec0589e938eab5f7ec7510aebb33724d8b6345d2b5ac51d",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/compose-verification-208217.py": "a8e30961723a4c770844c427f91d9cbf67a122224908cd27ddea2fde44335fb1"
+  },
+  "independent_probe": "REVIEW-PROBE-212486.json",
+  "disposition": "R1 accepted; whole Work remains incomplete"
+}

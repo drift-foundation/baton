@@ -1047,20 +1047,27 @@ class PublicationIsTheINHERITEDMechanism(RuntimeCase):
         """`link` fails closed on an existing name, which turns the race into a
         comparison."""
         payload = runtime._payload(self.assignment)
-        self.assertTrue(runtime._publish_once(
-            self.delivery.assignment_root, runtime.ASSIGNMENT_DOCUMENT,
-            payload))
-        self.assertFalse(runtime._publish_once(
-            self.delivery.assignment_root, runtime.ASSIGNMENT_DOCUMENT,
-            payload))
+        opened = os.open(self.delivery.assignment_root,
+                         os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            self.assertTrue(runtime._publish_once(
+                opened, runtime.ASSIGNMENT_DOCUMENT, payload))
+            self.assertFalse(runtime._publish_once(
+                opened, runtime.ASSIGNMENT_DOCUMENT, payload))
+        finally:
+            os.close(opened)
         answered = runtime.publish_assignment(self.delivery, self.assignment)
         self.assertFalse(answered["published"])
 
     def test_a_conflicting_racer_refuses_rather_than_replacing(self):
         other = dict(self.assignment, instructions_digest="sha256:other")
-        runtime._publish_once(self.delivery.assignment_root,
-                              runtime.ASSIGNMENT_DOCUMENT,
-                              runtime._payload(other))
+        opened = os.open(self.delivery.assignment_root,
+                         os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            runtime._publish_once(opened, runtime.ASSIGNMENT_DOCUMENT,
+                                  runtime._payload(other))
+        finally:
+            os.close(opened)
         caught = self.refusal(runtime.publish_assignment, self.delivery,
                               self.assignment)
         self.assertEqual(caught.code, "denied")
@@ -1243,3 +1250,268 @@ class AdoptionProvesTheROOTAsWellAsItsChildren(RuntimeCase):
         self.assertIsNone(runtime.adopt_delivery(
             os.path.join(self.root, "never"), attempt_id="attempt-1",
             workspace_group=self.group))
+
+
+class PerAttemptDeliveriesDoNotCollide(TheDeliveryIsDurableAndManagerCustodied):
+    """W202663 D8, owner217455: the delivery namespace is PER ATTEMPT.
+
+    The root used to join a constant, so one deployment held ONE delivery
+    slot for its whole lifetime: a second direct integration adopted the
+    first's retained delivery, skipped its own preparation, and deferred
+    forever on the witness contradiction. Distinct attempts now get
+    distinct, collision-safe host namespaces under the same constant, the
+    container mount targets are untouched, and a LEGACY single-slot
+    delivery is adopted only when its own published assignment proves whose
+    it is -- never migrated, overwritten or removed.
+    """
+
+    def test_distinct_attempts_hold_distinct_roots(self):
+        second = runtime.materialize_delivery(
+            self.root, attempt_id="attempt-2",
+            workspace_group=_group_of(self))
+        self.assertNotEqual(self.delivery.root, second.root)
+        # BOTH adopt back as themselves, side by side.
+        runtime.publish_assignment(self.delivery, self.assignment)
+        first = runtime.adopt_delivery(self.root, attempt_id="attempt-1",
+                                       workspace_group=self.group)
+        self.assertEqual(first.root, self.delivery.root)
+        self.assertEqual(runtime.adopt_delivery(
+            self.root, attempt_id="attempt-2",
+            workspace_group=self.group).root, second.root)
+
+    def legacy_slot(self, publish=True):
+        """A pre-D8 single-slot delivery, built at the OLD constant path in
+        a FRESH root, replicating `materialize_delivery`'s exact modes."""
+        from baton_v12.worker_manager import workspaces
+
+        place = os.path.join(self.root, "legacy-root")
+        os.makedirs(place)
+        legacy = runtime.IntegrationDelivery(
+            attempt_id="attempt-1", root=place, _legacy=True)
+        os.makedirs(legacy.root, mode=0o700)
+        os.chmod(legacy.root, runtime.DELIVERY_DIR)
+        os.makedirs(legacy.assignment_root, mode=0o700)
+        os.chmod(legacy.assignment_root, runtime.ASSIGNMENT_DIR)
+        os.makedirs(legacy.result_root, mode=0o700)
+        workspaces.adopt_workspace_group(
+            {"workspace": legacy.result_root},
+            workspaces.check_workspace_group(
+                runtime._group(_group_of(self))))
+        if publish:
+            runtime.publish_assignment(legacy, self.assignment)
+        return place, legacy
+
+    def test_a_legacy_delivery_is_adopted_by_its_own_attempt(self):
+        place, legacy = self.legacy_slot()
+        adopted = runtime.adopt_delivery(place, attempt_id="attempt-1",
+                                         workspace_group=self.group)
+        self.assertEqual(adopted.root, legacy.root)
+        self.assertEqual(
+            runtime.published_assignment(adopted)["attempt_id"], "attempt-1")
+
+    def test_a_legacy_delivery_of_a_FOREIGN_attempt_is_retained_not_adopted(
+            self):
+        place, _legacy = self.legacy_slot()
+        self.assertIsNone(runtime.adopt_delivery(
+            place, attempt_id="attempt-9",
+            workspace_group=self.group))
+        # AND THE NEW ATTEMPT MATERIALIZES BESIDE IT, touching nothing.
+        fresh = runtime.materialize_delivery(
+            place, attempt_id="attempt-9",
+            workspace_group=_group_of(self))
+        self.assertTrue(os.path.isdir(fresh.assignment_root))
+        legacy_assignment = os.path.join(
+            place, runtime.DELIVERY_DIRECTORY,
+            runtime.ASSIGNMENT_DIRECTORY, runtime.ASSIGNMENT_DOCUMENT)
+        self.assertTrue(os.path.exists(legacy_assignment),
+                        "the legacy evidence is retained byte for byte")
+
+    def test_an_unpublished_legacy_delivery_refuses_by_name(self):
+        place, _legacy = self.legacy_slot(publish=False)
+        caught = self.refusal(runtime.adopt_delivery, place,
+                              attempt_id="attempt-1",
+                              workspace_group=self.group)
+        self.assertEqual(caught.code, "denied")
+        self.assertIn("no published assignment", caught.message)
+
+    # -- review217558 [R3]/[R4] regressions --------------------------------
+
+    def test_hostile_identities_cannot_traverse_or_collide(self):
+        """[R3]: the path component is DERIVED, so ids carrying separators,
+        traversal, absolute segments or layout constants stay under the
+        managed ancestor and never collide with each other."""
+        ancestor = os.path.join(self.root, runtime.DELIVERIES_DIRECTORY)
+        leaves = set()
+        for hostile in ("../escape", "/absolute", "a/b", "a", "assignment",
+                        runtime.DELIVERY_DIRECTORY):
+            held = runtime.IntegrationDelivery(attempt_id=hostile,
+                                               root=self.root)
+            self.assertEqual(os.path.dirname(held.root), ancestor, hostile)
+            leaf = os.path.basename(held.root)
+            self.assertRegex(leaf, r"\A[0-9a-f]{64}\Z", hostile)
+            leaves.add(leaf)
+        self.assertEqual(len(leaves), 6, "every distinct id gets a distinct "
+                                         "leaf")
+
+    def test_a_linked_ancestor_is_refused_not_followed(self):
+        """[R4]: an ancestor replaced with a symlink would carry every
+        delivery into a tree somebody else chose; creation and adoption both
+        refuse it by name."""
+        import shutil
+
+        elsewhere = os.path.join(self.root, "elsewhere")
+        ancestor = os.path.join(self.root, runtime.DELIVERIES_DIRECTORY)
+        # Move the real ancestor (holding the setUp delivery) elsewhere and
+        # link its name to the moved tree.
+        shutil.move(ancestor, elsewhere)
+        os.symlink(elsewhere, ancestor)
+        caught = self.refusal(runtime.adopt_delivery, self.root,
+                              attempt_id="attempt-1",
+                              workspace_group=self.group)
+        self.assertEqual(caught.code, "denied")
+        caught = self.refusal(runtime.materialize_delivery, self.root,
+                              attempt_id="attempt-3",
+                              workspace_group=_group_of(self))
+        self.assertEqual(caught.code, "denied")
+
+    def test_dual_layout_claims_on_one_attempt_are_refused(self):
+        """A per-attempt delivery AND a legacy slot whose published
+        assignment name one attempt is a contradiction between layouts,
+        refused rather than resolved by preference."""
+        place, _legacy = self.legacy_slot()
+        runtime.materialize_delivery(place, attempt_id="attempt-1",
+                                     workspace_group=_group_of(self))
+        caught = self.refusal(runtime.adopt_delivery, place,
+                              attempt_id="attempt-1",
+                              workspace_group=self.group)
+        self.assertEqual(caught.code, "denied")
+        self.assertIn("BOTH", caught.message)
+
+    def test_a_new_adoption_validates_identity_not_just_the_path(self):
+        """Tampered on-disk state: a per-attempt namespace whose published
+        assignment names ANOTHER attempt refuses instead of being read."""
+        import shutil
+
+        second = runtime.materialize_delivery(
+            self.root, attempt_id="attempt-2",
+            workspace_group=_group_of(self))
+        runtime.publish_assignment(
+            second, dict(self.assignment, attempt_id="attempt-2"))
+        # Simulate the tamper: attempt-2's namespace renamed onto the leaf
+        # DERIVED for attempt-9.
+        target = os.path.join(self.root, runtime.DELIVERIES_DIRECTORY,
+                              runtime.delivery_leaf("attempt-9"))
+        shutil.move(second.root, target)
+        caught = self.refusal(runtime.adopt_delivery, self.root,
+                              attempt_id="attempt-9",
+                              workspace_group=self.group)
+        self.assertEqual(caught.code, "denied")
+        self.assertIn("disagree", caught.message)
+
+    # -- review217641 [R4] creation-custody regressions ---------------------
+
+    def test_an_ancestor_at_a_moved_mode_is_refused_not_repaired(self):
+        """The reviewer's probe: an existing managed ancestor opened to the
+        world was ACCEPTED and another delivery created beneath it. Creation
+        and adoption both refuse it by name now, and neither repairs the
+        mode -- what may have grown inside while it was open is evidence."""
+        ancestor = os.path.join(self.root, runtime.DELIVERIES_DIRECTORY)
+        os.chmod(ancestor, 0o777)
+        try:
+            caught = self.refusal(runtime.materialize_delivery, self.root,
+                                  attempt_id="attempt-3",
+                                  workspace_group=_group_of(self))
+            self.assertEqual(caught.code, "denied")
+            caught = self.refusal(runtime.adopt_delivery, self.root,
+                                  attempt_id="attempt-1",
+                                  workspace_group=self.group)
+            self.assertEqual(caught.code, "denied")
+            self.assertEqual(stat.S_IMODE(os.stat(ancestor).st_mode), 0o777,
+                             "the wrong mode is refused, never repaired")
+        finally:
+            os.chmod(ancestor, runtime.DELIVERY_DIR)
+
+    def test_a_replacement_injected_during_creation_redirects_nothing(self):
+        """The reviewer's probe: a rename plus symlink injected immediately
+        before the leaf creation used to land the whole delivery inside the
+        replacement tree. Creation now makes every descendant relative to a
+        HELD descriptor and re-walks the return pathname, so the injection
+        writes nothing into the replacement and no capability is handed
+        out."""
+        ancestor = os.path.join(self.root, runtime.DELIVERIES_DIRECTORY)
+        moved = os.path.join(self.root, "moved-aside")
+        replacement = os.path.join(self.root, "replacement")
+        os.makedirs(replacement, mode=0o700)
+        leaf = runtime.delivery_leaf("attempt-5")
+        real_mkdir = os.mkdir
+        state = {"fired": False}
+
+        def hostile(name, mode=0o777, *, dir_fd=None):
+            if name == leaf and not state["fired"]:
+                state["fired"] = True
+                os.rename(ancestor, moved)
+                os.symlink(replacement, ancestor)
+            return real_mkdir(name, mode, dir_fd=dir_fd)
+
+        os.mkdir = hostile
+        try:
+            caught = self.refusal(runtime.materialize_delivery, self.root,
+                                  attempt_id="attempt-5",
+                                  workspace_group=_group_of(self))
+        finally:
+            os.mkdir = real_mkdir
+        self.assertEqual(caught.code, "denied")
+        self.assertTrue(state["fired"], "the injection ran")
+        self.assertEqual(os.listdir(replacement), [],
+                         "nothing was written into the replacement tree")
+
+    def test_the_returned_capability_identifies_what_was_just_created(self):
+        """A replacement DIRECTORY of the right shape -- correct mode, a
+        replica leaf already inside -- passes every shape proof; the
+        return-path validation still refuses, because the pathname no
+        longer identifies the namespace just created."""
+        ancestor = os.path.join(self.root, runtime.DELIVERIES_DIRECTORY)
+        moved = os.path.join(self.root, "moved-aside")
+        replacement = os.path.join(self.root, "replacement")
+        leaf = runtime.delivery_leaf("attempt-6")
+        os.makedirs(os.path.join(replacement, leaf), mode=0o700)
+        os.chmod(replacement, runtime.DELIVERY_DIR)
+        os.chmod(os.path.join(replacement, leaf), runtime.DELIVERY_DIR)
+        real_mkdir = os.mkdir
+        state = {"fired": False}
+
+        def hostile(name, mode=0o777, *, dir_fd=None):
+            if name == leaf and not state["fired"]:
+                state["fired"] = True
+                os.rename(ancestor, moved)
+                os.rename(replacement, ancestor)
+            return real_mkdir(name, mode, dir_fd=dir_fd)
+
+        os.mkdir = hostile
+        try:
+            caught = self.refusal(runtime.materialize_delivery, self.root,
+                                  attempt_id="attempt-6",
+                                  workspace_group=_group_of(self))
+        finally:
+            os.mkdir = real_mkdir
+        self.assertEqual(caught.code, "denied")
+        self.assertTrue(state["fired"], "the injection ran")
+        self.assertIn("no longer identifies", caught.message)
+
+    def test_a_completed_walk_is_not_permanent_proof_for_later_reads(self):
+        """review217641: adoption's descriptor walk proves THAT moment. A
+        pathname re-pointed afterwards refuses on the NEXT read instead of
+        being followed to wherever it points now."""
+        import shutil
+
+        runtime.publish_assignment(self.delivery, self.assignment)
+        adopted = runtime.adopt_delivery(self.root, attempt_id="attempt-1",
+                                         workspace_group=self.group)
+        self.assertEqual(
+            runtime.published_assignment(adopted)["attempt_id"], "attempt-1")
+        ancestor = os.path.join(self.root, runtime.DELIVERIES_DIRECTORY)
+        elsewhere = os.path.join(self.root, "elsewhere")
+        shutil.move(ancestor, elsewhere)
+        os.symlink(elsewhere, ancestor)
+        caught = self.refusal(runtime.published_assignment, adopted)
+        self.assertEqual(caught.code, "denied")

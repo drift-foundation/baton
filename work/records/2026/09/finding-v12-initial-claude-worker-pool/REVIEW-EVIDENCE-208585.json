@@ -1,0 +1,16 @@
+{
+  "claim": 208585,
+  "tests": 9,
+  "passed": true,
+  "seconds": 0.17303319205529988,
+  "bash_syntax": "both scripts pass",
+  "sha256": {
+    "v12/python/tools/stage_execution.py": "264bfe7adeb8fd022811fd47b0d53061551ba6ada06134243584466786799247",
+    "v12/python/tests/tools/test_stage_execution.py": "83c83299d3383f636792d38692013ab6d305470beda5e6ef8513e014649fdc6c",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/install-next-instance.sh": "41ecab655a92b9956e049f84097a19767d26c6634a3544af73f7c6dbd10c709c",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/verify-next-instance.sh": "90664b7ddfd9ffe4031ec9490a6447ee25115e53745e5b5fb1feadcde5c8c9f0",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/prospective-snapshot.py": "3b16d784a9516eafe6422cf7df696b92bf437b4faecbff3d82e9161290bbead2",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/PROSPECTIVE-INPUTS-208531.json": "8b10b6de0d14304dc564dad45b136067f0f2e356265e32c4936cd129de534d6f",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/RUNTIME-BUILD-208531.json": "1ad8fd13f2d90fb3c43aa9cc5c0d204f235bb8f8eae4ed31f64d63f205663121"
+  }
+}

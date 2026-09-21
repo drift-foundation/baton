@@ -1,0 +1,16 @@
+INCOMPLETE: a required validator did not accept; this composition is NOT validated readiness
+{"instance": "/home/sl/baton-v12/instance-2026-09-19T13-01-28Z", "authority_uuid": "c1b38e2e9c52457c94f0c229138c92fa", "work": "c1b38e2e-W1"}
+{"job": "w202663-deterministic-verification-3", "actors": {"implementation": "baton.fixture-coder-3", "review": "baton.fixture-reviewer-3", "integration": "baton.fixture-integrator-3"}, "work": "c1b38e2e-W3"}
+{"implementation_image": "sha256:e48e72dfaaed321a34f1bfdd8ceca260c63d852c3fdc625da1458b02eaf7e9e8", "implementation_recipe": "fixture-context/Dockerfile.emitting"}
+{
+ "complete": false,
+ "refused": [
+  "bootstrap.held"
+ ],
+ "job_input_identity": "sha256:47bb1f47a32c36e93f1be39b9ff67694e196992469abb24408f3d927997a258e",
+ "runtime_manifest_digests": {
+  "implementation": "sha256:fc1016e5170e540ad417c2ca1c6dc05eee2a66fd46a349a9eba659b52e1068e6",
+  "review": "sha256:c09f611c9c5c75609b3d5724cb63d4f4dfbc6578c6575ab4ebd678712ff388af",
+  "integration": "sha256:97f9b9190f72cc3dd753913127ba8253a68b77c9d61960905522bb93886d75eb"
+ }
+}

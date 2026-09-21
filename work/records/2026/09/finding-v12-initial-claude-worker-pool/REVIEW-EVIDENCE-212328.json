@@ -1,0 +1,20 @@
+{
+  "claim": 212328,
+  "instance": "/home/sl/baton-v12/instance-2026-09-19T13-01-28Z",
+  "sha256": {
+    "pool-bootstrap-inputs.json": "0f2b8921f59ec5c140e53564c0196e1e0f51876069be68deb92dc60b4c5c9a07",
+    "POOL-COMPOSITION-207219.json": "22957dcbcdc006d86961035dff806926caa7e4e6f1bd79531250f3dbd4708a32",
+    "ref-agreement-212295.log": "5066876eeca52f2286f6dbe56c0b9686e167aa72d2264eef51cdcda20faf6b02",
+    "compose-212295b.log": "614b66632f0196d85a6599e50ed3da4936e00450a01e7cb349895468a29d86fd",
+    "bootstrap-212295a.log": "0ff7d8cf29510f67877ad77c181b1a98c4157c87def3b9c575dac96814f57adb",
+    "verify-installed-212295.log": "63402ef3e969ccd8b16eb9e28de49c277c379e247288022fc1d57d3eedb29f40"
+  },
+  "independent_checks": {
+    "bootstrap.held": "refused two bases93da9d628360590e30d7dd899781c9e5db4cc2b1 and9a478400a6211e3d29f7dfb1ed181e90a414c7a1; pure validator, no prepare/apply",
+    "target advanced object": "git cat-file -t exit0 commit",
+    "workspace advanced object": "git cat-file -t exit128 could not get object info",
+    "workspace original object": "git cat-file -t exit0 commit"
+  },
+  "runtime_restart": "author-reported; no current before/after observation retained in identified dossier evidence",
+  "verification_duration": "not independently timed; no lifecycle/tests run this review"
+}

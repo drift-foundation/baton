@@ -1,0 +1,65 @@
+{
+  "reviewer": "baton.rvpc",
+  "claim": 227560,
+  "recorded_at": "2026-09-21T06:23:54.989893+00:00",
+  "independent_tests": {
+    "command": "env PYTHONPATH=src:. timeout 60s python3 -m unittest tests.manager.test_oci.TheScratchDeliveryIsOneWritableDiskBind tests.manager.test_oci.TheAttemptLogRoomIsItsOwnMount tests.manager.test_dogfood_entry tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe",
+    "cwd": "v12/python",
+    "tests": 37,
+    "seconds": 1.99,
+    "exit": 0
+  },
+  "artifact_checks": {
+    "prospective_inputs": 110,
+    "mismatches": [],
+    "executable_matches": true,
+    "bundle_matches": true,
+    "bundle_files": 81,
+    "image_inspected": "sha256:d1e2869efbfccfa183a04c0ab38f12d1bf28d6c99cf7a65d94db392c22ab750b"
+  },
+  "author_transcripts_inspected_not_rerun": {
+    "/tmp/w202663-r2-demo/full-run.txt": {
+      "sha256": "d2f633cc4d7379982511cef6e082f3084fb1c48e7bfc954ef9200515b4281bd0",
+      "text": "................................................................................................................................................................\n----------------------------------------------------------------------\nRan 160 tests in 18.571s\n\nOK\n"
+    },
+    "/tmp/w202663-r2-demo/argv.json": {
+      "sha256": "a2564dd4408df7f3f75aed490e87a2b1e82546d6569305a89b4a89c5ae4e4a7d",
+      "text": "[\"python3\", \"-c\", \"import os, sys, tempfile, unittest\\n# W202663 owner 2026-09-21T05:53:07Z: the delivered per-attempt\\n# disk-backed scratch is the fixture root; an exported selection\\n# wins; a host rerun without /scratch falls back to a real\\n# temporary directory.\\nif not os.environ.get('BATON_V12_STACK_TEST_ROOT'):\\n    place = '/scratch'\\n    if not (os.path.isdir(place) and os.access(place, os.W_OK)):\\n        place = os.path.realpath(\\n            tempfile.mkdtemp(prefix='stack-test-root-'))\\n    os.environ['BATON_V12_STACK_TEST_ROOT'] = place\\nos.chdir('v12/python')\\nsys.path[:0] = [os.path.abspath('src'), os.path.abspath('.')]\\nunittest.main(module=None, argv=['unittest', 'tests.tools.test_pool', 'tests.tools.test_bootstrap'])\\n\"]"
+    },
+    "/tmp/w202663-r3-demo/probe-output.txt": {
+      "sha256": "31c8e33439194e711c40e7447667fe1bcf085ad7c2e0e5964dca28dd96c34645",
+      "text": "nested worker prose that must not reach the outer room\nDECOY-HOLDS ['verification.stdout.log', 'verification.stdout.status.json', 'worker.stdout.log', 'worker.stdout.status.json']\nOUTER-HOLDS ['verification.stdout.log', 'verification.stdout.status.json']\nOUTER-BYTES 'AUTHORITATIVE-BYTES'\n"
+    },
+    "/tmp/w202663-r3-demo/room-before.txt": {
+      "sha256": "77ebb618eb29d54a779e54d5b8ce29a35de6d9ff2e92dffdccd6692d5173ba51",
+      "text": "893110e59ad2d32e51ef89f6feb5b632d42260dfc5bbcaca90de24c1d30f6b63  /tmp/w202663-r3-demo/room/verification.stdout.log\n1994ada7326e373867e2a7a7fadd9c944161795fdfb757e57d728a27e44fd1ce  /tmp/w202663-r3-demo/room/verification.stdout.status.json\n"
+    }
+  },
+  "retained_demo_file_hashes": {
+    "tools/pool.py": "84b4f1568673557b2975918c5d12c1afcec4af36e8ce2ce749f32d49656bfc61",
+    "tests/tools/test_pool.py": "9ff529daaacec6639b9ebb8018b3a93010059d2d32d89c784d7a94b5a5d56cb0"
+  },
+  "outer_room_after_hashes": {
+    "verification.stdout.status.json": "1994ada7326e373867e2a7a7fadd9c944161795fdfb757e57d728a27e44fd1ce",
+    "verification.stdout.log": "893110e59ad2d32e51ef89f6feb5b632d42260dfc5bbcaca90de24c1d30f6b63"
+  },
+  "reviewed_files_sha256": {
+    "v12/python/src/baton_v12/attempt_log_format.py": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+    "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "482631fcd56b1f1504b87d92c14a1f122451017f7337dbf2ffab63c887513062",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "80624dbc8def6991ea34990769619ad68fa5bfa2a5ee4e4376f7a1b3467f058a",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "206998c3d344f1dab208799cfb9124785455154695943fa99237f9e18ff7fba7",
+    "v12/python/tools/single_worker.py": "50c7a090119a5fdf275e899cc7dde2a56f7aac0e99ca937b72415ddac31b22f3",
+    "v12/worker/dogfood_entry.py": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2",
+    "v12/worker/claude_agent.py": "2ac911aa55db5c2afeafb46b6023b9074e7b66186a472a643c5032f3a4bc9214",
+    "v12/python/tests/manager/test_oci.py": "1772845fb68aaa9003876c33fafd7b8c98872892b4c309fc0711a7ee9d5a2814",
+    "v12/python/tests/manager/test_attempt_logs.py": "52f02ac6de6e2d942bc430f10421007ff2124a0eea92128ff4d894fb04257846",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/RECOVERY-PACKAGE-227424.md": "50df11687092f6d09390d1b8735c396bcbd84e9c77cc8b43a1877b4a9b92b420",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/RECOVERY-EVIDENCE-227424.json": "9961edcbacd383aa11c4eec2b9c9c3a64c1fb698a02eabf3b504356608d739e6",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/PROSPECTIVE-INPUTS-227424.json": "42e650f03ea7693303b4563fdd5066d10510b580f9aa29d98dc4d7c00a6e6531",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/RUNTIME-BUILD-227424.json": "d30fbfdd13d3ea236aecc97cb042ca136a4ba8553db99937fac1ae6c9d615588",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/BUNDLE-MANIFEST-227424.json": "0bac12fa05f05dd0f09f794b0cda440ffc11eaade3343154dffe7ca2e98306f1",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/compose-pool-207219.py": "101bbc268e9a8f071dee1d3a3ad22aff48fea05c3cad924bf0f065c085cdb473",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/install-next-instance.sh": "4926d4f8c0dfee0808d440403edbbde35e47c95510a05c08673d130f6af7d271",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/check-policy-pin.sh": "b48f5794dbef447f517d2ccdcc6370c31a26d95555404ce7204b76dbb93a1da3"
+  }
+}

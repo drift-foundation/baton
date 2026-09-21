@@ -1,0 +1,49 @@
+{
+  "all_passed": true,
+  "claim": 226516,
+  "command_source": "RECOVERY-PATH-226458.md step 1 (place parameterized for the fixture)",
+  "results": [
+    {
+      "case": "append",
+      "entries_after": 2,
+      "expected_status": 0,
+      "marker_seen": true,
+      "message": "mapped w202663-development -> the w64268-run1 file",
+      "mode_after": "0o600",
+      "passed": true,
+      "status": 0
+    },
+    {
+      "case": "exact-match-no-op",
+      "entries_after": 2,
+      "expected_status": 0,
+      "marker_seen": true,
+      "message": "w202663-development already carries exactly the selected mapping; nothing changed",
+      "mode_after": "0o600",
+      "passed": true,
+      "status": 0
+    },
+    {
+      "case": "conflict-refusal",
+      "entries_after": 2,
+      "expected_status": 1,
+      "marker_seen": true,
+      "message": "refused: w202663-development already exists with a DIFFERENT provider/path (or more than once); resolve that conflict yo",
+      "mode_after": "0o600",
+      "passed": true,
+      "status": 1
+    },
+    {
+      "case": "ambiguous-origin-refusal",
+      "entries_after": 2,
+      "expected_status": 1,
+      "marker_seen": true,
+      "message": "refused: expected exactly one operator-file/w64268-run1 entry, found 2; select the source mapping yourself before rerunn",
+      "mode_after": "0o600",
+      "passed": true,
+      "status": 1
+    }
+  ],
+  "schema": "baton.w202663.registry-command-fixture/1",
+  "what": "the R1 registry command's behaviours on temporary metadata fixtures; no real registry or credential was read"
+}

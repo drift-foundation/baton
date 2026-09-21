@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:a6dbd9631c3f419e36db63f3d88e866538e88e50665fe221d2a2c8a523d36bab"
+  },
+  "claim": 219702,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-219702.json",
+    "input_count": 109,
+    "inputs_digest": "sha256:67910cc7b4da0bdfb0e1fbddf9a1229215d828d45e56ceca1d0f693edc3ad21e",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime carrying D9's live-prior-generation attachment (pooled operations attach live prior (generation, worker) pairs with the same-named worker's operations, refusing by name when the worker is no longer composed), atop the accepted D8+R3/R4 delivery custody and the review217777 OCI fixture correction, for the next owner installation",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "sha256:7c3e5db22b01810792a59e142cb38d54c27aede01040d0e1960cba49258fa683": "the claim217672 candidate, accepted by review217777 and owner-installed as instance-2026-09-20T09-21-58Z; its records and instance are preserved -- D9 was measured ON it, so the successor carries the correction"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

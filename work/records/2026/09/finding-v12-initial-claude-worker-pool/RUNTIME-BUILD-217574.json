@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:9d26430ea3840d33256287956fac6da9d893b6d5a0e2e9fe288b3d2b5fc5f4c7"
+  },
+  "claim": 217574,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-217574.json",
+    "input_count": 109,
+    "inputs_digest": "sha256:d6a68357f2711696e0fcde919045e6547ccbc2c0e5b7180b6b77f9d05ad226fd",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime carrying D8 with review217558's R3/R4 corrections (derived collision-safe delivery leaves, managed descriptor-proved ancestors, dual-layout and identity validation), for the next owner installation",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "sha256:07aed036d4c1110ec00000000000000000000000000000000000000000000000": "the claim217457 candidate, NOT accepted by review217558 and never installed; its records remain as history"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:6af693b295dd666eaa9d118f2a6b4242a396f6a872ca4f68b7fc9f3373cae4ba"
+  },
+  "claim": 209102,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-209102.json",
+    "input_count": 109,
+    "inputs_digest": "sha256:e30141585c6547687b6954f4e0f684f3069a7f7d546c7b405ef2033eb85c4f7c",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build, with the corrected /2 enumeration (lock/spec/recipe included)"
+  },
+  "purpose": "the runtime carrying the reviewed D7 correction (scheduler._reader over a retired generation's settled allocation), for the next owner installation; without it no instance whose pool has advanced can restart its manager",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "sha256:7040dd00a987f9ac19b2d9b328fcbc157cc2b53cd486100b60476764815238f5": "the runtime installed at instance-2026-09-19T04-02-31Z, built before the D7 correction existed; that instance and its completed-lifecycle evidence are preserved, not replaced"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "a digest establishes identity; installed behaviour is established by the installed verification",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

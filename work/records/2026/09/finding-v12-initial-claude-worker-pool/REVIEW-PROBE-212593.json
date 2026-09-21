@@ -1,0 +1,7 @@
+{
+  "fatal_probe_fetches": 1,
+  "fatal_probe_refusal": "the declared base 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is absent from the clone of the nominated source at '/tmp/w202663-review212593-p0l8uyh4/source' and the supplement delivery from '/tmp/w202663-review212593-p0l8uyh4/target' did not provide it (Git supplement object delivery failed: fatal: object database unavailable)",
+  "malformed_streams_accepted": true,
+  "temp_root": "/tmp/w202663-review212593-p0l8uyh4",
+  "scope": "synthetic closed-runner results; no Git or instance access"
+}

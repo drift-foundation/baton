@@ -1,0 +1,22 @@
+{
+  "claim": 208712,
+  "sha256": {
+    "install-next-instance.sh": "c1727be50034a0f806473eb781a61367cbb0b0c631d1a4a97f578dbe308f4783",
+    "verify-next-instance.sh": "3dcb72c8bb6f59981284a736fa7ac22780a0bea8a3f60a422bad3128cae700c1",
+    "check-policy-pin.sh": "f395f69e18d590965da2e95f08e54cf34363e05fc1fb3e8edff9da0e24b15ff5",
+    "prospective-snapshot.py": "3bfc307cb794f5fb83c7fb68f751dac57bc0cfb9de30e9a6b37cbde4d7f9c004",
+    "test-pin-command-208647.py": "ff5e391059abfe1408c114a6d05d66c5458423b14e2f901b8343ff4b73c4b83d",
+    "COMMANDS-202663.md": "9b458003c15f10968ee59424aab31e4a745718933fbf18ce17836f2b717a2ab3",
+    "install-inputs.json": "b53794a410e42b74764f9fa3f8a8cb055305614b32f9e3d4844d03774c3cc28c",
+    "BUNDLE-MANIFEST-208647.json": "1bdbe8e0631ab145bf33d30d0a31db141da6ca2cfe59b849f534e8625574fa7c",
+    "RUNTIME-BUILD-208531.json": "1ad8fd13f2d90fb3c43aa9cc5c0d204f235bb8f8eae4ed31f64d63f205663121",
+    "PROSPECTIVE-SUPERSESSION-208647.json": "750df7ee0709a5f774ee73924eae199fd2f72d438929af5a614d53c88db3fd79"
+  },
+  "pin_checks": 9,
+  "pin_checks_passed": true,
+  "pin_check_duration": "not measured independently; tool timing not treated as process stopwatch",
+  "identity_and_snapshot_check_seconds": 0.027298902976326644,
+  "bundle_digest": "dbdee27a224e4ef4977efa06169a6b14c17b3d3a078236da0fb8e116f04e4bf1",
+  "bundle_files": 81,
+  "snapshot_input_count": 109
+}

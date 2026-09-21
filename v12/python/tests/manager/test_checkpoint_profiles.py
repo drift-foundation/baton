@@ -402,3 +402,238 @@ class RestoringOneCheckoutToItsRetainedCheckpoint(unittest.TestCase):
         for head in ("HEAD~1", "refs/heads/main", "-f", "a" * 39, "A" * 40):
             with self.assertRaises(ProfileRefusal):
                 reset_vector(self.repository, head)
+
+
+class TheSupplementDeliversABaseTheSourceDoesNotHold(unittest.TestCase):
+    """W202663 owner212383, review212486's pinned operands.
+
+    The approved direct-target finalization delivers accepted candidates
+    into the deployment's DEDICATED target repository and deliberately not
+    into the separate nominated source -- so a next Job declaring that
+    advanced base cloned a source that does not hold it (measured installed:
+    the advanced commit present in the target, absent from the workspace).
+    The supplement is PROFILE configuration, threaded from the deployment's
+    own configured integration target: `materialize` reaches for it only
+    when the declared base is absent after the source clone, fetches exactly
+    that commit, and touches nothing otherwise. Line identity and the
+    committed creation signature are unchanged.
+    """
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.source = os.path.join(self.temporary.name, "source")
+        self.target = os.path.join(self.temporary.name, "target")
+        self.line = os.path.join(self.temporary.name, "line")
+        self.commands = []
+
+        def runner(argv):
+            self.commands.append(tuple(argv))
+            completed = subprocess.run(argv, text=True, capture_output=True)
+            return {"returncode": completed.returncode,
+                    "stdout": completed.stdout, "stderr": completed.stderr}
+
+        self.runner = runner
+        self.vcs("init", "-q", self.source)
+        self.configure(self.source)
+        self.write(self.source, "candidate.txt", "base\n")
+        self.vcs("-C", self.source, "add", "candidate.txt")
+        self.vcs("-C", self.source, "commit", "-q", "-m", "base")
+        self.base = self.vcs("-C", self.source, "rev-parse", "HEAD")
+        # THE ADVANCED COMMIT LIVES ONLY IN THE TARGET, exactly the measured
+        # installed shape: the target is a clone that moved one commit past
+        # the source.
+        self.vcs("clone", "-q", self.source, self.target)
+        self.configure(self.target)
+        self.write(self.target, "candidate.txt", "accepted candidate\n")
+        self.vcs("-C", self.target, "add", "candidate.txt")
+        self.vcs("-C", self.target, "commit", "-q", "-m", "accepted")
+        self.advanced = self.vcs("-C", self.target, "rev-parse", "HEAD")
+
+    def vcs(self, *arguments):
+        return subprocess.run(
+            ["git"] + list(arguments), check=True, text=True,
+            capture_output=True).stdout.strip()
+
+    def configure(self, place):
+        self.vcs("-C", place, "config", "user.name", "Baton Test")
+        self.vcs("-C", place, "config", "user.email", "baton@example.invalid")
+
+    @staticmethod
+    def write(place, name, body):
+        with open(os.path.join(place, name), "w", encoding="utf-8") as handle:
+            handle.write(body)
+
+    def supplement_fetches(self):
+        return [one for one in self.commands
+                if "fetch" in one and self.target in one]
+
+    def test_a_base_only_the_target_holds_materializes_through_it(self):
+        profile = GitCheckpointProfile(self.runner, supplement=self.target)
+        answer = profile.materialize(self.source, self.line, self.advanced)
+        # THE CLOSED EVIDENCE SHAPE IS DELIBERATELY UNCHANGED -- create_line
+        # validates exactly this set.
+        self.assertEqual(set(answer), {"profile", "base", "head"})
+        self.assertEqual(answer["base"], self.advanced)
+        self.assertEqual(
+            self.vcs("-C", self.line, "rev-parse", "HEAD"), self.advanced)
+        self.assertEqual(len(self.supplement_fetches()), 1)
+
+    def test_a_base_the_source_holds_never_touches_the_supplement(self):
+        profile = GitCheckpointProfile(self.runner, supplement=self.target)
+        profile.materialize(self.source, self.line, self.base)
+        self.assertEqual(
+            self.vcs("-C", self.line, "rev-parse", "HEAD"), self.base)
+        self.assertEqual(self.supplement_fetches(), [])
+
+    def test_a_base_in_neither_repository_refuses_naming_both(self):
+        profile = GitCheckpointProfile(self.runner, supplement=self.target)
+        with self.assertRaises(ProfileRefusal) as caught:
+            profile.materialize(self.source, self.line, "f" * 40)
+        self.assertIn(self.source, str(caught.exception))
+        self.assertIn(self.target, str(caught.exception))
+        # AND THE DELIVERY'S OWN CAUSE RIDES INSIDE, review212545 [R2]: a
+        # supplement that does not hold the commit and one that cannot be
+        # reached are different operator facts.
+        self.assertIn("did not provide it", str(caught.exception))
+
+    def test_a_non_absence_detach_refusal_speaks_as_itself(self):
+        """Review212545 [R2]'s probe, as a regression: the base in BOTH
+        repositories and the detach blocked by a private index.lock. The
+        earlier catch-all fetched anyway and falsely claimed the base was in
+        neither; absence is proved first now, so the checkout's own refusal
+        propagates and the supplement is never touched."""
+        self.vcs("clone", "-q", self.source, self.line)
+        os.makedirs(os.path.join(self.line, ".git"), exist_ok=True)
+        with open(os.path.join(self.line, ".git", "index.lock"), "w"):
+            pass
+        profile = GitCheckpointProfile(self.runner, supplement=self.target)
+        with self.assertRaises(ProfileRefusal) as caught:
+            profile.materialize(self.source, self.line, self.base)
+        self.assertIn("declared-base checkout", str(caught.exception))
+        self.assertNotIn("neither", str(caught.exception))
+        self.assertEqual(self.supplement_fetches(), [])
+
+    def test_a_failed_delivery_preserves_its_own_cause(self):
+        """An unreachable supplement is not 'in neither': the named refusal
+        carries the delivery failure verbatim."""
+        nowhere = os.path.join(self.temporary.name, "not-a-repository")
+        os.mkdir(nowhere)
+        profile = GitCheckpointProfile(self.runner, supplement=nowhere)
+        with self.assertRaises(ProfileRefusal) as caught:
+            profile.materialize(self.source, self.line, self.advanced)
+        said = str(caught.exception)
+        self.assertIn("absent from the clone", said)
+        self.assertIn(nowhere, said)
+        self.assertIn("supplement object delivery failed", said)
+
+    def test_a_fatal_presence_query_is_not_absence(self):
+        """Review212593 [R2]: exit 128 is a repository/query FAILURE, and
+        treating it as absence permitted a fetch over an unanswerable clone
+        followed by a false absence assertion. The query failure now raises
+        as itself, before any delivery."""
+        self.vcs("clone", "-q", self.source, self.line)
+        with open(os.path.join(self.line, ".git", "HEAD"), "w",
+                  encoding="utf-8") as handle:
+            handle.write("not a reference at all\n")
+        profile = GitCheckpointProfile(self.runner, supplement=self.target)
+        with self.assertRaises(ProfileRefusal) as caught:
+            profile.materialize(self.source, self.line, self.advanced)
+        self.assertIn("object-presence query failed", str(caught.exception))
+        self.assertNotIn("neither", str(caught.exception))
+        self.assertEqual(self.supplement_fetches(), [])
+
+    def test_a_malformed_presence_answer_is_refused_not_read(self):
+        """Every runner field is validated: stdout=None / stderr=[] violate
+        the closed command-result contract and refuse rather than being
+        read around."""
+        real = self.runner
+
+        def lying(argv):
+            if "--verify" in argv and "--quiet" in argv:
+                return {"returncode": 1, "stdout": None, "stderr": []}
+            return real(argv)
+
+        profile = GitCheckpointProfile(lying, supplement=self.target)
+        with self.assertRaises(ProfileRefusal) as caught:
+            profile.materialize(self.source, self.line, self.advanced)
+        self.assertIn("streams are text", str(caught.exception))
+        self.assertEqual(self.supplement_fetches(), [])
+
+    def test_no_supplement_keeps_the_refusal_exactly_as_it_was(self):
+        profile = GitCheckpointProfile(self.runner)
+        with self.assertRaises(ProfileRefusal) as caught:
+            profile.materialize(self.source, self.line, self.advanced)
+        self.assertNotIn("supplement", str(caught.exception))
+        self.assertEqual(self.supplement_fetches(), [])
+
+
+class AnExistingCheckoutRecoversWhenTheSourceGainsTheBase(
+        TheSupplementDeliversABaseTheSourceDoesNotHold):
+    """W202663 claim225345 (review225331): the PR flow's human acceptance
+    puts the accepted commit into the NOMINATED SOURCE after the line was
+    cloned, and the resumed checkout used to reach only for the
+    dedicated-target supplement -- so the retry looped on the same absence
+    forever (measured installed at claim222268, B's reserved attempt). The
+    nominated source is refreshed FIRST on the SAME line now, causes
+    preserved, and the supplement fallback stands exactly as accepted.
+    """
+
+    def test_the_same_line_recovers_after_the_source_gains_the_base(self):
+        from baton_v12.source_profiles.checkout import ProfileRefusal
+
+        profile = GitCheckpointProfile(self.runner)  # NO supplement at all
+        profile.materialize(self.source, self.line, self.base)
+        # The retry declares the accepted commit, which for now lives only
+        # in the separate target: absent from the source, absent from the
+        # existing clone -- the measured installed shape.
+        with self.assertRaises(ProfileRefusal):
+            profile.materialize(self.source, self.line, self.advanced)
+        # THE HUMAN ACCEPTANCE, ref-carrying, into the nominated source.
+        self.vcs("-C", self.source, "fetch", "-q", self.target,
+                 self.advanced + ":refs/heads/accepted")
+        answer = profile.materialize(self.source, self.line, self.advanced)
+        self.assertEqual(answer["base"], self.advanced)
+        self.assertEqual(
+            self.vcs("-C", self.line, "rev-parse", "HEAD"), self.advanced)
+        self.assertEqual(self.supplement_fetches(), [],
+                         "no supplement was configured or touched")
+
+    def test_a_clean_refresh_finding_nothing_still_reaches_the_supplement(
+            self):
+        profile = GitCheckpointProfile(self.runner, supplement=self.target)
+        profile.materialize(self.source, self.line, self.base)
+        # The source never gains the commit; the refresh finds nothing and
+        # the accepted supplement path delivers exactly as before.
+        answer = profile.materialize(self.source, self.line, self.advanced)
+        self.assertEqual(answer["base"], self.advanced)
+        self.assertEqual(
+            self.vcs("-C", self.line, "rev-parse", "HEAD"), self.advanced)
+        self.assertEqual(len(self.supplement_fetches()), 1)
+
+
+class AFailedRefreshTravelsWithTheSupplementRefusal(
+        TheSupplementDeliversABaseTheSourceDoesNotHold):
+    """review225408's diagnostic regression: when the nominated-source
+    refresh itself fails AND the supplement then refuses, the refresh
+    failure used to vanish -- an operator read only the supplement half
+    and missed that the source could not even be asked. Both causes
+    travel now, verbatim."""
+
+    def test_both_failure_causes_appear_in_the_refusal(self):
+        import shutil
+
+        from baton_v12.source_profiles.checkout import ProfileRefusal
+
+        profile = GitCheckpointProfile(self.runner, supplement=self.target)
+        profile.materialize(self.source, self.line, self.base)
+        # A commit that exists NOWHERE the line can reach, and a source
+        # that cannot even be asked: the refresh fails, and the supplement
+        # (which also lacks the commit) refuses after it.
+        shutil.rmtree(self.source)
+        absent = "d" * 40
+        with self.assertRaises(ProfileRefusal) as caught:
+            profile.materialize(self.source, self.line, absent)
+        self.assertIn("supplement delivery", str(caught.exception))
+        self.assertIn("nominated-source refresh also failed",
+                      str(caught.exception))

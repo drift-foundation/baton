@@ -1,0 +1,22 @@
+authority 117afd1c...    reused from this root's record
+route impl           -> baton.fixture-coder-2
+route rview          -> baton.fixture-reviewer-2
+route integration    -> baton.fixture-integrator-2
+route impl           -> baton.fixture-coder-3
+route rview          -> baton.fixture-reviewer-3
+route integration    -> baton.fixture-integrator-3
+work  117afd1c-W1    already exists; left alone
+grant 117afd1c-W1    approve/review/verify/integrate in its own scope
+work  117afd1c-W3    created on impl
+grant 117afd1c-W3    approve/review/verify/integrate in its own scope
+target                784081a462ef05b9381527974ac775b30cf825af already established and NOT moved; this setup declares 93da9d628360590e30d7dd899781c9e5db4cc2b1
+configuration /home/sl/baton-v12/instance-2026-09-19T12-39-13Z/deployment.json
+capacity      {"job_affinity": {"w202663-deterministic-verification-2": "w202663-deterministic-verification-2-implementation", "w202663-deterministic-verification-3": "w202663-deterministic-verification-3-implementation"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["w202663-verification-target"], "workers_by_role": {"implementation": ["w202663-deterministic-verification-2-implementation", "w202663-deterministic-verification-3-implementation"], "integration": ["w202663-deterministic-verification-2-integration", "w202663-deterministic-verification-3-integration"], "review": ["w202663-deterministic-verification-2-review", "w202663-deterministic-verification-3-review"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/baton-v12/instance-2026-09-19T12-39-13Z/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/baton-v12/instance-2026-09-19T12-39-13Z/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="117afd1c06c44bd0bde2482aeda0f433"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/baton-v12/instance-2026-09-19T12-39-13Z/deployment.json"

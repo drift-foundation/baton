@@ -1,0 +1,51 @@
+{
+  "claim": 208217,
+  "configured": {
+    "implementation": {
+      "image_digest": "sha256:6ae290f9135c4c79bf2a74c2425deb839bccf77190927bf6529cf34bd622423f",
+      "participant": "baton.fixture-coder",
+      "runtime_manifest": "sha256:cf94e73a59cbeddfdea397695a1af97c0ad91eb98978d152c9d942713faf5df7"
+    },
+    "integration": {
+      "image_digest": "sha256:9944eef7363e8f8fd0d917bd71fbe19dfb177b6232b7064f3c3a4785f307be0f",
+      "participant": "baton.fixture-integrator",
+      "runtime_manifest": "sha256:452f9d95e220cb4d0849ee900d07c059478a5148c6420d68e0e1c947c1480e61"
+    },
+    "review": {
+      "image_digest": "sha256:6ae290f9135c4c79bf2a74c2425deb839bccf77190927bf6529cf34bd622423f",
+      "participant": "baton.fixture-reviewer",
+      "runtime_manifest": "sha256:467772760cf8a6fff06f634e4460d1cca8daaaf0aaccc8f125fb5d0313218ee4"
+    }
+  },
+  "distinct_images_recorded": [
+    "sha256:6ae290f9135c4c79bf2a74c2425deb839bccf77190927bf6529cf34bd622423f",
+    "sha256:9944eef7363e8f8fd0d917bd71fbe19dfb177b6232b7064f3c3a4785f307be0f"
+  ],
+  "distinct_runtime_inputs_recorded": 3,
+  "installed_runtime_sha256": "48b12f1559bdf08257c7d677df799171b0b43f6ecd6c4005ca93b52e953f5232",
+  "instance": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z",
+  "job_input_identity": "sha256:ae34063e633d667a4557bee898023ba166c7ff4f429dc43decda63325ecd451c",
+  "no_live_model": "both images are deterministic fixtures built in this claim; no provider was entered and no credential was opened",
+  "recorded_attempts": [
+    {
+      "image_digest": "sha256:6ae290f9135c4c79bf2a74c2425deb839bccf77190927bf6529cf34bd622423f",
+      "input_digest": "sha256:cf94e73a59cbeddfdea397695a1af97c0ad91eb98978d152c9d942713faf5df7",
+      "runtime_attempt_id": "attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380",
+      "toolchain_digest": "sha256:21884434e72293de2c3ef2c387ab3d4f47f6204a47cf0fc18d6627e8fcae318c"
+    },
+    {
+      "image_digest": "sha256:6ae290f9135c4c79bf2a74c2425deb839bccf77190927bf6529cf34bd622423f",
+      "input_digest": "sha256:467772760cf8a6fff06f634e4460d1cca8daaaf0aaccc8f125fb5d0313218ee4",
+      "runtime_attempt_id": "attempt-c9b678e1177e1271e78359e824ec4bcbebb8cd40732ea585a8bb8a7a87f14586",
+      "toolchain_digest": "sha256:21884434e72293de2c3ef2c387ab3d4f47f6204a47cf0fc18d6627e8fcae318c"
+    },
+    {
+      "image_digest": "sha256:9944eef7363e8f8fd0d917bd71fbe19dfb177b6232b7064f3c3a4785f307be0f",
+      "input_digest": "sha256:452f9d95e220cb4d0849ee900d07c059478a5148c6420d68e0e1c947c1480e61",
+      "runtime_attempt_id": "attempt-2016ee7100238244538d6ca7afe4bac3c4eb7588c5b6f28704a68a3697837dea",
+      "toolchain_digest": "sha256:fde492ca9d2d6519289b897659b6745080b4ecec2e89c31ae2849ce63753a3a0"
+    }
+  ],
+  "schema": "baton.w202663.heterogeneous-run/1",
+  "what_ran": "the INSTALLED frozen runtime, started through the instance justfile, serving a submitted Job"
+}

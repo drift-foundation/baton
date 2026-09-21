@@ -1556,7 +1556,15 @@ def _prove_execution_workspace(roots, gid, labels):
                                  what="this assignment's workspace root")
 
 ROOT_NAMES = ("inputs", "workspace")
-HOME_ENTRIES = ("credential-state", "credentials", "custody") + ROOT_NAMES
+# W202663 (owner 2026-09-21T05:53:07Z, "I approve spare mount"): `scratch` is
+# the attempt's own writable DISK-BACKED working directory, provisioned with
+# the home because the home is closed once composition ends and nothing can be
+# created in it afterwards. It is deliberately NOT a `ROOT_NAMES` member: what
+# a container may MOUNT through the assignment operand is unchanged; the
+# scratch crosses as its own delivery (`oci._scratch_mount`) at the constant
+# `oci.SCRATCH_TARGET`, and its retention follows the home's own disposition.
+HOME_ENTRIES = ("credential-state", "credentials", "custody",
+                "scratch") + ROOT_NAMES
 _REVIEW_LINE_HOME = ".baton-review-lines"
 
 

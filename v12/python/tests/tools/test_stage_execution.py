@@ -297,11 +297,20 @@ class IndependenceIsRefusedBeforeAnythingIsOpened(StageCase):
 class EveryStageHasExactlyOneWorker(StageCase):
 
     def test_a_missing_stage_is_refused(self):
-        held = self.refused(workers=[
+        """Implementation and review remain REQUIRED; the integrator is
+        optional under owner 2026-09-20T14:57:48Z (the PR model), so the
+        missing role measured here is review."""
+        held = self.refused(workers=[self.worker("implementation")])
+        self.assertIn("review", held.message)
+
+    def test_a_deployment_without_an_integrator_is_admitted(self):
+        """Owner 2026-09-20T14:57:48Z: integration is a human act or an
+        explicitly submitted ordinary Job, never an obligatory worker; the
+        producer-and-reviewer deployment is the selected PR shape."""
+        self.held(workers=[
             self.worker("implementation"),
             self.worker("review", participant="baton.reviewer",
                         principal="reviewer-principal")])
-        self.assertIn("integration", held.message)
 
     def test_two_workers_for_one_stage_are_refused(self):
         held = self.refused(workers=[
@@ -5718,10 +5727,18 @@ class TheMultiWorkerPoolComposesWithoutASecondAllocator(ServingCase):
                       self.multi_refused(workers=workers).message)
 
     def test_every_role_is_still_served(self):
+        """The REQUIRED roles, that is: review here. The integrator is
+        optional under owner 2026-09-20T14:57:48Z, and its absence from a
+        multi-worker pool is the admitted PR shape."""
+        workers = [one for one in self.multi()["workers"]
+                   if one["role"] != "review"]
+        self.assertIn("review",
+                      self.multi_refused(workers=workers).message)
+
+    def test_a_multi_pool_without_an_integrator_is_admitted(self):
         workers = [one for one in self.multi()["workers"]
                    if one["role"] != "integration"]
-        self.assertIn("integration",
-                      self.multi_refused(workers=workers).message)
+        self.multi_held(workers=workers)
 
     # -- activation and reconstruction ----------------------------------------
 
@@ -6775,6 +6792,320 @@ class _ConcurrentEngine:
     @staticmethod
     def answer(status=0, stdout="", stderr=""):
         return {"status": status, "stdout": stdout, "stderr": stderr}
+
+
+class TheTargetDescriptorIsNotCapacity(unittest.TestCase):
+    """W202663 D4 — a live target survives a capacity change.
+
+    THE DEFECT. `activate_targets` composed "at pool generation {n}" into the
+    target description, and `queue.activate_target` compares the WHOLE document
+    digest for an existing key. So adding a worker advanced the pool
+    generation, re-described a live target, and the installed start refused
+    `policy/denied`: "a live target's identity is not re-described". Two
+    correct rules that could not both hold.
+
+    THE CORRECTION, under owner ruling 2026-09-19T02:44:19Z: a NEW target gets
+    a description that cannot move, and an EXISTING one is adopted exactly as
+    stored. Both halves matter -- review208415 warned that merely dropping the
+    generation and presenting the new document for an old key re-describes it
+    just as surely.
+
+    EVERY CASE DRIVES THE REAL `activate_targets` AGAINST A REAL
+    `IntegrationStore`. The deployment is constructed through `__new__` because
+    this method reads exactly two attributes and a full one would need an
+    Authority, a Job store, sessions and an engine that none of these questions
+    touch -- but the store, the public reader and the refusal are all the
+    product's own.
+    """
+
+    TARGET = "w202663-d4-target"
+    AUTHORITY = "cf92cbff7ffc456c96e9a6345de293f5"
+
+    def setUp(self):
+        import tempfile
+
+        self.temp = tempfile.TemporaryDirectory(prefix="w202663-d4-")
+        self.addCleanup(self.temp.cleanup)
+        self.path = os.path.join(self.temp.name, "integration.sqlite3")
+
+    def store(self):
+        from baton_v12.integration import IntegrationStore
+        from tests.job_manager import fixtures
+
+        held = IntegrationStore.open(self.path, incarnation="d4-case",
+                                     clock=lambda: fixtures.NOW)
+        self.addCleanup(held.close)
+        return held
+
+    def deployment(self, store, *, generation, target=None):
+        """The real method, on the two attributes it actually reads."""
+        held = stage_execution.StageDeployment.__new__(
+            stage_execution.StageDeployment)
+        held.integration = store
+        held.given = {
+            "authority_uuid": self.AUTHORITY,
+            "pool_generation": generation,
+            "job_bindings": [{"canonical_target_id": target or self.TARGET}]}
+        return held
+
+    def stored(self, store):
+        from baton_v12.integration import target_of
+
+        return target_of(store, self.TARGET)
+
+    def test_a_new_target_is_described_without_its_pool_generation(self):
+        """The whole point: nothing in a new descriptor moves with capacity."""
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        document = self.stored(store)["document"]
+        self.assertNotIn("generation", document["description"])
+        self.assertIn(self.AUTHORITY, document["description"])
+
+    def test_an_exact_repeat_replays_rather_than_colliding(self):
+        """A restart composes the same deployment again and must be one act."""
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        first = self.stored(store)
+        self.deployment(store, generation=1).activate_targets()
+        self.assertEqual(self.stored(store), first)
+
+    def test_a_capacity_change_no_longer_re_describes_a_live_target(self):
+        """THE REGRESSION. This is the exact sequence that refused: activate at
+        one generation, then activate the same target from a deployment whose
+        pool has advanced."""
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        before = self.stored(store)
+        self.deployment(store, generation=2).activate_targets()
+        self.assertEqual(self.stored(store), before,
+                         "a capacity change must not touch the target")
+
+    def test_a_legacy_generation_bearing_descriptor_is_preserved(self):
+        """A target activated by the OLD code keeps its document, its fence and
+        its identity. Adopting it must not rewrite it into the new shape."""
+        from baton_v12.integration import TARGET_SCHEMA, activate_target
+
+        store = self.store()
+        legacy = {"schema": TARGET_SCHEMA,
+                  "canonical_target_id": self.TARGET,
+                  "description": f"configured by stage-execution deployment "
+                                 f"{self.AUTHORITY} at pool generation 1"}
+        activate_target(store, dict(legacy))
+        before = self.stored(store)
+        self.deployment(store, generation=7).activate_targets()
+        held = self.stored(store)
+        self.assertEqual(held["document"], legacy)
+        self.assertEqual(held, before)
+
+    def test_a_genuinely_different_document_is_still_refused(self):
+        """THE INVARIANT IS NOT WEAKENED. What changed is that this caller
+        stopped manufacturing a difference out of capacity; a caller that
+        really does present another identity for a live key is still denied."""
+        from baton_v12.integration import TARGET_SCHEMA, activate_target
+
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        with self.assertRaises(ContractRefusal) as caught:
+            activate_target(store, {"schema": TARGET_SCHEMA,
+                                    "canonical_target_id": self.TARGET,
+                                    "description": "somebody else's target"})
+        self.assertIn("is not re-described", caught.exception.message)
+        self.assertEqual(caught.exception.category, "policy")
+
+    def test_a_refused_activation_leaves_the_target_and_recovers(self):
+        """FAILED-START SIDE EFFECTS. After a refusal from another caller, the
+        target is untouched and this deployment still adopts it -- which is
+        what makes a retry after a failed start ordinary rather than special."""
+        from baton_v12.integration import TARGET_SCHEMA, activate_target
+
+        store = self.store()
+        self.deployment(store, generation=1).activate_targets()
+        before = self.stored(store)
+        with self.assertRaises(ContractRefusal):
+            activate_target(store, {"schema": TARGET_SCHEMA,
+                                    "canonical_target_id": self.TARGET,
+                                    "description": "a different description"})
+        self.assertEqual(self.stored(store), before)
+        self.deployment(store, generation=3).activate_targets()
+        self.assertEqual(self.stored(store), before)
+
+    def test_every_configured_target_is_adopted_and_no_other(self):
+        """The key is the configured id, and a deployment adopts exactly the
+        targets its own bindings name."""
+        from baton_v12.integration import target_of
+
+        store = self.store()
+        held = self.deployment(store, generation=1)
+        held.given["job_bindings"] = [
+            {"canonical_target_id": self.TARGET},
+            {"canonical_target_id": self.TARGET + "-second"},
+            {"canonical_target_id": self.TARGET}]
+        held.activate_targets()
+        self.assertIsNotNone(target_of(store, self.TARGET))
+        self.assertIsNotNone(target_of(store, self.TARGET + "-second"))
+        self.assertIsNone(target_of(store, self.TARGET + "-absent"))
+
+
+class TheTargetSurvivesACapacityChangeOverRetainedHistory(ComposedOneJobCase):
+    """W202663 D4, at the COMPOSITION boundary over a populated store.
+
+    REVIEW208507 [R1] IS WHY THIS EXISTS BESIDE THE SEVEN METHOD CASES. Those
+    drive `activate_targets` directly against an empty store, which fixes the
+    method's contract and nothing about startup. This drives the real
+    `stage_execution.operations_from` -- the function whose target activation
+    at 5894 precedes `scheduler.activate_pool` at 5943, which is the order D4
+    was found in -- over a target that ALREADY carries a legacy
+    generation-bearing document, a queue entry and a non-zero fence.
+
+    WHAT IT MUST SHOW, and each is asserted rather than implied: a capacity
+    change composes; the retained target document, fence, state and queue are
+    untouched; a startup that fails AFTER the target is adopted leaves that
+    same state; and the retry then succeeds. A fake engine throughout -- no
+    provider, no deployed instance, no live model.
+    """
+
+    LEGACY = ("configured by stage-execution deployment "
+              "00000000000000000000000000000000 at pool generation 1")
+
+    def populated(self):
+        """A target with real history: a legacy document, an entry, a fence.
+
+        THE HISTORY IS MADE THROUGH THE PUBLIC OPERATIONS, never by writing
+        rows: what this case must protect is what those operations produced.
+        """
+        from baton_v12.integration import (IntegrationStore, TARGET_SCHEMA,
+                                           activate_target, enqueue,
+                                           target_of, entries_of)
+        from tests.integration.fixtures import eligibility
+        from tests.job_manager import fixtures
+
+        store = IntegrationStore.open(self.integration_store,
+                                      incarnation="d4-composition",
+                                      clock=lambda: fixtures.NOW)
+        self.addCleanup(store.close)
+        activate_target(store, {"schema": TARGET_SCHEMA,
+                                "canonical_target_id": self.TARGET_ID,
+                                "description": self.LEGACY})
+        enqueue(store, canonical_target_id=self.TARGET_ID,
+                entry_id="entry-d4", eligibility=eligibility())
+        return store, target_of(store, self.TARGET_ID), entries_of(
+            store, self.TARGET_ID)
+
+    @property
+    def TARGET_ID(self):
+        return self.composed_document()["canonical_target_id"]
+
+    def enlarged(self, generation):
+        """This deployment's document, with a SECOND producer at generation 2.
+
+        A GENUINE CAPACITY CHANGE, because the rule being exercised only fires
+        on one: `activate_pool` answers the generation the POOL is at, and a
+        configuration naming 2 over an unchanged three-worker pool is refused
+        for naming a generation the pool never reached -- correctly, and it is
+        not what D4 was about. So generation 2 here really does add a worker,
+        with its own participant, because duplicates are not distinct capacity.
+        """
+        held = self.composed_document(pool_generation=generation,
+                                      line_declared_base=self.base)
+        if generation > 1:
+            from baton_v12.authority import Authority
+
+            authority = Authority.open(
+                self.authority_path,
+                expected_authority_uuid=self.config["authority_uuid"])
+            try:
+                who = "baton.second-reviewer"
+                principal = authority.principal_of(who)
+            finally:
+                authority.dispose()
+            # THE POOL CHANGES WITHOUT BREAKING ONE-WORKER-PER-STAGE. A
+            # `/1` deployment is refused if two workers serve one stage, so a
+            # second producer is not the way to move this pool; replacing WHO
+            # serves review is. The pool document carries each worker's
+            # participant, so this really is a different pool, and the
+            # deployment still serves each stage exactly once.
+            workers = []
+            for one in held["workers"]:
+                if one["role"] != "review":
+                    workers.append(one)
+                    continue
+                # A CONFIGURED WORKER CARRIES EXACTLY worker_id, role and
+                # deployment -- the participant lives inside the deployment,
+                # and adding a top-level one is refused by name.
+                workers.append({
+                    "worker_id": one["worker_id"], "role": one["role"],
+                    "deployment": dict(one["deployment"], participant=who,
+                                       principal=principal)})
+            held = dict(held, workers=workers)
+        return held
+
+    def composing(self, generation):
+        """One real `operations_from` over these stores, at this capacity."""
+        from tests.job_manager import fixtures
+        from .test_single_worker import Engine
+
+        job, control = self.stores(f"d4-compose-{generation}")
+        composed = stage_execution.operations_from(
+            self.enlarged(generation), job, control,
+            engine_run=Engine(),
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        return composed
+
+    def unchanged(self, store, target_before, entries_before):
+        from baton_v12.integration import entries_of, target_of
+
+        self.assertEqual(target_of(store, self.TARGET_ID), target_before)
+        self.assertEqual(entries_of(store, self.TARGET_ID), entries_before)
+
+    def test_a_capacity_change_composes_over_retained_history(self):
+        """THE REGRESSION, at the boundary that refused it. The same target,
+        one composition at generation 1 and another at 2, and the legacy
+        document, its fence, its state and its queue all survive both."""
+        store, before, entries = self.populated()
+        self.composing(1)
+        self.unchanged(store, before, entries)
+        self.composing(2)
+        self.unchanged(store, before, entries)
+        self.assertIn("at pool generation 1", before["document"]["description"])
+
+    def test_a_startup_that_fails_after_adoption_leaves_the_target_alone(self):
+        """AN INJECTED FAILURE PAST THE ADOPTION POINT, and the retry after it.
+
+        The target is adopted before the pool activates, so a composition that
+        raises after that point is exactly the partial start D4 was found in.
+        What must be true is that it changed nothing about the target, and that
+        an ordinary retry then composes.
+        """
+        store, before, entries = self.populated()
+        # THE POOL EXISTS FIRST. `_pool_generation` predicts 1 for an absent
+        # pool, so a configuration naming 2 over a store that never activated
+        # one is refused for naming a generation nothing reached -- which is
+        # correct and is not the failure under test. This establishes
+        # generation 1, exactly as the real sequence did.
+        self.composing(1)
+        self.unchanged(store, before, entries)
+        faults = []
+
+        def failing(*arguments, **keywords):
+            faults.append(arguments)
+            raise RuntimeError("fixture: startup failed after adoption")
+
+        # THE INJECTION POINT IS THE STEP AFTER ADOPTION. `operations_from`
+        # calls `deployment.activate_targets()` and only later
+        # `scheduler.activate_pool`, which is the order D4 lives in -- so a
+        # failure here is a start that adopted the target and then died.
+        with mock.patch.object(stage_execution.scheduler, "activate_pool",
+                               failing):
+            with self.assertRaises(RuntimeError):
+                self.composing(2)
+        self.assertEqual(len(faults), 1, "the injected failure must be reached")
+        self.unchanged(store, before, entries)
+
+        # AND THE RETRY IS ORDINARY. Nothing had to be repaired first.
+        self.composing(2)
+        self.unchanged(store, before, entries)
 
 
 class TheHeterogeneousPoolTraversesTheSameLifecycle(
@@ -8318,7 +8649,12 @@ class TwoBoundJobsTraverseServingAndCorrection(
                     deployment.integration_home(
                         stage_execution.INTEGRATION_BUNDLE_HOME),
                     attempt_id),
-                target_root=self.source, scratch=places["scratch"])
+                # THE DEPLOYMENT'S OWN TARGET when a case separates it from
+                # the nominated source (W202663 D8's fresh-successor proof);
+                # the accepted same-tree cases are unchanged by the default.
+                target_root=getattr(self, "integration_target_root",
+                                    self.source),
+                scratch=places["scratch"])
 
     def tick(self, held):
         from baton_v12.job_manager import sweep
@@ -9364,3 +9700,637 @@ class TheStagedDeploymentOwnsOneIngestionHelper(ServingCase):
             None, authority=None, integration=None, workers=[], given={})
         self.assertIsNone(composed.activity)
         composed.release()
+
+
+class TheRestartOverAnAdvancedPoolPreservesSettledHistory(ComposedOneJobCase):
+    """W202663 D7 [R1], at the COMPOSITION boundary with the REAL observers.
+
+    REVIEW209188 IS WHY THIS EXISTS BESIDE THE TWO SCHEDULING UNIT CASES.
+    Those prove the fallback is called and the row survives; they cannot
+    prove the fallback ANSWERS TRUTHFULLY, because observation adopts each
+    worker's own launch home, role and manifest context and identical stubs
+    would pass whichever worker was picked. Here everything is the composed
+    real thing: `operations_from`'s own serving object, real stores, a real
+    version-controlled line, the actual `claude_agent` workload, the
+    accepted ending -- one implementation attempt carried to `completed`
+    with its evidence durable and its allocation RELEASED by cleanup. Then
+    the pool genuinely advances (a different participant serves review, the
+    exact capacity change the installed instance performed), the composition
+    restarts over the SAME stores, and the first sweep -- the tick that
+    raised the raw KeyError before the correction -- must observe the exact
+    history: same completed state, same allocation row, same publication,
+    same writer, no second execution of the settled attempt.
+
+    ONE STAGE, SETTLED -- deliberately, and measured on the way here: with
+    the ordinary three-stage Job, the settling ticks ADMIT the review stage,
+    whose reserved generation-1 allocation used to make attachment refuse
+    the generation-2 composition by name ("must provide exactly the active
+    generation and live prior generations' pairs"). D9 (claim219702)
+    measured that refusal INSTALLED blocking every pool advance over a held
+    episode and corrected the composer to attach live prior pairs -- the
+    scheduling family carries the focused cases. This class is about D7's
+    SETTLED history; a single-stage Job reproduces exactly the installed
+    D7 shape, so it stays.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from tests.job_manager import fixtures
+
+        self.submission = fixtures.submission(jobs=[fixtures.job(
+            "job-a", input_digest=job_input_identity(self.manifest),
+            policy_digest=fixtures.POLICY_DIGEST,
+            stages=[fixtures.stage("implementation", self.work)])])
+
+    def advanced_document(self):
+        """This deployment's document with the pool genuinely changed.
+
+        The same shape `TheTargetSurvivesACapacityChangeOverRetainedHistory`
+        measured: replacing WHO serves review is a real membership change --
+        `activate_pool` answers generation 2 for it -- while every stage is
+        still served exactly once.
+        """
+        from baton_v12.authority import Authority
+
+        held = self.composed_document(pool_generation=2,
+                                      line_declared_base=self.base)
+        authority = Authority.open(
+            self.authority_path,
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            who = "baton.second-reviewer"
+            principal = authority.principal_of(who)
+            # THE REPLACEMENT REVIEWER SERVES THE SAME ROUTES the original
+            # carried; without the grant and route the change would prove a
+            # missing authorization rather than the restart under test.
+            authority.grant_capability(who, "review", scope=self.scope)
+            authority.add_route_handler("rview", who)
+        finally:
+            authority.dispose()
+        workers = []
+        for one in held["workers"]:
+            if one["role"] != "review":
+                workers.append(one)
+                continue
+            workers.append({
+                "worker_id": one["worker_id"], "role": one["role"],
+                "deployment": dict(one["deployment"], participant=who,
+                                   principal=principal)})
+        return dict(held, workers=workers)
+
+    def settled(self, held):
+        """The implementation allocation, driven to its RELEASED settlement.
+
+        The installed D7 evidence was a released (cleanup-retained) row; the
+        composed ending reaches the same settlement on ordinary ticks.
+        """
+        from baton_v12.job_manager import scheduler, sweep as tick
+        from tests.job_manager import fixtures
+
+        for _ in range(10):
+            allocation = scheduler.allocation_of(held.job, held.attempt_id)
+            if allocation["allocation_state"] == "released":
+                return allocation
+            tick(held.job, held.composed, now=fixtures.NOW)
+        self.fail(f"the implementation allocation never released: "
+                  f"{allocation}")
+
+    def implementation_stage(self, job, composed):
+        from baton_v12.job_manager import status as projected_status
+        from tests.job_manager import fixtures
+
+        projected = projected_status(job, composed, observed_at=fixtures.NOW)
+        return {one["kind"]: one
+                for one in projected["jobs"][0]["stages"]}["implementation"]
+
+    def test_the_first_sweep_after_the_advance_observes_exact_history(self):
+        from baton_v12.job_manager import scheduler, sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.implemented()
+        allocation_before = self.settled(held)
+        self.assertEqual(allocation_before["generation"], 1)
+        stage_before = self.implementation_stage(held.job, held.composed)
+        self.assertEqual(stage_before["state"], "completed")
+        publication_before = stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.attempt_id)
+        self.assertIsNotNone(publication_before)
+        starts_before = [list(one) for one in self.engine.starts]
+
+        # THE RESTART, over the SAME durable stores, at the advanced pool.
+        held.composed.close()
+        job, control = self.stores("d7-advanced-restart")
+        restarted = stage_execution.operations_from(
+            self.advanced_document(), job, control,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(restarted.close)
+        self._composed = restarted
+
+        # THE TICK THAT USED TO RAISE KeyError, and one more after it.
+        tick(job, restarted, now=fixtures.NOW)
+        tick(job, restarted, now=fixtures.NOW)
+
+        stage_after = self.implementation_stage(job, restarted)
+        self.assertEqual(stage_after["state"], "completed")
+        # THE EXACT HISTORICAL IDENTITY, not merely a non-crash: the same
+        # attempt, the same generation-1 released allocation row with its
+        # cleanup reason, and the same runtime identity the real observer
+        # answers through the same-named worker's own context.
+        self.assertEqual(stage_after["attempt_id"], held.attempt_id)
+        self.assertEqual(scheduler.allocation_of(job, held.attempt_id),
+                         allocation_before)
+        self.assertEqual(stage_after["allocation"], stage_before["allocation"])
+        self.assertEqual(stage_after["runtime"], stage_before["runtime"])
+        # THE RETAINED EVIDENCE IS BYTE-IDENTICAL through the restarted
+        # composition's own reader.
+        self.assertEqual(stage_execution.publication_for_attempt(
+            control, attempt_id=held.attempt_id), publication_before)
+        # AND NOTHING RE-EXECUTED THE SETTLED ATTEMPT: any start the advanced
+        # pool performs belongs to OTHER stages, never to this attempt.
+        for one in self.engine.starts[len(starts_before):]:
+            self.assertNotIn(held.attempt_id, " ".join(map(str, one)))
+
+    def test_settled_history_cannot_be_moved_back_to_live(self):
+        """WHY the unattached-live branch is defence in depth, measured: the
+        one public act that could revive a settled allocation refuses it, so
+        no post-attachment state move can manufacture a live allocation on a
+        retired key. (The branch itself is covered at the unit level with an
+        injected answer, because this is exactly a cannot-happen guard.)"""
+        from baton_v12.job_manager import scheduler
+        from tests.job_manager import fixtures
+
+        held = self.implemented()
+        self.settled(held)
+        held.composed.close()
+        job, _control = self.stores("d7-live-refusal")
+        with self.assertRaises(ContractRefusal) as caught:
+            scheduler.require_recovery(job, held.attempt_id)
+        self.assertIn("is not quarantined again", caught.exception.message)
+
+
+class ANewJobCreatedAfterAFollowsTheAdvancedTarget(
+        TwoBoundJobsTraverseServingAndCorrection):
+    """W202663 owner212383 point (4): the FRESH-SUCCESSOR topology, composed.
+
+    `test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET` proves the RECONCILED
+    path -- B prepublished at the original base, on a deployment whose
+    dedicated target IS the nominated source, so B's line never needs a
+    commit the source lacks (review212328's caveat). This drives the OTHER
+    half, the topology every installed experiment measured: the dedicated
+    target is a SEPARATE clone; Job A completes and the coordinator's
+    finalization advances THAT repository, not the source; Job B is CREATED
+    AFTERWARD, on its own Work, declaring A's advanced candidate as its
+    base -- a commit the nominated source provably does not hold -- and its
+    line materializes through the profile's supplement, publishes directly
+    against the current policy, and integrates to completed on the SAME
+    stores, with Job A's history untouched and its settled attempts never
+    re-executed.
+    """
+
+    def dedicated(self):
+        import subprocess as _subprocess
+
+        place = os.path.join(self.root, "dedicated-target")
+        self.assertEqual(_subprocess.run(
+            ["git", "clone", "-q", self.source, place],
+            capture_output=True, timeout=60).returncode, 0)
+        return place
+
+    def only_a(self, document):
+        held = copy.deepcopy(document)
+        held["job_bindings"] = [one for one in held["job_bindings"]
+                                if one["job_id"] == "job-a"]
+        held["workers"] = [one for one in held["workers"]
+                           if not one["worker_id"].endswith("-b")]
+        return held
+
+    def successor_task(self, advanced):
+        """Job B's OWN task, declared at the ADVANCED candidate."""
+        payload = json.loads(self.shared_task_bytes)
+        payload["declared_base"] = advanced
+        held = json.dumps(payload, sort_keys=True).encode("utf-8")
+        place = os.path.join(self.root, "task-b-successor.json")
+        with open(place, "wb") as writing:
+            writing.write(held)
+        return place, held
+
+    # THE SELECTED OUTCOME, PROVEN END TO END (owner217455). This test
+    # previously ASSERTED D8's boundary here: the single-slot delivery
+    # namespace made B adopt A's retained delivery, skip preparation, and
+    # defer forever on the witness contradiction. With per-attempt delivery
+    # namespaces the boundary is GONE: the fresh successor's DIRECT
+    # integration launches (its own preparation, its own namespace), runs
+    # its real turn over the dedicated target, and COMPLETES -- the target
+    # advancing again to B's own candidate -- while Job A's retained
+    # delivery sits untouched beside B's, each adopting back as itself.
+    def test_the_successor_materializes_publishes_and_completes(self):
+        from baton_v12.job_manager import submit
+        from baton_v12.job_manager.scheduler import allocation_of
+        from tests.job_manager import fixtures
+
+        target = self.dedicated()
+
+        # ---- PHASE 1: Job A alone, on the SEPARATE dedicated target. ----
+        doc1 = self.only_a(self.traversing(integration_target=target))
+        job, control, composed = self.serving(**doc1)
+        self._composed = composed
+        held = SimpleNamespace(job=job, control=control, composed=composed)
+        submit(job, fixtures.submission(
+            jobs=[copy.deepcopy(self.submission["jobs"][0])]))
+        self.drive_job(job, composed, "job-a", "implementation", "waiting")
+        first = self.one_attempt_of(composed, "implementation-worker")
+        self.accepted(held, "job-a", "implementation-worker", "review-worker",
+                      first, "print('the first job answered')\n")
+        self.drive_job(job, composed, "job-a", "integration", "integrating")
+        held.integrated = self.attempted(job, "job-a/integration")["attempt_id"]
+        self.assertEqual(self.integration_turn(held, held.integrated), 0)
+        self.engine.stopped = True
+        self.tick(held)
+        self.drive_job(job, composed, "job-a", "integration", "completed",
+                       ticks=4)
+
+        deployment = self.deployment_of(composed)
+        advanced = deployment.authority.canonical_target()
+        self.assertNotEqual(advanced, self.base)
+        # THE SEPARATE TARGET ADVANCED; THE NOMINATED SOURCE DID NOT.
+        self.assertEqual(
+            self.vcs_in(target, "rev-parse", "refs/heads/main"), advanced)
+        self.assertNotEqual(
+            self.vcs_in(self.source, "rev-parse", "refs/heads/main"),
+            advanced)
+        import subprocess as _subprocess
+
+        absent = _subprocess.run(
+            ["git", "-C", self.source, "cat-file", "-t", advanced],
+            capture_output=True, text=True, timeout=30)
+        self.assertNotEqual(absent.returncode, 0,
+                            "the successor's base must be a commit the "
+                            "nominated source does not hold")
+        a_allocation = allocation_of(job, first)
+        a_states = self.states_for(job, composed, "job-a")
+        starts_before = len(self.engine.starts)
+        # THE SUCCESSOR PINS THE CURRENT POLICY GENERATION, exactly as an
+        # installed re-bootstrap does: A's own receipts moved the Authority
+        # past the fixture's original pin, and a deployment configured for a
+        # generation the Authority has left cannot write receipts (measured
+        # here first: "moved to policy generation 12 from the configured 11").
+        current_policy = deployment.authority.policy_generation()
+
+        # ---- PHASE 2: the SUCCESSOR, created only now, on the same stores.
+        composed.close()
+        task_place, task_bytes = self.successor_task(advanced)
+        manifest = self.manifest_over(SECOND_WORK, task_bytes)
+        doc2 = self.traversing(integration_target=target)
+        binding = {one["job_id"]: one for one in doc2["job_bindings"]}
+        binding["job-b"]["line_declared_base"] = advanced
+        workers = {one["worker_id"]: one for one in doc2["workers"]}
+        for worker_id in ("implementation-worker-b", "review-worker-b"):
+            workers[worker_id]["deployment"]["input_manifest"] = manifest
+            workers[worker_id]["deployment"]["task_document"] = task_place
+        doc2["pool_generation"] = 2
+        self.engine.stopped = False
+        job2, control2 = self.stores("fresh-successor")
+        document2 = self.composed_document(**doc2)
+        document2["policy_generation"] = current_policy
+        composed2 = stage_execution.operations_from(
+            document2, job2, control2,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed2.close)
+        self._composed = composed2
+        held2 = SimpleNamespace(job=job2, control=control2,
+                                composed=composed2)
+        submit(job2, fixtures.submission(
+            submission_id="sub-successor",
+            jobs=[fixtures.job(
+                "job-b",
+                input_digest=job_input_identity(manifest),
+                policy_digest=fixtures.POLICY_DIGEST,
+                stages=[
+                    fixtures.stage("implementation", SECOND_WORK),
+                    fixtures.stage("review", SECOND_WORK,
+                                   depends_on=[{"job_id": "job-b",
+                                                "kind": "implementation"}]),
+                    fixtures.stage("integration", SECOND_WORK,
+                                   depends_on=[{"job_id": "job-b",
+                                                "kind": "review"}])])]))
+        self.drive_job(job2, composed2, "job-b", "implementation", "waiting")
+
+        # THE SUPPLEMENT DID THE MATERIALIZATION: the line IS the advanced
+        # commit, which the nominated source does not hold.
+        line = self.line_of(composed2, "job-b")
+        self.assertEqual(line["declared_base"], advanced)
+        row = self.deployment_of(composed2)
+        second = self.one_attempt_of(composed2, "implementation-worker-b")
+        self.produced(held2, "job-b", second, None,
+                      edits={"feature.py": self.B_FEATURE,
+                             "feature_check.py": self.B_CHECK})
+        self.drive_job(job2, composed2, "job-b", "review", "waiting")
+        reviewed = self.one_attempt_of(composed2, "review-worker-b")
+        self.review_turn(held2, "job-b", reviewed, "accepted")
+        self.drive_job(job2, composed2, "job-b", "review", "completed")
+
+        # JOB A'S HISTORY IS UNTOUCHED and its settled attempt never ran
+        # again -- asserted HERE, before the pinned open boundary below, so
+        # these claims are actually reached (review217322).
+        self.assertEqual(allocation_of(job2, first), a_allocation)
+        self.assertEqual(self.states_for(job2, composed2, "job-a"), a_states)
+        for one in self.engine.starts[starts_before:]:
+            self.assertNotIn(first, " ".join(map(str, one)))
+
+        # THE SELECTED OUTCOME (owner217455): with per-attempt delivery
+        # namespaces (D8's correction), the fresh successor's DIRECT
+        # integration completes on the same deployment while Job A's
+        # retained delivery stays untouched beside it.
+        from baton_v12.integration import runtime as integration_runtime
+
+        self.drive_job(job2, composed2, "job-b", "integration", "integrating")
+        held2.integrated = self.attempted(
+            job2, "job-b/integration")["attempt_id"]
+        # B'S TURN RUNS OVER THE DEDICATED TARGET: its expected revision is
+        # the ADVANCED one, which only that repository holds.
+        self.integration_target_root = target
+        self.assertEqual(self.integration_turn(held2, held2.integrated), 0)
+        self.engine.stopped = True
+        self.tick(held2)
+        self.drive_job(job2, composed2, "job-b", "integration", "completed",
+                       ticks=6)
+        # THE TARGET ADVANCED AGAIN, to the successor's own candidate.
+        further = self.deployment_of(composed2).authority.canonical_target()
+        self.assertNotEqual(further, advanced)
+        self.assertEqual(
+            self.vcs_in(target, "rev-parse", "refs/heads/main"), further)
+        # AND JOB A'S RETAINED DELIVERY IS UNTOUCHED BESIDE B'S: both adopt
+        # back as themselves, each carrying its own attempt's assignment.
+        deployment2 = self.deployment_of(composed2)
+        for attempt in (held.integrated, held2.integrated):
+            adopted = integration_runtime.adopt_delivery(
+                deployment2.integration_root, attempt_id=attempt,
+                workspace_group=deployment2.workspace_group)
+            self.assertIsNotNone(adopted, attempt)
+            self.assertEqual(
+                integration_runtime.published_assignment(
+                    adopted)["attempt_id"], attempt)
+
+
+class APRJobSettlesAtItsReviewAndSurvivesRestart(ComposedOneJobCase):
+    """OWNER-HANDOFF-PR-JOBS (owner220327), review221748's continuation: the
+    PR shape's ACTUAL terminal behavior, composed and measured rather than
+    shape-validated. A PR-mode Job carries TWO stages -- producer and
+    reviewer -- and its deliverable is the durable reviewed candidate;
+    there is no integration stage to serve, so neither of D10's gates ever
+    binds. Everything real here is `ComposedOneJobCase`'s real thing: the
+    factory's own serving object, real stores, a real version-controlled
+    line, the actual workloads, ordinary ticks and the accepted ending.
+    """
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.contracts import job_input_identity
+        from tests.job_manager import fixtures
+
+        self.submission = fixtures.submission(jobs=[fixtures.job(
+            "job-a", input_digest=job_input_identity(self.manifest),
+            policy_digest=fixtures.POLICY_DIGEST,
+            stages=[
+                fixtures.stage("implementation", self.work),
+                fixtures.stage("review", self.work,
+                               depends_on=[{"job_id": "job-a",
+                                            "kind": "implementation"}])])])
+
+    def composed_document(self, **members):
+        """The TRUE two-worker topology, review221816: the inherited
+        document still configured an integrator, so the earlier run proved
+        only that the submission had no integration stage. This deployment
+        composes NO integration worker at all -- what the factory does with
+        that configuration is exactly what the proof must measure."""
+        given = dict(members)
+        if "workers" not in given:
+            given["workers"] = [
+                self.worker("implementation"),
+                self.worker("review", participant="baton.reviewer",
+                            principal=self.principals["baton.reviewer"],
+                            review_route=self.INTEGRATION_ROUTE)]
+        return super().composed_document(**given)
+
+    def reviewed(self):
+        """`TheComposedJobTraversesReviewAndAcceptance.reviewed`'s own
+        cadence over the two-stage submission (not inherited as a class,
+        because that class's tests assume the three-stage shape)."""
+        import copy
+
+        held = self.implemented()
+        self.drive(held.job, held.composed, "review", "waiting")
+        attempt = self.only_attempt(held.composed, "review")
+        report = copy.deepcopy(
+            TheComposedJobTraversesReviewAndAcceptance.REPORT)
+        report["verdict"] = "accepted"
+        self.assertEqual(
+            self.turn(held.control, "review", attempt,
+                      self.mounted(held.composed, "review", attempt),
+                      edits={"review-report.json": json.dumps(report)}), 0)
+        held.review = attempt
+        return held
+
+    def test_the_two_stage_job_completes_at_review_and_restart_observes(self):
+        from baton_v12.job_manager import scheduler
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        held = self.reviewed()
+        states = self.drive(held.job, held.composed, "review", "completed",
+                            ticks=12)
+        # THE WHOLE JOB, distinguished exactly as the owner's model asks:
+        # the producer completed, the independent review completed, there is
+        # no third stage, and the reviewed candidate is the deliverable.
+        # Owner-mainline acceptance is a HUMAN act recorded elsewhere
+        # (tools/accepted_base.py) and nothing here claims it.
+        self.assertEqual(states.get("implementation"), "completed")
+        self.assertEqual(states.get("review"), "completed")
+        self.assertNotIn("integration", states)
+        # SETTLEMENT LAGS THE STATE by ordinary cleanup ticks; drive until
+        # every allocation released, bounded, and require the retained
+        # cleanup rather than any release.
+        for _ in range(20):
+            rows = scheduler.allocation_rows(held.job)
+            if rows and all(one["allocation_state"] == "released"
+                            for one in rows):
+                break
+            tick(held.job, held.composed, now=fixtures.NOW)
+        rows = scheduler.allocation_rows(held.job)
+        self.assertTrue(rows)
+        for row in rows:
+            self.assertEqual(row["allocation_state"], "released",
+                             row["stage_id"])
+            self.assertEqual(row["release_reason"], "cleanup-retained",
+                             row["stage_id"])
+        # The candidate's publication is durable and readable through the
+        # supported reader -- the PR handback's own locator.
+        self.assertIsNotNone(stage_execution.publication_for_attempt(
+            held.control, attempt_id=held.attempt_id))
+
+        # RESTART over the same durable stores: settled work is OBSERVED,
+        # never redispatched, and no new episode appears for either stage.
+        implementation, review = held.attempt_id, held.review
+        held.composed.close()
+        job, control = self.stores("pr-restart")
+        restarted = stage_execution.operations_from(
+            self.composed_document(), job, control,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(restarted.close)
+        self._composed = restarted
+        starts_before = len(self.engine.starts)
+        tick(job, restarted, now=fixtures.NOW)
+        tick(job, restarted, now=fixtures.NOW)
+        after = self.states(job, restarted)
+        self.assertEqual(after.get("implementation"), "completed")
+        self.assertEqual(after.get("review"), "completed")
+        self.assertEqual(len(self.engine.starts), starts_before,
+                         "nothing redispatched the settled attempts")
+        self.assertEqual(
+            {one["assignment_id"] for one in scheduler.allocation_rows(job)},
+            {implementation, review},
+            "the same two attempts, no new episodes")
+
+
+class AAcceptedPRSeedsTheSuccessorOnTheSameStores(
+        TwoBoundJobsTraverseServingAndCorrection):
+    """OWNER-HANDOFF-PR-JOBS + review221919: the ACTUAL
+    A-acceptance-new-B proof, composed on the selected PR topology.
+
+    Job A runs producer-and-reviewer ONLY (no integration stage, no
+    integration worker) to its accepted review; the HUMAN acceptance is
+    simulated EXPLICITLY -- a durable acceptance record written beside the
+    root and the accepted candidate fetched into the nominated source,
+    which is Slawomir's merge in miniature; and Job B is created only
+    then, on the SAME durable stores under its own distinct Work, its
+    binding declaring the accepted candidate as an OPAQUE reference. B
+    reaches its own accepted, completed review while A's settled history
+    stays byte-identical and nothing redispatches.
+    """
+
+    only_a = ANewJobCreatedAfterAFollowsTheAdvancedTarget.only_a
+    successor_task = ANewJobCreatedAfterAFollowsTheAdvancedTarget \
+        .successor_task
+
+    def test_the_accepted_candidate_seeds_job_b_on_the_same_stores(self):
+        from baton_v12.contracts import job_input_identity
+        from baton_v12.job_manager import submit
+        from baton_v12.job_manager.scheduler import allocation_of
+        from tests.job_manager import fixtures
+
+        # ---- PHASE 1: Job A alone, producer and reviewer, NO integrator.
+        doc1 = self.only_a(self.traversing())
+        doc1["workers"] = [one for one in doc1["workers"]
+                           if one["role"] != "integration"]
+        job, control, composed = self.serving(**doc1)
+        self._composed = composed
+        held = SimpleNamespace(job=job, control=control, composed=composed)
+        job_a = copy.deepcopy(self.submission["jobs"][0])
+        job_a["stages"] = [one for one in job_a["stages"]
+                           if one["kind"] != "integration"]
+        submit(job, fixtures.submission(jobs=[job_a]))
+        self.drive_job(job, composed, "job-a", "implementation", "waiting")
+        first = self.one_attempt_of(composed, "implementation-worker")
+        self.accepted(held, "job-a", "implementation-worker",
+                      "review-worker", first,
+                      "print('the first job answered')\n")
+
+        # THE ACCEPTED CANDIDATE: the head of A's durable line, read with
+        # ordinary version control -- an opaque reference from here on.
+        line = self.line_of(composed, "job-a")
+        checkout = line["line_path"]
+        if os.path.isdir(os.path.join(checkout, "checkout")):
+            checkout = os.path.join(checkout, "checkout")
+        head = self.vcs_in(checkout, "rev-parse", "HEAD")
+        self.assertNotEqual(head, self.base)
+
+        # ---- THE EXPLICIT SIMULATED ACCEPTANCE, both halves of the human
+        # act: the durable record, and the merge-in-miniature that puts the
+        # accepted object into the OFFICIAL nominated source. The
+        # coordinator interprets none of it.
+        acceptance = {"schema": "baton.w202663.accepted-base/1",
+                      "repository": self.source,
+                      "accepted_commit": head,
+                      "expected_old": self.base,
+                      "included_candidates": [f"{head} (job-a)"],
+                      "acceptance_evidence":
+                          "simulated human acceptance inside the composed "
+                          "proof; review verdict accepted",
+                      "accepted_by": "the-test-as-Slawomir",
+                      "recorded_at": fixtures.NOW}
+        place = os.path.join(self.root, "ACCEPTED-BASE-simulated.json")
+        with open(place, "w") as writing:
+            json.dump(acceptance, writing, indent=1, sort_keys=True)
+        self.vcs_in(self.source, "fetch", checkout, head)
+
+        deployment = self.deployment_of(composed)
+        current_policy = deployment.authority.policy_generation()
+        a_allocation = allocation_of(job, first)
+        a_states = self.states_for(job, composed, "job-a")
+        starts_before = len(self.engine.starts)
+
+        # ---- PHASE 2: Job B, created only now, on the SAME durable
+        # stores, its OWN Work, its binding declaring the accepted
+        # candidate verbatim.
+        composed.close()
+        task_place, task_bytes = self.successor_task(head)
+        manifest = self.manifest_over(SECOND_WORK, task_bytes)
+        doc2 = self.traversing()
+        doc2["workers"] = [one for one in doc2["workers"]
+                           if one["role"] != "integration"]
+        binding = {one["job_id"]: one for one in doc2["job_bindings"]}
+        binding["job-b"]["line_declared_base"] = head
+        workers = {one["worker_id"]: one for one in doc2["workers"]}
+        for worker_id in ("implementation-worker-b", "review-worker-b"):
+            workers[worker_id]["deployment"]["input_manifest"] = manifest
+            workers[worker_id]["deployment"]["task_document"] = task_place
+        doc2["pool_generation"] = 2
+        job2, control2 = self.stores("pr-successor")
+        document2 = self.composed_document(**doc2)
+        document2["policy_generation"] = current_policy
+        composed2 = stage_execution.operations_from(
+            document2, job2, control2,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed2.close)
+        self._composed = composed2
+        held2 = SimpleNamespace(job=job2, control=control2,
+                                composed=composed2)
+        submit(job2, fixtures.submission(
+            submission_id="sub-pr-successor",
+            jobs=[fixtures.job(
+                "job-b",
+                input_digest=job_input_identity(manifest),
+                policy_digest=fixtures.POLICY_DIGEST,
+                stages=[
+                    fixtures.stage("implementation", SECOND_WORK),
+                    fixtures.stage("review", SECOND_WORK,
+                                   depends_on=[{"job_id": "job-b",
+                                                "kind": "implementation"}])])]))
+        self.drive_job(job2, composed2, "job-b", "implementation", "waiting")
+
+        # B's line IS the accepted candidate -- materialized from the
+        # nominated source the acceptance put it into, no supplement, no
+        # coordinator Git interpretation anywhere.
+        line_b = self.line_of(composed2, "job-b")
+        self.assertEqual(line_b["declared_base"], head)
+        second = self.one_attempt_of(composed2, "implementation-worker-b")
+        self.accepted(held2, "job-b", "implementation-worker-b",
+                      "review-worker-b", second,
+                      None, edits={"feature.py": self.B_FEATURE,
+                                   "feature_check.py": self.B_CHECK})
+
+        # JOB A'S HISTORY IS BYTE-IDENTICAL and nothing ran it again.
+        self.assertEqual(allocation_of(job2, first), a_allocation)
+        self.assertEqual(self.states_for(job2, composed2, "job-a"),
+                         a_states)
+        for one in self.engine.starts[starts_before:]:
+            self.assertNotIn(first, " ".join(map(str, one)),
+                             "A's settled attempt never redispatched")

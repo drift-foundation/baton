@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:30f32ca8ad412cf20b2d36b45186ca5634a1f3000f3e10975d699743316cbb85"
+  },
+  "claim": 221832,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-221832.json",
+    "input_count": 110,
+    "inputs_digest": "sha256:307834c867f57cd57fa3f63a116bd28eccb5b406214eb01d8d207dd2908c3163",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime carrying the owner's generic-reference model (2026-09-20T14:57:48Z) at its two pinned sites: bootstrap.admissible_bases admits new bindings at their own opaque declared references with no canonical-target comparison, and stage_execution's role coverage makes the integration worker OPTIONAL so the producer-and-reviewer PR deployment composes and serves",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "bundle-sha256:31a3a818d22802c16cad67d9c3c2b84b9b18c68ea5afae1899f19fea5a160900": "candidate221761 (accepted-base tool final form), never installed; the Git-synchronizing accepted-base transaction it carries is preserved but superseded as a prerequisite by the owner's generic-reference ruling; records remain as history"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

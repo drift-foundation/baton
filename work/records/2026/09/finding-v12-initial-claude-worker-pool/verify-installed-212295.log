@@ -1,0 +1,74 @@
+instance: /home/sl/baton-v12/instance-2026-09-19T13-01-28Z
+
+== identity ==
+{
+  "build_stamp": {
+    "changed_entries": 102,
+    "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+    "detail": null,
+    "dirty": true,
+    "excused_build_output": 0,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton"
+  },
+  "command": "baton-v12-stack",
+  "executable": "/home/sl/baton-v12/instance-2026-09-19T13-01-28Z/distro/baton-v12-stack",
+  "frozen": true,
+  "machine": "x86_64",
+  "native_rpds": "/home/sl/baton-v12/instance-2026-09-19T13-01-28Z/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+  "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+  "python": "3.13.7",
+  "resources": "/home/sl/baton-v12/instance-2026-09-19T13-01-28Z/distro/_internal",
+  "schema_assets": {
+    "agent-session-1.0": 48212,
+    "worker-control-1.0": 51419
+  },
+  "sha256": "d5d1e9fb3c20c12795daa3dc01066f0010190612b9eacb57ee1eae10692cec87",
+  "version": "12.0.0"
+}
+
+== authority and pool, before configuration ==
+authority_uuid     c1b38e2e9c52457c94f0c229138c92fa
+workers configured 0
+job bindings       0
+policy_generation  1
+pool_generation    1
+
+== remaining steps, in order, once the owner has deployed ==
+  a. compose the deterministic verification pool for this instance (this
+     regenerates /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/pool-bootstrap-inputs.json
+     and pool-submission.json for it):
+       cd /home/sl/src/baton/v12/python
+       PYTHONPATH=src:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/compose-verification-208217.py \
+         --instance "/home/sl/baton-v12/instance-2026-09-19T13-01-28Z" --emitting
+     (its DEST/UUID/WORK are read from --instance; the claim208217 constants
+      remain as the historical record of that run and are not edited.
+      --emitting serves the implementation role from the claim208916 emitting
+      producer image so the run leaves nonempty retained worker streams --
+      review208890: a silent fixture cannot satisfy that proof)
+  b. apply it:
+       PYTHONPATH=src:. python3 -m tools.bootstrap \
+         --inputs /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/pool-bootstrap-inputs.json
+  c. check the policy pin -- every time, the bump is PER WORK, and the check
+     is a GATE: it selects the retained instance first and exits nonzero on
+     inequality (review208585 [R2]):
+       /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/check-policy-pin.sh
+  d. start, then submit the composed Job -- the exact submission, tied to this
+     instance's own Job store and Authority and to the submission document
+     step (a) generated:
+       just --justfile "/home/sl/baton-v12/instance-2026-09-19T13-01-28Z/justfile" start
+       cd /home/sl/src/baton/v12/python
+       PYTHONPATH=src:. python3 -m tools.job_manager \
+         --store "/home/sl/baton-v12/instance-2026-09-19T13-01-28Z/db/jobs.sqlite3" \
+         --incarnation w202663-verification-submit \
+         --authority-uuid "c1b38e2e9c52457c94f0c229138c92fa" \
+         submit --document /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/pool-submission.json
+  e. carry it to a terminal report-and-hold, then prove SEPARATELY: configured
+     identity, runtime-recorded attribution, actual execution, and completion.
+  f. capture proof, as executable assertions rather than a look:
+       python3 /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/assert-capture-208916.py
+     (nonempty retained worker streams carrying the emitting fixture's
+      deterministic lines, read back through the supported reader; re-run it
+      after cleanup to prove retention)
+  g. cleanup, fencing and recovery observations as distinct facts.
+  h. only then the real Claude pool, its own pin, and its launch commands.

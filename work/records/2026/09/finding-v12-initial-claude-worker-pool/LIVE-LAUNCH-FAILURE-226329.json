@@ -1,0 +1,30 @@
+{
+  "authority_uuid": "13c91b695bfe4625b4f22dabd35a54a4",
+  "cause": {
+    "checked_without_reading_secrets": "registry JSON structure and the entry's path existence/mode (0600) only; no credential content was opened",
+    "finding": "the deployment's credential profile demands slot 'claude' -> provider 'operator-file', reference 'w202663-development'; the operator registry /home/sl/.baton/credential-sources.json holds exactly ONE entry and its reference is 'w64268-run1'. The resolver refuses an unresolvable (provider, reference) pair at launch preparation -- before any runtime -- which matches the released allocation, the empty launch logs and the absent container exactly.",
+    "spend": "ZERO -- no provider contact, no credential read, no episode executed"
+  },
+  "claim": 226329,
+  "instance": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z",
+  "observed": {
+    "implementation": {
+      "allocation": "released at 03:21:27.596Z, release_reason 'launch-failed-before-runtime'; execution_runtime 'not-started', runtime_id null",
+      "checkout": "the line checkout MATERIALIZED correctly at the accepted base before the launch step (.baton-review-lines/line-4d4758af.../checkout; attempt inputs staged)",
+      "container": "docker holds NO container for this attempt -- the failure precedes docker create",
+      "episode": 1,
+      "offer": "offer-cb2aad0d... issued 2026-09-21T03:21:15Z, expired 03:23:15Z",
+      "state": "exceptional"
+    },
+    "job": "w202663-first-development-job (canonical: true)",
+    "manager": "serving incarnation v12-stack-2742827... healthy; the two tracebacks at the log head are the HISTORICAL claim226109 start refusals, not this failure",
+    "review": "blocked on the implementation gate (state exceptional)"
+  },
+  "owner_options": {
+    "a_registry_entry": "add an entry {path: <your credential file>, provider: 'operator-file', reference: 'w202663-development'} to /home/sl/.baton/credential-sources.json (file 0600, owned by you). NO recomposition is needed: the registry is read at launch, not baked into the frozen inputs.",
+    "b_reference_change": "instruct recomposition to the existing reference 'w64268-run1' -- that changes frozen deployment bytes, so recompose/reapply/pin and review would rerun; heavier than (a) and it selects WHICH account to spend, which is yours to choose.",
+    "then": "after the registry resolves, the exceptional stage may retry on an ordinary tick or may need a fresh submission; resubmission and any recovery both remain YOURS to authorize -- none was performed and none will be without your word."
+  },
+  "schema": "baton.w202663.live-launch-failure/1",
+  "what": "the owner-submitted live Job's implementation launch failed BEFORE any runtime, provider contact or credential read; observed and diagnosed read-only, nothing restarted or resubmitted"
+}

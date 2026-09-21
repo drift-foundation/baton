@@ -1,0 +1,17 @@
+{
+  "claim": 209260,
+  "sha256": {
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/install-next-instance.sh": "0435e2c64680d32f7a86e7e8f7770fe95eb3408f44faff16458c7e57c878b04d",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/verify-next-instance.sh": "99f19600a65eb33c1b49a611ba6bd7e288af4af37f5ae48d96b33cc1ba6a8c6a",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/RUNTIME-BUILD-209204.json": "4b31e11aef73221614015bdcc6b57c9aa866f39bc7af3699476b155e81ed3a17",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/BUNDLE-MANIFEST-209204.json": "1e73d5b7071104d7c4e74c81048b9ae8cc9dd90b437620226ea68b2072981b7e",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/PROSPECTIVE-INPUTS-209204.json": "320d57084b8ea2157db24eead958fc656e8122ed85edc7ca95c5a23530f6c637",
+    "v12/python/src/baton_v12/job_manager/scheduler.py": "4849facf1fc92be574eff4224537c6bc8e6f053a4e99dfba98beab7daa7b41e1",
+    "v12/python/tests/job_manager/test_scheduling.py": "c89c25c4f4167616c66457b46921b52988fb8f865d7ef2ac0db7ac039f068f50",
+    "v12/python/tests/tools/test_stage_execution.py": "7457e1a6c9b297e32b0a8844ba3149e164c7f263148a644d84ac5c2235310ae4"
+  },
+  "focused_tests": 2,
+  "passed": true,
+  "seconds": 0.5623421800555661,
+  "disposition": "experimental deployment per owner209215; unresolved concerns retained"
+}

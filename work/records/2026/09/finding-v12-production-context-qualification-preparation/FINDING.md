@@ -1646,3 +1646,9 @@ inspection, root repair, predicate relaxation or enabling is selected. W2's
 separate readiness recommendation and W161234/C1/C2 acceptance do not accept
 these partial bytes. Preserve open Work identity; ops parking is next, not a
 satisfying closure. A future continuation requires explicit new selection.
+
+## 2026-09-21T06:32:41Z — owner: first priority after v12 passes the cutoff
+
+Recorded by baton.prompt from the owner's statement: "if v12 makes the cutoff that will be first to work on". The selected first follow-up is production session reuse for review-feedback correction: an independent review remains a separate execution, while its feedback returns through a newly scheduled implementation execution that resumes the original implementer's Claude conversation. Preserve context across correction rounds; measure token/cache/time effects rather than promising cache savings.
+
+This establishes conditional first priority for existing W177936 and supersedes an unspecified later ordering, not the Sep16 minimum-release deferral or failed qualification evidence. Work stays parked until the owner accepts the v12 cutoff result and continuation is routed explicitly. Revalidate the retained candidate, model identity, custody/restoration and current runtime before implementation; no live qualification, enabling or automatic retry is authorized now. This is not an automatic verifier-to-Claude loop, and does not merge reviewer and implementer sessions.

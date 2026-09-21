@@ -1,0 +1,42 @@
+{
+ "stage": "w202663-deterministic-verification-3/implementation",
+ "state": "answering",
+ "deferral": [
+  {
+   "act": "conclude",
+   "episode": 1,
+   "outstanding": true,
+   "attempt_id": "attempt-d03f6ebaaab650b2f3b6a44616f73e3a7206cd60ed3f13ad00bb4915beb81aab",
+   "operation_id": null,
+   "category": "refused",
+   "code": "precondition",
+   "message": "the worker built on '93da9d628360590e30d7dd899781c9e5db4cc2b1' and the Authority target is '784081a462ef05b9381527974ac775b30cf825af'; a proposal is offered against the revision it was built from",
+   "since": "2026-09-19T12:42:09.655Z",
+   "observed": "2026-09-19T12:45:18.737Z",
+   "incarnation": "v12-stack-2091264-1789821711016243957",
+   "why_retained": null
+  }
+ ],
+ "allocation": {
+  "assignment_id": "attempt-d03f6ebaaab650b2f3b6a44616f73e3a7206cd60ed3f13ad00bb4915beb81aab",
+  "stage_id": "w202663-deterministic-verification-3/implementation",
+  "episode": 1,
+  "generation": 2,
+  "worker_id": "w202663-deterministic-verification-3-implementation",
+  "lane": "implementation",
+  "participant": "baton.fixture-coder-3",
+  "canonical_principal": "principal:baton.fixture-coder-3",
+  "preferred_worker_id": null,
+  "selection_outcome": "initial",
+  "allocation_state": "reserved",
+  "reserved_at": "2026-09-19T12:41:56.393Z",
+  "recovery_required_at": null,
+  "released_at": null,
+  "release_reason": null,
+  "variant": "baton.v12.stage-execution-deployment/1",
+  "separation_class": "provider-diverse",
+  "generation_digest": "sha256:31b8a04658d478ba042f9b1843eca9fcaa7d6cb85a2355a79b2a02220c085999",
+  "worker_profile_name": "fixture-w202663-deterministic-verification-3",
+  "worker_profile_digest": "sha256:b05de4872aadb172064b201590e0f3f122691a8c91cd22282915ff9c00390368"
+ }
+}

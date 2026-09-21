@@ -131,13 +131,30 @@ class TheRoomIsMadeBeforeAnythingRuns(LogRoom):
 
     def test_the_room_is_NOT_the_result_or_protocol_surface(self):
         """The whole reason this delivery exists rather than a subdirectory of
-        something that already had a mount."""
-        self.assertEqual(attempt_logs.LOG_TARGET, "/run/baton/logs")
+        something that already had a mount.
+
+        W202663 (owner 2026-09-21T05:54:40Z) MOVED the target: the legacy
+        `/run/baton/logs` is a disposable decoy now, covered in the composed
+        restrictions, so old-byte nested writers cannot reach the
+        authoritative room. The two spellings must never collapse back into
+        one -- a decoy AT the room is no decoy."""
+        self.assertEqual(attempt_logs.LOG_TARGET, "/run/baton/attempt-logs")
+        self.assertEqual(attempt_logs.LEGACY_LOG_TARGET, "/run/baton/logs")
+        self.assertNotEqual(attempt_logs.LOG_TARGET,
+                            attempt_logs.LEGACY_LOG_TARGET)
         from baton_v12.worker_manager import exchange
 
         self.assertNotIn(attempt_logs.LOG_TARGET,
                          (exchange.COMMAND_TARGET, exchange.EVENT_TARGET))
         self.assertFalse(attempt_logs.LOG_TARGET.startswith("/output"))
+        # AND THE DECOY IS COMPOSED, at the legacy spelling, as a tmpfs the
+        # container can write and nobody reads back.
+        from baton_v12.worker_manager import oci
+
+        self.assertIn(
+            ("--tmpfs", f"{attempt_logs.LEGACY_LOG_TARGET}"
+                        f":rw,noexec,nosuid,nodev,size=16m"),
+            oci.RESTRICTIONS)
 
     def test_a_delivery_is_frozen_and_names_only_the_streams_it_has(self):
         delivery = self.made()

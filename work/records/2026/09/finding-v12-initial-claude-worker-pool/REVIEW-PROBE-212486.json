@@ -1,0 +1,8 @@
+{
+  "probe_root": "/tmp/w202663-review212486-5z2_irj0",
+  "refusal": "this deployment cannot be prepared: an Authority holds ONE canonical target and this fresh deployment's Jobs declare 2 different bases (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, cccccccccccccccccccccccccccccccccccccccc); the first publication compares a worker's declared base against that one value, so a deployment that cannot express its own bases is refused here rather than at the first proposal",
+  "clone_calls": [],
+  "destination_exists": false,
+  "elapsed_seconds": 0.00024350197054445744,
+  "scope": "real prepare_repositories; intercepted runner; no Git/model/engine or instance access"
+}

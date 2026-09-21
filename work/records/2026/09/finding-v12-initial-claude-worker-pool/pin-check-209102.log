@@ -1,0 +1,8 @@
+REFUSED: configured pin 17 does not equal the Authority's generation 24; recompose and re-apply the pool -- do not start the stack against this deployment
+{
+ "authority_generation": 24,
+ "authority_uuid": "91b5031d02e344da98eaf0f77ec10d30",
+ "configured_pin": 17,
+ "equal": false,
+ "instance": "/home/sl/baton-v12/instance-2026-09-19T04-02-31Z"
+}

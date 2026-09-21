@@ -1,0 +1,40 @@
+{
+  "attempt": "attempt-073615c05e15a7f921884d256c7a77eec0673860c3b428e4840593a54d2b728d",
+  "claim": 226576,
+  "instance": "/home/sl/baton-v12/instance-2026-09-21T01-28-41Z",
+  "job": "w202663-first-development-job-2",
+  "owner_decision_points": {
+    "fresh_job": "the reviewed --job flow can compose job-3 exactly as job-2 (same frozen task/image/base) -- but the PID-exhaustion hazard recurs unless mitigated; candidate mitigations are a task-instruction line (no background suite runs), an image PID-1 reaper (init), or a raised pids limit -- each is a reviewable change needing your selection",
+    "salvage": "the two files are durable in the retained line at the accepted base; they are unreviewed by the pool (no frozen checkpoint/verdict); any human inspection or extraction is your own act on your repository",
+    "this_attempt": "implementation exceptional with allocation RESERVED and cleanup unrun; disposition of this attempt (recovery vs preserve-as-evidence) is yours; nothing was retried or cleaned here"
+  },
+  "schema": "baton.w202663.live-job2-outcome/1",
+  "timeline_utc": {
+    "provider_streams_finished": "~04:18, duration_ms 1155616 (~19.3 min), well inside the 3600 s bound",
+    "runtime_running": "03:59:29Z, container 246549c5..., bytes growing 333K -> 755K -> 980K -> 1.35M",
+    "submitted": "03:58:36.911Z (owner)",
+    "terminal": "exchange faulted, fault_code 'agent'; implementation exceptional; review blocked; allocation still reserved; cleanup not run",
+    "verification_captures_declared_failed": "~04:14 (mtimes; .carried statuses all 'failed')"
+  },
+  "what": "the first REAL Claude producer episode: executed ~19 minutes, completed the bounded task in its candidate line, then the work operation FAULTED at the adapter's authoritative verification capture; observed read-only, nothing retried",
+  "what_the_agent_PRODUCED (retained in the line checkout)": {
+    "agent_summary_highlights": [
+      "add-worker verb validating exactly what bootstrap validates (image digest vs manifest, participant/principal, profile shape), rewriting deployment.json, printing the predicted pool generation; prepares/submits/touches nothing",
+      "35 new tests built on test_bootstrap.ValidFixture; frozen verification ran 160 tests OK in its own earlier run",
+      "two out-of-scope findings reported for the owner: an admitted worker is configured but not ROUTED (needs add_route_handler for its new participant), and packaging/stack.spec does not name tools.pool among hidden imports"
+    ],
+    "changed_paths": [
+      "v12/python/tools/pool.py (26987 bytes, NEW)",
+      "v12/python/tests/tools/test_pool.py (30448 bytes, NEW)"
+    ],
+    "head": "446fa8f7... (exactly the accepted base)",
+    "line": ".baton-review-lines/line-22330448.../checkout",
+    "only_allowed_paths_touched": true,
+    "uncommitted": "untracked working-tree files; the fault hit before the adapter froze a proposal (result workspace empty, no commit, no candidate record)"
+  },
+  "why_it_faulted": {
+    "mechanism": "the adapter runs the frozen verification itself as the candidate's authoritative gate; its stream captures declared FAILED ('an earlier capture of this stream declared failed and those bytes were never restored ... what is in the file is not whole') -- incomplete durable evidence faults the work operation (fault_code 'agent')",
+    "root_cause_per_the_agent_itself": "the agent ran a background FULL-SUITE test run and killed it; PID 1 in the container does not reap, so ~498 zombies remained in the 512-cap PID cgroup; subsequent forks failed (BlockingIOError), which broke the authoritative verification/capture -- the agent's own summary reports re-runs at 152 pass / 8 error, all fork-related, and test_pool itself 35/35",
+    "spend": "ONE real producer episode consumed (~19 min provider turn); no reviewer episode ran; no verdict exists"
+  }
+}

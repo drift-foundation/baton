@@ -317,6 +317,48 @@ obligation born from a message are seen exactly when that cursor has
 passed them, while a poke and a due trial have no cursor and read
 unseen until they resolve.
 
+### Incidents: inspect, recover, dismiss
+
+`incidents` lists open managed-turn incidents, including the affected
+participant, Work and assignment episode, failure detail, and `action_owner`:
+
+    $BW --config ~/your-home/baton.json --participant team.member incidents
+    $BW --config ~/your-home/baton.json --participant team.member incidents include-dismissed=true
+
+Read the incident before acting. If it names a Work, inspect its current
+`detail` and the participant's runtime history; the incident describes the
+failure when it happened, not necessarily the current claim:
+
+    $BW --config ~/your-home/baton.json --participant team.member detail work=W42
+    $BW --config ~/your-home/baton.json --participant team.member runtime-history participant=team.worker
+
+Resolve the reported cause first, such as exhausted provider quota or a
+runner failure. A failed turn can leave its Work claimed even though the
+agent is no longer executing it. Before recovering that claim, account for
+any still-running execution and external effects. An authorized recovery
+participant uses the CURRENT claimant and `episode_seq` from `detail`:
+
+    $BW --config ~/your-home/baton.json --participant team.operator release work=W42 expect=team.worker episode=123 reason="Failed turn ended; cause resolved and execution accounted for; release for redelivery"
+
+The claimant/episode comparison protects a newer assignment from a stale
+recovery command. Release and runner recovery are separate operations; verify
+subsequent pickup through `detail`/`runtime` rather than assuming a release
+started execution. A quota reset or runner restart alone does not release a
+claim.
+
+Only the incident's exact `action_owner` may dismiss it. For example, if
+`action_owner` is `team.operator` and the console shows `I61`, use the integer
+`61` as the CLI operand:
+
+    $BW --config ~/your-home/baton.json --participant team.operator dismiss incident=61 note="Cause resolved; stranded claim recovered and subsequent handoff verified"
+
+Use a note describing what actually happened. Dismissal closes the incident
+and retains its journal/history; it does NOT release a claim, restart a runner,
+reroute or close Work. Verify it disappears from the open list; use
+`include-dismissed=true` to see the retained dismissal. An incident that did
+not strand a claim needs no claim release. Do not dismiss as a substitute for
+resolving or explicitly accounting for the reported problem.
+
 ### Agent runtime state
 
 Phase says which scheduler state a Work is in and Handler says who

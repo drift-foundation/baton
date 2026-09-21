@@ -1,0 +1,31 @@
+{
+  "candidate": {
+    "base": "4a424f0c692848d8158d314615406995726e19c8",
+    "changed_paths": [
+      "w197661-fixture-verification-2.txt"
+    ],
+    "commit": "4863888aea2c62687f75aa16226efb51376b63e4",
+    "line_checkout": "/home/sl/baton-v12/instance-2026-09-20T10-23-11Z/workers/implementation/storage/.baton-review-lines/line-07056c68f3217d79720a14d6672a33b2c7b61ffbbd2b53faec01841f055eb9cb/checkout",
+    "proposal_tree": "/home/sl/baton-v12/instance-2026-09-20T10-23-11Z/workers/implementation/storage/.baton-review-lines/line-07056c68f3217d79720a14d6672a33b2c7b61ffbbd2b53faec01841f055eb9cb/checkout/proposal",
+    "transport": "objects.bundle beside patch.diff, result.json, verification.txt"
+  },
+  "claim": 220329,
+  "independent_review": {
+    "checkpoint_digest": "sha256:d59b63a38411085f25d05a09aa3be33963bbf8b3709c689e37b37d5d7dc876ac",
+    "checkpoint_id": "checkpoint-b71ea3c7b018708c3e532295f7af49f6a7712caa1ecf01d41a1f58b3a8dd07f7",
+    "disposition": "accepted",
+    "reviewer": "baton.fixture-reviewer-2",
+    "verdict_id": "verdict-23cac7cc4c6fec82f58023165216432b19db1d682d45f0a408ee4713459073ea"
+  },
+  "instance": "/home/sl/baton-v12/instance-2026-09-20T10-23-11Z",
+  "job": "verification-2",
+  "not_claimed": "no integration, no mainline merge, no acceptance; the integration stage of this Job remains reserved under D10 and is NOT represented as complete; acceptance is the owner's, recorded separately when taken",
+  "schema": "baton.w202663.pr-candidate/1",
+  "test_evidence": {
+    "command": "python3 -c \"import pathlib,sys;sys.exit(0 if pathlib.Path('w197661-fixture-verification-2.txt').read_text() == 'w197661 deterministic fixture candidate for verification-2\\\\n' else 1)\"",
+    "recorded_at": "/home/sl/baton-v12/instance-2026-09-20T10-23-11Z/workers/implementation/storage/.baton-review-lines/line-07056c68f3217d79720a14d6672a33b2c7b61ffbbd2b53faec01841f055eb9cb/checkout/proposal/verification.txt",
+    "status": 0
+  },
+  "what": "the first durable reviewed proposal in the owner-selected PR model, read from the stopped instance's durable stores -- produced by claim220080's run, REINTERPRETED (not re-run) under OWNER-HANDOFF-PR-JOBS: producer success is the reviewed candidate durably available, and this one is",
+  "work": "e89219fb-W2"
+}

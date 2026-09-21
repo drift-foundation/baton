@@ -205,6 +205,71 @@ class Core:
             return fallback
         return json.loads(row["value"])
 
+    def accept_base(self, acceptance, *, operation_id):
+        """Advance the canonical target to a HUMAN-accepted commit, once.
+
+        W202663 OWNER-HANDOFF-PR-JOBS, review220421: in the owner-selected
+        PR model the owner merges candidates and the accepted commit becomes
+        the next base -- but `set_policy` updates unconditionally, so a
+        tools-level precheck could be overwritten between its read and the
+        write. This is `integrate`'s stale-target door for the HUMAN
+        transition, expressed the same way: ONE operation identity, the
+        signature bound to the FULL immutable acceptance document, the
+        expected-old check INSIDE the committed body, and replay answering
+        the committed result without a second policy bump. A target already
+        AT the accepted commit under a DIFFERENT operation refuses -- a
+        coincidentally agreeing value is not this acceptance, and nothing
+        here synthesizes a receipt from it.
+        """
+        document = own(acceptance, what="an acceptance document")
+        if any(member not in document for member in (
+                "schema", "repository", "accepted_commit", "expected_old",
+                "included_candidates", "acceptance_evidence", "accepted_by",
+                "recorded_at")):
+            raise Refusal("an acceptance document carries schema, "
+                          "repository, accepted_commit, expected_old, "
+                          "included_candidates, acceptance_evidence, "
+                          "accepted_by and recorded_at")
+        if document["schema"] != "baton.w202663.accepted-base/1":
+            raise Refusal("an acceptance document's schema is "
+                          "baton.w202663.accepted-base/1")
+        if any(type(document[member]) is not str
+               or len(document[member]) != 40
+               or any(one not in "0123456789abcdef"
+                      for one in document[member])
+               for member in ("accepted_commit", "expected_old")):
+            raise Refusal("accepted_commit and expected_old are "
+                          "40-lowercase-hex commits")
+        if document["accepted_commit"] == document["expected_old"]:
+            raise Refusal("an acceptance moves the canonical target; "
+                          "accepted_commit equal to expected_old moves "
+                          "nothing")
+
+        def body():
+            target = self.canonical_target()
+            if target == document["accepted_commit"]:
+                # NOT this operation's own replay -- `_replay` answers that
+                # before the body runs. A different actor moved the target
+                # to the same value; adopting it would synthesize an
+                # acceptance nobody performed.
+                raise Refusal("the canonical target already names the "
+                              "accepted commit under another operation; "
+                              "this acceptance recorded nothing")
+            if target != document["expected_old"]:
+                raise Refusal("the canonical target is not the acceptance's "
+                              "expected_old; the acceptance was taken "
+                              "against a target that has moved")
+            self.set_policy("canonical_target", document["accepted_commit"])
+            return {"kind": "accepted-base",
+                    "accepted_commit": document["accepted_commit"],
+                    "expected_old": document["expected_old"],
+                    "accepted_by": document["accepted_by"],
+                    "policy_generation": self.policy_generation()}
+
+        return self._replay(
+            operation_id,
+            signature_of("accept-base", {"acceptance": document}), body)
+
     def canonical_target(self):
         """The one policy value this authority reads SEMANTICALLY.
 

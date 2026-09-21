@@ -1592,7 +1592,41 @@ class _SingleWorker:
                     "document", category="refused", code="precondition")
         return place
 
-    def _adapter(self, roots, delivery, orphan, launched, boundary=None):
+    def _attempt_scratch(self, attempt_id):
+        """The attempt's own disk-backed scratch directory, allocated here.
+
+        W202663, owner 2026-09-21T05:53:07Z ("I approve spare mount"). One
+        directory per attempt in the assignment's own home on the workspace
+        storage disk -- real storage, outside every checkout, seen by exactly
+        this attempt at `oci.SCRATCH_TARGET`. The deployment-setup tests a
+        verifier runs refuse a fixture root that is inside the checkout or on
+        a memory filesystem, and Job2 measured that without this delivery the
+        container holds no compliant place at all.
+
+        ADOPTED, NEVER CREATED HERE. `workspaces.HOME_ENTRIES` provisions the
+        entry with the home, because `compose_input_root` closes the home the
+        moment composition ends and nothing can be created in it afterwards
+        -- exactly the measured refusal a post-hoc mkdir met. A link or a
+        non-directory standing at the name refuses. Nothing here deletes:
+        retention follows the assignment home's own disposition.
+        """
+        place = os.path.join(self.given["workspace_storage"], attempt_id,
+                             "scratch")
+        try:
+            held = os.lstat(place)
+        except OSError as failure:
+            _refuse(f"the attempt scratch at {place} cannot be adopted "
+                    f"({type(failure).__name__}); the home provisions it and "
+                    f"a home without it is not this manager's",
+                    code="path")
+        if stat.S_ISLNK(held.st_mode) or not stat.S_ISDIR(held.st_mode):
+            _refuse(f"the attempt scratch at {place} is not an ordinary "
+                    f"directory; links and special files are refused",
+                    code="path")
+        return place
+
+    def _adapter(self, roots, delivery, orphan, launched, boundary=None,
+                 scratch=None):
         given = self.given
         manifest = given["input_manifest"]
         return OciAdapter(
@@ -1625,6 +1659,7 @@ class _SingleWorker:
             credential_orphan=orphan,
             launch_delivery=launched, workspace_group=self.group,
             context_delivery=_context_mount(self.control, self.given, launched.attempt_id) if launched is not None else None,
+            scratch_delivery=scratch,
             network=given["network"], interactive=True)
 
     def _credential(self, attempt_id, state, roots, launched=None):
@@ -1944,8 +1979,12 @@ class _SingleWorker:
                 # restart compares a fresh reading with another fresh reading.
                 pinned=boundary_identity_of(self.control, attempt_id))
             self.checkpoint("adopted-boundary")
+            # W202663: the per-attempt disk-backed scratch travels with the
+            # START path only -- identification and recovery adapters compose
+            # exactly what they composed before.
             adapter = self._adapter(roots, delivery, orphan, launched,
-                                    boundary)
+                                    boundary,
+                                    scratch=self._attempt_scratch(attempt_id))
             if fresh:
                 if given.get("provider_context") is not None:
                     self.stage.revalidate_context(self, stage)

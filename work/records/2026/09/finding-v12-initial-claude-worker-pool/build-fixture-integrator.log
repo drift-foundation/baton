@@ -1,0 +1,41 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  719.4kB
+Step 1/14 : FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+ ---> 0697b6595aff
+Step 2/14 : COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+ ---> 583791899a15
+Step 3/14 : COPY worker/baton_worker.py /opt/baton/baton_worker.py
+ ---> 7460dffb5ee2
+Step 4/14 : COPY worker/claude_agent.py /opt/baton/claude_agent.py
+ ---> 3a2a7384f473
+Step 5/14 : COPY worker/integration_contract.py /opt/baton/integration_contract.py
+ ---> 1c757b3b6594
+Step 6/14 : COPY worker/integration_workload.py /opt/baton/integration_workload.py
+ ---> 63245a9a15bd
+Step 7/14 : COPY worker/integration_entry.py /opt/baton/integration_entry.py
+ ---> ae41f25598ce
+Step 8/14 : COPY worker/importing_agent.py /opt/baton/importing_agent.py
+ ---> 3208ff0855f9
+Step 9/14 : COPY worker/importing_entry.py /opt/baton/importing_entry.py
+ ---> edac1f9e3b46
+Step 10/14 : COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+ ---> 378275e9cc17
+Step 11/14 : COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+ ---> ae943246a2c1
+Step 12/14 : USER 65532:65532
+ ---> Running in 25cc87b3c996
+ ---> Removed intermediate container 25cc87b3c996
+ ---> 05a8ce317001
+Step 13/14 : ENTRYPOINT ["python3", "/opt/baton/importing_entry.py"]
+ ---> Running in 98685547d324
+ ---> Removed intermediate container 98685547d324
+ ---> ead41e60f5ca
+Step 14/14 : ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PYTHONPATH=/opt/baton     PYTHONHASHSEED=0
+ ---> Running in ac0c0d90a9b0
+ ---> Removed intermediate container ac0c0d90a9b0
+ ---> 9944eef7363e
+Successfully built 9944eef7363e
+Successfully tagged baton-v12-w202663-fixture-integrator:claim208217

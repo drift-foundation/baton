@@ -400,11 +400,18 @@ def _publish_binding(delivery, composed):
     look at, and silently adopting the new plan would erase the evidence of
     what the old container was actually given.
     """
-    runtime._publish_once(delivery.root, BINDING_DOCUMENT,
-                          runtime._payload(composed))
-    raw = runtime._read_bounded(delivery.root, BINDING_DOCUMENT,
-                                what="the integration mount binding",
-                                mode=runtime.ASSIGNMENT_FILE)
+    # THE DELIVERY ROOT IS HELD ACROSS PUBLISH AND READ-BACK, through
+    # `runtime`'s own proved walk (review217641 [R4]): a pathname reopened
+    # for each step is a pathname somebody may have re-pointed between them.
+    opened = runtime._opened_root(delivery)
+    try:
+        runtime._publish_once(opened, BINDING_DOCUMENT,
+                              runtime._payload(composed))
+        raw = runtime._read_bounded(opened, BINDING_DOCUMENT,
+                                    what="the integration mount binding",
+                                    mode=runtime.ASSIGNMENT_FILE)
+    finally:
+        os.close(opened)
     if raw is None:
         _refuse(f"attempt {name_value(delivery.attempt_id)}'s integration "
                 f"mount binding is absent immediately after publication; a "
@@ -427,9 +434,16 @@ def _adopted_binding(delivery):
     evidence that it had ever gone was destroyed by the act of looking. A
     recovery that can mint the thing it is recovering is not a recovery.
     """
-    raw = runtime._read_bounded(delivery.root, BINDING_DOCUMENT,
-                                what="the integration mount binding",
-                                mode=runtime.ASSIGNMENT_FILE)
+    opened = runtime._opened_root(delivery, absent_ok=True)
+    if opened is None:
+        raw = None
+    else:
+        try:
+            raw = runtime._read_bounded(opened, BINDING_DOCUMENT,
+                                        what="the integration mount binding",
+                                        mode=runtime.ASSIGNMENT_FILE)
+        finally:
+            os.close(opened)
     if raw is None:
         _refuse(f"attempt {name_value(delivery.attempt_id)} has no retained "
                 f"integration mount binding; a recovery adopts the plan this "
@@ -623,12 +637,26 @@ def compose_mount_boundary(store, manager, *, profile, delivery, assignment,
 def _delivery_root(delivery):
     """The root a delivery was constructed over.
 
-    `IntegrationDelivery` appends its own directory name to what it is given,
-    so re-adopting one means handing back the parent rather than the composed
-    root -- and deriving that with string surgery in a caller is how the two
-    ends stop agreeing.
+    `IntegrationDelivery` appends its own directory name AND the attempt id
+    to what it is given (W202663 D8: per-attempt namespaces), so re-adopting
+    one means handing back the grandparent rather than the composed root --
+    and deriving that with string surgery in a caller is how the two ends
+    stop agreeing. A LEGACY single-slot delivery's root has only the
+    directory name appended; it is recognized by its basename being the
+    constant rather than an attempt id.
     """
-    return os.path.dirname(delivery.root)
+    held = os.path.dirname(delivery.root)
+    # UNAMBIGUOUS BY CONSTRUCTION (review217558 [R3]): a legacy root's
+    # basename is the legacy constant; a per-attempt root's PARENT basename
+    # is the deliveries constant, and its own basename is a 64-hex digest
+    # that can never equal either constant.
+    if os.path.basename(delivery.root) == runtime.DELIVERY_DIRECTORY:
+        return held
+    if os.path.basename(held) != runtime.DELIVERIES_DIRECTORY:
+        _refuse(f"the delivery root {delivery.root!r} matches neither the "
+                f"legacy nor the per-attempt layout; its origin cannot be "
+                f"derived")
+    return os.path.dirname(held)
 
 
 def boundary_mounts(boundary):
@@ -723,9 +751,16 @@ def revalidate_boundary(boundary, *, participant=None, workspace_group=None):
                     f"{name_value(one['container_target'])} is no longer the "
                     f"one this mount plan proved; a replaced source is refused "
                     f"rather than re-resolved")
-    raw = runtime._read_bounded(boundary.delivery.root, BINDING_DOCUMENT,
-                                what="the integration mount binding",
-                                mode=runtime.ASSIGNMENT_FILE)
+    opened = runtime._opened_root(boundary.delivery, absent_ok=True)
+    if opened is None:
+        raw = None
+    else:
+        try:
+            raw = runtime._read_bounded(opened, BINDING_DOCUMENT,
+                                        what="the integration mount binding",
+                                        mode=runtime.ASSIGNMENT_FILE)
+        finally:
+            os.close(opened)
     if raw != runtime._payload(_binding({
             "attempt_id": boundary.attempt_id,
             "assignment_digest": boundary.assignment_digest,

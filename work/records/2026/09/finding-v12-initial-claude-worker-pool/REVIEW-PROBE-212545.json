@@ -1,0 +1,7 @@
+{
+  "base_exists_in_source_and_target": true,
+  "fetch_count": 1,
+  "refusal": "the declared base '506fbcb0b5afdb3bd9623b51871b0a525ee25527' is in neither the nominated source at '/tmp/tmp361eca7m/source' nor the supplement at '/tmp/tmp361eca7m/target'",
+  "cause": "fixture index.lock blocks checkout",
+  "scope": "existing temporary test-fixture repositories only"
+}

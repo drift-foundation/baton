@@ -1,0 +1,63 @@
+{
+ "schema": "baton.w202663.recovery-evidence/2",
+ "claim": 227424,
+ "owner_selections": {
+  "scratch_mount": "2026-09-21T05:53:07Z 'I approve spare mount'",
+  "disposable_nested_logs": "2026-09-21T05:54:40Z 'I agree with own/disposable logs'",
+  "command_package_round": "2026-09-21T05:56:02Z 'let's kick these back to Claude for another round'"
+ },
+ "product_changes": {
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "HOME_ENTRIES gains 'scratch': provisioned with the home because compose_input_root closes the home afterwards (measured: a post-hoc mkdir met 0o555)",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "SCRATCH_TARGET='/scratch'; _scratch_mount family; run_vector(scratch_delivered=); OciAdapter(scratch_delivery=), execution-only both ends; RESTRICTIONS gains the disposable legacy-log decoy tmpfs at attempt_logs.LEGACY_LOG_TARGET",
+  "v12/python/src/baton_v12/worker_manager/attempt_logs.py": "re-exports LEGACY_LOG_TARGET",
+  "v12/python/src/baton_v12/attempt_log_format.py": "TARGET moved /run/baton/logs -> /run/baton/attempt-logs; LEGACY_TARGET names the decoy spelling",
+  "v12/python/tools/single_worker.py": "_attempt_scratch adopts the provisioned home entry (never creates; link/non-directory refuses); START path passes it to the adapter; identify/recover adapters unchanged",
+  "v12/worker/dogfood_entry.py": "ROOM_TARGET follows the moved spelling",
+  "compose-pool-207219.py (dossier)": "verification argv selects /scratch (exported selection wins; host fallback realpath mkdtemp) and runs the FULL test_pool + test_bootstrap, superseding claim227097's exclusion remedy; PROVIDER_IMAGE moved to the round-2 build"
+ },
+ "image": {
+  "id": "sha256:d1e2869efbfccfa183a04c0ab38f12d1bf28d6c99cf7a65d94db392c22ab750b",
+  "tag": "w202663-recovery-r2",
+  "recipe": "v12/worker/Dockerfile.claude (unchanged)",
+  "supersedes": "sha256:b44f55220e9f... (its marker still named the legacy room spelling)",
+  "in_image_inputs_sha256": {
+   "dogfood_entry.py": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2",
+   "claude_agent.py": "2ac911aa55db5c2afeafb46b6023b9074e7b66186a472a643c5032f3a4bc9214",
+   "attempt_log_format.py": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+   "baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34"
+  },
+  "gate": "tests.manager.test_dogfood_image 16 OK (builds its own tag from the same recipe)"
+ },
+ "runtime_build": {
+  "records": ["PROSPECTIVE-INPUTS-227424.json (taken BEFORE the build; 110 inputs at commit 446fa8f7)", "build-runtime-227424.log", "RUNTIME-BUILD-227424.json", "BUNDLE-MANIFEST-227424.json"],
+  "executable_sha256": "sha256:c45ff6d92238418f8470aba6ffeb8f1b010a37ff77cfd08a65e551b3b5332076",
+  "bundle": "sha256:8616ab8589416b3230048328eb1b34c7f4da8b66d628ff46cd71ec8e7c95afe4 over 81 files",
+  "installer_before_gate": "install-next-instance.sh's exact verification block re-run against the new records: both digests answer equal (nothing installed)"
+ },
+ "demonstration_R3_nested_isolation": {
+  "how": "container from the round-2 image; REAL room bound at /run/baton/attempt-logs pre-seeded with verification.stdout.log ('AUTHORITATIVE-BYTES') and a finished sidecar; decoy tmpfs at /run/baton/logs; the ACCEPTED BASE's own attempt_log_format + claude_agent + baton_worker staged read-only and imported FIRST, as nested checkout tests import them",
+  "acts": "old _log_room()+_Captured wrote 'NESTED-CONTAMINATION' and declared failed on verification.stdout; old _WorkerCapture teed worker.stdout through its default room",
+  "measured": {
+   "decoy_holds": ["verification.stdout.log", "verification.stdout.status.json", "worker.stdout.log", "worker.stdout.status.json"],
+   "outer_room_holds": ["verification.stdout.log", "verification.stdout.status.json"],
+   "outer_bytes": "AUTHORITATIVE-BYTES (byte-identical; sha256 -c OK on both files after the run)",
+   "exit": 0
+  },
+  "covers": "candidate-source adapter path AND reference-worker path, per owner 05:54:40; no retained Job2 byte was touched anywhere this round"
+ },
+ "demonstration_R2_full_real_tests": {
+  "how": "container from the round-2 image mirroring the composed restrictions (read-only rootfs, network none, pids 512, tmpfs /tmp+/dev/shm+legacy-decoy, shared uid identity); candidate = git-archive of accepted base 446fa8f7 PLUS the ACTUAL RETAINED pool.py (sha256 84b4f156...) and test_pool.py (sha256 9ff529da..., AdmissionCase->ValidFixture) copied read-only from the preserved Job2 line and hash-verified against REVIEW-EVIDENCE-226905.json; /scratch bound to a disk-backed (ext4) host directory; BATON_V12_STACK_TEST_ROOT deliberately unset",
+  "command": "the EXACT corrected frozen argv read from compose-pool-207219.py's own task document",
+  "measured": "Ran 160 tests ... OK, exit 0 (full-run transcript retained at the demo root); the same full family measured 75 failures without a compliant root at claim227097",
+  "what_it_is_not": "a demonstration that the retained bytes VERIFY, not an acceptance: no checkpoint, no verdict, no salvage into any input; the retained line is untouched"
+ },
+ "focused_suites": {
+  "tests.manager.test_oci + test_oci_engine": "152 OK (golden vector updated for the decoy tmpfs; 5 NEW scratch-family cases)",
+  "tests.manager.test_oci_integration + test_workspaces": "with test_oci: 357 OK",
+  "tests.manager.test_attempt_logs": "213 OK (room test asserts the move, the decoy and the never-collapse rule)",
+  "tests.manager.test_dogfood_entry + test_claude_agent": "212 OK",
+  "tests.tools.test_single_worker": "158 OK",
+  "tests.manager.test_input_delivery.TheHomeLayoutIsDeclaredWhereItIsFrozen": "OK (scratch is a declared home entry)",
+  "pre_existing_environment_failures": "15 tests in tests.manager.test_input_delivery's real-Docker classes fail IDENTICALLY against the PRISTINE accepted-base sources on this host (reproduced with PYTHONPATH pointing at a clean base extraction) -- environment-dependent, not introduced or fixed by this claim"
+ }
+}

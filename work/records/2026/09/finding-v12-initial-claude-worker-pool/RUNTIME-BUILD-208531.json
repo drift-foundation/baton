@@ -1,0 +1,37 @@
+{
+  "built": {
+    "build_stamp": {
+      "changed_entries": 38,
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "detail": null,
+      "dirty": true,
+      "excused_build_output": 0,
+      "schema": "baton.v12.build-stamp/1",
+      "source": "/home/sl/src/baton"
+    },
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:7040dd00a987f9ac19b2d9b328fcbc157cc2b53cd486100b60476764815238f5"
+  },
+  "claim": 208531,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-208531.json",
+    "input_count": 106,
+    "inputs_digest": "sha256:e37c5e5b2fac936a8672812e85be3f0140af40ae32ce75b40b8e32243cd4121f",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime carrying the reviewed D4 correction, for owner ruling 208460's fresh installation",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "sha256:48b12f1559bdf08257c7d677df799171b0b43f6ecd6c4005ca93b52e953f5232": "the runtime installed at instance-2026-09-19T02-05-20Z, built in claim207307 BEFORE the D4 correction existed. It is not replaced in place -- owner 208460 installs a fresh instance instead."
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "a digest establishes identity. That this runtime behaves as the correction intends is established by the installed verification, which has not run.",
+    "not_installed": "this artefact is built and is installed nowhere. Only the owner installs it.",
+    "not_reproducible_across_days": "the same W55361 caveat the images carry applies to any build whose inputs are not pinned end to end."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "recipe_file_entries_checked": 25,
+  "input_drift": [],
+  "emitting_pin_matches": true,
+  "silent_pin_matches": true,
+  "independent_docker_inspect": "both recorded images present",
+  "composer_isolation_checks": 19,
+  "image_behavior_proofs": "author retained results and proof source reviewed; not rerun by reviewer"
+}

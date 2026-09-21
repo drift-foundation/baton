@@ -1,0 +1,29 @@
+{
+ "schema": "baton.w202663.recovery-image/1",
+ "claim": 227097,
+ "image_id": "sha256:b44f55220e9f04ccde2485871aeb40f715db695b88567ead5fb63831374a2e3b",
+ "tag": "w202663-recovery-227097",
+ "recipe": "v12/worker/Dockerfile.claude (unchanged this claim)",
+ "supersedes_candidate": "sha256:448c98c937849e5c6dcdd03cc33936084f698d0175520b2a5cbe9a9af92e8559",
+ "corrected_inputs_sha256": {
+  "v12/worker/dogfood_entry.py": "e897cc6485ce7a5c16518cd286a05dfd5d6e76bc3d8604c73109e6e5ce2eaba5",
+  "v12/worker/claude_agent.py": "2ac911aa55db5c2afeafb46b6023b9074e7b66186a472a643c5032f3a4bc9214",
+  "v12/worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+  "v12/python/src/baton_v12/attempt_log_format.py": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b"
+ },
+ "unchanged_inputs": "baton_worker.py and attempt_log_format.py carry no edit this claim; their hashes are recorded so the byte-identity claim below is checkable per file",
+ "in_image_byte_identity": "sha256sum of all four files INSIDE the image equals the tree's, measured in a --network none --read-only throwaway container",
+ "in_image_demonstrations": {
+  "pid1_reaping": "as PID 1 under --pids-limit 512 --read-only --network none --user 65532:65532: a child orphans a grandchild onto PID 1 while the worker still runs; after supervised() returns, waitpid(-1, WNOHANG) raises ChildProcessError (no child left) and the worker's status 7 is carried -- printed 'PID1-REAPED status 7', exit 0",
+  "room_gating": "with a REAL room mounted at /run/baton/logs: _log_room() answers (None, None) with no marker, and opens exactly that room once BATON_ATTEMPT_LOG_ROOM names it -- printed 'no-marker -> (None, None)' / 'marker -> OPEN', exit 0"
+ },
+ "gates": {
+  "tests.manager.test_dogfood_image": "16 tests OK (builds its own tag from the same recipe and probes the artefact)",
+  "tests.manager.test_dogfood_entry": "6 tests OK (NEW: supervisor reap/status/signal in subreaper helpers; room gating; composed child environments carry no marker)",
+  "tests.manager.test_claude_agent": "206 tests OK",
+  "tests.manager.test_attempt_logs": "213 tests OK",
+  "tests.manager.test_claude_context + test_fixture_dispatch": "49 tests OK",
+  "tests.job_manager.test_scheduling": "69 tests OK (4 NEW: fresh Job beside a RESERVED allocation)"
+ },
+ "doctrine": "a build is a CANDIDATE until the owner's launch authorization selects it (recipe's own selection doctrine); nothing installed, applied or started this claim"
+}

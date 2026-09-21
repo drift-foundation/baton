@@ -1,0 +1,13 @@
+{"instance": "/home/sl/baton-v12/instance-2026-09-19T12-39-13Z", "authority_uuid": "117afd1c06c44bd0bde2482aeda0f433", "work": "117afd1c-W1"}
+{"job": "w202663-deterministic-verification-3", "actors": {"implementation": "baton.fixture-coder-3", "review": "baton.fixture-reviewer-3", "integration": "baton.fixture-integrator-3"}, "work": "117afd1c-W3"}
+{"implementation_image": "sha256:e48e72dfaaed321a34f1bfdd8ceca260c63d852c3fdc625da1458b02eaf7e9e8", "implementation_recipe": "fixture-context/Dockerfile.emitting"}
+{
+ "complete": true,
+ "refused": [],
+ "job_input_identity": "sha256:c47ee0e160eeac178e7e4930c21955529ebb3ec31f711cf3e21dd725d127db06",
+ "runtime_manifest_digests": {
+  "implementation": "sha256:59da22c0edbe33e6fcd2da0675bbfb335b1088a77546b2b5f304d0e02cbe75b8",
+  "review": "sha256:3cf8b5e55d281e2153502fcb3c2e67d8da91dbe85d6bec448d9d20484837ccd0",
+  "integration": "sha256:28d3f74aa2d8aa33f559d21b009b26c966e77bcf30b041135eaa79776681a30f"
+ }
+}

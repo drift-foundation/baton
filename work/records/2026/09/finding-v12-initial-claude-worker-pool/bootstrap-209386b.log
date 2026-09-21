@@ -1,0 +1,3 @@
+export BATON_V12_CONTROL_STORE="/home/sl/baton-v12/instance-2026-09-19T05-02-46Z/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="9db3a29da14d40aab35e057abcdf9c44"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/baton-v12/instance-2026-09-19T05-02-46Z/deployment.json"

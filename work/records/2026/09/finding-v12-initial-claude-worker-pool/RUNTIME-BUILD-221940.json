@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:76528d51fd77d0ec761b9158566771cda4dd4f11e4e2500f8072316cc1c28080"
+  },
+  "claim": 221940,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-221940.json",
+    "input_count": 110,
+    "inputs_digest": "sha256:e83d657c6fbc22ae65f27a0a0eafda6362b70c45b457838ffb51a3017504efb5",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime whose proposal publication records the proposal's OWN declared base as its target with no offer-time canonical-target comparison (the last global Git-base enforcement on the PR path, measured blocking the successor's conclude), atop the generic-reference admission and optional-integrator corrections; integrate's stale-target door unchanged",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "bundle-sha256:244400e8d6b50d5732b867dfc72f48187124bd2f71c96e1e0086ebb4f70c283b": "candidate221832, never installed; superseded by the publication-gate correction; records remain as history"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

@@ -1,0 +1,37 @@
+{
+ "schema": "baton.w202663.live-job3-outcome/1",
+ "claim": 227653,
+ "instance": "/home/sl/baton-v12/instance-2026-09-21T06-27-56Z",
+ "job": "w202663-first-development-job-3",
+ "attempt": "attempt-5fdd1aee2917bd03c53306f2212f76de32ecc51d90f8166a6f05f939166af4a4",
+ "what": "the owner-executed reviewed package installed, composed, applied, gated, started and submitted CLEANLY; the runtime launched with every round-2 correction live; the provider then failed AUTHENTICATION in 39 ms and the work operation faulted -- a credential failure outside the coordinator, with zero provider spend and zero contamination",
+ "timeline_utc": {
+  "submitted": "06:30:08.048Z (offer opened; incarnation w202663-claude-job3-submit)",
+  "reserved": "06:30:12.744Z on w202663-first-development-job-3-implementation (baton.claude-coder-3, generation 1)",
+  "claimed": "06:30:17.762Z",
+  "runtime": "container db0107ac... started 06:30:20.600Z, exited 1 at 06:30:25.095Z (~4.5 s)",
+  "terminal": "exchange describe answered, work FAULTED fault_code 'agent'; implementation exceptional; review blocked; allocation reserved; episode unended"
+ },
+ "root_cause": {
+  "provider_result": "\"Failed to authenticate: OAuth session expired and could not be refreshed\" -- terminal_reason api_error, is_error true, duration_api_ms 0, total_cost_usd 0, num_turns 1",
+  "where": "the Claude CLI against the mounted operator-file credential (slot claude -> registry reference w202663-development -> the w64268-run1 file); the coordinator neither reads nor refreshes that bearer by design",
+  "not_the_coordinator": "checkout materialized (line-46ae78c3... at /output), inputs staged, credential slot mounted read-only, launch document delivered; every gate the package added had already passed",
+  "spend": "zero provider tokens (cost 0); the whole episode cost ~5 s of container time"
+ },
+ "round2_corrections_observed_LIVE_in_the_failed_runtime": {
+  "scratch_delivery": "/home/sl/baton-v12/instance-2026-09-21T06-27-56Z/workers/implementation/storage/<attempt>/scratch -> /scratch rw (per-attempt, disk-backed, in the assignment home) -- composed by the new runtime exactly as reviewed",
+  "moved_room": "<launch>/logs/<attempt> -> /run/baton/attempt-logs rw; provider.stdout/stderr captured there with sidecars declaring finished ('the writer saw this stream to its end') -- the capture layer worked cleanly on a live failure",
+  "decoy": "tmpfs /run/baton/logs:rw,noexec,nosuid,nodev,size=16m present in HostConfig.Tmpfs beside /tmp and /dev/shm",
+  "verification_streams": "absent, honestly -- the provider failed before any verification ran"
+ },
+ "stream_locators_sha256": {
+  "provider.stdout.log": "23cd53e49d652e6e1eb09d36a7aa67fc27e9b63e4d1d334e655dfb76486f08c1 (1194 bytes)",
+  "provider.stderr.log": "e705bbf8982385da2b1a03725921d0a6c6730bbaadd22c8f9168522573d067e0 (157 bytes, the CLI's no-stdin warning)"
+ },
+ "owner_decision_points": {
+  "credential": "refresh the Claude account authentication behind the w64268-run1 operator file (re-login / re-export as you provisioned it originally; the expired OAuth session cannot be refreshed non-interactively and the coordinator never touches it) -- the same file serves both registry references, so one refresh covers everything",
+  "fresh_job4": "after the refresh, the SAME reviewed composer cadence on the SAME instance: compose --instance <dest> --pr --base 446fa8f7... --job w202663-first-development-job-4 --work 2, the supported apply, check-policy-pin.sh <dest> pool, stop+start (activation mints generation 2), submit job-4 only -- the round-1 scheduler proofs cover composing and reserving beside job-3's reserved allocation exactly as they covered Job2's",
+  "this_attempt": "preserve as evidence (recommended, zero-cost); its exchange is terminal and ordinary ticks will not retry it"
+ },
+ "preserved": "Job1 and Job2 on the old instance, job-3's failed attempt here, all rooms/sidecars/lines as found; nothing retried, cleaned, restarted or resubmitted this claim"
+}

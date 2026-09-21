@@ -1,0 +1,8 @@
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/baton-v12/instance-2026-09-19T04-02-31Z/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/baton-v12/instance-2026-09-19T04-02-31Z/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="91b5031d02e344da98eaf0f77ec10d30"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/baton-v12/instance-2026-09-19T04-02-31Z/deployment.json"

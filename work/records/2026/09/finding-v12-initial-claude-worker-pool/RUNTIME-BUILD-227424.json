@@ -1,0 +1,20 @@
+{
+ "built": {
+  "command": "just build",
+  "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+  "sha256": "sha256:c45ff6d92238418f8470aba6ffeb8f1b010a37ff77cfd08a65e551b3b5332076"
+ },
+ "claim": 227424,
+ "prospective_inputs": {
+  "artefact": "PROSPECTIVE-INPUTS-227424.json",
+  "input_count": 110,
+  "inputs_digest": "sha256:1040e14cd97dcca33a5df8654f8a3d74427898c0a9c9847ae8bb0b0060e1c517",
+  "revision": {
+   "commit": "446fa8f79d9569799a77e888e8236070e1dc78f7",
+   "read": true
+  },
+  "schema": "baton.w202663.prospective-build-inputs/2",
+  "taken": "BEFORE this build"
+ },
+ "purpose": "the recovery runtime carrying owner 2026-09-21T05:53:07Z's per-attempt disk-backed scratch delivery (workspaces HOME_ENTRIES 'scratch', single_worker._attempt_scratch, oci._scratch_mount at the constant /scratch) and owner 2026-09-21T05:54:40Z's moved attempt-log room (attempt_log_format.TARGET=/run/baton/attempt-logs) with the disposable legacy-path decoy tmpfs in the composed restrictions, atop the accepted 225452 runtime"
+}

@@ -1,0 +1,41 @@
+{
+  "two_integrators": "this deployment names 2 integration workers; one deployment names one integrator",
+  "released_absent_worker": "stage 'A/integration' is allocated to worker 'A-integration', which this deployment does not configure",
+  "snapshots": [
+    {
+      "job": "verification-1",
+      "allocations": [
+        [
+          "implementation",
+          "released"
+        ],
+        [
+          "review",
+          "released"
+        ],
+        [
+          "integration",
+          "released"
+        ]
+      ]
+    },
+    {
+      "job": "verification-2",
+      "allocations": [
+        [
+          "implementation",
+          "released"
+        ],
+        [
+          "review",
+          "released"
+        ],
+        [
+          "integration",
+          "reserved"
+        ]
+      ]
+    }
+  ],
+  "A_document_equal": true
+}

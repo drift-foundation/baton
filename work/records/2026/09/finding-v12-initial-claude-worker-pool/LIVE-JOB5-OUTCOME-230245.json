@@ -1,0 +1,38 @@
+{
+ "schema": "baton.w202663.live-job5-outcome/1",
+ "claim": 230245,
+ "instance": "/home/sl/baton-v12/instance-2026-09-21T06-27-56Z",
+ "job": "w202663-first-development-job-5",
+ "work": "baf2e7fe-W3",
+ "what": "THE FIRST COMPLETE REAL CLAUDE JOB ON THIS WORK: a real producer episode wrote the bounded task's candidate, the FULL frozen verification passed IN-CONTAINER for the first time, the narrowed collection published it cleanly, a REAL independent Claude reviewer episode ran and ACCEPTED it, the checkpoint froze, and both stages completed under report-and-hold with every allocation released -- held for the owner's explicit human integration",
+ "timeline_utc": {
+  "submitted": "~13:29 (owner-executed JOB5-PACKAGE-230107.md; pool activated on restart)",
+  "producer": "attempt-cc65c5de..., container ran ~13:30->13:42; provider COMPLETED: is_error false, 61 turns, 690024 ms (~11.5 min), total_cost_usd 5.787505",
+  "adapter_verification": "the EXACT corrected frozen argv (full tests.tools.test_pool + tests.tools.test_bootstrap, fixture root at the delivered /scratch) exited 0 inside the container -- the gate that had never passed in-container before",
+  "publication": "disposition 'candidate'; head a12759d2df0f483da075d842ef1aebad02c1e1f9 over the accepted base 446fa8f7...; changed_paths exactly [v12/python/tools/pool.py, v12/python/tests/tools/test_pool.py]; collection disclosure null (nothing excluded); change.patch + objects.bundle + verification.txt + result.json published",
+  "reviewer": "attempt-64e11719..., the FIRST real Claude reviewer episode: attached 13:41:55.602Z, ended 13:45:38.898Z; provider COMPLETED: is_error false, 27 turns, 218985 ms (~3.6 min), total_cost_usd 1.822204",
+  "terminal": "implementation completed + review completed by 13:46; both allocations released cleanup-retained; canonical: true"
+ },
+ "independent_acceptance": {
+  "verdict_text": "the reviewer's report.json opens: 'VERDICT: accepted. Every stated requirement is satisfied, and I verified each one against the tree rather than against the change's own description.' -- with numstat/ls-tree/diff checks recorded (405-line pool.py + 543-line test_pool.py, both genuinely new, bootstrap.py untouched, worktree clean)",
+  "durable_state_via_public_readers": "review attachment review-63909c28... state ENDED by baton.claude-reviewer-5 (principal:baton.claude-reviewer-5, generation 2); checkpoint-dfabedb1... state FROZEN revision 1; LINE line-a5e285bf... state ACCEPTED with that checkpoint current and declared_base 446fa8f7...",
+  "reviewer_findings": "one NON-BLOCKING defect recorded (an untested edge path raises ContractRefusal traceback/exit 1 instead of the module's own PoolRefusal/exit 2 -- deployment.json verified byte-identical after; small follow-up suggested), plus the documented limitation that admission does not route (add_route_handler remains the recorded follow-up Work)",
+  "what_it_is_not": "not yet the owner's integration: report-and-hold holds the accepted candidate for the explicit human acceptance the ruling requires"
+ },
+ "artifact_hashes_sha256": {
+  "proposal/result.json": "abc4361e45f1d6e220239208fd19e70f49aca601b8d3baaac0bea9e171bfe283",
+  "proposal/change.patch": "5ad6aa014a2d03518db35253c297344ccaeda20f98f54442a939911a296beba4",
+  "proposal/objects.bundle": "cc956db744755b9cd26354a0a8527a5cfd43dfe745d0b10e6a1f1dbe1555b468",
+  "findings/report.json": "b7b86b8b8d4b41e7fe3bc7a7f23377d7b7fdba8cf905a87e995743bdc8dfbce9"
+ },
+ "corrected_layers_proven_live_this_job": [
+  "credential (authenticated twice more), per-attempt /scratch delivery consumed by the in-container full-family verification (exit 0)",
+  "moved attempt-log room capturing both episodes' provider streams with finished sidecars; no nested contamination",
+  "PID-1 reaping entry: no fork exhaustion across a 11.5-minute producer episode",
+  "narrowed status-based collection: clean two-file delta, no disclosure needed, published through commit/representability/bundle",
+  "scheduler: job-5 reserved and ran beside job-3's and job-4's preserved RESERVED allocations, pool generation minted at activation"
+ ],
+ "criterion_2": "the useful real Claude Job now EXISTS with INDEPENDENT ACCEPTANCE by a distinct real Claude reviewer, durably frozen and held for the owner's explicit integration -- the owner's acceptance decision is the remaining act",
+ "preserved": "Jobs 1-4 and all their evidence untouched; nothing retried, restarted, resubmitted, cleaned or credential-touched during observation (read-only throughout)",
+ "spend_job5": "producer $5.787505 (61 turns) + reviewer $1.822204 (27 turns) = $7.609709; observation itself: zero"
+}

@@ -218,10 +218,24 @@ class GitCheckpointProfile:
 
     name = GIT_PROFILE
 
-    def __init__(self, runner):
+    def __init__(self, runner, *, supplement=None):
         if not callable(runner):
             raise ProfileRefusal("a Git checkpoint profile needs a command runner")
         self._runner = runner
+        # THE SUPPLEMENT IS PROFILE CONFIGURATION, NOT LINE IDENTITY. W202663
+        # owner212383/review212486: the approved direct-target finalization
+        # delivers an accepted candidate into the deployment's DEDICATED
+        # target repository, and deliberately not into the separate nominated
+        # source -- so a next Job declaring that advanced base cloned a source
+        # that does not hold it. The composition names the deployment's own
+        # configured integration target here, at construction; `materialize`
+        # reaches for it ONLY when the declared base is absent after the
+        # source clone, fetching exactly that commit. `create_line`'s operands
+        # and committed signature are untouched, so retries replay and
+        # recovery resumes exactly as before.
+        if supplement is not None:
+            supplement = _path(supplement, "a supplement repository")
+        self._supplement = supplement
 
     def _run(self, argv, what):
         answer = self._runner(tuple(argv))
@@ -238,6 +252,44 @@ class GitCheckpointProfile:
             raise ProfileRefusal(f"Git {what} failed" +
                                  (f": {detail}" if detail else ""))
         return answer["stdout"]
+
+    def _present(self, repository, base):
+        """Whether the repository provably HOLDS this commit object.
+
+        THE CLASSIFICATION IS COMPLETE, review212593 [R2]: `--verify
+        --quiet` answers 0 for a resolvable commit and 1 for a SPECIFIC
+        absence; every other status -- 128's fatal repository or query
+        failure above all -- is neither, and treating it as absence
+        permitted a fetch over an unanswerable clone and a false absence
+        assertion afterwards. A query failure raises AS ITSELF, before any
+        supplemental delivery. Every runner field is validated, exactly as
+        `_run` validates them.
+        """
+        answer = self._runner(tuple(
+            ["git", "-C", repository, "rev-parse", "--verify", "--quiet",
+             base + "^{commit}"]))
+        if type(answer) is not dict or set(answer) != {
+                "returncode", "stdout", "stderr"}:
+            raise ProfileRefusal(
+                "the Git runner's object-presence answer has the closed "
+                "command-result shape")
+        if type(answer["returncode"]) is not int \
+                or type(answer["returncode"]) is bool:
+            raise ProfileRefusal(
+                "the Git runner's object-presence status is an integer")
+        if type(answer["stdout"]) is not str or type(answer["stderr"]) is not str:
+            raise ProfileRefusal(
+                "the Git runner's object-presence streams are text")
+        if answer["returncode"] == 0:
+            return True
+        if answer["returncode"] == 1:
+            return False
+        detail = answer["stderr"].strip()[:240]
+        raise ProfileRefusal(
+            f"the object-presence query failed (exit {answer['returncode']}"
+            + (f": {detail}" if detail else "")
+            + "); this is not absence, and no supplemental delivery is "
+              "attempted over a clone that cannot answer")
 
     def _head(self, repository):
         found = self._run(verify_vector(repository), "HEAD verification").strip()
@@ -261,8 +313,96 @@ class GitCheckpointProfile:
         # Also run on recovery. A process may have completed the clone and
         # stopped before detaching its worktree to the declared base; the one
         # existing checkout is resumed, never cloned or copied again.
-        self._run(detach_vector(repository, declared=base),
-                  "declared-base checkout")
+        try:
+            self._run(detach_vector(repository, declared=base),
+                      "declared-base checkout")
+        except ProfileRefusal:
+            # ONLY A PROVED-ABSENT OBJECT EARNS THE SUPPLEMENT. Review212545
+            # [R2] measured the earlier catch-all's failure: a detach can
+            # refuse for reasons that are not absence -- the probe held a
+            # private index.lock with the base present in BOTH repositories --
+            # and fetching then masked the true cause and ended in a false
+            # "in neither". The object's absence is proved first; every other
+            # refusal propagates as ITSELF.
+            if self._present(repository, base):
+                raise
+            # THE NOMINATED SOURCE IS REFRESHED FIRST, W202663 claim225345
+            # (review225331): an existing checkout is resumed and never
+            # re-cloned, so an object that reached the SOURCE after the
+            # clone -- the PR flow's human-acceptance transport -- could
+            # never arrive here, and the retry looped on the same refusal
+            # forever. The refresh fetches the source's refs into the line
+            # (the same transport that carries the owner's accepted ref and
+            # its objects). A refresh that itself fails is preserved
+            # VERBATIM in whichever refusal follows -- never swallowed, per
+            # the review212545 no-masking rule -- and a base still absent
+            # after a clean refresh falls to the supplement exactly as
+            # before.
+            # ALL HEADS, EXPLICITLY, into a private namespace: a refspec-less
+            # URL fetch transfers only the remote's HEAD branch (measured),
+            # which is exactly the branch the clone already has -- the
+            # accepted ref would never arrive. The private namespace keeps
+            # the transferred objects reachable without touching the line's
+            # own branches.
+            refresh_failure = None
+            try:
+                self._run(("git", "-C", repository, "fetch", "--no-tags",
+                           "--quiet", source,
+                           "+refs/heads/*:refs/baton/source/*"),
+                          "nominated-source refresh")
+            except ProfileRefusal as failure:
+                refresh_failure = failure
+            if self._present(repository, base):
+                # THE REFRESH DELIVERED IT: the source gained the base after
+                # the clone (the human acceptance), and the same line
+                # resumes without any supplement involvement.
+                self._run(detach_vector(repository, declared=base),
+                          "declared-base checkout")
+            else:
+                if self._supplement is None:
+                    if refresh_failure is not None:
+                        raise ProfileRefusal(
+                            f"the declared base {base!r} is absent from the "
+                            f"existing clone, the nominated-source refresh "
+                            f"from {source!r} failed ({refresh_failure}), "
+                            f"and no supplement is configured")
+                    raise
+                try:
+                    self._run(("git", "-C", repository, "fetch", "--no-tags",
+                               "--quiet", self._supplement, base),
+                              "supplement object delivery")
+                except ProfileRefusal as failure:
+                    # THE DELIVERY'S OWN CAUSE IS PRESERVED verbatim inside
+                    # the named refusal: a supplement that does not hold the
+                    # commit and one that cannot be reached are different
+                    # operator facts, and both are in `failure`'s text. A
+                    # FAILED SOURCE REFRESH travels too (review225408): an
+                    # operator reading only the supplement half would miss
+                    # that the source could not even be asked.
+                    refreshed = ("" if refresh_failure is None else
+                                 f"; the nominated-source refresh also "
+                                 f"failed ({refresh_failure})")
+                    raise ProfileRefusal(
+                        f"the declared base {base!r} is absent from the "
+                        f"clone of the nominated source at {source!r} and "
+                        f"the supplement delivery from "
+                        f"{self._supplement!r} did not provide it "
+                        f"({failure}){refreshed}")
+                if not self._present(repository, base):
+                    # Review212593 [R2]: a completed delivery followed by a
+                    # still-absent base proves nothing about what the
+                    # SUPPLEMENT holds; only what this clone now answers is
+                    # claimed.
+                    raise ProfileRefusal(
+                        f"the supplement delivery from {self._supplement!r} "
+                        f"completed and the declared base {base!r} is still "
+                        f"not present in the private line cloned from "
+                        f"{source!r}; what the supplement holds is not "
+                        f"established by this")
+                # The base is now provably here; a detach refusing past this
+                # point has a non-absence cause and speaks as itself.
+                self._run(detach_vector(repository, declared=base),
+                          "declared-base checkout")
         head = self._head(repository)
         if head != base:
             raise ProfileRefusal(

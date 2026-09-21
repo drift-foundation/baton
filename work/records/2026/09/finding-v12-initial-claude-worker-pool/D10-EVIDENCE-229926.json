@@ -1,0 +1,37 @@
+{
+ "schema": "baton.w202663.d10-evidence/1",
+ "claim": 229926,
+ "owner_selection": "2026-09-21T12:41:22Z — bounded D10 correction and deterministic publication proof",
+ "review_revalidated": "review-2026-09-21T07-13-00Z.md's chain holds against the current tree; _publish_line is already delta-based (diff + bundle over base..head) and is unchanged",
+ "product_change": {
+  "file": "v12/worker/claude_agent.py (sha256 1be1e197504cc04431ca468f8f5fd901e3b1d047a1ce0a50e039fd84998534ab)",
+  "line_profile": {
+   "_baseline_tree": "ls-tree -r -l -z at the pinned entry head; 100644/100755/120000 blobs only (gitlink refuses); entry-count bounded",
+   "_line_delta": "anchored no-follow walk classifying every entry against the baseline: byte-identical blobs (git-blob digest, size/mode arithmetic short-circuit) and exactly-committed links (file or directory; readlink digest vs the committed object name; never descended) pass as baseline; added/changed files are candidate material under the unchanged payload bounds; provider-authored/retargeted/replacing links and special files refuse by name; deletions collected as their own set; the walk is held to NEW discovery bounds (200,000 visits / 4 GiB proof-reads) because bounding payload alone does not bound traversal; which paths changed is NEVER asked of git (assume-unchanged cannot hide an edit from the walk)",
+   "_line_revalidated": "fresh delta inventory after the provider-authored verification: ceilings again, every measured path still carrying its measured bytes, the deletion set unchanged",
+   "_identical": "every existing rule kept (post-commit cleanliness, A/M/D-only, filterless, D-not-measured, A/M-measured, _identical_bytes) plus the delta-scoped representability: committed A/M == measured both directions (the ignored-addition refusal exactly where it was), committed D == inventory deletions both directions, and the committed MODE of every measured path proven regular via bounded ls-tree batches (blob-kind alone cannot tell a file from a link)",
+   "retired": "_measured (its whole-tree subject was the defect); the copy-profile path (_checked_tree/_diff/_revalidated/_representable/_publish) is byte-untouched"
+  }
+ },
+ "deterministic_proofs": {
+  "suite": "tests.manager.test_claude_agent: 220 tests OK (206 prior — one updated where the assume-unchanged refusal now fires one gate earlier with the same outcome — plus 14 NEW LineCase-derived cases)",
+  "real_shape_positive": "TheLineDeltaAdmitsTheRealRepositoryShape: a baseline COMMITTING file and directory symlinks, 2,100 files (> MAX_SOURCE_ENTRIES) and a 66 MiB blob (> MAX_SOURCE_BYTES), driven through the REAL work() with a fake provider: small patch publishes through actual verification, commit, representability and publication (bundle present, links surviving at head, verification child really ran); baseline edits measured by bytes not by git; payload bound still refuses an oversized authored file; the discovery bound refuses a bounded walk",
+  "negatives": "TheLineDeltaKeepsEveryProviderRule: untouched linked baseline = honest no-candidate (the exact D10 defect inverted); provider-authored link, retargeted baseline link, link-replaced-by-file, special file all refuse by name with nothing published; mode-only change measured and published; baseline deletion published as D; verification-time edit and verification-time deletion both refuse; plus the pre-existing HEAD-moved, ignored-addition, reserved-path and assume-unchanged cases all green",
+  "retained_checkout_closure": "the corrected adapter's own _line_delta over the RETAINED job-4 line checkout (19,553 entries / 652 MB / 102 committed links) answers in 0.836 s: written == exactly [v12/python/tests/tools/test_pool.py, v12/python/tools/pool.py], removed == [], and the measured sha256 digests EQUAL review-2026-09-21T07-13-00Z.md's independently recorded hashes (d8c8429e…, 6c18c9f9…) — the exact live refusal is gone and the delta is exactly the agent's candidate; read-only, nothing in the line touched"
+ },
+ "image": {
+  "id": "sha256:d447cf38a5dd5dbbce274cdd3a2075b5e943b00f45e07c9b2d1a8f7dbb804124",
+  "tag": "w202663-d10",
+  "recipe": "v12/worker/Dockerfile.claude (unchanged)",
+  "supersedes": "sha256:d1e2869e… (its adapter walked the whole line candidate)",
+  "gates": "tests.manager.test_dogfood_image 16 OK; in-image claude_agent.py byte-identical (1be1e197…); adjacent suites test_dogfood_entry + test_attempt_logs 219 OK",
+  "doctrine": "a CANDIDATE until the owner's launch authorization selects it"
+ },
+ "not_done": "no installation, operational apply, restart, submission, live episode, credential act or cleanup; Jobs 1-4 and every retained byte preserved as found; the retained pool.py/test_pool.py remain unreviewed evidence, not adopted code",
+ "operational_next_steps_for_owner_after_review": [
+  "1. compose job-5 on the existing instance-2026-09-21T06-27-56Z: cd /home/sl/src/baton/v12/python && PYTHONPATH=src:. python3 <dossier>/compose-pool-207219.py --instance /home/sl/baton-v12/instance-2026-09-21T06-27-56Z --pr --base 446fa8f79d9569799a77e888e8236070e1dc78f7 --job w202663-first-development-job-5 --work 3   (fresh coder-5/reviewer-5 beside preserved job-3/job-4; the reviewed scheduler proofs cover reserving beside the two reserved rows — distinct workers and principals)",
+  "2. supported apply + pin gate, fail-closed before any restart: PYTHONPATH=src:. python3 -m tools.bootstrap --inputs <dossier>/pool-bootstrap-inputs.json && <dossier>/check-policy-pin.sh /home/sl/baton-v12/instance-2026-09-21T06-27-56Z pool",
+  "3. stop/start (activation mints the next pool generation) and submit job-5 only, exactly as JOB4-RECOVERY-227726.md block 3 with the job-5 incarnation name",
+  "note": "the host runtime is UNCHANGED by D10 (adapter-only, travels in the image), so no reinstall is needed; the credential proved itself live at job-4"
+ ]
+}

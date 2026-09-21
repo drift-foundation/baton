@@ -1,0 +1,23 @@
+ok   A: DEST follows the selection
+ok   A: authority is the instance's own persisted one
+ok   A: Work id derives from the selected authority
+ok   A: credential registry lives under the selection
+ok   A: declared base is the SELECTED target's revision (D5)
+ok   B: declared base follows a SECOND selection (D5)
+ok   B: authority follows too
+ok   B: nothing still answers instance A
+ok   historical constants appear nowhere after selection
+ok   job: id follows
+ok   job: all three participants take the job's suffix
+ok   job: participants actually moved
+ok   emitting: implementation image is the emitting build
+ok   emitting: implementation recipe follows
+ok   emitting: review and integration are untouched
+ok   a fresh load still answers the historical record
+all composer isolation checks passed
+ok   job: the explicit-work job id still moved
+ok   emitting: implementation image is the emitting build
+ok   emitting: implementation recipe follows
+ok   emitting: review and integration are untouched
+ok   a fresh load still answers the historical record
+all composer isolation checks passed

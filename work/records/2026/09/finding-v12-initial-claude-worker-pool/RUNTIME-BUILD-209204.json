@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:d5d1e9fb3c20c12795daa3dc01066f0010190612b9eacb57ee1eae10692cec87"
+  },
+  "claim": 209204,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-209204.json",
+    "input_count": 109,
+    "inputs_digest": "sha256:f1aa1bb2d77f4c0acfad5a061092fddc5d870859fee90be5e9bb0cdc23443546",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime carrying the review209188-completed D7 correction (same-worker newest-generation routing for settled history, named live-guard), for the next owner installation",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "sha256:6af693b295dd666eaa9d118f2a6b4242a396f6a872ca4f68b7fc9f3373cae4ba": "the claim209102 build, never installed; its records remain as history"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

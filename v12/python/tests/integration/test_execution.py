@@ -765,7 +765,8 @@ class TheGrantIsProvedAgainRIGHTBeforeTheModelWrites(ExecutionCase):
         self.ending()
         self.refusal(self.integrate, self.model())
         self.assertTrue(os.path.isdir(os.path.join(
-            self.launch, "attempt-1", runtime.DELIVERY_DIRECTORY)))
+            self.launch, "attempt-1", runtime.DELIVERIES_DIRECTORY,
+            runtime.delivery_leaf("attempt-1"))))
 
     def test_the_post_run_cutpoint_still_answers_its_own_race(self):
         """A grant that ends WHILE the model runs is the other race, and the
@@ -882,11 +883,15 @@ class OnlyANOTSTARTEDAttemptIsAskedToRun(ExecutionCase):
 
         class Watching(Model):
             def _started(self, attempt_id):
-                seen["delivery"] = os.path.isdir(
-                    os.path.join(launch, runtime.DELIVERY_DIRECTORY))
+                # W202663 D8 + review217558 [R3]: the delivery namespace is
+                # PER ATTEMPT, under the managed deliveries ancestor, at the
+                # attempt's DERIVED leaf.
+                leaf = os.path.join(launch, runtime.DELIVERIES_DIRECTORY,
+                                    runtime.delivery_leaf("attempt-1"))
+                seen["delivery"] = os.path.isdir(leaf)
                 seen["assignment"] = os.path.exists(os.path.join(
-                    launch, runtime.DELIVERY_DIRECTORY,
-                    runtime.ASSIGNMENT_DIRECTORY, runtime.ASSIGNMENT_DOCUMENT))
+                    leaf, runtime.ASSIGNMENT_DIRECTORY,
+                    runtime.ASSIGNMENT_DOCUMENT))
                 super()._started(attempt_id)
 
         model = Watching(target=self.target, runs_after=self.stopped)

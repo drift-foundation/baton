@@ -157,11 +157,18 @@ class PublicationCase(unittest.TestCase):
             self.publish()
         self.assertIn("fenced", caught.exception.message)
 
-    def test_target_movement_refuses_without_calling_publish(self):
+    def test_a_moved_authority_target_no_longer_blocks_publication(self):
+        """Owner 2026-09-20T14:57:48Z (W202663): the proposal's recorded
+        target IS its own declared base -- opaque metadata -- and the
+        offer-time comparison against the Authority's canonical target
+        enforced one global Git base and is gone. `integrate`'s
+        stale-target door remains the integration flow's enforcement, so
+        a moved deployment value blocks nothing here."""
         self.publisher.target = "c" * 40
-        with self.assertRaises(ContractRefusal):
-            self.publish()
-        self.assertEqual(self.publisher.calls, [])
+        self.assertEqual(self.publish()["candidate_digest"], HEAD["hex"])
+        self.assertEqual(self.publisher.calls[0]["target"], TARGET["hex"],
+                         "the recorded target is the proposal's own base, "
+                         "never the moved deployment value")
 
     def test_every_producer_cross_wire_refuses_before_publication(self):
         changes = (
@@ -1216,11 +1223,18 @@ class TheProducerRefusesWhatItCannotAccountFor(ProducerCase):
         self.retain()
         self.assertIn("measured nothing there", self.refuses().message)
 
-    def test_target_drift_retains_nothing_and_publishes_nothing(self):
+    def test_target_drift_no_longer_blocks_the_offer(self):
+        """Owner 2026-09-20T14:57:48Z (W202663): the drift refusal this
+        test used to pin ("offered against the revision it was built
+        from") was the offer-time global-base enforcement, measured
+        blocking the PR successor's conclude; the proposal now records
+        its own base and the producer publishes regardless of where the
+        deployment's canonical target sits."""
         self.publisher.target = "3" * 40
-        self.assertIn("offered against the revision it was built from",
-                      self.refuses().message)
-        self.assertEqual(self.publisher.calls, [])
+        self.produced()
+        self.assertEqual(self.manifests(), 1,
+                         "the proposal was retained regardless of the "
+                         "deployment's canonical target")
 
     def test_a_head_and_target_in_different_namespaces_refuse(self):
         """A sha1 name under a sha256 repository is a different object, not a

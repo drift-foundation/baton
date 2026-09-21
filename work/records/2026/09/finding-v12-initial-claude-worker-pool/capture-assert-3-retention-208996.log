@@ -1,0 +1,8 @@
+instance: /home/sl/baton-v12/instance-2026-09-19T04-02-31Z
+attempt:  attempt-56cfb65d05c147a026e746f83c163375e294a4fc9507894f080db65f65a1f2c4
+ok   worker.stdout present and nonempty (state=captured, bytes=115)
+ok   worker.stderr present and nonempty (state=captured, bytes=51)
+ok   worker.stdout carries 'w202663-emitting-fixture: work begins on the frozen task'
+ok   worker.stdout carries 'w202663-emitting-fixture: work ends disposition=completed'
+ok   worker.stderr carries 'w202663-emitting-fixture: work stderr closing line'
+all capture assertions passed: nonempty retained worker streams with the deterministic fixture content, read through the supported reader

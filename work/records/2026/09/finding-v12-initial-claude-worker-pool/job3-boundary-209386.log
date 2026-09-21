@@ -1,0 +1,16 @@
+[
+ {
+  "act": "claim",
+  "episode": 1,
+  "outstanding": true,
+  "attempt_id": "attempt-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+  "operation_id": "offer.settle:offer-c97f67cbfda068eb81df44a80c6915afbec5dfda852a029698a3ba6a015786a4",
+  "category": "refused",
+  "code": "precondition",
+  "message": "the authority refused this claim: route 'integration' does not resolve to 'baton.fixture-coder-3'",
+  "since": "2026-09-19T05:09:27.012Z",
+  "observed": "2026-09-19T05:11:54.392Z",
+  "incarnation": "v12-stack-2066330-1789794511066258567",
+  "why_retained": null
+ }
+]

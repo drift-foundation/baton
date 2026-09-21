@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:151060fbe97cf7e4156163d1a13e5734ab8fedfa382e3d16f337f7dd4091b373"
+  },
+  "claim": 225345,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-225345.json",
+    "input_count": 110,
+    "inputs_digest": "sha256:7bda77b638e01785e5862bfd017919f208d0f25d45077271b7e7e42d16cf9e3d",
+    "revision": {
+      "commit": "2fb0612ca1bd9fd8e2e254a11ff26b6b64a1eba8",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime whose existing-checkout materialization refreshes the NOMINATED SOURCE first (all heads, explicit refspec into a private namespace) before the dedicated-target supplement -- review225331's same-line recovery, proven deterministically: a failed materialization recovers on the SAME line after the source gains the ref-reachable base",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "bundle-sha256:456c75ccca18614d919652760bbadd9f70926c97d71fb1f01d4bb0c7d5be94b6": "candidate222138, never installed; superseded by the source-refresh recovery; records remain as history"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

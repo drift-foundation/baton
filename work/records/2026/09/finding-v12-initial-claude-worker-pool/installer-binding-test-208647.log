@@ -1,0 +1,11 @@
+== PRE-INSTALL check, standalone, against the real reviewed distro (read-only) ==
+  executable sha256:7040dd00a987f9ac19b2d9b328fcbc157cc2b53cd486100b60476764815238f5
+  bundle     sha256:dbdee27a224e4ef4977efa06169a6b14c17b3d3a078236da0fb8e116f04e4bf1 (81 files)
+pre-install check ACCEPTS the reviewed artefact
+
+== POST-INSTALL check, against a bounded FAKE destination (accept and refuse paths; nothing installed) ==
+post-install check ACCEPTS: identity equals the reviewed records
+accept path: exit 0
+-- now one appended byte on the fake installed executable --
+refused: installed executable does not equal the recorded one
+refuse path: exit 1 (nonzero, as required)

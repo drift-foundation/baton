@@ -528,10 +528,34 @@ FILE_MODE = 0o664
 MAX_SOURCE_ENTRIES = 2000
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 
+# W202663 D10 (owner 2026-09-21T12:47:17Z): THE LINE PROFILE'S COLLECTION
+# BOUND. The owner is the integrator and the line profile COLLECTS a faithful
+# proposal; it does not police the repository. What is bounded is the ACTUAL
+# collection -- how many changed entries one turn's inventory will carry --
+# and never the size or the contents of the pre-existing checkout. The
+# payload ceilings above still bound what a turn AUTHORS.
+MAX_LINE_STATUS_ENTRIES = 20000
+
+# How many excluded paths the disclosure names outright; the count is always
+# whole. A disclosure that could grow without bound would be a report sized
+# by the thing it reports on.
+MAX_COLLECTION_DISCLOSED = 50
+
 _TASK_ID = re.compile(r"\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}\Z")
 
 
 # -- W198667: the streams this adapter used to discard -------------------------
+
+# WHICH PROCESS HOLDS THE ROOM, by name. W202663 (owner 227095): the attempt's
+# log room is a delivery to the ONE process the manager launched, not to every
+# process in the container that can import this module. The entry names the
+# room here in the worker's own environment; `_closed_environment` composes
+# both children's environments member by member and never forwards this name,
+# so nothing the provider starts -- and nothing a nested test constructs --
+# holds a room at all. Deliberately NOT `BATON_WORKER_*`: that transport was
+# retired with no fallback (W26291) and this is not it; it is the entry
+# speaking to its own adapter, one process apart.
+ROOM_VARIABLE = "BATON_ATTEMPT_LOG_ROOM"
 
 
 def _log_room():
@@ -542,12 +566,30 @@ def _log_room():
     unavailable would be one logging made less reliable. No room means no
     capture, and the manager reports every stream `absent` -- which is the
     honest answer rather than a silent empty one.
+
+    AND EXPLICIT BY DELIVERY NOW, W202663 (owner 227095). This used to open
+    the fixed `/run/baton/logs` for ANY process that could import this module,
+    and Job2 measured what that means: the provider's own background test run
+    constructed adapters out of the checkout, each opened the REAL attempt
+    room, and their killed writers declared `failed` into the real sidecars --
+    which the aggregation below then honestly carried into the authoritative
+    capture. The room is the delivery of exactly one process, the worker the
+    manager launched, so only the process whose environment NAMES a room
+    holds one: `dogfood_entry` sets `BATON_ATTEMPT_LOG_ROOM` in the worker's
+    own process, and `_closed_environment` composes both children's
+    environments member by member and never forwards it. The docstrings
+    saying `os.environ` is never consulted are about THOSE compositions and
+    remain true; this read is of the worker's own inherited environment,
+    which is the one place the entry can speak to this module from.
     """
+    place = os.environ.get(ROOM_VARIABLE)
+    if not place:
+        return None, None
     try:
         import attempt_log_format
     except ImportError:
         return None, None
-    return attempt_log_format.open_room(), attempt_log_format
+    return attempt_log_format.open_room(place), attempt_log_format
 
 
 def _aggregate(fmt, state, carried, reason=None):
@@ -1976,7 +2018,6 @@ class ClaudeAgent:
             # the provider created was dereferenced by the diff and copied as
             # regular bytes into the host-visible proposal -- and the
             # credential mount is one of the things a link can name.
-            written = _checked_tree(candidate, what=what, skip=walk_skip)
             # THE PROVIDER'S ENDING DECIDES NOTHING ON ITS OWN. What is written
             # is decided by what is ON DISK afterwards, which is why the diff
             # is taken before the disposition is chosen: a provider that
@@ -1988,15 +2029,19 @@ class ClaudeAgent:
             # the patch is against the revision the assignment named rather
             # than against whatever the mount happened to be on.
             if line:
-                # THE SAME QUESTION, ASKED OF THE REPOSITORY. Which paths
-                # changed is what the line already knows, and a second opinion
-                # composed here would be this adapter deciding what Git
-                # decides. What this still owns is the BYTES it measured, which
-                # is what binds the account below to what was published.
-                measured = _measured(candidate, written, what=what)
+                # W202663 D10: THE SUBJECT IS THE DELTA. The committed
+                # checkout is manager-delivered line custody -- the real
+                # repository, with its own committed links and its own size
+                # -- and the provider answers for what it CHANGED, measured
+                # by this adapter's own no-follow walk against the pinned
+                # baseline tree, never by Git's opinion of what changed.
                 self._unmoved(candidate, entry)
-                patch = self._pending(candidate)
+                written, measured, removed, collection = self._line_delta(
+                    candidate, what)
+                patch = bool(written) or bool(removed)
             else:
+                written = _checked_tree(candidate, what=what, skip=walk_skip)
+                removed = None
                 patch, measured = _diff(baseline, candidate, written, skip=skip)
             verification = (self._verify(
                 task, candidate, verification_environment,
@@ -2008,8 +2053,11 @@ class ClaudeAgent:
             # a command that overwrote a checked file in place published
             # contents the patch never described. What is proved here is the
             # measurement itself.
-            _revalidated(candidate, written, measured, what=what,
-                         skip=walk_skip)
+            if line:
+                self._line_revalidated(candidate, measured, removed, what)
+            else:
+                _revalidated(candidate, written, measured, what=what,
+                             skip=walk_skip)
             disposition, why = _disposition(provider, patch, verification)
             if line:
                 # THE COMMIT HAPPENS WHATEVER THE DISPOSITION IS, and that is
@@ -2019,8 +2067,8 @@ class ClaudeAgent:
                 # commit them would leave the line unfreezable and the Work
                 # stuck. What the disposition decides is whether anything is
                 # PUBLISHED, not whether the private history is honest.
-                head = self._commit(candidate, task, entry,
-                                    measured) if patch else None
+                head = self._commit(candidate, task, entry, measured,
+                                    removed=removed) if patch else None
                 changed = self._changed(candidate, plan["base"], head)
                 self._publish_line(proposal, candidate, plan["base"], head,
                                    verification,
@@ -2028,6 +2076,11 @@ class ClaudeAgent:
                                       "task_id": task["task_id"],
                                       "disposition": disposition,
                                       "why": why,
+                                      # W202663 D10 (owner 12:47:17Z): what
+                                      # the collection EXCLUDED, disclosed
+                                      # to the human integrator; absent on
+                                      # a turn with nothing excluded.
+                                      "collection": collection,
                                       "changed_paths": changed,
                                       "base": plan["base"],
                                       "entry_head": entry,
@@ -2453,7 +2506,7 @@ class ClaudeAgent:
                 "adapter authors exactly one commit per turn, and a history "
                 "it did not write is not one it can give an account of")
 
-    def _commit(self, repository, task, entry, measured):
+    def _commit(self, repository, task, entry, measured, removed=None):
         """ONE worker-authored commit, and the proof that it is this candidate.
 
         THE PROVIDER DOES NOT COMMIT, and `_unmoved` has already proved it --
@@ -2483,10 +2536,10 @@ class ClaudeAgent:
             raise TaskRefusal(
                 "the commit this turn authored does not continue the head it "
                 "was admitted at")
-        self._identical(repository, entry, head, measured)
+        self._identical(repository, entry, head, measured, removed=removed)
         return head
 
-    def _identical(self, repository, entry, head, measured):
+    def _identical(self, repository, entry, head, measured, removed=None):
         """The COMMITTED change and the MEASURED change, proved to be one.
 
         W105575 review 2026-09-07. An empty status is a cleanliness gate and
@@ -2556,7 +2609,19 @@ class ClaudeAgent:
                     f"the commit carries {relative} and this adapter measured "
                     f"nothing there; every committed byte is one this turn "
                     f"walked, bounded and read")
-        self._representable(repository, head, measured)
+        if removed is None:
+            self._representable(repository, head, measured)
+        else:
+            # W202663 D10: THE DELTA-SCOPED HALF OF THE SAME CONTRACT. The
+            # published head's whole tree is the pinned baseline plus this
+            # turn's change, so representability is proved over the change
+            # -- both directions on both sets, the ignored-addition refusal
+            # exactly where it always was -- and the committed MODE of every
+            # measured path is proved regular from the tree itself, because
+            # `_identical_bytes`' blob-kind proof cannot tell a file from a
+            # link.
+            self._representable_delta(changed, measured, removed)
+            self._measured_modes(repository, head, measured)
         self._identical_bytes(repository, head, measured)
         return changed
 
@@ -2659,6 +2724,204 @@ class ClaudeAgent:
                 f"the commit carries {extra[0]} and the candidate does not; "
                 f"the published tree and the tree this turn measured are one "
                 f"tree or this account is not about what was verified")
+
+    def _line_status(self, repository, *, ignored=False):
+        """One status listing, parsed closed, as the collection inventory.
+
+        W202663 D10, owner 2026-09-21T12:47:17Z: the owner is the INTEGRATOR
+        and this profile collects a faithful proposal for a human; it does
+        not re-derive the repository's state behind Git's back. The
+        superseded broad regime walked and hashed the whole checkout to
+        catch what an index trick can hide from status; the ruling retires
+        that guarantee by name, and what remains is honest: the delivered
+        changes are still proved byte-for-byte (`_identical_bytes`), and a
+        path status cannot see is neither measured nor delivered.
+
+        `-z` so any byte in a path is data; a record that does not parse,
+        and a rename/copy record (impossible for the unstaged worktree this
+        adapter measures, so its appearance means something else composed
+        the index), refuse rather than being interpreted.
+        """
+        argv = ["status", "--porcelain", "-z", "--untracked-files=all"]
+        if ignored:
+            argv.append("--ignored=matching")
+        raw = self._git(repository, *argv, what="collection inventory").stdout
+        found = []
+        for record in raw.split("\0"):
+            if not record:
+                continue
+            if len(record) < 4 or record[2] != " ":
+                raise TaskRefusal(
+                    "the collection inventory carries a record this "
+                    "adapter cannot read")
+            marks, relative = record[:2], record[3:]
+            if "R" in marks or "C" in marks:
+                raise TaskRefusal(
+                    f"the collection inventory reports a rename or copy at "
+                    f"{relative}; this adapter measures an unstaged "
+                    f"worktree, and a staged rename is somebody else's act")
+            found.append((marks, relative))
+            if len(found) > MAX_LINE_STATUS_ENTRIES:
+                raise TaskRefusal(
+                    f"the collection inventory exceeds this adapter's bound "
+                    f"of {MAX_LINE_STATUS_ENTRIES} changed entries; actual "
+                    f"collection is bounded, and a change list this large "
+                    f"is not one turn's proposal")
+        return found
+
+    def _line_delta(self, candidate, what):
+        """The turn's changes, collected -- not the repository, judged.
+
+        W202663 D10 as narrowed by owner 2026-09-21T12:47:17Z. Each listed
+        path is one of exactly four honest things:
+
+          * a REGULAR FILE: measured through the anchored no-follow read,
+            with the payload ceilings applied to exactly this changed set;
+          * a LINK: refused. A committed link the turn left alone never
+            appears in this inventory, so a listed link is authored,
+            retargeted or replacing -- and a delivered link is how a
+            recipient's checkout reaches credential and external files.
+            This is the retained no-follow/external-file protection, and
+            it is the only per-entry veto left;
+          * a SPECIAL FILE: excluded and DISCLOSED, never read -- Git
+            cannot deliver it and a fifo would block the reader;
+          * ABSENT: a deletion, collected as its own set.
+
+        Ignored files never enter this inventory at all, which is what
+        makes an unrelated ignored file STRUCTURALLY not a veto; a second
+        listing feeds the DISCLOSURE, so the human integrator is told what
+        the collection excluded and that verification ran over a worktree
+        that contained it.
+        """
+        measured = {}
+        removed = []
+        specials = []
+        payload_entries, payload_bytes = 0, 0
+        for marks, relative in self._line_status(candidate):
+            _under(relative)
+            place = os.path.join(candidate, relative)
+            try:
+                held = os.lstat(place)
+            except OSError:
+                removed.append(relative)
+                continue
+            if stat.S_ISLNK(held.st_mode):
+                raise TaskRefusal(
+                    f"{what} carries a link at {relative} among its "
+                    f"changes; this adapter neither authors nor alters "
+                    f"links, and a delivered link is how a recipient "
+                    f"reaches credential and external files")
+            if not stat.S_ISREG(held.st_mode):
+                specials.append(relative)
+                continue
+            payload_entries += 1
+            payload_bytes += held.st_size
+            _bounded(payload_entries, payload_bytes, what)
+            measured[relative] = _bytes_digest(
+                _read_under(candidate, relative, what))
+        ignored = [relative for marks, relative
+                   in self._line_status(candidate, ignored=True)
+                   if marks == "!!"]
+        disclosure = None
+        if ignored or specials:
+            disclosure = {
+                "excluded_ignored": sorted(ignored)[:MAX_COLLECTION_DISCLOSED],
+                "excluded_ignored_count": len(ignored),
+                "excluded_special": sorted(specials)[:MAX_COLLECTION_DISCLOSED],
+                "excluded_special_count": len(specials),
+                "note": "these worktree paths were present while the "
+                        "task's verification ran and are NOT part of the "
+                        "delivered proposal; whether the verification "
+                        "relied on any of them is the integrator's "
+                        "question, disclosed rather than adjudicated here"}
+        return sorted(measured), measured, sorted(removed), disclosure
+
+    def _line_revalidated(self, candidate, measured, removed, what):
+        """The collected delta, PROVED UNCHANGED, after provider code ran.
+
+        The same protection `_revalidated` gives the copy profile, over
+        the collected set: every measured path still carries its measured
+        bytes and every collected deletion is still a deletion. What
+        verification ADDED is decided at the commit, exactly as before:
+        unignored, it reaches the committed change and `_identical`
+        refuses it by name; ignored, it is never staged, never delivered,
+        and joins the disclosure's subject matter.
+        """
+        for relative, digest in measured.items():
+            if _bytes_digest(_read_under(candidate, relative, what)) \
+                    != digest:
+                raise TaskRefusal(
+                    f"{what} changed at {relative} after its own "
+                    f"verification command ran; the proposal's patch "
+                    f"describes the bytes this adapter measured, and a "
+                    f"candidate whose contents no longer match that "
+                    f"account is not one to publish")
+        for relative in removed:
+            if os.path.lexists(os.path.join(candidate, relative)):
+                raise TaskRefusal(
+                    f"{what}'s deletion of {relative} was undone after its "
+                    f"own verification command ran; the account and the "
+                    f"tree disagree about what this turn removed")
+
+    def _representable_delta(self, changed, measured, removed):
+        """The committed change and the measured change are ONE change.
+
+        The delta-scoped half of `_representable`'s contract, both
+        directions on both sets. The ignored-addition protection lands
+        exactly where it always did: a measured path Git quietly declines
+        to stage is missing from the committed change, and the refusal
+        names it rather than publishing a head that cannot carry it.
+        """
+        touched = {relative for mark, relative in changed
+                   if mark in ("A", "M")}
+        deletions = {relative for mark, relative in changed if mark == "D"}
+        missing = sorted(set(measured) - touched)
+        if missing:
+            # NOT an ignored-file veto: an ignored path never enters the
+            # inventory, so a measured path the commit cannot carry means
+            # the delivered change set and the verified one diverged --
+            # an embedded repository, an attribute, an index state this
+            # adapter did not compose. Delivered and verified are one set
+            # or nothing is delivered.
+            raise TaskRefusal(
+                f"the commit does not carry {missing[0]}, which this turn "
+                f"measured and verified; the delivered changes and the "
+                f"verified ones are one set or this account is not about "
+                f"what was verified")
+        extra = sorted(touched - set(measured))
+        if extra:
+            raise TaskRefusal(
+                f"the commit carries {extra[0]} and this adapter measured "
+                f"nothing there; every committed byte is one this turn "
+                f"walked, bounded and read")
+        if deletions != set(removed):
+            first = sorted(deletions.symmetric_difference(removed))[0]
+            raise TaskRefusal(
+                f"the commit and this adapter's inventory disagree about "
+                f"the removal of {first}; the published deletions and the "
+                f"measured ones are one set or this account is not about "
+                f"what was verified")
+
+    def _measured_modes(self, repository, head, measured):
+        """Every measured path's COMMITTED mode is a regular file's.
+
+        `_identical_bytes` proves the object KIND is a blob, and a
+        symlink's target is a blob too -- so the mode is asked of the tree
+        itself, in bounded batches over exactly the measured set, which is
+        the committed half of the walk's own type boundary scoped to what
+        this turn actually publishes.
+        """
+        order = sorted(measured)
+        for start in range(0, len(order), 500):
+            for mode, relative in _tree_entries(self._git(
+                    repository, "ls-tree", "-z", head, "--",
+                    *order[start:start + 500],
+                    what="published mode inventory").stdout):
+                if mode not in TREE_FILE_MODES:
+                    raise TaskRefusal(
+                        f"the committed tree carries a {mode} entry at "
+                        f"{relative}; this adapter publishes an account of "
+                        f"regular candidate files and nothing else")
 
     def _changed(self, repository, base, head):
         """The paths this proposal changes, CUMULATIVELY from the base.
@@ -4092,16 +4355,12 @@ def _filterless(raw):
                 f"of the difference")
 
 
-def _measured(root, written, *, what):
-    """Every checked path's bytes, as a digest, and no diff.
-
-    The prepared line already knows WHICH paths changed; what it cannot answer
-    is what this adapter actually read, and that digest is what binds the
-    account to the commit. Read exactly as `_diff` reads: rooted and no-follow
-    at every component.
-    """
-    return {relative: _bytes_digest(_read_under(root, relative, what))
-            for relative in written}
+# `_measured` LIVED HERE AND IS RETIRED WITH D10, not relocated: it digested
+# "every checked path" for the line profile, and the line profile's checked
+# set was the whole repository -- the exact whole-tree assumption the owner's
+# 2026-09-21T12:41:22Z ruling removes. The delta inventory measures its own
+# bytes in the same anchored no-follow read, so a second digester would be a
+# second account of the same bytes.
 
 
 def _task_digest(raw):

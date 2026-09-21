@@ -1,0 +1,32 @@
+[
+  {
+    "id": "attempt-a",
+    "path": "/tmp/w202663-constructor-only/integration/attempt-a",
+    "normalized": "/tmp/w202663-constructor-only/integration/attempt-a",
+    "inverse": "/tmp/w202663-constructor-only"
+  },
+  {
+    "id": "../assignment",
+    "path": "/tmp/w202663-constructor-only/integration/../assignment",
+    "normalized": "/tmp/w202663-constructor-only/assignment",
+    "inverse": "/tmp/w202663-constructor-only/integration"
+  },
+  {
+    "id": "/tmp/escaped",
+    "path": "/tmp/escaped",
+    "normalized": "/tmp/escaped",
+    "inverse": "/"
+  },
+  {
+    "id": "assignment",
+    "path": "/tmp/w202663-constructor-only/integration/assignment",
+    "normalized": "/tmp/w202663-constructor-only/integration/assignment",
+    "inverse": "/tmp/w202663-constructor-only"
+  },
+  {
+    "id": "integration",
+    "path": "/tmp/w202663-constructor-only/integration/integration",
+    "normalized": "/tmp/w202663-constructor-only/integration/integration",
+    "inverse": "/tmp/w202663-constructor-only/integration"
+  }
+]

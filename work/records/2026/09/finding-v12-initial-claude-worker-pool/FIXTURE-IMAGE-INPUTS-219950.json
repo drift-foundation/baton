@@ -1,0 +1,45 @@
+{
+  "claim": 219950,
+  "context": "fixture-context/",
+  "inputs_digest": "sha256:bec3a2bff330f5feff7e837db75e60179db6e5ea05e54df00544f9ac3a679639",
+  "recipes": {
+    "Dockerfile.emitting": {
+      "count": 13,
+      "files": {
+        "Dockerfile.emitting": "b6a2d499efd44bab36bb7c8ae6a6c564dfaa5fbdb95057ad544ccfd29b50ef16",
+        "python/src/baton_v12/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+        "python/src/baton_v12/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+        "worker/attempt_log_format.py": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+        "worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+        "worker/claude_agent.py": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+        "worker/emitting_agent.py": "2bb3730713d48ab90ce1695009174c33f58a674dc0e1925eab866648a4a523c6",
+        "worker/emitting_entry.py": "567e2b853fbfcd637c81987ec488fab6e56dd6007aaeab8d2194af037bee1269",
+        "worker/integration_contract.py": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+        "worker/integration_entry.py": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e",
+        "worker/integration_workload.py": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+        "worker/proposing_agent.py": "03fec1e55f856118621074acad1555948f31b53748b1f30997fb8f86ebf665e1",
+        "worker/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+      }
+    },
+    "Dockerfile.producer": {
+      "count": 12,
+      "files": {
+        "Dockerfile.producer": "d8d8df4b6a06174c498dde9bbe7af2a0d3235fe0fbe4b3204fdf0fcde5828c28",
+        "python/src/baton_v12/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+        "python/src/baton_v12/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+        "worker/attempt_log_format.py": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b",
+        "worker/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+        "worker/claude_agent.py": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092",
+        "worker/integration_contract.py": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+        "worker/integration_entry.py": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e",
+        "worker/integration_workload.py": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+        "worker/proposing_agent.py": "03fec1e55f856118621074acad1555948f31b53748b1f30997fb8f86ebf665e1",
+        "worker/proposing_entry.py": "0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760",
+        "worker/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+      }
+    }
+  },
+  "schema": "baton.w202663.fixture-image-inputs/1",
+  "taken": "BEFORE the builds",
+  "why": "review219927: the corrected ProposingAgent must be DELIVERED in the images the composer selects; these are the exact bytes each recipe COPYies, recorded before building"
+}

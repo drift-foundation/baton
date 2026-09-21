@@ -1,0 +1,38 @@
+{
+  "reviewer": "baton.rvpc",
+  "claim": 230179,
+  "observed_at": "2026-09-21T13:22:32.773903+00:00",
+  "sha256": {
+    "v12/worker/claude_agent.py": "5c216c03a89fd6b4d15d022093b6ed2bfc2aa523099bf469e2491fb21ce9d7c5",
+    "v12/python/tests/manager/test_claude_agent.py": "43bfd0e9ab321d1491702540cd5473b9455a73f07e5c9fefc0b39b469f523bbd",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/D10-EVIDENCE-230107.json": "b89a4e24e9cf611c8d2c814e69e3b51a265a1c2615191adbfb9aec0aed182546",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/JOB5-PACKAGE-230107.md": "fc21088b2ff9a8667cf79f41c232505dc2e1324b325db26e5c83dd6a64f81838",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/compose-pool-207219.py": "c66370fd8cd0391b5b4d16123c6a07f7cef65ff36443fce4b21ffd178b87ad5a",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/check-policy-pin.sh": "b48f5794dbef447f517d2ccdcc6370c31a26d95555404ce7204b76dbb93a1da3"
+  },
+  "focused_tests": {
+    "classes": [
+      "TheLineDeltaKeepsEveryProviderRule",
+      "TheLineDeltaAdmitsTheRealRepositoryShape"
+    ],
+    "tests": 15,
+    "seconds": 5.412,
+    "result": "OK"
+  },
+  "retained_inventory": {
+    "seconds": 0.06772586901206523,
+    "written": [
+      "v12/python/tests/tools/test_pool.py",
+      "v12/python/tools/pool.py"
+    ],
+    "measured_sha256": {
+      "v12/python/tests/tools/test_pool.py": "d8c8429e27f62470aaff600faf6b4a4b74df90b95fc5049f2c3bc1c010616991",
+      "v12/python/tools/pool.py": "6c18c9f9bdb0f45b9e0af9c7db446c934d6630b94e45fcba76c96016a0a71192"
+    },
+    "removed": [],
+    "disclosure": null
+  },
+  "evidence_json": "parsed successfully",
+  "image_inspection": "sha256:5c2eb55d64a775cf939425941960289c3c98a49689f841a335bdf03f69afd5b6",
+  "limits": "Read-only inventory; retained code not executed or accepted. No deployment/live/credential/cleanup actions."
+}

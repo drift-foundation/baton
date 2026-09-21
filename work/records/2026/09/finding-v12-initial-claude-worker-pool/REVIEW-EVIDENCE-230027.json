@@ -1,0 +1,34 @@
+{
+  "claim": 230027,
+  "reviewer": "baton.rvpc",
+  "observed_at": "2026-09-21T13:00:15.554442+00:00",
+  "reviewed_sha256": {
+    "v12/worker/claude_agent.py": "1be1e197504cc04431ca468f8f5fd901e3b1d047a1ce0a50e039fd84998534ab",
+    "v12/python/tests/manager/test_claude_agent.py": "5825bc430d89caacd55f95bbc9071721e9311013dd1b81a4a0c4e0b1a13eb4e4",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/D10-EVIDENCE-229926.json": "6f735b8a72122bbe8a9295aea56a5dd7b713e2d8efc7085b55677a3ed7e9b50b",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/compose-pool-207219.py": "cd7c80bea90734137cd08b3d7d5c11e91a257f3b776d0897484cedb1d2a134fd"
+  },
+  "focused_tests": {
+    "classes": [
+      "tests.manager.test_claude_agent.TheLineDeltaKeepsEveryProviderRule",
+      "tests.manager.test_claude_agent.TheLineDeltaAdmitsTheRealRepositoryShape"
+    ],
+    "count": 14,
+    "seconds": 6.153,
+    "result": "OK"
+  },
+  "independent_probe": {
+    "fixture": "LineDeltaCase",
+    "edits": {
+      ".gitignore": "unrelated-cache.txt\n",
+      "unrelated-cache.txt": "unrelated cached data\n",
+      "harness.py": "print('independent of cache')\n"
+    },
+    "result": "TaskRefusal: the candidate carries unrelated-cache.txt and the commit does not; a path this repository ignores is still material the turn was measured and verified over, and a proposal whose own head cannot carry it is not one this adapter will publish",
+    "seconds": 0.021,
+    "meaning": "current behavior contradicts latest owner ruling; this successful reproduction is not an acceptance pass"
+  },
+  "evidence_parse_error": "Expecting ',' delimiter: line 35 column 9 (char 5735)",
+  "authority": "FINDING 2026-09-21T12:47:17Z supersedes 12:41:22Z broad checker preservation",
+  "execution": "No live provider, operational deployment change, cleanup or product/test edit."
+}

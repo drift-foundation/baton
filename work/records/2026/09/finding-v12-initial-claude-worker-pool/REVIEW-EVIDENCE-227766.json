@@ -1,0 +1,39 @@
+{
+  "reviewer": "baton.rvpc",
+  "claim": 227766,
+  "observed_at": "2026-09-21T06:47:49.342579+00:00",
+  "sha256": {
+    "JOB4-RECOVERY-227726.md": "8696a8ec5aa14dd10dd8f03b4a1ad17164eabe9fb344015663fe66c92f23aa19",
+    "pool-bootstrap-inputs.json": "42751c212ab49d4f606fd02ddf2a11c99f82769ac22ce4b7ced358acddf08430",
+    "pool-stage-execution.json": "a92795f879253875a9727328e007a745332095133ac22333ca8af4cdd96c9257",
+    "pool-submission.json": "eda3cd411d45e6ee3d0c5351f5bb574f4e8a1483ff9a3b8bd753990ddc5c787c",
+    "pool-task.json": "d4cdf2ea65d045da0ed8038d51ac9200a12e0b8bdbe33cfbc3b761a990395fa7",
+    "POOL-COMPOSITION-207219.json": "921db6c44178aec6812cb0f098a748942151647ae10e77f07659c9bad05e2d20",
+    "check-policy-pin.sh": "b48f5794dbef447f517d2ccdcc6370c31a26d95555404ce7204b76dbb93a1da3"
+  },
+  "independent_validation": {
+    "bootstrap.held": "accepted",
+    "bootstrap.validated": "accepted",
+    "job_manager.documents.owned_submission": "accepted",
+    "job3_workers_equal_installed": true,
+    "fresh_participants": [
+      "baton.claude-coder-4",
+      "baton.claude-reviewer-4"
+    ],
+    "work": "baf2e7fe-W2",
+    "pool_generation": 2,
+    "predicted_policy_generation": 20,
+    "only_task_difference": "task_id changes from job-3 to job-4",
+    "publisher_jobs": [
+      "w202663-first-development-job-3"
+    ]
+  },
+  "credential_metadata_only": {
+    "path": "/home/sl/.claude/.credentials.json",
+    "mtime": 1789973258.7102962,
+    "gate_threshold": 1789972225,
+    "gate_would_refuse": true,
+    "authentication_conclusion": "unknown; metadata is neither necessary nor sufficient proof of valid bearer or refresh outcome"
+  },
+  "execution": "No apply, restart, submission, live call, credential content read/change, or cleanup. No test rerun; existing scheduler evidence reused."
+}

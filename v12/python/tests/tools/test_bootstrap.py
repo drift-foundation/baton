@@ -508,8 +508,15 @@ class WhatItRefusesBeforeItTouchesAnything(Fixture):
             self.assertIn("authority_uuid", self.refused(authority_uuid=bad), bad)
 
     def test_a_missing_stage_is_refused(self):
+        """Implementation and review remain REQUIRED; integration is
+        optional under owner 2026-09-20T14:57:48Z (the PR model), matching
+        stage_execution's own coverage gate -- so the missing role
+        measured here is review, and the producer-and-reviewer document is
+        admitted."""
         document = self.document()
-        self.assertIn("integration", self.refused(workers=document["workers"][:2]))
+        self.assertIn("review", self.refused(workers=document["workers"][:1]))
+        bootstrap.held(dict(self.document(),
+                            workers=self.document()["workers"][:2]))
 
     def test_a_role_this_deployment_does_not_serve_is_refused(self):
         document = self.document()
@@ -1130,10 +1137,18 @@ class TheFIRSTCanonicalTargetIsESTABLISHED(ValidFixture):
 
     def test_an_EXISTING_authority_is_untouched_by_that_refusal(self):
         """The dangerous case is a second run over a deployment that already
-        works: a partial composition there would edit a LIVE Authority."""
+        works: a partial composition there would edit a LIVE Authority.
+
+        Owner 2026-09-20T14:57:48Z: disagreeing NEW bases are now admitted
+        as opaque references on an established root, so the refusal
+        exercised here is the branch's remaining one -- an empty declared
+        reference -- and its point is unchanged: the live Authority is
+        untouched."""
         answer = self.prepared()
         before = self.target(answer)
-        self.refused(jobs=self.disagreeing())
+        self.refused(jobs=[self.job(),
+                           self.job(job_id="job-b", work_id="0000000b-W1",
+                                    base="")])
         self.assertEqual(self.target(answer), before)
         authority = self.opened(answer)
         try:
@@ -2316,3 +2331,186 @@ class RepeatingIt(ValidFixture):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TheEstablishedRootAdmitsNewJobsAtTheCurrentTarget(ValidFixture):
+    """W202663 owner212383, review212328's bounded amendment.
+
+    The distinct-base count rule lived in the pure `held`, which cannot tell
+    a RETAINED binding from a NEW one -- so once the approved direct-target
+    finalization ADVANCED an instance's target, no new Job could ever be
+    admitted: the preserved completed binding carries its historical base,
+    the new binding carries the advanced one, and counting refused both
+    together (measured installed, claim212295). The rule now lives in
+    `admissible_bases`, store-aware, after `conflicts` and before anything
+    durable: a fresh root keeps the one-base first-establishment protection
+    exactly; an established root admits new bindings only at the Authority's
+    CURRENT canonical target.
+    """
+
+    def advanced(self):
+        """A prepared root whose target has legitimately moved on."""
+        from baton_v12.authority import Authority
+
+        answer = self.prepared()
+        authority = Authority.open(
+            answer["places"]["authority_store"],
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            authority.set_policy("canonical_target", "b" * 40)
+        finally:
+            authority.dispose()
+        return answer
+
+    def both(self, base):
+        return [self.job(),
+                self.job(job_id="job-b", work_id="0000000a-W2",
+                         producer="impl-a", target="target-1", base=base)]
+
+    def target_of(self, answer):
+        from baton_v12.authority import Authority
+
+        authority = Authority.open(
+            answer["places"]["authority_store"],
+            expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            return authority.canonical_target()
+        finally:
+            authority.dispose()
+
+    def test_a_new_job_at_the_established_current_target_is_ADMITTED(self):
+        """THE CASE THE AMENDMENT EXISTS FOR: the retained binding keeps its
+        historical base, the new one declares the advanced target, and the
+        preparation composes instead of refusing."""
+        import json as loads
+
+        self.advanced()
+        answer = self.prepared(jobs=self.both("b" * 40))
+        with open(answer["places"]["record"]) as handle:
+            held = loads.load(handle)
+        self.assertEqual(
+            held["bindings"]["job-a"]["line_declared_base"], "a" * 40)
+        self.assertEqual(
+            held["bindings"]["job-b"]["line_declared_base"], "b" * 40)
+        # AND THE ESTABLISHED TARGET WAS NOT REWOUND by admitting it.
+        self.assertEqual(self.target_of(answer), "b" * 40)
+
+    def test_a_new_base_unlike_the_current_target_is_ADMITTED_as_opaque(
+            self):
+        """Owner 2026-09-20T14:57:48Z (the generic-reference ruling): the
+        declared base is OPAQUE reference metadata carried verbatim to the
+        Job's agents, and the coordinator no longer compares it against the
+        Authority's canonical target. This admits exactly the selected PR
+        flow's successor: a new Job at the human-accepted reference on the
+        SAME deployment, with no global Git-base enforcement."""
+        import json as loads
+
+        self.advanced()
+        answer = self.prepared(jobs=self.both("c" * 40))
+        with open(answer["places"]["record"]) as handle:
+            held = loads.load(handle)
+        self.assertEqual(
+            held["bindings"]["job-b"]["line_declared_base"], "c" * 40)
+        # AND THE ESTABLISHED TARGET IS UNTOUCHED: recording the binding
+        # interprets nothing and moves nothing.
+        self.assertEqual(self.target_of(answer), "b" * 40)
+
+    def test_disagreeing_NEW_jobs_are_now_independently_admitted(self):
+        """The same ruling's concurrency half: independent Jobs run from
+        their own explicit accepted bases, so three new bindings with three
+        different references compose side by side."""
+        import json as loads
+
+        self.advanced()
+        answer = self.prepared(jobs=[
+            self.job(),
+            self.job(job_id="job-b", work_id="0000000a-W2", base="c" * 40),
+            self.job(job_id="job-c", work_id="0000000a-W3", base="d" * 40)])
+        with open(answer["places"]["record"]) as handle:
+            held = loads.load(handle)
+        self.assertEqual(
+            held["bindings"]["job-b"]["line_declared_base"], "c" * 40)
+        self.assertEqual(
+            held["bindings"]["job-c"]["line_declared_base"], "d" * 40)
+
+    def test_a_retained_binding_may_NOT_move_to_the_new_base(self):
+        """`conflicts`' protection is untouched: rewriting history is refused
+        even when the new value is the current target."""
+        self.advanced()
+        moved = [self.job(base="b" * 40),
+                 self.job(job_id="job-b", work_id="0000000a-W2",
+                          base="b" * 40)]
+        found = self.refused(jobs=moved)
+        self.assertIn("already bound", found)
+
+    def test_a_FRESH_root_still_refuses_two_bases(self):
+        """The first-establishment protection, byte for byte at a new site."""
+        found = self.refused(jobs=[
+            self.job(),
+            self.job(job_id="job-b", work_id="0000000a-W2", base="c" * 40)])
+        self.assertIn("fresh deployment", found)
+        self.assertIn("ONE canonical target", found)
+
+
+class TheInstallPathRefusesBadBasesBeforeAnyEffect(ValidFixture):
+    """W202663 review212438 [R1]: the install path runs
+    `prepare_repositories` BEFORE `prepare`, so when the distinct-base rule
+    moved out of the pure `held`, a fresh multi-base input could create the
+    destination and reach the clone runner before anything refused it --
+    the reviewer's probe intercepted the first clone. `admissible_bases`
+    now runs inside `prepare_repositories`' structure-before-effects block,
+    and this asserts the PROMISE through the real `main`: refusal, no
+    destination, no runner invocation.
+    """
+
+    SOURCE = "/srv/the-owners-source"
+
+    def test_a_fresh_multi_base_install_changes_NOTHING(self):
+        import io as streams
+
+        destination = os.path.join(self.root, "never-installed")
+        # A STAND-IN RUNTIME, so `admit` (which runs first and is not under
+        # test) accepts and the probe reaches the repository preparation.
+        distro = os.path.join(self.root, "built")
+        os.makedirs(os.path.join(distro, "_internal", "rpds"))
+        Path(distro, "baton-v12-stack").write_text("the launcher")
+        Path(distro, "_internal", "rpds", "rpds.so").write_text("native")
+        said = {"command": "baton-v12-stack", "frozen": True,
+                "python": "3.13.7", "platform": "Linux", "machine": "x86_64",
+                "schema_assets": {"agent-session-1.0": 10,
+                                  "worker-control-1.0": 20},
+                "native_rpds": os.path.join(distro, "_internal", "rpds",
+                                            "rpds.so")}
+        issued = []
+
+        def runner(argv, **named):
+            issued.append(list(argv))
+            raise AssertionError("no repository tool runs for a document "
+                                 "the admission preflight refuses")
+
+        document = self.document(jobs=[
+            self.job(),
+            self.job(job_id="job-b", work_id="0000000a-W2",
+                     base="c" * 40)])
+        # WORKER STORAGE UNDER THE DESTINATION, named but never created: the
+        # self-containment rule fires before the base rule otherwise, and
+        # creating anything here would defeat the no-effect assertion.
+        for worker in document["workers"]:
+            worker["deployment"]["workspace_storage"] = os.path.join(
+                destination, "workers", worker["worker_id"], "storage")
+        inputs = os.path.join(self.root, "inputs.json")
+        Path(inputs).write_text(json.dumps(document))
+        out = streams.StringIO()
+        with mock.patch.object(
+                bootstrap, "_identity_of",
+                lambda command, runtime=None, distro=None: said):
+            code = bootstrap.main(
+                ["--inputs", inputs, "--destination", destination,
+                 "--distro", distro, "--repository-source", self.SOURCE],
+                stream=out, runner=runner)
+        self.assertEqual(code, 2, out.getvalue())
+        self.assertIn("different bases", out.getvalue())
+        self.assertFalse(os.path.exists(destination),
+                         "the refusal must precede the destination mkdir")
+        self.assertEqual(issued, [],
+                         "the refusal must precede any repository command")

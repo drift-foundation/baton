@@ -1,0 +1,132 @@
+serving initialization complete: incarnation='v12-stack-2486439-1789899863552889515' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-09-20T10:25:49.002Z",
+  "recovered": null,
+  "observed": 0,
+  "replaced": [],
+  "acts": [],
+  "started": [],
+  "spoken": [],
+  "refreshed": [
+    {
+      "stage_id": "verification-1/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-8b75cd5557229195552aa86dfc6f53a1c3918032d5af1a057ad6941bee03996e",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "verification-1/review",
+      "episode": 1,
+      "attempt_id": "attempt-fb95eeab0f4d79684617cb26cb4ff15282ea468ab00781fb725af928cfe281ce",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "verification-1/integration",
+      "episode": 1,
+      "attempt_id": "attempt-4d4c9c9f289e93fa0063d803050dc4b6c471b911f3a6349ad8befe58be22cc13",
+      "state": "quiescent"
+    }
+  ]
+}
+serving initialization complete: incarnation='v12-stack-2488280-1789899953686134641' operations='tools.stage_execution:factory'
+{
+  "observed_at": "2026-09-20T10:33:53.357Z",
+  "recovered": null,
+  "observed": 0,
+  "replaced": [],
+  "acts": [],
+  "started": [
+    {
+      "stage_id": "verification-2/integration",
+      "episode": 1,
+      "attempt_id": "attempt-ada6a1af8af59b154f3b75370b9c6580822702f84be745b4cb99ddccbc0d18e3",
+      "outcome": "deferred",
+      "detail": {
+        "category": "refused",
+        "code": "precondition",
+        "message": "this deployment names 2 integration workers; one deployment names one integrator"
+      }
+    }
+  ],
+  "spoken": [],
+  "refreshed": [
+    {
+      "stage_id": "verification-1/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-8b75cd5557229195552aa86dfc6f53a1c3918032d5af1a057ad6941bee03996e",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "verification-1/review",
+      "episode": 1,
+      "attempt_id": "attempt-fb95eeab0f4d79684617cb26cb4ff15282ea468ab00781fb725af928cfe281ce",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "verification-1/integration",
+      "episode": 1,
+      "attempt_id": "attempt-4d4c9c9f289e93fa0063d803050dc4b6c471b911f3a6349ad8befe58be22cc13",
+      "state": "quiescent"
+    },
+    {
+      "stage_id": "verification-2/implementation",
+      "episode": 1,
+      "attempt_id": "attempt-80558bfe7af9a2cbe2f8c43eecd224804ed1748d2c90883d699064457b083388",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "verification-2/review",
+      "episode": 1,
+      "attempt_id": "attempt-752c0a559765c9771967bd5331e1674a64eb3b544641ddc798e615ec42791ef1",
+      "state": "not-asked"
+    },
+    {
+      "stage_id": "verification-2/integration",
+      "episode": 1,
+      "attempt_id": "attempt-ada6a1af8af59b154f3b75370b9c6580822702f84be745b4cb99ddccbc0d18e3",
+      "state": "not-asked"
+    }
+  ]
+}
+serving initialization complete: incarnation='v12-stack-2493106-1789900697136133235' operations='tools.stage_execution:factory'
+Traceback (most recent call last):
+  File "stack_command.py", line 257, in <module>
+  File "stack_command.py", line 253, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 485, in main
+  File "tools/job_manager.py", line 404, in _serve
+  File "baton_v12/job_manager/manager.py", line 826, in serve
+  File "baton_v12/job_manager/manager.py", line 102, in reconcile
+  File "baton_v12/job_manager/manager.py", line 136, in sweep
+  File "baton_v12/job_manager/manager.py", line 646, in _replace
+  File "baton_v12/job_manager/projection.py", line 470, in stage_states
+  File "baton_v12/job_manager/delegation.py", line 364, in observation_of
+  File "tools/stage_execution.py", line 4606, in observe
+  File "tools/stage_execution.py", line 3540, in observe
+  File "tools/stage_execution.py", line 3291, in account
+  File "tools/stage_execution.py", line 1196, in _bound
+  File "tools/stage_execution.py", line 3821, in worker_for
+  File "tools/stage_execution.py", line 388, in _refuse
+baton_v12.contracts.errors.ContractRefusal: stage 'verification-1/integration' is allocated to worker 'verification-1-integration', which this deployment does not configure
+[PYI-2493107:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+serving initialization complete: incarnation='v12-stack-2493476-1789900906153474264' operations='tools.stage_execution:factory'
+Traceback (most recent call last):
+  File "stack_command.py", line 257, in <module>
+  File "stack_command.py", line 253, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 485, in main
+  File "tools/job_manager.py", line 404, in _serve
+  File "baton_v12/job_manager/manager.py", line 826, in serve
+  File "baton_v12/job_manager/manager.py", line 102, in reconcile
+  File "baton_v12/job_manager/manager.py", line 136, in sweep
+  File "baton_v12/job_manager/manager.py", line 646, in _replace
+  File "baton_v12/job_manager/projection.py", line 470, in stage_states
+  File "baton_v12/job_manager/delegation.py", line 364, in observation_of
+  File "tools/stage_execution.py", line 4606, in observe
+  File "tools/stage_execution.py", line 3540, in observe
+  File "tools/stage_execution.py", line 3291, in account
+  File "tools/stage_execution.py", line 1196, in _bound
+  File "tools/stage_execution.py", line 3821, in worker_for
+  File "tools/stage_execution.py", line 388, in _refuse
+baton_v12.contracts.errors.ContractRefusal: stage 'verification-1/integration' is allocated to worker 'verification-1-integration', which this deployment does not configure
+[PYI-2493477:ERROR] Failed to execute script 'stack_command' due to unhandled exception!

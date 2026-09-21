@@ -1,0 +1,15 @@
+{
+  "executable": "sha256:a6dbd9631c3f419e36db63f3d88e866538e88e50665fe221d2a2c8a523d36bab",
+  "executable_matches": true,
+  "bundle_digest": "7da17402dd956412c5c45ad76c0288c1cb4fc4d50276beafb50729c77c6affeb",
+  "bundle_files": 81,
+  "bundle_matches": true,
+  "inputs_checked": 109,
+  "input_drift": [],
+  "retained_A_job_document_equal": true,
+  "A_allocation_states": [
+    "released",
+    "released",
+    "released"
+  ]
+}

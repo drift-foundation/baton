@@ -327,8 +327,14 @@ class TheFamilyIsExecutionOnlyAndBoundToItsGrant(MountCase):
     def test_a_target_containing_this_manager_s_own_roots_refuses_earlier(
             self):
         """A target that swallows the delivery is refused at COMPOSITION,
-        before a vector is asked for -- the earliest of the two fences."""
-        above = os.path.dirname(self.delivery.root)
+        before a vector is asked for -- the earliest of the two fences.
+
+        review217777: `dirname(delivery.root)` became the MANAGED per-attempt
+        ancestor, and re-moding it made the walk's mode refusal fire before
+        the overlap refusal under test. The containing target is the
+        deployment root ABOVE the managed layout, which this capability
+        carries by name; the overlap assertion is unchanged."""
+        above = self.delivery.deployment_root
         os.chown(above, -1, _group_of(self).gid)
         os.chmod(above, 0o2770)
         caught = self.refused(

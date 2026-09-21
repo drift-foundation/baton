@@ -1,0 +1,108 @@
+Collecting altgraph==0.17.5 (from -r requirements.build.lock (line 17))
+  Downloading altgraph-0.17.5-py2.py3-none-any.whl (21 kB)
+Collecting packaging==26.3 (from -r requirements.build.lock (line 19))
+  Downloading packaging-26.3-py3-none-any.whl (129 kB)
+Collecting pyinstaller==6.16.0 (from -r requirements.build.lock (line 21))
+  Downloading pyinstaller-6.16.0-py3-none-manylinux2014_x86_64.whl (733 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 733.8/733.8 kB 6.9 MB/s eta 0:00:00
+Collecting pyinstaller-hooks-contrib==2026.7 (from -r requirements.build.lock (line 23))
+  Downloading pyinstaller_hooks_contrib-2026.7-py3-none-any.whl (459 kB)
+Collecting setuptools==84.0.0 (from -r requirements.build.lock (line 25))
+  Downloading setuptools-84.0.0-py3-none-any.whl (818 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 818.2/818.2 kB 37.0 MB/s eta 0:00:00
+Installing collected packages: altgraph, setuptools, packaging, pyinstaller-hooks-contrib, pyinstaller
+
+Successfully installed altgraph-0.17.5 packaging-26.3 pyinstaller-6.16.0 pyinstaller-hooks-contrib-2026.7 setuptools-84.0.0
+20 INFO: PyInstaller: 6.16.0, contrib hooks: 2026.7
+20 INFO: Python: 3.13.7
+21 INFO: Platform: Linux-6.17.0-41-generic-x86_64-with-glibc2.42
+21 INFO: Python environment: /home/sl/.local/state/baton-v12-venv
+22 INFO: Removing temporary files and cleaning cache in /home/sl/.cache/pyinstaller
+54 INFO: Module search paths (PYTHONPATH):
+['/home/sl/src/baton/v12/python',
+ '/usr/lib/python313.zip',
+ '/usr/lib/python3.13',
+ '/usr/lib/python3.13/lib-dynload',
+ '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages',
+ '/home/sl/src/baton/v12/python',
+ '/home/sl/src/baton/v12/python',
+ '/home/sl/src/baton/v12/python/src']
+106 INFO: Appending 'datas' from .spec
+106 INFO: checking Analysis
+106 INFO: Building Analysis because Analysis-00.toc is non existent
+106 INFO: Looking for Python shared library...
+110 INFO: Using Python shared library: /lib/x86_64-linux-gnu/libpython3.13.so.1.0
+110 INFO: Running Analysis Analysis-00.toc
+110 INFO: Target bytecode optimization level: 0
+110 INFO: Initializing module dependency graph...
+111 INFO: Initializing module graph hook caches...
+113 INFO: Analyzing modules for base_library.zip ...
+367 INFO: Processing standard module hook 'hook-heapq.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+407 INFO: Processing standard module hook 'hook-encodings.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1087 INFO: Processing standard module hook 'hook-pickle.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1570 INFO: Caching module dependency graph...
+1583 INFO: Analyzing /home/sl/src/baton/v12/python/tools/stack_command.py
+1608 INFO: Processing standard module hook 'hook-jsonschema.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+1651 INFO: Processing standard module hook 'hook-platform.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1660 INFO: Processing standard module hook 'hook-_ctypes.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1738 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+1738 INFO: SetuptoolsInfo: initializing cached setuptools info...
+2826 INFO: Setuptools: 'typing_extensions' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.typing_extensions'!
+2830 INFO: Processing standard module hook 'hook-setuptools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+2834 INFO: Processing pre-safe-import-module hook 'hook-distutils.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+2852 INFO: Processing standard module hook 'hook-sysconfig.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+2855 INFO: Processing pre-safe-import-module hook 'hook-jaraco.functools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+2855 INFO: Setuptools: 'jaraco.functools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco.functools'!
+2860 INFO: Processing pre-safe-import-module hook 'hook-more_itertools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+2860 INFO: Setuptools: 'more_itertools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.more_itertools'!
+2918 INFO: Processing standard module hook 'hook-_osx_support.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+2924 INFO: Processing pre-safe-import-module hook 'hook-packaging.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3064 INFO: Processing pre-safe-import-module hook 'hook-jaraco.text.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3064 INFO: Setuptools: 'jaraco.text' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco.text'!
+3069 INFO: Processing standard module hook 'hook-setuptools._vendor.jaraco.text.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+3070 INFO: Processing pre-safe-import-module hook 'hook-importlib_resources.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3070 INFO: Processing pre-safe-import-module hook 'hook-jaraco.context.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3070 INFO: Setuptools: 'jaraco.context' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco.context'!
+3337 INFO: Processing pre-safe-import-module hook 'hook-tomli.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3337 INFO: Setuptools: 'tomli' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.tomli'!
+3543 INFO: Processing pre-safe-import-module hook 'hook-wheel.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3543 INFO: Setuptools: 'wheel' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.wheel'!
+3616 INFO: Processing standard module hook 'hook-jsonschema_specifications.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+3774 INFO: Processing standard module hook 'hook-sqlite3.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+4556 INFO: Analyzing hidden import 'tools.dogfood_operator'
+4604 INFO: Analyzing hidden import 'tools.worker_image'
+4608 INFO: Processing module hooks (post-graph stage)...
+4862 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+4907 INFO: Processing standard module hook 'hook-xml.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+5044 INFO: Performing binary vs. data reclassification (33 entries)
+5045 INFO: Looking for ctypes DLLs
+5097 INFO: Analyzing run-time hooks ...
+5098 INFO: Including run-time hook 'pyi_rth_setuptools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5099 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5100 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5100 INFO: Including run-time hook 'pyi_rth_inspect.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5105 INFO: Creating base_library.zip...
+5113 INFO: Looking for dynamic libraries
+5200 INFO: Warnings written to /home/sl/src/baton/v12/python/build/work/stack/warn-stack.txt
+5209 INFO: Graph cross-reference written to /home/sl/src/baton/v12/python/build/work/stack/xref-stack.html
+5215 INFO: checking PYZ
+5215 INFO: Building PYZ because PYZ-00.toc is non existent
+5215 INFO: Building PYZ (ZlibArchive) /home/sl/src/baton/v12/python/build/work/stack/PYZ-00.pyz
+5485 INFO: Building PYZ (ZlibArchive) /home/sl/src/baton/v12/python/build/work/stack/PYZ-00.pyz completed successfully.
+5490 INFO: checking PKG
+5490 INFO: Building PKG because PKG-00.toc is non existent
+5490 INFO: Building PKG (CArchive) baton-v12-stack.pkg
+5497 INFO: Building PKG (CArchive) baton-v12-stack.pkg completed successfully.
+5497 INFO: Bootloader /home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run
+5497 INFO: checking EXE
+5497 INFO: Building EXE because EXE-00.toc is non existent
+5497 INFO: Building EXE from EXE-00.toc
+5497 INFO: Copying bootloader EXE to /home/sl/src/baton/v12/python/build/work/stack/baton-v12-stack
+5498 INFO: Appending PKG archive to custom ELF section in EXE
+5505 INFO: Building EXE from EXE-00.toc completed successfully.
+5505 INFO: checking COLLECT
+5505 INFO: Building COLLECT because COLLECT-00.toc is non existent
+5505 INFO: Removing dir /home/sl/src/baton/v12/python/build/out/distro
+5507 INFO: Building COLLECT COLLECT-00.toc
+5514 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+5514 INFO: Build complete! The results are available in: /home/sl/src/baton/v12/python/build/out

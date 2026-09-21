@@ -63,6 +63,7 @@ cannot write the target cannot perform the integration it was launched for, and
 launching it to fail would put a container in front of a target for no reason.
 """
 
+import hashlib
 import json
 import os
 import stat
@@ -495,8 +496,30 @@ def hold_account(*, reason, observed, detail):
 # least trusted program in the deployment wrote something outside its
 # contract.
 DELIVERY_DIRECTORY = "integration"
+# WHERE PER-ATTEMPT DELIVERIES LIVE, W202663 D8 + review217558 [R3/R4]: a
+# SEPARATE managed ancestor, never the legacy single slot's own name, so the
+# two layouts cannot mix inside one directory and the inverse of the root
+# derivation is decided by ONE basename comparison.
+DELIVERIES_DIRECTORY = "integration-deliveries"
 ASSIGNMENT_DIRECTORY = "assignment"
 RESULT_DIRECTORY = "result"
+
+
+def delivery_leaf(attempt_id):
+    """A SAFE path component derived from an arbitrary identity.
+
+    Review217558 [R3]: `boundaries.identity` admits arbitrary text, not path
+    grammar -- a raw id joined into a path permits traversal, absolute
+    segments, reserved names and separator ambiguity, and a dirname-counting
+    inverse mis-splits an id that contains separators. The component is the
+    id's sha256: fixed 64-lowercase-hex, no separator, no traversal, no
+    reserved name, collision-safe by content hash, and never equal to any
+    layout constant. The id itself travels as delivery METADATA and inside
+    the published assignment, which is where identity is validated.
+    """
+    return hashlib.sha256(
+        boundaries.identity(attempt_id, "an integrator attempt id")
+        .encode("utf-8")).hexdigest()
 ASSIGNMENT_DOCUMENT = "assignment.json"
 RESULT_DOCUMENT = "result.json"
 
@@ -545,13 +568,33 @@ class IntegrationDelivery:
     which is exactly what the fixed targets exist to take away.
     """
 
-    __slots__ = ("attempt_id", "root")
+    __slots__ = ("attempt_id", "root", "deployment_root", "legacy")
 
-    def __init__(self, *, attempt_id, root):
+    def __init__(self, *, attempt_id, root, _legacy=False):
         self.attempt_id = boundaries.identity(attempt_id,
                                               "an integrator attempt id")
-        self.root = os.path.join(boundaries.text(root, "a delivery root"),
-                                 DELIVERY_DIRECTORY)
+        # THE WALK'S OPERANDS ARE RETAINED, review217641 [R4]: every later
+        # use of this capability re-proves the managed components from the
+        # deployment root down instead of trusting the joined pathname, so
+        # the capability has to carry where the walk starts and which layout
+        # it proves -- not just the string the walk once produced.
+        self.legacy = _legacy
+        # PER ATTEMPT, W202663 D8 (owner217455). The root used to join a
+        # CONSTANT, so every attempt of one deployment shared ONE delivery
+        # slot: a second direct integration adopted the first's retained
+        # delivery, skipped its own preparation, and deferred forever on the
+        # witness contradiction -- measured composed and matching every
+        # installed instance's layout. The attempt id is identity-shaped
+        # (never 'assignment'/'result'), so per-attempt namespaces under the
+        # same constant are collision-safe, and the container mount TARGETS
+        # are untouched -- only the host side moves. `_legacy` reconstructs
+        # the single-slot shape for identity-proved adoption of a delivery
+        # made before this change; nothing else constructs it.
+        held = boundaries.text(root, "a delivery root")
+        self.deployment_root = held
+        self.root = (os.path.join(held, DELIVERY_DIRECTORY) if _legacy
+                     else os.path.join(held, DELIVERIES_DIRECTORY,
+                                       delivery_leaf(self.attempt_id)))
 
     @property
     def assignment_root(self):
@@ -584,24 +627,205 @@ def materialize_delivery(root, *, attempt_id, workspace_group):
     container is created, so a namespace that did not exist then is one nothing
     will ever hold. What happens afterwards is PUBLICATION, which writes into a
     directory that already exists and is already mounted.
+
+    CREATION IS CUSTODIED, review217641 [R4]: the previous version checked
+    the ancestor by PATHNAME and then created every descendant by PATHNAME,
+    so a replacement injected between the check and the effect redirected the
+    whole delivery into a tree somebody else chose -- and an EXISTING
+    ancestor's mode was never proved at all, so one opened to the world was
+    accepted. Here the ancestor is established or proved on a HELD
+    descriptor, every descendant is made and opened RELATIVE to the held
+    parent, and modes and group are set on the OPENED objects -- there is no
+    second lookup of a checked name anywhere between a check and an effect.
+    Before the capability is returned, the pathname it carries is re-walked
+    and must identify the very object just created; a replacement injected
+    during creation is refused rather than handed out.
     """
     delivery = IntegrationDelivery(attempt_id=attempt_id, root=root)
-    os.makedirs(delivery.root, mode=0o700, exist_ok=False)
-    # ESTABLISHED RATHER THAN REQUESTED. `makedirs` asks for a mode and the
-    # process umask decides what it gets, so the mode adoption later proves has
-    # to be set rather than hoped for -- the same reason `_publish_once` sets a
-    # file's mode on its descriptor.
-    os.chmod(delivery.root, DELIVERY_DIR)
-    os.makedirs(delivery.assignment_root, mode=0o700, exist_ok=False)
-    os.chmod(delivery.assignment_root, ASSIGNMENT_DIR)
-    os.makedirs(delivery.result_root, mode=0o700, exist_ok=False)
-    workspaces.adopt_workspace_group(
-        {"workspace": delivery.result_root},
-        workspaces.check_workspace_group(_group(workspace_group)))
+    gid = workspaces.check_workspace_group(_group(workspace_group))
+    # THE DEPLOYMENT ROOT IS TRUSTED INPUT and made when absent, exactly as
+    # the previous `makedirs` chain did; custody starts at the MANAGED
+    # ancestor below it, which is where review217641's probes landed.
+    os.makedirs(delivery.deployment_root, exist_ok=True)
+    try:
+        base = os.open(delivery.deployment_root,
+                       os.O_RDONLY | os.O_DIRECTORY)
+    except OSError as failure:
+        _denied(f"the delivery root at "
+                f"{name_value(delivery.deployment_root)} cannot be opened as "
+                f"a directory ({type(failure).__name__}); deliveries are "
+                f"made under an existing root")
+    try:
+        ancestor = _established_ancestor(base)
+    finally:
+        os.close(base)
+    try:
+        leaf = _made_directory(
+            os.path.basename(delivery.root), DELIVERY_DIR,
+            f"attempt {name_value(delivery.attempt_id)}'s integration "
+            f"delivery root", within=ancestor)
+    finally:
+        os.close(ancestor)
+    try:
+        os.close(_made_directory(
+            ASSIGNMENT_DIRECTORY, ASSIGNMENT_DIR,
+            f"attempt {name_value(delivery.attempt_id)}'s integration "
+            f"assignment namespace", within=leaf))
+        os.close(_made_directory(
+            RESULT_DIRECTORY, workspaces.WORKSPACE_DIR,
+            f"attempt {name_value(delivery.attempt_id)}'s integration "
+            f"result namespace", within=leaf, gid=gid))
+        made = os.stat(leaf)
+    finally:
+        os.close(leaf)
+    # THE RETURN PATH IS VALIDATED: later use goes through the capability's
+    # pathname, so a pathname that no longer identifies the object just
+    # created is a capability that would hand every later effect to a
+    # replacement. The walk below is the same proof every later use repeats.
+    proved = _opened_root(delivery)
+    try:
+        held = os.stat(proved)
+    finally:
+        os.close(proved)
+    if (held.st_dev, held.st_ino) != (made.st_dev, made.st_ino):
+        _denied(f"the pathname for attempt "
+                f"{name_value(delivery.attempt_id)}'s integration delivery "
+                f"no longer identifies the namespace just created; a "
+                f"replacement injected during creation is not a delivery")
     return delivery
 
 
-def _own_directory(place, mode, what, *, within=None):
+def _established_ancestor(within):
+    """The managed per-attempt ancestor: MADE once, PROVED every other time.
+
+    An EXISTING ancestor proves at exactly its established mode or refuses --
+    review217641 measured a world-writable one being accepted, and repairing
+    it instead would adopt whatever grew inside while it was open. An ABSENT
+    one is made RELATIVE to the held deployment root and finished on its own
+    descriptor, so nothing between the `mkdir` and the effects can be a
+    replacement that gets followed.
+    """
+    what = "the per-attempt delivery ancestor"
+    try:
+        os.mkdir(DELIVERIES_DIRECTORY, mode=0o700, dir_fd=within)
+    except FileExistsError:
+        return _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR, what,
+                              within=within)
+    except OSError as failure:
+        _denied(f"{what} could not be established "
+                f"({type(failure).__name__}) under the deployment's delivery "
+                f"root")
+    return _finished_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR, what,
+                               within=within)
+
+
+def _made_directory(name, mode, what, *, within, gid=None):
+    """One directory MADE relative to a held descriptor and finished on its own.
+
+    review217641 [R4]: `mkdir` through the held parent cannot be redirected
+    by a rename of the parent's pathname, and anything already at the name --
+    including a racing replacement -- refuses rather than being adopted:
+    creation makes a namespace exactly once.
+    """
+    try:
+        os.mkdir(name, mode=0o700, dir_fd=within)
+    except OSError as failure:
+        _denied(f"{what} could not be made ({type(failure).__name__}); "
+                f"creation makes a namespace exactly once and adopts nothing "
+                f"already at its name")
+    return _finished_directory(name, mode, what, within=within, gid=gid)
+
+
+def _finished_directory(name, mode, what, *, within, gid=None):
+    """The directory just made, opened back NO-FOLLOW and finished by handle.
+
+    The open is relative to the SAME held parent the `mkdir` used, so the one
+    remaining interval -- between making the entry and opening it -- admits
+    only a swap inside a directory this manager already custodies, and even
+    that fails closed: a link refuses on `O_NOFOLLOW`, and `fchmod`/`fchown`
+    on a directory this manager does not own refuse rather than finishing
+    somebody else's tree. The mode is ESTABLISHED on the descriptor rather
+    than requested through the umask, for `_publish_once`'s reason.
+    """
+    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY
+    try:
+        opened = os.open(name, flags, dir_fd=within)
+    except OSError as failure:
+        _denied(f"{what} was made and could not be opened back "
+                f"({type(failure).__name__}); an entry that is not the "
+                f"directory just made is a replacement, not a delivery")
+    try:
+        if gid is not None:
+            # THE GROUP FIRST AND THE MODE AFTER, `adopt_workspace_group`'s
+            # own order and reason: group-writable is the namespace's whole
+            # point, and a mode set before the group could be cleared by the
+            # ownership change. `-1` keeps the owner; the gid is one
+            # `check_workspace_group` already proved.
+            try:
+                os.fchown(opened, -1, gid)
+            except OSError as failure:
+                _denied(f"the manager could not put {what} in the configured "
+                        f"workspace group {gid}: {type(failure).__name__}; "
+                        f"the deployment provisions this group and grants "
+                        f"this manager membership, and without it the worker "
+                        f"cannot write the outputs it must declare")
+        try:
+            os.fchmod(opened, mode)
+        except OSError as failure:
+            _denied(f"{what} would not take its established mode {oct(mode)} "
+                    f"({type(failure).__name__}); a directory this manager "
+                    f"cannot finish is not one it made")
+    except BaseException:
+        os.close(opened)
+        raise
+    return opened
+
+
+def _opened_root(delivery, *, absent_ok=False):
+    """This delivery's root descriptor, through a FRESH proved walk.
+
+    review217641 [R4]: a completed descriptor walk is not permanent proof --
+    a pathname reopened later is a pathname somebody may have re-pointed
+    since. So there is no reopening 'later': every use that needs the root
+    repeats the whole walk, each managed component opened NO-FOLLOW relative
+    to the previously held descriptor and proved at its established mode.
+    `absent_ok` answers `None` for a component that is NOT THERE -- ordinary
+    for a delivery never made -- while a component of the wrong shape still
+    refuses by name.
+    """
+    try:
+        base = os.open(delivery.deployment_root,
+                       os.O_RDONLY | os.O_DIRECTORY)
+    except OSError as failure:
+        if absent_ok and isinstance(failure, FileNotFoundError):
+            return None
+        _denied(f"the delivery root at "
+                f"{name_value(delivery.deployment_root)} cannot be opened as "
+                f"a directory ({type(failure).__name__})")
+    try:
+        if delivery.legacy:
+            return _own_directory(
+                DELIVERY_DIRECTORY, DELIVERY_DIR,
+                f"attempt {name_value(delivery.attempt_id)}'s legacy "
+                f"integration delivery root", within=base,
+                absent_ok=absent_ok)
+        ancestor = _own_directory(DELIVERIES_DIRECTORY, DELIVERY_DIR,
+                                  "the per-attempt delivery ancestor",
+                                  within=base, absent_ok=absent_ok)
+        if ancestor is None:
+            return None
+        try:
+            return _own_directory(
+                os.path.basename(delivery.root), DELIVERY_DIR,
+                f"attempt {name_value(delivery.attempt_id)}'s integration "
+                f"delivery root", within=ancestor, absent_ok=absent_ok)
+        finally:
+            os.close(ancestor)
+    finally:
+        os.close(base)
+
+
+def _own_directory(place, mode, what, *, within=None, absent_ok=False):
     """One directory this manager established, proved on its own descriptor.
 
     W101490's first review [P1]: adoption used `os.path.isdir`, which follows
@@ -622,6 +846,11 @@ def _own_directory(place, mode, what, *, within=None):
         opened = (os.open(place, flags) if within is None
                   else os.open(place, flags, dir_fd=within))
     except OSError as failure:
+        # ABSENCE IS AN ORDINARY ANSWER WHEN THE CALLER SAYS SO
+        # (review217641): a read of a delivery never made answers `None`, and
+        # only a component that IS there in the wrong shape refuses.
+        if absent_ok and isinstance(failure, FileNotFoundError):
+            return None
         _denied(f"{what} is not a directory this manager made "
                 f"({type(failure).__name__}); an entry of another type is "
                 f"state this build cannot account for")
@@ -649,12 +878,83 @@ def adopt_delivery(root, *, attempt_id, workspace_group):
     group a caller chose.
     """
     delivery = IntegrationDelivery(attempt_id=attempt_id, root=root)
-    if not os.path.lexists(delivery.root):
+    legacy = IntegrationDelivery(attempt_id=attempt_id, root=root,
+                                 _legacy=True)
+    legacy_marker = os.path.join(legacy.root, ASSIGNMENT_DIRECTORY)
+    if os.path.lexists(delivery.root):
+        # THE DUAL-LAYOUT SAME-ATTEMPT AMBIGUITY, pinned (review217558): two
+        # namespaces both claiming one attempt is a contradiction between
+        # layouts, refused rather than resolved by preference.
+        if os.path.lexists(legacy_marker):
+            held = published_assignment(legacy)
+            if held is not None and held.get("attempt_id") == attempt_id:
+                _denied(f"attempt {name_value(attempt_id)} is claimed by "
+                        f"BOTH a per-attempt delivery and the legacy "
+                        f"single-slot delivery's published assignment; two "
+                        f"namespaces for one attempt is a contradiction this "
+                        f"manager refuses rather than resolves")
+        # THE MANAGED ANCESTOR IS PROVED FIRST, [R4]: the leaf is opened
+        # THROUGH the ancestor's descriptor, so a symlink at either level is
+        # refused rather than followed.
+        ancestor = _own_directory(
+            os.path.dirname(delivery.root), DELIVERY_DIR,
+            "the per-attempt delivery ancestor")
+        try:
+            proved = _proved_delivery(delivery, workspace_group,
+                                      within=ancestor)
+        finally:
+            os.close(ancestor)
+        # IDENTITY IS VALIDATED FOR NEW ADOPTIONS TOO, not assumed from the
+        # derived path: a published assignment inside must name exactly this
+        # attempt (the public writer already enforces it; on-disk state that
+        # disagrees is corruption, not a delivery).
+        published = published_assignment(proved)
+        if published is not None \
+                and published.get("attempt_id") != attempt_id:
+            _denied(f"the per-attempt delivery derived for "
+                    f"{name_value(attempt_id)} carries an assignment naming "
+                    f"{name_value(published.get('attempt_id'))}; a namespace "
+                    f"whose contents disagree with its identity is not a "
+                    f"delivery")
+        return proved
+    # THE LEGACY SINGLE SLOT, identity-proved or refused -- W202663 D8
+    # (owner217455). A delivery made before per-attempt namespaces lives at
+    # the constant path with `assignment/` directly beneath it, which no
+    # per-attempt layout produces (attempt ids are identity-shaped). It is
+    # adopted ONLY when its own PUBLISHED assignment names exactly the
+    # requested attempt -- the in-flight legacy integration resuming across
+    # the upgrade. One naming a FOREIGN attempt is retained evidence: this
+    # answers None and the caller materializes its own namespace BESIDE it,
+    # touching nothing. One with NO published assignment is unaccountable
+    # interrupted state and refuses by name. Nothing migrates, overwrites or
+    # deletes legacy bytes.
+    if not os.path.lexists(legacy_marker):
         return None
+    proved = _proved_delivery(legacy, workspace_group)
+    published = published_assignment(proved)
+    if published is None:
+        _denied(f"the legacy single-slot integration delivery at "
+                f"{name_value(legacy.root)} carries no published assignment; "
+                f"whose delivery it is cannot be proved, and nothing here "
+                f"migrates, overwrites or removes it")
+    if published.get("attempt_id") != attempt_id:
+        return None
+    return proved
+
+
+def _proved_delivery(delivery, workspace_group, *, within=None):
+    """One delivery's namespaces proved at their established modes.
+
+    `within` is the proved ancestor's descriptor when the caller holds one
+    (review217558 [R4]); the leaf is then opened RELATIVE to it, so nothing
+    on the way can be a link.
+    """
     # THE PARENT FIRST, and everything else through its descriptor.
-    parent = _own_directory(delivery.root, DELIVERY_DIR,
+    parent = _own_directory(delivery.root if within is None
+                            else os.path.basename(delivery.root),
+                            DELIVERY_DIR,
                             f"attempt {name_value(delivery.attempt_id)}'s "
-                            f"integration delivery root")
+                            f"integration delivery root", within=within)
     try:
         os.close(_own_directory(
             ASSIGNMENT_DIRECTORY, ASSIGNMENT_DIR,
@@ -720,38 +1020,57 @@ def publish_assignment(delivery, assignment):
                 f"carries one integration")
     payload = _payload(document)
     place = os.path.join(delivery.assignment_root, ASSIGNMENT_DOCUMENT)
-    existing = _read_bounded(delivery.assignment_root, ASSIGNMENT_DOCUMENT,
-                             what="the published assignment")
-    if existing is not None:
-        if existing != payload:
-            _denied(f"attempt {name_value(delivery.attempt_id)} already "
-                    f"carries a different assignment; one integration is "
-                    f"assigned once, and replacing it would move an identity "
-                    f"a running runtime may already have copied")
-        return {"published": False, "place": place,
-                "assignment_digest": digest_of_bytes(payload)}
-    published = _publish_once(delivery.assignment_root, ASSIGNMENT_DOCUMENT,
-                              payload)
-    if not published:
-        # LOST THE RACE TO THE FINAL NAME, which is an ordinary outcome rather
-        # than a failure: the linking publication never clobbers, so the
-        # winner's document is still there to be compared. An identical one is
-        # adopted; a different one refuses exactly as one found before staging
-        # does.
-        existing = _read_bounded(delivery.assignment_root,
-                                 ASSIGNMENT_DOCUMENT,
+    # ONE HELD NAMESPACE ACROSS CHECK AND PUBLICATION, review217641 [R4]: the
+    # namespace is reached through a fresh proved walk and every read and
+    # write below is relative to this one descriptor, so what was checked and
+    # what is written to are the same object by construction rather than the
+    # same pathname twice.
+    root_fd = _opened_root(delivery)
+    try:
+        opened = _own_directory(
+            ASSIGNMENT_DIRECTORY, ASSIGNMENT_DIR,
+            f"attempt {name_value(delivery.attempt_id)}'s integration "
+            f"assignment namespace", within=root_fd)
+    finally:
+        os.close(root_fd)
+    try:
+        existing = _read_bounded(opened, ASSIGNMENT_DOCUMENT,
                                  what="the published assignment")
-        if existing != payload:
-            _denied(f"attempt {name_value(delivery.attempt_id)} already "
-                    f"carries a different assignment; one integration is "
-                    f"assigned once, and replacing it would move an identity "
-                    f"a running runtime may already have copied")
-    return {"published": published, "place": place,
-            "assignment_digest": digest_of_bytes(payload)}
+        if existing is not None:
+            if existing != payload:
+                _denied(f"attempt {name_value(delivery.attempt_id)} already "
+                        f"carries a different assignment; one integration is "
+                        f"assigned once, and replacing it would move an "
+                        f"identity a running runtime may already have copied")
+            return {"published": False, "place": place,
+                    "assignment_digest": digest_of_bytes(payload)}
+        published = _publish_once(opened, ASSIGNMENT_DOCUMENT, payload)
+        if not published:
+            # LOST THE RACE TO THE FINAL NAME, which is an ordinary outcome
+            # rather than a failure: the linking publication never clobbers,
+            # so the winner's document is still there to be compared. An
+            # identical one is adopted; a different one refuses exactly as
+            # one found before staging does.
+            existing = _read_bounded(opened, ASSIGNMENT_DOCUMENT,
+                                     what="the published assignment")
+            if existing != payload:
+                _denied(f"attempt {name_value(delivery.attempt_id)} already "
+                        f"carries a different assignment; one integration is "
+                        f"assigned once, and replacing it would move an "
+                        f"identity a running runtime may already have copied")
+        return {"published": published, "place": place,
+                "assignment_digest": digest_of_bytes(payload)}
+    finally:
+        os.close(opened)
 
 
-def _publish_once(root, name, payload):
+def _publish_once(opened, name, payload):
     """Stage, sync, and LINK into the final name. Answers whether we made it.
+
+    `opened` is the target directory's HELD descriptor, proved by the
+    caller's walk (review217641 [R4]): every operation below -- staging,
+    linking, the directory `fsync`, the cleanup -- is relative to that one
+    object, so a pathname re-pointed mid-publication redirects nothing.
 
     W101490's review [P1]: the first draft of this copied a SUPERSEDED
     publication shape -- one fixed staging name, one unchecked `os.write`,
@@ -786,11 +1105,11 @@ def _publish_once(root, name, payload):
     removes a NAME rather than the document: `link` made a second name for the
     same inode.
     """
-    staged = os.path.join(root, f".{name}.{os.getpid()}."
-                                f"{os.urandom(8).hex()}.publishing")
+    staged = (f".{name}.{os.getpid()}."
+              f"{os.urandom(8).hex()}.publishing")
     handle = os.open(staged,
                      os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
-                     0o000)
+                     0o000, dir_fd=opened)
     try:
         try:
             _write_whole(handle, payload)
@@ -799,18 +1118,14 @@ def _publish_once(root, name, payload):
         finally:
             os.close(handle)
         try:
-            os.link(staged, os.path.join(root, name))
+            os.link(staged, name, src_dir_fd=opened, dst_dir_fd=opened)
         except FileExistsError:
             return False
-        opened = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
-        try:
-            os.fsync(opened)
-        finally:
-            os.close(opened)
+        os.fsync(opened)
         return True
     finally:
         try:
-            os.unlink(staged)
+            os.unlink(staged, dir_fd=opened)
         except OSError:
             pass
 
@@ -829,8 +1144,14 @@ def _write_whole(handle, payload):
     return written
 
 
-def _read_bounded(place, name, *, what, mode=None):
+def _read_bounded(opened, name, *, what, mode=None):
     """One named regular file's whole bytes, or absence -- NO-FOLLOW, BOUNDED.
+
+    `opened` is the containing directory's HELD descriptor, proved by the
+    caller's walk (review217641 [R4]): this reader used to accept a pathname
+    and open it itself, which re-resolved every component of a path the
+    caller had already checked once. Now the caller's proof and this read are
+    the same object.
 
     The four properties are `exchange._read_exact`'s and each one is a way a
     container can hand this manager something other than a document: NO-FOLLOW
@@ -840,22 +1161,15 @@ def _read_bounded(place, name, *, what, mode=None):
     ceiling.
     """
     try:
-        opened = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
-    except OSError:
+        handle = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                         dir_fd=opened)
+    except FileNotFoundError:
         return None
-    try:
-        try:
-            handle = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
-                             dir_fd=opened)
-        except FileNotFoundError:
-            return None
-        except OSError as failure:
-            _untrusted(f"{what} at {name_value(name)} could not be opened as "
-                       f"an ordinary file ({type(failure).__name__}); a link "
-                       f"or a device at a name this contract fixes is not a "
-                       f"document")
-    finally:
-        os.close(opened)
+    except OSError as failure:
+        _untrusted(f"{what} at {name_value(name)} could not be opened as "
+                   f"an ordinary file ({type(failure).__name__}); a link "
+                   f"or a device at a name this contract fixes is not a "
+                   f"document")
     try:
         found = os.fstat(handle)
         if not stat.S_ISREG(found.st_mode):
@@ -881,6 +1195,36 @@ def _read_bounded(place, name, *, what, mode=None):
     return raw
 
 
+def _namespace_read(delivery, namespace, namespace_mode, name, *, what,
+                    mode=None):
+    """One document under a delivery namespace, read through a FRESH walk.
+
+    review217641 [R4]: reads after adoption used to reopen the namespace by
+    PATHNAME, treating the completed descriptor walk as permanent proof.
+    Nothing about a pathname is permanent, so every read repeats the walk
+    and opens the document relative to the last held descriptor. Absence
+    anywhere on the way is the ordinary `None` -- a delivery never made, an
+    assignment not yet published; a component that IS there in the wrong
+    shape refuses by name.
+    """
+    root_fd = _opened_root(delivery, absent_ok=True)
+    if root_fd is None:
+        return None
+    try:
+        opened = _own_directory(
+            namespace, namespace_mode,
+            f"attempt {name_value(delivery.attempt_id)}'s integration "
+            f"{namespace} namespace", within=root_fd, absent_ok=True)
+    finally:
+        os.close(root_fd)
+    if opened is None:
+        return None
+    try:
+        return _read_bounded(opened, name, what=what, mode=mode)
+    finally:
+        os.close(opened)
+
+
 def published_assignment(delivery):
     """The assignment a delivery CURRENTLY CARRIES, or `None` if none is there.
 
@@ -904,8 +1248,10 @@ def published_assignment(delivery):
     if type(delivery) is not IntegrationDelivery:
         _denied(f"a published assignment is read through this component's own "
                 f"typed delivery; this is {name_value(delivery)}")
-    raw = _read_bounded(delivery.assignment_root, ASSIGNMENT_DOCUMENT,
-                        what="the published assignment", mode=ASSIGNMENT_FILE)
+    raw = _namespace_read(delivery, ASSIGNMENT_DIRECTORY, ASSIGNMENT_DIR,
+                          ASSIGNMENT_DOCUMENT,
+                          what="the published assignment",
+                          mode=ASSIGNMENT_FILE)
     if raw is None:
         return None
     try:
@@ -945,8 +1291,9 @@ def observed_delivery(delivery, assignment):
         _denied(f"an integration is observed through this component's own "
                 f"typed delivery; this is {name_value(delivery)}")
     composed = _owned_assignment(assignment)
-    published = _read_bounded(delivery.assignment_root, ASSIGNMENT_DOCUMENT,
-                              what="the published assignment")
+    published = _namespace_read(delivery, ASSIGNMENT_DIRECTORY,
+                                ASSIGNMENT_DIR, ASSIGNMENT_DOCUMENT,
+                                what="the published assignment")
     if published is None:
         return {"state": "not-assigned", "result": None, "hold": None}
     if published != _payload(composed):
@@ -957,8 +1304,9 @@ def observed_delivery(delivery, assignment):
                              "observation was made against",
                     detail={"attempt_id": delivery.attempt_id})}
     try:
-        raw = _read_bounded(delivery.result_root, RESULT_DOCUMENT,
-                            what="the integration result")
+        raw = _namespace_read(delivery, RESULT_DIRECTORY,
+                              workspaces.WORKSPACE_DIR, RESULT_DOCUMENT,
+                              what="the integration result")
     except ContractRefusal as refusal:
         return {"state": "held", "result": None,
                 "hold": hold_account(

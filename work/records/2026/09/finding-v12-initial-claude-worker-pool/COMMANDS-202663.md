@@ -1,14 +1,16 @@
-# Exact commands — the first Claude-backed v12 development Job
+# Deployment commands — W202663
 
-W202663, rewritten at claim207219. **The part-2 template this file used to
-carry is gone.** Review206578 and review207096 both refused it as a deliverable
-and were right: a schema skeleton with `<one>` placeholders is not a launch
-instruction. Every value below is a real one, read out of artefacts that exist.
+Rewritten at claim208463. **Every earlier version of this file described
+`/home/sl/baton-v12-instance-2026-09-18T10-38-52Z`, which owner pass 208215
+superseded and which now lives under `/home/sl/baton-v12/archive/`.** Those
+paths are history, not instructions.
 
-Three parts: what produced the images, what composed and applied the pool
-(both RUN, with their results), and what remains before a Job may be submitted.
+Three parts: what exists now, what the owner runs to install the next instance,
+and what must be verified on it before anything is called ready.
 
-## Part 1 — the two images (run; results recorded)
+## Part 1 — artefacts that exist (built and recorded)
+
+### The two supported production images
 
 ```sh
 cd /home/sl/src/baton/v12/python
@@ -27,133 +29,168 @@ docker build --no-cache --platform linux/amd64 \
 # -> sha256:b9b75acc300170d99649d0497f9f93876ab5d8d73a9157c9861c5763f17c9561
 ```
 
-Neither builds without this Work's `v12/.dockerignore` correction (`FINDING.md`
-D1). Provenance: `PROVENANCE-202663.json`, with every copied path compared
-checkout-side and image-side in `COPIED-INPUTS-207111.json`.
+Neither builds without this Work's `v12/.dockerignore` correction
+(`FINDING.md` D1). Provenance: `PROVENANCE-202663.json` and
+`COPIED-INPUTS-207111.json`.
 
-## Part 2 — the pool, composed and applied (run; results recorded)
-
-```sh
-cd /home/sl/src/baton/v12/python
-PYTHONPATH=src:. python3 \
-  /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/compose-pool-207219.py
-# -> complete: true, refused: []
-
-PYTHONPATH=src:. python3 -m tools.bootstrap \
-  --inputs /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/pool-bootstrap-inputs.json
-```
-
-The composer writes `pool-bootstrap-inputs.json`, `pool-submission.json`,
-`pool-stage-execution.json`, `pool-task.json` and
-`pool-integration-instructions.txt` beside this file, stages the deployment's
-own `jobs/w202663-first-development-job/task.json` and
-`integration-instructions.txt` at the destination, and calls every accepted
-validator — `check_manifest_structure` three times, `bootstrap.held`,
-`bootstrap.configuration`, `stage_execution.held_configuration`,
-`bootstrap.validated`, `job_manager.documents.owned_submission` — refusing
-fail-closed if any declines.
-
-**This is a heterogeneous pool, and it is the first one that could exist.**
-
-| role | worker_id | participant | image | runtime manifest |
-| --- | --- | --- | --- | --- |
-| implementation | `w202663-first-development-job-implementation` | `baton.claude-coder` | `sha256:9ff3322f…` provider | `sha256:e3bd9547…` |
-| review | `w202663-first-development-job-review` | `baton.claude-reviewer` | `sha256:9ff3322f…` provider | `sha256:ecbca685…` |
-| integration | `w202663-first-development-job-integration` | `baton.merge` | `sha256:b9b75acc…` integration | `sha256:98ff830f…` |
-
-Three runtime manifests, two images, **one Job input identity**
-`sha256:514f591dc9d7fcd6968a1f4262b2de834563f1e8b7cb8da7f97a012c7bdc4960`.
-
-Applied state, read back from
-`/home/sl/baton-v12-instance-2026-09-18T10-38-52Z/deployment.json`:
-
-- authority `a92e1d717fcc40fe9972df8b2497c055`, Work `a92e1d71-W1` created on
-  `impl`, routes `impl → baton.claude-coder`, `rview → baton.claude-reviewer`,
-  `integration → baton.merge`, and the four grants in that Work's own scope;
-- canonical target `w202663-target` established at
-  `e486652c4ddebfb696e030b4b867e914248db542`, read from the instance target's
-  own `packed-refs`;
-- `policy_generation` **16**.
-
-### The policy-generation pin, measured rather than assumed
-
-W197661's trap is real and this Work hit it. The pin travels INTO the bootstrap
-that bumps it, so a composition must predict what the run will LEAVE.
+### The two deterministic fixture images
 
 ```sh
-cd /home/sl/src/baton/v12/python
-PYTHONPATH=src:. python3 -c "
-import importlib.util
-spec = importlib.util.spec_from_file_location('pool', '/home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/compose-pool-207219.py')
-m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
-print(m.check_policy_pin())"
-# -> {'configured_pin': 16, 'authority_generation': 16, 'equal': True}
+C=/home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/fixture-context
+for n in producer integrator; do
+  docker build --pull=false --no-cache --network none --platform linux/amd64 \
+    --file $C/Dockerfile.$n \
+    --tag baton-v12-w202663-fixture-$n:claim208217 $C
+done
+# producer   -> sha256:6ae290f9135c4c79bf2a74c2425deb839bccf77190927bf6529cf34bd622423f
+# integrator -> sha256:9944eef7363e8f8fd0d917bd71fbe19dfb177b6232b7064f3c3a4785f307be0f
 ```
 
-The first prediction was **wrong** — configured 8 against generation 9 — and
-this gate is what said so. Measured on this instance: the first capacity
-bootstrap moved 1 → 9 (+8) and the repeat moved 9 → 16 (+7). Observations of
-this instance, not a contract. **Run this check after any further bootstrap**;
-a deployment whose pin is wrong defers at its own integration with the reason
-buried in a tick report.
+W198667's reviewed worker bytes at two entrypoints. They enter no provider and
+read no credential.
 
-## Part 3 — the instance lifecycle (read-only commands only, for now)
+### The emitting producer fixture (claim208916, review208890)
 
 ```sh
-just --justfile /home/sl/baton-v12-instance-2026-09-18T10-38-52Z/justfile status
-just --justfile /home/sl/baton-v12-instance-2026-09-18T10-38-52Z/justfile start
-just --justfile /home/sl/baton-v12-instance-2026-09-18T10-38-52Z/justfile monitor
-just --justfile /home/sl/baton-v12-instance-2026-09-18T10-38-52Z/justfile stop
+C=/home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/fixture-context
+docker build --pull=false --no-cache --network none --platform linux/amd64 \
+  --file $C/Dockerfile.emitting \
+  --tag baton-v12-w202663-fixture-emitting:claim208916 $C
+# -> sha256:e48e72dfaaed321a34f1bfdd8ceca260c63d852c3fdc625da1458b02eaf7e9e8
 ```
 
-`status` and `monitor` are read-only and safe. **`start` is not, yet**:
-`FINDING.md` D3 measures that this instance's installed runtime was packaged
-from a different source state than the corrected tree, so starting it would run
-a scheduler whose admission still compares a worker's whole manifest digest and
-would refuse the heterogeneous pool above. It submits nothing either way, but
-it is not evidence of anything until D3 is resolved.
+The same reviewed producer plus deterministic prose on the wrapper's stdout
+and stderr (`emitting_agent.py`), because a silent fixture cannot satisfy
+nonempty retained logs. Selected with `compose-verification-208217.py
+--emitting` for the implementation role only; its output is fixture output,
+labelled in every line, and proves capture retention — never provider
+evidence. `assert-capture-208916.py` is the executable form of that proof.
 
-## What has NOT been done
+### The corrected runtime — already built and recorded
 
-**The Job has not been submitted, and submitting it is not authorized by this
-Work.** `pool-submission.json` is composed, validated by
-`job_manager.documents.owned_submission`, and deliberately not handed to
-`submit`. The reason is exact rather than cautious: the implementation and
-review workers run the **provider image**, whose entrypoint is
-`dogfood_entry.py` → `ClaudeAgent` → a real provider. A Job that reaches them
-makes a model turn, and owner ruling 206702 says *"No live models"*.
+```
+/home/sl/src/baton/v12/python/build/out/distro
+# executable sha256:6af693b295dd666eaa9d118f2a6b4242a396f6a872ca4f68b7fc9f3373cae4ba
+# whole bundle sha256:425e624e69deecb644546ff7891a84c2662ea79d5548145ab7dda61c1e9eccbb (81 files)
+```
 
-So the deterministic report-and-hold verification (step 8) **cannot use this
-pool as composed**. It needs a deterministic provider at the same boundary — a
-separately provenanced fixture image, as W197661 used — configured as its own
-pool on this instance. That is the remaining work, and it is not a decision the
-owner has to make: it is implementation under the existing ruling.
+Built in claim209102 **after** the D7 correction (`FINDING.md` D7: a settled
+allocation from a retired pool generation crashed the manager at restart),
+with the corrected `/2` prospective snapshot taken BEFORE the build (109
+inputs, `PROSPECTIVE-INPUTS-209102.json`). It supersedes `7040dd00…` — the
+runtime at `instance-2026-09-19T04-02-31Z`, whose completed-lifecycle
+evidence is preserved. Records: `RUNTIME-BUILD-209102.json`,
+`BUNDLE-MANIFEST-209102.json`.
 
-**And it cannot run on this instance.** `FINDING.md` D3: the installed runtime
-here was packaged from a different source state than the corrected tree, and
-the supported installer refuses to replace a runtime in place. Part 3's
-commands drive the INSTALLED runtime, so until that is resolved this file
-documents a prepared configuration, not a launch-ready deployment.
+#### Superseded: the claim208531 build (history, preserved)
 
-When the owner does want the first real Claude-backed Job, the submission is
-ready and the command is:
+Built in claim208531 **after** the D4 correction — it supersedes
+`sha256:48b12f15…` (the runtime installed at
+`/home/sl/baton-v12/instance-2026-09-19T02-05-20Z`, which predates the
+correction). `RUNTIME-BUILD-208531.json` records the build;
+`BUNDLE-MANIFEST-208647.json` binds the complete one-folder bundle, digested
+by `tools.instance.manifest` — the installer's own digester. The prospective
+input snapshot taken before this build is PARTIAL
+(`PROSPECTIVE-SUPERSESSION-208647.json`): identity is established, input-set
+completeness is not. **Do not rebuild**: a rebuild produces a different
+artefact, and installing it while citing these digests is exactly what
+review208585 [R1] forbids.
+
+## Part 2 — installing the next instance (the OWNER runs this)
+
+Owner ruling 208460: *"Owner will install a fresh timestamped instance under
+/home/sl/baton-v12/ afterward; no agent replacement/reset of the current
+instance."* Nothing in this Work installs it, and the current instance is
+preserved as evidence.
 
 ```sh
-cd /home/sl/src/baton/v12/python
-PYTHONPATH=src:. python3 -c "
-import json
-from baton_v12.job_manager import JobStore, submit
-store = JobStore.open('/home/sl/baton-v12-instance-2026-09-18T10-38-52Z/db/jobs.sqlite3',
-                      authority_uuid='a92e1d717fcc40fe9972df8b2497c055',
-                      incarnation='w202663-submit')
-try:
-    submit(store, json.load(open('/home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool/pool-submission.json')))
-finally:
-    store.close()"
+cd /home/sl/src/baton/work/records/2026/09/finding-v12-initial-claude-worker-pool
+./install-next-instance.sh
 ```
 
-That command **starts real model turns** under the credential the operator has
-placed behind the `claude` slot at
-`~/.baton/credential-sources.json` reference `w202663-development`. Nothing in
-this Work has read, staged or verified that credential; the deployment names a
-locator and no more. Do not run it as part of verifying this Work.
+One command, no operands. It refuses unless the bundle on disk still digests
+as the reviewed artefact above, selects and retains one fresh UTC timestamp in
+`selected-instance.txt`, passes the reviewed distro EXPLICITLY to
+`just bootstrap` (so nothing is rebuilt), and compares the installed identity
+back against the same records. `install-inputs.json` beside this file names no
+workers and no Jobs, which is what a fresh install is. The destination must
+not exist — the installer refuses an existing runtime in place (`FINDING.md`
+D3), and that refusal is correct.
+
+## Part 3 — verification owed on that instance, in order
+
+Each step names what it proves and what it does not. **`just start` is the
+INSTALLED path; running the checkout instead proves nothing about the installed
+runtime** — a line review207292 drew and this file keeps.
+
+1. **Identity.** `just --justfile <dest>/justfile identity` and compare
+   `instance.json`'s `identity.sha256` against the digest recorded for the
+   rebuilt runtime. This establishes identity, not behaviour — the owner's own
+   qualification in pass 208215.
+
+2. **Compose the deterministic verification pool.** No file is edited: the
+   composer takes the retained instance and reads its persisted identity.
+   ```sh
+   cd /home/sl/src/baton/v12/python
+   PYTHONPATH=src:. python3 <dossier>/compose-verification-208217.py \
+     --instance "$(cat <dossier>/selected-instance.txt)"
+   PYTHONPATH=src:. python3 -m tools.bootstrap --inputs <dossier>/pool-bootstrap-inputs.json
+   ```
+   Expect `complete: true, refused: []`. This regenerates
+   `pool-bootstrap-inputs.json` and `pool-submission.json` for that instance.
+
+3. **Check the policy pin, every time — as a gate.**
+   ```sh
+   <dossier>/check-policy-pin.sh
+   ```
+   It selects the retained instance FIRST (review208585 [R2]: importing the
+   composer without `select_instance` reads the historical instance's pin) and
+   exits nonzero on inequality — recompose and re-apply then; do not start.
+   Measured on the superseded instance: the bump is **per Work** — 7 with one
+   Work, 14 with two. Predictions are checked, never trusted.
+
+4. **Start and submit.** With `DEST="$(cat <dossier>/selected-instance.txt)"`
+   and `UUID` read from `$DEST/authority-identity.json`:
+   ```sh
+   just --justfile "$DEST/justfile" start
+   cd /home/sl/src/baton/v12/python
+   PYTHONPATH=src:. python3 -m tools.job_manager \
+     --store "$DEST/db/jobs.sqlite3" \
+     --incarnation w202663-verification-submit \
+     --authority-uuid "$UUID" \
+     submit --document <dossier>/pool-submission.json
+   ```
+   (`verify-next-instance.sh` prints exactly this with every value filled in.)
+   The fixture images enter no provider, so this reaches no model.
+
+5. **Carry it to a terminal report-and-hold**, and prove each of these
+   separately rather than inferring one from another: configured identity,
+   runtime-recorded attribution, actual execution, and completion. The
+   integration image's execution is **not** proved by its attempt record.
+
+6. **Capture proof.** Read the retained streams with
+   `tools.attempt_logs_command … locators` and then `read`. The claim208217 run
+   left all six streams absent and the native room empty, which proves the
+   reader works and nothing about captured bytes: a real proof needs a
+   workload that actually emits and nonempty bytes read back after cleanup.
+
+7. **Cleanup, fencing and recovery.** Supervisor stop is not cleanup; account
+   for destroyed runtimes, not-started runtimes and held allocations as
+   distinct facts.
+
+8. **Then, and only then, the real Claude pool.** Recompose
+   `compose-pool-207219.py` for the new authority and destination, re-verify
+   its pin, and rewrite part 2 of this file against it. That pool's
+   implementation and review workers enter a REAL provider; submitting its Job
+   starts model turns and is not authorized by this Work.
+
+## What this Work has not established
+
+- that the corrected runtime behaves as intended once installed — only that
+  the correction's own focused cases pass in the checkout;
+- that the nominated development source carries the accepted prerequisites;
+- a COMPLETE prospective build-input snapshot: the one taken before the
+  claim208531 build is PARTIAL (it omitted the build lock, the spec and the
+  recipe — `PROSPECTIVE-SUPERSESSION-208647.json`), the omissions cannot be
+  reconstructed for that build, and the corrected `prospective-snapshot.py`
+  must run immediately before the next selected build.

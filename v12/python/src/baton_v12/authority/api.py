@@ -146,6 +146,9 @@ class Authority:
     def canonical_target(self):
         return self._core.canonical_target()
 
+    def accept_base(self, acceptance, *, operation_id):
+        return self._core.accept_base(acceptance, operation_id=operation_id)
+
     def grant_capability(self, participant, capability, *, scope=None):
         return self._core.grant_capability(participant, capability,
                                            scope=scope)

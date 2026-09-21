@@ -834,7 +834,14 @@ def _held_workers(workers, checkout, authority_uuid, *, many=False,
         principals.setdefault(deployment["principal"], []).append(role)
         held.append({"worker_id": worker["worker_id"], "role": role,
                      "deployment": deployment})
-    missing = [role for role in ROLES if role not in seen_roles]
+    # THE INTEGRATION ROLE IS OPTIONAL, owner 2026-09-20T14:57:48Z
+    # (W202663, the PR model): a deployment may compose producer and
+    # reviewer only -- integration is a human act or an explicitly
+    # submitted ordinary Job, never an obligatory worker. Implementation
+    # and review remain required: a Job that cannot be produced or
+    # independently reviewed serves nothing.
+    missing = [role for role in ROLES
+               if role not in seen_roles and role != "integration"]
     if missing:
         _refuse(f"this deployment serves {', '.join(ROLES)} and names no "
                 f"worker for {', '.join(missing)}")
@@ -4038,16 +4045,54 @@ class StageDeployment:
         configuration on every restart and replays instead of colliding. The key
         is the configured `canonical_target_id` and is never derived from a
         line, a proposal or a revision, which is that function's own rule.
+
+        THE DESCRIPTION IS NOT CAPACITY, AND W202663 D4 IS WHAT THAT COST.
+        This composed `at pool generation {n}` into the description, and
+        `activate_target` compares the WHOLE document digest for an existing
+        key -- so adding a worker to a configured deployment advanced the pool
+        generation, re-described a live target, and the start refused
+        "target ... is already activated under another configuration; a live
+        target's identity is not re-described". Two correct rules that could
+        not both be satisfied: a changed pool is a new generation, and a live
+        target is not re-described. Owner ruling 2026-09-19T02:44:19Z
+        authorizes decoupling the stable identity from the mutable capacity.
+
+        A NEW TARGET GETS A DESCRIPTION THAT CANNOT MOVE. It names the
+        deployment whose configuration adopted it and nothing that changes when
+        capacity does.
+
+        AN EXISTING TARGET IS ADOPTED AS IT STANDS, and that is the half a
+        naive fix gets wrong: simply dropping the generation and presenting the
+        new document for an old key re-describes it just as surely, and refuses
+        for the same reason. Review208415 called that out before it was
+        written. So the stored document is read back through the public reader
+        and presented unchanged, which takes `activate_target`'s exact-replay
+        path -- a legacy generation-bearing descriptor keeps working, its
+        identity, fence, queue and history are untouched, and nothing rewrites
+        a durable row.
+
+        THE REFUSAL INVARIANT IS NOT WEAKENED. `activate_target` still refuses
+        a genuinely different document for a live key; what changed is that
+        this caller no longer manufactures a difference out of capacity. A
+        target this deployment does not configure is still never adopted, and
+        the key is still the configured `canonical_target_id`, never derived
+        from a line, a proposal or a revision.
         """
-        from baton_v12.integration import TARGET_SCHEMA, activate_target
+        from baton_v12.integration import (TARGET_SCHEMA, activate_target,
+                                           target_of)
 
         for target_id in sorted({one["canonical_target_id"] for one in
                                  self.given["job_bindings"]}):
+            held = target_of(self.integration, target_id)
+            if held is not None:
+                # ITS OWN STORED DOCUMENT, replayed. Not a reconstruction of
+                # what this deployment would compose today.
+                activate_target(self.integration, dict(held["document"]))
+                continue
             activate_target(self.integration, {
                 "schema": TARGET_SCHEMA, "canonical_target_id": target_id,
                 "description": f"configured by stage-execution deployment "
-                               f"{self.given['authority_uuid']} at pool "
-                               f"generation {self.given['pool_generation']}"})
+                               f"{self.given['authority_uuid']}"})
 
     def judgment_executions(self, job_id):
         """This Job's three configured derived-result judgment executions.
@@ -4688,7 +4733,14 @@ def _profile_of(given, checkpoint_profile):
                     f"and the configuration names "
                     f"{given['checkpoint_profile']!r}", category="refused",
                     code="capability")
-        profile = checkpoint_profiles.GitCheckpointProfile(_git_run)
+        # THE SUPPLEMENT IS THE DEPLOYMENT'S OWN DEDICATED TARGET, when one is
+        # configured. W202663 owner212383: the approved finalization advances
+        # that repository with the canonical policy, and a next Job's declared
+        # base may exist only there -- the profile fetches exactly that commit
+        # on a detach refusal and touches nothing otherwise. No other locator
+        # is accepted here, which is the custody rule pinned with the operand.
+        profile = checkpoint_profiles.GitCheckpointProfile(
+            _git_run, supplement=given.get("integration_target"))
     if getattr(profile, "name", None) != given["checkpoint_profile"]:
         _refuse(f"the composed checkpoint profile is named "
                 f"{getattr(profile, 'name', None)!r} and this deployment is "
@@ -5959,14 +6011,55 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
             composed.no_capacity_stores = (job_store, control_store)
         composed.pooled = PooledManagerOperations(
             job_store,
-            {} if empty else {(generation, one["worker_id"]): one["operations"]
-                              for one in composed.workers},
+            {} if empty else _attached_workers(job_store, generation,
+                                               composed.workers),
             resolved_principals=resolved,
             independence=_job_eligibility(composed))
         return composed
     except BaseException:
         composed.release()
         raise
+
+
+def _attached_workers(job_store, generation, workers):
+    """The scheduler's own required (generation, worker id) pairs, attached.
+
+    W202663 D9, measured installed (claim219702): attachment requires the
+    ACTIVE generation's pairs AND live prior generations' pairs --
+    `scheduler._required_workers` counts `reserved` and `recovery-required`
+    allocations -- but this composer attached only the active generation, so
+    a deployment holding a HELD episode from a retired generation refused at
+    start and the pool could never advance over exactly the episodes
+    report-and-hold exists to retain.
+
+    WHO ANSWERS FOR A LIVE PRIOR PAIR IS THE SAME WORKER, in this composed
+    membership -- D7/review209188: observe and refresh adopt each worker's
+    OWN launch home, role and manifest context, so workers are not
+    interchangeable and only the same-named worker's operations can read its
+    history. A live prior pair whose worker this deployment no longer
+    composes refuses by name BEFORE any stage operation, which is the same
+    fail-closed answer the scheduler gives an unprovable attachment.
+    """
+    from baton_v12.contracts.errors import name_value
+    from baton_v12.job_manager import scheduler
+
+    by_name = {one["worker_id"]: one["operations"] for one in workers}
+    attached = {(generation, one["worker_id"]): one["operations"]
+                for one in workers}
+    for row in scheduler._required_workers(job_store):
+        key = (row["generation"], row["worker_id"])
+        if key in attached:
+            continue
+        operations = by_name.get(row["worker_id"])
+        if operations is None:
+            _refuse(f"generation {row['generation']}'s worker "
+                    f"{name_value(row['worker_id'])} still holds a live "
+                    f"allocation and this deployment no longer composes a "
+                    f"worker of that name; attachment refuses rather than "
+                    f"serving its history with another worker's context",
+                    category="refused", code="operation-collision")
+        attached[key] = operations
+    return attached
 
 
 def _pool_generation(job_store, given, resolved):

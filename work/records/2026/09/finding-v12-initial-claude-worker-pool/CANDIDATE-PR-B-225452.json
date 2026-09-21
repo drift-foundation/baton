@@ -1,0 +1,20 @@
+{
+  "awaiting": "owner evaluation/acceptance of B per the same OWNER-PR-FLOW steps",
+  "candidate": {
+    "base": "2fb0612ca1bd9fd8e2e254a11ff26b6b64a1eba8 (the owner-accepted A candidate)",
+    "commit": "446fa8f79d9569799a77e888e8236070e1dc78f7",
+    "line_checkout": "/home/sl/baton-v12/instance-2026-09-20T15-53-26Z/workers/implementation/storage/.baton-review-lines/line-5f806d76c5d3bb59d6efb19ac1d383b95fcd8cfa3849bc7cfd621b3801154e7b/checkout",
+    "proposal_tree": "/home/sl/baton-v12/instance-2026-09-20T15-53-26Z/workers/implementation/storage/.baton-review-lines/line-5f806d76c5d3bb59d6efb19ac1d383b95fcd8cfa3849bc7cfd621b3801154e7b/checkout/proposal"
+  },
+  "canonical_evidence": {
+    "a_comparison": "AB-COMPARISON-225452.json (A's streams byte-identical after B; A allocations unchanged; capture assertions green over both Jobs)",
+    "association": "CANDIDATE-ASSOCIATION-B-225452.json (verdict-4a165295 accepted, Work 62becc01-W2, reviewer fixture-reviewer-2 -> checkpoint-000f429b frozen 2fb0612c->446fa8f7 -> line accepted at the accepted base; public proving readers)",
+    "status": "run-status-PR-B-canonical-225452.json (canonical: true; all four stages of both Jobs completed)"
+  },
+  "claim": 225452,
+  "instance": "/home/sl/baton-v12/instance-2026-09-20T15-53-26Z",
+  "job": "verification-2",
+  "schema": "baton.w202663.pr-candidate/1",
+  "what": "B's installed PR candidate, produced at the OWNER-ACCEPTED base on the SAME deployment after the owner's option-(a) target-side unblock -- the complete A-acceptance-B chain, canonical",
+  "work": "62becc01-W2"
+}

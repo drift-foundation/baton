@@ -1,0 +1,67 @@
+{
+ "attempt_id": "attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380",
+ "log_root": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/launch/logs/attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380",
+ "native": {
+  "entries": [],
+  "place": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/launch/logs/attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380/native",
+  "state": "empty",
+  "why": "the room exists and the provider wrote nothing in it"
+ },
+ "streams": [
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/launch/logs/attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380/worker.stdout.log",
+   "state": "absent",
+   "stream": "worker.stdout",
+   "why": "no log was created for this stream"
+  },
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/launch/logs/attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380/worker.stderr.log",
+   "state": "absent",
+   "stream": "worker.stderr",
+   "why": "no log was created for this stream"
+  },
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/launch/logs/attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380/provider.stdout.log",
+   "state": "absent",
+   "stream": "provider.stdout",
+   "why": "no log was created for this stream"
+  },
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/launch/logs/attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380/provider.stderr.log",
+   "state": "absent",
+   "stream": "provider.stderr",
+   "why": "no log was created for this stream"
+  },
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/launch/logs/attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380/verification.stdout.log",
+   "state": "absent",
+   "stream": "verification.stdout",
+   "why": "no log was created for this stream"
+  },
+  {
+   "bytes": 0,
+   "declaration": "none",
+   "file": "absent",
+   "place": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/launch/logs/attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380/verification.stderr.log",
+   "state": "absent",
+   "stream": "verification.stderr",
+   "why": "no log was created for this stream"
+  }
+ ],
+ "target": "/run/baton/logs"
+}

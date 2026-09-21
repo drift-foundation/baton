@@ -1,4 +1,8 @@
-# Current — deferred optional production session reuse
+# Current priority — first after successful v12 cutoff, owner 2026-09-21T06:32:41Z
+
+W177936 remains parked pending owner acceptance of the v12 cutoff result. If v12 passes, this is the first selected follow-up: scheduled review-feedback corrections resume the original implementer conversation, with independent review kept separate. See matching FINDING ruling. Revalidate existing qualification gaps and candidate before execution; preserve historical evidence. No current enabling, live run or automatic scheduling is selected. This supersedes unspecified later priority, not the minimum-release deferral below.
+
+# Historical selection — deferred optional production session reuse
 
 Owner ruling2026-09-16T04:07:24.167298+00:00 and T177936 message183568
 supersede continuation183521 and the direct implementation/review cycle below.

@@ -1,0 +1,12 @@
+{"instance": "/home/sl/baton-v12/instance-2026-09-19T04-02-31Z", "authority_uuid": "91b5031d02e344da98eaf0f77ec10d30", "work": "91b5031d-W1"}
+{"implementation_image": "sha256:e48e72dfaaed321a34f1bfdd8ceca260c63d852c3fdc625da1458b02eaf7e9e8", "implementation_recipe": "fixture-context/Dockerfile.emitting"}
+{
+ "complete": true,
+ "refused": [],
+ "job_input_identity": "sha256:58fad468037613ad5f6dfc04eb21ef1e7c4e88b8fceb6bcad0fea78f2504e275",
+ "runtime_manifest_digests": {
+  "implementation": "sha256:6bfd745dbd0d0734f792f512592d2b89717fb07d6bdd9941bca786d72d521fd4",
+  "review": "sha256:2e166733b4f86563a97baffd2df7c3423de41b2a71d845e5eb4182fcf986c584",
+  "integration": "sha256:ae6de9aa035f395ef2c9c5a9d5be5d7c534b33e19b191cc41e5da6f29373c42f"
+ }
+}

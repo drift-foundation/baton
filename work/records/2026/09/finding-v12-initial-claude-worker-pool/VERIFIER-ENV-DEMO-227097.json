@@ -1,0 +1,64 @@
+{
+ "acceptable": true,
+ "argv": [
+  "python3",
+  "-c",
+  "import os, sys, tempfile, unittest\n# W202663 review226905 [3]: the fixture root, made before any test runs.\n# realpath, because the verifier's own TMPDIR is a held\n# /proc/self/fd object and that spelling is only valid inside\n# THIS process; the stack cases hand the root to children.\nif not os.environ.get('BATON_V12_STACK_TEST_ROOT'):\n    os.environ['BATON_V12_STACK_TEST_ROOT'] = os.path.realpath(\n        tempfile.mkdtemp(prefix='stack-test-root-'))\nos.chdir('v12/python')\nsys.path[:0] = [os.path.abspath('src'), os.path.abspath('.')]\n# These classes require a disk-backed root outside the checkout\n# and refuse by design; the container offers no such place by\n# contract. They still gate every host rerun of this family.\nEXCLUDED = ('AFreshInstallHasZeroJobs',\n            'AnInstanceWithNoCAPACITY_FAILS_CLOSED',\n            'AnOptionalSelectionTravelsOrIsRefused',\n            'RepeatingIt',\n            'TheCustodyRecordIsEvidenceOrItIsNothing',\n            'TheFIRSTCanonicalTargetIsESTABLISHED',\n            'TheFreshInstallStillNeedsTheWORKERSToBeSeparable',\n            'TheInstallerOperandNeverReachesTheManager',\n            'WhatItComposesOnTheAuthority',\n            'WhatItDerives',\n            'WhatItTELLSYouToDoNext')\nloader = unittest.TestLoader()\ndef kept(one):\n    if isinstance(one, unittest.TestSuite):\n        return unittest.TestSuite(\n            [x for x in map(kept, one) if x is not None])\n    return None if type(one).__name__ in EXCLUDED else one\nsuite = unittest.TestSuite(\n    [loader.loadTestsFromName('tests.tools.test_pool'),\n     kept(loader.loadTestsFromName('tests.tools.test_bootstrap'))])\nresult = unittest.TextTestRunner(verbosity=1).run(suite)\n# The measured runnable floor: 50 bootstrap tests plus at least\n# one from test_pool. An exclusion that eats more than named\n# fails the gate rather than shrinking it silently.\nsys.exit(0 if result.wasSuccessful() and result.testsRun >= 51 else 1)\n"
+ ],
+ "base": "446fa8f79d9569799a77e888e8236070e1dc78f7",
+ "case_exported": {
+  "argv_made_roots_under_tmpdir": [],
+  "elapsed_seconds": 17.479334227973595,
+  "environment_names": [
+   "BATON_V12_STACK_TEST_ROOT",
+   "HOME",
+   "PATH",
+   "PYTHONPYCACHEPREFIX",
+   "TMPDIR",
+   "XDG_CACHE_HOME"
+  ],
+  "exported_root": "/tmp/w202663-demo-nbz_abjy/operator-selected-root",
+  "proves": "an explicit operator selection is respected: the argv makes NO root of its own and exits 0",
+  "status": 0,
+  "tmpdir_real_path": "/tmp/verifier-demo-8zep0ulh/verification-ephemera/tmp",
+  "transcript": "$ python3 -c import os, sys, tempfile, unittest\n# W202663 review226905 [3]: the fixture root, made before any test runs.\n# realpath, because the verifier's own TMPDIR is a held\n# /proc/self/fd object and that spelling is only valid inside\n# THIS process; the stack cases hand the root to children.\nif not os.environ.get('BATON_V12_STACK_TEST_ROOT'):\n    os.environ['BATON_V12_STACK_TEST_ROOT'] = os.path.realpath(\n        tempfile.mkdtemp(prefix='stack-test-root-'))\nos.chdir('v12/python')\nsys.path[:0] = [os.path.abspath('src'), os.path.abspath('.')]\n# These classes require a disk-backed root outside the checkout\n# and refuse by design; the container offers no such place by\n# contract. They still gate every host rerun of this family.\nEXCLUDED = ('AFreshInstallHasZeroJobs',\n            'AnInstanceWithNoCAPACITY_FAILS_CLOSED',\n            'AnOptionalSelectionTravelsOrIsRefused',\n            'RepeatingIt',\n            'TheCustodyRecordIsEvidenceOrItIsNothing',\n            'TheFIRSTCanonicalTargetIsESTABLISHED',\n            'TheFreshInstallStillNeedsTheWORKERSToBeSeparable',\n            'TheInstallerOperandNeverReachesTheManager',\n            'WhatItComposesOnTheAuthority',\n            'WhatItDerives',\n            'WhatItTELLSYouToDoNext')\nloader = unittest.TestLoader()\ndef kept(one):\n    if isinstance(one, unittest.TestSuite):\n        return unittest.TestSuite(\n            [x for x in map(kept, one) if x is not None])\n    return None if type(one).__name__ in EXCLUDED else one\nsuite = unittest.TestSuite(\n    [loader.loadTestsFromName('tests.tools.test_pool'),\n     kept(loader.loadTestsFromName('tests.tools.test_bootstrap'))])\nresult = unittest.TextTestRunner(verbosity=1).run(suite)\n# The measured runnable floor: 50 bootstrap tests plus at least\n# one from test_pool. An exclusion that eats more than named\n# fails the gate rather than shrinking it silently.\nsys.exit(0 if result.wasSuccessful() and result.testsRun >= 51 else 1)\n\nexit: 0\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+ },
+ "case_unset": {
+  "argv_made_roots_under_tmpdir": [
+   "/tmp/verifier-demo-3mm2l3a5/verification-ephemera/tmp/stack-test-root-m_z7mgm4"
+  ],
+  "elapsed_seconds": 17.53001821099315,
+  "environment_names": [
+   "HOME",
+   "PATH",
+   "PYTHONPYCACHEPREFIX",
+   "TMPDIR",
+   "XDG_CACHE_HOME"
+  ],
+  "proves": "the exact frozen argv, in the adapter's own pinned closed environment with BATON_V12_STACK_TEST_ROOT ABSENT, establishes its fixture root under the invocation's own TMPDIR (the held ephemera object) and exits 0",
+  "status": 0,
+  "tmpdir_real_path": "/tmp/verifier-demo-3mm2l3a5/verification-ephemera/tmp",
+  "transcript": "$ python3 -c import os, sys, tempfile, unittest\n# W202663 review226905 [3]: the fixture root, made before any test runs.\n# realpath, because the verifier's own TMPDIR is a held\n# /proc/self/fd object and that spelling is only valid inside\n# THIS process; the stack cases hand the root to children.\nif not os.environ.get('BATON_V12_STACK_TEST_ROOT'):\n    os.environ['BATON_V12_STACK_TEST_ROOT'] = os.path.realpath(\n        tempfile.mkdtemp(prefix='stack-test-root-'))\nos.chdir('v12/python')\nsys.path[:0] = [os.path.abspath('src'), os.path.abspath('.')]\n# These classes require a disk-backed root outside the checkout\n# and refuse by design; the container offers no such place by\n# contract. They still gate every host rerun of this family.\nEXCLUDED = ('AFreshInstallHasZeroJobs',\n            'AnInstanceWithNoCAPACITY_FAILS_CLOSED',\n            'AnOptionalSelectionTravelsOrIsRefused',\n            'RepeatingIt',\n            'TheCustodyRecordIsEvidenceOrItIsNothing',\n            'TheFIRSTCanonicalTargetIsESTABLISHED',\n            'TheFreshInstallStillNeedsTheWORKERSToBeSeparable',\n            'TheInstallerOperandNeverReachesTheManager',\n            'WhatItComposesOnTheAuthority',\n            'WhatItDerives',\n            'WhatItTELLSYouToDoNext')\nloader = unittest.TestLoader()\ndef kept(one):\n    if isinstance(one, unittest.TestSuite):\n        return unittest.TestSuite(\n            [x for x in map(kept, one) if x is not None])\n    return None if type(one).__name__ in EXCLUDED else one\nsuite = unittest.TestSuite(\n    [loader.loadTestsFromName('tests.tools.test_pool'),\n     kept(loader.loadTestsFromName('tests.tools.test_bootstrap'))])\nresult = unittest.TextTestRunner(verbosity=1).run(suite)\n# The measured runnable floor: 50 bootstrap tests plus at least\n# one from test_pool. An exclusion that eats more than named\n# fails the gate rather than shrinking it silently.\nsys.exit(0 if result.wasSuccessful() and result.testsRun >= 51 else 1)\n\nexit: 0\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+ },
+ "claim": 227097,
+ "fixture": "labeled discovery-only test_pool (claim225590 precedent); not coverage",
+ "partition": {
+  "proves": "at the accepted base, the refusing classes demand a disk-backed writable root OUTSIDE the checkout, which the container cannot offer by mount contract (read-only rootfs, memory /tmp and /dev/shm, /output IS the git-line checkout); they refuse rather than skip, so the corrected argv excludes exactly these by name and floors the count at the runnable remainder plus test_pool; the full family still gates every host rerun",
+  "refused": 75,
+  "refusing_classes": [
+   "AFreshInstallHasZeroJobs",
+   "AnInstanceWithNoCAPACITY_FAILS_CLOSED",
+   "AnOptionalSelectionTravelsOrIsRefused",
+   "RepeatingIt",
+   "TheCustodyRecordIsEvidenceOrItIsNothing",
+   "TheFIRSTCanonicalTargetIsESTABLISHED",
+   "TheFreshInstallStillNeedsTheWORKERSToBeSeparable",
+   "TheInstallerOperandNeverReachesTheManager",
+   "WhatItComposesOnTheAuthority",
+   "WhatItDerives",
+   "WhatItTELLSYouToDoNext"
+  ],
+  "total": 125
+ },
+ "schema": "baton.w202663.verifier-env-demo/1"
+}

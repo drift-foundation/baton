@@ -1,0 +1,2 @@
+ok   worker.stderr carries 'w202663-emitting-fixture: work stderr closing line'
+all capture assertions passed: nonempty retained worker streams with the deterministic fixture content, read through the supported reader

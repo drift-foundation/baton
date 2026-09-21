@@ -179,6 +179,11 @@ class Minting(SessionCase):
             "holds_capability", "is_certified", "permit_contract_transition",
             "permits_contract_transition", "policy", "revoke_capability",
             "set_lookup_available", "set_policy", "withdraw_certification",
+            # W202663 OWNER-HANDOFF-PR-JOBS: the HUMAN accepted-base
+            # transition is an OPERATOR act like `set_policy`, never a
+            # session's -- a session that could move the canonical target
+            # would be a worker integrating without the owner.
+            "accept_base",
             # W16821: the principal seam is CONFIGURATION, all six of it.
             # `bind_endpoint` moves an identity's claim capacity, its grants
             # and its attribution, so a session holding it would be a session

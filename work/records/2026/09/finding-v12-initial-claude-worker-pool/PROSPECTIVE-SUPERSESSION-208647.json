@@ -1,0 +1,28 @@
+{
+  "schema": "baton.w202663.prospective-supersession/1",
+  "claim": 208647,
+  "what_this_supersedes": "the COMPLETENESS CLAIM of PROSPECTIVE-INPUTS-208531.json, not the artefact. The snapshot itself is preserved byte for byte as the historical record of what WAS captured before the claim208531 build; only its implicit claim to have recorded every build input is withdrawn.",
+  "superseded_artefact": {
+    "file": "PROSPECTIVE-INPUTS-208531.json",
+    "sha256": "8b10b6de0d14304dc564dad45b136067f0f2e356265e32c4936cd129de534d6f",
+    "input_count": 106,
+    "inputs_digest": "sha256:e37c5e5b2fac936a8672812e85be3f0140af40ae32ce75b40b8e32243cd4121f",
+    "status": "PARTIAL"
+  },
+  "why_partial": {
+    "found_by": "review208585 [R3]",
+    "omitted_direct_inputs": [
+      "requirements.build.lock -- `just build` pip-installs it with --require-hashes before packaging",
+      "packaging/stack.spec -- the PyInstaller spec `just build` hands to the packager",
+      "v12/justfile -- the build recipe itself"
+    ],
+    "and_the_method_gap": "the /1 script skipped an absent declared file silently and never scanned the packaging tree, so its 'every packaging input' wording claimed more than its enumeration could see"
+  },
+  "what_stands_of_the_claim208531_record": "RUNTIME-BUILD-208531.json (sha256 1ad8fd13f2d90fb3c43aa9cc5c0d204f235bb8f8eae4ed31f64d63f205663121) still binds the partial snapshot to the build that produced sha256:7040dd00...; the executable identity it records was independently confirmed by review208585. What is weakened is only how much of the input set that binding covers: the three omitted inputs were not recorded before that build and cannot be reconstructed for it now.",
+  "correction": "prospective-snapshot.py now emits baton.w202663.prospective-build-inputs/2: it scans src/baton_v12, tools and packaging, requires pyproject.toml, requirements.lock, requirements.build.lock, packaging/stack.spec and v12/justfile by name (an absent declared file refuses), excludes packaging/build-stamp.json as a packaging-time product, and states what it does not capture. Verified to record all previously-omitted inputs (snapshot-correction-check-208647.log, 109 inputs); that verification run is NOT retained as a build binding.",
+  "must_happen_before_the_next_selected_build": "run the corrected prospective-snapshot.py immediately before that build and retain its output beside the build record, exactly as claim208531 did with the partial set",
+  "provenance_scopes_distinguished": {
+    "runtime_build": "what prospective-snapshot.py and RUNTIME-BUILD-*.json cover: the one-folder bundle `just build` produces",
+    "image_builds": "the production images (PROVENANCE-202663.json, COPIED-INPUTS-207111.json) and fixture images (fixture-context/, compose-verification-208217.py toolchain digests) carry their own provenance artefacts; NO runtime snapshot, partial or complete, retroactively attests an image built earlier"
+  }
+}

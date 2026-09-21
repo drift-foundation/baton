@@ -1050,3 +1050,38 @@ The active W61599 reviewer should use existing evidence and focused checks of th
 After readiness, W165786 will decompose surviving failures into small Jobs with explicit file ownership, prioritization and acceptance, reusing v12 parallel execution. Reuse existing defect Works when identified; no new implementation/backlog copies or release-gate edges are created now. The downstream consumer must revalidate the surviving failures then rather than treating this snapshot as current indefinitely.
 
 Evidence: baton:work/records/2026/09/finding-live-worker-log-observability/ACTIVITY-IMPLEMENTATION-177898.md, section8; PROGRESS.md claim177898; W61599 pass178359. This explicit post-v12 repair selection supersedes any interpretation that the baseline suite must be made green before W61599/W2 can proceed. W161234 and the already-selected required v12 outcomes remain independently accountable.
+
+
+## 2026-09-20T09:32:05Z — current owner priority: 24-hour investment gate
+
+Owner ruling in FINDING.md at the matching timestamp: by 2026-09-21T09:32:05Z (03:32:05 MDT), demonstrate same-deployment sequential A/B flow plus a separately authorized useful real Claude Job with independent acceptance. Current state: gate pending; existing partial proofs are not completion. Prioritize completing deployed flow and preparing a concrete live-Job proposal for separate owner authorization. Continue deployed testing alongside focused coverage.
+
+On success: another week for v12 improvements (TUI/robustness), then other business Jobs. On missed criteria: return evidence for the owner's investment decision; no presumed deadline extension. This is the current investment condition and supersedes open-ended scheduling implications, without altering active claims or silently migrating authority/backlog. Recorded by baton.prompt; no implementation or live execution performed by this entry.
+
+
+## 2026-09-20T10:56:55+00:00 — current architecture clarification: integration produces a proposal
+
+Owner ruling in the matching FINDING entry: contributors submit commits from a shared base; a distinct integration Job combines selected candidates into a proposed commit; prompt/human evaluate and merge into official mainline before the next parallel wave. No permanent single-integrator identity is required. Reassess the pending D10 recommendation and map current internal target finalization to this explicit mainline boundary. Stable-integrator workaround is not selected. Sequential continuity proof is a prerequisite, not proof of the whole contributor flow. Deadline, existing claims, historical evidence and Git ownership remain unchanged. Recorded by baton.prompt; architecture clarification only, no product edits.
+
+
+## 2026-09-20T10:57:26+00:00 — deadline priority: human-assisted integration path
+
+Per matching FINDING owner ruling, prompt/human may integrate reviewed v12 outputs for the 24-hour investment gate. Prioritize supported candidate handback, human acceptance and next-Job preparation from the accepted base on the same deployment; prepare the useful real Claude Job for separate authorization. Automated integration/D10 is no longer a gate for this bounded demonstration and remains unfinished. No false terminal receipts, store/policy repair or agent Git mutation. Existing deadline unchanged. This entry supersedes prior plan implications that automatic A/B integration must complete before the human-assisted demonstration can proceed.
+
+
+## 2026-09-20T11-02-49Z — current actionable handoff
+
+Owner-selected PR-producing Job flow is actionable via baton:work/records/2026/09/finding-v12-initial-claude-worker-pool/OWNER-HANDOFF-PR-JOBS-2026-09-20T11-02-49Z.md. Prioritize supported reviewed-candidate handback, usable Claude proposal, human acceptance and next-base continuity on one deployment. Automated integration/D10 singleton work is not the selected critical path. Pin bounded implementation paths before edits; retain historical evidence and report exact missing boundaries. Status: prepared for owner pass to implementation; no claim changed by baton.prompt.
+
+
+## 2026-09-20T14:57:48+00:00 — current architecture boundary: generic result metadata
+
+Owner's matching FINDING ruling selects generic artifact references/metadata, acceptance and explicit dependent-Job inputs. Commit/PR references must survive accurately for agent interpretation; coordinator Git fetch/ref/base semantics are not the intended contract. This supersedes continuing the Git-synchronizing accepted-base operation as a deadline prerequisite. Next implementation handoff must revalidate the existing candidate/acceptance/dependency path and pin the minimal generic correction; preserve prior evidence and claims. No product edit or workflow transition by this entry.
+
+
+## 2026-09-20T15:40:33+00:00 — typed metadata clarification
+
+Apply matching FINDING owner ruling: allow MIME-like type/protocol hints in generic artifact metadata, interpreted by agents/consumers. Preserve opaque references; no universal Git syntax or automatic execution. Revalidate --base validation scope without inventing a new protocol registry or delaying the selected demonstration for unrelated redesign. Exact schema spelling remains unselected.
+## Conditional first follow-up — owner 2026-09-21T06:32:41Z
+
+If the owner accepts v12 as meeting the cutoff, prioritize W177936 first: reuse the original implementer session for separately scheduled corrections carrying independent-review feedback. See matching FINDING ruling and W177936's canonical dossier. It remains parked and unqualified until that condition and explicit routing; this does not add a minimum-release gate, enable reuse now or authorize live qualification.

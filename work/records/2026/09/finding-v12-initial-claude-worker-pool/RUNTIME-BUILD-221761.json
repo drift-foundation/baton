@@ -1,0 +1,29 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:10e7b23f86fc49ef4f64be5788a9d8af6327a531bc8fd29ab10ee22d449a55e2"
+  },
+  "claim": 221761,
+  "identity_note": "the EXECUTABLE hash equals candidates 221639/221705 -- only the bundle-carried tools/accepted_base.py changed; the 81-file BUNDLE digest is what distinguishes the candidates and the installer verifies both",
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-221761.json",
+    "input_count": 110,
+    "inputs_digest": "sha256:df37c3ee2357ce98ba6d7b512e07674c36ac994bc1b899e401575c3a5f98892d",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime whose accepted-base verb judges the initial state BEFORE publishing any resumable intent (a refused call leaves none behind and repetition never grants resume authority, review221748), with whole-write refusal and ordered parent-directory fsync in the durable writes",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "bundle-sha256:af5639cc89ca7907befc7a5e006316fcab6812840d7a8ec82b8d2d12ff1132e5": "candidate221705, NOT accepted by review221748 and never installed; superseded by bundle digest (shared executable, see identity_note); its records remain as history"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "probe_root": "/tmp/w202663-review212438-y5hddgl6",
+  "clone_attempts": [
+    [
+      "git",
+      "clone",
+      "--no-local",
+      "--mirror",
+      "/unread-fixture-source",
+      "/tmp/w202663-review212438-y5hddgl6/destination/repo/target.git"
+    ]
+  ],
+  "destination_created": true,
+  "repository_created": true,
+  "real_git_executed": false
+}

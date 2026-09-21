@@ -1,0 +1,7 @@
+{
+  "moved_policy_ref_changed_despite_refusal": true,
+  "authority_target": "ffffffffffffffffffffffffffffffffffffffff",
+  "receipt_only_replay_exit": 0,
+  "receipt_only_authority_unchanged": true,
+  "receipt_only_ref_unchanged": true
+}

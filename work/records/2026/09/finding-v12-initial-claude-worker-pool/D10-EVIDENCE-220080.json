@@ -1,0 +1,16 @@
+{
+  "claim": 220080,
+  "contradiction": "with per-Job integrator identities durable in allocations (A settled under verification-1-integration, B live under verification-2-integration), no configuration satisfies both gates; consecutive Jobs cannot complete on one deployment",
+  "instance": "/home/sl/baton-v12/instance-2026-09-20T10-23-11Z",
+  "restoration_attempted": "the one-integrator apply overwrote deployment.json; the durable pool document retains only the scheduler's normalized worker rows (no full deployment entry), so the recorded verification-1-integration context cannot be faithfully restored and recomposing it today would re-derive against the advanced base",
+  "schema": "baton.w202663.d10-evidence/1",
+  "state_left": {
+    "stack": "stopped; manager refuses at start with the observe-gate message; stores and all evidence intact",
+    "verification-1": "complete and settled; all evidence retained (A-LOCATORS-220080.json, run-status-A-220080.json); ref agreement at 4a424f0c",
+    "verification-2": "implementation+review complete (cleanup-retained); integration allocation reserved on verification-2-integration; blocked by the D10 contradiction"
+  },
+  "the_two_gates": {
+    "launch": "this deployment names 2 integration workers; one deployment names one integrator (stage_execution.integration_served; verification-2/integration deferred every tick with lines/checkpoint/verdict/eligibility all ready)",
+    "observe": "stage 'verification-1/integration' is allocated to worker 'verification-1-integration', which this deployment does not configure (stage_execution.worker_for at sweep observe of SETTLED history; manager dies at start)"
+  }
+}

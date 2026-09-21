@@ -1,0 +1,11 @@
+{
+  "claim": 217641,
+  "sha256": {
+    "v12/python/src/baton_v12/integration/runtime.py": "7e88508b79062c49a8a0e48e6c84d575a4c724b77df26ee1cede5c55c4134f2a",
+    "v12/python/src/baton_v12/integration/oci_delivery.py": "bfe1fac4d6a5f4a615627f22205f857b1ee99f63f3ec8bdae6f99a58d7aa7478",
+    "v12/python/tests/integration/test_runtime.py": "483d3a5500e1d6028948e8a869689a774cc1e523595dc213930abe8e6bfc9f5d"
+  },
+  "tests": "30 passed0.176s",
+  "probe": "REVIEW-PROBE-217641.json",
+  "candidate": "9d26430e not accepted"
+}

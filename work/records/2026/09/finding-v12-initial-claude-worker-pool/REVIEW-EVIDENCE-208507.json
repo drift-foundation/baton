@@ -1,0 +1,13 @@
+{
+  "claim": 208507,
+  "tests": 221,
+  "passed": true,
+  "seconds": 1.5366620969725773,
+  "warnings": "ignored ResourceWarning finalizer exceptions in existing coordinator tests",
+  "sha256": {
+    "v12/python/tools/stage_execution.py": "264bfe7adeb8fd022811fd47b0d53061551ba6ada06134243584466786799247",
+    "v12/python/tests/tools/test_stage_execution.py": "54e22a7c44fcc86ecd77f38fd76fbe2cacd9636b94418b521a0ac8dbb06ccd86",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/COMMANDS-202663.md": "2683c86e7466f0d4fd4d1b3284c1f2522828b0ca27769b11b5653f9ee4446d4d",
+    "work/records/2026/09/finding-v12-initial-claude-worker-pool/install-inputs.json": "b53794a410e42b74764f9fa3f8a8cb055305614b32f9e3d4844d03774c3cc28c"
+  }
+}

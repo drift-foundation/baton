@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:07aed036d4c1110ece3b14ff398f183f133c4048cc43404312e7e8aee579bc7d"
+  },
+  "claim": 217457,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-217457.json",
+    "input_count": 109,
+    "inputs_digest": "sha256:5506320535769703d79569100d7455eb67786afd1a94905924b6efb0cf228617",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime carrying owner217455's D8 correction (per-attempt integration delivery namespaces with identity-proved legacy adoption), for the next owner installation",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "sha256:d5d1e9fb3c20c12795daa3dc01066f0010190612b9eacb57ee1eae10692cec87": "the runtime at the current experimental instances, built before D8's correction; those instances and their evidence are preserved, not replaced"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

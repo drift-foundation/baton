@@ -1,0 +1,12 @@
+{
+  "a": {
+    "attempt_id": "attempt-a",
+    "root": "/tmp/w202663-no-effects-probe/integration"
+  },
+  "b": {
+    "attempt_id": "attempt-b",
+    "root": "/tmp/w202663-no-effects-probe/integration"
+  },
+  "same_root": true,
+  "scope": "constructor-only, no directories created or stores opened"
+}

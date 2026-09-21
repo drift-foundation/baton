@@ -58,6 +58,11 @@ __all__ = ["AttemptLogs", "CAPTURE_STATES", "LOG_DIR", "LOG_TARGET",
 # whole reason the environment transport was retired (W26291).
 LOG_TARGET = attempt_log_format.TARGET
 
+# W202663: the spelling old bytes still carry, which the composed restrictions
+# cover with a disposable tmpfs decoy. Re-exported so `oci` and this module
+# read one source rather than agreeing by coincidence.
+LEGACY_LOG_TARGET = attempt_log_format.LEGACY_TARGET
+
 # The delivery's own directory mode, taken from the owner that ESTABLISHES it
 # rather than restated. `adopt_workspace_group` chmods to
 # `workspaces.WORKSPACE_DIR`, so a second constant here would be a second thing

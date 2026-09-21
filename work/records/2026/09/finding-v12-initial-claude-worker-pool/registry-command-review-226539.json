@@ -1,0 +1,32 @@
+{
+  "review_claim": 226539,
+  "results": [
+    {
+      "case": "append",
+      "status": 0,
+      "passed": true
+    },
+    {
+      "case": "repeat",
+      "status": 0,
+      "passed": true
+    },
+    {
+      "case": "wrong-provider",
+      "status": 1,
+      "passed": true
+    },
+    {
+      "case": "wrong-path",
+      "status": 1,
+      "passed": true
+    },
+    {
+      "case": "duplicate-origin",
+      "status": 1,
+      "passed": true
+    }
+  ],
+  "seconds": 0.056333915097638965,
+  "scope": "Exact documented Python with registry path replaced by temporary metadata fixture; no bearer file or real registry opened."
+}

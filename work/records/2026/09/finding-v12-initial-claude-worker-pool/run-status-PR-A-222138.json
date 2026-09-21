@@ -1,0 +1,326 @@
+{
+  "schema": "baton.v12.job-status/6",
+  "observed_at": "2026-09-20T15:59:22.864Z",
+  "incarnation": "w202663-status",
+  "canonical": false,
+  "jobs": [
+    {
+      "job_id": "verification-1",
+      "submission_id": "verification-1-submission",
+      "input_digest": "sha256:8c92c19f7b55dd46cb47eedeafdc09f7e156cb77a32f865ec937e38317a8b544",
+      "policy_digest": "sha256:435b49c7bb5227787411ff02616de3d5d7fb21bdacfbe2256cf1efb886434fa3",
+      "test_scope": [],
+      "terminal_policy": "report-and-hold",
+      "execution_limits": {
+        "units": "seconds",
+        "scope": "per-invocation",
+        "compatibility_generation": 1,
+        "requested": {},
+        "boundaries": {
+          "host_verification": {
+            "seconds": 300,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 300
+          },
+          "integration_verification": {
+            "seconds": 1800,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 1800
+          },
+          "ordinary_verification": {
+            "seconds": 900,
+            "origin": "compatibility",
+            "setting": "verification_command_seconds",
+            "default_seconds": 900
+          },
+          "provider_turn": {
+            "seconds": 3600,
+            "origin": "compatibility",
+            "setting": "provider_turn_seconds",
+            "default_seconds": 3600
+          }
+        }
+      },
+      "stages": [
+        {
+          "stage_id": "verification-1/implementation",
+          "job_id": "verification-1",
+          "kind": "implementation",
+          "state": "claimed",
+          "work_id": "62becc01-W1",
+          "profile_name": "fixture-verification-1",
+          "profile_digest": "sha256:99f33ece984426bb26866c1eb3648caa6593c60cb87cfd1167853c4366457f3d",
+          "episode": 1,
+          "offer_id": "offer-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+          "attempt_id": "attempt-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+          "episodes": [
+            {
+              "stage_id": "verification-1/implementation",
+              "episode": 1,
+              "offer_id": "offer-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+              "attempt_id": "attempt-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+              "opened_at": "2026-09-20T15:58:34.225Z",
+              "incarnation": "w202663-verification-1-submit",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+            "stage_id": "verification-1/implementation",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "verification-1-implementation",
+            "lane": "implementation",
+            "participant": "baton.fixture-coder-1",
+            "canonical_principal": "principal:baton.fixture-coder-1",
+            "preferred_worker_id": null,
+            "selection_outcome": "initial",
+            "allocation_state": "released",
+            "reserved_at": "2026-09-20T15:58:36.919Z",
+            "recovery_required_at": null,
+            "released_at": "2026-09-20T15:58:55.718Z",
+            "release_reason": "cleanup-retained",
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:f4fcf2873036fbc3697af7dd0ecc6e4067b7c15ef436d209a0618e56279c8823",
+            "worker_profile_name": "fixture-verification-1",
+            "worker_profile_digest": "sha256:99f33ece984426bb26866c1eb3648caa6593c60cb87cfd1167853c4366457f3d"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+              "stage_id": "verification-1/implementation",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "verification-1-implementation",
+              "lane": "implementation",
+              "participant": "baton.fixture-coder-1",
+              "canonical_principal": "principal:baton.fixture-coder-1",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "released",
+              "reserved_at": "2026-09-20T15:58:36.919Z",
+              "recovery_required_at": null,
+              "released_at": "2026-09-20T15:58:55.718Z",
+              "release_reason": "cleanup-retained",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:f4fcf2873036fbc3697af7dd0ecc6e4067b7c15ef436d209a0618e56279c8823",
+              "worker_profile_name": "fixture-verification-1",
+              "worker_profile_digest": "sha256:99f33ece984426bb26866c1eb3648caa6593c60cb87cfd1167853c4366457f3d"
+            }
+          ],
+          "gates": [],
+          "receipts": [
+            {
+              "stage_id": "verification-1/implementation",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+              "state": "performed",
+              "recorded_at": "2026-09-20T15:58:36.962Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-09-20T16:00:36.960Z",
+                  "issued_at": "2026-09-20T15:58:36.960Z",
+                  "offer_id": "offer-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+                  "participant": "baton.fixture-coder-1",
+                  "runtime_attempt_id": "attempt-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+                  "verifier": "sha256:13b2246b96ba0797f18ccb808b3e4508521d646d8846a0e311c788e782d424d0",
+                  "work_id": "62becc01-W1"
+                },
+                "settled_at": "2026-09-20T15:58:36.960Z"
+              }
+            },
+            {
+              "stage_id": "verification-1/implementation",
+              "episode": 1,
+              "act": "claim",
+              "operation_id": "offer.settle:offer-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+              "state": "performed",
+              "recorded_at": "2026-09-20T15:58:42.007Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "assignment": {
+                    "generation": 1,
+                    "participant": "baton.fixture-coder-1",
+                    "work_ref": {
+                      "authority_uuid": "62becc01518b4476b1d48d690bdb2619",
+                      "work_id": "62becc01-W1"
+                    }
+                  },
+                  "claim_event": 1,
+                  "decision": {
+                    "effective_scope": "scope:deployment",
+                    "endpoint": "baton.fixture-coder-1",
+                    "grant": "direct",
+                    "policy_generation": 26,
+                    "principal": "principal:baton.fixture-coder-1",
+                    "role": "impl"
+                  },
+                  "offer_id": "offer-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167",
+                  "state": "claimed"
+                },
+                "settled_at": "2026-09-20T15:58:42.006Z"
+              }
+            }
+          ],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        },
+        {
+          "stage_id": "verification-1/review",
+          "job_id": "verification-1",
+          "kind": "review",
+          "state": "claimed",
+          "work_id": "62becc01-W1",
+          "profile_name": "fixture-verification-1",
+          "profile_digest": "sha256:99f33ece984426bb26866c1eb3648caa6593c60cb87cfd1167853c4366457f3d",
+          "episode": 1,
+          "offer_id": "offer-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+          "attempt_id": "attempt-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+          "episodes": [
+            {
+              "stage_id": "verification-1/review",
+              "episode": 1,
+              "offer_id": "offer-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+              "attempt_id": "attempt-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+              "opened_at": "2026-09-20T15:58:34.225Z",
+              "incarnation": "w202663-verification-1-submit",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+            "stage_id": "verification-1/review",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "verification-1-review",
+            "lane": "review",
+            "participant": "baton.fixture-reviewer-1",
+            "canonical_principal": "principal:baton.fixture-reviewer-1",
+            "preferred_worker_id": null,
+            "selection_outcome": "initial",
+            "allocation_state": "released",
+            "reserved_at": "2026-09-20T15:58:55.758Z",
+            "recovery_required_at": null,
+            "released_at": "2026-09-20T15:59:11.439Z",
+            "release_reason": "cleanup-retained",
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:f4fcf2873036fbc3697af7dd0ecc6e4067b7c15ef436d209a0618e56279c8823",
+            "worker_profile_name": "fixture-verification-1",
+            "worker_profile_digest": "sha256:99f33ece984426bb26866c1eb3648caa6593c60cb87cfd1167853c4366457f3d"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+              "stage_id": "verification-1/review",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "verification-1-review",
+              "lane": "review",
+              "participant": "baton.fixture-reviewer-1",
+              "canonical_principal": "principal:baton.fixture-reviewer-1",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "released",
+              "reserved_at": "2026-09-20T15:58:55.758Z",
+              "recovery_required_at": null,
+              "released_at": "2026-09-20T15:59:11.439Z",
+              "release_reason": "cleanup-retained",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:f4fcf2873036fbc3697af7dd0ecc6e4067b7c15ef436d209a0618e56279c8823",
+              "worker_profile_name": "fixture-verification-1",
+              "worker_profile_digest": "sha256:99f33ece984426bb26866c1eb3648caa6593c60cb87cfd1167853c4366457f3d"
+            }
+          ],
+          "gates": [
+            {
+              "stage_id": "verification-1/implementation",
+              "state": "claimed",
+              "open": false
+            }
+          ],
+          "receipts": [
+            {
+              "stage_id": "verification-1/review",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+              "state": "performed",
+              "recorded_at": "2026-09-20T15:58:55.763Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-09-20T16:00:55.761Z",
+                  "issued_at": "2026-09-20T15:58:55.761Z",
+                  "offer_id": "offer-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+                  "participant": "baton.fixture-reviewer-1",
+                  "runtime_attempt_id": "attempt-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+                  "verifier": "sha256:b75854a91fc4fc551c741bf08b14aa483c7a2fa81f5267f1b0f9ad02bcf13e10",
+                  "work_id": "62becc01-W1"
+                },
+                "settled_at": "2026-09-20T15:58:55.761Z"
+              }
+            },
+            {
+              "stage_id": "verification-1/review",
+              "episode": 1,
+              "act": "claim",
+              "operation_id": "offer.settle:offer-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+              "state": "performed",
+              "recorded_at": "2026-09-20T15:59:00.813Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "assignment": {
+                    "generation": 2,
+                    "participant": "baton.fixture-reviewer-1",
+                    "work_ref": {
+                      "authority_uuid": "62becc01518b4476b1d48d690bdb2619",
+                      "work_id": "62becc01-W1"
+                    }
+                  },
+                  "claim_event": 3,
+                  "decision": {
+                    "effective_scope": "scope:deployment",
+                    "endpoint": "baton.fixture-reviewer-1",
+                    "grant": "direct",
+                    "policy_generation": 26,
+                    "principal": "principal:baton.fixture-reviewer-1",
+                    "role": "rview"
+                  },
+                  "offer_id": "offer-030517722e5c6d778f7cc3b3e3a6697c887313deda4775e8d84628f786c5ba77",
+                  "state": "claimed"
+                },
+                "settled_at": "2026-09-20T15:59:00.812Z"
+              }
+            }
+          ],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null
+        }
+      ]
+    }
+  ]
+}

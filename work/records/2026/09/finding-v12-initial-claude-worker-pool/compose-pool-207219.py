@@ -66,8 +66,56 @@ ACTORS = {"implementation": "baton.claude-coder",
 
 # THE TWO ARTEFACTS W202663 BUILT, by digest. Not tags: a tag is a name
 # somebody can move, and what a manager pins is a content digest.
-PROVIDER_IMAGE = ("sha256:9ff3322f58f08275bfc4bb2cd511fb7a6b156e991449"
-                  "ee36f365d05e2133529d")
+#
+# CLAIM225590 MOVES THE PROVIDER DIGEST, and the prior one
+# (sha256:9ff3322f58f08275bfc4bb2cd511fb7a6b156e991449ee36f365d05e2133529d,
+# tag e486652c) stays here as history: review225576's candidate-root
+# demonstration found the frozen verification suite dies at COLLECTION
+# inside that artefact -- `ModuleNotFoundError: jsonschema`, the product's
+# one declared dependency, absent from the image that runs the product's
+# tests. The candidate below is the same recipe plus `python3-jsonschema`
+# (tag claim225590), in which the exact frozen argv ran 126 tests OK from a
+# repository-root candidate at the accepted base, network-disabled. Per the
+# recipe's own selection doctrine it is a CANDIDATE until the owner's
+# launch authorization selects it.
+# CLAIM227097 MOVES THE PROVIDER DIGEST AGAIN, and the prior candidate
+# (sha256:448c98c937849e5c6dcdd03cc33936084f698d0175520b2a5cbe9a9af92e8559,
+# tag claim225590) stays here as history: Job2's live episode measured its
+# two defects -- PID 1 never reaped (the killed background suite's ~498
+# zombies exhausted the 512-PID cgroup and broke the authoritative capture),
+# and the fixed /run/baton/logs room was open to ANY importer, so nested
+# adapter code declared failures into the real sidecars. The candidate below
+# is the same recipe with `dogfood_entry.py` as a reaping PID-1 supervisor
+# and the room gated on the entry-set BATON_ATTEMPT_LOG_ROOM
+# (RECOVERY-IMAGE-227097.json: in-image byte identity, PID-1 reap proof and
+# room-gating proof). Per the recipe's own selection doctrine it is a
+# CANDIDATE until the owner's launch authorization selects it.
+# CLAIM227424 MOVES IT ONCE MORE (owner 2026-09-21T05:54:40Z): the b44f5522
+# candidate's marker still pointed at the legacy room spelling; this build's
+# entry names the MOVED authoritative room `/run/baton/attempt-logs`, and the
+# legacy `/run/baton/logs` is the composed disposable decoy old-byte nested
+# writers land in (in-image proof in RECOVERY-EVIDENCE-227424.json).
+#
+# CLAIM229926 MOVES IT FOR D10 (owner 2026-09-21T12:41:22Z): the d1e2869e
+# candidate's adapter walked the WHOLE line candidate as provider material,
+# and job-4 measured what that refuses -- the real repository, 19,553
+# entries / 652 MB / 102 committed links against a 2,000-entry / 64 MiB
+# payload walk. The candidate below carries the delta inventory: the
+# committed baseline (proven at the pinned entry head) passes as baseline,
+# the provider answers for its CHANGES under every unchanged protection,
+# and the corrected adapter answers the retained job-4 checkout's delta --
+# exactly the two candidate files, at the reviewer's own recorded hashes --
+# in under a second (D10-EVIDENCE-229926.json).
+# CLAIM230107 NARROWS IT (owner 2026-09-21T12:47:17Z, review230027 R1):
+# the d447cf38 candidate still inventoried and hashed the whole baseline
+# and vetoed unrelated ignored additions. The candidate below collects the
+# proposal from Git's own status listing -- no baseline walk at all, an
+# unrelated ignored or special file is disclosed instead of refused, links
+# among the CHANGES and delivered/verified set-and-byte equality remain the
+# only vetoes -- and answers the retained job-4 checkout's delta in 0.066 s
+# (D10-EVIDENCE-230107.json).
+PROVIDER_IMAGE = ("sha256:5c2eb55d64a775cf939425941960289c3c98a49689f8"
+                  "41a335bdf03f69afd5b6")
 INTEGRATION_IMAGE = ("sha256:b9b75acc300170d99649d0497f9f93876ab5d8d73a91"
                      "57c9861c5763f17c9561")
 IMAGES = {"implementation": PROVIDER_IMAGE,
@@ -125,14 +173,43 @@ def sha(path):
 # -- measured provenance ------------------------------------------------------
 
 
-def declared_base(target=DEST / "repo/target.git"):
+ACCEPTED_BASE = None
+
+
+def select_base(reference):
+    """Compose the Claude Job against an EXPLICIT accepted reference.
+
+    Review222023 [R2], under owner 2026-09-20T14:57:48Z: the real Job's
+    base is the human-accepted reference, an OPAQUE input carried verbatim
+    into the task, binding and manifests -- never derived from the
+    dedicated target. Without `--base`, `declared_base` keeps reading the
+    target's refs exactly as the recorded historical runs did.
+    """
+    global ACCEPTED_BASE
+    if not _REVISION.match(reference or ""):
+        raise Unmeasured("--base carries a 40-lowercase-hex reference")
+    ACCEPTED_BASE = reference
+    return {"accepted_base": ACCEPTED_BASE}
+
+
+def declared_base(target=None):
     """The instance target's own current main revision, read from its refs.
 
     A file read and never a version-control mutation, exactly as W197661's
     composer does it: `line_declared_base` is the revision every checkpoint on
     this line is declared against, and a constant would describe some other
     repository.
+
+    THE DEFAULT RESOLVES AT CALL TIME. FINDING.md D5 (claim208777): binding
+    `DEST / "repo/target.git"` in the signature froze the module-load DEST,
+    which on the verification composer poisoned a fresh Authority's canonical
+    target. This composer still carries only the superseded instance's
+    constants and MUST gain instance selection before it composes for any
+    other destination; the default-argument port is done now so the defect
+    class cannot survive into that work.
     """
+    if target is None:
+        target = DEST / "repo/target.git"
     loose = Path(target) / "refs/heads/main"
     if loose.is_file():
         found = loose.read_text().strip()
@@ -162,7 +239,14 @@ def principals(*, opener=None):
         "receipt_participants": dict(RECEIPTS),
         "integration_profile": {
             "integrator_participant": ACTORS["integration"]},
-        "workers": [{"participant": one} for one in set(ACTORS.values())]}
+        # THE RETAINED WORKERS' PARTICIPANTS TRAVEL TOO (ported claim226458;
+        # the verification composer measured the identical narrow-document
+        # defect as `KeyError: 'baton.fixture-coder'`): a composer that
+        # validates a narrower document than it writes is not validating
+        # what it writes.
+        "workers": [{"participant": one} for one in sorted(
+            set(ACTORS.values())
+            | {one["participant"] for one in prepared_workers()})]}
     return bootstrap.principals_for(places, document, opener=opener)
 
 
@@ -211,8 +295,30 @@ def policy_pin(*, opener=None):
     # STILL A PREDICTION, AND STILL CHECKED. `check_policy_pin` runs after the
     # bootstrap against the Authority itself and is what decides whether this
     # was right; a number that agreed with itself would prove nothing.
-    first = not (DEST / "db/jobs.sqlite3").is_file()
-    return held + (FIRST_BOOTSTRAP_BUMP if first else REPEAT_BOOTSTRAP_BUMP)
+    # PORTED FROM compose-verification-208217.py's banked measurements after
+    # the gate refused THIS composer's first PR prediction (claim225533,
+    # configured 9 against generation 8): PR MODE COSTS ONE LESS PER
+    # PREPARATION (the absent integration stage certifies one transition
+    # fewer, measured 1 -> 8 on two fresh PR instances now), and FIRST means
+    # NO DEPLOYMENT RECORD, not no job store -- the job store is created by
+    # the first START, so a root composed before any start would read every
+    # compose as "first".
+    pr = "integration" not in ROLES
+    # FIRST means NO CONFIGURED CAPACITY, not no deployment file (claim225590,
+    # gate-caught on the fresh 01-28-41Z instance: THIS installer writes an
+    # EMPTY deployment.json at install, so a file-existence test read a fresh
+    # root as prepared and predicted the repeat bump -- configured 7 against
+    # the first apply's measured 1 -> 8).
+    place = DEST / "deployment.json"
+    prepared = (place.is_file()
+                and bool(json.loads(place.read_text()).get("workers")))
+    if not prepared:
+        return held + FIRST_BOOTSTRAP_BUMP - (1 if pr else 0)
+    # PREPARED APPLIES COST PER JOB (ported claim226458 with the two-Job
+    # support; the verification composer measured PR repeats at exactly six
+    # per job, claim222268, twice). The gate still checks every prediction.
+    jobs = len(_all_jobs()) or 1
+    return held + (REPEAT_BOOTSTRAP_BUMP - (1 if pr else 0)) * jobs
 
 
 def check_policy_pin(*, opener=None, pin=None):
@@ -345,26 +451,98 @@ def policy_documents(facts):
 
 
 def task_document(facts):
-    """The first development task, in the contract the worker image reads."""
+    """The first development task, in the contract the worker image reads.
+
+    BOUNDED at claim220385 (review220364 [2]): the historical instruction
+    asked for the whole user-managed pool-management outcome, which is not a
+    reviewable single-Job execution package. This is the two-path cut
+    REAL-JOB-PROPOSAL-220329.md proposed and the reviewer required the task
+    bytes to actually request: ONE `add-worker` verb, TWO allowed paths, the
+    verb's own tests plus the bootstrap family as the gate. The original
+    broader objective stays recorded in that proposal as follow-on work.
+    """
     return {
         "schema": "baton.dogfood-task/2",
         "task_id": JOB,
         "instructions":
-            "Deliver user-managed addition of workers to an existing v12 pool, "
-            "independently of bootstrap and of any individual Job. Today the "
-            "only supported way to add capacity is to re-run `just bootstrap` "
-            "with a worker-bearing input document, and tools/bootstrap.py "
-            "states the coupling out loud: 'A worker is configured WITH the "
-            "Job it serves'. Break that coupling. Do not change the rule that "
-            "a worker's image_digest must equal its own input manifest's "
-            "worker_image_digest, and do not change what a Job's input_digest "
-            "names -- W202663 corrected that already, and a pool's workers may "
-            "now each select their own immutable image.",
+            "Add exactly one new tool: a `add-worker` verb in a NEW file "
+            "v12/python/tools/pool.py that admits ONE worker document into "
+            "an existing instance's deployment configuration. It must "
+            "validate exactly what tools/bootstrap.py validates for a worker "
+            "(the worker's image_digest equal to its own input manifest's "
+            "worker_image_digest; participant and principal resolution; "
+            "profile shape), rewrite the instance's deployment.json with the "
+            "worker added, and print the pool generation the scheduler will "
+            "mint at the next activation. It must NOT prepare any Job, "
+            "submit anything, create or touch any Work, or remove or modify "
+            "any existing worker. Write its tests in a NEW file "
+            "v12/python/tests/tools/test_pool.py covering: a valid worker "
+            "admitted; an image digest disagreeing with its manifest "
+            "refused; an existing worker id refused; nothing else in the "
+            "configuration changed byte-for-byte. Change ONLY these two "
+            "files. Do not change tools/bootstrap.py or any existing rule "
+            "it enforces. Run tests in the FOREGROUND only, and only the "
+            "task's own selected modules: do not launch background test "
+            "runs or repository-wide test sweeps in this container -- its "
+            "process budget is bounded and a killed background run "
+            "previously destroyed the attempt's own verification evidence.",
         "source_root": "source",
         "source_profile": "git-line",
         "declared_base": facts["declared_base"],
-        "verification": ["python3", "-m", "unittest",
-                         "tests.tools.test_bootstrap", "-v"]}
+        # REVIEW225576 [R1]: the argv runs WITH THE CANDIDATE ROOT AS ITS
+        # WORKING DIRECTORY (claude_agent `_verify`, cwd=candidate) and the
+        # candidate is the whole repository -- `tests.tools.*` does not
+        # exist there; the selected modules live under `v12/python`. The
+        # argv contract is a shell-less vector, so the interpreter itself
+        # enters the subtree and sets the import path, exactly as the
+        # repository's own test invocations do (`cd v12/python` +
+        # `PYTHONPATH=src:.`). `unittest.main` exits nonzero on failure, so
+        # the gate's verdict still travels in the exit status.
+        #
+        # REVIEW226905 [3], SUPERSEDED REMEDY (owner 2026-09-21T05:53:07Z,
+        # "I approve spare mount", after review227324 R2): THE FIXTURE ROOT
+        # IS A REAL DELIVERY NOW, AND THE GATE IS THE FULL REQUIRED SET.
+        #
+        # Claim227097 measured the ground truth: eleven ValidFixture-derived
+        # test_bootstrap classes (75 of 125 tests) demand, through
+        # `_disk_root_outside_the_checkout` (which refuses rather than
+        # skips), a root at once DISK-BACKED, WRITABLE and OUTSIDE the
+        # checkout -- and the container then offered no such place by mount
+        # contract. Claim227097's remedy excluded those classes; review227324
+        # correctly rejected that as changed acceptance scope, and the owner
+        # selected the direct correction instead: the manager now delivers a
+        # per-attempt disk-backed scratch directory at the constant
+        # `/scratch` (oci.SCRATCH_TARGET; allocated in the attempt's own
+        # assignment home by single_worker._attempt_scratch). The argv
+        # selects it, the FULL test_pool + test_bootstrap families run --
+        # no stub, no exclusions -- and the retained real pool tests
+        # (AdmissionCase -> ValidFixture) are exactly what the in-container
+        # demonstration runs.
+        #
+        # PRECEDENCE, unchanged from the operator rule tools/environment.py
+        # states: an explicitly exported BATON_V12_STACK_TEST_ROOT is never
+        # overridden. Otherwise /scratch when it is a writable directory
+        # (the delivered mount), and a real-path mkdtemp on host reruns
+        # where no /scratch exists -- realpath because the verifier's own
+        # TMPDIR is a held /proc/self/fd object valid only in one process,
+        # and the stack cases hand the root to children.
+        "verification": [
+            "python3", "-c",
+            "import os, sys, tempfile, unittest\n"
+            "# W202663 owner 2026-09-21T05:53:07Z: the delivered per-attempt\n"
+            "# disk-backed scratch is the fixture root; an exported selection\n"
+            "# wins; a host rerun without /scratch falls back to a real\n"
+            "# temporary directory.\n"
+            "if not os.environ.get('BATON_V12_STACK_TEST_ROOT'):\n"
+            "    place = '/scratch'\n"
+            "    if not (os.path.isdir(place) and os.access(place, os.W_OK)):\n"
+            "        place = os.path.realpath(\n"
+            "            tempfile.mkdtemp(prefix='stack-test-root-'))\n"
+            "    os.environ['BATON_V12_STACK_TEST_ROOT'] = place\n"
+            "os.chdir('v12/python')\n"
+            "sys.path[:0] = [os.path.abspath('src'), os.path.abspath('.')]\n"
+            "unittest.main(module=None, argv=['unittest', "
+            "'tests.tools.test_pool', 'tests.tools.test_bootstrap'])\n"]}
 
 
 def role_instruction_documents():
@@ -454,7 +632,16 @@ def deployment_for(role, facts):
         "engine": "docker",
         "image_digest": IMAGES[role],
         "network": "bridge",
-        "workspace_storage": str(DEST / "workers" / role / "storage"),
+        # ONE STORE, MANAGER-SCOPED (claim226109, measured at the owner's
+        # first start and again at this claim's own: `configure_workspace_
+        # storage` refuses a second store -- "a changed store is a fresh
+        # store rather than a reconfiguration" -- because every attempt
+        # already allocated under the first would become unfindable. What is
+        # per-worker is the private launch and credential home below, which
+        # is where `stage_execution._independent` actually looks for
+        # separation; the verification composer and W197661's accepted
+        # composition share one store for the same reason.
+        "workspace_storage": str(DEST / "workers/implementation/storage"),
         "workspace_group": facts["workspace_group"],
         "launch_home": str(DEST / "workers" / role / "launch"),
         "credential_home": str(DEST / "workers" / role / "credentials"),
@@ -497,6 +684,11 @@ def submission(facts):
 
 def bootstrap_inputs(facts):
     """What the installed `bootstrap` command is handed to supply capacity."""
+    workers = prepared_workers() + [
+        {"worker_id": f"{JOB}-{role}", "role": role,
+         "participant": ACTORS[role],
+         "deployment": deployment_for(role, facts)}
+        for role in ROLES]
     return {
         "schema": "baton.v12.stack-bootstrap/1",
         "state_root": str(DEST),
@@ -508,21 +700,116 @@ def bootstrap_inputs(facts):
         "retention_policy_digest":
             facts["policy_digests"]["retention_policy_digest"],
         "retention_disposition": "retain",
-        "pool_generation": 1,
+        "pool_generation": _pool_generation_prediction(DEST, workers),
         "policy_generation": facts["policy_generation"],
         "receipt_participants": dict(RECEIPTS),
         "integration_target": str(DEST / "repo/target.git"),
         "integration_target_reference": "refs/heads/main",
         "integration_workspace": str(DEST / "repo/workspace"),
         "integration_instructions": str(DEST / "integration-instructions.txt"),
-        "workers": [{"worker_id": f"{JOB}-{role}", "role": role,
-                     "participant": ACTORS[role],
-                     "deployment": deployment_for(role, facts)}
-                    for role in ROLES],
-        "jobs": [{"job_id": JOB, "work_id": WORK,
-                  "line_declared_base": facts["declared_base"],
-                  "canonical_target_id": TARGET_ID,
-                  "source_worker_id": f"{JOB}-implementation"}]}
+        "workers": workers,
+        "jobs": prepared_jobs() + [
+            {"job_id": JOB, "work_id": WORK,
+             "line_declared_base": facts["declared_base"],
+             "canonical_target_id": TARGET_ID,
+             "source_worker_id": f"{JOB}-implementation"}]}
+
+
+# -- what is already prepared here, preserved verbatim (ported claim226458
+#    from the verification composer's reviewed two-Job support) --------------
+#
+# A REPEATED BOOTSTRAP PRESERVES WHAT IS THERE: "a Job that stops being named
+# is not thereby unconfigured", so a composition over a prepared root must
+# name the retained Jobs and carry their workers AS RECORDED -- recomposing
+# them would re-derive digests from today's facts and silently rewrite the
+# deployment the failed attempt actually ran under, which is exactly the
+# rewrite the preserved-evidence rule forbids.
+
+
+def _prepared():
+    place = DEST / "deployment.json"
+    if not place.is_file():
+        return None
+    return json.loads(place.read_text())
+
+
+def prepared_workers():
+    """Every retained worker except the selected Job's own, verbatim."""
+    held = _prepared()
+    if held is None:
+        return []
+    return [{"worker_id": one["worker_id"], "role": one["role"],
+             "participant": one["deployment"]["participant"],
+             "deployment": one["deployment"]}
+            for one in held.get("workers", [])
+            if not one["worker_id"].startswith(JOB + "-")]
+
+
+def prepared_jobs():
+    """Every Job this destination already holds, in the input's own shape."""
+    held = _prepared()
+    if held is None:
+        return []
+    return [{"job_id": one["job_id"], "work_id": one["job_work_id"],
+             "line_declared_base": one["line_declared_base"],
+             "canonical_target_id": one["canonical_target_id"],
+             "source_worker_id": one["source_worker_id"]}
+            for one in (held.get("job_bindings") or [])
+            if one["job_id"] != JOB]
+
+
+def _all_jobs():
+    """Every Job the next bootstrap will prepare: the held ones and this one."""
+    return prepared_jobs() + [{"job_id": JOB, "work_id": WORK}]
+
+
+def _pool_generation_prediction(dest, workers):
+    """The generation the NEXT activation will answer -- read, not restated.
+
+    The scheduler's own rule (ported with the verification composer's
+    claim219702/220080 correction): an absent pool mints 1, an identical
+    membership re-answers the current generation, a changed one mints the
+    next. The whole composed membership is compared, not one worker.
+
+    THROUGH THE PUBLIC READERS ONLY (review226502 [R2]): the durable pool is
+    asked via `JobStore.open_readonly` and the scheduler's own
+    `active_generation`/`pool_workers`, never raw SQL -- the raw form this
+    replaced was a policy violation even read-only, because a helper that
+    reaches past the store's owned crossings is a second schema consumer the
+    product never promised to keep working.
+    """
+    place = dest / "db/jobs.sqlite3"
+    if not place.is_file():
+        return 1
+    import datetime
+
+    from baton_v12.job_manager.store import JobStore
+    from baton_v12.job_manager import scheduler
+
+    def _clock():
+        return datetime.datetime.now(datetime.timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+
+    store = JobStore.open_readonly(
+        str(place), authority_uuid=UUID,
+        incarnation="compose-pool-prediction", clock=_clock)
+    try:
+        active = scheduler.active_generation(store)
+        if active is None:
+            return 1
+        current = active["generation"]
+        rows = {(one["worker_id"], one["lane"], one["participant"])
+                for one in scheduler.pool_workers(store, current)}
+    finally:
+        close = getattr(store, "close", None) or getattr(store, "dispose",
+                                                         None)
+        if close is not None:
+            close()
+    composed = {(one["worker_id"],
+                 "implementation" if one["role"] == "integration"
+                 else one["role"],
+                 one["participant"]) for one in workers}
+    return current if composed == rows else current + 1
 
 
 # -- the validators, and the fail-closed run ----------------------------------
@@ -583,7 +870,8 @@ def measured(*, run=None, opener=None):
     from baton_v12.worker_manager import workspaces
     from tools import single_worker
 
-    facts = {"declared_base": declared_base(),
+    facts = {"declared_base": (ACCEPTED_BASE if ACCEPTED_BASE is not None
+                               else declared_base()),
              "record_binding": record_binding(),
              "adapter": adapter_identity(),
              "empty_tree_digest": single_worker.EMPTY_TREE_DIGEST,
@@ -711,9 +999,128 @@ def stage_inputs(facts):
     (place / "task.json").write_bytes(facts["task_payload"])
     (DEST / "integration-instructions.txt").write_text(
         facts["integration_instructions"])
+    # THE DEPLOYMENT'S OWN DIRECTORIES, created here because the manager
+    # refuses to invent them: `check_workspace_storage` demands an EXISTING
+    # directory owned by this uid. The verification composer has carried
+    # this block since start-208777.log measured the refusal; THIS composer
+    # named the same paths in `deployment_for` without making them, and the
+    # owner's first authorized start of the live pool refused at
+    # configure_workspace_storage before any submission (owner FINDING,
+    # 2026-09-21). Naming a store is a deployment act, so the deployment's
+    # composer is where the named directories are made — per selected role:
+    # launch home, credential home, and (unlike the verification pool,
+    # whose manager scopes ONE workspace store) each role's OWN workspace
+    # storage, because that is what `deployment_for` names.
+    for role in ROLES:
+        for home in ("launch", "credentials"):
+            (DEST / "workers" / role / home).mkdir(parents=True,
+                                                   exist_ok=True)
+    (DEST / "workers/implementation/storage").mkdir(parents=True,
+                                                    exist_ok=True)
+
+
+def select_instance(destination):
+    """Point this composer at another installed instance, by path.
+
+    Review220364 [2]: the proposal's launch recipe named `--instance` while
+    `__main__` ignored argv and the historical claim207219 constants stayed
+    in force -- so the recipe could not select anything. Ported from the
+    verification composer's reviewed selection (review208507 [R2]): the
+    historical constants remain the record of that run; `--instance`
+    overrides them by reading the destination's OWN persisted identity.
+    """
+    global DEST, UUID, WORK
+
+    place = Path(destination)
+    identity = place / "authority-identity.json"
+    if not identity.is_file():
+        raise Unmeasured(f"{identity} is not here; --instance names an "
+                         f"installed destination")
+    held = json.loads(identity.read_text())
+    DEST = place
+    UUID = held["authority_uuid"]
+    WORK = UUID[:8] + "-W1"
+    return {"instance": str(DEST), "authority_uuid": UUID, "work": WORK}
+
+
+def select_pr():
+    """Compose the owner-selected PR shape: coder and reviewer only.
+
+    OWNER-HANDOFF-PR-JOBS (claim220385): the Job's deliverable is the
+    durable reviewed candidate; integration is a human act or a separately
+    submitted ordinary Job, so no `baton.merge` worker and no integration
+    stage compose here. The reviewed candidate's proposal tree and the
+    reviewer's verdict are the handback.
+    """
+    global ROLES
+    ROLES = ("implementation", "review")
+    return {"pr": True, "roles": list(ROLES),
+            "actors": {role: ACTORS[role] for role in ROLES}}
+
+
+def select_job(job_id, work_number=None):
+    """Compose a FRESH Job -- its participants AND ITS OWN WORK -- by id.
+
+    Ported claim226458 from the verification composer's reviewed
+    `select_job` (claim208777 cadence): a Job whose launch durably failed is
+    PRESERVED EVIDENCE, its released allocation is not re-reservable and its
+    live episode's ending is not in the replaceable set -- so the correction
+    is a NEW Job under fresh identities beside it, exactly as review208349
+    required for the first wrong task document. One participant per worker
+    across the whole pool is the measured rule, so the fresh actors carry
+    the job's own numeric suffix. The Work is selected WITH the Job
+    (review209459): a fresh authority-qualified Work id, minted by
+    `bootstrap._compose` on the implementation route, existing Works left
+    alone.
+    """
+    global JOB, ACTORS, WORK
+
+    suffix = job_id.rsplit("-", 1)[-1]
+    if not suffix.isdigit():
+        raise Unmeasured(f"--job {job_id!r} does not end in -<number>; the "
+                         f"numeric suffix names the fresh participants")
+    JOB = job_id
+    ACTORS = {"implementation": f"baton.claude-coder-{suffix}",
+              "review": f"baton.claude-reviewer-{suffix}",
+              "integration": ACTORS["integration"]}
+    number = suffix if work_number is None else str(work_number)
+    if not number.isdigit() or int(number) < 1:
+        raise Unmeasured(f"--work {number!r} is not a positive Work number")
+    WORK = UUID[:8] + "-W" + number
+    return {"job": JOB, "actors": dict(ACTORS), "work": WORK}
 
 
 def main(argv=None, *, validators=None, write=True, run=None, opener=None):
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="compose-pool-207219")
+    parser.add_argument("--instance", default=None,
+                        help="compose for this installed destination, "
+                             "reading its own persisted identity")
+    parser.add_argument("--base", default=None,
+                        help="compose against this explicit accepted "
+                             "reference (opaque; owner 2026-09-20T14:57:48Z)")
+    parser.add_argument("--pr", action="store_true",
+                        help="compose the owner-selected PR shape: coder "
+                             "and reviewer only, no integration worker or "
+                             "stage")
+    parser.add_argument("--job", default=None,
+                        help="compose a FRESH Job by id (must end in "
+                             "-<number>; names the fresh participants and "
+                             "the fresh Work) beside the destination's "
+                             "preserved Jobs")
+    parser.add_argument("--work", type=int, default=None,
+                        help="an explicit Work number for --job, overriding "
+                             "the job suffix")
+    taken = parser.parse_args([] if argv is None else list(argv))
+    if taken.instance is not None:
+        print(json.dumps(select_instance(taken.instance)))
+    if taken.pr:
+        print(json.dumps(select_pr()))
+    if taken.job is not None:
+        print(json.dumps(select_job(taken.job, taken.work)))
+    if taken.base is not None:
+        print(json.dumps(select_base(taken.base)))
     state = Run(validators or production_validators())
     try:
         facts = measured(run=run, opener=opener)
@@ -780,4 +1187,4 @@ def main(argv=None, *, validators=None, write=True, run=None, opener=None):
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

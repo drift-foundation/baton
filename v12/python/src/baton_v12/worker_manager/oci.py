@@ -70,7 +70,8 @@ from . import (attempt_logs, boundaries, credentials, documents, exchange,
 __all__ = ["ENGINES", "EnginePort", "LABEL_PREFIX", "LABEL_CONTEXT",
            "MAX_DIAGNOSTIC",
            "POSTURES", "ROOT_NAMES", "MOUNTABLE", "RESOLVED_IDENTITY",
-           "RESTRICTIONS", "OciAdapter", "destroy_vector", "inspect_vector",
+           "RESTRICTIONS", "SCRATCH_TARGET", "OciAdapter", "destroy_vector",
+           "inspect_vector",
            "list_vector", "run_vector", "stop_vector"]
 
 # The two engines this core speaks, and nothing else. A name outside this set is
@@ -202,6 +203,18 @@ RESTRICTIONS = (
 ) + tuple(
     ("--tmpfs", f"{target}:rw,noexec,nosuid,nodev,size={one >> 20}m")
     for target, one in source_boundary.SCRATCH_MOUNTS
+) + (
+    # W202663 (owner 2026-09-21T05:54:40Z): THE LEGACY ROOM SPELLING IS A
+    # DISPOSABLE DECOY. The authoritative attempt-log room moved to
+    # `attempt_log_format.TARGET`; accepted images and retained candidates
+    # still carry the old constant, and Job2 measured what that reach costs
+    # -- nested old-byte writers declared failures into the real sidecars.
+    # Mounting a small private tmpfs at the old spelling means an old-byte
+    # writer lands in memory that dies with the container, touching no
+    # evidence. NOT part of `SCRATCH_MOUNTS`: that table feeds the declared
+    # workspace-capacity floor, and this decoy is nobody's capacity.
+    ("--tmpfs", f"{attempt_logs.LEGACY_LOG_TARGET}"
+                f":rw,noexec,nosuid,nodev,size=16m"),
 )
 
 # THE POSTURE'S OWN ROOTS. Ruled 2026-08-25, and it replaces a denylist.
@@ -234,6 +247,11 @@ WRITABLE = {"execution": ("workspace",)}
 # gives it -- a path a mount plan could vary is a path a runtime can be pointed
 # at wrongly.
 INPUT_TARGET = "/input"
+
+# W202663 (owner 2026-09-21T05:53:07Z): WHERE AN ATTEMPT'S DISK-BACKED SCRATCH
+# LANDS, when the deployment delivers one. A constant for the same reason as
+# `INPUT_TARGET`; see `_scratch_mount` for what it is and is not.
+SCRATCH_TARGET = "/scratch"
 
 
 # THE ONE RESOLVED IDENTITY a delivery is made under. Review: the adapter
@@ -971,6 +989,43 @@ def _log_mounts(logs_delivered):
     return ((source, attempt_logs.LOG_TARGET, True),)
 
 
+def _scratch_mount(scratch_delivered):
+    """THE ONE writable disk-backed scratch bind, per attempt, or nothing.
+
+    W202663, owner 2026-09-21T05:53:07Z ("I approve spare mount"). The
+    verifier runs REAL deployment-setup tests inside the container, and
+    those tests refuse a fixture root that is inside the checkout or on a
+    memory filesystem -- and Job2 measured that this container offers no
+    compliant place at all: the rootfs is read-only, `/tmp` and `/dev/shm`
+    are tmpfs, and the one writable disk mount IS the checkout for the
+    line profile. This delivery is the correction: one directory the
+    MANAGER allocated in the attempt's own assignment home (real storage,
+    outside every checkout), seen by exactly this attempt at the constant
+    target below. One backing disk serves every attempt's isolated
+    directory, which is the owner's own wording.
+
+    A CONSTANT TARGET, like the launch, exchange and log families: a path a
+    plan could vary is a path a runtime can be pointed at wrongly. The
+    owner named `/scratch` as a suggested spelling; this adopts it as the
+    contract constant.
+
+    NOT `SCRATCH_MOUNTS`' tmpfs scratch: that is bounded PRIVATE memory
+    that dies with the container. This is disk-backed per-attempt capacity
+    that lives in the assignment home and follows the assignment's own
+    retention/cleanup disposition -- which is why it is a delivery a caller
+    composes, never a default.
+    """
+    if scratch_delivered is None:
+        return ()
+    source = canonical_source(scratch_delivered,
+                              "an attempt-scratch delivery source")
+    if not os.path.isdir(source):
+        _refuse(f"an attempt-scratch delivery names {name_value(source)}, "
+                f"which is not a directory; the scratch is one namespace at "
+                f"one path", code="path")
+    return ((source, SCRATCH_TARGET, True),)
+
+
 def _source_mount(source_delivered, assigned, roots):
     """W71917: THE NOMINATED SOURCE, read-only, ON TOP OF the input root.
 
@@ -1156,7 +1211,7 @@ def _integration_mounts(integration_delivered, posture=None, others=()):
 def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                mounts=(), credentials_delivered=(), launch_delivered=None,
                exchange_delivered=None, source_delivered=None,
-               logs_delivered=None,
+               logs_delivered=None, scratch_delivered=None,
                integration_delivered=None, context_delivered=None,
                name, workspace_group=None, network=NETWORK_NONE,
                interactive=False):
@@ -1383,6 +1438,35 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                         f"which this start already mounts as "
                         f"{name_value(taken)}; raw output and the surface it "
                         f"landed in would each be read as the other")
+        argv += ["--mount",
+                 f"type=bind,source={source},target={target},"
+                 f"readonly={'false' if writable else 'true'}"]
+    # W202663: THE ATTEMPT'S DISK-BACKED SCRATCH, composed after the log room
+    # and held to the same containment rule in both directions -- scratch is
+    # private working capacity, and landing inside any evidence or protocol
+    # surface would let a verifier's fixture bytes be read as somebody's
+    # record. EXECUTION ONLY: a consent runtime mounts nothing, and a scratch
+    # there would be a grant with no object.
+    if scratch_delivered is not None and posture != "execution":
+        _denied("an attempt-scratch delivery is composed for an execution "
+                "runtime and this start is "
+                + name_value(posture) + "; a consent runtime mounts nothing")
+    for source, target, writable in _scratch_mount(scratch_delivered):
+        for taken in ([one[1] for one in assigned]
+                      + [one[1] for one in
+                         _credential_mounts(credentials_delivered)]
+                      + ([_launch_mount(launch_delivered)[1]]
+                         if launch_delivered is not None else [])
+                      + [one[1] for one in
+                         _exchange_mounts(exchange_delivered)]
+                      + [one[1] for one in _log_mounts(logs_delivered)]):
+            if taken == target or _within(target, taken) \
+                    or _within(taken, target):
+                _denied(f"an attempt-scratch delivery lands on "
+                        f"{name_value(target)}, which this start already "
+                        f"mounts as {name_value(taken)}; scratch and the "
+                        f"surface it landed in would each be read as the "
+                        f"other")
         argv += ["--mount",
                  f"type=bind,source={source},target={target},"
                  f"readonly={'false' if writable else 'true'}"]
@@ -1843,6 +1927,7 @@ class OciAdapter:
                  credential_delivery=None, credential_home=None,
                  credential_orphan=None, launch_delivery=None,
                  source_delivery=None, integration_delivery=None, context_delivery=None,
+                 scratch_delivery=None,
                  workspace_group=None, network=NETWORK_NONE,
                  interactive=False):
         self.engine = _engine(engine)
@@ -1866,6 +1951,16 @@ class OciAdapter:
         self.integration_delivery = integration_delivery
         if integration_delivery is not None and self.posture != "execution":
             _denied(f"an integration mount boundary is composed for an "
+                    f"execution runtime and this adapter is "
+                    f"{name_value(self.posture)}; a consent runtime mounts "
+                    f"nothing at all")
+        # W202663: THE PER-ATTEMPT DISK-BACKED SCRATCH, owned at construction
+        # like every other delivery and DEFAULT ABSENT, so an adapter that
+        # composes exactly what it composed before still can. Validated at the
+        # vector (`_scratch_mount`), where every path operand is.
+        self.scratch_delivery = scratch_delivery
+        if scratch_delivery is not None and self.posture != "execution":
+            _denied(f"an attempt-scratch delivery is composed for an "
                     f"execution runtime and this adapter is "
                     f"{name_value(self.posture)}; a consent runtime mounts "
                     f"nothing at all")
@@ -2343,6 +2438,10 @@ class OciAdapter:
                     if self.launch_delivery is not None
                     and getattr(self.launch_delivery, "logs", None) is not None
                     else None),
+                # W202663: and the per-attempt disk-backed scratch, absent
+                # unless the deployment allocated one -- `_scratch_mount`
+                # composes nothing from `None`.
+                scratch_delivered=self.scratch_delivery,
                 source_delivered=self.source_delivery,
                 integration_delivered=self.integration_delivery,
                 context_delivered=self.context_delivery,

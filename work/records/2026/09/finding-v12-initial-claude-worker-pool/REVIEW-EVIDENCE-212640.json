@@ -1,0 +1,10 @@
+{
+  "claim": 212640,
+  "sha256": {
+    "v12/python/src/baton_v12/checkpoint_profiles.py": "9cdba888ce1b8f7ad2a320ed298b266fb400bc29931c5ca4cb59bb2306a931a3",
+    "v12/python/tests/manager/test_checkpoint_profiles.py": "3f950c22975a378a8fb314bd02d4148bc5dc8d23420dec7715b986993050717d",
+    "v12/python/tools/stage_execution.py": "ee366b9d8e47c2ac7c556f7471cf57dec4bf777da64b5b393eaf1039ed2a6864"
+  },
+  "independent_result": "23 tests pass0.312s",
+  "disposition": "R2 corrected at profile boundary; composed proof outstanding"
+}

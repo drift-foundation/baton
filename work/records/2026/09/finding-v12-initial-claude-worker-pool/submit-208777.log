@@ -1,0 +1,13 @@
+{
+  "submission_id": "w202663-deterministic-verification-2-submission",
+  "signature": "{\"kind\":\"submission.record\",\"operands\":{\"jobs\":[{\"input_digest\":\"sha256:ea20cc2da1970682f14f9db2f1b0e5a8ffc390497fa8e107fd351f41423695fc\",\"job_id\":\"w202663-deterministic-verification-2\",\"policy_digest\":\"sha256:44aad0d141ae7ec2f2a2ae85e1b1e6270fc00c777767dc38c45867ab93ecbcca\",\"stages\":[{\"depends_on\":[],\"kind\":\"implementation\",\"profile_digest\":\"sha256:7e061736af55f5af18b4d4d8d32d21971d88391e3d903dd69b59754a746031ad\",\"profile_name\":\"fixture-w202663-deterministic-verification-2\",\"work_id\":\"56cebb70-W1\"},{\"depends_on\":[{\"job_id\":\"w202663-deterministic-verification-2\",\"kind\":\"implementation\"}],\"kind\":\"review\",\"profile_digest\":\"sha256:7e061736af55f5af18b4d4d8d32d21971d88391e3d903dd69b59754a746031ad\",\"profile_name\":\"fixture-w202663-deterministic-verification-2\",\"work_id\":\"56cebb70-W1\"},{\"depends_on\":[{\"job_id\":\"w202663-deterministic-verification-2\",\"kind\":\"review\"}],\"kind\":\"integration\",\"profile_digest\":\"sha256:7e061736af55f5af18b4d4d8d32d21971d88391e3d903dd69b59754a746031ad\",\"profile_name\":\"fixture-w202663-deterministic-verification-2\",\"work_id\":\"56cebb70-W1\"}],\"terminal_policy\":\"report-and-hold\",\"test_scope\":[]}],\"schema\":\"baton.v12.job-submission/2\",\"submission_id\":\"w202663-deterministic-verification-2-submission\"}}",
+  "jobs": [
+    "w202663-deterministic-verification-2"
+  ],
+  "stages": [
+    "w202663-deterministic-verification-2/implementation",
+    "w202663-deterministic-verification-2/review",
+    "w202663-deterministic-verification-2/integration"
+  ],
+  "recorded_at": "2026-09-19T03:32:31.272Z"
+}

@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:10e7b23f86fc49ef4f64be5788a9d8af6327a531bc8fd29ab10ee22d449a55e2"
+  },
+  "claim": 221639,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-221639.json",
+    "input_count": 110,
+    "inputs_digest": "sha256:3d7e37e5986547155fc3fa6b5582c29f216441b3f7bf8f6cb7c18961df634d53",
+    "revision": {
+      "commit": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the runtime carrying the operator accepted-base transition (Authority.accept_base with the expected-old check inside the committed replay body; tools/accepted_base.py with enforced lifecycle exclusion, durable intent, reference CAS and atomic receipt) atop the accepted D9+D8+R3/R4 runtime, for the owner-selected PR flow's same-deployment next-base continuity",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "sha256:a6dbd9631c3f419e36db63f3d88e866538e88e50665fe221d2a2c8a523d36bab": "the claim219702 candidate, review-verified (review219927/220364 identity checks) and owner-installed as instance-2026-09-20T10-23-11Z; preserved with its instance"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

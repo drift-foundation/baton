@@ -421,11 +421,14 @@ def held(document):
     by_role = {}
     for worker in workers_of(document):
         by_role.setdefault(worker["role"], []).append(worker)
-    # EVERY ROLE, WHENEVER ANY WORKER IS CONFIGURED. An installation configures
-    # none and serves none; a deployment that configures SOME is a pool with a
-    # hole in it, which is the refusal this has always made.
+    # EVERY REQUIRED ROLE, WHENEVER ANY WORKER IS CONFIGURED. An installation
+    # configures none and serves none; a deployment that configures SOME is a
+    # pool with a hole in it. The INTEGRATION role is optional -- owner
+    # 2026-09-20T14:57:48Z (W202663, the PR model): integration is a human
+    # act or an explicitly submitted ordinary Job, never an obligatory
+    # worker, and `stage_execution`'s own coverage gate says the same.
     for role in (ROLES if workers_of(document) else ()):
-        if not by_role.get(role):
+        if role != "integration" and not by_role.get(role):
             faults.append("no worker is configured for the " + role + " stage")
     for role in set(by_role) - set(ROLES):
         faults.append("this deployment serves " + ", ".join(ROLES)
@@ -456,22 +459,17 @@ def held(document):
                           + repr(job["source_worker_id"])
                           + ", which is not a configured implementation worker")
 
-    # ONE AUTHORITY HOLDS ONE CANONICAL TARGET, and that is a fact about the
-    # INPUT, so it belongs here. W197661 review200179 [R2]: this refusal lived
-    # in `_canonical_target`, which runs AFTER routes, Work and grants have
-    # been written -- so a document naming two bases composed durable Authority
-    # state and then refused, contradicting this module's own documented
-    # promise that nothing durable happens until every check has passed. A
-    # preflight that one constraint skips is not one.
-    declared = sorted({job["line_declared_base"] for job in jobs_of(document)})
-    if len(declared) > 1:
-        faults.append("an Authority holds ONE canonical target and this "
-                      "deployment's Jobs declare " + str(len(declared))
-                      + " different bases (" + ", ".join(declared)
-                      + "); the first publication compares a worker's declared "
-                        "base against that one value, so a deployment that "
-                        "cannot express its own bases is refused here rather "
-                        "than at the first proposal")
+    # THE DISTINCT-BASE COUNT RULE NO LONGER LIVES HERE. W202663 owner212383
+    # selects review212328's bounded amendment: this pure validator cannot
+    # tell a RETAINED binding (whose base is history this root persisted)
+    # from a NEW one, so counting distinct bases over the whole document
+    # refused exactly the incremental preparation an advanced target
+    # requires. The rule moved to `admissible_bases`, which runs in `prepare`
+    # immediately after `conflicts` -- store-aware, still before ANY durable
+    # effect, so both of this module's documented promises hold: nothing
+    # durable happens until every check passes, and a fresh deployment still
+    # refuses two bases before the first proposal. Each binding's base FORM
+    # is still proved here, per job, above.
     if faults:
         raise BootstrapRefusal("this deployment cannot be prepared: "
                                + "; ".join(faults))
@@ -1126,6 +1124,88 @@ def without_installer_members(document):
             if name not in INSTALLER_ONLY}
 
 
+def admissible_bases(places, document, *, opener=None):
+    """Which declared bases this root may admit, decided BEFORE any effect.
+
+    W202663 owner212383, review212328's bounded amendment. The distinct-base
+    count rule lived in the pure `held` and could not tell RETAINED bindings
+    from NEW ones, so a root whose target had legitimately ADVANCED (the
+    approved direct-target finalization) could never admit a new Job: the
+    preserved completed binding carries its historical base, the new binding
+    carries the advanced one, and counting refused both together.
+
+    THE SPLIT, on validated PERSISTED evidence and never an input assertion:
+
+    - retained bindings are the ones this root's own persisted record names;
+      `conflicts` has ALREADY refused their mutation or omission before this
+      runs, so their historical bases are exactly what this root recorded;
+    - a FRESH root (no persisted record, no retained binding) keeps the
+      first-establishment rule byte for byte: exactly ONE distinct base
+      across the whole document, refused otherwise before the first proposal;
+    - an ESTABLISHED root admits NEW bindings only when they agree on ONE
+      base and that base equals the Authority's CURRENT canonical target,
+      read WITHOUT writing -- a stale new base, an unreadable store, or a
+      root whose record exists while its target was never established all
+      refuse by name.
+
+    IT RUNS AFTER `conflicts` AND BEFORE ANYTHING DURABLE, so the module's
+    no-effects-on-refusal promise is unchanged. It waives nothing: pool
+    live-allocation checks, `dropped_selections` and every later validation
+    stand exactly as they were.
+    """
+    jobs = jobs_of(document)
+    if not jobs:
+        return
+    # THE CALLER'S LAYOUT MAY BE `tools.instance`'s (the install path hands
+    # that one to `prepare_repositories`), which derives the same store and
+    # record paths but not this module's `configuration` key -- and
+    # `_previous` reads it. One root, one layout: recompute this module's own
+    # from the document's state_root, which both callers have already set.
+    places = layout(document["state_root"])
+    held = _previous(places)
+    retained = (set() if held is None or held.get("unreadable")
+                else set(held.get("bindings") or {}))
+    fresh = [job for job in jobs if job["job_id"] not in retained]
+    if not retained:
+        declared = sorted({job["line_declared_base"] for job in jobs})
+        if len(declared) > 1:
+            raise BootstrapRefusal(
+                "this deployment cannot be prepared: an Authority holds ONE "
+                "canonical target and this fresh deployment's Jobs declare "
+                + str(len(declared)) + " different bases ("
+                + ", ".join(declared) + "); the first publication compares a "
+                "worker's declared base against that one value, so a "
+                "deployment that cannot express its own bases is refused "
+                "here rather than at the first proposal")
+        return
+    if not fresh:
+        return
+    # AN ESTABLISHED ROOT ADMITS NEW BINDINGS AT THEIR OWN DECLARED BASES.
+    # Owner 2026-09-20T14:57:48Z (W202663, the generic-reference ruling): a
+    # binding's declared base is OPAQUE reference metadata carried to the
+    # agents that interpret it -- "take commit X, make changes, offer PR" --
+    # and the coordinator neither compares it against the Authority's
+    # canonical target nor forces every new binding to one value.
+    # Independent Jobs run concurrently from explicit accepted bases, and
+    # an accepted RESULT reaches a successor as an explicit input rather
+    # than through a globally enforced Git base. The two equality rules
+    # this branch used to apply (one base across new Jobs; that base equal
+    # to the current canonical target) were the selected-core
+    # interpretation that ruling explicitly supersedes. The FRESH-root
+    # one-base rule above stays: a fresh deployment's first publication
+    # still compares a worker's declared base against the one canonical
+    # target the integration flow establishes, and the PR flow never
+    # reaches that comparison. Retained-binding conflict checks stand
+    # exactly as they were.
+    for job in fresh:
+        if (type(job["line_declared_base"]) is not str
+                or not job["line_declared_base"]):
+            raise BootstrapRefusal(
+                "this deployment cannot be prepared: a new Job's "
+                "line_declared_base is an explicit nonempty reference; the "
+                "coordinator carries it to the Job's agents verbatim")
+
+
 def prepare(document, *, stream=sys.stdout, opener=None, installing=False):
     """Prove everything, then compose. In that order, and the order is the point.
 
@@ -1171,6 +1251,12 @@ def prepare(document, *, stream=sys.stdout, opener=None, installing=False):
             "changed: " + "; ".join(found) + ". A repeated bootstrap preserves "
             "what is there; if you mean a different deployment, give it its own "
             "state_root.")
+    # THE DECLARED BASES, judged against what this root PERSISTED and what
+    # its Authority established -- after `conflicts` proved the retained
+    # bindings byte-exact, still before anything durable. W202663
+    # owner212383; the rule that lived in `held` moved here so an
+    # incremental preparation over an advanced target is expressible at all.
+    admissible_bases(places, document, opener=opener)
 
     principals = principals_for(places, document, opener=opener)
     configured = validated(configuration(document, principals))
@@ -1395,6 +1481,15 @@ def prepare_repositories(document, places, *, runner=None, stream=sys.stdout,
         # The whole document is proved first -- by the same rules `prepare`
         # applies -- so a refusal here has changed nothing.
         held(without_installer_members(document))
+        # AND THE DECLARED BASES, review212438 [R1]: when the distinct-base
+        # count rule moved out of the pure `held` into `admissible_bases`,
+        # THIS caller kept only `held` -- so on the install path, which runs
+        # before `prepare`, a fresh multi-base input created the destination
+        # and reached the clone runner before anything refused it. The same
+        # store-aware rule runs here now, before the mkdir below: a fresh
+        # destination has no persisted record, so this is the pure one-base
+        # first-establishment refusal, with nothing changed.
+        admissible_bases(places, document)
         repositories_agree(document, places)
         custody(places, places["destination"])
     if source in (None, "", {}):

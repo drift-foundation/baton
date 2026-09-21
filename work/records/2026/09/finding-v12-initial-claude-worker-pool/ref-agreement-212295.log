@@ -1,0 +1,3 @@
+canonical_target policy: 9a478400a6211e3d29f7dfb1ed181e90a414c7a1
+target.git refs/heads/main: 9a478400a6211e3d29f7dfb1ed181e90a414c7a1
+AGREEMENT: YES -- the finalizer advanced the reference with the policy

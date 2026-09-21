@@ -1,0 +1,21 @@
+{
+  "claim": 208960,
+  "sha256": {
+    "compose-verification-208217.py": "e08c4d463125fe0888dfb7bc006de022530d4e47b70fcdcfb47aa63d9fabbeae",
+    "compose-pool-207219.py": "e829656e896c29d7077a41797ba819ed2281da10de3e92623488487f764a3694",
+    "verify-next-instance.sh": "99f19600a65eb33c1b49a611ba6bd7e288af4af37f5ae48d96b33cc1ba6a8c6a",
+    "install-next-instance.sh": "c1727be50034a0f806473eb781a61367cbb0b0c631d1a4a97f578dbe308f4783",
+    "assert-capture-208916.py": "0164ea179cb2cd82284a555d0a2e2e3b10dde81c44b35c4753ee61224ae4fe38",
+    "test-composer-isolation-208916.py": "f82e0a161cdb13026eebf4a882c13d18b3fd97a2738d39dd41b3deaac58b66f6",
+    "fixture-context/worker/emitting_agent.py": "2bb3730713d48ab90ce1695009174c33f58a674dc0e1925eab866648a4a523c6",
+    "fixture-context/worker/emitting_entry.py": "567e2b853fbfcd637c81987ec488fab6e56dd6007aaeab8d2194af037bee1269",
+    "fixture-context/Dockerfile.emitting": "b6a2d499efd44bab36bb7c8ae6a6c564dfaa5fbdb95057ad544ccfd29b50ef16",
+    "d6-settlement-208916.log": "931b8c9463b1e3a973ed8f3cf91946027cc963bd31608468b124b22f909733af",
+    "status-observe-208916.json": "4c0599f2af632ede31905816b06aff73fcef94e863cb9f8eeed708b4f6c2bc4e"
+  },
+  "composer_checks": 16,
+  "composer_checks_passed": true,
+  "capture_assertion_probe": "synthetic file content: positive accepted; wrong stderr content rejected; NOT deployed capture proof",
+  "capture_probe_seconds": 0.8894549129763618,
+  "image_inspect_id": "sha256:e48e72dfaaed321a34f1bfdd8ceca260c63d852c3fdc625da1458b02eaf7e9e8"
+}

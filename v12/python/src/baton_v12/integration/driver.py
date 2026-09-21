@@ -309,17 +309,24 @@ def retain_proposal(manager, publisher, *, attempt_id):
     claim = _claim_of(output)
     source_base = _object_name(claim["base"], "the worker's declared base")
     proposal_head = _object_name(claim["head"], "the worker's proposal head")
-    current = _authority(publisher.canonical_target,
-                         "the canonical target read")
-    target_revision = _object_name(current, "the Authority's canonical target")
-    if source_base != target_revision:
-        _refuse(f"the worker built on {name_value(claim['base'])} and the "
-                f"Authority target is {name_value(current)}; a proposal "
-                f"is offered against the revision it was built from",
-                category="refused", code="precondition")
-    if proposal_head["algorithm"] != target_revision["algorithm"]:
-        _refuse("the proposal head and target revision use different object "
-                "namespaces")
+    # THE PROPOSAL'S TARGET IS THE REVISION IT WAS BUILT FROM -- its own
+    # declared base. Owner 2026-09-20T14:57:48Z (W202663, the
+    # generic-reference ruling): a worker's base is OPAQUE reference
+    # metadata, and comparing it against the Authority's canonical target
+    # at OFFER time enforced one global Git base on every producer --
+    # measured blocking the PR successor's conclude with exactly the
+    # refusal this block used to raise. The comparison that PROTECTS the
+    # integration flow is `integrate`'s own stale-target door, which reads
+    # the proposal's recorded target INSIDE its committed transaction; for
+    # every proposal the removed gate ever admitted the two values were
+    # equal, so recording the base changes no admitted document and the
+    # integration flow's enforcement stands exactly where it was. The
+    # offer-time canonical-target read is gone with the gate -- publication
+    # interprets no deployment-global revision at all.
+    target_revision = source_base
+    if proposal_head["algorithm"] != source_base["algorithm"]:
+        _refuse("the proposal head and its declared base use different "
+                "object namespaces")
 
     # THE ACCOUNT BOTH DERIVED IDENTITIES ARE TAKEN FROM. One dictionary rather
     # than two spellings of it, because the whole property they carry is that
@@ -460,15 +467,13 @@ def publish_candidate(manager, publisher, *, attempt_id,
     """
     _capability(publisher, "publish", "the publisher session")
     _capability(publisher, "proposal", "the publisher session")
-    _capability(publisher, "canonical_target", "the publisher session")
     proposal, operands, expected = _publish_operands(
         manager, attempt_id, proposal_manifest_digest)
-    current = _authority(publisher.canonical_target,
-                         "the canonical target read")
-    if current != operands["target"]:
-        _refuse(f"the Authority target is {name_value(current)} and the "
-                f"proposal was built from {name_value(operands['target'])}",
-                category="refused", code="precondition")
+    # NO OFFER-TIME TARGET COMPARISON, owner 2026-09-20T14:57:48Z: the
+    # proposal's target IS the base it was built from (see the publication
+    # above), opaque metadata the coordinator records and does not judge.
+    # `integrate`'s stale-target door remains the integration flow's
+    # enforcement, inside its own committed transaction.
     answer = _authority(publisher.publish, "proposal publication", operands)
     if answer != expected:
         _refuse("the Authority's publication answer is not the exact proposal "

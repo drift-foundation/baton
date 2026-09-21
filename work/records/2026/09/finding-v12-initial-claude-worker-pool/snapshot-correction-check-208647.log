@@ -1,0 +1,10 @@
+ok    requirements.build.lock recorded
+ok    packaging/stack.spec recorded
+ok    v12/justfile recorded
+ok    pyproject.toml recorded
+ok    requirements.lock recorded
+ok    packaging/build-stamp.json excluded as a build product
+ok    schema /2
+ok    supersession of the partial /1 snapshot declared
+input_count: 109 (was 106 in the partial set)
+NOTE: this run only proves the corrected script; it is NOT retained as a build binding -- a prospective snapshot counts only when taken immediately before the selected build it describes

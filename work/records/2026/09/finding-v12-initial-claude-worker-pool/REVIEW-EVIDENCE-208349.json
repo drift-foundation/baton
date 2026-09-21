@@ -1,0 +1,16 @@
+{
+  "claim": 208349,
+  "source_evidence": [
+    {
+      "source": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/state/manager.log",
+      "retained": "manager-log-208349.txt",
+      "sha256": "4f1635d640ea7d51d3fa1377515a2de1a121fbc64e62f02073a074da42e004bb"
+    },
+    {
+      "source": "/home/sl/baton-v12/instance-2026-09-19T02-05-20Z/workers/implementation/storage/.baton-review-lines/line-be019c3b54cb6a39f794dd08b857e86fbfac77ea9b89f0ff41fa6a12daa48eac/custody/attempt-60b0040e8b9bacdad27597d172e74c584436be80d9588f4a25da77c202bad380/proposal/verification.txt",
+      "retained": "producer-verification-208349.txt",
+      "sha256": "03baf1547b7981112c2d10066d33d68a5f1f305f0970994da9ea8dfc03c89c46"
+    }
+  ],
+  "verification": "read-only retained-file/source diagnosis; no execution"
+}

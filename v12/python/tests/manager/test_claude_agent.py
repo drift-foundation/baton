@@ -2079,10 +2079,7 @@ class LineCase(AdapterCase):
         self.origin = os.path.join(self.home, "origin")
         os.makedirs(self.origin)
         self.git("init", "-q", "-b", "main", at=self.origin)
-        self.write(os.path.join(self.origin, "harness.py"),
-                   "print('the staged harness')\n")
-        self.write(os.path.join(self.origin, "preflight.py"),
-                   "def _observed_readable():\n    return True\n")
+        self.populate_origin()
         self.git("add", "--all", at=self.origin)
         self.git("commit", "-q", "--message", "base", at=self.origin)
         self.base = self.git("rev-parse", "HEAD", at=self.origin).strip()
@@ -2094,6 +2091,17 @@ class LineCase(AdapterCase):
         self.profile = GitCheckpointProfile(self.git_runner)
         self.profile.materialize(self.origin, self.outputs, self.base)
         self.task(dict(LINE_TASK, declared_base=self.base))
+
+    def populate_origin(self):
+        """What the baseline repository contains, as a HOOK (W202663 D10).
+
+        The two files are the historical fixture unchanged; a case about the
+        real repository's shape overrides this to commit what the real one
+        commits -- symlinks included -- without duplicating the setup."""
+        self.write(os.path.join(self.origin, "harness.py"),
+                   "print('the staged harness')\n")
+        self.write(os.path.join(self.origin, "preflight.py"),
+                   "def _observed_readable():\n    return True\n")
 
     # -- real version control, composed environment -------------------------
 
@@ -2366,26 +2374,30 @@ class TheCommittedChangeIsTheMeasuredChange(LineCase):
         self.assertEqual(self.git("cat-file", "blob", f"{head}:harness.py"),
                          "print('now covered')\n")
 
-    def test_a_verified_candidate_the_commit_cannot_carry_refuses(self):
-        """The hole one direction leaves, and it is not about ignored files
-        as a feature.
+    def test_an_ignored_dependency_publishes_and_is_disclosed(self):
+        """Owner 2026-09-21T12:47:17Z superseded the veto this case held.
 
-        An ignored path is in no status, no staging and no diff, so a change
-        set checked only against the measured tree cannot see it. The turn
-        here VERIFIES successfully BECAUSE the file is on disk, and the commit
-        it would publish does not contain it -- so a recipient resolving that
-        head receives something nobody verified.
-        """
-        with self.assertRaises(TaskRefusal) as caught:
-            self.worked(edits={
-                ".gitignore": "ignored-data.txt\n",
-                "ignored-data.txt": "needed\n",
-                "harness.py": "print('reads the data')\n"})
-        self.assertIn("ignored-data.txt", str(caught.exception))
-        self.assertIn("not one this adapter will publish",
-                      str(caught.exception))
-        # AND NOTHING WAS PUBLISHED. The refusal is before the declared output.
-        self.assertFalse(os.path.exists(self.proposal("objects.bundle")))
+        The turn verifies BECAUSE the ignored file is on disk, and the
+        published head cannot carry it. The old regime refused outright;
+        the owner is the integrator now, so the turn PUBLISHES the changes
+        it can deliver and DISCLOSES what the collection excluded -- whether
+        the verification relied on it is the integrator's question, put in
+        the record rather than adjudicated by the adapter."""
+        answered = self.worked(edits={
+            ".gitignore": "ignored-data.txt\n",
+            "ignored-data.txt": "needed\n",
+            "harness.py": "print('reads the data')\n"})
+        self.assertEqual(answered["disposition"], "completed")
+        record = self.result()
+        self.assertEqual(record["collection"]["excluded_ignored"],
+                         ["ignored-data.txt"])
+        self.assertIn("verification ran", record["collection"]["note"])
+        head = self.claim(answered)["head"]
+        delivered = self.git("diff", "--name-only",
+                             f"{self.base}..{head}").split()
+        self.assertNotIn("ignored-data.txt", delivered)
+        self.assertIn("harness.py", delivered)
+        self.assertIn(".gitignore", delivered)
 
     def test_an_edit_status_cannot_see_is_still_held_to_its_bytes(self):
         """Equal path sets still permit different bytes.
@@ -2398,12 +2410,23 @@ class TheCommittedChangeIsTheMeasuredChange(LineCase):
         catches it asks Git only for what it stored.
         """
         self.git("update-index", "--assume-unchanged", "preflight.py")
-        with self.assertRaises(TaskRefusal) as caught:
-            self.worked(edits={"preflight.py": "verified payload\n",
-                               "harness.py": "print('reads preflight')\n"})
-        self.assertIn("preflight.py", str(caught.exception))
-        self.assertIn("measured and verified there", str(caught.exception))
-        self.assertFalse(os.path.exists(self.proposal("objects.bundle")))
+        answered = self.worked(edits={"preflight.py": "verified payload\n",
+                                      "harness.py": "print('reads preflight')\n"})
+        # OWNER 2026-09-21T12:47:17Z RETIRED the whole-tree guarantee this
+        # case once asserted, by name: the collection is status-based, so an
+        # index-hidden edit is neither measured nor delivered. What survives
+        # -- and is asserted -- is the narrow integrity the ruling keeps:
+        # every DELIVERED change carries exactly the verified bytes, and the
+        # hidden edit is provably absent from the published head rather than
+        # smuggled into it.
+        self.assertEqual(answered["disposition"], "completed")
+        head = self.claim(answered)["head"]
+        delivered = self.git("diff", "--name-only",
+                             f"{self.base}..{head}").split()
+        self.assertEqual(delivered, ["harness.py"])
+        self.assertEqual(
+            self.git("show", f"{head}:preflight.py"),
+            "def _observed_readable():\n    return True\n")
 
     def test_every_measured_path_is_compared_and_not_only_the_changed_ones(
             self):
@@ -3600,3 +3623,241 @@ class TheNativeSessionActivityObservation(AdapterCase):
         self.assertEqual(answer["disposition"], "completed")
         self.assertEqual(seen, [700])
         self.assertEqual(held["agent"].observed_activity(), 700)
+
+
+class LineDeltaCase(LineCase):
+    """W202663 D10 — the delta inventory's own harness.
+
+    `act` is the provider doing something `edits=` cannot express — linking,
+    deleting, chmodding, mkfifo -- and `verify_act` is the VERIFICATION
+    child doing it, which is the window `_line_revalidated` exists for.
+    Both run inside the same fake-provider seam every other case uses.
+    """
+
+    def provider(self, *, act=None, verify_act=None, **operands):
+        base = super().provider(**operands)
+
+        def run(argv, **options):
+            if argv[0] == claude_agent.PROVIDER_PROGRAM and act is not None:
+                act(options["cwd"])
+            if argv[0] != claude_agent.PROVIDER_PROGRAM \
+                    and verify_act is not None:
+                verify_act(options["cwd"])
+            return base(argv, **options)
+
+        return run
+
+    def populate_origin(self):
+        super().populate_origin()
+        os.symlink("harness.py",
+                   os.path.join(self.origin, "committed-file-link"))
+        os.makedirs(os.path.join(self.origin, "records"))
+        self.write(os.path.join(self.origin, "records", "kept.txt"),
+                   "baseline record\n")
+        os.symlink("records",
+                   os.path.join(self.origin, "committed-dir-link"))
+
+
+class TheLineDeltaKeepsEveryProviderRule(LineDeltaCase):
+    """The negative half of D10: what the whole-tree walk refused, the
+    delta still refuses -- about the CHANGES, where the rules belong."""
+
+    def test_an_untouched_linked_baseline_is_no_candidate_not_a_fault(self):
+        """The exact D10 defect, inverted: committed links and all, a turn
+        that changed nothing publishes an honest no-candidate."""
+        answered = self.worked()
+        # "unable" is the WORK answer's word; the proposal's own record
+        # carries the fine-grained one, exactly as every clean turn does.
+        self.assertEqual(answered["disposition"], "unable")
+        self.assertEqual(self.result()["disposition"], "no-candidate")
+
+    def test_the_reviewers_unrelated_ignored_cache_probe_publishes(self):
+        """Review230027's own R1 reproduction, kept as the positive it must
+        be: an unrelated ignored cache beside a constant-print harness
+        edit. The old regime refused solely for the cache's omission; the
+        selected behavior publishes the edit and disclosures the cache."""
+        answered = self.worked(edits={
+            ".gitignore": "unrelated-cache.txt\n",
+            "unrelated-cache.txt": "scratch nobody reads\n",
+            "harness.py": "print('a constant, no cache involved')\n"})
+        self.assertEqual(answered["disposition"], "completed")
+        record = self.result()
+        self.assertEqual(record["collection"]["excluded_ignored"],
+                         ["unrelated-cache.txt"])
+        head = self.claim(answered)["head"]
+        delivered = self.git("diff", "--name-only",
+                             f"{self.base}..{head}").split()
+        self.assertEqual(sorted(delivered), [".gitignore", "harness.py"])
+
+    def test_a_provider_authored_link_still_refuses(self):
+        with self.assertRaises(TaskRefusal) as caught:
+            self.worked(act=lambda cwd: os.symlink(
+                "/run/baton/credentials/claude",
+                os.path.join(cwd, "exfil-link")))
+        self.assertIn("neither authors nor alters links",
+                      str(caught.exception))
+        self.assertFalse(os.path.exists(self.proposal("objects.bundle")))
+
+    def test_a_retargeted_baseline_link_still_refuses(self):
+        def retarget(cwd):
+            place = os.path.join(cwd, "committed-file-link")
+            os.unlink(place)
+            os.symlink("preflight.py", place)
+
+        with self.assertRaises(TaskRefusal) as caught:
+            self.worked(act=retarget)
+        self.assertIn("link at committed-file-link among its changes",
+                      str(caught.exception))
+
+    def test_a_link_replaced_by_a_file_still_refuses(self):
+        """A type change is refused rather than interpreted -- the
+        pre-existing `_identical` rule, which is where a link-to-file
+        replacement now lands: the worktree entry is an ordinary file, so
+        collection measures it, and the committed change then carries 'T',
+        which is not an added, modified or deleted regular path."""
+        def replace(cwd):
+            place = os.path.join(cwd, "committed-file-link")
+            os.unlink(place)
+            self.write(place, "now a file\n")
+
+        with self.assertRaises(TaskRefusal) as caught:
+            self.worked(act=replace)
+        self.assertIn("'T' change at committed-file-link",
+                      str(caught.exception))
+
+    def test_a_special_file_is_no_veto_and_is_never_delivered(self):
+        """Owner 12:47:17Z: an unrelated special file is not a collection
+        veto. Git's own status does not surface a fifo at all, so the turn
+        publishes without it -- nothing reads the pipe (a read would
+        block), nothing delivers it, and the change set is exactly the
+        edit."""
+        answered = self.worked(
+            edits={"harness.py": "print('beside a pipe')\n"},
+            act=lambda cwd: os.mkfifo(os.path.join(cwd, "pipe")))
+        self.assertEqual(answered["disposition"], "completed")
+        head = self.claim(answered)["head"]
+        self.assertEqual(
+            self.git("diff", "--name-only", f"{self.base}..{head}").split(),
+            ["harness.py"])
+
+    def test_a_mode_only_change_is_measured_and_published(self):
+        """The executable bit is a change Git commits, so it is candidate
+        material even with every byte identical."""
+        answered = self.worked(act=lambda cwd: os.chmod(
+            os.path.join(cwd, "harness.py"), 0o755))
+        self.assertEqual(answered["disposition"], "completed")
+        claim = self.claim(answered)
+        self.assertEqual(
+            self.git("ls-tree", "--format=%(objectmode)", claim["head"],
+                     "harness.py").strip(), "100755")
+
+    def test_a_baseline_deletion_is_published_as_a_deletion(self):
+        answered = self.worked(edits={"harness.py": "print('kept')\n"},
+                               act=lambda cwd: os.remove(
+                                   os.path.join(cwd, "records", "kept.txt")))
+        self.assertEqual(answered["disposition"], "completed")
+        head = self.claim(answered)["head"]
+        status = self.git("diff", "--name-status", f"{self.base}..{head}")
+        self.assertIn("D\trecords/kept.txt", status)
+
+    def test_a_verification_time_edit_still_refuses(self):
+        def tamper(cwd):
+            self.write(os.path.join(cwd, "harness.py"),
+                       "print('swapped after measurement')\n")
+
+        with self.assertRaises(TaskRefusal) as caught:
+            self.worked(edits={"harness.py": "print('measured')\n"},
+                        verify_act=tamper)
+        self.assertIn("after its own verification command ran",
+                      str(caught.exception))
+
+    def test_a_verification_time_deletion_still_refuses(self):
+        with self.assertRaises(TaskRefusal) as caught:
+            self.worked(edits={"harness.py": "print('measured')\n"},
+                        verify_act=lambda cwd: os.remove(
+                            os.path.join(cwd, "records", "kept.txt")))
+        self.assertIn("disagree about the removal", str(caught.exception))
+
+
+class TheLineDeltaAdmitsTheRealRepositoryShape(LineDeltaCase):
+    """The positive half of D10, at the measured scale.
+
+    The live refusal was reproduced against 19,553 entries / 652 MB / 102
+    committed links; this baseline is the same SHAPE past the same payload
+    bounds -- more entries than MAX_SOURCE_ENTRIES, more bytes than
+    MAX_SOURCE_BYTES, file and directory symlinks committed -- driven
+    through the REAL work(): provider, measurement, verification,
+    commit, representability and publication.
+    """
+
+    BULK_FILES = 2100
+    BIG_BYTES = 66 * 1024 * 1024
+
+    def populate_origin(self):
+        super().populate_origin()
+        for index in range(self.BULK_FILES):
+            sub = os.path.join(self.origin, "bulk", f"d{index % 30:02d}")
+            os.makedirs(sub, exist_ok=True)
+            with open(os.path.join(sub, f"f{index:04d}.txt"), "w",
+                      encoding="utf-8") as out:
+                out.write(f"baseline {index}\n")
+        with open(os.path.join(self.origin, "assets.bin"), "wb") as out:
+            out.write(b"\x00" * self.BIG_BYTES)
+
+    def test_the_shape_is_actually_past_the_payload_bounds(self):
+        """The fixture proves it is the D10 shape, not a smaller stand-in."""
+        self.assertGreater(self.BULK_FILES, claude_agent.MAX_SOURCE_ENTRIES)
+        self.assertGreater(self.BIG_BYTES, claude_agent.MAX_SOURCE_BYTES)
+        self.assertTrue(os.path.islink(
+            os.path.join(self.outputs, "committed-file-link")))
+        self.assertTrue(os.path.islink(
+            os.path.join(self.outputs, "committed-dir-link")))
+
+    def test_a_small_patch_publishes_through_verification(self):
+        answered = self.worked(edits={
+            "v12/tools/pool.py": "print('the candidate')\n",
+            "v12/tests/test_pool.py": "print('its tests')\n"})
+        self.assertEqual(answered["disposition"], "completed")
+        claim = self.claim(answered)
+        self.assertEqual(claim["base"], self.base)
+        head = claim["head"]
+        status = self.git("diff", "--name-only", f"{self.base}..{head}")
+        self.assertEqual(sorted(status.split()),
+                         ["v12/tests/test_pool.py", "v12/tools/pool.py"])
+        # THE LINKS SURVIVED PUBLICATION UNTOUCHED, which is the whole point:
+        # baseline material is the repository's own business.
+        self.assertEqual(
+            self.git("ls-tree", "--format=%(objectmode)", head,
+                     "committed-file-link").strip(), "120000")
+        self.assertTrue(os.path.exists(self.proposal("objects.bundle")))
+        # AND THE VERIFICATION REALLY RAN: the second child in the calls.
+        self.assertEqual(len([argv for argv, _options in self.calls
+                              if argv[0] != claude_agent.PROVIDER_PROGRAM]),
+                         1)
+
+    def test_a_baseline_edit_is_measured_by_bytes_not_by_git(self):
+        answered = self.worked(edits={
+            "bulk/d00/f0000.txt": "edited baseline member\n"})
+        self.assertEqual(answered["disposition"], "completed")
+        head = self.claim(answered)["head"]
+        self.assertEqual(
+            self.git("diff", "--name-only",
+                     f"{self.base}..{head}").split(),
+            ["bulk/d00/f0000.txt"])
+
+    def test_the_payload_bound_still_binds_what_the_turn_authors(self):
+        with self.assertRaises(TaskRefusal) as caught:
+            self.worked(act=lambda cwd: self.write(
+                os.path.join(cwd, "oversized.bin"),
+                "x" * (claude_agent.MAX_SOURCE_BYTES + 1)))
+        self.assertIn("exceeds this adapter's bound", str(caught.exception))
+
+    def test_the_collection_bound_binds_the_change_list(self):
+        def flood(cwd):
+            for index in range(12):
+                self.write(os.path.join(cwd, f"new-{index}.txt"), "x\n")
+
+        with mock.patch.object(claude_agent, "MAX_LINE_STATUS_ENTRIES", 10):
+            with self.assertRaises(TaskRefusal) as caught:
+                self.worked(act=flood)
+        self.assertIn("bound", str(caught.exception))

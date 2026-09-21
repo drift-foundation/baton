@@ -1,0 +1,21 @@
+{
+ "verdict": {
+  "verdict_id": "verdict-e5332c536589e05911cd6fa207dbdd276cb3f31d973bc091dac5f5d0acf4d123",
+  "disposition": "accepted",
+  "checkpoint_id": "checkpoint-9120b870402c2e3ed1d3433e1ef0f3b71ad485b7a98bcd1a2da1ee485c0674b3",
+  "line_id": "line-37baa08d6f19fdeafe4d84157617eacff07325d91ada504b00a89b40653bb7a4",
+  "work_id": "62becc01-W1",
+  "reviewer_participant": "baton.fixture-reviewer-1"
+ },
+ "checkpoint": {
+  "base": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+  "head": "2fb0612ca1bd9fd8e2e254a11ff26b6b64a1eba8",
+  "state": "frozen",
+  "digest": "sha256:64e56ab670122662c278be9b13ca2842bb91833a2fba27cf993f10bc6f8701d3"
+ },
+ "line": {
+  "state": "accepted",
+  "declared_base": "93da9d628360590e30d7dd899781c9e5db4cc2b1",
+  "line_path": "/home/sl/baton-v12/instance-2026-09-20T15-53-26Z/workers/implementation/storage/.baton-review-lines/line-37baa08d6f19fdeafe4d84157617eacff07325d91ada504b00a89b40653bb7a4/checkout"
+ }
+}

@@ -23,3 +23,17 @@ Owner now selects all Baton reviews through rv-pc for the time being (the instal
 ## 2026-09-18 UTC — exclusive routing verified after owner activation
 
 Owner reports activation done. A fresh canonical teams read confirms baton.rvpc alone has the rview route (baton.bug, baton.feat, baton.rsrch); baton.codex has no routes and holds no Work. The rvpc runtime is idle with a non-stale lease, same dedicated session, last contact 04:25:49Z. This supersedes the pending-acceptance status above. No restart or claim transfer is needed.
+
+
+## Owner 2026-09-21 — select .codex home after dispatch drain
+
+Owner selects tuner/reviewer to use /home/sl/.codex under renewed limits, superseding the prior reviewer .codex-pushcoin home selection for this deployment. Prompt verified canonical dispatch paused, zero blocking claims, generation118. Reviewer infra still explicitly names .codex-pushcoin; primary app-server has no explicit CODEX_HOME. Prepared /tmp/baton-restart-codex-home.sh for owner terminal execution: confirm paused, stop both managed service sets, back up manifests, explicitly set both app-server CODEX_HOME values to /home/sl/.codex, start and report health while remaining paused. Participant identities, endpoints, policy-file locators and separate readiness paths remain unchanged. Lifecycle start mints fresh managed contexts. Separate v12 deployment is outside this restart. Preparation only; no restart/config mutation or dispatch resume performed by prompt.
+
+
+## 2026-09-21 — owner-authorized policy-home repair after restart
+
+Observed: reviewer now runs with CODEX_HOME=/home/sl/.codex, but its nominated execution policy remains /home/sl/.codex-pushcoin/rules/baton-rview-pc.rules; the active home has no baton.rvpc rules. W202663 episode226749 reached fresh context01a0c23a-701a-70a1-9963-dd623b31f30d at 04:30:26Z. Its standalone claim failed with a read-only database; its escalation request at 04:30:47Z caused dispatcher quarantine. W202663 remains queued and unclaimed. This is an incomplete deployment migration, not a failed handoff. The dispatcher checks the nominated file, not the effective loaded home.
+
+Owner says "let's do it" to installing the existing exact reviewer policy in the active .codex home, correcting the template locator, and restarting the reviewer service set to mint a fresh context. This explicitly supersedes the prior restart instruction to leave policy-file locators unchanged. Prompt owns this bounded operational repair and record updates; no review claim is taken. Preserve original policy, back up template, refuse drift, and verify canonical claim pickup after restart. No broad permission rule or auth-file change is selected.
+
+Repair applied by baton.prompt after external-filesystem approval: /home/sl/.codex/rules/baton-rview-pc.rules matches the original policy bytes; dispatcher.template.json now nominates that installed path and its original was backed up. Exact workflow and Docker inspection policy preflight passes against the installed file. Owner volunteered to restart the stack; prompt has not restarted services. Effective claim pickup awaits that restart.

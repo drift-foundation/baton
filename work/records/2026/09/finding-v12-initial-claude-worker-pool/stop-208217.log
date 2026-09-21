@@ -1,0 +1,5 @@
+stopped: manager pid 1922345
+stopped: publisher pid 1922346
+runtime   3 open episode(s), 3 with a recorded runtime, observed 5.1s ago
+          stopping a supervisor does not stop a runtime, and this is the last RECORDED answer rather than a fresh one
+stores and evidence retained under the configured paths

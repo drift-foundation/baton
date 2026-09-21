@@ -1,0 +1,28 @@
+{
+  "built": {
+    "command": "just build",
+    "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+    "sha256": "sha256:786af0d52f7c21b411a96143eda72ff4e6875533355d4ca5ff7117daf766bab2"
+  },
+  "claim": 225452,
+  "prospective_inputs": {
+    "artefact": "PROSPECTIVE-INPUTS-225452.json",
+    "input_count": 110,
+    "inputs_digest": "sha256:1ff0c12a3535fa8b236597c39d163cdcbda37d16b02b9a1fd8c1b8f23a545c81",
+    "revision": {
+      "commit": "2fb0612ca1bd9fd8e2e254a11ff26b6b64a1eba8",
+      "read": true
+    },
+    "schema": "baton.w202663.prospective-build-inputs/2",
+    "taken": "BEFORE this build"
+  },
+  "purpose": "the forward runtime whose source-refresh recovery preserves BOTH failure causes when the refresh fails and the supplement then refuses (review225408's diagnostic regression), atop the same-line recovery and every prior accepted correction",
+  "schema": "baton.w202663.runtime-build/1",
+  "supersedes": {
+    "bundle-sha256:bb410f6c443c0654f04993282199ede2a09c74f4aa3297283997aafd711e1287": "candidate225345, never installed; superseded by the both-causes diagnostic completion; records remain as history"
+  },
+  "what_this_is_NOT": {
+    "not_behaviourally_accepted": "identity, not installed behaviour",
+    "not_installed": "built and installed nowhere; only the owner installs"
+  }
+}

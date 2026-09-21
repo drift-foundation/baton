@@ -1,0 +1,31 @@
+# THE EMITTING DETERMINISTIC PRODUCER IMAGE. W202663 claim208916.
+#
+# Review208890: "Prepare an emitting deterministic workload and its capture
+# assertions BEFORE the next lifecycle run. Repeating a silent fixture cannot
+# satisfy nonempty retained logs."
+#
+# This is `Dockerfile.producer` with exactly two additional reviewed-in-dossier
+# files -- `emitting_agent.py`, which composes the UNCHANGED `ProposingAgent`
+# with deterministic prose on the wrapper's stdout and stderr, and
+# `emitting_entry.py`, the one-line composition that selects it -- and a
+# different ENTRYPOINT. Same base by digest, same reviewed worker bytes, same
+# hardening. Its output is FIXTURE output, labelled as such in every line;
+# capture proof made with it claims nothing about a live provider.
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/integration_contract.py /opt/baton/integration_contract.py
+COPY worker/integration_workload.py /opt/baton/integration_workload.py
+COPY worker/integration_entry.py /opt/baton/integration_entry.py
+COPY worker/proposing_agent.py /opt/baton/proposing_agent.py
+COPY worker/emitting_agent.py /opt/baton/emitting_agent.py
+COPY worker/emitting_entry.py /opt/baton/emitting_entry.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/emitting_entry.py"]
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0

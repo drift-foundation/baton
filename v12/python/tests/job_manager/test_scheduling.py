@@ -695,6 +695,61 @@ class TheReviewedSchedulerGaps(PoolCase):
             resolved_principals={"baton.old": "principal:old",
                                  "baton.new": "principal:new"})
 
+    # -- W202663 D9: the composer provides live prior pairs ------------------
+
+    def test_a_live_prior_pair_attaches_the_same_named_worker(self):
+        """D9 (claim219702), measured installed: attachment REQUIRES live
+        prior generations' pairs, and `operations_from` attached only the
+        active generation's -- so a deployment holding a `reserved`
+        allocation from a retired generation refused at start, and the pool
+        could never advance over exactly the held episodes report-and-hold
+        exists to retain. The composer's map now comes from the scheduler's
+        own required set: the live prior pair carries the SAME-NAMED
+        worker's operations (its own launch home, role and manifest context
+        read its history; workers are not interchangeable)."""
+        from tools.stage_execution import _attached_workers
+
+        self.activate(self.one_worker_pool("primary", "impl", "baton.impl"),
+                      {"baton.impl": "principal:impl"})
+        attempt = self.attempts([
+            job("job-old", stages=[stage("implementation", "work:old")])])[0]
+        reserve(self.jobs, attempt)
+        self.activate(
+            pool("advanced", workers=[
+                worker("impl", "implementation", "baton.impl",
+                       ["implementation"]),
+                worker("extra", "implementation", "baton.extra",
+                       ["implementation"])]),
+            {"baton.impl": "principal:impl",
+             "baton.extra": "principal:extra"})
+        impl_operations, extra_operations = object(), object()
+        attached = _attached_workers(self.jobs, 2, [
+            {"worker_id": "impl", "operations": impl_operations},
+            {"worker_id": "extra", "operations": extra_operations}])
+        self.assertEqual(attached, {(2, "impl"): impl_operations,
+                                    (2, "extra"): extra_operations,
+                                    (1, "impl"): impl_operations})
+
+    def test_a_live_prior_worker_no_longer_composed_refuses_by_name(self):
+        """The fail-closed half of D9: a live allocation whose worker this
+        deployment no longer composes has nobody who can truthfully answer
+        for it, and attachment refuses before any stage operation rather
+        than serving its history with another worker's context."""
+        from tools.stage_execution import _attached_workers
+
+        self.activate(self.one_worker_pool("primary", "impl", "baton.impl"),
+                      {"baton.impl": "principal:impl"})
+        attempt = self.attempts([
+            job("job-old", stages=[stage("implementation", "work:old")])])[0]
+        reserve(self.jobs, attempt)
+        self.activate(self.one_worker_pool("advanced", "other",
+                                           "baton.other"),
+                      {"baton.other": "principal:other"})
+        with self.assertRaises(ContractRefusal) as caught:
+            _attached_workers(self.jobs, 2, [
+                {"worker_id": "other", "operations": object()}])
+        self.assertIn("no longer composes", caught.exception.message)
+
     # -- [P1] no allocation is a refusal, not the first worker ---------------
 
     def test_a_stage_with_no_allocation_reaches_no_worker(self):
@@ -1458,3 +1513,216 @@ class CapacityReturnsWhenAnIntegrationCompletes(PoolCase):
                          "preparation_failure": None}}})
         self.assertEqual(self.settled(attempt)["allocation_state"],
                          "recovery-required")
+
+
+class TheReaderSurvivesARetiredGenerationsSettledAllocation(PoolCase):
+    """W202663 D7: a released allocation from a retired pool generation is
+    HISTORY, and reading it must not kill the manager.
+
+    Measured on an installed instance whose pool had advanced: attachment
+    deliberately requires only the active generation and live prior
+    generations (`_required_workers` counts `reserved` and
+    `recovery-required`), so a `released` generation-1 allocation had no
+    attached key once generation 2 was active -- and `_reader`'s
+    unconditional lookup raised a raw KeyError that unwound the whole serve
+    loop on the first tick after restart. An instance whose pool ever grows
+    could not restart once any prior generation's work had been cleaned up,
+    which is exactly the membership change this Work's recorded first
+    development task performs. Reading such a stage decides nothing: it is
+    answered like the no-allocation branch, from any attached store, and the
+    durable allocation row is untouched.
+    """
+
+    class _ReadingStub:
+
+        def __init__(self, participant):
+            self.port = SimpleNamespace(participant=participant)
+            self.observed = []
+
+        def observe(self, stage):
+            self.observed.append(stage["attempt_id"])
+            return _unobserved()
+
+        def refresh_runtime(self, stage):
+            return {"refreshed": stage["attempt_id"]}
+
+        def canonical_operation(self, act, offer_id):
+            return f"offer.{'issue' if act == 'admit' else 'settle'}:{offer_id}"
+
+        def receipt_of(self, operation_id):
+            return None
+
+    def _advanced_pool(self):
+        """Generation 1 with a RELEASED allocation, then generation 2 active."""
+        self.activate()
+        attempt = self.attempts([
+            job("one", stages=[stage("implementation", "work:one")])])[0]
+        reserve(self.jobs, attempt)
+        scheduler.release(self.jobs, attempt["attempt_id"], "cleanup-retained")
+        second = pool("fallback")
+        self.activate(second)
+        stubs = {(2, row["worker_id"]):
+                 self._ReadingStub(row["participant"])
+                 for row in pool_workers(self.jobs, 2)}
+        pooled = PooledManagerOperations(
+            self.jobs, stubs, resolved_principals=principals(second))
+        return attempt, pooled
+
+    def test_observe_answers_over_settled_history_instead_of_raising(self):
+        attempt, pooled = self._advanced_pool()
+        held = allocation_of(self.jobs, attempt["attempt_id"])
+        self.assertEqual((held["generation"], held["allocation_state"]),
+                         (1, "released"))
+        self.assertEqual(pooled.observe(attempt), _unobserved())
+        self.assertEqual(pooled.refresh_runtime(attempt),
+                         {"refreshed": attempt["attempt_id"]})
+        after = allocation_of(self.jobs, attempt["attempt_id"])
+        self.assertEqual(after, held)
+
+    def test_the_live_allocation_path_is_unchanged(self):
+        """A reserved allocation in the ATTACHED set is still routed to its
+        own worker, not to `_any()` -- the correction narrows nothing."""
+        document = pool()
+        self.activate(document)
+        attempt = self.attempts([
+            job("one", stages=[stage("implementation", "work:one")])])[0]
+        held = reserve(self.jobs, attempt)
+        stubs = {(1, row["worker_id"]): self._ReadingStub(row["participant"])
+                 for row in pool_workers(self.jobs, 1)}
+        pooled = PooledManagerOperations(
+            self.jobs, stubs, resolved_principals=principals(document))
+        pooled.observe(attempt)
+        self.assertEqual(stubs[(1, held["worker_id"])].observed,
+                         [attempt["attempt_id"]])
+
+    def test_a_live_allocation_on_an_unattached_key_refuses_by_name(self):
+        """The defence-in-depth branch, with an INJECTED answer: the public
+        operations cannot manufacture this state (releasing is terminal --
+        `require_recovery` refuses a released allocation, measured at the
+        composition level), so the guard is proved against a crafted
+        allocation rather than left as unreachable dead prose."""
+        from unittest import mock
+
+        attempt, pooled = self._advanced_pool()
+        crafted = dict(allocation_of(self.jobs, attempt["attempt_id"]),
+                       allocation_state="reserved")
+        with mock.patch.object(scheduler, "allocation_of",
+                               return_value=crafted):
+            with self.assertRaises(ContractRefusal) as caught:
+                pooled.observe(attempt)
+        self.assertIn("which this attachment does not hold",
+                      caught.exception.message)
+
+    def test_history_is_answered_by_the_same_worker_in_its_newest_generation(self):
+        """Review209188 [R1]: observation adopts worker-specific context, so
+        the settled stage is routed to the SAME worker id in its newest
+        attached generation -- never an arbitrary worker -- whenever the pool
+        still names it."""
+        attempt, pooled = self._advanced_pool()
+        held = allocation_of(self.jobs, attempt["attempt_id"])
+        pooled.observe(attempt)
+        same = {key: stub for key, stub in pooled.workers.items()
+                if key[1] == held["worker_id"]}
+        self.assertEqual(len(same), 1)
+        [(key, stub)] = same.items()
+        self.assertEqual(key[0], 2)
+        self.assertEqual(stub.observed, [attempt["attempt_id"]])
+        for other_key, other in pooled.workers.items():
+            if other_key != key:
+                self.assertEqual(other.observed, [])
+
+
+class AFreshJobComposesBesideAReservedAllocation(PoolCase):
+    """W202663 (owner 227095) — the Job2 disposition question, deterministic.
+
+    The live deployment holds exactly this state: an implementation
+    allocation RESERVED (its exchange faulted, its episode unended) on a
+    worker of the active generation. Before any fresh Job is proposed
+    beside it, the supported path has to be established from the product's
+    own closed sets rather than assumed from Job1's RELEASED precedent:
+
+      * activating the widened pool document is a NEW generation and the
+        reserved row stays bound to its old one (`activate_pool`'s own
+        contract: "live allocations remain bound to their old rows");
+      * the manager still counts the reserved worker among its required
+        workers, from the historical generation's own immutable rows — so
+        a deployment that dropped the faulted Job's workers would refuse,
+        and the composer must keep them;
+      * a fresh stage under fresh identities reserves on the NEW worker,
+        because reservation excludes exactly the occupied worker ids and
+        canonical principals — and nothing releases, retries or repairs
+        the reserved row on the way.
+
+    The refusal half proves the exclusion is real: a successor pool whose
+    only implementation capacity SHARES the reserved principal cannot
+    reserve, by name.
+    """
+
+    def _reserved_then_widened(self):
+        first = pool(workers=[
+            worker("coder-2", "implementation", "baton.coder-2",
+                   ["implementation"]),
+            worker("reviewer-2", "review", "baton.reviewer-2", ["review"])])
+        self.activate(first)
+        submit(self.jobs, submission("sub-job2", jobs=[
+            job("job-2", stages=[stage("implementation", "0000000a-W1")])]))
+        attempt = self.attempting(self.jobs, "job-2/implementation")
+        held = reserve(self.jobs, attempt)
+        self.assertEqual(held["allocation_state"], "reserved")
+        self.assertEqual(held["generation"], 1)
+        self.assertEqual(held["worker_id"], "coder-2")
+        widened = pool(workers=first["workers"] + [
+            worker("coder-3", "implementation", "baton.coder-3",
+                   ["implementation"]),
+            worker("reviewer-3", "review", "baton.reviewer-3", ["review"])])
+        return held, widened
+
+    def test_the_widened_pool_is_a_new_generation_and_the_row_is_untouched(
+            self):
+        held, widened = self._reserved_then_widened()
+        answer = self.activate(widened)
+        self.assertEqual(answer["generation"], 2)
+        after = allocation_of(self.jobs, held["assignment_id"])
+        self.assertEqual(after["allocation_state"], "reserved")
+        self.assertEqual(after["generation"], 1)
+        self.assertEqual(after["worker_id"], "coder-2")
+        self.assertIsNone(after["released_at"])
+
+    def test_the_reserved_worker_stays_required_from_its_own_generation(self):
+        held, widened = self._reserved_then_widened()
+        self.activate(widened)
+        required = {(row["generation"], row["worker_id"])
+                    for row in scheduler._required_workers(self.jobs)}
+        self.assertIn((1, "coder-2"), required)
+        self.assertIn((2, "coder-3"), required)
+
+    def test_a_fresh_stage_reserves_on_the_fresh_worker(self):
+        held, widened = self._reserved_then_widened()
+        self.activate(widened)
+        submit(self.jobs, submission("sub-job3", jobs=[
+            job("job-3", stages=[stage("implementation", "0000000a-W3")])]))
+        attempt = self.attempting(self.jobs, "job-3/implementation")
+        fresh = reserve(self.jobs, attempt)
+        self.assertEqual(fresh["allocation_state"], "reserved")
+        self.assertEqual(fresh["generation"], 2)
+        self.assertEqual(fresh["worker_id"], "coder-3")
+        again = allocation_of(self.jobs, held["assignment_id"])
+        self.assertEqual((again["allocation_state"], again["generation"]),
+                         ("reserved", 1))
+
+    def test_a_successor_sharing_the_reserved_principal_cannot_reserve(self):
+        held, widened = self._reserved_then_widened()
+        shared = pool(workers=[
+            worker("coder-2", "implementation", "baton.coder-2",
+                   ["implementation"]),
+            worker("reviewer-2", "review", "baton.reviewer-2", ["review"]),
+            worker("coder-3", "implementation", "baton.coder-3",
+                   ["implementation"])])
+        self.activate(shared, resolved=dict(
+            principals(shared), **{"baton.coder-3": "principal:coder-2"}))
+        submit(self.jobs, submission("sub-job3", jobs=[
+            job("job-3", stages=[stage("implementation", "0000000a-W3")])]))
+        attempt = self.attempting(self.jobs, "job-3/implementation")
+        with self.assertRaises(ContractRefusal) as caught:
+            reserve(self.jobs, attempt)
+        self.assertIn("reserved or recovery-required", caught.exception.message)

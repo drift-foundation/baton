@@ -1,0 +1,51 @@
+# TWO DETERMINISTIC FIXTURE IMAGES, AND THAT IS THE POINT. W202663 claim208217.
+#
+# W197661's fixture recipe opens by explaining why it had to be ONE image:
+# "`tools/single_worker.py:267` refuses a worker whose `image_digest` differs
+# from its Job input manifest's `worker_image_digest`, and a Job names exactly
+# ONE input manifest -- so a deployment cannot give its integrator a different
+# artefact from its producer. claim201324 built a second image and three
+# validators refused the composition."
+#
+# That constraint is what owner ruling 206702 called a gap and what W202663
+# corrected: a Job now names its input's JOB-SCOPED PROJECTION, so each worker
+# carries its own runtime manifest naming its own image. This recipe and its
+# sibling `Dockerfile.integrator` are the same reviewed bytes entered at TWO
+# entrypoints, in two artefacts -- exactly the composition that was refused
+# before, built to prove deterministically that it is now served.
+#
+# NO DISPATCH, AND THAT IS THE DIFFERENCE. W197661's `fixture_entry.py` had to
+# ask which workload a delivery selected because one image served three roles.
+# Here the IMAGE is the selection, which is what a heterogeneous pool means, so
+# each recipe enters its workload directly and carries no branch to get wrong.
+#
+# THE BYTES ARE W198667's REVIEWED ONES, snapshotted with attribution rather
+# than inherited by filename, exactly as W197661 snapshotted them:
+#   attempt_log_format.py  8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b
+#   baton_worker.py        56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34
+#   claude_agent.py        cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092
+#
+# WHAT IS LABELLED. `ProposingAgent` is a DETERMINISTIC STAND-IN for a
+# model-driven provider turn and claims no model coverage. Nothing here runs a
+# provider or reads a credential. The accepted provider and integration images
+# this Work built are neither used, rebuilt nor re-attributed by these two.
+#
+# THE BASE IS W197661's OWN, by digest: the same neutral artefact its accepted
+# fixture sits on, so these two differ from it in entrypoint and nothing else.
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/integration_contract.py /opt/baton/integration_contract.py
+COPY worker/integration_workload.py /opt/baton/integration_workload.py
+COPY worker/integration_entry.py /opt/baton/integration_entry.py
+COPY worker/proposing_agent.py /opt/baton/proposing_agent.py
+COPY worker/proposing_entry.py /opt/baton/proposing_entry.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/proposing_entry.py"]
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0

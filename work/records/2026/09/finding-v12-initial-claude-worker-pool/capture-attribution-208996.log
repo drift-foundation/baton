@@ -1,0 +1,6 @@
+attempt: attempt-56cfb65d05c147a026e746f83c163375e294a4fc9507894f080db65f65a1f2c4
+allocated worker (committed): w202663-deterministic-verification-2-implementation
+configured image for that worker: sha256:e48e72dfaaed321a34f1bfdd8ceca260c63d852c3fdc625da1458b02eaf7e9e8
+emitting image:                   sha256:e48e72dfaaed321a34f1bfdd8ceca260c63d852c3fdc625da1458b02eaf7e9e8
+EQUAL
+runtime destroyed (cleanup fact): destroyed

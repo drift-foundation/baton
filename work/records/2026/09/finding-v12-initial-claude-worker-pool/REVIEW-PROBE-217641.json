@@ -1,0 +1,7 @@
+{
+  "wrong_mode_creation_succeeded": true,
+  "ancestor_mode": "0o777",
+  "replacement_before_leaf_create": true,
+  "delivery_written_to_replacement_tree": true,
+  "scope": "temporary suite fixture and injected rename at creation boundary; no real instances"
+}

@@ -725,11 +725,54 @@ class PooledManagerOperations:
         it from an arbitrary store would report another worker's silence as
         this stage's state. That refuses here, with the same words the acting
         operations use.
+
+        A SETTLED ALLOCATION FROM A RETIRED GENERATION READS LIKE HISTORY,
+        NOT LIKE A ROUTE. W202663 D7, measured on an installed instance whose
+        pool had advanced: attachment deliberately requires only the active
+        generation and live prior generations (`_required_workers` counts
+        `reserved` and `recovery-required`), so a `released` allocation from
+        generation 1 has no attached key once generation 2 is active -- and
+        the unconditional lookup here raised a raw KeyError that unwound the
+        whole serve loop on the first tick after restart.
+
+        WHO ANSWERS FOR HISTORY IS THE SAME WORKER, IN ITS NEWEST ATTACHED
+        GENERATION, when the pool still names it. Review209188 [R1]: observe
+        and refresh are not interchangeable across workers -- the exchange
+        and runtime callbacks adopt each worker's OWN launch home, role and
+        manifest context -- so an arbitrary fallback could misread history
+        that the same-named worker's context still reads exactly. Only when
+        the worker was removed from every attached generation does this fall
+        back to `_any()`, whose store-backed answer covers the runtime axis
+        and nothing worker-scoped. Neither path launches, dispatches or
+        concludes anything: `observe` reads, and `refresh_runtime` asks the
+        engine and RECORDS what it observed -- non-launching, though not a
+        pure read.
+
+        A LIVE allocation whose key is absent is different -- attachment
+        proves those pairs exist before any stage operation, so reaching one
+        here is a broken invariant (or a post-attachment state move) and
+        refuses by name rather than crashing.
         """
         allocation = allocation_of(self.store, stage["attempt_id"])
         if allocation is not None:
-            return self.workers[(allocation["generation"],
-                                 allocation["worker_id"])]
+            held = self.workers.get((allocation["generation"],
+                                     allocation["worker_id"]))
+            if held is not None:
+                return held
+            if allocation["allocation_state"] in ("reserved",
+                                                  "recovery-required"):
+                _refuse(f"stage {name_value(stage['stage_id'])} holds a live "
+                        f"allocation on worker "
+                        f"{name_value(allocation['worker_id'])} in generation "
+                        f"{allocation['generation']}, which this attachment "
+                        f"does not hold; attachment proves exactly the active "
+                        f"and live prior generations' workers, so this "
+                        f"deployment cannot answer for that stage")
+            same = [key for key in self.workers
+                    if key[1] == allocation["worker_id"]]
+            if same:
+                return self.workers[max(same)]
+            return self._any()
         if self._offer_exists(stage):
             _refuse(self._unallocated(stage))
         return self._any()

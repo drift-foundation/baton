@@ -1,0 +1,3 @@
+    KeyError: (1, 'w202663-deterministic-verification-2-implementation')
+    [PYI-2005223:ERROR] Failed to execute script 'stack_command' due to unhandled exception!
+error: Recipe `start` failed on line 28 with exit code 2

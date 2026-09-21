@@ -1,0 +1,26 @@
+{
+  "claim": 222215,
+  "instance": "/home/sl/baton-v12/instance-2026-09-20T15-53-26Z",
+  "schema": "baton.w202663.a-locators/1",
+  "streams": {
+    "attempt-7a0f917a2fccd56a5fed74c0bcab473bf17b980fc7b8c988bb77768aa69d6167": {
+      "worker.stderr.log": {
+        "bytes": 51,
+        "sha256": "d97cb615a39e6ef24d7a455c22b7796645cd8082a114744f7f4eed55f32a179d"
+      },
+      "worker.stderr.status.json": {
+        "bytes": 75,
+        "sha256": "d63a7ea60c3cbf9ce99edade45ce3813148850bea194d3d4253a3b9bf4e3d034"
+      },
+      "worker.stdout.log": {
+        "bytes": 115,
+        "sha256": "fa86e6b23e52742d1c191fe03a36f1b33b05b746e654e1b7197f9f8617e8007b"
+      },
+      "worker.stdout.status.json": {
+        "bytes": 75,
+        "sha256": "d63a7ea60c3cbf9ce99edade45ce3813148850bea194d3d4253a3b9bf4e3d034"
+      }
+    }
+  },
+  "what": "PR Job A's retained stream locators with digests, recorded from the STOPPED instance before any owner acceptance or B"
+}

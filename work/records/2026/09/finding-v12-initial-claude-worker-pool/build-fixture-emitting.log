@@ -1,0 +1,43 @@
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  726.5kB
+Step 1/15 : FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+ ---> 0697b6595aff
+Step 2/15 : COPY worker/attempt_log_format.py /opt/baton/attempt_log_format.py
+ ---> d54fbae45cf3
+Step 3/15 : COPY worker/baton_worker.py /opt/baton/baton_worker.py
+ ---> ffeccca4f67e
+Step 4/15 : COPY worker/claude_agent.py /opt/baton/claude_agent.py
+ ---> 0671300e62b1
+Step 5/15 : COPY worker/integration_contract.py /opt/baton/integration_contract.py
+ ---> 8d179556ca9f
+Step 6/15 : COPY worker/integration_workload.py /opt/baton/integration_workload.py
+ ---> f8e99a74f709
+Step 7/15 : COPY worker/integration_entry.py /opt/baton/integration_entry.py
+ ---> 2ac04ea4addc
+Step 8/15 : COPY worker/proposing_agent.py /opt/baton/proposing_agent.py
+ ---> facdde6ec36a
+Step 9/15 : COPY worker/emitting_agent.py /opt/baton/emitting_agent.py
+ ---> 6db99ae7b3c2
+Step 10/15 : COPY worker/emitting_entry.py /opt/baton/emitting_entry.py
+ ---> 0f3940aed331
+Step 11/15 : COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+ ---> fc644d8885c8
+Step 12/15 : COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+ ---> b542de66c964
+Step 13/15 : USER 65532:65532
+ ---> Running in 6ff87d33312c
+ ---> Removed intermediate container 6ff87d33312c
+ ---> 26b28fcf29d6
+Step 14/15 : ENTRYPOINT ["python3", "/opt/baton/emitting_entry.py"]
+ ---> Running in 625e3875ced3
+ ---> Removed intermediate container 625e3875ced3
+ ---> 9c96d5c32867
+Step 15/15 : ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PYTHONPATH=/opt/baton     PYTHONHASHSEED=0
+ ---> Running in 1a70a347d472
+ ---> Removed intermediate container 1a70a347d472
+ ---> e48e72dfaaed
+Successfully built e48e72dfaaed
+Successfully tagged baton-v12-w202663-fixture-emitting:claim208916

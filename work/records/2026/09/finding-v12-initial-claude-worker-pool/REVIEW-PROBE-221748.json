@@ -1,0 +1,5 @@
+{
+  "first_refusal": "refused: refs/heads/main already names the accepted commit and no prior intent or committed operation says this invocation put it there; a coincidence is not a resume",
+  "second_exit": 0,
+  "second_policy_advanced": true
+}

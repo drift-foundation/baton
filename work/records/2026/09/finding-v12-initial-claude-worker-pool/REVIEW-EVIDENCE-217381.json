@@ -1,0 +1,11 @@
+{
+  "claim": 217381,
+  "sha256": {
+    "v12/python/src/baton_v12/integration/runtime.py": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+    "v12/python/tools/stage_execution.py": "ee366b9d8e47c2ac7c556f7471cf57dec4bf777da64b5b393eaf1039ed2a6864",
+    "v12/python/tools/integration_worker.py": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+    "v12/python/tests/tools/test_stage_execution.py": "4523224b4c9887ddab806c61b3de11781d93c7a22a705283015e4f2c2d27cc24"
+  },
+  "probe": "REVIEW-PROBE-217381.json",
+  "composed_test": "source inspected; author result not independently rerun"
+}
