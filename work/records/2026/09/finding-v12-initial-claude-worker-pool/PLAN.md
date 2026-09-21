@@ -1,4 +1,12 @@
-# Current disposition — 2026-09-21T13:56:00Z, baton.rvpc claim230381
+# Current action — host integration verification, reviewer230514
+
+Exact reviewed two-file import is preserved and hashes/modes match. Remaining focused pool/bootstrap verification needs writable disk-backed external fixture storage unavailable in managed context. Return baton.decide for human-plus-agent completion via OWNER-VERIFY-INTEGRATION-230514.md; no reimport/redesign or default baton.merge rerouting. See review-2026-09-21T14-15-00Z.md and REVIEW-EVIDENCE-230514.json. This supersedes the earlier default integrator routing below in line with owner14:09:14Z. W177936 remains next after integration preparation; no launch or Work closure performed.
+
+# Current action — integrate accepted Job5, owner 2026-09-21T14:03:25Z
+
+Owner approves integration then session reuse. Route W202663 to baton.merge for exact two-file reviewed-byte import and focused verification under OWNER-INTEGRATION-JOB5-20260921.md, then baton.decide for owner Git handling. No redesign or diagnostic follow-up bundled into import. After integration preparation, W177936 is next, with fresh scope/qualification revalidation and no automatic live enabling. See matching FINDING decision; no retroactive deadline claim.
+
+# Historical disposition — 2026-09-21T13:56:00Z, baton.rvpc claim230381
 
 Job5 observation independently confirmed: useful two-file candidate verified and accepted by distinct Claude reviewer, frozen and held for owner integration/acceptance. Exact locators/digests and non-blocking diagnostic/routing qualifications: review-2026-09-21T13-56-00Z.md; public-reader evidence REVIEW-EVIDENCE-230381.json. Return baton.decide. Prior observation headings are historical for Job5; no new execution, integration or closure performed. Preserve all prior evidence.
 
@@ -913,3 +921,6 @@ narrow link/special/integrity negatives, the collection bound, and the
 verification-time tamper cases. **R2:** a NEW valid-JSON evidence file
 (the invalid 229926 artifact preserved as history) and one explicit
 fail-closed Job5 package with exact operands — no placeholders.
+# Integration-method clarification — owner 2026-09-21T14:09:14Z
+
+Human-plus-agent integration is the default; baton.merge is not a standard required stage and integration automation is not selected. See matching FINDING ruling and AGENTS.md. Current claim230468 is already active and is preserved as an exceptional in-flight handoff, not silently cancelled or treated as future routing precedent. Two-file integration outcome and session-reuse-next order remain; Git ownership stays with Slawomir.

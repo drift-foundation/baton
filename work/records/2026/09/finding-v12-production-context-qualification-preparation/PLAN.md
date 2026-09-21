@@ -857,3 +857,6 @@ slice B still waits on that shared-file release and is not blocked by this
 qualification. W177937 and W177938 remain unstarted in their recorded order.
 
 Preparation acceptance is not implementation, experiment or release acceptance.
+# Selected next — owner 2026-09-21T14:03:25Z
+
+Owner approves integrating Job5 first, then resuming W177936. W202663 owns current integration preparation. Once that is ready, explicitly route this Work for revalidation of the existing session-restoration candidate and gaps, then bounded implementation/review. No automatic live qualification or enabling. See matching FINDING entry; this supersedes awaiting an investment selection, not the preserved unqualified evidence or the sequential integration input.
