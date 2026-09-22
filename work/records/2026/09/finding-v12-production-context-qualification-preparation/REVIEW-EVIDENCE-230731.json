@@ -1,0 +1,89 @@
+{
+  "claim": 230731,
+  "time": "2026-09-21T14:48:16.084545+00:00",
+  "head": "2f121a49e152fbf24b4c76f057f8bcf1b63d5eae",
+  "candidate_preservation": [
+    {
+      "path": "evidence/qualification-fixture.py",
+      "sha256": "3bef4f1d7f265735860119f57950c79eac6e2007db7584662c4f312ead22e020",
+      "matches": true
+    },
+    {
+      "path": "candidate-183524/qualification-fixture.py",
+      "sha256": "3bef4f1d7f265735860119f57950c79eac6e2007db7584662c4f312ead22e020",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_contract.py",
+      "sha256": "fb716eb3eea18404c1105e76c31f6659e43d4d3f0b04bc560c35bf3087ca9e01",
+      "matches": true
+    },
+    {
+      "path": "candidate-183524/qualification_contract.py",
+      "sha256": "fb716eb3eea18404c1105e76c31f6659e43d4d3f0b04bc560c35bf3087ca9e01",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification_worker.py",
+      "sha256": "4261d09e6fb7cdc1de20aad1ad271e7cce008237334695632f5f5ed26912b949",
+      "matches": true
+    },
+    {
+      "path": "candidate-183524/qualification_worker.py",
+      "sha256": "4261d09e6fb7cdc1de20aad1ad271e7cce008237334695632f5f5ed26912b949",
+      "matches": true
+    },
+    {
+      "path": "evidence/test_qualification.py",
+      "sha256": "34af2f8537f3939221e9c94e7588d1a344fbf7514f069f80a83a517a94e87158",
+      "matches": true
+    },
+    {
+      "path": "candidate-183524/test_qualification.py",
+      "sha256": "34af2f8537f3939221e9c94e7588d1a344fbf7514f069f80a83a517a94e87158",
+      "matches": true
+    },
+    {
+      "path": "evidence/qualification-manifest.json",
+      "sha256": "91f2f687379f7bea3a00e954d07204586b975ef4b873816912949b575428d626",
+      "matches": true
+    },
+    {
+      "path": "candidate-183524/qualification-manifest.json",
+      "sha256": "91f2f687379f7bea3a00e954d07204586b975ef4b873816912949b575428d626",
+      "matches": true
+    },
+    {
+      "path": "evidence/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "candidate-183524/verify-offline.py",
+      "sha256": "bc579ae14bb9ef6d369af5bc0cee2c87b1e33d3e0b04069535acb9e0253cd3d8",
+      "matches": true
+    },
+    {
+      "path": "OPERATOR-178579.md",
+      "sha256": "99ed75fee2fa6ffdf0e02d2074cbe8b7c1bf9c7ae6a24311c838d4a9781ca204",
+      "matches": true
+    },
+    {
+      "path": "candidate-183524/OPERATOR-178579.md",
+      "sha256": "99ed75fee2fa6ffdf0e02d2074cbe8b7c1bf9c7ae6a24311c838d4a9781ca204",
+      "matches": true
+    }
+  ],
+  "sources": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "80624dbc8def6991ea34990769619ad68fa5bfa2a5ee4e4376f7a1b3467f058a",
+    "v12/python/tools/stage_execution.py": "0d3a2a495097424006fddd60278b7f935a6f81fbf9611d5c99cd1d94e2eeb167",
+    "v12/python/tools/single_worker.py": "50c7a090119a5fdf275e899cc7dde2a56f7aac0e99ca937b72415ddac31b22f3",
+    "v12/worker/claude_agent.py": "5c216c03a89fd6b4d15d022093b6ed2bfc2aa523099bf469e2491fb21ce9d7c5",
+    "v12/python/tests/manager/test_claude_context.py": "6e6b18a25f87def73af1d27fc787f0283e5db3d52d435495eeef5e2f4fcea077",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/REVALIDATION-230687.md": "1de55f4dff3b1a7980bc6e659e239c2ccec1e1d14617c90e3c5d37fb7f2d96f4"
+  },
+  "verification": "Source and retained-byte review only; no tests/provider/engine execution.",
+  "new_test_seconds": 0
+}

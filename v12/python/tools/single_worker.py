@@ -1660,7 +1660,29 @@ class _SingleWorker:
             launch_delivery=launched, workspace_group=self.group,
             context_delivery=_context_mount(self.control, self.given, launched.attempt_id) if launched is not None else None,
             scratch_delivery=scratch,
+            context_execution=self._context_grant(launched),
             network=given["network"], interactive=True)
+
+    def _context_grant(self, launched):
+        """The launch boundary's grant, for the vocabularies that earn one.
+
+        W177936: a deterministic profile answers None -- the adapter's
+        refusal stands exactly as before, and composed fixtures substitute
+        the boundary explicitly. Candidate and production admissions mint
+        the grant by re-asking the store, which is the second half of the
+        gate the admission already journaled.
+        """
+        from baton_v12.worker_manager import provider_context
+
+        given = self.given
+        if launched is None or given.get("provider_context") is None:
+            return None
+        profile = provider_context.context_profile_of(
+            self.control, given["provider_context"]["profile_digest"])
+        if profile["qualification"] == "deterministic":
+            return None
+        return provider_context.prove_context_execution(
+            self.control, launched.attempt_id)
 
     def _credential(self, attempt_id, state, roots, launched=None):
         given = self.given

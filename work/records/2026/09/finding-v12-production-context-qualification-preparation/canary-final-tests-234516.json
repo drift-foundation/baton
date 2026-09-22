@@ -1,0 +1,7 @@
+{
+  "elapsed_seconds": 0.3638895699987188,
+  "exit_code": 0,
+  "timeout": false,
+  "process_group_absent": true,
+  "scope": "nine isolated canary tests; deterministic fake engine/provider, no live execution"
+}

@@ -1,0 +1,23 @@
+{
+ "schema": "baton.w177936.qualification-implementation/1",
+ "claim": 232193,
+ "authority": "review-2026-09-21T18-35-45Z.md: one continuation to implement, test and prepare the packet under existing authority, with contract corrections R1/R2/R3 incorporated",
+ "implemented": {
+  "worker_manager/provider_context.py (sha256 75ccde2fd6af63f6...)": "three-value vocabulary in _profile (deterministic unchanged everywhere); authorize_qualification_run journaled under the RUN's identity (R2: exact retry replays, changed operands refuse, a later separately selected run of the unchanged profile is a fresh grant under its own run_id) binding full-config profile digest + storage + job + bounded note; _qualified as the admission-side gate whose answer commits INSIDE the admit payload (consumption is the opening admission itself, crash-safe, per-context so the restore rides the same grant) with the R1 cap (generation > 1 refuses by name: the grant covers the open plus ONE correction restore); certification requiring member-for-member candidate/production equality, the consumed grant, both generations finalized, the context RETIRED and the R3 continuity member (an independently ACCEPTED outcome with its own evidence digest and bounded statement -- state manifests and success receipts alone do not prove recall); prove_context_execution minting the nominal ExecutionGrant (deterministic refuses by name; candidate requires the consumed grant; production requires the recorded certification)",
+  "worker_manager/oci.py (sha256 e994963d5f9d4448...)": "OciAdapter gains context_execution (absent by default); _context_execution demands an ExecutionGrant whose identity matches the delivered context document -- deterministic composed fixtures keep substituting the boundary explicitly, exactly as before",
+  "tools/single_worker.py (sha256 80370d122ff4a2c7...)": "_context_grant mints the grant on the start path for non-deterministic profiles only and hands it to the adapter; deterministic answers None so today's refusal stands"
+ },
+ "deterministic_proofs": {
+  "suite": "tests.manager.test_claude_context: 70 tests OK (43 prior all unchanged -- the deterministic world is byte-for-byte untouched -- plus 27 across CandidateQualificationFlow and DeterministicProfilesNeverExecuteForReal)",
+  "candidate_flow": "the SAME composed open->changes-requested->restore flow under a candidate profile and one journaled grant: both admissions' committed payloads carry the one run id (open consumed, restore rode)",
+  "R1": "generation-2 admission refuses by name (the grant covers the open and one correction restore)",
+  "R2": "exact retry replays; changed operands under the same run identity refuse; a fresh run_id for the unchanged profile is a new committed grant",
+  "R3_and_certification": "certification refuses an unretired context, a non-accepted continuity outcome and any config divergence, then records under context-certification:<production_digest>; the continuity member carries the independently accepted outcome with its own digest",
+  "launch_boundary": "prove_context_execution answers a grant matching the admitted context/use for candidate; shape cannot manufacture the capability; the REAL _context_execution (captured before the harness patch) refuses no-grant and mismatched-context and admits the matching grant; deterministic profiles refuse proving by name",
+  "no_grant": "a candidate opening admission with no live grant refuses by name",
+  "adjacent": "test_oci + test_oci_engine + test_single_worker + test_claude_agent: 536 OK"
+ },
+ "not_done_and_remaining": "the SS6 executable packet (qualification-run script, manifest, zero-placeholder owner command, continuity-nonce assertion set) is the one remaining piece -- now directly buildable on the real authorize/certify/prove acts; NOTE the manager-side changes (provider_context/oci/single_worker) require a runtime bundle rebuild before any deployment consumes them; the worker image is UNCHANGED this claim (no worker file touched)",
+ "preserved": "deterministic guard behavior, accepted feedback slice hashes, candidate-183524 (unreviewed), all five consumed identities and every retained byte; no live call, no identity, no image or runtime build this claim",
+ "spend_this_claim": "deterministic tests only (70 + 536); zero provider/engine spend"
+}

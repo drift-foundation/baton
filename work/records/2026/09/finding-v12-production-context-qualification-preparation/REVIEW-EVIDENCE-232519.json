@@ -1,0 +1,22 @@
+{
+  "claim": 232519,
+  "participant": "baton.rvpc",
+  "author_claim": 232393,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "sha256:802e39607d03a521b89be67de695be6ef93c7cd677dba8556778862c69c3fb69",
+    "v12/python/tests/manager/test_provider_context.py": "sha256:71beace66ddc19c0b85dc69d5217a91b8231467219088f1b061a010d6f0bc747",
+    "v12/python/tests/manager/test_claude_context.py": "sha256:bdc36c81e178dd18099266795c90a437ed8eadb8ef3ac007d1539b6d6b05eefb",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "sha256:a80a2c338105da5182056d6156a803f242ddea421ff072a308250daf2e12a1fe",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "sha256:e994963d5f9d4448b66ba4a966473dfc8a9df65a27472fc02fabac467214fd27",
+    "v12/python/tools/single_worker.py": "sha256:80370d122ff4a2c712f98d26f7bb110b93de51a62345ce29a3cd803d935109e9",
+    "v12/worker/claude_agent.py": "sha256:e42b27285de1277315c5761d7dc92b38b95043dae8b1e431ac6cd297c73f2bdb"
+  },
+  "handoff_sha256": "6dbe77f61c49baa7cf10fb00ecbbe74e123f0114188228b53620f966a2327665",
+  "command": "env PYTHONPATH=src:. timeout --kill-after=5s 120s /home/sl/.local/state/baton-v12-venv/bin/python -m unittest -q tests.manager.test_provider_context tests.manager.test_claude_context",
+  "cwd": "v12/python",
+  "tests": 132,
+  "exit": 0,
+  "reported_seconds": 34.052,
+  "prior_costs": "Preserve author 73.581s plus unknown process33232, reviewer prior31.497s plus unknown earlier probe, and all older recorded/unknown spending; no cumulative upper bound.",
+  "outcome": "R1-R3 bounded corrections accepted; R4 incomplete; no integration, live qualification or enabling approval."
+}

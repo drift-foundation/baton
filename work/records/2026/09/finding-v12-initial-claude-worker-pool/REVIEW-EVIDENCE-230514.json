@@ -1,0 +1,26 @@
+{
+  "claim": 230514,
+  "reviewer": "baton.rvpc",
+  "at": "2026-09-21T14:14:19.396396+00:00",
+  "files": {
+    "v12/python/tools/pool.py": {
+      "sha256": "efd71561121529c615dac8847a1bd15df48dc8bba81675b0411add606832de82",
+      "matches_import_record": true,
+      "mode": "0o644",
+      "regular_not_symlink": true
+    },
+    "v12/python/tests/tools/test_pool.py": {
+      "sha256": "4bf37eec80456af322b9826fb3c86ac939f135c960fe596035402407544e8b18",
+      "matches_import_record": true,
+      "mode": "0o644",
+      "regular_not_symlink": true
+    }
+  },
+  "integration_log_sha256": "21754564445fb86bc75cdfae67fc927d88622ea5d297a29e4a1792bd59faa27a",
+  "assertion_count": 114,
+  "unique_assertions": [
+    "AssertionError: BATON_V12_STACK_TEST_ROOT is '/tmp/w202663-integration-230468-3wa9q115' and it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory. An explicitly selected root is never silently passed over; choose another, or unset it to fall back."
+  ],
+  "environment": "/tmp writable tmpfs; root filesystem ext4 read-only; /var/tmp and /home/sl/.cache not writable; checkout ext4 writable but excluded by fixture contract. Same environment as integrator; no rerun attempted.",
+  "prior_spend": "15.928225s integration run retained; no additional tests this review"
+}

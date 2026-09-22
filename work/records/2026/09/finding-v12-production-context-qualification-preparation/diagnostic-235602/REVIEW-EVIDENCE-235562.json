@@ -1,0 +1,66 @@
+{
+  "claim": 235562,
+  "manifest": "dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a",
+  "checks": {
+    "manifest_audit": true,
+    "binding": true,
+    "completion_failed_bounded": true,
+    "cleanup_receipt": true,
+    "runtime_before_binding": true,
+    "before_created": true,
+    "intent": true,
+    "initial_home": true,
+    "failure_process_exit": true,
+    "auth_error_metadata_observed": true,
+    "task_roots_empty": true,
+    "credential_slots_absent": true
+  },
+  "absent_evidence": {
+    "provider-1.json": true,
+    "runtime-after-1.json": true,
+    "turn-2": true,
+    "request-2.json": true,
+    "provider-2.json": true,
+    "transfer.json": true,
+    "selected-session.jsonl": true,
+    "observed.json": true,
+    "chronology.json": true
+  },
+  "completion": {
+    "cleanup": [
+      {
+        "attempt": "w177936-recall-235340-turn-1",
+        "confirmed": true
+      },
+      {
+        "attempt": "w177936-recall-235340-turn-2",
+        "confirmed": true
+      }
+    ],
+    "elapsed_seconds": 1.5016096300005302,
+    "interrupted": false,
+    "manifest": "dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a",
+    "outcome": "failed"
+  },
+  "failure": {
+    "code": "process-exit",
+    "outcome": "failed"
+  },
+  "full_review_recheck": "incomplete-run",
+  "safe_session_projection": {
+    "assistant_authentication_failed_records": 1,
+    "source": "designated first-turn session file",
+    "underlying_authentication_cause": "unestablished",
+    "content_exported": false
+  },
+  "evidence_hashes": {
+    "binding.json": "1e76453b5234ef6105e2cb01b7e244f0ec56e04ec9914f9f1601b6d616035d71",
+    "completion.json": "1a99fff63c3e201d565b010425f6ddac6264cb07ebd14acf7791ff58fceda938",
+    "failure.json": "d4c68efed8142a509a40d5af3466764e351f3abcef77f3394142c01d092cf1fa",
+    "initial-home-1.json": "f6c58522072407ad01fb2793041706a214344faa7cf440ed32a424b450dc366b",
+    "intent-1.json": "a67916065fcff0469509e7837d7a751c368f2d4969b2aaed85b4accd5da58555",
+    "runtime-before-1.json": "bba15dbcfba300e77e28f90e0630d3dff74f9473e1eb712e4d38eeb21dce70c4"
+  },
+  "offline_elapsed_seconds": 0.0014763550007046433,
+  "production_certification": false
+}

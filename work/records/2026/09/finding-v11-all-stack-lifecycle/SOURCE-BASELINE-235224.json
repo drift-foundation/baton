@@ -1,0 +1,11 @@
+{
+  "claim": 235224,
+  "files": {
+    "justfile": "29ddf44252440565bf67fbc078a4d870a8d216eb7ed4d3f9597edd41e2c6dd82",
+    "tools/infra.py": "af7e4a1457b333f8ed739dbf25246e8f7ea42f106d0fc53f580b6727239c8fc8",
+    "tests/work/test_w20_infrastructure_lifecycle.py": "fb832e62a342ec9080c343feac8aa02dcb312ef03fb31ec2924d6c8149150eeb",
+    "docs/BATON-SETUP.md": "421e3460c51de5b3855e5248436efddf5354e2316a59a00e6444cf001cef5f93"
+  },
+  "verification": "static source review only",
+  "test_seconds": 0
+}

@@ -1927,7 +1927,7 @@ class OciAdapter:
                  credential_delivery=None, credential_home=None,
                  credential_orphan=None, launch_delivery=None,
                  source_delivery=None, integration_delivery=None, context_delivery=None,
-                 scratch_delivery=None,
+                 scratch_delivery=None, context_execution=None,
                  workspace_group=None, network=NETWORK_NONE,
                  interactive=False):
         self.engine = _engine(engine)
@@ -2059,7 +2059,11 @@ class OciAdapter:
                     f"this is {name_value(launch_delivery)}")
         self.launch_delivery = launch_delivery
         self.context_delivery = context_delivery
+        # W177936: the launch boundary's grant, absent by default -- see
+        # `_context_execution`. Owned at construction like every delivery.
+        self.context_execution = context_execution
         context_document = launch_delivery.document.get("provider_context") if launch_delivery is not None else None
+        self.context_document = context_document
         if (context_delivery is None) != (context_document is None):
             _denied("context launch and mount must both be present")
         if context_delivery is not None:
@@ -2214,8 +2218,27 @@ class OciAdapter:
     # -- the seam ------------------------------------------------------------
 
     def _context_execution(self):
-        """Actual engine custody is not yet qualified by a production profile."""
-        _denied("actual OCI context execution awaits qualified runtime custody")
+        """Real context execution demands the admission gate's own grant.
+
+        W177936 QUALIFICATION-CONTRACT-232133: the vocabulary gate lives at
+        the admission and HERE, nowhere else. A deterministic profile can
+        never mint the grant (`prove_context_execution` refuses it by
+        name), so composed fixtures keep substituting this boundary
+        explicitly -- exactly as before. A candidate admission that
+        consumed its one-run grant, or a certified production profile,
+        arrives with an `ExecutionGrant` whose identity must match the
+        delivered context document; anything else refuses.
+        """
+        from . import provider_context
+        grant = self.context_execution
+        if not isinstance(grant, provider_context.ExecutionGrant):
+            _denied("actual OCI context execution awaits qualified runtime "
+                    "custody")
+        held = self.context_document or {}
+        if grant.context_id != held.get("context_id") \
+                or grant.use_id != held.get("use_id"):
+            _denied("the execution grant does not name this delivered "
+                    "context")
 
     def start(self, request):
         """Start one runtime and answer WHAT WAS STARTED, not that it worked.

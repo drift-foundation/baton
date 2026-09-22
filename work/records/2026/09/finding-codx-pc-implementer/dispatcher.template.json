@@ -1,0 +1,24 @@
+{
+  "roleInstructions": {
+    "binary": "/home/sl/opt/baton/v11/0650c61/bin/baton",
+    "config": "/home/sl/baton-v11.14aecfb/baton.json",
+    "execPolicyFile": "/home/sl/.codex-pushcoin/rules/baton-codx-pc.rules"
+  },
+  "servers": {
+    "pc": {
+      "endpoint": "ws://127.0.0.1:4502"
+    }
+  },
+  "targets": {
+    "codx-pc": {
+      "server": "pc",
+      "threadId": "{{context.codx-pc.threadId}}",
+      "identity": {
+        "participant": "baton.codxpc",
+        "role": "impl",
+        "actionOwner": "baton.slaw"
+      }
+    }
+  },
+  "eventSocket": "/home/sl/baton-v11.14aecfb/codx-pc/run/events.sock"
+}

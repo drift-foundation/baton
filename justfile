@@ -13,16 +13,16 @@ codex-app-server:
 	command -v codex >/dev/null 2>&1 || { echo "error: codex is not on PATH" >&2; exit 1; }
 	exec codex app-server --listen ws://127.0.0.1:4500
 
-# Own the complete backend set declared by MAILBOX/infra.json. These recipes
-# infer nothing from the checkout, current release, or running processes.
+# Manage all stacks registered in MAILBOX/infra-stacks.json. For explicit
+# single-stack maintenance use python3 tools/infra.py COMMAND STACK_DIRECTORY.
 start MAILBOX:
-	python3 tools/infra.py start "{{MAILBOX}}"
+	python3 tools/infra_deployment.py start "{{MAILBOX}}"
 
 stop MAILBOX:
-	python3 tools/infra.py stop "{{MAILBOX}}"
+	python3 tools/infra_deployment.py stop "{{MAILBOX}}"
 
 status MAILBOX:
-	python3 tools/infra.py status "{{MAILBOX}}"
+	python3 tools/infra_deployment.py status "{{MAILBOX}}"
 
 # Create the repository-local development environment. Baton itself remains
 # stdlib-only; this installs test tooling only.

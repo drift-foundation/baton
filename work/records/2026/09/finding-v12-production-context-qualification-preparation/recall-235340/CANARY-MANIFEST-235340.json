@@ -1,0 +1,78 @@
+{
+  "schema": "baton.isolated-canary-manifest/1",
+  "run": "w177936-recall-235340",
+  "work": "W177936",
+  "owner_event": 235311,
+  "image": "sha256:e84a033c6600fdb65c92f5034e72db1578678d3adeb83df519b3845dee5925e0",
+  "bounds": {
+    "turn_seconds": 180,
+    "active_seconds": 420,
+    "total_seconds": 600,
+    "turns": 2,
+    "retry": false
+  },
+  "root": "/tmp/w177936-recall-235340",
+  "slots": "/dev/shm/w177936-recall-235340",
+  "model": "claude-opus-5",
+  "cli": "2.1.247",
+  "qualification": "isolated-recall-only-candidate",
+  "production_certification": false,
+  "files": {
+    "isolated_canary.py": "f290272883528deca9856353c364635bb2d1273c75f0a874b18d5a92fd492d99",
+    "test_isolated_canary.py": "6c8b85d515aeff6ea64758bd2096e2ccc786b696533bed59d7510fa048f88ad6",
+    "evidence/qualification_contract.py": "df92473e68f134e338c56b698bd393ce8b178e292180f142144f77de7e1a856b",
+    "CANARY-OPERATOR-235340.md": "0a91c3c48113eee46569c47c0d8ea30edaecd9ea5203774f27b205540dace075"
+  },
+  "supporting_evidence": {
+    "IMAGE-VERIFICATION-234131.json": "77941391bb6302181fd47081e4547ebbdd5a18d38ae6ecf6d111bd53ae15450c",
+    "MANAGER-ARTIFACT-234277.json": "993a20b07905f52ade229dd1b8c06ec16eb5d3a25003f275dd606257cec8ff99",
+    "MANAGER-INVENTORY-REVIEW-234346.json": "0a01a4d7f9b7a83499dc461cfe2f1ef55e87771ef5e2add069c240aa76d55034",
+    "REVIEW-EVIDENCE-234346.json": "96eb86f53699d38e556bd06d79d80577f4525cd9b7d7f6821e00a71a8aadb155",
+    "MODEL-SELECTION-234686.json": "315c6e196a2a31b743f657e898c64e4d7c2d57a9b6b6cdb0f786f795be7a3f04",
+    "REVIEW-EVIDENCE-235117.json": "fad3fd1e79e01c16c7c50eab9c1dcad990e958f35d609c9a56391324a6e8e1af"
+  },
+  "deployment": {
+    "engine": [
+      "/usr/bin/docker",
+      "--host",
+      "unix:///var/run/docker.sock"
+    ],
+    "runtime_identity": "current non-root owner uid:gid",
+    "authority": "fixture only; v11 Work W177936; no v12 authority mutation",
+    "entrypoint": [
+      "python3",
+      "-B",
+      "/qualification/isolated_canary.py",
+      "--worker"
+    ]
+  },
+  "job": {
+    "identity_kind": "qualification-fixture",
+    "attempts": [
+      "w177936-recall-235340-turn-1",
+      "w177936-recall-235340-turn-2"
+    ],
+    "provider_session": "fresh UUID at run reservation",
+    "automatic_retry": false
+  },
+  "profile": {
+    "cwd": "/output",
+    "state_paths": [
+      ".claude/projects/-output/<fresh-session-UUID>.jsonl"
+    ],
+    "state_bytes": 33554432,
+    "task_roots": "fresh empty read-only input/source/workspace each turn",
+    "scratch": "separate per-container tmpfs",
+    "home": "fresh writable each turn; only allowlisted session copied",
+    "credential": "fresh private slot each turn, never session state"
+  },
+  "model_acceptance": {
+    "scope": "recall-only-mixed-model/1",
+    "usage_models": [
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5"
+    ],
+    "direct_model": "absent-or-exact-requested",
+    "model_attribution": "unestablished"
+  }
+}

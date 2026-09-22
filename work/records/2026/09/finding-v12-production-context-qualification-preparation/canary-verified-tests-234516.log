@@ -1,0 +1,28 @@
+test_failed_first_turn_never_admits_second (test_isolated_canary.Canary.test_failed_first_turn_never_admits_second) ... ok
+test_process_timeout_and_output_bound (test_isolated_canary.Canary.test_process_timeout_and_output_bound) ... ok
+test_review_refuses_missing_or_changed_evidence (test_isolated_canary.Canary.test_review_refuses_missing_or_changed_evidence) ... ok
+test_session_selection_rejects_link_and_alias_and_unknown_home (test_isolated_canary.Canary.test_session_selection_rejects_link_and_alias_and_unknown_home) ... ok
+test_supervisor_timeout_cleanup_failure_and_exclusive_reservation (test_isolated_canary.Canary.test_supervisor_timeout_cleanup_failure_and_exclusive_reservation) ... Process Process-1:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/test_isolated_canary.py", line 239, in stalled
+    time.sleep(10)
+    ~~~~~~~~~~^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/isolated_canary.py", line 461, in interrupted
+    raise InterruptedError('operator-stop')
+InterruptedError: operator-stop
+ok
+test_two_fresh_workers_restore_only_exact_session_and_independent_review (test_isolated_canary.Canary.test_two_fresh_workers_restore_only_exact_session_and_independent_review) ... ok
+test_worker_rejects_third_turn_before_provider (test_isolated_canary.Canary.test_worker_rejects_third_turn_before_provider) ... ok
+test_wrong_recall_cannot_publish_observation (test_isolated_canary.Canary.test_wrong_recall_cannot_publish_observation) ... ok
+test_manifest_and_drift_gate (test_isolated_canary.Package.test_manifest_and_drift_gate) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.298s
+
+OK

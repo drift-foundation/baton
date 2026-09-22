@@ -1,0 +1,35 @@
+{
+  "claim": 234686,
+  "owner_event": 234684,
+  "manifest_sha256": "80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3",
+  "files": {
+    "isolated_canary.py": "e9b5835215875bc0e2669fb97883b861574e863b12e887cca05cadb47265edba",
+    "test_isolated_canary.py": "1547239f776511dd0a6ee16ee4d3bb6da58d356a8fe6d5f035c16d83387c3454",
+    "evidence/qualification_contract.py": "df92473e68f134e338c56b698bd393ce8b178e292180f142144f77de7e1a856b",
+    "CANARY-MANIFEST-234686.json": "80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3",
+    "CANARY-OPERATOR-234686.md": "81a794229f19a41441f7402f3492e97bb69a8643d32184edea28105a7ff459bf",
+    "CANARY-COMMAND-234686.txt": "eee6d40e7ad4ed92181be802c90462d7525c6a5f9fce1ca802c69ade0305fc9b",
+    "MODEL-SELECTION-234686.json": "315c6e196a2a31b743f657e898c64e4d7c2d57a9b6b6cdb0f786f795be7a3f04",
+    "tests-234686.json": "c731706f8b2edcd7ae94f795a665c54bb9e89457004e824c933d4f46a56dd9ed",
+    "tests-234686.log": "90aa5e7400ef4201a57935fbb668e3693912b5181b94f3fdb3423b453a6ac2f4"
+  },
+  "test_run": {
+    "elapsed_seconds": 0.4138612210517749,
+    "exit_code": 0,
+    "timeout": false,
+    "process_group_absent": true,
+    "scope": "eleven Opus canary tests; deterministic fake engine/provider, no live execution"
+  },
+  "audit": "pass",
+  "diff_check": "pass",
+  "fresh_roots_absent": true,
+  "fable_manifest_unchanged": true,
+  "live_calls": 0,
+  "engine_calls": 0,
+  "builds": 0,
+  "new_measured_test_seconds": 0.4138612210517749,
+  "final_static_archive_inspection_seconds": 0.21443418704438955,
+  "earlier_static_archive_probes": "Two read-only exploratory archive probes had no dedicated stopwatch; tool-reported wall seconds .097746886 and .194259346. Not part of focused test total.",
+  "prior_costs": "Preserve CANARY-EVIDENCE-234516.json, REVIEW-EVIDENCE-234621.json and all older evidence: author1.0417039630701765 seconds of Fable tests, reviewer.298 seconds, historical measured and unknown costs unchanged. No manufactured cumulative upper bound.",
+  "limits": "Only static selector/version support and deterministic strict checks. Account access, authentication, actual provider model/path/recall and kernel isolation remain live observations; no production certification."
+}

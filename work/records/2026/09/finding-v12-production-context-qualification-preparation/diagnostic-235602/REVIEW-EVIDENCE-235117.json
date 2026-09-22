@@ -1,0 +1,59 @@
+{
+  "claim": 235117,
+  "manifest": "80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3",
+  "checks": {
+    "manifest_audit": true,
+    "binding": true,
+    "intent": true,
+    "runtime_before_after": true,
+    "before_unstarted": true,
+    "after_stopped_exit_zero": true,
+    "empty_task_roots": true,
+    "initial_home": true,
+    "valid_terminal_projection": true,
+    "terminal_success_session": true,
+    "result_exact_ready": true,
+    "usage_exact_observed_pair": true,
+    "no_second_turn_or_transfer": true,
+    "slots_absent": true
+  },
+  "failure": {
+    "code": "strict-terminal",
+    "outcome": "failed"
+  },
+  "completion": {
+    "cleanup": [
+      {
+        "attempt": "w177936-canary-234686-turn-1",
+        "confirmed": true
+      },
+      {
+        "attempt": "w177936-canary-234686-turn-2",
+        "confirmed": true
+      }
+    ],
+    "elapsed_seconds": 4.933623595000427,
+    "interrupted": false,
+    "manifest": "80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3",
+    "outcome": "failed"
+  },
+  "terminal_recheck": "strict-terminal",
+  "full_review_recheck": "incomplete-run",
+  "model_diagnostic": "missing",
+  "model_usage_diagnostic": "expected-plus-other",
+  "model_usage_keys": 2,
+  "actual_model": null,
+  "provider_result_sha256": "defc5df0fd333f646e8798c6df68b64bb91cdcf414324dfb3694ad5e7f16c556",
+  "evidence_hashes": {
+    "binding.json": "607e58dffc9a9525a14d88d6426d2872299c4672fc0ba108ba0476ddd2ec0b40",
+    "completion.json": "94ca66558ce52eb16f5dbc311be206a9eec0aa11ab15c7f3e5f437f0cc48320b",
+    "failure.json": "8a29a7394335a0cf4295bf14a614f4580ab5db8ccb9a4fc550795014d6644413",
+    "initial-home-1.json": "f6c58522072407ad01fb2793041706a214344faa7cf440ed32a424b450dc366b",
+    "intent-1.json": "7823e439b685e7ada25a27069e7d0936390dfd577d9d114d9088ad4f933bd6ec",
+    "runtime-before-1.json": "67c6110ff546c39b82ff5f8fcaa171f4e520362dce912c0916d33ce8a6bbef3f",
+    "runtime-after-1.json": "914699d94142101e5e0d48cf9c871299ddc3b4dd16ee9723fc0fd659d047194d"
+  },
+  "runtime_live_recheck": "Docker socket permission denied; current absence remains operator-reported, not independently observed",
+  "elapsed_seconds": 0.0050291449997530435,
+  "production_certification": false
+}

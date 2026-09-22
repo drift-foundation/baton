@@ -1,0 +1,71 @@
+{
+  "claim": 235602,
+  "owner_message": 235599,
+  "owner_reroute": 235600,
+  "manifest_sha256": "a9e1c97bd20c5cb85b556e91488f3c0e6ecc07fd6a2636d330666c144bee918e",
+  "files": {
+    "CANARY-COMMAND-235602.txt": "0b6ba67c9b41d9748dc39150ea37221825b8f57702cd4728d59b56e4c3bc7eda",
+    "CANARY-MANIFEST-235602.json": "a9e1c97bd20c5cb85b556e91488f3c0e6ecc07fd6a2636d330666c144bee918e",
+    "CANARY-OPERATOR-235602.md": "3a0cab59e47d1c8bafa688cc561c9ef837f66d92b60224ee22f67ddf3c94a67c",
+    "IMAGE-VERIFICATION-234131.json": "77941391bb6302181fd47081e4547ebbdd5a18d38ae6ecf6d111bd53ae15450c",
+    "MANAGER-ARTIFACT-234277.json": "993a20b07905f52ade229dd1b8c06ec16eb5d3a25003f275dd606257cec8ff99",
+    "MANAGER-INVENTORY-REVIEW-234346.json": "0a01a4d7f9b7a83499dc461cfe2f1ef55e87771ef5e2add069c240aa76d55034",
+    "MODEL-SELECTION-234686.json": "315c6e196a2a31b743f657e898c64e4d7c2d57a9b6b6cdb0f786f795be7a3f04",
+    "REVIEW-EVIDENCE-234346.json": "96eb86f53699d38e556bd06d79d80577f4525cd9b7d7f6821e00a71a8aadb155",
+    "REVIEW-EVIDENCE-235117.json": "fad3fd1e79e01c16c7c50eab9c1dcad990e958f35d609c9a56391324a6e8e1af",
+    "REVIEW-EVIDENCE-235562.json": "4d570861b03dec3db1df54415587e6b5ddfe72f76c6aacbed5308b00d9340236",
+    "evidence/qualification_contract.py": "df92473e68f134e338c56b698bd393ce8b178e292180f142144f77de7e1a856b",
+    "isolated_canary.py": "7e85969bd36f3415bc22c9487775d086606e4d1d067e157d7a3b715f5a980887",
+    "test_isolated_canary.py": "2091f561362f5e32d5b2133933be784114ba08c6ef1886ad93450e5764cdd8d6",
+    "tests-235602-1.json": "18c3646ef7263da1e185605e66ae574c842bdd4627d4d8a3e10120aea979d9c4",
+    "tests-235602-1.log": "86903135ddd063f62b9e8f15830ec261d880f360281ed757ac0887b38a6011c6",
+    "tests-235602-2.json": "bee4e12589c283ff6134a24ed5c87e4cb0404b1aa17304efdad3c402995bd8d2",
+    "tests-235602-2.log": "4d0cbbafe922e9df719fc2ccc65bf71e24b8d77ef7063ecea396a69ce08abda7"
+  },
+  "test_runs": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "work/records/2026/09/finding-v12-production-context-qualification-preparation/diagnostic-235602/test_isolated_canary.py"
+      ],
+      "elapsed_seconds": 1.714879598999687,
+      "exit_code": 1,
+      "timeout": false,
+      "process_group_absent": true,
+      "manifest_sha256": "3d9914223a093750f4105f15d55a6542033b92cd1146cca50032e21a7eec680b",
+      "log_sha256": "86903135ddd063f62b9e8f15830ec261d880f360281ed757ac0887b38a6011c6",
+      "scope": "deterministic fake provider/engine and local subprocesses only"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "work/records/2026/09/finding-v12-production-context-qualification-preparation/diagnostic-235602/test_isolated_canary.py"
+      ],
+      "elapsed_seconds": 1.4149330489999556,
+      "exit_code": 0,
+      "timeout": false,
+      "process_group_absent": true,
+      "manifest_sha256": "a9e1c97bd20c5cb85b556e91488f3c0e6ecc07fd6a2636d330666c144bee918e",
+      "log_sha256": "4d0cbbafe922e9df719fc2ccc65bf71e24b8d77ef7063ecea396a69ce08abda7",
+      "scope": "deterministic fake provider/engine and local subprocesses only"
+    }
+  ],
+  "final_test_count": 26,
+  "new_measured_test_seconds": 3.1298126479996426,
+  "audit": "pass",
+  "diff_check": "pass",
+  "command_binding": "pass",
+  "fresh_roots_absent": true,
+  "historical_packets_unchanged": true,
+  "strict_contract_unchanged": true,
+  "live_calls": 0,
+  "engine_calls": 0,
+  "auth_probes": 0,
+  "builds": 0,
+  "credential_reads": 0,
+  "iteration_findings": "First run: duplicate cleanup-before exclusive write caused false cleanup uncertainty; corrected to distinct cleanup-stopped record only after stop. Version stderr test expected no newline although fixture print emits newline; corrected expectation. Four failures across24 tests; second run26 tests passes. Both logs/receipts retained. Expected timeout-child interruption trace remains in passing cleanup case.",
+  "prior_costs": "Preserve REVIEW-EVIDENCE-235562.json offline0.0014763550007046433s and operator live1.5016096300005302s; REVIEW-EVIDENCE-235389.json reviewer0.451s; recall-235340/EVIDENCE-235340.json author0.5140488809993258s and all referenced older Opus/Fable author/reviewer/live/static costs and unknowns. No total upper bound inferred.",
+  "limitations": "Deterministic fake provider/engine only, real local subprocess transport. No actual Docker/kernel-isolation or new provider/auth/recall observation. Host Opus pong remains operator-reported. No changed model acceptance or production certification/enabling. Failed historical raw outputs were not reread."
+}

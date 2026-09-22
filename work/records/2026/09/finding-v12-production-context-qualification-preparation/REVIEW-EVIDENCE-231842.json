@@ -1,0 +1,53 @@
+{
+  "claim": 231842,
+  "timestamp": "2026-09-21T17-49-06Z",
+  "outcome": "accepted bounded deterministic feedback implementation; production reuse unqualified",
+  "head": "2f121a49e152fbf24b4c76f057f8bcf1b63d5eae",
+  "paths": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "sha256": "16a4439f0a899f7fb8d3dbb947f4159af8e5a4275f2412fc514e966a0df602ee",
+      "base_sha256": "789086d91a81118b28d95bbb192e4cca78b8c1dacc07dbb2cbdf4f41791eee38",
+      "bytes": 49158,
+      "mode": "0o664",
+      "unchanged_since_review231132": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "sha256": "a80a2c338105da5182056d6156a803f242ddea421ff072a308250daf2e12a1fe",
+      "base_sha256": "1e6b791f75e3b7b7d03f134a1a74236f5696417b87c22d551775dd1910e87500",
+      "bytes": 34285,
+      "mode": "0o664",
+      "unchanged_since_review231132": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "sha256": "7bfff038f697f03e5497db28028e80c789815f249e2af237975392099ddc4939",
+      "base_sha256": "6e6b18a25f87def73af1d27fc787f0283e5db3d52d435495eeef5e2f4fcea077",
+      "bytes": 36600,
+      "mode": "0o664",
+      "unchanged_since_review231132": false
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "e42b27285de1277315c5761d7dc92b38b95043dae8b1e431ac6cd297c73f2bdb",
+      "base_sha256": "5c216c03a89fd6b4d15d022093b6ed2bfc2aa523099bf469e2491fb21ce9d7c5",
+      "bytes": 273445,
+      "mode": "0o644",
+      "unchanged_since_review231132": false
+    }
+  ],
+  "patch_sha256": "31a1378a92982359b5811689b8b4cad0f2e90cbef7ec32040d272e114bdf2898",
+  "verification": {
+    "tests": 43,
+    "reported_seconds": 16.357,
+    "exit": 0,
+    "timeout": false,
+    "command": "env PYTHONPATH=src:. timeout --kill-after=5s 120s /home/sl/.local/state/baton-v12-venv/bin/python -m unittest -v tests.manager.test_claude_context",
+    "cwd": "v12/python",
+    "diff_check": "pass"
+  },
+  "image_author_report": "sha256:e84a033c6600fdb65c92f5034e72db1578678d3adeb83df519b3845dee5925e0; not independently built/extracted/selected",
+  "runtime_execution": "fake engine/provider only; no live execution",
+  "prior_costs": "unchanged; current reported duration excludes unmeasured process overhead"
+}

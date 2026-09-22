@@ -284,13 +284,63 @@ What must still be THERE afterwards: the previous start's ACP selection, under
 its own start id. A restart replaces the context an agent works in; it does
 not erase what the last one did.
 
+### Deployment-wide start, stop and status
+
+Register every managed stack in `MAILBOX/infra-stacks.json` before using the
+normal just commands. Registration is explicit; no subdirectory or process
+discovery is performed. For example:
+
+```json
+{
+  "version": 1,
+  "stacks": [
+    {"name": "main", "directory": "."},
+    {"name": "reviewer", "directory": "reviewer"},
+    {"name": "coder", "directory": "coder"}
+  ]
+}
+```
+
+Directories are relative to MAILBOX and must stay within it. Names and canonical
+directories must be unique; the main `.` stack must appear once. Single-stack
+deployments register just that entry. Missing/invalid registration refuses;
+it never silently falls back to main-only coverage. When provisioning another
+stack, add it to this list before considering onboarding complete. Edit the
+registry only when no lifecycle command is running.
+
 From the repository root:
 
     just start /absolute/path/to/mailbox
     just status /absolute/path/to/mailbox
     just stop /absolute/path/to/mailbox
 
-Start is idempotent only when the complete owned set is healthy. Status names
+These commands call `tools/infra_deployment.py`. Start validates every member
+manifest first, starts in registration order, and stops launching later stacks
+after a failure. Reports mark later stacks `not-attempted`; earlier healthy or
+successfully started stacks remain running, and a failing stack retains its
+own rollback behavior. There is no cross-stack rollback or implicit dispatch
+resume. Stop visits all stacks in reverse order even if one refuses. Status
+reports every registered stack, including unreadable/missing members, with each
+stack's services, PID, state and log. Aggregate `succeeded` and process exit status
+cover every member; one failed member makes the whole command unsuccessful.
+Deployment-wide commands serialize on a deployment lock, and each underlying
+operation retains its existing single-stack lock and ownership checks.
+
+Explicit single-stack maintenance remains available:
+
+    python3 tools/infra.py status MAILBOX/reviewer
+    python3 tools/infra.py stop MAILBOX/reviewer
+    python3 tools/infra.py start MAILBOX/reviewer
+
+After a reboot, stale owned lifecycle records may require an explicit stop before
+start. Inspect status, then use stop/start on the affected stack (or the whole
+deployment if selected); never manually delete lifecycle state. `tools/infra.py`
+drain, dispatch, resume and stop-drained keep their existing semantics.
+`stop-drained` still covers only its named stack: after global dispatch reports
+paused, use deployment-wide `just stop MAILBOX` to stop every registered stack.
+Plain stop is immediate and does not wait for active claims or drain dispatch.
+
+Within each stack, start is idempotent only when the complete owned set is healthy. Status names
 every configured service, PID, state, and log and exits nonzero for a stopped,
 partial, stale, changed, or unhealthy set. Stop sends `SIGTERM` in reverse
 dependency order only after the recorded process start identity and argv still

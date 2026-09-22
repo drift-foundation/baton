@@ -1,0 +1,17 @@
+{
+  "claim": 232098,
+  "timestamp": "2026-09-21T18:29:21.210692+00:00",
+  "scope": "source/design review only",
+  "test_seconds": 0,
+  "files": {
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/QUALIFICATION-DESIGN-232082.md": "62dc1712ad9cae6437b7aa7e5b741d3a44c114afcdc73db92d23cb94012abc0d",
+    "work/records/2026/09/finding-v12-workspace-shared-identity/OWNER-TRUSTED-IDENTITY-20260917.md": "fe5031d4fab89ba2a0ad6c8340a0eb706ce2a270f6465274bd81131d195a85d4",
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "16a4439f0a899f7fb8d3dbb947f4159af8e5a4275f2412fc514e966a0df602ee",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "a80a2c338105da5182056d6156a803f242ddea421ff072a308250daf2e12a1fe",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "80624dbc8def6991ea34990769619ad68fa5bfa2a5ee4e4376f7a1b3467f058a",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "206998c3d344f1dab208799cfb9124785455154695943fa99237f9e18ff7fba7",
+    "v12/python/tools/single_worker.py": "50c7a090119a5fdf275e899cc7dde2a56f7aac0e99ca937b72415ddac31b22f3",
+    "v12/worker/claude_agent.py": "e42b27285de1277315c5761d7dc92b38b95043dae8b1e431ac6cd297c73f2bdb"
+  },
+  "finding": "shared-identity direction supported; qualification bootstrap and executable packet incomplete"
+}

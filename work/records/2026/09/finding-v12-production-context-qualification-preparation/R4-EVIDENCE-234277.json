@@ -1,0 +1,104 @@
+{
+  "claim": 234277,
+  "status": "incomplete R4; candidate corrections and author-built manager artifact await independent review",
+  "files": {
+    "v12/python/src/baton_v12/worker_manager/oci.py": "0a5b56fcd1266450e845942303f456f757bd6329ea0e156eea66273b29abe6ae",
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "802e39607d03a521b89be67de695be6ef93c7cd677dba8556778862c69c3fb69",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "a80a2c338105da5182056d6156a803f242ddea421ff072a308250daf2e12a1fe",
+    "v12/python/tools/single_worker.py": "80370d122ff4a2c712f98d26f7bb110b93de51a62345ce29a3cd803d935109e9",
+    "v12/python/tests/manager/test_claude_context.py": "bdc36c81e178dd18099266795c90a437ed8eadb8ef3ac007d1539b6d6b05eefb",
+    "v12/python/tests/manager/test_provider_context.py": "71beace66ddc19c0b85dc69d5217a91b8231467219088f1b061a010d6f0bc747",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/qualification_packet.py": "01fb77a053e6f093320e10c2149b00609b54a5dbf04f1062afd0ba7432f75ba3",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/qualification-review-232542.py": "b4c4d303551911833a4ae291021f5283fea7726e5cea590b5d4609db8e4b537e",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/test_qualification_packet.py": "497742370a35ce9c4434ad117a9887e2ab5ebf2d5d24436424ec6eb12005d894",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/MANAGER-ARTIFACT-234277.json": "993a20b07905f52ade229dd1b8c06ec16eb5d3a25003f275dd606257cec8ff99",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/IMAGE-VERIFICATION-234131.json": "77941391bb6302181fd47081e4547ebbdd5a18d38ae6ecf6d111bd53ae15450c",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/packet-234277.json": "42e06a9f75cbd44f58c1f8411c23e8b384174f02fbb881974d8759e796a3d017",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/packet-234277.log": "5c38c7730d3c92ff75fcd57d65d50fe8f688481278622cff6b9f0c3fcb39aee5",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/packet-final-234277.json": "84c250a1f969bf6bd65433bb430d2fdbfd874ae49a0ccda718692f9c0b7bb83e",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/packet-final-234277.log": "d54851580a58bb1df4a1b44bcbbdf3001ef7ee6d2ea01ccd36d6c80fb2b2a8b6",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/guard-234277.json": "ff98ff0d0431e490a95b2f6c157886e5bbe41d1903d062b69a1da37c93a9bc87",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/guard-234277.log": "0e213c6daea907ea6746e3e9889d77f6bb069e2013d93afa54f2b484be338bd2"
+  },
+  "runs": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "work/records/2026/09/finding-v12-production-context-qualification-preparation",
+        "-p",
+        "test_qualification_packet.py",
+        "-v"
+      ],
+      "seconds": 2.8161547139752656,
+      "status": 0,
+      "timeout": false,
+      "group_absent": true
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "tests.manager.test_oci",
+        "tests.manager.test_provider_context",
+        "tests.manager.test_claude_context"
+      ],
+      "seconds": 34.597302707028575,
+      "status": 0,
+      "timeout": false,
+      "group_absent": true
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "work/records/2026/09/finding-v12-production-context-qualification-preparation",
+        "-p",
+        "test_qualification_packet.py",
+        "-v"
+      ],
+      "seconds": 2.8664158429019153,
+      "status": 0,
+      "timeout": false,
+      "group_absent": true
+    }
+  ],
+  "seconds": {
+    "initial_three_test_baseline_unittest": 2.587,
+    "supervised_tests": 40.279873263905756,
+    "this_claim_known_test_seconds": 42.86687326390576,
+    "manager_artifact_verification": 0.29854447208344936,
+    "build": "PyInstaller elapsed log timestamp5551ms; external stopwatch unknown",
+    "prior_author": 73.581,
+    "prior_author_unknown": [
+      "process33232",
+      "claim232542 except retained0.526s failing run",
+      "older unmeasured iterations"
+    ],
+    "prior_reviewers_separate": [
+      31.497,
+      34.052
+    ],
+    "prior_image_verification_separate": 0.8251413649413735
+  },
+  "image_source_hashes_revalidated": true,
+  "live_provider_calls": 0,
+  "engine_operations": 0,
+  "new_live_run_identities_consumed": 0,
+  "limitations": [
+    "provider replacement delivers capsule only in deterministic test",
+    "live prelaunch capture hook and independent reviewer artifact/transport remain absent",
+    "no final live manifest or executable owner command",
+    "capture tests show byte exclusion in supplied roots, not general information-flow secrecy"
+  ]
+}

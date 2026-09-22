@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/recall-235340/test_isolated_canary.py"
+  ],
+  "elapsed_seconds": 0.5140488809993258,
+  "exit_code": 0,
+  "timeout": false,
+  "process_group_absent": true,
+  "manifest_sha256": "dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a",
+  "log_sha256": "54eddc85adf93066f3219b4bbe62d4d60933821e584c5a47b07a61c17e6eb056",
+  "scope": "deterministic fake engine/provider only; no live engine, model, credentials or reserved run roots"
+}

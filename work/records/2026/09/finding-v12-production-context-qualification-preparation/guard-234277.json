@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "-m",
+    "unittest",
+    "tests.manager.test_oci",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_claude_context"
+  ],
+  "seconds": 34.597302707028575,
+  "status": 0,
+  "timeout": false,
+  "group_absent": true
+}

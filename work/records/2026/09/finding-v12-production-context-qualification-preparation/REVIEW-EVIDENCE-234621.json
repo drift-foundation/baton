@@ -1,0 +1,24 @@
+{
+  "claim": 234621,
+  "participant": "baton.rvpc",
+  "author_claim": 234516,
+  "outcome": "isolated-canary packet preparation accepted; live run and production certification not accepted",
+  "hashes": {
+    "isolated_canary.py": "47076102a09c1f5b945a6f51dfe0aa9c43f698cc16b7fd958c44bf235e7a03d9",
+    "test_isolated_canary.py": "a7a5e02e33715165ccecebdf43740879cfc4fa7304375e10aa6dad523086aadc",
+    "evidence/qualification_contract.py": "fb716eb3eea18404c1105e76c31f6659e43d4d3f0b04bc560c35bf3087ca9e01",
+    "CANARY-MANIFEST-234516.json": "1ad6342ab05ad765f51d251190f2a48591e15164b1170b27399ee1e63f77f62d",
+    "CANARY-OPERATOR-234516.md": "b22a550d9aaeebb9f93c87fdf263fc86c6ed21802b432e4bb8a79a58eeae85ae",
+    "CANARY-COMMAND-234516.txt": "be208c2c0407cdbad3278f5bc8c8190991bdde4ef75fa8ed0f325938e7d44d58",
+    "CANARY-EVIDENCE-234516.json": "d6a3b6a5bca54f8cbaecef12363d46d69be8e4205e907debce28d48da06061cd",
+    "HANDOFF-234516.md": "f5b3f6ff52e68632dcf670e83b3ba04a82dfd64b2a1a9257c671e5b53b233311"
+  },
+  "verification": {
+    "command": "timeout --kill-after=5s 30s /usr/bin/python3 -B -m unittest discover -s work/records/2026/09/finding-v12-production-context-qualification-preparation -p test_isolated_canary.py -v",
+    "tests": 9,
+    "reported_seconds": 0.298,
+    "exit": 0,
+    "audit": "exact manifest digest audit passed; offline only"
+  },
+  "limitations": "Docker/provider boundary simulated. No live engine/model, image build, credential read, production grant/certification, or identity consumption. Prior recorded spending and unknowns preserved; new suite time is not whole-turn upper bound."
+}

@@ -1,0 +1,1 @@
+/usr/bin/python3 -B /home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/opus-234686/isolated_canary.py --run --approved-manifest 80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3

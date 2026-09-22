@@ -1,0 +1,48 @@
+{
+  "claim": 231132,
+  "timestamp": "2026-09-21T15:53:45.860723+00:00",
+  "sources": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "16a4439f0a899f7fb8d3dbb947f4159af8e5a4275f2412fc514e966a0df602ee",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "a80a2c338105da5182056d6156a803f242ddea421ff072a308250daf2e12a1fe",
+    "v12/python/tests/manager/test_claude_context.py": "cad34c8a0b1980091cf2f3e5de1695877f149243e3b367a29256eca6a008c4e2",
+    "v12/worker/claude_agent.py": "ca525a1e0a81c90e4cae6755a37f4893ddefdb4ba1f8fc73c49773d4c7da0881",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "80624dbc8def6991ea34990769619ad68fa5bfa2a5ee4e4376f7a1b3467f058a",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/FEEDBACK-EVIDENCE-231009.json": "ad43515063090f2e524010ccf789efb983f39feddcae7d2f48042669148aab88",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/review-probe-231132.py": "78cef4fcd4e40fc3c3fe9e6f9ab472dab0ae5521d3e20d7fec31a096ef5bde09"
+  },
+  "suite": {
+    "command": "env PYTHONPATH=src:. timeout --kill-after=5s 120s /home/sl/.local/state/baton-v12-venv/bin/python -m unittest -v tests.manager.test_claude_context",
+    "cwd": "v12/python",
+    "tests": 41,
+    "outcome": "OK",
+    "reported_seconds": 15.585
+  },
+  "probes": {
+    "command": "env PYTHONPATH=src:.:../worker timeout --kill-after=5s 60s /home/sl/.local/state/baton-v12-venv/bin/python ../../work/records/2026/09/finding-v12-production-context-qualification-preparation/review-probe-231132.py",
+    "final_tests": 2,
+    "final_outcome": "OK (one positive; one confirms FIFO defect)",
+    "final_reported_seconds": 3.038,
+    "fifo_timeout_seconds": 2,
+    "fifo_observed_seconds": 2.0044122219551355,
+    "fifo_cleanup": "subprocess.run timeout killed and waited for child; TemporaryDirectory cleaned fixture",
+    "reopen": "same committed binding; StageComposition.prepare_context replay; actual correction prompt includes findings; exactly two total provider calls, simulated provider"
+  },
+  "harness_iterations": [
+    {
+      "reported_seconds": 0.788,
+      "result": "harness errors: child import missing source_profiles; mounted cache absent after reopen"
+    },
+    {
+      "reported_seconds": 2.781,
+      "result": "FIFO reproduced; fixture worker attribution missing restored preparation cache"
+    },
+    {
+      "reported_seconds": 2.757,
+      "result": "FIFO reproduced; harness incorrectly expected attempt_id in submission stage definition"
+    }
+  ],
+  "sum_reported_test_seconds": 24.949,
+  "duration_precision": "Sum of rounded unittest durations; process overhead not measured. No wall-time upper-bound claim.",
+  "live_model_or_engine_execution": false,
+  "author_durations": "not supplied in FEEDBACK-EVIDENCE; unknown; historical spending unchanged"
+}

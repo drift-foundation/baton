@@ -3234,8 +3234,9 @@ class ClaudeAgent:
         provider's credential, which stays exactly where `_prepared_home` puts
         it and is the one thing this turn cannot run without.
         """
-        prompt = _prompt(task) if prompt is None else prompt
         contextual = self._context_bound()
+        if prompt is None:
+            prompt = _prompt(task, self._context_feedback(contextual))
         argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS, prompt]
         if contextual is not None:
             if candidate != OUTPUT_ROOT:
@@ -3318,6 +3319,58 @@ class ClaudeAgent:
         except BaseException:
             os.close(fd)
             raise
+
+    def _context_feedback(self, contextual):
+        """The delivered review feedback for a RESTORE, or None for the rest.
+
+        W177936. The manager binds the restore prompt over the opening
+        verdict's findings and delivers the same bytes as one 0600,
+        digest-bound `feedback` file in the context-use root; this reads it
+        no-follow and bounded, composes the twin prompt, and the bound
+        prompt/argv digests refuse any disagreement BEFORE the provider
+        runs -- the file is transport, the digests are the authority. A
+        restore without the file, and an open turn that finds one, both
+        refuse by name.
+
+        `O_NONBLOCK`, review231132 [R1]: without it a FIFO standing at this
+        name blocks the OPEN itself, before `fstat`, the byte bound and the
+        digest gates ever run -- a hang where every neighbouring check is a
+        refusal. Nonblocking open cannot block on a FIFO, the `fstat` right
+        behind it refuses every non-regular file by name, and a regular
+        file's reads are unaffected.
+        """
+        if contextual is None:
+            return None
+        root = self._context_open()
+        try:
+            try:
+                fd = os.open("feedback",
+                             os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                             dir_fd=root)
+            except FileNotFoundError:
+                if contextual["mode"] == "restore":
+                    raise TaskRefusal(
+                        "restore invocation has no delivered feedback") \
+                        from None
+                return None
+        finally:
+            os.close(root)
+        try:
+            if contextual["mode"] != "restore":
+                raise TaskRefusal(
+                    "an open invocation carries no review feedback and "
+                    "this delivery has one")
+            if not stat.S_ISREG(os.fstat(fd).st_mode):
+                raise TaskRefusal("delivered feedback is not a regular file")
+            raw = os.read(fd, MAX_FEEDBACK_BYTES + 1)
+        finally:
+            os.close(fd)
+        if not raw or len(raw) > MAX_FEEDBACK_BYTES:
+            raise TaskRefusal("delivered feedback is bounded non-empty bytes")
+        try:
+            return raw.decode("utf-8", "strict")
+        except UnicodeDecodeError:
+            raise TaskRefusal("delivered feedback is not UTF-8") from None
 
     def _context_home(self):
         slot = os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT)
@@ -4804,20 +4857,42 @@ def _read_task(place=None):
     return document, raw
 
 
-def _prompt(task):
+# W177936: how much review feedback one restore prompt may carry, in UTF-8
+# BYTES -- the worker twin of `provider_context.MAX_FEEDBACK_BYTES`, spelled
+# here because this file travels into images that carry no manager code.
+MAX_FEEDBACK_BYTES = 32768
+
+
+def _prompt(task, feedback=None):
     """The one prompt, composed from the frozen task and nothing else.
 
     THE PROVIDER IS NOT TOLD ABOUT THE PROTOCOL. It gets the instructions, the
     working directory it is already in, and the command that will judge it --
     nothing about `/output`, the assignment, the session or the manager. A
     provider that could see those could write into them.
+
+    W177936: A RESTORE ADDS THE REVIEW'S FEEDBACK, and this is the manager's
+    `context_prompt`'s asserted twin -- the two compose byte-identical
+    prompts or the bound digests refuse the turn before the provider runs.
     """
-    return (f"{task['instructions']}\n\n"
-            f"You are working in a private copy of the source tree, which is "
-            f"the current working directory. Edit files here directly.\n"
-            f"When you are done, the following command will be run from this "
-            f"directory and must pass:\n"
-            f"  {' '.join(task['verification'])}\n")
+    opening = (f"{task['instructions']}\n\n"
+               f"You are working in a private copy of the source tree, which "
+               f"is the current working directory. Edit files here "
+               f"directly.\n"
+               f"When you are done, the following command will be run from "
+               f"this directory and must pass:\n"
+               f"  {' '.join(task['verification'])}\n")
+    if feedback is None:
+        return opening
+    if type(feedback) is not str or not feedback \
+            or len(feedback.encode("utf-8")) > MAX_FEEDBACK_BYTES:
+        raise TaskRefusal("serving feedback is bounded non-empty text")
+    return (f"{opening}\n"
+            f"An independent review of your previous proposal in this same "
+            f"working copy requested changes. Revise your work here "
+            f"accordingly; the verification command above is unchanged and "
+            f"must still pass.\n\n"
+            f"THE REVIEW'S FINDINGS:\n{feedback}\n")
 
 
 def _open_under(root, relative, what):

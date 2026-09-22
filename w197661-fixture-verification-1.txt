@@ -1,1 +1,0 @@
-w197661 deterministic fixture candidate for verification-1

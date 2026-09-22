@@ -360,6 +360,37 @@ def adopt_context_use(control, storage, *, attempt_id):
     return delivery
 
 
+def deliver_feedback(control, storage, *, attempt_id, payload):
+    """W177936: the restore invocation's review feedback, as ONE use file.
+
+    Written into the delivered use root the worker already mounts at
+    `/run/baton/context`, beside `identity` and `home` -- so no launch field
+    and no new mount exists for it. `_write`'s own collision rule IS the
+    never-overwrite policy: an existing file with different bytes refuses
+    rather than being repaired, and the binding that called this has already
+    proved the bytes against the COMMITTED prompt digest. The worker's twin
+    composition and the bound prompt/argv digests make the whole path
+    tamper-evident end to end; this file is transport, not authority.
+    """
+    if type(payload) is not bytes or not payload \
+            or len(payload) > context.MAX_FEEDBACK_BYTES:
+        context._refuse("delivered feedback is bounded non-empty bytes")
+    chain, admitted = context._use(control, attempt_id)
+    if admitted["payload"]["mode"] != "restore":
+        context._refuse("feedback is delivered to a restore use only")
+    delivered = next((one for one in chain if one["use_id"] == admitted["use_id"] and one["action"] == "deliver"), None)
+    if delivered is None:
+        context._refuse("context delivery has no committed pins")
+    pins = delivered["payload"]["pins"]
+    with _storage(control, storage) as root:
+        with _directories(root, [admitted["context_id"]]) as owner:
+            with _directories(owner, ["uses", admitted["use_id"]]) as use:
+                with _directories(use, ["home"]) as home:
+                    if {"use": _pin(use), "home": _pin(home), "owner": _pin(owner)} != pins or _read(use, "identity", 1024) != canonical_text({"admission_digest": digest(admitted)}).encode():
+                        context._refuse("original use roots were replaced")
+                _write(use, "feedback", payload)
+
+
 def _generation(owner, number, profile, expected, *, use_id, finish_publication=False):
     with _directories(owner, ["generations", number]) as generation:
         if set(os.listdir(generation)) != {"identity", "manifest", "state"}:

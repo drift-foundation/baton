@@ -1,0 +1,55 @@
+{
+  "claim": 235291,
+  "files": {
+    "tools/infra_deployment.py": "d0ef9b11d1c92e3002968171702a208934e31444d09c1c29693ba8243b57f5ae",
+    "tests/work/test_infra_deployment.py": "efa5ca87a08c95f648c881647fc1ebbacc7fee78ae7ba0f34a9ab667da1015f5",
+    "justfile": "2f1bcfc2f46f48e92c1f5d3acaa401c07099ce2e2be35bdc9aa2f1e33a7dbb46",
+    "docs/BATON-SETUP.md": "974d034b47df482927966b5be75808a6bde790dc86a26dfdbe5a920419191a03",
+    "tools/infra.py": "af7e4a1457b333f8ed739dbf25246e8f7ea42f106d0fc53f580b6727239c8fc8",
+    "tests/work/test_w20_infrastructure_lifecycle.py": "fb832e62a342ec9080c343feac8aa02dcb312ef03fb31ec2924d6c8149150eeb",
+    "work/records/2026/09/finding-v11-all-stack-lifecycle/infra-stacks.json": "0407fdd42db431a5149e377c8d9e6d737f38c72c08b6569fdd4df5a78dd1b301",
+    "work/records/2026/09/finding-v11-all-stack-lifecycle/INSTALL.md": "2acc0bfc38d5dd2137a6682a2b8b79a71300ecc5a569ffb4b018b983c47f5b29",
+    "work/records/2026/09/finding-v11-all-stack-lifecycle/review-probes-235291.py": "bf13c886cec6d2faf42791545bd9aad74e46c79ad5d7ee7d717ef643473bee6d"
+  },
+  "legacy_controller_and_tests_match_initial_baseline": true,
+  "independent_probes": {
+    "passed": 6,
+    "seconds": 0.002326763999008108,
+    "scope": "missing directory aggregation; symlink/hardlink/FIFO deployment locks; canonical member escape; duplicate JSON keys",
+    "services_launched": 0
+  },
+  "author_tests_attributed": {
+    "new_passed": 15,
+    "new_seconds": 4.07,
+    "compatibility_passed": 6,
+    "compatibility_seconds": 1.81,
+    "source": "PROGRESS.md and handoff235289; not independently rerun"
+  },
+  "installation": {
+    "root": "/home/sl/baton-v11.14aecfb",
+    "alias": "/home/sl/baton-v11.14aecfb",
+    "alias_matches": true,
+    "registry_destination_exists": false,
+    "members": [
+      {
+        "name": "main",
+        "directory": "/home/sl/baton-v11.14aecfb",
+        "manifest_valid": true,
+        "service_count": 9
+      },
+      {
+        "name": "rview-pc",
+        "directory": "/home/sl/baton-v11.14aecfb/rview-pc",
+        "manifest_valid": true,
+        "service_count": 3
+      },
+      {
+        "name": "codx-pc",
+        "directory": "/home/sl/baton-v11.14aecfb/codx-pc",
+        "manifest_valid": true,
+        "service_count": 3
+      }
+    ]
+  },
+  "live_rollout_performed": false
+}

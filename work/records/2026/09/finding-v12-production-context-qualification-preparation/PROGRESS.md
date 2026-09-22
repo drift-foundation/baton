@@ -922,3 +922,322 @@ manifest's `consumed_identities`, which is evidence rather than someone else's
 wording. All five identities are consumed, so this manifest is **not** rerunnable
 authority; a future live run needs its own selection and a fresh identity, which
 this cycle does not prepare.
+
+
+## Claim231009 — session-reuse feedback behavior implemented (appended per review231132; the entry was owed)
+
+Owner 14:37:12Z resumption; review-2026-09-21T14-48-16Z.md's pinned
+acceptance details. Implemented: `context_prompt(task, feedback)` and the
+worker twin `_prompt(task, feedback)` (restore carries one delimited
+findings section; open refuses feedback; 32 KiB UTF-8 BYTE bound, 1 MiB
+report read bound); `correction_feedback_of` resolving THE VERDICT THAT
+OPENED THIS ATTEMPT by the admission's committed provenance and reading
+report.json from retained accepted custody against the frozen manifest's
+bytes/digest; `bind_context_invocation` composing/committing the digests
+over the feedback prompt with replay re-proof; `deliver_feedback` writing
+the ONE 0600, digest-bound `feedback` use file through the pins-verified
+traversal with `_write`'s collision rule as the never-overwrite policy;
+`_context_feedback` reading it in the worker before the existing
+prompt/argv digest gates. Proven 41/41 (composed positive + the pinned
+negative set); adjacent 227+16; account corrections R1 (prerequisites
+stand; nothing executable live) and R2 (usage claim withdrawn; the
+attempt room's provider.stdout.log named as the retained usage artifact)
+recorded in FINDING. Zero provider/engine spend; no identity consumed;
+candidate-183524 and all five identities preserved.
+
+## Claim231827 — review231132 R1 corrected: nonblocking feedback open, FIFO regressions
+
+The feedback open gains `O_NONBLOCK` (a FIFO at the name blocked the OPEN
+itself before fstat/bounds/digests; nonblocking cannot block and the
+fstat right behind it refuses every non-regular file by name). Two new
+regressions with REAL FIFOs: the unit pair on both modes, and the
+composed correction turn meeting a FIFO in place of the delivered file —
+refusing before the provider with no call recorded and no hang. Context
+suite 43/43; test_dogfood_image + test_claude_agent 237 OK. The
+"read-only file" wording is corrected in place: the transport is a 0600,
+digest-bound use file, and the docstrings now say so. Candidate image
+REFRESHED from the corrected source: sha256:e84a033c6600… (adapter
+e42b2728…) — the prior f5d6ee20 build is superseded, not re-labeled.
+Zero provider/engine spend; no identity consumed; all retained bytes
+preserved.
+
+## Claim232193 — implemented: authorization, cap, certification, launch grant
+
+Review232154's one-continuation directive executed. provider_context:
+vocabulary, authorize_qualification_run (run-keyed, R2), _qualified
+admission gate (consumption in the admit commit; R1 generation cap),
+certify_production_profile (retirement + R3 continuity + divergence
+refusals), prove_context_execution + ExecutionGrant. oci: adapter
+context_execution operand; _context_execution demands the matching
+grant. single_worker: _context_grant mints on the start path for
+non-deterministic only. Tests: 70/70 context (27 new; deterministic 43
+untouched), 536 adjacent. Remaining: the §6 executable packet; runtime
+rebuild needed before deployment consumption; worker image unchanged.
+Zero provider/engine spend; nothing retained touched.
+
+## baton.codxpc claim232393 — takeover in progress
+
+Preserved the existing tree after owner recovery; current source still has R1–R4.
+Own the correction paths pinned in FINDING/PLAN. New verification spend 0s so far;
+prior measured costs and unknown historical iterations remain separately recorded.
+
+## 2026-09-21T19:25:28Z — baton.codxpc claim232393 partial work returned
+
+Implemented candidate R1 historical replay, R3 transactional grant/deployment
+checks, and R2 retained evidence certification corrections. Changed test paths:
+v12/python/tests/manager/test_provider_context.py (history, race/restart,
+deployment and public production registration guard) and
+v12/python/tests/manager/test_claude_context.py (retained independently committed
+review and damaged/missing evidence). Final focused verification: 132 tests,
+34.144s, pass; diff check clean. Own known suite total 73.581s plus lost-output
+process33232; prior costs/unknowns preserved. No live/engine/build cost.
+
+R4 executor/manifest/complete documents/exact command remain undelivered.
+HANDOFF-232393.md records exact remaining scope, missing independent image
+binding, runtime rebuild and unresolved private-evidence review transport.
+CORRECTION-EVIDENCE-232393.json records hashes and honest cumulative costs.
+Returning incomplete through baton.bug; no completion or acceptance claimed.
+
+## baton.codxpc claim232542 — R4 implementation in progress
+
+Accepted R1–R3 hashes revalidated unchanged. Implementing bounded private-evidence
+capsule/verifier and composed transport proof. Prior costs preserved; new cost
+zero at entry. Exact executable/runtime/image binding remains part of R4.
+
+## baton.codxpc claim234277 — fresh-claim R4 continuation
+
+Owner reroute234274 and standalone claim234277 succeeded. Current handoff and
+complete discussion through M234126 read (prior pages retained in this context).
+Revalidated current FINDING/PLAN/PROGRESS and review234131; reuse its independent
+image evidence, without repeating export or inferring live qualification. Preserve
+partial packet and the constructor correction from claim232542. Own those same
+R4 paths and dossier artifacts. New verification begins at 0s; earlier claim232542
+spending remains unknown except the recorded 0.526s failing run, and all earlier
+known/unknown costs remain separate. Next verify the actual composed transport,
+then complete the executable and binding or identify an exact remaining blocker.
+
+## baton.codxpc claim234277 — R4 capture correction and manager artifact; incomplete
+
+Revalidated independent image worker hashes unchanged. Preserved prior OCI
+constructor fix and verified real guard with simulated engine/provider. Corrected
+capsule coverage to require workspace, frozen inputs and nominated source; names
+including empty directories now participate in exclusion. Changed test path:
+this dossier's test_qualification_packet.py, because missing roots and names
+previously allowed false exclusion evidence. Four packet tests and275 adjacent
+OCI/context tests pass. Final code/evidence hashes: R4-EVIDENCE-234277.json.
+Rebuilt manager in /tmp/w177936-runtime-234277/out/distro; five embedded module
+code comparisons and81-file inventory in MANAGER-ARTIFACT-234277.json.
+
+R4 remains incomplete. HANDOFF-234277.md identifies the exact unsupported live
+reviewer evidence boundary and missing production pre-launch capture hook, plus
+remaining supervisor/documents/final binding/command. The test substitutes a
+host verifier at the provider seam; it is not proof the selected image can read
+the capsule. No fabricated report or retired host-verdict bypass is used. Return
+through baton.bug with these partial corrections and scope/artifact boundary.
+No extra product planning approval is requested and owner234274 is preserved.
+
+Known new test cost42.866873264s; artifact verification0.298544472s; separate
+identity probe0.090211541s tool wall. Build log ends at5551ms, external stopwatch
+unknown. All supervised tests exit0/no timeout/process group absent; build and
+identity commands exited. Prior costs and unknowns remain in evidence and handoff.
+No live/engine/image-build/enabling/Git mutation; old candidates/identities intact.
+
+## 2026-09-22 — claim234516: isolated canary implementation boundary
+
+Revalidated owner234513 and the 00:20:58Z ruling against the current tree.
+The older fixture reuses a writable workspace and cannot prove the selected
+isolation. Own only new isolated_canary.py, test_isolated_canary.py,
+CANARY-MANIFEST-234516.json, CANARY-OPERATOR-234516.md and evidence/handoff
+records in this dossier, plus attributable FINDING/PLAN/PROGRESS additions.
+Reuse the unchanged strict terminal/inventory contract as a digest-bound
+dependency. No product source edits or image build are needed: mount the
+fixture entry read-only into the independently verified image.
+
+Each turn uses a distinct container and newly created empty read-only task,
+source and workspace roots; /tmp is disposable tmpfs. Only the exact
+.claude/projects/-output/<session>.jsonl is reconstructed into a new writable
+provider HOME. Fresh credential delivery remains separate. All other first
+HOME files remain private evidence and never reach turn two. Require inspected
+whole-container stop before reading/copying state or admitting turn two.
+The bounded fixture records Work/run/two fixture-attempt bindings explicitly;
+these are not fabricated v12 scheduler assignments or serving receipts.
+Per the superseding isolated-test ruling, independent review evaluates the
+protected fixture evidence outside the container. No automatic certification
+or production enablement follows a recall match. The older full-production
+certification contract and accepted guard tests remain separate evidence.
+
+## 2026-09-22 — claim234516: isolated packet awaiting independent review
+
+Implemented the owner234513 isolated canary selection in isolated_canary.py,
+with test_isolated_canary.py (nine deterministic tests), CANARY-MANIFEST,
+CANARY-OPERATOR, CANARY-COMMAND and CANARY-EVIDENCE-234516. Exact handoff is
+HANDOFF-234516.md. All old product corrections, tests and evidence preserved.
+This supersedes the previous current-action requirement to build general
+private-review transport/dedicated image for this test, per the owner's ruling;
+it does not supersede the production certification contract. The fixture emits
+no certification and does not fabricate v12 scheduler identities or receipts.
+
+Final nine tests pass; exact-digest offline audit and git diff --check pass.
+New measured test total1.0417039630701765s across three iterations; retained
+logs name the early corrected resource warning and expected timeout-child
+traceback. Historical costs/unknowns are preserved in CANARY-EVIDENCE and prior
+records. No live model, actual engine, image build, enabling or Git mutation.
+Next: independent baton.bug packet review, then baton.decide for the prepared
+exact one-shot live command. The selected canary preparation is delivered;
+live provider/path/model/recall facts remain unobserved, and production reuse
+remains uncertified.
+
+## 2026-09-22 — claim234686: Opus variant boundary
+
+Revalidated owner234684, FINDING00:44:55Z and review234621. Preserve all
+accepted Fable packet bytes. Own a new opus-234686/ package only: copies of
+isolated_canary.py, test_isolated_canary.py, evidence/qualification_contract.py,
+CANARY-MANIFEST/OPERATOR/COMMAND-234686, supporting evidence copies and new
+model-selection/test/handoff evidence. Also append attributable parent
+FINDING/PLAN/PROGRESS. No product edits, image rebuild/export or live run.
+
+Select exact claude-opus-5 (no moving opus alias), expected reported identity
+claude-opus-5. The small canary needs no extended-context suffix. Official
+https://code.claude.com/docs/en/model-config states Opus5 requires CLI2.1.219
+or later and documents full-name pinning. Retained image2.1.247 contains the
+exact selector in its CLI binary (sha256
+5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15).
+This confirms version/selector compatibility, not current account entitlement
+or terminal output. Keep exact model/session/result and mixed-model refusal
+predicates; change only the expected model constants and packet/run bindings.
+Record source URLs and binary/package metadata in MODEL-SELECTION-234686.json.
+
+## 2026-09-22 — claim234686: Opus preparation awaiting independent review
+
+Delivered separate opus-234686/ package; exact claude-opus-5 selector and
+expected terminal identity. MODEL-SELECTION records official CLI minimum
+2.1.219 plus static retained2.1.247 binary/package evidence, without claiming
+account access or observed live model output. Accepted Fable packet is unchanged.
+Only new model constants/run/manifest/owner bindings and focused test/evidence
+additions; strict predicates, isolation and180s/600s/no-retry limits preserved.
+
+Eleven deterministic tests pass (.4138612210517749 supervisor seconds), exact
+digest audit and diff check pass. No live/engine/build/enabling/Git mutation.
+Manifest80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3.
+HANDOFF-234686.md and opus-234686/EVIDENCE-234686.json preserve exact paths,
+remaining live facts and all cumulative cost references/unknowns. Current action:
+independent baton.bug review of this Opus package, then baton.decide for exact
+run selection. This supersedes Fable as the next proposed packet only.
+
+## 2026-09-22 — baton.codxpc claim235340: recall-only amendment boundary
+
+Revalidated owner M235310/reroute235311 and review235117 against the current
+opus-234686 controller and its unchanged strict contract. The raw exact mixed
+set yields a structurally valid successful terminal projection with actual_model
+null; acceptance must therefore be separate experimental evidence, not a forged
+strict-model projection. Own only new recall-235340/ files (controller, copied
+unchanged strict contract, focused tests, operator/command/manifest, supporting
+provenance and measured verification), HANDOFF-235340.md, and attributable
+FINDING/PLAN/PROGRESS additions. No other product or packet path is owned.
+
+Require modelUsage to be an object with exactly claude-opus-5 and
+claude-haiku-4-5-20251001 keys. A direct model may be absent or exactly
+claude-opus-5; null, other types/names and unknown/missing usage keys refuse.
+Keep the strict projection unchanged inside an experimental terminal envelope
+labeled recall-only mixed usage and model attribution unestablished. Both the
+controller observation and independent review report this scope. No primary,
+exclusive or auxiliary-model claim. Exact success/session/result checks, worker
+isolation, state transfer, credential handling and cleanup remain unchanged.
+The new manifest binds these acceptance rules and fresh unreserved235340 roots.
+Tests exercise both-turn controller/review and raw-boundary positives/negatives;
+old Opus/Fable manifests and contract bytes must remain identical.
+
+Operational read finding: an exploratory read of opus-234686/strict_terminal.py
+returned ENOENT; that guessed filename is not a bound dependency. The manifest
+names evidence/qualification_contract.py, which is present and was read. No
+required input is missing. New test/live/engine spending at entry:0s; all prior
+measured and unknown costs remain in their original evidence.
+
+## 2026-09-22 — baton.codxpc claim235340: recall-only packet awaiting review
+
+Delivered recall-235340/ under owner M235310/reroute235311. Manifest SHA256
+`dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a`.
+Exact continuation: HANDOFF-235340.md; evidence: recall-235340/EVIDENCE-235340.json.
+This supersedes preparation-in-progress as the current action: independent
+baton.bug packet review, then baton.decide for separate exact live selection.
+
+Only the new fixture accepts exactly the selected Opus+Haiku usage pair, with
+absent or exact requested direct model. Unknown/missing models and conflicting
+direct evidence refuse. The copied strict contract is byte-identical and its
+actual_model remains null; a separate experimental envelope reports mixed usage
+and unestablished attribution. Controller observations and independent review
+both carry that scope. No production validation/certification changed.
+
+Sixteen focused deterministic tests pass in0.5140488809993258 measured supervisor
+seconds, including original isolation/cleanup/recall tests, exact pair positives,
+missing/unknown/type/direct-model negatives, strict success/session/answer checks,
+both raw result rechecks and prior packet preservation. Exit0, no timeout, owned
+process group absent. Expected child interruption traceback belongs to the
+passing timeout/cleanup case. Offline exact-digest audit, command binding and
+diff check pass; fresh roots remain absent. Original Opus/Fable bytes unchanged.
+
+No live provider, actual engine, credential/session read, build, export, enabling
+or Git mutation. Existing failed opus-234686 remains failed/consumed; its raw
+evidence was not read this turn. New test spending0.5140488809993258s; all older
+measured costs and unknowns preserved in EVIDENCE-235340.json and original cost
+records. No cumulative upper bound claimed. Remaining scope: independent packet
+review, owner selection of the exact proposed invocation, then independent actual
+protected-result evaluation. No new recall or exclusive-model fact is claimed.
+
+## 2026-09-22 — baton.codxpc claim235602: failure-diagnostic correction boundary
+
+Standalone claim235602 follows owner235599/reroute235600. Read all new Work
+history and discussion after the prior fully read pages, latest FINDING/PLAN,
+PROGRESS, review235562 and OWNER-SERIOUS-WORK-GATE-20260922.md. Revalidated the
+two nested invoke calls: both discard stderr and nonzero stdout, and execute
+cannot retain post-state when start/attach raises. The recorded defect stands.
+
+Own only new diagnostic-235602/ (copied controller, unchanged strict contract,
+focused tests, manifest/operator/command and evidence), HANDOFF-235602.md, plus
+attributable parent FINDING/PLAN/PROGRESS updates. Preserve recall-235340, Opus,
+Fable and every consumed packet/root. No product or global setting changes.
+
+Capture each process stream to at most2MiB with an explicit truncation marker,
+exact observed exit status and closed failure reason. Drain both pipes under
+one deadline. A worker envelope transports bounded base64 records for version
+and provider invocations; its Docker transport gets a separately bounded12MiB
+capacity for encoding overhead, not a larger provider-output allowance. Keep
+raw bytes private. Independently validate envelope shape, run/turn/session and
+both records at the controller; nonzero/timeout/truncation never qualifies.
+Capture obtainable post-runtime and cleanup inspection before owned removal,
+including nonzero exits; inspection failure remains explicit uncertainty.
+No failed first turn reaches state transfer or turn two. Outward diagnostics
+contain only closed reasons/status/bounds and protected locators, never raw text.
+
+Tests will exercise the actual nested subprocess transport with synthetic
+nonzero stdout/stderr, malformed/empty JSON, timeout and overflow, plus the
+existing acceptance/isolation/cleanup gates and immutable historical bytes.
+180s provider/420s active/600s total/no retry unchanged. Authentication restored
+is operator evidence only; no new auth probe or live run selected. New measured
+verification starts0s; all historical costs/unknowns remain separately retained.
+
+## 2026-09-22 — baton.codxpc claim235602: diagnostic packet awaiting review
+
+Delivered diagnostic-235602/ with manifest SHA256 `a9e1c97bd20c5cb85b556e91488f3c0e6ecc07fd6a2636d330666c144bee918e`.
+Read HANDOFF-235602.md and diagnostic-235602/EVIDENCE-235602.json. Bounded
+stdout/stderr, exact exit status and closed failure metadata now survive both
+provider and engine boundaries; private worker envelope binds run/turn/session.
+Post-runtime and cleanup inspections are retained when obtainable. Nonzero
+status, timeout, truncation or malformed output still fails without second turn;
+independent success review also checks nested process status and raw bytes.
+Existing exact mixed-model/recall, isolation, state-only transfer and limits stand.
+Original recall/Opus/Fable packets and strict contract verified byte-identical.
+
+Final26 focused deterministic tests pass in1.4149330489999556s;
+cumulative new test time3.1298126479996426s across two iterations, both logs/receipts retained.
+Initial duplicate cleanup-record write and newline-test mismatch were corrected;
+final exit0/no timeout/process group absent. Digest audit, exact command binding
+and diff check pass. Fresh235602 roots remain absent. No live/provider/engine/
+auth probe/credential read/build/enabling/Git mutation. All previous costs and
+unknowns preserved, including last operator1.501609630s and reviewer0.001476355s.
+
+This supersedes preparation-in-progress: next independent baton.bug packet
+review, then baton.decide for separate exact live selection and independent
+protected-result evaluation. Live recall remains unproved. Production manager
+serving/admission/model-policy/certification remains distinct; no new production
+scope or enabling is implied. Serious-work sequencing gate remains in force.

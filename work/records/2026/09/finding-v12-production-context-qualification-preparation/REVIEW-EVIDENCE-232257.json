@@ -1,0 +1,32 @@
+{
+  "reviewer": "baton.rvpc",
+  "claim": 232257,
+  "author_claim": 232193,
+  "head": "2f121a49e152fbf24b4c76f057f8bcf1b63d5eae",
+  "sha256": {
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "75ccde2fd6af63f69f7fdd52b82078dc9f07a5fd36b46e570eaa0e138b7d0765",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "e994963d5f9d4448b66ba4a966473dfc8a9df65a27472fc02fabac467214fd27",
+    "v12/python/tools/single_worker.py": "80370d122ff4a2c712f98d26f7bb110b93de51a62345ce29a3cd803d935109e9",
+    "v12/python/tests/manager/test_claude_context.py": "392ac84dc796954b67ee69672c477006b9ca74e96780abc660dcd8a98a657d9a",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/review-probe-232257.py": "66fb3b7424e5d17f45883b41063d610aae5b1f69b229cdb23ee94819f24c79c9",
+    "work/records/2026/09/finding-v12-production-context-qualification-preparation/QUALIFICATION-IMPL-232193.json": "f05815f16e2410628c1e7f4eb50f29ac8785d25ff27b8b1cd599c44513afd112"
+  },
+  "verification": [
+    {
+      "command": "env PYTHONPATH=src:. timeout --kill-after=5s 120s /home/sl/.local/state/baton-v12-venv/bin/python -m unittest -q tests.manager.test_claude_context",
+      "cwd": "v12/python",
+      "exit": 0,
+      "tests": 70,
+      "reported_seconds": 30.146
+    },
+    {
+      "command": "env PYTHONPATH=src:. timeout --kill-after=5s 60s /home/sl/.local/state/baton-v12-venv/bin/python ../../work/records/2026/09/finding-v12-production-context-qualification-preparation/review-probe-232257.py",
+      "cwd": "v12/python",
+      "exit": 0,
+      "tests": 2,
+      "reported_seconds": 1.351,
+      "note": "Both counterexamples reproduced. Earlier invocation completed but its output was unavailable after context truncation; its duration is unknown. This is the repeated invocation."
+    }
+  ],
+  "limits": "Synthetic fixtures only; no live model, image build, production certification or enabling. Author-reported adjacent 536 tests not independently repeated. Known measured test time this claim 31.497 seconds plus earlier probe invocation of unknown duration; not a wall-clock upper bound."
+}

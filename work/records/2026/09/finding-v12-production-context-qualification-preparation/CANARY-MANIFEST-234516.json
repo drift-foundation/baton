@@ -1,0 +1,68 @@
+{
+  "schema": "baton.isolated-canary-manifest/1",
+  "run": "w177936-canary-234516",
+  "work": "W177936",
+  "owner_event": 234513,
+  "image": "sha256:e84a033c6600fdb65c92f5034e72db1578678d3adeb83df519b3845dee5925e0",
+  "bounds": {
+    "turn_seconds": 180,
+    "active_seconds": 420,
+    "total_seconds": 600,
+    "turns": 2,
+    "retry": false
+  },
+  "root": "/tmp/w177936-canary-234516",
+  "slots": "/dev/shm/w177936-canary-234516",
+  "model": "claude-fable-5[1m]",
+  "reported_model": "claude-fable-5",
+  "cli": "2.1.247",
+  "qualification": "isolated-canary-candidate",
+  "production_certification": false,
+  "files": {
+    "isolated_canary.py": "47076102a09c1f5b945a6f51dfe0aa9c43f698cc16b7fd958c44bf235e7a03d9",
+    "test_isolated_canary.py": "a7a5e02e33715165ccecebdf43740879cfc4fa7304375e10aa6dad523086aadc",
+    "evidence/qualification_contract.py": "fb716eb3eea18404c1105e76c31f6659e43d4d3f0b04bc560c35bf3087ca9e01",
+    "CANARY-OPERATOR-234516.md": "b22a550d9aaeebb9f93c87fdf263fc86c6ed21802b432e4bb8a79a58eeae85ae"
+  },
+  "supporting_evidence": {
+    "IMAGE-VERIFICATION-234131.json": "77941391bb6302181fd47081e4547ebbdd5a18d38ae6ecf6d111bd53ae15450c",
+    "MANAGER-ARTIFACT-234277.json": "993a20b07905f52ade229dd1b8c06ec16eb5d3a25003f275dd606257cec8ff99",
+    "MANAGER-INVENTORY-REVIEW-234346.json": "0a01a4d7f9b7a83499dc461cfe2f1ef55e87771ef5e2add069c240aa76d55034",
+    "REVIEW-EVIDENCE-234346.json": "96eb86f53699d38e556bd06d79d80577f4525cd9b7d7f6821e00a71a8aadb155"
+  },
+  "deployment": {
+    "engine": [
+      "/usr/bin/docker",
+      "--host",
+      "unix:///var/run/docker.sock"
+    ],
+    "runtime_identity": "current non-root owner uid:gid",
+    "authority": "fixture only; v11 Work W177936; no v12 authority mutation",
+    "entrypoint": [
+      "python3",
+      "-B",
+      "/qualification/isolated_canary.py",
+      "--worker"
+    ]
+  },
+  "job": {
+    "identity_kind": "qualification-fixture",
+    "attempts": [
+      "w177936-canary-234516-turn-1",
+      "w177936-canary-234516-turn-2"
+    ],
+    "provider_session": "fresh UUID at run reservation",
+    "automatic_retry": false
+  },
+  "profile": {
+    "cwd": "/output",
+    "state_paths": [
+      ".claude/projects/-output/<fresh-session-UUID>.jsonl"
+    ],
+    "state_bytes": 33554432,
+    "task_roots": "fresh empty read-only input/source/workspace each turn",
+    "scratch": "separate per-container tmpfs",
+    "home": "fresh writable each turn; only allowlisted session copied",
+    "credential": "fresh private slot each turn, never session state"
+  }
+}

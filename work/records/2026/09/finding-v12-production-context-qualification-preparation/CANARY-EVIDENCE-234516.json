@@ -1,0 +1,46 @@
+{
+  "schema": "baton.canary-preparation-evidence/1",
+  "claim": 234516,
+  "owner_event": 234513,
+  "files": {
+    "isolated_canary.py": "47076102a09c1f5b945a6f51dfe0aa9c43f698cc16b7fd958c44bf235e7a03d9",
+    "test_isolated_canary.py": "a7a5e02e33715165ccecebdf43740879cfc4fa7304375e10aa6dad523086aadc",
+    "CANARY-MANIFEST-234516.json": "1ad6342ab05ad765f51d251190f2a48591e15164b1170b27399ee1e63f77f62d",
+    "CANARY-OPERATOR-234516.md": "b22a550d9aaeebb9f93c87fdf263fc86c6ed21802b432e4bb8a79a58eeae85ae",
+    "CANARY-COMMAND-234516.txt": "be208c2c0407cdbad3278f5bc8c8190991bdde4ef75fa8ed0f325938e7d44d58",
+    "evidence/qualification_contract.py": "fb716eb3eea18404c1105e76c31f6659e43d4d3f0b04bc560c35bf3087ca9e01"
+  },
+  "manifest": "1ad6342ab05ad765f51d251190f2a48591e15164b1170b27399ee1e63f77f62d",
+  "runs": [
+    {
+      "elapsed_seconds": 0.31390757707413286,
+      "exit_code": 0,
+      "timeout": false,
+      "process_group_absent": true,
+      "scope": "eight isolated canary tests; deterministic fake engine/provider, no live execution"
+    },
+    {
+      "elapsed_seconds": 0.3638895699987188,
+      "exit_code": 0,
+      "timeout": false,
+      "process_group_absent": true,
+      "scope": "nine isolated canary tests; deterministic fake engine/provider, no live execution"
+    },
+    {
+      "elapsed_seconds": 0.3639068159973249,
+      "exit_code": 0,
+      "timeout": false,
+      "process_group_absent": true,
+      "scope": "nine isolated canary tests; deterministic fake engine/provider, no live execution"
+    }
+  ],
+  "new_test_seconds": 1.0417039630701765,
+  "offline_audit": "pass; direct --audit with exact manifest digest",
+  "git_diff_check": "pass",
+  "new_live_provider_calls": 0,
+  "new_actual_engine_calls": 0,
+  "new_builds": 0,
+  "new_production_certifications": 0,
+  "prior_costs": "Preserved in R4-EVIDENCE-234277.json, REVIEW-EVIDENCE-234346.json and all older dossier evidence. Earlier 42.866873264 author test seconds, 73.581 older author seconds plus unknowns; reviewer31.497/34.052/2.598 and historical unknowns; image .8251413649413735; manager verification .29854447208344936, identity .090211541, review inventory .017316653. Not a reconstructed cumulative upper bound.",
+  "qualification_scope": "New owner-selected isolated provider canary fixture, direct Docker under bounded supervisor; fixture identities are not v12 serving receipts. Independent live result review required. No production enabling."
+}

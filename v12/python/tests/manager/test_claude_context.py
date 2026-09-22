@@ -48,6 +48,10 @@ class ServingContextCase(ComposedOneJobCase):
             manifest)
         self.context_profile = profile(runtime_profile_digest=self.config["profile_digest"], image_digest=self.config["image_digest"], adapter_digest=self.config["adapter_digest"], retention_policy_digest=self.config["retention_policy_digest"], argv_policy_digest=digest(context.ARGV_POLICY), environment_policy_digest=digest(context.ENVIRONMENT_POLICY))
         self.context_digest = digest(self.context_profile)
+        # W177936: the REAL boundary function, captured before the patch so
+        # the qualification cases can drive it while the composed flow keeps
+        # its explicit substitution.
+        self.real_context_execution = oci.OciAdapter._context_execution
         patch = mock.patch.object(oci.OciAdapter, "_context_execution", return_value=None)
         patch.start()
         self.addCleanup(patch.stop)
@@ -464,7 +468,13 @@ class ServingEnding(ServingContextCase):
 
 
 class RestoredCorrectionBoundary(ServingContextCase):
-    def test_actual_changes_requested_review_restores_only_fresh_implementation_use(self):
+    FINDINGS = "adjust the implementation"
+
+    def corrected_ready(self):
+        """The flow to a BOUND correction: episode 1 served, a
+        changes-requested review frozen, the restore use admitted,
+        materialized and bound -- the second turn NOT yet run. W177936's
+        feedback cases all start here."""
         held = self.implemented()
         first = context.context_invocation_of(held.control, held.attempt_id)
         self.drive(held.job, held.composed, "review", "waiting")
@@ -474,15 +484,24 @@ class RestoredCorrectionBoundary(ServingContextCase):
         self.assertNotIn("provider_context", review_launch)
         self.assertNotEqual(review_launch["session"], self.worker_of(held.composed, "implementation")._session_of(held.attempt_id))
         self.assertEqual(review_launch["job_execution"]["runtime_input_digest"], self.manifest["manifest_digest"])
-        self.assertEqual(self.turn(held.control, "review", reviewer, self.mounted(held.composed, "review", reviewer), edits={"review-report.json": json.dumps({"schema": "baton.review-report/1", "verdict": "changes-requested", "findings": "adjust the implementation"})}), 0)
+        self.assertEqual(self.turn(held.control, "review", reviewer, self.mounted(held.composed, "review", reviewer), edits={"review-report.json": json.dumps({"schema": "baton.review-report/1", "verdict": "changes-requested", "findings": self.FINDINGS})}), 0)
         self.drive(held.job, held.composed, "implementation", "waiting", ticks=12)
+        attempts = self.worker_of(held.composed, "implementation").stage._prepared
+        [second] = [one for one in attempts if one != held.attempt_id]
+        return held, first, reviewer, second
+
+    def feedback_file(self, held, second):
+        bound = context.context_use_of(held.control, second)
+        return (self.context_root / bound["context_id"] / "uses"
+                / bound["use_id"] / "feedback")
+
+    def test_actual_changes_requested_review_restores_only_fresh_implementation_use(self):
+        held, first, reviewer, second = self.corrected_ready()
         review_frozen = frozen_output_of(held.control, reviewer)
         review_result = load_manifest(held.control, review_frozen["manifest_digest"], "resultManifest")
         self.assertEqual(next(one for one in review_result["outputs"] if one["name"] == "provider-context-receipt")["status"], "missing-optional")
         review_start = [one for one in self.engine.starts if "--entrypoint" not in one][1]
         self.assertFalse(any("/run/baton/context" in item for item in review_start))
-        attempts = self.worker_of(held.composed, "implementation").stage._prepared
-        [second] = [one for one in attempts if one != held.attempt_id]
         bound = context.context_invocation_of(held.control, second)
         self.assertEqual(bound["conversation_id"], first["conversation_id"])
         self.assertEqual(bound["context_id"], first["context_id"])
@@ -506,7 +525,344 @@ class RestoredCorrectionBoundary(ServingContextCase):
         self.assertEqual([one["restored"] for one in calls], [False, True])
         self.assertIn("--session-id", calls[0]["argv"])
         self.assertIn("--resume", calls[1]["argv"])
+        # W177936: THE RESUMED CONVERSATION RECEIVES THE REVIEW'S FEEDBACK,
+        # and the opening turn did not -- the whole point of the resumption.
+        self.assertNotIn("THE REVIEW'S FINDINGS:", calls[0]["argv"][-1])
+        self.assertIn("THE REVIEW'S FINDINGS:\n" + self.FINDINGS,
+                      calls[1]["argv"][-1])
+        self.assertIn(json.loads(self.task_bytes)["instructions"],
+                      calls[1]["argv"][-1])
         self.assertNotEqual(self.actual_environments[0]["HOME"], self.actual_environments[1]["HOME"])
         original_state = self.context_root / first["context_id"] / "generations/1/state/.claude/projects/output/session.json"
         self.assertEqual(json.loads(original_state.read_text())["turn"], 1)
         self.assertEqual(json.loads((Path(self.actual_environments[1]["HOME"]) / ".claude/projects/output/session.json").read_text())["turn"], 2)
+
+    def test_the_feedback_prompt_twins_agree(self):
+        import claude_agent
+        task = json.loads(self.task_bytes)
+        self.assertEqual(context.context_prompt(task, self.FINDINGS),
+                         claude_agent._prompt(task, self.FINDINGS))
+        self.assertEqual(context.context_prompt(task),
+                         claude_agent._prompt(task))
+
+    def test_an_oversized_feedback_refuses_on_both_sides(self):
+        import claude_agent
+        task = json.loads(self.task_bytes)
+        oversized = "x" * (context.MAX_FEEDBACK_BYTES + 1)
+        with self.assertRaises(Exception):
+            context.context_prompt(task, oversized)
+        with self.assertRaises(claude_agent.TaskRefusal):
+            claude_agent._prompt(task, oversized)
+
+    def test_a_tampered_feedback_file_refuses_before_the_provider(self):
+        held, first, reviewer, second = self.corrected_ready()
+        place = self.feedback_file(held, second)
+        self.assertTrue(place.exists())
+        place.chmod(0o600)
+        place.write_text("do something else entirely")
+        calls_before = len(self.calls.read_text().splitlines()) \
+            if self.calls.exists() else 0
+        self.assertNotEqual(
+            self.turn(held.control, "implementation", second,
+                      self.mounted(held.composed, "implementation", second),
+                      edits={"harness.py": "print('never runs')\n"}), 0)
+        calls_after = len(self.calls.read_text().splitlines()) \
+            if self.calls.exists() else 0
+        # THE PROVIDER NEVER RAN: the digest gate refused first.
+        self.assertEqual(calls_before, calls_after)
+
+    def test_a_missing_feedback_file_refuses_by_name(self):
+        held, first, reviewer, second = self.corrected_ready()
+        place = self.feedback_file(held, second)
+        place.chmod(0o600)
+        place.unlink()
+        calls_before = len(self.calls.read_text().splitlines()) \
+            if self.calls.exists() else 0
+        self.assertNotEqual(
+            self.turn(held.control, "implementation", second,
+                      self.mounted(held.composed, "implementation", second),
+                      edits={"harness.py": "print('never runs')\n"}), 0)
+        self.assertEqual(
+            calls_before,
+            len(self.calls.read_text().splitlines())
+            if self.calls.exists() else 0)
+
+    def test_a_stray_feedback_file_on_an_open_turn_refuses(self):
+        import claude_agent, tempfile
+        with tempfile.TemporaryDirectory() as root:
+            (Path(root) / "feedback").write_text("unexpected")
+            agent = claude_agent.ClaudeAgent(run=lambda *a, **k: None)
+            with mock.patch.object(claude_agent, "CONTEXT_ROOT", root):
+                with self.assertRaisesRegex(
+                        claude_agent.TaskRefusal, "open invocation"):
+                    agent._context_feedback({"mode": "open"})
+
+    def test_a_fifo_at_the_feedback_name_refuses_without_blocking(self):
+        """Review231132 [R1]: a blocking open ran before every gate. The
+        nonblocking open cannot block on a FIFO and `fstat` refuses it by
+        name, on BOTH modes -- proven here with a real FIFO and no writer,
+        the exact shape that hung the reviewer's supervised probe."""
+        import claude_agent, tempfile
+        for mode in ("restore", "open"):
+            with tempfile.TemporaryDirectory() as root:
+                os.mkfifo(Path(root) / "feedback")
+                agent = claude_agent.ClaudeAgent(run=lambda *a, **k: None)
+                with mock.patch.object(claude_agent, "CONTEXT_ROOT", root):
+                    with self.assertRaises(claude_agent.TaskRefusal):
+                        agent._context_feedback({"mode": mode})
+
+    def test_a_fifo_replacing_the_delivered_feedback_refuses_the_turn(self):
+        """The composed half of the same regression: the correction turn
+        meets the FIFO, refuses before the provider, and does not hang."""
+        held, first, reviewer, second = self.corrected_ready()
+        place = self.feedback_file(held, second)
+        place.chmod(0o600)
+        place.unlink()
+        os.mkfifo(place)
+        calls_before = len(self.calls.read_text().splitlines()) \
+            if self.calls.exists() else 0
+        self.assertNotEqual(
+            self.turn(held.control, "implementation", second,
+                      self.mounted(held.composed, "implementation", second),
+                      edits={"harness.py": "print('never runs')\n"}), 0)
+        self.assertEqual(
+            calls_before,
+            len(self.calls.read_text().splitlines())
+            if self.calls.exists() else 0)
+
+    def test_a_wrong_or_stale_verdict_refuses_the_feedback_resolution(self):
+        held, first, reviewer, second = self.corrected_ready()
+        genuine = context.review_cycles.verdict_of
+        def stale(store, verdict_id):
+            answer = dict(genuine(store, verdict_id))
+            answer["checkpoint_id"] = "checkpoint-" + "0" * 64
+            return answer
+        jobs = self.worker_of(held.composed,
+                              "implementation").stage.deployment.jobs
+        with mock.patch.object(context.review_cycles, "verdict_of", stale):
+            with self.assertRaisesRegex(
+                    Exception, "verdict disagrees"):
+                context.correction_feedback_of(held.control, jobs, second)
+
+    def test_replay_never_overwrites_the_delivered_feedback(self):
+        from baton_v12.worker_manager import context_delivery
+        held, first, reviewer, second = self.corrected_ready()
+        storage = context_delivery.configured_context_storage(held.control)
+        # The same bytes replay as a no-op...
+        context_delivery.deliver_feedback(
+            held.control, storage, attempt_id=second,
+            payload=self.FINDINGS.encode())
+        # ...and different bytes refuse rather than replacing the delivery
+        # (the custody writer's own collision rule: a size mismatch refuses
+        # at the size gate, equal-size different bytes refuse at the byte
+        # comparison -- either way nothing is overwritten).
+        from baton_v12.contracts import ContractRefusal
+        with self.assertRaises(ContractRefusal):
+            context_delivery.deliver_feedback(
+                held.control, storage, attempt_id=second,
+                payload=b"a newly selected report")
+        place = self.feedback_file(held, second)
+        self.assertEqual(place.read_bytes(), self.FINDINGS.encode())
+
+
+class CandidateQualificationFlow(RestoredCorrectionBoundary):
+    """W177936 QUALIFICATION-CONTRACT-232133, corrected by review232154.
+
+    The SAME composed open->changes-requested->restore flow, under a
+    `candidate` profile and one journaled qualification grant -- the
+    deterministic suite above is byte-for-byte untouched, which is itself
+    the vocabulary's first promise.
+    """
+
+    RUN = "qual-run-232193"
+
+    def setUp(self):
+        super().setUp()
+        self.mint_grant = True
+        held = dict(self.context_profile)
+        held["qualification"] = "candidate"
+        self.context_profile = held
+        self.context_digest = digest(held)
+
+    def serving(self, **members):
+        job, control, composed = super().serving(**members)
+        if self.mint_grant:
+            context.authorize_qualification_run(
+                control, run_id=self.RUN,
+                profile_digest=self.context_digest,
+                storage_path=str(self.context_root), authority_uuid=self.config["authority_uuid"], job_id="job-a",
+                note="the one qualification run this class drives")
+        return job, control, composed
+
+    def test_the_flow_opens_and_restores_on_one_grant(self):
+        held, first, reviewer, second = self.corrected_ready()
+        self.assertEqual(self.turn(
+            held.control, "implementation", second,
+            self.mounted(held.composed, "implementation", second),
+            edits={"harness.py": "print('correction round')\n"}), 0)
+        self.drive(held.job, held.composed, "implementation", "completed")
+        chain = context._history(held.control,
+                                 context.context_use_of(
+                                     held.control, second)["context_id"])
+        admits = [one for one in chain if one["action"] == "admit"]
+        self.assertEqual(len(admits), 2)
+        # THE OPEN CONSUMED THE GRANT AND THE RESTORE RODE IT: one run id,
+        # journaled in both admissions' own committed payloads.
+        self.assertEqual([one["payload"]["qualification_run"]
+                          for one in admits], [self.RUN, self.RUN])
+
+    def test_a_third_generation_refuses_the_grant_cap(self):
+        held, first, reviewer, second = self.corrected_ready()
+        profile = context.context_profile_of(held.control,
+                                             self.context_digest)
+        with self.assertRaisesRegex(Exception, "third generation"):
+            context._qualified(
+                held.control, None,
+                {"profile_digest": self.context_digest,
+                 "attempt_id": second},
+                profile, 2,
+                context.context_use_of(held.control,
+                                       second)["context_id"])
+
+    def test_without_a_grant_the_opening_admission_refuses(self):
+        self.mint_grant = False
+        with self.assertRaisesRegex(Exception,
+                                    "no live qualification grant"):
+            self.implemented()
+
+    def test_a_fresh_run_id_is_a_new_grant_and_a_retry_replays(self):
+        held, first, reviewer, second = self.corrected_ready()
+        # Exact retry replays the committed grant...
+        context.authorize_qualification_run(
+            held.control, run_id=self.RUN,
+            profile_digest=self.context_digest,
+            storage_path=str(self.context_root), authority_uuid=self.config["authority_uuid"], job_id="job-a",
+            note="the one qualification run this class drives")
+        # ...changed operands under the same run identity refuse...
+        with self.assertRaises(Exception):
+            context.authorize_qualification_run(
+                held.control, run_id=self.RUN,
+                profile_digest=self.context_digest,
+                storage_path=str(self.context_root), authority_uuid=self.config["authority_uuid"], job_id="job-a",
+                note="a different note is a different act")
+        # ...and a separately selected later run of the UNCHANGED profile
+        # is a fresh grant under its own identity (review232154 R2).
+        context.authorize_qualification_run(
+            held.control, run_id="qual-run-later",
+            profile_digest=self.context_digest,
+            storage_path=str(self.context_root), authority_uuid=self.config["authority_uuid"], job_id="job-a",
+            note="a later separately selected run")
+        self.assertIsNotNone(context.qualification_grant_of(
+            held.control, "qual-run-later"))
+
+    def completed_qualification(self):
+        held, first, reviewer, second = self.corrected_ready()
+        self.assertEqual(self.turn(held.control, "implementation", second, self.mounted(held.composed, "implementation", second), edits={"harness.py": "print('correction round')\n"}), 0)
+        self.drive(held.job, held.composed, "implementation", "completed")
+        owner = context.context_use_of(held.control, second)["context_id"]
+        chain = context._history(held.control, owner)
+        finalized = [one for one in chain if one["action"] == "finalize"]
+        admits = [one for one in chain if one["action"] == "admit"]
+        results = []
+        for admission in admits:
+            # Explicit simulated provider artifacts in real attempt rooms.
+            attempt = admission["payload"]["attempt_id"]
+            path = Path(self.config["launch_home"]) / "logs" / attempt / "provider.stdout.log"
+            body = json.dumps({"type": "result", "subtype": "success", "is_error": False, "session_id": admission["payload"]["conversation_id"], "model": "deterministic-model"}).encode()
+            path.write_bytes(body)
+            results.append({"path": str(path), "bytes": len(body), "digest": digest_of_bytes(body)})
+        report = {"schema": "baton.context-qualification-review/1", "run_id": self.RUN, "context_id": owner, "attempts": [one["payload"]["attempt_id"] for one in admits], "receipt_digests": [one["payload"]["receipt_digest"] for one in finalized], "generation_digests": [one["payload"]["manifest_digest"] for one in finalized], "provider_results": results, "recall": {"expected_digest": digest("synthetic-recall"), "observed_digest": digest("synthetic-recall"), "second_inputs_excluded": True}}
+        self.drive(held.job, held.composed, "review", "waiting")
+        reviewers = self.worker_of(held.composed, "review").stage._prepared
+        [last_review] = [one for one in reviewers if one != reviewer]
+        body = json.dumps({"schema": "baton.review-report/1", "verdict": "accepted", "findings": json.dumps(report)})
+        self.assertEqual(self.turn(held.control, "review", last_review, self.mounted(held.composed, "review", last_review), edits={"review-report.json": body}), 0)
+        self.drive(held.job, held.composed, "review", "completed")
+        from baton_v12.worker_manager import attempts, review_cycles
+        assignment = attempts.assignment_of(held.control, last_review)
+        attachment = review_cycles.review_for_attempt(held.control, attempt_id=last_review, generation=assignment["generation"])
+        verdict_id = review_cycles._id("verdict", {"attachment_id": attachment["attachment_id"], "disposition": "accepted"})
+        verdict = review_cycles.verdict_of(held.control, verdict_id)
+        frozen = load_manifest(held.control, verdict["review_result"]["manifest_digest"], "resultManifest")
+        findings = next(one for one in frozen["outputs"] if one["name"] == "findings")
+        report_digest = next(one["content_digest"] for one in findings["content_manifest"]["entries"] if one["path"] == "report.json")
+        evidence = {"run_id": self.RUN, "context_id": owner, "continuity": {"verdict_id": verdict_id, "report_digest": report_digest}, "evidence_refs": [report_digest]}
+        return held, evidence, report
+
+    def test_certification_demands_retirement_and_retained_independent_evidence(self):
+        held, evidence, report = self.completed_qualification()
+        production = dict(self.context_profile, qualification="production")
+        with self.assertRaisesRegex(ContractRefusal, "retired"):
+            context.certify_production_profile(held.control, production, evidence)
+        context.retire_context(held.control, evidence["context_id"])
+        with self.assertRaisesRegex(ContractRefusal, "diverges"):
+            context.certify_production_profile(held.control, dict(production, model="somebody-else"), evidence)
+        with self.assertRaises(ContractRefusal):
+            context.certify_production_profile(held.control, production, dict(evidence, continuity={"verdict_id": "nonexistent-review", "report_digest": digest("unbacked")}))
+        context.certify_production_profile(held.control, production, evidence)
+        context.certify_production_profile(held.control, production, evidence)
+        self.assertIsNotNone(held.control.operation_record(context._id("context-certification", digest(production))))
+        # Acceptance cannot turn missing original evidence into a valid retry.
+        Path(report["provider_results"][0]["path"]).unlink()
+        with self.assertRaisesRegex(ContractRefusal, "unavailable"):
+            context.certify_production_profile(held.control, production, evidence)
+
+    def test_certification_rejects_damaged_generation_receipt_report_and_provider_result(self):
+        held, evidence, report = self.completed_qualification()
+        context.retire_context(held.control, evidence["context_id"])
+        production = dict(self.context_profile, qualification="production")
+        from baton_v12.worker_manager import intake, review_cycles
+        first = report["attempts"][0]
+        receipt = next(one for one in intake.intake_receipt_of(held.control, first)["artifacts"] if one["custody_locator"].endswith("/provider-context-receipt"))
+        verdict = review_cycles.verdict_of(held.control, evidence["continuity"]["verdict_id"])
+        findings = next(one for one in verdict["review_result"]["artifacts"] if one["output_name"] == "findings")
+        paths = [self.context_root / evidence["context_id"] / "generations/1/state/.claude/projects/output/session.json", Path(receipt["custody_locator"][7:]) / "receipt.json", Path(findings["locator"][7:]) / "report.json", Path(report["provider_results"][0]["path"])]
+        for path in paths:
+            with self.subTest(path=path.name):
+                original, mode = path.read_bytes(), path.stat().st_mode & 0o777
+                path.chmod(0o600)
+                path.write_bytes(b"corrupted")
+                path.chmod(mode)
+                with self.assertRaises(ContractRefusal):
+                    context.certify_production_profile(held.control, production, evidence)
+                self.assertIsNone(held.control.operation_record(context._id("context-certification", digest(production))))
+                path.chmod(0o600)
+                path.write_bytes(original)
+                path.chmod(mode)
+        context.certify_production_profile(held.control, production, evidence)
+
+    def test_the_launch_boundary_mints_and_demands_the_grant(self):
+        held, first, reviewer, second = self.corrected_ready()
+        grant = context.prove_context_execution(held.control, second)
+        bound = context.context_use_of(held.control, second)
+        self.assertEqual((grant.context_id, grant.use_id,
+                          grant.qualification),
+                         (bound["context_id"], bound["use_id"],
+                          "candidate"))
+        # Shape cannot manufacture the capability...
+        with self.assertRaises(Exception):
+            context.ExecutionGrant(object(), grant.context_id,
+                                   grant.use_id, "candidate")
+        # ...and the adapter refuses everything that is not the grant for
+        # THIS delivered context.
+        from baton_v12.worker_manager import oci as adapter_module
+        holder = adapter_module.OciAdapter.__new__(
+            adapter_module.OciAdapter)
+        holder.context_execution = None
+        holder.context_document = {"context_id": grant.context_id,
+                                   "use_id": grant.use_id}
+        with self.assertRaisesRegex(Exception, "awaits qualified"):
+            self.real_context_execution(holder)
+        holder.context_execution = grant
+        self.real_context_execution(holder)
+        holder.context_document = {"context_id": "context-other",
+                                   "use_id": grant.use_id}
+        with self.assertRaisesRegex(Exception, "does not name"):
+            self.real_context_execution(holder)
+
+
+class DeterministicProfilesNeverExecuteForReal(RestoredCorrectionBoundary):
+    def test_prove_context_execution_refuses_deterministic(self):
+        held = self.implemented()
+        with self.assertRaisesRegex(Exception, "deterministic profiles"):
+            context.prove_context_execution(held.control, held.attempt_id)

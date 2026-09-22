@@ -318,8 +318,12 @@ class Admission(ContextCase):
 
 class Profiles(unittest.TestCase):
     def test_production_qualification_cannot_be_asserted_by_a_profile_label(self):
-        with self.assertRaises(ContractRefusal):
-            context._profile(profile(qualification="production"))
+        # Production is now a valid document vocabulary, but registering it
+        # still requires independently backed certification in the owner store.
+        with tempfile.TemporaryDirectory(prefix="context-profile-") as root:
+            with ControlStore.open(str(pathlib.Path(root) / "control.sqlite3"), incarnation="profile", clock=lambda: NOW) as control:
+                with self.assertRaisesRegex(ContractRefusal, "lacks recorded certification"):
+                    context.certify_context_profile(control, profile(qualification="production"))
 
     def test_closed_profile_rejects_wrong_types_and_unsafe_paths(self):
         for changed in ({"max_entries": True}, {"max_bytes": 2**60}, {"state_paths": [["nested"]]}, {"state_paths": [".claude/../credentials"]}, {"state_paths": [".claude/projects/.credentials.json"]}, {"cwd": "/other"}, {"healthy": True}):
@@ -780,3 +784,101 @@ class GenerationIdentity(ContextCase):
         identity.chmod(0o400)
         with self.assertRaisesRegex(ContractRefusal, "generation identity"):
             delivery.materialize_context_use(self.control, self.custody, attempt_id=self.attempt_id)
+
+
+class QualificationAdmissionRegression(ContextCase):
+    def candidate(self):
+        self.profile_digest = context.certify_context_profile(self.control, profile(qualification="candidate"))["profile_digest"]
+        context.authorize_qualification_run(self.control, run_id="qualification-regression", profile_digest=self.profile_digest, storage_path=str(self.private), authority_uuid=UUID, job_id="context-job", note="deterministic regression")
+
+    def test_historical_admission_survives_restart_without_rewriting(self):
+        facts = context._facts(self.control, self.jobs, self.port, self.attempt_id, self.writer["writer_id"], self.profile_digest, live=True)
+        owner = context._id("context", facts["identity"])
+        import uuid
+        payload = dict(facts, generation=0, mode="open", predecessor=None, conversation_id=str(uuid.uuid5(uuid.NAMESPACE_OID, owner)))
+        use = context._id("context-use", [owner, self.attempt_id, 0])
+        context._transition(self.control, action="admit", context_id=owner, use_id=use, expected_revision=0, payload=payload)
+        operation = context._operation("admit", owner, use, 0)
+        before = self.control.operation_record(operation)
+        reopened = ControlStore.open(self.path, incarnation="historical-reopen", clock=lambda: NOW)
+        self.addCleanup(reopened.close)
+        self.assertEqual(self.admit(reopened)["use_id"], use)
+        self.assertEqual(reopened.operation_record(operation), before)
+        self.assertNotIn("qualification_run", context._history(reopened, owner)[0]["payload"])
+        delivery.materialize_context_use(reopened, self.custody, attempt_id=self.attempt_id)
+
+    def test_grant_is_rechecked_inside_commit_and_request_restart(self):
+        self.candidate()
+        original = context._qualified
+        seen = []
+        def consumed(control, jobs, facts, held, generation, owner):
+            seen.append(control._connection.in_transaction)
+            if control._connection.in_transaction:
+                context._refuse("candidate profile has no live qualification grant for this deployment and Job")
+            return original(control, jobs, facts, held, generation, owner)
+        with mock.patch.object(context, "_qualified", side_effect=consumed):
+            with self.assertRaisesRegex(ContractRefusal, "no live qualification grant"):
+                self.admit()
+        self.assertEqual(seen, [False, True])
+        self.assertIsNone(context._grant_consumer(self.control, "qualification-regression"))
+        reopened = ControlStore.open(self.path, incarnation="request-reopen", clock=lambda: NOW)
+        self.addCleanup(reopened.close)
+        with mock.patch.object(context, "_qualified", side_effect=consumed):
+            with self.assertRaisesRegex(ContractRefusal, "no live qualification grant"):
+                self.admit(reopened)
+        self.assertTrue(seen[-1])
+        self.assertIsNone(context._grant_consumer(reopened, "qualification-regression"))
+        # A transient precommit fault did not consume or poison the request.
+        self.assertEqual(self.admit(reopened)["status"], "admitted")
+        self.assertIsNotNone(context._grant_consumer(reopened, "qualification-regression"))
+
+    def test_authority_and_workspace_object_are_bound(self):
+        self.candidate()
+        grant = context.qualification_grant_of(self.control, "qualification-regression")
+        self.assertEqual(grant["deployment"]["authority_uuid"], UUID)
+        self.assertEqual(grant["deployment"]["workspace_path"], str(self.storage))
+        facts = context._facts(self.control, self.jobs, self.port, self.attempt_id, self.writer["writer_id"], self.profile_digest, live=True)
+        moved = self.storage.with_name("original-workspaces")
+        self.storage.rename(moved)
+        self.storage.mkdir(mode=0o700)
+        with self.assertRaisesRegex(ContractRefusal, "no live qualification grant"):
+            context._qualified(self.control, self.jobs, facts, context.context_profile_of(self.control, self.profile_digest), 0, context._id("context", facts["identity"]))
+
+    def test_wrong_authority_grant_cannot_be_spent(self):
+        self.profile_digest = context.certify_context_profile(self.control, profile(qualification="candidate"))["profile_digest"]
+        context.authorize_qualification_run(self.control, run_id="wrong-authority", profile_digest=self.profile_digest, storage_path=str(self.private), authority_uuid="another-authority", job_id="context-job", note="deterministic negative")
+        with self.assertRaisesRegex(ContractRefusal, "no live qualification grant"):
+            self.admit()
+
+    def test_competing_context_consumes_between_selection_and_commit(self):
+        self.candidate()
+        facts = context._facts(self.control, self.jobs, self.port, self.attempt_id, self.writer["writer_id"], self.profile_digest, live=True)
+        other = copy.deepcopy(facts)
+        other["identity"]["line_id"] = "independent-second-line"
+        other["attempt_id"] = other["assignment"]["runtime_attempt_id"] = "independent-second-attempt"
+        other["writer_id"] = "independent-second-writer"
+        owner = context._id("context", other["identity"])
+        import uuid
+        payload = dict(other, generation=0, mode="open", predecessor=None, conversation_id=str(uuid.uuid5(uuid.NAMESPACE_OID, owner)), qualification_run="qualification-regression")
+        use = context._id("context-use", [owner, other["attempt_id"], 0])
+        original_transition, original_facts = context._transition, context._facts
+        def facts_at_boundary(control, jobs, authority, attempt, writer, profile_digest, *, live):
+            # Two independently valid assignment snapshots are supplied at the
+            # assignment boundary; grant selection and both commits are real.
+            return other if attempt == other["attempt_id"] else original_facts(control, jobs, authority, attempt, writer, profile_digest, live=live)
+        raced = []
+        def interleaved(control, **arguments):
+            if arguments["action"] == "admit" and not raced:
+                raced.append(True)
+                original_transition(control, action="admit", context_id=owner, use_id=use, expected_revision=0, payload=payload, check=lambda: context._check_admission(control, self.jobs, self.port, owner, payload))
+            return original_transition(control, **arguments)
+        with mock.patch.object(context, "_facts", side_effect=facts_at_boundary), mock.patch.object(context, "_transition", side_effect=interleaved):
+            with self.assertRaisesRegex(ContractRefusal, "no live qualification grant"):
+                self.admit()
+        self.assertEqual(context._grant_consumer(self.control, "qualification-regression"), owner)
+        self.assertEqual(len(context._history(self.control)), 1)
+        reopened = ControlStore.open(self.path, incarnation="race-reopen", clock=lambda: NOW)
+        self.addCleanup(reopened.close)
+        with self.assertRaisesRegex(ContractRefusal, "no live qualification grant"):
+            self.admit(reopened)
+        self.assertEqual(len(context._history(reopened)), 1)

@@ -1,5 +1,7 @@
 # V12: Prepare production context qualification packet
 
+Latest owner adoption sequence (2026-09-22): [finish this Work before serious development](OWNER-SERIOUS-WORK-GATE-20260922.md). This supersedes prompt's parallel ordinary-Job recommendation, without changing the bounded recall-only experiment or claiming production certification.
+
 Work: 2b077949-W177936. Consumer: W161234, contributing to W2.
 
 ## 2026-09-15 — owner-selected parallel preparation
@@ -1656,3 +1658,874 @@ This establishes conditional first priority for existing W177936 and supersedes 
 ## 2026-09-21T14:03:25Z — owner selects integration then session reuse
 
 Owner approves the recommended sequence: integrate the independently accepted Job5 result, then resume this Work as first development priority. W202663 FINDING entry at the matching timestamp records the accepted result and integration authority. This supplies the continuation selection previously conditional on success; it does not claim the original deadline was met. Keep W177936 sequenced after integration preparation and explicitly route it when that input is ready. Revalidate existing partial candidate, model identity and custody/restoration gaps before implementation; schedule review-feedback correction to the original implementer session with independent reviewer execution kept separate. No blanket live run or production enablement is authorized by this ordering. Preserve historical evidence and deferred qualification failures.
+
+## 2026-09-21T14:37:12Z — owner resumes bounded session-reuse development
+
+Owner reports W202663 closed after host verification passed and commit 2f121a49, explicitly unparks W177936, then instructs "let's proceed". Canonical detail confirms W177936 queued and unclaimed. Recorded by baton.prompt: proceed through the configured implementation route with revalidation of the full retained dossier, candidate183524, subsequent runtime changes, and model/session custody and restoration gaps before selecting exact implementation paths. This supersedes the Sep16 no-further-development disposition and Sep21 pending-integration/parked instructions for this bounded continuation; historical failed evidence and unqualified production status remain intact.
+
+The intended behavior is a separately scheduled correction execution that receives independent review feedback and resumes the original implementer's Claude conversation. Reviewer sessions remain separate; no automatic verifier-driven retry loop is selected. Reuse valid existing implementation and evidence, pin exact changed paths and coordinate ownership, implement the bounded missing behavior with focused deterministic verification, then pass to baton.bug for independent review and baton.decide for the owner decision. Any remaining provider-specific qualification must identify its concrete question and return a reviewable execution proposal; this continuation does not authorize live calls, deployment enabling, broad hardening, worker-onboarding features or Git mutations. Do not promise cache savings without measurement. Preserve all consumed identities and prior candidate/evidence bytes.
+
+
+## 2026-09-21T14:46Z — resumption revalidation (claim230687): the machinery shipped while this Work was parked
+
+Full record in REVALIDATION-230687.md; design pinned in PLAN at the
+matching timestamp, before any implementation-path selection, as the
+owner's 14:37:12Z resumption requires. Read-only this claim: no test,
+live call, engine act, identity or byte of the retained evidence was
+touched.
+
+FINDING: the current runtime already implements and deterministically
+proves the session-reuse mechanics this dossier's five consumed
+identities were qualifying offline — certified context profiles, the
+closed one-shot serving argv (`--session-id` open / `--resume` restore /
+pinned `--model`), derived conversation identity, generational
+saved-state restoration under fresh HOMEs, strict serving receipts, and
+a composed correction-round test in which the second implementation
+episode resumes the SAME conversation with `--resume` and the saved
+state continues (turn 1 → turn 2). Candidate-183524 remains preserved,
+unreviewed offline evidence; its custody findings informed the shipped
+design and its fixture bytes are not the integration path.
+
+THE ONE MISSING BOUNDED BEHAVIOR against the owner's intended semantics:
+the restore prompt carries no review feedback — the resumed conversation
+is re-sent the ORIGINAL task text and the independent review's findings
+reach the implementer nowhere. The pinned correction routes the frozen
+changes-requested findings (digest-checked, bounded) into a
+feedback-bearing restore prompt on both the manager and worker sides,
+delivered as one read-only file in the context-use root, with the
+EXISTING prompt/argv digest gates providing end-to-end tamper evidence —
+five owned paths, named in PLAN, with the deterministic positive and
+negative cases enumerated. The remaining provider-specific live
+qualification is restated as a concrete separate proposal
+(REVALIDATION-230687.md §4), executable only after that behavior exists
+and is reviewed. No cache savings are promised; receipts carry the usage
+to measure.
+
+## 2026-09-21T14:49Z — independent resumption review corrects readiness account
+
+baton.rvpc claim230731: review-2026-09-21T14-48-16Z.md requests corrections
+to REVALIDATION-230687.md's preparation account. The missing feedback prompt
+is confirmed; no implementation candidate was submitted or accepted. The owner
+has already selected bounded development, and the five-path deterministic
+feedback slice can proceed with exact file ownership and the review's provenance,
+bounded-reading and replay/adoption acceptance details.
+
+**Confirmed correction, explicitly superseding the preceding "one missing"
+readiness characterization:** production profile qualification is still refused
+by provider_context._profile; context_delivery supports manager-UID custody only;
+OciAdapter._context_execution unconditionally refuses real context execution.
+The composed test mocks that refusal and uses synthetic same-UID state/provider
+output. It is useful deterministic evidence, not proof of cross-UID production
+readiness. These prerequisites must remain in the plan; the live two-turn outline
+is not executable merely after feedback implementation. No guard relaxation or
+additional product path is authorized by this review.
+
+**Confirmed evidence correction:** context receipt/2 has no token/cache/usage
+fields. This supersedes the preceding claim that those receipts already carry
+usage. Name a separately retained, correctly bound artifact if one is to support
+a future measurement; no new measurement implementation is selected here.
+
+REVIEW-EVIDENCE-230731.json binds source hashes at HEAD 2f121a49 and all 14
+matching current/retained checks from EVIDENCE-183524.json. Candidate183524
+stays unreviewed, all five identities stay consumed, and historical failed
+model/custody evidence stands. Reviewer changed only this dossier's review,
+evidence and attributable FINDING/PLAN additions; no PROGRESS/product/test or
+retained candidate edit. New tests/provider/engine spending 0s and no owned
+runtime process; all historical costs unchanged. Return baton.decide per the
+current handoff, recommending the bounded feedback implementation plus the
+corrected remaining-prerequisite account.
+
+
+## 2026-09-21T15:55Z — the feedback behavior implemented and proven (claim231009)
+
+Per owner 14:37:12Z and review-2026-09-21T14-48-16Z.md's confirmed gap and
+pinned acceptance details (no further architecture gate). Full record:
+FEEDBACK-EVIDENCE-231009.json. THE BEHAVIOR: a restore-mode context
+invocation now carries the independent review's findings in its prompt —
+resolved by the admission's own committed provenance (the exact verdict
+that opened this attempt, never a fresher lookup), read from the verdict's
+retained accepted custody against the frozen result manifest's bytes and
+digest, bounded in UTF-8 bytes with the report read bounded separately,
+composed identically by the manager's `context_prompt` and the worker's
+`_prompt` twins, delivered as one never-overwritten `feedback` file in the
+context-use root, and held end-to-end by the EXISTING prompt/argv digest
+gates so a tampered, missing, stray or substituted file refuses BEFORE the
+provider runs. Proven: 41/41 in the context suite — the composed
+correction case asserts the resumed conversation's actual second prompt
+carries the review's exact findings and the opening turn's does not, plus
+the tampered/missing/stray/oversized/wrong-verdict/replay negatives and
+twin equality; adjacent suites 227 + 16 green; candidate image
+sha256:f5d6ee20…. Twelve pre-existing dirty-tree stage_execution fixture
+errors were measured to reproduce with HEAD copies of every changed file
+substituted in — not this claim's.
+
+**Account corrections per review230731, recorded plainly:** R1 — the live
+two-turn qualification outline is NOT executable after this change:
+production profile qualification, cross-UID custody and real OCI context
+execution remain guarded, unimplemented prerequisites whose paths get
+their own pinned design round before any edit. R2 — the receipts-carry-
+usage claim is WITHDRAWN (provider-context-receipt/2 has no usage member);
+the exact retained usage artifact for a future measurement decision is the
+attempt room's `provider.stdout.log` (the CLI's one-shot result JSON with
+usage and total_cost_usd, attempt-bound by its room path, already
+hash-recorded in W202663's job-4/job-5 outcome evidence). No live call,
+guard relaxation, identity consumption or retained-byte change this claim.
+
+
+## 2026-09-21T15:53:45Z — independent feedback implementation review231132
+
+review-2026-09-21T15-53-45Z.md requests one bounded correction: the worker's
+new feedback open lacks O_NONBLOCK, so a FIFO blocks before fstat, byte bounds
+and the provider-turn timeout. A real synthetic FIFO reproduced the hang;
+subprocess timeout killed and waited for the child after 2 seconds. Add the
+nonblocking open and bounded restore/open regression within selected paths.
+This is the current correction, superseding awaiting acceptance of claim231009;
+no production guard relaxation or wider transport change is selected.
+
+All 41 focused context tests passed independently (15.585s). An extra composed
+manager-reopen and preparation-replay probe preserved the committed binding and
+served the exact review findings once. Final two-probe run 3.038s; preliminary
+reviewer harness iterations 0.788s/2.781s/2.757s are recorded honestly in
+REVIEW-EVIDENCE-231132.json. Sum of rounded test durations 24.949s, wall overhead
+unmeasured; no live model/engine, image build or identity consumption. Children
+were terminated/reaped and synthetic fixtures cleaned by their owning helpers.
+
+Review230731's readiness and receipt-usage account corrections are accepted.
+The delivered feedback file is actually 0600 (not read-only); its prompt/argv
+digests enforce content integrity. Implementer PROGRESS still ends at claim183524
+and needs the attributable current implementation/correction account. Reviewer
+has not edited it. Source hashes and the durable reproduction are recorded;
+product, tests, retained candidates and Git remain untouched by this review.
+Return baton.decide per the handoff with exact in-scope correction, then fresh
+independent acceptance. Production prerequisites and all consumed identities stand.
+
+
+## 2026-09-21T17:52Z — review231132 R1 corrected (claim231827)
+
+`claude_agent._context_feedback` opens the feedback name with
+`O_NONBLOCK` now: review231132 measured that a FIFO standing there
+blocked the open itself, before the fstat, the byte bound and the digest
+gates — a hang where every neighbouring check is a refusal. The
+nonblocking open cannot block, the fstat refuses every non-regular file
+by name, and two new REAL-FIFO regressions prove it on both modes plus
+the composed correction turn (refusal before the provider, no call, no
+hang): context suite 43/43, adjacent gates 237 OK. Wording corrected
+in place: the transport is a 0600, digest-bound use file, not a
+read-only one. The candidate image is refreshed from the corrected
+source (sha256:e84a033c6600…, adapter e42b2728…), superseding f5d6ee20.
+The owed implementer PROGRESS entries for claim231009 and this
+correction are appended. Zero provider/engine spend; no identity
+consumed; every retained byte preserved.
+
+## 2026-09-21T17-49-06Z — independent review231842 accepts bounded feedback slice
+
+review-2026-09-21T17-49-06Z.md and REVIEW-EVIDENCE-231842.json bind the accepted four-path
+source/test candidate and retained patch. R1 FIFO open is corrected with
+O_NONBLOCK; real FIFO tests cover both modes and a composed refusal before
+provider invocation. All43 context tests pass independently,16.357s,exit0,
+no timeout; diff check clean. This explicitly supersedes review231132's
+withheld acceptance for that bounded correction. Prior evidence remains intact.
+
+Production profile/model qualification, cross-UID custody and real OCI context
+admission remain guarded prerequisites. Work stays open; return baton.decide
+for next bounded design/path selection, not live execution or satisfying closure.
+PROGRESS additions and transport wording are verified. Candidate image refresh
+is author-reported, not independently extracted or selected here. No new live
+model/engine/build or identity consumption; historical costs unchanged.
+
+
+## 2026-09-21T18:32Z — the three prerequisites pinned; packet designed (claim232082)
+
+Per the accepted review's disposition, QUALIFICATION-DESIGN-232082.md pins
+the design and exact path boundaries for everything that still stands
+between the accepted feedback slice and a live qualification: (1)
+evidence-driven production profile certification — a "production"
+qualification is certifiable only from a retained strict qualification
+receipt, minted by the packet run itself, with `provider_context.py` and
+the context suite as the whole path; (2) cross-UID custody as an OWNER
+DECISION with two pinned branches — recommended Branch A records that the
+shipped W194457 shared execution identity makes the existing same-UID
+custody correct rather than a stopgap, closing the prerequisite by
+decision with no code change; Branch B (two UIDs return) maps
+candidate-183524's accepted traversal-not-contents findings onto exact
+`context_delivery.py` paths and is not recommended before first live
+evidence; (3) real OCI context admission as a NAMED PRECONDITION LIST in
+`oci.OciAdapter._context_execution` and `single_worker._context_preflight`
+only — certified profile (or the one-run owner selection), valid custody
+per the §2 decision, and the composed mount boundary, each refusing by
+name. The concrete packet is fully specified: one owner-executed
+two-turn open→changes-requested→restore run through the real serving
+path on the then-current independently selected image, fresh sixth
+identity, strict both-turn receipts including restoration from the
+manager-reconstructed minimal state and conversational continuity through
+the feedback-bearing restore prompt, 180 s/turn, 600 s total, no retry,
+report-and-hold, evidence hash-bound before any certification consumes
+it. Nothing outside the dossier was edited; no guard, identity or
+retained byte moved. Next: baton.decide selects the §2 branch and the
+implementation slice.
+
+## 2026-09-21T18:29:21Z — independent prerequisite design review232098
+
+review-2026-09-21T18-30-00Z.md finds the direction useful but the assigned
+implementation and executable qualification packet incomplete. This supersedes
+claim232082's characterization of the packet as fully specified: no executable,
+manifest or exact owner command is delivered, and the one-run qualification
+selection still lacks durable binding/consumption/replay semantics.
+
+Confirmed from W194457 OWNER-TRUSTED-IDENTITY-20260917.md and current run_vector:
+shared manager/worker execution identity is already selected. Branch A follows
+existing authority; no new owner branch gate or automatic mapping probe is
+required. This explicitly corrects earlier reviewer wording that treated new
+cross-UID custody implementation as an inherent prerequisite. Preserve cheap
+configuration checks, private roots, confinement and honest access diagnostics.
+Candidate183524 remains unreviewed; describing its findings as accepted does not
+supply technical acceptance.
+
+Continue already-authorized bounded implementation after pinning the concrete
+candidate-profile/one-run authorization path through all profile consumers,
+full-configuration evidence binding and independent certification, with real-guard
+deterministic positives/negatives. Then deliver the executable packet, exact
+state/continuity checks, safe evidence custody and owner command. No live run or
+production enabling selected. Accepted feedback and consumed identities unchanged.
+Source review only, new test/provider/engine/build spending0s, prior costs intact.
+REVIEW-EVIDENCE-232098.json binds inspected sources and owner ruling. Return
+baton.decide per handoff, recommending baton.impl continuation under existing
+scope rather than another branch-selection cycle.
+
+
+## 2026-09-21T18:40Z — the qualification contract recorded (claim232133)
+
+Per review-2026-09-21T18-30-00Z.md's sequence (record the concrete
+details, then focused tests, then the exact packet), QUALIFICATION-
+CONTRACT-232133.md records the implementable contract: the three-value
+profile vocabulary; the one-run authorization act with its exact operands
+(full-config candidate profile digest, deployment binding, job binding,
+bounded note), its consumption INSIDE the admission commit with per-
+context semantics so the two-turn run is one authorization, its replay
+rule and its no-resurrection failure semantics; full-config certification
+requiring both strict receipts, the finalized generation-1 manifest
+(state layout, continuity, exclusion) and the retained usage artifacts,
+refused while the context is unretired; the behavior table for EVERY
+current profile consumer with the centralization rule (the gate lives in
+the admission and the launch boundary only); the fake-engine test matrix;
+and the packet's executable/manifest/one-line-command/assertion shape.
+Corrections adopted: Branch A needs no new owner decision (W194457 and
+run_vector already select the shared identity — the cross-UID
+prerequisite closes on the existing ruling); the 232082 "fully specified"
+packet claim is withdrawn; the unresolved real-CLI model-field evidence
+is carried into the contract explicitly — certification requires the
+strict match and fails honestly if the pinned build still reports models
+the profile does not name. Zero spend; nothing outside the dossier
+touched; next step in the same authorized continuation: implement
+against this contract, then the §5 tests, then the §6 packet.
+
+## 2026-09-21T18-35-45Z — independent contract review232154
+
+review-2026-09-21T18-35-45Z.md and REVIEW-EVIDENCE-232154.json.
+
+Contract review232154 records three concrete corrections for the already-
+authorized implementation: cap the consumed context grant to exactly open plus
+one restore (same-context alone allows further generations); give each separately
+selected run an identity independent of profile_digest (profile-only operation ID
+cannot create another grant for an unchanged profile); bind certification to the
+independently accepted continuity outcome, not a state manifest alone.
+
+Implementation, focused real-guard tests and executable packet remain incomplete.
+The previous review required recording details before code, not another planning-
+only handoff. Continue all three in one authorized implementation episode, pinning
+exact paths and routine design choices without a new approval gate. Return through
+independent review with actual code, results, manifest and owner command. No live
+execution/enabling. Accepted feedback hashes unchanged; no new verification spend;
+prior evidence, guards and five consumed identities preserved.
+
+
+## 2026-09-21T19:05Z — qualification machinery implemented and proven (claim232193)
+
+Per review232154's directive, the continuation IMPLEMENTED rather than
+planned: the three-value vocabulary, the run-identity-keyed one-run
+authorization (R2), admission-side consumption committing inside the
+admit payload with the generation cap (R1: the grant covers the open and
+one correction restore; a third generation refuses by name), full-config
+certification demanding retirement and the independently ACCEPTED
+continuity outcome (R3), and the launch boundary's nominal ExecutionGrant
+minted only for candidate/production admissions — deterministic profiles
+still refuse real execution by name and the deterministic suite is
+byte-for-byte untouched. Proven: 70/70 in the context suite including the
+composed candidate flow (open consumes, restore rides, both journaled),
+plus 536 adjacent tests green. Changed paths: provider_context.py,
+oci.py, single_worker.py, test_claude_context.py — within the pinned
+scope. QUALIFICATION-IMPL-232193.json records hashes and the matrix. The
+one remaining piece is the §6 executable packet, now directly buildable
+on the real acts; the manager-side changes need a runtime bundle rebuild
+before any deployment consumes them, and the worker image is unchanged.
+Zero provider/engine spend; no identity consumed; every guard, retained
+byte and consumed identity preserved.
+
+## 2026-09-21T18-55-18Z — claim232257: qualification implementation needs correction
+
+Independent review `review-2026-09-21T18-55-18Z.md` requests changes: historical admission parsing breaks; certification accepts damaged retained state and unbacked evidence; grant exclusivity needs commit-time checking; executable packet remains absent. Exact hashes and synthetic verification are in `REVIEW-EVIDENCE-232257.json`; counterexamples in `review-probe-232257.py`. Existing authorization covers correction, focused tests and packet preparation. No live execution/enabling selected, no renewed shared-identity decision required. Prior accepted feedback scope and historical evidence are preserved.
+
+## 2026-09-21 — owner selects codx-pc takeover after Claude usage limit
+
+Owner confirms Claude usage limit and selects new implementer codx-pc, canonical baton.codxpc. Setup W232334 now has a healthy idle runtime on baton.codx. Takeover remains pending exact owner recovery of Claude episode232300. New claimant must preserve and revalidate all existing partial changes, address R1-R4 of review-2026-09-21T18-55-18Z.md, complete focused deterministic verification and executable qualification packet, and return through baton.bug for independent review. Existing no-live/no-production-enabling/no-Git-mutation boundaries remain. This changes the selected implementer, not the product scope or acceptance status.
+
+
+## 2026-09-21 — codxpc claim232393: revalidation and correction boundary
+
+Owner recovery232389 and reroute232390 succeeded before claim232393. Read the
+complete T177936 discussion, current handoff and bound FINDING/PLAN/PROGRESS.
+The current tree retains the reviewed qualification implementation and accepted
+feedback slice; no additional completed correction is recorded from claim232303.
+Review232257 R1–R4 remain the actionable scope. Earlier planning-only return
+instructions are superseded by owner232300/232390.
+
+Pin before edits: provider_context.py owns compatible historical admission
+decoding (preserve payload/signature bytes), commit-time grant revalidation on
+fresh and replayed requests, deployment binding to authority and both pinned
+storage objects, and certification from actual retained strict receipts,
+generations, provider results and an independently recorded review verdict.
+Existing product consumers oci.py/single_worker.py may change only as required
+for live grant rechecking. Focused regressions belong to test_claude_context.py
+and test_provider_context.py; the latter is added for persisted historical and
+transaction interleaving coverage with the real owner journal. Packet executable,
+manifest, deterministic packet tests and exact operator instructions belong to
+this dossier. Preserve prior authors' edits and all historical candidates.
+No live execution, production enabling or Git mutation.
+
+## 2026-09-21T19:25:28Z — baton.codxpc claim232393 partial correction result
+
+R1–R3 candidate corrections and their exact evidence contract are recorded in
+HANDOFF-232393.md and CORRECTION-EVIDENCE-232393.json. Independent acceptance
+is still owed. This explicitly supersedes any reading of claim232193 as complete
+certification acceptance: retained evidence is now revalidated, and the current
+report encoding remains subject to review. R4 is undelivered; exact missing
+inputs and executable scope are enumerated in that handoff. No live authority
+or independent image acceptance is inferred. Historical decisions stay intact.
+
+
+## 2026-09-21T19-29-24Z — claim232519: bounded corrections accepted; R4 remains
+
+`review-2026-09-21T19-29-24Z.md` and `REVIEW-EVIDENCE-232519.json` record independent review: R1 historical bytes/replay, R3 transactional grant/deployment checks and R2 retained independent certification evidence accepted within the tested correction scope. 132 focused tests passed in 34.052s. This supersedes the prior open R1–R3 correction status, not the complete-packet/live qualification gates. R4 executable/private-evidence transport/manifest/exact command remains incomplete; synthetic accepted reports do not establish actual continuity evidence delivery. No live/build/enabling authority inferred.
+
+## 2026-09-21 — codxpc claim232542: R4 transport implementation boundary
+
+Revalidated all seven review232519 hashes exactly; R1–R3 remain accepted. Read
+the current handoff and all 30 discussion messages with pagination. R4 continues
+under the existing owner selection. Own new qualification_packet.py,
+qualification-review-232542.py and test_qualification_packet.py in this dossier,
+plus additive composed transport coverage in test_claude_context.py if required.
+The packet must collect the actual provider result and pre-restore non-context
+inputs; an independently invoked bounded verifier reads a digest-bound capsule
+and emits the existing qualification-review report. No caller-supplied recall
+verdict is accepted. The capsule is published only after turn two, outside the
+implementation mounts. The composed fake-provider test must feed the verifier's
+actual output through the normal review workload, receipt and verdict pipeline.
+No test result is labeled live. No production enabling or old identity reuse.
+The current serving review has no manager-private evidence input; any remaining
+live transport gap must be named rather than hidden by a fabricated report.
+
+## 2026-09-21 — claim232542 composed guard finding (confirmed)
+
+R4's actual candidate launch with the real guard fails before engine start:
+AttributeError: OciAdapter has no context_document. Constructor computes a local
+context_document but _context_execution reads self.context_document. Previous
+isolated guard tests supplied a stand-in carrying that attribute; they missed
+the real constructor. The failing new transport run (3 tests, 0.526s, two failures)
+is retained as evidence. Extend this claim's exact source ownership to oci.py:
+retain the validated context document at construction for the guard. No bypass
+or broader OCI behavior change. Verify via the actual composed launch and
+adjacent OCI focused suite. This qualifies the earlier bounded guard acceptance;
+it is not evidence of any live launch.
+
+
+## 2026-09-21T23-29-45Z — claim234131 operational return and independent image verification
+
+See `review-2026-09-21T23-29-45Z.md` and `IMAGE-VERIFICATION-234131.json`. Supplied image config e84a033c… and all14 layer diff IDs verified; seven effective worker files match current source, including reviewed claude_agent e42b2728…. This supersedes author-only byte-verification status, not rebuild/live qualification or manager artifact acceptance. R4 partial tree preserved without acceptance. M234126 records resumed-held-claim policy ambiguity; protocol refusal is not a demonstrated product defect. Proposed exact continuation rule awaits owner/deployment confirmation; no policy edited by reviewer.
+
+## 2026-09-21 — claim234277: capture coverage and live transport boundary
+
+Confirmed by source revalidation: the partial capsule scans workspace file
+contents but omits directory names, and review() does not check file names for
+the recall value. An empty directory or filename could therefore supply recall
+while second_inputs_excluded is reported true. Correct this dossier helper to
+retain bounded names and reject the value in every captured name as well as
+contents; add focused regression coverage. This narrows an unsound evidence
+claim without changing the provider predicate. The capture remains explicitly
+limited to the roots supplied; no claim of all non-context inputs follows.
+
+The live transport boundary is also concrete: claude_agent._review_prompt reads
+the frozen task and checkpoint source; stage_execution's review ending consumes
+the review worker's frozen report via end_review_from_result, and explicitly
+rejects a caller-supplied verdict as independent evidence. The capsule lives in
+manager-private custody outside both implementation mounts. The current test
+replaces the review provider call with a host subprocess that can read it; that
+is deterministic seam coverage, not an installed transport in image e84a033c.
+No reviewed field/mount currently delivers this capsule to that image, and its
+seven verified worker files do not contain the new verifier. Do not fabricate
+a report, inject a manager file into the worker's checkpoint, or treat the
+retired review_verdict operand as a workaround. A final live packet needs a
+concrete separately runnable reviewer artifact/transport and all non-context
+input capture at the launch boundary. These are not established by the passing
+three tests. Preserve this limitation in any handoff.
+
+claim234277 capture follow-through: OCI mounts the nominated source separately
+at /input/source over the input root. Scanning the workspace alone also omits
+that source and the frozen input root. Require all three roots explicitly in
+capture_inputs; transport each tree under a closed label and refuse omitted
+labels during review. The composed deterministic case supplies the source from
+the real prepared SourceBoundary and inputs/workspace from assignment roots.
+This corrects capture coverage, but does not supply the missing live pre-launch
+capture hook or reviewer mount/artifact. Credentials are not inspected; they are
+freshly delivered independently of the recall value, not captured evidence.
+
+
+## 2026-09-22T00-00-58Z — claim234346: bounded helper review; exact transport/artifact boundary
+
+`review-2026-09-22T00-00-58Z.md` accepts the capsule schema2/name/root coverage and OCI constructor corrections within deterministic test scope (4 tests,2.598s). `MANAGER-INVENTORY-REVIEW-234346.json` independently matches81 bundle files. R4 remains incomplete: current host-provider substitution does not install private evidence transport in an independent reviewer workload. Review records a concrete typed review-only delivery/entry-artifact proposal and the exact image-build/path boundary for baton.decide; no new live-model approval requested. Earlier statement that manager inventory was only author-verified is superseded for file hashes only; embedded-code/identity proof remains attributed.
+
+
+## 2026-09-22T00:20:58Z — owner selects isolated canary qualification
+
+Owner proposes excluding alternative persistence by construction, then confirms the prompt clarification with "yes": preserve the designated provider session store because that store is the intended conversation persistence channel. Use a random canary supplied only in the first conversational prompt, read-only working/source inputs and isolated writable scratch. Record the exact provider session/conversation identity and Baton attempt/run bindings. Stop the first worker, discard only test-owned scratch, and launch a fresh worker with clean workspace/input roots, empty scratch, and only the allowlisted provider session state restored. Resume the recorded provider session ID; the second prompt asks for the canary without repeating it. Verify both the routing/session binding and exact recall. Provider identity continuity does not require reusing the worker process or attempt identity. Check that no first-turn non-session filesystem state crosses the boundary; retain permitted protected evidence and record hashes/locators, not private session contents.
+
+This explicitly supersedes the R4 requirement/proposal in review-2026-09-22T00-00-58Z.md and intervening implementation notes to build a general three-root private-evidence transport and a dedicated reviewer image solely for this recall test. Demonstrate isolation using the controlled qualification fixture instead. Preserve accepted feedback, grant/replay/certification fixes and historical evidence; do not delete earlier records or rewrite accepted history. Independent evaluation of the actual qualification result remains required, but a new in-container verifier artifact is not a prerequisite to this bounded test. Never substitute a synthetic result for live evidence or claim token/cache savings from recall alone.
+
+Continue the already-authorized bounded implementation/packet preparation under baton.codxpc: revalidate current partial code, pin exact affected paths, adapt the smallest qualification fixture and focused deterministic tests, then provide a concrete independently reviewable packet and exact owner command. Preserve the selected two-turn, 180s per turn/600s total/no automatic retry limits and consumed historical identities. Identify necessary provider/session writes explicitly rather than accidentally forbidding the session store itself. No live provider run, production enabling, general hardening, arbitrary host cleanup or Git mutation is selected by this ruling. Return through baton.bug and then baton.decide.
+
+## 2026-09-22 — claim234516: isolated canary implementation boundary
+
+Revalidated owner234513 and the 00:20:58Z ruling against the current tree.
+The older fixture reuses a writable workspace and cannot prove the selected
+isolation. Own only new isolated_canary.py, test_isolated_canary.py,
+CANARY-MANIFEST-234516.json, CANARY-OPERATOR-234516.md and evidence/handoff
+records in this dossier, plus attributable FINDING/PLAN/PROGRESS additions.
+Reuse the unchanged strict terminal/inventory contract as a digest-bound
+dependency. No product source edits or image build are needed: mount the
+fixture entry read-only into the independently verified image.
+
+Each turn uses a distinct container and newly created empty read-only task,
+source and workspace roots; /tmp is disposable tmpfs. Only the exact
+.claude/projects/-output/<session>.jsonl is reconstructed into a new writable
+provider HOME. Fresh credential delivery remains separate. All other first
+HOME files remain private evidence and never reach turn two. Require inspected
+whole-container stop before reading/copying state or admitting turn two.
+The bounded fixture records Work/run/two fixture-attempt bindings explicitly;
+these are not fabricated v12 scheduler assignments or serving receipts.
+Per the superseding isolated-test ruling, independent review evaluates the
+protected fixture evidence outside the container. No automatic certification
+or production enablement follows a recall match. The older full-production
+certification contract and accepted guard tests remain separate evidence.
+
+## 2026-09-22 — claim234516: isolated packet awaiting independent review
+
+Implemented the owner234513 isolated canary selection in isolated_canary.py,
+with test_isolated_canary.py (nine deterministic tests), CANARY-MANIFEST,
+CANARY-OPERATOR, CANARY-COMMAND and CANARY-EVIDENCE-234516. Exact handoff is
+HANDOFF-234516.md. All old product corrections, tests and evidence preserved.
+This supersedes the previous current-action requirement to build general
+private-review transport/dedicated image for this test, per the owner's ruling;
+it does not supersede the production certification contract. The fixture emits
+no certification and does not fabricate v12 scheduler identities or receipts.
+
+Final nine tests pass; exact-digest offline audit and git diff --check pass.
+New measured test total1.0417039630701765s across three iterations; retained
+logs name the early corrected resource warning and expected timeout-child
+traceback. Historical costs/unknowns are preserved in CANARY-EVIDENCE and prior
+records. No live model, actual engine, image build, enabling or Git mutation.
+Next: independent baton.bug packet review, then baton.decide for the prepared
+exact one-shot live command. The selected canary preparation is delivered;
+live provider/path/model/recall facts remain unobserved, and production reuse
+remains uncertified.
+
+
+## 2026-09-22T00-39-45Z — claim234621: isolated-canary packet accepted for owner selection
+
+Independent review `review-2026-09-22T00-39-45Z.md` accepts preparation under owner234513, bound to CANARY-MANIFEST-234516.json SHA256 1ad6342ab05ad765f51d251190f2a48591e15164b1170b27399ee1e63f77f62d. Nine deterministic tests pass in0.298s and exact-digest offline audit passes; hashes/limitations in REVIEW-EVIDENCE-234621.json. No live result or production certification accepted. This supersedes awaiting packet review/incomplete general R4 transport as the current action for the owner-selected isolated test only. Historical broader transport work and all earlier evidence remain intact.
+
+
+## 2026-09-22T00:44:55Z — owner selects Opus qualification packet
+
+Owner explicitly agrees to rebinding the accepted isolated-canary preparation from exhausted Fable to Opus and directs sending it to codx-pc. This supersedes Fable selection for the next proposed W177936 canary packet, not historical evidence or the previously reviewed Fable manifest. Preserve the prior reviewed packet as historical evidence and produce fresh exact model/expected-terminal bindings, manifest digest and owner command. Resolve the supported concrete Opus selector for the retained CLI, record the expected reported identity and its evidentiary limits, and keep strict model/session/result predicates; do not label unobserved live behavior verified. Pin affected paths before edits, revalidate image/CLI compatibility using existing evidence and focused deterministic checks, and return through baton.bug for fresh independent review then baton.decide.
+
+The controlled two-turn experiment remains unchanged: read-only task roots, disposable scratch, only designated session state crosses into a fresh worker, exact provider session resume and canary recall;180s per turn/600s total/no retry. No live provider call, production enabling, unrelated hardening or Git mutation is authorized. Do not rebuild/re-export unchanged image inputs merely because the selected model changed; report any concrete compatibility gap.
+
+## 2026-09-22 — claim234686: Opus variant boundary
+
+Revalidated owner234684, FINDING00:44:55Z and review234621. Preserve all
+accepted Fable packet bytes. Own a new opus-234686/ package only: copies of
+isolated_canary.py, test_isolated_canary.py, evidence/qualification_contract.py,
+CANARY-MANIFEST/OPERATOR/COMMAND-234686, supporting evidence copies and new
+model-selection/test/handoff evidence. Also append attributable parent
+FINDING/PLAN/PROGRESS. No product edits, image rebuild/export or live run.
+
+Select exact claude-opus-5 (no moving opus alias), expected reported identity
+claude-opus-5. The small canary needs no extended-context suffix. Official
+https://code.claude.com/docs/en/model-config states Opus5 requires CLI2.1.219
+or later and documents full-name pinning. Retained image2.1.247 contains the
+exact selector in its CLI binary (sha256
+5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15).
+This confirms version/selector compatibility, not current account entitlement
+or terminal output. Keep exact model/session/result and mixed-model refusal
+predicates; change only the expected model constants and packet/run bindings.
+Record source URLs and binary/package metadata in MODEL-SELECTION-234686.json.
+
+## 2026-09-22 — claim234686: Opus preparation awaiting independent review
+
+Delivered separate opus-234686/ package; exact claude-opus-5 selector and
+expected terminal identity. MODEL-SELECTION records official CLI minimum
+2.1.219 plus static retained2.1.247 binary/package evidence, without claiming
+account access or observed live model output. Accepted Fable packet is unchanged.
+Only new model constants/run/manifest/owner bindings and focused test/evidence
+additions; strict predicates, isolation and180s/600s/no-retry limits preserved.
+
+Eleven deterministic tests pass (.4138612210517749 supervisor seconds), exact
+digest audit and diff check pass. No live/engine/build/enabling/Git mutation.
+Manifest80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3.
+HANDOFF-234686.md and opus-234686/EVIDENCE-234686.json preserve exact paths,
+remaining live facts and all cumulative cost references/unknowns. Current action:
+independent baton.bug review of this Opus package, then baton.decide for exact
+run selection. This supersedes Fable as the next proposed packet only.
+
+
+## 2026-09-22T00-51-42Z — claim234722: Opus packet independently accepted
+
+`review-2026-09-22T00-51-42Z.md` accepts the bounded Opus packet preparation under owner234684, manifest SHA256 80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3. Eleven focused tests pass0.324s; exact-digest offline audit passes. REVIEW-EVIDENCE-234722.json pins reviewed bytes. Controller behavior/strict predicates are preserved; official model-config selector/minimum-CLI documentation independently checked. No live account/model/recall fact inferred, no identity consumed. Prior Fable packet and all historical evidence remain unchanged.
+
+## 2026-09-22 — owner approves the exact one-shot Opus canary
+
+Slawomir approved the recommended bounded live experiment after packet review.
+This supersedes the pending live-run selection for opus-234686 only. Approved
+manifest: 80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3;
+exact invocation: opus-234686/CANARY-COMMAND-234686.txt. Operator Slawomir
+executes under baton.slaw after a successful claim; prompt supplies the command
+and coordinates subsequent independent review through the configured route.
+
+The real-provider question is whether the exact Opus session can recall the
+canary in a clean second worker given only the designated session file. Preserve
+two turns maximum, 180 seconds per turn, 600 seconds total including cleanup,
+existing credential delivery and isolation, and no retry. Failure consumes this
+run identity; retain evidence and resolve any exact resource uncertainty without
+reusing or deleting the run roots. No production enabling or certification.
+Prompt's pre-invocation offline digest audit passed; no live execution or outcome
+is claimed by this approval. Independent protected-result review follows the run.
+
+## 2026-09-22 — operator Opus canary failed at first-turn model acceptance
+
+Slawomir executed the approved opus-234686 command and reported failed with
+retained evidence /tmp/w177936-canary-234686. completion.json reports
+4.933623595000427 seconds, interrupted=false and confirmed cleanup for both
+named attempt slots. failure.json reports strict-terminal. Independent prompt
+Docker listing by exact qualification label currently finds no containers.
+These are failure observations, not a passing qualification or recall proof.
+
+Read-only, selected-field inspection of provider-1.json found type=result,
+subtype=success, is_error=false and result exactly READY. modelUsage contains
+the expected claude-opus-5 key plus claude-haiku-4-5-20251001. The reviewed
+contract accepts only an expected-only modelUsage set; this mixed set makes
+actual_model null and fails strict-terminal. This establishes a concrete
+acceptance failure, not an authentication failure. The purpose of the extra
+model usage is not established by this inspection. No raw provider text,
+canary, session contents or credentials were exported.
+
+The first worker was stopped/removed before terminal evaluation. The second
+turn and session-transfer path were not reached. No restore behavior has been
+proved or disproved by this invocation. Run identity is consumed; preserve all
+evidence and do not retry or delete/reuse its roots. Next: independent review
+of the protected result and exact rejecting predicate, with a bounded proposed
+disposition. Do not relax the model rule, prepare another live attempt, or
+enable production reuse merely to make this result pass.
+
+
+## 2026-09-22T03:24:23Z — claim235117: failed Opus result independently assessed
+
+Review review-2026-09-22T03-24-23Z.md and REVIEW-EVIDENCE-235117.json confirm the approved manifest and reproduce strict-terminal from the retained provider bytes: success/session/READY pass, but absent direct model plus exact Opus+Haiku usage yields actual_model null. No restoration/transfer/second turn occurred. This is an accepted failure observation, not qualification. Retained stopped inspection and absent credential slots checked; current Docker absence could not be independently repeated because socket access was denied, so that live fact remains operator-attributed (M235067).
+
+Proposed smallest decision: retain exclusive-model requirement and hold for attribution research, or explicitly select a separately reviewed recall-only experiment accepting the exact observed mixed model set without a primary/exclusive-model claim. Reviewer recommends the latter only as a bounded owner-selected experiment amendment; production model/certification rules stay unchanged. No amendment, new identity or retry performed. Consumed run and historical evidence preserved. Current action supersedes pending independent failed-result review: baton.decide chooses the bounded disposition in the review. Offline validation0.0050291449997530435s; live operator4.933623595000427s separately attributed; older known/unknown costs preserved.
+
+## 2026-09-22 — owner approves bounded recall-only amendment
+
+Slawomir explicitly agrees and approves the recommended recall-only experiment
+after reviewing claim235117. This supersedes the pending choice above and the
+exclusive-model requirement for the next isolated experimental packet only.
+Production strict-model validation and certification remain unchanged.
+
+Prepare a separately bound fixture and manifest accepting the exact observed
+modelUsage set {claude-opus-5, claude-haiku-4-5-20251001}. Require expected Opus
+presence, reject missing or unknown extra models and any conflicting direct
+model field, and label the evidence mixed-model usage. Do not infer which model
+answered, claim exclusive/primary Opus use, or describe Haiku as auxiliary
+without independent evidence. Preserve exact terminal success, matching session
+identity, exact first response and second-turn recall checks, empty task roots,
+designated-session-only transfer, isolation, credential handling and cleanup.
+
+The approved real-provider question remains whether a clean second worker can
+recall the first turn's canary from only the designated restored session state.
+Deterministic tests can check the acceptance logic but cannot establish actual
+provider recall. Prepare focused deterministic positives and missing/unknown/
+conflicting-model negatives, manifest and exact operator command, then independent
+packet review and a separate owner selection of the new live invocation.
+Two turns maximum,180s per turn,600s overall including cleanup and no automatic
+retry remain unchanged. This approval authorizes preparation, not execution.
+
+Preserve failed consumed opus-234686 and its immutable packet/evidence. It does
+not become a pass retrospectively and its run roots/identity must not be reset
+or reused. Select codxpc for bounded preparation within this existing Work,
+followed by baton.bug independent review and baton.decide. No new Work, broad
+transport/image redesign, production enabling or Git mutations.
+
+## 2026-09-22 — baton.codxpc claim235340: recall-only amendment boundary
+
+Revalidated owner M235310/reroute235311 and review235117 against the current
+opus-234686 controller and its unchanged strict contract. The raw exact mixed
+set yields a structurally valid successful terminal projection with actual_model
+null; acceptance must therefore be separate experimental evidence, not a forged
+strict-model projection. Own only new recall-235340/ files (controller, copied
+unchanged strict contract, focused tests, operator/command/manifest, supporting
+provenance and measured verification), HANDOFF-235340.md, and attributable
+FINDING/PLAN/PROGRESS additions. No other product or packet path is owned.
+
+Require modelUsage to be an object with exactly claude-opus-5 and
+claude-haiku-4-5-20251001 keys. A direct model may be absent or exactly
+claude-opus-5; null, other types/names and unknown/missing usage keys refuse.
+Keep the strict projection unchanged inside an experimental terminal envelope
+labeled recall-only mixed usage and model attribution unestablished. Both the
+controller observation and independent review report this scope. No primary,
+exclusive or auxiliary-model claim. Exact success/session/result checks, worker
+isolation, state transfer, credential handling and cleanup remain unchanged.
+The new manifest binds these acceptance rules and fresh unreserved235340 roots.
+Tests exercise both-turn controller/review and raw-boundary positives/negatives;
+old Opus/Fable manifests and contract bytes must remain identical.
+
+Operational read finding: an exploratory read of opus-234686/strict_terminal.py
+returned ENOENT; that guessed filename is not a bound dependency. The manifest
+names evidence/qualification_contract.py, which is present and was read. No
+required input is missing. New test/live/engine spending at entry:0s; all prior
+measured and unknown costs remain in their original evidence.
+
+## 2026-09-22 — baton.codxpc claim235340: recall-only packet awaiting review
+
+Delivered recall-235340/ under owner M235310/reroute235311. Manifest SHA256
+`dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a`.
+Exact continuation: HANDOFF-235340.md; evidence: recall-235340/EVIDENCE-235340.json.
+This supersedes preparation-in-progress as the current action: independent
+baton.bug packet review, then baton.decide for separate exact live selection.
+
+Only the new fixture accepts exactly the selected Opus+Haiku usage pair, with
+absent or exact requested direct model. Unknown/missing models and conflicting
+direct evidence refuse. The copied strict contract is byte-identical and its
+actual_model remains null; a separate experimental envelope reports mixed usage
+and unestablished attribution. Controller observations and independent review
+both carry that scope. No production validation/certification changed.
+
+Sixteen focused deterministic tests pass in0.5140488809993258 measured supervisor
+seconds, including original isolation/cleanup/recall tests, exact pair positives,
+missing/unknown/type/direct-model negatives, strict success/session/answer checks,
+both raw result rechecks and prior packet preservation. Exit0, no timeout, owned
+process group absent. Expected child interruption traceback belongs to the
+passing timeout/cleanup case. Offline exact-digest audit, command binding and
+diff check pass; fresh roots remain absent. Original Opus/Fable bytes unchanged.
+
+No live provider, actual engine, credential/session read, build, export, enabling
+or Git mutation. Existing failed opus-234686 remains failed/consumed; its raw
+evidence was not read this turn. New test spending0.5140488809993258s; all older
+measured costs and unknowns preserved in EVIDENCE-235340.json and original cost
+records. No cumulative upper bound claimed. Remaining scope: independent packet
+review, owner selection of the exact proposed invocation, then independent actual
+protected-result evaluation. No new recall or exclusive-model fact is claimed.
+
+
+## 2026-09-22T04-02-35Z — claim235389: recall-only packet independently accepted
+
+review-2026-09-22T04-02-35Z.md accepts the owner M235310/reroute235311 amendment at manifest dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a. REVIEW-EVIDENCE-235389.json verifies all author hashes, exact command and fresh-root absence. Sixteen independent deterministic tests pass0.451 reported seconds; exact-digest audit passes. Strict projection/production rules and historical packets remain unchanged; only separate experimental exact-pair acceptance is selected. No live outcome, model attribution or production qualification inferred.
+
+## 2026-09-22 — owner selects the independently accepted recall-only run
+
+Owner replied "approved" after the accepted-packet recommendation. Slawomir is
+the operator for recall-235340/CANARY-COMMAND-235340.txt, bound to manifest SHA256
+`dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a`.
+This supersedes the pending live-selection instruction, not the recorded review.
+The selected question is isolated second-worker recall using only the designated
+session file; deterministic fixtures cannot establish actual provider recall.
+Retain the exact two-turn maximum, 180 seconds per turn, 420-second active
+controller and 600-second total including cleanup. No retry, third turn, image
+rebuild, reuse of consumed roots or production enabling is authorized.
+Independent protected-result review follows the operator run. Preserve all
+earlier failed evidence and the explicit mixed-usage/unestablished-attribution
+scope; neither approval nor a canary pass establishes production qualification.
+
+## 2026-09-22 — recall-235340 failed: authentication and lost diagnostics
+
+Operator returned failed outcome at /tmp/w177936-recall-235340. Prompt inspected
+selected diagnostic metadata: failure.json reports process-exit; completion.json
+reports 1.5016096300005302 elapsed seconds, interrupted=false, the approved
+manifest and both cleanup entries confirmed=true. An exact Docker qualification
+label listing returned no containers. The retained first-turn session has an
+assistant record with isApiErrorMessage=true and error=authentication_failed.
+No canary, credential, prompt or provider prose was published. The underlying
+authentication cause (expiry, refresh, account or provider rejection) remains
+unestablished. Turn two was not reached; no restore/recall result is available.
+The consumed identity and immutable evidence are preserved; no retry was run.
+
+Confirmed fixture diagnostic defect: invoke sends stderr to DEVNULL and raises
+process-exit on nonzero status before returning captured stdout. The controller
+therefore does not write provider-1.json or runtime-after-1.json on this path,
+and cleanup removes the container. This suppresses actionable failure details;
+the session metadata supplied the safe classification above. Independent review
+should verify retained failed evidence and propose bounded next steps, not
+launch another live run or mutate credentials or the approved packet.
+
+
+## 2026-09-22T04-28-19Z — claim235562: failed recall run independently assessed
+
+review-2026-09-22T04-28-19Z.md and REVIEW-EVIDENCE-235562.json confirm approved packet binding and one safe assistant authentication_failed metadata record. Underlying authentication cause remains unknown. No second turn, raw provider result or post-run inspection retained; full review refuses incomplete-run. Completion reports both cleanup entries confirmed and actual slots are absent; fresh Docker listing denied socket access, leaving current container absence operator-attributed. Source confirms invoke drops stderr and discards stdout on nonzero exit at both provider/engine layers; this qualifies prior fixture acceptance with a diagnostic defect, not a proven cause of auth failure.
+
+Recommendation for owner selection: bounded new-copy failure-evidence transport/capture correction with deterministic coverage, separately selected authentication diagnosis/maintenance, then reviewed fresh packet and separate live approval. No implementation or retry performed. Production serving/model-policy/certification gaps remain distinct from the unanswered isolated recall question. Serious-work sequencing gate remains. Offline validation0.0014763550007046433s and operator live1.5016096300005302s separately attributed; all historical costs/unknowns preserved.
+
+## 2026-09-22 — authentication restored; owner resumes bounded preparation
+
+After the failed run, the operator reported the host CLI error explicitly naming
+an expired OAuth session that could not refresh, then completed authentication.
+An unqualified terminal pong hit usage credits; a subsequent explicit
+`claude --model claude-opus-5 --print --permission-mode plan` pong succeeded.
+Prompt inspected only the host model setting, which remains fable[1m]; the canary
+already explicitly pins claude-opus-5. This is operator-reported current Opus
+access evidence, not a successful canary or a guarantee of future credentials.
+Do not modify the user's global model selection or repeat live auth probes.
+
+Owner then instructed "we should resume our work then". Resume codxpc preparation
+of the bounded new-copy failure-diagnostic correction from review235562 and a
+fresh exact packet. Preserve consumed packets/roots and historical failed
+outcomes. Retain bounded private stdout/stderr and exit status across both nested
+provider and engine boundaries plus obtainable stopped/cleanup observations;
+keep outward projections closed and nonsecret. Focused deterministic verification
+must preserve first-failure/no-second-turn, deadlines, output bounds and cleanup.
+No broad logging redesign, image rebuild, changed acceptance, production enabling
+or live execution is selected. Independent packet review and a separate exact
+live selection follow; further authentication investigation is not currently
+needed. This supersedes the pending owner-preparation/auth-maintenance choice,
+not the serious-work sequencing gate or the independent failed-result findings.
+
+## 2026-09-22 — owner skips another pre-run packet-review round
+
+Owner follow-up: "don't send through review if not needed - i can do the one shot".
+For this bounded correction/fresh packet, the coder completes focused deterministic
+checks and exact manifest audit, then returns directly to baton.decide with the
+command, digest, changed paths and measured results. This explicitly supersedes
+the pre-run independent packet-review route in the preceding resumption entry
+and handoff235600. Slawomir executes the one shot, not the background coder.
+Independent review of actual results remains selected afterward. Preserve existing
+isolation, private evidence, execution bounds and consumed identities. A material
+new design or safety question is reported explicitly, not silently waived.
+
+## 2026-09-22 — baton.codxpc claim235602: failure-diagnostic correction boundary
+
+Standalone claim235602 follows owner235599/reroute235600. Read all new Work
+history and discussion after the prior fully read pages, latest FINDING/PLAN,
+PROGRESS, review235562 and OWNER-SERIOUS-WORK-GATE-20260922.md. Revalidated the
+two nested invoke calls: both discard stderr and nonzero stdout, and execute
+cannot retain post-state when start/attach raises. The recorded defect stands.
+
+Own only new diagnostic-235602/ (copied controller, unchanged strict contract,
+focused tests, manifest/operator/command and evidence), HANDOFF-235602.md, plus
+attributable parent FINDING/PLAN/PROGRESS updates. Preserve recall-235340, Opus,
+Fable and every consumed packet/root. No product or global setting changes.
+
+Capture each process stream to at most2MiB with an explicit truncation marker,
+exact observed exit status and closed failure reason. Drain both pipes under
+one deadline. A worker envelope transports bounded base64 records for version
+and provider invocations; its Docker transport gets a separately bounded12MiB
+capacity for encoding overhead, not a larger provider-output allowance. Keep
+raw bytes private. Independently validate envelope shape, run/turn/session and
+both records at the controller; nonzero/timeout/truncation never qualifies.
+Capture obtainable post-runtime and cleanup inspection before owned removal,
+including nonzero exits; inspection failure remains explicit uncertainty.
+No failed first turn reaches state transfer or turn two. Outward diagnostics
+contain only closed reasons/status/bounds and protected locators, never raw text.
+
+Tests will exercise the actual nested subprocess transport with synthetic
+nonzero stdout/stderr, malformed/empty JSON, timeout and overflow, plus the
+existing acceptance/isolation/cleanup gates and immutable historical bytes.
+180s provider/420s active/600s total/no retry unchanged. Authentication restored
+is operator evidence only; no new auth probe or live run selected. New measured
+verification starts0s; all historical costs/unknowns remain separately retained.
+
+## 2026-09-22 — baton.codxpc claim235602: diagnostic packet awaiting review
+
+Delivered diagnostic-235602/ with manifest SHA256 `a9e1c97bd20c5cb85b556e91488f3c0e6ecc07fd6a2636d330666c144bee918e`.
+Read HANDOFF-235602.md and diagnostic-235602/EVIDENCE-235602.json. Bounded
+stdout/stderr, exact exit status and closed failure metadata now survive both
+provider and engine boundaries; private worker envelope binds run/turn/session.
+Post-runtime and cleanup inspections are retained when obtainable. Nonzero
+status, timeout, truncation or malformed output still fails without second turn;
+independent success review also checks nested process status and raw bytes.
+Existing exact mixed-model/recall, isolation, state-only transfer and limits stand.
+Original recall/Opus/Fable packets and strict contract verified byte-identical.
+
+Final26 focused deterministic tests pass in1.4149330489999556s;
+cumulative new test time3.1298126479996426s across two iterations, both logs/receipts retained.
+Initial duplicate cleanup-record write and newline-test mismatch were corrected;
+final exit0/no timeout/process group absent. Digest audit, exact command binding
+and diff check pass. Fresh235602 roots remain absent. No live/provider/engine/
+auth probe/credential read/build/enabling/Git mutation. All previous costs and
+unknowns preserved, including last operator1.501609630s and reviewer0.001476355s.
+
+This supersedes preparation-in-progress: next independent baton.bug packet
+review, then baton.decide for separate exact live selection and independent
+protected-result evaluation. Live recall remains unproved. Production manager
+serving/admission/model-policy/certification remains distinct; no new production
+scope or enabling is implied. Serious-work sequencing gate remains in force.
+
+
+## 2026-09-22T04-41-54Z — claim235672: honor owner235608 direct-owner handoff
+
+At reviewer pickup, complete new thread read found M235608 explicitly superseding
+handoff235600 and skipping another pre-run packet-review round. The matching
+owner ruling remains at the top of PLAN. Coder pass235670/HANDOFF-235602 and its
+later awaiting-review entries use the superseded route; they are corrected here
+for workflow only, not treated as a new owner decision. Return directly to
+baton.decide without another candidate review or test run. This supersedes their
+pending pre-run-review instruction. No independent acceptance of diagnostic-235602
+is claimed by this administrative handoff.
+
+Owner packet: HANDOFF-235602.md; diagnostic-235602/EVIDENCE-235602.json;
+manifest a9e1c97bd20c5cb85b556e91488f3c0e6ecc07fd6a2636d330666c144bee918e;
+exact invocation diagnostic-235602/CANARY-COMMAND-235602.txt. Author reports final26
+deterministic tests1.4149330489999556s, cumulative new3.1298126479996426s,
+exact-digest audit/command binding/diff check passing and fresh roots absent.
+Those facts remain author-attributed; no reviewer rerun or byte acceptance added.
+No live invocation selected or executed by this turn; Slawomir receives the
+prepared one-shot command, and independent actual-result review remains required.
+All historical costs/unknowns preserved; new test/live spend0s. No product,
+packet, test, PROGRESS, credential, consumed-root or Git mutation by reviewer.
+
+## 2026-09-22 — owner: model name is irrelevant on resume
+
+Recorded by baton.prompt from the owner's explicit clarification: "model name is irrelevant on resume". This supersedes the exclusive Opus, exact Opus+Haiku set, and proposed Opus-membership acceptance requirements for the resumed turn of this isolated recall experiment. Reported model names and usage are diagnostic evidence, not resume acceptance gates. The earlier Opus selection addressed model availability for execution; it does not establish a required identity for successful session restoration.
+
+Assess the retained diagnostic-235602 run against this clarified resume criterion: successful execution, correct session, recall of the actual canary, session-only transfer, isolation and cleanup remain material. Prompt's preliminary private projection found the exact canary in the second response, Opus-only usage on that turn, and a space after RECALL:. These are preliminary observations, not independent acceptance. The owner clarification removes the model gate; answer-format disposition and the full retained-evidence assessment remain for explicit review. Preserve the original failed fixture result, packet bytes and consumed identity; any acceptance under the later ruling is a separately recorded assessment, not a rewrite of the original result. No new live run or production enabling is selected by this ruling.
+
+
+## 2026-09-22T05:31:21Z — claim235998: actual recall accepted; production gap explicit
+
+Independent review-2026-09-22T05-31-21Z.md and REVIEW-EVIDENCE-235998.json
+supersede the pending actual-result assessment. Both successful session-matching
+provider turns and session-only isolated transfer are verified. First READY
+passes its unchanged acceptance. Second recalls the actual canary with exactly
+one space after RECALL:. Accept meaningful recall under the later owner ruling;
+record the original exact-format mismatch separately. Original completion stays
+failed/mixed-model-set and unmodified fixture review still refuses incomplete-run.
+Pinned packet and consumed identity remain untouched; no new live run is needed
+merely for model labels or the single-space formatting deviation.
+
+Retained runtime inspections establish separate stopped workers and non-overlap;
+cleanup records confirm both removed, and credential slots are currently absent.
+No independent current Docker query is claimed. Review details evidence limits.
+Production reuse remains unqualified: this direct fixture lacks managed grant,
+open/restore finalizations, retirement and committed continuity-review records;
+production serving/certification also requires a direct model field absent from
+both outputs. Owner must select any production contract/integration change.
+Recommend explicit bounded-qualification closure with reuse disabled and owner
+selection of fresh-attempt serious work, or explicit remaining production scope
+if reuse is required. Serious-work gate persists pending owner disposition.
+New offline verification0.012547393s; operator run5.286775671s; new live/test-suite
+spend0s. Preserve earlier costs and unknowns. Return baton.decide.

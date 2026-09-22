@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "startTimeoutSeconds": 30,
+  "stopTimeoutSeconds": 10,
+  "contexts": [
+    {
+      "name": "codx-pc",
+      "participant": "baton.codxpc",
+      "after": [
+        "codex-app-server-codx-pc"
+      ],
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--start-thread",
+        "--endpoint",
+        "ws://127.0.0.1:4502",
+        "--cwd",
+        "/home/sl/src/baton",
+        "--baton",
+        "/home/sl/opt/baton/v11/0650c61/bin/baton",
+        "--baton-config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "baton.codxpc",
+        "--role",
+        "impl"
+      ],
+      "requires": [
+        "/home/sl/opt/baton/v11/0650c61/bin/baton",
+        "/home/sl/baton-v11.14aecfb/baton.json"
+      ],
+      "timeoutSeconds": 180
+    }
+  ],
+  "services": [
+    {
+      "name": "codex-app-server-codx-pc",
+      "env": {
+        "CODEX_HOME": "/home/sl/.codex-pushcoin"
+      },
+      "command": [
+        "/home/sl/.nvm/versions/node/v24.14.0/bin/codex",
+        "app-server",
+        "--listen",
+        "ws://127.0.0.1:4502"
+      ],
+      "readiness": {
+        "type": "http",
+        "url": "http://127.0.0.1:4502/readyz",
+        "expectedStatus": 200
+      }
+    },
+    {
+      "name": "codx-pc-dispatcher",
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-event-bridge",
+        "--config",
+        "{{render.dispatcher}}"
+      ],
+      "after": [
+        "codex-app-server-codx-pc"
+      ],
+      "renders": [
+        {
+          "name": "dispatcher",
+          "template": "/home/sl/baton-v11.14aecfb/codx-pc/dispatcher.template.json"
+        }
+      ],
+      "readiness": {
+        "type": "unix_socket",
+        "path": "/home/sl/baton-v11.14aecfb/codx-pc/run/events.sock",
+        "request": {
+          "control": "status"
+        },
+        "expect": {
+          "ready": true
+        }
+      }
+    },
+    {
+      "name": "codx-pc-readiness",
+      "participant": "baton.codxpc",
+      "command": [
+        "/home/sl/src/baton/tools/codex-event-bridge/bin/codex-baton-bridge",
+        "--baton",
+        "/home/sl/opt/baton/v11/0650c61/bin/baton",
+        "--config",
+        "/home/sl/baton-v11.14aecfb/baton.json",
+        "--participant",
+        "baton.codxpc",
+        "--target",
+        "codx-pc",
+        "--socket",
+        "/home/sl/baton-v11.14aecfb/codx-pc/run/events.sock"
+      ],
+      "after": [
+        "codx-pc-dispatcher"
+      ],
+      "readiness": {
+        "type": "process",
+        "stableMilliseconds": 1000
+      }
+    }
+  ]
+}

@@ -1,5 +1,13 @@
 # Current — usable-v12 readiness signed off by owner183808
 
+## Current adoption order — owner 2026-09-22
+
+Finish session-restoration qualification before starting serious ordinary
+development through v12. This supersedes the next-action suggestion below to
+select ordinary Jobs while qualification is open; the historical fresh-attempt
+readiness remains accepted. Exact sequencing and closure limits:
+[owner decision](../../09/finding-v12-production-context-qualification-preparation/OWNER-SERIOUS-WORK-GATE-20260922.md).
+
 [done] Slawomir approved the selected minimum release in T2 message183808,
 2026-09-16T04:47:44Z: new context-free isolated attempts through fixed configured
 workers, preserving explicit recovery holds, lineage and independent acceptance.

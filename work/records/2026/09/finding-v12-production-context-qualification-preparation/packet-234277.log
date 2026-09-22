@@ -1,0 +1,9 @@
+test_capture_keeps_empty_directory_and_file_names (test_qualification_packet.Boundary.test_capture_keeps_empty_directory_and_file_names) ... ok
+test_nofollow_nonblocking_duplicate_json (test_qualification_packet.Boundary.test_nofollow_nonblocking_duplicate_json) ... ok
+test_leak_mismatch_and_missing_transport_refuse (test_qualification_packet.CapsulePipeline.test_leak_mismatch_and_missing_transport_refuse) ... ok
+test_real_guard_capture_verifier_and_committed_review (test_qualification_packet.CapsulePipeline.test_real_guard_capture_verifier_and_committed_review) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.593s
+
+OK

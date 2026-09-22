@@ -1,0 +1,543 @@
+diff --git a/v12/python/src/baton_v12/worker_manager/context_delivery.py b/v12/python/src/baton_v12/worker_manager/context_delivery.py
+index 9998334b..18f98e11 100644
+--- a/v12/python/src/baton_v12/worker_manager/context_delivery.py
++++ b/v12/python/src/baton_v12/worker_manager/context_delivery.py
+@@ -360,6 +360,37 @@ def adopt_context_use(control, storage, *, attempt_id):
+     return delivery
+ 
+ 
++def deliver_feedback(control, storage, *, attempt_id, payload):
++    """W177936: the restore invocation's review feedback, as ONE use file.
++
++    Written into the delivered use root the worker already mounts at
++    `/run/baton/context`, beside `identity` and `home` -- so no launch field
++    and no new mount exists for it. `_write`'s own collision rule IS the
++    never-overwrite policy: an existing file with different bytes refuses
++    rather than being repaired, and the binding that called this has already
++    proved the bytes against the COMMITTED prompt digest. The worker's twin
++    composition and the bound prompt/argv digests make the whole path
++    tamper-evident end to end; this file is transport, not authority.
++    """
++    if type(payload) is not bytes or not payload \
++            or len(payload) > context.MAX_FEEDBACK_BYTES:
++        context._refuse("delivered feedback is bounded non-empty bytes")
++    chain, admitted = context._use(control, attempt_id)
++    if admitted["payload"]["mode"] != "restore":
++        context._refuse("feedback is delivered to a restore use only")
++    delivered = next((one for one in chain if one["use_id"] == admitted["use_id"] and one["action"] == "deliver"), None)
++    if delivered is None:
++        context._refuse("context delivery has no committed pins")
++    pins = delivered["payload"]["pins"]
++    with _storage(control, storage) as root:
++        with _directories(root, [admitted["context_id"]]) as owner:
++            with _directories(owner, ["uses", admitted["use_id"]]) as use:
++                with _directories(use, ["home"]) as home:
++                    if {"use": _pin(use), "home": _pin(home), "owner": _pin(owner)} != pins or _read(use, "identity", 1024) != canonical_text({"admission_digest": digest(admitted)}).encode():
++                        context._refuse("original use roots were replaced")
++                _write(use, "feedback", payload)
++
++
+ def _generation(owner, number, profile, expected, *, use_id, finish_publication=False):
+     with _directories(owner, ["generations", number]) as generation:
+         if set(os.listdir(generation)) != {"identity", "manifest", "state"}:
+diff --git a/v12/python/src/baton_v12/worker_manager/provider_context.py b/v12/python/src/baton_v12/worker_manager/provider_context.py
+index cae60572..12fd9ac1 100644
+--- a/v12/python/src/baton_v12/worker_manager/provider_context.py
++++ b/v12/python/src/baton_v12/worker_manager/provider_context.py
+@@ -524,16 +524,137 @@ def finalize_context_use(control, jobs, authority, *, attempt_id, storage, recei
+         raise
+ 
+ 
+-def context_prompt(task):
+-    """The image's deterministic implementation prompt, without importing it."""
++# W177936 (owner 2026-09-21T14:37:12Z): HOW MUCH REVIEW FEEDBACK ONE RESTORE
++# PROMPT MAY CARRY, in UTF-8 BYTES rather than characters, and how much of a
++# retained report this module will read to obtain it. The report bound exists
++# so a bounded feedback limit cannot be reached through an unbounded file
++# read; both refuse by name.
++MAX_FEEDBACK_BYTES = 32768
++MAX_REPORT_BYTES = 1 << 20
++
++
++def context_prompt(task, feedback=None):
++    """The image's deterministic implementation prompt, without importing it.
++
++    W177936: A RESTORE CARRIES THE REVIEW'S FEEDBACK, an open does not. The
++    whole point of resuming the implementer's conversation is that the
++    independent review's findings arrive IN it; without this member the
++    resumed conversation was re-sent the original task text and the feedback
++    reached the implementer nowhere. The worker's `_prompt` is this
++    function's asserted twin, so both sides derive the same bytes and the
++    bound prompt/argv digests hold the pair together.
++    """
+     if type(task) is not dict or type(task.get("instructions")) is not str or type(task.get("verification")) is not list or not all(type(one) is str for one in task["verification"]):
+         _refuse("invalid serving task")
+-    return (f"{task['instructions']}\n\n"
+-            f"You are working in a private copy of the source tree, which is "
+-            f"the current working directory. Edit files here directly.\n"
+-            f"When you are done, the following command will be run from this "
+-            f"directory and must pass:\n"
+-            f"  {' '.join(task['verification'])}\n")
++    opening = (f"{task['instructions']}\n\n"
++               f"You are working in a private copy of the source tree, which "
++               f"is the current working directory. Edit files here "
++               f"directly.\n"
++               f"When you are done, the following command will be run from "
++               f"this directory and must pass:\n"
++               f"  {' '.join(task['verification'])}\n")
++    if feedback is None:
++        return opening
++    if type(feedback) is not str or not feedback \
++            or len(feedback.encode("utf-8")) > MAX_FEEDBACK_BYTES:
++        _refuse("serving feedback is bounded non-empty text")
++    return (f"{opening}\n"
++            f"An independent review of your previous proposal in this same "
++            f"working copy requested changes. Revise your work here "
++            f"accordingly; the verification command above is unchanged and "
++            f"must still pass.\n\n"
++            f"THE REVIEW'S FINDINGS:\n{feedback}\n")
++
++
++def correction_feedback_of(control, jobs, attempt_id):
++    """The findings text of the verdict that OPENED this correction attempt.
++
++    THE SAME PROVENANCE THE ADMISSION USED, not a fresher opinion: the
++    admitted use's predecessor generation names its frozen checkpoint, the
++    owner-committed correction operation for exactly that checkpoint names
++    the verdict, and the verdict is proved against its committed act by
++    `verdict_of` -- so a newer verdict, another line's verdict or a
++    tampered row cannot supply this prompt. The text itself is read from
++    the verdict's own retained accepted custody, held to the frozen result
++    manifest's bytes and digest before one byte is trusted.
++    """
++    chain, admitted = _use(control, attempt_id)
++    facts = admitted["payload"]
++    if facts["mode"] != "restore":
++        _refuse("serving feedback belongs to a restore invocation")
++    predecessor = next((one for one in reversed(chain)
++                        if one["action"] == "finalize"), None)
++    if predecessor is None:
++        _refuse("restore invocation has no finalized predecessor")
++    checkpoint = predecessor["payload"]["checkpoint_id"]
++    row = jobs.operation_record(episodes.correction_operation_id(
++        facts["identity"]["job_id"], checkpoint))
++    if row is None or row["state"] != "committed" \
++            or row["kind"] != episodes.CORRECT_KIND:
++        _refuse("no owner-committed correction for this restore")
++    operands = json.loads(row["signature"])["operands"]
++    recorded = json.loads(row["result"])
++    if recorded["implementation"]["attempt_id"] != attempt_id:
++        _refuse("correction did not open this attempt")
++    verdict = review_cycles.verdict_of(control, operands["verdict_id"])
++    if verdict["checkpoint_id"] != checkpoint \
++            or verdict["line_id"] != facts["identity"]["line_id"] \
++            or verdict["disposition"] != "changes-requested":
++        _refuse("correction verdict disagrees with this restore")
++    retained = verdict["review_result"]
++    artifacts = [one for one in retained["artifacts"]
++                 if one["output_name"] == "findings"]
++    if len(artifacts) != 1:
++        _refuse("correction verdict retains no single findings artifact")
++    artifact = artifacts[0]
++    result = manifests.load_manifest(control, retained["manifest_digest"],
++                                     "resultManifest")
++    outputs = {one["name"]: one for one in result["outputs"]}
++    held = outputs.get("findings")
++    if held is None or held.get("status") != "present" \
++            or (held.get("artifact") or {}).get("artifact_id") \
++            != artifact["artifact_id"] or held.get("content_manifest") is None:
++        _refuse("frozen review result and retained verdict custody disagree")
++    entries = [one for one in held["content_manifest"]["entries"]
++               if one["path"] == "report.json"]
++    if len(entries) != 1 or type(entries[0].get("bytes")) is not int \
++            or entries[0]["bytes"] > MAX_REPORT_BYTES:
++        _refuse("frozen review result has no bounded report.json")
++    from urllib.parse import unquote, urlsplit
++    locator = urlsplit(artifact["locator"])
++    if locator.scheme != "file" or locator.netloc or locator.query \
++            or locator.fragment:
++        _refuse("serving feedback reads local accepted custody only")
++    import stat as _stat
++    try:
++        descriptor = os.open(
++            os.path.join(unquote(locator.path), "report.json"),
++            os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
++    except OSError:
++        _refuse("the accepted review report is unavailable")
++    try:
++        if not _stat.S_ISREG(os.fstat(descriptor).st_mode):
++            _refuse("the retained review report is not a regular file")
++        raw = os.read(descriptor, entries[0]["bytes"] + 1)
++    finally:
++        os.close(descriptor)
++    if len(raw) != entries[0]["bytes"] \
++            or digest_of_bytes(raw) != entries[0]["content_digest"]:
++        _refuse("the retained review report differs from frozen custody")
++    try:
++        report = json.loads(raw)
++    except (ValueError, UnicodeError):
++        _refuse("the retained review report is not JSON")
++    if type(report) is not dict or set(report) != {"schema", "verdict",
++                                                   "findings"} \
++            or report["schema"] != "baton.review-report/1" \
++            or report["verdict"] != "changes-requested" \
++            or type(report["findings"]) is not str or not report["findings"]:
++        _refuse("the retained review report does not carry "
++                "changes-requested findings")
++    if len(report["findings"].encode("utf-8")) > MAX_FEEDBACK_BYTES:
++        _refuse("the retained review findings exceed the feedback bound")
++    return report["findings"]
+ 
+ 
+ def serving_argv(profile, facts, prompt):
+@@ -588,14 +709,35 @@ def bind_context_invocation(control, jobs, authority, *, attempt_id, writer_id,
+     context_output_declaration(manifest["outputs"])
+     if manifest["human_contract"]["content_digest"] != digest_of_bytes(task_bytes) or manifest["human_contract"]["bytes"] != len(task_bytes):
+         _refuse("serving task differs from the submitted input")
+-    prompt = context_prompt(task)
++    # W177936: A RESTORE PROMPT CARRIES THE OPENING VERDICT'S FEEDBACK. The
++    # resolution follows the admission's own committed provenance, so a
++    # replayed binding resolves the SAME verdict and the same bytes -- a
++    # newer report can never overwrite a previously bound use, because the
++    # committed invocation's prompt digest is what every later reader and
++    # the worker itself hold the composition to.
++    feedback = correction_feedback_of(control, jobs, attempt_id) \
++        if facts["mode"] == "restore" else None
++    prompt = context_prompt(task, feedback)
+     value = dict(_invocation_base(control, admitted), task_digest=digest_of_bytes(task_bytes), prompt_digest=digest_of_bytes(prompt.encode()), argv_digest=digest(serving_argv(profile, facts, prompt)))
+     def commit(connection):
+         current = _facts(control, jobs, authority, attempt_id, writer_id, profile_digest, live=True)
+         if context_use_of(control, attempt_id)["status"] != "admitted" or any(current[key] != facts[key] for key in current):
+             _refuse("serving invocation owner changed", durable=True)
+         return dict(value, invocation_binding_digest=digest(value))
+-    control.transact(_id("context-serving-invocation", attempt_id), INVOCATION_KIND, manager_signature(INVOCATION_KIND, value), commit)
++    bound = control.transact(_id("context-serving-invocation", attempt_id), INVOCATION_KIND, manager_signature(INVOCATION_KIND, value), commit)
++    if feedback is not None:
++        # THE DELIVERED FILE AGREES WITH THE COMMITTED BINDING, whichever
++        # came first. A fresh bind writes the bytes it just bound; a replay
++        # or crash recovery re-proves that what stands (or what it rewrites)
++        # composes to the COMMITTED prompt digest, and refuses anything
++        # else rather than repairing it.
++        if bound["prompt_digest"] != digest_of_bytes(
++                context_prompt(task, feedback).encode()):
++            _refuse("serving feedback disagrees with the committed binding")
++        from .context_delivery import configured_context_storage, deliver_feedback
++        deliver_feedback(control, configured_context_storage(control),
++                         attempt_id=attempt_id,
++                         payload=feedback.encode("utf-8"))
+     return context_invocation_of(control, attempt_id)
+ 
+ 
+diff --git a/v12/python/tests/manager/test_claude_context.py b/v12/python/tests/manager/test_claude_context.py
+index b205e447..a373347b 100644
+--- a/v12/python/tests/manager/test_claude_context.py
++++ b/v12/python/tests/manager/test_claude_context.py
+@@ -464,7 +464,13 @@ class ServingEnding(ServingContextCase):
+ 
+ 
+ class RestoredCorrectionBoundary(ServingContextCase):
+-    def test_actual_changes_requested_review_restores_only_fresh_implementation_use(self):
++    FINDINGS = "adjust the implementation"
++
++    def corrected_ready(self):
++        """The flow to a BOUND correction: episode 1 served, a
++        changes-requested review frozen, the restore use admitted,
++        materialized and bound -- the second turn NOT yet run. W177936's
++        feedback cases all start here."""
+         held = self.implemented()
+         first = context.context_invocation_of(held.control, held.attempt_id)
+         self.drive(held.job, held.composed, "review", "waiting")
+@@ -474,15 +480,24 @@ class RestoredCorrectionBoundary(ServingContextCase):
+         self.assertNotIn("provider_context", review_launch)
+         self.assertNotEqual(review_launch["session"], self.worker_of(held.composed, "implementation")._session_of(held.attempt_id))
+         self.assertEqual(review_launch["job_execution"]["runtime_input_digest"], self.manifest["manifest_digest"])
+-        self.assertEqual(self.turn(held.control, "review", reviewer, self.mounted(held.composed, "review", reviewer), edits={"review-report.json": json.dumps({"schema": "baton.review-report/1", "verdict": "changes-requested", "findings": "adjust the implementation"})}), 0)
++        self.assertEqual(self.turn(held.control, "review", reviewer, self.mounted(held.composed, "review", reviewer), edits={"review-report.json": json.dumps({"schema": "baton.review-report/1", "verdict": "changes-requested", "findings": self.FINDINGS})}), 0)
+         self.drive(held.job, held.composed, "implementation", "waiting", ticks=12)
++        attempts = self.worker_of(held.composed, "implementation").stage._prepared
++        [second] = [one for one in attempts if one != held.attempt_id]
++        return held, first, reviewer, second
++
++    def feedback_file(self, held, second):
++        bound = context.context_use_of(held.control, second)
++        return (self.context_root / bound["context_id"] / "uses"
++                / bound["use_id"] / "feedback")
++
++    def test_actual_changes_requested_review_restores_only_fresh_implementation_use(self):
++        held, first, reviewer, second = self.corrected_ready()
+         review_frozen = frozen_output_of(held.control, reviewer)
+         review_result = load_manifest(held.control, review_frozen["manifest_digest"], "resultManifest")
+         self.assertEqual(next(one for one in review_result["outputs"] if one["name"] == "provider-context-receipt")["status"], "missing-optional")
+         review_start = [one for one in self.engine.starts if "--entrypoint" not in one][1]
+         self.assertFalse(any("/run/baton/context" in item for item in review_start))
+-        attempts = self.worker_of(held.composed, "implementation").stage._prepared
+-        [second] = [one for one in attempts if one != held.attempt_id]
+         bound = context.context_invocation_of(held.control, second)
+         self.assertEqual(bound["conversation_id"], first["conversation_id"])
+         self.assertEqual(bound["context_id"], first["context_id"])
+@@ -506,7 +521,141 @@ class RestoredCorrectionBoundary(ServingContextCase):
+         self.assertEqual([one["restored"] for one in calls], [False, True])
+         self.assertIn("--session-id", calls[0]["argv"])
+         self.assertIn("--resume", calls[1]["argv"])
++        # W177936: THE RESUMED CONVERSATION RECEIVES THE REVIEW'S FEEDBACK,
++        # and the opening turn did not -- the whole point of the resumption.
++        self.assertNotIn("THE REVIEW'S FINDINGS:", calls[0]["argv"][-1])
++        self.assertIn("THE REVIEW'S FINDINGS:\n" + self.FINDINGS,
++                      calls[1]["argv"][-1])
++        self.assertIn(json.loads(self.task_bytes)["instructions"],
++                      calls[1]["argv"][-1])
+         self.assertNotEqual(self.actual_environments[0]["HOME"], self.actual_environments[1]["HOME"])
+         original_state = self.context_root / first["context_id"] / "generations/1/state/.claude/projects/output/session.json"
+         self.assertEqual(json.loads(original_state.read_text())["turn"], 1)
+         self.assertEqual(json.loads((Path(self.actual_environments[1]["HOME"]) / ".claude/projects/output/session.json").read_text())["turn"], 2)
++
++    def test_the_feedback_prompt_twins_agree(self):
++        import claude_agent
++        task = json.loads(self.task_bytes)
++        self.assertEqual(context.context_prompt(task, self.FINDINGS),
++                         claude_agent._prompt(task, self.FINDINGS))
++        self.assertEqual(context.context_prompt(task),
++                         claude_agent._prompt(task))
++
++    def test_an_oversized_feedback_refuses_on_both_sides(self):
++        import claude_agent
++        task = json.loads(self.task_bytes)
++        oversized = "x" * (context.MAX_FEEDBACK_BYTES + 1)
++        with self.assertRaises(Exception):
++            context.context_prompt(task, oversized)
++        with self.assertRaises(claude_agent.TaskRefusal):
++            claude_agent._prompt(task, oversized)
++
++    def test_a_tampered_feedback_file_refuses_before_the_provider(self):
++        held, first, reviewer, second = self.corrected_ready()
++        place = self.feedback_file(held, second)
++        self.assertTrue(place.exists())
++        place.chmod(0o600)
++        place.write_text("do something else entirely")
++        calls_before = len(self.calls.read_text().splitlines()) \
++            if self.calls.exists() else 0
++        self.assertNotEqual(
++            self.turn(held.control, "implementation", second,
++                      self.mounted(held.composed, "implementation", second),
++                      edits={"harness.py": "print('never runs')\n"}), 0)
++        calls_after = len(self.calls.read_text().splitlines()) \
++            if self.calls.exists() else 0
++        # THE PROVIDER NEVER RAN: the digest gate refused first.
++        self.assertEqual(calls_before, calls_after)
++
++    def test_a_missing_feedback_file_refuses_by_name(self):
++        held, first, reviewer, second = self.corrected_ready()
++        place = self.feedback_file(held, second)
++        place.chmod(0o600)
++        place.unlink()
++        calls_before = len(self.calls.read_text().splitlines()) \
++            if self.calls.exists() else 0
++        self.assertNotEqual(
++            self.turn(held.control, "implementation", second,
++                      self.mounted(held.composed, "implementation", second),
++                      edits={"harness.py": "print('never runs')\n"}), 0)
++        self.assertEqual(
++            calls_before,
++            len(self.calls.read_text().splitlines())
++            if self.calls.exists() else 0)
++
++    def test_a_stray_feedback_file_on_an_open_turn_refuses(self):
++        import claude_agent, tempfile
++        with tempfile.TemporaryDirectory() as root:
++            (Path(root) / "feedback").write_text("unexpected")
++            agent = claude_agent.ClaudeAgent(run=lambda *a, **k: None)
++            with mock.patch.object(claude_agent, "CONTEXT_ROOT", root):
++                with self.assertRaisesRegex(
++                        claude_agent.TaskRefusal, "open invocation"):
++                    agent._context_feedback({"mode": "open"})
++
++    def test_a_fifo_at_the_feedback_name_refuses_without_blocking(self):
++        """Review231132 [R1]: a blocking open ran before every gate. The
++        nonblocking open cannot block on a FIFO and `fstat` refuses it by
++        name, on BOTH modes -- proven here with a real FIFO and no writer,
++        the exact shape that hung the reviewer's supervised probe."""
++        import claude_agent, tempfile
++        for mode in ("restore", "open"):
++            with tempfile.TemporaryDirectory() as root:
++                os.mkfifo(Path(root) / "feedback")
++                agent = claude_agent.ClaudeAgent(run=lambda *a, **k: None)
++                with mock.patch.object(claude_agent, "CONTEXT_ROOT", root):
++                    with self.assertRaises(claude_agent.TaskRefusal):
++                        agent._context_feedback({"mode": mode})
++
++    def test_a_fifo_replacing_the_delivered_feedback_refuses_the_turn(self):
++        """The composed half of the same regression: the correction turn
++        meets the FIFO, refuses before the provider, and does not hang."""
++        held, first, reviewer, second = self.corrected_ready()
++        place = self.feedback_file(held, second)
++        place.chmod(0o600)
++        place.unlink()
++        os.mkfifo(place)
++        calls_before = len(self.calls.read_text().splitlines()) \
++            if self.calls.exists() else 0
++        self.assertNotEqual(
++            self.turn(held.control, "implementation", second,
++                      self.mounted(held.composed, "implementation", second),
++                      edits={"harness.py": "print('never runs')\n"}), 0)
++        self.assertEqual(
++            calls_before,
++            len(self.calls.read_text().splitlines())
++            if self.calls.exists() else 0)
++
++    def test_a_wrong_or_stale_verdict_refuses_the_feedback_resolution(self):
++        held, first, reviewer, second = self.corrected_ready()
++        genuine = context.review_cycles.verdict_of
++        def stale(store, verdict_id):
++            answer = dict(genuine(store, verdict_id))
++            answer["checkpoint_id"] = "checkpoint-" + "0" * 64
++            return answer
++        jobs = self.worker_of(held.composed,
++                              "implementation").stage.deployment.jobs
++        with mock.patch.object(context.review_cycles, "verdict_of", stale):
++            with self.assertRaisesRegex(
++                    Exception, "verdict disagrees"):
++                context.correction_feedback_of(held.control, jobs, second)
++
++    def test_replay_never_overwrites_the_delivered_feedback(self):
++        from baton_v12.worker_manager import context_delivery
++        held, first, reviewer, second = self.corrected_ready()
++        storage = context_delivery.configured_context_storage(held.control)
++        # The same bytes replay as a no-op...
++        context_delivery.deliver_feedback(
++            held.control, storage, attempt_id=second,
++            payload=self.FINDINGS.encode())
++        # ...and different bytes refuse rather than replacing the delivery
++        # (the custody writer's own collision rule: a size mismatch refuses
++        # at the size gate, equal-size different bytes refuse at the byte
++        # comparison -- either way nothing is overwritten).
++        from baton_v12.contracts import ContractRefusal
++        with self.assertRaises(ContractRefusal):
++            context_delivery.deliver_feedback(
++                held.control, storage, attempt_id=second,
++                payload=b"a newly selected report")
++        place = self.feedback_file(held, second)
++        self.assertEqual(place.read_bytes(), self.FINDINGS.encode())
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index 4e0b2309..9be4d15f 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -3234,8 +3234,9 @@ class ClaudeAgent:
+         provider's credential, which stays exactly where `_prepared_home` puts
+         it and is the one thing this turn cannot run without.
+         """
+-        prompt = _prompt(task) if prompt is None else prompt
+         contextual = self._context_bound()
++        if prompt is None:
++            prompt = _prompt(task, self._context_feedback(contextual))
+         argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS, prompt]
+         if contextual is not None:
+             if candidate != OUTPUT_ROOT:
+@@ -3319,6 +3320,58 @@ class ClaudeAgent:
+             os.close(fd)
+             raise
+ 
++    def _context_feedback(self, contextual):
++        """The delivered review feedback for a RESTORE, or None for the rest.
++
++        W177936. The manager binds the restore prompt over the opening
++        verdict's findings and delivers the same bytes as one 0600,
++        digest-bound `feedback` file in the context-use root; this reads it
++        no-follow and bounded, composes the twin prompt, and the bound
++        prompt/argv digests refuse any disagreement BEFORE the provider
++        runs -- the file is transport, the digests are the authority. A
++        restore without the file, and an open turn that finds one, both
++        refuse by name.
++
++        `O_NONBLOCK`, review231132 [R1]: without it a FIFO standing at this
++        name blocks the OPEN itself, before `fstat`, the byte bound and the
++        digest gates ever run -- a hang where every neighbouring check is a
++        refusal. Nonblocking open cannot block on a FIFO, the `fstat` right
++        behind it refuses every non-regular file by name, and a regular
++        file's reads are unaffected.
++        """
++        if contextual is None:
++            return None
++        root = self._context_open()
++        try:
++            try:
++                fd = os.open("feedback",
++                             os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
++                             dir_fd=root)
++            except FileNotFoundError:
++                if contextual["mode"] == "restore":
++                    raise TaskRefusal(
++                        "restore invocation has no delivered feedback") \
++                        from None
++                return None
++        finally:
++            os.close(root)
++        try:
++            if contextual["mode"] != "restore":
++                raise TaskRefusal(
++                    "an open invocation carries no review feedback and "
++                    "this delivery has one")
++            if not stat.S_ISREG(os.fstat(fd).st_mode):
++                raise TaskRefusal("delivered feedback is not a regular file")
++            raw = os.read(fd, MAX_FEEDBACK_BYTES + 1)
++        finally:
++            os.close(fd)
++        if not raw or len(raw) > MAX_FEEDBACK_BYTES:
++            raise TaskRefusal("delivered feedback is bounded non-empty bytes")
++        try:
++            return raw.decode("utf-8", "strict")
++        except UnicodeDecodeError:
++            raise TaskRefusal("delivered feedback is not UTF-8") from None
++
+     def _context_home(self):
+         slot = os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT)
+         if not os.path.exists(slot) or not os.access(slot, os.R_OK):
+@@ -4804,20 +4857,42 @@ def _read_task(place=None):
+     return document, raw
+ 
+ 
+-def _prompt(task):
++# W177936: how much review feedback one restore prompt may carry, in UTF-8
++# BYTES -- the worker twin of `provider_context.MAX_FEEDBACK_BYTES`, spelled
++# here because this file travels into images that carry no manager code.
++MAX_FEEDBACK_BYTES = 32768
++
++
++def _prompt(task, feedback=None):
+     """The one prompt, composed from the frozen task and nothing else.
+ 
+     THE PROVIDER IS NOT TOLD ABOUT THE PROTOCOL. It gets the instructions, the
+     working directory it is already in, and the command that will judge it --
+     nothing about `/output`, the assignment, the session or the manager. A
+     provider that could see those could write into them.
++
++    W177936: A RESTORE ADDS THE REVIEW'S FEEDBACK, and this is the manager's
++    `context_prompt`'s asserted twin -- the two compose byte-identical
++    prompts or the bound digests refuse the turn before the provider runs.
+     """
+-    return (f"{task['instructions']}\n\n"
+-            f"You are working in a private copy of the source tree, which is "
+-            f"the current working directory. Edit files here directly.\n"
+-            f"When you are done, the following command will be run from this "
+-            f"directory and must pass:\n"
+-            f"  {' '.join(task['verification'])}\n")
++    opening = (f"{task['instructions']}\n\n"
++               f"You are working in a private copy of the source tree, which "
++               f"is the current working directory. Edit files here "
++               f"directly.\n"
++               f"When you are done, the following command will be run from "
++               f"this directory and must pass:\n"
++               f"  {' '.join(task['verification'])}\n")
++    if feedback is None:
++        return opening
++    if type(feedback) is not str or not feedback \
++            or len(feedback.encode("utf-8")) > MAX_FEEDBACK_BYTES:
++        raise TaskRefusal("serving feedback is bounded non-empty text")
++    return (f"{opening}\n"
++            f"An independent review of your previous proposal in this same "
++            f"working copy requested changes. Revise your work here "
++            f"accordingly; the verification command above is unchanged and "
++            f"must still pass.\n\n"
++            f"THE REVIEW'S FINDINGS:\n{feedback}\n")
+ 
+ 
+ def _open_under(root, relative, what):

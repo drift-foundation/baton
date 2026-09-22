@@ -1,0 +1,55 @@
+{
+  "claim": 235340,
+  "owner_message": 235310,
+  "owner_reroute": 235311,
+  "manifest_sha256": "dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a",
+  "files": {
+    "CANARY-COMMAND-235340.txt": "fa331118c0e9bb7874206c37794fcb7aafd2d6e2ca2e140f0436f6bf30effb73",
+    "CANARY-MANIFEST-235340.json": "dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a",
+    "CANARY-OPERATOR-235340.md": "0a91c3c48113eee46569c47c0d8ea30edaecd9ea5203774f27b205540dace075",
+    "IMAGE-VERIFICATION-234131.json": "77941391bb6302181fd47081e4547ebbdd5a18d38ae6ecf6d111bd53ae15450c",
+    "MANAGER-ARTIFACT-234277.json": "993a20b07905f52ade229dd1b8c06ec16eb5d3a25003f275dd606257cec8ff99",
+    "MANAGER-INVENTORY-REVIEW-234346.json": "0a01a4d7f9b7a83499dc461cfe2f1ef55e87771ef5e2add069c240aa76d55034",
+    "MODEL-SELECTION-234686.json": "315c6e196a2a31b743f657e898c64e4d7c2d57a9b6b6cdb0f786f795be7a3f04",
+    "REVIEW-EVIDENCE-234346.json": "96eb86f53699d38e556bd06d79d80577f4525cd9b7d7f6821e00a71a8aadb155",
+    "REVIEW-EVIDENCE-235117.json": "fad3fd1e79e01c16c7c50eab9c1dcad990e958f35d609c9a56391324a6e8e1af",
+    "evidence/qualification_contract.py": "df92473e68f134e338c56b698bd393ce8b178e292180f142144f77de7e1a856b",
+    "isolated_canary.py": "f290272883528deca9856353c364635bb2d1273c75f0a874b18d5a92fd492d99",
+    "test_isolated_canary.py": "6c8b85d515aeff6ea64758bd2096e2ccc786b696533bed59d7510fa048f88ad6",
+    "tests-235340.json": "1af85c366a8fc0a18d046ed195cd32fbdf663748f6dd944b00cb00c4f90d554f",
+    "tests-235340.log": "54eddc85adf93066f3219b4bbe62d4d60933821e584c5a47b07a61c17e6eb056"
+  },
+  "tests": {
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "work/records/2026/09/finding-v12-production-context-qualification-preparation/recall-235340/test_isolated_canary.py"
+    ],
+    "elapsed_seconds": 0.5140488809993258,
+    "exit_code": 0,
+    "timeout": false,
+    "process_group_absent": true,
+    "manifest_sha256": "dfa75118e3110cc5c7346b4d2bc026c21b33b9931340db3d129ac596cf754e2a",
+    "log_sha256": "54eddc85adf93066f3219b4bbe62d4d60933821e584c5a47b07a61c17e6eb056",
+    "scope": "deterministic fake engine/provider only; no live engine, model, credentials or reserved run roots"
+  },
+  "test_count": 16,
+  "audit": "pass",
+  "diff_check": "pass",
+  "exact_command_binding": "pass",
+  "fresh_roots_absent": true,
+  "old_opus_packet_unchanged": true,
+  "old_fable_packet_unchanged": "verified by focused preservation test",
+  "strict_contract_unchanged": true,
+  "live_calls": 0,
+  "engine_calls": 0,
+  "builds": 0,
+  "new_measured_test_seconds": 0.5140488809993258,
+  "prior_costs": "Preserve all prior known/unknown costs: opus-234686/EVIDENCE-234686.json author0.4138612210517749s tests and0.21443418704438955s archive inspection, separately labeled exploratory probes; REVIEW-EVIDENCE-234722.json reviewer0.324s; REVIEW-EVIDENCE-235117.json offline0.0050291449997530435s and separately attributed operator live4.933623595000427s. Earlier CANARY-EVIDENCE-234516.json author1.0417039630701765s and REVIEW-EVIDENCE-234621.json reviewer0.298s plus all historical evidence/unknowns stand. No manufactured cumulative bound.",
+  "limits": "Synthetic provider/engine boundary only. No new provider recall or kernel-isolation observation. Preparation only; independent review then separate live selection. No model attribution or production certification.",
+  "operational_notes": [
+    "Exploratory guessed strict_terminal.py did not exist; actual manifest dependency evidence/qualification_contract.py was readable.",
+    "One orchestration JavaScript syntax error prevented execution before test command dispatch; zero test process/spend from that attempt.",
+    "Expected interrupted timeout-child traceback occurs inside the passing supervisor cleanup test."
+  ]
+}

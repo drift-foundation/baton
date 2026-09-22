@@ -1,0 +1,55 @@
+F.F.....Process Process-1:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/multiprocessing/process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/diagnostic-235602/test_isolated_canary.py", line 292, in stalled
+    time.sleep(10)
+    ~~~~~~~~~~^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/diagnostic-235602/isolated_canary.py", line 594, in interrupted
+    raise InterruptedError('operator-stop')
+InterruptedError: operator-stop
+..FF............
+======================================================================
+FAIL: test_engine_failure_keeps_streams_and_obtainable_runtime (__main__.Canary.test_engine_failure_keeps_streams_and_obtainable_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/diagnostic-235602/test_isolated_canary.py", line 337, in test_engine_failure_keeps_streams_and_obtainable_runtime
+    self.assertTrue(all(r['confirmed'] for r in q.cleanup(engine, self.slots, evidence=self.root)))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_nested_provider_failure_retained_before_cleanup_and_no_second_turn (__main__.Canary.test_nested_provider_failure_retained_before_cleanup_and_no_second_turn)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/diagnostic-235602/test_isolated_canary.py", line 322, in test_nested_provider_failure_retained_before_cleanup_and_no_second_turn
+    self.assertTrue(all(r['confirmed'] for r in q.cleanup(engine, self.slots, evidence=self.root)))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_unavailable_post_inspection_does_not_erase_nested_output (__main__.Canary.test_unavailable_post_inspection_does_not_erase_nested_output)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/diagnostic-235602/test_isolated_canary.py", line 375, in test_unavailable_post_inspection_does_not_erase_nested_output
+    self.assertTrue(all(r['confirmed'] for r in q.cleanup(engine, self.slots, evidence=self.root)))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_version_failure_and_invalid_provider_json_preserve_diagnostics (__main__.Canary.test_version_failure_and_invalid_provider_json_preserve_diagnostics) (failure='version-exit')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-production-context-qualification-preparation/diagnostic-235602/test_isolated_canary.py", line 351, in test_version_failure_and_invalid_provider_json_preserve_diagnostics
+    self.assertEqual(q.read(root/'version-1.stderr'), b'VERSION_ERR_PRIVATE')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'VERSION_ERR_PRIVATE\n' != b'VERSION_ERR_PRIVATE'
+
+----------------------------------------------------------------------
+Ran 24 tests in 1.624s
+
+FAILED (failures=4)

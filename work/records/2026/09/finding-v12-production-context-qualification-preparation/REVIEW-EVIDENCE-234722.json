@@ -1,0 +1,26 @@
+{
+  "claim": 234722,
+  "author_claim": 234686,
+  "packet": "opus-234686",
+  "hashes": {
+    "isolated_canary.py": "e9b5835215875bc0e2669fb97883b861574e863b12e887cca05cadb47265edba",
+    "test_isolated_canary.py": "1547239f776511dd0a6ee16ee4d3bb6da58d356a8fe6d5f035c16d83387c3454",
+    "evidence/qualification_contract.py": "df92473e68f134e338c56b698bd393ce8b178e292180f142144f77de7e1a856b",
+    "CANARY-MANIFEST-234686.json": "80c797de553a52dd3d78c5d36e040f3c94c6dfb26a80e9b2bb2b23df6ac6dee3",
+    "CANARY-OPERATOR-234686.md": "81a794229f19a41441f7402f3492e97bb69a8643d32184edea28105a7ff459bf",
+    "CANARY-COMMAND-234686.txt": "eee6d40e7ad4ed92181be802c90462d7525c6a5f9fce1ca802c69ade0305fc9b",
+    "MODEL-SELECTION-234686.json": "315c6e196a2a31b743f657e898c64e4d7c2d57a9b6b6cdb0f786f795be7a3f04",
+    "EVIDENCE-234686.json": "b47c27bb18b965ee56b3917014ec297c268efb4a90b3664f59739f098903894b"
+  },
+  "outcome": "Opus packet preparation accepted; live result unobserved",
+  "tests": {
+    "count": 11,
+    "reported_seconds": 0.324,
+    "exit": 0,
+    "command": "timeout --kill-after=5s 30s /usr/bin/python3 -B -m unittest discover -s work/records/2026/09/finding-v12-production-context-qualification-preparation/opus-234686 -p test_isolated_canary.py -v"
+  },
+  "audit": "exact approved manifest passed offline",
+  "source": "https://code.claude.com/docs/en/model-config",
+  "source_checked_utc": "2026-09-22",
+  "prior_costs": "All earlier measured/unknown costs preserved in original evidence; new unittest duration0.324s is not wall-clock or cumulative upper bound."
+}

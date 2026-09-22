@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "stacks": [
+    {"name": "main", "directory": "."},
+    {"name": "rview-pc", "directory": "rview-pc"},
+    {"name": "codx-pc", "directory": "codx-pc"}
+  ]
+}

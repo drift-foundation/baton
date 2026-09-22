@@ -1,0 +1,30 @@
+{
+ "schema": "baton.w177936.feedback-evidence/1",
+ "claim": 231009,
+ "authority": "owner 2026-09-21T14:37:12Z resumption; review-2026-09-21T14-48-16Z.md's confirmed feedback gap and pinned acceptance details; no further architecture gate required per that review",
+ "implemented": {
+  "worker_manager/provider_context.py (sha256 16a4439f...)": "context_prompt(task, feedback=None) -- a RESTORE carries one delimited review-findings section, an open refuses a feedback operand; MAX_FEEDBACK_BYTES=32768 in UTF-8 BYTES and MAX_REPORT_BYTES=1MiB so the feedback bound cannot be reached through an unbounded read; correction_feedback_of resolves THE VERDICT THAT OPENED THIS ATTEMPT by the admission's own committed provenance (predecessor finalize checkpoint -> owner-committed correction operation -> verdict_of proved against its act; attempt/episode, line and changes-requested disposition all held) and reads report.json from the verdict's retained accepted custody, held to the frozen result manifest's exact bytes and digest, shape and disposition validated, findings extracted and byte-bounded; bind_context_invocation resolves feedback for restore mode, composes and commits the prompt/argv digests over it, re-proves a replayed binding against the COMMITTED prompt digest, and delivers the bytes",
+  "worker_manager/context_delivery.py (sha256 a80a2c33...)": "deliver_feedback writes ONE `feedback` file into the delivered use root the worker already mounts (beside identity/home; no launch field, no new mount), through the same pins-verified traversal adopt uses; _write's own collision rule IS the never-overwrite policy -- an existing file with different bytes refuses rather than being replaced",
+  "worker/claude_agent.py (sha256 ca525a1e...)": "_prompt(task, feedback=None) is the manager twin, byte-identical composition; _context_feedback reads /run/baton/context/feedback no-follow and bounded -- REQUIRED on restore, REFUSED on open when present, UTF-8 strict; _provider composes the twin prompt before the EXISTING prompt_digest/argv_digest gates, so a tampered or missing file refuses BEFORE the provider runs; the digests are the authority, the file is transport"
+ },
+ "deterministic_proofs": {
+  "suite": "tests.manager.test_claude_context: 41 tests OK (34 prior + 7 new)",
+  "positive": "the composed correction case now asserts the resumed conversation's ACTUAL second argv prompt carries 'THE REVIEW'S FINDINGS:' plus the review's exact findings text and the original instructions, and the opening turn's prompt does not",
+  "twins": "context_prompt(task, feedback) == _prompt(task, feedback), and the no-feedback forms remain equal",
+  "negatives": "tampered feedback file -> the correction turn refuses BEFORE the provider (no new provider call recorded); missing file -> named refusal, no provider call; stray file on an open turn -> named refusal; oversized feedback refuses on both sides; a wrong/stale verdict (checkpoint mismatch) refuses the resolution by name; replay with the same bytes is a no-op and different bytes REFUSE with the delivered file proven byte-unchanged",
+  "adjacent": "tests.manager.test_claude_agent + test_dogfood_entry: 227 OK; image gate tests.manager.test_dogfood_image: 16 OK",
+  "pre_existing_failures_measured": "12 errors in tests.tools.test_stage_execution fixture classes (SimpleNamespace deployment stubs lacking reconciles()) reproduce IDENTICALLY with HEAD copies of every file this claim changed substituted in -- dirty-tree state predating this claim, not introduced or fixed here"
+ },
+ "image": {
+  "id": "sha256:f5d6ee20002fae2bc794f3d6501af6d540d01ad677650bc247b422fb4842639d",
+  "tag": "w177936-feedback",
+  "recipe": "v12/worker/Dockerfile.claude (unchanged)",
+  "doctrine": "a CANDIDATE until an owner launch authorization selects it; no deployment consumes it this claim"
+ },
+ "account_corrections_per_review230731": {
+  "R1_prerequisites_stand": "production profile qualification (only 'deterministic' is admissible today), cross-UID custody (context storage refuses a runtime UID different from the manager's; 0700 roots), and real OCI context execution (OciAdapter._context_execution unconditionally refuses; the composed tests mock that guard) remain UNIMPLEMENTED prerequisites; the feedback change does NOT make the live two-turn outline executable; those paths stay guarded and unpinned until their own design round",
+  "R2_withdrawn_and_replaced": "the receipts-carry-usage claim is WITHDRAWN: provider-context-receipt/2 has no token/cache/usage member. The exact retained usage artifact for a FUTURE measurement decision is the attempt log room's provider.stdout.log -- the CLI's own one-shot result JSON carrying usage and total_cost_usd, attempt-bound by its per-attempt room path and already hash-recorded in W202663's LIVE-JOB4/JOB5 outcome evidence; whether and how to bind it to context invocations is a later selected measurement, not part of this slice"
+ },
+ "not_done": "no live call, no deployment enabling, no guard relaxation, no oci.py change, no worker-onboarding feature, no Git mutation, no identity consumed; candidate-183524 and all five consumed identities preserved byte-for-byte",
+ "spend_this_claim": "deterministic tests and one local image build; zero provider/engine spend"
+}

@@ -1,0 +1,22 @@
+{
+  "selected_model": "claude-opus-5",
+  "expected_reported_model": "claude-opus-5",
+  "image": "sha256:e84a033c6600fdb65c92f5034e72db1578678d3adeb83df519b3845dee5925e0",
+  "archive": "/tmp/w177936-232542-image.tar",
+  "archive_sha256": "0497c4ed98763da15ff641d698aa158228ab5a64fe1099732c86d1a86c20785e",
+  "layer": "blobs/sha256/33ac7848afde6e766ac7f9c813791c4ea40c701c4f710b946602d6ded44b9a54",
+  "binary_member": "usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+  "binary_sha256": "5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15",
+  "binary_bytes": 250162696,
+  "selector_present": true,
+  "package_version": "2.1.247",
+  "package_sha256": "204e690591b935992fff95f6d2af6aeac86be074719da7900f1c4e4056f37efe",
+  "official_minimum_cli": "2.1.219",
+  "sources": [
+    "https://code.claude.com/docs/en/model-config",
+    "https://support.claude.com/en/articles/11940350-claude-code-model-configuration"
+  ],
+  "checked_date_utc": "2026-09-22",
+  "limits": "Static image and published compatibility evidence only; no image/CLI/provider execution, account query or observed terminal identity. Strict expected identity is a test predicate, not a live result.",
+  "elapsed_seconds": 0.21443418704438955
+}

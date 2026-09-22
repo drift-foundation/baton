@@ -1,0 +1,7 @@
+{
+  "elapsed_seconds": 0.4138612210517749,
+  "exit_code": 0,
+  "timeout": false,
+  "process_group_absent": true,
+  "scope": "eleven Opus canary tests; deterministic fake engine/provider, no live execution"
+}

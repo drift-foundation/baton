@@ -1,0 +1,64 @@
+{
+  "work": "W202663",
+  "claim": 230468,
+  "participant": "baton.merge",
+  "at": "2026-09-21T14:12:03Z",
+  "outcome": "reviewed bytes imported; required verification blocked by managed filesystem",
+  "authority": "OWNER-INTEGRATION-JOB5-20260921.md",
+  "independent_review": "review-2026-09-21T13-56-00Z.md and hash-bound accepted findings/report.json",
+  "base": "446fa8f79d9569799a77e888e8236070e1dc78f7",
+  "candidate_head": "a12759d2df0f483da075d842ef1aebad02c1e1f9",
+  "candidate_tree": "eacc4edcc126228df47bdd95836edee2c83b93b1",
+  "target_head": "8b4e9ecd38e1dda5af1138a334a44d7d56cb4159",
+  "checkpoint_digest": "sha256:16e5ff8488484d749d8a790831d37a919d92885dc37db7ea7451bae18eaf317c",
+  "checkpoint_digest_recomputed": true,
+  "proposal_patch_bundle_result_and_review_hashes_verified": true,
+  "exact_path_set_verified": true,
+  "existing_test_paths_changed": [],
+  "preflight": "Both paths absent at declared base and current target; no overlapping divergence; all target ancestors non-symlink directories. No existing target to check for owner-write. Completed for both paths before first import.",
+  "files": {
+    "v12/python/tools/pool.py": {
+      "sha256": "efd71561121529c615dac8847a1bd15df48dc8bba81675b0411add606832de82",
+      "bytes": 20544,
+      "mode": "0644",
+      "base": "absent",
+      "target_before_import": "absent",
+      "matches_reviewed_commit_and_patch": true
+    },
+    "v12/python/tests/tools/test_pool.py": {
+      "sha256": "4bf37eec80456af322b9826fb3c86ac939f135c960fe596035402407544e8b18",
+      "bytes": 25009,
+      "mode": "0644",
+      "base": "absent",
+      "target_before_import": "absent",
+      "matches_reviewed_commit_and_patch": true
+    }
+  },
+  "index_sha256_unchanged": "1b909934ba2dcb94936dbc20cb0cfe2dc040d9e8e95745fcf689f9bfc16ea3bb",
+  "checks": {
+    "diff_check": "pass (tracked diff and both new-file diffs)",
+    "test_log": "integration-230468-tests.log",
+    "test_modules": [
+      "tests.tools.test_pool",
+      "tests.tools.test_bootstrap"
+    ],
+    "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "test_count": 164,
+    "failures": 114,
+    "errors": 0,
+    "skips": 0,
+    "failure_reason": "All 114 failures are the identical fixture setup AssertionError: explicitly selected /tmp root is tmpfs, refused by disk-backed workspace requirement. No candidate assertion failure established.",
+    "unittest_seconds": 15.74,
+    "wall_seconds": 15.92822531494312,
+    "timeout_seconds": 180,
+    "owned_fixture_root_removed": true
+  },
+  "environment": "Mount inspection: /tmp writable tmpfs; checkout writable ext4 but forbidden as fixture root; /var/tmp and /home/sl/.cache are read-only in this managed sandbox. No approved writable disk-backed external fixture root is available.",
+  "remaining": "Provide permitted disk-backed fixture storage outside checkout, then rerun exactly the two selected modules against the preserved bytes and pass to baton.decide for owner Git handling. No candidate edits or reimport needed.",
+  "qualifications": [
+    "pool_generation may change as independently accepted",
+    "admission does not add route handlers",
+    "duplicate participant can leak ContractRefusal/exit1; accepted non-blocking diagnostics follow-up, not fixed",
+    "owner14:09:14Z human-plus-agent integration default read; active claim preserved as exceptional in-flight handoff; W177936 remains next priority after integration preparation"
+  ]
+}
