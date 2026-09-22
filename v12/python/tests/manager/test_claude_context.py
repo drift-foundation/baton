@@ -1,8 +1,9 @@
 """B: real serving/worker/owner paths, simulated engine and provider process.
 
-No production CLI or manager/runtime UID qualification is claimed. Only the
-adapter's explicit unqualified-OCI guard is replaced for the simulated engine;
-all launch, mount, runtime, exchange, retention and ending checks still execute.
+No production CLI or manager/runtime UID qualification is claimed. Legacy
+deterministic fixtures substitute the OCI context guard. ManagedSessionResume
+uses the real candidate grant guard; all launch, mount, runtime, exchange,
+retention and ending checks execute.
 """
 import copy
 import json
@@ -35,6 +36,9 @@ class ServingContextCase(ComposedOneJobCase):
         self.context_root.mkdir(mode=0o700)
         self.calls = Path(self.root) / "actual-provider-calls.jsonl"
         self.model_output = None
+        self.terminal_fields = {"model": "deterministic-model"}
+        self.state_path = ".claude/projects/output/session.json"
+        self.provider_records = []
         self.actual_environments = []
         manifest = copy.deepcopy(self.manifest)
         manifest["outputs"].append(declaration())
@@ -82,9 +86,9 @@ class ServingContextCase(ComposedOneJobCase):
             # A real child reads/restores private bytes and records actual argv.
             script = '''import json,os,sys
 from pathlib import Path
-argv,edits,calls,override,status=json.loads(sys.argv[1])
+argv,edits,calls,override,status,state_path,fields=json.loads(sys.argv[1])
 session=argv[-2]
-state=Path(os.environ["HOME"])/".claude/projects/output/session.json"
+state=Path(os.environ["HOME"])/state_path.replace("{conversation_id}",session)
 previous=json.loads(state.read_text()) if state.exists() else None
 assert (previous is not None)==("--resume" in argv)
 if previous: assert previous["session"]==session
@@ -93,11 +97,14 @@ for parent in (state.parent,state.parent.parent): parent.chmod(0o700)
 state.write_text(json.dumps({"session":session,"private":"PRIVATE-CONTEXT-MARKER","turn":1 if previous is None else previous["turn"]+1}))
 state.chmod(0o600)
 for name,body in edits.items(): Path(name).write_text(body)
-with open(calls,"a") as f: f.write(json.dumps({"argv":argv,"restored":previous is not None})+"\\n")
-print(override if override is not None else json.dumps({"type":"result","subtype":"success","is_error":False,"session_id":session,"model":"deterministic-model"}))
+terminal=override if override is not None else json.dumps({"type":"result","subtype":"success","is_error":False,"session_id":session,**fields})
+with open(calls,"a") as f: f.write(json.dumps({"argv":argv,"restored":previous is not None,"terminal":terminal+"\\n"})+"\\n")
+print(terminal)
 sys.exit(status)
 '''
-            return subprocess.run([sys.executable, "-c", script, json.dumps([argv, edits or {}, str(self.calls), self.model_output, status])], **options)
+            result = subprocess.run([sys.executable, "-c", script, json.dumps([argv, edits or {}, str(self.calls), self.model_output, status, self.state_path, self.terminal_fields])], **options)
+            self.provider_records.append(json.loads(self.calls.read_text().splitlines()[-1])["terminal"].encode())
+            return result
         return run
 
     def turn(self, control, role, attempt_id, roots, **operands):
@@ -138,6 +145,12 @@ sys.exit(status)
         self.addCleanup(composed.close)
         self._composed = composed
         return job, control, composed
+
+    def retained_receipt(self, control, attempt):
+        frozen = frozen_output_of(control, attempt)
+        manifest = load_manifest(control, frozen["manifest_digest"], "resultManifest")
+        output = next(one for one in manifest["outputs"] if one["name"] == "provider-context-receipt")
+        return json.loads(custody.read_context_receipt(control, attempt_id=attempt, artifact_id=output["artifact"]["artifact_id"], workspace_storage=self.storage))
 
     def calls_count(self):
         return len(self.calls.read_text().splitlines()) if self.calls.exists() else 0
@@ -236,8 +249,22 @@ class WorkerInvocation(ServingContextCase):
     def test_nonzero_with_success_terminal_is_unhealthy(self):
         self.terminal_refuses(json.dumps, status=1)
 
-    def test_status_zero_with_wrong_model_is_unhealthy(self):
-        self.terminal_refuses(lambda good: json.dumps(dict(good, model="foreign-model")))
+    def test_status_zero_with_changed_model_is_healthy_and_truthful(self):
+        self.terminal_fields = {"model": "foreign-model"}
+        held = self.implemented()
+        self.assertEqual(context.context_use_of(held.control, held.attempt_id)["status"], "ready")
+        receipt = self.retained_receipt(held.control, held.attempt_id)
+        self.assertEqual(receipt["model"], "deterministic-model")
+        self.assertEqual(receipt["observed_model"], "foreign-model")
+
+    def test_status_zero_without_model_is_healthy_and_diagnostics_are_bound(self):
+        self.terminal_fields = {"modelUsage": {"opus": {"inputTokens": 3}, "haiku": {"inputTokens": 2}}}
+        held = self.implemented()
+        receipt = self.retained_receipt(held.control, held.attempt_id)
+        self.assertTrue(receipt["complete"])
+        self.assertIsNone(receipt["observed_model"])
+        self.assertEqual(receipt["model_diagnostics_digest"], digest(self.terminal_fields))
+        self.assertEqual(receipt["provider_result_digest"], digest_of_bytes(self.provider_records[0]))
 
     def test_status_zero_with_error_is_unhealthy(self):
         self.terminal_refuses(lambda good: json.dumps(dict(good, is_error=True)))
@@ -254,6 +281,22 @@ class WorkerInvocation(ServingContextCase):
     def test_oversized_terminal_is_unhealthy(self):
         import claude_agent
         self.terminal_refuses(lambda good: json.dumps(dict(good, result="x" * (claude_agent.MAX_PROVIDER_RECORD + 1))))
+
+    def test_nonfinite_terminal_numbers_are_unhealthy(self):
+        self.terminal_refuses(lambda good: json.dumps(good)[:-1] + ',"modelUsage":{"tokens":1e999}}')
+
+    def test_historical_v2_receipt_still_validates_its_original_model_contract(self):
+        import claude_agent
+        original = claude_agent.ClaudeAgent._context_result
+        def legacy(agent, *args, **kwargs):
+            receipt = original(agent, *args, **kwargs)
+            receipt["schema"] = context.LEGACY_SERVING_RECEIPT_SCHEMA
+            del receipt["model_diagnostics_digest"], receipt["provider_result_digest"]
+            return receipt
+        with mock.patch.object(claude_agent.ClaudeAgent, "_context_result", legacy):
+            held = self.implemented()
+        self.assertEqual(context.context_use_of(held.control, held.attempt_id)["status"], "ready")
+        self.assertEqual(self.retained_receipt(held.control, held.attempt_id)["schema"], context.LEGACY_SERVING_RECEIPT_SCHEMA)
 
     def test_intent_before_child_loss_never_reinvokes_the_use(self):
         import claude_agent
@@ -764,11 +807,11 @@ class CandidateQualificationFlow(RestoredCorrectionBoundary):
         finalized = [one for one in chain if one["action"] == "finalize"]
         admits = [one for one in chain if one["action"] == "admit"]
         results = []
-        for admission in admits:
-            # Explicit simulated provider artifacts in real attempt rooms.
+        for index, admission in enumerate(admits):
+            # Exact simulated provider bytes from the real worker invocation.
             attempt = admission["payload"]["attempt_id"]
             path = Path(self.config["launch_home"]) / "logs" / attempt / "provider.stdout.log"
-            body = json.dumps({"type": "result", "subtype": "success", "is_error": False, "session_id": admission["payload"]["conversation_id"], "model": "deterministic-model"}).encode()
+            body = self.provider_records[index]
             path.write_bytes(body)
             results.append({"path": str(path), "bytes": len(body), "digest": digest_of_bytes(body)})
         report = {"schema": "baton.context-qualification-review/1", "run_id": self.RUN, "context_id": owner, "attempts": [one["payload"]["attempt_id"] for one in admits], "receipt_digests": [one["payload"]["receipt_digest"] for one in finalized], "generation_digests": [one["payload"]["manifest_digest"] for one in finalized], "provider_results": results, "recall": {"expected_digest": digest("synthetic-recall"), "observed_digest": digest("synthetic-recall"), "second_inputs_excluded": True}}
@@ -866,3 +909,134 @@ class DeterministicProfilesNeverExecuteForReal(RestoredCorrectionBoundary):
         held = self.implemented()
         with self.assertRaisesRegex(Exception, "deterministic profiles"):
             context.prove_context_execution(held.control, held.attempt_id)
+
+
+class ManagedSessionResume(ServingContextCase):
+    """Real candidate grant, manager, worker, custody and independent review.
+
+    Only the OCI engine and provider subprocess behavior are simulated.
+    """
+    RUN = "managed-correction-236087"
+    FINDINGS = RestoredCorrectionBoundary.FINDINGS
+    corrected_ready = RestoredCorrectionBoundary.corrected_ready
+    completed_qualification = CandidateQualificationFlow.completed_qualification
+
+    def setUp(self):
+        super().setUp()
+        self.state_path = ".claude/projects/-output/{conversation_id}.jsonl"
+        self.context_profile = dict(self.context_profile, schema=context.SESSION_PROFILE_SCHEMA, qualification="candidate", state_paths=[self.state_path])
+        self.context_digest = digest(self.context_profile)
+        self.terminal_fields = {"modelUsage": {"opus": {"inputTokens": 3}, "haiku": {"inputTokens": 2}}}
+        guard = mock.patch.object(oci.OciAdapter, "_context_execution", self.real_context_execution)
+        guard.start()
+        self.addCleanup(guard.stop)
+
+    def serving(self, **members):
+        job, control, composed = super().serving(**members)
+        context.authorize_qualification_run(control, run_id=self.RUN, profile_digest=self.context_digest, storage_path=str(self.context_root), authority_uuid=self.config["authority_uuid"], job_id="job-a", note="one simulated managed correction with the real grant guard")
+        return job, control, composed
+
+    def test_managed_correction_and_independent_acceptance_without_model_label(self):
+        held, evidence, report = self.completed_qualification()
+        self.assertEqual(self.calls_count(), 2)
+        calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
+        self.assertEqual([one["restored"] for one in calls], [False, True])
+        self.assertNotIn("THE REVIEW'S FINDINGS:", calls[0]["argv"][-1])
+        self.assertIn("THE REVIEW'S FINDINGS:\n" + self.FINDINGS, calls[1]["argv"][-1])
+        first, second = report["attempts"]
+        one, two = [context.context_invocation_of(held.control, attempt) for attempt in (first, second)]
+        self.assertEqual(one["conversation_id"], two["conversation_id"])
+        for key in ("attempt_id", "use_id", "invocation_id", "delivery_digest"):
+            self.assertNotEqual(one[key], two[key])
+        path = self.state_path.replace("{conversation_id}", one["conversation_id"])
+        for index in (1, 2):
+            state = self.context_root / evidence["context_id"] / "generations" / str(index) / "state" / path
+            self.assertEqual(json.loads(state.read_bytes())["turn"], index)
+        self.assertNotEqual(self.actual_environments[0]["HOME"], self.actual_environments[1]["HOME"])
+        from baton_v12.worker_manager import intake, attempts, review_cycles
+        for attempt in (first, second):
+            receipt = self.retained_receipt(held.control, attempt)
+            self.assertTrue(receipt["complete"])
+            self.assertIsNone(receipt["observed_model"])
+            cleanup = intake.cleanup_of(held.control, attempt_id=attempt, retention_policy_digest=self.config["retention_policy_digest"])
+            self.assertEqual(cleanup["state"], "absent")
+            self.assertIn(cleanup["cleanup"], ("complete", "retained"))
+            self.assertIsNotNone(self.record(held.job, attempt)["settlement"])
+            self.assertEqual(attempts.attempt_runtime_of(held.control, attempt)["execution_runtime"], "destroyed")
+            chain, admitted = context._use(held.control, attempt)
+            self.assertEqual(review_cycles.writer_of(held.control, admitted["payload"]["writer_id"])["state"], "revoked")
+        vectors = self.engine.vectors
+        starts = [index for index, argv in enumerate(vectors) if argv[1] == "run" and "--entrypoint" not in argv]
+        removals = [index for index, argv in enumerate(vectors) if argv[1] == "rm"]
+        self.assertTrue(any(starts[0] < index < starts[1] for index in removals))
+        self.assertTrue(any(starts[1] < index < starts[2] for index in removals))
+        import claude_agent
+        proposals = []
+        for attempt in (first, second):
+            frozen = frozen_output_of(held.control, attempt)
+            manifest = load_manifest(held.control, frozen["manifest_digest"], "resultManifest")
+            proposal = next(one for one in manifest["outputs"] if one["name"] == "proposal")
+            self.assertEqual(proposal["status"], "present")
+            claim = proposal["result_metadata"][claude_agent.CLAIM_NAMESPACE]
+            self.assertEqual(claim["base"], self.base)
+            proposals.append(claim["head"])
+        self.assertNotEqual(*proposals)
+        self.assertNotEqual(report["generation_digests"][0], report["generation_digests"][1])
+        context.retire_context(held.control, evidence["context_id"])
+        production = dict(self.context_profile, qualification="production")
+        context.certify_production_profile(held.control, production, evidence)
+        self.assertIsNotNone(held.control.operation_record(context._id("context-certification", digest(production))))
+
+    def test_restore_changed_model_keeps_requested_binding(self):
+        held, first, reviewer, second = self.corrected_ready()
+        self.terminal_fields = {"model": "reported-other", "modelUsage": {"reported-other": {"inputTokens": 5}}}
+        roots = self.mounted(held.composed, "implementation", second)
+        self.assertEqual(self.turn(held.control, "implementation", second, roots, edits={"harness.py": "print('correction round')\n"}), 0)
+        self.assertEqual(self.turn(held.control, "implementation", second, roots), 0)
+        self.drive(held.job, held.composed, "implementation", "completed")
+        self.assertEqual(self.calls_count(), 2)
+        receipt = self.retained_receipt(held.control, second)
+        self.assertTrue(receipt["complete"])
+        self.assertEqual(receipt["observed_model"], "reported-other")
+        self.assertEqual(receipt["model"], "deterministic-model")
+
+    def test_measured_receipt_rejects_substituted_terminal_even_same_session(self):
+        held = self.implemented()
+        admitted = next(one for one in context._history(held.control, context.context_use_of(held.control, held.attempt_id)["context_id"]) if one["action"] == "admit")
+        reader = lambda attempt, artifact: custody.read_context_receipt(held.control, attempt_id=attempt, artifact_id=artifact, workspace_storage=self.storage)
+        actual = self.provider_records[0]
+        context._receipt(held.control, admitted, reader, terminal_record=actual)
+        changed = dict(json.loads(actual), model="unmeasured-label")
+        with self.assertRaisesRegex(ContractRefusal, "differs from measured receipt"):
+            context._receipt(held.control, admitted, reader, terminal_record=json.dumps(changed).encode())
+
+    test_failed_runtime_removal_keeps_context_and_ending_unsettled = ServingEnding.test_failed_runtime_removal_keeps_context_and_ending_unsettled
+
+    def test_wrong_session_on_restore_cannot_finalize_or_repeat(self):
+        held, first, reviewer, second = self.corrected_ready()
+        self.model_output = json.dumps({"type": "result", "subtype": "success", "is_error": False, "session_id": "00000000-0000-4000-8000-000000000000"})
+        roots = self.mounted(held.composed, "implementation", second)
+        self.turn(held.control, "implementation", second, roots, edits={"harness.py": "print('correction round')\n"})
+        for unused in range(3):
+            sweep(held.job, held.composed, now=fixtures.NOW)
+        self.assert_owed(held.job, held.control, second)
+        self.assertEqual(self.calls_count(), 2)
+        bound = context.context_use_of(held.control, second)
+        self.assertFalse((self.context_root / bound["context_id"] / "generations/2").exists())
+
+    def test_changed_reported_model_also_certifies_as_diagnostics(self):
+        self.terminal_fields = {"model": "reported-other", "modelUsage": {"reported-other": {"inputTokens": 5}}}
+        held, evidence, report = self.completed_qualification()
+        context.retire_context(held.control, evidence["context_id"])
+        context.certify_production_profile(held.control, dict(self.context_profile, qualification="production"), evidence)
+        self.assertEqual(self.calls_count(), 2)
+
+    def test_missing_conversation_file_cannot_be_replaced_by_another_session(self):
+        job, control, composed, attempt, roots = self.started()
+        self.state_path = ".claude/projects/-output/00000000-0000-4000-8000-000000000000.jsonl"
+        self.turn(control, "implementation", attempt, roots, edits={"harness.py": "print('changed')\n"})
+        for unused in range(3):
+            sweep(job, composed, now=fixtures.NOW)
+        self.assert_owed(job, control, attempt)
+        bound = context.context_use_of(control, attempt)
+        self.assertFalse((self.context_root / bound["context_id"] / "generations/1").exists())

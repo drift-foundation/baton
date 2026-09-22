@@ -1,0 +1,37 @@
+{
+  "claim": 238782,
+  "candidate_paths": {
+    "v12/worker/claude_agent.py": true,
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": true,
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": true,
+    "v12/python/tests/manager/test_claude_context.py": true,
+    "v12/python/tests/manager/test_provider_context.py": true,
+    "v12/python/DEPLOYMENT.md": true,
+    "v12/python/tests/tools/test_single_worker.py": true,
+    "v12/python/tests/tools/test_stage_execution.py": true,
+    "v12/python/tools/single_worker.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "bound_source_count": 106,
+  "source_mismatches": [],
+  "digests": {
+    "CANDIDATE.json": "ea00e00e53785ea344d72d10fee2ccf6afa0820badb158fb5a002a4242d41c01",
+    "supervisor.py": "52f6924464d5a1832130ca2dbbbf8ff25e79cac5860cf04cd2c18c4ae6889f3e",
+    "packet_bindings.py": "3d0a3f45fd773e9a4aeb9192e0a32092b7367386ad83f1f243b787f0ec67c2a9",
+    "test_supervisor.py": "d1d35c6eed321aa572867ea226a7bc9a61868d9424735bbaadf69ffe6181ac21",
+    "test_generated_packet.py": "c8b2ae667787d948a26a05a05f53f02eff8c1f6f592b451e3a6375d6a98fe03c",
+    "OPERATOR-238700.md": "28b0b0993f9026a8e16ae7a082021eeaede3286dfaad90b465442d56ab090964",
+    "SELECTIONS-238700.json": "13f8510daf2500843e6409f941fefdd1177b3565f7d961e5c76d62d58b91d1f3",
+    "PACKET-INPUTS-238700.json": "985bdf147fbb956e3b74e78e35f818b8a294ab282043573c62b8cf159c0bfa77",
+    "MANAGER-SOURCE-238462.json": "2c7caa909d3e01e918c7badd27f2152ee1430cebd5c530fe0333b2b81458cefa",
+    "review-checks-238782.py": "688c6802db0bfa24374ec0c293e771b54db292ac8d7c66ddb66d03183e9b7983"
+  },
+  "packet_program_mismatches": [],
+  "verification_seconds": 9.890538326995738,
+  "recorded_cumulative_seconds": 248.64432240199574,
+  "unreadable_historical_paths": [
+    "work/records/2026/09/finding-v12-managed-session-resume/OPERATOR-238462.md",
+    "work/records/2026/09/finding-v12-managed-session-resume/PACKET-INPUTS-238462.json",
+    "work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-238462.json"
+  ]
+}

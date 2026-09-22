@@ -1,0 +1,55 @@
+test_managed_correction_and_independent_acceptance_without_model_label (tests.manager.test_claude_context.ManagedSessionResume.test_managed_correction_and_independent_acceptance_without_model_label) ... ERROR
+test_restore_changed_model_keeps_requested_binding (tests.manager.test_claude_context.ManagedSessionResume.test_restore_changed_model_keeps_requested_binding) ... ok
+test_measured_receipt_rejects_substituted_terminal_even_same_session (tests.manager.test_claude_context.ManagedSessionResume.test_measured_receipt_rejects_substituted_terminal_even_same_session) ... ERROR
+test_status_zero_without_model_is_healthy_and_diagnostics_are_bound (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_without_model_is_healthy_and_diagnostics_are_bound) ... ERROR
+test_only_admitted_uuid_expands_the_exact_filename (tests.manager.test_provider_context.ConversationStatePaths.test_only_admitted_uuid_expands_the_exact_filename) ... ok
+test_templates_do_not_expand_directories_or_arbitrary_placeholders (tests.manager.test_provider_context.ConversationStatePaths.test_templates_do_not_expand_directories_or_arbitrary_placeholders) ... ok
+
+======================================================================
+ERROR: test_managed_correction_and_independent_acceptance_without_model_label (tests.manager.test_claude_context.ManagedSessionResume.test_managed_correction_and_independent_acceptance_without_model_label)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 922, in test_managed_correction_and_independent_acceptance_without_model_label
+    held, evidence, report = self.completed_qualification()
+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 797, in completed_qualification
+    path.write_bytes(body)
+    ~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 640, in write_bytes
+    view = memoryview(data)
+TypeError: memoryview: a bytes-like object is required, not 'NoneType'
+
+======================================================================
+ERROR: test_measured_receipt_rejects_substituted_terminal_even_same_session (tests.manager.test_claude_context.ManagedSessionResume.test_measured_receipt_rejects_substituted_terminal_even_same_session)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 972, in test_measured_receipt_rejects_substituted_terminal_even_same_session
+    changed = dict(json.loads(actual), model="unmeasured-label")
+                   ~~~~~~~~~~^^^^^^^^
+  File "/usr/lib/python3.13/json/__init__.py", line 339, in loads
+    raise TypeError(f'the JSON object must be str, bytes or bytearray, '
+                    f'not {s.__class__.__name__}')
+TypeError: the JSON object must be str, bytes or bytearray, not NoneType
+
+======================================================================
+ERROR: test_status_zero_without_model_is_healthy_and_diagnostics_are_bound (tests.manager.test_claude_context.WorkerInvocation.test_status_zero_without_model_is_healthy_and_diagnostics_are_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_claude_context.py", line 265, in test_status_zero_without_model_is_healthy_and_diagnostics_are_bound
+    self.assertEqual(receipt["provider_result_digest"], digest_of_bytes(self.provider_records[0]))
+                                                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 203, in digest_of_bytes
+    _refuse(
+    ~~~~~~~^
+        f"a digest over bytes needs exact bytes; this is "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{name_value(payload)}")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py", line 60, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a digest over bytes needs exact bytes; this is none
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.734s
+
+FAILED (errors=3)

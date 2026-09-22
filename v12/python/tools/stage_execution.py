@@ -4573,6 +4573,50 @@ class StageExecution:
         self._nothing_unserved("on this serving tick")
         return self.pooled.drain(handlers, quiescent=quiescent)
 
+    # -- stopping what is still executing ------------------------------------
+
+    def cancel_attempt(self, *, attempt_id, reason):
+        """Route a stop to the worker that STARTED this attempt. W236087.
+
+        Review 2026-09-22T07:03:13Z R2a: a bounded owner supervisor reaching
+        its deadline with a provider turn in flight had no way to stop it.
+        `single_worker` now carries the act -- `attempts.request_cancellation`,
+        which fences the exact participant and generation at the Authority
+        before ordering quiescence -- and this is how an orchestrator reaches
+        the one composition entitled to perform it.
+
+        THE OWNER IS THE RECORDED ALLOCATION, not a guessed role. An attempt
+        belongs to the worker the scheduler reserved for it; picking the first
+        worker of a matching role would cancel through a composition that never
+        launched this container, and a correction round is exactly the case
+        where two attempts of one role exist. An attempt with no recorded
+        allocation refuses by name rather than being cancelled through whoever
+        happened to be first.
+
+        AND THE ANSWER IS NOT ABSENCE. `request_cancellation` reports what it
+        ORDERED; positive exclusion is the ending path's, and every caller here
+        keeps reading `intake.cleanup_of` for it.
+        """
+        recorded = allocation_of(self.pooled.store, attempt_id)
+        if recorded is None:
+            _refuse(f"attempt {attempt_id!r} has no recorded allocation, so "
+                    f"this deployment cannot say which worker started it; a "
+                    f"cancellation is ordered by the composition that holds "
+                    f"that attempt's port and adapter",
+                    category="refused", code="precondition")
+        owners = {one["worker_id"]: one["operations"] for one in self.workers}
+        operations = owners.get(recorded["worker_id"])
+        if operations is None:
+            _refuse(f"attempt {attempt_id!r} is allocated to worker "
+                    f"{recorded['worker_id']!r}, which this deployment does "
+                    f"not compose", category="refused", code="precondition")
+        cancel = getattr(operations, "cancel_attempt", None)
+        if cancel is None:
+            _refuse(f"worker {recorded['worker_id']!r} composes no "
+                    f"cancellation capability", category="refused",
+                    code="capability")
+        return cancel(attempt_id=attempt_id, reason=reason)
+
     # -- the owned observation and the two stage driver operations -----------
 
     def admit(self, stage, job=None):

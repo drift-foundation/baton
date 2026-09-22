@@ -4463,3 +4463,73 @@ class ThreeWorkersOneJobThreeImages(SingleWorkerCase):
                 worker._matches(stage, job)
             messages.append(caught.exception.message)
         self.assertNotEqual(messages[0], messages[1])
+
+
+class TheDeploymentCanStopWhatItStarted(SingleWorkerCase):
+    """W236087 R2a: the composed worker's own cancellation, and its honesty.
+
+    A bounded owner supervisor reaching its deadline with a provider turn in
+    flight had nothing to drive: closing its admission gate stops the NEXT
+    runtime and the ordinary ending path has nothing to finish while this one
+    waits. The stop belongs to the deployment, because the port, the agent and
+    the adapter are its own.
+    """
+
+    def test_the_agent_reports_the_absent_channel_rather_than_pretending(self):
+        """This worker speaks through a durable file exchange.
+
+        Nothing here can reach a provider turn already in flight, so the
+        settlement SAYS so and travels back un-summarized. A bare success
+        would be a deployment telling the manager that a worker cooperated
+        with an order it never received.
+        """
+        agent = single_worker._UncooperativeAgent(self.config)
+        answered = agent.cancel({"attempt_id": "attempt-1",
+                                 "assignment": {"participant": fixtures.WHO},
+                                 "runtime_id": "runtime-1",
+                                 "operation_id": "cancel-1"})
+        self.assertIs(answered["cooperative"], False)
+        self.assertEqual(answered["attempt_id"], "attempt-1")
+        self.assertEqual(answered["operation_id"], "cancel-1")
+        self.assertEqual(answered["participant"], self.config["participant"])
+        self.assertIn("no cooperative cancellation channel", answered["why"])
+
+    def test_the_agent_refuses_a_command_it_cannot_own(self):
+        agent = single_worker._UncooperativeAgent(self.config)
+        with self.assertRaises(ContractRefusal):
+            agent.cancel({"attempt_id": "attempt-1"})
+
+    def test_cancellation_goes_through_the_accepted_manager_path(self):
+        """FENCE, THEN STOP -- and this composes neither half itself.
+
+        `attempts.request_cancellation` fences the exact participant and
+        generation at the Authority before ordering quiescence. What this
+        asserts is that the worker hands it this deployment's own store, port,
+        agent and runtime adapter, and nothing else.
+        """
+        from unittest import mock
+
+        engine = Engine()
+        operations = self.operations(*self.stores("cancel-seam"), engine)
+        self.addCleanup(operations.close)
+        worker = operations._worker
+        with mock.patch.object(single_worker.attempts,
+                               "request_cancellation") as cancelling:
+            cancelling.return_value = {"fenced": {"generation": 1}}
+            answered = operations.cancel_attempt(attempt_id="attempt-1",
+                                                 reason="overall bound")
+        self.assertEqual(answered, {"fenced": {"generation": 1}})
+        (store, port, agent, adapter), named = cancelling.call_args
+        self.assertIs(store, worker.control)
+        self.assertIs(port, worker.port)
+        self.assertIsInstance(agent, single_worker._UncooperativeAgent)
+        self.assertIsInstance(adapter, single_worker.OciAdapter)
+        self.assertEqual(named, {"attempt_id": "attempt-1",
+                                 "reason": "overall bound"})
+
+    def test_a_malformed_attempt_identity_refuses_before_anything_opens(self):
+        engine = Engine()
+        operations = self.operations(*self.stores("cancel-refusal"), engine)
+        self.addCleanup(operations.close)
+        with self.assertRaises(ContractRefusal):
+            operations.cancel_attempt(attempt_id="", reason="overall bound")

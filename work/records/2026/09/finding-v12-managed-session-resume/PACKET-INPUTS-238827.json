@@ -1,0 +1,152 @@
+{
+  "bounds": {
+    "cleanup_seconds": 60,
+    "corrections": 1,
+    "implementer_invocations": 2,
+    "retry": false,
+    "review_invocations": 2,
+    "total_seconds": 900,
+    "turn_seconds": 180
+  },
+  "claim": 238827,
+  "context": {
+    "credential": "reference only; never credential content",
+    "cwd": "/output",
+    "evidence_digest_names": "work/records/2026/09/finding-v12-production-context-qualification-preparation/REVIEW-EVIDENCE-235998.json (W177936's accepted recall evidence)",
+    "max_bytes": 67108864,
+    "max_entries": 4096,
+    "profile_schema": "baton.claude-context-profile/2",
+    "provider_network": "OWNER-CHOICE; 'none' is refused by the composer",
+    "qualification": "candidate",
+    "requested_model": "opus",
+    "state_paths": [
+      ".claude/projects/-output/{conversation_id}.jsonl"
+    ],
+    "storage_path": "/home/sl/baton-runs/managed-correction-236087/run/private-contexts"
+  },
+  "engine_execution_performed": {
+    "what": "one throwaway --network none --read-only container that hashed /opt/baton and read `claude --version`, during image verification under claim 236349",
+    "what_it_is_not": "no managed run, no live provider, no model call, no credential, no egress, no registry push, no deployment change and no production enabling"
+  },
+  "entrypoint_proof": {
+    "defect_it_found": "main called JobStore.open without authority_uuid and incarnation and raised TypeError before opening anything; fixed under this claim",
+    "seams": "engine and provider subprocess simulated at their normal boundaries; time.sleep patched because the composed deployment has no daemon to run a container",
+    "what": "the generated packet run through supervisor.main with the real imported baton_v12/tools bound as manager_source: success (exit 0), timeout with an engine stop and an outstanding cleanup (exit 1), and refusal of a packet whose bound source is not the imported one (exit 2, before any store or engine)",
+    "where": "test_generated_packet.TheGeneratedPacketRunsThroughMain"
+  },
+  "fixture": {
+    "all_four_are_committed": true,
+    "corrected_output": "READY\n",
+    "files": {
+      "ACCEPTANCE.md": "de5b3672835a6481995c36cf233fe31e622c823c5657d03cdabf3e61e98fa1c5",
+      "REVIEW-FEEDBACK.md": "2b810e14686f5c52e5afaf196dfc26d98fe01fde041c094f0136b740ce7de4a0",
+      "TASK.md": "221464d7d411613bc246c8e5308807c36fecb0fa7c92d1f85d2dee20343c4fba",
+      "harness.py": "362e989b9eeb58273c85b28fa156832e1b459a75fe6916712104d4035d40f3b4"
+    },
+    "initial_output": "before\n",
+    "source_bytes_root": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/fixture",
+    "why": "one Job carries one input manifest, so both roles read one task document; the review criteria travel in the fixture repository where each role can read them read-only at /input/source"
+  },
+  "installation": {
+    "authority_store": "/home/sl/baton-runs/managed-correction-236087/install/db/authority.sqlite3",
+    "authority_uuid": "636a9493650b4efe9d03c684b5b9d904",
+    "control_store": "/home/sl/baton-runs/managed-correction-236087/install/db/control.sqlite3",
+    "deployment_config": "/home/sl/baton-runs/managed-correction-236087/install/deployment.json",
+    "deployment_config_sha256": "4c52e1fb99ff48e29a5e311def5c346012714b80f0bb2b43edcc0f01e94c1365",
+    "destination": "/home/sl/baton-runs/managed-correction-236087/install",
+    "grants": 0,
+    "integration_target": "/home/sl/baton-runs/managed-correction-236087/install/repo/target.git",
+    "job_store": "/home/sl/baton-runs/managed-correction-236087/install/db/jobs.sqlite3",
+    "jobs": 0,
+    "preparation_required": "operator step 5a",
+    "route_handlers": 0,
+    "state_root": "/home/sl/baton-runs/managed-correction-236087/install/state",
+    "workers": 0,
+    "works": 0
+  },
+  "manager_runtime": {
+    "build_commit": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3",
+    "distro": "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+    "evidence": "MANAGER-ARTIFACT-236349.json",
+    "evidence_sha256": "83e1a7f172af672aa68ce385a812c7dcbe77283f00058f388bf89f09f5293ec1",
+    "executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+    "identity_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+    "role": "the INSTALLATION artifact; it owns the store layout and is what `just start` would execute. It is NOT the code that supervises -- see manager_source."
+  },
+  "manager_source": {
+    "carries_the_cancellation_seam": {
+      "tools/single_worker.py": "236b85ab3ff4ee68f63fcfd485c72b7d60010b79a122c9b63825ba3a402ca720",
+      "tools/stage_execution.py": "33c780916a115890767bb79cc3a2dcedc6ec588fb1da08e95490cd7897cd6e81"
+    },
+    "evidence": "MANAGER-SOURCE-238462.json",
+    "evidence_sha256": "2c7caa909d3e01e918c7badd27f2152ee1430cebd5c530fe0333b2b81458cefa",
+    "file_count": 106,
+    "files_differing_from_origin": [],
+    "packages": [
+      "baton_v12",
+      "tools"
+    ],
+    "path": "/home/sl/baton-runs/managed-correction-236087/manager-source",
+    "role": "the code the operator command actually imports and the supervisor proves before opening a store"
+  },
+  "operator": {
+    "document": "OPERATOR-238827.md",
+    "document_sha256": "711aae425637565a75c17559f2df6f2ddb8372c479a9ac5c0ee99f35f8d15b05",
+    "lost_record": "LOST-ARTIFACTS-238827.md",
+    "lost_record_sha256": "e68fe1223d225060dcd06fc60925da31a75a8b9b63c3d7cc4144cb66586665ce",
+    "selections": "SELECTIONS-238827.json",
+    "selections_sha256": "7a24135410617abc09be57ea4365a79629b4dd9e40132ee6c7061b06cc96f5b4",
+    "superseded_kept": [
+      "OPERATOR-238700.md",
+      "SELECTIONS-238700.json",
+      "PACKET-INPUTS-238700.json"
+    ]
+  },
+  "owner_acts": {
+    "no_longer_yours": "configuring the workspace store. `supervisor.prepare` now derives that root from the validated deployment and configures it before the context storage, which is the read that needed it. The conflicting-root refusal and the context/workspace exclusion checks are unchanged.",
+    "still_yours": [
+      "the fixture repository's first commit (step 4)",
+      "the Authority Work, route handlers and grants (step 5a)",
+      "the six selections in SELECTIONS-238827.json"
+    ]
+  },
+  "product_paths": {
+    "candidate_manifest_sha256": "ea00e00e53785ea344d72d10fee2ccf6afa0820badb158fb5a002a4242d41c01",
+    "v12/python/tests/tools/test_single_worker.py": "62d4888e3b2edc216d7c90c64656b9967c29ce9f3c67dc86e833b7e00c828a31",
+    "v12/python/tests/tools/test_stage_execution.py": "f7c6b025d612f62aae0a4df6b73ea0bb25524311fc47d420d992820f9da74a28",
+    "v12/python/tools/single_worker.py": "236b85ab3ff4ee68f63fcfd485c72b7d60010b79a122c9b63825ba3a402ca720",
+    "v12/python/tools/stage_execution.py": "33c780916a115890767bb79cc3a2dcedc6ec588fb1da08e95490cd7897cd6e81",
+    "why": "W236087 R2a: the manager-owned cancellation seam. Ownership was pinned in PLAN.md before the first edit and CANDIDATE.json is amended; the six originally accepted paths are unchanged."
+  },
+  "programs": {
+    "measured": [
+      "verification-14.json/.log",
+      "verification-15.json/.log"
+    ],
+    "outcome_schema": "baton.managed-correction-outcome/3",
+    "packet_bindings.py": "3d0a3f45fd773e9a4aeb9192e0a32092b7367386ad83f1f243b787f0ec67c2a9",
+    "packet_schema": "baton.managed-correction-packet/2",
+    "supervisor.py": "2ee918c11111cfc9a9c2b7dd6d61e900e7abd22bb9856baadab17da11dd9ea48",
+    "test_generated_packet.py": "13295c3d1aa3d13f089794a7c8f1855df2b4fc95e97e1143e79043c530fb4c9d",
+    "test_packet_bindings.py": "3d3d997e48e8130d824f2bf4d68c1e066e1b2fd8d6455f95f520b6f484f508f2",
+    "test_supervisor.py": "d1d35c6eed321aa572867ea226a7bc9a61868d9424735bbaadf69ffe6181ac21"
+  },
+  "run_id": "managed-correction-236087",
+  "schema": "baton.managed-correction-packet-inputs/6",
+  "state": "inputs bound and per-Job bindings drafted; NOT a runnable packet",
+  "supersedes": "PACKET-INPUTS-238700.json (claim 238700), KEPT in place; review 2026-09-22T12:55:41Z accepted R2a and narrowed R4 to the workspace-storage prerequisite",
+  "why_not_runnable": [
+    "The Job's line_declared_base is a commit object in the fixture repository, and this deployment prohibits the implementer from performing version-control mutations, so creating it is operator step 4. packet_bindings refuses an unresolved base by name rather than writing a placeholder.",
+    "Operator step 5a -- creating the Work, registering the impl/rview/integration route handlers and granting verify/review/approve/integrate -- is an Authority mutation against the real disposable instance and therefore the owner's. packet_bindings.preflight names whatever is missing and says explicitly that route-handler registration is not verifiable through the Authority's public readers.",
+    "Six owner selections remain, enumerated in SELECTIONS-238827.json."
+  ],
+  "work": "W236087",
+  "worker_image": {
+    "carries_candidate_bytes": true,
+    "config_digest": "sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd",
+    "evidence": "IMAGE-ARTIFACT-236349.json",
+    "evidence_sha256": "bce6d9801af5a074604e65ce5f5754720cc98d799fbfc7878f8d57569ecdcd32",
+    "provider_cli": "2.1.247 (Claude Code)",
+    "reference": "baton-v12-claude-worker:w236087-236349"
+  }
+}

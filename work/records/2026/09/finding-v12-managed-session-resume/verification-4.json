@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "test_supervisor",
+    "-v"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "seconds": 46.25534878699909,
+  "selection": "work/records/2026/09/finding-v12-managed-session-resume/test_supervisor.py",
+  "status": 0,
+  "timeout": false
+}

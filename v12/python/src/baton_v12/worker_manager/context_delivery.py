@@ -310,6 +310,20 @@ def _delivery(control, storage, admitted, pins):
     return ContextDelivery(value["context_id"], value["use_id"], value["attempt_id"], os.path.join(root, "home"), os.path.join(root, "invocation"), digest(value))
 
 
+def _state_profile(control, admitted):
+    profile = context.context_profile_of(control, admitted["payload"]["profile_digest"])
+    if profile["schema"] == context.PROFILE_SCHEMA:
+        return profile
+    conversation = admitted["payload"]["conversation_id"]
+    # The only expansion comes from the committed owner identity, never state.
+    if str(context.uuid.UUID(conversation)) != conversation:
+        context._refuse("state conversation is not a canonical UUID")
+    paths = [path.replace("{conversation_id}", conversation) for path in profile["state_paths"]]
+    if len(set(paths)) != len(paths):
+        context._refuse("resolved state paths collide")
+    return dict(profile, state_paths=paths)
+
+
 def materialize_context_use(control, storage, *, attempt_id):
     chain, admitted = context._use(control, attempt_id)
     if control.operation_record(context._id("context-discard", admitted["use_id"]) + "-intent") is not None:
@@ -319,7 +333,7 @@ def materialize_context_use(control, storage, *, attempt_id):
         return adopt_context_use(control, storage, attempt_id=attempt_id)
     if chain[-1] != admitted:
         context._refuse("context use cannot be materialized")
-    profile = context.context_profile_of(control, admitted["payload"]["profile_digest"])
+    profile = _state_profile(control, admitted)
     storage_pins = [list(one) for one in configured_context_storage(control).pins]
     for key in ("repo_pin", "source_pin"):
         other = admitted["payload"][key]
@@ -421,7 +435,7 @@ def validate_generation(control, storage, context_id, expected):
     if finalized is None:
         context._refuse("generation has no matching committed finalization")
     admitted = next(one for one in chain if one["action"] == "admit" and one["use_id"] == finalized["use_id"])
-    profile = context.context_profile_of(control, admitted["payload"]["profile_digest"])
+    profile = _state_profile(control, admitted)
     with _storage(control, storage) as root:
         with _directories(root, [context_id]) as owner:
             _generation(owner, str(expected["generation"]), profile, expected, use_id=admitted["use_id"])
@@ -430,7 +444,7 @@ def validate_generation(control, storage, context_id, expected):
 def seal_generation(control, storage, *, attempt_id, exclusion):
     """Only positive owner cleanup allows reading the formerly mutable state."""
     chain, admitted = context._use(control, attempt_id)
-    profile = context.context_profile_of(control, admitted["payload"]["profile_digest"])
+    profile = _state_profile(control, admitted)
     actual = intake.cleanup_of(control, attempt_id=attempt_id, retention_policy_digest=profile["retention_policy_digest"])
     if actual is None or actual != exclusion or actual["state"] != "absent" or actual["cleanup"] not in ("complete", "retained"):
         context._refuse("generation has no owner-proved runtime exclusion")

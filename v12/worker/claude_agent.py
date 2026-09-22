@@ -3436,16 +3436,24 @@ class ClaudeAgent:
                     raise ValueError("duplicate terminal key")
                 result[key] = item
             return result
+        def finite(text):
+            value = float(text)
+            if not __import__("math").isfinite(value):
+                raise ValueError("nonfinite terminal number")
+            return value
         if not partial and type(record) is bytes and len(record) <= MAX_PROVIDER_RECORD:
             try:
-                value = json.loads(record, object_pairs_hook=pairs, parse_constant=lambda text: (_ for _ in ()).throw(ValueError()))
+                value = json.loads(record, object_pairs_hook=pairs, parse_float=finite, parse_constant=lambda text: (_ for _ in ()).throw(ValueError()))
             except (ValueError, UnicodeError, RecursionError):
                 pass
-        good = (type(value) is dict and value.get("type") == "result" and value.get("subtype") == "success" and value.get("is_error") is False and value.get("session_id") == contextual["conversation_id"] and value.get("model") == contextual["reported_model"] and status == 0)
-        # This deterministic profile's terminal model field is deliberately
-        # closed. Production one-shot field qualification remains unavailable.
+        good = (type(value) is dict and value.get("type") == "result" and value.get("subtype") == "success" and value.get("is_error") is False and value.get("session_id") == contextual["conversation_id"] and type(status) is int and status == 0)
+        # Model attribution is diagnostic, not proof of session continuity.
+        diagnostics = {key: value[key] for key in ("model", "modelUsage") if key in value} if type(value) is dict else {}
+        observed = diagnostics.get("model")
+        if type(observed) is not str or re.fullmatch(r"[A-Za-z0-9._:/-]{1,256}", observed) is None:
+            observed = None
         job = self._seen["job_execution"]
-        return {"schema": "baton.provider-context-receipt/2", **{key: contextual[key] for key in ("context_id", "use_id", "attempt_id", "conversation_id", "profile_digest", "invocation_id", "model", "cli_build", "mode", "delivery_digest", "task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest")}, "status": status, "complete": bool(good), "observed_model": contextual["reported_model"] if good else None, "observed_conversation_id": contextual["conversation_id"] if good else None, "terminal": "success" if good else "unproved", "input_digest": job["runtime_input_digest"], "policy_digest": job["runtime_policy_digest"]}
+        return {"schema": "baton.provider-context-receipt/3", **{key: contextual[key] for key in ("context_id", "use_id", "attempt_id", "conversation_id", "profile_digest", "invocation_id", "model", "cli_build", "mode", "delivery_digest", "task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest")}, "status": status, "complete": bool(good), "observed_model": observed, "model_diagnostics_digest": _digest(diagnostics), "provider_result_digest": "sha256:" + _bytes_digest(record).hex() if type(record) is bytes else None, "observed_conversation_id": contextual["conversation_id"] if good else None, "terminal": "success" if good else "unproved", "input_digest": job["runtime_input_digest"], "policy_digest": job["runtime_policy_digest"]}
 
     def _publish_context_receipt(self):
         import baton_worker

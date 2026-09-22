@@ -1,0 +1,37 @@
+{
+  "claim": 238615,
+  "candidate_paths": {
+    "v12/worker/claude_agent.py": true,
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": true,
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": true,
+    "v12/python/tests/manager/test_claude_context.py": true,
+    "v12/python/tests/manager/test_provider_context.py": true,
+    "v12/python/DEPLOYMENT.md": true,
+    "v12/python/tests/tools/test_single_worker.py": true,
+    "v12/python/tests/tools/test_stage_execution.py": true,
+    "v12/python/tools/single_worker.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "bound_source_count": 106,
+  "bound_source_mismatches": [],
+  "digests": {
+    "CANDIDATE.json": "ea00e00e53785ea344d72d10fee2ccf6afa0820badb158fb5a002a4242d41c01",
+    "supervisor.py": "ea160f3b99546b5178b3af543bce7c23052237a986aece7eee01aceed12bb433",
+    "packet_bindings.py": "3d0a3f45fd773e9a4aeb9192e0a32092b7367386ad83f1f243b787f0ec67c2a9",
+    "test_supervisor.py": "a89d302e18b227dd84d8af42a7c7d943b4f17ca4cd140e671ced52a41729d37b",
+    "test_generated_packet.py": "f1914ea3749b5f0d969bbb02a79797f735b09bdbb30b049b62edba6ad55bc9e5",
+    "OPERATOR-238462.md": "605a569389e974370873c22e063f2006698f4710f5e82f43b9f2189836e320c2",
+    "SELECTIONS-238462.json": "02d637330452a31c56b15a6e842fc051b3a0f1880c362cc31739f20da1c0bda8",
+    "PACKET-INPUTS-238462.json": "630e147ea0eae8e922b0cf43b6c17d77994cd8f6ae69b8617e1006c8d2bf9d44",
+    "MANAGER-SOURCE-238462.json": "2c7caa909d3e01e918c7badd27f2152ee1430cebd5c530fe0333b2b81458cefa"
+  },
+  "new_path_base_checks": {
+    "v12/python/tests/tools/test_single_worker.py": true,
+    "v12/python/tests/tools/test_stage_execution.py": true,
+    "v12/python/tools/single_worker.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "review_program_sha256": "5433442426881f930e972ef5d2a963a7c9f95f3dfb0813cf5acca7f09cbfa62f",
+  "verification_seconds": 8.079184858004737,
+  "recorded_cumulative_seconds": 202.20927073500474
+}

@@ -1,0 +1,16 @@
+test_an_unresolved_declared_base_refuses_rather_than_placeholding (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_an_unresolved_declared_base_refuses_rather_than_placeholding) ... ok
+test_the_context_profile_is_the_candidate_session_profile (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_the_context_profile_is_the_candidate_session_profile) ... ok
+test_the_deployment_is_accepted_by_the_managers_own_validator (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_the_deployment_is_accepted_by_the_managers_own_validator) ... ok
+test_the_implementation_worker_is_the_contextual_schema (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_the_implementation_worker_is_the_contextual_schema) ... ok
+test_the_manifest_declares_the_reserved_receipt_output (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_the_manifest_declares_the_reserved_receipt_output) ... ok
+test_the_submission_carries_the_declared_provider_turn_ceiling (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_the_submission_carries_the_declared_provider_turn_ceiling) ... ok
+test_the_three_identities_are_digests_of_readable_documents (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_the_three_identities_are_digests_of_readable_documents)
+An owner can read what was proposed instead of approving a hash. ... ok
+test_the_written_packet_binds_the_bytes_that_were_written (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_the_written_packet_binds_the_bytes_that_were_written) ... ok
+test_the_written_packet_is_accepted_by_held_packet (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_the_written_packet_is_accepted_by_held_packet) ... ok
+test_two_roles_sharing_a_principal_are_refused_before_writing (test_packet_bindings.TheProposedBindingsAreHeldBeforeTheyAreWritten.test_two_roles_sharing_a_principal_are_refused_before_writing) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.118s
+
+OK

@@ -1,0 +1,33 @@
+test_main_without_undocumented_workspace_setup_refuses (__main__.Independent.test_main_without_undocumented_workspace_setup_refuses) ... ok
+test_sigterm_at_runtime_read_is_deferred_and_retained (__main__.SignalProof.test_sigterm_at_runtime_read_is_deferred_and_retained) ... ok
+test_main_completes_the_correction_and_exits_zero (test_generated_packet.TheGeneratedPacketRunsThroughMain.test_main_completes_the_correction_and_exits_zero) ... ok
+test_main_holds_and_exits_one_when_the_bound_elapses (test_generated_packet.TheGeneratedPacketRunsThroughMain.test_main_holds_and_exits_one_when_the_bound_elapses) ... ok
+test_main_refuses_a_packet_whose_imported_source_is_not_bound (test_generated_packet.TheGeneratedPacketRunsThroughMain.test_main_refuses_a_packet_whose_imported_source_is_not_bound)
+R3's check, proved at the entrypoint rather than described. ... ok
+test_a_composition_without_the_capability_is_held_and_says_so (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_composition_without_the_capability_is_held_and_says_so)
+Honest reporting when a deployment composes no stop at all. ... ok
+test_a_deferred_signal_during_shutdown_is_recorded_not_raised (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_deferred_signal_during_shutdown_is_recorded_not_raised)
+The mode, asserted directly: raise while serving, defer after. ... ok
+test_a_refused_cancellation_is_held_rather_than_absorbed (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_refused_cancellation_is_held_rather_than_absorbed) ... ok
+test_a_timeout_with_a_waiting_runtime_orders_the_stop (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_timeout_with_a_waiting_runtime_orders_the_stop)
+The reviewer's counterexample, with a composition that can stop. ... ok
+test_an_attempt_this_manager_cannot_describe_is_still_ordered (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_attempt_this_manager_cannot_describe_is_still_ordered)
+R2a: unknown state is not absence. ... ok
+test_an_interrupt_at_a_runtime_read_still_stops_and_retains (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_interrupt_at_a_runtime_read_still_stops_and_retains)
+The reviewer's strengthened counterexample. R2a. ... ok
+test_an_interrupt_during_cancellation_still_retains_the_outcome (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_interrupt_during_cancellation_still_retains_the_outcome)
+R2a: the shutdown boundary holds across cancellation too. ... ok
+test_an_interrupt_retains_the_outcome_and_is_not_swallowed (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_interrupt_retains_the_outcome_and_is_not_swallowed)
+Ctrl-C and SIGTERM are shutdowns, not escapes. ... ok
+test_an_unreadable_history_after_the_stop_is_never_settled (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_unreadable_history_after_the_stop_is_never_settled)
+The reviewer's R2b counterexample. ... ok
+test_the_real_composition_orders_the_engine_stop (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_the_real_composition_orders_the_engine_stop)
+R2a's acceptance: the ORDINARY composition, and a real engine stop. ... ok
+test_the_stop_is_ordered_and_is_not_proof_of_absence (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_the_stop_is_ordered_and_is_not_proof_of_absence)
+A stop that was ORDERED is not a runtime this manager saw gone. ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 9.644s
+
+OK
+FRESH MAIN REFUSAL: this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision

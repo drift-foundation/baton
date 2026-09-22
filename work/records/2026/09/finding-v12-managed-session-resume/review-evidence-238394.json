@@ -1,0 +1,19 @@
+{
+  "claim": 238394,
+  "original_candidate_unchanged": true,
+  "evidence_digest_verified": "1609a7707a7e8ed36e76f47182b5dcc49e4e5531e01bed18c5f6fa51c1467c3d",
+  "files": {
+    "supervisor.py": "d860dd80ace1889a6adb83ccb9615c310eaea8e130e7f2a6c591140ade17896e",
+    "test_supervisor.py": "fdc8c197c46f9ffe1b084dcc83fba5cb4a1e5564936b3e1aa1b67087d8b5c7bd",
+    "packet_bindings.py": "66f9c9f573912cb691a3dc1e7f48bfa6127b5be5a8549d0ab2d9c05d0576aa1b",
+    "test_packet_bindings.py": "3d3d997e48e8130d824f2bf4d68c1e066e1b2fd8d6455f95f520b6f484f508f2",
+    "OPERATOR-238310.md": "43622b7171447240c5c52aa94579e27bbf8bcd9b6b8ea0c776dd72308dac6942",
+    "SELECTIONS-238310.json": "d4da4a0243c52c378697884cfc8621f372a54d17cc8ebc67a6bab32f40121fc2",
+    "PACKET-INPUTS-238310.json": "cb023df428c67fbf6a2b6fc1ef0f923ae1cabbcddc4be5e82987698a0191b32e"
+  },
+  "focused_checks": 7,
+  "seconds": 2.0076369300004444,
+  "prior_measured_seconds": 162.242609464,
+  "cumulative_measured_seconds": 164.250246394,
+  "note": "5 partial-fix checks and2 remaining-defect counterexamples; simulated engine/provider only"
+}

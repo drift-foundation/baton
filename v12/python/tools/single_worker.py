@@ -50,8 +50,8 @@ from baton_v12.worker_manager import (AuthorityPort, DISPOSITIONS,
                                       request_freeze, request_intake,
                                       request_runtime_start, retain_manifest,
                                       boundary_identity_of)
-from baton_v12.worker_manager import (ControlStore, attempts, credentials,
-                                      exchange, launch,
+from baton_v12.worker_manager import (ControlStore, attempts, boundaries,
+                                      credentials, exchange, launch,
                                       source_boundary, workspaces)
 from baton_v12.worker_manager.oci import ENGINES, EnginePort, OciAdapter
 
@@ -1182,6 +1182,44 @@ def activity_release(helper, *, seconds=ACTIVITY_STOP_SECONDS):
                 category="unavailable", code="transport")
 
 
+class _UncooperativeAgent:
+    """What this deployment has instead of a cooperative cancellation channel.
+
+    W236087. `attempts.request_cancellation` asks the AGENT to wind down before
+    it asks the runtime to stop, because a cooperative shutdown is the thing a
+    kill does not give. This deployment's worker speaks through a durable FILE
+    EXCHANGE and has no such channel: nothing here can reach a provider turn
+    that is already in flight.
+
+    SO IT SAYS SO, and the settlement travels back un-summarized -- which is
+    exactly what `_order_quiescence` does with it. Two alternatives were both
+    worse. Raising would have been accurate and then unhelpful: a throwing
+    agent still lets the stop happen and is then RE-RAISED, so every ordinary
+    cancellation would end in an exception whose meaning was "as expected".
+    Returning a bare success would have been a deployment telling the manager
+    that a worker had cooperated with an order it never received.
+    """
+
+    __slots__ = ("_given",)
+
+    def __init__(self, given):
+        self._given = given
+
+    def cancel(self, command):
+        held = boundaries.document(
+            command, "a cancellation command",
+            required=("attempt_id", "assignment", "runtime_id",
+                      "operation_id"))
+        return {"cooperative": False,
+                "participant": self._given["participant"],
+                "attempt_id": held["attempt_id"],
+                "operation_id": held["operation_id"],
+                "why": "this deployment's worker is driven through a durable "
+                       "file exchange and carries no cooperative cancellation "
+                       "channel; the runtime stop below is the whole of the "
+                       "order this attempt receives"}
+
+
 class _SingleWorker:
     """The launch capability; it receives no Authority bootstrap or path."""
 
@@ -2280,6 +2318,45 @@ class _SingleWorker:
         return {"published": published["published"],
                 "command_digest": published["command_digest"]}
 
+    def cancel_attempt(self, *, attempt_id, reason):
+        """Stop an attempt that is STILL EXECUTING, through the accepted path.
+
+        W236087, review 2026-09-22T07:03:13Z R2a. A bounded owner supervisor
+        that reaches its deadline with a provider turn still running has
+        nothing to drive: closing its admission gate stops the NEXT runtime and
+        the ordinary ending path has nothing to finish while this one waits. So
+        the runtime kept going and the run reported `held` with a container
+        alive. Stopping it is the DEPLOYMENT's act, because the port, the agent
+        and the adapter are this composition's -- an orchestrator that rebuilt
+        them from this module's private state would be a second controller over
+        one security boundary.
+
+        `attempts.request_cancellation` IS the act, unchanged: it fences the
+        exact participant and generation at the Authority FIRST and only then
+        orders quiescence, because a runtime stopped before the fence is a
+        worker torn out from under an assignment the authority still believes
+        is executing. Nothing here re-implements any part of it.
+
+        THE ADAPTER IS THE IDENTIFY/OBSERVE ONE. `reconcile` already builds it
+        exactly this way for an attempt it did not start in this process, and
+        `OciAdapter.stop` reads only the runtime id and the operation id out of
+        its request -- no credential delivery, no launch document and no orphan
+        belong to a stop, and composing them here would be inventing operands
+        for an act that has none.
+
+        ITS RETURN IS NOT ABSENCE, and the caller is owed that plainly: this
+        answers what was ORDERED. Positive exclusion arrives through the
+        ordinary ending and `intake.cleanup_of`, which is where the supervisor
+        keeps looking.
+        """
+        boundaries.identity(attempt_id, "a runtime attempt id")
+        roots = workspaces.assignment_workspace(
+            self.group, self.given["workspace_storage"], attempt_id)
+        return attempts.request_cancellation(
+            self.control, self.port, _UncooperativeAgent(self.given),
+            self._adapter(roots, None, None, None),
+            attempt_id=attempt_id, reason=reason)
+
     def ending(self, stage, job):
         """Drive ONE answered attempt through the already-ruled ending.
 
@@ -2778,6 +2855,11 @@ class _Operations(ManagerOperations):
 
     def admit(self, stage, job):
         return self._worker.admit(super().admit, stage, job)
+
+    def cancel_attempt(self, *, attempt_id, reason):
+        """W236087: the composed worker's own stop, reachable by its owner."""
+        return self._worker.cancel_attempt(attempt_id=attempt_id,
+                                           reason=reason)
 
     def close(self):
         dispose, self._dispose = self._dispose, None

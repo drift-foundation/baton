@@ -1721,14 +1721,37 @@ duplicate observations are rejected. This is manager recomposition within one
 process using deterministic provider/verifier subprocesses and simulated OCI,
 not host or power-loss exactly-once proof.
 
-Production conversation reuse is optional and remains unqualified. Its production
-profile and actual OCI context execution remain refused. Saved-state custody,
-restoration, strict terminal model identity and cache savings are not established
-by the context-enabled deterministic proof. The ordinary fresh path does not
-depend on those context receipt fields and does not establish their correctness.
-It also does not establish an exact selected live model merely from a successful
-provider exit. Preserve the existing runtime profile and attribution limits;
-strict model qualification cannot be inferred from this recovery selection.
+Production conversation reuse is optional and remains unqualified by the
+deterministic proof. A production profile still requires retained managed
+qualification evidence and independent acceptance. A candidate profile may execute
+only under its explicitly selected one-run grant (one open and one restore).
+The ordinary fresh path is unchanged and does not depend on context receipts.
+
+Contextual open and restore now emit `baton.provider-context-receipt/3`.
+Successful process/result status, exact session and invocation identity, accepted
+custody, stopped runtime, fenced writer and all other provenance checks remain
+required. A missing or changed reported model label does not fail a contextual
+turn. The requested model remains bound; `observed_model` holds the actual bounded
+safe label when present, otherwise null. `model_diagnostics_digest` hashes the
+supplied `model` and `modelUsage` members using UTF-8 JSON with sorted keys,
+ASCII escaping and compact separators; absent members remain absent.
+`provider_result_digest` hashes the exact terminal bytes. Full usage diagnostics
+remain in private provider output. Certification checks these measurements against
+retained provider output. Readers still accept historical `/1` and `/2` receipts
+under their original strict model contract; historical failures are not rewritten.
+
+For conversation-specific state filenames, select
+`baton.claude-context-profile/2` with, for example,
+`state_paths: [".claude/projects/-output/{conversation_id}.jsonl"]`.
+The manager substitutes only this exact filename marker from its committed
+conversation UUID. There is no globbing or directory substitution. All required
+files, bounds, immutable generation pins and cleanup checks still apply.
+Profile `/1` preserves literal paths, including literal braces. Profile changes
+produce new identities; do not reinterpret a retained generation or overwrite a
+consumed grant. Changed worker bytes require a correspondingly bound runtime
+artifact before any selected live use. Deterministic evidence establishes neither
+actual provider restoration nor cache savings, model attribution or production
+enabling.
 
 ## Runtime-attempt deadlines
 

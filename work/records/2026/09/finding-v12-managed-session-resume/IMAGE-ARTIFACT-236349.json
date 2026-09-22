@@ -1,0 +1,83 @@
+{
+  "candidate_binding": {
+    "candidate_manifest_sha256": "3a2bf7564e24113c78120d9e451e7c3a75d98b48f08d3dcdf747585e5c5e5cae",
+    "carries_candidate_bytes": true,
+    "claude_agent_candidate_sha256": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d"
+  },
+  "claim": 236349,
+  "created": "2026-09-22T06:15:34.630451234Z",
+  "duration_seconds": 0.09508079599982011,
+  "entrypoint": [
+    "python3",
+    "/opt/baton/dogfood_entry.py"
+  ],
+  "image_config_digest": "sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd",
+  "layer_diff_ids": [
+    "sha256:411a86676185cb54d695a805b238194a64e9b77e0c723f3802fbb87d333ea0b3",
+    "sha256:cb8e24308fa9dfe5d100e9df89c8bf815d7fbf1bc2820a4df3e886a85b5af266",
+    "sha256:719ff9a705e2ab3113fb02e2b712b746ced7ba6e0c391e1d4732a74cb9a3e8e7",
+    "sha256:e7f3647533c8d394413ca75664e9778541700b2de74b1a911d549d88d67ca469",
+    "sha256:55bbdff9d54a38f8e67b2f30506ed492ebc2160ac1ffa34878578b11dd4fc44b",
+    "sha256:33ac7848afde6e766ac7f9c813791c4ea40c701c4f710b946602d6ded44b9a54",
+    "sha256:722b50828753c0ee5b76c8b7809d18b5f89778cb7f09f5c9045bb1a4acf4ec9e",
+    "sha256:f51f8642cc37a5b740f01c2df9507ecfae763662782041ce5c840d0ecf6981f7",
+    "sha256:fb2a87a886fb0c13375db61a58acda708e79bcb9b42a4373ccc25b6ae122818d",
+    "sha256:c1d8e22dc9506dfd1d9144ea1a1453b247a454aa09e5c6885889896aa4bc7193",
+    "sha256:13a7444afd7c151f1dbf3dbe01bec53ea0e6a45f34229e0cf252689b9aee5530",
+    "sha256:cb13fb52a39fbc00194be9a1ca6d89c094779d20667af6cc3a7cec4a2a137c76",
+    "sha256:bfaf7c0250481cafd917337649d15bda28bd2aa526a176ca79a02be9eee4a9f1",
+    "sha256:df25ca80621c31b9b5e17be6acdd8c467761b9ef98124d6cea5ca0bcdb8d4fd6"
+  ],
+  "limitations": "Engine inspection plus one throwaway `--network none --read-only` container that hashed the effective worker bytes and read the CLI version. No live model, no credential, no egress, no registry push and no deployment change. This binds the artifact's identity and the bytes it carries; it establishes nothing about provider behaviour.",
+  "provider_cli": "2.1.247 (Claude Code)",
+  "recipe": "v12/worker/Dockerfile.claude, build context v12/",
+  "reference": "baton-v12-claude-worker:w236087-236349",
+  "schema": "baton.managed-correction-worker-artifact/1",
+  "size_bytes": 637558439,
+  "user": "65532:65532",
+  "work": "W236087",
+  "worker_files": {
+    "opt/baton/attempt_log_format.py": {
+      "image_sha256": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+      "local_path": "v12/python/src/baton_v12/attempt_log_format.py",
+      "local_sha256": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+      "matches_current_source": true
+    },
+    "opt/baton/baton_worker.py": {
+      "image_sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+      "local_path": "v12/worker/baton_worker.py",
+      "local_sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+      "matches_current_source": true
+    },
+    "opt/baton/claude_agent.py": {
+      "image_sha256": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d",
+      "local_path": "v12/worker/claude_agent.py",
+      "local_sha256": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d",
+      "matches_current_source": true
+    },
+    "opt/baton/dogfood_entry.py": {
+      "image_sha256": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2",
+      "local_path": "v12/worker/dogfood_entry.py",
+      "local_sha256": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2",
+      "matches_current_source": true
+    },
+    "opt/baton/source_profiles/__init__.py": {
+      "image_sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "local_path": "v12/python/src/baton_v12/source_profiles/__init__.py",
+      "local_sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "matches_current_source": true
+    },
+    "opt/baton/source_profiles/checkout.py": {
+      "image_sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "local_path": "v12/python/src/baton_v12/source_profiles/checkout.py",
+      "local_sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "matches_current_source": true
+    },
+    "opt/baton/worker-control-1.0.schema.json": {
+      "image_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "local_path": "v12/worker/worker-control-1.0.schema.json",
+      "local_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "matches_current_source": true
+    }
+  }
+}

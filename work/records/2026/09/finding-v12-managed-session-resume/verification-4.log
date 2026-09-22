@@ -1,0 +1,30 @@
+test_it_settles_after_one_correction_and_proves_every_cleanup (test_supervisor.TheSupervisorDrivesOneBoundedCorrection.test_it_settles_after_one_correction_and_proves_every_cleanup) ... ok
+test_one_grant_carried_both_generations (test_supervisor.TheSupervisorDrivesOneBoundedCorrection.test_one_grant_carried_both_generations) ... ok
+test_the_correction_reached_the_provider_as_a_restore (test_supervisor.TheSupervisorDrivesOneBoundedCorrection.test_the_correction_reached_the_provider_as_a_restore)
+The supervised run really drove the resume path, not two opens. ... ok
+test_the_outcome_is_retained_where_the_packet_says (test_supervisor.TheSupervisorDrivesOneBoundedCorrection.test_the_outcome_is_retained_where_the_packet_says) ... ok
+test_the_revised_proposal_differs_from_the_first (test_supervisor.TheSupervisorDrivesOneBoundedCorrection.test_the_revised_proposal_differs_from_the_first) ... ok
+test_a_failed_review_turn_holds_the_run_and_accounts_for_it (test_supervisor.TheSupervisorFailsClosed.test_a_failed_review_turn_holds_the_run_and_accounts_for_it)
+The failure path, with no retry and nothing left unexplained. ... ok
+test_an_exceptional_stage_is_this_run_terminal_stop (test_supervisor.TheSupervisorFailsClosed.test_an_exceptional_stage_is_this_run_terminal_stop)
+The stop predicate's own vocabulary, asserted directly. ... ok
+test_an_unprovable_cleanup_is_held_and_never_reported_settled (test_supervisor.TheSupervisorFailsClosed.test_an_unprovable_cleanup_is_held_and_never_reported_settled)
+The manager's own journal is the only evidence accepted. ... ok
+test_the_overall_bound_stops_the_run (test_supervisor.TheSupervisorFailsClosed.test_the_overall_bound_stops_the_run) ... ok
+test_a_cleanup_reserve_inside_the_overall_bound_refuses (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_a_cleanup_reserve_inside_the_overall_bound_refuses) ... ok
+test_a_grant_and_a_submission_naming_two_Jobs_refuse (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_a_grant_and_a_submission_naming_two_Jobs_refuse) ... ok
+test_a_moved_deployment_configuration_refuses_by_name (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_a_moved_deployment_configuration_refuses_by_name) ... ok
+test_a_moved_fixture_byte_refuses_by_name (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_a_moved_fixture_byte_refuses_by_name) ... ok
+test_a_moved_image_configuration_digest_refuses (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_a_moved_image_configuration_digest_refuses) ... ok
+test_a_moved_manager_runtime_refuses_by_name (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_a_moved_manager_runtime_refuses_by_name) ... ok
+test_a_packet_that_permits_a_retry_refuses (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_a_packet_that_permits_a_retry_refuses) ... ok
+test_a_production_profile_is_refused_rather_than_certified (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_a_production_profile_is_refused_rather_than_certified)
+This program drives ONE candidate run and certifies nothing. ... ok
+test_an_absent_image_refuses_before_a_store_is_opened (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_an_absent_image_refuses_before_a_store_is_opened) ... ok
+test_an_unknown_member_refuses_rather_than_being_dropped (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_an_unknown_member_refuses_rather_than_being_dropped) ... ok
+test_the_reviewed_packet_is_accepted_whole (test_supervisor.ThePacketIsProvedBeforeAnythingOpens.test_the_reviewed_packet_is_accepted_whole) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 46.066s
+
+OK

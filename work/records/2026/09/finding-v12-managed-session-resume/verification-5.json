@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.manager.test_claude_context.ManagedSessionResume",
+    "tests.manager.test_claude_context.CandidateQualificationFlow",
+    "tests.manager.test_provider_context.Profiles",
+    "tests.manager.test_provider_context.ConversationStatePaths"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "note": "candidate bytes unchanged; re-confirmed under claim 236349",
+  "seconds": 16.724974359000043,
+  "status": 0,
+  "timeout": false
+}

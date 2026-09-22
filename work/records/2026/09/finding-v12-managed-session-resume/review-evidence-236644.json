@@ -1,0 +1,18 @@
+{
+  "accepted_candidate_unchanged": true,
+  "manager_source_files_verified": 106,
+  "files": {
+    "supervisor.py": "78693fad2d49cfc0ad59fe11ba549e2cc0a8b322aa3309f5ad5faee9875fe504",
+    "test_supervisor.py": "330c8ff7834e91829afe53b3963e2bbf3c668f7d6b29993871a3ccb80b6486f2",
+    "packet_bindings.py": "47908efa10b56efef8ae0d406c44ff57955f7b2ee78cd693b42738fd6edf1e10",
+    "test_packet_bindings.py": "a5e37a9bb6b9bf4c53c289a06fc24e314d3bc21e1f92d6eb79ba5f33abdbebbb",
+    "SELECTIONS-236529.json": "ce4111cc61f8bc3fa23d71b769ca3337b1a4827c0abf328c6915f7b02eb824fd",
+    "PACKET-INPUTS-236529.json": "ba5f0440611f66621cbb0008b5aead073ac21eba0ff6e57c8aa1d05fc6c886fb",
+    "OPERATOR-236529.md": "2fe3bbc4e38bc882a5a70577faab4a24e65c7fd1813629e6a88ea6099c6b2897",
+    "MANAGER-SOURCE-236529.json": "2b86274e049df520ad4e75c2ce1aa8f7b4a91826c34887f79df291453a939c8d"
+  },
+  "reproductions_seconds": 1.4336705669993535,
+  "prior_recorded_seconds": 144.890442393,
+  "cumulative_recorded_seconds": 146.32411296,
+  "live_operations": 0
+}

@@ -1,0 +1,12 @@
+{
+  "tests": [
+    "tests.manager.test_claude_context.ManagedSessionResume.test_managed_correction_and_independent_acceptance_without_model_label",
+    "tests.manager.test_claude_context.ManagedSessionResume.test_restore_changed_model_keeps_requested_binding",
+    "tests.manager.test_claude_context.ManagedSessionResume.test_measured_receipt_rejects_substituted_terminal_even_same_session",
+    "tests.manager.test_claude_context.WorkerInvocation.test_status_zero_without_model_is_healthy_and_diagnostics_are_bound",
+    "tests.manager.test_provider_context.ConversationStatePaths.test_only_admitted_uuid_expands_the_exact_filename",
+    "tests.manager.test_provider_context.ConversationStatePaths.test_templates_do_not_expand_directories_or_arbitrary_placeholders"
+  ],
+  "seconds": 2.991735889998381,
+  "status": 1
+}

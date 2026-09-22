@@ -1,0 +1,43 @@
+test_generated_fixture_packet_refuses_at_actual_main (__main__.Counterexamples.test_generated_fixture_packet_refuses_at_actual_main) ... ok
+test_interrupt_in_runtime_read_escapes_without_outcome (__main__.Counterexamples.test_interrupt_in_runtime_read_escapes_without_outcome) ... ok
+test_a_timeout_over_generated_bytes_stops_and_accounts (test_generated_packet.TheGeneratedPacketDrivesTheRealEntrypoint.test_a_timeout_over_generated_bytes_stops_and_accounts)
+The failure path of the same composition, in the same run shape. ... ok
+test_completed_attempts_are_not_ordered_stopped (test_generated_packet.TheGeneratedPacketDrivesTheRealEntrypoint.test_completed_attempts_are_not_ordered_stopped)
+A historical generation is not cancelled for its stage's sake. ... ok
+test_the_generated_deployment_completes_the_correction (test_generated_packet.TheGeneratedPacketDrivesTheRealEntrypoint.test_the_generated_deployment_completes_the_correction)
+Initial proposal, real changes-requested feedback, restoration, ... ok
+test_the_generated_deployment_passes_the_managers_own_validator (test_generated_packet.TheGeneratedPacketDrivesTheRealEntrypoint.test_the_generated_deployment_passes_the_managers_own_validator) ... ok
+test_the_generated_packet_is_the_one_held_packet_accepts (test_generated_packet.TheGeneratedPacketDrivesTheRealEntrypoint.test_the_generated_packet_is_the_one_held_packet_accepts) ... ok
+test_a_composition_without_the_capability_is_held_and_says_so (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_composition_without_the_capability_is_held_and_says_so)
+Honest reporting when a deployment composes no stop at all. ... ok
+test_a_refused_cancellation_is_held_rather_than_absorbed (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_refused_cancellation_is_held_rather_than_absorbed) ... ok
+test_a_timeout_with_a_waiting_runtime_orders_the_stop (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_timeout_with_a_waiting_runtime_orders_the_stop)
+The reviewer's counterexample, with a composition that can stop. ... ok
+test_an_attempt_this_manager_cannot_describe_is_still_ordered (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_attempt_this_manager_cannot_describe_is_still_ordered)
+R2a: unknown state is not absence. ... ok
+test_an_interrupt_during_cancellation_still_retains_the_outcome (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_interrupt_during_cancellation_still_retains_the_outcome)
+R2a: the shutdown boundary holds across cancellation too. ... ok
+test_an_interrupt_retains_the_outcome_and_is_not_swallowed (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_interrupt_retains_the_outcome_and_is_not_swallowed)
+Ctrl-C and SIGTERM are shutdowns, not escapes. ... ok
+test_an_unreadable_history_after_the_stop_is_never_settled (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_unreadable_history_after_the_stop_is_never_settled)
+The reviewer's R2b counterexample. ... ok
+test_the_real_composition_orders_the_engine_stop (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_the_real_composition_orders_the_engine_stop)
+R2a's acceptance: the ORDINARY composition, and a real engine stop. ... ok
+test_the_stop_is_ordered_and_is_not_proof_of_absence (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_the_stop_is_ordered_and_is_not_proof_of_absence)
+A stop that was ORDERED is not a runtime this manager saw gone. ... ok
+test_a_malformed_attempt_identity_refuses_before_anything_opens (tests.tools.test_single_worker.TheDeploymentCanStopWhatItStarted.test_a_malformed_attempt_identity_refuses_before_anything_opens) ... ok
+test_cancellation_goes_through_the_accepted_manager_path (tests.tools.test_single_worker.TheDeploymentCanStopWhatItStarted.test_cancellation_goes_through_the_accepted_manager_path)
+FENCE, THEN STOP -- and this composes neither half itself. ... ok
+test_the_agent_refuses_a_command_it_cannot_own (tests.tools.test_single_worker.TheDeploymentCanStopWhatItStarted.test_the_agent_refuses_a_command_it_cannot_own) ... ok
+test_the_agent_reports_the_absent_channel_rather_than_pretending (tests.tools.test_single_worker.TheDeploymentCanStopWhatItStarted.test_the_agent_reports_the_absent_channel_rather_than_pretending)
+This worker speaks through a durable file exchange. ... ok
+test_an_allocation_naming_an_uncomposed_worker_refuses (tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner.test_an_allocation_naming_an_uncomposed_worker_refuses) ... ok
+test_an_attempt_with_no_recorded_allocation_refuses_by_name (tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner.test_an_attempt_with_no_recorded_allocation_refuses_by_name) ... ok
+test_the_recorded_allocation_selects_the_worker (tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner.test_the_recorded_allocation_selects_the_worker)
+The REVIEW worker's composition, because the allocation says so. ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 7.357s
+
+OK
+ACTUAL MAIN: refused before anything opened: the imported package 'baton_v12' resolves to '/home/sl/src/baton/v12/python/src/baton_v12', outside the bound manager source '/home/sl/src/baton/v12/python/v12-w71917-9m7mir3b/packet/manager-source'; the reviewed bytes are not the bytes this process runs

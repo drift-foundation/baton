@@ -1,0 +1,10 @@
+test_declared_one_each_still_runs_two_each_and_settles (__main__.RealComposedCounterexamples.test_declared_one_each_still_runs_two_each_and_settles) ... ok
+test_accepting_first_review_settles_without_restore (__main__.RealComposedCounterexamples.test_accepting_first_review_settles_without_restore) ... ok
+test_cleanup_sweep_admits_then_omits_intruder_from_cleanup (__main__.FailureBoundaryCounterexamples.test_cleanup_sweep_admits_then_omits_intruder_from_cleanup) ... ok
+test_admission_before_serving_exception_missing_from_accounting (__main__.FailureBoundaryCounterexamples.test_admission_before_serving_exception_missing_from_accounting) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.687s
+
+OK
+{"tests": 4, "confirmed_counterexamples": true, "seconds": 1.6867927899984352}

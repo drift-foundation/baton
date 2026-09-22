@@ -331,6 +331,35 @@ class Profiles(unittest.TestCase):
                 context._profile(profile(**changed))
 
 
+class ConversationStatePaths(ContextCase):
+    def test_only_admitted_uuid_expands_the_exact_filename(self):
+        template = ".claude/projects/-output/{conversation_id}.jsonl"
+        self.profile_digest = context.certify_context_profile(self.control, profile(schema=context.SESSION_PROFILE_SCHEMA, state_paths=[template]))["profile_digest"]
+        self.admit()
+        chain, admitted = context._use(self.control, self.attempt_id)
+        resolved = delivery._state_profile(self.control, admitted)
+        conversation = admitted["payload"]["conversation_id"]
+        self.assertEqual(resolved["state_paths"], [".claude/projects/-output/" + conversation + ".jsonl"])
+        self.assertEqual(context.context_profile_of(self.control, self.profile_digest)["state_paths"], [template])
+
+    def test_historical_profile_keeps_marker_filename_literal(self):
+        template = ".claude/projects/-output/{conversation_id}.jsonl"
+        self.profile_digest = context.certify_context_profile(self.control, profile(state_paths=[template]))["profile_digest"]
+        self.admit()
+        chain, admitted = context._use(self.control, self.attempt_id)
+        self.assertEqual(delivery._state_profile(self.control, admitted)["state_paths"], [template])
+
+    def test_terminal_reader_refuses_duplicates_partial_nonfinite_and_nonobject(self):
+        for raw in (b'{"type":"result","type":"result"}', b'{"model":', b'{"modelUsage":{"tokens":NaN}}', b'{"modelUsage":{"tokens":1e999}}', b'[]'):
+            with self.subTest(raw=raw), self.assertRaises(ContractRefusal):
+                context._terminal_result(raw)
+
+    def test_templates_do_not_expand_directories_or_arbitrary_placeholders(self):
+        for path in (".claude/projects/{conversation_id}/state.json", ".claude/projects/-output/{unknown}.jsonl", ".claude/projects/-output/prefix-{conversation_id}.jsonl", ".claude/projects/{x}/{conversation_id}.jsonl"):
+            with self.subTest(path=path), self.assertRaises(ContractRefusal):
+                context._profile(profile(schema=context.SESSION_PROFILE_SCHEMA, state_paths=[path]))
+
+
 class Finalization(ContextCase):
     def test_positive_generation_is_published_and_replayed_after_fence(self):
         first, state = self.state()

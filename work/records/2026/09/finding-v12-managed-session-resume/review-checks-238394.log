@@ -1,0 +1,17 @@
+test_a_timeout_with_a_waiting_runtime_orders_the_stop (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_timeout_with_a_waiting_runtime_orders_the_stop)
+The reviewer's counterexample, with a composition that can stop. ... ok
+test_a_composition_that_cannot_stop_is_held_and_says_so (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_composition_that_cannot_stop_is_held_and_says_so)
+Honest reporting of the gap, rather than silence. ... ok
+test_a_refused_cancellation_is_held_rather_than_absorbed (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_a_refused_cancellation_is_held_rather_than_absorbed) ... ok
+test_an_unreadable_history_after_the_stop_is_never_settled (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_unreadable_history_after_the_stop_is_never_settled)
+The reviewer's R2b counterexample. ... ok
+test_an_interrupt_retains_the_outcome_and_is_not_swallowed (test_supervisor.TheSupervisorShutsDownWhatItStarted.test_an_interrupt_retains_the_outcome_and_is_not_swallowed)
+Ctrl-C and SIGTERM are shutdowns, not escapes. ... ok
+test_unknown_stage_still_skips_known_attempt_cancellation (__main__.RemainingEdges.test_unknown_stage_still_skips_known_attempt_cancellation) ... ok
+test_interrupt_in_cancel_escapes_current_handler (__main__.RemainingEdges.test_interrupt_in_cancel_escapes_current_handler) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 2.008s
+
+OK
+{"tests": 7, "passed": true, "seconds": 2.0076369300004444, "meaning": "five partial-fix checks plus two remaining-defect counterexamples"}

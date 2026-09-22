@@ -1,0 +1,6 @@
+test_interrupt_in_runtime_read_escapes_without_outcome (<run_path>.Counterexamples.test_interrupt_in_runtime_read_escapes_without_outcome) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.230s
+
+OK

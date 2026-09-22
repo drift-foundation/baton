@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "test_packet_bindings",
+    "-v"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "module": "test_packet_bindings",
+  "seconds": 0.27733083899875055,
+  "status": 0,
+  "timeout": false
+}

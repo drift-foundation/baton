@@ -9,6 +9,7 @@ qualification evidence and independent acceptance.
 
 import json
 import os
+import re
 import uuid
 
 from ..contracts import ContractRefusal, canonical_text, check_no_durable_secret, digest, digest_of_bytes
@@ -20,8 +21,10 @@ from .store import manager_signature
 PROFILE_KIND = "provider-context.profile"
 TRANSITION_KIND = "provider-context.transition"
 PROFILE_SCHEMA = "baton.claude-context-profile/1"
+SESSION_PROFILE_SCHEMA = "baton.claude-context-profile/2"
 RECEIPT_SCHEMA = "baton.provider-context-receipt/1"
-SERVING_RECEIPT_SCHEMA = "baton.provider-context-receipt/2"
+LEGACY_SERVING_RECEIPT_SCHEMA = "baton.provider-context-receipt/2"
+SERVING_RECEIPT_SCHEMA = "baton.provider-context-receipt/3"
 INVOCATION_KIND = "provider-context.invocation"
 DELIVERY_SCHEMA = "baton.provider-context-delivery/1"
 DELIVERY_MEMBERS = ("schema", "context_id", "use_id", "invocation_id", "attempt_id", "generation", "generation_digest", "mode", "conversation_id", "profile_digest", "delivery_digest", "invocation_binding_digest", "task_digest", "prompt_digest", "argv_digest", "cli_build", "model", "reported_model", "argv_policy_digest", "environment_policy_digest")
@@ -80,7 +83,7 @@ def _profile(value):
     # admission and the launch boundary, never here (a pure validator holds
     # no store). `production` is admissible only after certification
     # recorded the full-config evidence, checked at the same two places.
-    if held["schema"] != PROFILE_SCHEMA or held["qualification"] not in (
+    if held["schema"] not in (PROFILE_SCHEMA, SESSION_PROFILE_SCHEMA) or held["qualification"] not in (
             "deterministic", "candidate", "production"):
         _refuse("unknown context profile qualification")
     for key in ("evidence_digest", "image_digest", "adapter_digest", "runtime_profile_digest", "argv_policy_digest", "environment_policy_digest", "retention_policy_digest"):
@@ -97,6 +100,8 @@ def _profile(value):
     for path in paths:
         if type(path) is not str or len(path) > 512 or any(p in ("", ".", "..") for p in path.split("/")) or not path.startswith(".claude/projects/") or any(p in (".credentials.json", "invocation", "cache", "tmp") for p in path.split("/")):
             _refuse("state path is outside the qualified layout")
+        if held["schema"] == SESSION_PROFILE_SCHEMA and ("{" in path or "}" in path) and (path.split("/")[-1] != "{conversation_id}.jsonl" or "{" in path.rsplit("/", 1)[0] or "}" in path.rsplit("/", 1)[0]):
+            _refuse("state path has an unsupported substitution")
     if not 1 <= _integer(held["max_entries"]) <= 4096 or not 1 <= _integer(held["max_bytes"]) <= 64 * 1024 * 1024:
         _refuse("state ceiling exceeds the supported bound")
     return held
@@ -356,12 +361,10 @@ def certify_production_profile(control, profile, evidence):
         if type(result["path"]) is not str or os.path.basename(result["path"]) != "provider.stdout.log" or os.path.basename(os.path.dirname(result["path"])) != attempt:
             _refuse("provider result is not in the named attempt room")
         raw = _verified_file(result["path"], result["bytes"], result["digest"], 16 * 1024 * 1024)
-        try:
-            terminal = json.loads(raw)
-        except (ValueError, UnicodeError):
-            _refuse("retained provider result is not complete JSON")
-        if type(terminal) is not dict or terminal.get("type") != "result" or terminal.get("subtype") != "success" or terminal.get("is_error") is not False or terminal.get("model") != candidate["reported_model"] or terminal.get("session_id") != admission["payload"]["conversation_id"]:
+        terminal = _terminal_result(raw)
+        if type(terminal) is not dict or terminal.get("type") != "result" or terminal.get("subtype") != "success" or terminal.get("is_error") is not False or terminal.get("session_id") != admission["payload"]["conversation_id"]:
             _refuse("retained provider result disagrees with strict serving evidence")
+        _receipt(control, admission, reader, terminal_record=raw)
     # The accepted report itself binds every external reference; decorative
     # references supplied by the certification caller are not admitted.
     if evidence["evidence_refs"] != [continuity["report_digest"]]:
@@ -815,7 +818,29 @@ def retire_context(control, context_id):
     return context_of(control, context_id)
 
 
-def _receipt(control, admitted, reader):
+def _terminal_result(raw):
+    def pairs(items):
+        value = {}
+        for key, item in items:
+            if key in value:
+                raise ValueError("duplicate terminal key")
+            value[key] = item
+        return value
+    def finite(text):
+        value = float(text)
+        if not __import__("math").isfinite(value):
+            raise ValueError("nonfinite terminal number")
+        return value
+    try:
+        value = json.loads(raw, object_pairs_hook=pairs, parse_float=finite, parse_constant=lambda text: (_ for _ in ()).throw(ValueError()))
+    except (ValueError, UnicodeError, RecursionError):
+        _refuse("retained provider result is not complete JSON")
+    if type(value) is not dict:
+        _refuse("retained provider result is not an object")
+    return value
+
+
+def _receipt(control, admitted, reader, *, terminal_record=None):
     facts = admitted["payload"]
     attempt_id = facts["attempt_id"]
     frozen = output.frozen_output_of(control, attempt_id)
@@ -857,12 +882,34 @@ def _receipt(control, admitted, reader):
     members = ("schema", "context_id", "use_id", "attempt_id", "conversation_id", "profile_digest", "invocation_id", "status", "complete", "model", "observed_model", "terminal", "cli_build", "mode", "delivery_digest", "input_digest", "policy_digest")
     if binding is not None:
         members += ("task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest", "observed_conversation_id")
+    measured = binding is not None and raw.get("schema") == SERVING_RECEIPT_SCHEMA
+    if measured:
+        members += ("model_diagnostics_digest", "provider_result_digest")
     value = _document(raw, members)
+    if measured:
+        _hash(value["model_diagnostics_digest"])
+        _hash(value["provider_result_digest"])
+        observed = value["observed_model"]
+        if observed is not None and (type(observed) is not str or re.fullmatch(r"[A-Za-z0-9._:/-]{1,256}", observed) is None):
+            _refuse("invalid optional model diagnostic")
+        if terminal_record is not None:
+            terminal = _terminal_result(terminal_record)
+            diagnostics = {key: terminal[key] for key in ("model", "modelUsage") if key in terminal}
+            diagnostic_digest = digest_of_bytes(json.dumps(diagnostics, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+            actual_model = terminal.get("model")
+            if type(actual_model) is not str or re.fullmatch(r"[A-Za-z0-9._:/-]{1,256}", actual_model) is None:
+                actual_model = None
+            if value["provider_result_digest"] != digest_of_bytes(terminal_record) or value["model_diagnostics_digest"] != diagnostic_digest or observed != actual_model:
+                _refuse("retained terminal differs from measured receipt")
     profile = context_profile_of(control, facts["profile_digest"])
+    if not measured and terminal_record is not None and _terminal_result(terminal_record).get("model") != profile["reported_model"]:
+        _refuse("legacy terminal model disagrees with serving evidence")
     delivered = next(one for one in _history(control, admitted["context_id"]) if one["action"] == "deliver" and one["use_id"] == admitted["use_id"])
     expected = {"model": profile["model"], "observed_model": profile["reported_model"], "terminal": "success", "cli_build": profile["cli_build"], "mode": facts["mode"], "delivery_digest": delivered["payload"]["delivery_digest"], "input_digest": facts["input_digest"], "policy_digest": facts["policy_digest"], "schema": RECEIPT_SCHEMA, "context_id": admitted["context_id"], "use_id": admitted["use_id"], "attempt_id": attempt_id, "conversation_id": facts["conversation_id"], "profile_digest": facts["profile_digest"], "invocation_id": _id("context-invocation", admitted["use_id"])}
     if binding is not None:
-        expected.update(schema=SERVING_RECEIPT_SCHEMA, observed_conversation_id=facts["conversation_id"], **{key: binding[key] for key in ("task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest")})
+        expected.update(schema=SERVING_RECEIPT_SCHEMA if measured else LEGACY_SERVING_RECEIPT_SCHEMA, observed_conversation_id=facts["conversation_id"], **{key: binding[key] for key in ("task_digest", "prompt_digest", "argv_digest", "invocation_binding_digest")})
+    if measured:
+        del expected["observed_model"]
     if any(value[key] != wanted for key, wanted in expected.items()) or type(value["status"]) is not int or value["status"] != 0 or value["complete"] is not True:
         _refuse("receipt does not prove this healthy invocation")
     assignment = facts["assignment"]

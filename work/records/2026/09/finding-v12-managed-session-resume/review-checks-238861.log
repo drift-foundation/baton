@@ -1,0 +1,24 @@
+test_context_cannot_overlap_derived_workspace (__main__.Boundaries.test_context_cannot_overlap_derived_workspace) ... FAIL
+test_existing_different_workspace_is_preserved_and_refused (__main__.Boundaries.test_existing_different_workspace_is_preserved_and_refused) ... ok
+test_main_completes_the_correction_and_exits_zero (test_generated_packet.TheGeneratedPacketRunsThroughMain.test_main_completes_the_correction_and_exits_zero) ... ok
+test_main_holds_and_exits_one_when_the_bound_elapses (test_generated_packet.TheGeneratedPacketRunsThroughMain.test_main_holds_and_exits_one_when_the_bound_elapses) ... ok
+test_main_prepares_the_workspace_store_from_the_deployment (test_generated_packet.TheGeneratedPacketRunsThroughMain.test_main_prepares_the_workspace_store_from_the_deployment)
+R4: the prerequisite the fixture used to supply, supplied by main. ... ok
+test_main_refuses_a_packet_whose_imported_source_is_not_bound (test_generated_packet.TheGeneratedPacketRunsThroughMain.test_main_refuses_a_packet_whose_imported_source_is_not_bound)
+R3's check, proved at the entrypoint rather than described. ... ok
+test_workers_naming_two_workspace_stores_refuse (test_generated_packet.TheGeneratedPacketRunsThroughMain.test_workers_naming_two_workspace_stores_refuse)
+Choosing between them is not this program's decision. ... ok
+
+======================================================================
+FAIL: test_context_cannot_overlap_derived_workspace (__main__.Boundaries.test_context_cannot_overlap_derived_workspace)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/review-checks-238861.py", line 37, in test_context_cannot_overlap_derived_workspace
+    self.assertIn('overlaps', str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'overlaps' not found in 'provider context: protected custody owner or mode changed'
+
+----------------------------------------------------------------------
+Ran 7 tests in 7.670s
+
+FAILED (failures=1)

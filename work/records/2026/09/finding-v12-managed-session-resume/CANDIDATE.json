@@ -1,0 +1,85 @@
+{
+  "amended": {
+    "claim": 238462,
+    "original_manifest_sha256": "3a2bf7564e24113c78120d9e451e7c3a75d98b48f08d3dcdf747585e5c5e5cae",
+    "original_patch_sha256": "574c32c0228259668fd1623a71ad480ce0be7363cd44c0f575300ca65f5d5e38",
+    "the_six_are_unchanged": true,
+    "what": "adds the cancellation seam's two product paths and their two focused test paths beside the six originally accepted ones"
+  },
+  "baseline": "BASELINE.json",
+  "claim": 236092,
+  "patch_sha256": "574c32c0228259668fd1623a71ad480ce0be7363cd44c0f575300ca65f5d5e38",
+  "paths": [
+    {
+      "base_sha256": "e42b27285de1277315c5761d7dc92b38b95043dae8b1e431ac6cd297c73f2bdb",
+      "candidate_sha256": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d",
+      "mode": "0o644",
+      "path": "v12/worker/claude_agent.py"
+    },
+    {
+      "base_sha256": "802e39607d03a521b89be67de695be6ef93c7cd677dba8556778862c69c3fb69",
+      "candidate_sha256": "f7df4ff84813f6c007005cfdb509f8d667b598cfa456f67b4ef63aaebd659ee0",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py"
+    },
+    {
+      "base_sha256": "a80a2c338105da5182056d6156a803f242ddea421ff072a308250daf2e12a1fe",
+      "candidate_sha256": "f17ce3c53e52e152e18da8c2900f9697bd3df67d3b9363d999c9a4215518def4",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py"
+    },
+    {
+      "base_sha256": "bdc36c81e178dd18099266795c90a437ed8eadb8ef3ac007d1539b6d6b05eefb",
+      "candidate_sha256": "af586ae0e50276824dfdd4643ec826cd2cddef3cf4aa53a2d54111b07a154e98",
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/test_claude_context.py"
+    },
+    {
+      "base_sha256": "71beace66ddc19c0b85dc69d5217a91b8231467219088f1b061a010d6f0bc747",
+      "candidate_sha256": "cb851d1cec8c200ab4fcea83ada5aeacd73507515348aa494341d1705c315b8a",
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/test_provider_context.py"
+    },
+    {
+      "base_sha256": "b732978ed1e5ee9e9e059b3fd40ed3b54f79a43866df0c1150d5bb340074d920",
+      "candidate_sha256": "7be29ec9af74e621c79486804cec3ec05a306d119189518dfacfcf953530515f",
+      "mode": "0o664",
+      "path": "v12/python/DEPLOYMENT.md"
+    },
+    {
+      "added_by_claim": 238462,
+      "base_sha256": "2e112440b03fc0330386945c3c41b2b220c199e2d2574061b2b1931d82b873dc",
+      "candidate_sha256": "62d4888e3b2edc216d7c90c64656b9967c29ce9f3c67dc86e833b7e00c828a31",
+      "mode": "0o664",
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "why": "W236087 R2a: the manager-owned cancellation seam and its focused tests. `base_sha256` is the byte this claim pinned in PLAN.md before its first edit."
+    },
+    {
+      "added_by_claim": 238462,
+      "base_sha256": "2505675a5ce8d3ac1b68354efa080652192799209bff59c85d6c6260f03d5e4e",
+      "candidate_sha256": "f7c6b025d612f62aae0a4df6b73ea0bb25524311fc47d420d992820f9da74a28",
+      "mode": "0o664",
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "why": "W236087 R2a: the manager-owned cancellation seam and its focused tests. `base_sha256` is the byte this claim pinned in PLAN.md before its first edit."
+    },
+    {
+      "added_by_claim": 238462,
+      "base_sha256": "80370d122ff4a2c712f98d26f7bb110b93de51a62345ce29a3cd803d935109e9",
+      "candidate_sha256": "236b85ab3ff4ee68f63fcfd485c72b7d60010b79a122c9b63825ba3a402ca720",
+      "mode": "0o664",
+      "path": "v12/python/tools/single_worker.py",
+      "why": "W236087 R2a: the manager-owned cancellation seam and its focused tests. `base_sha256` is the byte this claim pinned in PLAN.md before its first edit."
+    },
+    {
+      "added_by_claim": 238462,
+      "base_sha256": "0d3a2a495097424006fddd60278b7f935a6f81fbf9611d5c99cd1d94e2eeb167",
+      "candidate_sha256": "33c780916a115890767bb79cc3a2dcedc6ec588fb1da08e95490cd7897cd6e81",
+      "mode": "0o664",
+      "path": "v12/python/tools/stage_execution.py",
+      "why": "W236087 R2a: the manager-owned cancellation seam and its focused tests. `base_sha256` is the byte this claim pinned in PLAN.md before its first edit."
+    }
+  ],
+  "review_base_commit": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3",
+  "scope": "contextual open/restore; receipt /3, opt-in profile /2; plus the manager-owned cancellation seam (claim 238462). No live/deployment/version-control mutation.",
+  "work": "W236087"
+}

@@ -1,0 +1,8 @@
+test_refresh_failure_is_silently_settled (__main__.ShutdownCounterexamples.test_refresh_failure_is_silently_settled) ... ok
+test_overall_timeout_does_not_stop_waiting_runtime (__main__.ShutdownCounterexamples.test_overall_timeout_does_not_stop_waiting_runtime) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.434s
+
+OK
+{"tests": 2, "confirmed_counterexamples": true, "seconds": 1.4336705669993535}

@@ -1,0 +1,74 @@
+{
+  "_authority_preparation": "A participant string here is not a registered participant. The fresh zero-Job installation creates no Work, route handler or grant (tools/bootstrap._compose says so), so operator step 5a must create the Work, register the impl and rview handlers and grant verify, review, approve and integrate in that Work's scope. packet_bindings.preflight names whatever is still missing and reports what it cannot prove.",
+  "_note": "Operand document for packet_bindings.py. Everything is bound except the fields marked OWNER-CHOICE and --base, which comes from operator step 4. Composing these documents grants nothing and runs nothing.",
+  "_supersedes": "SELECTIONS-238700.json, kept in place",
+  "_unresolved_operands": [
+    "provider_network -- the bounded egress network this host provides for provider traffic; 'none' is refused by the composer",
+    "credential_sources -- absolute path to your private per-user registry",
+    "credential_profile.api.provider and .reference -- a slot reference, never credential bytes",
+    "participants.implementation and .implementation_principal",
+    "participants.review and .review_principal, which must differ from the implementation pair",
+    "--base -- the fixture repository's HEAD, from step 4"
+  ],
+  "checkout": "/home/sl/src/baton",
+  "compose": {
+    "_evidence_digest_names": "work/records/2026/09/finding-v12-production-context-qualification-preparation/REVIEW-EVIDENCE-235998.json",
+    "claim": 238827,
+    "cli_build": "2.1.247",
+    "credential_profile": {
+      "api": {
+        "provider": "OWNER-CHOICE: registry provider name",
+        "reference": "OWNER-CHOICE: slot reference, never credential bytes"
+      }
+    },
+    "credential_sources": "OWNER-CHOICE: absolute path to your private per-user credential registry",
+    "evidence_digest": "sha256:1609a7707a7e8ed36e76f47182b5dcc49e4e5531e01bed18c5f6fa51c1467c3d",
+    "image_digest": "sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd",
+    "image_reference": "baton-v12-claude-worker:w236087-236349",
+    "instance": {
+      "authority_store": "/home/sl/baton-runs/managed-correction-236087/install/db/authority.sqlite3",
+      "authority_uuid": "636a9493650b4efe9d03c684b5b9d904",
+      "build_commit": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3",
+      "control_store": "/home/sl/baton-runs/managed-correction-236087/install/db/control.sqlite3",
+      "integration_profile": {
+        "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+        "integrator_participant": "baton.merge",
+        "profile_kind": "git",
+        "profile_version": 1
+      },
+      "integration_store": "/home/sl/baton-runs/managed-correction-236087/install/db/integration.sqlite3",
+      "job_store": "/home/sl/baton-runs/managed-correction-236087/install/db/jobs.sqlite3",
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "runtime_path": "/home/sl/baton-runs/managed-correction-236087/install/distro"
+    },
+    "manager_source": "/home/sl/baton-runs/managed-correction-236087/manager-source",
+    "note": "one managed correction under one candidate grant; W236087",
+    "participants": {
+      "fixture_files": {
+        "ACCEPTANCE.md": "de5b3672835a6481995c36cf233fe31e622c823c5657d03cdabf3e61e98fa1c5",
+        "REVIEW-FEEDBACK.md": "2b810e14686f5c52e5afaf196dfc26d98fe01fde041c094f0136b740ce7de4a0",
+        "TASK.md": "221464d7d411613bc246c8e5308807c36fecb0fa7c92d1f85d2dee20343c4fba",
+        "harness.py": "362e989b9eeb58273c85b28fa156832e1b459a75fe6916712104d4035d40f3b4"
+      },
+      "implementation": "OWNER-CHOICE: the implementer participant",
+      "implementation_principal": "OWNER-CHOICE: the principal the Authority resolves it to",
+      "receipts": {
+        "approval": "baton.approver",
+        "review": "baton.approver-review",
+        "verification": "baton.verifier"
+      },
+      "review": "OWNER-CHOICE: a DIFFERENT review participant",
+      "review_principal": "OWNER-CHOICE: a DIFFERENT review principal",
+      "work_id": "636a9493-W1",
+      "worker_files": {
+        "opt/baton/claude_agent.py": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d"
+      }
+    },
+    "provider_network": "OWNER-CHOICE: the bounded provider egress network name; 'none' is refused",
+    "run_id": "managed-correction-236087",
+    "source_root": "/home/sl/baton-runs/managed-correction-236087/fixture-source",
+    "supervisor_path": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/supervisor.py",
+    "vectors": "/home/sl/src/baton/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+    "work": "W236087"
+  }
+}

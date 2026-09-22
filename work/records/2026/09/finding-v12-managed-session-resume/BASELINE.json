@@ -1,0 +1,11 @@
+{
+  "claim": 236092,
+  "paths": {
+    "v12/worker/claude_agent.py": "e42b27285de1277315c5761d7dc92b38b95043dae8b1e431ac6cd297c73f2bdb",
+    "v12/python/src/baton_v12/worker_manager/provider_context.py": "802e39607d03a521b89be67de695be6ef93c7cd677dba8556778862c69c3fb69",
+    "v12/python/src/baton_v12/worker_manager/context_delivery.py": "a80a2c338105da5182056d6156a803f242ddea421ff072a308250daf2e12a1fe",
+    "v12/python/tests/manager/test_claude_context.py": "bdc36c81e178dd18099266795c90a437ed8eadb8ef3ac007d1539b6d6b05eefb",
+    "v12/python/tests/manager/test_provider_context.py": "71beace66ddc19c0b85dc69d5217a91b8231467219088f1b061a010d6f0bc747",
+    "v12/python/DEPLOYMENT.md": "b732978ed1e5ee9e9e059b3fd40ed3b54f79a43866df0c1150d5bb340074d920"
+  }
+}

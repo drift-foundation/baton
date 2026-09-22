@@ -1,0 +1,6 @@
+test_context_cannot_overlap_derived_workspace (<run_path>.Boundaries.test_context_cannot_overlap_derived_workspace) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.047s
+
+OK

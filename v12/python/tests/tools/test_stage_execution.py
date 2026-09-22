@@ -10334,3 +10334,65 @@ class AAcceptedPRSeedsTheSuccessorOnTheSameStores(
         for one in self.engine.starts[starts_before:]:
             self.assertNotIn(first, " ".join(map(str, one)),
                              "A's settled attempt never redispatched")
+
+
+class TheDeploymentRoutesACancellationToItsOwner(ServingCase):
+    """W236087 R2a: an attempt is stopped by the worker that STARTED it.
+
+    Picking the first worker of a matching role would cancel through a
+    composition that never launched this container, and a correction round is
+    exactly the case where two attempts of one role exist.
+    """
+
+    def test_an_attempt_with_no_recorded_allocation_refuses_by_name(self):
+        _job, _control, composed = self.serving()
+        with self.assertRaises(ContractRefusal) as caught:
+            composed.cancel_attempt(attempt_id="attempt-nobody-started",
+                                    reason="overall bound")
+        self.assertIn("no recorded allocation", caught.exception.message)
+
+    def test_the_recorded_allocation_selects_the_worker(self):
+        """The REVIEW worker's composition, because the allocation says so.
+
+        Patched at the launch capability rather than at the operations object:
+        `_Operations` carries `__slots__`, and what this has to prove is WHICH
+        composition the act reached, which the captured `self` answers.
+        """
+        from unittest import mock
+
+        from tools import single_worker
+
+        _job, _control, composed = self.serving()
+        owners = {one["worker_id"]: one["operations"]
+                  for one in composed.workers}
+        wanted = "review-worker"
+        self.assertIn(wanted, owners)
+        reached = []
+
+        def cancelling(worker, *, attempt_id, reason):
+            reached.append((worker, attempt_id, reason))
+            return {"fenced": True}
+
+        with mock.patch.object(stage_execution, "allocation_of",
+                               return_value={"worker_id": wanted}), \
+            mock.patch.object(single_worker._SingleWorker, "cancel_attempt",
+                              cancelling):
+            answered = composed.cancel_attempt(attempt_id="attempt-1",
+                                               reason="overall bound")
+        self.assertEqual(answered, {"fenced": True})
+        self.assertEqual(len(reached), 1)
+        worker, attempt_id, reason = reached[0]
+        self.assertIs(worker, owners[wanted]._worker)
+        self.assertEqual((attempt_id, reason), ("attempt-1", "overall bound"))
+
+    def test_an_allocation_naming_an_uncomposed_worker_refuses(self):
+        from unittest import mock
+
+        _job, _control, composed = self.serving()
+        with mock.patch.object(stage_execution, "allocation_of",
+                               return_value={"worker_id": "somebody-else"}):
+            with self.assertRaises(ContractRefusal) as caught:
+                composed.cancel_attempt(attempt_id="attempt-1",
+                                        reason="overall bound")
+        self.assertIn("this deployment does not compose",
+                      caught.exception.message)

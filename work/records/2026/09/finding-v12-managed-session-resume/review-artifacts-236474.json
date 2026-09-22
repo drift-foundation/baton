@@ -1,0 +1,18 @@
+{
+  "accepted_candidate_unchanged": true,
+  "packet_input_checks": {
+    "IMAGE-ARTIFACT-236349.json": true,
+    "MANAGER-ARTIFACT-236349.json": true,
+    "supervisor.py": true,
+    "test_supervisor.py": true,
+    "OPERATOR-236349.md": true,
+    "fixture/ACCEPTANCE.md": true,
+    "fixture/REVIEW-FEEDBACK.md": true,
+    "fixture/TASK.md": true,
+    "fixture/harness.py": true
+  },
+  "distro_files_checked": 81,
+  "distro_moved": [],
+  "distro_unreadable": [],
+  "note": "No store or credential content read; image evidence hash only, no engine inspection."
+}
