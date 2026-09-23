@@ -1,0 +1,43 @@
+{
+  "claim": 242852,
+  "results": [
+    {
+      "withheld_one_cleanup": false,
+      "cleanup_calls": 1,
+      "ending_calls": 1,
+      "provider_calls": 1,
+      "stopped": "exceptional",
+      "state": "held",
+      "served_ticks": 3.0,
+      "cleanup": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "cleanup": "retained",
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist"
+        }
+      },
+      "replayed_disposition": "unable",
+      "replayed_publication": null
+    },
+    {
+      "withheld_one_cleanup": true,
+      "cleanup_calls": 2,
+      "ending_calls": 2,
+      "provider_calls": 1,
+      "stopped": "exceptional",
+      "state": "held",
+      "served_ticks": 4.0,
+      "cleanup": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "cleanup": "retained",
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist"
+        }
+      },
+      "replayed_disposition": "unable",
+      "replayed_publication": null
+    }
+  ],
+  "seconds": 0.6965229479974369,
+  "scope": "Deterministic ending re-entry only; no provider session resume, live execution or deployed state."
+}

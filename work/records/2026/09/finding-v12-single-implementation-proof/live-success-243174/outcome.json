@@ -1,0 +1,116 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-single-implementation-success-239528' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f"
+  ],
+  "attempt_origins": {
+    "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f": "started"
+  },
+  "cancellation": {
+    "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "0b28a9da7978d5373f1c5caf7df6dd2e27127920aa2b7b55dbe910d19e7ac0b8",
+      "why": "this manager observed the runtime destroyed"
+    }
+  },
+  "claim": 242906,
+  "cleanup": {
+    "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    }
+  },
+  "cleanup_sweeps": 0,
+  "final_canonical_read": true,
+  "finished_at": "2026-09-23T00:34:11.533Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [
+    "the run was interrupted: KeyboardInterrupt: signal 2",
+    "the run stopped 'interrupted' rather than completing its stages"
+  ],
+  "interrupted": "KeyboardInterrupt: signal 2",
+  "interruptions": [
+    "signal 2"
+  ],
+  "job_id": "job-single-implementation-success-239528",
+  "observed_attempts": [
+    "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f"
+  ],
+  "outstanding_cleanup": [],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 180,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "single-implementation-success-239528",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 443.26891311800864,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "answering"
+  },
+  "started_order": [
+    "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f"
+  ],
+  "state": "held",
+  "stopped": "interrupted",
+  "submission_id": "single-implementation-success-239528-submission",
+  "submitted_at": "2026-09-23T00:26:48.253Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W239528",
+  "workload": {
+    "attribution": [
+      {
+        "attempt_id": "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f",
+        "author": "Baton worker <worker@baton.invalid>",
+        "base": "842ec458b7c3e270aaa34d126f7f0deecb08ccd0",
+        "committer": "Baton worker <worker@baton.invalid>",
+        "head": "46acf68cebbf733aa26927cd59604c6f6ccb07a0",
+        "line_id": "line-e59167c45dd1ca520824579c7474e2450409b28cca856ee8ef25c8d04bdacf68",
+        "line_path": "/home/sl/baton-runs/single-implementation-success-239528/run/workspaces/.baton-review-lines/line-e59167c45dd1ca520824579c7474e2450409b28cca856ee8ef25c8d04bdacf68/checkout",
+        "parents": [
+          "842ec458b7c3e270aaa34d126f7f0deecb08ccd0"
+        ]
+      }
+    ],
+    "conversations": [
+      "13372483-966c-5055-88cd-eacba88e1b7d"
+    ],
+    "dispositions": [
+      {
+        "attempt_id": "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f",
+        "disposition": "completed"
+      }
+    ],
+    "generations": [
+      0
+    ],
+    "implementation_attempts": [
+      "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f"
+    ],
+    "modes": [
+      "open"
+    ],
+    "proposals": [
+      {
+        "attempt_id": "attempt-0f1b9a48a9247d5cde8ebd2ee3d1237572a02b78564d8fa6f6db2679e0d2788f",
+        "base": "842ec458b7c3e270aaa34d126f7f0deecb08ccd0",
+        "head": "46acf68cebbf733aa26927cd59604c6f6ccb07a0",
+        "transport": "objects.bundle"
+      }
+    ],
+    "shortfalls": []
+  }
+}

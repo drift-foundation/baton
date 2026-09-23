@@ -1,0 +1,12 @@
+{
+  "checks": 325,
+  "errors": 0,
+  "failures": 0,
+  "skipped": 0,
+  "seconds": 61.41728875999979,
+  "modules": [
+    "tests.manager.test_claude_agent",
+    "tests.manager.test_claude_context",
+    "test_no_progress"
+  ]
+}

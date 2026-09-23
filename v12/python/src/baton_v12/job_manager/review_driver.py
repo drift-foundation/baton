@@ -722,15 +722,21 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
         control, port, adapter, attempt_id=attempt_id,
         retention_disposition=retention_disposition,
         retention_policy_digest=retention_policy_digest)
-    # STEP SEVEN. The producer assignment is live until the next line runs, and
-    # this module hands over the manager's own frozen account of the result
-    # rather than anything it derived: what a proposal must CONTAIN is the
-    # integration driver's contract, not this one's.
-    published = publication.publish(
-        attempt_id=attempt_id, result_id=frozen["result_id"],
-        manifest_digest=frozen["manifest_digest"],
-        artifacts=sorted(one["artifact_id"] for one in held),
-        proposal=proposal)
+    # STEP SEVEN, AND IT IS OWED ONLY BY A RESULT THAT HAS A CANDIDATE. The
+    # producer assignment is live until the next line runs, and this module
+    # hands over the manager's own frozen account of the result rather than
+    # anything it derived: what a proposal must CONTAIN is the integration
+    # driver's contract, not this one's. What a result must BE before there is
+    # anything to publish is this one's, and `PUBLISHABLE` states it -- see the
+    # note above. An `unable` or `cancelled` turn skips straight to eight and
+    # nine, which are the acts that actually end an attempt.
+    published = None
+    if _publishable(disposition):
+        published = publication.publish(
+            attempt_id=attempt_id, result_id=frozen["result_id"],
+            manifest_digest=frozen["manifest_digest"],
+            artifacts=sorted(one["artifact_id"] for one in held),
+            proposal=proposal)
     # STEP EIGHT. This ends the assignment, which is why nothing above may
     # follow it.
     checkpoint = review_cycles.freeze_checkpoint(
@@ -747,6 +753,48 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
             "published": published,
             "checkpoint_id": checkpoint["checkpoint_id"],
             "checkpoint": checkpoint}
+
+
+# WHICH IMPLEMENTATION RESULTS HAVE A CANDIDATE TO PUBLISH, and it is only
+# one of them. W239528: `integration.retain_proposal` refuses a frozen result
+# whose disposition is not `completed` -- "has no completed frozen result to
+# propose" -- because an implementation turn that produced no candidate has
+# nothing to offer against a target. That refusal is right at its own boundary.
+# What was wrong is that this module performed publication UNCONDITIONALLY, so
+# the refusal landed between the retention decision and the two acts that end
+# an attempt: fencing the assignment and authorizing cleanup.
+#
+# THE OBSERVED COST. The owner ran the accepted W239528 command with an expired
+# OAuth token. The provider failed in 31 ms, the adapter answered `unable` with
+# a manifest and no claim -- both correct -- and the manager then re-attempted
+# `conclude` every sweep for the full 900-second bound, recorded the same
+# durable refusal each time, and left the container standing. A deployment
+# whose credentials expire reported a thirty-one-millisecond failure a quarter
+# of an hour later and never cleaned up.
+#
+# THE RULE IS THIS MODULE'S TO STATE, which `_ended_review` already says about
+# its own half in as many words: "The `completed` disposition stays HERE
+# because it is the review's own rule -- a review that did not complete decided
+# nothing -- rather than something every ending owes." The implementation
+# ending owes the same statement and did not make it.
+#
+# AND `published` IS `None` RATHER THAN OMITTED. A failed turn that reported no
+# publication member at all would read as an ending that had not got that far;
+# an explicit `null` says the step was reached, was not owed, and nothing was
+# published. It is not a success.
+PUBLISHABLE = ("completed",)
+
+
+def _publishable(disposition):
+    """Does this implementation result have a candidate to publish?
+
+    ASKED OF THE ENDING'S OWN OPERAND, which is the worker's returned
+    disposition. `request_freeze` is given that same value and `_retained`
+    correlates it against the frozen record, so the two cannot disagree --
+    and the operand is the one member every entry point here already holds,
+    including the ones whose frozen summary is built rather than read.
+    """
+    return disposition in PUBLISHABLE
 
 
 def _typed_assignment(value, what):
@@ -1044,9 +1092,17 @@ def _resumed_implementation(control, port, adapter, publication, *,
     # what `publish_candidate` returned, so returning the whole receipt made
     # this the one member the two paths did not share -- and the earlier claim
     # that they could not is superseded by the provider retaining the answer.
-    published = _published(control, publication, attempt_id=attempt_id,
-                           frozen=frozen, assignment=_assignment_ref(fixed),
-                           what=what)
+    # AND IT IS READ BACK ONLY IF IT WAS OWED. `_published` refuses an absent
+    # publication record, which is right for a result that had a candidate --
+    # a resume cannot finish an ending whose publication it cannot show -- and
+    # wrong for one that never had anything to publish. Asking would make every
+    # `unable` ending unresumable for the absence of a record that could not
+    # exist.
+    published = None
+    if _publishable(disposition):
+        published = _published(control, publication, attempt_id=attempt_id,
+                               frozen=frozen,
+                               assignment=_assignment_ref(fixed), what=what)
     return {"attempt_id": attempt_id, "disposition": disposition,
             "result_id": frozen["result_id"],
             "manifest_digest": frozen["manifest_digest"],
@@ -1137,9 +1193,15 @@ def _cleaning_implementation(control, port, adapter, publication, *,
     checkpoint = _frozen_checkpoint(control, port, writer,
                                     generation=generation, profile=profile,
                                     what=what)
-    published = _published(control, publication, attempt_id=attempt_id,
-                           frozen=frozen, assignment=_assignment_ref(fixed),
-                           what=what)
+    # SAME RULE AS THE OTHER TWO ENTRIES. A result with no candidate never
+    # published, so requiring its record here would refuse the one act this
+    # entry exists to reach -- and leave the runtime standing for the absence
+    # of something that was never owed.
+    published = None
+    if _publishable(disposition):
+        published = _published(control, publication, attempt_id=attempt_id,
+                               frozen=frozen,
+                               assignment=_assignment_ref(fixed), what=what)
     # THE ACT THIS ENTRY EXISTS TO REACH. It replays its own journalled
     # operation, so an ending re-entered after a cleanup that committed and
     # whose axis has not yet been read reaches the same answer rather than a

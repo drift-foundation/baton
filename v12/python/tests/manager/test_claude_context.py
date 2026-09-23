@@ -93,9 +93,9 @@ previous=json.loads(state.read_text()) if state.exists() else None
 assert (previous is not None)==("--resume" in argv)
 if previous: assert previous["session"]==session
 state.parent.mkdir(parents=True,exist_ok=True)
-for parent in (state.parent,state.parent.parent): parent.chmod(0o700)
+for extra in ("memory",): (state.parent/extra).mkdir(exist_ok=True)
+for extra in ("backups","shell-snapshots","sessions","session-env"): (Path(os.environ["HOME"])/".claude"/extra).mkdir(parents=True,exist_ok=True)
 state.write_text(json.dumps({"session":session,"private":"PRIVATE-CONTEXT-MARKER","turn":1 if previous is None else previous["turn"]+1}))
-state.chmod(0o600)
 for name,body in edits.items(): Path(name).write_text(body)
 terminal=override if override is not None else json.dumps({"type":"result","subtype":"success","is_error":False,"session_id":session,**fields})
 with open(calls,"a") as f: f.write(json.dumps({"argv":argv,"restored":previous is not None,"terminal":terminal+"\\n"})+"\\n")
@@ -159,6 +159,38 @@ sys.exit(status)
         record = self.record(job, attempt)
         self.assertTrue(record is None or record["settlement"] is None)
         self.assertNotEqual(context.context_use_of(control, attempt)["status"], "ready")
+
+    def assert_reported_and_held(self, job, control, composed, attempt):
+        """The corrected contract for a turn that ANSWERED and did not
+        complete. W239528, owner pass 242683.
+
+        THE SUBJECT IS UNCHANGED and is still asserted: an unhealthy provider
+        terminal is not accepted, and its context use is never `ready`. A
+        generation whose turn cannot be accounted for stays held, and nothing
+        here finalizes one.
+
+        WHAT CHANGED IS THE STAGE. These cases used to assert the ending
+        obligation stays owed, which meant the stage projected `answering`
+        forever: `review_driver.end_implementation` published
+        unconditionally, `integration.retain_proposal` refuses a result that
+        is not `completed`, and the ending never reached its own last two acts
+        -- fencing the assignment and authorizing cleanup. The owner ran that
+        path live with an expired OAuth token: the provider failed in 31 ms,
+        the adapter answered `unable`, and the deployment reported nothing for
+        the full 900-second bound and left the runtime standing.
+
+        So the ending finishes and SAYS SO. The stage reports `exceptional` --
+        the manager's own projection of an `unable` frozen result -- while the
+        context use stays held. Two different facts, and this asserts both.
+
+        `assert_owed` is kept for the cases that genuinely still owe an
+        ending: a COMPLETED turn whose context finalization refuses reaches a
+        different branch, which this correction did not touch.
+        """
+        self.assertNotEqual(
+            context.context_use_of(control, attempt)["status"], "ready")
+        self.assertEqual(
+            self.states(job, composed).get("implementation"), "exceptional")
 
     def fault_tick(self, job, composed):
         # Process-loss injection may propagate or be reported by the sweep.
@@ -240,7 +272,8 @@ class WorkerInvocation(ServingContextCase):
         self.turn(control, "implementation", attempt, roots, edits={"harness.py": "print('changed')\n"}, status=status)
         for unused in range(3):
             sweep(job, composed, now=fixtures.NOW)
-        self.assert_owed(job, control, attempt)
+        # W239528: REPORTED AND HELD, rather than owed forever.
+        self.assert_reported_and_held(job, control, composed, attempt)
         self.assertEqual(self.calls_count(), 1)
 
     def test_status_zero_with_wrong_uuid_is_unhealthy(self):
@@ -1019,7 +1052,14 @@ class ManagedSessionResume(ServingContextCase):
         self.turn(held.control, "implementation", second, roots, edits={"harness.py": "print('correction round')\n"})
         for unused in range(3):
             sweep(held.job, held.composed, now=fixtures.NOW)
-        self.assert_owed(held.job, held.control, second)
+        # W239528: the restore turn answered with a session this manager did
+        # not open, so it is `unable`. CANNOT FINALIZE AND CANNOT REPEAT are
+        # both still asserted below -- no second generation is written and the
+        # provider is not called again -- and the stage now REPORTS the
+        # failure instead of owing its ending forever. See
+        # `assert_reported_and_held`.
+        self.assert_reported_and_held(held.job, held.control, held.composed,
+                                      second)
         self.assertEqual(self.calls_count(), 2)
         bound = context.context_use_of(held.control, second)
         self.assertFalse((self.context_root / bound["context_id"] / "generations/2").exists())

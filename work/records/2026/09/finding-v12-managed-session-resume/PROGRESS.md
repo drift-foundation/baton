@@ -330,3 +330,245 @@ or credential access, deployment change, production enabling, automatic retry or
 version-control mutation. The ten candidate paths are unchanged.
 
 Returning through baton.bug for independent review.
+
+
+## 2026-09-22 -- baton.claude, claim 239174, the code boundary is bound
+
+Review 2026-09-22T13:07:41Z accepted the bounded packet preparation. The owner
+then launched it and it refused at composition; owner pass 239172 selects the
+correction. The diagnosis recorded in FINDING.md is confirmed exactly, and no
+live rerun was performed.
+
+**What was wrong.** `stage_execution._checkout` decides which tree mutable
+deployment state may not be written into. Told nothing, it walks three parents
+above its own `__file__`: for an ordinary checkout that answers
+`/home/sl/src/baton`, and for the RELOCATED manager source at
+`<run>/manager-source/tools/stage_execution.py` it answers `/home/sl/baton-runs`
+-- which contains the run root, so this run's own stores were classified as
+living inside the code tree. `packet_bindings.write` had validated with an
+explicit `checkout=/home/sl/src/baton` while `supervisor._compose` let
+`operations_from` infer one, so preparation passed and composition refused. Two
+boundaries for one rule.
+
+**The correction.** The packet carries `code_boundary` (schema
+`baton.managed-correction-packet/3`). `packet_bindings.compose` defaults it to
+the manager source -- the tree that actually has to be protected -- refuses a
+boundary that does not contain it, and `write` now validates against the
+packet's own value with no `checkout` operand, because passing a different one
+is exactly the disagreement being removed. `supervisor._compose` passes it to
+`operations_from`. `held_packet` additionally refuses a boundary that contains
+this run's Job store, control store, state root, context storage or outcome
+directory, so a packet that could never compose is refused before a store is
+opened rather than after the owner acts have committed.
+
+**Deterministic coverage of the actual layout.** `test_packet_bindings`
+reproduces the inference itself over the real relocated tree -- three parents
+above `<bound>/tools/stage_execution.py` is `/home/sl/baton-runs`, the run
+root's parent, while the same expression over the ordinary checkout answers
+`/home/sl/src/baton` -- and then reproduces the whole symptom: the operator's
+OWN written `run/deployment.json` refuses under the inferred boundary and is
+accepted under the bound one. Both are read-only; the run directory is not
+modified. `test_supervisor` adds the `_compose` operand check, the four
+store-inside-the-boundary refusals and the shape refusals.
+
+**Assessment of the prepared instance, read-only through supported readers.**
+The launched packet is `run/PACKET.json` sha256 `2c6336be...cf56c5`, the digest
+the owner named. Workspace storage configured, context storage configured,
+candidate profile certified, qualification grant committed -- and
+`_grant_consumer` answers **None**. Consumption commits inside the opening
+admission, so an unconsumed grant means no admission opened and no runtime
+started; the outcome file is absent, consistent with the refusal happening at
+composition. All four preparation acts are journalled operations whose
+identities derive from their own operands, so re-affirming the same roots and
+profile and the same `run_id` replays. Re-running steps 5 and 6 is therefore
+safe, and `OPERATOR-239174.md` says so with the reasoning. Nothing was written
+by this assessment and the prepared state is preserved.
+
+**Records.** `OPERATOR-239174.md`, `SELECTIONS-239174.json` and
+`PACKET-INPUTS-239174.json` are added BESIDE their predecessors, which are
+marked superseded in their own headers and kept -- the practice adopted under
+claim 238827. The operator's run directory was not rewritten: regenerating it
+is step 5, which is theirs, and their `selections.json` needs no edit because
+`code_boundary` defaults correctly.
+
+No file under `v12/` was edited this claim; all ten CANDIDATE.json paths
+re-verified byte-identical.
+
+Verification (process wall seconds including runner startup): verification-16,
+82 checks over supervisor, packet bindings and the generated packet,
+27.216522107s; verification-17, 165 checks over the owned product test modules,
+10.396429714s. This claim 37.612951821s. Cumulative measured across the Work:
+294.436252733 (prior, including the reviewer's 8.209668460s) + 37.612951821 =
+332.049204554s. The twelve pre-existing `test_stage_execution` fixture errors
+remain unchanged and out of scope. No live rerun, live provider, model call,
+authentication operation, deployed-store mutation, credential access,
+deployment change, production enabling, automatic retry or version-control
+mutation.
+
+Returning through baton.bug for independent review.
+
+
+## 2026-09-22 -- baton.claude, claim 239365, the first live run's two defects
+
+Review 2026-09-22T14:05:58Z accepted the relocated-source correction. The owner
+then ran the packet; it ended held, and reroute 239355 selects this bounded
+correction. Findings were recorded in `LIVE-RUN-239365.md` BEFORE any
+implementation, as instructed, and the evidence was copied to `live-239365/`.
+`/home/sl/baton-runs/managed-correction-236087/run` was not modified; no live
+rerun, no cleanup and no destructive act was performed.
+
+**Defect 1, and it is mine: the implementation agent reviewed its own work.**
+The provider succeeded and returned "Verdict: **accept**", describing all four
+stages -- implementation, first review, correction, final review -- performed
+inside its single turn; the worker then faulted (`fault_code: agent`) because
+an implementation turn that publishes no proposal cannot satisfy its contract.
+`claude_agent` composes TWO prompts from `task["instructions"]` and says so:
+`_prompt` hands it to the implementation role as work to do, `_review_prompt`
+hands it to the review role as "requirements to assess", under a docstring
+reading "THE INSTRUCTIONS ARE PRESENTED AS REQUIREMENTS TO ASSESS, not as work
+to do. This is the difference between a reviewer and a second implementer."
+Under claim 238310 I wrote that string as a four-stage script including the
+exact finding the first review should return; the implementation role executed
+it faithfully. The product separated the roles correctly and the packet put
+both roles' instructions into the one string the implementation role runs.
+
+`TASK_INSTRUCTIONS` now states the requirement and nothing else, and tells the
+implementation role that judging is not its stage -- including that documents
+in the source tree describing review or acceptance procedure belong to another
+stage. The reviewer receives the same requirements through `_review_prompt`'s
+own framing; the correction's findings reach the second implementer through the
+manager's restore prompt carrying the ACTUAL review report, never through this
+document. Three checks cover it: the task bytes, the implementation prompt the
+worker really composes from them, and the review prompt.
+
+**Defect 2: a never-allocated episode was counted as a started runtime.** The
+outcome listed two `admitted_attempts`; the review one has no attempt row at
+all -- `attempt_runtime_of` answers None and `cleanup_of` refuses -- because it
+is an episode identity the status projection carries for a stage that never
+started anything. `supervise` charged it a positive `runtime.destroy` that
+could never exist, producing three held-reasons about a runtime nobody started
+and burying the one real failure. Attempts are now classified from records:
+`started` is this run's own launch record, `foreign` is an attempt this run did
+not launch but for which the manager holds a runtime, and `unallocated` is an
+identity with no attempt row that this run never launched. Only the first two
+are charged cleanup or ordered stopped. **This asserts nothing about
+quiescence**: an attempt the manager holds a row for stays outstanding however
+it was discovered, and the unallocated report says in its own words that it is
+"not a claim that nothing is running anywhere". A deterministic regression
+drives the live run's shape -- one implementation runtime started and failed,
+review blocked with a projection-only identity -- and asserts the
+classification, the cleanup exclusion, the absent stop order and the absent
+leak line, while the started runtime stays fully accounted for.
+
+**Two facts for the owner, read back and not inferred.** The implementation
+runtime `14690a98be8298b66d3c2b4f231a6f05f35958ae7a033af1788e4ca1d5be7a66` is
+`quiescent` with `cleanup: pending` and no committed destroy: a container that
+stopped is not a container that was removed, and this manager holds no positive
+absence for it. And the qualification grant is CONSUMED -- `_grant_consumer`
+names context `context-f9c2e0ef...c84e58`, the opening admission that run
+performed -- so a relaunch under the same `run_id` is not a replay. Both are in
+`OPERATOR-239365.md`; neither is acted on here.
+
+Operational finding, reported not worked around: the reviewer recorded that
+`ControlStore.open_readonly` on this instance refuses with `OperationalError`.
+The assessment used the ordinary `ControlStore.open` with its own incarnation.
+
+Records: `OPERATOR-239365.md`, `SELECTIONS-239365.json` and
+`PACKET-INPUTS-239365.json` are added BESIDE their predecessors, which are
+marked superseded and kept. No file under `v12/` was edited; all ten
+CANDIDATE.json paths re-verified byte-identical.
+
+Verification (process wall seconds including runner startup): verification-18,
+87 checks over supervisor, packet bindings and the generated packet including
+the live-shape regression and the three prompt checks, 28.946419123s;
+verification-19, 165 checks over the owned product test modules,
+10.627947791s. This claim 39.574366914s. Cumulative measured across the Work:
+338.756602191 (prior, including the reviewer's 6.707397637s) + 39.574366914 =
+378.330969105s. The twelve pre-existing `test_stage_execution` fixture errors
+remain unchanged and out of scope. No live rerun, live provider, model call,
+authentication operation, deployed-store mutation, credential access,
+deployment change, production enabling, automatic retry or version-control
+mutation.
+
+Returning through baton.bug for independent review.
+
+
+## 2026-09-22 -- baton.claude, claim 239485, R1/R3/R4 done, R2 pinned
+
+Review 2026-09-22T14:38:24Z requested changes on four counts; owner reroute
+239483 continues the 239355 scope. Three are done; the fourth needs a product
+seam and is pinned rather than half-built. No store was opened under this claim
+and no live rerun, cleanup or destructive act was performed.
+
+**R1, blocking -- done.** `_runtime_facts` returned `(None, why)` both when the
+manager ANSWERED that it holds no attempt row and when the read RAISED, and
+`_origin`/`_cancel_active` mapped both to `unallocated` for a non-launched
+identity: no stop ordered, excluded from cleanup, and "no runtime was ever
+allocated" written over a question nobody answered. The read is now tri-state --
+a row, `ABSENT`, or `UNREADABLE` -- and only an answered absence combined with
+no local launch may exclude. `UNREADABLE` classifies `FOREIGN`, which keeps both
+the stop order and the cleanup obligation, and says in the uncertainty record
+that "absence was not established". Four focused regressions cover absent,
+unreadable, discovered-foreign and locally-launched. The counts are consistent
+too: classification now happens ONCE before the cleanup window, and the window,
+the final accounting, `admitted_attempts`, `started_order` and the workload
+counts all read the same accountable set -- so a blocked stage's projection
+identity no longer reads as a review turn. `observed_attempts` reports
+everything seen. The reviewer's counterexample no longer reproduces: it asserts
+`unallocated` for the unreadable case and now gets `foreign`.
+
+**R3 -- done, and the fault is now FACT rather than hypothesis.** Read from the
+retained line checkout without running any version-control command: HEAD is
+`refs/heads/proposal` at `46d1af7`, and the reflog shows `node@14690a98be82` --
+the runtime this attempt started -- creating that branch and then `sl` authoring
+BOTH commits, `1dfe0dd` "Print ready from harness.py" and `46d1af7` "Print READY
+from harness.py". The provider's prose claim is corroborated. HEAD moved from
+the admitted revision `1790c2fe`, so `ClaudeAgent._unmoved` is the check that
+raised: "this adapter authors exactly one commit per turn, and a history it did
+not write is not one it can give an account of". The adapter owns the commit and
+the publication; the provider owns the edit. My earlier wording called the fault
+a consequence of "publishing no proposal", which described the outcome rather
+than the check, and is superseded in LIVE-RUN-239365.md.
+
+The stalled cleanup is diagnosed from source and the already-retained axis
+values. `authorize_cleanup` reads the intake receipt FIRST and records
+`blocked-on-intake` without calling the adapter when there is none; a receipt
+exists only after an ending has frozen and collected a result, and this turn
+ended `faulted` with `manifest_digest: null`. The retained axis discriminates:
+it reads `pending`, not `blocked-on-intake`, so `authorize_cleanup` was never
+called at all -- the ending stopped before intake. Recovery is the deployment's
+faulted-attempt path, an owner act; not performed here and the runtime is not
+claimed absent.
+
+**R4 -- done.** `OPERATOR-239365.md` still carried the earlier unconditional
+"re-running steps 5 and 6 is safe" paragraph and its unconsumed-grant claim
+alongside the later consumed-grant statement. `OPERATOR-239485.md` removes the
+stale paragraph and says plainly that the packet has RUN, the grant is spent and
+a relaunch is a new selection; the superseded revision keeps a header warning
+not to follow it. LIVE-RUN's "not worked around" phrase about the write-capable
+`ControlStore.open` is corrected: that WAS a fallback and is now labelled as
+one.
+
+**R2 -- pinned, not begun.** The new instructions ask the first implementation
+for `READY`, the final acceptance target, so a correct first proposal would be
+accepted and the selected open -> changes-requested -> restore sequence would
+never run. The reviewer is right that replacing a four-stage script with the
+final target is not the selected workload. The obstruction is structural: one
+Job carries one digest-sealed input manifest, `single_worker._held` compares
+each worker's `task_document` bytes against the manifest's `human_contract`
+digest, and `claude_agent._review_prompt` frames that SAME string as the
+reviewer's requirements -- so the two roles cannot be given different
+requirements through any existing seam. Delivering them honestly needs a
+product change: a review-instructions member on the task document that
+`_review_prompt` reads. That is pinned in PLAN.md with its ownership and is NOT
+begun. Until it lands, this packet cannot guarantee the correction sequence
+without scripting a verdict, and I have deliberately NOT weakened the
+supervisor's sequence requirement to make a first acceptance count as success.
+
+Verification: verification-20, 90 checks, 27.008649336s; verification-21, 165
+checks, 10.426831334s. This claim 37.435480670s. Cumulative measured:
+378.499244572 + 37.435480670 = 415.934725242s. Twelve pre-existing
+`test_stage_execution` fixture errors unchanged and out of scope. No file under
+`v12/` was edited; all ten CANDIDATE.json paths re-verified byte-identical.
+
+Returning through baton.bug with R2 as exact remaining scope.

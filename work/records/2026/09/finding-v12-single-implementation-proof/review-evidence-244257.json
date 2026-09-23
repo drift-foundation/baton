@@ -1,0 +1,36 @@
+{
+  "claim": 244257,
+  "participant": "baton.rvpc",
+  "records": {
+    "PROGRESS.md": "b2296461e5b6fb369f2a443af5d44f13130576f0df28bb4d08d1e29d231f4c74",
+    "IMAGE-ARTIFACT-244216.json": "8cf90edcabc39150b47f3e59a5a2378941d237c0a86ad1b99dffc079f3c2e374",
+    "SELECTIONS-SUCCESSOR-244216.json": "949b3bc2fee275346bc8a0c74321b65595401e9fa05d344f5b1a52a514d95091",
+    "OPERATOR-SUCCESSOR-244216.md": "f63aa2ce1563eeba1919fe7f5e926297bd0036ac5bfbc1101f1d86f2eb0aee5f",
+    "image_244216.py": "d419fd8952f44e18542a2ee6241e82ab50e23edcd704b7ddb1ef1c31ff927604",
+    "MANAGER-SOURCE-242687.json": "e1c00957f8e235b1810fff37e7a89161bccb89dba66907a28243b6899c79415e"
+  },
+  "adapter_source": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+  "image_inspect": {
+    "current": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "preserved": "sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd",
+    "user": "65532:65532",
+    "entrypoint": [
+      "python3",
+      "/opt/baton/dogfood_entry.py"
+    ]
+  },
+  "independent_inside_image": {
+    "completed": false,
+    "exit": 1,
+    "error": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock",
+    "fallback": "none; no stronger retry or escalation"
+  },
+  "selected_worker_files_match_artifact": true,
+  "bounds": {
+    "cleanup_seconds": 60,
+    "implementer_invocations": 1,
+    "retry": false,
+    "total_seconds": 300,
+    "turn_seconds": 180
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "step5a_canonical_target": "base-1",
+  "real_compose_positive": {
+    "exit_code": 0,
+    "state": "settled",
+    "stopped": "completed",
+    "held_because": [],
+    "outstanding_cleanup": [],
+    "stage_states": {
+      "implementation": "completed"
+    }
+  },
+  "real_compose_unestablished_target": {
+    "exit_code": 0,
+    "state": "settled",
+    "stopped": "completed",
+    "held_because": [],
+    "outstanding_cleanup": [],
+    "stage_states": {
+      "implementation": "completed"
+    }
+  },
+  "foreign_operations_forwarded": [
+    "call.recover(now='2026-09-02T00:00:00.000Z')",
+    "call.refresh_runtime({'stage_id': 'old-stage', 'attempt_id': 'old-attempt'})",
+    "call.conclude({'stage_id': 'old-stage', 'attempt_id': 'old-attempt'}, {'job_id': 'old-job'})"
+  ],
+  "seconds": 0.7088029880032991,
+  "scope": "Disposable fixtures only; no deployed store, provider or engine."
+}

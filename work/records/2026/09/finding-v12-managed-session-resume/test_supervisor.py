@@ -25,6 +25,7 @@ left it out of the accounting; and a fault after an admission lost that runtime
 entirely. Each has a case below asserting the CORRECTED behaviour, named after
 the defect rather than after the fix.
 """
+import io
 import json
 import os
 from pathlib import Path
@@ -115,6 +116,10 @@ class SupervisedCase(ManagedSessionResume):
             "supervisor": {
                 "path": str(HERE / "supervisor.py"),
                 "sha256": self.digest_of(str(HERE / "supervisor.py"))},
+            # THE TREE THE CODE LIVES IN, bound rather than inferred. This
+            # fixture's stores are siblings of it, which is the ordinary
+            # relocated-source shape.
+            "code_boundary": str(self.packet_root / "manager-source"),
             "deployment": {
                 "config_path": places["deployment.json"],
                 "config_sha256": self.digest_of(places["deployment.json"]),
@@ -809,7 +814,8 @@ class TheSupervisorShutsDownWhatItStarted(SupervisedCase):
 
         said = supervisor._cancel_active(
             Cancelling, mock.Mock(), {}, {"known-attempt": None}, {},
-            uncertainty, reason="serving-failed")
+            uncertainty, reason="serving-failed",
+            launched={"known-attempt"})
         self.assertEqual([one for one, _why in ordered], ["known-attempt"])
         self.assertTrue(said["known-attempt"]["requested"])
         self.assertIn("unreadable", said["known-attempt"])
@@ -817,6 +823,94 @@ class TheSupervisorShutsDownWhatItStarted(SupervisedCase):
                       " ".join(uncertainty))
         self.assertIn("not evidence that nothing is executing",
                       " ".join(uncertainty))
+
+    def test_an_attempt_no_runtime_was_allocated_for_is_not_ordered(self):
+        """The first live run's noise, removed without claiming quiescence.
+
+        A review episode that never started anything carried an attempt
+        identity in the projection. Ordering a cancellation for it refused for
+        want of an allocation, and three held-reasons about a runtime that was
+        never started buried the one real failure.
+        """
+        ordered, uncertainty = [], []
+
+        class Cancelling:
+            @staticmethod
+            def cancel_attempt(*, attempt_id, reason):
+                ordered.append((attempt_id, reason))
+                return {"fenced": True}
+
+        # AN ANSWERED ABSENCE, not a read that failed to answer. The
+        # distinction is the whole of review 2026-09-22T14:38:24Z R1.
+        with mock.patch.object(
+                supervisor, "_runtime_facts",
+                return_value=(None, supervisor.ABSENT, "no row")):
+            said = supervisor._cancel_active(
+                Cancelling, mock.Mock(), {}, {"never-started": "review"}, {},
+                uncertainty, reason="exceptional", launched=set())
+        self.assertEqual(ordered, [])
+        held = said["never-started"]
+        self.assertTrue(held["requested"])
+        self.assertIsNone(held["runtime_id"])
+        self.assertIn("holds no attempt row for this identity", held["why"])
+        # AND IT SAYS WHAT IT IS NOT.
+        self.assertIn("not a claim that nothing is running anywhere",
+                      held["why"])
+
+    def test_an_unreadable_state_is_accounted_for_not_excluded(self):
+        """R1: absence is an ANSWER; a failed read is not one.
+
+        A discovered attempt whose runtime read raised used to be written up as
+        "never allocated", skipped for cancellation and dropped from the
+        cleanup accounting -- absence inferred from a question nobody answered.
+        """
+        ordered, uncertainty = [], []
+
+        class Cancelling:
+            @staticmethod
+            def cancel_attempt(*, attempt_id, reason):
+                ordered.append((attempt_id, reason))
+                return {"fenced": True}
+
+        with mock.patch.object(
+                supervisor, "_runtime_facts",
+                return_value=(None, supervisor.UNREADABLE,
+                              "RuntimeError: the store did not answer")):
+            said = supervisor._cancel_active(
+                Cancelling, mock.Mock(), {}, {"discovered": "review"}, {},
+                uncertainty, reason="serving-failed", launched=set())
+        # THE STOP IS STILL ORDERED.
+        self.assertEqual([one for one, _why in ordered], ["discovered"])
+        self.assertTrue(said["discovered"]["requested"])
+        self.assertIn("unreadable", said["discovered"])
+
+    def test_an_unreadable_discovered_attempt_stays_accountable(self):
+        """And it is classified FOREIGN, so cleanup is still demanded."""
+        uncertainty = []
+        with mock.patch.object(
+                supervisor, "_runtime_facts",
+                return_value=(None, supervisor.UNREADABLE, "did not answer")):
+            origin, _why = supervisor._origin(
+                mock.Mock(), "discovered", set(), uncertainty)
+        self.assertEqual(origin, supervisor.FOREIGN)
+        self.assertIn("absence was not established", " ".join(uncertainty))
+
+    def test_an_answered_absence_is_the_only_exclusion(self):
+        uncertainty = []
+        with mock.patch.object(
+                supervisor, "_runtime_facts",
+                return_value=(None, supervisor.ABSENT, "no row")):
+            self.assertEqual(
+                supervisor._origin(mock.Mock(), "never", set(), uncertainty)[0],
+                supervisor.UNALLOCATED)
+        # And an identity this run launched is never excluded, however it reads.
+        with mock.patch.object(
+                supervisor, "_runtime_facts",
+                return_value=(None, supervisor.ABSENT, "no row")):
+            self.assertEqual(
+                supervisor._origin(mock.Mock(), "mine", {"mine"},
+                                   uncertainty)[0],
+                supervisor.STARTED)
 
     def test_an_interrupt_at_a_runtime_read_still_stops_and_retains(self):
         """The reviewer's strengthened counterexample. R2a.
@@ -851,8 +945,12 @@ class TheSupervisorShutsDownWhatItStarted(SupervisedCase):
         # AND THE ENGINE WAS STILL ORDERED TO STOP what was running.
         stops = [argv for argv in self.engine.vectors if argv[1] == "stop"]
         self.assertTrue(stops, self.engine.vectors)
-        self.assertEqual(sorted(retained["cleanup"]),
-                         sorted(retained["admitted_attempts"]))
+        # Cleanup covers every attempt this run must account for; an
+        # identity no runtime was allocated for is named separately.
+        self.assertEqual(
+            sorted(retained["cleanup"]),
+            sorted(set(retained["admitted_attempts"])
+                   - set(retained["unallocated_attempts"])))
 
     def test_a_deferred_signal_during_shutdown_is_recorded_not_raised(self):
         """The mode, asserted directly: raise while serving, defer after."""
@@ -903,8 +1001,12 @@ class TheSupervisorShutsDownWhatItStarted(SupervisedCase):
             Path(packet["outcome_path"]).read_text(encoding="utf-8"))
         self.assertEqual(retained["state"], "held")
         # AND EVERY RUNTIME IS STILL ACCOUNTED FOR.
-        self.assertEqual(sorted(retained["cleanup"]),
-                         sorted(retained["admitted_attempts"]))
+        # Cleanup covers every attempt this run must account for; an
+        # identity no runtime was allocated for is named separately.
+        self.assertEqual(
+            sorted(retained["cleanup"]),
+            sorted(set(retained["admitted_attempts"])
+                   - set(retained["unallocated_attempts"])))
 
     def test_a_refused_cancellation_is_held_rather_than_absorbed(self):
         class Refusing:
@@ -957,8 +1059,10 @@ class TheSupervisorShutsDownWhatItStarted(SupervisedCase):
         self.assertIn("not evidence that no further runtime exists", said)
         self.assertIn("the final canonical accounting could not be read", said)
         # AND THE RUNTIMES IT DOES KNOW ARE STILL ACCOUNTED FOR.
-        self.assertEqual(sorted(outcome["cleanup"]),
-                         sorted(outcome["admitted_attempts"]))
+        self.assertEqual(
+            sorted(outcome["cleanup"]),
+            sorted(set(outcome["admitted_attempts"])
+                   - set(outcome["unallocated_attempts"])))
 
     def test_an_interrupt_retains_the_outcome_and_is_not_swallowed(self):
         """Ctrl-C and SIGTERM are shutdowns, not escapes."""
@@ -1067,6 +1171,54 @@ class ThePacketIsProvedBeforeAnythingOpens(SupervisedCase):
                                     "this process is running"):
             supervisor.verify_imported_sources(
                 self.packet, modules=[], program=str(HERE / "PACKET.json"))
+
+    def test_a_boundary_holding_this_runs_own_stores_refuses(self):
+        """The owner's refused launch, caught before a store is opened.
+
+        The inferred boundary answered the run root's PARENT, so this run's own
+        Job store, control store, state root and context storage were all
+        inside the tree the code lives in -- and composition refused after the
+        owner acts had already committed.
+        """
+        for member, place in (
+                ("job store", self.packet["deployment"]["job_store"]),
+                ("control store", self.packet["deployment"]["control_store"]),
+                ("state root", self.packet["deployment"]["state_root"]),
+                ("context storage", self.packet["context"]["storage_path"])):
+            with self.subTest(member=member):
+                self.written_packet(
+                    code_boundary=os.path.dirname(os.path.realpath(place)))
+                with self.assertRaisesRegex(
+                        supervisor.SupervisorRefusal,
+                        "inside the code boundary"):
+                    supervisor.held_packet(self.packet_path)
+
+    def test_a_code_boundary_that_is_not_a_directory_refuses(self):
+        self.written_packet(code_boundary=str(HERE / "supervisor.py"))
+        with self.assertRaisesRegex(supervisor.SupervisorRefusal,
+                                    "is not a directory"):
+            supervisor.held_packet(self.packet_path)
+        self.written_packet(code_boundary="relative/path")
+        with self.assertRaisesRegex(supervisor.SupervisorRefusal,
+                                    "one absolute canonical directory"):
+            supervisor.held_packet(self.packet_path)
+
+    def test_the_production_composition_passes_the_bound_boundary(self):
+        """`_compose` never lets `operations_from` infer one again."""
+        composed = []
+
+        def operations_from(configuration, job, control, **named):
+            composed.append((configuration, named))
+            return "composed"
+
+        with mock.patch.object(stage_execution, "operations_from",
+                               operations_from):
+            answered = supervisor._compose(self.packet, "job", "control",
+                                           io.StringIO())
+        self.assertEqual(answered, "composed")
+        self.assertEqual(len(composed), 1)
+        _configuration, named = composed[0]
+        self.assertEqual(named, {"checkout": self.packet["code_boundary"]})
 
     def test_a_packet_that_permits_a_retry_refuses(self):
         self.written_packet(bounds=dict(self.packet["bounds"], retry=True))

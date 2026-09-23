@@ -1,0 +1,16 @@
+{
+  "claim": 244799,
+  "tests": 36,
+  "passed": true,
+  "excluded": [
+    "test_attachment.AWrongCheckpointIsRefusedByBothAccounts.test_a_checkpoint_belonging_to_another_line",
+    "test_attachment.TheSurveyReadsThroughTheSupportedOpener.test_the_handle_itself_refuses_a_write"
+  ],
+  "elapsed_seconds": 0.5713377689971821,
+  "sha256": {
+    "attachment.py": "9e50bfd75f5efdd135c6f1b3f7db5bb55f7002019445534984d7592c2d0a6688",
+    "review_bindings.py": "fc627f10c4bc97f9dc83c8956743d94298c046e389b5773de9f1d62f97f5edb1",
+    "test_attachment.py": "a8172eba3e7d49ddd69444c6089f9f633eb9ed1613950828e08dde00e6073491",
+    "test_review_bindings.py": "ce2cbe74041d77a12495083f879a03c392f5c0cddd5162a1a75c2feb71b3f968"
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "work": "W239528",
+  "claim": 242852,
+  "participant": "baton.rvpc",
+  "files": {
+    "work/records/2026/09/finding-v12-single-implementation-proof/DIAGNOSIS-239528.md": "8fd72893727f78a597ecb4f69d96a6f56af60c490f341fd444b9744e16e22e2c",
+    "work/records/2026/09/finding-v12-single-implementation-proof/DIAGNOSIS-242687.md": "e5081d0f8c24ab111af90c948605318f4d8e27eaf13cf5e3462f29036719c442",
+    "work/records/2026/09/finding-v12-single-implementation-proof/FINDING.md": "f36ca413b600dbcc67e00ce96cc38b7cbc4daecf8f31322e8c31d9548d5a44a1",
+    "work/records/2026/09/finding-v12-single-implementation-proof/OPERATOR-239528.md": "6dcfd5a8bdc20e66da11293266fd4ca3912dd54e15542c40c987d7c64d399541",
+    "work/records/2026/09/finding-v12-single-implementation-proof/OPERATOR-FAILURE-242687.md": "b52417416142c5624c8b652b1fb25ff11fcea2c7fd5f4416cf9d406580622a81",
+    "work/records/2026/09/finding-v12-single-implementation-proof/OWNERSHIP-239528.md": "f1e3f4439b93af1b891e56ead5eda91b934634aed6f051d6c1ddb1f2c925ad56",
+    "work/records/2026/09/finding-v12-single-implementation-proof/PLAN.md": "c8797ac50c16ecdd6ff82e29c54fa4a55d4d42f657e0951fd6deee773440499d",
+    "work/records/2026/09/finding-v12-single-implementation-proof/PRODUCT-CHANGE-242687.json": "b6f8bc20b733fa5fc81db73d7888d2373a69d67d478967284d05a6cbb9e9973b",
+    "work/records/2026/09/finding-v12-single-implementation-proof/PROGRESS.md": "234227b421446d5b3889dd9f4d57e4d111ed519b98c72b0d6274fec5598fe0a0",
+    "work/records/2026/09/finding-v12-single-implementation-proof/PROVIDER-QUESTION-239528.md": "8cb3689df86d54501adaacc3cbe00650dd1e1900205b50568e2132de42ed85b6",
+    "work/records/2026/09/finding-v12-single-implementation-proof/SELECTIONS-239528.json": "f464ee5f33d42236711757d954660f67b07d0c2287d4f39daef4ca05d147f8de",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "fa0b048c69c9837a748c0b2df47e9a8745050ca5483986435ee1465a3d998328",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py": "c618b97f5b2866393ba522feb29ed0c9b1470663f2ef0e3740b524e9fa1713b8",
+    "work/records/2026/09/finding-v12-single-implementation-proof/finish_242687.py": "b5198448acfb767d4eb9b5a6386df9729fec9f7e067437a44f6f69c3e27acb2c",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/events/receipt.json": "a4d0618b02538949aea066ce5e2175ff369ad0f1892df12bf1415450ad1e6935",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/events/state-describe.json": "efc9e31a566c44725c5d5d70f5f74efa201eb5fee9eb8abddd03d59c1a723435",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/events/state-work.json": "e1cbe18e4c10ace9733de86ee916bb1cd7a71edf7ff797a6ef3442135b95fe7b",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/events/terminal.json": "8e97e99c085c7abe8a7ad9affd86403de57d2c7506e801dd6b644ad4f5e78d30",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/logs/provider.stderr.log": "e705bbf8982385da2b1a03725921d0a6c6730bbaadd22c8f9168522573d067e0",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/logs/provider.stderr.status.json": "d63a7ea60c3cbf9ce99edade45ce3813148850bea194d3d4253a3b9bf4e3d034",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/logs/provider.stdout.log": "87783dd7eaf890b38f4c9f2af74b4f5eb0fee12b29b92fcb6dcb5e14f16b5e33",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/logs/provider.stdout.status.json": "d63a7ea60c3cbf9ce99edade45ce3813148850bea194d3d4253a3b9bf4e3d034",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/outcome.json": "eb995a5d09718b9cbb3104135ce2a468b8bddcccdfeefe8c81aad14ae8aff5ca",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/submission.json": "a92ea646a93bbe099534735752617657b3cc68ed9502697c157b57811f8b84cd",
+    "work/records/2026/09/finding-v12-single-implementation-proof/live-242687/task.json": "84267f7382cc2754a078030f95575fc2e0b4ad4b1292c0ee9702bfe221e9a5a5",
+    "work/records/2026/09/finding-v12-single-implementation-proof/pin_242687.py": "6762e63bb51de41b948a8892cbec3c2825c1f5bd3c27d053cf27ed093ea252c5",
+    "work/records/2026/09/finding-v12-single-implementation-proof/records_240196.py": "a3e8e7bc63143ba5fc40fd1ecb781ddfbcfb7aee7d4d3d0a5b5debfc8d4194d2",
+    "work/records/2026/09/finding-v12-single-implementation-proof/records_242687.py": "66ff749f664352c2e8dfd4c2c00968e7352b7f34d8aaada17790674a68847f98",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-2026-09-22T15-32-51Z.md": "4e25eafe4c1270a88b1b88805dd21d214392992b038c5f1990bceb1420cf3f33",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-2026-09-22T16-50-58Z.md": "c3ea1a965796b50fcdc8827ff5b775b483ae6adfc52c92f7f328b958c70a1fbc",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-evidence-239808.json": "2352e2ef809552498a901497efde033dbfdd0233a6da1a6cfa2facd33f857bc6",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-evidence-240287.json": "a037cac704044fbbc86180c2cbdc59df263d6d65811fc868501cb85f0e943fba",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-probes-239808.json": "7cdb41b7d63a22d7039a1b06dcc28fe5721a9139f0d190beb2cb862f82e2a954",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-probes-239808.py": "10055771fa9dbdb6acd601c63b0e48c234c2773c906f79ed65b4f845c45d2480",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-probes-240287.json": "cc4a8505b451737c13be0634d87129a280f8a2cd2a4ce52b1a752fe99995540b",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-probes-240287.py": "87cb18c0169d61853992738ec1627f66da24960b3dc6a73a5822c02388c829af",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-tests-239808.log": "60234f49d237815bd84097966d5c2ed2a29444569cbf51ba2ad744e0d42a8756",
+    "work/records/2026/09/finding-v12-single-implementation-proof/review-tests-240287.log": "7fa63aa28e137f2623b03cf6de5aad7c9822ced9e22c6e88d4981371ed9daffc",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": "797abb7b1a451ab25096398a18508dd93e0edb022c45d1dca2aa1461ba380e5b",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline_bindings.py": "71804e83a583838a4cad6d84bcb6868b61430f55213a3dadef7e1bcf39da6e2b",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_entrypoints.py": "3561109dba2523bf1648f7e9474ecffa5846d3a3a445fd3b978def15530a9c41",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_failure_path.py": "e7d48ef34d2849df7bc92f717861ce2b2c7de534e1a6e1ce60969a9896774dca",
+    "work/records/2026/09/finding-v12-single-implementation-proof/verification-1.json": "22d15412acfbe27cf60b16006dc2c0296474c5245cd73cf7116902d89480d76a",
+    "work/records/2026/09/finding-v12-single-implementation-proof/verification-1.log": "3fb04610898395de6a79136f244384c4786a0367ce0ce09aee8eeb93e7e2679e",
+    "work/records/2026/09/finding-v12-single-implementation-proof/verification-2.json": "62864263576694bb8bc2d1c6da1b8c1497ff4c09b307afdc42967ad8c2a92753",
+    "work/records/2026/09/finding-v12-single-implementation-proof/verification-2.log": "d979e36eed65b22800ae6e6055a670a18924147a35312b9539ebddeb4ef3b321",
+    "work/records/2026/09/finding-v12-single-implementation-proof/verification-3.json": "2ef883ba58ab88cdd9eea759dd01a7a9d21bcde10810520c3861d94d294a0663",
+    "work/records/2026/09/finding-v12-single-implementation-proof/verification-3.log": "9dd3784fc2c15f0202bfd019c6aa81dd82874e9ba10a3e3599499ae60aad225a",
+    "work/records/2026/09/finding-v12-single-implementation-proof/verify.py": "b212a13e326bfaf66d2e87ead8c9af18f46b9614a55a435cab6b15f755f6d4f3"
+  },
+  "runs": [
+    {
+      "command": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "test_baseline",
+        "test_baseline_bindings",
+        "test_entrypoints",
+        "test_failure_path"
+      ],
+      "seconds": 18.173359424996306,
+      "exit_code": 0,
+      "log": "review-tests-242852-packet.log"
+    },
+    {
+      "command": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.job_manager.test_review_driver"
+      ],
+      "seconds": 5.843648322988884,
+      "exit_code": 0,
+      "log": "review-tests-242852-driver.log"
+    },
+    {
+      "command": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.manager.test_claude_context"
+      ],
+      "seconds": 39.13697808999859,
+      "exit_code": 0,
+      "log": "review-tests-242852-context.log"
+    }
+  ],
+  "product": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "9a8a4a8193ff7b1c709c184dee3ba43a1b1e16e60891dcf31277279d2c220ae4",
+      "matches": true
+    },
+    "v12/python/tests/manager/test_claude_context.py": {
+      "sha256": "9ccc49a24914d87258a04371402662363b7a9c64444236712d5f0b1607f0e498",
+      "matches": true
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "ebc9be29d2bd23cf129afe33943f5336832df2ef24256c724708004220032896",
+      "matches": true
+    }
+  },
+  "ending_reentry": {
+    "claim": 242852,
+    "results": [
+      {
+        "withheld_one_cleanup": false,
+        "cleanup_calls": 1,
+        "ending_calls": 1,
+        "provider_calls": 1,
+        "stopped": "exceptional",
+        "state": "held",
+        "served_ticks": 3.0,
+        "cleanup": {
+          "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+            "cleanup": "retained",
+            "state": "absent",
+            "why": "the engine answered that this exact identity does not exist"
+          }
+        },
+        "replayed_disposition": "unable",
+        "replayed_publication": null
+      },
+      {
+        "withheld_one_cleanup": true,
+        "cleanup_calls": 2,
+        "ending_calls": 2,
+        "provider_calls": 1,
+        "stopped": "exceptional",
+        "state": "held",
+        "served_ticks": 4.0,
+        "cleanup": {
+          "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+            "cleanup": "retained",
+            "state": "absent",
+            "why": "the engine answered that this exact identity does not exist"
+          }
+        },
+        "replayed_disposition": "unable",
+        "replayed_publication": null
+      }
+    ],
+    "seconds": 0.6965229479974369,
+    "scope": "Deterministic ending re-entry only; no provider session resume, live execution or deployed state."
+  },
+  "ending_reentry_source_sha256": "d7abf7ed2d190ff85b10c8120d8d531bc0395577d19944b43936fca7a592b593",
+  "ending_reentry_wall_seconds": 0.749274922,
+  "total_measured_wall_seconds": 63.90326075998378,
+  "operator_bound_source": {
+    "baton_v12/job_manager/review_driver.py": "b5b22535ef105f786aa74f61ff894614a1e91bb8e2739f1051151fb893ebe10c",
+    "tools/stage_execution.py": "33c780916a115890767bb79cc3a2dcedc6ec588fb1da08e95490cd7897cd6e81"
+  },
+  "missing_file": "baton:work/records/2026/09/finding-v12-single-implementation-proof/SELECTIONS-FAILURE-242687.json: FileNotFoundError",
+  "preserved_239589": {
+    "CANDIDATE.json": true,
+    "supervisor.py": true,
+    "packet_bindings.py": true,
+    "test_supervisor.py": true,
+    "test_generated_packet.py": true,
+    "LIVE-RUN-239365.md": true,
+    "OPERATOR-239485.md": true,
+    "SELECTIONS-239485.json": true,
+    "PACKET-INPUTS-239485.json": true,
+    "OWNER-SPLIT-20260922.md": true
+  },
+  "original_live_outcome_matches_copy": true
+}

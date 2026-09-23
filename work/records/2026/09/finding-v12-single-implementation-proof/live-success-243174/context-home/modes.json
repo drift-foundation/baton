@@ -1,0 +1,76 @@
+{
+  "entries": {
+    ".claude": {
+      "kind": "dir",
+      "mode": "0o700",
+      "private": true
+    },
+    ".claude.json": {
+      "kind": "file",
+      "mode": "0o600",
+      "private": true
+    },
+    ".claude/.credentials.json": {
+      "kind": "link",
+      "mode": "0o777",
+      "private": false
+    },
+    ".claude/.last-cleanup": {
+      "kind": "file",
+      "mode": "0o644",
+      "private": false
+    },
+    ".claude/backups": {
+      "kind": "dir",
+      "mode": "0o755",
+      "private": false
+    },
+    ".claude/backups/.claude.json.backup.1790123209652": {
+      "kind": "file",
+      "mode": "0o600",
+      "private": true
+    },
+    ".claude/projects": {
+      "kind": "dir",
+      "mode": "0o755",
+      "private": false
+    },
+    ".claude/projects/-output": {
+      "kind": "dir",
+      "mode": "0o755",
+      "private": false
+    },
+    ".claude/projects/-output/13372483-966c-5055-88cd-eacba88e1b7d.jsonl": {
+      "kind": "file",
+      "mode": "0o600",
+      "private": true
+    },
+    ".claude/projects/-output/memory": {
+      "kind": "dir",
+      "mode": "0o755",
+      "private": false
+    },
+    ".claude/session-env": {
+      "kind": "dir",
+      "mode": "0o755",
+      "private": false
+    },
+    ".claude/session-env/13372483-966c-5055-88cd-eacba88e1b7d": {
+      "kind": "dir",
+      "mode": "0o755",
+      "private": false
+    },
+    ".claude/sessions": {
+      "kind": "dir",
+      "mode": "0o700",
+      "private": true
+    },
+    ".claude/shell-snapshots": {
+      "kind": "dir",
+      "mode": "0o755",
+      "private": false
+    }
+  },
+  "home": "private-contexts/context-6daaba9c2f6d2ff85b022659de456afb42a1ae8732ff7b40a80f49c072eaba2b/uses/context-use-f050c6fb5b84ee034f2cc939687c021af30da89278aef05f90181de647b1619c/home",
+  "schema": "baton.context-home-modes/1"
+}

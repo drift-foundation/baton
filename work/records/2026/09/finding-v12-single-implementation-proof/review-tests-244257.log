@@ -1,0 +1,14 @@
+test_every_bound_worker_file_is_one_the_image_carries (test_successor_packet.TheCorrectedImageIsWhatThePacketBinds.test_every_bound_worker_file_is_one_the_image_carries) ... ok
+test_it_binds_the_accepted_adapter_and_not_the_superseded_one (test_successor_packet.TheCorrectedImageIsWhatThePacketBinds.test_it_binds_the_accepted_adapter_and_not_the_superseded_one) ... ok
+test_the_artefact_was_verified_from_inside_the_image (test_successor_packet.TheCorrectedImageIsWhatThePacketBinds.test_the_artefact_was_verified_from_inside_the_image)
+Not from the build context. The recipe makes this point about ... ok
+test_the_bounds_and_identities_are_the_selected_ones (test_successor_packet.TheCorrectedImageIsWhatThePacketBinds.test_the_bounds_and_identities_are_the_selected_ones) ... ok
+test_the_document_says_what_the_run_can_and_cannot_answer (test_successor_packet.TheCorrectedImageIsWhatThePacketBinds.test_the_document_says_what_the_run_can_and_cannot_answer) ... ok
+test_the_new_image_is_distinct_from_the_preserved_one (test_successor_packet.TheCorrectedImageIsWhatThePacketBinds.test_the_new_image_is_distinct_from_the_preserved_one) ... ok
+test_the_packet_binds_the_artefact_that_was_verified (test_successor_packet.TheCorrectedImageIsWhatThePacketBinds.test_the_packet_binds_the_artefact_that_was_verified) ... ok
+test_what_it_cannot_establish_travels_with_the_selections (test_successor_packet.TheCorrectedImageIsWhatThePacketBinds.test_what_it_cannot_establish_travels_with_the_selections) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.001s
+
+OK

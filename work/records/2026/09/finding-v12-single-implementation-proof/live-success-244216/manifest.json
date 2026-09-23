@@ -1,0 +1,9 @@
+{
+  "source": "/home/sl/baton-runs/single-implementation-244216/run",
+  "sha256": {
+    "outcome.json": "6160a37c485f07dcb720d78b0beba57a1f2c207761f17dbd691a24848f845beb",
+    "PACKET.json": "f436774494e6cafae3a62f05aa7125225f43bc57f896e11051b89ad035f3f851"
+  },
+  "recorded_by": "baton.prompt",
+  "acceptance": "Pending independent review; copied owner-run evidence"
+}

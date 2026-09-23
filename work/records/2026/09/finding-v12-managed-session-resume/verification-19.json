@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_single_worker",
+    "tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "seconds": 10.627947790999315,
+  "status": 0,
+  "timeout": false
+}

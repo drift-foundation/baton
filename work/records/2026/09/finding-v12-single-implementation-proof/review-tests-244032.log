@@ -1,0 +1,57 @@
+test_the_layout_is_flat_so_one_import_path_is_enough (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_layout_is_flat_so_one_import_path_is_enough) ... ok
+test_the_manifest_describes_the_snapshot_on_disk (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_manifest_describes_the_snapshot_on_disk) ... ok
+test_the_preserved_snapshot_still_holds_the_superseded_bytes (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_preserved_snapshot_still_holds_the_superseded_bytes)
+R1's remedy is a SECOND snapshot, not an overwrite. W236087's own ... ok
+test_the_two_corrected_modules_are_the_accepted_ones (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_two_corrected_modules_are_the_accepted_ones) ... ok
+test_the_two_snapshots_really_differ_at_those_modules (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_two_snapshots_really_differ_at_those_modules)
+The check that makes the other two mean something: if the accepted ... ok
+test_a_successor_must_state_the_claim_that_created_it (test_successor_snapshot.ASuccessorNeverReplacesItsPredecessorsEvidence.test_a_successor_must_state_the_claim_that_created_it)
+Review 2026-09-23T01:02:06Z R2 remaining. The CLI used to call the ... ok
+test_a_successor_records_its_own_creation_and_the_shared_recipe (test_successor_snapshot.ASuccessorNeverReplacesItsPredecessorsEvidence.test_a_successor_records_its_own_creation_and_the_shared_recipe) ... ok
+test_an_existing_manifest_is_refused_even_for_a_new_tree (test_successor_snapshot.ASuccessorNeverReplacesItsPredecessorsEvidence.test_an_existing_manifest_is_refused_even_for_a_new_tree) ... ok
+test_an_existing_tree_is_refused (test_successor_snapshot.ASuccessorNeverReplacesItsPredecessorsEvidence.test_an_existing_tree_is_refused) ... ok
+test_the_bound_manifest_is_not_replaced_by_a_successor (test_successor_snapshot.ASuccessorNeverReplacesItsPredecessorsEvidence.test_the_bound_manifest_is_not_replaced_by_a_successor)
+The defect itself: the accepted manifest must be byte-identical ... ok
+test_the_manifest_follows_the_snapshot (test_successor_snapshot.ASuccessorNeverReplacesItsPredecessorsEvidence.test_the_manifest_follows_the_snapshot) ... ok
+test_the_original_manifest_still_records_its_own_claim (test_successor_snapshot.ASuccessorNeverReplacesItsPredecessorsEvidence.test_the_original_manifest_still_records_its_own_claim)
+Not rewritten. It is history. ... ok
+test_verify_uses_the_selected_pair (test_successor_snapshot.ASuccessorNeverReplacesItsPredecessorsEvidence.test_verify_uses_the_selected_pair) ... ok
+test_a_child_bound_to_it_imports_the_corrected_driver (test_successor_snapshot.TheSnapshotIsImportableAsTheCommandImportsIt.test_a_child_bound_to_it_imports_the_corrected_driver)
+The whole of R1 in one check: what does the command's interpreter ... ok
+test_the_preserved_snapshot_does_not_carry_the_correction (test_successor_snapshot.TheSnapshotIsImportableAsTheCommandImportsIt.test_the_preserved_snapshot_does_not_carry_the_correction)
+The counterexample the reviewer reproduced, kept as a regression: ... ok
+test_without_the_binding_the_child_cannot_import_at_all (test_successor_snapshot.TheSnapshotIsImportableAsTheCommandImportsIt.test_without_the_binding_the_child_cannot_import_at_all) ... ok
+test_the_expired_credential_replay_fails_promptly_and_cleans_up (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_expired_credential_replay_fails_promptly_and_cleans_up) ... ok
+test_the_packet_bound_to_the_snapshot_is_held_whole (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_packet_bound_to_the_snapshot_is_held_whole) ... ok
+test_the_provider_was_called_once_and_never_retried (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_provider_was_called_once_and_never_retried) ... ok
+test_the_run_is_bounded_by_the_selected_total (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_run_is_bounded_by_the_selected_total)
+A failure path that still burned the old 900 would be the defect ... ok
+test_the_selections_name_this_snapshot_and_these_bounds (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_selections_name_this_snapshot_and_these_bounds)
+The composed input an operator actually edits, checked against the ... ok
+test_every_store_is_the_successors_own (test_successor_packet.TheDeliveredSelectionsSayWhatTheDocumentPromises.test_every_store_is_the_successors_own)
+The accepted isolation boundary: every earlier instance now holds ... ok
+test_the_blocker_travels_with_the_selections (test_successor_packet.TheDeliveredSelectionsSayWhatTheDocumentPromises.test_the_blocker_travels_with_the_selections) ... ok
+test_the_bound_source_is_the_verified_successor_snapshot (test_successor_packet.TheDeliveredSelectionsSayWhatTheDocumentPromises.test_the_bound_source_is_the_verified_successor_snapshot) ... ok
+test_the_bounds_are_the_selected_ones (test_successor_packet.TheDeliveredSelectionsSayWhatTheDocumentPromises.test_the_bounds_are_the_selected_ones) ... ok
+test_the_run_identity_is_new (test_successor_packet.TheDeliveredSelectionsSayWhatTheDocumentPromises.test_the_run_identity_is_new) ... ok
+test_the_supervisor_is_this_dossiers_current_one (test_successor_packet.TheDeliveredSelectionsSayWhatTheDocumentPromises.test_the_supervisor_is_this_dossiers_current_one) ... ok
+test_the_unresolved_operands_are_marked_and_bounded (test_successor_packet.TheDeliveredSelectionsSayWhatTheDocumentPromises.test_the_unresolved_operands_are_marked_and_bounded)
+What is still the owner's is NAMED, and nothing else is. ... ok
+test_it_names_the_bounds_it_selects (test_successor_packet.TheDocumentSaysWhatItIsNotReadyFor.test_it_names_the_bounds_it_selects) ... ok
+test_it_opens_with_the_unresolved_blocker (test_successor_packet.TheDocumentSaysWhatItIsNotReadyFor.test_it_opens_with_the_unresolved_blocker) ... ok
+test_the_accepted_failure_packet_is_not_misattributed (test_successor_packet.TheDocumentSaysWhatItIsNotReadyFor.test_the_accepted_failure_packet_is_not_misattributed)
+It used to credit the REFUSED draft's 900-second bound and ... ok
+test_the_base_is_bound_rather_than_assumed (test_successor_packet.TheDocumentSaysWhatItIsNotReadyFor.test_the_base_is_bound_rather_than_assumed)
+It used to invoke the composer with an unassigned `$BASE`. ... ok
+test_the_preparation_block_is_the_successors_own (test_successor_packet.TheDocumentSaysWhatItIsNotReadyFor.test_the_preparation_block_is_the_successors_own)
+It used to link a step 5a that opens the 239528 Authority store. ... ok
+test_an_unbound_base_is_refused_by_name (test_successor_packet.TheSuccessorSelectionsCompose.test_an_unbound_base_is_refused_by_name)
+What the document's old unassigned `$BASE` would have expanded to. ... ok
+test_the_delivered_selections_compose_and_hold (test_successor_packet.TheSuccessorSelectionsCompose.test_the_delivered_selections_compose_and_hold) ... ok
+test_the_documented_composer_command_runs_over_them (test_successor_packet.TheSuccessorSelectionsCompose.test_the_documented_composer_command_runs_over_them)
+The entrypoint as the document prints it: an explicit interpreter, ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 2.071s
+
+OK

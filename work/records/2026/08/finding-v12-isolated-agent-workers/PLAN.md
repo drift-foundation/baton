@@ -1,3 +1,51 @@
+# Current next actions — owner-confirmed v12 adoption path
+
+1. Finish W239533: demonstrate the actual independent-review execution path
+   from retained proposal through attributed verdict, stopped runtime and cleanup.
+2. Verify the concrete independent parallel-Job setup and begin bounded v12
+   development on supported fresh contexts. Reuse does not block adoption.
+3. Complete reuse among the first v12 Jobs; move broader refactoring,
+   consolidation and hardening to v13.
+
+Readiness follows actual end-to-end evidence, not counts of passing tests.
+Use focused deterministic boundary checks and accepted evidence; preserve
+necessary failure/isolation/cleanup coverage. See the final owner entries in
+OWNER-REQUIRED-REUSE-20260923.md. Specific live execution retains its existing
+selection requirements. No route or dependency changes are implied here.
+
+---
+
+# Current adoption order — reuse is an early v12 Job, not an entry gate
+
+Owner clarification 2026-09-23, recorded in the final section of
+OWNER-REQUIRED-REUSE-20260923.md, supersedes the stricter adoption wording below
+and the September 22 wait-for-restoration gate. Start independent parallel
+development on supported fresh contexts once its own prerequisites are met.
+Complete reuse among the first v12 Jobs; it remains a v12 deliverable before v13.
+
+Continue W239533 and W236087 under existing scope and claims. Determine concrete
+initial-adoption prerequisites without making unfinished reuse a blocker. Any
+execution migration or dependency correction is explicit, not implied by this
+planning update. Broader refactoring/consolidation remains v13 work.
+
+---
+
+# Current delivery target — required reuse, owner 2026-09-23
+
+Read OWNER-REQUIRED-REUSE-20260923.md. Independent parallel development Jobs
+with working context reuse are now required before moving to v13. This
+supersedes optional-reuse readiness/adoption instructions below; historical
+fresh-attempt acceptance remains valid for its narrower scope.
+
+W239528 implementation proof is accepted. Complete W239533 independent review,
+then W236087 resume/correction, and establish the selected parallel workflow
+with reuse. Record concrete remaining deployment gaps. Broad refactoring,
+consolidation and hardening wait for v13; necessary correctness fixes do not.
+Active claims, exact execution selection and human-plus-agent integration stay
+under their existing rules.
+
+---
+
 # Current — usable-v12 readiness signed off by owner183808
 
 ## Current adoption order — owner 2026-09-22

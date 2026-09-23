@@ -1,0 +1,33 @@
+{
+  "work": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W9999",
+    "route": "impl",
+    "status": "open",
+    "phase": "queued",
+    "outcome": null,
+    "rationale": null,
+    "handler": null,
+    "contract": "v12-assignment-1",
+    "scope": "scope:deployment",
+    "labels": [],
+    "creation": {
+      "work_id": "0000000a-W9999",
+      "operation_id": "w239528-successor-243284",
+      "kind": "trusted-bootstrap",
+      "scope": "scope:deployment",
+      "at": "2026-09-23T02:57:22.257Z"
+    },
+    "close_decision": null,
+    "generation_counter": 0,
+    "live_generation": null,
+    "assignment": null,
+    "gate": null,
+    "fenced_generations": [],
+    "ready": true
+  },
+  "canonical_target": "a120817b30e0c6b69e521b651ae7b8a5dc419282",
+  "expected_base": "a120817b30e0c6b69e521b651ae7b8a5dc419282",
+  "store": "/home/sl/src/baton/v12/python/single-implementation-243284-review-v12-w71917-v7f2qr4f/authority.sqlite3",
+  "seconds": 0.04578503800439648
+}

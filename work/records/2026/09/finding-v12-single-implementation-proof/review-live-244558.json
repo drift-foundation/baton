@@ -1,0 +1,236 @@
+{
+  "claim": 244558,
+  "manifest_matches_original": true,
+  "proposal_parent_and_attribution_verified": true,
+  "bundle_verified": true,
+  "only_change": "harness.py: print(READY), newline",
+  "context_manifest_verified": {
+    "entries": [
+      {
+        "path": ".claude/projects/-output/28b4a2ea-baf3-59cc-8428-7b41edea404d.jsonl",
+        "bytes": 30827,
+        "digest": "sha256:35c52cb55d2eb8442d2a07057e17c5d98d3f460bc2dbe3a25df1141c99003874"
+      }
+    ],
+    "bytes": 30827,
+    "count": 1
+  },
+  "context_modes": [
+    {
+      "path": "generations/1",
+      "mode": "0o500",
+      "symlink": false
+    },
+    {
+      "path": "generations/1/manifest",
+      "mode": "0o400",
+      "symlink": false
+    },
+    {
+      "path": "generations/1/state",
+      "mode": "0o500",
+      "symlink": false
+    },
+    {
+      "path": "generations/1/identity",
+      "mode": "0o400",
+      "symlink": false
+    },
+    {
+      "path": "generations/1/state/.claude",
+      "mode": "0o500",
+      "symlink": false
+    },
+    {
+      "path": "generations/1/state/.claude/projects",
+      "mode": "0o500",
+      "symlink": false
+    },
+    {
+      "path": "generations/1/state/.claude/projects/-output",
+      "mode": "0o500",
+      "symlink": false
+    },
+    {
+      "path": "generations/1/state/.claude/projects/-output/28b4a2ea-baf3-59cc-8428-7b41edea404d.jsonl",
+      "mode": "0o400",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude.json",
+      "mode": "0o600",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/shell-snapshots",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/.last-cleanup",
+      "mode": "0o600",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/session-env",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/.credentials.json",
+      "mode": "0o777",
+      "symlink": true
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/backups",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/projects",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/sessions",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/session-env/28b4a2ea-baf3-59cc-8428-7b41edea404d",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/backups/.claude.json.backup.1790136339870",
+      "mode": "0o600",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/projects/-output",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/projects/-output/memory",
+      "mode": "0o700",
+      "symlink": false
+    },
+    {
+      "path": "uses/context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0/home/.claude/projects/-output/28b4a2ea-baf3-59cc-8428-7b41edea404d.jsonl",
+      "mode": "0o600",
+      "symlink": false
+    }
+  ],
+  "provider": {
+    "duration_ms": 7485,
+    "num_turns": 4,
+    "session_id": "28b4a2ea-baf3-59cc-8428-7b41edea404d",
+    "subtype": "success"
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/checkout",
+        "show",
+        "-s",
+        "--format=%P%n%an <%ae>%n%cn <%ce>",
+        "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6"
+      ],
+      "code": 0,
+      "stdout": "cee07eebada62102e4a9ec9b88b4b804a102ce7e\nBaton worker <worker@baton.invalid>\nBaton worker <worker@baton.invalid>\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/checkout",
+        "diff",
+        "--name-only",
+        "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+        "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6"
+      ],
+      "code": 0,
+      "stdout": "harness.py\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/checkout",
+        "show",
+        "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6:harness.py"
+      ],
+      "code": 0,
+      "stdout": "print('READY')\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/checkout",
+        "bundle",
+        "verify",
+        "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/custody/attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b/proposal/objects.bundle"
+      ],
+      "code": 0,
+      "stdout": "The bundle contains this ref:\nf84ae35d2ce87c97a88cb5fc9787c93afa91adc6 HEAD\nThe bundle requires this ref:\ncee07eebada62102e4a9ec9b88b4b804a102ce7e \nThe bundle uses this hash algorithm: sha1\n",
+      "stderr": "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/custody/attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b/proposal/objects.bundle is okay\n"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/checkout",
+        "bundle",
+        "list-heads",
+        "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/custody/attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b/proposal/objects.bundle"
+      ],
+      "code": 0,
+      "stdout": "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6 HEAD\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "--type",
+        "container",
+        "4e6a605a2c9f3f039635bd9b06407788addde49767f8df03cf501b3676d49623"
+      ],
+      "source": "standalone tools.exec_command observation before this script",
+      "code": 1,
+      "stdout": "[]\n",
+      "stderr": "Error response from daemon: No such container: 4e6a605a2c9f3f039635bd9b06407788addde49767f8df03cf501b3676d49623\n"
+    }
+  ],
+  "sha256": {
+    "workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/custody/attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b/sealed.json": "87f2b96f1742817f8943ddae03e25cb642db8735690784b392d0cb7b8e10b135",
+    "workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/custody/attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b/proposal/objects.bundle": "5aa0b6ddd9f14a46dea11eadcaeda69670ce6c49a5df3810179be64e7683de8c",
+    "workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/custody/attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b/proposal/verification.txt": "98308b1df53211909634c648ccafc6c3543001a1adf62c2a309d858bbf6beb77",
+    "workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/custody/attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b/proposal/result.json": "47a40a6c82058a1de2f4bfe2b97683e3874a04235dc1cf9eb964cac412ef2168",
+    "workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/custody/attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b/proposal/change.patch": "b216ccb7689c4cbdba2a5b40abcde827fa9bf15b797230e51c3c0ee4a9b386e3",
+    "workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/custody/attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b/provider-context-receipt/receipt.json": "08df581be467b60ad19572e8d28c0420ef89e3a0ad67a96e5cfa393147451ef2",
+    "private-contexts/context-8f2855c6e75fb175456cf1a9e2666a47bc39421d4d5d9d38fd210fc3ad2fa20b/generations/1/manifest": "7519cb9edb3b9e578d857572def9774971a3da92c2102e4d621c8fefcae25c6d",
+    "private-contexts/context-8f2855c6e75fb175456cf1a9e2666a47bc39421d4d5d9d38fd210fc3ad2fa20b/generations/1/identity": "07e2e0f1265748e8a8b695fe1ac43e6ad16a696e0a4d600790b02b6545efc108",
+    "task.json": "5b1ea49cb1dbf89e1e469f604cee24df095d84dc46bc2fe45115faf57889a8c9",
+    "context-profile.json": "b516e0408e42e7d0dc634099f2d54092d78a6032a97dc48b62dc9554ad1eda03"
+  },
+  "elapsed_seconds": 0.2196690499986289,
+  "limits": "No database opened; canonical Job state is retained supervisor evidence. Context inspected via read-only filesystem traversal; no resume. No live provider or rerun."
+}

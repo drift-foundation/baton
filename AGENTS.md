@@ -92,6 +92,10 @@ Work or silently alter a live assignment. Exact decision and next planning actio
 
 ### Fresh-attempt recovery and optional session reuse — owner 2026-09-16
 
+The optional-reuse release classification below is superseded by the September
+23 ruling immediately following this historical entry. Fresh-attempt recovery
+and its accepted evidence remain valid.
+
 The owner now selects fresh, isolated attempts from known inputs as the minimum
 v12 recovery path. Failures must be actionable, prior execution stopped or
 fenced, and effects/results correctly attributed and independently accepted.
@@ -104,6 +108,31 @@ W177936 is classified as deferred optional production session reuse; its active
 handler must preserve work and release safely, not be silently rerouted.
 Exact ruling and next bounded readiness check:
 [W2 fresh-attempt recovery](work/records/2026/08/finding-v12-isolated-agent-workers/OWNER-FRESH-ATTEMPT-RECOVERY-20260916.md).
+
+### Required context reuse for v12 delivery — owner 2026-09-23
+
+Owner changes the delivery target to independent parallel development Jobs with
+working context reuse before moving to v13. Reuse is required because progress
+without it is too slow. This supersedes the September 16 optional-reuse
+minimum-release classification, while preserving accepted fresh-attempt evidence
+and recovery behavior. Historical acceptance is not proof of this expanded target.
+
+Owner clarification later on September 23: reuse is a v12 deliverable, not a
+prerequisite to initial adoption. Begin using v12 for independently accepted
+parallel Jobs on supported fresh contexts, with reuse among the first v12 Jobs.
+This explicitly supersedes the September 22 wait-for-restoration adoption gate
+and any interpretation of the first September 23 ruling that blocks initial
+adoption on reuse. It does not assert parallel readiness without evidence or
+authorize a particular live run, deployment change or silent dependency change.
+
+Finish the bounded implementation, independent-review and resume/correction
+proofs and establish the selected parallel workflow with reuse. Broad refactoring,
+consolidation, robustness and hardening remain v13 work; fix concrete execution,
+isolation, cleanup, attribution and false-success blockers needed for v12 now.
+This is no selection of a broad supervisor refactor, automatic integration,
+additional live execution, or silent claim/dependency changes. Human-plus-agent
+integration remains the default. Exact ruling:
+[W2 required reuse](work/records/2026/08/finding-v12-isolated-agent-workers/OWNER-REQUIRED-REUSE-20260923.md).
 
 ## Development verification time accounting
 

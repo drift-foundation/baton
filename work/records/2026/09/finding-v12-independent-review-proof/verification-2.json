@@ -1,0 +1,32 @@
+{
+  "checks": 38,
+  "claim": 244759,
+  "errors": 0,
+  "failures": 0,
+  "log": "verification-2.log",
+  "measured_seconds": 0.5900577230058843,
+  "modules": [
+    "test_attachment",
+    "test_review_bindings"
+  ],
+  "note": "focused deterministic verification of the ATTACHMENT boundary and the review COMPOSITION, read through ControlStore.open_readonly and one coherent snapshot. No container, image, live provider, network, credential or operator deployment. The bounded review supervisor and the packet held against held_configuration are NOT covered; PROGRESS.md records them as outstanding.",
+  "owned": {
+    "attachment.py": "9e50bfd75f5efdd135c6f1b3f7db5bb55f7002019445534984d7592c2d0a6688",
+    "review_bindings.py": "fc627f10c4bc97f9dc83c8956743d94298c046e389b5773de9f1d62f97f5edb1",
+    "test_attachment.py": "a8172eba3e7d49ddd69444c6089f9f633eb9ed1613950828e08dde00e6073491",
+    "test_review_bindings.py": "ce2cbe74041d77a12495083f879a03c392f5c0cddd5162a1a75c2feb71b3f968",
+    "verify.py": "c75b107e2b99b045b94bb0b309a6bffb2639089cb7a6d3f587c131c4127bc125"
+  },
+  "participant": "baton.claude",
+  "python": "3.13.7",
+  "reused": {
+    "baseline_bindings.py": "d994cce02419fd82483560a541790f4b9d367f27d2b634a166bfbdb009ae2c5e",
+    "src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "src/baton_v12/worker_manager/store.py": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b",
+    "tests/manager/test_review_cycles.py": "e4025453cfc9ea74fe0eaeb302dc742db6209f678fa78c4601c1200f530e5155",
+    "tools/stage_execution.py": "ebc9be29d2bd23cf129afe33943f5336832df2ef24256c724708004220032896"
+  },
+  "schema": "baton.independent-review-verification/1",
+  "skipped": 0,
+  "work": "W239533"
+}

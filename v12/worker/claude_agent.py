@@ -212,6 +212,37 @@ MAX_ACTIVITY_BYTES = 2 ** 53 - 1
 # stdout instead of prose, which is what makes reading that one stream a
 # bounded, closed-vocabulary act rather than a diagnostic passthrough.
 PROVIDER_PROGRAM = "claude"
+
+# THE CREATION MASK THE PROVIDER CHILD RUNS UNDER, and it is the whole of
+# W239528's custody correction. Owner 2026-09-23T03:06:11Z: "preserve
+# private-context ownership, mode and symlink checks; make the provider
+# execution/delivery path create compliant private directories."
+#
+# WHAT WENT WRONG. The manager's private-context custody rule refuses any
+# directory carrying group or other bits -- `context_delivery._private`, which
+# is unchanged and stays that way. A real provider turn created seven
+# directories under its own HOME at `0o755`, the ordinary umask default, and
+# the manager then could not seal the generation: the context use was held
+# `custody-invalid`, the composed stage could not settle, and a run that had
+# produced a correct attributed proposal reported nothing until its bound.
+#
+# WHY A MASK RATHER THAN A REPAIR. `mkdir` applies `mode & ~umask`, so a child
+# under this mask cannot create a group- or other-readable directory EVEN WHEN
+# IT ASKS FOR ONE, and the mask is inherited by its descendants. Walking the
+# tree afterwards and chmodding it would be this adapter deciding that somebody
+# else's bytes are acceptable after the fact; setting the mask means they are
+# never wrong in the first place.
+#
+# WHY ONLY THE PROVIDER. A mask set for this whole process would also narrow
+# what this adapter writes into the shared private line, whose group access the
+# deployment configures on purpose. The provider is the only party that creates
+# the context home's directories, so it is the only party whose mask moves.
+#
+# WHAT IT DOES NOT COVER, stated rather than implied: `chmod` is not masked, so
+# a provider that explicitly made a directory permissive after creating it
+# would still be refused by the manager. That is the right outcome and would be
+# its own finding; the retained evidence shows no such directory.
+PROVIDER_UMASK = 0o077
 PROVIDER_ARGUMENTS = ("--print", "--dangerously-skip-permissions",
                       "--output-format", "json")
 
@@ -3257,7 +3288,8 @@ class ClaudeAgent:
                                   PROVIDER_SECONDS)
             status, record, partial = self._ran_provider(
                 argv, cwd=candidate, seconds=seconds, scratch=scratch,
-                env=self._revalidated_environment(scratch, environment))
+                env=self._revalidated_environment(scratch, environment),
+                umask=PROVIDER_UMASK)
         except subprocess.TimeoutExpired:
             return {"ok": False, "status": None,
                     "failure_reason": PROVIDER_TIMED_OUT,
@@ -3660,7 +3692,8 @@ class ClaudeAgent:
 
 
 
-    def _ran_provider(self, argv, *, cwd, seconds, env, scratch=None):
+    def _ran_provider(self, argv, *, cwd, seconds, env, scratch=None,
+                      umask=-1):
         """The provider child, whose STDOUT ALONE is read, bounded and drained.
 
         W55360's approver ruling narrowly supersedes W39357's no-read rule for
@@ -3791,9 +3824,15 @@ class ClaudeAgent:
         outcome = _Outcome.NEVER_STARTED
         try:
             try:
+                # THE MASK IS THE CHILD'S, APPLIED AFTER FORK. `Popen`'s
+                # own `umask` operand rather than `preexec_fn`: this spawn
+                # already runs beside the reader thread above, and
+                # `preexec_fn` is documented as unsafe in the presence of
+                # threads. See `PROVIDER_UMASK`.
                 return_code = self._run(argv, cwd=cwd, env=env,
                                         timeout=seconds, stdout=write_fd,
-                                        stderr=complaint.fileno_or_devnull
+                                        stderr=complaint.fileno_or_devnull,
+                                        umask=umask
                                         ).returncode
             except subprocess.TimeoutExpired:
                 outcome = _Outcome.INTERRUPTED

@@ -1,0 +1,23 @@
+{
+  "claim": 239228,
+  "candidate_matches": true,
+  "source_count": 106,
+  "source_mismatches": [],
+  "digests": {
+    "CANDIDATE.json": "ea00e00e53785ea344d72d10fee2ccf6afa0820badb158fb5a002a4242d41c01",
+    "supervisor.py": "607103bd988a3359627ce6e336400a24d35bdd62fb08989064b5fd2785cd4319",
+    "packet_bindings.py": "e9872831c03b89852c1b1caa8b1fe58c367691eb7b9e498ffd5a632a5d605a27",
+    "test_supervisor.py": "1668eaffc9ae015ec02bb2895d2fd2c4b937029b692a443e2821c3ad1d9a6084",
+    "test_packet_bindings.py": "eede18476a10677e088157341ad75ba95de6e93c14f0d9cdf4592ffb403b8945",
+    "test_generated_packet.py": "005c23ceb6d6c1adbea7a944974d0e94261a812c77e71dbf0b8cb7fe3b32f869",
+    "OPERATOR-239174.md": "a76685b905951757570cd57b1de58ccbc34291dae6a6c26f676a87474488a1c3",
+    "SELECTIONS-239174.json": "027e8e49409f42bdd782620c08270233283c92905dc2666319cef4379e3039c8",
+    "PACKET-INPUTS-239174.json": "c3eeafca703a129ff16101368d9fbf2a37454190fd074f3976113559068e26cc",
+    "review-checks-239228.py": "118f48b5fc562762a3c50a5a22cb1102cc5f96049d5dccccc3a2a1098b9e9404"
+  },
+  "packet_program_mismatches": [],
+  "verification_seconds": 6.707397637001122,
+  "recorded_cumulative_seconds": 338.75660219100115,
+  "operator_binding_matches": true,
+  "selection_binding_matches": true
+}

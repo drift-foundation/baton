@@ -1,0 +1,19 @@
+{
+  "claim": 247389,
+  "tests": 79,
+  "passed": true,
+  "skipped": 0,
+  "post_submission_interrupt_probe": {
+    "exception": "KeyboardInterrupt: review probe after committed submission",
+    "outcome_exists": false,
+    "submitted_stage_count": 1
+  },
+  "elapsed_seconds": 1.311204790006741,
+  "method": "Disposable supported stores; inject KeyboardInterrupt immediately after real submit. No provider, deployed store or external engine.",
+  "sha256": {
+    "review_supervisor.py": "8ee2ef66240c9844437318b6312792c05aa0cd39ce80265e45a5f311fa732cee",
+    "attachment.py": "191192f3fc53d7769c2d03b31035d458d458eaaa345fc6a2fbec7cc9156cf4e4",
+    "test_review_supervisor.py": "fe8584e7c489f4cb606e207d23072625f063df13f9f002cb74bb3448262c2419",
+    "OPERATOR-239533.md": "fb8c0bc7060012f80aa1f2b8f7a50ad3ee4a6a83d555c8aee98fb41c57295493"
+  }
+}

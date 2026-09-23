@@ -1,0 +1,32 @@
+{
+  "claim": 242687,
+  "expectations_changed": "nine cases reached through `assert_owed` in `terminal_refuses` and `test_wrong_session_on_restore_cannot_finalize_or_repeat`. Their subject is unchanged; the stage-obligation half now asserts the corrected contract. `assert_owed` is kept for the endings that are genuinely still owed and those call sites are untouched.",
+  "not_changed": [
+    "v12/worker/claude_agent.py -- the adapter answered correctly",
+    "integration.retain_proposal -- its refusal is right",
+    "the provider-context hold -- kept exactly",
+    "the provider-context-unproved branch -- untouched"
+  ],
+  "participant": "baton.claude",
+  "paths": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "after": "9a8a4a8193ff7b1c709c184dee3ba43a1b1e16e60891dcf31277279d2c220ae4",
+      "before": "b5b22535ef105f786aa74f61ff894614a1e91bb8e2739f1051151fb893ebe10c"
+    },
+    "v12/python/tests/manager/test_claude_context.py": {
+      "after": "9ccc49a24914d87258a04371402662363b7a9c64444236712d5f0b1607f0e498",
+      "before": "af586ae0e50276824dfdd4643ec826cd2cddef3cf4aa53a2d54111b07a154e98"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "after": "ebc9be29d2bd23cf129afe33943f5336832df2ef24256c724708004220032896",
+      "before": "33c780916a115890767bb79cc3a2dcedc6ec588fb1da08e95490cd7897cd6e81"
+    }
+  },
+  "pinned_before_editing": "PLAN.md, by pin_242687.py",
+  "schema": "baton.single-implementation-product-change/1",
+  "test_change_authority": "AGENTS.md standing test-change authority, owner ruling 2026-09-13. Recorded here as that ruling requires; not a second approval gate.",
+  "test_paths_changed": [
+    "v12/python/tests/manager/test_claude_context.py"
+  ],
+  "work": "W239528"
+}

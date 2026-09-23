@@ -1,0 +1,113 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-single-implementation-244216' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b"
+  ],
+  "attempt_origins": {
+    "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b": "started"
+  },
+  "cancellation": {
+    "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "4e6a605a2c9f3f039635bd9b06407788addde49767f8df03cf501b3676d49623",
+      "why": "this manager observed the runtime destroyed"
+    }
+  },
+  "claim": 244216,
+  "cleanup": {
+    "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    }
+  },
+  "cleanup_sweeps": 0,
+  "final_canonical_read": true,
+  "finished_at": "2026-09-23T04:05:52.286Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [],
+  "interrupted": null,
+  "interruptions": [],
+  "job_id": "job-single-implementation-244216",
+  "observed_attempts": [
+    "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b"
+  ],
+  "outstanding_cleanup": [],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 180,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "single-implementation-244216",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 13.813865043004625,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "completed"
+  },
+  "stalled_after": 6,
+  "stalled_ticks": 0,
+  "started_order": [
+    "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b"
+  ],
+  "state": "settled",
+  "stopped": "completed",
+  "submission_id": "single-implementation-244216-submission",
+  "submitted_at": "2026-09-23T04:05:38.460Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W239528",
+  "workload": {
+    "attribution": [
+      {
+        "attempt_id": "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b",
+        "author": "Baton worker <worker@baton.invalid>",
+        "base": "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+        "committer": "Baton worker <worker@baton.invalid>",
+        "head": "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6",
+        "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+        "line_path": "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/checkout",
+        "parents": [
+          "cee07eebada62102e4a9ec9b88b4b804a102ce7e"
+        ]
+      }
+    ],
+    "conversations": [
+      "28b4a2ea-baf3-59cc-8428-7b41edea404d"
+    ],
+    "dispositions": [
+      {
+        "attempt_id": "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b",
+        "disposition": "completed"
+      }
+    ],
+    "generations": [
+      0
+    ],
+    "implementation_attempts": [
+      "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b"
+    ],
+    "modes": [
+      "open"
+    ],
+    "proposals": [
+      {
+        "attempt_id": "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b",
+        "base": "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+        "head": "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6",
+        "transport": "objects.bundle"
+      }
+    ],
+    "shortfalls": []
+  }
+}

@@ -41,6 +41,69 @@ def sha256(path):
         return hashlib.sha256(handle.read()).hexdigest()
 
 
+RUN = Path("/home/sl/baton-runs/managed-correction-236087/run")
+
+
+def inferred_boundary(relocated_tools):
+    """`stage_execution._checkout`'s default, reproduced over a given layout.
+
+    Three parents above the module's own file. Reproduced here rather than
+    imported so the assertion is about the RULE and not about wherever this
+    process happens to have loaded `stage_execution` from.
+    """
+    return os.path.realpath(os.path.join(
+        os.path.dirname(os.path.abspath(
+            str(Path(relocated_tools) / "stage_execution.py"))),
+        "..", "..", ".."))
+
+
+@unittest.skipUnless(MANAGER_SOURCE and Path(MANAGER_SOURCE).is_dir(),
+                     "the relocated manager source is this check's real "
+                     "operand")
+class TheInferredCodeBoundaryIsWrongForARelocatedSource(unittest.TestCase):
+    """The owner's refused launch, reproduced from the layout that caused it.
+
+    `packet_bindings.write` validated with an explicit boundary and
+    `supervisor._compose` let `operations_from` infer one, so a packet that
+    passed preparation refused at composition -- after the owner acts had
+    already committed. These assert the inference itself and then the whole
+    symptom over the operator's own written deployment.
+    """
+
+    def test_the_default_answers_the_run_roots_parent(self):
+        ordinary = inferred_boundary(Path(CHECKOUT) / "v12/python/tools")
+        self.assertEqual(ordinary, CHECKOUT)
+        relocated = inferred_boundary(Path(MANAGER_SOURCE) / "tools")
+        self.assertEqual(relocated, os.path.dirname(os.path.dirname(
+            os.path.realpath(MANAGER_SOURCE))))
+        # WHICH IS THE PARENT OF THE RUN ROOT, so the run's own stores are
+        # inside it and the copied code is protected only incidentally.
+        self.assertTrue(os.path.realpath(MANAGER_SOURCE).startswith(
+            relocated + os.sep))
+        self.assertNotEqual(relocated, os.path.realpath(MANAGER_SOURCE))
+
+    @unittest.skipUnless((RUN / "deployment.json").exists(),
+                         "the operator's written deployment is this check's "
+                         "real operand")
+    def test_the_written_deployment_refuses_under_the_inferred_boundary(self):
+        """The refusal the owner saw, and the boundary that avoids it.
+
+        READ ONLY: `held_configuration` opens no store and starts nothing. The
+        operator's run directory is not modified by this check.
+        """
+        deployment = json.loads((RUN / "deployment.json").read_text())
+        relocated = inferred_boundary(Path(MANAGER_SOURCE) / "tools")
+        with self.assertRaises(Exception) as caught:
+            stage_execution.held_configuration(deployment, checkout=relocated)
+        self.assertIn("checkout", str(getattr(caught.exception, "message",
+                                              caught.exception)))
+        # AND UNDER THE BOUND BOUNDARY the same bytes are accepted.
+        held = stage_execution.held_configuration(deployment,
+                                                  checkout=MANAGER_SOURCE)
+        self.assertEqual(sorted(one["role"] for one in held["workers"]),
+                         ["implementation", "review"])
+
+
 @unittest.skipUnless(INSTALL.exists() and VECTORS.exists(),
                      "the isolated installation and the published worker "
                      "contract vectors are this composition's real operands")
@@ -239,23 +302,57 @@ class TheProposedBindingsAreHeldBeforeTheyAreWritten(unittest.TestCase):
                                     "a sentinel, not retained evidence"):
             self.composed(evidence_digest="sha256:" + "0" * 64)
 
-    def test_the_task_carries_the_review_and_acceptance_criteria(self):
-        """R4: the reviewer has to be told what it is judging against.
+    def test_the_task_states_requirements_and_not_a_review_script(self):
+        """The first live run's defect, in the bytes that caused it.
 
-        One Job carries one input manifest, so there is one task document and
-        the criteria travel inside it. It instructs the reviewer to judge what
-        was actually published rather than to return a named verdict.
+        `claude_agent` composes the implementation prompt as work to do and
+        the review prompt as requirements to assess, from this same string. A
+        four-stage script here is a script the implementation role executes --
+        which is what happened: it implemented, reviewed itself, corrected,
+        reviewed again and answered "Verdict: accept". See LIVE-RUN-239365.md.
         """
         documents = self.composed()
         said = documents["task.json"]["instructions"]
-        self.assertIn("FIRST REVIEW", said)
-        self.assertIn("Change the output to READY and preserve the trailing "
-                      "newline.", said)
-        self.assertIn("FINAL REVIEW", said)
-        self.assertIn("source/ACCEPTANCE.md", said)
-        self.assertIn("do not return a verdict this document asked for if the "
-                      "proposal does not warrant it", said)
-        self.assertIn("no third implementer invocation", said)
+        # WHAT IT MUST SAY: the requirement, and that judging is not its stage.
+        self.assertIn("prints READY followed by a newline", said)
+        self.assertIn("Change only harness.py", said)
+        self.assertIn("python3 harness.py", said)
+        self.assertIn("Do not review, assess or grade your own work", said)
+        self.assertIn("do not write a verdict", said)
+        self.assertIn("an independent reviewer with its own turn does that",
+                      said)
+        # WHAT IT MUST NOT SAY: any stage it is not, or any verdict to return.
+        for forbidden in ("FIRST REVIEW", "FINAL REVIEW", "CORRECTION",
+                          "changes-requested", "accept only if",
+                          "Accept only if", "ACCEPTANCE.md"):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, said)
+
+    def test_the_implementation_prompt_carries_no_review_script(self):
+        """The prompt the worker will really compose, from these bytes."""
+        import claude_agent
+
+        documents = self.composed()
+        prompt = claude_agent._prompt(documents["task.json"])
+        self.assertIn("Edit files here directly", prompt)
+        self.assertIn("Do not review, assess or grade your own work", prompt)
+        for forbidden in ("FIRST REVIEW", "FINAL REVIEW", "changes-requested"):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, prompt)
+
+    def test_the_review_prompt_presents_them_as_requirements(self):
+        """And the reviewer gets the same requirements, framed to assess."""
+        import claude_agent
+
+        documents = self.composed()
+        prompt = claude_agent._review_prompt(
+            documents["task.json"], "/input/source", "review-report.json")
+        self.assertIn("You are reviewing a change on a read-only source tree",
+                      prompt)
+        self.assertIn("The change was made to satisfy these requirements",
+                      prompt)
+        self.assertIn("prints READY followed by a newline", prompt)
+        self.assertIn("not evidence that it passed", prompt)
 
     def test_the_preflight_names_every_missing_authority_preparation(self):
         """R4: a participant string is not a registered participant."""
@@ -289,6 +386,27 @@ class TheProposedBindingsAreHeldBeforeTheyAreWritten(unittest.TestCase):
         self.assertIn("holds no 'verify' capability", said)
         self.assertIn("UNVERIFIABLE HERE", said)
         self.assertIn("route's handlers", said)
+
+    def test_the_code_boundary_defaults_to_the_manager_source(self):
+        documents = self.composed()
+        self.assertEqual(documents["PACKET.json"]["code_boundary"],
+                         MANAGER_SOURCE)
+
+    def test_a_boundary_that_does_not_cover_the_source_refuses(self):
+        with self.assertRaisesRegex(packet_bindings.BindingRefusal,
+                                    "would not protect the code"):
+            self.composed(code_boundary=self.root)
+
+    def test_the_written_packet_validates_under_its_own_boundary(self):
+        """No `checkout` operand: the packet's bound value is the only one.
+
+        Passing a different one here is exactly what let preparation and
+        composition disagree.
+        """
+        documents = self.composed()
+        places = packet_bindings.write(self.run_root, documents)
+        held = supervisor.held_packet(places["PACKET.json"])
+        self.assertEqual(held["code_boundary"], MANAGER_SOURCE)
 
     def test_an_unresolved_declared_base_refuses_rather_than_placeholding(self):
         for value in ("BASE_FROM_STEP_4", "a" * 39, None, ""):

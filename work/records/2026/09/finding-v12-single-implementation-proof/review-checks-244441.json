@@ -1,0 +1,30 @@
+{
+  "claim": 244441,
+  "tests": 23,
+  "success": true,
+  "skipped": 0,
+  "documented_preparation_exit_codes": [
+    0,
+    0
+  ],
+  "replay_equal": true,
+  "composition_exit_code": 0,
+  "composition_after_preparation": true,
+  "selected_interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "selected_manager_source": "/home/sl/baton-runs/single-implementation-242687/manager-source",
+  "substitutions": "Disposable Authority, Work/principals, fixture source/runtime and credentials; no provider or container. Real selected interpreter and manager snapshot used for both CLI entrypoints.",
+  "product_preservation": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "9a8a4a8193ff7b1c709c184dee3ba43a1b1e16e60891dcf31277279d2c220ae4",
+    "v12/python/tests/manager/test_claude_context.py": "05249efae17fc2b0bda2db2956f998e98756948e082c23a25305671ee948679e",
+    "v12/python/tools/stage_execution.py": "ebc9be29d2bd23cf129afe33943f5336832df2ef24256c724708004220032896",
+    "v12/python/tests/manager/test_claude_agent.py": "61a6b765e4f5871bd486a3593a00bd50d74ee9b30421761c86092eb244612da9",
+    "v12/worker/claude_agent.py": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d"
+  },
+  "elapsed_seconds": 0.6580858879897278,
+  "sha256": {
+    "prepare_instance.py": "d08514cbca34d1fd6993ee8fe32fdf5e7865da8f2b83c04e03a2f680cfce3749",
+    "test_preparation.py": "56a15c7b9909bd6da742cffb8be91b2d68401da34e726eab0e8699ff064ddb85",
+    "OPERATOR-SUCCESSOR-244216.md": "b1f12de7a8c8e48cc8e697ce122ba9a78f3adf76ca4eb817ba89ae94ae499cbc",
+    "SELECTIONS-SUCCESSOR-244216.json": "949b3bc2fee275346bc8a0c74321b65595401e9fa05d344f5b1a52a514d95091"
+  }
+}

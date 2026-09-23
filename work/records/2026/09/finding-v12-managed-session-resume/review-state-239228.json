@@ -1,0 +1,9 @@
+{
+  "assessed_at": "2026-09-22T14:05:58.112345+00:00",
+  "packet_sha256": "2c6336bea08870e45ed8a6d5d11cd365670156c3332fc149499c7d3d6cfc56c5",
+  "result": "unreadable",
+  "boundary": "ControlStore.open_readonly",
+  "error": "ContractRefusal: the existing manager store could not be read through its non-writing opener (OperationalError); no write-capable fallback was attempted",
+  "grant_state": "not independently verified",
+  "fallback_attempted": false
+}

@@ -1,0 +1,24 @@
+test_the_layout_is_flat_so_one_import_path_is_enough (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_layout_is_flat_so_one_import_path_is_enough) ... ok
+test_the_manifest_describes_the_snapshot_on_disk (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_manifest_describes_the_snapshot_on_disk) ... ok
+test_the_preserved_snapshot_still_holds_the_superseded_bytes (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_preserved_snapshot_still_holds_the_superseded_bytes)
+R1's remedy is a SECOND snapshot, not an overwrite. W236087's own ... ok
+test_the_two_corrected_modules_are_the_accepted_ones (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_two_corrected_modules_are_the_accepted_ones) ... ok
+test_the_two_snapshots_really_differ_at_those_modules (test_successor_snapshot.TheSuccessorSnapshotCarriesTheAcceptedBytes.test_the_two_snapshots_really_differ_at_those_modules)
+The check that makes the other two mean something: if the accepted ... ok
+test_a_child_bound_to_it_imports_the_corrected_driver (test_successor_snapshot.TheSnapshotIsImportableAsTheCommandImportsIt.test_a_child_bound_to_it_imports_the_corrected_driver)
+The whole of R1 in one check: what does the command's interpreter ... ok
+test_the_preserved_snapshot_does_not_carry_the_correction (test_successor_snapshot.TheSnapshotIsImportableAsTheCommandImportsIt.test_the_preserved_snapshot_does_not_carry_the_correction)
+The counterexample the reviewer reproduced, kept as a regression: ... ok
+test_without_the_binding_the_child_cannot_import_at_all (test_successor_snapshot.TheSnapshotIsImportableAsTheCommandImportsIt.test_without_the_binding_the_child_cannot_import_at_all) ... ok
+test_the_expired_credential_replay_fails_promptly_and_cleans_up (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_expired_credential_replay_fails_promptly_and_cleans_up) ... ok
+test_the_packet_bound_to_the_snapshot_is_held_whole (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_packet_bound_to_the_snapshot_is_held_whole) ... ok
+test_the_provider_was_called_once_and_never_retried (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_provider_was_called_once_and_never_retried) ... ok
+test_the_run_is_bounded_by_the_selected_total (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_run_is_bounded_by_the_selected_total)
+A failure path that still burned the old 900 would be the defect ... ok
+test_the_selections_name_this_snapshot_and_these_bounds (test_successor_snapshot.TheReplaySettlesAgainstAPacketBoundToTheSnapshot.test_the_selections_name_this_snapshot_and_these_bounds)
+The composed input an operator actually edits, checked against the ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.511s
+
+OK

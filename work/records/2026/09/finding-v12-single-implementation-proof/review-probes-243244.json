@@ -1,0 +1,280 @@
+{
+  "sigint": {
+    "raised": true,
+    "injection": [
+      {
+        "turned_at_interrupt": 0
+      }
+    ],
+    "turned_after": 1,
+    "outcome": {
+      "schema": "baton.single-implementation-outcome/1",
+      "run_id": "single-implementation-239528-deterministic",
+      "work": "W239528",
+      "claim": 239653,
+      "job_id": "job-a",
+      "state": "held",
+      "held_because": [
+        "the run was interrupted: signal 2"
+      ],
+      "retry": false,
+      "finished_at": "2026-09-02T00:00:00.000Z",
+      "uncertainty": [],
+      "submitted_at": "2026-09-02T00:00:00.000Z",
+      "preexisting_jobs": [],
+      "preexisting_stages": {},
+      "accounting_scope": "this run accounts for Job 'job-a' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+      "submission_id": "sub-1",
+      "provider_turn": {
+        "seconds": 180,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      },
+      "stopped": "completed",
+      "serving_failure": null,
+      "admissions": {
+        "implementation": 1
+      },
+      "gate_refusals": [],
+      "foreign_admissions": [],
+      "served_seconds": 3.0,
+      "cancellation": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "requested": true,
+          "runtime_id": "runtime-single-1",
+          "execution_runtime": "destroyed",
+          "why": "this manager observed the runtime destroyed"
+        }
+      },
+      "cleanup_sweeps": 0,
+      "stalled_ticks": 0,
+      "stalled_after": 6,
+      "final_canonical_read": true,
+      "stage_states": {
+        "implementation": "completed"
+      },
+      "admitted_attempts": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "observed_attempts": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "started_order": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "unexpected_attempts": [],
+      "attempt_origins": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": "started"
+      },
+      "unallocated_attempts": [],
+      "cleanup": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "cleanup": "retained",
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist"
+        }
+      },
+      "outstanding_cleanup": [],
+      "workload": {
+        "implementation_attempts": [
+          "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+        ],
+        "generations": [
+          0
+        ],
+        "conversations": [
+          "2fdb09ab-8452-575a-a293-0726abeac436"
+        ],
+        "modes": [
+          "open"
+        ],
+        "proposals": [
+          {
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "base": "24804d671f5466b1f7128ce901048c7abb04d933",
+            "head": "f367b73d979ee68d076ed104dae9dc7e53220597",
+            "transport": "objects.bundle"
+          }
+        ],
+        "dispositions": [
+          {
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "disposition": "completed"
+          }
+        ],
+        "attribution": [
+          {
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "line_path": "/home/sl/src/baton/v12/python/v12-w71917-75h4uapo/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+            "head": "f367b73d979ee68d076ed104dae9dc7e53220597",
+            "base": "24804d671f5466b1f7128ce901048c7abb04d933",
+            "author": "Baton worker <worker@baton.invalid>",
+            "committer": "Baton worker <worker@baton.invalid>",
+            "parents": [
+              "24804d671f5466b1f7128ce901048c7abb04d933"
+            ]
+          }
+        ],
+        "shortfalls": []
+      },
+      "interrupted": "signal 2",
+      "interruptions": [
+        "signal 2"
+      ]
+    }
+  },
+  "keyboard_interrupt": {
+    "raised": false,
+    "injection": [
+      {
+        "turned_at_interrupt": 0
+      }
+    ],
+    "turned_after": 1,
+    "outcome": {
+      "schema": "baton.single-implementation-outcome/1",
+      "run_id": "single-implementation-239528-deterministic",
+      "work": "W239528",
+      "claim": 239653,
+      "job_id": "job-a",
+      "state": "settled",
+      "held_because": [],
+      "retry": false,
+      "finished_at": "2026-09-02T00:00:00.000Z",
+      "uncertainty": [],
+      "submitted_at": "2026-09-02T00:00:00.000Z",
+      "preexisting_jobs": [],
+      "preexisting_stages": {},
+      "accounting_scope": "this run accounts for Job 'job-a' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+      "submission_id": "sub-1",
+      "provider_turn": {
+        "seconds": 180,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      },
+      "stopped": "completed",
+      "serving_failure": null,
+      "admissions": {
+        "implementation": 1
+      },
+      "gate_refusals": [],
+      "foreign_admissions": [],
+      "served_seconds": 3.0,
+      "cancellation": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "requested": true,
+          "runtime_id": "runtime-single-1",
+          "execution_runtime": "destroyed",
+          "why": "this manager observed the runtime destroyed"
+        }
+      },
+      "cleanup_sweeps": 0,
+      "stalled_ticks": 0,
+      "stalled_after": 6,
+      "final_canonical_read": true,
+      "stage_states": {
+        "implementation": "completed"
+      },
+      "admitted_attempts": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "observed_attempts": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "started_order": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "unexpected_attempts": [],
+      "attempt_origins": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": "started"
+      },
+      "unallocated_attempts": [],
+      "cleanup": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "cleanup": "retained",
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist"
+        }
+      },
+      "outstanding_cleanup": [],
+      "workload": {
+        "implementation_attempts": [
+          "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+        ],
+        "generations": [
+          0
+        ],
+        "conversations": [
+          "2fdb09ab-8452-575a-a293-0726abeac436"
+        ],
+        "modes": [
+          "open"
+        ],
+        "proposals": [
+          {
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "base": "24804d671f5466b1f7128ce901048c7abb04d933",
+            "head": "14eb7b78e09c52ac57847216484b2d3eebaaaab4",
+            "transport": "objects.bundle"
+          }
+        ],
+        "dispositions": [
+          {
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "disposition": "completed"
+          }
+        ],
+        "attribution": [
+          {
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "line_path": "/home/sl/src/baton/v12/python/v12-w71917-f16mohna/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+            "head": "14eb7b78e09c52ac57847216484b2d3eebaaaab4",
+            "base": "24804d671f5466b1f7128ce901048c7abb04d933",
+            "author": "Baton worker <worker@baton.invalid>",
+            "committer": "Baton worker <worker@baton.invalid>",
+            "parents": [
+              "24804d671f5466b1f7128ce901048c7abb04d933"
+            ]
+          }
+        ],
+        "shortfalls": []
+      },
+      "interrupted": null,
+      "interruptions": []
+    }
+  },
+  "builder": {
+    "original_manifest_preserved": false,
+    "new_manifest": {
+      "accepted_product_bytes": {},
+      "built_from": "/tmp/review-243244-builder-ushz06_u/python",
+      "claim": 242906,
+      "file_count": 1,
+      "files": {
+        "tools/probe.py": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+      },
+      "layout": "flat -- one PYTHONPATH entry is the whole import path",
+      "not_done": "no store opened, no container started, no deployment changed, no image rebuilt -- these are host-side modules and the worker image is unaffected",
+      "packages": [
+        "baton_v12",
+        "tools"
+      ],
+      "participant": "baton.claude",
+      "path": "/tmp/review-243244-builder-ushz06_u/fresh-successor",
+      "schema": "baton.single-implementation-manager-source/1",
+      "supersedes": {
+        "files": {},
+        "path": "/home/sl/baton-runs/managed-correction-236087/manager-source",
+        "preserved": true,
+        "why": "that snapshot was taken under W236087 and holds the PRE-CORRECTION bytes below; review 2026-09-22T23:53:34Z R1 found the failure command bound it"
+      },
+      "work": "W239528"
+    },
+    "note": "entire source and output namespace disposable; canonical manifest untouched"
+  },
+  "seconds": 0.7244448419951368
+}

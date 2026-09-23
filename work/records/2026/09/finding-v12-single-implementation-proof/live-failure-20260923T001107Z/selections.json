@@ -1,0 +1,99 @@
+{
+  "_bounds_note": "total_seconds 120 and cleanup_seconds 30, per owner reroute 242903. `held_packet` refuses a cleanup bound that is not BESIDE the overall one, which 30 < 120 satisfies. `turn_seconds` stays 180 and is the Job's own provider-turn ceiling; the provider fails in milliseconds, so it is never reached -- it is bound because a packet that declares a ceiling it does not carry is not a packet.",
+  "_claim": 242906,
+  "_open_choices": {},
+  "_participant": "baton.claude",
+  "_preserve": [
+    "/home/sl/baton-runs/single-implementation-239528/ -- the first run's stores, runtime and evidence. Its ending and cleanup are UNFINISHED and that is the evidence. Do not reuse, clean up or recover it.",
+    "/home/sl/baton-runs/managed-correction-236087/manager-source -- the preserved pre-correction snapshot W236087's packet is bound to.",
+    "/home/sl/baton-runs/managed-correction-236087/run -- W236087's own outstanding runtime."
+  ],
+  "_read_with": [
+    "OPERATOR-FAILURE-242687.md",
+    "MANAGER-SOURCE-242687.json",
+    "DIAGNOSIS-242687.md"
+  ],
+  "_retained_and_revalidated": {
+    "manager_runtime": "baton-v12-stack 04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a. The INSTALLATION artifact; it is not the code that supervises, which is manager_source.",
+    "when": "2026-09-22, claim 242906, re-read from disk under this claim.",
+    "worker_adapter": "opt/baton/claude_agent.py abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d -- deliberately unchanged; the adapter answered correctly.",
+    "worker_image": "baton-v12-claude-worker:w236087-236349 -> sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd. UNCHANGED and not rebuilt: both corrections are host-side manager modules and the worker image carries neither."
+  },
+  "_schema": "baton.single-implementation-selections/2",
+  "_selected_base": "842ec458b7c3e270aaa34d126f7f0deecb08ccd0",
+  "_status": "Concrete fresh-instance preparation; not executed",
+  "_what_changed_from_SELECTIONS-239528": {
+    "bounds": "120-second total and 30-second cleanup, per owner reroute 242903. A failure path has no reason to reserve fifteen minutes; if the correction holds the run ends in seconds, and if it does not that is known in two minutes.",
+    "code_boundary": "follows manager_source, as it must: the boundary is the tree the run imports.",
+    "instance": "GENUINELY FRESH, DEDICATED stores under /home/sl/baton-runs/single-implementation-242687/db/. Review R2: the 16:50:58Z acceptance excluded stores containing OTHER WORK, not only other LIVE work, and the first W239528 run left an unfinished ending and cleanup in its stores -- that is preserved failure evidence, not an empty instance. Its stores are NOT reused.",
+    "manager_source": "NOW the SUCCESSOR snapshot at /home/sl/baton-runs/single-implementation-242687/manager-source, which carries the ACCEPTED review_driver.py 9a8a4a81...20ae4 and stage_execution.py ebc9be29...032896. Review R1: the previous command bound the W236087 snapshot, which holds the PRE-correction bytes b5b22535...ebe10c and 33c78091...6e81, so the documented command would have imported the uncorrected code and reproduced the stall it exists to disprove. The old snapshot is PRESERVED and is not written to; MANAGER-SOURCE-242687.json manifests both.",
+    "run_id": "single-implementation-242687, hence job-single-implementation-242687. The 239528 grant was CONSUMED by the run that failed -- consumption commits inside the opening admission, so a failed turn still spends it."
+  },
+  "_why_this_file_exists": "Review 2026-09-22T23:53:34Z R2, an operational finding: OPERATOR-FAILURE-242687.md named this file and the dossier did not contain it, so the lower bounds and the new run/store operands were prose rather than a reviewable composed input. This is that input.",
+  "_work": "W239528",
+  "compose": {
+    "bounds": {
+      "cleanup_seconds": 30,
+      "implementer_invocations": 1,
+      "retry": false,
+      "total_seconds": 120,
+      "turn_seconds": 180
+    },
+    "claim": 242906,
+    "cli_build": "2.1.247",
+    "code_boundary": "/home/sl/baton-runs/single-implementation-242687/manager-source",
+    "credential_profile": {
+      "claude": {
+        "provider": "operator-file",
+        "reference": "w202663-development"
+      }
+    },
+    "credential_sources": "/home/sl/.baton/credential-sources.json",
+    "evidence_digest": "sha256:1609a7707a7e8ed36e76f47182b5dcc49e4e5531e01bed18c5f6fa51c1467c3d",
+    "image_digest": "sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd",
+    "image_reference": "baton-v12-claude-worker:w236087-236349",
+    "instance": {
+      "authority_store": "/home/sl/baton-runs/single-implementation-242687/db/authority.sqlite3",
+      "authority_uuid": "79c8b19398384fd7a4f75a4df7c1391d",
+      "build_commit": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3",
+      "control_store": "/home/sl/baton-runs/single-implementation-242687/db/control.sqlite3",
+      "integration_profile": {
+        "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7dccfb5ac05e15baa69db73fcff06d6f2",
+        "integrator_participant": "baton.merge",
+        "profile_kind": "git",
+        "profile_version": 1
+      },
+      "integration_store": "/home/sl/baton-runs/single-implementation-242687/db/integration.sqlite3",
+      "job_store": "/home/sl/baton-runs/single-implementation-242687/db/jobs.sqlite3",
+      "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+      "runtime_path": "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro"
+    },
+    "manager_source": "/home/sl/baton-runs/single-implementation-242687/manager-source",
+    "note": "the expired-credential failure path; W239528 claim 242906",
+    "participants": {
+      "fixture_files": {
+        "TASK.md": "7136fea99b05349499c67aea8936d7c3a6c78a60b4831b05a528bfb380ef432d",
+        "harness.py": "362e989b9eeb58273c85b28fa156832e1b459a75fe6916712104d4035d40f3b4"
+      },
+      "implementation": "baton.impl",
+      "implementation_principal": "principal:baton.impl",
+      "receipts": {
+        "approval": "baton.approver",
+        "review": "baton.approver-review",
+        "verification": "baton.verifier"
+      },
+      "review": "baton.review",
+      "review_principal": "principal:baton.review",
+      "work_id": "79c8b193-W1",
+      "worker_files": {
+        "opt/baton/claude_agent.py": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d"
+      }
+    },
+    "provider_network": "bridge",
+    "run_id": "single-implementation-242687",
+    "source_root": "/home/sl/baton-runs/single-implementation-239528/fixture-source",
+    "supervisor_path": "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+    "vectors": "/home/sl/src/baton/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+    "work": "W239528"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "checks": 77,
+  "claim": 240196,
+  "derived_from": {
+    "packet_bindings.py": "f6f8665f54e052dd9c44ff545faa040078b663501b78380e80badac2558a8df5",
+    "supervisor.py": "a6c955c3593d37fa31c98ef3882eb0d81dc75a64b827a4d52a2958cfdcca0faa",
+    "test_generated_packet.py": "15b6ceca5aee9d6393ce0855d832bda965db2f6346def8c33c2e42fe77bbdb0a",
+    "test_packet_bindings.py": "67c6939b4d2a21144f32da80eea8ac87a7401351ddda221fe3ff30a818bb56c1",
+    "test_supervisor.py": "6eba7c6121f094df8ee97f664b3e4d2d0bfea43f96657c8381c2f553388de7a1"
+  },
+  "errors": 0,
+  "failures": 0,
+  "log": "verification-2.log",
+  "measured_seconds": 15.737012264995428,
+  "modules": [
+    "test_baseline",
+    "test_baseline_bindings",
+    "test_entrypoints"
+  ],
+  "note": "focused deterministic verification; engine and provider subprocess are the two accepted seams. No container, image, live provider, network, credential or operator deployment.",
+  "owned": {
+    "baseline.py": "20234618a59c26ad480b8fd2039d10536fd694152800ec819a5bc2dea7bec7e0",
+    "baseline_bindings.py": "c618b97f5b2866393ba522feb29ed0c9b1470663f2ef0e3740b524e9fa1713b8",
+    "test_baseline.py": "96a308bc8884a1c746622e1ce84477fd2b41b94d343fb7c936c6edda2343bb02",
+    "test_baseline_bindings.py": "71804e83a583838a4cad6d84bcb6868b61430f55213a3dadef7e1bcf39da6e2b",
+    "test_entrypoints.py": "3561109dba2523bf1648f7e9474ecffa5846d3a3a445fd3b978def15530a9c41",
+    "verify.py": "d092f47c56fbbf0d69b083a5aa899172077b21382449393dad7d881492f7e778"
+  },
+  "participant": "baton.claude",
+  "python": "3.13.7",
+  "schema": "baton.single-implementation-verification/1",
+  "skipped": 0,
+  "work": "W239528"
+}

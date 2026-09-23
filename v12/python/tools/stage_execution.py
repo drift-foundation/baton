@@ -160,7 +160,29 @@ _OPTIONAL_MEMBERS = ("job_bindings", "integration_target",
                      "integration_target_reference",
                      "integration_instructions",
                      "integration_preparation",
-                     "result_judgment_workers")
+                     "result_judgment_workers",
+                     "correction_policy")
+
+# WHETHER A `changes-requested` VERDICT OPENS THE NEXT ROUND IN THIS JOB STORE.
+#
+# W239533, owner selection 247421, and it is deliberately the smallest thing
+# that can express the question. A REVIEW-ONLY deployment exists to collect one
+# independent verdict about a checkpoint somebody else produced; the correction
+# that a `changes-requested` verdict calls for is the NEXT Job's work, and
+# `routed` had no way to say so -- it opened the round unconditionally, so such
+# a deployment could not end that verdict without a round appearing in a store
+# it had no business advancing.
+#
+# ABSENT MEANS `open`, WHICH IS TODAY'S BEHAVIOUR EXACTLY. Every existing
+# deployment document carries no such member, so nothing that runs now changes.
+# `decline` is the new thing, and what it declines is the ROUND, never the
+# verdict: a reviewer remains free to answer any of the three dispositions and
+# nothing here reads or prefers one.
+#
+# IT FAILS CLOSED BEFORE THE ACT rather than reporting after it. Review
+# 2026-09-23T11:56:42Z R4: "returning held does not undo that store effect".
+CORRECTION_POLICIES = ("open", "decline")
+DECLINE_CORRECTION = "decline"
 
 # W103068, DESIGN-2026-09-11T02-27-46Z: THE EXECUTION CONFIGURATION OF THE THREE
 # OWNERS THAT JUDGE A DERIVED RESULT, and it is deliberately SEPARATE from the
@@ -535,6 +557,15 @@ def held_configuration(document, *, checkout=None):
         _text(given["line_declared_base"], "the line's declared base revision")
     _text(given["checkpoint_profile"], "the checkpoint profile name")
     _text(given["retention_disposition"], "the retention disposition")
+    # OWNED WHERE EVERY OTHER MEMBER IS OWNED. An unreadable value here would
+    # otherwise be discovered by `routed`, which runs after a verdict has been
+    # recorded -- the wrong moment to learn that a deployment cannot say what
+    # it meant.
+    if "correction_policy" in given:
+        if given["correction_policy"] not in CORRECTION_POLICIES:
+            _refuse(f"a correction policy is one of "
+                    f"{', '.join(CORRECTION_POLICIES)}; this is "
+                    f"{given['correction_policy']!r}")
     _digest(given["retention_policy_digest"], "the retention policy digest")
     _document(given["receipt_participants"], "the receipt participants",
               _RECEIPT_MEMBERS)
@@ -1548,8 +1579,31 @@ class StageComposition:
             if binding is None:
                 return dict(answered, outcome="held", reason="provider-context-binding-missing")
             if context["disposition"] != "completed":
+                # THE CONTEXT USE IS HELD AND THE STAGE ENDING IS NOT.
+                # W239528. A generation whose provider turn did not complete
+                # cannot be accounted for, so it is never finalized -- that
+                # part is right and is unchanged. What was wrong is that this
+                # returned `outcome: held`, which is the REVIEW vocabulary for
+                # "nobody may be scheduled on this", and `_finished` reads it
+                # as "the ending did not finish" and returns before
+                # `settle_ending`. So the registered obligation stayed owed,
+                # `_ending_owed` stayed true, and the stage projected
+                # `answering` forever even though its runtime had been
+                # positively cleaned up.
+                #
+                # THE OBSERVED COST, with the sibling defect in
+                # `review_driver`: the owner ran the accepted W239528 command
+                # with an expired OAuth token, the provider failed in 31 ms,
+                # the adapter answered `unable` -- and the deployment reported
+                # nothing for the full 900-second bound.
+                #
+                # The hold travels as its own member. An operator reading this
+                # answer learns both facts separately, which is what they are.
                 provider_context.hold_context_use(deployment.control, attempt_id=attempt_id, reason="invocation-unknown", evidence_refs=[])
-                return dict(answered, outcome="held", reason="provider-context-unknown")
+                return self._finished(
+                    worker, stage, assignment,
+                    dict(answered, context_use="held",
+                         context_hold="provider-context-unknown"))
             def checkpoint_reader(original, writer_id):
                 writer = review_cycles.writer_for_attempt(deployment.control, attempt_id=original, generation=deployment.generation_of(original))
                 if writer is None or writer["writer_id"] != writer_id or answered.get("checkpoint_id") is None:
@@ -3707,6 +3761,9 @@ class StageDeployment:
         self.verdict = verdict or _no_verdict
         self.retention_disposition = given["retention_disposition"]
         self.retention_policy_digest = given["retention_policy_digest"]
+        # ABSENT IS `open`, so a deployment that says nothing means what every
+        # deployment has always meant.
+        self.correction_policy = given.get("correction_policy", "open")
         self.integration_root = os.path.join(given["state_root"],
                                              INTEGRATION_HOME)
         # THE NOMINAL GROUP, NOT ITS INTEGER. W103083 review
@@ -4448,7 +4505,7 @@ class StageDeployment:
     def routed(self, stage, answered):
         """What a recorded review verdict earns, and nothing it does not.
 
-        ONE ACT AND ONE CONDITION. `correction` opens the next round in the
+        ONE ACT AND TWO CONDITIONS. `correction` opens the next round in the
         Job store through the driver's own act, which cross-binds the verdict
         against the journal that recorded it rather than believing this
         answer. `accepted` earns nothing here: the Job's integration stage
@@ -4456,9 +4513,31 @@ class StageDeployment:
         plane's derivation and not a transition this composition performs.
         And `held` is preserved exactly as it arrived -- the whole point of the
         outcome is that nobody schedules anything on it.
+
+        THE SECOND CONDITION IS THE DEPLOYMENT'S OWN POLICY. W239533, owner
+        selection 247421. A review-only deployment configures
+        `correction_policy: "decline"` and the round is NOT opened: the act is
+        never reached, and the answer records that it was declined and why.
+        Absent or `"open"` is every other deployment, unchanged.
+
+        WHAT IS DECLINED IS THE ROUND, NEVER THE VERDICT. `answered` arrives
+        here already recorded; this cannot and does not change what the
+        reviewer said, and a declining deployment is as free to receive
+        `changes-requested` as any other.
         """
         if answered.get("outcome") != "correction":
             return answered
+        # `routed` IS the deployment's own method, so the policy is its
+        # own attribute. Reaching through a `self.deployment` that does not
+        # exist here answered AttributeError for 38 product cases.
+        policy = getattr(self, "correction_policy", "open")
+        if policy == DECLINE_CORRECTION:
+            return dict(answered, correction=None, correction_declined={
+                "policy": policy, "job_id": stage.get("job_id"),
+                "why": "this deployment is configured review-only, so the "
+                       "correction round a changes-requested verdict calls "
+                       "for belongs to a separately selected Job and is not "
+                       "opened here"})
         opened = review_driver.open_correction(
             self.jobs, self.control, job_id=stage["job_id"], answered=answered)
         return dict(answered, correction=opened)

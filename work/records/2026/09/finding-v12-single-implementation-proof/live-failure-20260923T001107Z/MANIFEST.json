@@ -1,0 +1,26 @@
+{
+  "outcome.json": {
+    "source": "/home/sl/baton-runs/single-implementation-242687/run/outcome.json",
+    "sha256": "c7a4098f8984416d75359a6911ea81dfcd2cc3f5855145b0d35e228d594aaf1b"
+  },
+  "PACKET.json": {
+    "source": "/home/sl/baton-runs/single-implementation-242687/run/PACKET.json",
+    "sha256": "076f75b21bfa48b69b229b76f7030c002c0a8a883dead031c8aebef2ffa357d1"
+  },
+  "selections.json": {
+    "source": "/home/sl/baton-runs/single-implementation-242687/selections.json",
+    "sha256": "723c6d508929b7ff74e175ae41c47c572acd46e8d83c2a5da6b139583a450dfd"
+  },
+  "provider.stdout.log": {
+    "source": "/home/sl/baton-runs/single-implementation-242687/run/launch/implementation/logs/attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9/provider.stdout.log",
+    "sha256": "4cddce13d6292ba26a7074637227f56f3944ddfe7acaeaa46473375fda93cbe9"
+  },
+  "deployment.json": {
+    "source": "/home/sl/baton-runs/single-implementation-242687/run/deployment.json",
+    "sha256": "d5ba545a38a6b7fd9540bf5bf2c6050c12193d57f456fcd839f535e73949d7da"
+  },
+  "submission.json": {
+    "source": "/home/sl/baton-runs/single-implementation-242687/run/submission.json",
+    "sha256": "067a6ddd8ae810116f7dbe48d0667634514cdf6dd3cd495fe71ce7069e5b9d80"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "checks": 112,
+  "errors": 0,
+  "failures": 0,
+  "seconds": 24.549721995994332,
+  "modules": [
+    "test_baseline",
+    "test_baseline_bindings",
+    "test_entrypoints",
+    "test_failure_path",
+    "test_successor_snapshot",
+    "test_no_progress"
+  ]
+}

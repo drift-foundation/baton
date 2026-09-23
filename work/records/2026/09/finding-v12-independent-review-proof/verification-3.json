@@ -1,0 +1,35 @@
+{
+  "checks": 38,
+  "claim": 244877,
+  "errors": 0,
+  "failures": 0,
+  "log": "verification-3.log",
+  "measured_seconds": 0.5885895419924054,
+  "modules": [
+    "test_attachment",
+    "test_review_bindings"
+  ],
+  "note": "focused deterministic verification of the ATTACHMENT boundary and the review COMPOSITION, read through ControlStore.open_readonly and one coherent snapshot. No container, image, live provider, network, credential or operator deployment. The bounded review supervisor and the packet held against held_configuration are NOT covered; PROGRESS.md records them as outstanding.",
+  "owned": {
+    "attachment.py": "9e50bfd75f5efdd135c6f1b3f7db5bb55f7002019445534984d7592c2d0a6688",
+    "review_bindings.py": "fc627f10c4bc97f9dc83c8956743d94298c046e389b5773de9f1d62f97f5edb1",
+    "test_attachment.py": "6127ca33377b97c3803c883483d6230dd519cda0922a5e158259fe414d4bf0c6",
+    "test_review_bindings.py": "ce2cbe74041d77a12495083f879a03c392f5c0cddd5162a1a75c2feb71b3f968",
+    "verify.py": "a4a60c28e83d8b270d51b7b15ac7b34a84aa4051cb542d36d552f78a74fb0a51"
+  },
+  "participant": "baton.claude",
+  "python": "3.13.7",
+  "reused": {
+    "baseline_bindings.py": "d994cce02419fd82483560a541790f4b9d367f27d2b634a166bfbdb009ae2c5e",
+    "src/baton_v12/worker_manager/offers.py": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+    "src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "src/baton_v12/worker_manager/store.py": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b",
+    "tests/manager/input_roots.py": "6d6fae239a3b01c72fefc01650ca198d2c46c24f14eb04528123c45210403590",
+    "tests/manager/test_offers.py": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+    "tests/manager/test_review_cycles.py": "e4025453cfc9ea74fe0eaeb302dc742db6209f678fa78c4601c1200f530e5155",
+    "tools/stage_execution.py": "ebc9be29d2bd23cf129afe33943f5336832df2ef24256c724708004220032896"
+  },
+  "schema": "baton.independent-review-verification/1",
+  "skipped": 0,
+  "work": "W239533"
+}

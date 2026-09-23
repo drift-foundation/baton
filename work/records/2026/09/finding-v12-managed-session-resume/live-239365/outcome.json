@@ -1,0 +1,144 @@
+{
+  "admissions": {
+    "implementation": 1,
+    "review": 0
+  },
+  "admitted_attempts": [
+    "attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf",
+    "attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b"
+  ],
+  "cancellation": {
+    "attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf": {
+      "answer": {
+        "fenced": {
+          "assignment": "{'work_ref': {'authority_uuid': '636a9493650b4efe9d03c684b5b9d904', 'work_id': '636a9493-W1'}, 'participant': 'baton.impl', 'generation': 1}",
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:1",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": "{'work_ref': {'authority_uuid': '636a9493650b4efe9d03c684b5b9d904', 'work_id': '636a9493-W1'}, 'participant': 'baton.impl', 'generation': 1}",
+          "attempt_id": "attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf",
+          "authority_operation_id": "authority.attempt.cancel:28609607cde8d5d5759a67a4c566f439740ab013d3d1aee8626226145d851d0a",
+          "reason": "exceptional"
+        },
+        "quiescence": {
+          "agent_settlement": "{'cooperative': False, 'participant': 'baton.impl', 'attempt_id': 'attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf', 'operation_id': 'attempt.cancel:28609607cde8d5d5759a67a4c566f439740ab013d3d1aee8626226145d851d0a', 'why': \"this deployment's worker is driven through a durable file exchange and carries no cooperative cancellation channel; the runtime stop below is the whole of the order this attempt receives\"}",
+          "ordered": true,
+          "runtime_id": "14690a98be8298b66d3c2b4f231a6f05f35958ae7a033af1788e4ca1d5be7a66",
+          "runtime_settlement": "{'runtime_id': '14690a98be8298b66d3c2b4f231a6f05f35958ae7a033af1788e4ca1d5be7a66', 'ordered': True, 'state': 'quiescent', 'why': 'the engine reports it not running'}"
+        },
+        "session_quiescence": {
+          "agent_session_ref": null,
+          "requested": false,
+          "state": null,
+          "why": "no execution session holds the posture of attempt 'attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8\u2026; there is no conversation to interrupt"
+        }
+      },
+      "execution_runtime": "quiescent",
+      "requested": true,
+      "runtime_id": "14690a98be8298b66d3c2b4f231a6f05f35958ae7a033af1788e4ca1d5be7a66",
+      "stage_state": "exceptional"
+    },
+    "attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b": {
+      "execution_runtime": null,
+      "requested": false,
+      "runtime_id": null,
+      "stage_state": "blocked",
+      "unreadable": "this manager holds no attempt row for it",
+      "why": "ContractRefusal: attempt 'attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b' has no recorded allocation, so this deployment cannot say which worker started it; a cancellation is ordered by the composition that holds that attempt's port and adapter"
+    }
+  },
+  "claim": 238827,
+  "cleanup": {
+    "attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf": {
+      "cleanup": null,
+      "why": "no committed cleanup"
+    },
+    "attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b": {
+      "cleanup": null,
+      "why": "no runtime attempt 'attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d9\u2026"
+    }
+  },
+  "cleanup_sweeps": 59,
+  "final_canonical_read": true,
+  "finished_at": "2026-09-22T14:19:45.664Z",
+  "gate_refusals": [],
+  "held_because": [
+    "this manager could not describe the runtime of attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b: this manager holds no attempt row for it. A failed read is not evidence that nothing is executing.",
+    "the cancellation of attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b refused: ContractRefusal: attempt 'attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b' has no recorded allocation, so this deployment cannot say which worker started it; a cancellation is ordered by the composition that holds that attempt's port and adapter",
+    "execution on attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b was not stopped: ContractRefusal: attempt 'attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b' has no recorded allocation, so this deployment cannot say which worker started it; a cancellation is ordered by the composition that holds that attempt's port and adapter",
+    "this manager cannot prove positive cleanup for attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf, attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b",
+    "the run stopped 'exceptional' rather than completing its stages",
+    "the packet declares 2 implementer invocation(s) and this run has 1",
+    "the packet declares 2 review invocation(s) and this run has 1",
+    "the selected sequence is ['open', 'restore'] and this run's context modes were ['open']",
+    "attempt attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf retained no readable proposal: TypeError: 'NoneType' object is not subscriptable",
+    "review attempt attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b has no readable verdict: ContractRefusal: no runtime attempt 'attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d9\u2026",
+    "the selected review sequence is ['changes-requested', 'accepted'] and this run recorded []"
+  ],
+  "interrupted": null,
+  "interruptions": [],
+  "job_id": "job-a",
+  "outstanding_cleanup": [
+    "attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf",
+    "attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b"
+  ],
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 180,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "managed-correction-236087",
+  "schema": "baton.managed-correction-outcome/3",
+  "served_seconds": 46.317534682995756,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "exceptional",
+    "review": "blocked"
+  },
+  "started_order": [
+    "attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf",
+    "attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b"
+  ],
+  "state": "held",
+  "stopped": "exceptional",
+  "submission_id": "managed-correction-236087-submission",
+  "submitted_at": "2026-09-22T14:17:58.573Z",
+  "uncertainty": [
+    "this manager could not describe the runtime of attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b: this manager holds no attempt row for it. A failed read is not evidence that nothing is executing.",
+    "the cancellation of attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b refused: ContractRefusal: attempt 'attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b' has no recorded allocation, so this deployment cannot say which worker started it; a cancellation is ordered by the composition that holds that attempt's port and adapter"
+  ],
+  "unexpected_attempts": [],
+  "work": "W236087",
+  "workload": {
+    "conversations": [
+      "c9204611-82a0-5e41-b24c-7444c08ea541"
+    ],
+    "dispositions": [],
+    "generations": [
+      0
+    ],
+    "implementation_attempts": [
+      "attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf"
+    ],
+    "modes": [
+      "open"
+    ],
+    "proposal_heads": [],
+    "review_attempts": [
+      "attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b"
+    ],
+    "shortfalls": [
+      "the packet declares 2 implementer invocation(s) and this run has 1",
+      "the packet declares 2 review invocation(s) and this run has 1",
+      "the selected sequence is ['open', 'restore'] and this run's context modes were ['open']",
+      "attempt attempt-b1d818b00044628297461e45329f763202cf618b53917cc00b8872e8dff74adf retained no readable proposal: TypeError: 'NoneType' object is not subscriptable",
+      "review attempt attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d92c4219f7bb91b has no readable verdict: ContractRefusal: no runtime attempt 'attempt-d215cc8f37a6232f8d680b9c45ab5d9c5757749d837824bb3d9\u2026",
+      "the selected review sequence is ['changes-requested', 'accepted'] and this run recorded []"
+    ]
+  }
+}

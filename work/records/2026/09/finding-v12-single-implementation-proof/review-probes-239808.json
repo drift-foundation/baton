@@ -1,0 +1,61 @@
+{
+  "accounting_scope": {
+    "attempts": {
+      "new-runtime-attempt": "implementation"
+    },
+    "input_status": {
+      "jobs": [
+        {
+          "job_id": "old-job",
+          "stages": [
+            {
+              "attempt_id": "old-runtime-attempt",
+              "episodes": [],
+              "kind": "implementation",
+              "state": "exceptional"
+            }
+          ]
+        },
+        {
+          "job_id": "new-job",
+          "stages": [
+            {
+              "attempt_id": "new-runtime-attempt",
+              "episodes": [],
+              "kind": "implementation",
+              "state": "completed"
+            }
+          ]
+        }
+      ]
+    },
+    "limits": null,
+    "states": {
+      "implementation": "completed"
+    }
+  },
+  "documented_composer_without_implicit_PYTHONPATH": {
+    "command": [
+      "python3",
+      "baseline_bindings.py",
+      "--selections",
+      "SELECTIONS-239528.json",
+      "--base",
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "--run-root",
+      "/tmp/w239528-review-no-write-239808"
+    ],
+    "exit_code": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py\", line 669, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py\", line 656, in main\n    documents = compose(base=taken.base, run_root=taken.run_root,\n                        **selections[\"compose\"])\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py\", line 211, in compose\n    from baton_v12.contracts import digest, digest_of_bytes, job_input_identity\nModuleNotFoundError: No module named 'baton_v12'\n",
+    "stdout": ""
+  },
+  "fresh_run_id_same_job_store": {
+    "first_job": "job-a",
+    "first_submission": "single-implementation-239528-deterministic-submission",
+    "refusal": "'job-a' is already recorded by another submission; one Job identity names one pipeline, and a second submission reusing it would silently take over the first one's stages",
+    "second_job": "job-a",
+    "second_submission": "single-implementation-239528-deterministic-fresh-submission"
+  },
+  "scope": "No deployed store, live engine, provider, or recovery.",
+  "seconds": 0.09296408600494033
+}

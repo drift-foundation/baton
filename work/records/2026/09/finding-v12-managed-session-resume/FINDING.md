@@ -1,5 +1,88 @@
 # Managed session resume for v12 Jobs
 
+## 2026-09-22 -- claim 239485, the fault established; one seam pinned
+
+Review 2026-09-22T14:38:24Z requested four changes. Three are done. The
+accounting now distinguishes an ANSWERED absence from a read that did not
+answer -- only the first may retire a runtime obligation, and an unreadable
+state stays accountable -- and every consumer reads one accountable set, so a
+blocked stage's projection identity no longer counts as a turn.
+
+The original fault is established as fact from the retained line: the provider
+created a `proposal` branch inside the runtime and authored both commits, HEAD
+moved from the admitted revision, and `ClaudeAgent._unmoved` is the check that
+raised. The adapter owns the commit and the publication; the provider owns the
+edit. The stalled cleanup is diagnosed too: a faulted turn froze and collected
+nothing, so no intake receipt exists and the ending never reached
+`authorize_cleanup` -- the axis reading `pending` rather than
+`blocked-on-intake` is what discriminates. Recovery is an owner act and was not
+performed. The contradictory operator replay direction is superseded.
+
+What is NOT done, and is pinned rather than approximated: genuinely
+stage-specific requirements. One Job carries one digest-sealed input manifest,
+so both roles necessarily receive the same task string -- `_review_prompt`
+frames it as the reviewer's requirements. Giving the two roles different
+requirements needs a product seam on the task document, pinned in PLAN.md and
+not begun. Until then this packet cannot guarantee the correction sequence
+without scripting a verdict, and the supervisor's sequence requirement is
+deliberately not weakened to paper over it.
+
+No store was opened under this claim; no live rerun, cleanup, enabling or
+closure.
+
+## 2026-09-22 -- claim 239365, what the first live run actually showed
+
+The packet ran and ended held. `LIVE-RUN-239365.md` records the findings from
+the run's own evidence, written before any implementation; `live-239365/` holds
+preserved copies. The run directory was not modified and nothing was rerun or
+cleaned up.
+
+Two defects, both mine. The implementation agent reviewed its own work --
+returning "Verdict: accept" after performing all four stages in one turn --
+because the packet's task document was a four-stage script, and `claude_agent`
+hands that string to the implementation role as work to do. It now states the
+requirement only, and says that judging is not that stage. And a review episode
+identity with no attempt row was counted as a started runtime and charged a
+cleanup record that could not exist; attempts are now classified `started`,
+`foreign` or `unallocated` from records, with only the first two charged. That
+classification asserts nothing about quiescence.
+
+Two facts stand for the owner, read back rather than inferred: the
+implementation runtime is `quiescent` with `cleanup: pending` and no committed
+destroy, so it is genuinely outstanding; and the qualification grant is
+consumed, so a relaunch under the same `run_id` is not a replay. Neither is
+acted on here.
+
+This supersedes the claim-239174 readiness wording. No live rerun, cleanup,
+enabling or closure.
+
+## 2026-09-22 -- claim 239174, one bound code boundary
+
+The relocated-source finding is confirmed exactly as recorded and corrected.
+`stage_execution` infers which tree mutable state may not be written into from
+its own `__file__` when nobody says; for the relocated manager source that
+answers `/home/sl/baton-runs`, the run root's parent, so the run's own stores
+were inside it. Preparation validated with an explicit `/home/sl/src/baton` and
+composition inferred -- two boundaries for one rule, which is why a packet that
+passed `packet_bindings.write` refused at `operations_from`.
+
+The packet now carries `code_boundary`, defaulted to the manager source, and
+both ends read that one value. `held_packet` refuses a boundary containing this
+run's own stores, so the failure is caught before any store opens rather than
+after the owner acts commit. The inference and the whole symptom are reproduced
+deterministically over the actual relocated layout and the operator's own
+written deployment, read-only.
+
+Read-only assessment of the prepared instance: the grant is UNCONSUMED, so no
+admission opened and no runtime started; all four preparation acts replay under
+their own identities, and re-running steps 5 and 6 is safe. The prepared state
+is preserved and the operator's run directory was not rewritten -- regenerating
+it is their step 5, and their selections need no edit.
+
+This supersedes the claim-238827 entry's readiness wording. What remains is the
+owner's: the fixture commit already made, step 5a, the six selections, and the
+exact live-command selection. No live rerun was performed.
+
 ## 2026-09-22 -- claim 238827, the workspace prerequisite, and a recorded loss
 
 Review 2026-09-22T12:55:41Z accepted the R2a shutdown correction and narrowed R4
@@ -391,3 +474,100 @@ This supersedes remaining preparation-changes-requested status. Return
 to baton.decide for owner fixture/base, operator5a instance setup, six selections
 and exact live-command selection. No new preparation loop for unchanged accepted
 bytes; no live/enabling/production certification/Work closure follows review.
+# 2026-09-22 — owner launch refused: relocated-source checkout inference
+
+Observed by baton.prompt from the owner's traceback and read-only source
+inspection: launching PACKET.json SHA256
+`2c6336bea08870e45ed8a6d5d11cd365670156c3332fc149499c7d3d6cfc56c5`
+under `/home/sl/baton-runs/managed-correction-236087` refused in
+`stage_execution.held_configuration` during supervisor `_compose`.
+The integration store was classified as inside `/home/sl/baton-runs`.
+
+Confirmed cause: packet_bindings.write validates with explicit
+`checkout=selections['checkout']`, whereas supervisor._compose calls
+operations_from without checkout. The non-frozen runtime default walks three
+parents above stage_execution.py; the relocated manager-source layout therefore
+answers `/home/sl/baton-runs`, not the intended code boundary. Changing shell
+working directory cannot correct a path derived from __file__.
+
+This invocation reached prepare before composition: workspace/context storage,
+candidate profile certification and qualification authorization returned before
+the refusal. It did not reach supervise or worker admission. This is a
+source-order conclusion for this invocation, not a store audit or a claim that
+the instance is untouched. Preserve existing state and evidence; no blind rerun.
+
+Proposed correction: bind and validate the intended checkout/code exclusion
+boundary consistently across packet preparation and runtime composition,
+retaining protection of the copied manager source. Add deterministic coverage
+using the actual relocated source layout and default production composition;
+refresh reviewed packet/program provenance before another live selection.
+Inspect existing preparation through supported APIs when assessing retry safety.
+Do not patch reviewed runtime bytes in place or bypass containment validation.
+
+This observed launch failure supersedes the current owner-side-only readiness
+assertion below; prior product proofs remain historical evidence. No worker
+execution success, production qualification or closure is established.
+
+## 2026-09-22T14:05:58Z — claim239228: copied-source correction accepted
+
+Review review-2026-09-22T14-05-58Z.md accepts schema/3 code_boundary binding
+across composer and production _compose. Independent actual copied-source imports
+and real composition pass correction success and timeout with simulated effects.
+Ten candidate paths and106 bound source files verify; exact current239174 hashes
+are in review-evidence-239228.json. Two tests6.707397637s; cumulative338.756602191s.
+
+Operational finding: independent ControlStore.open_readonly assessment refused
+with OperationalError, no mutable/raw-store fallback attempted. The old packet
+hash matches the owner's launched artifact; current grant/preparation state was
+not independently established. Author assessment remains attributed. This
+qualifies unconditional replay-safe wording: owner confirms state and same
+operands before exact relaunch selection. No product correction or extra
+preparation loop requested; prior completed owner choices remain valid.
+
+Return baton.decide with accepted code and review-state-239228.json read limit.
+No live rerun/enabling/production qualification/Git mutation/Work closure.
+
+## 2026-09-22T14:38:24Z — claim239447: live-failure correction changes requested
+
+Review review-2026-09-22T14-38-24Z.md confirms a regression: a failed runtime
+read for an identity outside the local launch set is called unallocated, skips
+stop and is excluded from cleanup. Positive absence and failed reads must remain
+distinct. Three focused checks0.168275467s, including the confirming counterexample;
+recorded cumulative378.499244572s. Evidence review-checks-239447.py/.log,
+review-verification-239447.json and review-evidence-239447.json.
+
+New task asks the initial implementer for final READY output, leaving no planned
+reason for the mandatory independent correction and conflicting with the fixture's
+initial lowercase task. Separate actual role inputs without forced verdicts.
+Original fault remains generic: provider claims commits, while adapter _unmoved
+rejects provider-created history. No-proposal is a terminal consequence, not a
+proved exception cause. Missing positive cleanup after59 sweeps also still needs
+the owner-selected diagnosis, without performing live cleanup. Explicitly
+supersede contradictory replay-safe/unconsumed wording in current operator guide.
+
+Ten candidate paths and106 bound sources verify unchanged. Retained live run
+is held/exceptional, not independently accepted; author live-store assessment
+remains attributed and used a write-capable opener. Reviewer did not access the
+live store this turn. This supersedes claim239365 completion; return baton.decide
+for existing239355 bounded continuation. No live/Git/enabling/closure.
+
+## 2026-09-22T14:56:01Z — owner239562 split pinned by claim239589
+
+OWNER-SPLIT-20260922.md supersedes combined baseline/review/resume execution
+and the proposed R2 shared-task review-instructions expansion. Execute and
+independently accept W239528 implementation/proposal/stop/positive cleanup first,
+then W239533 independent review/verdict/stop/positive cleanup. W236087 retains
+only restored-context correction after both, using actual context and review
+provenance. Historical proofs and failed evidence remain intact; no Job closes.
+
+Review-handoff review-2026-09-22T14-56-01Z.md preserves claim239485 changes,
+current hashes in review-evidence-239589.json and author-reported verification
+cumulative415.934725242s. No tests or live-state access in this split-coordination
+turn; latest partial corrections are not newly certified. Exact file ownership
+must pass before reuse by the prerequisite handlers. No R2 product seam begun.
+
+Canonical snapshot239591: W239533 is blocked on W239528; W236087 dependency
+not yet added. Return to baton.decide and release claim; owner applies W236087
+blocked-by-W239533 after release as ruled, and routes only the baseline first.
+Outstanding prior cleanup and consumed grant remain preserved facts. No live,
+destructive cleanup, force release, overlapping edits, enabling or closure.

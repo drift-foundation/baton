@@ -1,0 +1,121 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-single-implementation-239528' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "implementation": 1
+  },
+  "admitted_attempts": [
+    "attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff"
+  ],
+  "attempt_origins": {
+    "attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff": "started"
+  },
+  "cancellation": {
+    "attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff": {
+      "answer": {
+        "fenced": {
+          "assignment": "{'work_ref': {'authority_uuid': 'b0c63d4b08794ff4b606ef817becad67', 'work_id': 'b0c63d4b-W1'}, 'participant': 'baton.impl', 'generation': 1}",
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:1",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": "{'work_ref': {'authority_uuid': 'b0c63d4b08794ff4b606ef817becad67', 'work_id': 'b0c63d4b-W1'}, 'participant': 'baton.impl', 'generation': 1}",
+          "attempt_id": "attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff",
+          "authority_operation_id": "authority.attempt.cancel:5bcd95426f99e0de7b727269808798df6f530f60c4e460f7b3a31c0129bf3654",
+          "reason": "overall-bound-exceeded"
+        },
+        "quiescence": {
+          "agent_settlement": "{'cooperative': False, 'participant': 'baton.impl', 'attempt_id': 'attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff', 'operation_id': 'attempt.cancel:5bcd95426f99e0de7b727269808798df6f530f60c4e460f7b3a31c0129bf3654', 'why': \"this deployment's worker is driven through a durable file exchange and carries no cooperative cancellation channel; the runtime stop below is the whole of the order this attempt receives\"}",
+          "ordered": true,
+          "runtime_id": "e03514356a24074bad1db3e0b1b66e7b9f515d04a670ad5388341c71ba2dc340",
+          "runtime_settlement": "{'runtime_id': 'e03514356a24074bad1db3e0b1b66e7b9f515d04a670ad5388341c71ba2dc340', 'ordered': True, 'state': 'quiescent', 'why': 'the engine reports it not running'}"
+        },
+        "session_quiescence": {
+          "agent_session_ref": null,
+          "requested": false,
+          "state": null,
+          "why": "no execution session holds the posture of attempt 'attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d6\u2026; there is no conversation to interrupt"
+        }
+      },
+      "execution_runtime": "quiescent",
+      "requested": true,
+      "runtime_id": "e03514356a24074bad1db3e0b1b66e7b9f515d04a670ad5388341c71ba2dc340",
+      "stage_state": "answering"
+    }
+  },
+  "claim": 240196,
+  "cleanup": {
+    "attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff": {
+      "cleanup": null,
+      "why": "no committed cleanup"
+    }
+  },
+  "cleanup_sweeps": 55,
+  "final_canonical_read": true,
+  "finished_at": "2026-09-22T23:18:09.110Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [
+    "this manager cannot prove positive cleanup for attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff",
+    "the run stopped 'overall-bound-exceeded' rather than completing its stages",
+    "attempt attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff retained no readable proposal: KeyError: 'baton.git-proposal/1'",
+    "this run retained no proposal at all, so it established nothing about the implementation path"
+  ],
+  "interrupted": null,
+  "interruptions": [],
+  "job_id": "job-single-implementation-239528",
+  "observed_attempts": [
+    "attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff"
+  ],
+  "outstanding_cleanup": [
+    "attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff"
+  ],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 180,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "single-implementation-239528",
+  "schema": "baton.single-implementation-outcome/1",
+  "served_seconds": 901.0028774959937,
+  "serving_failure": null,
+  "stage_states": {
+    "implementation": "answering"
+  },
+  "started_order": [
+    "attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff"
+  ],
+  "state": "held",
+  "stopped": "overall-bound-exceeded",
+  "submission_id": "single-implementation-239528-submission",
+  "submitted_at": "2026-09-22T23:02:07.838Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W239528",
+  "workload": {
+    "attribution": [],
+    "conversations": [
+      "86ca6e6a-23ca-5c01-b775-c83a2f6eb0a8"
+    ],
+    "generations": [
+      0
+    ],
+    "implementation_attempts": [
+      "attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff"
+    ],
+    "modes": [
+      "open"
+    ],
+    "proposals": [],
+    "shortfalls": [
+      "attempt attempt-e2433024ce2be1dde33182444afdf56a4fa1cd0cbbda9b2b2d632c384462ebff retained no readable proposal: KeyError: 'baton.git-proposal/1'",
+      "this run retained no proposal at all, so it established nothing about the implementation path"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+test_a_malformed_correction_policy_is_refused_by_the_validator (test_review_bindings.TheDocumentedCommandProducesAnAcceptedPacket.test_a_malformed_correction_policy_is_refused_by_the_validator)
+Owned where every other deployment member is owned. ... ok
+test_a_refused_composition_writes_no_packet_at_all (test_review_bindings.TheDocumentedCommandProducesAnAcceptedPacket.test_a_refused_composition_writes_no_packet_at_all)
+The refusal path leaves nothing half-written for an operator. ... ok
+test_the_command_writes_a_packet_the_supervisor_accepts (test_review_bindings.TheDocumentedCommandProducesAnAcceptedPacket.test_the_command_writes_a_packet_the_supervisor_accepts) ... ok
+test_the_composed_deployment_declines_the_correction_round (test_review_bindings.TheDocumentedCommandProducesAnAcceptedPacket.test_the_composed_deployment_declines_the_correction_round) ... ok
+test_the_deployment_it_wrote_passes_the_managers_own_validator (test_review_bindings.TheDocumentedCommandProducesAnAcceptedPacket.test_the_deployment_it_wrote_passes_the_managers_own_validator)
+Not a second opinion -- the same function, over the written bytes. ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.547s
+
+OK

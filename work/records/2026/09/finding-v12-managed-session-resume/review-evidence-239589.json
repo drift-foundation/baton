@@ -1,0 +1,19 @@
+{
+  "claim": 239589,
+  "purpose": "preserved handoff under owner split239562, not new execution acceptance",
+  "candidate_matches": true,
+  "digests": {
+    "CANDIDATE.json": "ea00e00e53785ea344d72d10fee2ccf6afa0820badb158fb5a002a4242d41c01",
+    "supervisor.py": "a6c955c3593d37fa31c98ef3882eb0d81dc75a64b827a4d52a2958cfdcca0faa",
+    "packet_bindings.py": "f6f8665f54e052dd9c44ff545faa040078b663501b78380e80badac2558a8df5",
+    "test_supervisor.py": "6eba7c6121f094df8ee97f664b3e4d2d0bfea43f96657c8381c2f553388de7a1",
+    "test_generated_packet.py": "15b6ceca5aee9d6393ce0855d832bda965db2f6346def8c33c2e42fe77bbdb0a",
+    "LIVE-RUN-239365.md": "0ba9b4a0660d73f0b7b56935e4359ec4efc921ca8c93c5a8c3ac4aa6ab54b286",
+    "OPERATOR-239485.md": "0ef197d67d3fd81c5d4e459372e6df7607d88e565282cd37b0546a6b98ef303e",
+    "SELECTIONS-239485.json": "832353e3af8d2f19ae8bbfb16a6b0bec6d0e6ccbd8c0bb0b9a425523182fac62",
+    "PACKET-INPUTS-239485.json": "5672cb741f3437a73ca33c9ba378e6af9181df7f765a739831bf4f906f16cb40",
+    "OWNER-SPLIT-20260922.md": "c40948c4b62c464dd7924272669f97ab94fae2bd48103e88acda58e3f1e96f65"
+  },
+  "verification_this_claim_seconds": 0,
+  "author_reported_cumulative_seconds": 415.934725242
+}

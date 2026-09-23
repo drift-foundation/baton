@@ -1,0 +1,173 @@
+{
+  "claim": 244231,
+  "participant": "baton.rvpc",
+  "documents": {
+    "OPERATOR.md": "6f43b436ce2216881372f738784f6c178dd4f0aaa35b5203f561fd30f6e078c1",
+    "FINDING.md": "fe1564c84c98d1c3b8f29110b2f69797c0cd2f96bb8f8e7ee04b32d73285e7e2",
+    "PLAN.md": "d76b2b63b373f7f7026af320dd6b345522b61c84482e4231f1a9f048081d163d",
+    "PROGRESS.md": "a43fcc5a1e7b65904ce4091927d9869d9bbb4dcd93c5a371360624a2bf109711",
+    "INPUTS.md": "ec11032d089c1a1c6d28e96394d22b1fa0eeafe26507df086e42747a9c6fa05c"
+  },
+  "shell_syntax": [
+    {
+      "document": "OPERATOR.md",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "document": "OPERATOR.md",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "document": "OPERATOR.md",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "document": "OPERATOR.md",
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "sources": {
+    "v12/python/tools/stack_command.py": {
+      "sha256": "26393cd3dd2c6c134d1706e520427291d04e46d7cfd094d18d95c58819fb8c43",
+      "matches": true
+    },
+    "v12/python/tools/job_manager.py": {
+      "sha256": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+      "matches": true
+    },
+    "v12/python/tools/job_viewer.py": {
+      "sha256": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+      "matches": true
+    },
+    "v12/python/tools/attempt_logs_command.py": {
+      "sha256": "c360591014aeafc1f3fcd39253cba38de81e88d3e5691c842553faec694372f5",
+      "matches": true
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "ebc9be29d2bd23cf129afe33943f5336832df2ef24256c724708004220032896",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "9a8a4a8193ff7b1c709c184dee3ba43a1b1e16e60891dcf31277279d2c220ae4",
+      "matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+      "matches": true
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "matches": true
+    },
+    "../finding-v12-single-implementation-proof/baseline.py": {
+      "sha256": "f27f3cd766f9271c4b3eddb6c657bca4770d18c11a74f377e717bef23df18fd5",
+      "matches": true
+    },
+    "../finding-v12-single-implementation-proof/baseline_bindings.py": {
+      "sha256": "d994cce02419fd82483560a541790f4b9d367f27d2b634a166bfbdb009ae2c5e",
+      "matches": true
+    }
+  },
+  "help": [
+    {
+      "args": [
+        "view",
+        "--status",
+        "/tmp/w244180-review-not-opened/status.json",
+        "--job",
+        "review-job",
+        "--stage",
+        "review",
+        "--artifact",
+        "findings",
+        "--ticks",
+        "1",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout": "usage: job_viewer [-h] --status STATUS [--job JOB] [--interval INTERVAL]\n                  [--stage STAGE] [--artifact ARTIFACT] [--ticks TICKS]\n\nRead-only view of submitted Jobs. Performs no act.\n\noptions:\n  -h, --help           show this help message and exit\n  --status STATUS      path to a status document written by `job_manager ...\n                       status`\n  --job JOB            show one Job in detail\n  --interval INTERVAL  seconds between bounded refreshes; finite and greater\n                       than zero\n  --stage STAGE        with --job and --artifact, the stage whose published\n                       artifact to read\n  --artifact ARTIFACT  the output_name of an artifact THIS SNAPSHOT publishes;\n                       the locator comes from the document, never from this\n                       operand\n  --ticks TICKS        number of bounded refreshes; the default reads once and\n                       exits\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "logs",
+        "--logs",
+        "/tmp/w244180-review-not-opened/logs",
+        "--attempt",
+        "review-attempt",
+        "locators",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout": "usage: baton-v12-stack logs locators [-h]\n\noptions:\n  -h, --help  show this help message and exit\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "logs",
+        "--logs",
+        "/tmp/w244180-review-not-opened/logs",
+        "--attempt",
+        "review-attempt",
+        "read",
+        "--stream",
+        "provider.stderr",
+        "--from-byte",
+        "0",
+        "--limit",
+        "65536",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout": "usage: baton-v12-stack logs read [-h] --stream STREAM [--from-byte FROM_BYTE]\n                                 [--limit LIMIT] [--text]\n\noptions:\n  -h, --help            show this help message and exit\n  --stream STREAM       one of worker.stdout, worker.stderr, provider.stdout,\n                        provider.stderr, verification.stdout,\n                        verification.stderr\n  --from-byte FROM_BYTE\n                        the position to read from; a follow's own\n                        next_from_byte comes back here\n  --limit LIMIT         how many bytes at most\n  --text                write the log's own bytes to stdout and the capture\n                        state to stderr\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "logs",
+        "--logs",
+        "/tmp/w244180-review-not-opened/logs",
+        "--attempt",
+        "review-attempt",
+        "follow",
+        "--stream",
+        "provider.stdout",
+        "--from-byte",
+        "0",
+        "--bound",
+        "65536",
+        "--once",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout": "usage: baton-v12-stack logs follow [-h] --stream STREAM\n                                   [--from-byte FROM_BYTE] [--bound BOUND]\n                                   [--interval INTERVAL] [--once]\n\noptions:\n  -h, --help            show this help message and exit\n  --stream STREAM       one of worker.stdout, worker.stderr, provider.stdout,\n                        provider.stderr, verification.stdout,\n                        verification.stderr\n  --from-byte FROM_BYTE\n                        the position to read from; a follow's own\n                        next_from_byte comes back here\n  --bound BOUND         how many bytes at most per slice\n  --interval INTERVAL   seconds between slices while the stream is still being\n                        written\n  --once                answer one slice and the byte to resume from, instead\n                        of following\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "manager",
+        "--store",
+        "/tmp/w244180-review-not-opened/jobs.sqlite3",
+        "--incarnation",
+        "review",
+        "--authority-uuid",
+        "00000000000000000000000000000000",
+        "status",
+        "--control",
+        "/tmp/w244180-review-not-opened/control.sqlite3",
+        "--observe",
+        "tools.stage_execution:observing_factory",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout": "usage: job_manager status [-h] [--control CONTROL] [--observe OBSERVE]\n\noptions:\n  -h, --help         show this help message and exit\n  --control CONTROL  the Worker Manager control store; without it the\n                     projection reports canonical=false rather than an empty\n                     pipeline, and with one that is driving another Job store\n                     it refuses rather than projecting that store's offers as\n                     these Jobs'\n  --observe OBSERVE  an observation-only deployment factory as\n                     module:attribute, which reconstructs this attempt's\n                     durable launch and exchange files so the projection can\n                     report a worker's terminal; without it the exchange is\n                     reported as null, which is 'nobody looked' rather than\n                     'nothing happened'. It opens no Authority and carries no\n                     act, and it does not refresh the runtime axis -- that is\n                     the serving loop's, because reconciling records what it\n                     saw\n",
+      "stderr": ""
+    }
+  ],
+  "placeholder_root_absent": true,
+  "seconds": 0.7388125049910741
+}

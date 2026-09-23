@@ -1,0 +1,37 @@
+{
+  "claim": 244326,
+  "tests": 15,
+  "success": true,
+  "skipped": 0,
+  "exact_document_command": {
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/prepare_instance.py\", line 195, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/prepare_instance.py\", line 174, in main\n    from baton_v12.authority import Authority\nModuleNotFoundError: No module named 'baton_v12'\n"
+  },
+  "with_bound_PYTHONPATH": {
+    "returncode": 0,
+    "stdout": "{\n  \"authority_store\": \"/tmp/w239528-preparation-f35z5cyj/single-implementation-244216/db/authority_store.sqlite3\",\n  \"canonical_target\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n  \"granted\": [\n    {\n      \"capability\": \"verify\",\n      \"participant\": \"baton.verifier\"\n    },\n    {\n      \"capability\": \"review\",\n      \"participant\": \"baton.approver-review\"\n    },\n    {\n      \"capability\": \"approve\",\n      \"participant\": \"baton.approver\"\n    },\n    {\n      \"capability\": \"integrate\",\n      \"participant\": \"baton.integrator\"\n    }\n  ],\n  \"route_handlers\": {\n    \"impl\": \"baton.impl\",\n    \"integration\": \"baton.integrator\"\n  },\n  \"run_id\": \"single-implementation-244216\",\n  \"scope\": \"scope:deployment\",\n  \"work_id\": \"00000244-W1\"\n}\n",
+    "stderr": ""
+  },
+  "consumed_name_check": {
+    "managed-correction-236087": {
+      "accepted_marker": "managed-correction-236087"
+    },
+    "single-implementation-239528": {
+      "accepted_marker": "single-implementation-239528"
+    },
+    "single-implementation-success-239528": {
+      "accepted_marker": "single-implementation-success-239528"
+    },
+    "single-implementation-242687": {
+      "accepted_marker": "single-implementation-242687"
+    }
+  },
+  "elapsed_seconds": 0.15426516700244974,
+  "sha256": {
+    "prepare_instance.py": "29afb953c426f593f450e0d62f4bcba3d3f4858059c9ec3ad9b9ff69a543d10b",
+    "test_preparation.py": "94e8c59ccce6246835774e8d20fefd639afc29fd4937afb870789147d322cb2d",
+    "OPERATOR-SUCCESSOR-244216.md": "df7660f890fb77eaceb51090651948ab8218e188388192e0b8a2d5516d7a6771",
+    "SELECTIONS-SUCCESSOR-244216.json": "949b3bc2fee275346bc8a0c74321b65595401e9fa05d344f5b1a52a514d95091"
+  }
+}

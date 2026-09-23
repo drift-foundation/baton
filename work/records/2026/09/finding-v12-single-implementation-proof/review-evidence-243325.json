@@ -1,0 +1,66 @@
+{
+  "claim": 243325,
+  "participant": "baton.rvpc",
+  "owned": {
+    "baseline.py": {
+      "sha256": "f27f3cd766f9271c4b3eddb6c657bca4770d18c11a74f377e717bef23df18fd5",
+      "matches_author": true
+    },
+    "baseline_bindings.py": {
+      "sha256": "d994cce02419fd82483560a541790f4b9d367f27d2b634a166bfbdb009ae2c5e",
+      "matches_author": true
+    },
+    "snapshot_242687.py": {
+      "sha256": "f031250944a1ddfed0f2f7f206a970b1c02012741ffe88cc71886fb868daba02",
+      "matches_author": true
+    },
+    "test_baseline.py": {
+      "sha256": "797abb7b1a451ab25096398a18508dd93e0edb022c45d1dca2aa1461ba380e5b",
+      "matches_author": true
+    },
+    "test_baseline_bindings.py": {
+      "sha256": "71804e83a583838a4cad6d84bcb6868b61430f55213a3dadef7e1bcf39da6e2b",
+      "matches_author": true
+    },
+    "test_entrypoints.py": {
+      "sha256": "3561109dba2523bf1648f7e9474ecffa5846d3a3a445fd3b978def15530a9c41",
+      "matches_author": true
+    },
+    "test_failure_path.py": {
+      "sha256": "e7d48ef34d2849df7bc92f717861ce2b2c7de534e1a6e1ce60969a9896774dca",
+      "matches_author": true
+    },
+    "test_no_progress.py": {
+      "sha256": "649b502703ddcef7ff551f3bcf56570431ebdcce739ec81efc65821b27855d66",
+      "matches_author": true
+    },
+    "test_successor_snapshot.py": {
+      "sha256": "224916453d3e2b619bc2ba5f6e27c3debda22a5715d9dc8e186068909b96a654",
+      "matches_author": true
+    },
+    "verify.py": {
+      "sha256": "a81c0f9b70560d27103f36a4f9cb591b4b372cbdd979ab9a467298c6ced293c2",
+      "matches_author": true
+    }
+  },
+  "records": {
+    "FINDING.md": "9d7741ef234c0cc77f4906d01c4f52f06bc437b66e0f252bbdd2cceb6b718ac2",
+    "PLAN.md": "701bc4107fd5e6a864c13dfa247daa56dd730ce5624f09a90697f708dac3e0dd",
+    "PROGRESS.md": "e5bc3eb1cec80d32bbb1b42357b9af7705f5eb32958b945545bc4ed52f88f944",
+    "OPERATOR-SUCCESSOR-243284.md": "c9044055716a0ff570ee089e4983b025263a2455b0d209b67fea11076ddfae1a",
+    "SELECTIONS-SUCCESSOR-243284.json": "1900e40dbc634b117d3be2a0a28caec0d81eba1a73667f5a507f34a34c3b169e",
+    "MANAGER-SOURCE-242687.json": "e1c00957f8e235b1810fff37e7a89161bccb89dba66907a28243b6899c79415e"
+  },
+  "snapshot_matches": true,
+  "product": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": true,
+    "v12/python/tests/manager/test_claude_context.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "successor_probe": {
+    "predecessor_preserved": true,
+    "verifies": true,
+    "recorded_claim": 242906,
+    "note": "same default claim argument used by CLI; all paths disposable"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+  "argv_policy_digest": "sha256:19ddb1ba068487202f1d80c28b1dc68a0760f13cc53f7ae8336459e05de0f167",
+  "cli_build": "2.1.247",
+  "cwd": "/output",
+  "environment_policy_digest": "sha256:22c5b6d5c9d853dedcdabdb9da554de43300f6a7243f8d822dcabdaa9cc9ab69",
+  "evidence_digest": "sha256:1609a7707a7e8ed36e76f47182b5dcc49e4e5531e01bed18c5f6fa51c1467c3d",
+  "image_digest": "sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd",
+  "layout_version": "claude-context-layout/2",
+  "max_bytes": 67108864,
+  "max_entries": 4096,
+  "model": "opus",
+  "qualification": "candidate",
+  "reported_model": "opus",
+  "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+  "runtime_profile_digest": "sha256:ca8ae6b58904d32432f97baeeb2fe480d3f20e11f364714f9e0775bd733a51cd",
+  "schema": "baton.claude-context-profile/2",
+  "state_paths": [
+    ".claude/projects/-output/{conversation_id}.jsonl"
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "claim": 242948,
+  "participant": "baton.rvpc",
+  "manifest_sha256": "e1c00957f8e235b1810fff37e7a89161bccb89dba66907a28243b6899c79415e",
+  "snapshot_complete_matches": true,
+  "snapshot_count": 106,
+  "files": {
+    "review-probes-240287.json": "cc4a8505b451737c13be0634d87129a280f8a2cd2a4ce52b1a752fe99995540b",
+    "test_failure_path.py": "e7d48ef34d2849df7bc92f717861ce2b2c7de534e1a6e1ce60969a9896774dca",
+    "review-evidence-240287.json": "a037cac704044fbbc86180c2cbdc59df263d6d65811fc868501cb85f0e943fba",
+    "test_entrypoints.py": "3561109dba2523bf1648f7e9474ecffa5846d3a3a445fd3b978def15530a9c41",
+    "review-2026-09-22T23-53-34Z.md": "38d923392524eb7621f578f6be484f7813664d9413484dfffdecbc4f4c20601f",
+    "records_240196.py": "a3e8e7bc63143ba5fc40fd1ecb781ddfbcfb7aee7d4d3d0a5b5debfc8d4194d2",
+    "OPERATOR-239528.md": "6dcfd5a8bdc20e66da11293266fd4ca3912dd54e15542c40c987d7c64d399541",
+    "test_baseline_bindings.py": "71804e83a583838a4cad6d84bcb6868b61430f55213a3dadef7e1bcf39da6e2b",
+    "review-snapshot-242948.py": "934c7dfdff1a650d924abb3cb6ee1225a79928640d5e343d9f720d96ec30658c",
+    "review-replay-242852.py": "d7abf7ed2d190ff85b10c8120d8d531bc0395577d19944b43936fca7a592b593",
+    "verification-2.log": "d979e36eed65b22800ae6e6055a670a18924147a35312b9539ebddeb4ef3b321",
+    "snapshot_242687.py": "2e953799b9d44a05adaaf43f86082abb95a4bce0bcb17d3983e8faa4edce8556",
+    "pin_242687.py": "6762e63bb51de41b948a8892cbec3c2825c1f5bd3c27d053cf27ed093ea252c5",
+    "finish_242687.py": "b5198448acfb767d4eb9b5a6386df9729fec9f7e067437a44f6f69c3e27acb2c",
+    "review-evidence-239808.json": "2352e2ef809552498a901497efde033dbfdd0233a6da1a6cfa2facd33f857bc6",
+    "review-snapshot-242948.json": "c9f2c22edf7d512661cad27a953def22265f35225455758df47d11d72841c8ec",
+    "review-tests-242852-packet.log": "170862eadeefd6336615fa8fe2461a2fca622e2cc0b56acdc33ca81737687e4b",
+    "verification-3.json": "2ef883ba58ab88cdd9eea759dd01a7a9d21bcde10810520c3861d94d294a0663",
+    "PRODUCT-CHANGE-242687.json": "b6f8bc20b733fa5fc81db73d7888d2373a69d67d478967284d05a6cbb9e9973b",
+    "review-tests-242852-driver.log": "a75653635eec21e4e907bf9f0aedf1486dfbb320f47481e3bb3365746fed8342",
+    "SELECTIONS-FAILURE-242687.json": "8007a795a90948bad4201ba71424a3d0a840b3ef7adc53eda2d77d027e118573",
+    "verification-1.log": "3fb04610898395de6a79136f244384c4786a0367ce0ce09aee8eeb93e7e2679e",
+    "verification-4.json": "2a231cfe5a67e7067cd6576e818a22545b0a210c982b57c67368801dc00aef2d",
+    "FINDING.md": "27aebdf1793d83bc96420bf0ad16ee5fb78f8170ef01c5a908f606223e733f62",
+    "SELECTIONS-239528.json": "f464ee5f33d42236711757d954660f67b07d0c2287d4f39daef4ca05d147f8de",
+    "test_successor_snapshot.py": "3110050b205cc12c06aceac844d877e60934f15f2b04b4758acac6a84e739506",
+    "review-2026-09-22T15-32-51Z.md": "4e25eafe4c1270a88b1b88805dd21d214392992b038c5f1990bceb1420cf3f33",
+    "review-evidence-242852.json": "e76095e0bd92ee848017b50d3309fe30c80c7aa44afd8fab30a7b8c6178eb669",
+    "test_baseline.py": "797abb7b1a451ab25096398a18508dd93e0edb022c45d1dca2aa1461ba380e5b",
+    "review-tests-239808.log": "60234f49d237815bd84097966d5c2ed2a29444569cbf51ba2ad744e0d42a8756",
+    "baseline_bindings.py": "c618b97f5b2866393ba522feb29ed0c9b1470663f2ef0e3740b524e9fa1713b8",
+    "PROVIDER-QUESTION-239528.md": "8cb3689df86d54501adaacc3cbe00650dd1e1900205b50568e2132de42ed85b6",
+    "review-replay-242852.json": "c5f59d5d8925442339a509068a8eb517cc786190d21d177c1b6970f4057378c5",
+    "DIAGNOSIS-239528.md": "8fd72893727f78a597ecb4f69d96a6f56af60c490f341fd444b9744e16e22e2c",
+    "verification-2.json": "62864263576694bb8bc2d1c6da1b8c1497ff4c09b307afdc42967ad8c2a92753",
+    "OPERATOR-FAILURE-242687.md": "03a40c96babfb191e00b6b238f6e5c1d5b24a207f74d4c819bb419bd04061506",
+    "verification-3.log": "9dd3784fc2c15f0202bfd019c6aa81dd82874e9ba10a3e3599499ae60aad225a",
+    "review-tests-242852-context.log": "f7f4f15545f738eb2753f571af8582bdb50ce5b163df3969b1f53b34f1fba662",
+    "PLAN.md": "c2a5846a158fc2c0772ffb3a581ce59b9998f51dc559013212b7c188c3d941e9",
+    "records_242687.py": "66ff749f664352c2e8dfd4c2c00968e7352b7f34d8aaada17790674a68847f98",
+    "PROGRESS.md": "a3b54e8f9a5a95850d607aea7b045927bad390a9b8a489e0e0b39d13d10f1b0b",
+    "DIAGNOSIS-242687.md": "e5081d0f8c24ab111af90c948605318f4d8e27eaf13cf5e3462f29036719c442",
+    "verification-1.json": "22d15412acfbe27cf60b16006dc2c0296474c5245cd73cf7116902d89480d76a",
+    "verification-4.log": "78f266a7515c8ec132c4b956e7f40107f2927376e1fc8fb37912ee0558b3d7a2",
+    "baseline.py": "fa0b048c69c9837a748c0b2df47e9a8745050ca5483986435ee1465a3d998328",
+    "OWNERSHIP-239528.md": "e1dbca8cd83c44f67a613873aa32de688bee442d33c15b66cfee8cd049afbf09",
+    "review-2026-09-22T16-50-58Z.md": "c3ea1a965796b50fcdc8827ff5b775b483ae6adfc52c92f7f328b958c70a1fbc",
+    "review-tests-240287.log": "7fa63aa28e137f2623b03cf6de5aad7c9822ced9e22c6e88d4981371ed9daffc",
+    "review-probes-239808.py": "10055771fa9dbdb6acd601c63b0e48c234c2773c906f79ed65b4f845c45d2480",
+    "records_242906.py": "9acd4b7e3179bc72727ddbdf8db8d2cbb4dd3adc951b865172400c895f8cbe14",
+    "review-probes-239808.json": "7cdb41b7d63a22d7039a1b06dcc28fe5721a9139f0d190beb2cb862f82e2a954",
+    "review-probes-240287.py": "87cb18c0169d61853992738ec1627f66da24960b3dc6a73a5822c02388c829af",
+    "verify.py": "b3634af3858b9f30bcfe45f9b8649b815820cc49ed9910d73895cfff435b9031",
+    "MANAGER-SOURCE-242687.json": "e1c00957f8e235b1810fff37e7a89161bccb89dba66907a28243b6899c79415e"
+  },
+  "product_matches": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": true,
+    "v12/python/tests/manager/test_claude_context.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "prior_code_matches": {
+    "baseline.py": true,
+    "baseline_bindings.py": true,
+    "test_baseline.py": true,
+    "test_baseline_bindings.py": true,
+    "test_entrypoints.py": true,
+    "test_failure_path.py": true
+  },
+  "test_seconds": 1.707129120011814,
+  "exit_code": 0,
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_successor_snapshot"
+  ],
+  "actual_snapshot_main": {
+    "driver": "/home/sl/baton-runs/single-implementation-242687/manager-source/baton_v12/job_manager/review_driver.py",
+    "stage": "/home/sl/baton-runs/single-implementation-242687/manager-source/tools/stage_execution.py",
+    "exit_code": 1,
+    "bounds": {
+      "turn_seconds": 180,
+      "total_seconds": 120,
+      "cleanup_seconds": 30,
+      "implementer_invocations": 1,
+      "retry": false
+    },
+    "outcome": {
+      "accounting_scope": "this run accounts for Job 'job-single-implementation-242687' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+      "admissions": {
+        "implementation": 1
+      },
+      "admitted_attempts": [
+        "attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f"
+      ],
+      "attempt_origins": {
+        "attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f": "started"
+      },
+      "cancellation": {
+        "attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f": {
+          "execution_runtime": "destroyed",
+          "requested": true,
+          "runtime_id": "runtime-single-1",
+          "why": "this manager observed the runtime destroyed"
+        }
+      },
+      "claim": 239653,
+      "cleanup": {
+        "attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f": {
+          "cleanup": "retained",
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist"
+        }
+      },
+      "cleanup_sweeps": 0,
+      "final_canonical_read": true,
+      "finished_at": "2026-09-23T00:05:35.023Z",
+      "foreign_admissions": [],
+      "gate_refusals": [],
+      "held_because": [
+        "the run stopped 'exceptional' rather than completing its stages",
+        "attempt attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count.",
+        "this run retained no proposal at all, so it established nothing about the implementation path"
+      ],
+      "interrupted": null,
+      "interruptions": [],
+      "job_id": "job-single-implementation-242687",
+      "observed_attempts": [
+        "attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f"
+      ],
+      "outstanding_cleanup": [],
+      "preexisting_jobs": [],
+      "preexisting_stages": {},
+      "provider_turn": {
+        "default_seconds": 3600,
+        "origin": "job",
+        "seconds": 180,
+        "setting": "provider_turn_seconds"
+      },
+      "retry": false,
+      "run_id": "single-implementation-242687",
+      "schema": "baton.single-implementation-outcome/1",
+      "served_seconds": 0.21982313500484452,
+      "serving_failure": null,
+      "stage_states": {
+        "implementation": "exceptional"
+      },
+      "started_order": [
+        "attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f"
+      ],
+      "state": "held",
+      "stopped": "exceptional",
+      "submission_id": "single-implementation-242687-submission",
+      "submitted_at": "2026-09-23T00:05:34.794Z",
+      "unallocated_attempts": [],
+      "uncertainty": [],
+      "unexpected_attempts": [],
+      "work": "W239528",
+      "workload": {
+        "attribution": [],
+        "conversations": [
+          "73bc07ee-c6f8-5a06-b873-e6758894c941"
+        ],
+        "dispositions": [
+          {
+            "attempt_id": "attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f",
+            "disposition": "unable"
+          }
+        ],
+        "generations": [
+          0
+        ],
+        "implementation_attempts": [
+          "attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f"
+        ],
+        "modes": [
+          "open"
+        ],
+        "proposals": [],
+        "shortfalls": [
+          "attempt attempt-0e6956700a669c90528aa40c3cd343d53ba3f04bb5ff16ecfe390aa14e967d1f ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count.",
+          "this run retained no proposal at all, so it established nothing about the implementation path"
+        ]
+      }
+    },
+    "seconds": 0.29843631100084167,
+    "scope": "Actual baseline.main/_compose and successor product imports; disposable fixtures; provider replay and engine/credential boundaries simulated."
+  },
+  "snapshot_main_wall_seconds": 0.507321307,
+  "total_measured_wall_seconds": 2.2144504270118137,
+  "snapshot_delta": {
+    "changed": [
+      "baton_v12/job_manager/review_driver.py",
+      "tools/stage_execution.py"
+    ],
+    "added": [],
+    "removed": []
+  },
+  "preserved_239589": {
+    "CANDIDATE.json": true,
+    "supervisor.py": true,
+    "packet_bindings.py": true,
+    "test_supervisor.py": true,
+    "test_generated_packet.py": true,
+    "LIVE-RUN-239365.md": true,
+    "OPERATOR-239485.md": true,
+    "SELECTIONS-239485.json": true,
+    "PACKET-INPUTS-239485.json": true,
+    "OWNER-SPLIT-20260922.md": true
+  },
+  "builder_not_run": "Prepared snapshot already exists and is reviewed. snapshot_242687.main deletes existing destination before copy/verification; step0 is complete, not accepted for repetition."
+}

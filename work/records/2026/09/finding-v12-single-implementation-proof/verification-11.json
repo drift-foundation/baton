@@ -1,0 +1,46 @@
+{
+  "checks": 174,
+  "claim": 244389,
+  "derived_from": {
+    "packet_bindings.py": "f6f8665f54e052dd9c44ff545faa040078b663501b78380e80badac2558a8df5",
+    "supervisor.py": "a6c955c3593d37fa31c98ef3882eb0d81dc75a64b827a4d52a2958cfdcca0faa",
+    "test_generated_packet.py": "15b6ceca5aee9d6393ce0855d832bda965db2f6346def8c33c2e42fe77bbdb0a",
+    "test_packet_bindings.py": "67c6939b4d2a21144f32da80eea8ac87a7401351ddda221fe3ff30a818bb56c1",
+    "test_supervisor.py": "6eba7c6121f094df8ee97f664b3e4d2d0bfea43f96657c8381c2f553388de7a1"
+  },
+  "errors": 0,
+  "failures": 0,
+  "log": "verification-11.log",
+  "measured_seconds": 27.046156366996,
+  "modules": [
+    "test_baseline",
+    "test_baseline_bindings",
+    "test_entrypoints",
+    "test_failure_path",
+    "test_successor_snapshot",
+    "test_no_progress",
+    "test_successor_packet",
+    "test_preparation"
+  ],
+  "note": "focused deterministic verification; engine and provider subprocess are the two accepted seams. No container, image, live provider, network, credential or operator deployment.",
+  "owned": {
+    "baseline.py": "f27f3cd766f9271c4b3eddb6c657bca4770d18c11a74f377e717bef23df18fd5",
+    "baseline_bindings.py": "d994cce02419fd82483560a541790f4b9d367f27d2b634a166bfbdb009ae2c5e",
+    "prepare_instance.py": "d08514cbca34d1fd6993ee8fe32fdf5e7865da8f2b83c04e03a2f680cfce3749",
+    "snapshot_242687.py": "cc387c6279dbf8941eef0098577c49f181f6d36be05334351eca7bba0e6e9b4f",
+    "test_baseline.py": "797abb7b1a451ab25096398a18508dd93e0edb022c45d1dca2aa1461ba380e5b",
+    "test_baseline_bindings.py": "71804e83a583838a4cad6d84bcb6868b61430f55213a3dadef7e1bcf39da6e2b",
+    "test_entrypoints.py": "3561109dba2523bf1648f7e9474ecffa5846d3a3a445fd3b978def15530a9c41",
+    "test_failure_path.py": "e7d48ef34d2849df7bc92f717861ce2b2c7de534e1a6e1ce60969a9896774dca",
+    "test_no_progress.py": "2a0c73f1cd3587fc99b7410ebc3b6e4e399d7ba0ba545ec99acb075291ff9256",
+    "test_preparation.py": "56a15c7b9909bd6da742cffb8be91b2d68401da34e726eab0e8699ff064ddb85",
+    "test_successor_packet.py": "34b81538076afcd9c2dcfab48be90edaa2505d928aa1437eec148959bc76a45a",
+    "test_successor_snapshot.py": "700800c8633f4617e6515f2fbd71617fcfa7a8acbd725090f6f3af38f6ffa664",
+    "verify.py": "63c5ce8c4ce76a19fedc26202d4efb5670a730f3505cb87580a5122b22ba6a98"
+  },
+  "participant": "baton.claude",
+  "python": "3.13.7",
+  "schema": "baton.single-implementation-verification/1",
+  "skipped": 0,
+  "work": "W239528"
+}

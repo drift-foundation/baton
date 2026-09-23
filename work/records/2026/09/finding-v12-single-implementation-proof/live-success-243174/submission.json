@@ -1,0 +1,25 @@
+{
+  "jobs": [
+    {
+      "execution_limits": {
+        "provider_turn_seconds": 180
+      },
+      "input_digest": "sha256:a78911a9f9a3809a95d89e2631c20addf346b9c5914993be21158f6c6f74f2b6",
+      "job_id": "job-single-implementation-success-239528",
+      "policy_digest": "sha256:1ea528cb0ba3e3b5d5916f5dacdb3809beb4da1a6fbf97f9358af48b601b6805",
+      "stages": [
+        {
+          "depends_on": [],
+          "kind": "implementation",
+          "profile_digest": "sha256:ca8ae6b58904d32432f97baeeb2fe480d3f20e11f364714f9e0775bd733a51cd",
+          "profile_name": "claude-context-implementation",
+          "work_id": "839e2fe2-W1"
+        }
+      ],
+      "terminal_policy": "report-and-hold",
+      "test_scope": []
+    }
+  ],
+  "schema": "baton.v12.job-submission/2",
+  "submission_id": "single-implementation-success-239528-submission"
+}

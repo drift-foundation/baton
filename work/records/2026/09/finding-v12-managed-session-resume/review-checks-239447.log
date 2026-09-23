@@ -1,0 +1,8 @@
+test_failed_read_is_classified_unallocated_and_stop_skipped (__main__.Classification.test_failed_read_is_classified_unallocated_and_stop_skipped) ... ok
+test_own_launch_still_receives_stop_on_read_failure (__main__.Classification.test_own_launch_still_receives_stop_on_read_failure) ... ok
+test_positive_missing_row_is_also_classified_unallocated (__main__.Classification.test_positive_missing_row_is_also_classified_unallocated) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

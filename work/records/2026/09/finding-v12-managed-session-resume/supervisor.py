@@ -75,7 +75,7 @@ __all__ = ["PACKET_SCHEMA", "OUTCOME_SCHEMA", "CANCEL_CAPABILITY",
            "AdmissionGate", "held_packet", "verify_imported_sources",
            "verify_worker_image", "prepare", "supervise", "main"]
 
-PACKET_SCHEMA = "baton.managed-correction-packet/2"
+PACKET_SCHEMA = "baton.managed-correction-packet/3"
 OUTCOME_SCHEMA = "baton.managed-correction-outcome/3"
 
 # The cleanup endings the manager's own axis calls POSITIVE. `failed` is a
@@ -102,8 +102,9 @@ CLAIM_NAMESPACE = "baton.git-proposal/1"
 # journal's shape; this module reads it from there and never spells it twice.
 
 _PACKET = ("schema", "run_id", "work", "claim", "note", "worker_image",
-           "manager_runtime", "manager_source", "supervisor", "deployment",
-           "context", "submission", "fixture", "bounds", "outcome_path")
+           "manager_runtime", "manager_source", "supervisor", "code_boundary",
+           "deployment", "context", "submission", "fixture", "bounds",
+           "outcome_path")
 _BOUNDS = ("turn_seconds", "total_seconds", "cleanup_seconds",
            "implementer_invocations", "review_invocations", "corrections",
            "retry")
@@ -411,6 +412,44 @@ def held_packet(path):
 
     program = _document(packet["supervisor"], "the packet's supervisor", _SELF)
     _pin(program["path"], program["sha256"], "the supervisor program")
+
+    # THE CODE TREE MUTABLE STATE MAY NOT BE WRITTEN INTO, bound rather than
+    # inferred. `stage_execution._checkout` walks three parents above its own
+    # `__file__` when no boundary is given, which answers this distribution's
+    # working tree for an ordinary checkout and answers the RUN ROOT'S PARENT
+    # for a relocated manager source -- so a packet whose stores live beside
+    # its copied code was refused for being "inside the checkout". Preparation
+    # passed only because it validated with an explicit boundary that runtime
+    # composition did not share. One bound value, used by both.
+    boundary = packet["code_boundary"]
+    if type(boundary) is not str or not os.path.isabs(boundary) \
+            or os.path.normpath(boundary) != boundary:
+        _refuse(f"the code boundary is one absolute canonical directory; this "
+                f"is {boundary!r}")
+    if not os.path.isdir(boundary):
+        _refuse(f"the code boundary {boundary!r} is not a directory")
+    # AND THIS RUN'S OWN MUTABLE STATE IS OUTSIDE IT. This is the exact failure
+    # the inferred boundary produced -- the integration store classified as
+    # living inside the code tree -- and it is checkable from the packet alone,
+    # before a store is opened, rather than discovered at composition.
+    #
+    # `held_configuration` still applies the same rule to every path the
+    # DEPLOYMENT configures; this covers the ones the packet names itself, so a
+    # boundary that could never compose is refused by the program that reads it
+    # first.
+    whole = os.path.realpath(boundary)
+    for what, place in (("the Job store", deployment["job_store"]),
+                        ("the control store", deployment["control_store"]),
+                        ("the deployment state root", deployment["state_root"]),
+                        ("the context storage", context["storage_path"]),
+                        ("the retained outcome",
+                         os.path.dirname(packet["outcome_path"]))):
+        held = os.path.realpath(place)
+        if os.path.commonpath([whole, held]) == whole:
+            _refuse(f"{what} at {place!r} is inside the code boundary "
+                    f"{boundary!r}; mutable deployment state is never written "
+                    f"into the tree the code lives in, and composition would "
+                    f"refuse this after the owner acts had already committed")
 
     if context["job_id"] != submission["job_id"]:
         _refuse("the qualification grant and the submission name different "
@@ -912,9 +951,31 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     measured["cancellation"] = _guarded(
         lambda: _cancel_active(operations, control, packet, admitted,
                                held["states"], uncertainty,
-                               reason=measured["stopped"], interrupted=caught),
+                               reason=measured["stopped"],
+                               launched=set(gate.launched),
+                               interrupted=caught),
         {}, what="the cancellation of what was still executing",
         uncertainty=uncertainty, interrupted=caught)
+
+    # -- 4c. CLASSIFY, ONCE, BEFORE ANYTHING IS CHARGED --------------------
+    # Every consumer below reads the same accountable set: the cleanup window,
+    # the final accounting and the workload counts. Review
+    # 2026-09-22T14:38:24Z: the window and the counts used the unfiltered set,
+    # so a blocked stage's projection identity still read as a review turn.
+    def classify():
+        for attempt in sorted(admitted):
+            if attempt in origins:
+                continue
+            origins[attempt] = _guarded(
+                lambda one=attempt: _origin(control, one, set(gate.launched),
+                                            uncertainty)[0],
+                FOREIGN, what=f"the origin of {attempt}",
+                uncertainty=uncertainty, interrupted=caught)
+        return {one: kind for one, kind in admitted.items()
+                if origins.get(one) != UNALLOCATED}
+
+    origins = {}
+    accountable = classify()
 
     # -- 5. THE CLEANUP WINDOW, WHICH CANNOT ADMIT ANYTHING ----------------
     # Endings still need ticks to settle, so this keeps sweeping -- through the
@@ -925,7 +986,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     cleanup_started = monotonic()
     intruders, sweeps = [], 0
     while monotonic() - cleanup_started < bounds["cleanup_seconds"]:
-        if not _cleanups(control, packet, admitted)["outstanding"]:
+        if not _cleanups(control, packet, accountable)["outstanding"]:
             break
         try:
             sweep(job, gate, now=clock())
@@ -953,6 +1014,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
                 if attempt not in admitted:
                     intruders.append(attempt)
                     admitted[attempt] = kind
+            accountable = classify()
         try:
             sleep(1)
         except BaseException as failure:                     # noqa: BLE001
@@ -984,16 +1046,26 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
             admitted[attempt] = kind
     measured["final_canonical_read"] = final_read
     measured["stage_states"] = dict(held["states"])
-    measured["admitted_attempts"] = sorted(admitted)
+    # THE RUNTIMES THIS RUN MUST ACCOUNT FOR, and nothing else. An identity the
+    # manager answers no row for, that this run never launched, is reported in
+    # `unallocated_attempts` and in `attempt_origins` -- it is not a runtime and
+    # counting it as one made a blocked stage read as a turn that happened.
+    measured["admitted_attempts"] = sorted(accountable)
+    measured["observed_attempts"] = sorted(admitted)
     # AND THE ORDER THEY REALLY STARTED IN. `admitted` is keyed in launch
     # order, and the sequence checks below are ABOUT the order -- sorting
     # attempt identities is sorting hex digests, which reported this run's
     # first review as its second.
-    measured["started_order"] = list(admitted)
+    measured["started_order"] = [one for one in admitted
+                                 if one in accountable]
     measured["unexpected_attempts"] = sorted(set(intruders))
+    accountable = classify()
+    measured["attempt_origins"] = origins
+    measured["unallocated_attempts"] = sorted(
+        one for one, origin in origins.items() if origin == UNALLOCATED)
     accounting = _guarded(
-        lambda: _cleanups(control, packet, admitted),
-        {"cleanup": {}, "outstanding": sorted(admitted)},
+        lambda: _cleanups(control, packet, accountable),
+        {"cleanup": {}, "outstanding": sorted(accountable)},
         what="the cleanup accounting", uncertainty=uncertainty,
         interrupted=caught)
     measured["cleanup"] = accounting["cleanup"]
@@ -1001,7 +1073,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
 
     # -- 7. THE WORKLOAD THIS RUN ACTUALLY PRODUCED ------------------------
     workload = _guarded(
-        lambda: _workload_evidence(job, control, packet, admitted,
+        lambda: _workload_evidence(job, control, packet, accountable,
                                    held["kinds"]),
         {"shortfalls": ["the workload evidence could not be read"]},
         what="the workload evidence", uncertainty=uncertainty,
@@ -1045,7 +1117,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     if accounting["outstanding"]:
         reasons.append("this manager cannot prove positive cleanup for "
                        + ", ".join(accounting["outstanding"]))
-    if not admitted:
+    if not accountable:
         reasons.append("no runtime was ever admitted, so this run answered "
                        "nothing about the provider")
     if held["stop"] != "completed":
@@ -1098,7 +1170,7 @@ def _refresh(job, operations, job_id, uncertainty, what):
 
 
 def _cancel_active(operations, control, packet, admitted, states, uncertainty,
-                   *, reason, interrupted=None):
+                   *, reason, launched=(), interrupted=None):
     """Order the stop for every runtime this run left executing. R2a.
 
     WHY THIS IS NOT A SWEEP. Closing the admission gate stops the NEXT runtime.
@@ -1140,11 +1212,30 @@ def _cancel_active(operations, control, packet, admitted, states, uncertainty,
         # which is what a guard around the whole loop would have done. The
         # read answers absence-of-knowledge and this attempt is cancelled on
         # that basis, exactly as an ordinary unreadable fact is.
-        facts, why = _guarded(
+        facts, state, why = _guarded(
             lambda: _runtime_facts(control, attempt, uncertainty),
-            (None, "the runtime read did not complete"),
+            (None, UNREADABLE, "the runtime read did not complete"),
             what=f"the runtime read for {attempt}", uncertainty=uncertainty,
             interrupted=interrupted if interrupted is not None else [])
+        if state == ABSENT and attempt not in launched:
+            # AN ANSWERED ABSENCE, and this run never launched it. There is no
+            # assignment to fence and no runtime identity to name, so a
+            # cancellation would refuse; that refusal is not news about a
+            # container and reporting it as one is what buried the real
+            # failure in the first live run.
+            #
+            # AN UNREADABLE STATE DOES NOT REACH HERE. Review
+            # 2026-09-22T14:38:24Z: a read that raised used to land in this
+            # branch and be written up as "never allocated", which is absence
+            # inferred from an unanswered question.
+            said[attempt] = {
+                "requested": True, "runtime_id": None,
+                "execution_runtime": None,
+                "why": "this manager answers that it holds no attempt row for "
+                       "this identity and this run never launched it, so no "
+                       "runtime was allocated for it. That is not a claim "
+                       "that nothing is running anywhere."}
+            continue
         if facts is not None and facts["runtime_id"] is None:
             said[attempt] = {"requested": True, "state": None,
                              "execution_runtime": facts["execution_runtime"],
@@ -1194,36 +1285,82 @@ def _cancel_active(operations, control, packet, admitted, states, uncertainty,
     return said
 
 
+# WHAT A RUNTIME READ CAN ANSWER, and the third is not the second. `ABSENT` is
+# this manager answering authoritatively that it holds no attempt row.
+# `UNREADABLE` is the read not completing at all. Collapsing them is what
+# review 2026-09-22T14:38:24Z found: a discovered attempt whose read RAISED was
+# labelled "no runtime was ever allocated", skipped for cancellation and
+# dropped from the cleanup accounting -- absence inferred from a question that
+# was never answered.
+ABSENT, UNREADABLE = "absent", "unreadable"
+
+# HOW AN ATTEMPT IDENTITY CAME TO THIS RUN'S ATTENTION, and they are not the
+# same fact. `STARTED` is this run's OWN launch record, taken at the call.
+# `FOREIGN` is an attempt this run did not launch but which must still be
+# accounted for -- either the manager holds a runtime for it, or its state
+# could not be read, which is the conservative side of the same line.
+# `UNALLOCATED` is an identity the manager ANSWERS that it holds no row for and
+# that this run never launched: a projection identity for a stage that started
+# nothing. Only that third one is excluded from the cleanup demand, because a
+# `runtime.destroy` for a runtime that was never allocated cannot exist.
+#
+# NOTHING HERE INFERS QUIESCENCE. An unreadable state is `FOREIGN`, not
+# `UNALLOCATED`, and the exclusion rests on an answer rather than on silence.
+STARTED, FOREIGN, UNALLOCATED = "started", "foreign", "unallocated"
+
+
 def _runtime_facts(control, attempt_id, uncertainty):
     """What this manager durably holds about ONE attempt's runtime.
 
-    `attempt_runtime_of` is a read and nothing else. Absence and an unreadable
-    row are different answers and neither is emptiness: both leave the decision
-    to order a stop in place, because a runtime this manager cannot describe is
-    the one it must not assume is gone.
+    Answers `(facts, state, why)`: a row and `None`, or `None` with `ABSENT`
+    when the manager answered that it holds none, or `None` with `UNREADABLE`
+    when the read did not complete. `attempt_runtime_of` is a read and nothing
+    else, and a well-formed id naming no attempt answers `None` by its own
+    contract -- which is an ANSWER, and the only one that may retire an
+    obligation.
     """
     from baton_v12.worker_manager import attempts
 
     try:
         found = attempts.attempt_runtime_of(control, attempt_id)
     except BaseException as failure:                         # noqa: BLE001
-        # BaseException: review 2026-09-22T12:31:42Z reproduced an
-        # interruption arriving exactly here, which left the shutdown with no
-        # stop ordered and no outcome retained. An unreadable fact is a reason
-        # to ORDER the stop, so the read answers absence-of-knowledge and the
-        # caller goes on to cancel.
+        # BaseException: an interruption arriving here must not abandon the
+        # shutdown. It also must not become evidence of absence -- the whole
+        # point of the third state.
         why = f"{type(failure).__name__}: {failure}"
         uncertainty.append(f"this manager could not describe the runtime of "
                            f"{attempt_id}: {why}. A failed read is not "
                            f"evidence that nothing is executing.")
-        return None, why
+        return None, UNREADABLE, why
     if found is None:
-        why = "this manager holds no attempt row for it"
-        uncertainty.append(f"this manager could not describe the runtime of "
-                           f"{attempt_id}: {why}. A failed read is not "
-                           f"evidence that nothing is executing.")
-        return None, why
-    return found, None
+        return None, ABSENT, "this manager holds no attempt row for it"
+    return found, None, None
+
+
+def _origin(control, attempt_id, launched, uncertainty):
+    """Which of the three this identity is, from records rather than guesses.
+
+    ONLY AN ANSWERED ABSENCE MAY EXCLUDE. An identity this run launched is
+    `STARTED`. One the manager holds a runtime for is `FOREIGN`. One the
+    manager positively answers no row for, and that this run never launched, is
+    `UNALLOCATED`. Everything else -- including a read that did not complete --
+    is `FOREIGN`, which is the conservative side: it keeps the stop order and
+    the cleanup obligation.
+    """
+    if attempt_id in launched:
+        return STARTED, None
+    facts, state, why = _runtime_facts(control, attempt_id, uncertainty)
+    if state == ABSENT:
+        return UNALLOCATED, why
+    if state == UNREADABLE:
+        uncertainty.append(
+            f"{attempt_id} is treated as a runtime this run must account for "
+            f"because its state could not be read; absence was not "
+            f"established.")
+        return FOREIGN, why
+    if facts["runtime_id"] is None:
+        return UNALLOCATED, "this manager holds no runtime for it"
+    return FOREIGN, None
 
 
 def _bounded(value, depth=2):
@@ -1232,9 +1369,9 @@ def _bounded(value, depth=2):
     `request_cancellation` answers a nested document -- the journalled intent,
     the Authority fence, the session quiescence and the ordered quiescence --
     and the useful facts are one and two levels down. Scalars travel, nested
-    documents travel to a bounded depth, and anything else becomes bounded
-    text rather than being dropped, so a reader is never left wondering what
-    was in the members this summary removed.
+    documents travel to a bounded depth, and anything else becomes bounded text
+    rather than being dropped, so a reader is never left wondering what was in
+    the members this summary removed.
     """
     if isinstance(value, (str, int, float, bool, type(None))):
         return value if not isinstance(value, str) else value[:512]
@@ -1465,13 +1602,24 @@ def _dispositions(control, reviews, want, shortfalls):
 
 
 def _compose(packet, job, control, stream):
-    """The production composition, from the packet's own configuration."""
+    """The production composition, from the packet's own configuration.
+
+    THE CODE BOUNDARY IS PASSED, not inferred. Leaving it to the default meant
+    `operations_from` derived it from `stage_execution.__file__` -- three
+    parents up -- which for a relocated manager source answers the run root's
+    PARENT and classifies this run's own stores as living inside the code tree.
+    Preparation validated with an explicit boundary and runtime did not, so a
+    packet that passed `packet_bindings.write` refused at composition. The
+    packet binds one value and both ends read it.
+    """
     from tools import stage_execution
 
     with open(packet["deployment"]["config_path"], "rb") as handle:
         configuration = json.loads(handle.read().decode("utf-8"))
-    print("composing the reviewed deployment", file=stream, flush=True)
-    return stage_execution.operations_from(configuration, job, control)
+    print(f"composing the reviewed deployment under code boundary "
+          f"{packet['code_boundary']}", file=stream, flush=True)
+    return stage_execution.operations_from(configuration, job, control,
+                                           checkout=packet["code_boundary"])
 
 
 def main(argv=None, *, stream=None, compose=None, image_inspect=None):

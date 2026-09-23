@@ -1,0 +1,49 @@
+{
+  "claim": 244167,
+  "participant": "baton.rvpc",
+  "product": {
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "sha256": "61a6b765e4f5871bd486a3593a00bd50d74ee9b30421761c86092eb244612da9",
+      "matches_after": true
+    },
+    "v12/python/tests/manager/test_claude_context.py": {
+      "sha256": "05249efae17fc2b0bda2db2956f998e98756948e082c23a25305671ee948679e",
+      "matches_after": true
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "matches_after": true
+    }
+  },
+  "earlier_product": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "context_test_chain": true,
+  "custody_check_unchanged": true,
+  "records": {
+    "PROGRESS.md": "5c16c5d788b0a76c56dfb7a680a92e760b9366e5ea5d60bc460344b3f33d05f0",
+    "PRODUCT-CHANGE-244098.json": "e141c51740e3542e49b5abfb88dcc7ea0430648568cd76332d6fb01051b2a4c4",
+    "MANAGER-SOURCE-242687.json": "e1c00957f8e235b1810fff37e7a89161bccb89dba66907a28243b6899c79415e",
+    "OPERATOR-SUCCESSOR-243284.md": "344f4e647eaf05fa8c23624fd431ba771f10bd141c1bd872c34b489e25de1c97",
+    "SELECTIONS-SUCCESSOR-243284.json": "1900e40dbc634b117d3be2a0a28caec0d81eba1a73667f5a507f34a34c3b169e",
+    "test_no_progress.py": "2a0c73f1cd3587fc99b7410ebc3b6e4e399d7ba0ba545ec99acb075291ff9256"
+  },
+  "retained_mode_matches": {
+    ".claude": true,
+    ".claude.json": true,
+    ".claude/.credentials.json": true,
+    ".claude/.last-cleanup": true,
+    ".claude/backups": true,
+    ".claude/backups/.claude.json.backup.1790123209652": true,
+    ".claude/projects": true,
+    ".claude/projects/-output": true,
+    ".claude/projects/-output/13372483-966c-5055-88cd-eacba88e1b7d.jsonl": true,
+    ".claude/projects/-output/memory": true,
+    ".claude/session-env": true,
+    ".claude/session-env/13372483-966c-5055-88cd-eacba88e1b7d": true,
+    ".claude/sessions": true,
+    ".claude/shell-snapshots": true
+  },
+  "packet_worker_digest": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d"
+}

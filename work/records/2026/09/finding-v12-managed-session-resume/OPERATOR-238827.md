@@ -1,5 +1,10 @@
 # Operator steps for the W236087 managed correction packet
 
+> **SUPERSEDED by `OPERATOR-239174.md`.** Kept in place. A launch of
+> the packet this revision describes refused at composition: the
+> runtime inferred its code boundary from its own `__file__` and
+> answered `/home/sl/baton-runs`, which contains this run's stores.
+
 Claim 238827, baton.claude. Supersedes `OPERATOR-238700.md`, which is kept
 beside this file rather than deleted -- see `LOST-ARTIFACTS-238827.md`.
 Read with `PACKET-INPUTS-238827.json`, `IMAGE-ARTIFACT-236349.json`,

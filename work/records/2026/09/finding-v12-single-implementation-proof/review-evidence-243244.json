@@ -1,0 +1,142 @@
+{
+  "claim": 243244,
+  "participant": "baton.rvpc",
+  "files": {
+    "outcome.json": {
+      "copy": "3b8a19a9030961f129f31249e15a794d44100bbfd9d7240bcd24403927692ee5",
+      "original": "3b8a19a9030961f129f31249e15a794d44100bbfd9d7240bcd24403927692ee5",
+      "matches": true
+    },
+    "task.json": {
+      "copy": "e46bfe84848cb0fbe925d334e5ca307849b63bb7019b56aa29d182c978d16cbc",
+      "original": "e46bfe84848cb0fbe925d334e5ca307849b63bb7019b56aa29d182c978d16cbc",
+      "matches": true
+    },
+    "submission.json": {
+      "copy": "2e108cbaca360c872251a0557cad31e92902df3c18ef372f7aae418d125554f5",
+      "original": "2e108cbaca360c872251a0557cad31e92902df3c18ef372f7aae418d125554f5",
+      "matches": true
+    },
+    "context-profile.json": {
+      "copy": "c557d9f337f91aeab67a7b78b4a3b34b41be37fcb0f3591975afc73f8704469b",
+      "original": "c557d9f337f91aeab67a7b78b4a3b34b41be37fcb0f3591975afc73f8704469b",
+      "matches": true
+    },
+    "logs/provider.stdout.log": {
+      "copy": "009123910010900d881ec222a70f2bb3523e8e818aabe3b809a41c4e599cccd7",
+      "original": "009123910010900d881ec222a70f2bb3523e8e818aabe3b809a41c4e599cccd7",
+      "matches": true
+    },
+    "logs/verification.stdout.log": {
+      "copy": "3dfa3fb239f56c778a1e9b33eb31328349edd155a95806dac4378904e88527e5",
+      "original": "3dfa3fb239f56c778a1e9b33eb31328349edd155a95806dac4378904e88527e5",
+      "matches": true
+    }
+  },
+  "owned": {
+    "baseline.py": {
+      "sha256": "00eef18723ce7689c2668df59c3b174a18b6e8b660aab117298a63c30692031d",
+      "matches_author_receipt": true
+    },
+    "baseline_bindings.py": {
+      "sha256": "c618b97f5b2866393ba522feb29ed0c9b1470663f2ef0e3740b524e9fa1713b8",
+      "matches_author_receipt": true
+    },
+    "snapshot_242687.py": {
+      "sha256": "89fec40d2a39fa7b03c3f78fa3d7f75f289db7d37bad09c4fd7e5d11bccdcb0c",
+      "matches_author_receipt": true
+    },
+    "test_baseline.py": {
+      "sha256": "797abb7b1a451ab25096398a18508dd93e0edb022c45d1dca2aa1461ba380e5b",
+      "matches_author_receipt": true
+    },
+    "test_baseline_bindings.py": {
+      "sha256": "71804e83a583838a4cad6d84bcb6868b61430f55213a3dadef7e1bcf39da6e2b",
+      "matches_author_receipt": true
+    },
+    "test_entrypoints.py": {
+      "sha256": "3561109dba2523bf1648f7e9474ecffa5846d3a3a445fd3b978def15530a9c41",
+      "matches_author_receipt": true
+    },
+    "test_failure_path.py": {
+      "sha256": "e7d48ef34d2849df7bc92f717861ce2b2c7de534e1a6e1ce60969a9896774dca",
+      "matches_author_receipt": true
+    },
+    "test_no_progress.py": {
+      "sha256": "a4b07ed1e008d6dc482baa42ef0a470f0850bbdc3a0f5a9d0ac8a1a73c5338ff",
+      "matches_author_receipt": true
+    },
+    "test_successor_snapshot.py": {
+      "sha256": "3110050b205cc12c06aceac844d877e60934f15f2b04b4758acac6a84e739506",
+      "matches_author_receipt": true
+    },
+    "verify.py": {
+      "sha256": "5d12a7d096e3e5382257ebd873704694bff3a82ff109b9344987b38b4921b857",
+      "matches_author_receipt": true
+    }
+  },
+  "product": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "9a8a4a8193ff7b1c709c184dee3ba43a1b1e16e60891dcf31277279d2c220ae4",
+      "matches_accepted": true
+    },
+    "v12/python/tests/manager/test_claude_context.py": {
+      "sha256": "9ccc49a24914d87258a04371402662363b7a9c64444236712d5f0b1607f0e498",
+      "matches_accepted": true
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "ebc9be29d2bd23cf129afe33943f5336832df2ef24256c724708004220032896",
+      "matches_accepted": true
+    }
+  },
+  "snapshot_matches_manifest": true,
+  "preserved_snapshot_pins": {
+    "baton_v12/job_manager/review_driver.py": true,
+    "tools/stage_execution.py": true
+  },
+  "mode_matches": {
+    ".claude": true,
+    ".claude.json": true,
+    ".claude/.credentials.json": true,
+    ".claude/.last-cleanup": true,
+    ".claude/backups": true,
+    ".claude/backups/.claude.json.backup.1790123209652": true,
+    ".claude/projects": true,
+    ".claude/projects/-output": true,
+    ".claude/projects/-output/13372483-966c-5055-88cd-eacba88e1b7d.jsonl": true,
+    ".claude/projects/-output/memory": true,
+    ".claude/session-env": true,
+    ".claude/session-env/13372483-966c-5055-88cd-eacba88e1b7d": true,
+    ".claude/sessions": true,
+    ".claude/shell-snapshots": true
+  },
+  "custody_refusal": {
+    "type": "ContractRefusal",
+    "message": "provider context: protected custody owner or mode changed"
+  },
+  "provider": {
+    "is_error": false,
+    "terminal_reason": "completed",
+    "duration_ms": 18293,
+    "num_turns": 5,
+    "session_id": "13372483-966c-5055-88cd-eacba88e1b7d",
+    "result": "`harness.py` now contains a single line, `print('READY')`.\n\n- `python3 harness.py` outputs exactly the bytes `R E A D Y \\n` (confirmed via `od -c`) \u2014 nothing else.\n- Exit code is 0.\n- The change is left uncommitted in the working tree (`git status` shows ` M harness.py`); nothing else was touched."
+  },
+  "verification_stdout": "READY\n",
+  "proposal_git_show": {
+    "exit": 0,
+    "stdout": "commit 46acf68cebbf733aa26927cd59604c6f6ccb07a0\nAuthor:     Baton worker <worker@baton.invalid>\nAuthorDate: Wed Sep 23 00:27:11 2026 +0000\nCommit:     Baton worker <worker@baton.invalid>\nCommitDate: Wed Sep 23 00:27:11 2026 +0000\n\n    baton candidate: single-implementation-success-239528\n\n harness.py | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n",
+    "stderr": ""
+  },
+  "proposal_harness": {
+    "exit": 0,
+    "stdout": "print('READY')\n",
+    "stderr": ""
+  },
+  "record_inputs": {
+    "FINDING.md": "09c247ab02456edc8bd0d87e9ab093e8b890e79668e07b360b8eee6ee316a8af",
+    "PLAN.md": "4d3a37a6d43cafc753d214b5b160a71141ed3c296878cef444139201574af383",
+    "PROGRESS.md": "e489e06e466c02262f2ff1ca6474de5559df2bbc72292c4ad67d3c3491596904",
+    "MANAGER-SOURCE-242687.json": "e1c00957f8e235b1810fff37e7a89161bccb89dba66907a28243b6899c79415e"
+  }
+}

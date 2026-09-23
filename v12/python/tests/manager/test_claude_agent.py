@@ -540,6 +540,72 @@ class NeitherChildLeavesEphemeraInTheCandidate(AdapterCase):
         return sorted(found)
 
 
+class TheProviderCreatesPrivateDirectories(AdapterCase):
+    """W239528, owner 2026-09-23T03:06:11Z.
+
+    THE MANAGER'S CHECK IS NOT WEAKENED and is not exercised here;
+    `context_delivery._private` still refuses a custody directory carrying
+    group or other bits. What this covers is the other side of that rule: the
+    provider child is spawned under a mask that cannot create one.
+
+    A real turn created seven directories under its own HOME at `0o755` -- the
+    ordinary umask default -- so the manager could not seal the generation, the
+    context use was held `custody-invalid`, and a run that had produced a
+    correct attributed proposal reported nothing until its bound.
+    """
+
+    def test_the_provider_child_is_spawned_under_the_private_mask(self):
+        """The operand, at the boundary, on the provider and nowhere else."""
+        import claude_agent
+
+        self.worked(edits={"harness.py": "print('now covered')\n"})
+        provider = [held for argv, held in self.calls
+                    if argv[0] == claude_agent.PROVIDER_PROGRAM]
+        self.assertEqual(len(provider), 1, self.calls)
+        self.assertEqual(provider[0].get("umask"), claude_agent.PROVIDER_UMASK)
+        self.assertEqual(claude_agent.PROVIDER_UMASK, 0o077)
+
+    def test_no_other_child_has_its_creation_mask_narrowed(self):
+        """A mask on this whole process would also narrow what the adapter
+        writes into the shared private line, whose group access the deployment
+        configures on purpose."""
+        import claude_agent
+
+        self.worked(edits={"harness.py": "print('now covered')\n"})
+        for argv, held in self.calls:
+            if argv[0] == claude_agent.PROVIDER_PROGRAM:
+                continue
+            with self.subTest(argv=argv[:2]):
+                self.assertIn(held.get("umask", -1), (-1, None))
+
+    def test_a_child_under_that_mask_cannot_create_a_readable_directory(self):
+        """ESTABLISHED RATHER THAN ASSUMED, with a real child.
+
+        `mkdir` applies `mode & ~umask`, so even an EXPLICIT `0o755` comes out
+        private, and the mask is inherited by descendants. That is why a mask
+        is the correction and a later `chmod` sweep is not.
+        """
+        import claude_agent
+        import stat
+        import subprocess
+        import sys
+
+        script = ("import os\n"
+                  "os.makedirs('a/b')\n"
+                  "os.mkdir('explicit', 0o755)\n"
+                  "open('f', 'w').close()\n")
+        subprocess.run([sys.executable, "-c", script], cwd=self.scratch,
+                       umask=claude_agent.PROVIDER_UMASK, check=True)
+        for name in ("a", "a/b", "explicit"):
+            with self.subTest(entry=name):
+                mode = stat.S_IMODE(
+                    os.lstat(os.path.join(self.scratch, name)).st_mode)
+                self.assertEqual(mode, 0o700, oct(mode))
+        self.assertEqual(
+            stat.S_IMODE(os.lstat(os.path.join(self.scratch, "f")).st_mode),
+            0o600)
+
+
 class TheProviderArgvAndEnvironmentAreClosed(AdapterCase):
 
     def spoken(self):

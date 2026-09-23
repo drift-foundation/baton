@@ -1,0 +1,26 @@
+{
+  "claim": 247423,
+  "decision": "OWNER-PRODUCT-CHANGE-247423.md",
+  "owner_selection": "reroute 247421",
+  "participant": "baton.claude",
+  "paths": {
+    "v12/python/tools/stage_execution.py": {
+      "after": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801",
+      "before": "ebc9be29d2bd23cf129afe33943f5336832df2ef24256c724708004220032896",
+      "note": "the after digest moved once under claim 247666 for a COMMENT repair only: a shell backtick had eaten the word `routed` from one comment line when the edit was applied. No behaviour changed; the repair is visible in the same file.",
+      "what": "an optional `correction_policy` deployment member, validated in held_configuration, carried on StageDeployment, and honoured in routed. Absent or 'open' is byte-for-byte today's behaviour; 'decline' makes routed not reach review_driver.open_correction and record that it was declined."
+    }
+  },
+  "product_suite": {
+    "corroboration": "PREEXISTING-ERRORS-247666.json",
+    "errors": 12,
+    "module": "tests.tools.test_stage_execution",
+    "note": "corroborated focally under claim 247666 rather than by count: the twelve are run by name, every one fails inside Integration._run's producer-proposal read via _authority_read, and no traceback among them names correction_policy, CORRECTION_POLICIES, DECLINE_CORRECTION, routed or correction_declined. Exact prior evidence dated 2026-09-22 is quoted beside it, with that reviewer's own caveat that they did not corroborate it.",
+    "ran": 424
+  },
+  "schema": "baton.independent-review-product-change/1",
+  "unchanged": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "open_correction itself is untouched; the decision to call it moved, the act did not."
+  },
+  "work": "W239533"
+}

@@ -1,0 +1,189 @@
+{
+  "sigint": {
+    "raised": true,
+    "injection": [
+      {
+        "turned_at_interrupt": 0
+      }
+    ],
+    "turned_after": 0,
+    "outcome": {
+      "schema": "baton.single-implementation-outcome/1",
+      "run_id": "single-implementation-239528-deterministic",
+      "work": "W239528",
+      "claim": 239653,
+      "job_id": "job-a",
+      "state": "held",
+      "held_because": [
+        "the run was interrupted: KeyboardInterrupt: signal 2",
+        "no runtime was ever admitted, so this run answered nothing about the provider",
+        "the run stopped 'interrupted' rather than completing its stages",
+        "the packet declares 1 implementer invocation(s) and this run has 0",
+        "this baseline opens exactly one context and restores none; this run's context modes were []",
+        "this run retained no proposal at all, so it established nothing about the implementation path"
+      ],
+      "retry": false,
+      "finished_at": "2026-09-02T00:00:00.000Z",
+      "uncertainty": [],
+      "submitted_at": "2026-09-02T00:00:00.000Z",
+      "preexisting_jobs": [],
+      "preexisting_stages": {},
+      "accounting_scope": "this run accounts for Job 'job-a' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+      "submission_id": "sub-1",
+      "provider_turn": {
+        "seconds": 180,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      },
+      "stopped": "interrupted",
+      "serving_failure": null,
+      "admissions": {
+        "implementation": 1
+      },
+      "gate_refusals": [],
+      "foreign_admissions": [],
+      "served_seconds": 1.0,
+      "cancellation": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "requested": true,
+          "runtime_id": null,
+          "execution_runtime": null,
+          "why": "this manager answers that it holds no attempt row for this identity and this run never launched it, so no runtime was allocated for it. That is not a claim that nothing is running anywhere."
+        }
+      },
+      "cleanup_sweeps": 0,
+      "stalled_ticks": 0,
+      "stalled_after": 6,
+      "final_canonical_read": true,
+      "stage_states": {
+        "implementation": "offered"
+      },
+      "admitted_attempts": [],
+      "observed_attempts": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "started_order": [],
+      "unexpected_attempts": [],
+      "attempt_origins": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": "unallocated"
+      },
+      "unallocated_attempts": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "cleanup": {},
+      "outstanding_cleanup": [],
+      "workload": {
+        "implementation_attempts": [],
+        "generations": [],
+        "conversations": [],
+        "modes": [],
+        "proposals": [],
+        "dispositions": [],
+        "attribution": [],
+        "shortfalls": [
+          "the packet declares 1 implementer invocation(s) and this run has 0",
+          "this baseline opens exactly one context and restores none; this run's context modes were []",
+          "this run retained no proposal at all, so it established nothing about the implementation path"
+        ]
+      },
+      "interrupted": "KeyboardInterrupt: signal 2",
+      "interruptions": [
+        "signal 2"
+      ]
+    }
+  },
+  "keyboard_interrupt": {
+    "raised": true,
+    "injection": [
+      {
+        "turned_at_interrupt": 0
+      }
+    ],
+    "turned_after": 0,
+    "outcome": {
+      "schema": "baton.single-implementation-outcome/1",
+      "run_id": "single-implementation-239528-deterministic",
+      "work": "W239528",
+      "claim": 239653,
+      "job_id": "job-a",
+      "state": "held",
+      "held_because": [
+        "the run was interrupted: KeyboardInterrupt: progress read interrupted",
+        "no runtime was ever admitted, so this run answered nothing about the provider",
+        "the run stopped 'interrupted' rather than completing its stages",
+        "the packet declares 1 implementer invocation(s) and this run has 0",
+        "this baseline opens exactly one context and restores none; this run's context modes were []",
+        "this run retained no proposal at all, so it established nothing about the implementation path"
+      ],
+      "retry": false,
+      "finished_at": "2026-09-02T00:00:00.000Z",
+      "uncertainty": [],
+      "submitted_at": "2026-09-02T00:00:00.000Z",
+      "preexisting_jobs": [],
+      "preexisting_stages": {},
+      "accounting_scope": "this run accounts for Job 'job-a' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+      "submission_id": "sub-1",
+      "provider_turn": {
+        "seconds": 180,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      },
+      "stopped": "interrupted",
+      "serving_failure": null,
+      "admissions": {
+        "implementation": 1
+      },
+      "gate_refusals": [],
+      "foreign_admissions": [],
+      "served_seconds": 1.0,
+      "cancellation": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+          "requested": true,
+          "runtime_id": null,
+          "execution_runtime": null,
+          "why": "this manager answers that it holds no attempt row for this identity and this run never launched it, so no runtime was allocated for it. That is not a claim that nothing is running anywhere."
+        }
+      },
+      "cleanup_sweeps": 0,
+      "stalled_ticks": 0,
+      "stalled_after": 6,
+      "final_canonical_read": true,
+      "stage_states": {
+        "implementation": "offered"
+      },
+      "admitted_attempts": [],
+      "observed_attempts": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "started_order": [],
+      "unexpected_attempts": [],
+      "attempt_origins": {
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": "unallocated"
+      },
+      "unallocated_attempts": [
+        "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      ],
+      "cleanup": {},
+      "outstanding_cleanup": [],
+      "workload": {
+        "implementation_attempts": [],
+        "generations": [],
+        "conversations": [],
+        "modes": [],
+        "proposals": [],
+        "dispositions": [],
+        "attribution": [],
+        "shortfalls": [
+          "the packet declares 1 implementer invocation(s) and this run has 0",
+          "this baseline opens exactly one context and restores none; this run's context modes were []",
+          "this run retained no proposal at all, so it established nothing about the implementation path"
+        ]
+      },
+      "interrupted": "KeyboardInterrupt: progress read interrupted",
+      "interruptions": []
+    }
+  },
+  "seconds": 0.12798201400437392
+}

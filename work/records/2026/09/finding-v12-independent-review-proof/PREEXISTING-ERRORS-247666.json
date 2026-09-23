@@ -1,0 +1,154 @@
+{
+  "claim": 247666,
+  "deepest_functions": [
+    "_authority_read",
+    "_run"
+  ],
+  "failing": [
+    {
+      "case": "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits.test_the_first_tick_prepares_and_then_admits",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_authority_read",
+        "line": 1039
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues.test_a_later_tick_refreshes_before_it_continues",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_authority_read",
+        "line": 1039
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission.test_a_lost_marker_falls_through_to_admission",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_authority_read",
+        "line": 1039
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed.test_a_delivery_with_no_started_runtime_is_not_refreshed",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_authority_read",
+        "line": 1039
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here.test_a_started_or_uncertain_runtime_is_never_prepared_here",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_authority_read",
+        "line": 1039
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here.test_a_started_or_uncertain_runtime_is_never_prepared_here",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_authority_read",
+        "line": 1039
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick.test_a_delivery_carrying_no_assignment_is_the_first_tick",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_authority_read",
+        "line": 1039
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick.test_a_delivery_carrying_no_assignment_is_the_first_tick",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_authority_read",
+        "line": 1039
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once.test_an_ordinary_first_tick_prepares_and_starts_exactly_once",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_run",
+        "line": 3008
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again.test_a_second_tick_in_the_same_execution_starts_nothing_again",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_run",
+        "line": 3008
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it.test_a_fresh_port_prepares_that_delivery_and_then_starts_it",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_run",
+        "line": 3008
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    },
+    {
+      "case": "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held.test_a_runtime_this_execution_did_not_start_is_still_held",
+      "deepest_frame": {
+        "file": "v12/python/tools/stage_execution.py",
+        "function": "_run",
+        "line": 3008
+      },
+      "kind": "ERROR",
+      "mentions_the_change": []
+    }
+  ],
+  "focused_claim": "every selected case fails inside the same function, and no traceback among them names anything this claim added",
+  "holds": true,
+  "none_reaches_the_change": true,
+  "participant": "baton.claude",
+  "prior_evidence": {
+    "caveat_kept": "that reviewer recorded the report and explicitly did NOT corroborate it, which is why the focused comparison below exists rather than this quote standing alone",
+    "dated": "2026-09-22, before this claim's product change",
+    "document": "../finding-v12-single-implementation-proof/review-2026-09-22T23-53-34Z.md",
+    "quote": "The author separately reports 12 pre-existing `reconciles` fixture errors in the broader stage_execution suite; I did not rerun that broader suite or independently establish their provenance."
+  },
+  "ran": 10,
+  "schema": "baton.independent-review-preexisting-errors/1",
+  "selected": [
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held"
+  ],
+  "work": "W239533"
+}

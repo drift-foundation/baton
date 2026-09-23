@@ -1,0 +1,48 @@
+{
+  "accepted_adapter": {
+    "accepted_by": "review-2026-09-23T03-19-21Z.md",
+    "path": "opt/baton/claude_agent.py",
+    "provider_umask": "0o77",
+    "sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+    "source_in_tree": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d"
+  },
+  "all_worker_files": {
+    "opt/baton/attempt_log_format.py": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+    "opt/baton/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+    "opt/baton/claude_agent.py": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+    "opt/baton/dogfood_entry.py": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2",
+    "opt/baton/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+    "opt/baton/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+    "opt/baton/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  "claim": 244216,
+  "created": "2026-09-23T03:23:44.311459153Z",
+  "entrypoint": [
+    "python3",
+    "/opt/baton/dogfood_entry.py"
+  ],
+  "image_config_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "not_established": "how the real CLI behaves under this mask. Review 2026-09-23T03:19:21Z: the retained 0o755 modes are consistent with umask creation but do not exclude an explicit chmod or a reset mask, and only a real turn under this image can answer that. No live provider execution is authorized here.",
+  "participant": "baton.claude",
+  "provider_cli": "2.1.247 (Claude Code)",
+  "recipe": "v12/worker/Dockerfile.claude, build context v12/",
+  "reference": "baton-v12-claude-worker:w239528-244216",
+  "schema": "baton.single-implementation-worker-artifact/1",
+  "size_bytes": 637560781,
+  "supersedes": {
+    "claude_agent_sha256": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d",
+    "image_config_digest": "sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd",
+    "preserved": true,
+    "reference": "baton-v12-claude-worker:w236087-236349",
+    "why": "that image carries the adapter without PROVIDER_UMASK; every earlier packet in this campaign is bound to it and it is neither retagged, rebuilt nor removed"
+  },
+  "user": "65532:65532",
+  "verified_how": "every digest read from a container started FROM the image, with --network none --read-only and the entrypoint overridden; no provider ran",
+  "work": "W239528",
+  "worker_files": {
+    "opt/baton/attempt_log_format.py": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+    "opt/baton/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+    "opt/baton/claude_agent.py": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+    "opt/baton/dogfood_entry.py": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2"
+  }
+}

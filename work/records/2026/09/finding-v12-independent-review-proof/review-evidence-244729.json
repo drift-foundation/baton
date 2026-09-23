@@ -1,0 +1,19 @@
+{
+  "claim": 244729,
+  "method": "Static source review only; no stores opened, helper or tests executed",
+  "sha256": {
+    "attachment.py": "6d6e2d9dd362eb14e8523e0a2599e2589eeeeddd0b27cf72b1e4bf2f80b8a218",
+    "review_bindings.py": "ea70682bfd53ba32ad1537263174cf0c364665e38b78029999a154f701f82595",
+    "test_attachment.py": "34eed2485364cb2b27f78d4d533d21efcdeb77d966c309cc8fdbce6db00df400",
+    "test_review_bindings.py": "7e700c4ca506217beca6be652e3718fedb844e3178b083178d81738aa16add72",
+    "PROGRESS.md": "26a19de18a6d95315cbf6b6e212a352e3fbb2440c821502ca02a1b38328a829c"
+  },
+  "supported_readers": [
+    "baton_v12.worker_manager.store.ControlStore.open_readonly",
+    "ControlStore.snapshot",
+    "review_cycles.line_of",
+    "review_cycles.checkpoint_of",
+    "review_cycles.writer_of"
+  ],
+  "source_available_in": "Both current repository and accepted manager-source-242687 contain open_readonly and snapshot"
+}

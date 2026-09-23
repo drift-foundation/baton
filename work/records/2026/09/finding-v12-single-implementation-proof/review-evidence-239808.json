@@ -1,0 +1,185 @@
+{
+  "work": "W239528",
+  "claim": 239808,
+  "participant": "baton.rvpc",
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_baseline",
+    "test_baseline_bindings"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof:/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python",
+  "exit_code": 0,
+  "seconds": 7.463364019000437,
+  "scope": "Deterministic fixtures only; engine and provider simulated; no deployed state or live execution.",
+  "files": {
+    "DIAGNOSIS-239528.md": "8fd72893727f78a597ecb4f69d96a6f56af60c490f341fd444b9744e16e22e2c",
+    "FINDING.md": "e1731bd295670cad7ddd21ba378f840ea38b004391d8c179cef0d06c9a276273",
+    "OPERATOR-239528.md": "8127b2674cf21ef7f0b91deb3e50b73c6b26fbd250dbe18e5fa9b7740d7ffb15",
+    "OWNERSHIP-239528.md": "f5f3cffcdcd5eceb67997fb217d1d9992771e7cccf8a606a9e81e11269a4b12a",
+    "PLAN.md": "67b61e6d9f72d4439010c82b2f5adab06eb3a2f0740691682cc923a9b1fa7f79",
+    "PROGRESS.md": "b7adb9e6214a46730caba449c63258d53a389b89678ba64d2813d4a31681061c",
+    "PROVIDER-QUESTION-239528.md": "8cb3689df86d54501adaacc3cbe00650dd1e1900205b50568e2132de42ed85b6",
+    "SELECTIONS-239528.json": "79c54feea488a2093ccaf7f34cfc6b7e7a27effd3f2aafe93d56003097380e38",
+    "baseline.py": "342c182afa6e88caf792ae0bc55a4f101abc47e1d9d044f289c5d1e675757609",
+    "baseline_bindings.py": "449bca75735b32167efbe6693e746471fbf2a40332c3b3c8a31b3299f51fe7a2",
+    "test_baseline.py": "eb998fddbccda8062be37c1ca8bfb00c849388098a310510d0ec4189b345fde7",
+    "test_baseline_bindings.py": "71804e83a583838a4cad6d84bcb6868b61430f55213a3dadef7e1bcf39da6e2b",
+    "verification-1.json": "22d15412acfbe27cf60b16006dc2c0296474c5245cd73cf7116902d89480d76a",
+    "verification-1.log": "3fb04610898395de6a79136f244384c4786a0367ce0ce09aee8eeb93e7e2679e",
+    "verify.py": "140294666e4e491b95d3f20d25ec099f66472d3b445aab57945e42bbdb03f962"
+  },
+  "preserved_239589": {
+    "CANDIDATE.json": true,
+    "supervisor.py": true,
+    "packet_bindings.py": true,
+    "test_supervisor.py": true,
+    "test_generated_packet.py": true,
+    "LIVE-RUN-239365.md": true,
+    "OPERATOR-239485.md": true,
+    "SELECTIONS-239485.json": true,
+    "PACKET-INPUTS-239485.json": true,
+    "OWNER-SPLIT-20260922.md": true
+  },
+  "ancestor_ast_comparison_without_docstrings": {
+    "baseline.py": {
+      "unchanged": [
+        "SupervisorInterrupted",
+        "SupervisorRefusal",
+        "Termination",
+        "_attempts_of",
+        "_bounded",
+        "_cancel_active",
+        "_cleanups",
+        "_compose",
+        "_digest_of_file",
+        "_document",
+        "_engine_inspect",
+        "_guarded",
+        "_moment",
+        "_origin",
+        "_pin",
+        "_publish",
+        "_refresh",
+        "_refuse",
+        "_relative",
+        "_retention_of",
+        "_runtime_facts",
+        "_terminal",
+        "_turn_ceiling",
+        "_whole_number",
+        "_workspace_root",
+        "prepare",
+        "verify_imported_sources",
+        "verify_worker_image"
+      ],
+      "changed": [
+        "AdmissionGate",
+        "_context_evidence",
+        "_supervise",
+        "_workload_evidence",
+        "held_packet",
+        "main",
+        "supervise"
+      ],
+      "added": [
+        "_attributions",
+        "_declared_base",
+        "_git_read",
+        "_object_name",
+        "_proposals",
+        "line_attribution"
+      ],
+      "removed": [
+        "_dispositions",
+        "_proposal_heads"
+      ]
+    },
+    "baseline_bindings.py": {
+      "unchanged": [
+        "BindingRefusal",
+        "_evidence",
+        "_network",
+        "_refuse",
+        "_sha256",
+        "_tree",
+        "_write",
+        "write"
+      ],
+      "changed": [
+        "_base_object",
+        "compose",
+        "main",
+        "preflight"
+      ],
+      "added": [],
+      "removed": []
+    }
+  },
+  "review_probes": {
+    "accounting_scope": {
+      "attempts": {
+        "new-runtime-attempt": "implementation"
+      },
+      "input_status": {
+        "jobs": [
+          {
+            "job_id": "old-job",
+            "stages": [
+              {
+                "attempt_id": "old-runtime-attempt",
+                "episodes": [],
+                "kind": "implementation",
+                "state": "exceptional"
+              }
+            ]
+          },
+          {
+            "job_id": "new-job",
+            "stages": [
+              {
+                "attempt_id": "new-runtime-attempt",
+                "episodes": [],
+                "kind": "implementation",
+                "state": "completed"
+              }
+            ]
+          }
+        ]
+      },
+      "limits": null,
+      "states": {
+        "implementation": "completed"
+      }
+    },
+    "documented_composer_without_implicit_PYTHONPATH": {
+      "command": [
+        "python3",
+        "baseline_bindings.py",
+        "--selections",
+        "SELECTIONS-239528.json",
+        "--base",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "--run-root",
+        "/tmp/w239528-review-no-write-239808"
+      ],
+      "exit_code": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py\", line 669, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py\", line 656, in main\n    documents = compose(base=taken.base, run_root=taken.run_root,\n                        **selections[\"compose\"])\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py\", line 211, in compose\n    from baton_v12.contracts import digest, digest_of_bytes, job_input_identity\nModuleNotFoundError: No module named 'baton_v12'\n",
+      "stdout": ""
+    },
+    "fresh_run_id_same_job_store": {
+      "first_job": "job-a",
+      "first_submission": "single-implementation-239528-deterministic-submission",
+      "refusal": "'job-a' is already recorded by another submission; one Job identity names one pipeline, and a second submission reusing it would silently take over the first one's stages",
+      "second_job": "job-a",
+      "second_submission": "single-implementation-239528-deterministic-fresh-submission"
+    },
+    "scope": "No deployed store, live engine, provider, or recovery.",
+    "seconds": 0.09296408600494033
+  },
+  "review_probes_source_sha256": "10055771fa9dbdb6acd601c63b0e48c234c2773c906f79ed65b4f845c45d2480"
+}

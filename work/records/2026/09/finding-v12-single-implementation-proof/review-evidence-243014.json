@@ -1,0 +1,247 @@
+{
+  "work": "W239528",
+  "claim": 243014,
+  "participant": "baton.rvpc",
+  "bindings": {
+    "outcome.json": {
+      "expected": "c7a4098f8984416d75359a6911ea81dfcd2cc3f5855145b0d35e228d594aaf1b",
+      "copy": "c7a4098f8984416d75359a6911ea81dfcd2cc3f5855145b0d35e228d594aaf1b",
+      "original": "c7a4098f8984416d75359a6911ea81dfcd2cc3f5855145b0d35e228d594aaf1b",
+      "matches": true
+    },
+    "PACKET.json": {
+      "expected": "076f75b21bfa48b69b229b76f7030c002c0a8a883dead031c8aebef2ffa357d1",
+      "copy": "076f75b21bfa48b69b229b76f7030c002c0a8a883dead031c8aebef2ffa357d1",
+      "original": "076f75b21bfa48b69b229b76f7030c002c0a8a883dead031c8aebef2ffa357d1",
+      "matches": true
+    },
+    "selections.json": {
+      "expected": "723c6d508929b7ff74e175ae41c47c572acd46e8d83c2a5da6b139583a450dfd",
+      "copy": "723c6d508929b7ff74e175ae41c47c572acd46e8d83c2a5da6b139583a450dfd",
+      "original": "723c6d508929b7ff74e175ae41c47c572acd46e8d83c2a5da6b139583a450dfd",
+      "matches": true
+    },
+    "provider.stdout.log": {
+      "expected": "4cddce13d6292ba26a7074637227f56f3944ddfe7acaeaa46473375fda93cbe9",
+      "copy": "4cddce13d6292ba26a7074637227f56f3944ddfe7acaeaa46473375fda93cbe9",
+      "original": "4cddce13d6292ba26a7074637227f56f3944ddfe7acaeaa46473375fda93cbe9",
+      "matches": true
+    },
+    "deployment.json": {
+      "expected": "d5ba545a38a6b7fd9540bf5bf2c6050c12193d57f456fcd839f535e73949d7da",
+      "copy": "d5ba545a38a6b7fd9540bf5bf2c6050c12193d57f456fcd839f535e73949d7da",
+      "original": "d5ba545a38a6b7fd9540bf5bf2c6050c12193d57f456fcd839f535e73949d7da",
+      "matches": true
+    },
+    "submission.json": {
+      "expected": "067a6ddd8ae810116f7dbe48d0667634514cdf6dd3cd495fe71ce7069e5b9d80",
+      "copy": "067a6ddd8ae810116f7dbe48d0667634514cdf6dd3cd495fe71ce7069e5b9d80",
+      "original": "067a6ddd8ae810116f7dbe48d0667634514cdf6dd3cd495fe71ce7069e5b9d80",
+      "matches": true
+    }
+  },
+  "packet_held": true,
+  "imports_bound": true,
+  "snapshot_matches_reviewed_manifest": true,
+  "readonly_control": {
+    "opened": false,
+    "error_type": "ContractRefusal",
+    "error": "the existing manager store could not be read through its non-writing opener (OperationalError); no write-capable fallback was attempted",
+    "fallback": "none"
+  },
+  "readonly_seconds": 0.00017890198796521872,
+  "engine_inspect": {
+    "runtime_id": "62d16852c1a06b3f7a93dbc392672b073cd739efa990c1bcc35313284d7d4ab2",
+    "exit_code": 1,
+    "stdout": "[]",
+    "stderr": "Error response from daemon: No such container: 62d16852c1a06b3f7a93dbc392672b073cd739efa990c1bcc35313284d7d4ab2"
+  },
+  "outcome": {
+    "accounting_scope": "this run accounts for Job 'job-single-implementation-242687' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+    "admissions": {
+      "implementation": 1
+    },
+    "admitted_attempts": [
+      "attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9"
+    ],
+    "attempt_origins": {
+      "attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9": "started"
+    },
+    "cancellation": {
+      "attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9": {
+        "execution_runtime": "destroyed",
+        "requested": true,
+        "runtime_id": "62d16852c1a06b3f7a93dbc392672b073cd739efa990c1bcc35313284d7d4ab2",
+        "why": "this manager observed the runtime destroyed"
+      }
+    },
+    "claim": 242906,
+    "cleanup": {
+      "attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9": {
+        "cleanup": "retained",
+        "state": "absent",
+        "why": "the engine answered that this exact identity does not exist"
+      }
+    },
+    "cleanup_sweeps": 0,
+    "final_canonical_read": true,
+    "finished_at": "2026-09-23T00:11:07.113Z",
+    "foreign_admissions": [],
+    "gate_refusals": [],
+    "held_because": [
+      "the run stopped 'exceptional' rather than completing its stages",
+      "attempt attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9 ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count.",
+      "this run retained no proposal at all, so it established nothing about the implementation path"
+    ],
+    "interrupted": null,
+    "interruptions": [],
+    "job_id": "job-single-implementation-242687",
+    "observed_attempts": [
+      "attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9"
+    ],
+    "outstanding_cleanup": [],
+    "preexisting_jobs": [],
+    "preexisting_stages": {},
+    "provider_turn": {
+      "default_seconds": 3600,
+      "origin": "job",
+      "seconds": 180,
+      "setting": "provider_turn_seconds"
+    },
+    "retry": false,
+    "run_id": "single-implementation-242687",
+    "schema": "baton.single-implementation-outcome/1",
+    "served_seconds": 5.573039229988353,
+    "serving_failure": null,
+    "stage_states": {
+      "implementation": "exceptional"
+    },
+    "started_order": [
+      "attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9"
+    ],
+    "state": "held",
+    "stopped": "exceptional",
+    "submission_id": "single-implementation-242687-submission",
+    "submitted_at": "2026-09-23T00:11:01.531Z",
+    "unallocated_attempts": [],
+    "uncertainty": [],
+    "unexpected_attempts": [],
+    "work": "W239528",
+    "workload": {
+      "attribution": [],
+      "conversations": [
+        "7ccf626a-779d-5cdc-9166-bac9a1816ca2"
+      ],
+      "dispositions": [
+        {
+          "attempt_id": "attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9",
+          "disposition": "unable"
+        }
+      ],
+      "generations": [
+        0
+      ],
+      "implementation_attempts": [
+        "attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9"
+      ],
+      "modes": [
+        "open"
+      ],
+      "proposals": [],
+      "shortfalls": [
+        "attempt attempt-725b414ca21b2e848a621acc787db4a78f6062696a0917797c001f6de2ac52e9 ended 'unable' rather than 'completed', so it published no proposal. An implementation turn that could not do its work is an ANSWER -- the attempt's retained provider log carries what the provider reported -- and it is not a proposal this run may count.",
+        "this run retained no proposal at all, so it established nothing about the implementation path"
+      ]
+    }
+  },
+  "provider": {
+    "is_error": true,
+    "duration_api_ms": 0,
+    "num_turns": 1,
+    "stop_reason": "stop_sequence",
+    "session_id": "7ccf626a-779d-5cdc-9166-bac9a1816ca2",
+    "total_cost_usd": 0,
+    "usage": {
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 0,
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "",
+      "iterations": [],
+      "speed": "standard"
+    },
+    "modelUsage": {},
+    "permission_denials": [],
+    "terminal_reason": "api_error",
+    "fast_mode_state": "off",
+    "fast_mode_disabled_reason": "sdk_opt_in_required",
+    "subagent_stats": {
+      "spawned": 0,
+      "requested": {
+        "background": 0,
+        "foreground": 0,
+        "unset": 0
+      },
+      "started_in_background": 0,
+      "max_depth": 0,
+      "spawned_by_subagents": 0,
+      "completed": 0,
+      "failed": 0,
+      "killed": {
+        "parent": 0,
+        "user": 0,
+        "system": 0
+      },
+      "refused": {
+        "depth_limit": 0,
+        "concurrency_limit": 0,
+        "budget": 0
+      },
+      "by_type": {}
+    },
+    "subtype": "success",
+    "api_error_status": null,
+    "result": "Failed to authenticate: OAuth session expired and could not be refreshed",
+    "type": "result",
+    "duration_ms": 31,
+    "uuid": "12b647d5-6f01-4eab-840b-b11848ebbbf5",
+    "queued_turn_count": 0
+  },
+  "image_inspect": {
+    "reference": "baton-v12-claude-worker:w236087-236349",
+    "digest": "sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd",
+    "exit_code": 0
+  },
+  "preserved_239589": {
+    "CANDIDATE.json": true,
+    "supervisor.py": true,
+    "packet_bindings.py": true,
+    "test_supervisor.py": true,
+    "test_generated_packet.py": true,
+    "LIVE-RUN-239365.md": true,
+    "OPERATOR-239485.md": true,
+    "SELECTIONS-239485.json": true,
+    "PACKET-INPUTS-239485.json": true,
+    "OWNER-SPLIT-20260922.md": true
+  },
+  "record_inputs": {
+    "FINDING.md": "46426b5a43adb59b382359a087bd64853118f75e18f3dcb35dc04f52ed696fc7",
+    "PLAN.md": "f6eca31d646da8cc19baaf8e1f548ea06e7d437cca46dd706db690ba7a8bc7b0",
+    "PROGRESS.md": "a3b54e8f9a5a95850d607aea7b045927bad390a9b8a489e0e0b39d13d10f1b0b",
+    "MANAGER-SOURCE-242687.json": "e1c00957f8e235b1810fff37e7a89161bccb89dba66907a28243b6899c79415e"
+  },
+  "tests_or_live_runs_performed": 0,
+  "inspection_limit": "Read-only public ControlStore open refused; no fallback. Durable cleanup and unable disposition are validated supervisor outcome evidence, not a new direct journal read; engine absence independently confirmed."
+}

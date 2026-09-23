@@ -1,0 +1,38 @@
+test_a_store_naming_a_consumed_instance_is_refused_by_name (test_preparation.TheFreshnessCheckIsDerivedNotHardcoded.test_a_store_naming_a_consumed_instance_is_refused_by_name)
+The accepted isolation boundary: every earlier root holds other ... ok
+test_a_store_that_does_not_name_this_run_is_refused (test_preparation.TheFreshnessCheckIsDerivedNotHardcoded.test_a_store_that_does_not_name_this_run_is_refused) ... ok
+test_the_delivered_selections_are_fresh_for_their_own_run (test_preparation.TheFreshnessCheckIsDerivedNotHardcoded.test_the_delivered_selections_are_fresh_for_their_own_run) ... ok
+test_the_predecessors_selections_are_fresh_for_THEIR_run (test_preparation.TheFreshnessCheckIsDerivedNotHardcoded.test_the_predecessors_selections_are_fresh_for_THEIR_run)
+The check the old block could not make: it is not that 243284 is ... ok
+test_unresolved_owner_operands_are_named (test_preparation.TheFreshnessCheckIsDerivedNotHardcoded.test_unresolved_owner_operands_are_named) ... ok
+test_a_consumed_root_under_a_new_run_name_is_still_refused (test_preparation.AConsumedIdentityIsRefusedHoweverItIsSpelled.test_a_consumed_root_under_a_new_run_name_is_still_refused) ... ok
+test_a_traversal_that_lands_in_a_consumed_root_is_refused (test_preparation.AConsumedIdentityIsRefusedHoweverItIsSpelled.test_a_traversal_that_lands_in_a_consumed_root_is_refused)
+Normalized locations: a raw substring test answers the wrong ... ok
+test_a_valid_new_instance_still_passes (test_preparation.AConsumedIdentityIsRefusedHoweverItIsSpelled.test_a_valid_new_instance_still_passes)
+The check must not become one nothing can satisfy. ... ok
+test_naming_the_run_after_a_consumed_instance_is_refused (test_preparation.AConsumedIdentityIsRefusedHoweverItIsSpelled.test_naming_the_run_after_a_consumed_instance_is_refused)
+The exact hole: run_id == the consumed root. ... ok
+test_the_run_must_name_a_component_not_a_substring (test_preparation.AConsumedIdentityIsRefusedHoweverItIsSpelled.test_the_run_must_name_a_component_not_a_substring) ... ok
+test_the_command_without_the_bound_source_fails_as_reported (test_preparation.TheDocumentedEntrypointRunsThroughComposition.test_the_command_without_the_bound_source_fails_as_reported)
+R1's reproduction, kept: the page used to print it unbound. ... ok
+test_the_documented_command_prepares_then_composes (test_preparation.TheDocumentedEntrypointRunsThroughComposition.test_the_documented_command_prepares_then_composes) ... ok
+test_the_page_binds_the_import_path_for_this_step (test_preparation.TheDocumentedEntrypointRunsThroughComposition.test_the_page_binds_the_import_path_for_this_step) ... ok
+test_a_repeat_replays_the_same_act (test_preparation.ThePreparationActsRunAgainstADisposableAuthority.test_a_repeat_replays_the_same_act)
+MEASURED, and it corrected a claim rather than confirming one. ... ok
+test_every_receipt_participant_holds_its_capability (test_preparation.ThePreparationActsRunAgainstADisposableAuthority.test_every_receipt_participant_holds_its_capability) ... ok
+test_it_creates_the_selected_work_and_sets_the_canonical_target (test_preparation.ThePreparationActsRunAgainstADisposableAuthority.test_it_creates_the_selected_work_and_sets_the_canonical_target) ... ok
+test_the_route_handlers_named_are_the_selections_own (test_preparation.ThePreparationActsRunAgainstADisposableAuthority.test_the_route_handlers_named_are_the_selections_own) ... ok
+test_the_244216_selections_compose_the_bound_image (test_preparation.ThePreparedSelectionsAlsoCompose.test_the_244216_selections_compose_the_bound_image) ... ok
+test_the_same_document_passes_the_freshness_check (test_preparation.ThePreparedSelectionsAlsoCompose.test_the_same_document_passes_the_freshness_check)
+One document, both gates -- which is the whole point of R1. ... ok
+test_a_no_progress_outcome_is_not_diagnosed_as_a_cause (test_preparation.TheDocumentPointsAtTheHelperAndQualifiesItsDiagnoses.test_a_no_progress_outcome_is_not_diagnosed_as_a_cause)
+It used to say the CLI "did something a mask cannot govern". That ... ok
+test_it_does_not_reprint_the_hardcoded_block (test_preparation.TheDocumentPointsAtTheHelperAndQualifiesItsDiagnoses.test_it_does_not_reprint_the_hardcoded_block) ... ok
+test_it_references_the_parameterized_helper (test_preparation.TheDocumentPointsAtTheHelperAndQualifiesItsDiagnoses.test_it_references_the_parameterized_helper) ... ok
+test_the_inspection_limit_is_disclosed (test_preparation.TheDocumentPointsAtTheHelperAndQualifiesItsDiagnoses.test_the_inspection_limit_is_disclosed)
+The reviewer could not read inside the image -- its container was ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.261s
+
+OK

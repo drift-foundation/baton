@@ -1,0 +1,120 @@
+{
+  "claim": 247547,
+  "tests": 86,
+  "passed": true,
+  "skipped": 0,
+  "post_submission_interrupt_probe": {
+    "exception": "SupervisorInterrupted: KeyboardInterrupt: review probe after committed submission",
+    "outcome_exists": true,
+    "submitted_stage_count": 1,
+    "outcome": {
+      "accounting_scope": "this run accounts for Job 'job-independent-review-239533' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+      "admissions": {
+        "review": 0
+      },
+      "admitted_attempts": [],
+      "attempt_origins": {
+        "attempt-ed5b45f79c359049fe965b72873ad464536c4e84fa0bbd73072f3db7f66d7375": "unallocated"
+      },
+      "cancellation": {
+        "attempt-ed5b45f79c359049fe965b72873ad464536c4e84fa0bbd73072f3db7f66d7375": {
+          "execution_runtime": null,
+          "requested": true,
+          "runtime_id": null,
+          "why": "this manager answers that it holds no attempt row for this identity and this run never launched it, so no runtime was allocated for it. That is not a claim that nothing is running anywhere."
+        }
+      },
+      "claim": 247318,
+      "cleanup": {},
+      "cleanup_sweeps": 0,
+      "correction_containers_started": [],
+      "correction_limitation": "`StageComposition.routed` calls `review_driver.open_correction` unconditionally when a verdict answers `correction`, and the composed deployment exposes no configuration, bound or operand that declines it. A review-only run cannot prevent the round through any supported boundary available to a supervisor; preventing it needs a change in the owning implementation scope. This run therefore refuses to call itself settled when one appears, rather than redefining its selected review-only scope to accommodate it.",
+      "correction_rounds_opened": [],
+      "final_canonical_read": true,
+      "finished_at": "2026-09-23T00:00:00.000Z",
+      "foreign_admissions": [],
+      "gate_refusals": [],
+      "held_because": [
+        "a cleanup-window progress read did not complete: KeyError: 'config_path'",
+        "the cleanup accounting did not complete: KeyError: 'config_path'",
+        "the run was interrupted: KeyboardInterrupt: review probe after committed submission",
+        "the submission did not complete: KeyboardInterrupt: review probe after committed submission",
+        "no runtime was ever admitted, so this run answered nothing about the reviewer",
+        "the run stopped 'interrupted' rather than completing its stages",
+        "the packet declares 1 review invocation(s) and this run has 0"
+      ],
+      "interrupted": "KeyboardInterrupt: review probe after committed submission",
+      "interruptions": [
+        "KeyboardInterrupt: review probe after committed submission"
+      ],
+      "job_id": "job-independent-review-239533",
+      "observed_attempts": [
+        "attempt-ed5b45f79c359049fe965b72873ad464536c4e84fa0bbd73072f3db7f66d7375"
+      ],
+      "outstanding_cleanup": [],
+      "preexisting_jobs": [],
+      "preexisting_stages": {},
+      "provider_turn": null,
+      "retry": false,
+      "run_id": "independent-review-239533",
+      "schema": "baton.independent-review-outcome/1",
+      "served_seconds": 1.0,
+      "serving_bound_seconds": 20,
+      "serving_failure": null,
+      "stage_states": {
+        "review": "queued"
+      },
+      "stalled_after": 6,
+      "stalled_ticks": 0,
+      "started_order": [],
+      "state": "held",
+      "stopped": "interrupted",
+      "subject": {
+        "base_object": "1111111111111111111111111111111111111111",
+        "checkpoint_id": "checkpoint-a",
+        "head_object": "2222222222222222222222222222222222222222",
+        "line_id": "line-a",
+        "producer": {
+          "participant": "baton.impl",
+          "principal": "principal:baton.impl",
+          "worker_id": "implementation-worker"
+        },
+        "tree_object": "3333333333333333333333333333333333333333"
+      },
+      "submission_failure": "KeyboardInterrupt: review probe after committed submission",
+      "submission_id": null,
+      "submitted_at": "2026-09-23T00:00:00.000Z",
+      "unallocated_attempts": [
+        "attempt-ed5b45f79c359049fe965b72873ad464536c4e84fa0bbd73072f3db7f66d7375"
+      ],
+      "uncertainty": [
+        "a cleanup-window progress read did not complete: KeyError: 'config_path'",
+        "the cleanup accounting did not complete: KeyError: 'config_path'"
+      ],
+      "unexpected_attempts": [],
+      "work": "W239533",
+      "workload": {
+        "attachments": [],
+        "corrections_opened": [],
+        "dispositions": [],
+        "review_attempts": [],
+        "shortfalls": [
+          "the packet declares 1 review invocation(s) and this run has 0"
+        ],
+        "verdicts": []
+      }
+    }
+  },
+  "elapsed_seconds": 1.3022508069989271,
+  "product_sha256": "318e9a4bdf111cb3b93bddbe63c6d6fe6911702023db7196c507fbae54d18d11",
+  "selected_old_source_sha256": "ebc9be29d2bd23cf129afe33943f5336832df2ef24256c724708004220032896",
+  "selected_old_source_has_policy": false,
+  "baseline_sha256": "f27f3cd766f9271c4b3eddb6c657bca4770d18c11a74f377e717bef23df18fd5",
+  "sha256": {
+    "review_supervisor.py": "84cb42f64c806e365e648306d67b9df08891a541b5268a2c0a3a510d46a3af1b",
+    "review_bindings.py": "59e331819c8b943e4125a217400fcd3779da6c07d649493b95ae3d5b567b83ea",
+    "test_review_supervisor.py": "ef24db1a68d988b1963f956884afd676835965cc40ed753da34fe924e2244732",
+    "OPERATOR-239533.md": "4192b4b9c63c124b0227a14ff5ddcaf8d0802e234fa89311144463d41f4fe5aa",
+    "SELECTIONS-239533.json": "4a9e587c02f0b8ff0aa7ef3e978e5b4eef94d0ce611b643cfe06e204ec5d157f"
+  }
+}

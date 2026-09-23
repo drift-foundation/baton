@@ -1,0 +1,103 @@
+{
+  "work": "W239528",
+  "claim": 240287,
+  "participant": "baton.rvpc",
+  "command": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_baseline",
+    "test_baseline_bindings",
+    "test_entrypoints"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof:/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python",
+  "exit_code": 0,
+  "seconds": 16.043618711002637,
+  "files": {
+    "DIAGNOSIS-239528.md": "8fd72893727f78a597ecb4f69d96a6f56af60c490f341fd444b9744e16e22e2c",
+    "FINDING.md": "743452b78b1142d70d2790cc2fcb4e958ab1aaaf9c341942501eddefc1cb3665",
+    "OPERATOR-239528.md": "6dcfd5a8bdc20e66da11293266fd4ca3912dd54e15542c40c987d7c64d399541",
+    "OWNERSHIP-239528.md": "7072258e30828eae0f636bd73c60581ca3dd7449c017ac5cb23831ccd1f5a1dd",
+    "PLAN.md": "8ba535cce31f5ba66221e634ccece69256e1b2a91f0dbee9d112f91e19ac3e6b",
+    "PROGRESS.md": "1c35356ca7a58e1d07e74cdef53cf07de64c74fea64e51e7e270eaaba784c732",
+    "PROVIDER-QUESTION-239528.md": "8cb3689df86d54501adaacc3cbe00650dd1e1900205b50568e2132de42ed85b6",
+    "SELECTIONS-239528.json": "f464ee5f33d42236711757d954660f67b07d0c2287d4f39daef4ca05d147f8de",
+    "baseline.py": "20234618a59c26ad480b8fd2039d10536fd694152800ec819a5bc2dea7bec7e0",
+    "baseline_bindings.py": "c618b97f5b2866393ba522feb29ed0c9b1470663f2ef0e3740b524e9fa1713b8",
+    "records_240196.py": "a3e8e7bc63143ba5fc40fd1ecb781ddfbcfb7aee7d4d3d0a5b5debfc8d4194d2",
+    "review-2026-09-22T15-32-51Z.md": "4e25eafe4c1270a88b1b88805dd21d214392992b038c5f1990bceb1420cf3f33",
+    "review-evidence-239808.json": "2352e2ef809552498a901497efde033dbfdd0233a6da1a6cfa2facd33f857bc6",
+    "review-probes-239808.json": "7cdb41b7d63a22d7039a1b06dcc28fe5721a9139f0d190beb2cb862f82e2a954",
+    "review-probes-239808.py": "10055771fa9dbdb6acd601c63b0e48c234c2773c906f79ed65b4f845c45d2480",
+    "review-tests-239808.log": "60234f49d237815bd84097966d5c2ed2a29444569cbf51ba2ad744e0d42a8756",
+    "test_baseline.py": "96a308bc8884a1c746622e1ce84477fd2b41b94d343fb7c936c6edda2343bb02",
+    "test_baseline_bindings.py": "71804e83a583838a4cad6d84bcb6868b61430f55213a3dadef7e1bcf39da6e2b",
+    "test_entrypoints.py": "3561109dba2523bf1648f7e9474ecffa5846d3a3a445fd3b978def15530a9c41",
+    "verification-1.json": "22d15412acfbe27cf60b16006dc2c0296474c5245cd73cf7116902d89480d76a",
+    "verification-1.log": "3fb04610898395de6a79136f244384c4786a0367ce0ce09aee8eeb93e7e2679e",
+    "verification-2.json": "62864263576694bb8bc2d1c6da1b8c1497ff4c09b307afdc42967ad8c2a92753",
+    "verification-2.log": "d979e36eed65b22800ae6e6055a670a18924147a35312b9539ebddeb4ef3b321",
+    "verify.py": "d092f47c56fbbf0d69b083a5aa899172077b21382449393dad7d881492f7e778"
+  },
+  "prior_artifacts_preserved": {
+    "CANDIDATE.json": true,
+    "supervisor.py": true,
+    "packet_bindings.py": true,
+    "test_supervisor.py": true,
+    "test_generated_packet.py": true,
+    "LIVE-RUN-239365.md": true,
+    "OPERATOR-239485.md": true,
+    "SELECTIONS-239485.json": true,
+    "PACKET-INPUTS-239485.json": true,
+    "OWNER-SPLIT-20260922.md": true
+  },
+  "author_receipt_matches": {
+    "baseline.py": true,
+    "baseline_bindings.py": true,
+    "test_baseline.py": true,
+    "test_baseline_bindings.py": true,
+    "test_entrypoints.py": true,
+    "verify.py": true
+  },
+  "probes": {
+    "step5a_canonical_target": "base-1",
+    "real_compose_positive": {
+      "exit_code": 0,
+      "state": "settled",
+      "stopped": "completed",
+      "held_because": [],
+      "outstanding_cleanup": [],
+      "stage_states": {
+        "implementation": "completed"
+      }
+    },
+    "real_compose_unestablished_target": {
+      "exit_code": 0,
+      "state": "settled",
+      "stopped": "completed",
+      "held_because": [],
+      "outstanding_cleanup": [],
+      "stage_states": {
+        "implementation": "completed"
+      }
+    },
+    "foreign_operations_forwarded": [
+      "call.recover(now='2026-09-02T00:00:00.000Z')",
+      "call.refresh_runtime({'stage_id': 'old-stage', 'attempt_id': 'old-attempt'})",
+      "call.conclude({'stage_id': 'old-stage', 'attempt_id': 'old-attempt'}, {'job_id': 'old-job'})"
+    ],
+    "seconds": 0.7088029880032991,
+    "scope": "Disposable fixtures only; no deployed store, provider or engine."
+  },
+  "probe_source_sha256": "87cb18c0169d61853992738ec1627f66da24960b3dc6a73a5822c02388c829af",
+  "first_probe": {
+    "exit_code": 1,
+    "tool_wall_seconds": 0.794814248,
+    "reason": "Reviewer expected missing canonical target to block baseline; actual outcome settled with positive cleanup. Assumption disproved; corrected reviewer assertion and reran. No product or author test edit."
+  },
+  "second_probe_tool_wall_seconds": 0.764652185,
+  "total_measured_wall_seconds": 17.603085144002637
+}

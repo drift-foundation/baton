@@ -1,4 +1,142 @@
-# Current action — preparation accepted; owner inputs and execution selection
+# Current action — remaining resume proof after separate prerequisites
+
+Owner239562 and OWNER-SPLIT-20260922.md select separate Jobs and supersede
+continuing the combined baseline/review/resume Job or its proposed R2 product
+seam. W236087 retains ONLY restored-context correction after independently
+accepted W239528 (implementation through proposal/stop/positive cleanup) and
+W239533 (independent retained-proposal review through verdict/stop/positive
+cleanup). Bind actual open context and real review provenance; never fabricate
+restore inputs or weaken acceptance.
+
+Return baton.decide with review-2026-09-22T14-56-01Z.md and preserved hashes in
+review-evidence-239589.json. After claim release, owner records W236087 blocked
+by W239533; W239533 is already blocked by W239528. Route only W239528 first.
+Current partial corrections and diagnosis are retained for reuse and independent
+validation after explicit file ownership handoff, not accepted for a live run
+by this preservation turn. Preserve failed-run evidence, outstanding cleanup and
+the consumed grant. No live execution, destructive recovery, enabling or closure.
+
+# Historical action -- claim 239485; R2 seam pinned for the next claim
+
+## Active ownership -- claim 239485, baton.claude
+
+Owner reroute 239483. Dossier files only: `supervisor.py`,
+`test_supervisor.py`, `test_generated_packet.py`, `LIVE-RUN-239365.md`,
+`OPERATOR-239485.md`, `SELECTIONS-239485.json`, `PACKET-INPUTS-239485.json`, a
+superseded-header line on `OPERATOR-239365.md`, and
+`verification-20/21.json/.log`. No file under `v12/` was edited; the ten
+candidate paths are unchanged. 255 focused checks pass, 37.435480670s.
+
+R1, R3 and R4 are complete; details in the claim-239485 PROGRESS entry.
+
+## PINNED PRODUCT SEAM -- required for R2, and NOT begun
+
+Recording it here is the pin; no product byte has been changed under it.
+
+    v12/worker/claude_agent.py
+        the task document gains an OPTIONAL review-instructions member, and
+        `_review_prompt` presents THAT as the requirements to assess when it is
+        present, falling back to `instructions` when it is absent. `_prompt`
+        keeps reading `instructions` alone, so the implementation role never
+        sees the review's criteria.
+    v12/python/tools/packet_bindings-side composition
+        emits the two strings: the initial requirement for the implementer and
+        the acceptance criteria for the reviewer.
+
+Why a product change is unavoidable: one Job carries ONE digest-sealed input
+manifest; `single_worker._held` compares each worker's `task_document` bytes
+against the manifest's `human_contract` digest, so both workers necessarily
+read the same document, and `_review_prompt` today frames that same string as
+the reviewer's requirements. There is no existing seam that delivers different
+requirements to the two roles.
+
+Until it lands, the packet cannot guarantee the selected
+open -> changes-requested -> restore sequence without scripting a verdict, and
+the supervisor's sequence requirement is NOT weakened to make a first
+acceptance count as success.
+
+Also outstanding and owner-side: the faulted attempt's recovery (end the
+assignment, then authorize cleanup so the runtime can be positively excluded),
+and a new run identity if another run is selected -- the grant is spent.
+
+# Historical action — complete the live-failure correction under239355
+
+Review review-2026-09-22T14-38-24Z.md requests changes. Distinguish positive
+no-allocation reads from failed reads before skipping cancellation/cleanup;
+align reported turn counts with that classification. Preserve the selected
+role-specific correction workload rather than asking the first implementer for
+the final target. Complete the agent-fault and missing-cleanup diagnosis without
+live cleanup; generic agent fault is not a proved causal explanation. Explicitly
+supersede the stale replay-safe/unconsumed paragraph in OPERATOR-239365, since
+the same document now reports a consumed grant. Return baton.decide recommending
+existing-scope continuation and independent review. No live rerun/enabling/closure.
+
+# Historical action -- claim 239365 complete; independent review next
+
+## Active ownership -- claim 239365, baton.claude
+
+Owner reroute 239355. Dossier files only: `supervisor.py`,
+`packet_bindings.py`, `test_supervisor.py`, `test_packet_bindings.py`,
+`test_generated_packet.py`, `LIVE-RUN-239365.md`, `live-239365/`,
+`OPERATOR-239365.md`, `SELECTIONS-239365.json`, `PACKET-INPUTS-239365.json`,
+a superseded-header line on `OPERATOR-239174.md`, and
+`verification-18/19.json/.log`. No file under `v12/` was edited; the ten
+candidate paths are unchanged.
+
+The live run's two defects are corrected and regressed: the task document
+states requirements only so the implementation role cannot execute a review
+script, and attempts are classified by what this run actually started so a
+never-allocated episode is named rather than charged a cleanup record that
+could not exist. 252 focused checks pass, 39.574366914s.
+
+Outstanding and NOT acted on: the quiescent implementation runtime with cleanup
+pending, and the consumed qualification grant. Both are recorded for the owner
+in `OPERATOR-239365.md` and `LIVE-RUN-239365.md`.
+
+# Historical action — code-boundary correction accepted; owner state confirmation
+
+Read review-2026-09-22T14-05-58Z.md and review-evidence-239228.json. Actual copied
+source imports through production composition pass deterministic correction and
+timeout checks. Current239174 program/packet hashes are accepted. Reviewer
+ControlStore.open_readonly assessment refused with OperationalError; it did not
+establish current grant/preparation state. Preserve author-attributed assessment
+and the failed launched packet. Owner confirms current state and unchanged
+preparation operands through supported readers before selecting a relaunch and
+regenerating the concrete packet. Do not repeat already completed selections or
+infer unconditional replay safety. No further product correction requested;
+return baton.decide. No live rerun/enabling/closure by review.
+
+# Historical action -- claim 239174 complete; independent review next
+
+## Active ownership -- claim 239174, baton.claude
+
+Owner pass 239172. Dossier files only: `supervisor.py`, `packet_bindings.py`,
+`test_supervisor.py`, `test_packet_bindings.py`, `test_generated_packet.py`,
+`OPERATOR-239174.md`, `SELECTIONS-239174.json`, `PACKET-INPUTS-239174.json`,
+superseded-header lines on the 238827 records, and
+`verification-16/17.json/.log`. No file under `v12/` was edited; the ten
+candidate paths are unchanged.
+
+The code boundary is bound in the packet and read by both preparation and
+runtime; the relocated-layout inference and the owner's exact refusal are
+covered deterministically. The prepared instance was assessed read-only: the
+qualification grant is unconsumed, so steps 5 and 6 are safe to re-run. 247
+focused checks pass, 37.612951821s.
+
+Remaining is owner-side: step 5a, the six selections, and the exact
+live-command selection.
+
+# Historical action — correct relocated-source composition boundary
+
+Owner launch on 2026-09-22 failed during composition because the runtime inferred
+`/home/sl/baton-runs` as its checkout. See the dated relocated-source finding in
+FINDING.md. Preserve prepared state and reviewed bytes. Next bounded correction:
+use a consistent, bound code exclusion boundary in preparation and runtime;
+exercise the actual copied-source layout deterministically, independently review
+updated provenance, and assess existing preparation before selecting another
+live launch. No live rerun has been performed by baton.prompt.
+
+# Historical action — preparation accepted; owner inputs and execution selection
 
 Review review-2026-09-22T13-07-41Z.md accepts the current bounded packet
 preparation, including the formerly hidden workspace prerequisite. Prior R2a/R2b

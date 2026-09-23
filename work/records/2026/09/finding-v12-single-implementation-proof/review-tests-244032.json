@@ -1,0 +1,11 @@
+{
+  "checks": 36,
+  "errors": 0,
+  "failures": 0,
+  "skipped": 0,
+  "seconds": 2.2325053770036902,
+  "modules": [
+    "test_successor_snapshot",
+    "test_successor_packet"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "claim": 244098,
+  "decision": "the manager's ownership, mode and symlink checks are PRESERVED; the provider execution path is corrected to create compliant private directories",
+  "established_not_assumed": "subprocess.run(..., umask=0o077) exercised against a real child: makedirs tree 0o700, explicit mkdir(0o755) -> 0o700, file 0o600. mkdir applies mode & ~umask and the mask is inherited.",
+  "not_changed": [
+    "context_delivery._private and _state -- the checks stand",
+    "the retained live evidence -- never chmodded",
+    "the three paths accepted under claim 242687"
+  ],
+  "participant": "baton.claude",
+  "paths": {
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "after": "61a6b765e4f5871bd486a3593a00bd50d74ee9b30421761c86092eb244612da9",
+      "before": "43bfd0e9ab321d1491702540cd5473b9455a73f07e5c9fefc0b39b469f523bbd"
+    },
+    "v12/python/tests/manager/test_claude_context.py": {
+      "after": "05249efae17fc2b0bda2db2956f998e98756948e082c23a25305671ee948679e",
+      "before": "9ccc49a24914d87258a04371402662363b7a9c64444236712d5f0b1607f0e498"
+    },
+    "v12/worker/claude_agent.py": {
+      "after": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "before": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d"
+    }
+  },
+  "pinned_before_editing": "PLAN.md, by pin_244098.py",
+  "residual_risk": "chmod is not masked, so a provider that made a directory permissive AFTER creating it would still be refused by the unchanged manager check -- the right outcome, and its own finding if it ever happens",
+  "schema": "baton.single-implementation-product-change/1",
+  "still_needed_for_a_live_run": "a worker image built from this claude_agent.py; not done here and not authorized here",
+  "work": "W239528"
+}

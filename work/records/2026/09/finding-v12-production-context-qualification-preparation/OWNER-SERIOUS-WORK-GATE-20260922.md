@@ -19,3 +19,13 @@ production integration/enabling remains. A successful isolated canary is not
 automatic production reuse readiness. If the intended use requires additional
 wiring, explain the concrete gap for a decision; do not invent a broad new
 qualification campaign.
+
+
+## Superseded adoption gate — owner 2026-09-23
+
+The requirement above to wait for restoration before serious ordinary v12 Jobs
+is superseded by the later clarification in
+[W2 required-reuse ruling](../../08/finding-v12-isolated-agent-workers/OWNER-REQUIRED-REUSE-20260923.md).
+Initial adoption may precede completed reuse; reuse is among the first v12 Jobs
+and remains required within v12. Evidence, execution and claim boundaries stay
+applicable. This note does not itself launch or reroute Work.

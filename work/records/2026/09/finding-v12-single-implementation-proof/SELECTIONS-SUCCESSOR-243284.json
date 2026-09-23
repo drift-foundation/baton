@@ -1,0 +1,94 @@
+{
+  "_claim": 243284,
+  "_participant": "baton.claude",
+  "_preserve": [
+    "/home/sl/baton-runs/single-implementation-success-239528/ -- the successful run whose stage never settled",
+    "/home/sl/baton-runs/single-implementation-239528/ -- the expired-credential run",
+    "/home/sl/baton-runs/single-implementation-242687/manager-source -- the bound successor snapshot",
+    "/home/sl/baton-runs/managed-correction-236087/ -- W236087's snapshot and outstanding runtime"
+  ],
+  "_read_with": [
+    "OPERATOR-SUCCESSOR-243284.md",
+    "MANAGER-SOURCE-242687.json",
+    "DIAGNOSIS-242687.md"
+  ],
+  "_schema": "baton.single-implementation-selections/2",
+  "_status": "PREPARED FOR REVIEW. Not approved for execution. NOT successful-baseline ready: the custody-mode blocker in the claim-243174 FINDING entry is unresolved, and OPERATOR-SUCCESSOR-243284.md says so first.",
+  "_unresolved_blocker": {
+    "effect_on_this_packet": "a run will reach it and now report `no-progress` in about six seconds instead of spending its bound. That is an improvement in reporting, NOT an end-to-end implementation proof.",
+    "evidence": "live-success-243174/ and the claim-243174 FINDING entry; reproduced by test_no_progress.ACustodyModeTheRealProviderProduces",
+    "next_selection": "whether the manager should tolerate a umask-created directory inside the private context home, or the delivery should impose the mode. A product decision with its own security reasoning; diagnosed under claim 243174 and deliberately not decided there.",
+    "what": "context_delivery._private refuses any custody directory carrying group or other bits; the real Claude CLI creates seven of them at 0o755 under the ordinary process umask, so finalize_context_use refuses and the context use is held custody-invalid."
+  },
+  "_what_changed": {
+    "bounds": "total_seconds 300 rather than 900, per owner pass 243171. It covers one full-length 180s provider turn plus launch, exchange, the ending's nine steps and publication; it no longer has to cover a run that stopped moving, which baseline.STALLED_TICKS detects in six ticks.",
+    "instance": "fresh dedicated stores under /home/sl/baton-runs/single-implementation-243284/db/. EVERY earlier instance now holds other work and none is reusable.",
+    "manager_source": "the SUCCESSOR snapshot carrying the accepted review_driver.py 9a8a4a81...20ae4 and stage_execution.py ebc9be29...032896, verified by `snapshot_242687.py --verify` against its own manifest.",
+    "run_id": "single-implementation-243284; every earlier grant is spent by its own run."
+  },
+  "_work": "W239528",
+  "compose": {
+    "bounds": {
+      "cleanup_seconds": 60,
+      "implementer_invocations": 1,
+      "retry": false,
+      "total_seconds": 300,
+      "turn_seconds": 180
+    },
+    "claim": 243284,
+    "cli_build": "2.1.247",
+    "code_boundary": "/home/sl/baton-runs/single-implementation-242687/manager-source",
+    "credential_profile": {
+      "api": {
+        "provider": "<OWNER: the credential provider. This packet is indifferent to whether the token is valid: a valid one reaches the custody blocker, an expired one reaches the unable path, and both are now reported promptly.>",
+        "reference": "<OWNER: the credential reference; linked, never read>"
+      }
+    },
+    "credential_sources": null,
+    "evidence_digest": "<OWNER: sha256:... of the accepted evidence this candidate profile rests on. An all-zero digest is refused as a sentinel.>",
+    "image_digest": "sha256:2e9e84ff23319778760d5b22c70d543d4290931510a3ab3ecf40bcdaad7456bd",
+    "image_reference": "baton-v12-claude-worker:w236087-236349",
+    "instance": {
+      "authority_store": "/home/sl/baton-runs/single-implementation-243284/db/authority.sqlite3",
+      "authority_uuid": "<OWNER: the uuid `just bootstrap` generates for THIS fresh instance>",
+      "build_commit": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3",
+      "control_store": "/home/sl/baton-runs/single-implementation-243284/db/control.sqlite3",
+      "integration_profile": {
+        "instructions_digest": "<OWNER: sha256:... of the integration instructions>",
+        "integrator_participant": "<OWNER>",
+        "profile_kind": "git",
+        "profile_version": 1
+      },
+      "integration_store": "/home/sl/baton-runs/single-implementation-243284/db/integration.sqlite3",
+      "job_store": "/home/sl/baton-runs/single-implementation-243284/db/jobs.sqlite3",
+      "retention_policy_digest": "<OWNER: sha256:... the digest this fresh install configured>",
+      "runtime_path": "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro"
+    },
+    "manager_source": "/home/sl/baton-runs/single-implementation-242687/manager-source",
+    "note": "the successor baseline packet; W239528 claim 243284",
+    "participants": {
+      "fixture_files": {
+        "harness.py": "<OWNER: sha256 of the fixture's harness.py after the fixture step>"
+      },
+      "implementation": "<OWNER: the implementation participant>",
+      "implementation_principal": "<OWNER>",
+      "receipts": {
+        "approval": "<OWNER>",
+        "review": "<OWNER>",
+        "verification": "<OWNER>"
+      },
+      "review": "<OWNER: the review participant. CONFIGURED AND NEVER ADMITTED -- stage_execution refuses a deployment naming no review worker, and this Job submits no review stage. It must not share a participant or principal with the implementation role.>",
+      "review_principal": "<OWNER>",
+      "work_id": "<OWNER: the Work created in step 5a on THIS instance>",
+      "worker_files": {
+        "opt/baton/claude_agent.py": "abdf903da3c767f3fe9babf84e4499f455da968a61ee3c975b9899988354bb4d"
+      }
+    },
+    "provider_network": "<OWNER: the bounded engine egress network. 'none' is refused: the worker must be able to REACH the API in order to be refused by it, which is the whole question.>",
+    "run_id": "single-implementation-243284",
+    "source_root": "<OWNER: the fixture repository>",
+    "supervisor_path": "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+    "vectors": "/home/sl/src/baton/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+    "work": "W239528"
+  }
+}

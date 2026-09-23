@@ -1,0 +1,68 @@
+{
+  "claim": 244032,
+  "participant": "baton.rvpc",
+  "owned": {
+    "baseline.py": {
+      "sha256": "f27f3cd766f9271c4b3eddb6c657bca4770d18c11a74f377e717bef23df18fd5",
+      "matches_author": true
+    },
+    "baseline_bindings.py": {
+      "sha256": "d994cce02419fd82483560a541790f4b9d367f27d2b634a166bfbdb009ae2c5e",
+      "matches_author": true
+    },
+    "snapshot_242687.py": {
+      "sha256": "cc387c6279dbf8941eef0098577c49f181f6d36be05334351eca7bba0e6e9b4f",
+      "matches_author": true
+    },
+    "test_baseline.py": {
+      "sha256": "797abb7b1a451ab25096398a18508dd93e0edb022c45d1dca2aa1461ba380e5b",
+      "matches_author": true
+    },
+    "test_baseline_bindings.py": {
+      "sha256": "71804e83a583838a4cad6d84bcb6868b61430f55213a3dadef7e1bcf39da6e2b",
+      "matches_author": true
+    },
+    "test_entrypoints.py": {
+      "sha256": "3561109dba2523bf1648f7e9474ecffa5846d3a3a445fd3b978def15530a9c41",
+      "matches_author": true
+    },
+    "test_failure_path.py": {
+      "sha256": "e7d48ef34d2849df7bc92f717861ce2b2c7de534e1a6e1ce60969a9896774dca",
+      "matches_author": true
+    },
+    "test_no_progress.py": {
+      "sha256": "649b502703ddcef7ff551f3bcf56570431ebdcce739ec81efc65821b27855d66",
+      "matches_author": true
+    },
+    "test_successor_packet.py": {
+      "sha256": "49ac1337003bfe41fe70a5c34bb6ebc246eeb681da7804e8edf057b913a5eecb",
+      "matches_author": true
+    },
+    "test_successor_snapshot.py": {
+      "sha256": "700800c8633f4617e6515f2fbd71617fcfa7a8acbd725090f6f3af38f6ffa664",
+      "matches_author": true
+    },
+    "verify.py": {
+      "sha256": "0124a629095d767c9160bfa3eaad2cf44f88fca596f6029247aae9fead44f871",
+      "matches_author": true
+    }
+  },
+  "documents": {
+    "OPERATOR-SUCCESSOR-243284.md": "344f4e647eaf05fa8c23624fd431ba771f10bd141c1bd872c34b489e25de1c97",
+    "SELECTIONS-SUCCESSOR-243284.json": "1900e40dbc634b117d3be2a0a28caec0d81eba1a73667f5a507f34a34c3b169e",
+    "PROGRESS.md": "96f21eec65a65e28e0e19f32b06ad1f66485b1ab3334f40b68b3da07bd3183c6",
+    "MANAGER-SOURCE-242687.json": "e1c00957f8e235b1810fff37e7a89161bccb89dba66907a28243b6899c79415e"
+  },
+  "snapshot_matches": true,
+  "product": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": true,
+    "v12/python/tests/manager/test_claude_context.py": true,
+    "v12/python/tools/stage_execution.py": true
+  },
+  "unchanged_accepted": {
+    "baseline.py": true,
+    "baseline_bindings.py": true,
+    "test_no_progress.py": true
+  },
+  "historical_manifest_unchanged": true
+}

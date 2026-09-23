@@ -1,0 +1,33 @@
+{
+  "claim": 239447,
+  "candidate_matches": true,
+  "source_count": 106,
+  "source_mismatches": [],
+  "digests": {
+    "CANDIDATE.json": "ea00e00e53785ea344d72d10fee2ccf6afa0820badb158fb5a002a4242d41c01",
+    "supervisor.py": "f367eb08946c16cc806e65926c0920b95564551eb18e0dbd1eaa73a11fb259c3",
+    "packet_bindings.py": "f6f8665f54e052dd9c44ff545faa040078b663501b78380e80badac2558a8df5",
+    "test_supervisor.py": "c54bd52ff0f6864cd6e407131f7f81c72576deec2b6bbe09c839018988897da7",
+    "test_packet_bindings.py": "67c6939b4d2a21144f32da80eea8ac87a7401351ddda221fe3ff30a818bb56c1",
+    "test_generated_packet.py": "a5685e2b1e557c49c76bd7bbc7e9d1273016b5c42c424f28132519a754ca6fb6",
+    "OPERATOR-239365.md": "d29fd43505f0462f69710e96413c5546821262d4b198b6f37b2dd165c10baffe",
+    "SELECTIONS-239365.json": "66afe6c5b358d8bc4f076840c9c33ff95ee89289d8310605cf2360ac5a639444",
+    "PACKET-INPUTS-239365.json": "76591f9aac120389a9682808d4f07c61c1439c79c738ba7d0cb125857545f4c5",
+    "LIVE-RUN-239365.md": "7e8c9a55b7e1142225a1eeb4c6e01f5818d8b9154c88fc867d4b6e02a963443c",
+    "review-checks-239447.py": "d07331060ce0463bfcf475d9c97e21c7bcfc9fcb9009b890d58002316d97a4c7"
+  },
+  "live_retained_files": {
+    "live-239365/task.json": "9eec44d3be239b885cbc0c8ee3cb369fba051f870adb2ee79b44416f2ec51370",
+    "live-239365/outcome.json": "8d06e8af6e322f2f983b27a26f11f92c5cdf18cc7fd772941073bd3e598c1a90",
+    "live-239365/PACKET.json": "30b1c936b008545a8988d98b9a824e447c6e07baa3f13e383ae0ac0071f7cc75",
+    "live-239365/implementation/provider.stdout.log": "01e51a8e608cbc43e4e9a578e8d97fed15493eed6c33c39a35e8e7c2130a994c",
+    "live-239365/implementation/provider.stderr.log": "e705bbf8982385da2b1a03725921d0a6c6730bbaadd22c8f9168522573d067e0",
+    "live-239365/implementation/events/state-work.json": "42e9c94de779b7eee46a3f41a5823d1b48f0d91ff82297a5e51b1f420ceab735",
+    "live-239365/implementation/events/state-describe.json": "5f13d4f5ce61006a27170eb365238b678b7daee354765411153c0ce52e477d6f",
+    "live-239365/implementation/events/receipt.json": "7fc41522e29675e0e7c377073ab1812ac0afe5ab400bf39820d061fad9e3eb27",
+    "live-239365/implementation/events/terminal.json": "46590831ab314f62a0ba9f04d794dc677a1178cc04591fdd2e6d03713daa59bf"
+  },
+  "packet_program_mismatches": [],
+  "verification_seconds": 0.1682754669964197,
+  "recorded_cumulative_seconds": 378.4992445719964
+}
