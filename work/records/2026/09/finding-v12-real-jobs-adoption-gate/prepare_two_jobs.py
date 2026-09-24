@@ -468,15 +468,48 @@ def input_manifest(*, authority_uuid, work_id, task_path, raw, artifact_id):
                 "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab"
                                "4d8e11ba873c2f11161202b945"},
         }],
+        # W257627 D1, owner 257834: THE SHARED JOB'S DECLARATION IS THE UNION
+        # OF WHAT ITS STAGES PRODUCE, and none of it is required.
+        #
+        # THIS IS THE DEFECT THAT FAILED THE ORIGINAL RUN. Both implementation
+        # attempts were handed `findings` and `logs`, both REQUIRED, and the
+        # executed image's `ClaudeAgent.work` selects
+        # `_selected(..., IMPLEMENTATION_OUTPUTS, "implementation")` BEFORE it
+        # reads the task -- so it refused with "a implementation turn writes
+        # proposal and this assignment declares no proposal", before any task,
+        # scratch, checkout, credential or provider. `DIAGNOSIS.md` in
+        # `finding-v12-startup-failure-fresh-packet` reproduces that
+        # deterministically from the retained operands.
+        #
+        # WHY NONE IS REQUIRED, and it is the adapter's own rule rather than a
+        # convenience: "an output this role does not write may not be
+        # required", because `answered` refuses a required output answered
+        # `missing-optional`. One shared manifest serves both stages -- the
+        # Job carries ONE input digest and `single_worker._matches` compares
+        # every stage against it -- so a member required for one role would be
+        # a declaration the other role's single turn cannot satisfy. Adding
+        # `proposal` alone keeps `findings` required and still refuses; that
+        # is measured in `test_startup_boundary.py`, not assumed.
+        #
+        # AND OPTIONAL IS NOT PERMISSION TO PRODUCE NOTHING. What enforces
+        # stage-specific production is the STAGE RESULT: the frozen manifest
+        # records `present` for what the turn wrote and `missing-optional` for
+        # the other role's half, and the final-result and intake contracts
+        # read that. `test_declaration_union.py` holds both halves of this --
+        # the two real adapter selections and the downstream obligation --
+        # because optional without that check is exactly what owner 257834
+        # called insufficient.
         "outputs": [
-            {"name": name, "path": name, "required": True,
-             "type": "text-result",
+            {"name": name, "path": name, "required": False,
+             "type": kind,
              "constraints": {
                  "allowed_media_types": ["application/octet-stream",
                                          "text/plain"],
                  "link_policy": "forbid", "max_bytes": 1048576,
                  "max_entries": 100, "validator_digest": None}}
-            for name in ("findings", "logs")],
+            for name, kind in (("proposal", "git-change-proposal"),
+                               ("findings", "directory-result"),
+                               ("logs", "directory-result"))],
         "record_binding": {
             "root": "baton-repository",
             "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate",

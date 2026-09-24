@@ -1469,6 +1469,73 @@ def clear_custody_hold(store, *, attempt_id, which, episode, observed,
         manager_signature(CUSTODY_CLEARED_KIND, body), lambda _c: dict(body))
 
 
+def _claim_episode(store, assignment_id, which, operation, image_digest,
+                   name):
+    """Claim the next uncertainty episode EXCLUSIVELY, or refuse.
+
+    W257624 R1. One caller owns the episode; every concurrent or restarted
+    caller refuses before it has submitted or reclaimed anything.
+
+    HOW THE EXCLUSION IS ACTUALLY WON, because a check and a write are two
+    acts. `ControlStore.transact` takes `BEGIN IMMEDIATE` and re-reads inside
+    the lock, so two connections serialize there -- but only if their operands
+    DIFFER, because identical operands at one identity are a replay and the
+    loser would be handed the winner's record as its own.
+
+    SO THE CLAIM CARRIES A SUBMITTER TOKEN. It is a nonce and nothing else: it
+    names no path, selects no resource and is never read back as authority.
+    With it, the loser signs different operands at the same identity and the
+    store refuses it by §4.2 -- one identity carries one act -- which is the
+    refusal this stage wants and is the store's own rule rather than a new
+    one.
+    """
+    import uuid
+
+    from .store import manager_signature
+
+    standing = _standing_hold(store, assignment_id, which)
+    if standing is not None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(assignment_id)}'s {which} root carries "
+            f"unreconciled uncertainty episode {standing['episode']!r}: an "
+            f"earlier act submitted a request that produced no engine answer, "
+            f"and the helper it would have created is "
+            f"{name_value(standing['held']['helper_identity'])}. This root is "
+            f"FROZEN -- no submission, no reclamation, no reuse and no "
+            f"deletion on the strength of that act -- until an operator "
+            f"records what they observed")
+    held = custody_holds(store, assignment_id, which)
+    if len(held) >= _MOST_HOLDS:
+        raise ContractRefusal(
+            "refused", "limit",
+            f"attempt {name_value(assignment_id)}'s {which} root has "
+            f"{len(held)} recorded uncertainty episodes, which is this "
+            f"manager's bound; it is reconciled rather than acted on again")
+    episode = len(held)
+    body = {"attempt_id": assignment_id, "root": which, "episode": episode,
+            "verb": operation, "custodian_image_digest": image_digest,
+            "helper_identity": name, "claimant": uuid.uuid4().hex}
+
+    def claiming(_connection):
+        # RE-READ INSIDE THE LOCK, which is what makes this exclusive rather
+        # than merely early.
+        again = _standing_hold(store, assignment_id, which)
+        if again is not None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(assignment_id)}'s {which} root was held "
+                f"at episode {again['episode']!r} while this act was claiming "
+                f"one; nothing was submitted")
+        return dict(body)
+
+    store.transact(
+        _hold_identity(CUSTODY_HOLD_KIND, assignment_id, which, episode),
+        CUSTODY_HOLD_KIND,
+        manager_signature(CUSTODY_HOLD_KIND, body), claiming)
+    return episode
+
+
 def _record_hold(store, assignment_id, which, operation, image_digest, name):
     """Commit the uncertainty BEFORE the request crosses, and answer its
     episode.
@@ -1805,6 +1872,20 @@ def custody_act(engine, run, *, image_digest, store, assignment_id,
     argv, name = _custody_vector(engine, image_digest=image_digest,
                                  store=store, assignment_id=assignment_id,
                                  operation=operation, which=which)
+    # W257624 R1: THE EXCLUSION IS CLAIMED BEFORE ANY HELPER ACT AT ALL.
+    #
+    # Owner 257693 selects "no submission OR RECLAMATION behind a standing
+    # hold". It used to sit below the reconciliation, so a second caller
+    # arriving behind a held root still issued its listing, and a stranded
+    # candidate would have been stopped and removed before anything checked.
+    # Those are destructive vectors on a path that must issue none.
+    #
+    # CLAIMED, NOT MERELY CHECKED. `_claim_episode` reads the standing holds
+    # and writes the next episode inside ONE write transaction, so two
+    # connections racing here serialize at the store: the loser sees the
+    # winner's episode and refuses having submitted nothing.
+    episode = _claim_episode(store, assignment_id, which, operation,
+                             image_digest, name)
     # W43974: WHAT IS ALREADY ANSWERING TO THIS IDENTITY, decided before
     # anything launches. `--rm` reclaims on the engine's normal completion
     # path and on no other, so a manager or client that died mid-act left a
@@ -1813,40 +1894,6 @@ def custody_act(engine, run, *, image_digest, store, assignment_id,
     stranded = _reconciled(engine, port, name=name, image_digest=image_digest)
     if stranded is not None:
         _reclaimed(engine, port, name=name, runtime_id=stranded)
-    # W247941, owner 257086: THE WRITE-AHEAD HOLD, AROUND THE SUBMISSION.
-    #
-    # Review 2026-09-24T13:58:36Z drew the line this sits on: the hold is for
-    # ACTUAL ENGINE UNCERTAINTY, and "same-act identity does not authorize
-    # resubmission of unresolved daemon request". So it is written HERE --
-    # immediately before the request crosses -- and not around the adapter
-    # call, because everything before this point is a refusal that submitted
-    # nothing and must keep committing nothing. A capability that raises, a
-    # malformed operand, a root that does not exist: all of those are
-    # pre-submission and leave no hold.
-    #
-    # AND THE UNCERTAINTY IS CLASSIFIED STRUCTURALLY. What makes an answer
-    # unresolved is `status is None` -- no engine answer at all -- which is a
-    # fact about the act rather than an exception type or a string somebody
-    # matched.
-    # A STANDING HOLD BINDS A NEW ACT. Review 2026-09-24T13:58:36Z: "same-act
-    # identity does not authorize resubmission of unresolved daemon request".
-    # An episode nobody has reconciled means a request this manager could not
-    # account for may still be creating that helper, so submitting another is
-    # two programs over one tree rather than a retry.
-    standing = _standing_hold(store, assignment_id, which)
-    if standing is not None:
-        raise ContractRefusal(
-            "refused", "precondition",
-            f"attempt {name_value(assignment_id)}'s {which} root carries "
-            f"unreconciled uncertainty episode {standing['episode']!r}: an "
-            f"earlier act submitted a request that produced no engine answer, "
-            f"and the helper it would have created is "
-            f"{name_value(standing['held']['helper_identity'])}. This root is "
-            f"FROZEN -- not acted on, not reused and not deleted on the "
-            f"strength of that act -- until an operator records what they "
-            f"observed")
-    episode = _record_hold(store, assignment_id, which, operation,
-                           image_digest, name)
     try:
         # THE ACT'S OWN CALL IS NOT WRAPPED BY `_settled`, because its
         # failure is not a refusal -- it is the lost ending that recovery and

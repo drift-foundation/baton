@@ -1,0 +1,256 @@
+{
+  "attempts": [
+    {
+      "attempt_id": "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5",
+      "deployment_manifest_matches": 2,
+      "launch_schema": "baton.worker-launch/3",
+      "logs": {
+        "provider.stderr": {
+          "declaration": "none",
+          "state": "absent",
+          "why": "no log was created for this stream"
+        },
+        "provider.stdout": {
+          "declaration": "none",
+          "state": "absent",
+          "why": "no log was created for this stream"
+        },
+        "worker.stderr": {
+          "declaration": "none",
+          "state": "absent",
+          "why": "no log was created for this stream"
+        },
+        "worker.stdout": {
+          "declaration": "none",
+          "state": "absent",
+          "why": "no log was created for this stream"
+        }
+      },
+      "outputs": [
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream",
+              "text/plain"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "findings",
+          "path": "findings",
+          "required": true,
+          "type": "text-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream",
+              "text/plain"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "logs",
+          "path": "logs",
+          "required": true,
+          "type": "text-result"
+        }
+      ],
+      "role": "implementation",
+      "terminal": {
+        "answered": [
+          "describe"
+        ],
+        "attempt_id": "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5",
+        "command_digest": "sha256:0b29e460b18e74886aec0fb6333e55bae0e0768868fda9351810b2c5390fa5a0",
+        "disposition": null,
+        "ending": "faulted",
+        "fault_code": "agent",
+        "manifest_digest": null,
+        "schema": "baton.worker-exchange.terminal/1",
+        "sequence_id": "sequence-afa3e0cc7862c258f13a1de266a9b9bd",
+        "session": "session-70e4f148b3af6bb35ccd1a73"
+      }
+    },
+    {
+      "attempt_id": "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec",
+      "deployment_manifest_matches": 2,
+      "launch_schema": "baton.worker-launch/3",
+      "logs": {
+        "provider.stderr": {
+          "declaration": "none",
+          "state": "absent",
+          "why": "no log was created for this stream"
+        },
+        "provider.stdout": {
+          "declaration": "none",
+          "state": "absent",
+          "why": "no log was created for this stream"
+        },
+        "worker.stderr": {
+          "declaration": "none",
+          "state": "absent",
+          "why": "no log was created for this stream"
+        },
+        "worker.stdout": {
+          "declaration": "none",
+          "state": "absent",
+          "why": "no log was created for this stream"
+        }
+      },
+      "outputs": [
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream",
+              "text/plain"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "findings",
+          "path": "findings",
+          "required": true,
+          "type": "text-result"
+        },
+        {
+          "constraints": {
+            "allowed_media_types": [
+              "application/octet-stream",
+              "text/plain"
+            ],
+            "link_policy": "forbid",
+            "max_bytes": 1048576,
+            "max_entries": 100,
+            "validator_digest": null
+          },
+          "name": "logs",
+          "path": "logs",
+          "required": true,
+          "type": "text-result"
+        }
+      ],
+      "role": "implementation",
+      "terminal": {
+        "answered": [
+          "describe"
+        ],
+        "attempt_id": "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec",
+        "command_digest": "sha256:22ae19c59edb69e509b5eb5c3711c30849f6193ffa94269e9969038784f899c2",
+        "disposition": null,
+        "ending": "faulted",
+        "fault_code": "agent",
+        "manifest_digest": null,
+        "schema": "baton.worker-exchange.terminal/1",
+        "sequence_id": "sequence-e9091e632e180c5f394e3d625c3d33f8",
+        "session": "session-4387cc1082028e37132b8db3"
+      }
+    }
+  ],
+  "claim": 257715,
+  "deliverables": {
+    "DIAGNOSIS.md": "1804bf0a8ca4fe08c3c8a97fd2d876f1c00cec6c504ccaa3822403b3562d2c66",
+    "test_startup_boundary.py": "87187d41b92929e46267a5835a5eb49b1a988e02580933e7481d236e55a28021"
+  },
+  "diagnosis": "implementation declaration lacks proposal; adding it alone still leaves required review-only outputs",
+  "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "image_mapping_evidence": "work/records/2026/09/finding-v12-single-implementation-proof/IMAGE-ARTIFACT-244216.json",
+  "image_mapping_sha256": "8cf90edcabc39150b47f3e59a5a2378941d237c0a86ad1b99dffc079f3c2e374",
+  "last_thread_message_read": 257627,
+  "last_work_event_read": 257715,
+  "not_established": [
+    "provider/authentication success",
+    "full corrected Job acceptance",
+    "cleanup",
+    "fresh packet readiness"
+  ],
+  "outcome": {
+    "admitted_attempts": [
+      "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5",
+      "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec"
+    ],
+    "outstanding_cleanup": [
+      "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5",
+      "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec"
+    ],
+    "state": "held",
+    "stopped": "interrupted"
+  },
+  "participant": "baton.tuner",
+  "retained_files": {
+    "run/deployment.json": "234993ae05d1dbe0da74673323074fbfecd472bb7f68b7b45e30253592107a71",
+    "run/launch/attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5/command/sequence-afa3e0cc7862c258f13a1de266a9b9bd.json": "0b29e460b18e74886aec0fb6333e55bae0e0768868fda9351810b2c5390fa5a0",
+    "run/launch/attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5/events/receipt.json": "ef630c585821f6d50c3298d38d9afd44417acbdb1c4953dfafed0f16314c563b",
+    "run/launch/attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5/events/state-describe.json": "cde8264d7bc2909f0d39a854f9e269d161e18da743fc6076c46dc7e874731f7b",
+    "run/launch/attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5/events/state-work.json": "685a36e39cd19f2d8dd999a8f51f81aa61c2f48be897aa905c95d544312c9fad",
+    "run/launch/attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5/events/terminal.json": "4628a893d415dd4e6a6e7ada92e3360e29eaa7759368188992d6f3253a816398",
+    "run/launch/attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5/launch.json": "67357702bc72a3c36bf84ff6d5d17a8de39491dbed13bd6b4082f729db707385",
+    "run/launch/attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec/command/sequence-e9091e632e180c5f394e3d625c3d33f8.json": "22ae19c59edb69e509b5eb5c3711c30849f6193ffa94269e9969038784f899c2",
+    "run/launch/attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec/events/receipt.json": "c315a322b59304fcf715926fc6b21c8c2fd8edfbad61d945bfa9e687597f540b",
+    "run/launch/attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec/events/state-describe.json": "284d5a5c2a6808344e7e486e921d896082ab4cfe72877bb6c473372c2f5e2235",
+    "run/launch/attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec/events/state-work.json": "b324cd30c45dcc980eb6dc1571381978960adbf8854482e721af08d394e1be3c",
+    "run/launch/attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec/events/terminal.json": "bd489a0d44555ad79662980789a1b8910a0d2cbe532667a0ba98e4db0e251589",
+    "run/launch/attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec/launch.json": "d5415d0c940295100f3b5cc433a5b83b3941fa1304403c319207cf2cb5c947fb",
+    "run/outcome.json": "7ba389668ae56da1e435793713c6a269c3b7d97a50935bb53568ede3b9332fd0",
+    "run/workspaces/attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5/inputs/assignment.json": "daaae190f2242d77af1cfdb405a247cc84e196844c3a4fec3d4fba0de089ddfb",
+    "run/workspaces/attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5/inputs/input.json": "cc92e3cb8c4ffd161a9d8f9e09621c7577f7f5977d7480cac850357b2f3db35c",
+    "run/workspaces/attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5/inputs/task.json": "a877b7d36bb5dbce95aaa127b73db3f493c48c780b720fbb70c533beb6028354",
+    "run/workspaces/attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec/inputs/assignment.json": "98b30c0069adff8a3e3d97b4bd9ef49120a3d89e1432d515653b8560d2ad20a3",
+    "run/workspaces/attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec/inputs/input.json": "9ad6bf89287ad61ca6b3d925830a29c167ca2829006ea9b406366c279c8e1ccb",
+    "run/workspaces/attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec/inputs/task.json": "e1b8d913faa29a816fc3b8eb7efc31957ed57193de03bdaa98b3502d9731ee93"
+  },
+  "retained_root": "/home/sl/baton-instances/two-jobs-251156",
+  "schema": "baton.w257627.d1-evidence/1",
+  "source_files": {
+    "v12/python/src/baton_v12/attempt_log_format.py": {
+      "image_path": "opt/baton/attempt_log_format.py",
+      "matched": true,
+      "sha256": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f"
+    },
+    "v12/python/src/baton_v12/source_profiles/__init__.py": {
+      "image_path": "opt/baton/source_profiles/__init__.py",
+      "matched": true,
+      "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+    },
+    "v12/python/src/baton_v12/source_profiles/checkout.py": {
+      "image_path": "opt/baton/source_profiles/checkout.py",
+      "matched": true,
+      "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+    },
+    "v12/worker/baton_worker.py": {
+      "image_path": "opt/baton/baton_worker.py",
+      "matched": true,
+      "sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34"
+    },
+    "v12/worker/claude_agent.py": {
+      "image_path": "opt/baton/claude_agent.py",
+      "matched": true,
+      "sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d"
+    },
+    "v12/worker/dogfood_entry.py": {
+      "image_path": "opt/baton/dogfood_entry.py",
+      "matched": true,
+      "sha256": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2"
+    },
+    "v12/worker/worker-control-1.0.schema.json": {
+      "image_path": "opt/baton/worker-control-1.0.schema.json",
+      "matched": true,
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    }
+  },
+  "verification": {
+    "command": "PLAN.md D1 unittest command",
+    "coverage": "deterministic pre-provider boundary and real worker exchange; no container or live provider",
+    "kill_grace_seconds": 5,
+    "result": "passed",
+    "tests": 4,
+    "timeout_seconds": 30,
+    "unittest_seconds": 0.022
+  }
+}

@@ -660,3 +660,28 @@ clearance validation and missing resource guards. Supersedes current end-to-end
 completion wording. Candidate hashes preserved in `review-2026-09-24T14-07-09Z-checkpoint.json`.
 Return baton.decide for Tuner-led small-stage decomposition and STOP this cycle;
 no automatic implementation continuation, new assignment or live execution.
+
+## 2026-09-24 — Tuner decomposition, claim257612 / owner257608
+
+Owner257608 selects planning/coordination only after the stopped review and
+owner WIP checkpoint. Tuner revalidated all nine stopped-checkpoint hashes:
+unchanged, still not approved. Current scope/ownership/latest review and full
+T247941 discussion were read under the Sep23 bounded-context policy.
+
+Create W257624 at baton:work/records/2026/09/finding-v12-failed-run-resource-hold
+for exclusive hold, evidence-bound clearance, resource guards, bounded recovery
+and grants/readback; create W257627 at
+baton:work/records/2026/09/finding-v12-startup-failure-fresh-packet for original
+startup diagnosis and the accepted successor packet. Both are at baton.decide.
+These top-level prerequisites preserve this Work and all original evidence;
+they do not duplicate or move the historical dossier. W247941 retains only the
+joined parallel proof/adoption outcome after their acceptance. Exact stages,
+proposed assignments, commands and failure/stop points: DECOMPOSITION-257612.md.
+
+This supersedes continuing the seven-item broad correction list as one active
+implementation assignment. It does not supersede accepted component evidence,
+the five open findings in review-2026-09-24T14-07-09Z.md, or Claude's existing
+five-path ownership. No source/test edits, implementation or live execution
+occurred. Workspaces/additional guard paths need explicit coordination before
+edits; D1 remains read-only outside its new dossier. W44342 stays parked.
+Ledger changes and last consumed positions are in CHECKPOINT-257612.md.
