@@ -1,0 +1,27 @@
+{
+  "claim": 249482,
+  "resolved_template_probe": "ArrangementRefusal: both Jobs name the same work_id ('resolved-diagnostic'); two Jobs that share it are not independent, whatever the binding says",
+  "pins": {
+    "pinned": {
+      "manager_source_files": 106,
+      "manager_source_manifest_sha256": "ab5e5b0befbb77f6e96a94e76d0d8b6e01935beb2e7f48090d0d3fc13fae1cd5",
+      "stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801",
+      "runtime_executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a"
+    },
+    "found": {
+      "manager_source_files": 106,
+      "stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801",
+      "manager_source_manifest_sha256": "ab5e5b0befbb77f6e96a94e76d0d8b6e01935beb2e7f48090d0d3fc13fae1cd5",
+      "runtime_executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a"
+    },
+    "checkout_stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801",
+    "agree": true
+  },
+  "mismatch_exit": 1,
+  "tests": {
+    "count": 19,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 2.4646386730019003
+  }
+}

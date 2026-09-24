@@ -1,0 +1,4 @@
+{
+  "composer_accepted_invalid_policy": true,
+  "reader": "ContractRefusal: a Job's terminal policy is one of report-and-hold; this is 'not-a-policy'"
+}

@@ -11,15 +11,22 @@ import pathlib
 import time
 import unittest
 
+import packet
+
 HERE = pathlib.Path(__file__).resolve().parent
 SIBLING = HERE.parent / "finding-v12-single-implementation-proof"
 CHECKOUT = HERE.parents[4]
+CLAIM = 248565
 MODULES = ("test_attachment", "test_review_bindings",
-           "test_review_supervisor")
+           "test_review_supervisor", "test_review_lifecycle", "test_packet")
 OWNED = ("attachment.py", "review_bindings.py", "review_supervisor.py",
          "test_attachment.py", "test_review_bindings.py",
-         "test_review_supervisor.py", "SELECTIONS-239533.json",
+         "test_review_supervisor.py", "test_review_lifecycle.py",
+         "test_packet.py", "packet.py", "attribution.py",
+         "SELECTIONS-239533.json",
          "OPERATOR-239533.md", "OWNER-PRODUCT-CHANGE-247423.md",
+         "snapshot_247947.py",
+         "MANAGER-SOURCE-independent-review-247947.json",
          "PRODUCT-CHANGE-247423.json", "preexisting_errors.py",
          "verify.py")
 # THE ACCEPTED BYTES THIS DOSSIER REUSES rather than copies. `review_bindings`
@@ -55,6 +62,15 @@ def sha(path):
 
 
 def main():
+    # THE DERIVED EVIDENCE IS REGENERATED FIRST, so `test_packet` compares a
+    # CURRENT document against the tree rather than the previous run's. Its
+    # `receipts` therefore stops one run short of the receipt written below,
+    # and the document says so. `EVIDENCE-239533.json` is deliberately absent
+    # from `OWNED`: a document that carries its own digest cannot have one.
+    packet.EVIDENCE.write_text(
+        json.dumps(packet.assembled(CLAIM), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8")
+
     loader = unittest.TestLoader()
     suite = unittest.TestSuite(
         [loader.loadTestsFromName(one) for one in MODULES])
@@ -62,11 +78,11 @@ def main():
     started = time.perf_counter()
     result = unittest.TextTestRunner(stream=stream, verbosity=2).run(suite)
     elapsed = time.perf_counter() - started
-    (HERE / "verification-7.log").write_text(stream.getvalue(),
+    (HERE / "verification-19.log").write_text(stream.getvalue(),
                                              encoding="utf-8")
     receipt = {
         "schema": "baton.independent-review-verification/1",
-        "work": "W239533", "claim": 247666, "participant": "baton.claude",
+        "work": "W239533", "claim": CLAIM, "participant": "baton.claude",
         "modules": list(MODULES),
         "checks": result.testsRun,
         "failures": len(result.failures),
@@ -77,7 +93,7 @@ def main():
         "owned": {name: sha(str(HERE / name)) for name in OWNED},
         "reused": {name: sha(str(place)) for name, place in
                    sorted(REUSED.items())},
-        "log": "verification-7.log",
+        "log": "verification-19.log",
         "note": "focused deterministic verification of the ATTACHMENT "
                 "boundary and the review COMPOSITION, read through "
                 "ControlStore.open_readonly and one coherent snapshot. No "
@@ -89,7 +105,7 @@ def main():
                 "The supervisor's imported machinery is W239528's, bound by "
                 "digest and proved by that Job's suite rather than here.",
     }
-    (HERE / "verification-7.json").write_text(
+    (HERE / "verification-19.json").write_text(
         json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({one: receipt[one] for one in
                       ("checks", "failures", "errors", "skipped",

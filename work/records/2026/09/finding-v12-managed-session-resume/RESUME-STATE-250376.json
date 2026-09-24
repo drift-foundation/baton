@@ -1,0 +1,483 @@
+{
+  "checkpoint": {
+    "answer": {
+      "base_object": "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+      "checkpoint_digest": "sha256:9d3aa3ca7733d4ec983b5841f1b99be09e4dc98bdb45c8b255890772acdd9324",
+      "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+      "evidence": {
+        "base": "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+        "head": "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "paths": [
+          "harness.py"
+        ],
+        "profile": "git",
+        "reference": "refs/baton/checkpoints/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/1",
+        "tree": "5b4c0f459d59c53d073af1c2d39eb043ebb16820"
+      },
+      "fence": {
+        "fenced": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.impl",
+            "work_ref": {
+              "authority_uuid": "7ea319da93384b77bc3ddea38602d7a3",
+              "work_id": "7ea319da-W1"
+            }
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:1",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.impl",
+            "work_ref": {
+              "authority_uuid": "7ea319da93384b77bc3ddea38602d7a3",
+              "work_id": "7ea319da-W1"
+            }
+          },
+          "attempt_id": "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b",
+          "authority_operation_id": "authority.finalize-quiescent:0cf12d58be3eeca62675ff0e09dc346132faba99649ec7b9dc24365c3423236f",
+          "decision": "finalized",
+          "reason": "review checkpoint writer completed",
+          "runtime_id": "4e6a605a2c9f3f039635bd9b06407788addde49767f8df03cf501b3676d49623",
+          "worker_disposition": "completed"
+        }
+      },
+      "fence_digest": "sha256:004cec903448ea5c18ebec26fbf2f46106a1865ff89863cdaecaa66989cb8204",
+      "frozen_at": "2026-09-23T04:05:52.042Z",
+      "head_object": "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6",
+      "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "prepared_at": "2026-09-23T04:05:52.030Z",
+      "profile_name": "git",
+      "reference_name": "refs/baton/checkpoints/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/1",
+      "revision": 1,
+      "state": "frozen",
+      "tree_object": "5b4c0f459d59c53d073af1c2d39eb043ebb16820",
+      "writer_id": "writer-a67688eb1d7e227093bca61de7663765da77cd812737b49ed4b71d591620879b"
+    },
+    "asked": "the frozen checkpoint the review attached to"
+  },
+  "control_sha256": "1f11712e8fa87d9ffb357958c5c755e07b646bf09bac185eb48510b647f06a61",
+  "control_store": "/home/sl/baton-runs/single-implementation-244216/db/control.sqlite3",
+  "correction_feedback": {
+    "asked": "the restore feedback the product would deliver",
+    "refused": "ContractRefusal: provider context: serving feedback belongs to a restore invocation"
+  },
+  "correction_operations": {
+    "answer": {
+      "job-single-implementation-244216": {
+        "operation_id": "episode.correct:job-single-implementation-244216:checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+        "record": null
+      }
+    },
+    "asked": "an owner-committed correction for this frozen checkpoint"
+  },
+  "job_store": "/home/sl/baton-runs/single-implementation-244216/db/jobs.sqlite3",
+  "job_store_sha256": "ef36e06b99728270ba661cabbf0ed406363dac7a6625e9c433e8ae63ac9ba7ea",
+  "line": {
+    "answer": {
+      "authority_uuid": "7ea319da93384b77bc3ddea38602d7a3",
+      "created_at": "2026-09-23T04:05:39.484Z",
+      "current_checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+      "declared_base": "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+      "line_device": 66306,
+      "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+      "line_inode": 43141701,
+      "line_path": "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/checkout",
+      "profile_name": "git",
+      "revision": 1,
+      "source_device": 66306,
+      "source_inode": 43141615,
+      "source_path": "/home/sl/baton-runs/single-implementation-244216/fixture-source",
+      "state": "accepted",
+      "work_id": "7ea319da-W1"
+    },
+    "asked": "the development line this proposal lives on"
+  },
+  "participant": "baton.claude",
+  "producer_context": {
+    "answer": {
+      "attempt_id": "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b",
+      "context_id": "context-8f2855c6e75fb175456cf1a9e2666a47bc39421d4d5d9d38fd210fc3ad2fa20b",
+      "generation": 0,
+      "reason": null,
+      "revision": 3,
+      "status": "ready",
+      "use_id": "context-use-1b3648d351fcadafa606d9a70daafabc810e148cb00c3fa63080905fbca8c9d0"
+    },
+    "asked": "the producer attempt's provider context use"
+  },
+  "producer_execution": {
+    "asked": "the producer attempt's proved context execution",
+    "refused": "ContractRefusal: provider context: execution requires a currently admitted context use"
+  },
+  "producer_sessions": {
+    "answer": [],
+    "asked": "the agent sessions recorded for the producer attempt"
+  },
+  "producer_snapshot_present": true,
+  "provenance": {
+    "modules": {
+      "baton_v12": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/__init__.py",
+        "from_snapshot": true,
+        "sha256": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0"
+      },
+      "baton_v12.attempt_log_format": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/attempt_log_format.py",
+        "from_snapshot": true,
+        "sha256": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f"
+      },
+      "baton_v12.authority": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/__init__.py",
+        "from_snapshot": true,
+        "sha256": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066"
+      },
+      "baton_v12.authority.api": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/api.py",
+        "from_snapshot": true,
+        "sha256": "fbc6684f9538f0f20177add42677792fe554e709dd15d4c15156bb19d3bfdaef"
+      },
+      "baton_v12.authority.core": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/core.py",
+        "from_snapshot": true,
+        "sha256": "74aa1acb0537ff68dbfc087ae124864f1189e725051998e778a44c21a1f06991"
+      },
+      "baton_v12.authority.errors": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/errors.py",
+        "from_snapshot": true,
+        "sha256": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce"
+      },
+      "baton_v12.authority.identity": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/identity.py",
+        "from_snapshot": true,
+        "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189"
+      },
+      "baton_v12.authority.labels": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/labels.py",
+        "from_snapshot": true,
+        "sha256": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec"
+      },
+      "baton_v12.authority.principals": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/principals.py",
+        "from_snapshot": true,
+        "sha256": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30"
+      },
+      "baton_v12.authority.schema": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/schema.py",
+        "from_snapshot": true,
+        "sha256": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb"
+      },
+      "baton_v12.authority.session": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/session.py",
+        "from_snapshot": true,
+        "sha256": "9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2"
+      },
+      "baton_v12.authority.store": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/store.py",
+        "from_snapshot": true,
+        "sha256": "4d651a2a985f38c118d60be466e0c6f6e3012eea0efaa87ae80cec3a4ba0e726"
+      },
+      "baton_v12.contracts": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/__init__.py",
+        "from_snapshot": true,
+        "sha256": "e9656898d35869eebe3f906de5ee1722339e3e22c2088f8f48cbda26452ffeb7"
+      },
+      "baton_v12.contracts.canonical": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/canonical.py",
+        "from_snapshot": true,
+        "sha256": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8"
+      },
+      "baton_v12.contracts.errors": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/errors.py",
+        "from_snapshot": true,
+        "sha256": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50"
+      },
+      "baton_v12.contracts.frozen": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/frozen.py",
+        "from_snapshot": true,
+        "sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed"
+      },
+      "baton_v12.contracts.manifest": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/manifest.py",
+        "from_snapshot": true,
+        "sha256": "77cc26266af73d490db8b3bd2514ab62a3d5a563858339d02783e661217fff8b"
+      },
+      "baton_v12.contracts.pod": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/pod.py",
+        "from_snapshot": true,
+        "sha256": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99"
+      },
+      "baton_v12.contracts.secrets": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/secrets.py",
+        "from_snapshot": true,
+        "sha256": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b"
+      },
+      "baton_v12.contracts.validate": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/validate.py",
+        "from_snapshot": true,
+        "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0"
+      },
+      "baton_v12.eventing": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/eventing.py",
+        "from_snapshot": true,
+        "sha256": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486"
+      },
+      "baton_v12.job_manager": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/__init__.py",
+        "from_snapshot": true,
+        "sha256": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6"
+      },
+      "baton_v12.job_manager.delegation": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/delegation.py",
+        "from_snapshot": true,
+        "sha256": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8"
+      },
+      "baton_v12.job_manager.documents": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/documents.py",
+        "from_snapshot": true,
+        "sha256": "5fcd58b57c4b89c79bea0f72ce41df3da9b2aab4926d77ee22fd65ad7d3956d1"
+      },
+      "baton_v12.job_manager.ending": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/ending.py",
+        "from_snapshot": true,
+        "sha256": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99"
+      },
+      "baton_v12.job_manager.episodes": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/episodes.py",
+        "from_snapshot": true,
+        "sha256": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865"
+      },
+      "baton_v12.job_manager.execution_limits": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/execution_limits.py",
+        "from_snapshot": true,
+        "sha256": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442"
+      },
+      "baton_v12.job_manager.manager": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/manager.py",
+        "from_snapshot": true,
+        "sha256": "cc0439946aa3648441665e75f92163e8546d29fff3514d9f2ab5a13ebdd5e0ad"
+      },
+      "baton_v12.job_manager.projection": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/projection.py",
+        "from_snapshot": true,
+        "sha256": "595008b9ddb06d947c3720eb5bd8928a53b65f2e7458bbd151f4a77d52fc6742"
+      },
+      "baton_v12.job_manager.review_driver": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/review_driver.py",
+        "from_snapshot": true,
+        "sha256": "9a8a4a8193ff7b1c709c184dee3ba43a1b1e16e60891dcf31277279d2c220ae4"
+      },
+      "baton_v12.job_manager.scheduler": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/scheduler.py",
+        "from_snapshot": true,
+        "sha256": "4849facf1fc92be574eff4224537c6bc8e6f053a4e99dfba98beab7daa7b41e1"
+      },
+      "baton_v12.job_manager.schema": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/schema.py",
+        "from_snapshot": true,
+        "sha256": "0f8601611257c78d4b7102938980977b5e256fa772729e70f3104ece6edd8704"
+      },
+      "baton_v12.job_manager.store": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/store.py",
+        "from_snapshot": true,
+        "sha256": "84141e0aab2ee45a58d7e51420c3c991802f037eeac7a51b3f4f3e686fa35c6d"
+      },
+      "baton_v12.job_manager.submission": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/submission.py",
+        "from_snapshot": true,
+        "sha256": "204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1"
+      },
+      "baton_v12.source_profiles": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/source_profiles/__init__.py",
+        "from_snapshot": true,
+        "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+      },
+      "baton_v12.source_profiles.checkout": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/source_profiles/checkout.py",
+        "from_snapshot": true,
+        "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+      },
+      "baton_v12.worker_manager": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/__init__.py",
+        "from_snapshot": true,
+        "sha256": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099"
+      },
+      "baton_v12.worker_manager.attempt_logs": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/attempt_logs.py",
+        "from_snapshot": true,
+        "sha256": "482631fcd56b1f1504b87d92c14a1f122451017f7337dbf2ffab63c887513062"
+      },
+      "baton_v12.worker_manager.attempts": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/attempts.py",
+        "from_snapshot": true,
+        "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6"
+      },
+      "baton_v12.worker_manager.authority_port": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/authority_port.py",
+        "from_snapshot": true,
+        "sha256": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6"
+      },
+      "baton_v12.worker_manager.boundaries": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/boundaries.py",
+        "from_snapshot": true,
+        "sha256": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+      },
+      "baton_v12.worker_manager.context_delivery": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/context_delivery.py",
+        "from_snapshot": true,
+        "sha256": "f17ce3c53e52e152e18da8c2900f9697bd3df67d3b9363d999c9a4215518def4"
+      },
+      "baton_v12.worker_manager.credentials": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/credentials.py",
+        "from_snapshot": true,
+        "sha256": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df"
+      },
+      "baton_v12.worker_manager.custody": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/custody.py",
+        "from_snapshot": true,
+        "sha256": "360772a109909cb382ae815d17f60ed7903252bf1b56a3944de8b301f33ac31b"
+      },
+      "baton_v12.worker_manager.deadlines": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/deadlines.py",
+        "from_snapshot": true,
+        "sha256": "536789e1a2947cf601ca191f675c24252078aa5ecddcf4243314c0d59d5855ae"
+      },
+      "baton_v12.worker_manager.documents": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/documents.py",
+        "from_snapshot": true,
+        "sha256": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014"
+      },
+      "baton_v12.worker_manager.events": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/events.py",
+        "from_snapshot": true,
+        "sha256": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5"
+      },
+      "baton_v12.worker_manager.exchange": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/exchange.py",
+        "from_snapshot": true,
+        "sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8"
+      },
+      "baton_v12.worker_manager.handshake": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/handshake.py",
+        "from_snapshot": true,
+        "sha256": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e"
+      },
+      "baton_v12.worker_manager.intake": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/intake.py",
+        "from_snapshot": true,
+        "sha256": "37ff14ffcad49e0eb744949fb3b0b4ef98103c94dd6c0459398492efae1fadb2"
+      },
+      "baton_v12.worker_manager.interrogation": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/interrogation.py",
+        "from_snapshot": true,
+        "sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0"
+      },
+      "baton_v12.worker_manager.lanes": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/lanes.py",
+        "from_snapshot": true,
+        "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c"
+      },
+      "baton_v12.worker_manager.launch": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/launch.py",
+        "from_snapshot": true,
+        "sha256": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc"
+      },
+      "baton_v12.worker_manager.manifests": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/manifests.py",
+        "from_snapshot": true,
+        "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866"
+      },
+      "baton_v12.worker_manager.oci": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/oci.py",
+        "from_snapshot": true,
+        "sha256": "0a5b56fcd1266450e845942303f456f757bd6329ea0e156eea66273b29abe6ae"
+      },
+      "baton_v12.worker_manager.offers": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/offers.py",
+        "from_snapshot": true,
+        "sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065"
+      },
+      "baton_v12.worker_manager.output": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/output.py",
+        "from_snapshot": true,
+        "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d"
+      },
+      "baton_v12.worker_manager.posture_slots": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/posture_slots.py",
+        "from_snapshot": true,
+        "sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81"
+      },
+      "baton_v12.worker_manager.provider_context": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/provider_context.py",
+        "from_snapshot": true,
+        "sha256": "f7df4ff84813f6c007005cfdb509f8d667b598cfa456f67b4ef63aaebd659ee0"
+      },
+      "baton_v12.worker_manager.review_cycles": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/review_cycles.py",
+        "from_snapshot": true,
+        "sha256": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83"
+      },
+      "baton_v12.worker_manager.schema": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/schema.py",
+        "from_snapshot": true,
+        "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+      },
+      "baton_v12.worker_manager.sealing": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/sealing.py",
+        "from_snapshot": true,
+        "sha256": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada"
+      },
+      "baton_v12.worker_manager.sessions": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/sessions.py",
+        "from_snapshot": true,
+        "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd"
+      },
+      "baton_v12.worker_manager.source_boundary": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/source_boundary.py",
+        "from_snapshot": true,
+        "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f"
+      },
+      "baton_v12.worker_manager.store": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/store.py",
+        "from_snapshot": true,
+        "sha256": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b"
+      },
+      "baton_v12.worker_manager.workspaces": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/workspaces.py",
+        "from_snapshot": true,
+        "sha256": "206998c3d344f1dab208799cfb9124785455154695943fa99237f9e18ff7fba7"
+      }
+    },
+    "not_from_snapshot": []
+  },
+  "read_only": true,
+  "review": {
+    "answer": {
+      "assignment_generation": 2,
+      "attached_at": "2026-09-23T14:37:35.845Z",
+      "attachment_id": "review-3536ffc95a8771beec30d669b763fe2f0b450b2604fc16e1f38d3f28acaea156",
+      "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+      "ended_at": "2026-09-23T14:38:30.019Z",
+      "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+      "reviewer_participant": "baton.review",
+      "reviewer_principal": "principal:baton.review",
+      "reviewer_worker_id": "review-worker",
+      "runtime_attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+      "state": "ended"
+    },
+    "asked": "the review attachment and its verdict"
+  },
+  "reviewer_context": {
+    "asked": "the reviewer attempt's provider context use",
+    "refused": "ContractRefusal: provider context: attempt has no unique admitted context"
+  },
+  "run_root": "/home/sl/baton-runs/single-implementation-244216",
+  "schema": "baton.v12-resume-state/1",
+  "work": "W236087"
+}

@@ -1,0 +1,515 @@
+{
+  "bounds": {
+    "_note": [
+      "W239528's measured numbers, PROPOSED rather than inherited: its",
+      "accepted live run settled in 13.813865043s of a 300-second backstop",
+      "with a 180-second turn ceiling, and a review turn reads a one-file",
+      "change instead of writing one. Keeping the three numbers means the",
+      "only thing that changed between the two runs is the workload.",
+      "W244180's OPERATOR.md is right that they are historical inputs and",
+      "not approval of this Job's bounds; they are named here so a reviewer",
+      "can accept or move them on the evidence."
+    ],
+    "cleanup_seconds": 60,
+    "retry": false,
+    "review_invocations": 1,
+    "total_seconds": 300,
+    "turn_seconds": 180
+  },
+  "claim": 248565,
+  "documents": {
+    "ATTRIBUTION-248565.json": "30a3b56c95b45734fa28eedac22c15b5c719700bfef1c4b148825babfce020fc",
+    "MANAGER-SOURCE-independent-review-247947.json": "9309556ee4aab04189555e8f3eb1a69ba661c2769db8ecf33595a63002a6696f",
+    "OPERATOR-239533.md": "9094d8306a7498f24e257372e1b7cce33472a7ec6d01238cfd06aaa6fbdcd819",
+    "OWNER-PRODUCT-CHANGE-247423.md": "57098ef11a3a0a88224d5d347b35583600bb512f088ddf54c07ddbec5dfa1be6",
+    "PREEXISTING-ERRORS-247666.json": "6619972fb65dd36fe3661aed39998eac9e2145a963f8186bd77f4bcb7d2ec30b",
+    "PRODUCT-CHANGE-247423.json": "22b29646de778d90b433a46896fc210db113c3cf43ab2fe752667f68bf777978",
+    "SELECTIONS-239533.json": "bdfa41f432737480bbd7d73d72e12636fc8367e375827a4a6b7e83e093295e20"
+  },
+  "established": [
+    {
+      "claim": "the cross-Job attachment arrangement",
+      "detail": "`review_cycles.create_line` derives the line from (authority, work) and REPLAYS, so a second Job naming the producer's authority and v12 Work recovers the producer's line rather than creating one; the real `attach_review` then accepts an independent reviewer against the frozen checkpoint, and refuses a wrong or stale checkpoint, a line under correction, and a reviewer sharing ANY of worker, participant or principal.",
+      "where": "test_attachment.py"
+    },
+    {
+      "claim": "a supported read-only survey",
+      "detail": "the subject is read through `ControlStore.open_readonly` and ONE coherent `snapshot()` using the public `line_of`, `checkpoint_of` and `writer_of`; no direct SQL, and the three missing public lookups are recorded in `attachment.GAPS` rather than bypassed.",
+      "where": "test_attachment.py"
+    },
+    {
+      "claim": "review-only composition",
+      "detail": "one `review` stage, no dependency, no proposal output, `review_invocations: 1`, implementation and correction bounds refused by name, criteria that ask for a judgment and name no verdict, and the producer's own base/head read from the checkpoint rather than taken as an operand.",
+      "where": "test_review_bindings.py"
+    },
+    {
+      "claim": "the packet is held before anything opens",
+      "detail": "schema, sealed criteria digest, retry, invocation count, cleanup reserve inside the total, a head that is not its base, a control store that is the subject's, the accepted `baseline.py` digest, and a deployment that does not decline corrections -- each refused by name.",
+      "where": "test_review_supervisor.py"
+    },
+    {
+      "claim": "the correction boundary is a precondition, not a promise",
+      "detail": "the composed deployment carries `correction_policy: \"decline\"`, so `StageComposition.routed` records `correction_declined` and never reaches `review_driver.open_correction`; a malformed policy is refused by the product's own `held_configuration`, and every other deployment is unchanged.",
+      "where": "test_review_supervisor.py, test_review_bindings.py"
+    },
+    {
+      "claim": "ONE reviewer admitted and ended over real coordination",
+      "detail": "a real Job store, control store, composition, admission gate, line, writer, frozen checkpoint, review attachment and frozen review output: the run settles with ONE attributed verdict cross-bound to the checkpoint's base, head and tree, a stopped runtime and `retained` cleanup, and the reviewer differs from the producer in all three identities.",
+      "where": "test_review_lifecycle.py"
+    },
+    {
+      "claim": "`changes-requested` is a valid outcome with no correction",
+      "detail": "it settles with zero correction rounds opened and zero implementation admissions, against the declining deployment the run actually used.",
+      "where": "test_review_lifecycle.py"
+    },
+    {
+      "claim": "the failure, interruption, stall and cleanup properties",
+      "detail": "admission closes BEFORE cancellation; an admitted attempt is named exactly when the run cannot finish; a shutdown interruption is observed rather than inferred; serving stops at total minus cleanup and no cleanup act starts after the total deadline; a run that stops moving reports `no-progress` after 6 unchanged ticks instead of waiting its bound out, while a genuinely outstanding runtime is never dropped; and an interrupt inside the serving origin read stops, publishes and raises rather than being swallowed.",
+      "where": "test_review_lifecycle.py"
+    },
+    {
+      "claim": "the ACTUAL shipped template composes and starts",
+      "detail": "the documented CLI runs `SELECTIONS-239533.json` itself -- keeping its `_manager_source_note`, `bounds._note`, `producer._note`, `instance._note` and `participants._independence` exactly as they ship -- the written packet carries no documentation member anywhere, and `held_packet` accepts it. Both original defects are pinned as still being defects without the normalization, so the fix is shown to be load-bearing rather than assumed.",
+      "where": "test_review_bindings.py"
+    },
+    {
+      "claim": "the live run's verdict re-derives from the retained store",
+      "detail": "`attribution.py` reads the line, checkpoint, attachment, frozen output, result manifest, cleanup and producer writer through public readers inside one snapshot and derives the verdict with `review_driver.review_verdict_from_result`: `accepted`, agreeing with the published outcome on all eight compared members, with all three reviewer identities differing from the producer's. See `live_run.independently_derived`.",
+      "where": "attribution.py"
+    },
+    {
+      "claim": "the documented commands run against the successor bytes",
+      "detail": "step 2's composition command and step 4's `review_supervisor.main` both run with `PYTHONPATH` bound to the successor snapshot alone. See `startup_proof` below for exactly what that `main` run did and did not do.",
+      "where": "test_review_bindings.py"
+    }
+  ],
+  "execution": {
+    "by": "the owner, under claim 248377",
+    "note": "the SHIPPED selections still carry all twelve `<OWNER: ...>` choices unresolved: the owner resolved them for that run in its own documents, which are retained under live-review-248377/. Running again is an owner decision and this packet authorizes nothing.",
+    "state": "executed",
+    "what": "one bounded live review, independent-review-248377"
+  },
+  "lifecycle_proof": {
+    "entry_point": "review_supervisor.supervise, called directly with an injected monotonic clock -- NOT `main`",
+    "real": [
+      "a real JobStore and ControlStore shared with the producer's phase-one run",
+      "the real composition through stage_execution.operations_from",
+      "the real AdmissionGate",
+      "a real line, writer and FROZEN CHECKPOINT produced by W239528's accepted baseline run",
+      "a real review attachment",
+      "a real frozen review output",
+      "the verdict derived by review_driver.review_verdict_from_result"
+    ],
+    "result": "state `settled`, one attributed verdict cross-bound to the checkpoint's base, head and tree, the runtime stopped and its cleanup `retained`.",
+    "simulated": {
+      "provider": "the fixture's deterministic worker turn -- the same one W239528's accepted suite and the product's own ManagedSessionResume use. Not a container and not a live model."
+    },
+    "where": "test_review_lifecycle.OneReviewerIsAdmittedAndEnded and AChangesRequestedReviewIsAValidOutcome"
+  },
+  "live_run": {
+    "entry_point": "review_supervisor.main, through the documented --packet and --incarnation. THIS IS THE RUN THAT BOTH ENTERS `main` AND SETTLES; the deterministic suite still has no single case that does both.",
+    "evidence": "live-review-248377/, retained by the reviewer under claim 248523 with source paths and SHA256 in its MANIFEST.json",
+    "executed_by": "the owner, baton.slaw, under claim 248377 -- NOT by this implementer, who has still reached no container, image, engine, network or credential",
+    "executed_packet_sha256": "ed51ef0e2be347915a6b70aebef7b4b35dfc296f66876b7ee77567dde56e2d5f",
+    "independently_derived": {
+      "answers": "the verdict re-derives as `accepted` and agrees with the published outcome on all eight compared members; the reviewer's worker, participant and principal all differ from the producer's; the cleanup is `retained` with the runtime `absent`.",
+      "by": "attribution.py, under claim 248565",
+      "export": "ATTRIBUTION-248565.json",
+      "how": "ControlStore.open_readonly on the pinned producer store, one snapshot, public readers only: line_of, checkpoint_of, review_of, frozen_output_of, load_manifest, cleanup_of, writer_of and review_driver.review_verdict_from_result. No raw SQLite, no copied database, no immutable handle, no write-capable fallback."
+    },
+    "original_packet_sha256": "4405c96d4bffea78eebda64eefb8f55ab07559fa1e16aa50b2a1fb9bb36912bc",
+    "outcome_sha256": "f587b5841b57388dd13683b980179ea075da404c7cd35373d31a0960c007b346",
+    "packet_difference": "the removal of `bounds._note` and nothing else; the substantive bounds and bindings are identical, and the metadata defect that forced it is corrected in `review_bindings` under claim 248565",
+    "reader_refusal": {
+      "cause": "UNKNOWN. It is not a permission problem: the store and its directory are owned by uid 1000 and writable. Opening it read-only recreated the `-shm` and a zero-length `-wal`, which are absent when the store is cleanly closed -- a mode=ro connection that cannot create them is one known way to get this error, and that is a HYPOTHESIS, not a diagnosis. No product defect is claimed.",
+      "now": "the same supported opener, on the same store and path, opened under claim 248565 and served every read above. The refusal did not reproduce.",
+      "what": "review 2026-09-23T14:45:57Z R1 -- ControlStore.open_readonly refused with a ContractRefusal wrapping an OperationalError, recorded in live-review-248377/reader-refusal.json"
+    },
+    "reported": {
+      "cleanup": "retained",
+      "correction_rounds": 0,
+      "runtime": "destroyed",
+      "seconds": 55.40899314900162,
+      "state": "settled",
+      "verdict": "accepted"
+    },
+    "run_id": "independent-review-248377"
+  },
+  "manager_source": {
+    "carries": {
+      "tools/stage_execution.py": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801",
+      "why": "the correction_policy boundary owner selection 247421 added; see OWNER-PRODUCT-CHANGE-247423.md"
+    },
+    "created_by_claim": 247947,
+    "file_count": 106,
+    "path": "/home/sl/baton-runs/independent-review-247947/manager-source",
+    "predecessor": {
+      "drifted": [],
+      "file_count": 106,
+      "manifest": "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/MANAGER-SOURCE-242687.json",
+      "missing": [],
+      "path": "/home/sl/baton-runs/single-implementation-242687/manager-source",
+      "unchanged": true
+    }
+  },
+  "not_established": [
+    {
+      "claim": "this implementer has still reached no provider",
+      "detail": "no container, image, engine, network or credential has been reached under any claim of this Work by baton.claude. The live run in `live_run` was executed by the OWNER under claim 248377; what this implementer did with it is read the retained records through supported readers. Every receipt in `receipts` below is minted by the real manager from a deterministic fixture turn and none is fabricated."
+    },
+    {
+      "claim": "the DETERMINISTIC suite still has no case that both enters `main` and settles",
+      "detail": "its two proofs stay separate: the `main` startup proof enters the documented entry point and is HELD because its composition starts nothing, and the successful lifecycle settles with an attributed verdict but calls `supervise` directly with an injected clock. THE LIVE RUN DOES BOTH, and it is the only thing here that does; see `live_run`. Do not read a deterministic case as evidence for that."
+    },
+    {
+      "claim": "the live result is ONE run, not a rate",
+      "detail": "one review of one one-file change, settled in 55.409 seconds. It answers the provider question for that subject on that day with that image and credential. It establishes no distribution of verdicts, no reliability figure and nothing about a reviewer's behaviour on a change it disagrees with -- `changes-requested` has been settled only deterministically."
+    },
+    {
+      "claim": "the reader refusal's cause is UNKNOWN",
+      "detail": "the supported opener refused for the reviewer at claim 248523 and opened for this implementer at claim 248565 on the same store through the same call. The hypothesis in `live_run.reader_refusal` is a hypothesis. An intermittent refusal on the managed read boundary is worth an owner's attention even though the attribution it blocked has since been derived."
+    },
+    {
+      "claim": "no deployed store was opened since claim 247159",
+      "detail": "the subject values in SELECTIONS-239533.json were read at claim 244629 and are REPRODUCED, not re-read; owner reroute 247154 forbids deployed store access. Step 1 re-reads them and the composer refuses on disagreement, so drift is a refusal rather than a wrong review."
+    },
+    {
+      "claim": "the imported machinery is W239528's, not re-proved here",
+      "detail": "termination, discovery, cancellation, cleanup accounting and publication are imported from the accepted `baseline.py` and bound by digest. They were proved by that Job's suite. What this dossier proves is this Job's own specialization and the orchestration over real stores."
+    },
+    {
+      "claim": "the bounds are proposed, not validated against a review workload",
+      "detail": "180/300/60 are W239528's measured implementation numbers carried over. A review turn reads a one-file change rather than writing one, so they are a starting proposal a reviewer can move on the evidence."
+    },
+    {
+      "claim": "signal handling is not a SIGKILL claim",
+      "detail": "the handler is installed around the whole run so a signal during cancellation, cleanup or publication still leaves an outcome on disk. `SIGKILL` is not caught and nothing here pretends otherwise."
+    },
+    {
+      "claim": "cumulative verification spending is partly UNKNOWN",
+      "detail": "`receipts` below are the retained measurements. Suite runs superseded within a claim, and ad-hoc driving during development, were not individually receipted; the cumulative figure carried in PROGRESS.md is larger than the retained sum for that reason and the difference is not estimated."
+    }
+  ],
+  "note": "Derived by packet.py from this dossier's retained files. Every digest, count and second is read at generation time; only `established`, `not_established` and the provider question are written prose.",
+  "operator_selected_inputs": [
+    {
+      "asks": "an absolute path for THIS run's own Job store, under the run root below and not the producer's. A fresh Job store is what makes this a separate execution.",
+      "member": "compose.instance.job_store"
+    },
+    {
+      "asks": "the accepted v12 bundle directory holding baton-v12-stack.",
+      "member": "compose.instance.runtime_path"
+    },
+    {
+      "asks": "the build commit of that bundle.",
+      "member": "compose.instance.build_commit"
+    },
+    {
+      "asks": "a FRESH run identity, e.g. independent-review-239533. It must not name a consumed instance; the Job identity is derived from it.",
+      "member": "compose.run_id"
+    },
+    {
+      "asks": "the claim under which the run is selected.",
+      "member": "compose.claim"
+    },
+    {
+      "asks": "the absolute path of this dossier's review_supervisor.py.",
+      "member": "compose.supervisor_path"
+    },
+    {
+      "asks": "the absolute path of the published worker-contract conformance vector, work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+      "member": "compose.vectors"
+    },
+    {
+      "asks": "the CLI build string the corrected image carries.",
+      "member": "compose.cli_build"
+    },
+    {
+      "asks": "the bounded egress network name. `none` is refused: the reviewer reaches an external Claude API.",
+      "member": "compose.provider_network"
+    },
+    {
+      "asks": "the credential provider.",
+      "member": "compose.credential_profile.api.provider"
+    },
+    {
+      "asks": "the credential reference. A VALID token is required: an expired one produces the failure path W239528 already recorded, not a review.",
+      "member": "compose.credential_profile.api.reference"
+    },
+    {
+      "asks": "the digest of the accepted evidence this candidate context profile rests on. An all-zero sentinel is refused.",
+      "member": "compose.evidence_digest"
+    }
+  ],
+  "participant": "baton.claude",
+  "programs": {
+    "attachment.py": "191192f3fc53d7769c2d03b31035d458d458eaaa345fc6a2fbec7cc9156cf4e4",
+    "attribution.py": "b348bcccdb5689ea60160ee4ed7d35623710a535ee1adcdbd4356285f69a018f",
+    "packet.py": "065ed1171aea7f1f6c2a5761109a8dcd6ef21d3e413932902da903ad442c39aa",
+    "preexisting_errors.py": "0a669c2187f005fed0b37a7e8ed3c97ff6bff24ede8ea3bac9b792c509cd20f7",
+    "review_bindings.py": "ace016345e49b73dcf0d0c28a7f9081d15243788706d9723ff3ed153dd2ed1f6",
+    "review_supervisor.py": "701fc686981e96f63eef06e9725608d5c72a782f0d6ff9f9b612d5d84c63b4af",
+    "snapshot_247947.py": "add9c59e961e39c3248d778e665caf14d1cb9b440dfe8e4e49ad10fb64f0c7d3",
+    "verify.py": "6c76ea3bb947044563374c515990ab897cd24819236d6747f592df7f04dbcdb4"
+  },
+  "provider_question": {
+    "answered_by": "the live run above, on 2026-09-23. The reviewer returned its own baton.review-report/1 with an `accepted` verdict and findings it verified by running the harness, and the manager derived that verdict from the frozen output and bound it to this checkpoint's base, head and tree -- re-derived independently in ATTRIBUTION-248565.json.",
+    "negative_answers_that_are_evidence_rather_than_bugs": [
+      "the reviewer writes no report, or a malformed one -- `review_verdict_from_result` refuses and the outcome holds with no readable verdict. `claude_agent._review_report` requires `findings` to be non-empty TEXT, and a malformed report is deliberately not a verdict: an exit status is not a decision.",
+      "the reviewer reports a base, head or tree other than the checkpoint's -- the cross-binding refuses and the outcome names both",
+      "the reviewer edits the checkout or attempts a commit -- its checkout is read-only and the criteria say so, so this appears as a failed turn rather than as a verdict"
+    ],
+    "not_a_negative_answer": "`changes-requested` or `rejected`. All three dispositions are successful reviews; the shortfall is a run that produced no attributed verdict at all.",
+    "question": "Given independently delivered criteria and read-only access to the retained proposal's exact bytes, does the production reviewer return its OWN valid `baton.review-report/1` -- a verdict from the allowed three, with non-empty findings it actually verified -- through the real adapter boundary, and does the manager derive that verdict from the frozen output and bind it to this checkpoint's base, head and tree?",
+    "why_deterministic_checks_cannot_answer_it": "every verdict in this dossier is minted from a fixture turn this implementer wrote the report for. What is unproved is whether a real reviewer, given only the criteria and the bytes, produces a report the adapter accepts at all."
+  },
+  "receipts": [
+    {
+      "checks": 35,
+      "claim": 244629,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 0.43275384600565303,
+      "receipt": "verification-1.json"
+    },
+    {
+      "checks": 38,
+      "claim": 244759,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 0.5900577230058843,
+      "receipt": "verification-2.json"
+    },
+    {
+      "checks": 38,
+      "claim": 244877,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 0.5885895419924054,
+      "receipt": "verification-3.json"
+    },
+    {
+      "checks": 64,
+      "claim": 247159,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 1.1679170720017282,
+      "receipt": "verification-4.json"
+    },
+    {
+      "checks": 79,
+      "claim": 247318,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 1.3253460949927103,
+      "receipt": "verification-5.json"
+    },
+    {
+      "checks": 86,
+      "claim": 247423,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 1.3053414070018334,
+      "receipt": "verification-6.json"
+    },
+    {
+      "checks": 88,
+      "claim": 247666,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 1.3256571759993676,
+      "receipt": "verification-7.json"
+    },
+    {
+      "checks": 96,
+      "claim": 247823,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 5.328163940997911,
+      "receipt": "verification-8.json"
+    },
+    {
+      "checks": 103,
+      "claim": 247870,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 9.069514465998509,
+      "receipt": "verification-9.json"
+    },
+    {
+      "checks": 106,
+      "claim": 247908,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 12.534635852993233,
+      "receipt": "verification-10.json"
+    },
+    {
+      "checks": 106,
+      "claim": 247947,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 12.45698677400651,
+      "receipt": "verification-11.json"
+    },
+    {
+      "checks": 108,
+      "claim": 247997,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 13.294443416991271,
+      "receipt": "verification-12.json"
+    },
+    {
+      "checks": 108,
+      "claim": 248032,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 21.35032132201013,
+      "receipt": "verification-13.json"
+    },
+    {
+      "checks": 108,
+      "claim": 248090,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 21.34568109900283,
+      "receipt": "verification-14.json"
+    },
+    {
+      "checks": 108,
+      "claim": 248135,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 21.342962219001492,
+      "receipt": "verification-15.json"
+    },
+    {
+      "checks": 111,
+      "claim": 248173,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 23.648867101001088,
+      "receipt": "verification-16.json"
+    },
+    {
+      "checks": 113,
+      "claim": 248209,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 36.40780342000653,
+      "receipt": "verification-17.json"
+    },
+    {
+      "checks": 138,
+      "claim": 248263,
+      "errors": 0,
+      "failures": 0,
+      "measured_seconds": 36.4567306980025,
+      "receipt": "verification-18.json"
+    }
+  ],
+  "receipts_note": "verify.py regenerates this document BEFORE running the suite, so `receipts` covers every retained receipt up to the run before the one that wrote it. The newest verification-N.json in the dossier is always the current one.",
+  "retained_receipt_seconds": 219.9717731710116,
+  "reused": {
+    "baseline.py": "f27f3cd766f9271c4b3eddb6c657bca4770d18c11a74f377e717bef23df18fd5",
+    "baseline_bindings.py": "d994cce02419fd82483560a541790f4b9d367f27d2b634a166bfbdb009ae2c5e",
+    "src/baton_v12/worker_manager/offers.py": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+    "src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "src/baton_v12/worker_manager/store.py": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b",
+    "tools/stage_execution.py": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801"
+  },
+  "reviewer_measurements": [
+    {
+      "evidence": "review-evidence-247699.json",
+      "seconds": 0.5472191309963819,
+      "tests": 5
+    },
+    {
+      "evidence": "review-evidence-247855.json",
+      "seconds": 4.0564750299963634,
+      "tests": 8
+    },
+    {
+      "evidence": "review-evidence-247893.json",
+      "seconds": 7.7500189900019905,
+      "tests": 15
+    },
+    {
+      "evidence": "review-evidence-247931.json",
+      "seconds": 4.491119176993379,
+      "tests": 5
+    },
+    {
+      "evidence": "review-evidence-247981.json",
+      "seconds": 0.0081756290019257,
+      "tests": null
+    },
+    {
+      "evidence": "review-evidence-248011.json",
+      "seconds": 0.7706253449869109,
+      "tests": 2
+    },
+    {
+      "evidence": "review-evidence-248076.json",
+      "seconds": 8.60220004999428,
+      "tests": 1
+    },
+    {
+      "evidence": "review-evidence-248195.json",
+      "seconds": 2.20187589499983,
+      "tests": 3
+    },
+    {
+      "evidence": "review-evidence-248240.json",
+      "seconds": 13.059195031004492,
+      "tests": 2
+    },
+    {
+      "evidence": "review-evidence-248320.json",
+      "seconds": 0.006716730975313112,
+      "tests": 25
+    }
+  ],
+  "schema": "baton.independent-review-evidence/1",
+  "startup_proof": {
+    "bounds_used": {
+      "cleanup_seconds": 4,
+      "total_seconds": 12
+    },
+    "entry_point": "review_supervisor.main, with the documented --packet and --incarnation",
+    "real": [
+      "the packet validation",
+      "the imported-source check",
+      "the Job and control stores",
+      "the pre-submission survey",
+      "the supervised run",
+      "the published outcome"
+    ],
+    "result": "exit 1, outcome state `held`, held_because names that the run answered nothing about the reviewer. That is the honest answer for a run whose composition starts nothing -- it proves the startup path, NOT a review.",
+    "seams_supplied": {
+      "compose": "a Deferring composition, so no container can be started",
+      "image_inspect": "so no engine is reached"
+    },
+    "where": "test_review_bindings.TheDocumentedCommandsRunAgainstTheSUCCESSORSource.test_the_documented_startup_runs_review_supervisor_MAIN"
+  },
+  "subject": {
+    "authority_uuid": "7ea319da93384b77bc3ddea38602d7a3",
+    "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+    "control_store": "/home/sl/baton-runs/single-implementation-244216/db/control.sqlite3",
+    "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+    "work_id": "7ea319da-W1"
+  },
+  "suites": {
+    "test_attachment.py": "745828be466b9768b70b90ab626f969c552655b151fe9b4d85bbb03d259b09c6",
+    "test_packet.py": "746d1e03453f25ee0dd6a78899abef9b11c2e4b9c6871d2ed535d8932da83f4a",
+    "test_review_bindings.py": "b45c18cbb69f5c66de40025075db6178198a11330a936c75ba558775e21082a0",
+    "test_review_lifecycle.py": "78bc0df5aed5744cf20902bcf18940a905c990b99d8b3c5912f64aeccbf34aa3",
+    "test_review_supervisor.py": "f3f1df2448d61d31d01b81dd5a1d2ed2b7becdb2925201d3d41c1e65a80ae944"
+  },
+  "work": "W239533",
+  "worker_image": {
+    "config_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "reference": "baton-v12-claude-worker:w239528-244216"
+  }
+}

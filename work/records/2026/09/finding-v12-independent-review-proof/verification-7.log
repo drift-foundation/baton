@@ -114,6 +114,6 @@ test_no_review_attempt_at_all_is_a_shortfall (test_review_supervisor.TheVerdictE
 test_the_attachment_generation_is_the_one_the_row_records (test_review_supervisor.TheVerdictEvidenceReadsTheFrozenOutput.test_the_attachment_generation_is_the_one_the_row_records) ... ok
 
 ----------------------------------------------------------------------
-Ran 88 tests in 1.295s
+Ran 88 tests in 1.326s
 
 OK

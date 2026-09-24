@@ -1,0 +1,34 @@
+test_both_implementations_are_waiting_at_the_same_instant (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_both_implementations_are_waiting_at_the_same_instant) ... ok
+test_each_attempt_mounts_its_own_workspace (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_each_attempt_mounts_its_own_workspace) ... ok
+test_each_runs_on_its_own_allocated_producer (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_each_runs_on_its_own_allocated_producer) ... ok
+test_each_writes_its_own_line_from_its_own_source (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_each_writes_its_own_line_from_its_own_source) ... ok
+test_the_document_that_actually_served_is_this_arrangements (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_the_document_that_actually_served_is_this_arrangements)
+Otherwise these four cases would be re-running W130224's evidence. ... ok
+test_BOTH_jobs_reach_their_own_reviewers (test_two_jobs.EachJobCollectsItsOwnAttributedVerdict.test_BOTH_jobs_reach_their_own_reviewers)
+Two verdicts, not one -- R3: "only B review waiting, no pair". ... ok
+test_the_second_job_reaches_its_own_reviewer (test_two_jobs.EachJobCollectsItsOwnAttributedVerdict.test_the_second_job_reaches_its_own_reviewer)
+Its own, not the first Job's -- which is what a shared pool could ... ok
+test_each_binding_names_its_own_producer_and_one_work (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_each_binding_names_its_own_producer_and_one_work) ... ok
+test_the_document_declines_the_correction_round (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_document_declines_the_correction_round)
+The boundary is composed, not asserted in prose. ... ok
+test_the_document_the_product_validator_accepts (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_document_the_product_validator_accepts) ... ok
+test_the_per_job_facts_are_the_bindings_and_not_the_instance (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_per_job_facts_are_the_bindings_and_not_the_instance)
+Where each Job's Work, base and target actually come from. ... ok
+test_the_pool_this_gate_composes_is_four_stage_workers (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_pool_this_gate_composes_is_four_stage_workers)
+Two producers and two reviewers, and no third lane of its own. ... ok
+test_the_submission_carries_no_integration_stage (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_submission_carries_no_integration_stage) ... ok
+test_a_producer_reviewing_its_own_job (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_a_producer_reviewing_its_own_job) ... ok
+test_a_third_job_is_a_different_selection (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_a_third_job_is_a_different_selection) ... ok
+test_one_reviewer_for_both_jobs (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_one_reviewer_for_both_jobs)
+Not refused by the product -- refused by THIS gate's limit. ... ok
+test_one_source_for_both_jobs_is_NOT_refused (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_one_source_for_both_jobs_is_NOT_refused)
+Two lines of one target at one base is the supported shape. ... ok
+test_one_task_for_both_jobs (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_one_task_for_both_jobs)
+Two Jobs given one task document are one Job submitted twice. ... ok
+test_one_work_for_both_jobs (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_one_work_for_both_jobs)
+One Work is one line: their stages could not even be told apart. ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 2.172s
+
+OK

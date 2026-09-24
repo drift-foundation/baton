@@ -1,0 +1,35 @@
+{
+  "claim": 250539,
+  "scope": "store-free supervisor lifetime diagnostics; serving/cancellation/readers simulated; no real signals/stores/runtimes",
+  "cases": [
+    {
+      "case": "finalization",
+      "installed": true,
+      "restored": true,
+      "final": true,
+      "raised": "RuntimeError: finalization fault",
+      "outcome_exists": true,
+      "state": "held"
+    },
+    {
+      "case": "clock",
+      "installed": true,
+      "restored": true,
+      "final": true,
+      "raised": null,
+      "outcome_exists": true,
+      "state": "held"
+    },
+    {
+      "case": "publication",
+      "installed": true,
+      "restored": true,
+      "final": true,
+      "raised": "OSError: publication fault",
+      "outcome_exists": false,
+      "state": null
+    }
+  ],
+  "seconds": 0.0006401520222425461,
+  "temporary_path": "/tmp/w247941-review-250539-o9g4d2kq"
+}

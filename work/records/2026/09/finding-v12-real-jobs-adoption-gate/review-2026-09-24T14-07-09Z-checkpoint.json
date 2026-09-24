@@ -1,0 +1,15 @@
+{
+  "purpose": "Read-only candidate byte checkpoint; not approval or complete deployment manifest",
+  "claim": 257382,
+  "sha256": {
+    "v12/python/tools/single_worker.py": "9ef9813298e894733bfe6053cbddd8d9bf6809e0aaaa5bd1310c0505f34cbea5",
+    "v12/python/tools/stage_execution.py": "cd62d181e10354c2adf0ab6c7cee76790c64e2f61727a29714372ee49452b7b8",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "ab4cca34efee72a627eb978e6f956e95c18ed85b1f3d12c68267d88b6672f0db",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "f3bd76095d7190182811adb6c02975d6e007ac38cc90a7c2184b5bc238ca3ef2",
+    "v12/python/src/baton_v12/worker_manager/custody.py": "61f0bcadf7bd293825d8935e38e8f3eb9e7096a220248316b4a47daa7ea1b3d8",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "22b2770d2ac01473991d73c18da9bb26322ecf0f0a83640f5c7d421419e5dae1",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/verify_247941.py": "d91482147834752c01c06f45ebc7b7bd6261e6b73bed10b196749fe101b8a0ee",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_abandonment.py": "62b34bdf07f947c7b30bd724980f7aa8c803d2269e4a0182137d9310a9540851",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_routed_abandonment.py": "e81f444110946f4fa2755db97d3899e3fe48840ef286dd7afc20cec07242cbf3"
+  }
+}

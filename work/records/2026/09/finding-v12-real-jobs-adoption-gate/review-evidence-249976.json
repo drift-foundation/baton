@@ -1,0 +1,7 @@
+{
+  "tests": 1,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 4.477976401976775,
+  "scope": "one own supervisor success method, pinned manager source, deterministic fixture"
+}

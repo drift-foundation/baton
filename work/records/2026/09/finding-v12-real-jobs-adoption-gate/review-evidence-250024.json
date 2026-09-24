@@ -1,0 +1,10 @@
+{
+  "claim": 250024,
+  "mode": "static review; no tests rerun",
+  "supervisor_sha256": "3c86e02405b67682862d34c39f337d3518d77432e826dc670b2c32d8a29f82ba",
+  "test_sha256": "f46b846aaae1375842ff4349d7de094f2378fa0bc64b72653b0fdf862da276db",
+  "author_receipt": "verification-15.json",
+  "author_reported_completed_run_seconds": 25.820313595,
+  "author_reported_cumulative_seconds": 186.029222677,
+  "limitation": "handoff also mentions earlier suite timeout; no duration added by reviewer"
+}

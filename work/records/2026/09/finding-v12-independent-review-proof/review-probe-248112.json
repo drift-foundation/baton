@@ -1,0 +1,331 @@
+{
+  "outcome": {
+    "schema": "baton.independent-review-outcome/1",
+    "run_id": "independent-review-239533-deterministic",
+    "work": "W239533",
+    "claim": 247757,
+    "job_id": "job-independent-review-239533",
+    "state": "held",
+    "held_because": [
+      "this manager cannot prove positive cleanup for attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+      "a correction round was opened in this Job store: job-independent-review-239533/integration. a review-only deployment declines the correction round through `correction_policy: \"decline\"`, which `StageComposition.routed` honours before calling `review_driver.open_correction`, and this packet is refused without it. A round appearing anyway means that boundary did not hold, so this run reports it and refuses to call itself settled.",
+      "the run stopped 'overall-bound-exceeded' rather than completing its stages",
+      "the verdict recorded by attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790 did not complete: ContractRefusal: review attempt 'attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47\u2026 has no frozen result; a verdict is read from immutable output and never from a running one",
+      "attempt attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790 recorded no readable verdict. A review that produced no attributed report is not a review result; it is a review that did not happen."
+    ],
+    "retry": false,
+    "finished_at": "2026-09-02T00:00:00.000Z",
+    "uncertainty": [],
+    "submitted_at": "2026-09-02T00:00:00.000Z",
+    "serving_bound_seconds": 40,
+    "subject": {
+      "schema": "baton.independent-review-subject/2",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "declared_base": "4926bf08a7e028799941e2c9444ab23cb3fe5d39",
+      "base_object": "4926bf08a7e028799941e2c9444ab23cb3fe5d39",
+      "head_object": "8b000ed76f776cadda65fd9bacbdaa31937ed731",
+      "tree_object": "402d14780a144442d2db0f58b0e80e55effc68e8",
+      "checkpoint_digest": "sha256:08abf18e23d2f86e644a2007a78e6a4c38ad52c86fafcc2d668a849a4b9ad2bc",
+      "producer": {
+        "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44",
+        "worker_id": "implementation-worker",
+        "participant": "baton.claude",
+        "principal": "principal:baton.claude"
+      }
+    },
+    "preexisting_jobs": [
+      "job-a"
+    ],
+    "preexisting_stages": {
+      "job-a": [
+        "implementation"
+      ]
+    },
+    "accounting_scope": "this run accounts for Job 'job-independent-review-239533' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+    "submission_id": "independent-review-submission",
+    "provider_turn": {
+      "seconds": 180,
+      "origin": "job",
+      "setting": "provider_turn_seconds",
+      "default_seconds": 3600
+    },
+    "submission_failure": null,
+    "stopped": "overall-bound-exceeded",
+    "serving_failure": null,
+    "admissions": {
+      "review": 1
+    },
+    "gate_refusals": [],
+    "foreign_admissions": [
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      },
+      {
+        "act": "admit",
+        "why": "this run serves Job 'job-independent-review-239533' and this is a 'implementation' stage of Job 'job-never-runs'. The serving loop sweeps the whole store; this packet's workload is one Job, and admitting another one's stage would spend this run's invocation on it and start a container against work nobody selected here."
+      }
+    ],
+    "served_seconds": 41.0,
+    "cancellation": {
+      "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790": {
+        "runtime_id": "runtime-single-2",
+        "execution_runtime": "running",
+        "stage_state": "waiting",
+        "requested": true,
+        "answer": {
+          "fenced": {
+            "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.reviewer', 'generation': 2}",
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:2",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.reviewer', 'generation': 2}",
+            "attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+            "authority_operation_id": "authority.attempt.cancel:f2cfeed14a5d203ce10560b6b7a20cd53b9d3ed37bcf2525c763d9c6c17b59d8",
+            "reason": "overall-bound-exceeded"
+          },
+          "quiescence": {
+            "agent_settlement": "{'cooperative': False, 'participant': 'baton.reviewer', 'attempt_id': 'attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790', 'operation_id': 'attempt.cancel:f2cfeed14a5d203ce10560b6b7a20cd53b9d3ed37bcf2525c763d9c6c17b59d8', 'why': \"this deployment's worker is driven through a durable file exchange and carries no cooperative cancellation channel; the runtime stop below is the whole of the order this attempt receives\"}",
+            "ordered": true,
+            "runtime_id": "runtime-single-2",
+            "runtime_settlement": "{'runtime_id': 'runtime-single-2', 'ordered': True, 'state': 'quiescent', 'why': 'the engine reports it not running'}"
+          },
+          "session_quiescence": {
+            "agent_session_ref": null,
+            "requested": false,
+            "state": null,
+            "why": "no execution session holds the posture of attempt 'attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47\u2026; there is no conversation to interrupt"
+          }
+        }
+      },
+      "attempt-4a18d98fd7ae1045a030d50786b204014fa8af3b812111ddeac46a785dc3a893": {
+        "requested": true,
+        "runtime_id": null,
+        "execution_runtime": null,
+        "why": "this manager answers that it holds no attempt row for this identity and this run never launched it, so no runtime was allocated for it. That is not a claim that nothing is running anywhere."
+      }
+    },
+    "cleanup_sweeps": 8,
+    "stalled_ticks": 0,
+    "stalled_after": 6,
+    "final_canonical_read": true,
+    "stage_states": {
+      "review": "exceptional",
+      "integration": "blocked"
+    },
+    "admitted_attempts": [
+      "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+    ],
+    "observed_attempts": [
+      "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+      "attempt-4a18d98fd7ae1045a030d50786b204014fa8af3b812111ddeac46a785dc3a893"
+    ],
+    "started_order": [
+      "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+    ],
+    "unexpected_attempts": [],
+    "attempt_origins": {
+      "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790": "started",
+      "attempt-4a18d98fd7ae1045a030d50786b204014fa8af3b812111ddeac46a785dc3a893": "unallocated"
+    },
+    "unallocated_attempts": [
+      "attempt-4a18d98fd7ae1045a030d50786b204014fa8af3b812111ddeac46a785dc3a893"
+    ],
+    "cleanup": {
+      "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790": {
+        "cleanup": null,
+        "why": "no committed cleanup"
+      }
+    },
+    "outstanding_cleanup": [
+      "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+    ],
+    "workload": {
+      "review_attempts": [
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+      ],
+      "attachments": [
+        {
+          "attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+          "attachment_id": "review-163873889cb3ba28d02f7d11a97b03a072091ff70950fd28a60197079ba76bad",
+          "generation": 2,
+          "runtime_attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a"
+        }
+      ],
+      "verdicts": [],
+      "dispositions": [],
+      "corrections_opened": [],
+      "shortfalls": [
+        "the verdict recorded by attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790 did not complete: ContractRefusal: review attempt 'attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47\u2026 has no frozen result; a verdict is read from immutable output and never from a running one",
+        "attempt attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790 recorded no readable verdict. A review that produced no attributed report is not a review result; it is a review that did not happen."
+      ]
+    },
+    "correction_rounds_opened": [
+      "job-independent-review-239533/integration"
+    ],
+    "correction_containers_started": [],
+    "correction_limitation": "a review-only deployment declines the correction round through `correction_policy: \"decline\"`, which `StageComposition.routed` honours before calling `review_driver.open_correction`, and this packet is refused without it. A round appearing anyway means that boundary did not hold, so this run reports it and refuses to call itself settled.",
+    "interrupted": null,
+    "interruptions": []
+  },
+  "seconds": 2.0138608239940368
+}

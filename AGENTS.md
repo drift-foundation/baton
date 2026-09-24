@@ -387,6 +387,50 @@ The working process is unchanged by the layout:
   claim and derives the destination phase from the destination Route
   atomically; the recipient claims explicitly once the Work is ready.
 
+## Delivery continuity and bounded context — owner 2026-09-23
+
+Routine review corrections within accepted scope pass directly to the configured
+implementation endpoint (currently baton.impl); accepted delivery passes to the
+owner. Use an explicit pass to implementation rather than consuming an old
+next=baton.decide when correction is the disposition. Escalate only a concrete
+scope, authority or product decision, with the exact blocked operation. Partial
+progress or a voluntarily ended turn does not require renewed owner approval.
+Continue authorized work while possible; if execution must end, preserve an
+exact continuation checkpoint and release through the existing claim protocol.
+Review of partial progress must not turn ordinary continuation into an owner gate.
+This supersedes older owner-return defaults for routine corrections, including
+W239533 handoffs. It does not bypass independent acceptance or live-run selection.
+
+Keep the current PLAN/checkpoint concise: accepted facts, next executable
+milestone, exact owned paths, latest review/evidence references and concrete
+blockers. Preserve FINDING history and append-only reviews. On assignment or
+resume, read current canonical detail, complete current handoff, current scope,
+ownership, checkpoint, latest review and new discussion since the recorded
+checkpoint; follow referenced or conflicting history as needed. Record the
+last discussion/event position read. If the checkpoint is missing, ambiguous
+or stale, expand the read until current authority is clear. This explicitly
+supersedes blanket whole-dossier/all-historical-discussion rereading below and
+in docs/AGENTS-MAILBOX-PROTO.md for this team; never omit pending obligations,
+new owner decisions, relevant evidence or unresolved review findings.
+
+At a safe handoff, maintain a durable checkpoint before supported runner
+compaction or context replacement. Preserve participant identity, exclusive
+readiness consumption and claim safety; never reset an active worker or start
+a duplicate consumer. Compaction/replacement requires a verified supported
+runner operation, not deletion of session files. A claimed turn limit must name
+observed runner/provider evidence; normal end_turn is not proof of exhaustion.
+
+Human-owned WIP commits are useful recovery checkpoints after accepted slices
+or before context replacement when practical. They are neither acceptance
+evidence nor a prerequisite for continued authorized work. Agents never mutate
+Git state. Human absence is not a performance defect; unnecessary dependence
+on human approval for already-authorized continuation is.
+
+For early v12 workflow improvements, carry explicit continuation/correction/
+acceptance/owner-decision outcomes, durable continuation checkpoints and safe
+context maintenance into Jobs. These improvements are not extra adoption gates;
+initial adoption still follows independent review and concrete parallel-Job proof.
+
 ## Non-interactive managed turns
 
 - On every Work readiness turn, read current canonical state with `detail` and

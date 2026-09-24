@@ -1,0 +1,302 @@
+{
+  "candidate_parser": null,
+  "string_findings_parser": {
+    "schema": "baton.review-report/1",
+    "verdict": "accepted",
+    "findings": "harness.py prints READY and exits 0 when run"
+  },
+  "candidate": {
+    "outcome": {
+      "schema": "baton.independent-review-outcome/1",
+      "run_id": "independent-review-239533-deterministic",
+      "work": "W239533",
+      "claim": 247757,
+      "job_id": "job-independent-review-239533",
+      "state": "held",
+      "held_because": [
+        "this manager cannot prove positive cleanup for attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+        "the run stopped 'overall-bound-exceeded' rather than completing its stages",
+        "the verdict recorded by attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790 did not complete: ContractRefusal: review attempt 'attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47\u2026 froze a 'unable' result; a review that did not complete decided nothing",
+        "attempt attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790 recorded no readable verdict. A review that produced no attributed report is not a review result; it is a review that did not happen."
+      ],
+      "retry": false,
+      "finished_at": "2026-09-02T00:00:00.000Z",
+      "uncertainty": [],
+      "submitted_at": "2026-09-02T00:00:00.000Z",
+      "serving_bound_seconds": 40,
+      "subject": {
+        "schema": "baton.independent-review-subject/2",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "declared_base": "3eedc7b7626ef0f659f861a271f2c7f24d04f1cc",
+        "base_object": "3eedc7b7626ef0f659f861a271f2c7f24d04f1cc",
+        "head_object": "0ff09e97f1d9126db17e3317bf5f33c4eea243fe",
+        "tree_object": "402d14780a144442d2db0f58b0e80e55effc68e8",
+        "checkpoint_digest": "sha256:2ddccbec85579164acff65583bcf4f2c0aa5f7385215cb2b22ce68df19b74b90",
+        "producer": {
+          "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44",
+          "worker_id": "implementation-worker",
+          "participant": "baton.claude",
+          "principal": "principal:baton.claude"
+        }
+      },
+      "preexisting_jobs": [
+        "job-a"
+      ],
+      "preexisting_stages": {
+        "job-a": [
+          "implementation"
+        ]
+      },
+      "accounting_scope": "this run accounts for Job 'job-independent-review-239533' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+      "submission_id": "independent-review-submission",
+      "provider_turn": {
+        "seconds": 180,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      },
+      "submission_failure": null,
+      "stopped": "overall-bound-exceeded",
+      "serving_failure": null,
+      "admissions": {
+        "review": 1
+      },
+      "gate_refusals": [],
+      "foreign_admissions": [],
+      "served_seconds": 41.0,
+      "cancellation": {
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790": {
+          "runtime_id": "runtime-single-2",
+          "execution_runtime": "quiescent",
+          "stage_state": "answering",
+          "requested": true,
+          "answer": {
+            "fenced": {
+              "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.reviewer', 'generation': 2}",
+              "cause": "cancelled",
+              "fenced": true,
+              "gate": "runtime-quiescence:2",
+              "phase": "block"
+            },
+            "intent": {
+              "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.reviewer', 'generation': 2}",
+              "attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+              "authority_operation_id": "authority.attempt.cancel:f2cfeed14a5d203ce10560b6b7a20cd53b9d3ed37bcf2525c763d9c6c17b59d8",
+              "reason": "overall-bound-exceeded"
+            },
+            "quiescence": {
+              "agent_settlement": "{'cooperative': False, 'participant': 'baton.reviewer', 'attempt_id': 'attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790', 'operation_id': 'attempt.cancel:f2cfeed14a5d203ce10560b6b7a20cd53b9d3ed37bcf2525c763d9c6c17b59d8', 'why': \"this deployment's worker is driven through a durable file exchange and carries no cooperative cancellation channel; the runtime stop below is the whole of the order this attempt receives\"}",
+              "ordered": true,
+              "runtime_id": "runtime-single-2",
+              "runtime_settlement": "{'runtime_id': 'runtime-single-2', 'ordered': True, 'state': 'quiescent', 'why': 'the engine reports it not running'}"
+            },
+            "session_quiescence": {
+              "agent_session_ref": null,
+              "requested": false,
+              "state": null,
+              "why": "no execution session holds the posture of attempt 'attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47\u2026; there is no conversation to interrupt"
+            }
+          }
+        }
+      },
+      "cleanup_sweeps": 8,
+      "stalled_ticks": 0,
+      "stalled_after": 6,
+      "final_canonical_read": true,
+      "stage_states": {
+        "review": "answering"
+      },
+      "admitted_attempts": [
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+      ],
+      "observed_attempts": [
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+      ],
+      "started_order": [
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+      ],
+      "unexpected_attempts": [],
+      "attempt_origins": {
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790": "started"
+      },
+      "unallocated_attempts": [],
+      "cleanup": {
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790": {
+          "cleanup": null,
+          "why": "no committed cleanup"
+        }
+      },
+      "outstanding_cleanup": [
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+      ],
+      "workload": {
+        "review_attempts": [
+          "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+        ],
+        "attachments": [
+          {
+            "attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+            "attachment_id": "review-163873889cb3ba28d02f7d11a97b03a072091ff70950fd28a60197079ba76bad",
+            "generation": 2,
+            "runtime_attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a"
+          }
+        ],
+        "verdicts": [],
+        "dispositions": [],
+        "corrections_opened": [],
+        "shortfalls": [
+          "the verdict recorded by attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790 did not complete: ContractRefusal: review attempt 'attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47\u2026 froze a 'unable' result; a review that did not complete decided nothing",
+          "attempt attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790 recorded no readable verdict. A review that produced no attributed report is not a review result; it is a review that did not happen."
+        ]
+      },
+      "correction_rounds_opened": [],
+      "correction_containers_started": [],
+      "correction_limitation": "`StageComposition.routed` calls `review_driver.open_correction` unconditionally when a verdict answers `correction`, and the composed deployment exposes no configuration, bound or operand that declines it. A review-only run cannot prevent the round through any supported boundary available to a supervisor; preventing it needs a change in the owning implementation scope. This run therefore refuses to call itself settled when one appears, rather than redefining its selected review-only scope to accommodate it.",
+      "interrupted": null,
+      "interruptions": []
+    },
+    "seconds": 2.203862266993383
+  },
+  "string_findings": {
+    "outcome": {
+      "schema": "baton.independent-review-outcome/1",
+      "run_id": "independent-review-239533-deterministic",
+      "work": "W239533",
+      "claim": 247757,
+      "job_id": "job-independent-review-239533",
+      "state": "settled",
+      "held_because": [],
+      "retry": false,
+      "finished_at": "2026-09-02T00:00:00.000Z",
+      "uncertainty": [],
+      "submitted_at": "2026-09-02T00:00:00.000Z",
+      "serving_bound_seconds": 40,
+      "subject": {
+        "schema": "baton.independent-review-subject/2",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "declared_base": "9f3969bee5237e7af48cb8557b93a15cc62d7f4a",
+        "base_object": "9f3969bee5237e7af48cb8557b93a15cc62d7f4a",
+        "head_object": "941398359724dc24f0527749b850b885a970d5f9",
+        "tree_object": "402d14780a144442d2db0f58b0e80e55effc68e8",
+        "checkpoint_digest": "sha256:d4362e281c8a78c6208c03b74196f52ba94d8ab506de468c47de12b4a82189d3",
+        "producer": {
+          "writer_id": "writer-17f33e9b55a0b3c3d32134879cbcdc27db4623b30e8e06267b5724be155cbe44",
+          "worker_id": "implementation-worker",
+          "participant": "baton.claude",
+          "principal": "principal:baton.claude"
+        }
+      },
+      "preexisting_jobs": [
+        "job-a"
+      ],
+      "preexisting_stages": {
+        "job-a": [
+          "implementation"
+        ]
+      },
+      "accounting_scope": "this run accounts for Job 'job-independent-review-239533' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+      "submission_id": "independent-review-submission",
+      "provider_turn": {
+        "seconds": 180,
+        "origin": "job",
+        "setting": "provider_turn_seconds",
+        "default_seconds": 3600
+      },
+      "submission_failure": null,
+      "stopped": "completed",
+      "serving_failure": null,
+      "admissions": {
+        "review": 1
+      },
+      "gate_refusals": [],
+      "foreign_admissions": [],
+      "served_seconds": 3.0,
+      "cancellation": {
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790": {
+          "requested": true,
+          "runtime_id": "runtime-single-2",
+          "execution_runtime": "destroyed",
+          "why": "this manager observed the runtime destroyed"
+        }
+      },
+      "cleanup_sweeps": 0,
+      "stalled_ticks": 0,
+      "stalled_after": 6,
+      "final_canonical_read": true,
+      "stage_states": {
+        "review": "completed"
+      },
+      "admitted_attempts": [
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+      ],
+      "observed_attempts": [
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+      ],
+      "started_order": [
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+      ],
+      "unexpected_attempts": [],
+      "attempt_origins": {
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790": "started"
+      },
+      "unallocated_attempts": [],
+      "cleanup": {
+        "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790": {
+          "cleanup": "retained",
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist"
+        }
+      },
+      "outstanding_cleanup": [],
+      "workload": {
+        "review_attempts": [
+          "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790"
+        ],
+        "attachments": [
+          {
+            "attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+            "attachment_id": "review-163873889cb3ba28d02f7d11a97b03a072091ff70950fd28a60197079ba76bad",
+            "generation": 2,
+            "runtime_attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a"
+          }
+        ],
+        "verdicts": [
+          {
+            "attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+            "attachment_id": "review-163873889cb3ba28d02f7d11a97b03a072091ff70950fd28a60197079ba76bad",
+            "verdict": "accepted",
+            "result_id": "result-attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+            "result_digest": "sha256:2ce34bdddbeab09bc21ca41c4b57fb4623f145a406eb1e3ed4b58749e5da6ccd",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "base": "9f3969bee5237e7af48cb8557b93a15cc62d7f4a",
+            "head": "941398359724dc24f0527749b850b885a970d5f9",
+            "tree": "402d14780a144442d2db0f58b0e80e55effc68e8"
+          }
+        ],
+        "dispositions": [
+          {
+            "attempt_id": "attempt-27aae1ed74a751fbf3ed494bcfe9fcd78554548d66033fefc47e02b650c92790",
+            "verdict": "accepted"
+          }
+        ],
+        "corrections_opened": [],
+        "shortfalls": []
+      },
+      "correction_rounds_opened": [],
+      "correction_containers_started": [],
+      "correction_limitation": "`StageComposition.routed` calls `review_driver.open_correction` unconditionally when a verdict answers `correction`, and the composed deployment exposes no configuration, bound or operand that declines it. A review-only run cannot prevent the round through any supported boundary available to a supervisor; preventing it needs a change in the owning implementation scope. This run therefore refuses to call itself settled when one appears, rather than redefining its selected review-only scope to accommodate it.",
+      "interrupted": null,
+      "interruptions": []
+    },
+    "seconds": 0.5481410049978876
+  },
+  "seconds": 2.752298650011653
+}

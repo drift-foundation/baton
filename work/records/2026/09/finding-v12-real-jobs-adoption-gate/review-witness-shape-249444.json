@@ -1,0 +1,22 @@
+{
+  "correction_policy_in_document": "ABSENT",
+  "workers": [
+    "implementation",
+    "review",
+    "implementation",
+    "review",
+    "integration"
+  ],
+  "submitted_stages": {
+    "job-a": [
+      "implementation",
+      "review",
+      "integration"
+    ],
+    "job-b": [
+      "implementation",
+      "review",
+      "integration"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "claim": 253612,
+  "scope": "isolated exact method with inert stubs, not product integration proof",
+  "operand_cases": [
+    {
+      "stage": "bad",
+      "exception": "Refused"
+    },
+    {
+      "stage": [
+        1
+      ],
+      "exception": "Refused"
+    },
+    {
+      "stage": 42,
+      "exception": "Refused"
+    },
+    {
+      "stage": null,
+      "exception": "Refused"
+    },
+    {
+      "stage": {
+        "attempt_id": "other"
+      },
+      "exception": "Refused"
+    }
+  ],
+  "historical_mount_case": {
+    "exception": "Refused",
+    "message": "historical mount unavailable",
+    "calls": [
+      "mounted"
+    ]
+  },
+  "seconds": 0.006977084995014593
+}

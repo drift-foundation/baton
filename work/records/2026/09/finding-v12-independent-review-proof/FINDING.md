@@ -387,3 +387,110 @@ Review claim247547: review-2026-09-23T12-20-24Z.md. Independent committed-submis
 ## 2026-09-23T12:45:47.569527+00:00 — item 5 independently supported; lifecycle still outstanding
 
 Claim247699, review-2026-09-23T12-45-47Z.md. Five focused configuration/packet tests pass. Independent same-test baseline/current source comparison reproduces the same twelve errors (eight missing proposal, four missing reconciles), corroborating non-regression for the selected change; traceback absence alone was not proof. Measured test time2.361050477s. Items1–4/6 remain incomplete and packet NOT RUNNABLE. Supersedes the prior unresolved item5 corroboration concern only. Evidence review-evidence-247699.json and review-baseline-comparison-247699.json.
+
+
+## 2026-09-23T12:57:02.097283+00:00 — report contract diagnosed and composed verdicts independently proved
+
+review-2026-09-23T12-57-02Z.md (claim247796): findings lists are refused by _review_report; passing string findings through the existing fixture operand settles accepted and changes-requested with attributed frozen verdict and positive cleanup, zero correction rounds. Current fixture still has zero discoverable cases. Supersedes the claim247757 unknown-cause hypothesis only; failure coverage/source binding and complete packet remain unfinished, NOT RUNNABLE. Independent evidence review-probe-247796.json and review-changes-requested-247796.json,3.324525589s. Author unmeasured probe spending must remain unknown rather than excluded from an exhaustive total.
+
+
+## 2026-09-23T13:04:00.673225+00:00 — items1/2 accepted; item3 completion claim superseded
+
+review-2026-09-23T13-04-00Z.md claim247855: eight new lifecycle tests pass in4.056475030s. Independent successful lifecycle supported; admitted interruption/failure accounting partial. Missing admitted no-progress/uncertain-cleanup/shutdown-interruption cases, gate-order observation and total-bound assertions mean item3 remains incomplete, superseding author247823 completion claim. Items4/6 remain outstanding; NOT RUNNABLE. Direct continuation to baton.impl under M247805. Evidence review-evidence-247855.json and review-tests-247855.log.
+
+
+## 2026-09-23T13:10:01.374442+00:00 — gate ordering accepted; remaining item3 claims narrowed
+
+review-2026-09-23T13-10-01Z.md claim247893:15 lifecycle cases pass. Gate-state observation and exact outstanding identity accepted. Exact claimed nonfinishing bound case instead settles in3 simulated seconds with0 cleanup sweeps; no serving+cleanup bound proof. Shutdown-specific interruption assertion and admitted no-progress remain outstanding. Supersedes author247870 three-of-four-complete interpretation for bounds/shutdown. Evidence review-evidence-247893.json; measured8.306612300s. Direct implementation continuation; NOT RUNNABLE.
+
+
+## 2026-09-23T13:15:08.145296+00:00 — reached deadline and observed shutdown accepted
+
+review-2026-09-23T13-15-08Z.md claim247931 accepts previous R1/R2 corrections at the selected deterministic boundary;5 focused tests pass4.491119177s. Withheld admitted turn reaches deadline, controlled schedule remains within total, cancellation interruption observed and outcome published. Admitted no-progress and items4/6 remain unfinished. Evidence review-evidence-247931.json. Direct implementation continuation; NOT RUNNABLE.
+
+
+## 2026-09-23T13:20:42.954621+00:00 — successor source bytes accepted; item4 remains partial
+
+review-2026-09-23T13-20-42Z.md claim247981 verifies both106-file snapshots with zero missing/extra/drift; only stage_execution.py differs, at accepted6a212c3a... digest. Snapshot/path binding accepted. Supersedes author247947 item4-done claim: its required exact-source preparation/startup is still unexecuted. No-progress and complete packet remain outstanding; NOT RUNNABLE. Evidence review-evidence-247981.json,0.008175629s; no unchanged suite rerun.
+
+
+## 2026-09-23T13:25:28.271153+00:00 — successor composition accepted; startup claim corrected
+
+review-2026-09-23T13-25-28Z.md claim248011:2 focused tests pass0.770625345s. Actual composition and exact-manifest/import helper checks accepted. Generated startup program calls3 helpers, never main; supersedes author247997 main-executed/item4-complete interpretation. Actual disposable main entrypoint proof, admitted no-progress and full packet remain outstanding. Evidence review-evidence-248011.json. Direct implementation continuation; NOT RUNNABLE.
+
+
+## 2026-09-23T13:35:00.350586+00:00 — actual main startup accepted with explicit scope
+
+review-2026-09-23T13-35-00Z.md claim248076:actual main case passes8.602200050s, disposable stores/survey/submission/outcome, status1 no-runtime hold with Deferring composition and simulated image inspect. Closes main-never-called finding; does not establish successful reviewer execution through main. Admitted no-progress and full packet remain outstanding. Reported preliminary242s must remain visible separately from suite-only subtotal. Evidence review-evidence-248076.json; NOT RUNNABLE.
+
+
+## 2026-09-23T13:41:04.035546+00:00 — multi-Job fixture identity diagnosis
+
+review-2026-09-23T13-41-04Z.md claim248112: inherited states reads first Job; diagnostic public-status selection of REVIEW_JOB makes review complete with final positive cleanup. Still overall-bound-exceeded/stalled_ticks0, so serving-time no-progress conditions remain unproved. Current fixture also deliberately adds integration, reported as correction-round hold. Evidence review-probe-248112.json and review-job-selector-248112.json;4.183597788s. No candidate implementation edits; direct continuation, NOT RUNNABLE.
+
+
+## 2026-09-23T13:46:58.926666+00:00 — confirmed unallocated-attempt suppression of no-progress
+
+review-2026-09-23T13-46-58Z.md claim248158 traces42 real cleanup reads. Review cleanup is positive during serving; extra blocked-stage attempt has no runtime but is counted outstanding until shutdown origin classification excludes it as unallocated. Thus local serving/shutdown accountable-set mismatch, not necessarily changing observation, suppresses stall detection. Supersedes author248135 fourth-condition explanation. Exact supported-origin/local-supervisor continuation in review; no baseline/product edits authorized by this finding. Evidence review-cleanup-trace-248158.json,2.115041870s. NOT RUNNABLE.
+
+
+## 2026-09-23T13:52:06.553459+00:00 — no-progress logic accepted; origin-read interruption regression
+
+review-2026-09-23T13-52-06Z.md claim248195:3 no-progress cases pass2.201875895s. New _serving_origin uses _guarded with discarded interrupted=[]; injected KeyboardInterrupt returns foreign instead of stopping serving. Preserve ordinary exception fail-closed accounting but propagate termination to existing shutdown/publication handler; targeted admitted boundary regression required. Supersedes full item3-complete claim pending this regression fix. Evidence review-evidence-248195.json; NOT RUNNABLE.
+
+
+## 2026-09-23T13:57:49.093672+00:00 — origin-read interrupt fix independently accepted
+
+review-2026-09-23T13-57-49Z.md claim248240 resolves prior R1;2 focused regressions pass13.059195031s. Supervisor digest701fc686981e96f63eef06e9725608d5c72a782f0d6ff9f9b612d5d84c63b4af; Exception-only fallback preserves uncertainty and termination reaches shutdown/publication. Item3 correction resolved; item6 complete packet remains unfinished, NOT RUNNABLE. Evidence review-evidence-248240.json.
+
+
+## 2026-09-23T14:11:01.328954+00:00 — complete preparation independently accepted; live result not established
+
+review-2026-09-23T14-11-01Z.md claim248320 accepts consolidated item6 packet;25 checks pass0.006716731s, exact candidate digests review-packet-digests-248320.json. Supersedes prior preparation-awaiting-review status only. NOT RUNNABLE until owner resolves12 inputs, Authority preparation/handler evidence, fresh retained-subject checks and explicit bounded live selection. Separate main/real-lifecycle proof limits remain; W239533 stays open pending actual accepted result. Pass baton.decide.
+
+
+## 2026-09-23 — actual selected composer CLI refuses documentation metadata
+
+baton.prompt records owner execution of /tmp/prepare-w239533-248377.py.
+review_bindings.main passes selections["compose"] directly via **kwargs;
+the accepted template includes _manager_source_note, which compose does not
+accept. The CLI raises TypeError before entering compose. The selected root
+and selections.json exist; run/ does not exist. No worker was launched.
+This is a template/CLI compatibility defect missed by preparation acceptance
+and prompt input resolution, not an operator error.
+
+Stopgap: preserve selections.json unchanged and create a separately named
+executable selections copy omitting only compose._manager_source_note.
+Use the unchanged reviewed composer; preserve all substantive operands.
+Durable correction belongs to W239533: make template and CLI agree and test
+the actual selected template through the actual entrypoint. This note does
+not claim that the recovery composition or live review has succeeded.
+
+
+## 2026-09-23 — concrete live entrypoint refuses bounds documentation note
+
+Owner invocation of review_supervisor.py on independent-review-248377 refused
+before stores opened: bounds._note is unexpected. review_bindings copied this
+metadata from the accepted selections into PACKET.json; supervisor requires
+exactly the five execution-bound members. Packet hash
+4405c96d4bffea78eebda64eefb8f55ab07559fa1e16aa50b2a1fb9bb36912bc
+is preserved. This is a second template/composer/startup compatibility defect,
+not an operator error. Registration previously succeeded; no review was admitted
+by this refused invocation.
+
+Recorded stopgap: create PACKET-executable.json beside the original, removing
+only bounds._note, with all five limits and all artifact bindings unchanged.
+Validate the transformed document through the actual held_packet reader before
+writing it. Preserve both packet hashes. Permanent correction belongs to this
+Work: metadata normalization at composition and the actual resolved template
+through startup, not independent synthetic packet fixtures.
+
+
+## 2026-09-23T14:45:57.561764+00:00 — live evidence retained; independent reader operationally refused
+
+review-2026-09-23T14-45-57Z.md (claim248523) preserves executed/original packets, outcome and provider logs with hashes in live-review-248377/MANIFEST.json. Packet-only metadata removal and artifact checks pass; exact Docker runtime absent. Live outcome reports accepted55.409s/positive cleanup. Supported ControlStore.open_readonly refuses with OperationalError, so frozen attribution is not independently accepted. Cause remains unknown, no unsupported store fallback. Two previously logged metadata compatibility defects remain routine corrections; return baton.impl with no live rerun. Supersedes preparation-only/no-execution state, not acceptance obligations.
+
+
+## 2026-09-23T15:00:25.913896+00:00 — live independent review and template corrections accepted
+
+review-2026-09-23T15-00-25Z.md claim248639 supersedes prior incomplete acceptance. Supported pinned read-only opener now succeeds; one coherent public-reader snapshot independently derives exact retained accepted verdict, verifies populated independent identities and confirms retained/absent cleanup. Earlier OperationalError cause remains unknown.38 focused template/packet checks pass0.888220837s. Evidence review-attribution-248639.json and review-tests-248639.json/.log; retained original manifest unchanged. R1/R2 resolved for delivery; pass baton.decide for closure, no rerun. One live proof only, no reliability-rate or live disagreement claim.

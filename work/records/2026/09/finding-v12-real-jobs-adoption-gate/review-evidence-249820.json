@@ -1,0 +1,16 @@
+{
+  "claim": 249820,
+  "source_sha256": "df08f5d2d9a90d82cc35de96e3ccf285d8d8cf6b855fb2ac27581defe97c9aff",
+  "launched": {
+    "attempt-a": "review"
+  },
+  "generations": {},
+  "stage_of": {},
+  "job_of_attempt": null,
+  "verdicts": {},
+  "uncertainty": [
+    "the review attachment for attempt-a did not complete: ContractRefusal: an assignment generation is a whole assignment generation, counting from zero; this is none"
+  ],
+  "seconds": 0.2033722710039001,
+  "scope": "store-free recorder calls actual gate admit/launch and verdicts_of; no stores, worker, provider, or engine"
+}

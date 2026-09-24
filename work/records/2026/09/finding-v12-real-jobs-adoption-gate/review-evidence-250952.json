@@ -1,0 +1,16 @@
+{
+  "claim": 250952,
+  "pure_checks": [
+    "boundary refused /home/sl/baton-runs",
+    "boundary refused /home/sl/src/baton",
+    "consumed alias refused",
+    "both task documents address both roles",
+    "bootstrap store/record layout agrees"
+  ],
+  "recipe_checks": 5,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 0.4595774870249443,
+  "temporary_path": "/tmp/w247941-review-250952-i735_gys",
+  "scope": "pure validation plus temporary symlink and recipe checks; no stores/bootstrap/runtime/provider execution"
+}

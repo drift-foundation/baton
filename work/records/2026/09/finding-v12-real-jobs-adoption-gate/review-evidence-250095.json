@@ -1,0 +1,10 @@
+{
+  "parses": false,
+  "error": "IndentationError",
+  "line": 23,
+  "message": "unexpected indent",
+  "seconds": 6.515101995319128e-05,
+  "claim": 250095,
+  "scope": "parse only; no imports or execution",
+  "sha256": "37fe3887c079f388d681a1d8c478676d143529e006dafcb07e24b71ef1626e49"
+}

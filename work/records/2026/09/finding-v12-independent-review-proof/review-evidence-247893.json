@@ -1,0 +1,14 @@
+{
+  "tests": 15,
+  "errors": 0,
+  "failures": 0,
+  "seconds": 7.7500189900019905,
+  "claimed_nonfinishing_case": {
+    "state": "settled",
+    "stopped": "completed",
+    "served_seconds": 3.0,
+    "cleanup_sweeps": 0,
+    "outstanding_cleanup": []
+  },
+  "probe_seconds": 0.5565933100006077
+}

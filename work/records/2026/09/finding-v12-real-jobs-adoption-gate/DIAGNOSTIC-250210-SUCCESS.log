@@ -1,0 +1,54 @@
+runTest (__main__.MainAdmissions.runTest) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.604s
+
+OK
+{
+  "state": "settled",
+  "stopped": "serving-bound-exceeded",
+  "outcome": "/var/tmp/baton-w247941/v12-w71917-aa02_9tq/packet/run/outcome.json"
+}
+{
+  "admissions": {
+    "implementation": 2,
+    "review": 2
+  },
+  "first_turn_traceback": null,
+  "held_because": [],
+  "launch_homes": {
+    "attempt_directories": {
+      "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e": {
+        "entries": null,
+        "exists": false,
+        "path": "/var/tmp/baton-w247941/v12-w71917-aa02_9tq/launch/attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e"
+      },
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "entries": null,
+        "exists": false,
+        "path": "/var/tmp/baton-w247941/v12-w71917-aa02_9tq/launch/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      },
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+        "entries": null,
+        "exists": false,
+        "path": "/var/tmp/baton-w247941/v12-w71917-aa02_9tq/launch/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      },
+      "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c": {
+        "entries": null,
+        "exists": false,
+        "path": "/var/tmp/baton-w247941/v12-w71917-aa02_9tq/launch/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c"
+      }
+    },
+    "composed_launch_home": "/var/tmp/baton-w247941/v12-w71917-aa02_9tq/launch",
+    "fixture_launch_home": "/var/tmp/baton-w247941/v12-w71917-aa02_9tq/launch",
+    "same_realpath": true
+  },
+  "stage_states": "AttributeError: 'NoneType' object has no attribute 'canonical'",
+  "state": "settled",
+  "stopped": "serving-bound-exceeded",
+  "uncertainty": [],
+  "verdicts": [
+    "job-a",
+    "job-b"
+  ]
+}

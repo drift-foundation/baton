@@ -1,0 +1,6 @@
+{
+  "work/records/2026/09/finding-v12-independent-review-proof/test_review_lifecycle.py": "cd96ef9691b9992258242fda0fe4d2b064133e38d5258ad910bca2207a5bdfea",
+  "work/records/2026/09/finding-v12-independent-review-proof/review_supervisor.py": "84cb42f64c806e365e648306d67b9df08891a541b5268a2c0a3a510d46a3af1b",
+  "v12/python/tools/stage_execution.py": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801",
+  "v12/worker/claude_agent.py": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d"
+}

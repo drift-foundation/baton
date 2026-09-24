@@ -1,0 +1,16 @@
+{
+  "claim": 253647,
+  "scope": "isolated exact method with fake reader and failing root validation; no store/runtime",
+  "result": {
+    "fenced": {
+      "fenced": true,
+      "replayed": true
+    },
+    "cleanup": {
+      "cleanup": "retained",
+      "original_reason": "original"
+    }
+  },
+  "core_called": false,
+  "seconds": 0.006578753993380815
+}

@@ -42,28 +42,24 @@ no attribute of it is replaced, and `test_review_supervisor` holds this
 program to that by parsing it. Its `KINDS` constant stays exactly what it is:
 a statement about W239528's run, not a switch.
 
-NO CORRECTION ON CHANGES-REQUESTED IS THE SELECTED CONTRACT, and this program
-does not narrow it. A previous version of this docstring claimed that an opened
-correction round "belongs to W236087" and guaranteed only that no correction
-CONTAINER starts. Review 2026-09-23T11:30:47Z R4 refused that, correctly: it is
-a scope change proposed by prose, and no accepted implementation supplies the
-authority to assign a round in W239533's Job store to another Work.
+NO CORRECTION ON CHANGES-REQUESTED IS THE SELECTED CONTRACT, and it is now
+IMPLEMENTED rather than merely reported. Two earlier versions of this docstring
+got it wrong in opposite directions: one claimed an opened round "belongs to
+W236087", which review 2026-09-23T11:30:47Z R4 refused as a scope change
+proposed by prose; the next held the run AFTER the round had been opened, which
+review 2026-09-23T11:56:42Z R4 refused because "returning held does not undo
+that store effect".
 
-THE EXACT PRODUCT LIMITATION, reported rather than worked around.
-`StageComposition.routed` in `tools/stage_execution.py` calls
-`review_driver.open_correction` unconditionally when a verdict answers
-`correction`, and there is no configuration, bound or operand on the composed
-deployment that declines it. A review-only deployment therefore cannot prevent
-the round from being opened through any supported boundary available to a
-supervisor; preventing it needs a product change in the owning implementation
-scope, which this Job does not hold.
+Owner selection 247421 added `correction_policy` to the stage-execution
+deployment. `StageComposition.routed` honours it BEFORE calling
+`review_driver.open_correction`, `review_bindings` composes `decline`, and
+`held_packet` refuses a packet whose deployment does not carry it -- so the
+boundary is a precondition of running rather than a promise. What is declined
+is the ROUND, never the verdict.
 
-SO THIS RUN FAILS CLOSED INSTEAD OF REDEFINING SUCCESS. Its admission gate is
-closed over `review`, so no correction container can ever start; and if a
-correction round IS opened, the outcome is HELD with that named as the reason,
-carrying the exact limitation above. A `changes-requested` verdict is still a
-valid review result -- what is held is this run's claim to have stayed inside
-its selected scope, which is a different statement and the honest one.
+A `changes-requested` verdict is a SUCCESSFUL review and
+`test_review_lifecycle` drives one end to end: settled, one attributed verdict,
+zero correction rounds and zero correction containers.
 
 A `changes-requested` or `rejected` verdict is a SUCCESSFUL review. This
 program has no preference between the three dispositions and records whichever
@@ -115,17 +111,20 @@ VERDICTS = ("accepted", "changes-requested", "rejected")
 # tree would be circular. The deterministic suite asserts the two agree.
 DECLINE_CORRECTION = "decline"
 
-# THE PRODUCT LIMITATION THIS RUN CANNOT CLOSE, reported in its own words and
-# carried into the outcome so an owner reads it where the effect appears.
+# WHY A CORRECTION ROUND STILL HOLDS THIS RUN, now that it cannot ordinarily
+# happen. The limitation this named is CLOSED: owner selection 247421 added
+# `correction_policy`, `held_packet` refuses a packet whose deployment does not
+# carry `decline`, and `StageComposition.routed` never reaches
+# `open_correction` under it. The check below is therefore a belt-and-braces
+# read of the Job store's own stage records rather than a report of something
+# expected -- if a round appears anyway, the boundary did not hold and that is
+# a fault worth holding on, not a state to accommodate.
 CORRECTION_LIMITATION = (
-    "`StageComposition.routed` calls `review_driver.open_correction` "
-    "unconditionally when a verdict answers `correction`, and the composed "
-    "deployment exposes no configuration, bound or operand that declines it. "
-    "A review-only run cannot prevent the round through any supported "
-    "boundary available to a supervisor; preventing it needs a change in the "
-    "owning implementation scope. This run therefore refuses to call itself "
-    "settled when one appears, rather than redefining its selected "
-    "review-only scope to accommodate it.")
+    "a review-only deployment declines the correction round through "
+    "`correction_policy: \"decline\"`, which `StageComposition.routed` honours "
+    "before calling `review_driver.open_correction`, and this packet is "
+    "refused without it. A round appearing anyway means that boundary did not "
+    "hold, so this run reports it and refuses to call itself settled.")
 
 _PACKET = ("schema", "run_id", "work", "claim", "note", "subject",
            "producer_run_root", "producer_control_store", "worker_image",
@@ -400,6 +399,39 @@ def _verdict_evidence(control, packet, admitted, kinds):
     return evidence
 
 
+def _serving_origin(control, attempt_id, launched, uncertainty):
+    """This attempt's origin during serving, failing closed on ERROR only.
+
+    The same `_origin` the shutdown accounting uses, asked per tick so the two
+    phases classify one identity one way. An ordinary failure answers
+    `FOREIGN`, which is NOT excluded: an identity this run cannot classify
+    keeps its cleanup obligation rather than quietly leaving the set the
+    no-progress rule reads.
+
+    ONLY `Exception`, NEVER `BaseException` -- and the first version of this
+    got it wrong in a way this project has been corrected for before. It used
+    `_guarded(..., interrupted=[])`, and `_guarded` catches `BaseException`
+    and appends the interruption to the list it is given; a DISPOSABLE list
+    discards it. So a `KeyboardInterrupt` raised while classifying an origin
+    was swallowed and `should_continue` could keep serving after an operator
+    had asked the run to stop. W239528's review 2026-09-23T00:50:59Z R1 found
+    exactly that shape in the progress read, and review 2026-09-23T13:52:06Z
+    found me reintroducing it here.
+
+    An interruption now travels out of the predicate, out of `serve`, and into
+    the shutdown handler that closes admission, cancels, accounts and
+    publishes -- which is the path that already exists.
+    """
+    try:
+        return _origin(control, attempt_id, launched, uncertainty)[0]
+    except Exception as failure:                             # noqa: BLE001
+        uncertainty.append(
+            f"the serving origin of {attempt_id} did not complete: "
+            f"{type(failure).__name__}: {failure}. An identity this run "
+            f"cannot classify keeps its cleanup obligation.")
+        return baseline.FOREIGN
+
+
 def _correction_rounds(job, job_id):
     """The implementation stages this Job's own records hold, if any.
 
@@ -552,6 +584,28 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
             return False
         accountable = {one: kind for one, kind in gate.launched.items()}
         accountable.update({one: kind for one, kind in seen.items()})
+        # SERVING AND SHUTDOWN MUST MEAN THE SAME THING BY "accountable".
+        #
+        # They did not. The shutdown's `classify()` drops an identity whose
+        # origin is `UNALLOCATED` -- "an identity the manager answers no row
+        # for, that this run never launched, is not a runtime" -- and this
+        # read did not, so a blocked stage's projection identity was counted
+        # OUTSTANDING here every tick while being excluded there. Review
+        # 2026-09-23T13:46:58Z traced it over 42 real cleanup reads: the
+        # review attempt was already `retained`/`absent` DURING serving, and
+        # the extra identity alone kept the outstanding set non-empty, which
+        # suppresses the no-progress rule permanently. Two accounts of the
+        # same set is the defect; one is the fix.
+        #
+        # IT FAILS CLOSED. `_serving_origin` answers `FOREIGN` when the read
+        # does not complete, and only `UNALLOCATED` is dropped -- so an
+        # identity this run cannot classify stays accountable and keeps its
+        # cleanup obligation. Dropping on uncertainty would be inventing the
+        # quiet the detector then reports.
+        accountable = {
+            one: kind for one, kind in accountable.items()
+            if _serving_origin(control, one, set(gate.launched),
+                               uncertainty) != baseline.UNALLOCATED}
         # ONLY `Exception`, NEVER `BaseException`. W239528's review
         # 2026-09-23T00:50:59Z R1: `_guarded` catches `BaseException`, so a
         # `KeyboardInterrupt` raised by the installed handler was swallowed

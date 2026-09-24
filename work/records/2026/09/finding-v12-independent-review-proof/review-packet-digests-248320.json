@@ -1,0 +1,10 @@
+{
+  "OPERATOR-239533.md": "f6d94a6ef4e23b363f785605afdb8cce5c7601e9c6a0a277b7f2b9d97b5410da",
+  "EVIDENCE-239533.json": "620c72c47171f2b59cb1076b7d1ce391973d5086547d82cabef7530e1bc022d5",
+  "SELECTIONS-239533.json": "bdfa41f432737480bbd7d73d72e12636fc8367e375827a4a6b7e83e093295e20",
+  "packet.py": "977a4a0ca67b034126e5e07fda8239764267bcfc1334ef9dc1fc9e028b7f1c0e",
+  "test_packet.py": "dd395fe0dabdded86c08d8d251a6e06c468d4e921baa94e1802809eec4ccb2ec",
+  "review_supervisor.py": "701fc686981e96f63eef06e9725608d5c72a782f0d6ff9f9b612d5d84c63b4af",
+  "review_bindings.py": "59e331819c8b943e4125a217400fcd3779da6c07d649493b95ae3d5b567b83ea",
+  "MANAGER-SOURCE-independent-review-247947.json": "9309556ee4aab04189555e8f3eb1a69ba661c2769db8ecf33595a63002a6696f"
+}

@@ -123,8 +123,9 @@ class ComposingCase(AttachmentCase):
         return held
 
     def written_selections(self, **overrides):
-        operands = self.operands(**overrides)
-        operands.pop("run_root")
+        operands = self.operands()
+        operands.update(overrides)
+        operands.pop("run_root", None)
         place = os.path.join(self.temporary.name, "selections.json")
         with open(place, "w", encoding="utf-8") as handle:
             json.dump({"compose": operands}, handle, indent=2, sort_keys=True)
@@ -454,6 +455,327 @@ class TheDocumentedCommandProducesAnAcceptedPacket(ComposingCase):
         self.assertNotEqual(answer.returncode, 0)
         self.assertFalse(os.path.exists(
             os.path.join(self.run_root, "PACKET.json")))
+
+
+@unittest.skipUnless(os.path.exists(VECTORS), "conformance vector required")
+class TheDocumentedCommandsRunAgainstTheSUCCESSORSource(ComposingCase):
+    """Owner 247663 item 4's second half, on the exact successor bytes.
+
+    Review 2026-09-23T13:20:42Z: "original owner247663 item4 includes
+    exact-successor documented preparation/startup, still unexecuted; do not
+    move that requirement into item6 then call 4 done." It is right -- I had
+    deferred it. These bind `PYTHONPATH` to
+    `/home/sl/baton-runs/independent-review-247947/manager-source`, which is
+    what `BOUND` names on the operator page, and run the documented
+    preparation and startup through it.
+
+    NO CONTAINER, IMAGE OR ENGINE. The startup is driven through
+    `review_supervisor.main`'s own `image_inspect` seam with a stub, so the
+    image check answers without docker; what is proved is that the SUCCESSOR
+    BYTES import, hold the packet and resolve `verify_imported_sources` inside
+    the snapshot.
+    """
+
+    SUCCESSOR = "/home/sl/baton-runs/independent-review-247947/manager-source"
+
+    def setUp(self):
+        if not os.path.isdir(self.SUCCESSOR):
+            self.skipTest(f"the successor snapshot {self.SUCCESSOR} is not "
+                          f"built; run snapshot_247947.py --claim <seq>")
+        super().setUp()
+
+    def bound_to_successor(self):
+        environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+        # THE SNAPSHOT, and nothing from the checkout's own v12/python. A path
+        # carrying both would prove nothing about which bytes answered.
+        environment["PYTHONPATH"] = os.pathsep.join(
+            [self.SUCCESSOR, HERE, SIBLING])
+        return environment
+
+    def test_the_documented_composition_runs_on_the_successor_bytes(self):
+        place = self.written_selections(
+            manager_source=self.SUCCESSOR, code_boundary=self.SUCCESSOR)
+        answer = subprocess.run(
+            [sys.executable, "-B", os.path.join(HERE, "review_bindings.py"),
+             "--selections", place, "--run-root", self.run_root],
+            capture_output=True, text=True, timeout=300,
+            env=self.bound_to_successor(), cwd=os.sep)
+        self.assertEqual(answer.returncode, 0,
+                         f"stdout={answer.stdout}\nstderr={answer.stderr}")
+        digests = json.loads(answer.stdout)
+        self.assertIn("PACKET.json", digests)
+        with open(os.path.join(self.run_root, "PACKET.json"),
+                  encoding="utf-8") as handle:
+            packet = json.load(handle)
+        self.assertEqual(packet["manager_source"]["path"], self.SUCCESSOR)
+        self.assertEqual(packet["code_boundary"], self.SUCCESSOR)
+        # AND THE SNAPSHOT IT HASHED IS THE ONE THE MANIFEST BINDS.
+        with open(os.path.join(HERE,
+                               "MANAGER-SOURCE-independent-review-247947.json"),
+                  encoding="utf-8") as handle:
+            manifest = json.load(handle)
+        self.assertEqual(packet["manager_source"]["file_count"],
+                         manifest["file_count"])
+        self.assertEqual(packet["manager_source"]["files"], manifest["files"])
+
+    def test_the_documented_startup_runs_review_supervisor_MAIN(self):
+        """`review_supervisor.main`, ACTUALLY INVOKED.
+
+        Review 2026-09-23T13:25:28Z: the previous version of this case called
+        `held_packet`, `verify_imported_sources` and `verify_worker_image`
+        individually and then printed success, while the docstring, the
+        handoff and PLAN all said `main` had run. It had not. Naming a check
+        after an entry point it never enters is the kind of claim that is
+        worse than no claim, and the reviewer was right to refuse it.
+
+        `main` is now invoked with the documented `--packet` and
+        `--incarnation`, under successor-only imports, with its OWN two seams:
+        `image_inspect` so no engine is reached, and `compose` so no container
+        can be started. Everything else is real -- the packet validation, the
+        imported-source check, the Job and control stores, `survey`, and the
+        supervised run that publishes an outcome.
+        """
+        # SMALL BOUNDS, because `main` serves on the REAL wall clock -- there
+        # is no injected monotonic through the documented entry point, and
+        # there should not be. At the packet's own 300/60 this case spent 242
+        # seconds sleeping through a serving loop to prove a startup path;
+        # 12/4 proves the same path in seconds. The ARITHMETIC of the bounds
+        # is proved separately on a controlled clock in
+        # `test_review_lifecycle.TheTotalBoundHoldsWhenTheRunCannotFinish`.
+        place = self.written_selections(
+            manager_source=self.SUCCESSOR, code_boundary=self.SUCCESSOR,
+            supervisor_path=os.path.join(HERE, "review_supervisor.py"),
+            bounds={"turn_seconds": 180, "total_seconds": 12,
+                    "cleanup_seconds": 4, "review_invocations": 1,
+                    "retry": False})
+        composing = subprocess.run(
+            [sys.executable, "-B", os.path.join(HERE, "review_bindings.py"),
+             "--selections", place, "--run-root", self.run_root],
+            capture_output=True, text=True, timeout=300,
+            env=self.bound_to_successor(), cwd=os.sep)
+        self.assertEqual(composing.returncode, 0, composing.stderr)
+
+        program = (
+            "import json, sys, review_supervisor, tools, baton_v12\n"
+            "from baton_v12.contracts import ContractRefusal\n"
+            "\n"
+            "class Deferring:\n"
+            "    canonical = None\n"
+            "    def recover(self, *, now): return None\n"
+            "    def attach(self, workers): return None\n"
+            "    def drain(self, held, quiescent=None): return None\n"
+            "    def observe(self, stage):\n"
+            "        return {'claimed_by': None, 'runtime': None,\n"
+            "                'activity': None, 'output': None,\n"
+            "                'start_failure': None,\n"
+            "                'preparation_failure': None, 'exchange': None}\n"
+            "    def admit(self, stage, job):\n"
+            "        raise ContractRefusal('refused', 'precondition',\n"
+            "                              'this startup proof starts no runtime')\n"
+            "    def close(self): return None\n"
+            "    def __getattr__(self, name):\n"
+            "        return lambda *a, **k: None\n"
+            "\n"
+            "held = {'tools': tools.__file__, 'baton_v12': baton_v12.__file__}\n"
+            "status = review_supervisor.main(\n"
+            "    ['--packet', sys.argv[1], '--incarnation', 'startup-proof'],\n"
+            "    stream=sys.stderr,\n"
+            "    compose=lambda packet, job, control, stream: Deferring(),\n"
+            "    image_inspect=lambda reference: {\n"
+            "        'Id': json.load(open(sys.argv[1]))['worker_image']"
+            "['config_digest'],\n"
+            "        'RepoTags': [reference]})\n"
+            "held['status'] = status\n"
+            "print(json.dumps(held))\n")
+        answer = subprocess.run(
+            [sys.executable, "-B", "-c", program,
+             os.path.join(self.run_root, "PACKET.json")],
+            capture_output=True, text=True, timeout=600,
+            env=self.bound_to_successor(), cwd=os.sep)
+        self.assertIn("{", answer.stdout,
+                      f"main did not return\nstdout={answer.stdout}\n"
+                      f"stderr={answer.stderr}")
+        resolved = json.loads(answer.stdout.strip().split("\n")[-1])
+        # EVERY IMPORTED PACKAGE CAME OUT OF THE SNAPSHOT.
+        for name in ("tools", "baton_v12"):
+            with self.subTest(package=name):
+                self.assertTrue(resolved[name].startswith(self.SUCCESSOR),
+                                f"{name} resolved to {resolved[name]}")
+        # AND `main` REACHED ITS OWN ENDING RATHER THAN REFUSING AT STARTUP.
+        # Exit 2 is "refused before anything opened"; this must be past that.
+        self.assertNotEqual(resolved["status"], 2,
+                            f"main refused before opening anything:\n"
+                            f"{answer.stderr}")
+        # A run whose composition starts nothing is HELD, not settled -- which
+        # is the honest answer and is what exit 1 means.
+        self.assertEqual(resolved["status"], 1, answer.stderr)
+        # THE OUTCOME IS ON DISK, written by `main`'s own supervised run.
+        with open(os.path.join(self.run_root, "outcome.json"),
+                  encoding="utf-8") as handle:
+            outcome = json.load(handle)
+        self.assertEqual(outcome["schema"], "baton.independent-review-outcome/1")
+        self.assertEqual(outcome["state"], "held")
+        self.assertTrue(any("answered nothing about the reviewer" in one
+                            for one in outcome["held_because"]),
+                        outcome["held_because"])
+
+
+@unittest.skipUnless(os.path.exists(VECTORS), "conformance vector required")
+class TheACTUALShippedTemplateComposesAndStarts(ComposingCase):
+    """The template an operator is handed, through the entry points they run.
+
+    Review 2026-09-23T14:45:57Z R2, on two defects an OWNER found by running
+    the documented commands for real (FINDING, 2026-09-23):
+
+      * `review_bindings.main` passed `selections["compose"]` through as
+        `**kwargs`, so `_manager_source_note` raised `TypeError` before
+        `compose` was entered;
+      * `compose` copied `bounds` verbatim into `PACKET.json`, so `bounds._note`
+        made `review_supervisor.held_packet` refuse at startup.
+
+    EVERY EXISTING CASE MISSED BOTH, and the reason is worth stating: they all
+    write their own synthetic selections through `written_selections`, and a
+    document this test suite invents has no prose in it. So these cases read
+    THE SHIPPED FILE and keep its documentation members exactly as they are.
+
+    What they replace are the producer bindings and the twelve `<OWNER: ...>`
+    choices, because the shipped ones name the deployed store and this suite
+    opens a disposable one. The metadata under test -- `_manager_source_note`,
+    `bounds._note`, `producer._note`, `instance._note` and
+    `participants._independence` -- is the file's own.
+    """
+
+    SHIPPED = os.path.join(HERE, "SELECTIONS-239533.json")
+
+    def shipped_selections(self):
+        """The real document, with only its subject and open choices bound."""
+        with open(self.SHIPPED, encoding="utf-8") as handle:
+            document = json.load(handle)
+        compose = document["compose"]
+        substantive = self.operands()
+        # THE OPEN CHOICES AND THE SUBJECT. Everything else -- including every
+        # documentation member -- is left exactly as it ships.
+        for name in ("run_id", "claim", "work", "note", "image_reference",
+                     "image_digest", "cli_build", "provider_network",
+                     "evidence_digest", "credential_sources", "vectors",
+                     "supervisor_path", "manager_source"):
+            compose[name] = substantive[name]
+        compose["code_boundary"] = substantive["manager_source"]
+        # THE NESTED DOCUMENTS ARE UPDATED IN PLACE, NOT REPLACED. Replacing
+        # them would drop the very `_note` and `_independence` members these
+        # cases exist to drive, and the class would then pass by proving
+        # nothing -- which is what the first version of this did, caught by
+        # the case below that asserts the notes are still there.
+        for name in ("producer", "participants", "instance",
+                     "credential_profile"):
+            for member, value in substantive[name].items():
+                if isinstance(value, dict) and isinstance(
+                        compose[name].get(member), dict):
+                    compose[name][member].update(value)
+                else:
+                    compose[name][member] = value
+        for name, value in review_bindings.BOUNDS.items():
+            compose["bounds"][name] = value
+        place = os.path.join(self.temporary.name, "shipped-selections.json")
+        with open(place, "w", encoding="utf-8") as handle:
+            json.dump(document, handle, indent=2, sort_keys=True)
+        return place, document
+
+    def test_the_shipped_template_still_carries_the_notes_under_test(self):
+        """Otherwise this whole class would pass by proving nothing."""
+        place, document = self.shipped_selections()
+        compose = document["compose"]
+        self.assertIn("_manager_source_note", compose)
+        self.assertIn("_note", compose["bounds"])
+        self.assertIn("_note", compose["producer"])
+        self.assertIn("_note", compose["instance"])
+        self.assertIn("_independence", compose["participants"])
+
+    def test_the_documented_command_runs_the_shipped_template(self):
+        place, _ = self.shipped_selections()
+        answer = self.documented(place)
+        self.assertEqual(answer.returncode, 0,
+                         f"the shipped template refused:\n"
+                         f"stdout={answer.stdout}\nstderr={answer.stderr}")
+        self.assertNotIn("TypeError", answer.stderr)
+        self.assertIn("PACKET.json", json.loads(answer.stdout))
+
+    def test_the_written_packet_carries_no_documentation_member(self):
+        place, _ = self.shipped_selections()
+        self.assertEqual(self.documented(place).returncode, 0)
+        with open(os.path.join(self.run_root, "PACKET.json"),
+                  encoding="utf-8") as handle:
+            packet = json.load(handle)
+
+        def documentation(value, path="PACKET.json"):
+            held = []
+            if isinstance(value, dict):
+                for name, inner in value.items():
+                    if str(name).startswith(review_bindings.DOCUMENTATION):
+                        held.append(f"{path}.{name}")
+                    held.extend(documentation(inner, f"{path}.{name}"))
+            elif isinstance(value, list):
+                for index, inner in enumerate(value):
+                    held.extend(documentation(inner, f"{path}[{index}]"))
+            return held
+
+        self.assertEqual(documentation(packet), [])
+        self.assertEqual(sorted(packet["bounds"]),
+                         sorted(review_bindings.BOUNDS))
+
+    def test_the_startup_reader_accepts_the_packet_it_composed(self):
+        """`held_packet` -- the exact check that refused on the live run."""
+        import review_supervisor
+        place, _ = self.shipped_selections()
+        self.assertEqual(self.documented(place).returncode, 0)
+        held = review_supervisor.held_packet(
+            os.path.join(self.run_root, "PACKET.json"))
+        self.assertEqual(held["bounds"]["review_invocations"], 1)
+        self.assertEqual(held["bounds"]["total_seconds"],
+                         review_bindings.BOUNDS["total_seconds"])
+
+    def test_both_defects_are_still_defects_without_the_normalization(self):
+        """The fix is load-bearing, and it is in the right two places.
+
+        Neither entry point was made permissive: `compose` still has no
+        operand called `_manager_source_note`, and `held_packet` still
+        requires exactly the five bound members. What changed is that the
+        composition NORMALIZES, so neither ever sees prose again.
+        """
+        import review_supervisor
+        place, document = self.shipped_selections()
+        compose = dict(document["compose"])
+        compose.pop("run_root", None)
+
+        # DEFECT A, unchanged: the raw template still cannot be splatted.
+        with self.assertRaises(TypeError) as caught:
+            review_bindings.compose(run_root=self.run_root, **compose)
+        self.assertIn("_manager_source_note", str(caught.exception))
+
+        # DEFECT B, unchanged: a packet carrying `bounds._note` is refused at
+        # startup, which is exactly what the owner's live invocation hit.
+        self.assertEqual(self.documented(place).returncode, 0)
+        written = os.path.join(self.run_root, "PACKET.json")
+        with open(written, encoding="utf-8") as handle:
+            packet = json.load(handle)
+        packet["bounds"]["_note"] = document["compose"]["bounds"]["_note"]
+        annotated = os.path.join(self.temporary.name, "PACKET-annotated.json")
+        with open(annotated, "w", encoding="utf-8") as handle:
+            json.dump(packet, handle, indent=2, sort_keys=True)
+        with self.assertRaises(Exception) as refused:
+            review_supervisor.held_packet(annotated)
+        self.assertIn("_note", str(refused.exception))
+
+    def test_an_unknown_substantive_member_is_refused_by_name(self):
+        """Stripping prose must not also swallow a typo."""
+        place, document = self.shipped_selections()
+        document["compose"]["run_idd"] = "independent-review-typo"
+        with open(place, "w", encoding="utf-8") as handle:
+            json.dump(document, handle, indent=2, sort_keys=True)
+        answer = self.documented(place)
+        self.assertNotEqual(answer.returncode, 0)
+        self.assertIn("run_idd", answer.stderr + answer.stdout)
+        self.assertNotIn("TypeError", answer.stderr)
 
 
 def load_tests(loader, standard, pattern):                   # noqa: ARG001

@@ -1,0 +1,15 @@
+test_every_flag_the_inspect_step_prints_is_one_the_TOOL_accepts (test_two_jobs.TheOPERATORRecipePrintsOperandsThatAGREE.test_every_flag_the_inspect_step_prints_is_one_the_TOOL_accepts)
+The same question of `tools.job_manager status`. ... ok
+test_every_flag_the_run_step_prints_is_one_the_COMMAND_accepts (test_two_jobs.TheOPERATORRecipePrintsOperandsThatAGREE.test_every_flag_the_run_step_prints_is_one_the_COMMAND_accepts)
+Against the command's own `--help`, not against a list here. ... ok
+test_the_check_count_the_page_states_is_the_ACTUAL_count (test_two_jobs.TheOPERATORRecipePrintsOperandsThatAGREE.test_the_check_count_the_page_states_is_the_ACTUAL_count)
+Two stale `53 checks` survived a claim that added seven. ... ok
+test_the_inspect_step_names_the_stores_the_run_step_OPENS (test_two_jobs.TheOPERATORRecipePrintsOperandsThatAGREE.test_the_inspect_step_names_the_stores_the_run_step_OPENS)
+One store per axis across the whole page, or this fails. ... ok
+test_the_page_does_not_promise_a_document_it_may_not_write (test_two_jobs.TheOPERATORRecipePrintsOperandsThatAGREE.test_the_page_does_not_promise_a_document_it_may_not_write)
+The failure contract, on the page rather than in a docstring. ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.459s
+
+OK

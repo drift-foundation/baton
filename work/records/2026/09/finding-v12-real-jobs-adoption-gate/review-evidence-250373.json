@@ -1,0 +1,10 @@
+{
+  "claim": 250373,
+  "seconds": 0.1910573380009737,
+  "failure": "clock failed after serving and cleanup",
+  "handler_installed": true,
+  "handler_restored": false,
+  "outcome_exists": false,
+  "temporary_path": "/tmp/w247941-review-250373-vgsv33om",
+  "scope": "store-free fault injection; fake termination; no signals/stores/engine/provider"
+}

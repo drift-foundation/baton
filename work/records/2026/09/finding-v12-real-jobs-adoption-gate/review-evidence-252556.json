@@ -1,0 +1,78 @@
+{
+  "claim": 252556,
+  "scope": "pure submitted-document validation and limits resolution; no stores or commands executed",
+  "schema": "baton.v12.job-submission/2",
+  "limits": {
+    "job-a": {
+      "units": "seconds",
+      "scope": "per-invocation",
+      "compatibility_generation": 1,
+      "requested": {
+        "provider_turn_seconds": 180,
+        "verification_command_seconds": 180
+      },
+      "boundaries": {
+        "host_verification": {
+          "seconds": 180,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 180,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 180,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 180,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    },
+    "job-b": {
+      "units": "seconds",
+      "scope": "per-invocation",
+      "compatibility_generation": 1,
+      "requested": {
+        "provider_turn_seconds": 180,
+        "verification_command_seconds": 180
+      },
+      "boundaries": {
+        "host_verification": {
+          "seconds": 180,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 180,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 180,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 180,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    }
+  },
+  "seconds": 0.005818995006848127
+}

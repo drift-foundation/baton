@@ -1,0 +1,7 @@
+test_the_SUPERVISED_run_reaches_four_attempts_and_two_verdicts (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_the_SUPERVISED_run_reaches_four_attempts_and_two_verdicts)
+R4's success: the whole bounded run, over the composed deployment. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.478s
+
+OK

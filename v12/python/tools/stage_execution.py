@@ -4696,6 +4696,90 @@ class StageExecution:
                     code="capability")
         return cancel(attempt_id=attempt_id, reason=reason)
 
+    def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
+                        reclaim=None):
+        """Route the FOURTH ending to the worker that STARTED this attempt.
+
+        W247941. A faulted receiptless attempt has none of the three ordinary
+        authorizations, so `intake.abandon_attempt` is the only ending it can
+        reach -- and an orchestrator cannot perform it, because the adapter it
+        needs carries the deliveries that worker's start created. This routes
+        it exactly as `cancel_attempt` routes a stop.
+
+        BY THE RECORDED ALLOCATION AND NEVER BY ROLE. An attempt belongs to the
+        worker the scheduler reserved for it; picking the first worker of a
+        matching role would abandon through a composition that never launched
+        this container. Every one of the three ways that can be wrong is a
+        refusal here rather than a removal somewhere else.
+        """
+        recorded = allocation_of(self.pooled.store, attempt_id)
+        if recorded is None:
+            _refuse(f"attempt {attempt_id!r} has no recorded allocation, so "
+                    f"this deployment cannot say which worker started it; an "
+                    f"abandonment is declared through the composition that "
+                    f"holds that attempt's port and adapter",
+                    category="refused", code="precondition")
+        owners = {one["worker_id"]: one["operations"] for one in self.workers}
+        operations = owners.get(recorded["worker_id"])
+        if operations is None:
+            _refuse(f"attempt {attempt_id!r} is allocated to worker "
+                    f"{recorded['worker_id']!r}, which this deployment does "
+                    f"not compose", category="refused", code="precondition")
+        abandon = getattr(operations, "abandon_attempt", None)
+        if abandon is None:
+            _refuse(f"worker {recorded['worker_id']!r} composes no "
+                    f"abandonment capability", category="refused",
+                    code="capability")
+        # THE STAGE IS BOUND TO THE RECORDED ALLOCATION'S OWN ATTEMPT, here as
+        # well as in the worker: routing by allocation and then handing over
+        # somebody else's stage would defeat the binding the worker performs.
+        if type(stage) is not dict:
+            _refuse(f"an abandonment takes the attempt's own stage document; "
+                    f"this is a {type(stage).__name__}",
+                    category="integrity", code="schema")
+        if stage.get("attempt_id") != attempt_id:
+            _refuse(f"an abandonment names the stage of attempt "
+                    f"{attempt_id!r}; this one names "
+                    f"{stage.get('attempt_id')!r}",
+                    category="refused", code="precondition")
+        # AND THE REST OF THE STAGE IDENTITY, against the RECORDED allocation.
+        #
+        # Review 2026-09-24T09:35:15Z: "Stage IS caller-supplied." Measured
+        # under claim 255665: with only the attempt bound, an altered
+        # `stage_id`, `episode` or `kind` was ACCEPTED here.
+        #
+        # WHAT THAT IS AND IS NOT, corrected under claim 255929 after
+        # measuring it rather than reasoning about it. I wrote that `kind`
+        # "decides MOUNTS", so a review kind over an implementation attempt
+        # would recover the frozen checkpoint. IT DOES NOT.
+        # `StageComposition._prepare` branches on its OWN `self.role`, and
+        # `_recovered` reads the attempt's durable grant by attempt id; the
+        # caller's `job_id` reaches `line_for` only on a first preparation,
+        # which an attempt with a started runtime no longer has.
+        # `test_routed_abandonment` pins that invariant directly.
+        #
+        # SO THIS IS OPERAND HYGIENE AND IT IS WORTH HAVING AS THAT: a
+        # context that disagrees with the record is refused before any worker
+        # is reached, which is where a wrong operand should stop. It is not
+        # what keeps the tree correct, and this comment should not claim to be.
+        #
+        # THE ALLOCATION IS THE DURABLE ANSWER and this composition already
+        # read it to route: `stage_id`, `episode` and the lane are its own
+        # columns, so nothing here is derived from the operand it is checking.
+        for member, recorded_value in (("stage_id", recorded["stage_id"]),
+                                       ("episode", recorded["episode"]),
+                                       ("kind", recorded["lane"])):
+            if member in stage and stage[member] != recorded_value:
+                _refuse(f"an abandonment carries the attempt's own stage; "
+                        f"this one names {member} {stage[member]!r} and the "
+                        f"recorded allocation for {attempt_id!r} names "
+                        f"{recorded_value!r}. The stage decides which roots "
+                        f"this ending recovers, so a changed one is a "
+                        f"different tree rather than a different label",
+                        category="refused", code="precondition")
+        return abandon(attempt_id=attempt_id, reason=reason, stage=stage,
+                       seconds=seconds, reclaim=reclaim)
+
     # -- the owned observation and the two stage driver operations -----------
 
     def admit(self, stage, job=None):

@@ -1,0 +1,57 @@
+# The post-serving cases, proved to FAIL on the PRE-CORRECTION supervisor.
+#
+# A copy of this dossier with two_job_supervisor.py replaced by the bytes that
+# were in the tree before claim 250444, laid out so its SIBLING baseline
+# resolves and its digest bind still holds. Command:
+#
+#   cd <checkout>/v12/python
+#   BATON_V12_DISK_ROOT=/var/tmp/baton-w247941 \
+#   PYTHONPATH="<snapshot>:.:<copy>/gate" python -B -m unittest \
+#     test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.\
+#       test_a_fault_AFTER_serving_still_restores_and_still_publishes \
+#     ...test_a_PUBLICATION_that_faults_still_restores_the_handler \
+#     ...test_the_FINAL_CLOCK_faulting_no_longer_costs_the_outcome
+#
+# TWO OF THE THREE FAIL, and the third does not, which is the honest result:
+#
+#   * fault after serving  -> FAIL, `termination.restored` is False. This is
+#     the reviewer's finding reproduced by my own check.
+#   * the final clock      -> ERROR, RuntimeError propagates unguarded.
+#   * publication faults   -> PASSES on the old bytes too, because the old
+#     `finally` did cover the publication. That case is a regression guard
+#     rather than a proof of this claim's correction, and saying otherwise
+#     would be claiming credit for a check that was already green.
+#
+F.E
+======================================================================
+ERROR: test_the_FINAL_CLOCK_faulting_no_longer_costs_the_outcome (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_the_FINAL_CLOCK_faulting_no_longer_costs_the_outcome)
+The reviewer's exact injection, and what it should cost now.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/lifetime-proof-46br/gate/test_two_jobs.py", line 1618, in test_the_FINAL_CLOCK_faulting_no_longer_costs_the_outcome
+    measured = module.supervise(
+        job, control, composed, job_ids=("job-a", "job-b"),
+    ...<3 lines>...
+        monotonic=self.monotonic_for({}), termination=termination,
+        turns=self.turning(held))
+  File "/tmp/lifetime-proof-46br/gate/two_job_supervisor.py", line 469, in supervise
+    measured["finished_at"] = clock()
+                              ~~~~~^^
+  File "/tmp/lifetime-proof-46br/gate/test_two_jobs.py", line 1613, in clock
+    raise RuntimeError("the clock faulted")
+RuntimeError: the clock faulted
+
+======================================================================
+FAIL: test_a_fault_AFTER_serving_still_restores_and_still_publishes (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_a_fault_AFTER_serving_still_restores_and_still_publishes)
+The region my `finally` did not cover, entered deliberately.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/lifetime-proof-46br/gate/test_two_jobs.py", line 1574, in test_a_fault_AFTER_serving_still_restores_and_still_publishes
+    self.assertTrue(termination.restored)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 3 tests in 13.224s
+
+FAILED (failures=1, errors=1)

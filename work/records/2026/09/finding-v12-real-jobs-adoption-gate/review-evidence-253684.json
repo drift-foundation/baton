@@ -1,0 +1,24 @@
+{
+  "claim": 253684,
+  "scope": "AST comparison ignoring locations/comments, removes new capability/import only",
+  "files": [
+    {
+      "file": "v12/python/tools/single_worker.py",
+      "sha256": "25ce1daf8b4fe84b84e65aea3fd8d6b51533bfef4f4e17d033ba3317591adcce",
+      "removed_for_comparison": [
+        "_SingleWorker.abandon_attempt",
+        "_Operations.abandon_attempt"
+      ],
+      "remaining_ast_matches_pinned": true
+    },
+    {
+      "file": "v12/python/tools/stage_execution.py",
+      "sha256": "d1bd39ec99a968a8835135869c108440ef3be819bd75467f04077e3e1d03215a",
+      "removed_for_comparison": [
+        "StageExecution.abandon_attempt"
+      ],
+      "remaining_ast_matches_pinned": true
+    }
+  ],
+  "seconds": 0.07496715799788944
+}

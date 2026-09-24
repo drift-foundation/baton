@@ -1,0 +1,9 @@
+{
+  "claim": 249935,
+  "mode": "static review; no verification execution",
+  "supervisor_sha256": "496be6f83348f304489848913aee6a18a45151e99c9558bf7e5fe7d8a8a41e6b",
+  "confirmed": "generations_from uses worker_manager.attempts.assignment_of on gate.launched; both call sites pass control; missing activation retained as uncertainty",
+  "author_receipt": "verification-13.json",
+  "author_measured_seconds": 13.071588666,
+  "author_cumulative_seconds": 142.888887591
+}

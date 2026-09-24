@@ -1,0 +1,14 @@
+{
+  "claim": 249573,
+  "valid_submission_accepted": true,
+  "invalid_policy_refusal": "this composition produced a submission its own public reader refuses: ContractRefusal: a Job's terminal policy is one of report-and-hold; this is 'not-a-policy'",
+  "imports": [],
+  "seconds": 0.00012824800796806812,
+  "diagnostic_note": "Initial reviewer fixture call passed jobs positionally as submission_id; corrected to jobs keyword. No product finding from initial misuse.",
+  "candidate": {
+    "two_jobs.py": "85410921e1e738e6c847ff43e935df992a716a60a68f6c138e983ce024a7c5b8",
+    "verify_247941.py": "ba03ac0f60de343f8b1c6b4695c53d3c464e1e6217b3e4b356677f4f089b0f2f",
+    "test_two_jobs.py": "0c99a45a14736106c05a86d4a5567d1b0e6b3ad364966c9c9fcadea777ae27db",
+    "SELECTIONS-247941.json": "525639fd1b75a7fdaa17ec526b58212467201b92ea1678755d25cdc623ef8eb4"
+  }
+}

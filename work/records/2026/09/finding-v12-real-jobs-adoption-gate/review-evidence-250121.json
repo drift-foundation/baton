@@ -1,0 +1,26 @@
+{
+  "claim": 250121,
+  "diagnostic_parses": true,
+  "helpers": [
+    {
+      "class": "TheSHIPPEDTemplateComposesThroughTheACTUALCLI",
+      "function": "answering",
+      "line": 718,
+      "sets_composed": false
+    },
+    {
+      "class": "TheSHIPPEDTemplateComposesThroughTheACTUALCLI",
+      "function": "answering",
+      "line": 751,
+      "sets_composed": false
+    },
+    {
+      "class": "TheBoundedTwoJobRunStopsAndAccountsForItself",
+      "function": "turning",
+      "line": 1189,
+      "sets_composed": true
+    }
+  ],
+  "seconds": 0.003660494985524565,
+  "scope": "AST-only source check, no imports/runtime"
+}

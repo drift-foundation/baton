@@ -1,3 +1,98 @@
+# Current action — independent review 250440
+
+The retained-input assessment is accepted by
+[review-2026-09-23T19-33-41Z.md](review-2026-09-23T19-33-41Z.md).
+Return to baton.decide for selection of an eligible correction subject or a
+new neutral implementation/review pair. The existing accepted subject remains
+untouched. A successful production restore is still unproved; the concrete
+packet, exact commands, deterministic execution and cleanup evidence remain
+required after subject selection. No live execution is selected by this review.
+Engineering a particular review verdict is not a selected requirement.
+
+The assessment below remains supporting evidence; this current-action entry
+supersedes its suggestion that only composing a live packet remains.
+
+# Retained assessment — after claim 250376
+
+Owner reroute 250274 routed the remaining resume proof to implementation with
+prerequisites W239528 and W239533 closed satisfying, and asked for the real
+continuation input and any additional selection it needs. This claim read it
+rather than assuming it.
+
+## What the retained subject actually leaves
+
+[CONTINUATION-250376.md](CONTINUATION-250376.md) is the finding;
+`RESUME-STATE-250376.json` is the read-only receipt and `test_resume_state.py`
+asserts it in 10 checks.
+
+  * **The context to resume EXISTS and is ready.** The producer attempt's
+    provider context is finalized at generation 0 with status `ready` — the
+    exact predecessor a generation-1 restore requires. It survived the
+    runtime's destruction and the `retained` cleanup.
+  * **The verdict that would open a correction DOES NOT EXIST.** The line is
+    `accepted`, its accepted verdict is its integration eligibility, no
+    correction operation exists for the frozen checkpoint, and
+    `correction_feedback_of` refuses by name.
+  * **The subject cannot be reopened.** `attach_review` admits `review-ready`
+    only; `changes-requested` is the sole disposition producing
+    `correction-ready`; and the restore reader holds both the verdict and the
+    retained report to `changes-requested`.
+  * **The acceptance was honest.** The executed review criteria say every one
+    of the three verdicts is valid and that none is better for the reviewer.
+
+## The pinned product seam is retired
+
+PLAN pinned an `v12/worker/claude_agent.py` change as unavoidable for
+stage-specific requirements. The owner's split retires it: W239533's review Job
+carried its own task document with review criteria the implementation Job never
+saw. It was the COMBINED-Job shape that needed a seam. Asserted against the
+executed criteria. No product byte was changed and none is proposed.
+
+## THE SELECTION THIS JOB NEEDS — for the owner
+
+A new subject whose review honestly asks for a correction, because no packet
+can guarantee its own precondition. Recommended: a new implementation + review
+pair under neutral criteria, with a packet that treats `accepted` as a valid
+end state and records that no correction was required rather than manufacturing
+one. It also needs a fresh run identity — the old grant is consumed — and a
+bounded one-restore correction Job. The three options and their costs are in
+CONTINUATION-250376.md.
+
+## REMAINING
+
+The owner's selection. After it: compose the bounded correction packet, and the
+live question this Job exists to ask — whether the production CLI restores a
+real conversation, which is the one seam the deterministic evidence stands in
+for.
+
+## Ownership
+
+Reviewer-owned and immutable: every `review-*.md`, `review-*.json`/`.log` and
+`review-checks-*`. baton.claude owns the rest of this dossier.
+
+---
+
+# Current action — bounded resume continuation, owner 2026-09-23
+
+W239528 and W239533 are closed satisfying. This supersedes waiting/routing
+instructions below. Owner selected continuation; implementation routed250274.
+
+1. Revalidate actual retained context and review provenance. Accepted verdict
+   is not changes-requested: establish meaningful continuation input honestly.
+2. Prepare separate restored-context execution on supported disposable
+   coordination with deterministic providers. Prove actual restoration,
+   continued work, attribution, stopped execution and cleanup.
+3. Deliver independently reviewable digest-bound packet, exact commands and
+   specific live-provider question. Identify any genuine missing selection.
+
+Own this dossier initially; coordinate product paths before editing. Preserve
+accepted/failed artifacts and consumed grants. No live run, deployed mutation,
+destructive recovery, automatic integration or combined mega Job is selected.
+Routine corrections go directly to impl; accepted preparation or genuine
+owner decisions go to decide. W247941 remains independent of reuse completion.
+
+---
+
 # Current action — remaining resume proof after separate prerequisites
 
 Owner239562 and OWNER-SPLIT-20260922.md select separate Jobs and supersede

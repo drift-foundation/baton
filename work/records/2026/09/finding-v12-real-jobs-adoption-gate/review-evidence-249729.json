@@ -1,0 +1,8 @@
+{
+  "claim": 249729,
+  "sha256": "1338343f0ca3b31eecc7201e71ef316bc43c2225fcbe6d7c688e4db0dbabf8e3",
+  "supported_cancel_call": true,
+  "obsolete_cancel_call": false,
+  "publication_restore_finally": true,
+  "verification": "static; no new execution"
+}

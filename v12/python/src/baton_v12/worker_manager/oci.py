@@ -377,6 +377,28 @@ def _denied(message):
     raise ContractRefusal("policy", "denied", message)
 
 
+# W247941, owner selection 256143: THE TWO BOUNDS THIS ADAPTER DID NOT STATE.
+# Every other engine call in this package either carries a caller's `seconds`
+# or is a vector with its own (`stop_vector`'s 30). A force-removal and an
+# inspection had neither, so an allowance had nothing to clamp against here.
+#
+# THEY ARE CEILINGS FOR A BOUNDED CALLER AND NOTHING ELSE. Both calls were
+# previously unbounded -- `seconds=None`, which the port passes to the injected
+# capability as "no deadline" -- and an UNBOUNDED call still passes `None`,
+# byte for byte as before. Measured under claim 256145: applying these to
+# every call made an unbounded observation carry 120 where it had carried
+# nothing, which is a changed existing caller and was corrected on the spot.
+# The numbers are deliberately generous: a removal is a daemon round trip and
+# an inspection is a read, and neither is the place to discover a tight bound.
+REMOVE_SECONDS = 300
+OBSERVE_SECONDS = 120
+# AND THE LISTING, on the same rule: previously unbounded, so `None` still
+# passes `None`, and a bounded caller may only ask for less. Review
+# 2026-09-24T11:02:29Z [R1] asked for the vectors an allowance did not reach
+# to be closed; the label listing inside credential recovery is one of them.
+LIST_SECONDS = 120
+
+
 class EnginePort:
     """The ONE thing this core does to the world: run a closed argv.
 
@@ -2624,7 +2646,7 @@ class OciAdapter:
                 "agrees": why is None, "why": why,
                 "mounts": observed["mounts"]}
 
-    def recover_credentials(self, request):
+    def recover_credentials(self, request, *, seconds=None):
         """W6634: restart recovery, against the LIVE runtime or not at all.
 
         Fourth review [P1], twice over. Adoption compared a self-authored
@@ -2682,7 +2704,7 @@ class OciAdapter:
             # has no record" is not evidence about attempt-2.
             return {"lifecycle_state": "absent",
                     "orphans": home.discard_orphan(attempt)}
-        existing = self.list({"labels": labels})
+        existing = self.list({"labels": labels}, seconds=seconds)
         if len(existing) != 1:
             # AMBIGUOUS, so nothing here is exactly identified and nothing is
             # acted on. M60437 / W32385.
@@ -2699,7 +2721,7 @@ class OciAdapter:
                 home, attempt, existing,
                 f"the live runtime is {name_value(runtime_id)} and the "
                 f"lifecycle record names {name_value(record['runtime_id'])}")
-        observed = self.observe(runtime_id)
+        observed = self.observe(runtime_id, seconds=seconds)
         disagreement = _mounts_disagree(observed["mounts"], record)
         if disagreement is not None:
             # EXACTLY IDENTIFIED. The labels and the record agree on WHICH
@@ -2957,12 +2979,16 @@ class OciAdapter:
                        f"{name_value(self.launch_delivery.root)} is still "
                        f"present after removal"}
 
-    def list(self, request):
+    def list(self, request, *, seconds=None):
         """Every runtime carrying EXACTLY these labels, each one typed."""
+        from . import custody as _custody
+
         taken = boundaries.document(request, "a list request",
                                     required=("labels",))
         labels = _labels(taken["labels"])
-        answer = self.run(list_vector(self.engine, labels=labels))
+        answer = self.run(list_vector(self.engine, labels=labels),
+                          seconds=None if seconds is None
+                          else _custody.allowed(seconds, LIST_SECONDS))
         if answer["status"] != 0:
             _denied(f"the engine could not list runtimes: "
                     f"{name_value(answer['stderr'][:MAX_DIAGNOSTIC])}")
@@ -3228,7 +3254,8 @@ class OciAdapter:
                 "manager was proving it readable")
         return dict(subject, observed=walked)
 
-    def normalize_directory(self, store, *, assignment_id, which):
+    def normalize_directory(self, store, *, assignment_id, which,
+                            seconds=None, reclaim=None):
         """Normalize ONE of this attempt's roots, composed entirely in here.
 
         W43975 review 2026-08-30T11:32:34Z: `intake.py` must not reach through
@@ -3243,12 +3270,43 @@ class OciAdapter:
         """
         from . import custody as _custody
 
+        # W247941: THE ALLOWANCE LANDS ON THE PORT, NOT ON A NEW OPERAND.
+        # `custody_act`'s parameter list is an accepted signature guard -- "no
+        # operand of the composition can carry a path" pins it exactly -- and
+        # the bound does not need to be an operand to be enforced. The act and
+        # its reclamations all go through the engine port, so a port that
+        # clamps what it is asked to wait for clamps every vector the act
+        # issues. The vector, the identity and the reclamation are untouched.
+        #
+        # AND THE RECLAMATION DOES NOT SPEND THE WORK BUDGET. Review
+        # 2026-09-24T13:29:10Z [R2]: with one allowance for everything, a work
+        # budget exhausted by the act left the reclamation nothing -- so the
+        # margin reserved FOR reclamation could not be spent ON it, which is
+        # the opposite of a reserve. `seconds` is the work allowance and
+        # `reclaim` is the total; the ACT is the `run` vector and every other
+        # vector `custody_act` issues is reconciliation or reclamation, which
+        # is a distinction the verb makes rather than a guess.
+        #
+        # EACH VECTOR KEEPS ITS OWN MAXIMUM and an allowance can only lower
+        # it, which is what makes ONE decreasing budget cover a sequence of
+        # acts rather than restarting at each.
+        run = self.run
+        if seconds is not None:
+            def bounded(argv, *, seconds=None, _run=self.run, _work=seconds,
+                        _total=reclaim if reclaim is not None else seconds):
+                most = (_custody.CUSTODY_ACT_SECONDS if seconds is None
+                        else seconds)
+                acting = len(argv) > 1 and argv[1] == "run"
+                return _run(argv, seconds=_custody.allowed(
+                    _work if acting else _total, most))
+
+            run = bounded
         return _custody.custody_act(
-            self.engine, self.run, image_digest=self.custodian_image_digest,
+            self.engine, run, image_digest=self.custodian_image_digest,
             store=store, assignment_id=assignment_id,
             operation="normalize", which=which)
 
-    def destroy_abandoned(self, command):
+    def destroy_abandoned(self, command, *, seconds=None):
         """W44716: remove the runtime an ABANDONED attempt leaves running.
 
         THE FOURTH SIBLING, on the rule that made the second and third.
@@ -3275,7 +3333,8 @@ class OciAdapter:
             required=documents.ABANDONED_DESTROY_COMMAND,
             optional=("operation",))
         return self._removed(taken["runtime_id"], "an abandoned-attempt",
-                             attempt_id=taken["runtime_attempt_id"])
+                             attempt_id=taken["runtime_attempt_id"],
+                             seconds=seconds)
 
     def destroy_deadline(self, command):
         """Remove the exact runtime under a manager-owned deadline authorization."""
@@ -3284,7 +3343,7 @@ class OciAdapter:
         return self._removed(taken["runtime_id"], "a deadline",
                              attempt_id=taken["runtime_attempt_id"])
 
-    def _removed(self, named, what, *, attempt_id=None):
+    def _removed(self, named, what, *, attempt_id=None, seconds=None):
         """Force-remove one exact identity and answer what became of it.
 
         NOTHING IN THE COMMAND IS INTERPRETED HERE. This core answers facts
@@ -3316,8 +3375,14 @@ class OciAdapter:
         # not a refusal -- the mismatched attempt's container would already be
         # gone, and the wrong credential would be next.
         self._bound_orphan(attempt_id, what)
-        self.run(destroy_vector(self.engine, runtime_id=runtime_id))
-        observed = self.observe(runtime_id)
+        # W247941: THE ALLOWANCE, CLAMPED. `None` is today's unbounded call;
+        # a bounded caller may only ask for less than `REMOVE_SECONDS`.
+        from . import custody as _custody
+
+        self.run(destroy_vector(self.engine, runtime_id=runtime_id),
+                 seconds=None if seconds is None
+                 else _custody.allowed(seconds, REMOVE_SECONDS))
+        observed = self.observe(runtime_id, seconds=seconds)
         return {"runtime_id": runtime_id, "state": observed["state"],
                 "why": observed["why"],
                 "credentials": self._torn_down(observed),
@@ -3629,7 +3694,7 @@ class OciAdapter:
             names.append(name)
         return names
 
-    def observe(self, runtime_id):
+    def observe(self, runtime_id, *, seconds=None):
         """POSITIVE ABSENCE, or an honest `uncertain`.
 
         An empty listing is not death: it is one question answered about a
@@ -3640,8 +3705,12 @@ class OciAdapter:
         `uncertain`, because a manager that treated confusion as death would
         release an assignment whose worker is still running.
         """
+        from . import custody as _custody
+
         runtime_id = boundaries.identity(runtime_id, "a runtime id")
-        answer = self.run(inspect_vector(self.engine, runtime_id=runtime_id))
+        answer = self.run(inspect_vector(self.engine, runtime_id=runtime_id),
+                          seconds=None if seconds is None
+                          else _custody.allowed(seconds, OBSERVE_SECONDS))
 
         def unknown(state, why, candidates=()):
             # `mounts` IS `None` on every branch that read no document: the

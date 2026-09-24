@@ -1,0 +1,14 @@
+{
+  "claim": 250059,
+  "mode": "static review; no tests rerun",
+  "supervisor_sha256": "f39070362336b30888965e91b2ca05f391f378f4df884a6e33f716bcd5e75f84",
+  "confirmed": [
+    "turn callback receives operations/job/control",
+    "main forwards monotonic and sleep",
+    "main clock only forwarded to composition; openers use baseline._moment; supervise clock omitted"
+  ],
+  "root_cause_zero_admissions": "not established",
+  "author_completed_runs_seconds": 211.889554646,
+  "author_timeout_estimate_seconds": 120,
+  "timeout_identity_overlap": "handoff this-claim vs prior-claim description unclear; do not deduplicate or add twice without identity"
+}

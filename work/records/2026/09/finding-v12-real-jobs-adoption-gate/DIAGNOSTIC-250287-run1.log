@@ -1,0 +1,594 @@
+runTest (__main__.MainAdmissions.runTest) ... {
+  "state": "settled",
+  "stopped": "serving-bound-exceeded",
+  "outcome": "/var/tmp/baton-w247941-250287-1/v12-w71917-ay94h150/packet/run/outcome.json"
+}
+{
+  "admissions": {
+    "implementation": 2,
+    "review": 2
+  },
+  "first_turn_traceback": null,
+  "held_because": [],
+  "launch_homes": {
+    "attempt_directories": {
+      "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e": {
+        "entries": null,
+        "exists": false,
+        "path": "/var/tmp/baton-w247941-250287-1/v12-w71917-ay94h150/launch/attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e"
+      },
+      "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": {
+        "entries": null,
+        "exists": false,
+        "path": "/var/tmp/baton-w247941-250287-1/v12-w71917-ay94h150/launch/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+      },
+      "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": {
+        "entries": null,
+        "exists": false,
+        "path": "/var/tmp/baton-w247941-250287-1/v12-w71917-ay94h150/launch/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+      },
+      "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c": {
+        "entries": null,
+        "exists": false,
+        "path": "/var/tmp/baton-w247941-250287-1/v12-w71917-ay94h150/launch/attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c"
+      }
+    },
+    "composed_launch_home": "/var/tmp/baton-w247941-250287-1/v12-w71917-ay94h150/launch",
+    "fixture_launch_home": "/var/tmp/baton-w247941-250287-1/v12-w71917-ay94h150/launch",
+    "same_realpath": true
+  },
+  "provenance": {
+    "modules": {
+      "baton_v12": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/__init__.py",
+        "from": "snapshot",
+        "sha256": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0"
+      },
+      "baton_v12.attempt_log_format": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/attempt_log_format.py",
+        "from": "snapshot",
+        "sha256": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f"
+      },
+      "baton_v12.authority": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/__init__.py",
+        "from": "snapshot",
+        "sha256": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066"
+      },
+      "baton_v12.authority.api": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/api.py",
+        "from": "snapshot",
+        "sha256": "fbc6684f9538f0f20177add42677792fe554e709dd15d4c15156bb19d3bfdaef"
+      },
+      "baton_v12.authority.core": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/core.py",
+        "from": "snapshot",
+        "sha256": "74aa1acb0537ff68dbfc087ae124864f1189e725051998e778a44c21a1f06991"
+      },
+      "baton_v12.authority.errors": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/errors.py",
+        "from": "snapshot",
+        "sha256": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce"
+      },
+      "baton_v12.authority.identity": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/identity.py",
+        "from": "snapshot",
+        "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189"
+      },
+      "baton_v12.authority.labels": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/labels.py",
+        "from": "snapshot",
+        "sha256": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec"
+      },
+      "baton_v12.authority.principals": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/principals.py",
+        "from": "snapshot",
+        "sha256": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30"
+      },
+      "baton_v12.authority.schema": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/schema.py",
+        "from": "snapshot",
+        "sha256": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb"
+      },
+      "baton_v12.authority.session": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/session.py",
+        "from": "snapshot",
+        "sha256": "9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2"
+      },
+      "baton_v12.authority.store": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/authority/store.py",
+        "from": "snapshot",
+        "sha256": "4d651a2a985f38c118d60be466e0c6f6e3012eea0efaa87ae80cec3a4ba0e726"
+      },
+      "baton_v12.checkpoint_profiles": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/checkpoint_profiles.py",
+        "from": "snapshot",
+        "sha256": "40bfdfff35d286819bb3f07a525a77b4542c9aec1c571028ae06734ac75b5e31"
+      },
+      "baton_v12.contracts": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/__init__.py",
+        "from": "snapshot",
+        "sha256": "e9656898d35869eebe3f906de5ee1722339e3e22c2088f8f48cbda26452ffeb7"
+      },
+      "baton_v12.contracts.canonical": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/canonical.py",
+        "from": "snapshot",
+        "sha256": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8"
+      },
+      "baton_v12.contracts.errors": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/errors.py",
+        "from": "snapshot",
+        "sha256": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50"
+      },
+      "baton_v12.contracts.frozen": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/frozen.py",
+        "from": "snapshot",
+        "sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed"
+      },
+      "baton_v12.contracts.manifest": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/manifest.py",
+        "from": "snapshot",
+        "sha256": "77cc26266af73d490db8b3bd2514ab62a3d5a563858339d02783e661217fff8b"
+      },
+      "baton_v12.contracts.pod": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/pod.py",
+        "from": "snapshot",
+        "sha256": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99"
+      },
+      "baton_v12.contracts.secrets": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/secrets.py",
+        "from": "snapshot",
+        "sha256": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b"
+      },
+      "baton_v12.contracts.validate": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/contracts/validate.py",
+        "from": "snapshot",
+        "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0"
+      },
+      "baton_v12.eventing": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/eventing.py",
+        "from": "snapshot",
+        "sha256": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486"
+      },
+      "baton_v12.integration": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/__init__.py",
+        "from": "snapshot",
+        "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4"
+      },
+      "baton_v12.integration.admission": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/admission.py",
+        "from": "snapshot",
+        "sha256": "9bf4cab3831255e341c01c2d06dc3f5ac07a817e5bb3ece197b4e365c97ea131"
+      },
+      "baton_v12.integration.driver": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/driver.py",
+        "from": "snapshot",
+        "sha256": "6b3e0ab90b0c840151df72462dbf593b03a327ffe62d5ee6935a41246b97fb19"
+      },
+      "baton_v12.integration.execution": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/execution.py",
+        "from": "snapshot",
+        "sha256": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e"
+      },
+      "baton_v12.integration.git_profile": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/git_profile.py",
+        "from": "snapshot",
+        "sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6"
+      },
+      "baton_v12.integration.managed_execution": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/managed_execution.py",
+        "from": "snapshot",
+        "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936"
+      },
+      "baton_v12.integration.oci_delivery": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/oci_delivery.py",
+        "from": "snapshot",
+        "sha256": "5c48fcfe48c0ff845a8c11413837c0efc1c2fb29c419f18ab7d3c23cc2e3adca"
+      },
+      "baton_v12.integration.queue": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/queue.py",
+        "from": "snapshot",
+        "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea"
+      },
+      "baton_v12.integration.reconciliation": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/reconciliation.py",
+        "from": "snapshot",
+        "sha256": "158d255e9799794f7af127ff9d0837803e27489d4d8c80e4d38efe7610c3bd54"
+      },
+      "baton_v12.integration.recovery": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/recovery.py",
+        "from": "snapshot",
+        "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732"
+      },
+      "baton_v12.integration.runtime": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/runtime.py",
+        "from": "snapshot",
+        "sha256": "ff027505380edd64b428c571fbd488ee950f3409efc0fd9af20acec94683d813"
+      },
+      "baton_v12.integration.schema": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/schema.py",
+        "from": "snapshot",
+        "sha256": "2ff94a4d7509545c326e94b20020f23670482d6438e064653891072fd0a41e7a"
+      },
+      "baton_v12.integration.store": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/integration/store.py",
+        "from": "snapshot",
+        "sha256": "06936f989e13f55509b97559c7086b1019b349ab637af35de3b5979ba3bb4eec"
+      },
+      "baton_v12.job_manager": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/__init__.py",
+        "from": "snapshot",
+        "sha256": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6"
+      },
+      "baton_v12.job_manager.delegation": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/delegation.py",
+        "from": "snapshot",
+        "sha256": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8"
+      },
+      "baton_v12.job_manager.documents": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/documents.py",
+        "from": "snapshot",
+        "sha256": "5fcd58b57c4b89c79bea0f72ce41df3da9b2aab4926d77ee22fd65ad7d3956d1"
+      },
+      "baton_v12.job_manager.ending": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/ending.py",
+        "from": "snapshot",
+        "sha256": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99"
+      },
+      "baton_v12.job_manager.episodes": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/episodes.py",
+        "from": "snapshot",
+        "sha256": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865"
+      },
+      "baton_v12.job_manager.execution_limits": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/execution_limits.py",
+        "from": "snapshot",
+        "sha256": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442"
+      },
+      "baton_v12.job_manager.integration_capacity": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/integration_capacity.py",
+        "from": "snapshot",
+        "sha256": "87b92b347f0391b1c3487be9ef3176d64c9567f0b5bf3d3a91544c481963317b"
+      },
+      "baton_v12.job_manager.manager": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/manager.py",
+        "from": "snapshot",
+        "sha256": "cc0439946aa3648441665e75f92163e8546d29fff3514d9f2ab5a13ebdd5e0ad"
+      },
+      "baton_v12.job_manager.projection": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/projection.py",
+        "from": "snapshot",
+        "sha256": "595008b9ddb06d947c3720eb5bd8928a53b65f2e7458bbd151f4a77d52fc6742"
+      },
+      "baton_v12.job_manager.review_driver": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/review_driver.py",
+        "from": "snapshot",
+        "sha256": "9a8a4a8193ff7b1c709c184dee3ba43a1b1e16e60891dcf31277279d2c220ae4"
+      },
+      "baton_v12.job_manager.scheduler": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/scheduler.py",
+        "from": "snapshot",
+        "sha256": "4849facf1fc92be574eff4224537c6bc8e6f053a4e99dfba98beab7daa7b41e1"
+      },
+      "baton_v12.job_manager.schema": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/schema.py",
+        "from": "snapshot",
+        "sha256": "0f8601611257c78d4b7102938980977b5e256fa772729e70f3104ece6edd8704"
+      },
+      "baton_v12.job_manager.store": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/store.py",
+        "from": "snapshot",
+        "sha256": "84141e0aab2ee45a58d7e51420c3c991802f037eeac7a51b3f4f3e686fa35c6d"
+      },
+      "baton_v12.job_manager.submission": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/job_manager/submission.py",
+        "from": "snapshot",
+        "sha256": "204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1"
+      },
+      "baton_v12.source_profiles": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/source_profiles/__init__.py",
+        "from": "snapshot",
+        "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+      },
+      "baton_v12.source_profiles.checkout": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/source_profiles/checkout.py",
+        "from": "snapshot",
+        "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+      },
+      "baton_v12.worker_manager": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/__init__.py",
+        "from": "snapshot",
+        "sha256": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099"
+      },
+      "baton_v12.worker_manager.attempt_logs": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/attempt_logs.py",
+        "from": "snapshot",
+        "sha256": "482631fcd56b1f1504b87d92c14a1f122451017f7337dbf2ffab63c887513062"
+      },
+      "baton_v12.worker_manager.attempts": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/attempts.py",
+        "from": "snapshot",
+        "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6"
+      },
+      "baton_v12.worker_manager.authority_port": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/authority_port.py",
+        "from": "snapshot",
+        "sha256": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6"
+      },
+      "baton_v12.worker_manager.boundaries": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/boundaries.py",
+        "from": "snapshot",
+        "sha256": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+      },
+      "baton_v12.worker_manager.context_delivery": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/context_delivery.py",
+        "from": "snapshot",
+        "sha256": "f17ce3c53e52e152e18da8c2900f9697bd3df67d3b9363d999c9a4215518def4"
+      },
+      "baton_v12.worker_manager.credentials": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/credentials.py",
+        "from": "snapshot",
+        "sha256": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df"
+      },
+      "baton_v12.worker_manager.custody": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/custody.py",
+        "from": "snapshot",
+        "sha256": "360772a109909cb382ae815d17f60ed7903252bf1b56a3944de8b301f33ac31b"
+      },
+      "baton_v12.worker_manager.deadlines": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/deadlines.py",
+        "from": "snapshot",
+        "sha256": "536789e1a2947cf601ca191f675c24252078aa5ecddcf4243314c0d59d5855ae"
+      },
+      "baton_v12.worker_manager.documents": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/documents.py",
+        "from": "snapshot",
+        "sha256": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014"
+      },
+      "baton_v12.worker_manager.events": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/events.py",
+        "from": "snapshot",
+        "sha256": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5"
+      },
+      "baton_v12.worker_manager.exchange": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/exchange.py",
+        "from": "snapshot",
+        "sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8"
+      },
+      "baton_v12.worker_manager.handshake": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/handshake.py",
+        "from": "snapshot",
+        "sha256": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e"
+      },
+      "baton_v12.worker_manager.intake": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/intake.py",
+        "from": "snapshot",
+        "sha256": "37ff14ffcad49e0eb744949fb3b0b4ef98103c94dd6c0459398492efae1fadb2"
+      },
+      "baton_v12.worker_manager.interrogation": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/interrogation.py",
+        "from": "snapshot",
+        "sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0"
+      },
+      "baton_v12.worker_manager.lanes": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/lanes.py",
+        "from": "snapshot",
+        "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c"
+      },
+      "baton_v12.worker_manager.launch": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/launch.py",
+        "from": "snapshot",
+        "sha256": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc"
+      },
+      "baton_v12.worker_manager.manifests": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/manifests.py",
+        "from": "snapshot",
+        "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866"
+      },
+      "baton_v12.worker_manager.oci": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/oci.py",
+        "from": "snapshot",
+        "sha256": "0a5b56fcd1266450e845942303f456f757bd6329ea0e156eea66273b29abe6ae"
+      },
+      "baton_v12.worker_manager.offers": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/offers.py",
+        "from": "snapshot",
+        "sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065"
+      },
+      "baton_v12.worker_manager.output": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/output.py",
+        "from": "snapshot",
+        "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d"
+      },
+      "baton_v12.worker_manager.posture_slots": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/posture_slots.py",
+        "from": "snapshot",
+        "sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81"
+      },
+      "baton_v12.worker_manager.provider_context": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/provider_context.py",
+        "from": "snapshot",
+        "sha256": "f7df4ff84813f6c007005cfdb509f8d667b598cfa456f67b4ef63aaebd659ee0"
+      },
+      "baton_v12.worker_manager.review_cycles": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/review_cycles.py",
+        "from": "snapshot",
+        "sha256": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83"
+      },
+      "baton_v12.worker_manager.schema": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/schema.py",
+        "from": "snapshot",
+        "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+      },
+      "baton_v12.worker_manager.sealing": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/sealing.py",
+        "from": "snapshot",
+        "sha256": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada"
+      },
+      "baton_v12.worker_manager.sessions": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/sessions.py",
+        "from": "snapshot",
+        "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd"
+      },
+      "baton_v12.worker_manager.source_boundary": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/source_boundary.py",
+        "from": "snapshot",
+        "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f"
+      },
+      "baton_v12.worker_manager.store": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/store.py",
+        "from": "snapshot",
+        "sha256": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b"
+      },
+      "baton_v12.worker_manager.workspaces": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/worker_manager/workspaces.py",
+        "from": "snapshot",
+        "sha256": "206998c3d344f1dab208799cfb9124785455154695943fa99237f9e18ff7fba7"
+      },
+      "tests": {
+        "file": "/home/sl/src/baton/v12/python/tests/__init__.py",
+        "from": "checkout",
+        "sha256": "ed81ea906939740dc126615a631de97b2785fb958b1d15dc394f995603d63c06"
+      },
+      "tests.integration": {
+        "file": "/home/sl/src/baton/v12/python/tests/integration/__init__.py",
+        "from": "checkout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tests.integration.fixtures": {
+        "file": "/home/sl/src/baton/v12/python/tests/integration/fixtures.py",
+        "from": "checkout",
+        "sha256": "4cd22c4ce19e77aa42992d8f7f93528e391fc00d80931ad5acc335f776acea9d"
+      },
+      "tests.integration.test_driver": {
+        "file": "/home/sl/src/baton/v12/python/tests/integration/test_driver.py",
+        "from": "checkout",
+        "sha256": "fb7ff03bcf2077228a69a026d16bda636cfb4061ac385bcc374566a4d9671af6"
+      },
+      "tests.integration.test_execution": {
+        "file": "/home/sl/src/baton/v12/python/tests/integration/test_execution.py",
+        "from": "checkout",
+        "sha256": "4f2e0f5a5c7380cbc9fdc639628a63d64057eb6b2ea078a7799c241c49c07b34"
+      },
+      "tests.integration.test_reconciliation": {
+        "file": "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py",
+        "from": "checkout",
+        "sha256": "85c582c08ae09b7c71adcbfcda01f2bad91d4e0226b559ac8eed74892458a412"
+      },
+      "tests.job_manager": {
+        "file": "/home/sl/src/baton/v12/python/tests/job_manager/__init__.py",
+        "from": "checkout",
+        "sha256": "b7dd17302f1776ffced042851cececbe58899d253c30a6da90d8ea907e60f12d"
+      },
+      "tests.job_manager.fixtures": {
+        "file": "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py",
+        "from": "checkout",
+        "sha256": "439a21f71a859bd4aa00092aa6bc8018d6c614825acd0a886c1e0853f91fc434"
+      },
+      "tests.job_manager.test_review_driver": {
+        "file": "/home/sl/src/baton/v12/python/tests/job_manager/test_review_driver.py",
+        "from": "checkout",
+        "sha256": "d63b5d877bbd5425bbfed44d21246fe3c4afffe11a50c621e4f74405b68687fe"
+      },
+      "tests.manager": {
+        "file": "/home/sl/src/baton/v12/python/tests/manager/__init__.py",
+        "from": "checkout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tests.manager.disk_roots": {
+        "file": "/home/sl/src/baton/v12/python/tests/manager/disk_roots.py",
+        "from": "checkout",
+        "sha256": "53dc1fa9b99697c8b6ea0597579ba05135a6a7707f798d15d9a8da2b5dd85c08"
+      },
+      "tests.manager.input_roots": {
+        "file": "/home/sl/src/baton/v12/python/tests/manager/input_roots.py",
+        "from": "checkout",
+        "sha256": "6d6fae239a3b01c72fefc01650ca198d2c46c24f14eb04528123c45210403590"
+      },
+      "tests.manager.test_attempts": {
+        "file": "/home/sl/src/baton/v12/python/tests/manager/test_attempts.py",
+        "from": "checkout",
+        "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0"
+      },
+      "tests.manager.test_custody": {
+        "file": "/home/sl/src/baton/v12/python/tests/manager/test_custody.py",
+        "from": "checkout",
+        "sha256": "d315fdb7193e304421413b64caf09ae85d9c646ffd9948e767b8721475b8459d"
+      },
+      "tests.manager.test_intake": {
+        "file": "/home/sl/src/baton/v12/python/tests/manager/test_intake.py",
+        "from": "checkout",
+        "sha256": "bf2b9a0b340bf6c62eb750cb9e6ebd5bb38e2eeb80466754fba90fb3e837369a"
+      },
+      "tests.manager.test_offers": {
+        "file": "/home/sl/src/baton/v12/python/tests/manager/test_offers.py",
+        "from": "checkout",
+        "sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6"
+      },
+      "tests.manager.test_output": {
+        "file": "/home/sl/src/baton/v12/python/tests/manager/test_output.py",
+        "from": "checkout",
+        "sha256": "3d5507c5bf4233359a104b8040814397c0a5031afc86b4ef1b534bd4136c72b5"
+      },
+      "tests.tools": {
+        "file": "/home/sl/src/baton/v12/python/tests/tools/__init__.py",
+        "from": "checkout",
+        "sha256": "fe3f7b045b521723216772d0a0d1410e4e2746f720fbd451ee6f97d26c481b7a"
+      },
+      "tests.tools.test_single_worker": {
+        "file": "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py",
+        "from": "checkout",
+        "sha256": "62d4888e3b2edc216d7c90c64656b9967c29ce9f3c67dc86e833b7e00c828a31"
+      },
+      "tests.tools.test_stage_execution": {
+        "file": "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py",
+        "from": "checkout",
+        "sha256": "f7c6b025d612f62aae0a4df6b73ea0bb25524311fc47d420d992820f9da74a28"
+      },
+      "tools": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/tools/__init__.py",
+        "from": "snapshot",
+        "sha256": "26c21454b5f7cfde863e5f615ee1cb5a33564a7026147c4ae6c8cf5446c60bf7"
+      },
+      "tools.integration_bundle": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/tools/integration_bundle.py",
+        "from": "snapshot",
+        "sha256": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942"
+      },
+      "tools.integration_worker": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/tools/integration_worker.py",
+        "from": "snapshot",
+        "sha256": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295"
+      },
+      "tools.single_worker": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/tools/single_worker.py",
+        "from": "snapshot",
+        "sha256": "236b85ab3ff4ee68f63fcfd485c72b7d60010b79a122c9b63825ba3a402ca720"
+      },
+      "tools.stage_execution": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/tools/stage_execution.py",
+        "from": "snapshot",
+        "sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801"
+      },
+      "tools.user_credentials": {
+        "file": "/home/sl/baton-runs/independent-review-247947/manager-source/tools/user_credentials.py",
+        "from": "snapshot",
+        "sha256": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b"
+      }
+    },
+    "production_not_from_snapshot": []
+  },
+  "stage_states": "AttributeError: 'NoneType' object has no attribute 'canonical'",
+  "state": "settled",
+  "stopped": "serving-bound-exceeded",
+  "uncertainty": [],
+  "verdicts": [
+    "job-a",
+    "job-b"
+  ]
+}ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.693s
+
+OK
+

@@ -1,0 +1,820 @@
+test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick. ... FAIL
+test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT)
+W103068's P1: the production composition supplies its own port. ... FAIL
+test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt)
+The positive half of the control above, so an absent receipt is ... FAIL
+test_a_completed_integration_returns_the_integrator_to_the_next_job (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_completed_integration_returns_the_integrator_to_the_next_job)
+W131187, driven end to end: the capacity comes back. ... FAIL
+test_a_configured_consumer_composes_and_resolves_its_judges (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_configured_consumer_composes_and_resolves_its_judges)
+W103068: the consumer's configuration survives a REAL composition. ... ok
+test_a_consumer_for_an_unbound_job_is_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_consumer_for_an_unbound_job_is_refused)
+A derived result belongs to one Job's line and target. ... ok
+test_a_correction_reopens_only_its_own_jobs_line (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_correction_reopens_only_its_own_jobs_line)
+A CHANGES-REQUESTED VERDICT IS A JOB'S OWN FACT. ... FAIL
+test_a_deployment_that_configures_no_instructions_is_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_deployment_that_configures_no_instructions_is_refused)
+And an unconfigured one says which member is missing rather than ... ok
+test_a_deployment_without_a_consumer_is_unchanged (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_deployment_without_a_consumer_is_unchanged)
+Absent is an answer, and every accepted document predates this. ... ok
+test_a_job_never_reserves_another_jobs_review_worker (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_job_never_reserves_another_jobs_review_worker)
+W130216 review [P1], exactly: job-b/review on the second Work must ... ok
+test_a_job_with_no_configured_consumer_selects_none (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_job_with_no_configured_consumer_selects_none)
+A Job whose derived branch has no consumer has no way to obtain ... ok
+test_a_judgment_execution_for_another_participant_is_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_judgment_execution_for_another_participant_is_refused)
+The execution and the judge are ONE fact: an execution configured for ... ok
+test_a_judgment_identity_that_collides_with_a_stage_worker_refuses (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_judgment_identity_that_collides_with_a_stage_worker_refuses)
+A judgment execution is its own identity and not a stage worker's -- ... ok
+test_a_judgment_work_this_authority_does_not_project_is_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_judgment_work_this_authority_does_not_project_is_refused)
+A judgment acquires its authorized assignment through the Work its ... ok
+test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted)
+`_allocation` consults the pre-reserve callback ONLY when it creates ... ok
+test_a_review_work_that_differs_from_the_implementation_is_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_review_work_that_differs_from_the_implementation_is_refused)
+One development line carries one Work, and `attach_review` binds the ... ERROR
+test_a_role_worker_on_another_work_reaches_no_allocation (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_role_worker_on_another_work_reaches_no_allocation)
+THE MEASURED BOUNDARY. With job-b's review worker left on Work A, ... FAIL
+test_a_source_worker_this_deployment_does_not_configure_is_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_source_worker_this_deployment_does_not_configure_is_refused) ... ERROR
+test_a_stage_with_no_allocation_is_refused_rather_than_guessed (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_stage_with_no_allocation_is_refused_rather_than_guessed) ... ok
+test_a_supplied_port_takes_precedence_over_construction (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_supplied_port_takes_precedence_over_construction)
+AN OPERATOR'S INJECTED CAPABILITY STAYS THE ONE IN USE, measured by ... FAIL
+test_a_workspace_aliasing_the_target_fetches_and_writes_nothing (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_workspace_aliasing_the_target_fetches_and_writes_nothing)
+W133129: THE BRANCH-LEVEL no-fetch/no-write CONTROL. ... FAIL
+test_a_workspace_that_is_the_target_is_the_same_repository (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_workspace_that_is_the_target_is_the_same_repository)
+The alias no-write control for the pre-write isolation guard: the ... FAIL
+test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool)
+THE TERMINAL HALF, driven inside a deployment serving two Jobs. ... FAIL
+test_an_incompatible_stage_does_not_consume_capacity_a_job_needs (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_an_incompatible_stage_does_not_consume_capacity_a_job_needs)
+FAULT CAPACITY, AT THE WORKER THE FAULT ACTUALLY THREATENED. ... FAIL
+test_an_unbound_job_is_refused_before_any_line_is_made (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_an_unbound_job_is_refused_before_any_line_is_made) ... ok
+test_an_unresolved_template_is_refused_by_name (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_an_unresolved_template_is_refused_by_name) ... ok
+test_both_jobs_code_at_once_on_their_own_workers_and_lines (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_both_jobs_code_at_once_on_their_own_workers_and_lines)
+THE FIRST THING A TWO-JOB DEPLOYMENT OWES, and every operand of it ... ok
+test_derived_judges_reconstruct_after_dispatch_without_second_launch (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_derived_judges_reconstruct_after_dispatch_without_second_launch) ... FAIL
+test_each_job_binds_its_own_source_base_works_and_target (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_each_job_binds_its_own_source_base_works_and_target) ... ok
+test_each_job_reaches_its_own_worker_for_every_role (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_each_job_reaches_its_own_worker_for_every_role)
+The whole of this cut in one assertion per role. Job B's stages are ... ok
+test_each_jobs_integration_binds_its_own_producer_task_and_port (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_each_jobs_integration_binds_its_own_producer_task_and_port)
+NO GLOBAL FALLBACK LEFT IN THE INTEGRATION OPERANDS. ... ok
+test_foreign_frozen_candidate_cannot_authorize_derived_receipts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_foreign_frozen_candidate_cannot_authorize_derived_receipts) ... FAIL
+test_instructions_that_do_not_match_the_pinned_digest_are_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_instructions_that_do_not_match_the_pinned_digest_are_refused)
+The pin is what makes reading a configured file safe: bytes that ... ok
+test_one_integrator_serves_two_jobs_serially_and_says_so (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_one_integrator_serves_two_jobs_serially_and_says_so)
+AND THE CAPACITY IS STILL ONE, which is the honest half of the ... ok
+test_one_job_reviews_while_the_other_is_still_coding (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_one_job_reviews_while_the_other_is_still_coding)
+THE OVERLAP, and it is the whole reason a pool exists. ... ok
+test_one_line_asked_of_a_two_job_deployment_names_its_job (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_one_line_asked_of_a_two_job_deployment_names_its_job)
+`line()` is the one-Job spelling and says so: a line belongs to a ... ok
+test_policy_drift_cannot_reuse_or_redispatch_derived_judgments (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments) ... FAIL
+test_readonly_integration_observation_keeps_the_bound_job (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_readonly_integration_observation_keeps_the_bound_job)
+The public observer reaches the real two-producer completion account. ... FAIL
+test_readonly_reconciled_completion_without_runtime_reaches_outer_observer (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer)
+A model-free import reaches status through the public read-only owner. ... FAIL
+test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs) ... FAIL
+test_rejected_derived_judgment_cannot_authorize_import (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_rejected_derived_judgment_cannot_authorize_import) ... FAIL
+test_the_configured_judgment_executions_are_held_per_job (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_configured_judgment_executions_are_held_per_job)
+W103068: THE CONSUMER'S EXECUTION CONFIGURATION, proved and selected. ... ok
+test_the_constructed_port_is_the_same_one_through_completion (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_constructed_port_is_the_same_one_through_completion)
+W103068: ONE CAPACITY FOR ONE JOB'S INTEGRATION, end to end. ... FAIL
+test_the_direct_integration_finalizes_the_dedicated_target (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_direct_integration_finalizes_the_dedicated_target)
+W133129, owner return137905: the transition the witness FOUND ... FAIL
+test_the_documented_command_writes_both_documents (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_documented_command_writes_both_documents) ... FAIL
+test_the_first_jobs_integration_reaches_the_configured_integrator (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_first_jobs_integration_reaches_the_configured_integrator)
+The control the second Job's case is read against: the one-Job ... ok
+test_the_judgment_subject_is_the_derived_candidate (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_judgment_subject_is_the_derived_candidate)
+W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own ... FAIL
+test_the_one_job_document_carries_no_bindings (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_one_job_document_carries_no_bindings)
+Two places for one fact is how they drift: `/1` says these things ... ERROR
+test_the_one_job_document_still_derives_its_own_binding (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_one_job_document_still_derives_its_own_binding)
+`/1` is not asked for a new member; its binding is derived from what ... ok
+test_the_same_job_reaches_the_same_line_every_time (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_same_job_reaches_the_same_line_every_time)
+`create_line` is create-or-recover by that derived identity, so a ... ok
+test_the_second_job_reaches_its_own_reviewer_and_verdict (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_second_job_reaches_its_own_reviewer_and_verdict)
+THE OTHER HALF OF THE OVERLAP, driven rather than assumed. ... ok
+test_the_second_jobs_integration_reaches_the_same_integrator (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_second_jobs_integration_reaches_the_same_integrator)
+W130216 review [P1], AND THE ACCEPTED POSITIVE THIS CHILD OWED. ... ok
+test_the_second_jobs_published_proposal_survives_the_advance (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_second_jobs_published_proposal_survives_the_advance)
+W133129: THE FIRST HALF OF THE BOUNDARY THIS TRAVERSAL FOUND. ... FAIL
+test_the_shipped_template_still_asks_every_operand_by_name (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_shipped_template_still_asks_every_operand_by_name)
+Otherwise this class would resolve fields nobody ships. ... ok
+test_the_worker_for_a_stage_is_the_scheduler_s_allocation (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_worker_for_a_stage_is_the_scheduler_s_allocation)
+Actual allocation evidence selects a worker; list order never ... ok
+test_the_written_deployment_is_the_one_the_product_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_deployment_is_the_one_the_product_accepts) ... FAIL
+test_the_written_submission_is_one_the_public_reader_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_submission_is_one_the_public_reader_accepts)
+R1's second half: the reader refused it for two missing members. ... FAIL
+test_two_accepted_jobs_share_one_integrator_one_at_a_time (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_two_accepted_jobs_share_one_integrator_one_at_a_time)
+SAME-TARGET SERIALIZATION, measured where the owners decide it. ... FAIL
+test_two_bindings_for_one_job_are_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_two_bindings_for_one_job_are_refused) ... ERROR
+test_two_jobs_materialize_two_distinct_persistent_lines (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_two_jobs_materialize_two_distinct_persistent_lines)
+THE LIMITATION, GONE. `create_line` derives its identity from ... ok
+test_two_of_three_judgments_are_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_two_of_three_judgments_are_refused)
+Two judgments out of three is not an authorization. ... ok
+test_unusable_judge_report_cannot_authorize_derived_receipts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_unusable_judge_report_cannot_authorize_derived_receipts) ... FAIL
+
+======================================================================
+ERROR: test_a_review_work_that_differs_from_the_implementation_is_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_review_work_that_differs_from_the_implementation_is_refused)
+One development line carries one Work, and `attach_review` binds the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6197, in test_a_review_work_that_differs_from_the_implementation_is_refused
+    held = self.refused_two(job_bindings=bindings)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6154, in refused_two
+    self.held_two(**members)
+    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6149, in held_two
+    self.composed_document(**self.two_jobs(**members)),
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 118, in composed_document
+    self.arranged_served = two_jobs.arrangement(
+                           ~~~~~~~~~~~~~~~~~~~~^
+        instance=given, jobs=jobs, extra_workers=extra,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        worker_of=lambda role, *, worker_id, participant, job:
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            workers[worker_id])
+            ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 201, in arrangement
+    _disjoint(jobs, member)
+    ~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 147, in _disjoint
+    _refuse(f"both Jobs name the same {member} ({held[0]!r}); two Jobs "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"that share it are not independent, whatever the binding "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"says")
+            ^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 127, in _refuse
+    raise ArrangementRefusal(message)
+two_jobs.ArrangementRefusal: both Jobs name the same reviewer_participant ('baton.reviewer'); two Jobs that share it are not independent, whatever the binding says
+
+======================================================================
+ERROR: test_a_source_worker_this_deployment_does_not_configure_is_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_source_worker_this_deployment_does_not_configure_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6186, in test_a_source_worker_this_deployment_does_not_configure_is_refused
+    held = self.refused_two(job_bindings=bindings)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6154, in refused_two
+    self.held_two(**members)
+    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6149, in held_two
+    self.composed_document(**self.two_jobs(**members)),
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 113, in composed_document
+    jobs = self.jobs_from(given)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 57, in jobs_from
+    producer = workers[binding["source_worker_id"]]
+               ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'implementation-worker-nobody'
+
+======================================================================
+ERROR: test_the_one_job_document_carries_no_bindings (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_one_job_document_carries_no_bindings)
+Two places for one fact is how they drift: `/1` says these things
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6205, in test_the_one_job_document_carries_no_bindings
+    self.composed_document(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        line_declared_base=self.base,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        job_bindings=self.two_jobs()["job_bindings"]),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 113, in composed_document
+    jobs = self.jobs_from(given)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 57, in jobs_from
+    producer = workers[binding["source_worker_id"]]
+               ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'implementation-worker-b'
+
+======================================================================
+ERROR: test_two_bindings_for_one_job_are_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_two_bindings_for_one_job_are_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6179, in test_two_bindings_for_one_job_are_refused
+    held = self.refused_two(job_bindings=bindings + [bindings[0]])
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6154, in refused_two
+    self.held_two(**members)
+    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6149, in held_two
+    self.composed_document(**self.two_jobs(**members)),
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 118, in composed_document
+    self.arranged_served = two_jobs.arrangement(
+                           ~~~~~~~~~~~~~~~~~~~~^
+        instance=given, jobs=jobs, extra_workers=extra,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        worker_of=lambda role, *, worker_id, participant, job:
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            workers[worker_id])
+            ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 197, in arrangement
+    _refuse(f"this arrangement binds exactly {LIMITS['jobs']} Jobs and was "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"given {len(jobs)}; a third Job is a different selection with "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its own capacity question")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 127, in _refuse
+    raise ArrangementRefusal(message)
+two_jobs.ArrangementRefusal: this arrangement binds exactly 2 Jobs and was given 3; a third Job is a different selection with its own capacity question
+
+======================================================================
+FAIL: test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9261, in test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET
+    held = self.integrating(before=capture)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT)
+W103068's P1: the production composition supplies its own port.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8349, in test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt)
+The positive half of the control above, so an absent receipt is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6612, in test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt
+    job, _control, composed = self.serving_two(
+                              ~~~~~~~~~~~~~~~~^
+        **self.incoherent("review-worker-b"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6158, in serving_two
+    return self.serving(**self.two_jobs(**members))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2664, in serving
+    self.composed_document(line_declared_base=self.base, **members),
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 113, in composed_document
+    jobs = self.jobs_from(given)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 58, in jobs_from
+    reviewer = self.reviewer_for(binding, workers)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 85, in reviewer_for
+    self.assertEqual(len(held), 1,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+                     f"{binding['job_id']} has {len(held)} review workers "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"bound to {binding['review_work_id']}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1 : job-a has 2 review workers bound to 0000000a-W1
+
+======================================================================
+FAIL: test_a_completed_integration_returns_the_integrator_to_the_next_job (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_completed_integration_returns_the_integrator_to_the_next_job)
+W131187, driven end to end: the capacity comes back.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9063, in test_a_completed_integration_returns_the_integrator_to_the_next_job
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_a_correction_reopens_only_its_own_jobs_line (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_correction_reopens_only_its_own_jobs_line)
+A CHANGES-REQUESTED VERDICT IS A JOB'S OWN FACT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8744, in test_a_correction_reopens_only_its_own_jobs_line
+    self.drive_job(held.job, held.composed, "job-a", "implementation",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "waiting")
+                   ^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's implementation stage never reached 'waiting': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_a_role_worker_on_another_work_reaches_no_allocation (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_role_worker_on_another_work_reaches_no_allocation)
+THE MEASURED BOUNDARY. With job-b's review worker left on Work A,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6597, in test_a_role_worker_on_another_work_reaches_no_allocation
+    job, _control, composed = self.serving_two(
+                              ~~~~~~~~~~~~~~~~^
+        **self.incoherent("review-worker-b"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6158, in serving_two
+    return self.serving(**self.two_jobs(**members))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2664, in serving
+    self.composed_document(line_declared_base=self.base, **members),
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 113, in composed_document
+    jobs = self.jobs_from(given)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 58, in jobs_from
+    reviewer = self.reviewer_for(binding, workers)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 85, in reviewer_for
+    self.assertEqual(len(held), 1,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+                     f"{binding['job_id']} has {len(held)} review workers "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"bound to {binding['review_work_id']}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1 : job-a has 2 review workers bound to 0000000a-W1
+
+======================================================================
+FAIL: test_a_supplied_port_takes_precedence_over_construction (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_supplied_port_takes_precedence_over_construction)
+AN OPERATOR'S INJECTED CAPABILITY STAYS THE ONE IN USE, measured by
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8443, in test_a_supplied_port_takes_precedence_over_construction
+    self.drive_job(held.job, composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_a_workspace_aliasing_the_target_fetches_and_writes_nothing (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_workspace_aliasing_the_target_fetches_and_writes_nothing)
+W133129: THE BRANCH-LEVEL no-fetch/no-write CONTROL.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9525, in test_a_workspace_aliasing_the_target_fetches_and_writes_nothing
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_a_workspace_that_is_the_target_is_the_same_repository (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_workspace_that_is_the_target_is_the_same_repository)
+The alias no-write control for the pre-write isolation guard: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9562, in test_a_workspace_that_is_the_target_is_the_same_repository
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool)
+THE TERMINAL HALF, driven inside a deployment serving two Jobs.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8994, in test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_an_incompatible_stage_does_not_consume_capacity_a_job_needs (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_an_incompatible_stage_does_not_consume_capacity_a_job_needs)
+FAULT CAPACITY, AT THE WORKER THE FAULT ACTUALLY THREATENED.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6633, in test_an_incompatible_stage_does_not_consume_capacity_a_job_needs
+    job, _control, composed = self.serving_two(
+                              ~~~~~~~~~~~~~~~~^
+        **self.incoherent("review-worker-b"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6158, in serving_two
+    return self.serving(**self.two_jobs(**members))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2664, in serving
+    self.composed_document(line_declared_base=self.base, **members),
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 113, in composed_document
+    jobs = self.jobs_from(given)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 58, in jobs_from
+    reviewer = self.reviewer_for(binding, workers)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 85, in reviewer_for
+    self.assertEqual(len(held), 1,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+                     f"{binding['job_id']} has {len(held)} review workers "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"bound to {binding['review_work_id']}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1 : job-a has 2 review workers bound to 0000000a-W1
+
+======================================================================
+FAIL: test_derived_judges_reconstruct_after_dispatch_without_second_launch (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_derived_judges_reconstruct_after_dispatch_without_second_launch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7965, in test_derived_judges_reconstruct_after_dispatch_without_second_launch
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7852, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_foreign_frozen_candidate_cannot_authorize_derived_receipts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_foreign_frozen_candidate_cannot_authorize_derived_receipts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7943, in test_foreign_frozen_candidate_cannot_authorize_derived_receipts
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7852, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_policy_drift_cannot_reuse_or_redispatch_derived_judgments (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7931, in test_policy_drift_cannot_reuse_or_redispatch_derived_judgments
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7852, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_readonly_integration_observation_keeps_the_bound_job (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_readonly_integration_observation_keeps_the_bound_job)
+The public observer reaches the real two-producer completion account.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8950, in test_readonly_integration_observation_keeps_the_bound_job
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_readonly_reconciled_completion_without_runtime_reaches_outer_observer (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer)
+A model-free import reaches status through the public read-only owner.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8893, in test_readonly_reconciled_completion_without_runtime_reaches_outer_observer
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7852, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7873, in test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7852, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_rejected_derived_judgment_cannot_authorize_import (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_rejected_derived_judgment_cannot_authorize_import)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7911, in test_rejected_derived_judgment_cannot_authorize_import
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7852, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_the_constructed_port_is_the_same_one_through_completion (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_constructed_port_is_the_same_one_through_completion)
+W103068: ONE CAPACITY FOR ONE JOB'S INTEGRATION, end to end.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8414, in test_the_constructed_port_is_the_same_one_through_completion
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_the_direct_integration_finalizes_the_dedicated_target (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_direct_integration_finalizes_the_dedicated_target)
+W133129, owner return137905: the transition the witness FOUND
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9200, in test_the_direct_integration_finalizes_the_dedicated_target
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_the_documented_command_writes_both_documents (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_documented_command_writes_both_documents)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 527, in test_the_documented_command_writes_both_documents
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"stdout={answer.stdout}\nstderr={answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : stdout=
+stderr=Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 428, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 410, in main
+    documents = composed(selections)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 369, in composed
+    held(deployment)
+    ~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 249, in held
+    return stage_execution.held_configuration(document, checkout=checkout)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 605, in held_configuration
+    _outside(given[name], here, f"the configured {name}")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 485, in _outside
+    _refuse(f"{what} at {place!r} is inside the checkout at {checkout!r}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"mutable deployment state belongs outside the working tree",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="policy", code="denied")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 410, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the configured integration_store at '/home/sl/src/baton/v12/python/v12-w71917-76xla1o_/integration.sqlite3' is inside the checkout at '/home/sl/src/baton'; mutable deployment state belongs outside the working tree
+
+
+======================================================================
+FAIL: test_the_judgment_subject_is_the_derived_candidate (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_judgment_subject_is_the_derived_candidate)
+W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8122, in test_the_judgment_subject_is_the_derived_candidate
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_the_second_jobs_published_proposal_survives_the_advance (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_second_jobs_published_proposal_survives_the_advance)
+W133129: THE FIRST HALF OF THE BOUNDARY THIS TRAVERSAL FOUND.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9126, in test_the_second_jobs_published_proposal_survives_the_advance
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_the_written_deployment_is_the_one_the_product_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_deployment_is_the_one_the_product_accepts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 542, in test_the_written_deployment_is_the_one_the_product_accepts
+    self.assertEqual(answer.returncode, 0, answer.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 428, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 410, in main
+    documents = composed(selections)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 369, in composed
+    held(deployment)
+    ~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 249, in held
+    return stage_execution.held_configuration(document, checkout=checkout)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 605, in held_configuration
+    _outside(given[name], here, f"the configured {name}")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 485, in _outside
+    _refuse(f"{what} at {place!r} is inside the checkout at {checkout!r}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"mutable deployment state belongs outside the working tree",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="policy", code="denied")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 410, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the configured integration_store at '/home/sl/src/baton/v12/python/v12-w71917-0q2sb_yz/integration.sqlite3' is inside the checkout at '/home/sl/src/baton'; mutable deployment state belongs outside the working tree
+
+
+======================================================================
+FAIL: test_the_written_submission_is_one_the_public_reader_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_submission_is_one_the_public_reader_accepts)
+R1's second half: the reader refused it for two missing members.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 558, in test_the_written_submission_is_one_the_public_reader_accepts
+    self.assertEqual(answer.returncode, 0, answer.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 428, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 410, in main
+    documents = composed(selections)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 369, in composed
+    held(deployment)
+    ~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 249, in held
+    return stage_execution.held_configuration(document, checkout=checkout)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 605, in held_configuration
+    _outside(given[name], here, f"the configured {name}")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 485, in _outside
+    _refuse(f"{what} at {place!r} is inside the checkout at {checkout!r}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"mutable deployment state belongs outside the working tree",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="policy", code="denied")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 410, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the configured integration_store at '/home/sl/src/baton/v12/python/v12-w71917-vlfpnm9u/integration.sqlite3' is inside the checkout at '/home/sl/src/baton'; mutable deployment state belongs outside the working tree
+
+
+======================================================================
+FAIL: test_two_accepted_jobs_share_one_integrator_one_at_a_time (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_two_accepted_jobs_share_one_integrator_one_at_a_time)
+SAME-TARGET SERIALIZATION, measured where the owners decide it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8832, in test_two_accepted_jobs_share_one_integrator_one_at_a_time
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+======================================================================
+FAIL: test_unusable_judge_report_cannot_authorize_derived_receipts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_unusable_judge_report_cannot_authorize_derived_receipts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7922, in test_unusable_judge_report_cannot_authorize_derived_receipts
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7852, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 9600, in integrating
+    self.drive_job(held.job, held.composed, "job-a", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating")
+                   ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7580, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed'}
+
+----------------------------------------------------------------------
+Ran 62 tests in 36.287s
+
+FAILED (failures=27, errors=4)

@@ -1,0 +1,14 @@
+test_it_settles_with_zero_correction_rounds_and_no_implementation (test_review_lifecycle.AChangesRequestedReviewIsAValidOutcome.test_it_settles_with_zero_correction_rounds_and_no_implementation) ... ok
+test_the_declining_deployment_is_what_the_run_actually_used (test_review_lifecycle.AChangesRequestedReviewIsAValidOutcome.test_the_declining_deployment_is_what_the_run_actually_used) ... ok
+test_a_composition_failure_mid_review_holds_with_the_attempt_named (test_review_lifecycle.AnAdmittedAttemptIsAccountedForWhenTheRunDoesNotFinish.test_a_composition_failure_mid_review_holds_with_the_attempt_named) ... ok
+test_admission_closes_before_cancellation_and_nothing_is_admitted_after (test_review_lifecycle.AnAdmittedAttemptIsAccountedForWhenTheRunDoesNotFinish.test_admission_closes_before_cancellation_and_nothing_is_admitted_after) ... ok
+test_an_interruption_mid_review_still_publishes_and_accounts (test_review_lifecycle.AnAdmittedAttemptIsAccountedForWhenTheRunDoesNotFinish.test_an_interruption_mid_review_still_publishes_and_accounts) ... ok
+test_it_settles_with_one_attributed_verdict_and_positive_cleanup (test_review_lifecycle.OneReviewerIsAdmittedAndEnded.test_it_settles_with_one_attributed_verdict_and_positive_cleanup) ... ok
+test_the_reviewer_is_independent_of_the_producer (test_review_lifecycle.OneReviewerIsAdmittedAndEnded.test_the_reviewer_is_independent_of_the_producer)
+`attach_review` decides this, and the outcome carries both sides. ... ok
+test_the_runtime_is_stopped_and_its_cleanup_is_positive (test_review_lifecycle.OneReviewerIsAdmittedAndEnded.test_the_runtime_is_stopped_and_its_cleanup_is_positive) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 4.056s
+
+OK

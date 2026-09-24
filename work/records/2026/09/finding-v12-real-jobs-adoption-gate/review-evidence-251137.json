@@ -1,0 +1,26 @@
+{
+  "claim": 251137,
+  "scope": "three focused store-free checks; digest result/receipt/composer refusal injected, no real store or runtime",
+  "cases": [
+    {
+      "case": "digest mismatch before composition",
+      "refusal": "the selected artifacts no longer match what ASSESSMENT-249338.md pinned:\n{\n  \"agree\": false,\n  \"reason\": \"injected digest mismatch\"\n}"
+    },
+    {
+      "case": "refusal before selections and Authority",
+      "retained_files": [
+        "tasks/job-a.json",
+        "tasks/job-b.json"
+      ],
+      "authority_opened": false,
+      "refusal": "the pinned product refuses this packet, and nothing beyond the two task documents under '/tmp/w247941-review-251137-6zh418c9/fresh-run/tasks' was written:\ninjected pinned preflight refusal"
+    },
+    {
+      "case": "composer subprocess pins executable directory and imports",
+      "cwd": "/",
+      "pythonpath": "/home/sl/baton-runs/independent-review-247947/manager-source:/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate"
+    }
+  ],
+  "seconds": 0.11753648301237263,
+  "temporary_path": "/tmp/w247941-review-251137-6zh418c9"
+}

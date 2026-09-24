@@ -1,0 +1,14 @@
+{
+  "claim": 251048,
+  "scope": "store-free import resolution diagnostic; validator replaced with recorder; no store/runtime/bootstrap mutation",
+  "strayed": [
+    "tools resolved to /home/sl/src/baton/v12/python/tools/__init__.py"
+  ],
+  "preflight_refuses": false,
+  "in_process_held_called": {
+    "validator_file": "/home/sl/src/baton/v12/python/tools/stage_execution.py"
+  },
+  "baton_v12_file": "/home/sl/baton-runs/independent-review-247947/manager-source/baton_v12/__init__.py",
+  "prepare_calls_pins": false,
+  "seconds": 0.0003317569789942354
+}

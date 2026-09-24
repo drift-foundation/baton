@@ -1,0 +1,15 @@
+{
+  "claim": 250258,
+  "scope": "static source and retained log inspection",
+  "answering": [
+    {
+      "line": 724,
+      "sets_composed": true
+    },
+    {
+      "line": 763,
+      "sets_composed": false
+    }
+  ],
+  "diagnostic_imports": "mutable checkout v12/python/src ahead of distribution/HERE, not selected snapshot"
+}

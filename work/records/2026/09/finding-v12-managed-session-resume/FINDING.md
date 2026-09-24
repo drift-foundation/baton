@@ -1,5 +1,45 @@
 # Managed session resume for v12 Jobs
 
+## 2026-09-23 -- claim 250376, the continuation input, read rather than assumed
+
+Owner reroute 250274 routed the remaining resume proof to implementation and
+asked for the real continuation input. Reading W239528's retained stores
+read-only, through the pinned manager snapshot, answers it in two opposite
+halves.
+
+**The context to resume exists and is sound.** The producer attempt's provider
+context is finalized at generation 0 with status `ready` -- the exact
+predecessor a generation-1 restore requires -- and it survived the runtime's
+destruction and the `retained` cleanup.
+
+**The verdict that would open a correction does not exist, and this subject
+cannot produce one.** The line is `accepted` and that acceptance is its
+integration eligibility; no owner-committed correction exists for the frozen
+checkpoint; `correction_feedback_of` refuses because the only context use is an
+`open` invocation. `attach_review` admits `review-ready` alone, so no second
+review can attach; `changes-requested` is the only disposition that yields
+`correction-ready`; and the restore reader holds both the verdict and the
+retained report to `changes-requested` from frozen custody. The acceptance was
+a judgement rather than an artefact of the criteria, which say in terms that
+all three verdicts are valid and none is better for the reviewer.
+
+So this Job needs a NEW SUBJECT, not a repair, and the selection is the
+owner's. [CONTINUATION-250376.md](CONTINUATION-250376.md) sets out three
+options and recommends one: a new implementation and review pair under neutral
+criteria, with a packet that treats `accepted` as a valid end state rather than
+manufacturing a correction. It also needs a fresh run identity, since the old
+qualification grant is consumed.
+
+**The product seam this dossier pinned as unavoidable is retired.** Separate
+Jobs already carry their own task documents -- W239533's review Job did -- so
+stage-specific requirements need no change to `claude_agent.py`. It was the
+combined-Job shape that needed one. No product byte was changed under this
+claim and none is proposed.
+
+What remains unproved is what it has always been: that the production CLI
+restores a real conversation. The provider subprocess is the one seam the
+deterministic evidence stands in for.
+
 ## 2026-09-22 -- claim 239485, the fault established; one seam pinned
 
 Review 2026-09-22T14:38:24Z requested four changes. Three are done. The
@@ -571,3 +611,34 @@ not yet added. Return to baton.decide and release claim; owner applies W236087
 blocked-by-W239533 after release as ruled, and routes only the baseline first.
 Outstanding prior cleanup and consumed grant remain preserved facts. No live,
 destructive cleanup, force release, overlapping edits, enabling or closure.
+
+
+## 2026-09-23 — owner selects bounded resume continuation
+
+Owner requests resolving W236087 after W239528 and W239533 closed satisfying.
+Retain the separate resume/correction scope; W247941 adoption is not blocked
+on reuse. W239533 returned accepted, not changes-requested: do not fabricate
+correction feedback. Establish the supported continuation input and identify
+any additional execution selection needed. Preserve actual context, proposal,
+review provenance, failed evidence and consumed grants. No live execution,
+deployed-store mutation, destructive recovery or broad refactor selected.
+Prepare actual executable deterministic proof and independently reviewed packet
+with exact commands. Initial ownership is this dossier only; coordinate exact
+product paths before changes. Routine corrections return directly to impl.
+
+## 2026-09-23T19:33:41Z — retained assessment independently accepted
+
+Reviewer baton.rvpc, claim 250440, accepts the retained-input assessment in
+CONTINUATION-250376.md. Independent ten-check read-only verification passed in
+0.22724047498195432 seconds with all answering modules pinned. See
+review-2026-09-23T19-33-41Z.md and review-verification-250440.json.
+The retained producer context is ready, but the accepted line/verdict cannot
+open the supported reviewer-correction path. Return to baton.decide for the
+genuine additional subject selection requested in owner reroute 250274.
+Actual restoration remains unproved. Exact executable preparation, deterministic
+proof, attribution, stopped execution and positive cleanup remain outstanding;
+this does not close W236087 or authorize live execution. The current PLAN
+supersedes any reading that a live packet alone is the remaining obligation.
+Recommendation: an eligible real correction subject or a new pair under neutral
+criteria; deliberately steering the verdict is not selected. Preserve the
+accepted subject and all prior failed-run and consumed-grant evidence.

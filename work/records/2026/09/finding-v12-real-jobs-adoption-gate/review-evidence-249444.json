@@ -1,0 +1,31 @@
+{
+  "claim": 249444,
+  "template_probe": "All OWNER leaves substituted to demonstrate structural boundary only, not a valid operator operand set.",
+  "composed_keys": [
+    "_arrangement",
+    "manager_source",
+    "manager_source_files",
+    "runtime_path",
+    "runtime_build",
+    "runtime_executable_sha256",
+    "image_reference",
+    "image_digest",
+    "adapter_sha256",
+    "stage_execution_sha256",
+    "instance",
+    "jobs",
+    "limits"
+  ],
+  "template_refusal": "ContractRefusal: a stage-execution configuration carries exactly authority_store, authority_uuid, canonical_target_id, checkpoint_profile, integration_profile, integration_store, job_work_id, line_declared_base, policy_generation, pool_generation, receipt_participants, retention_disposition, retention_policy_digest, review_work_id, schema, state_root, workers",
+  "imported_stage_execution": "/home/sl/baton-runs/independent-review-247947/manager-source/tools/stage_execution.py",
+  "tests": {
+    "count": 16,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 1.7403196749801282
+  },
+  "status_cli": {
+    "exit": 2,
+    "stderr": "usage: job_manager [-h] --store STORE --incarnation INCARNATION\n                   --authority-uuid AUTHORITY_UUID\n                   {submit,status,serve} ...\njob_manager: error: the following arguments are required: --store, --incarnation, --authority-uuid\n"
+  }
+}

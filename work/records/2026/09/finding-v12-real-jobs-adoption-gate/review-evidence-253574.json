@@ -1,0 +1,36 @@
+{
+  "claim": 253574,
+  "kind": "isolated exact-method operand check; no store, engine or filesystem mutation by method",
+  "results": [
+    {
+      "stage": "bad-stage",
+      "exception": "AttributeError",
+      "message": "'str' object has no attribute 'get'"
+    },
+    {
+      "stage": [
+        1
+      ],
+      "exception": "AttributeError",
+      "message": "'list' object has no attribute 'get'"
+    },
+    {
+      "stage": 42,
+      "exception": "AttributeError",
+      "message": "'int' object has no attribute 'get'"
+    },
+    {
+      "stage": null,
+      "exception": "Refused",
+      "message": "an abandonment names the stage of attempt 'attempt-a' and this one names None; the durable context is recovered from the attempt's own stage or this refuses before any effect"
+    },
+    {
+      "stage": {
+        "attempt_id": "other"
+      },
+      "exception": "Refused",
+      "message": "an abandonment names the stage of attempt 'attempt-a' and this one names 'other'; the durable context is recovered from the attempt's own stage or this refuses before any effect"
+    }
+  ],
+  "seconds": 0.007237350975628942
+}

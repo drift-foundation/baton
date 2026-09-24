@@ -1,0 +1,8 @@
+{
+  "claim": 250539,
+  "checks": 3,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 0.4803470709885005,
+  "scope": "recipe operand checks only; no runtime/store/provider operations"
+}

@@ -1,0 +1,48 @@
+{
+  "checks": 41,
+  "claim": 249641,
+  "errors": 0,
+  "failures": 0,
+  "log": "verification-6.log",
+  "measured_seconds": 10.885859361005714,
+  "modules": [
+    "test_two_jobs"
+  ],
+  "note": "the two-Job arrangement held by the product's own validator and driven through W130224's accepted two-Job fixture on disposable stores. No container, image, engine, live provider, network, credential, deployed store or deployment change.",
+  "owned": {
+    "ADOPTION-247941.md": "0a747b743a1a60bf87f8f49d6650190c4c4e7e98f8cbbfebbb681766ec75819c",
+    "CONTINUITY-247941.md": "3d1e995deda9b37071e744f7090211eee4f04cb1bcf465d3b9ebd15ee02ccf81",
+    "SELECTIONS-247941.json": "525639fd1b75a7fdaa17ec526b58212467201b92ea1678755d25cdc623ef8eb4",
+    "add_roundtrip.py": "733bce21395b5ecf84bbd5b58c2394ffdca26e688e09ddd74012fa9ec88fe8d9",
+    "align_template.py": "c34e37aad22be49dcd79da0217df8a798b11fe678acfd381cbb0f2e49968cc98",
+    "apply_249551.py": "e321f6dcdc8f5a5738a6ae9698708c26af9f57c57c1c6e5d711dca85e0e61b3f",
+    "apply_249551_root.py": "6fbbf679d97ca5290a66553177319181411c0e0f1696adb55d3d9733bab4aac0",
+    "apply_249551_tests.py": "caca2696aa06da4eff4a8ec6e289812151daec9e38df0cfc10f49ebe0be626d9",
+    "test_two_jobs.py": "86a1d1bb1e99aaec1afa1a39ce156c66d130af6e41c994da4339b3f63dc56114",
+    "two_job_supervisor.py": "b7412a6eeb3a81e014251d7e0500b1ebb3163fe0f6f3d6699bf45376fa6e1a33",
+    "two_jobs.py": "85410921e1e738e6c847ff43e935df992a716a60a68f6c138e983ce024a7c5b8",
+    "verify_247941.py": "b5ab51854decb7506a969e9e715ffa603b19582af6bd5096d1c712e1b1c9a403"
+  },
+  "participant": "baton.claude",
+  "pins": {
+    "agree": true,
+    "checkout_stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801",
+    "fixture_root": [],
+    "found": {
+      "manager_source_files": 106,
+      "manager_source_manifest_sha256": "ab5e5b0befbb77f6e96a94e76d0d8b6e01935beb2e7f48090d0d3fc13fae1cd5",
+      "runtime_executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+      "stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801"
+    },
+    "pinned": {
+      "manager_source_files": 106,
+      "manager_source_manifest_sha256": "ab5e5b0befbb77f6e96a94e76d0d8b6e01935beb2e7f48090d0d3fc13fae1cd5",
+      "runtime_executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+      "stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801"
+    }
+  },
+  "python": "3.13.7",
+  "schema": "baton.v12-adoption-gate-verification/1",
+  "skipped": 0,
+  "work": "W247941"
+}

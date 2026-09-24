@@ -1,0 +1,52 @@
+{
+  "checks": 151,
+  "claim": 248565,
+  "errors": 0,
+  "failures": 0,
+  "log": "verification-19.log",
+  "measured_seconds": 37.4308637320064,
+  "modules": [
+    "test_attachment",
+    "test_review_bindings",
+    "test_review_supervisor",
+    "test_review_lifecycle",
+    "test_packet"
+  ],
+  "note": "focused deterministic verification of the ATTACHMENT boundary and the review COMPOSITION, read through ControlStore.open_readonly and one coherent snapshot. No container, image, live provider, network, credential or operator deployment. The bounded review supervisor and the documented command is driven through write and held_configuration on disposable supported stores, and the packet it writes is held by the supervisor's own validator. The supervisor's imported machinery is W239528's, bound by digest and proved by that Job's suite rather than here.",
+  "owned": {
+    "MANAGER-SOURCE-independent-review-247947.json": "9309556ee4aab04189555e8f3eb1a69ba661c2769db8ecf33595a63002a6696f",
+    "OPERATOR-239533.md": "9094d8306a7498f24e257372e1b7cce33472a7ec6d01238cfd06aaa6fbdcd819",
+    "OWNER-PRODUCT-CHANGE-247423.md": "57098ef11a3a0a88224d5d347b35583600bb512f088ddf54c07ddbec5dfa1be6",
+    "PRODUCT-CHANGE-247423.json": "22b29646de778d90b433a46896fc210db113c3cf43ab2fe752667f68bf777978",
+    "SELECTIONS-239533.json": "bdfa41f432737480bbd7d73d72e12636fc8367e375827a4a6b7e83e093295e20",
+    "attachment.py": "191192f3fc53d7769c2d03b31035d458d458eaaa345fc6a2fbec7cc9156cf4e4",
+    "attribution.py": "b348bcccdb5689ea60160ee4ed7d35623710a535ee1adcdbd4356285f69a018f",
+    "packet.py": "065ed1171aea7f1f6c2a5761109a8dcd6ef21d3e413932902da903ad442c39aa",
+    "preexisting_errors.py": "0a669c2187f005fed0b37a7e8ed3c97ff6bff24ede8ea3bac9b792c509cd20f7",
+    "review_bindings.py": "ace016345e49b73dcf0d0c28a7f9081d15243788706d9723ff3ed153dd2ed1f6",
+    "review_supervisor.py": "701fc686981e96f63eef06e9725608d5c72a782f0d6ff9f9b612d5d84c63b4af",
+    "snapshot_247947.py": "add9c59e961e39c3248d778e665caf14d1cb9b440dfe8e4e49ad10fb64f0c7d3",
+    "test_attachment.py": "745828be466b9768b70b90ab626f969c552655b151fe9b4d85bbb03d259b09c6",
+    "test_packet.py": "746d1e03453f25ee0dd6a78899abef9b11c2e4b9c6871d2ed535d8932da83f4a",
+    "test_review_bindings.py": "b45c18cbb69f5c66de40025075db6178198a11330a936c75ba558775e21082a0",
+    "test_review_lifecycle.py": "78bc0df5aed5744cf20902bcf18940a905c990b99d8b3c5912f64aeccbf34aa3",
+    "test_review_supervisor.py": "f3f1df2448d61d31d01b81dd5a1d2ed2b7becdb2925201d3d41c1e65a80ae944",
+    "verify.py": "6c76ea3bb947044563374c515990ab897cd24819236d6747f592df7f04dbcdb4"
+  },
+  "participant": "baton.claude",
+  "python": "3.13.7",
+  "reused": {
+    "baseline.py": "f27f3cd766f9271c4b3eddb6c657bca4770d18c11a74f377e717bef23df18fd5",
+    "baseline_bindings.py": "d994cce02419fd82483560a541790f4b9d367f27d2b634a166bfbdb009ae2c5e",
+    "src/baton_v12/worker_manager/offers.py": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+    "src/baton_v12/worker_manager/review_cycles.py": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+    "src/baton_v12/worker_manager/store.py": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b",
+    "tests/manager/input_roots.py": "6d6fae239a3b01c72fefc01650ca198d2c46c24f14eb04528123c45210403590",
+    "tests/manager/test_offers.py": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+    "tests/manager/test_review_cycles.py": "e4025453cfc9ea74fe0eaeb302dc742db6209f678fa78c4601c1200f530e5155",
+    "tools/stage_execution.py": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801"
+  },
+  "schema": "baton.independent-review-verification/1",
+  "skipped": 0,
+  "work": "W239533"
+}

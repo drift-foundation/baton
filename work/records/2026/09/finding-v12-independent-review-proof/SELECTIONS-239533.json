@@ -51,8 +51,8 @@
     "work": "W239533",
     "claim": "<OWNER: the claim under which the run is selected.>",
     "note": "one bounded managed review of W239528's retained proposal",
-    "manager_source": "/home/sl/baton-runs/single-implementation-242687/manager-source",
-    "code_boundary": "/home/sl/baton-runs/single-implementation-242687/manager-source",
+    "manager_source": "/home/sl/baton-runs/independent-review-247947/manager-source",
+    "code_boundary": "/home/sl/baton-runs/independent-review-247947/manager-source",
     "supervisor_path": "<OWNER: the absolute path of this dossier's review_supervisor.py.>",
     "vectors": "<OWNER: the absolute path of the published worker-contract conformance vector, work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json>",
     "image_reference": "baton-v12-claude-worker:w239528-244216",
@@ -105,6 +105,16 @@
       "cleanup_seconds": 60,
       "review_invocations": 1,
       "retry": false
-    }
+    },
+    "_manager_source_note": [
+      "THE SUCCESSOR SNAPSHOT, not the producer's. W239528's",
+      "single-implementation-242687/manager-source predates the",
+      "correction_policy change owner selection 247421 made, so a run bound to",
+      "it would have no boundary to decline the correction round with and",
+      "review_supervisor.held_packet would refuse the packet composed from it.",
+      "Built and verified by snapshot_247947.py; manifest",
+      "MANAGER-SOURCE-independent-review-247947.json. The producer's snapshot",
+      "is verified UNCHANGED as part of every build and is never written to."
+    ]
   }
 }

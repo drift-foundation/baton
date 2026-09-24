@@ -1,0 +1,19 @@
+test_both_verdicts_are_derived_from_their_own_frozen_results (test_two_jobs.EachJobCollectsItsOwnFROZENAttributedVerdict.test_both_verdicts_are_derived_from_their_own_frozen_results) ... ok
+test_each_verdict_is_bound_to_its_own_checkpoint_and_objects (test_two_jobs.EachJobCollectsItsOwnFROZENAttributedVerdict.test_each_verdict_is_bound_to_its_own_checkpoint_and_objects)
+The cross-binding, which is what makes a claim a verdict. ... ok
+test_each_reviewer_is_the_one_configured_for_that_job (test_two_jobs.EachJobCollectsItsOwnFROZENAttributedVerdict.test_each_reviewer_is_the_one_configured_for_that_job)
+Independence, read from the retained attachment rows. ... ok
+test_no_correction_round_opened_for_either_job (test_two_jobs.EachJobCollectsItsOwnFROZENAttributedVerdict.test_no_correction_round_opened_for_either_job)
+`correction_policy: "decline"` is composed; this is it holding. ... ok
+test_the_gate_binds_the_accepted_machinery_by_digest (test_two_jobs.TheGateAdmitsFourAndNoMore.test_the_gate_binds_the_accepted_machinery_by_digest) ... ok
+test_a_third_job_is_refused_before_anything_is_served (test_two_jobs.TheGateAdmitsFourAndNoMore.test_a_third_job_is_refused_before_anything_is_served) ... ok
+test_four_admissions_are_spent_and_a_fifth_is_refused (test_two_jobs.TheGateAdmitsFourAndNoMore.test_four_admissions_are_spent_and_a_fifth_is_refused)
+Two implementations and two reviews, taken ON THE GATE. ... ok
+test_a_stopped_gate_admits_nothing_further (test_two_jobs.TheGateAdmitsFourAndNoMore.test_a_stopped_gate_admits_nothing_further)
+What a bounded stop rests on, asserted rather than assumed. ... ok
+test_a_stage_of_neither_job_is_foreign_rather_than_a_cap_refusal (test_two_jobs.TheGateAdmitsFourAndNoMore.test_a_stage_of_neither_job_is_foreign_rather_than_a_cap_refusal) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 3.343s
+
+OK

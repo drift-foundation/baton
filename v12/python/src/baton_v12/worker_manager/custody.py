@@ -1315,7 +1315,213 @@ def _answered(operation, status, answer, diagnostic):
     return made
 
 
-def normalize_directory(store, custody, *, assignment_id, which):
+# W247941, owner 257086 and review 2026-09-24T13:36:43Z: THE DURABLE HOLD.
+#
+# A diagnostic told whoever read one refusal. A HOLD binds the next act. The
+# two journal kinds below are that difference.
+CUSTODY_HOLD_KIND = "directory-custody.hold"
+CUSTODY_CLEARED_KIND = "directory-custody.hold-cleared"
+
+
+def _hold_identity(kind, assignment_id, which, episode):
+    # The module reaches for the canonical digest where it needs one rather
+    # than importing it at module scope; this follows `_custody_identity`.
+    """One identity per (attempt, root, EPISODE), never reused.
+
+    THE EPISODE IS WHY THIS IS NOT THE ACT'S IDENTITY. Review
+    2026-09-24T13:43:14Z: "distinct uncertainty episodes must defeat stale
+    clearance even for the same tuple". Two uncertainties over one root are
+    two facts, and a clearance written for the first must not lift the
+    second -- so the episode is IN the identity rather than beside it.
+    """
+    from ..contracts.canonical import digest
+
+    return kind + ":" + digest({"attempt_id": assignment_id, "root": which,
+                                "episode": episode})[len("sha256:"):]
+
+
+def custody_holds(store, assignment_id, which):
+    """Every uncertainty episode recorded for this root, oldest first.
+
+    A READER. It opens nothing, writes nothing and decides nothing; what it
+    answers is which episodes exist and which of them an operator has
+    cleared, so a caller can refuse rather than guess.
+    """
+    import json as _json
+
+    held = []
+    for episode in range(_MOST_HOLDS + 1):
+        record = store.operation_record(
+            _hold_identity(CUSTODY_HOLD_KIND, assignment_id, which, episode))
+        if record is None:
+            break
+        # EVERY MEMBER OF THE RECORD IS CHECKED, not merely its presence: a
+        # row at a derived key is not evidence until its kind, its state and
+        # its document all say what this reader is about to report.
+        if record["state"] != "committed" or record["kind"] != \
+                CUSTODY_HOLD_KIND:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(assignment_id)}'s {which} root has an "
+                f"uncertainty record at episode {episode!r} that is "
+                f"{record['state']!r} of kind {record['kind']!r}; a hold this "
+                f"manager cannot read is not one it may act past")
+        try:
+            document = _json.loads(record["result"])
+        except (TypeError, ValueError):
+            document = None
+        if type(document) is not dict or not document.get("helper_identity"):
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the uncertainty recorded for attempt "
+                f"{name_value(assignment_id)}'s {which} root episode "
+                f"{episode!r} names no helper; it is reconciled rather than "
+                f"read past")
+        cleared = store.operation_record(
+            _hold_identity(CUSTODY_CLEARED_KIND, assignment_id, which,
+                           episode))
+        if cleared is not None and (cleared["state"] != "committed"
+                                    or cleared["kind"]
+                                    != CUSTODY_CLEARED_KIND):
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the clearance recorded for attempt "
+                f"{name_value(assignment_id)}'s {which} root episode "
+                f"{episode!r} is {cleared['state']!r} of kind "
+                f"{cleared['kind']!r}; an unreadable clearance lifts nothing")
+        held.append({
+            "episode": episode,
+            "held": document,
+            "cleared": cleared is not None,
+        })
+    if len(held) > _MOST_HOLDS:
+        raise ContractRefusal(
+            "refused", "limit",
+            f"attempt {name_value(assignment_id)}'s {which} root carries more "
+            f"uncertainty episodes than this manager counts")
+    return held
+
+
+# HOW MANY EPISODES ONE ROOT MAY ACCUMULATE BEFORE THIS REFUSES TO COUNT.
+# Bounded for the reason every limit in this package is: an unbounded scan is
+# a reader a caller can make expensive. Reaching it is itself a refusal.
+_MOST_HOLDS = 64
+
+
+def clear_custody_hold(store, *, attempt_id, which, episode, observed,
+                       helper_identity):
+    """An OPERATOR's reconciliation of ONE uncertainty episode.
+
+    WHAT IT RECORDS IS WHAT WAS OBSERVED, not that a command was run. An
+    operator who writes "I looked and the helper is gone" is making a claim
+    this manager then relies on, so the claim is the record.
+
+    A STALE CLEARANCE IS REFUSED. The episode must exist, must not already be
+    cleared, and the helper identity named must be the one that episode
+    recorded -- a clearance composed against another act, another root or
+    another episode is evidence about something else.
+    """
+    from .store import manager_signature
+
+    boundaries.identity(attempt_id, "an assignment identity")
+    check_custody_root(which)
+    observed = boundaries.text(observed, "what the operator observed")
+    helper_identity = boundaries.text(helper_identity,
+                                      "the helper identity reconciled")
+    if not observed.strip():
+        raise ContractRefusal(
+            "integrity", "schema",
+            "a reconciliation records what the operator OBSERVED; a blank "
+            "account is not an observation")
+    record = store.operation_record(
+        _hold_identity(CUSTODY_HOLD_KIND, attempt_id, which, episode))
+    if record is None or record["state"] != "committed":
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)}'s {which} root has no "
+            f"uncertainty episode {episode!r} to reconcile; a clearance is "
+            f"written against an episode this manager recorded")
+    import json as _json
+
+    try:
+        document = _json.loads(record["result"])
+    except (TypeError, ValueError):
+        document = None
+    if type(document) is not dict:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the uncertainty recorded for attempt {name_value(attempt_id)}'s "
+            f"{which} root episode {episode!r} retained no document; there is "
+            f"nothing to reconcile it against")
+    if document.get("helper_identity") != helper_identity:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"episode {episode!r} recorded helper "
+            f"{name_value(document.get('helper_identity'))} and this "
+            f"clearance names {name_value(helper_identity)}; a reconciliation "
+            f"is evidence about the helper it actually observed")
+    operation_id = _hold_identity(CUSTODY_CLEARED_KIND, attempt_id, which,
+                                  episode)
+    body = {"attempt_id": attempt_id, "root": which, "episode": episode,
+            "helper_identity": helper_identity, "observed": observed}
+    return store.transact(
+        operation_id, CUSTODY_CLEARED_KIND,
+        manager_signature(CUSTODY_CLEARED_KIND, body), lambda _c: dict(body))
+
+
+def _record_hold(store, assignment_id, which, operation, image_digest, name):
+    """Commit the uncertainty BEFORE the request crosses, and answer its
+    episode.
+
+    THE EPISODE IS THE NEXT UNRECORDED ONE, read in the same breath. Two
+    uncertainties over one root are two facts, and a clearance written for the
+    first must not lift the second -- so the episode rides in the identity.
+
+    FAIL-CLOSED ON OVERFLOW: a root that has accumulated this manager's bound
+    of episodes is one an operator has to reconcile, not one to add another to.
+    """
+    from .store import manager_signature
+
+    held = custody_holds(store, assignment_id, which)
+    if len(held) >= _MOST_HOLDS:
+        raise ContractRefusal(
+            "refused", "limit",
+            f"attempt {name_value(assignment_id)}'s {which} root has "
+            f"{len(held)} recorded uncertainty episodes, which is this "
+            f"manager's bound; it is reconciled rather than acted on again")
+    episode = len(held)
+    body = {"attempt_id": assignment_id, "root": which, "episode": episode,
+            "verb": operation, "custodian_image_digest": image_digest,
+            "helper_identity": name}
+    store.transact(
+        _hold_identity(CUSTODY_HOLD_KIND, assignment_id, which, episode),
+        CUSTODY_HOLD_KIND,
+        manager_signature(CUSTODY_HOLD_KIND, body), lambda _c: dict(body))
+    return episode
+
+
+def _clear_hold(store, assignment_id, which, episode, name, *, observed):
+    """Clear ONE episode on the act's own evidence that the engine answered."""
+    from .store import manager_signature
+
+    body = {"attempt_id": assignment_id, "root": which, "episode": episode,
+            "helper_identity": name, "observed": observed}
+    store.transact(
+        _hold_identity(CUSTODY_CLEARED_KIND, assignment_id, which, episode),
+        CUSTODY_CLEARED_KIND,
+        manager_signature(CUSTODY_CLEARED_KIND, body), lambda _c: dict(body))
+
+
+def _standing_hold(store, assignment_id, which):
+    """The oldest UNCLEARED episode for this root, or `None`."""
+    for one in custody_holds(store, assignment_id, which):
+        if not one["cleared"]:
+            return one
+    return None
+
+
+def normalize_directory(store, custody, *, assignment_id, which,
+                        seconds=None, reclaim=None):
     """ONE ROOT NORMALIZED, ONCE, WITH A SIGNED RECEIPT.
 
     W43975 review 2026-08-30T11:32:34Z [P0]. `directory_custody` was a noun:
@@ -1378,18 +1584,32 @@ def normalize_directory(store, custody, *, assignment_id, which):
         # a tree its predecessor already normalized and does not re-run a
         # helper over a home the manager may since have removed.
         return already
-    answered = custody.normalize_directory(store, assignment_id=assignment_id,
-                                           which=which)
+    if seconds is None:
+        answered = custody.normalize_directory(
+            store, assignment_id=assignment_id, which=which)
+    else:
+        answered = custody.normalize_directory(
+            store, assignment_id=assignment_id, which=which, seconds=seconds,
+            reclaim=reclaim)
     if not isinstance(answered, CustodyAnswer) or not answered.ok:
         # §9's pairing is CLOSED, so this refuses under a pair that exists
         # rather than minting a code for the occasion: an act this manager
         # cannot account for did not meet the precondition for recording one.
+        # W247941, owner 257086: THE DIAGNOSTIC TRAVELS WITH THE REFUSAL.
+        # An unaccountable act may be an UNRESOLVED one, and that answer names
+        # the helper identity and the root it may still reach. A refusal that
+        # dropped it would tell an operator an ending did not happen without
+        # telling them what is frozen pending their reconciliation.
+        held = getattr(answered, "unaccounted", None) or ""
+        diagnostic = getattr(answered, "diagnostic", None) or ""
         raise ContractRefusal(
             "refused", "precondition",
             f"the directory custody act over attempt "
             f"{name_value(assignment_id)}'s {which} root did not answer "
             f"accountably; nothing is recorded, and an ending is not claimed "
-            f"on an act this manager cannot account for")
+            f"on an act this manager cannot account for"
+            + (f". {held}" if held else "")
+            + (f". {diagnostic}" if diagnostic else ""))
     return store.transact(
         operation_id, "directory-custody.normalize", signature,
         lambda _connection: documents.directory_custody_settled(
@@ -1510,6 +1730,44 @@ def _custody_operation_id(assignment_id, which):
             + hashlib.sha256(material.encode("utf-8")).hexdigest())
 
 
+def allowed(seconds, most):
+    """`min(seconds left, this boundary's own maximum)`, or the maximum.
+
+    W247941, owner selection 256143: ONE monotonic decreasing allowance across
+    a whole ending, clamped at each supported boundary. Two rules make this
+    safe to apply anywhere:
+
+      * `None` IS TODAY. An unbounded caller gets the package's own maximum
+        exactly as before, so no accepted caller changes.
+      * A BOUNDED CALLER MAY ONLY ASK FOR LESS. The maximum is a ceiling the
+        deployment chose; an allowance cannot raise it, only spend within it.
+
+    A non-positive allowance answers zero, which every boundary here treats as
+    "do not start" rather than "wait forever" -- the caller checked before
+    calling, and this is the second reading that makes the race harmless.
+    """
+    if seconds is None:
+        return most
+    left = seconds() if callable(seconds) else seconds
+    if left is None:
+        return most
+    # A WHOLE NUMBER, because `EnginePort` refuses anything else -- "an engine
+    # deadline is a positive whole number of seconds" -- and rounded DOWN.
+    #
+    # Review 2026-09-24T11:02:29Z [R1] reproduced the defect exactly:
+    # `allowed(lambda: 0.1, 120)` answered 1. Rounding UP hands a boundary
+    # MORE time than the caller has left, which is the one direction an
+    # allowance may never round. My reasoning for it -- that rounding down
+    # turns a real remainder into an immediate refusal -- was solving the
+    # wrong problem: a caller with a tenth of a second left should not be
+    # STARTING anything, and that is the admission reserve's job rather than
+    # this function's.
+    #
+    # SO A SUB-SECOND REMAINDER ANSWERS ZERO, and every boundary reads zero as
+    # "do not start". The allowance never exceeds what is left.
+    return max(0, min(int(left), int(most)))
+
+
 def custody_act(engine, run, *, image_digest, store, assignment_id,
                 operation, which="workspace"):
     """ONE CUSTODY ACT, PERFORMED -- lookup, composition, execution, answer.
@@ -1555,6 +1813,40 @@ def custody_act(engine, run, *, image_digest, store, assignment_id,
     stranded = _reconciled(engine, port, name=name, image_digest=image_digest)
     if stranded is not None:
         _reclaimed(engine, port, name=name, runtime_id=stranded)
+    # W247941, owner 257086: THE WRITE-AHEAD HOLD, AROUND THE SUBMISSION.
+    #
+    # Review 2026-09-24T13:58:36Z drew the line this sits on: the hold is for
+    # ACTUAL ENGINE UNCERTAINTY, and "same-act identity does not authorize
+    # resubmission of unresolved daemon request". So it is written HERE --
+    # immediately before the request crosses -- and not around the adapter
+    # call, because everything before this point is a refusal that submitted
+    # nothing and must keep committing nothing. A capability that raises, a
+    # malformed operand, a root that does not exist: all of those are
+    # pre-submission and leave no hold.
+    #
+    # AND THE UNCERTAINTY IS CLASSIFIED STRUCTURALLY. What makes an answer
+    # unresolved is `status is None` -- no engine answer at all -- which is a
+    # fact about the act rather than an exception type or a string somebody
+    # matched.
+    # A STANDING HOLD BINDS A NEW ACT. Review 2026-09-24T13:58:36Z: "same-act
+    # identity does not authorize resubmission of unresolved daemon request".
+    # An episode nobody has reconciled means a request this manager could not
+    # account for may still be creating that helper, so submitting another is
+    # two programs over one tree rather than a retry.
+    standing = _standing_hold(store, assignment_id, which)
+    if standing is not None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(assignment_id)}'s {which} root carries "
+            f"unreconciled uncertainty episode {standing['episode']!r}: an "
+            f"earlier act submitted a request that produced no engine answer, "
+            f"and the helper it would have created is "
+            f"{name_value(standing['held']['helper_identity'])}. This root is "
+            f"FROZEN -- not acted on, not reused and not deleted on the "
+            f"strength of that act -- until an operator records what they "
+            f"observed")
+    episode = _record_hold(store, assignment_id, which, operation,
+                           image_digest, name)
     try:
         # THE ACT'S OWN CALL IS NOT WRAPPED BY `_settled`, because its
         # failure is not a refusal -- it is the lost ending that recovery and
@@ -1592,6 +1884,10 @@ def custody_act(engine, run, *, image_digest, store, assignment_id,
         # by whoever raised it, which here is the caller's own injected
         # capability, and this manager's account of an act does not quote
         # material it did not author.
+        # AND THE HOLD STANDS. This is the one shape it exists for: no engine
+        # answer, a submitted request that may still create the helper, and
+        # nothing this manager may call settled. It is cleared by an operator
+        # who records what they observed, never by a later act asserting it.
         # UNRESOLVED, AND IT SAYS SO. W43974 review (2026-08-30T05:44:32Z)
         # [P0]: this used to answer "its helper was reclaimed", which claimed
         # a property the CLI boundary cannot supply -- the daemon's
@@ -1599,16 +1895,40 @@ def custody_act(engine, run, *, image_digest, store, assignment_id,
         # observation this manager takes. What is true is what was observed
         # and removed at one instant, and that a submitted operation may still
         # land; a caller told "reclaimed" would stop looking.
+        # W247941, owner 257086: AND WHAT IT MAY STILL TOUCH IS NAMED.
+        #
+        # The stopgap the owner selected for this packet qualifies the
+        # no-background-effects condition for exactly this case: an uncertain
+        # custody settlement is REPORTED held and unresolved, every resource
+        # it may still reach is identified and frozen, reuse and success
+        # claims are prohibited, and an operator reconciles it explicitly.
+        # Nothing here asserts engine-side settlement and nothing here
+        # deletes: a late helper carries this identity and mounts this root,
+        # so an operator who reads this diagnostic knows which two things to
+        # look at rather than being told the world is quiet.
         return _answered(operation, None, None,
                          f"UNRESOLVED: the act produced no engine answer "
                          f"({type(failed).__name__}); {observed}, and an "
                          f"engine operation already submitted may still "
                          f"create it, so this is not an absence proof. The "
                          f"identity is derivable and a later act reclaims "
-                         f"what appears")
-    return _answered(operation, answered["status"],
-                     _custodian_document(answered["stdout"]),
-                     answered["stderr"][-MAX_DIAGNOSTIC:])
+                         f"what appears. FROZEN PENDING OPERATOR "
+                         f"RECONCILIATION: helper identity {name_value(name)} "
+                         f"and the {which} root of attempt "
+                         f"{name_value(assignment_id)}; neither may be "
+                         f"reused, reported settled, or deleted on the "
+                         f"strength of this answer")
+    minted = _answered(operation, answered["status"],
+                       _custodian_document(answered["stdout"]),
+                       answered["stderr"][-MAX_DIAGNOSTIC:])
+    # THE ENGINE ANSWERED, so this act is not an external uncertainty however
+    # else it turned out. A refused or unaccountable ANSWER is this manager's
+    # own judgement about a helper that ran and exited; the hold is for the
+    # case where nothing came back at all.
+    _clear_hold(store, assignment_id, which, episode, name,
+                observed=f"the engine answered status "
+                         f"{answered['status']!r} for this act")
+    return minted
 
 
 def _recovered(engine, run, *, name, image_digest):

@@ -1,0 +1,25 @@
+test_a_separate_review_JOB_already_carries_its_own_criteria (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_a_separate_review_JOB_already_carries_its_own_criteria)
+Which retires the product seam PLAN.md pinned as unavoidable. ... ok
+test_no_further_review_can_attach_to_this_line (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_no_further_review_can_attach_to_this_line)
+`attach_review` admits `review-ready` only, and this is `accepted`. ... ok
+test_no_owner_committed_correction_exists_for_the_checkpoint (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_no_owner_committed_correction_exists_for_the_checkpoint)
+Asked by derived identity, not by scanning for something like one. ... ok
+test_the_accepted_verdict_is_the_lines_own_integration_eligibility (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_the_accepted_verdict_is_the_lines_own_integration_eligibility)
+Read through the product's own accepted-verdict reader. ... ok
+test_the_line_is_ACCEPTED_and_therefore_closed_to_corrections (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_the_line_is_ACCEPTED_and_therefore_closed_to_corrections)
+The honest outcome of W239533, and what it costs this Job. ... ok
+test_the_producer_context_IS_there_to_resume (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_the_producer_context_IS_there_to_resume)
+The half a restore needs, and it survived cleanup intact. ... ok
+test_the_product_REFUSES_to_build_a_restore_prompt_here (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_the_product_REFUSES_to_build_a_restore_prompt_here)
+The finding, in the product's own words. ... ok
+test_the_product_that_answers_is_the_pinned_snapshot (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_the_product_that_answers_is_the_pinned_snapshot)
+Not the checkout, and the receipt says so by digest. ... ok
+test_the_restore_reader_requires_a_changes_requested_verdict (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_the_restore_reader_requires_a_changes_requested_verdict)
+Why no verdict of this subject's could ever serve. ... ok
+test_the_reviewer_was_told_every_verdict_was_equally_valid (test_resume_state.TheRetainedSubjectIsResumableAndHasNothingToCorrect.test_the_reviewer_was_told_every_verdict_was_equally_valid)
+So the acceptance is a judgement, not an artefact of the criteria. ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.241s
+
+OK

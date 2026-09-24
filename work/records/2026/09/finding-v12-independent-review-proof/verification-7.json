@@ -4,7 +4,7 @@
   "errors": 0,
   "failures": 0,
   "log": "verification-7.log",
-  "measured_seconds": 1.2950563630001852,
+  "measured_seconds": 1.3256571759993676,
   "modules": [
     "test_attachment",
     "test_review_bindings",

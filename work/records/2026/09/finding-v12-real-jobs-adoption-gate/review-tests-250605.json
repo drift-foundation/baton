@@ -1,0 +1,20 @@
+{
+  "claim": 250605,
+  "checks": 5,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 0.4759269630012568,
+  "scope": "five recipe/documentation checks only; no runtime/store/provider operations",
+  "unchanged_from_verification_19": {
+    "two_job_supervisor.py": true,
+    "two_jobs.py": true
+  },
+  "reviewed_sha256": {
+    "ADOPTION-247941.md": "c594777c65b9f546e8cc51596d864628dfa15559d40c98c425d95219112f52fb",
+    "test_two_jobs.py": "551e1b9b5a35cc088b77decfa606525c95be814154323982dd4c262aff229b37",
+    "two_job_supervisor.py": "f72eab4d3e1f2b2c6f1cf1a13bb4c92d33ec2f3a88057811c813bc99ae17ee7d",
+    "two_jobs.py": "6ca2f3919a42190dda55539532935fd44a7450bcdbac1a0c3346dec89c6802f8",
+    "SELECTIONS-247941.json": "525639fd1b75a7fdaa17ec526b58212467201b92ea1678755d25cdc623ef8eb4",
+    "CONTINUITY-247941.md": "3d1e995deda9b37071e744f7090211eee4f04cb1bcf465d3b9ebd15ee02ccf81"
+  }
+}

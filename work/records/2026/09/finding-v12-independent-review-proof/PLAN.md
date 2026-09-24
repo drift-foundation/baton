@@ -1,39 +1,17 @@
-# Review update — claim 247699
+# Checkpoint — W239533
 
-review-2026-09-23T12-45-47Z.md accepts item 5 after independent validator tests and retained-baseline comparison. Items 1–4 and 6 remain outstanding in the owner’s specified order. Packet NOT RUNNABLE; no execution approval. The twelve errors comprise eight missing proposal and four missing reconciles attributes; use the independent comparison receipt, not the author’s traceback-absence argument.
+## Current disposition — independently accepted
 
-# Current action -- the admitted-reviewer lifecycle, and what waits on it
+Owner live run independent-review-248377 is accepted by reviewer claim248639. Latest review: review-2026-09-23T15-00-25Z.md. R1 supported retained attribution now independently succeeds; R2 template metadata correction and actual-template coverage pass. This supersedes previous incomplete acceptance.
 
-Owner reroute 247663 numbers the remaining scope 1-6 and says to work it in
-that order. Claim 247666 delivered item 5 and did NOT reach items 1-4.
+Evidence: review-attribution-248639.json; review-tests-248639.json/.log (38 checks,0.888220837s, exact candidate hashes); unchanged live-review-248377/MANIFEST.json and retained executed packet/outcome. Accepted result matches checkpoint/base/head/tree and independent populated worker/participant/principal identities. Cleanup retained/absent corroborates prior exact Docker absence.
 
-1. OUTSTANDING -- a deterministic fixture that actually ADMITS one reviewer
-   through supported real coordination and frozen results. The current
-   `Serving` fixture defers every admission and does not qualify; the reviewer
-   and the owner are both right about that.
-2. OUTSTANDING -- drive the actual supervisor through an attributed verdict,
-   stopped execution and positive cleanup, and prove `changes-requested` is a
-   valid outcome with zero correction rounds and zero implementation
-   admission. Waits on 1.
-3. OUTSTANDING -- failure, interruption, no-progress and cleanup uncertainty
-   with an OUTSTANDING ADMITTED attempt; admission closing before cancellation
-   and cleanup staying inside the total, measured with one. Waits on 1.
-4. OUTSTANDING -- a distinct digest-bound manager-source artifact containing
-   the reviewed `correction_policy` change, with the producer snapshot
-   preserved, and the documented preparation and startup executed against
-   those exact successor bytes. The selections still name
-   `single-implementation-242687/manager-source`, which predates the change.
-5. DONE under claim 247666. The malformed policy is exercised through
-   `held_configuration`, and the twelve product errors are corroborated
-   focally rather than by count.
-6. OUTSTANDING -- the complete packet, commands, provider question and
-   execution evidence. Waits on 1-4.
+## Next
 
-**The packet is NOT runnable and is not labelled ready.** `OPERATOR-239533.md`
-says so at the top and `review_supervisor.held_packet` enforces the
-no-correction boundary as a precondition.
+baton.decide: close accepted W239533 and use this proof for dependent readiness. No rerun, recovery, resume or new permission gate is needed. No open acceptance corrections remain. The historical read-only OperationalError cause remains unknown; retain the observation, without claiming a diagnosed or repaired product defect.
 
-## Not in scope
+## Scope and ownership
 
-No broad refactor, deployed-store access, live execution, image rebuild,
-recovery, implementation rerun or resume. No closure of W239533 or W236087.
+One successful live independent review; no reliability-rate or live disagreement claim. Prior deterministic disagreement evidence remains valid in its scope. Reviewer journals/evidence are append-only. No v12 product changes this review; existing stage_execution.py remains at6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801. Author suite spending417.156856321s and separate preliminary242s/owner55.409s/unknown historical ad-hoc spending remain preserved.
+
+Last handoff248637, claim248639; T239533 last_seq247805 unchanged. Reviewer made only this journal/checkpoint and new evidence files.

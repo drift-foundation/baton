@@ -1,0 +1,136 @@
+{
+  "agreement_with_outcome": {
+    "agrees": true,
+    "compared_members": [
+      "verdict",
+      "result_id",
+      "result_digest",
+      "base",
+      "head",
+      "tree",
+      "checkpoint_id",
+      "attempt_id"
+    ],
+    "differs": {}
+  },
+  "attachment": {
+    "assignment_generation": 2,
+    "attached_at": "2026-09-23T14:37:35.845Z",
+    "attachment_id": "review-3536ffc95a8771beec30d669b763fe2f0b450b2604fc16e1f38d3f28acaea156",
+    "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+    "ended_at": "2026-09-23T14:38:30.019Z",
+    "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+    "runtime_attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+    "state": "ended"
+  },
+  "bound_to": {
+    "attachment_id": "review-3536ffc95a8771beec30d669b763fe2f0b450b2604fc16e1f38d3f28acaea156",
+    "attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+    "authority_uuid": "7ea319da93384b77bc3ddea38602d7a3",
+    "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+    "control_store": "/home/sl/baton-runs/single-implementation-244216/db/control.sqlite3",
+    "deployment_config_sha256": "2c4d5a8ae080c3ee638b1e6eb1e06e20f3886a109f2aba51d094f527a822451b",
+    "executed_packet_sha256": "ed51ef0e2be347915a6b70aebef7b4b35dfc296f66876b7ee77567dde56e2d5f",
+    "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+    "manager_source": "/home/sl/baton-runs/independent-review-247947/manager-source",
+    "outcome_sha256": "f587b5841b57388dd13683b980179ea075da404c7cd35373d31a0960c007b346",
+    "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+    "work_id": "7ea319da-W1"
+  },
+  "checkpoint": {
+    "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+    "revision": 1,
+    "state": "frozen"
+  },
+  "claim": 248565,
+  "cleanup": {
+    "attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+    "cleanup": "retained",
+    "directory_custody": {
+      "result": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [1000, 1000]}",
+        "attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+        "operation": "normalize",
+        "root": "result",
+        "verb": "normalize"
+      },
+      "workspace": {
+        "account": "{\"custody\": \"normalize\", \"entries\": 7, \"not_ours\": 0, \"running_as\": [1000, 1000]}",
+        "attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+        "operation": "normalize",
+        "root": "workspace",
+        "verb": "normalize"
+      }
+    },
+    "kept": [
+      "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461:findings",
+      "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461:logs"
+    ],
+    "operation": {
+      "operation_id": "runtime.destroy:a2eb95e0b7e5ea57a149cf19dcda7869f707a48486818cdb4c52a493fcdcd53d",
+      "signature_digest": "sha256:1a30bac8f98c6cbd9bb22243c9a0631b78d1666d597c0d1e7154308d153b35e8"
+    },
+    "state": "absent",
+    "why": "the engine answered that this exact identity does not exist"
+  },
+  "derived_verdict": {
+    "attachment_id": "review-3536ffc95a8771beec30d669b763fe2f0b450b2604fc16e1f38d3f28acaea156",
+    "attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+    "base": "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+    "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+    "head": "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6",
+    "result_digest": "sha256:5e62f4c9afb1d2c840599bc69187d122fda75d4f89616e8713dcac9925abd864",
+    "result_id": "result-attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+    "tree": "5b4c0f459d59c53d073af1c2d39eb043ebb16820",
+    "verdict": "accepted"
+  },
+  "frozen_result": {
+    "disposition": "completed",
+    "manifest_digest": "sha256:5e62f4c9afb1d2c840599bc69187d122fda75d4f89616e8713dcac9925abd864",
+    "result_id": "result-attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461"
+  },
+  "independence": {
+    "compared": [
+      "participant",
+      "principal",
+      "worker_id"
+    ],
+    "independent": true,
+    "producer": {
+      "participant": "baton.impl",
+      "principal": "principal:baton.impl",
+      "worker_id": "implementation-worker"
+    },
+    "reviewer": {
+      "participant": "baton.review",
+      "principal": "principal:baton.review",
+      "worker_id": "review-worker"
+    },
+    "shared": []
+  },
+  "line": {
+    "current_checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+    "revision": 1,
+    "state": "accepted"
+  },
+  "note": "derived from the pinned deployment through public readers inside one snapshot; the outcome was opened only to compare against it",
+  "participant": "baton.claude",
+  "result_manifest": {
+    "assignment": {
+      "generation": 2,
+      "matches_attachment_generation": true,
+      "matches_attachment_participant": true,
+      "matches_packet_work": true,
+      "participant": "baton.review",
+      "work_ref": {
+        "authority_uuid": "7ea319da93384b77bc3ddea38602d7a3",
+        "work_id": "7ea319da-W1"
+      }
+    },
+    "disposition": "completed",
+    "manifest_digest": "sha256:5e62f4c9afb1d2c840599bc69187d122fda75d4f89616e8713dcac9925abd864",
+    "result_id": "result-attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461"
+  },
+  "schema": "baton.independent-review-attribution/1",
+  "work": "W239533"
+}

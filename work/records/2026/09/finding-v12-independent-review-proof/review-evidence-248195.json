@@ -1,0 +1,10 @@
+{
+  "tests": 3,
+  "errors": 0,
+  "failures": 0,
+  "seconds": 2.20187589499983,
+  "interrupt_probe_return": "foreign",
+  "interrupt_uncertainty": [
+    "the serving origin of probe did not complete: KeyboardInterrupt: reviewer origin-read probe"
+  ]
+}

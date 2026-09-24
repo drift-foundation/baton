@@ -1,0 +1,7 @@
+test_the_documented_startup_runs_review_supervisor_MAIN (test_review_bindings.TheDocumentedCommandsRunAgainstTheSUCCESSORSource.test_the_documented_startup_runs_review_supervisor_MAIN)
+`review_supervisor.main`, ACTUALLY INVOKED. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 8.602s
+
+OK

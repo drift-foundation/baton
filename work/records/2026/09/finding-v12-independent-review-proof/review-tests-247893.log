@@ -1,0 +1,24 @@
+test_it_settles_with_zero_correction_rounds_and_no_implementation (test_review_lifecycle.AChangesRequestedReviewIsAValidOutcome.test_it_settles_with_zero_correction_rounds_and_no_implementation) ... ok
+test_the_declining_deployment_is_what_the_run_actually_used (test_review_lifecycle.AChangesRequestedReviewIsAValidOutcome.test_the_declining_deployment_is_what_the_run_actually_used) ... ok
+test_a_composition_failure_mid_review_holds_with_the_attempt_named (test_review_lifecycle.AnAdmittedAttemptIsAccountedForWhenTheRunDoesNotFinish.test_a_composition_failure_mid_review_holds_with_the_attempt_named) ... ok
+test_admission_closes_before_cancellation_and_nothing_is_admitted_after (test_review_lifecycle.AnAdmittedAttemptIsAccountedForWhenTheRunDoesNotFinish.test_admission_closes_before_cancellation_and_nothing_is_admitted_after) ... ok
+test_an_interruption_mid_review_still_publishes_and_accounts (test_review_lifecycle.AnAdmittedAttemptIsAccountedForWhenTheRunDoesNotFinish.test_an_interruption_mid_review_still_publishes_and_accounts) ... ok
+test_a_failure_before_the_ending_leaves_that_attempt_outstanding (test_review_lifecycle.AnOutstandingAdmittedAttemptIsNamedExactly.test_a_failure_before_the_ending_leaves_that_attempt_outstanding) ... ok
+test_an_interruption_with_that_attempt_outstanding_still_accounts (test_review_lifecycle.AnOutstandingAdmittedAttemptIsNamedExactly.test_an_interruption_with_that_attempt_outstanding_still_accounts)
+And the cleanup WINDOW is not where it lands, which is worth ... ok
+test_it_settles_with_one_attributed_verdict_and_positive_cleanup (test_review_lifecycle.OneReviewerIsAdmittedAndEnded.test_it_settles_with_one_attributed_verdict_and_positive_cleanup) ... ok
+test_the_reviewer_is_independent_of_the_producer (test_review_lifecycle.OneReviewerIsAdmittedAndEnded.test_the_reviewer_is_independent_of_the_producer)
+`attach_review` decides this, and the outcome carries both sides. ... ok
+test_the_runtime_is_stopped_and_its_cleanup_is_positive (test_review_lifecycle.OneReviewerIsAdmittedAndEnded.test_the_runtime_is_stopped_and_its_cleanup_is_positive) ... ok
+test_a_run_that_cannot_finish_stops_at_the_serving_bound (test_review_lifecycle.TheBoundsAreArithmeticRatherThanWaiting.test_a_run_that_cannot_finish_stops_at_the_serving_bound)
+With the turn never taken, the loop stops on arithmetic. ... ok
+test_serving_stops_at_total_minus_cleanup_and_never_exceeds_total (test_review_lifecycle.TheBoundsAreArithmeticRatherThanWaiting.test_serving_stops_at_total_minus_cleanup_and_never_exceeds_total) ... ok
+test_a_closed_gate_refuses_an_admission_it_is_offered (test_review_lifecycle.TheGateIsClosedBeforeAnythingIsCancelled.test_a_closed_gate_refuses_an_admission_it_is_offered)
+Not just "none arrived" -- one is offered and refused. ... ok
+test_cancellation_is_asked_for_only_after_the_gate_closed (test_review_lifecycle.TheGateIsClosedBeforeAnythingIsCancelled.test_cancellation_is_asked_for_only_after_the_gate_closed) ... ok
+test_every_admitting_act_happened_while_the_gate_was_open (test_review_lifecycle.TheGateIsClosedBeforeAnythingIsCancelled.test_every_admitting_act_happened_while_the_gate_was_open) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 7.750s
+
+OK

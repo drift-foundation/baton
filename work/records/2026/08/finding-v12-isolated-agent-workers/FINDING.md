@@ -2876,3 +2876,38 @@ cleanup, with no unintended implementation/correction admission. Then verify
 the concrete parallel setup using separate Jobs with correctly isolated and
 attributed results. Report exactly what each execution proves and what remains.
 No new live invocation, claim change or dependency mutation is performed here.
+
+
+## 2026-09-23 — owner approves delivery continuity and context maintenance
+
+Owner approves the four audit recommendations: direct routine correction loop,
+safe-handoff context maintenance, concise current checkpoints with targeted
+historical reads, and human-owned WIP checkpoints. Human absence is excluded
+from slowdown attribution. AGENTS.md section Delivery continuity and bounded
+context is the authoritative policy and explicitly supersedes routine
+owner-return defaults and blanket historical rereading requirements.
+
+Audit evidence: W239533 claim247666 held306s then passed; provider transcript
+0bae1c34-ff61-46f5-ac8e-a339806fdede.jsonl ended normally at
+2026-09-23T12:41:45.628Z with end_turn and reported646323 input tokens including
+cache. Seven sampled completed implementation episodes totaled4350s, reviews
+1061s. These facts do not prove context size caused defects or an enforced limit.
+Runner template turnTimeoutMs7200000 was read; effective launch not established.
+No context replacement was performed by the audit or this policy update.
+
+Apply policy to current v11 correction handoffs now. Context maintenance follows
+a durable current checkpoint and verified supported runner operation at a safe
+handoff; never reset an active claim. For v12, continuation outcomes, checkpoints
+and safe context maintenance are early workflow improvements, not new adoption
+gates. Git remains human-owned; commits are not a continuation gate.
+
+
+## 2026-09-23 — explicit adoption finish line W247941
+
+Owner requests a clear gate after W239533 for real v12 development Jobs.
+Created W247941, bound to work/records/2026/09/finding-v12-real-jobs-adoption-gate.
+It assesses the exact parallel deployment using accepted evidence and only
+requests a bounded missing proof when needed. Accepted READY report and owner
+satisfying disposition clear initial real development adoption; reuse follows
+as an early v12 Job. No broader hardening or automated integration gate.
+Dependency on W239533 is pending the owner route-handler block operation.

@@ -1,0 +1,58 @@
+test_an_unknown_substantive_member_is_refused_by_name (test_review_bindings.TheACTUALShippedTemplateComposesAndStarts.test_an_unknown_substantive_member_is_refused_by_name)
+Stripping prose must not also swallow a typo. ... ok
+test_both_defects_are_still_defects_without_the_normalization (test_review_bindings.TheACTUALShippedTemplateComposesAndStarts.test_both_defects_are_still_defects_without_the_normalization)
+The fix is load-bearing, and it is in the right two places. ... ok
+test_the_documented_command_runs_the_shipped_template (test_review_bindings.TheACTUALShippedTemplateComposesAndStarts.test_the_documented_command_runs_the_shipped_template) ... ok
+test_the_shipped_template_still_carries_the_notes_under_test (test_review_bindings.TheACTUALShippedTemplateComposesAndStarts.test_the_shipped_template_still_carries_the_notes_under_test)
+Otherwise this whole class would pass by proving nothing. ... ok
+test_the_startup_reader_accepts_the_packet_it_composed (test_review_bindings.TheACTUALShippedTemplateComposesAndStarts.test_the_startup_reader_accepts_the_packet_it_composed)
+`held_packet` -- the exact check that refused on the live run. ... ok
+test_the_written_packet_carries_no_documentation_member (test_review_bindings.TheACTUALShippedTemplateComposesAndStarts.test_the_written_packet_carries_no_documentation_member) ... ok
+test_the_composition_command_matches_review_bindings (test_packet.TheCommandsAreTheOnesTheProgramsAccept.test_the_composition_command_matches_review_bindings) ... ok
+test_the_regeneration_command_matches_packet (test_packet.TheCommandsAreTheOnesTheProgramsAccept.test_the_regeneration_command_matches_packet) ... ok
+test_the_run_command_matches_review_supervisor (test_packet.TheCommandsAreTheOnesTheProgramsAccept.test_the_run_command_matches_review_supervisor) ... ok
+test_the_snapshot_verify_command_matches_the_builder (test_packet.TheCommandsAreTheOnesTheProgramsAccept.test_the_snapshot_verify_command_matches_the_builder) ... ok
+test_every_named_receipt_exists (test_packet.TheEvidenceDocumentDescribesTheFilesItShips.test_every_named_receipt_exists) ... ok
+test_every_reused_digest_is_the_file_on_disk (test_packet.TheEvidenceDocumentDescribesTheFilesItShips.test_every_reused_digest_is_the_file_on_disk)
+The accepted bytes this dossier imports rather than copies. ... ok
+test_every_shipped_digest_is_the_file_on_disk (test_packet.TheEvidenceDocumentDescribesTheFilesItShips.test_every_shipped_digest_is_the_file_on_disk) ... ok
+test_the_execution_state_is_the_one_that_happened (test_packet.TheEvidenceDocumentDescribesTheFilesItShips.test_the_execution_state_is_the_one_that_happened)
+It WAS run, once, by the owner -- and it still authorizes nothing. ... ok
+test_the_reviewers_measurements_are_kept_separate_from_mine (test_packet.TheEvidenceDocumentDescribesTheFilesItShips.test_the_reviewers_measurements_are_kept_separate_from_mine)
+Their numbers are theirs; folding them into mine would inflate it. ... ok
+test_every_established_claim_names_where_it_is_proved (test_packet.TheLimitationsComeBeforeTheClaims.test_every_established_claim_names_where_it_is_proved) ... ok
+test_the_page_sends_a_reader_to_not_established_first (test_packet.TheLimitationsComeBeforeTheClaims.test_the_page_sends_a_reader_to_not_established_first) ... ok
+test_the_provider_question_asks_rather_than_asserts (test_packet.TheLimitationsComeBeforeTheClaims.test_the_provider_question_asks_rather_than_asserts) ... ok
+test_the_unknown_spending_is_named_as_unknown (test_packet.TheLimitationsComeBeforeTheClaims.test_the_unknown_spending_is_named_as_unknown) ... ok
+test_independence_was_compared_and_not_assumed (test_packet.TheLiveRunIsRecordedAsWhatItWas.test_independence_was_compared_and_not_assumed)
+All three identities, with values on both sides. ... ok
+test_one_run_is_not_claimed_as_a_rate (test_packet.TheLiveRunIsRecordedAsWhatItWas.test_one_run_is_not_claimed_as_a_rate) ... ok
+test_the_hashes_agree_with_the_reviewers_retained_manifest (test_packet.TheLiveRunIsRecordedAsWhatItWas.test_the_hashes_agree_with_the_reviewers_retained_manifest)
+Their manifest and my export must name the same bytes. ... ok
+test_the_packet_difference_is_named_exactly (test_packet.TheLiveRunIsRecordedAsWhatItWas.test_the_packet_difference_is_named_exactly) ... ok
+test_the_reader_refusal_keeps_its_cause_unknown (test_packet.TheLiveRunIsRecordedAsWhatItWas.test_the_reader_refusal_keeps_its_cause_unknown)
+A hypothesis that reads as a diagnosis is worse than no answer. ... ok
+test_the_retained_files_still_hash_to_what_the_manifest_says (test_packet.TheLiveRunIsRecordedAsWhatItWas.test_the_retained_files_still_hash_to_what_the_manifest_says) ... ok
+test_the_verdict_was_derived_and_not_copied (test_packet.TheLiveRunIsRecordedAsWhatItWas.test_the_verdict_was_derived_and_not_copied) ... ok
+test_the_count_the_page_states_is_the_count_that_is_open (test_packet.TheOpenChoicesAreListedExactly.test_the_count_the_page_states_is_the_count_that_is_open) ... ok
+test_the_evidence_lists_exactly_what_the_selections_still_ask (test_packet.TheOpenChoicesAreListedExactly.test_the_evidence_lists_exactly_what_the_selections_still_ask) ... ok
+test_the_page_names_every_one_of_them (test_packet.TheOpenChoicesAreListedExactly.test_the_page_names_every_one_of_them) ... ok
+test_the_three_that_carry_a_refusal_are_called_out (test_packet.TheOpenChoicesAreListedExactly.test_the_three_that_carry_a_refusal_are_called_out)
+A choice that fails the run deserves a warning before it is made. ... ok
+test_every_digest_on_the_page_is_one_the_evidence_knows (test_packet.TheOperatorPageCarriesNoStaleClaim.test_every_digest_on_the_page_is_one_the_evidence_knows)
+No hash survives on the page after the file behind it moves. ... ok
+test_it_names_the_evidence_document_and_how_to_regenerate_it (test_packet.TheOperatorPageCarriesNoStaleClaim.test_it_names_the_evidence_document_and_how_to_regenerate_it) ... ok
+test_it_quotes_no_receipt_or_check_count_of_its_own (test_packet.TheOperatorPageCarriesNoStaleClaim.test_it_quotes_no_receipt_or_check_count_of_its_own)
+The page defers to the derived document, on purpose. ... ok
+test_the_baseline_digest_it_quotes_is_the_one_bound_at_startup (test_packet.TheOperatorPageCarriesNoStaleClaim.test_the_baseline_digest_it_quotes_is_the_one_bound_at_startup) ... ok
+test_the_gap_between_them_is_stated_in_both_documents (test_packet.TheTwoProofsAreDistinguished.test_the_gap_between_them_is_stated_in_both_documents)
+Scoped to the DETERMINISTIC suite, because the live run closed it. ... ok
+test_the_implementer_still_claims_no_provider_of_its_own (test_packet.TheTwoProofsAreDistinguished.test_the_implementer_still_claims_no_provider_of_its_own)
+The distinction that matters now: who ran it. ... ok
+test_the_lifecycle_proof_is_recorded_as_not_entering_main (test_packet.TheTwoProofsAreDistinguished.test_the_lifecycle_proof_is_recorded_as_not_entering_main) ... ok
+test_the_startup_proof_is_recorded_as_held (test_packet.TheTwoProofsAreDistinguished.test_the_startup_proof_is_recorded_as_held) ... ok
+
+----------------------------------------------------------------------
+Ran 38 tests in 0.888s
+
+OK

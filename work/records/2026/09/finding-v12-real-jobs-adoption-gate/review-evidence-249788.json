@@ -1,0 +1,5 @@
+{
+  "claim": 249788,
+  "supervisor_sha256": "ce93e319db0d4496af2bf5d927bf2cd9a705b43ae2b828e924576cc552b69cea",
+  "verification": "Static review of both clock operands and acquisition/closure order; no test or store execution."
+}

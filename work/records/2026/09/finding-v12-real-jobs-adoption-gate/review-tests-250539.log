@@ -1,0 +1,11 @@
+test_every_flag_the_inspect_step_prints_is_one_the_TOOL_accepts (test_two_jobs.TheOPERATORRecipePrintsOperandsThatAGREE.test_every_flag_the_inspect_step_prints_is_one_the_TOOL_accepts)
+The same question of `tools.job_manager status`. ... ok
+test_every_flag_the_run_step_prints_is_one_the_COMMAND_accepts (test_two_jobs.TheOPERATORRecipePrintsOperandsThatAGREE.test_every_flag_the_run_step_prints_is_one_the_COMMAND_accepts)
+Against the command's own `--help`, not against a list here. ... ok
+test_the_inspect_step_names_the_stores_the_run_step_OPENS (test_two_jobs.TheOPERATORRecipePrintsOperandsThatAGREE.test_the_inspect_step_names_the_stores_the_run_step_OPENS)
+One store per axis across the whole page, or this fails. ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.480s
+
+OK

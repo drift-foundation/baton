@@ -1,0 +1,8 @@
+{
+  "claim": 249702,
+  "supervisor_sha256": "4b811c1fe60bac787e63d7369e5859448f5dbc5d23697e2e110f7cc94f0f030c",
+  "cancel_active_call_present": false,
+  "obsolete_cancel_call_present": true,
+  "termination_install_present": true,
+  "termination_restore_present": true
+}

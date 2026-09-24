@@ -1,0 +1,41 @@
+{
+  "checks": 19,
+  "claim": 249460,
+  "errors": 0,
+  "failures": 0,
+  "log": "verification-1.log",
+  "measured_seconds": 2.1225561409955844,
+  "modules": [
+    "test_two_jobs"
+  ],
+  "note": "the two-Job arrangement held by the product's own validator and driven through W130224's accepted two-Job fixture on disposable stores. No container, image, engine, live provider, network, credential, deployed store or deployment change.",
+  "owned": {
+    "ADOPTION-247941.md": "9ff36a190c0489639cb998ba5df4701e5c5f9bfe1dc215707c2c985d6d8ef5a5",
+    "CONTINUITY-247941.md": "3d1e995deda9b37071e744f7090211eee4f04cb1bcf465d3b9ebd15ee02ccf81",
+    "SELECTIONS-247941.json": "7d3423e014c06af23b94de24b3749a461c43184ea1cd829fbf9d9b4051a010d2",
+    "test_two_jobs.py": "dfc6876c745eb4838896595261c60a78ecb5a6413acd808a61917c3a5f44ca88",
+    "two_jobs.py": "d5069de09b2a074805d06767b7ed68bac9a2dd0913a04e2a354a876884587f77",
+    "verify_247941.py": "a4003b761f7b0af1988f54920688b8fcca837a6ee8c1c2afa1d3411dc5475c03"
+  },
+  "participant": "baton.claude",
+  "pins": {
+    "agree": true,
+    "checkout_stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801",
+    "found": {
+      "manager_source_files": 106,
+      "manager_source_manifest_sha256": "ab5e5b0befbb77f6e96a94e76d0d8b6e01935beb2e7f48090d0d3fc13fae1cd5",
+      "runtime_executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+      "stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801"
+    },
+    "pinned": {
+      "manager_source_files": 106,
+      "manager_source_manifest_sha256": "ab5e5b0befbb77f6e96a94e76d0d8b6e01935beb2e7f48090d0d3fc13fae1cd5",
+      "runtime_executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+      "stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771ab5801"
+    }
+  },
+  "python": "3.13.7",
+  "schema": "baton.v12-adoption-gate-verification/1",
+  "skipped": 0,
+  "work": "W247941"
+}

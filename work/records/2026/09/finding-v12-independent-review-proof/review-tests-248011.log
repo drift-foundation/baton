@@ -1,0 +1,8 @@
+test_the_documented_composition_runs_on_the_successor_bytes (test_review_bindings.TheDocumentedCommandsRunAgainstTheSUCCESSORSource.test_the_documented_composition_runs_on_the_successor_bytes) ... ok
+test_the_documented_startup_resolves_inside_the_successor (test_review_bindings.TheDocumentedCommandsRunAgainstTheSUCCESSORSource.test_the_documented_startup_resolves_inside_the_successor)
+`review_supervisor.main`, run as the page prints it. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.771s
+
+OK

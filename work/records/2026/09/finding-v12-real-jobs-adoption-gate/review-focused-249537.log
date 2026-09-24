@@ -1,0 +1,118 @@
+test_the_shipped_template_still_asks_every_operand_by_name (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_shipped_template_still_asks_every_operand_by_name)
+Otherwise this class would resolve fields nobody ships. ... ok
+test_the_documented_command_writes_both_documents (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_documented_command_writes_both_documents) ... FAIL
+test_the_written_deployment_is_the_one_the_product_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_deployment_is_the_one_the_product_accepts) ... FAIL
+test_the_written_submission_is_one_the_public_reader_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_submission_is_one_the_public_reader_accepts)
+R1's second half: the reader refused it for two missing members. ... FAIL
+test_an_unresolved_template_is_refused_by_name (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_an_unresolved_template_is_refused_by_name) ... ok
+
+======================================================================
+FAIL: test_the_documented_command_writes_both_documents (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_documented_command_writes_both_documents)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 527, in test_the_documented_command_writes_both_documents
+    self.assertEqual(answer.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     f"stdout={answer.stdout}\nstderr={answer.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : stdout=
+stderr=Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 428, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 410, in main
+    documents = composed(selections)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 369, in composed
+    held(deployment)
+    ~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 249, in held
+    return stage_execution.held_configuration(document, checkout=checkout)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 605, in held_configuration
+    _outside(given[name], here, f"the configured {name}")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 485, in _outside
+    _refuse(f"{what} at {place!r} is inside the checkout at {checkout!r}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"mutable deployment state belongs outside the working tree",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="policy", code="denied")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 410, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the configured integration_store at '/home/sl/src/baton/v12/python/v12-w71917-uktlu2gi/integration.sqlite3' is inside the checkout at '/home/sl/src/baton'; mutable deployment state belongs outside the working tree
+
+
+======================================================================
+FAIL: test_the_written_deployment_is_the_one_the_product_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_deployment_is_the_one_the_product_accepts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 542, in test_the_written_deployment_is_the_one_the_product_accepts
+    self.assertEqual(answer.returncode, 0, answer.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 428, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 410, in main
+    documents = composed(selections)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 369, in composed
+    held(deployment)
+    ~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 249, in held
+    return stage_execution.held_configuration(document, checkout=checkout)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 605, in held_configuration
+    _outside(given[name], here, f"the configured {name}")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 485, in _outside
+    _refuse(f"{what} at {place!r} is inside the checkout at {checkout!r}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"mutable deployment state belongs outside the working tree",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="policy", code="denied")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 410, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the configured integration_store at '/home/sl/src/baton/v12/python/v12-w71917-h1_585ah/integration.sqlite3' is inside the checkout at '/home/sl/src/baton'; mutable deployment state belongs outside the working tree
+
+
+======================================================================
+FAIL: test_the_written_submission_is_one_the_public_reader_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_submission_is_one_the_public_reader_accepts)
+R1's second half: the reader refused it for two missing members.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py", line 558, in test_the_written_submission_is_one_the_public_reader_accepts
+    self.assertEqual(answer.returncode, 0, answer.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 428, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 410, in main
+    documents = composed(selections)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 369, in composed
+    held(deployment)
+    ~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py", line 249, in held
+    return stage_execution.held_configuration(document, checkout=checkout)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 605, in held_configuration
+    _outside(given[name], here, f"the configured {name}")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 485, in _outside
+    _refuse(f"{what} at {place!r} is inside the checkout at {checkout!r}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"mutable deployment state belongs outside the working tree",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="policy", code="denied")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 410, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the configured integration_store at '/home/sl/src/baton/v12/python/v12-w71917-suaouajt/integration.sqlite3' is inside the checkout at '/home/sl/src/baton'; mutable deployment state belongs outside the working tree
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.775s
+
+FAILED (failures=3)

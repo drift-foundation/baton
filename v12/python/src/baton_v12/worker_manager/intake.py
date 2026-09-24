@@ -2319,7 +2319,7 @@ def authorize_refused_session_cleanup(store, port, adapter, *, session_ref,
 
 
 def abandon_attempt(store, port, adapter, *, attempt_id, reason,
-                    retention_policy_digest):
+                    retention_policy_digest, seconds=None, reclaim=None):
     """W44716: end the attempt an operator DECLARES abandoned.
 
     THE FOURTH ENDING, and approver ruling 2026-08-30 is why it is one. A
@@ -2389,7 +2389,25 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
             f"attempt {name_value(attempt_id)} has no attached runtime; "
             f"abandonment ends an attempt whose runtime STARTED and whose "
             f"worker then never answered, and there is nothing here to end")
-    authority_operation_id = _abandon_fence_operation_id(attempt)
+    # WHICH AUTHORITY ACT THIS FENCE IS. W247941, owner selection 255814: an
+    # attempt whose own cancellation already fenced this generation is fenced
+    # by REPLAYING that operation, because the Authority ends a generation
+    # once and a second identity over it can only refuse. See the supersession
+    # note on `_abandon_fence_operation_id`. An attempt with no cancellation
+    # is unchanged and fences under the abandonment's own identity.
+    #
+    # AND A DECLARATION THAT ALREADY EXISTS CHOOSES NOTHING. Review
+    # 2026-09-24T10:11:35Z [P1]: deriving this operand from the world as it
+    # stands now made an interrupted declaration unresumable the moment a
+    # cancellation landed after it. The committed record's own operand is
+    # read back and reused, so a resumed call signs exactly what was written.
+    cancelled = _committed_cancellation(store, attempt, attempt_id, expect)
+    own_fence = _abandon_fence_operation_id(attempt)
+    declared = _declared_fence_identity(store, attempt)
+    authority_operation_id = (
+        declared if declared is not None
+        else own_fence if cancelled is None
+        else cancelled["authority_operation_id"])
     intent = _abandon_intent(store, attempt, attempt_id, expect, reason,
                              authority_operation_id)
     operation = _abandoned_destroy_operation(attempt, intent["digest"],
@@ -2443,9 +2461,40 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
     # FENCED WITH THE ADOPTED RECORD'S OWN VALUES. A resumed call must reissue
     # the SAME authority operation with the SAME reason, and reading them off
     # the committed declaration is what makes that true across a restart.
-    fenced = port.cancel(dict(expect),
-                         intent["document"]["authority_operation_id"],
-                         intent["document"]["reason"],
+    #
+    # W247941: AND WHEN THE ADOPTED IDENTITY IS THE CANCELLATION'S, SO IS THE
+    # REASON. The Authority signs a cancel over `{expect, reason}`, so
+    # replaying its operation with the abandonment's own reason would be a
+    # DIFFERENT act at the same identity and would collide rather than replay.
+    # The reason is taken from the proved cancellation record -- never from
+    # the caller and never from the axis -- and the abandonment's declaration
+    # keeps its own reason in its own record, which is what
+    # `abandonment_cleanup_of` and every later reader still see.
+    #
+    # W247941: THE DECLARATION'S BYTES AND THE FENCE EVIDENCE ARE SEPARATE
+    # FACTS, and review 2026-09-24T10:11:35Z [P1] is why they have to be. The
+    # record says which identity this ending DECLARED it would fence under and
+    # is never rewritten; which Authority operation actually fences THIS
+    # generation is decided here, from the cancellation record this manager
+    # validated member by member and from the Authority's own answer to it.
+    #
+    # So a declaration committed before any cancellation -- including one
+    # interrupted and resumed long afterwards -- keeps its bytes and still
+    # ends, because the fence it needs is the cancellation's replay rather
+    # than a second cancel over a generation that is already ended.
+    #
+    # NOTHING IS INFERRED FROM THE RECORD. `port.cancel` is still called and
+    # `_abandoned_fence` still owns the answer; the record decides only which
+    # operation is replayed and with which reason -- the Authority signs a
+    # cancel over `{expect, reason}`, so the cancellation's own reason is the
+    # only one that replays it rather than colliding with it.
+    if cancelled is None:
+        adopted_fence = intent["document"]["authority_operation_id"]
+        fence_reason = intent["document"]["reason"]
+    else:
+        adopted_fence = cancelled["authority_operation_id"]
+        fence_reason = cancelled["reason"]
+    fenced = port.cancel(dict(expect), adopted_fence, fence_reason,
                          expect["work_ref"]["work_id"],
                          expect["work_ref"]["authority_uuid"])
     # THE WORLD IS READ AGAIN BEFORE THE DESTRUCTIVE STEP, because the
@@ -2495,7 +2544,8 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
             f"{name_value(settled['runtime_id'])}; the record and the act it "
             f"authorizes must describe one runtime")
     observed = _destroyed_abandoned(adapter, settled, attempt_id, operation,
-                                    intent["digest"], retention_policy_digest)
+                                    intent["digest"], retention_policy_digest,
+                                    seconds=seconds)
     pending = _not_an_ending(store, settled, attempt_id, observed, operation)
     if pending is not None:
         # UNSETTLED, AND SAID IN THE SAME SHAPE. Nothing is journalled, so a
@@ -2512,7 +2562,8 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
     # ending. What is journalled is what is answered, and replay returns it
     # without rereading a removed runtime or a mutable axis.
     if observed["state"] == "absent":
-        _normalized(store, adapter, attempt_id)
+        _normalized(store, adapter, attempt_id, seconds=seconds,
+                    reclaim=reclaim)
     return store.transact(
         operation["operation_id"], "runtime.destroy-abandoned", signature,
         lambda connection: documents.abandonment(
@@ -3245,12 +3296,148 @@ def _abandon_fence_operation_id(attempt):
     is not a cancellation and must not be able to replay one, and the
     declaration is this manager's record rather than the authority's act --
     three identities because they are three acts.
+
+    SUPERSEDED IN PART, 2026-09-24, W247941, owner selection 255814. The
+    sentence above -- "must not be able to replay one" -- was written for an
+    attempt that has NOT been cancelled, and for that attempt it stands
+    unchanged: this identity is still what a fresh declaration fences under.
+
+    WHAT IT GOT WRONG is the case where a cancellation ALREADY fenced this
+    exact generation. The Authority ends a generation once
+    (`assignment generation was fenced and ended`), so a second identity over
+    an already-fenced generation cannot fence anything -- it can only refuse.
+    Measured on the preserved two-Job run: both attempts sit `quiescent` with
+    `cleanup: pending`, a committed `attempt.cancel`, no intake receipt and a
+    deadline pin whose policy is null, and every one of the three endings
+    declines. The runtime, its two roots and the installed gate had no
+    operation that could settle them.
+
+    So the RESTRICTION IS NARROWED, not erased: an abandonment still never
+    ISSUES a cancellation, and it still never infers a fence from an intent.
+    When this attempt's own committed cancellation exists, the abandonment
+    fences by REPLAYING that cancellation's Authority operation with its own
+    reason and its own fixed assignment, and it acts only on the Authority's
+    validated answer -- which is the shape `deadlines._cancel_for_deadline`
+    already uses and this build already accepts. The abandonment's declaration
+    and its reason stay separate and stay this manager's own record.
+
+    THE DERIVATION HERE IS UNCHANGED, deliberately: `_abandon_intent` signs
+    the fence identity it was given and validates it on replay, so an
+    abandonment intent committed before this change replays against exactly
+    the string it recorded. Nothing rewrites a journal.
     """
     taken = boundaries.document(attempt, "a persisted attempt",
                                 required=tuple(schema.ATTEMPT_COLUMNS))
     return "authority.abandon-fence:" + digest({
         "attempt_id": taken["runtime_attempt_id"],
         "assignment": _fixed_assignment(taken)})[len("sha256:"):]
+
+
+def _committed_cancellation(store, attempt, attempt_id, expect):
+    """THIS attempt's own committed cancellation, proved, or `None`.
+
+    W247941, owner selection 255814. The abandonment fences an already-fenced
+    generation by replaying the cancellation the Authority already accepted,
+    and the only thing that may authorize such a replay is a record that is
+    provably THIS attempt's.
+
+    HELD TO EXACTLY WHAT `unstarted_cancellation_of` HOLDS ITS OWN COPY TO,
+    and for the reason that reader states: "a well-formed row naming a foreign
+    attempt and a foreign generation" must not prove this one. The identity is
+    derived here from the attempt and its fixed assignment; the record must be
+    `committed`, carry the `attempt.cancel` kind, decode to the exact intent
+    document those operands compose, and carry the signature those same
+    operands produce. The reason is the one member that is not derivable, so
+    it is taken FROM the record and then used to recompute the canonical
+    document and signature -- which is what makes taking it safe.
+
+    ABSENCE IS `None` AND A DISAGREEMENT IS A REFUSAL. An attempt that was
+    never cancelled is the ordinary case and fences under its own identity; a
+    cancellation record this manager cannot account for is not something to
+    fall back past, because falling back would fence under a second identity
+    over a generation that may already be ended.
+    """
+    operation_id = attempts._cancel_operation_id(attempt)
+    record = store.operation_record(operation_id)
+    if record is None or record["state"] != "committed" \
+            or record["kind"] != "attempt.cancel":
+        return None
+    authority_operation_id = attempts._authority_cancel_operation_id(attempt)
+    try:
+        recorded = json.loads(record["result"])
+    except (TypeError, ValueError):
+        recorded = None
+    if type(recorded) is not dict:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the cancellation recorded at {name_value(operation_id)} "
+            f"retained no intent document; an abandonment does not replay an "
+            f"Authority operation it cannot account for")
+    expected_intent = documents.cancel_intent(
+        attempt_id=attempt_id, assignment=expect,
+        authority_operation_id=authority_operation_id,
+        reason=recorded.get("reason"))
+    if recorded != expected_intent:
+        parts = "; ".join(
+            f"{member} {name_value(recorded.get(member))} where this attempt "
+            f"names {name_value(expected_intent[member])}"
+            for member in sorted(expected_intent)
+            if recorded.get(member) != expected_intent[member])
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the cancellation recorded at {name_value(operation_id)} names "
+            f"{parts}; a committed intent is evidence about the attempt and "
+            f"generation it actually names")
+    expected_signature = manager_signature(
+        "attempt.cancel",
+        {"attempt_id": attempt_id, "expect": expect,
+         "authority_operation_id": authority_operation_id,
+         "reason": recorded.get("reason")})
+    if record["signature"] != expected_signature:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the cancellation recorded at {name_value(operation_id)} carries "
+            f"a signature this attempt's own operands do not produce; its "
+            f"record was written over something else")
+    return recorded
+
+
+def _declared_fence_identity(store, attempt):
+    """The fence operand a COMMITTED declaration already signed, or `None`.
+
+    W247941 review 2026-09-24T10:11:35Z [P1]. The first cut of Correction A
+    chose the declaration's fence operand from the world as it stands NOW, so
+    an abandonment interrupted after its declaration committed and cancelled
+    afterwards had its next identical request compose a different operand at
+    the same `attempt.abandon:` identity -- and refuse at §4.2 with the
+    cleanup still absent. "Keeping the identity derivation function unchanged
+    does not preserve its selected operand when the call site now chooses a
+    different identity."
+
+    So the RECORD decides, and only a declaration that does not exist yet is
+    free to choose. This reads the committed declaration's own operand back
+    and hands it to `_abandon_intent`, which then signs and validates exactly
+    what was written. Nothing is overwritten and no signature check is
+    weakened: every other member of that record is still compared against the
+    live attempt there.
+
+    WHAT THIS IS NOT is fence evidence. The operand is the identity the
+    declaration recorded; whether this generation is fenced, and under which
+    Authority operation, is decided at the fence itself from the separately
+    validated cancellation record and the Authority's own answer.
+    """
+    record = store.operation_record(_abandon_operation_id(attempt))
+    if record is None or record["state"] != "committed" \
+            or record["kind"] != "attempt.abandon":
+        return None
+    try:
+        recorded = json.loads(record["result"])
+    except (TypeError, ValueError):
+        return None
+    if type(recorded) is not dict:
+        return None
+    held = recorded.get("authority_operation_id")
+    return held if type(held) is str and held else None
 
 
 def _abandon_intent(store, attempt, attempt_id, expect, reason,
@@ -3467,7 +3654,8 @@ def _declared(connection, attempt_id, document):
 
 
 def _destroyed_abandoned(adapter, attempt, attempt_id, operation,
-                         record_digest, retention_policy_digest):
+                         record_digest, retention_policy_digest, *,
+                         seconds=None):
     """The abandonment crossing, under the same observation rules.
 
     THE WHOLE BODY CROSSES, as it does on both siblings: what makes this
@@ -3475,15 +3663,22 @@ def _destroyed_abandoned(adapter, attempt, attempt_id, operation,
     declaration, and the operation rides beside the body so the delivery is
     effectively-once at the adapter too.
     """
+    command = {
+        **documents.abandoned_destroy_command(
+            assignment_ref=_fixed_assignment(attempt),
+            runtime_attempt_id=attempt_id,
+            runtime_id=attempt["runtime_id"],
+            abandonment_record_digest=record_digest,
+            retention_policy_digest=retention_policy_digest),
+        "operation": dict(operation)}
+    # THE COMMAND IS UNCHANGED AND THE ALLOWANCE RIDES BESIDE IT, never in it:
+    # the command is what the durable identity is derived from, and execution
+    # control must not enter a signed document. An adapter composed before
+    # this allowance existed does not take the keyword, so an UNBOUNDED call
+    # is byte for byte the call it always was.
     answer = boundaries.document(
-        adapter.destroy_abandoned({
-            **documents.abandoned_destroy_command(
-                assignment_ref=_fixed_assignment(attempt),
-                runtime_attempt_id=attempt_id,
-                runtime_id=attempt["runtime_id"],
-                abandonment_record_digest=record_digest,
-                retention_policy_digest=retention_policy_digest),
-            "operation": dict(operation)}),
+        adapter.destroy_abandoned(command) if seconds is None
+        else adapter.destroy_abandoned(command, seconds=seconds),
         "an abandoned-attempt destroy observation",
         required=_DESTROY_MEMBERS[0], optional=_DESTROY_MEMBERS[1])
     boundaries.identity(answer["runtime_id"], "an observed runtime id")
@@ -3706,7 +3901,7 @@ def _custody_capable(adapter):
     return adapter
 
 
-def _normalized(store, adapter, attempt_id):
+def _normalized(store, adapter, attempt_id, *, seconds=None, reclaim=None):
     """Both roots, RESULT FIRST, before anything terminal is committed.
 
     W43975 review [P0] point 4 and 5. The order is the containment: `result`
@@ -3724,8 +3919,12 @@ def _normalized(store, adapter, attempt_id):
     from . import custody as _custody
 
     for which in ("result", "workspace"):
+        # ONE DECREASING ALLOWANCE ACROSS BOTH ROOTS. `seconds` is read at
+        # each boundary rather than divided in advance, so the second root
+        # gets what the first left rather than a fresh half.
         _custody.normalize_directory(store, adapter, assignment_id=attempt_id,
-                                     which=which)
+                                     which=which, seconds=seconds,
+                                     reclaim=reclaim)
 
 
 def _adopted_custody(store, adapter, attempt_id):

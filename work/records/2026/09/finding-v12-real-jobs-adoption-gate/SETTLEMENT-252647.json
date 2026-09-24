@@ -1,0 +1,288 @@
+{
+  "admitted_attempts": [
+    "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5",
+    "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec"
+  ],
+  "attempts": {
+    "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5": {
+      "abandoned_gate_discharge": {
+        "answer": null,
+        "asked": "the ABANDONED gate discharge, which is the other door"
+      },
+      "abandonment_cleanup": {
+        "answer": null,
+        "asked": "a committed ABANDONMENT cleanup, the faulted-turn door"
+      },
+      "assignment": {
+        "answer": {
+          "authority_uuid": "a8d745e66ab94f5dbc6e83bf7d8cbb97",
+          "effective_scope": "scope:deployment",
+          "generation": 1,
+          "participant": "baton.impl-a",
+          "principal": "principal:baton.impl-a",
+          "runtime_attempt_id": "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5",
+          "work_id": "a8d745e6-W1"
+        },
+        "asked": "the durable assignment fixed to this attempt"
+      },
+      "cleanup": {
+        "answer": null,
+        "asked": "a committed cleanup under this run's retention policy"
+      },
+      "frozen_output": {
+        "answer": null,
+        "asked": "the frozen result this attempt produced"
+      },
+      "gate_discharge": {
+        "answer": null,
+        "asked": "the intake gate's discharge"
+      },
+      "intake_receipt": {
+        "answer": null,
+        "asked": "the intake receipt for this attempt's output"
+      },
+      "preparation_failure": {
+        "answer": null,
+        "asked": "a recorded preparation failure"
+      },
+      "runtime": {
+        "answer": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.impl-a",
+            "work_ref": {
+              "authority_uuid": "a8d745e66ab94f5dbc6e83bf7d8cbb97",
+              "work_id": "a8d745e6-W1"
+            }
+          },
+          "attempt_id": "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5",
+          "cleanup": "pending",
+          "execution_runtime": "quiescent",
+          "runtime_id": "3e314e62c57221bb9fa2be0abd6b679a10c12de071bbfdb818b960bcb79f28d7"
+        },
+        "asked": "the runtime axis this manager recorded"
+      },
+      "start_failure": {
+        "answer": null,
+        "asked": "a recorded start failure"
+      }
+    },
+    "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec": {
+      "abandoned_gate_discharge": {
+        "answer": null,
+        "asked": "the ABANDONED gate discharge, which is the other door"
+      },
+      "abandonment_cleanup": {
+        "answer": null,
+        "asked": "a committed ABANDONMENT cleanup, the faulted-turn door"
+      },
+      "assignment": {
+        "answer": {
+          "authority_uuid": "a8d745e66ab94f5dbc6e83bf7d8cbb97",
+          "effective_scope": "scope:deployment",
+          "generation": 1,
+          "participant": "baton.impl-b",
+          "principal": "principal:baton.impl-b",
+          "runtime_attempt_id": "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec",
+          "work_id": "a8d745e6-W2"
+        },
+        "asked": "the durable assignment fixed to this attempt"
+      },
+      "cleanup": {
+        "answer": null,
+        "asked": "a committed cleanup under this run's retention policy"
+      },
+      "frozen_output": {
+        "answer": null,
+        "asked": "the frozen result this attempt produced"
+      },
+      "gate_discharge": {
+        "answer": null,
+        "asked": "the intake gate's discharge"
+      },
+      "intake_receipt": {
+        "answer": null,
+        "asked": "the intake receipt for this attempt's output"
+      },
+      "preparation_failure": {
+        "answer": null,
+        "asked": "a recorded preparation failure"
+      },
+      "runtime": {
+        "answer": {
+          "assignment": {
+            "generation": 1,
+            "participant": "baton.impl-b",
+            "work_ref": {
+              "authority_uuid": "a8d745e66ab94f5dbc6e83bf7d8cbb97",
+              "work_id": "a8d745e6-W2"
+            }
+          },
+          "attempt_id": "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec",
+          "cleanup": "pending",
+          "execution_runtime": "quiescent",
+          "runtime_id": "a400b6804609ed60a3aad4b67b1cda69ee876e5fee215edd738908a30f765563"
+        },
+        "asked": "the runtime axis this manager recorded"
+      },
+      "start_failure": {
+        "answer": null,
+        "asked": "a recorded start failure"
+      }
+    }
+  },
+  "authority_uuid": "a8d745e66ab94f5dbc6e83bf7d8cbb97",
+  "claim": 252647,
+  "endings": [
+    {
+      "attempt_id": "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5",
+      "both": {
+        "answer": null,
+        "asked": "both halves in one read"
+      },
+      "episode": 1,
+      "intent": {
+        "answer": null,
+        "asked": "the registered composed-ending obligation"
+      },
+      "job_id": "job-a",
+      "kind": "implementation",
+      "settlement": {
+        "answer": null,
+        "asked": "that obligation's paired settlement"
+      },
+      "stage_id": "job-a/implementation"
+    },
+    {
+      "attempt_id": "attempt-89e036e11661332424541abb3a7a211cd49ed21a4d362683c8f7629181453a54",
+      "both": {
+        "answer": null,
+        "asked": "both halves in one read"
+      },
+      "episode": 1,
+      "intent": {
+        "answer": null,
+        "asked": "the registered composed-ending obligation"
+      },
+      "job_id": "job-a",
+      "kind": "review",
+      "settlement": {
+        "answer": null,
+        "asked": "that obligation's paired settlement"
+      },
+      "stage_id": "job-a/review"
+    },
+    {
+      "attempt_id": "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec",
+      "both": {
+        "answer": null,
+        "asked": "both halves in one read"
+      },
+      "episode": 1,
+      "intent": {
+        "answer": null,
+        "asked": "the registered composed-ending obligation"
+      },
+      "job_id": "job-b",
+      "kind": "implementation",
+      "settlement": {
+        "answer": null,
+        "asked": "that obligation's paired settlement"
+      },
+      "stage_id": "job-b/implementation"
+    },
+    {
+      "attempt_id": "attempt-d17bd1f965aef7efa1693a7056cdea79301e9e2ea93ffbe5bd49f053e76394f1",
+      "both": {
+        "answer": null,
+        "asked": "both halves in one read"
+      },
+      "episode": 1,
+      "intent": {
+        "answer": null,
+        "asked": "the registered composed-ending obligation"
+      },
+      "job_id": "job-b",
+      "kind": "review",
+      "settlement": {
+        "answer": null,
+        "asked": "that obligation's paired settlement"
+      },
+      "stage_id": "job-b/review"
+    }
+  ],
+  "pending_endings": {
+    "answer": [],
+    "asked": "every ending this store still owes"
+  },
+  "read_only": true,
+  "run_root": "/home/sl/baton-instances/two-jobs-251156",
+  "schema": "baton.v12-two-job-settlement/1",
+  "stages": [
+    {
+      "episodes": {
+        "answer": [
+          {
+            "attempt_id": "attempt-79177c237b58a5e1f3fa35a25cf684b3fd9ec91a7323a660795d68623ea971b5",
+            "episode": 1,
+            "state": null
+          }
+        ],
+        "asked": "the episodes this stage has been through"
+      },
+      "job_id": "job-a",
+      "kind": "implementation",
+      "stage_id": "job-a/implementation",
+      "state": null
+    },
+    {
+      "episodes": {
+        "answer": [
+          {
+            "attempt_id": "attempt-89e036e11661332424541abb3a7a211cd49ed21a4d362683c8f7629181453a54",
+            "episode": 1,
+            "state": null
+          }
+        ],
+        "asked": "the episodes this stage has been through"
+      },
+      "job_id": "job-a",
+      "kind": "review",
+      "stage_id": "job-a/review",
+      "state": null
+    },
+    {
+      "episodes": {
+        "answer": [
+          {
+            "attempt_id": "attempt-d514aa479c4d41c3c17ea5ebfab41d89b43c26eba948c87ec66ef850597461ec",
+            "episode": 1,
+            "state": null
+          }
+        ],
+        "asked": "the episodes this stage has been through"
+      },
+      "job_id": "job-b",
+      "kind": "implementation",
+      "stage_id": "job-b/implementation",
+      "state": null
+    },
+    {
+      "episodes": {
+        "answer": [
+          {
+            "attempt_id": "attempt-d17bd1f965aef7efa1693a7056cdea79301e9e2ea93ffbe5bd49f053e76394f1",
+            "episode": 1,
+            "state": null
+          }
+        ],
+        "asked": "the episodes this stage has been through"
+      },
+      "job_id": "job-b",
+      "kind": "review",
+      "stage_id": "job-b/review",
+      "state": null
+    }
+  ],
+  "work": "W247941"
+}

@@ -1,0 +1,16 @@
+{
+  "claim": 248523,
+  "operation": "ControlStore.open_readonly(... incarnation=review-248523-readonly, clock=review_supervisor._moment)",
+  "source": "/home/sl/baton-runs/independent-review-247947/manager-source",
+  "path": "/home/sl/baton-runs/single-implementation-244216/db/control.sqlite3",
+  "result": "ContractRefusal: the existing manager store could not be read through its non-writing opener (OperationalError); no write-capable fallback was attempted",
+  "attribution": "Underlying cause not exposed by supported API; no raw SQLite inspection or alternative opener used. First probe omitted required incarnation (reviewer API misuse), corrected before this operational refusal.",
+  "packet_checks": "held_packet and verify_imported_sources(program=review_supervisor.py) passed",
+  "docker_inspect": {
+    "runtime_id": "7999b7b4bdf6a9c388429593590821969b7c6e494563f1b715aa0bc4a3c3a607",
+    "exit_code": 1,
+    "stdout": "[]",
+    "stderr": "error: no such object: 7999b7b4bdf6a9c388429593590821969b7c6e494563f1b715aa0bc4a3c3a607",
+    "interpretation": "Exact runtime absent on the available Docker daemon."
+  }
+}

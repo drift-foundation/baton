@@ -1,0 +1,13 @@
+{
+  "claim": 249905,
+  "mode": "static pinned source review; no test/store execution",
+  "supervisor_sha256": "fb9718f1932582499943de67d2babc880376092b20a7ea5e4e0378756753987d",
+  "snapshot": "/home/sl/baton-runs/independent-review-247947/manager-source",
+  "sources": {
+    "job_manager/projection.py:789": "allocation comes from scheduler.allocation_of",
+    "job_manager/scheduler.py:255": "allocation joins pool_generations using generation",
+    "job_manager/schema.py:325": "pool generation and Authority assignment generation explicitly different axes",
+    "worker_manager/attempts.py:650": "assignment_of returns durable assignment_generation fixed to runtime attempt",
+    "worker_manager/review_cycles.py:633": "lookup binds attachment.assignment_generation"
+  }
+}

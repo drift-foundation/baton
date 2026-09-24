@@ -1,0 +1,5 @@
+{
+  "unique_placeholder_probe": "KeyError: 'implementation_principal'",
+  "submission": "ContractRefusal: a submitted Job needs test_scope, terminal_policy",
+  "initial_submission_probe_note": "Reviewer misuse: read_submission expects serialized text, corrected below."
+}

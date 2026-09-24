@@ -1,0 +1,13 @@
+{
+  "names": [
+    "test_the_shipped_template_still_asks_every_operand_by_name",
+    "test_the_documented_command_writes_both_documents",
+    "test_the_written_deployment_is_the_one_the_product_accepts",
+    "test_the_written_submission_is_one_the_public_reader_accepts",
+    "test_an_unresolved_template_is_refused_by_name"
+  ],
+  "tests": 5,
+  "failures": 3,
+  "errors": 0,
+  "seconds": 0.7750472110055853
+}

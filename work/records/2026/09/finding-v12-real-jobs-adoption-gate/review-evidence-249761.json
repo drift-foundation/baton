@@ -1,0 +1,9 @@
+{
+  "claim": 249761,
+  "checks": {
+    "JobStore": "missing a required argument: 'clock'",
+    "ControlStore": "missing a required argument: 'clock'"
+  },
+  "supervisor_sha256": "8348efa64f290f16dda729dd068c8e4c750705cbbc9930abbd348c8d1e2fcbdf",
+  "scope": "Signature binding only; no store opened."
+}

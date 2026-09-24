@@ -1,3 +1,29 @@
+# Explicit adoption finish line — W247941
+
+W239533 accepted independent review -> W247941 bounded parallel deployment
+assessment and READY report -> owner satisfying disposition -> real v12 Jobs.
+W247941 is bound to work/records/2026/09/finding-v12-real-jobs-adoption-gate.
+Its W239533 ledger dependency awaits the owner route-handler operation. Reuse
+is an early v12 Job, not an initial-adoption gate. Reuse sufficient evidence;
+no broad new test campaign or refactor.
+
+---
+
+# Current workflow policy — owner 2026-09-23
+
+Apply AGENTS.md Delivery continuity and bounded context now: reviewer sends
+routine corrections directly to implementation, accepted delivery to owner;
+use concise current checkpoints and targeted historical reads. Preserve active
+claims. Pending operational follow-up: at a safe handoff, verify supported
+runner compaction/replacement and refresh the oversized Claude context from
+a durable checkpoint. No reset has been performed. Human owns WIP commits;
+no commit is needed solely to continue authorized work.
+
+V12 continuation/checkpoint/context maintenance improvements belong among early
+Jobs, without expanding initial adoption gates. Delivery sequence remains below.
+
+---
+
 # Current next actions — owner-confirmed v12 adoption path
 
 1. Finish W239533: demonstrate the actual independent-review execution path

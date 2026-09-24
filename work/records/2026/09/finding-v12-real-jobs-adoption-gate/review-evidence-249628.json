@@ -1,0 +1,11 @@
+{
+  "claim": 249628,
+  "classes": [
+    "EachJobCollectsItsOwnFROZENAttributedVerdict",
+    "TheGateAdmitsFourAndNoMore"
+  ],
+  "tests": 9,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 3.3434661490027793
+}

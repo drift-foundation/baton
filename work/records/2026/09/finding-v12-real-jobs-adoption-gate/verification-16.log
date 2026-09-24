@@ -1,0 +1,77 @@
+test_both_implementations_are_waiting_at_the_same_instant (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_both_implementations_are_waiting_at_the_same_instant) ... ok
+test_each_attempt_mounts_its_own_workspace (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_each_attempt_mounts_its_own_workspace) ... ok
+test_each_runs_on_its_own_allocated_producer (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_each_runs_on_its_own_allocated_producer) ... ok
+test_each_writes_its_own_line_from_its_own_source (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_each_writes_its_own_line_from_its_own_source) ... ok
+test_the_document_that_actually_served_is_this_arrangements (test_two_jobs.BothJobsAreActivelyExecutingAtOneObservedInstant.test_the_document_that_actually_served_is_this_arrangements)
+Otherwise these four cases would be re-running W130224's evidence. ... ok
+test_BOTH_jobs_reach_their_own_reviewers (test_two_jobs.EachJobCollectsItsOwnAttributedVerdict.test_BOTH_jobs_reach_their_own_reviewers)
+Two verdicts, not one -- R3: "only B review waiting, no pair". ... ok
+test_the_second_job_reaches_its_own_reviewer (test_two_jobs.EachJobCollectsItsOwnAttributedVerdict.test_the_second_job_reaches_its_own_reviewer)
+Its own, not the first Job's -- which is what a shared pool could ... ok
+test_both_verdicts_are_derived_from_their_own_frozen_results (test_two_jobs.EachJobCollectsItsOwnFROZENAttributedVerdict.test_both_verdicts_are_derived_from_their_own_frozen_results) ... ok
+test_each_reviewer_is_the_one_configured_for_that_job (test_two_jobs.EachJobCollectsItsOwnFROZENAttributedVerdict.test_each_reviewer_is_the_one_configured_for_that_job)
+Independence, read from the retained attachment rows. ... ok
+test_each_verdict_is_bound_to_its_own_checkpoint_and_objects (test_two_jobs.EachJobCollectsItsOwnFROZENAttributedVerdict.test_each_verdict_is_bound_to_its_own_checkpoint_and_objects)
+The cross-binding, which is what makes a claim a verdict. ... ok
+test_no_correction_round_opened_for_either_job (test_two_jobs.EachJobCollectsItsOwnFROZENAttributedVerdict.test_no_correction_round_opened_for_either_job)
+`correction_policy: "decline"` is composed; this is it holding. ... ok
+test_each_binding_names_its_own_producer_and_one_work (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_each_binding_names_its_own_producer_and_one_work) ... ok
+test_the_document_declines_the_correction_round (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_document_declines_the_correction_round)
+The boundary is composed, not asserted in prose. ... ok
+test_the_document_the_product_validator_accepts (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_document_the_product_validator_accepts) ... ok
+test_the_per_job_facts_are_the_bindings_and_not_the_instance (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_per_job_facts_are_the_bindings_and_not_the_instance)
+Where each Job's Work, base and target actually come from. ... ok
+test_the_pool_this_gate_composes_is_four_stage_workers (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_pool_this_gate_composes_is_four_stage_workers)
+Two producers and two reviewers, and no third lane of its own. ... ok
+test_the_submission_carries_no_integration_stage (test_two_jobs.TheArrangementIsTheSupportedCompositionResolved.test_the_submission_carries_no_integration_stage) ... ok
+test_a_reserve_outside_the_total_is_refused (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_a_reserve_outside_the_total_is_refused) ... ok
+test_a_run_that_admitted_nothing_is_HELD_rather_than_settled (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_a_run_that_admitted_nothing_is_HELD_rather_than_settled)
+The defect this rule closes, asserted rather than trusted. ... ok
+test_a_serving_failure_still_publishes_an_outcome (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_a_serving_failure_still_publishes_an_outcome) ... ok
+test_admission_is_closed_before_anything_is_cancelled (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_admission_is_closed_before_anything_is_cancelled) ... ok
+test_an_interruption_publishes_the_outcome_and_still_raises (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_an_interruption_publishes_the_outcome_and_still_raises) ... ok
+test_the_SUPERVISED_run_reaches_four_attempts_and_two_verdicts (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_the_SUPERVISED_run_reaches_four_attempts_and_two_verdicts)
+R4's success: the whole bounded run, over the composed deployment. ... ok
+test_the_cleanup_window_is_inside_the_total (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_the_cleanup_window_is_inside_the_total) ... ok
+test_the_run_records_the_REAL_assignment_generations (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_the_run_records_the_REAL_assignment_generations)
+From each stage's own allocation, not from the launch document. ... ok
+test_the_run_stops_at_total_minus_cleanup_and_publishes (test_two_jobs.TheBoundedTwoJobRunStopsAndAccountsForItself.test_the_run_stops_at_total_minus_cleanup_and_publishes) ... ok
+test_a_stage_of_neither_job_is_foreign_rather_than_a_cap_refusal (test_two_jobs.TheGateAdmitsFourAndNoMore.test_a_stage_of_neither_job_is_foreign_rather_than_a_cap_refusal) ... ok
+test_a_stopped_gate_admits_nothing_further (test_two_jobs.TheGateAdmitsFourAndNoMore.test_a_stopped_gate_admits_nothing_further)
+What a bounded stop rests on, asserted rather than assumed. ... ok
+test_a_third_job_is_refused_before_anything_is_served (test_two_jobs.TheGateAdmitsFourAndNoMore.test_a_third_job_is_refused_before_anything_is_served) ... ok
+test_four_admissions_are_spent_and_a_fifth_is_refused (test_two_jobs.TheGateAdmitsFourAndNoMore.test_four_admissions_are_spent_and_a_fifth_is_refused)
+Two implementations and two reviews, taken ON THE GATE. ... ok
+test_the_gate_binds_the_accepted_machinery_by_digest (test_two_jobs.TheGateAdmitsFourAndNoMore.test_the_gate_binds_the_accepted_machinery_by_digest) ... ok
+test_the_gate_records_the_provenance_a_verdict_read_needs (test_two_jobs.TheGateAdmitsFourAndNoMore.test_the_gate_records_the_provenance_a_verdict_read_needs)
+Review 2026-09-23T18:06:35Z: nothing ever wrote these two. ... ok
+test_MAIN_opens_the_stores_and_publishes_an_outcome (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_MAIN_opens_the_stores_and_publishes_an_outcome)
+The entrypoint, invoked -- not described. ... ok
+test_MAIN_runs_the_whole_command_and_publishes_its_outcome (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_MAIN_runs_the_whole_command_and_publishes_its_outcome)
+The COMMAND, end to end -- and NOT yet a success through it. ... ok
+test_a_composition_bound_to_the_CHECKOUT_is_refused (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_a_composition_bound_to_the_CHECKOUT_is_refused)
+The pin check and the composition must be about the same bytes. ... ok
+test_an_invalid_terminal_policy_is_refused_at_composition (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_an_invalid_terminal_policy_is_refused_at_composition)
+Not at submission, where an operator would meet it instead. ... ok
+test_an_unresolved_template_is_refused_by_name (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_an_unresolved_template_is_refused_by_name) ... ok
+test_the_documented_command_writes_both_documents (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_documented_command_writes_both_documents) ... ok
+test_the_shipped_template_still_asks_every_operand_by_name (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_shipped_template_still_asks_every_operand_by_name)
+Otherwise this class would resolve fields nobody ships. ... ok
+test_the_written_deployment_is_the_one_the_product_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_deployment_is_the_one_the_product_accepts) ... ok
+test_the_written_submission_is_one_the_public_reader_accepts (test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_written_submission_is_one_the_public_reader_accepts)
+R1's second half: the reader refused it for two missing members. ... ok
+test_a_producer_reviewing_its_own_job (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_a_producer_reviewing_its_own_job) ... ok
+test_a_third_job_is_a_different_selection (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_a_third_job_is_a_different_selection) ... ok
+test_one_reviewer_for_both_jobs (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_one_reviewer_for_both_jobs)
+Not refused by the product -- refused by THIS gate's limit. ... ok
+test_one_source_for_both_jobs_is_NOT_refused (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_one_source_for_both_jobs_is_NOT_refused)
+Two lines of one target at one base is the supported shape. ... ok
+test_one_task_for_both_jobs (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_one_task_for_both_jobs)
+Two Jobs given one task document are one Job submitted twice. ... ok
+test_one_work_for_both_jobs (test_two_jobs.TwoJobsThatAreSecretlyOneAreRefused.test_one_work_for_both_jobs)
+One Work is one line: their stages could not even be told apart. ... ok
+
+----------------------------------------------------------------------
+Ran 47 tests in 25.860s
+
+OK

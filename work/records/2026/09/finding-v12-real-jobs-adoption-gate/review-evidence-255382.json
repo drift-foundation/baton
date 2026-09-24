@@ -1,0 +1,45 @@
+{
+  "claim": 255382,
+  "scope": "real single_worker composition, fake engine/provider; no deployed operation",
+  "answer": {
+    "intent": {
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      },
+      "runtime_id": "runtime-single-1",
+      "decision": "abandoned",
+      "authority_operation_id": "authority.abandon-fence:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+      "reason": "the two-Job run stopped and this attempt never answered"
+    },
+    "fenced": {
+      "cause": "cancelled",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      },
+      "phase": "block",
+      "gate": "runtime-quiescence:1",
+      "fenced": true
+    },
+    "cleanup": {
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "state": "uncertain",
+      "why": "the engine refused to inspect this runtime: no such container",
+      "operation": {
+        "operation_id": "runtime.destroy-abandoned:99e9f3dd27d068f8716e7cfc6d0e8e96ebe4e36ef082fc7c5d89d713d3603a89",
+        "signature_digest": "sha256:dfa656d8e03fd8fa33bcf2357d4f166d65dabc89d41860cc797d95892d954638"
+      }
+    }
+  },
+  "seconds": 0.061633833014639094
+}

@@ -1,0 +1,13 @@
+test_it_stops_at_the_serving_deadline_rather_than_completing (test_review_lifecycle.TheTotalBoundHoldsWhenTheRunCannotFinish.test_it_stops_at_the_serving_deadline_rather_than_completing) ... ok
+test_serving_stops_at_total_minus_cleanup (test_review_lifecycle.TheTotalBoundHoldsWhenTheRunCannotFinish.test_serving_stops_at_total_minus_cleanup) ... ok
+test_no_cleanup_action_starts_after_the_total_deadline (test_review_lifecycle.TheTotalBoundHoldsWhenTheRunCannotFinish.test_no_cleanup_action_starts_after_the_total_deadline)
+The whole run, on the controlled clock -- not `served_seconds`. ... ok
+test_removing_the_deadline_check_would_change_this_answer (test_review_lifecycle.TheTotalBoundHoldsWhenTheRunCannotFinish.test_removing_the_deadline_check_would_change_this_answer)
+The case is sensitive to the thing it claims to test. ... ok
+test_an_interruption_INSIDE_THE_SHUTDOWN_is_observed_not_inferred (test_review_lifecycle.AnOutstandingAdmittedAttemptIsNamedExactly.test_an_interruption_INSIDE_THE_SHUTDOWN_is_observed_not_inferred)
+The injected point is asserted to have been reached. ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.491s
+
+OK

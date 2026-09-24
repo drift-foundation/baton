@@ -946,11 +946,20 @@ class TheRunReportsWhatItCouldNotPrevent(SupervisionCase):
                 for one in outcome["held_because"]), outcome["held_because"])
         self.assertIn("open_correction", outcome["correction_limitation"])
 
-    def test_the_limitation_names_the_exact_product_site(self):
+    def test_the_limitation_names_the_boundary_that_now_closes_it(self):
+        """The limitation text moved when the product change closed it.
+
+        It used to say the round could not be prevented and that the fix
+        belonged to the owning implementation scope. Owner selection 247421
+        made that change, so the text now names the boundary instead -- and a
+        round appearing ANYWAY is a fault worth holding on rather than a state
+        to accommodate.
+        """
         said = review_supervisor.CORRECTION_LIMITATION
         self.assertIn("StageComposition.routed", said)
         self.assertIn("open_correction", said)
-        self.assertIn("owning implementation scope", said)
+        self.assertIn("correction_policy", said)
+        self.assertIn("did not hold", said)
 
 
 def load_tests(loader, standard, pattern):                   # noqa: ARG001

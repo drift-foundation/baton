@@ -50,6 +50,7 @@ here edits that module or its dossier.
 """
 
 import argparse
+import inspect
 import json
 import os
 import sys
@@ -150,6 +151,35 @@ def _refuse(message):
     raise _reuse().BindingRefusal(message)
 
 
+# A LEADING UNDERSCORE MARKS A DOCUMENTATION MEMBER, everywhere in this
+# packet's documents. `SELECTIONS-239533.json` explains its own operands in
+# `_note`, `_independence` and `_manager_source_note` members, and until claim
+# 248565 those notes reached two entry points that had no idea they were prose:
+# the CLI passed `selections["compose"]` straight through as `**kwargs`, so
+# `_manager_source_note` raised `TypeError` before `compose` was entered, and
+# `compose` copied `bounds` verbatim into `PACKET.json`, so `bounds._note` made
+# `review_supervisor.held_packet` refuse at startup. Both were found by an
+# owner running the actual documented commands against the actual shipped
+# template -- the synthetic selections every test wrote had no notes in them.
+DOCUMENTATION = "_"
+
+
+def without_documentation(value):
+    """The same structure with every `_`-prefixed member removed, recursively.
+
+    Normalization happens HERE, at composition, rather than by loosening the
+    supervisor: a packet is an execution document and the five bound members
+    are exactly five. Prose belongs in the template a human reads.
+    """
+    if isinstance(value, dict):
+        return {name: without_documentation(inner)
+                for name, inner in value.items()
+                if not str(name).startswith(DOCUMENTATION)}
+    if isinstance(value, list):
+        return [without_documentation(inner) for inner in value]
+    return value
+
+
 def compose(*, instance, run_root, image_reference, image_digest, cli_build,
             manager_source, supervisor_path, vectors, participants,
             credential_sources, credential_profile, evidence_digest,
@@ -166,6 +196,11 @@ def compose(*, instance, run_root, image_reference, image_digest, cli_build,
     from baton_v12.worker_manager import provider_context as context
     from baton_v12.worker_manager import source_boundary
     from tools import single_worker, stage_execution
+
+    instance = without_documentation(instance)
+    participants = without_documentation(participants)
+    producer = without_documentation(producer)
+    credential_profile = without_documentation(credential_profile)
 
     shared = _reuse()
     shared._network(provider_network)
@@ -210,7 +245,11 @@ def compose(*, instance, run_root, image_reference, image_digest, cli_build,
 
     job_id = shared._job_identity(run_id if job_id is None else job_id,
                                   derived=job_id is None)
-    bounds = dict(BOUNDS if bounds is None else bounds)
+    # THE PACKET CARRIES EXECUTION BOUNDS, NOT THE TEMPLATE'S PROSE ABOUT
+    # THEM. `held_packet` requires exactly the five members, and it is right
+    # to: `bounds._note` reaching a serving entry point is the defect this
+    # normalization closes, not a strictness to be relaxed.
+    bounds = without_documentation(dict(BOUNDS if bounds is None else bounds))
     intruding = sorted(set(FOREIGN_BOUNDS) & set(bounds))
     if intruding:
         _refuse(f"these bounds name {', '.join(intruding)}; W239533 drives one "
@@ -552,7 +591,18 @@ def main(argv=None, *, stream=None):
     # declares the base it will work from; a review reads the base its subject
     # was actually produced against, and a base an operator typed here could
     # only ever disagree with the checkpoint.
-    documents = compose(run_root=taken.run_root, **selections["compose"])
+    chosen = without_documentation(selections["compose"])
+    # AND AN UNKNOWN SUBSTANTIVE MEMBER IS REFUSED BY NAME rather than reaching
+    # Python as a `TypeError` from a `**kwargs` call the operator never made.
+    accepted = set(inspect.signature(compose).parameters)
+    unknown = sorted(set(chosen) - accepted - {"run_root"})
+    if unknown:
+        _refuse(f"this selections document names {', '.join(unknown)}, which "
+                f"this composition has no operand for. A documentation member "
+                f"starts with {DOCUMENTATION!r}; anything else is a selection "
+                f"that has to mean something here.")
+    chosen.pop("run_root", None)
+    documents = compose(run_root=taken.run_root, **chosen)
     places = write(taken.run_root, documents)
     print(json.dumps({name: _reuse()._sha256(place)
                       for name, place in sorted(places.items())},

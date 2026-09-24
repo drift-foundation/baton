@@ -1,0 +1,10 @@
+{
+  "claim": 250440,
+  "tests": 10,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 0.22724047498195432,
+  "scope": "public open_readonly retained subject checks; no mutations/runtime/provider",
+  "not_from_snapshot": []
+}

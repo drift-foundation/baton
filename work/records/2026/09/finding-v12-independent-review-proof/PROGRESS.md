@@ -671,3 +671,870 @@ preserved separately.
 
 State: returned for independent review with items 1-4 and 6 outstanding and
 the packet not runnable.
+
+## 2026-09-23 -- baton.claude, claim 247757
+
+Owner reroute 247747. Read canonical state, the complete work-events, thread
+T239533 in full (2 messages, no pagination remaining), the review, and this
+dossier. Item 5 is accepted and was not repeated. **Item 1 is substantially
+advanced and NOT finished; items 2-4 and 6 are untouched.**
+
+**No deployed store was opened and no product byte changed under this claim.**
+
+### What now works, and it is the thing three reviews have asked for
+
+`test_review_lifecycle.py` admits ONE REVIEWER through supported real
+coordination. Two phases over ONE control store:
+
+  * PHASE ONE is W239528's accepted `baseline.supervise` run, driven
+    unmodified, so what phase two reviews is a checkpoint that Job's own
+    accepted program actually made -- a real line, a real writer, a real
+    frozen checkpoint, `review-ready`.
+  * PHASE TWO composes a review deployment carrying
+    `correction_policy: "decline"`, submits a review-only Job with its OWN
+    identity, and drives `review_supervisor.supervise` over the same stores.
+
+The outcome now reports `admissions: {"review": 1}` and the stage reaches
+`answering`: the reviewer is admitted, the turn runs, and the manager freezes
+a real result. The subject is read back from the control store rather than
+declared.
+
+### Four real defects the drive found, each fixed
+
+Every one of them was invisible to a fixture that defers admission, which is
+exactly why the reviewer refused that fixture.
+
+  * **The review Job's input digest was the fixture constant.** The stage sat
+    `queued` for a whole run and the deferral said why: "no worker this
+    deployment configures for the 'review' stage can serve Job ...:
+    {'review-worker': ['the submitted input']}". It is now
+    `job_input_identity(self.manifest)` -- the worker's own manifest.
+  * **`composed_for` answered phase one's composition.** The fixture's `turn`
+    reaches it for the prepared attempt's boundary, so the review turn raised
+    `KeyError` for the attempt that had just been admitted. Phase two now sets
+    `self._composed`.
+  * **The report had no way to travel.** `claude_agent._review_report(room)`
+    reads `review-report.json` from the PROVIDER'S OWN cwd, which the
+    fixture's `edits` seam writes; a `report=` operand the turn does not take
+    did nothing.
+  * **The producer's stores were not carried forward.** `supervised` keeps
+    `_job` but not `_control`, so the subject could not be read.
+
+### THE EXACT NEXT UNFINISHED OPERATION
+
+The frozen result is `unable`, so `review_verdict_from_result` refuses:
+
+    review attempt 'attempt-27aae1ed...' froze an 'unable' result;
+    a review that did not complete decided nothing
+
+So the manager side is reached and correct -- it froze a result and refused to
+read a verdict out of a turn that did not complete. What remains is to find why
+`claude_agent._review` answers `unable` for this turn and supply what it is
+missing. The report bytes now travel the way a real reviewer's would, so the
+gap is inside that branch rather than in the manager or the supervisor.
+`_review` re-reads the mounted source after the turn and refuses if it moved,
+refuses an inherited report destination, and requires the provider to answer
+`ok` -- each is a candidate and none has been eliminated yet.
+
+Items 2 and 3 are one step behind that: the fixture that makes an attributed
+verdict, a stopped runtime, positive cleanup and an outstanding-attempt
+failure/interruption reachable now EXISTS, and the cases do not.
+
+Verification: the dossier's receipt is unchanged from claim 247666
+(`verification-7.json`, 88 checks) because this claim added no passing case --
+`test_review_lifecycle.py` carries the fixture and no test method yet, and
+`load_tests` keeps `BaselineCase`'s own cases from being counted here. Saying
+"88" twice is more honest than inventing a number for work in progress.
+
+Cumulative measured for W239533 is therefore unchanged at **166.489882279s**.
+The reviewers' independent measurements (0.571337769s, 0.596305013s,
+1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s) are theirs and are
+preserved separately.
+
+State: returned for independent review with item 1 in progress at the exact
+operation named above, and the packet not runnable.
+
+## 2026-09-23 -- baton.claude, claim 247823
+
+Owner reroute 247812 and thread message 247805 (the delivery-continuity
+policy, now in AGENTS.md). Read current canonical detail, the handoff since
+247794, the latest review and the new discussion; the checkpoint above records
+those positions. **Items 1, 2 and 3 of owner 247663 are done. Items 4 and 6
+remain and no new authority is needed for them.**
+
+### The reviewer found the cause and it was mine
+
+`claude_agent._review_report` requires `findings` to be NON-EMPTY TEXT; both
+fixture reports supplied a LIST, so the adapter answered `unable` and the
+manager correctly refused to read a verdict out of a turn that did not
+complete. The adapter was right and the fixture was wrong -- "an exit status is
+not a decision and this adapter will not map one into a verdict" is exactly the
+behaviour that made this hard to misread. Corrected in place with the reason
+recorded beside it.
+
+With that one operand corrected the whole path settles:
+
+    state settled, stopped completed, stage review completed
+    admissions {"review": 1}, one admitted attempt
+    verdict accepted, bound to the packet's checkpoint base/head/tree,
+      with result_id and result_digest
+    cancellation requested, execution_runtime destroyed
+    cleanup retained, state absent
+    correction_rounds_opened [], correction_containers_started []
+    held_because []
+
+### Eight discoverable cases, and a loader defect they exposed
+
+`test_review_lifecycle.py` now carries `OneReviewerIsAdmittedAndEnded`,
+`AChangesRequestedReviewIsAValidOutcome` and
+`AnAdmittedAttemptIsAccountedForWhenTheRunDoesNotFinish` -- the attributed
+verdict, the stopped runtime and positive cleanup, producer/reviewer
+independence read back through `review_of`, `changes-requested` settling with
+zero rounds and zero containers, and an interruption and a composition failure
+that each leave ONE ADMITTED ATTEMPT accounted for with the outcome published.
+
+Excluding the base class by NAME was not enough: the fixture's ancestors carry
+their own `test_` methods, so the three new classes inherited twelve of
+W239528's and the product suite's cases and ran them under this dossier's name.
+`load_tests` now filters on each class's OWN `__dict__`, which is the only set
+this module wrote.
+
+### The stale limitation prose, corrected
+
+`CORRECTION_LIMITATION` still said the round could not be prevented and that
+the fix belonged to the owning implementation scope. Owner selection 247421
+MADE that change, so the text now names the boundary that closes it -- and says
+that a round appearing anyway means the boundary did not hold, which is a fault
+worth holding on rather than a state to accommodate. Its case moved with it.
+
+### Spending, including what was not a test
+
+Verification: 96 focused deterministic checks, 0 failures, measured
+5.328163940997911s, receipt `verification-8.json` with `verification-8.log`;
+8 are new and `test_review_lifecycle` is now in `verify.py`.
+
+THE PROBES ARE COUNTED TOO. Review 2026-09-23T12:57:02Z is right that
+unmeasured driving is not zero spending. Claims 247757 and 247823 drove the
+two-phase fixture roughly a dozen times outside any receipt while finding the
+four defects and the report shape. Those runs were not individually timed, and
+the honest figure is an upper bound rather than a measurement: at the
+5.3-second cost the receipt now measures for a suite containing four such
+drives, a dozen ad-hoc drives is on the order of 20 seconds. It is recorded as
+**~20s ESTIMATED, NOT MEASURED**, and it is not folded into the measured total.
+
+Cumulative MEASURED for W239533: 0.432753846 + 0.590057723 + 0.588589542 +
+1.167917072 + 1.325346095 + 1.339161638 + 159.751 + 1.295056363 + 5.328163941
+= **171.818046220s**, plus the ~20s estimated above. The reviewers' independent
+measurements (0.571337769s, 0.596305013s, 1.152729417s, 1.311204790s,
+1.302250807s, 2.361050477s, 3.324525589s) are theirs and are preserved
+separately.
+
+State: returned for independent review with items 4 and 6 outstanding. Per the
+delivery-continuity policy this is ordinary continuation, not an owner gate.
+
+## 2026-09-23 -- baton.claude, claim 247870
+
+Review 2026-09-23T13:04:00Z accepted items 1 and 2 and called item 3 PARTIAL,
+naming four gaps. **Three of the four are now closed; the fourth is the
+admitted no-progress case and its exact preconditions are recorded rather than
+approximated.** Read current canonical detail, the handoff since 247847 and
+the review; positions are in the checkpoint.
+
+### The gate-order objection was right
+
+"Gate-order test checks only final counts; that cannot establish gate closed
+before cancellation in a single-stage Job." It cannot -- a count is the end of
+a run and the question is about an instant during it. The gate now stamps its
+own `stopped` state onto every act it performs, and the cancellation is watched
+on the COMPOSITION rather than on the gate, because `_cancel_active` is handed
+the composition. So the order is read off a trace: every admitting act happened
+with the gate open, every cancellation with it closed, and nothing admitting
+follows the first cancellation. A closed gate is also OFFERED an admission and
+refuses it, which is a stronger statement than "none arrived".
+
+THE SEAM IS `review_supervisor.AdmissionGate`, NOT `baseline`'s. The recording
+gate is a subclass of the real imported one and the patch is on the name this
+module under test resolves; W239528's module is untouched and
+`test_review_supervisor` still parses this program to hold it to that.
+
+### The other two gaps
+
+The total bound is now arithmetic on the controlled clock: `serving_bound_seconds`
+equals `total - cleanup` and `served_seconds` never exceeds `total`. And the
+outstanding attempt is named EXACTLY -- its identity, its `cleanup: None`, and
+that identity appearing in `held_because` -- rather than counted.
+
+### What is NOT done, and why it is not approximated
+
+The admitted NO-PROGRESS case. The detector requires four things at once: an
+accountable attempt, NO outstanding cleanup, a non-terminal stage, and an
+unchanged observation for six ticks. A settled review has a terminal stage; a
+failed one leaves cleanup outstanding. The state that satisfies all four is a
+committed cleanup under a stage that cannot advance -- which is W239528's real
+stall -- and reaching it deterministically needs the ending to settle while the
+stage is held short of `completed`. I would rather record that precondition
+than assert no-progress from a state that does not have it.
+
+The cleanup-WINDOW interruption is in the same category and is stated in the
+case that replaced it: a settled run leaves nothing outstanding, so the window
+breaks before it sleeps and an interrupt injected through `sleep` never reaches
+it. What is reachable -- and is the property that matters -- is an interruption
+while an admitted attempt is still outstanding, which is covered.
+
+### The probe estimate, withdrawn
+
+Review 2026-09-23T13:04:00Z: "Historical ~20s probe estimate is not an
+established upper bound; actual unknown". Correct -- I derived it from a later
+suite's cost, which is not a measurement of those runs. The record now says
+**unknown and unmeasured** rather than carrying a number that reads like one.
+
+Verification: 103 focused deterministic checks, 0 failures, measured
+9.069514465998509s, receipt `verification-9.json` with `verification-9.log`;
+7 are new.
+
+Cumulative MEASURED for W239533: 0.432753846 + 0.590057723 + 0.588589542 +
+1.167917072 + 1.325346095 + 1.339161638 + 159.751 + 1.295056363 + 5.328163941
++ 9.069514466 = **180.887560686s**. Unmeasured ad-hoc driving across claims
+247757, 247823 and 247870 is UNKNOWN and is not estimated. The reviewers'
+independent measurements (0.571337769s, 0.596305013s, 1.152729417s,
+1.311204790s, 1.302250807s, 2.361050477s, 3.324525589s, 4.056475030s) are
+theirs and are preserved separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 247908
+
+Review 2026-09-23T13:10:01Z accepted the gate-state observation and the exact
+outstanding identity, and refused two things. **Both are closed. The admitted
+no-progress case remains outstanding and is still disclosed as such.**
+
+### R1 -- the bound cases were not reaching their own condition
+
+The reviewer reproduced the exact operands independently and got
+`state=settled, stopped=completed, served_seconds=3.0, cleanup_sweeps=0`. That
+is right and the diagnosis is exact: `report=None` falls back to ACCEPTED in
+the driver, and `expect=None` only disables the status assertion rather than
+the turn -- so both "cannot finish" cases were successful early completions
+and neither reached a deadline. `fail_at=10**9` never fired. I had written two
+cases that asserted arithmetic about a run that finished normally.
+
+`withhold=True` is the seam that actually withholds the turn after admission.
+With it the run stops on its deadline: `overall-bound-exceeded`, ONE admitted
+attempt, stage not `completed`. And the total is now checked on the clock
+rather than on `served_seconds` -- which is measured BEFORE cancellation and
+cleanup and cannot speak for them. Every read of the injected monotonic clock
+is recorded, so the case asserts the LAST read of the whole run is inside
+`total_seconds`.
+
+A sensitivity case raises the total far above the tick budget and requires
+that the run then does NOT stop on the deadline, so the deadline case is
+measuring the deadline rather than something that would have held anyway.
+
+### R2 -- the shutdown interruption is observed rather than inferred
+
+"An interruption during serving ... does not substitute for a deliberately
+observed interruption in shutdown", and the failure-before-ending path already
+supplies the reachable state. The interrupt is now injected AT the
+composition's cancellation -- gate already closed, attempt already outstanding
+-- and the case asserts the injected point fired (`shutdown_reached is True`)
+rather than reading the phase off the outcome. It then asserts that the
+PUBLISHED outcome carries the named attempt and its uncertainty, which is the
+ordering that matters: the accounting reaches disk before the interrupt is
+re-raised.
+
+### Still outstanding, and unchanged
+
+The admitted NO-PROGRESS case. The reviewer's seam is recorded in the
+checkpoint: hold stage advancement at its real transition boundary after
+positive cleanup commits, keep reads and records real, verify six unchanged
+non-terminal observations, and do not attribute a timeout falsely. No raw
+store edits and no fabricated cleanup receipts.
+
+Verification: 106 focused deterministic checks, 0 failures, measured
+12.534635852993233s, receipt `verification-10.json` with
+`verification-10.log`; 3 are new and 2 were replaced rather than added -- the
+two bound cases the reviewer refused are gone, not kept beside their
+replacements.
+
+Cumulative MEASURED for W239533: 0.432753846 + 0.590057723 + 0.588589542 +
+1.167917072 + 1.325346095 + 1.339161638 + 159.751 + 1.295056363 + 5.328163941
++ 9.069514466 + 12.534635853 = **193.422196539s**. Unmeasured ad-hoc driving
+across claims 247757, 247823, 247870 and 247908 remains UNKNOWN and is not
+estimated. The reviewers' independent measurements (0.571337769s,
+0.596305013s, 1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s,
+3.324525589s, 4.056475030s, 8.306612300s) are theirs and are preserved
+separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 247947
+
+Review 2026-09-23T13:15:08Z accepted the deadline and shutdown corrections.
+**Item 4 is done. Item 6 and the admitted no-progress case remain.**
+
+### Item 4 -- this Job's own manager source
+
+The selections bound `single-implementation-242687/manager-source`, which is
+W239528's producer snapshot and PREDATES the `correction_policy` change. A run
+bound to it would have no boundary to decline the correction round with, and
+`held_packet` would refuse the packet composed from it -- so the binding was
+not merely stale, it was unusable.
+
+`snapshot_247947.py` builds the successor: 106 files at
+`/home/sl/baton-runs/independent-review-247947/manager-source`, carrying
+`tools/stage_execution.py` at `6a212c3a...ab5801`, bound by
+`MANAGER-SOURCE-independent-review-247947.json`. `--verify` holds with no
+drift, nothing missing and nothing extra.
+
+W239528'S SNAPSHOT_242687.PY WAS NOT USED, and the reason is ownership rather
+than capability. It supports `--rebuild-into` and `--claim` for exactly this,
+and its refusals are the ones this follows -- never replace a tree, never
+replace a manifest, a successor states its own claim. But its `manifest_for`
+writes into ITS OWN dossier, and W239528 is a closed Work whose dossier is
+read-only here; writing a W239533 manifest into it would be this Job filing its
+evidence in somebody else's record. The rules are reused; the destination is
+this dossier's.
+
+THE PREDECESSOR IS VERIFIED UNCHANGED AS PART OF EVERY BUILD, against its own
+recorded manifest, and the build refuses if it has drifted. A successor whose
+build could not say the predecessor survived would be asserting the one thing
+the arrangement exists to guarantee.
+
+`SELECTIONS-239533.json` and `OPERATOR-239533.md` are repointed, and the page
+now carries the `--verify` command and says why the binding moved.
+
+### The no-progress case, measured again
+
+The adapter's own `unable` path was tried as a route to it: a malformed report
+makes the turn `unable`, the stage stays `answering` and the run stops on its
+bound -- but cleanup is OUTSTANDING (`no committed cleanup`), which correctly
+suppresses the detector. So that route does not reach it. The state the
+detector needs is positive cleanup COMMITTED under a stage still short of
+terminal, held at its real transition boundary, and that is recorded in the
+checkpoint as the next milestone rather than approximated.
+
+Verification: 106 focused deterministic checks, 0 failures, measured
+12.45698677400651s, receipt `verification-11.json` with `verification-11.log`.
+No case was added this claim -- the work was the snapshot and the bindings --
+and the receipt now also binds `snapshot_247947.py` and its manifest.
+
+Cumulative MEASURED for W239533: 193.422196539 + 12.456986774 =
+**205.879183313s**. Unmeasured ad-hoc driving remains UNKNOWN and is not
+estimated. The reviewers' independent measurements (0.571337769s,
+0.596305013s, 1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s,
+3.324525589s, 4.056475030s, 8.306612300s, 4.491119177s) are theirs and are
+preserved separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 247997
+
+Review 2026-09-23T13:20:42Z accepted the successor snapshot and its bindings,
+and corrected me on scope: **owner 247663 item 4 includes the exact-successor
+documented preparation and startup, and I had deferred that into item 6 and
+called item 4 done.** That was moving a requirement rather than meeting it, and
+the correction is right. It is now executed.
+
+### Item 4's remaining half
+
+`TheDocumentedCommandsRunAgainstTheSUCCESSORSource` binds `PYTHONPATH` to the
+successor snapshot -- exactly what `BOUND` names on the operator page, and
+NOTHING from the checkout's own `v12/python`, because a path carrying both
+would prove nothing about which bytes answered.
+
+  * The documented COMPOSITION exits 0 against those bytes, and the
+    `PACKET.json` it writes names the snapshot as its manager source and code
+    boundary with a file count and per-file digests equal to the manifest's --
+    so the packet is bound to the tree the manifest describes rather than to a
+    path that happens to have the right name.
+  * The documented STARTUP holds the packet and resolves
+    `verify_imported_sources` INSIDE the snapshot; both `tools` and
+    `baton_v12` are asserted to resolve under that path. The image check goes
+    through `review_supervisor.main`'s own `image_inspect` seam with a stub,
+    so no container, image or engine is reached -- the proof is about which
+    bytes ran, not about a deployment.
+
+One defect surfaced there and is fixed: the shared composition fixture binds
+`attachment.py` as `supervisor_path`, so the startup refused with "this process
+is running review_supervisor.py and the packet binds attachment.py". A startup
+proof has to name the supervisor rather than inherit a composition fixture's
+placeholder.
+
+### The operator page's opening note
+
+It still claimed the boundary "has not yet been accepted" and that R3b was
+outstanding, both of which had moved. It now lists what IS accepted, what is
+outstanding, and that the whole preparation is not accepted so steps 2 and 4
+are unauthorized -- and it distinguishes "nothing has been executed against a
+deployment" from "the documented commands have been executed on disposable
+fixtures", which are different claims and were being blurred.
+
+Verification: 108 focused deterministic checks, 0 failures, measured
+13.294443416991271s, receipt `verification-12.json` with
+`verification-12.log`; 2 are new.
+
+Cumulative MEASURED for W239533: 205.879183313 + 13.294443417 =
+**219.173626730s**. Unmeasured ad-hoc driving remains UNKNOWN and is not
+estimated. The reviewers' independent measurements (0.571337769s,
+0.596305013s, 1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s,
+3.324525589s, 4.056475030s, 8.306612300s, 4.491119177s, 0.008175629s) are
+theirs and are preserved separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 248032
+
+Review 2026-09-23T13:25:28Z accepted the successor-only composition and the
+exact packet manifest, and refused a claim of mine that was simply false.
+
+### The startup case never called `main`, and three documents said it did
+
+It called `held_packet`, `verify_imported_sources` and `verify_worker_image`
+individually and then printed success. The case name, its docstring, the
+handoff comment and PLAN all said `main` had run. Naming a check after an entry
+point it never enters is worse than no claim at all, and the reviewer was right
+to refuse it.
+
+`main` is now invoked with the documented `--packet` and `--incarnation`, under
+successor-only imports, with two of ITS OWN seams supplied so that nothing can
+start: `image_inspect`, so no engine is reached, and `compose`, so no container
+can be. Everything else is real -- the packet validation, the imported-source
+check, the Job and control stores, `survey`, and the supervised run that
+publishes an outcome. `main` returns 1; the outcome on disk is `held` with "no
+runtime was ever admitted", which is the honest answer for a composition that
+starts nothing, and the case asserts exactly that rather than accepting any
+non-refusal.
+
+The case also asserts it did NOT exit 2, because 2 is "refused before anything
+opened" -- and a startup proof that only showed the program refusing early
+would be the same empty claim in a different shape.
+
+### One thing the first working version got wrong about cost
+
+At the packet's own 300/60 bounds, `main` served on the REAL wall clock for
+242 seconds to prove a startup path. There is no injected monotonic through the
+documented entry point and there should not be, so the case now composes 12/4
+bounds and proves the same path in seconds. The ARITHMETIC of the bounds is
+proved separately on a controlled clock in
+`test_review_lifecycle.TheTotalBoundHoldsWhenTheRunCannotFinish`; this case is
+about the entry point, not the numbers.
+
+`OPERATOR-239533.md` now states what has been executed at its real width, and
+records that an earlier version of the page claimed `main` had run when it had
+not.
+
+Verification: 108 focused deterministic checks, 0 failures, measured
+21.35032132201013s, receipt `verification-13.json` with
+`verification-13.log`. The count is unchanged because the case was REPLACED
+rather than added; the measured time rose because it now really runs the
+supervisor.
+
+Cumulative MEASURED for W239533: 219.173626730 + 21.350321322 =
+**240.523948052s**. Unmeasured ad-hoc driving remains UNKNOWN and is not
+estimated. The reviewers' independent measurements (0.571337769s,
+0.596305013s, 1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s,
+3.324525589s, 4.056475030s, 8.306612300s, 4.491119177s, 0.008175629s,
+0.770625345s) are theirs and are preserved separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 248090
+
+Review 2026-09-23T13:35:00Z accepted the `main` startup proof and the closure
+of the main-never-called finding. Two things remain and this claim advanced the
+harder one by half, with the half that does not hold stated plainly.
+
+### The no-progress structure, and what it measured
+
+The detector needs four conditions at once: an accountable attempt, NO
+outstanding cleanup, a non-terminal stage, and an unchanged observation for six
+ticks. Earlier claims kept reaching three of four -- a settled review has a
+terminal stage; a failed one leaves cleanup outstanding -- which is why the
+case has stayed open rather than been faked.
+
+`stalling_submission` supplies the missing structure: the review Job gains an
+`integration` stage that depends on a stage in a SECOND Job which never runs.
+Measured, it does exactly what it should: `integration` is `blocked`, the Job
+is therefore not terminal, and the gate records 240 FOREIGN admissions and ZERO
+cap refusals -- so the blocked stage never reaches admission and no cap refusal
+ends the run for a different reason. A cap refusal would have stopped the run
+for something other than the detector and proved nothing.
+
+WHAT DOES NOT HOLD YET, and it is one thing: under this two-Job submission the
+review attempt ends `exceptional`, with `cleanup: None, why: "no committed
+cleanup"` -- so the cleanup is outstanding and the detector is correctly
+suppressed. The same turn settles under the one-Job submission, so the question
+is narrow: what about the two-Job shape makes the review attempt fail.
+
+NO CASE ASSERTS NO-PROGRESS, because none can yet. The `stalling` plumbing is
+in the fixture and no test uses it. I would rather leave a named half-result
+than an assertion about a state the run does not reach.
+
+### The packet's honest distinction, carried forward
+
+The reviewer's note is recorded in the checkpoint as part of item 6: the final
+packet must distinguish the `main` startup proof -- a `Deferring` composition
+with stub image metadata, honestly holding with "no runtime was ever admitted"
+-- from the separate successful real-coordination lifecycle. **No successful
+reviewer run through `main` is proved.**
+
+### Spending
+
+Verification: 108 focused deterministic checks, 0 failures, measured
+21.34568109900283s, receipt `verification-14.json` with
+`verification-14.log`. No case was added.
+
+Cumulative MEASURED (suite receipts only) for W239533: 240.523948052 +
+21.345681099 = **261.869629151s**.
+
+SEPARATELY, and not folded into that subtotal: the preliminary 242-second
+`main` run recorded under claim 248032, before that case was bounded to 12/4.
+It was a real measured run and it is preserved as its own figure rather than
+absorbed. Unmeasured ad-hoc driving remains UNKNOWN and is not estimated.
+
+The reviewers' independent measurements (0.571337769s, 0.596305013s,
+1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s, 3.324525589s,
+4.056475030s, 8.306612300s, 4.491119177s, 0.008175629s, 0.770625345s,
+8.602200050s) are theirs and are preserved separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 248135
+
+Review 2026-09-23T13:41:04Z found the fixture cause I had left as an open
+question, and it was a positional assumption rather than anything about the
+lifecycle.
+
+### The selector
+
+`ComposedOneJobCase.states` reads `projected["jobs"][0]`. That is correct for a
+one-Job fixture and wrong the moment a second Job exists: under the stalling
+submission it answered the BLOCKER Job's stages, so the driver never saw
+`review` reach `waiting`, never took the turn, and the attempt ended
+`exceptional`. The reviewer reproduced it with an instance-only public status
+selector; the fixture now makes the same selection by `REVIEW_JOB`.
+
+MY FIRST FIX BROKE PHASE ONE, which is worth recording because it is the same
+mistake mirrored. Returning `{}` when no review Job is present meant the
+PRODUCER's run -- a one-Job fixture with no review Job at all -- never had its
+turn taken either. The override now falls back to the inherited positional
+answer exactly where that answer is right.
+
+### What the four conditions look like now
+
+Measured on the stalling submission after the fix: `review: completed`,
+`integration: blocked`, `outstanding_cleanup: []`, verdict `accepted`. THREE OF
+FOUR hold -- an accountable attempt, no outstanding cleanup, and a Job that is
+not terminal.
+
+The fourth does not: `stalled_ticks` is 0 across 241 serving ticks, so the
+observation is still changing. That is precisely what the review predicted --
+"final cleanup does not establish positive cleanup during six serving
+observations" -- and the next step is to find WHEN during serving the cleanup
+commits and what else in `_observation(states, accountable, cleanup)` keeps
+moving, rather than to assert a stall the run does not reach.
+
+STILL NO ASSERTING NO-PROGRESS CASE. The `stalling` plumbing and the selector
+are in the fixture; no test uses them. The eighteen lifecycle cases pass
+unchanged, which is what says the selector fix did not disturb the accepted
+proofs.
+
+Verification: 108 focused deterministic checks, 0 failures, measured
+21.342962219001492s, receipt `verification-15.json` with
+`verification-15.log`. No case was added; the broad suite ran because the
+selector touches the shared fixture every accepted lifecycle case uses, so
+leaving it unrun would have been the reverse mistake.
+
+Cumulative MEASURED (suite receipts only) for W239533: 261.869629151 +
+21.342962219 = **283.212591370s**. Separately and not folded in: the
+preliminary 242-second `main` run under claim 248032. Unmeasured ad-hoc
+driving remains UNKNOWN and is not estimated.
+
+The reviewers' independent measurements (0.571337769s, 0.596305013s,
+1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s, 3.324525589s,
+4.056475030s, 8.306612300s, 4.491119177s, 0.008175629s, 0.770625345s,
+8.602200050s, 4.183597788s) are theirs and are preserved separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 248173
+
+Review 2026-09-23T13:46:58Z diagnosed the suppression exactly, over 42 real
+cleanup reads, and the cause was a defect in MY supervisor rather than in the
+fixture. **The admitted no-progress case now asserts, and owner 247663 item 3
+is complete.**
+
+### Two accounts of one set
+
+`should_continue` built its accountable set from the gate's launches and the
+projection and classified nothing. The shutdown's `classify()` drops an
+identity whose origin is `UNALLOCATED` -- "an identity the manager answers no
+row for, that this run never launched, is not a runtime". So the blocked
+stage's projection identity was counted OUTSTANDING on every serving tick and
+EXCLUDED at shutdown. The outstanding condition could therefore never empty,
+and the no-progress rule could never fire, no matter what the run did.
+
+I had also inferred the wrong thing from the same evidence last claim:
+`stalled_ticks 0` does NOT mean the observation kept changing. The reviewer
+said so plainly and the trace shows it -- the review attempt was already
+`retained`/`absent` DURING serving, and the extra identity alone held the set
+open.
+
+Serving now classifies through the same `_origin` the shutdown uses. IT FAILS
+CLOSED: a read that does not complete answers `FOREIGN`, which is not excluded,
+so an identity this run cannot classify keeps its cleanup obligation. Dropping
+on uncertainty would invent the very quiet the detector then reports, which is
+why the fix is not a filter.
+
+### What it measures now
+
+`stopped: no-progress`, `stalled_ticks: 6`, `outstanding_cleanup: []`,
+`review: completed`, `integration: blocked`, every cleanup positive, and the
+run served 9 seconds of a 300-second bound instead of 241. Reporting a stall
+when it happens rather than waiting the backstop out is the whole purpose of
+the rule, and the case asserts the elapsed time as well as the reason.
+
+Three cases: the four conditions each asserted rather than assumed; the
+excluded identity reported as `unallocated` and present in `observed_attempts`
+but not in `admitted_attempts`, so it is excluded rather than ignored; and the
+NEGATIVE case -- a run whose ending never settles keeps its real outstanding
+runtime, and no-progress must not fire there.
+
+Verification: 111 focused deterministic checks, 0 failures, measured
+23.648867101001088s, receipt `verification-16.json` with
+`verification-16.log`; 3 are new.
+
+Cumulative MEASURED (suite receipts only) for W239533: 283.212591370 +
+23.648867101 = **306.861458471s**. Separately and not folded in: the
+preliminary 242-second `main` run under claim 248032. Unmeasured ad-hoc driving
+remains UNKNOWN and is not estimated.
+
+The reviewers' independent measurements (0.571337769s, 0.596305013s,
+1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s, 3.324525589s,
+4.056475030s, 8.306612300s, 4.491119177s, 0.008175629s, 0.770625345s,
+8.602200050s, 4.183597788s, 2.115041870s) are theirs and are preserved
+separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 248209
+
+Review 2026-09-23T13:52:06Z accepted the unallocated accounting correction and
+the six-tick stall, and found a regression in the fix itself. It is the same
+defect this project has already been corrected for once, and I put it back.
+
+### The swallowed interrupt
+
+`_serving_origin` used `_guarded(..., interrupted=[])`. `_guarded` catches
+`BaseException` and appends the interruption to the list it is given; a
+DISPOSABLE list discards it. So a `KeyboardInterrupt` raised while classifying
+an origin was swallowed, the predicate returned normally, and serving could
+continue after an operator had asked the run to stop.
+
+W239528's review 2026-09-23T00:50:59Z R1 found exactly that shape in the
+progress read, and the comment explaining it is a few lines above the one I
+wrote. Reaching for `_guarded` because it was the local idiom is how the same
+mistake gets a second home.
+
+It now catches ordinary `Exception` only: the failure is named as uncertainty
+and the answer is `FOREIGN`, which is not excluded, so the identity keeps its
+cleanup obligation. A `BaseException` travels out of the predicate, out of
+`serve`, and into the shutdown handler that already closes admission, cancels,
+accounts and publishes.
+
+### Two regressions, in the right branch
+
+Both are injected INSIDE the origin read, which the review correctly noted is
+a different branch from the `sleep` the other interruption cases use.
+
+An interrupt there stops the run, publishes the outcome and raises
+`SupervisorInterrupted` -- asserted on the PUBLISHED file, not only the
+exception. An ordinary failure there keeps the identity accountable, records
+the uncertainty, and does NOT report no-progress.
+
+The interrupt case asserts AT LEAST one admitted attempt rather than exactly
+one. With the classification broken the blocked stage's identity can no longer
+be shown `unallocated`, so it is not dropped -- that is the fail-closed rule
+visible, and asserting exactly one would have been asserting that uncertainty
+silently shrinks the accountable set, which is the thing the rule exists to
+prevent.
+
+Verification: 113 focused deterministic checks, 0 failures, measured
+36.40780342000653s, receipt `verification-17.json` with
+`verification-17.log`; 2 are new. The suite is slower because the two new
+cases drive whole runs whose origin reads fail.
+
+Cumulative MEASURED (suite receipts only) for W239533: 306.861458471 +
+36.407803420 = **343.269261891s**. Separately and not folded in: the
+preliminary 242-second `main` run under claim 248032. Unmeasured ad-hoc driving
+remains UNKNOWN and is not estimated.
+
+The reviewers' independent measurements (0.571337769s, 0.596305013s,
+1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s, 3.324525589s,
+4.056475030s, 8.306612300s, 4.491119177s, 0.008175629s, 0.770625345s,
+8.602200050s, 4.183597788s, 2.115041870s, 2.201875895s) are theirs and are
+preserved separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 248263
+
+Review 2026-09-23T13:57:49Z accepted the origin-read correction and closed item
+3. **This claim completes owner 247663 item 6, the last one: the complete
+packet, exact commands, provider question and consolidated evidence.**
+
+### The packet, and why it is two documents
+
+`OPERATOR-239533.md` is now the packet rather than a note beside it. It opens
+with what is in the packet, lists the TWELVE unresolved operator-selected
+inputs by member -- calling out the three that carry a refusal rather than a
+choice (`provider_network` where `none` is refused, the credential reference
+where an expired token reproduces a known failure, and the evidence digest
+where an all-zero sentinel is refused) -- then gives steps 0-6 with the exact
+commands, the provider question with the three negative answers that are
+evidence rather than bugs, and a limitations section.
+
+`EVIDENCE-239533.json` is the machine-readable half, produced by the new
+`packet.py`. Every digest, receipt, count and open choice in it is READ from a
+retained file at generation time; the only written prose is `established`,
+`not_established` and the provider question. `verify.py` regenerates it BEFORE
+running the suite, so the checks compare a current document against the tree
+rather than the previous run's -- which also means its `receipts` list stops one
+run short of the receipt written afterwards, and the document says so.
+
+### Prose that was true when it was written
+
+That is the failure this Job has now hit twice -- a page claiming `main` had
+run when it had not, and a page still advertising `verification-6.json` and "64
+focused deterministic checks" at claim 248209. `test_packet.py` is the answer,
+and its 25 checks are about the packet's honesty rather than the supervisor:
+
+every shipped and reused digest against the file on disk; no SHA256 on the page
+that the evidence does not know; NO receipt name or check count quoted in prose
+at all, so there is nothing left to go stale; the documented `--flags` compared
+against what `review_bindings`, `review_supervisor`, `packet` and
+`snapshot_247947` actually declare, read out of the source by `ast` rather than
+by running them; the open choices exactly those the selections still ask for,
+with the count the page states; and the two proofs kept distinct.
+
+I probed three of those assertions against deliberately corrupted inputs before
+trusting them -- a stale baseline digest on the page, a blurred lifecycle entry
+point, and a wrong document digest -- and each failed as it should.
+
+### What the packet does NOT claim
+
+The `main` startup proof enters the documented entry point with two seams
+supplied, and its outcome is `held` because a composition that starts nothing
+answers nothing about the reviewer. The real-coordination lifecycle settles
+with an attributed verdict over real stores, a real attachment and a real
+frozen output, but it calls `supervise` directly with an injected clock and
+does not enter `main`. **No single run here both enters `main` and settles, and
+no run reached a live provider.** Both documents say so in those words, and a
+check asserts they keep saying it.
+
+Verification: 138 focused deterministic checks, 0 failures, measured
+36.4567306980025s, receipt `verification-18.json` with `verification-18.log`;
+25 are new.
+
+Cumulative MEASURED (suite receipts only) for W239533: 343.269261891 +
+36.456730698 = **379.725992589s**. Separately and not folded in: the
+preliminary 242-second `main` run under claim 248032. Unmeasured ad-hoc driving
+remains UNKNOWN and is not estimated; the retained receipts now sum to
+183.515042473s in `EVIDENCE-239533.json`, and the difference between that and
+the cumulative figure is superseded within-claim runs, which were not
+individually receipted.
+
+The reviewers' independent measurements (0.571337769s, 0.596305013s,
+1.152729417s, 1.311204790s, 1.302250807s, 2.361050477s, 3.324525589s,
+4.056475030s, 8.306612300s, 4.491119177s, 0.008175629s, 0.770625345s,
+8.602200050s, 4.183597788s, 2.115041870s, 2.201875895s, 13.059195031s) are
+theirs and are preserved separately.
+
+State: returned for independent review. Ordinary continuation per M247805.
+
+## 2026-09-23 -- baton.claude, claim 248565
+
+The owner ran the packet. Review 2026-09-23T14:45:57Z retained the evidence and
+left two items; both are done.
+
+### R1 -- the reader that refused, and what it holds
+
+The supported `ControlStore.open_readonly` that answered the reviewer with an
+`OperationalError` OPENED here -- same store, same path, same call, same pinned
+source -- and served every read. **The cause of the earlier refusal is
+UNKNOWN.** It is not permissions: the store and its directory are uid 1000 and
+writable. Opening it recreated the `-shm` and a zero-length `-wal`, which a
+cleanly closed store does not carry, and a `mode=ro` connection that cannot
+create them is one known way to get that error -- A HYPOTHESIS, NOT A
+DIAGNOSIS. I claim no product defect, and an intermittent refusal on the
+managed read boundary is worth an owner's attention even though the attribution
+it blocked has since been derived.
+
+`attribution.py` then did what R1 asked. Inside one snapshot, through public
+readers only: the line, the checkpoint, the attachment, the frozen output, the
+retained result manifest, the cleanup and the producer's writer; the verdict
+through `review_driver.review_verdict_from_result`. No raw SQLite, no copied
+database, no `immutable=` handle, no write-capable fallback.
+
+`ATTRIBUTION-248565.json` holds it: verdict **`accepted`**, agreeing with the
+published outcome on all eight compared members; cleanup `retained` with the
+runtime `absent`; the manifest's assignment matching the attachment's
+generation and participant and the packet's Authority and Work; bound to the
+executed packet, outcome, deployment-configuration digests and the retention
+policy.
+
+**One correction I had to make to my own export.** The first version read the
+reviewer's identities off the attachment as `worker_id`/`participant`/
+`principal`; the row names them `reviewer_*`, so all three came back `None`,
+nothing could equal anything, and it reported `independent: true` having
+compared NOTHING. A comparison over missing values is the most expensive kind
+of false pass, because it looks exactly like a real one. It now refuses when
+either side is empty, and the case asserting it checks that both sides are
+populated rather than only that the shared set is empty.
+
+### R2 -- the two template defects
+
+Both were the same shape: documentation metadata reaching an execution
+boundary. `review_bindings.main` splatted `selections["compose"]`, so
+`_manager_source_note` raised `TypeError` before `compose` was entered; and
+`compose` copied `bounds` verbatim, so `bounds._note` made `held_packet` refuse
+at startup.
+
+`without_documentation` now removes `_`-prefixed members recursively at
+composition. **Neither entry point was loosened** -- a packet is an execution
+document, and `held_packet` is right to require exactly five bounds members.
+An unknown member that is NOT documentation is refused by name, so stripping
+prose cannot swallow a typo.
+
+Why the suite missed both: every case wrote its own selections through
+`written_selections`, and a document this suite invents has no prose in it.
+`TheACTUALShippedTemplateComposesAndStarts` reads the SHIPPED file, keeps its
+notes, and drives the real CLI and `held_packet`. It also asserts the notes are
+still there -- without that, the class would pass by proving nothing, which is
+exactly what its first version did until that case caught it.
+
+### The subject has moved
+
+The line is now `accepted` and its attachment `ended`, so step 1 and the
+composer REFUSE this packet. That is the arrangement working: a retained
+proposal is reviewed once. The operator page records it so a future operator
+does not read that refusal as a defect.
+
+Verification: 151 focused deterministic checks, 0 failures, measured
+37.4308637320064s, receipt `verification-19.json` with `verification-19.log`;
+38 are new (6 template, 32 packet -- the packet module grew by 7 live-run
+cases and had 4 rewritten because the live run made their old assertions
+false).
+
+Cumulative MEASURED (suite receipts only) for W239533: 379.725992589 +
+37.430863732 = **417.156856321s**. Separately and not folded in: the
+preliminary 242-second `main` run under claim 248032, and the OWNER's live run
+at 55.409s, which is theirs. Unmeasured ad-hoc driving remains UNKNOWN and is
+not estimated; the retained receipts now sum to 219.971773171s in
+`EVIDENCE-239533.json`.
+
+The reviewers' independent measurements are theirs and are preserved
+separately; claim 248523's probes were each under 0.1s and its wall time was
+not measured.
+
+State: returned for independent review. Ordinary continuation per M247805.

@@ -1,0 +1,13 @@
+{
+  "claim": 249537,
+  "tests": 62,
+  "failures": 27,
+  "errors": 4,
+  "seconds": 36.584257865004474,
+  "hashes": {
+    "two_jobs.py": "1d5f5036162a9375b19a75d1e4965911086a818e84b7558d0fe09eb81d057d61",
+    "test_two_jobs.py": "9fe3786af2ac73a255cb075f2dae4622746d936204ba8dcf9fb97d3052073d74",
+    "verify_247941.py": "f706a8d9bf5b33ceb3303b35fcc743ed6a9e1926185d012b93321f02f791904b",
+    "SELECTIONS-247941.json": "525639fd1b75a7fdaa17ec526b58212467201b92ea1678755d25cdc623ef8eb4"
+  }
+}

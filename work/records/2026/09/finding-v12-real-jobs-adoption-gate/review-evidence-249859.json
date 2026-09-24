@@ -1,0 +1,33 @@
+{
+  "claim": 249859,
+  "source_sha256": "ed8aca8c3d5a8460c7a517d4a7450239d551f8e160ee752bb59786db83c084ae",
+  "stage_schema_keys": [
+    "stage_id",
+    "job_id",
+    "ordinal",
+    "kind",
+    "work_id",
+    "profile_name",
+    "profile_digest",
+    "depends_on"
+  ],
+  "manager_attempt_shape": {
+    "stage_id": "review-a",
+    "job_id": "job-a",
+    "kind": "review",
+    "episode": 1,
+    "offer_id": "offer-a",
+    "attempt_id": "attempt-a"
+  },
+  "generations": {},
+  "stage_of": {
+    "attempt-a": "review-a"
+  },
+  "job_of": "job-a",
+  "verdicts": {},
+  "uncertainty": [
+    "the review attachment for attempt-a did not complete: ContractRefusal: an assignment generation is a whole assignment generation, counting from zero; this is none"
+  ],
+  "seconds": 9.290198795497417e-05,
+  "scope": "store-free diagnostic using real episodes.attempting and gate; no runtime or stores"
+}

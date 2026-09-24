@@ -1,0 +1,10 @@
+{
+  "claim": 250837,
+  "scope": "pure composition and temporary symlink path check; no Authority opened",
+  "composition_result": "ContractRefusal: the configured integration_store at '/home/sl/baton-runs/two-jobs-review-probe/db/integration.sqlite3' is inside the checkout at '/home/sl/baton-runs'; mutable deployment state belongs outside the working tree",
+  "symlink_fresh_result": "/tmp/w247941-review-250837-ptsweo4g/fresh-alias",
+  "actual_target": "/tmp/w247941-review-250837-ptsweo4g/single-implementation-244216",
+  "same_role_manifest": true,
+  "seconds": 0.2660189940070268,
+  "temporary_path": "/tmp/w247941-review-250837-ptsweo4g"
+}

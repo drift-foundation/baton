@@ -1,0 +1,26 @@
+{
+  "claim": 252632,
+  "scope": "temporary owned-directory provisioning only; no store/runtime",
+  "absent_refusal": "the configured workspace store '/tmp/w247941-review-252632-d0gxth_k/run/workspaces' is not a directory this manager can see",
+  "provisioned": {
+    "workspace_storage": {
+      "path": "/tmp/w247941-review-252632-d0gxth_k/run/workspaces",
+      "created": true,
+      "held_by_product": true
+    },
+    "launch_home": {
+      "path": "/tmp/w247941-review-252632-d0gxth_k/run/launch",
+      "created": true
+    },
+    "credential_home": {
+      "path": "/tmp/w247941-review-252632-d0gxth_k/run/credentials",
+      "created": true
+    },
+    "state_root": {
+      "path": "/tmp/w247941-review-252632-d0gxth_k/deployment-state",
+      "created": true
+    }
+  },
+  "seconds": 0.00017269101226702332,
+  "temporary_path": "/tmp/w247941-review-252632-d0gxth_k"
+}

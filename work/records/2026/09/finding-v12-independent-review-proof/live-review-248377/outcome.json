@@ -1,0 +1,153 @@
+{
+  "accounting_scope": "this run accounts for Job 'job-independent-review-248377' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+  "admissions": {
+    "review": 1
+  },
+  "admitted_attempts": [
+    "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461"
+  ],
+  "attempt_origins": {
+    "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461": "started"
+  },
+  "cancellation": {
+    "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461": {
+      "execution_runtime": "destroyed",
+      "requested": true,
+      "runtime_id": "7999b7b4bdf6a9c388429593590821969b7c6e494563f1b715aa0bc4a3c3a607",
+      "why": "this manager observed the runtime destroyed"
+    }
+  },
+  "claim": 248377,
+  "cleanup": {
+    "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    }
+  },
+  "cleanup_sweeps": 0,
+  "correction_containers_started": [],
+  "correction_limitation": "a review-only deployment declines the correction round through `correction_policy: \"decline\"`, which `StageComposition.routed` honours before calling `review_driver.open_correction`, and this packet is refused without it. A round appearing anyway means that boundary did not hold, so this run reports it and refuses to call itself settled.",
+  "correction_rounds_opened": [],
+  "final_canonical_read": true,
+  "finished_at": "2026-09-23T14:38:30.226Z",
+  "foreign_admissions": [],
+  "gate_refusals": [],
+  "held_because": [],
+  "interrupted": null,
+  "interruptions": [],
+  "job_id": "job-independent-review-248377",
+  "observed_attempts": [
+    "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461"
+  ],
+  "outstanding_cleanup": [],
+  "preexisting_jobs": [],
+  "preexisting_stages": {},
+  "provider_turn": {
+    "default_seconds": 3600,
+    "origin": "job",
+    "seconds": 180,
+    "setting": "provider_turn_seconds"
+  },
+  "retry": false,
+  "run_id": "independent-review-248377",
+  "schema": "baton.independent-review-outcome/1",
+  "served_seconds": 55.40899314900162,
+  "serving_bound_seconds": 240,
+  "serving_failure": null,
+  "stage_states": {
+    "review": "completed"
+  },
+  "stalled_after": 6,
+  "stalled_ticks": 0,
+  "started_order": [
+    "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461"
+  ],
+  "state": "settled",
+  "stopped": "completed",
+  "subject": {
+    "authority_uuid": "7ea319da93384b77bc3ddea38602d7a3",
+    "base_object": "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+    "checkpoint_digest": "sha256:9d3aa3ca7733d4ec983b5841f1b99be09e4dc98bdb45c8b255890772acdd9324",
+    "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+    "checkpoint_revision": 1,
+    "checkpoint_state": "frozen",
+    "declared_base": "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+    "head_object": "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6",
+    "line_device": 66306,
+    "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+    "line_inode": 43141701,
+    "line_path": "/home/sl/baton-runs/single-implementation-244216/run/workspaces/.baton-review-lines/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/checkout",
+    "line_revision": 1,
+    "line_state": "review-ready",
+    "named_checkpoint": {
+      "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+      "line_id": "line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d",
+      "revision": 1,
+      "state": "frozen"
+    },
+    "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+    "paths": [
+      "harness.py"
+    ],
+    "producer": {
+      "attempt_id": "attempt-4842e704ec3f10456e7a4e1e229401862cf8d8789779df0ef6d93fe8a0734d4b",
+      "generation": 1,
+      "participant": "baton.impl",
+      "principal": "principal:baton.impl",
+      "state": "revoked",
+      "worker_id": "implementation-worker",
+      "writer_id": "writer-a67688eb1d7e227093bca61de7663765da77cd812737b49ed4b71d591620879b"
+    },
+    "profile_name": "git",
+    "reference_name": "refs/baton/checkpoints/line-0d5b62ba32f714e3dd0a8bb8a2c88ed1622ad5cf1dbf5db1d3bd40e0af044c8d/1",
+    "schema": "baton.independent-review-subject/2",
+    "source_device": 66306,
+    "source_inode": 43141615,
+    "source_path": "/home/sl/baton-runs/single-implementation-244216/fixture-source",
+    "tree_object": "5b4c0f459d59c53d073af1c2d39eb043ebb16820",
+    "work_id": "7ea319da-W1"
+  },
+  "submission_failure": null,
+  "submission_id": "independent-review-248377-submission",
+  "submitted_at": "2026-09-23T14:37:34.809Z",
+  "unallocated_attempts": [],
+  "uncertainty": [],
+  "unexpected_attempts": [],
+  "work": "W239533",
+  "workload": {
+    "attachments": [
+      {
+        "attachment_id": "review-3536ffc95a8771beec30d669b763fe2f0b450b2604fc16e1f38d3f28acaea156",
+        "attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+        "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+        "generation": 2,
+        "runtime_attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461"
+      }
+    ],
+    "corrections_opened": [],
+    "dispositions": [
+      {
+        "attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+        "verdict": "accepted"
+      }
+    ],
+    "review_attempts": [
+      "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461"
+    ],
+    "shortfalls": [],
+    "verdicts": [
+      {
+        "attachment_id": "review-3536ffc95a8771beec30d669b763fe2f0b450b2604fc16e1f38d3f28acaea156",
+        "attempt_id": "attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+        "base": "cee07eebada62102e4a9ec9b88b4b804a102ce7e",
+        "checkpoint_id": "checkpoint-ab8207baa93b5abc12393a67c1e04046e14bebd7e9defdf0940e168203b711a9",
+        "head": "f84ae35d2ce87c97a88cb5fc9787c93afa91adc6",
+        "result_digest": "sha256:5e62f4c9afb1d2c840599bc69187d122fda75d4f89616e8713dcac9925abd864",
+        "result_id": "result-attempt-50b9aac1dd99231cc19043be78ae72f8fea77bfb7f124f6f4b31142e6f981461",
+        "tree": "5b4c0f459d59c53d073af1c2d39eb043ebb16820",
+        "verdict": "accepted"
+      }
+    ]
+  }
+}

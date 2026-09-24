@@ -1,0 +1,40 @@
+# The shadow guard, proved to FAIL when the shadow returns.
+# A copy of the dossier under /tmp/shadow-proof-mEjj with a second `answering` reintroduced.
+# Command:
+#   PYTHONPATH="<snapshot>:.:/tmp/shadow-proof-mEjj" python -B -m unittest test_two_jobs.NoCallbackInThisDossierIsSilentlyShadowed
+
+FF
+======================================================================
+FAIL: test_no_class_defines_one_method_twice (test_two_jobs.NoCallbackInThisDossierIsSilentlyShadowed.test_no_class_defines_one_method_twice) (module='test_two_jobs.py')
+STRUCTURAL, over the source rather than over the imported class.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/shadow-proof-mEjj/test_two_jobs.py", line 1541, in test_no_class_defines_one_method_twice
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        repeated, {},
+        ^^^^^^^^^^^^^
+        f"{place.name}:{node.name} defines a method more than "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"once; the later definition silently wins")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'answering': [917, 956]} != {}
+- {'answering': [917, 956]}
++ {} : test_two_jobs.py:TheSHIPPEDTemplateComposesThroughTheACTUALCLI defines a method more than once; the later definition silently wins
+
+======================================================================
+FAIL: test_the_bound_callback_sets_the_composed_handle (test_two_jobs.NoCallbackInThisDossierIsSilentlyShadowed.test_the_bound_callback_sets_the_composed_handle)
+BEHAVIOURAL, on the callback the class actually binds.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/shadow-proof-mEjj/test_two_jobs.py", line 1564, in test_the_bound_callback_sets_the_composed_handle
+    self.assertIs(getattr(held, "_composed", None), operations,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  "the bound callback did not set the composed handle")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None is not <object object at 0x7f64c6769060> : the bound callback did not set the composed handle
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.016s
+
+FAILED (failures=2)

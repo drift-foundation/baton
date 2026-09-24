@@ -572,3 +572,76 @@ checks, 10.426831334s. This claim 37.435480670s. Cumulative measured:
 `v12/` was edited; all ten CANDIDATE.json paths re-verified byte-identical.
 
 Returning through baton.bug with R2 as exact remaining scope.
+
+## 2026-09-23 — baton.claude, claim 250376
+
+### I read the subject instead of assuming what it held
+
+The owner asked for the real continuation input. `resume_state.py` opens
+W239528's retained control and Job stores READ-ONLY, through the pinned
+snapshot `/home/sl/baton-runs/independent-review-247947/manager-source`, and
+prints every answering module's `__file__` and digest — `not_from_snapshot` is
+empty. Nothing was written, started or reached.
+
+Two halves, and they came out opposite ways.
+
+**The context to resume is there.** `context_use_of` reports the producer
+attempt's provider context finalized at generation 0, status `ready`, reason
+`None` — the exact predecessor a generation-1 restore requires. That status is
+not cosmetic: the same reader answers `held`/`generation-damaged` when the
+retained generation stops validating. The container was destroyed and cleanup
+recorded `retained`, and the context survived both. I had expected this to be
+the fragile half and it is the sound one.
+
+**The verdict that would open a correction is not there and cannot be made to
+be.** The line is `accepted`; `integration_checkpoint` names its verdict and
+`verdict_of` proves the row against its committed act — `accepted`. No
+correction operation exists for the frozen checkpoint, asked by derived
+identity rather than by scanning. And `correction_feedback_of` refuses in the
+product's own words: `serving feedback belongs to a restore invocation`.
+
+Three gates close it: `record_verdict` produces `correction-ready` from
+`changes-requested` alone; `attach_review` admits `review-ready` only, so no
+second review can attach; and the restore reader holds BOTH the verdict's
+disposition and the retained report's own `verdict` member to
+`changes-requested`, from frozen custody.
+
+### The acceptance was a judgement
+
+Worth checking before recommending a new subject, because if the criteria had
+steered the reviewer the answer would be to fix the packet. They did not: the
+executed criteria say every one of the three verdicts is valid and that no
+outcome is better for the reviewer than another. The reviewer read a change
+that met its stated requirement and said so.
+
+### A seam I had pinned as unavoidable is not
+
+PLAN pinned a `claude_agent.py` change for stage-specific requirements,
+reasoned from one Job carrying one digest-sealed input manifest so both roles
+read the same task string. That reasoning was correct for the COMBINED Job and
+the owner's split retires it — W239533's review Job carried its own task
+document with review criteria the implementation Job never saw, and it is
+retained and readable. So the constraint I recorded as a product gap was a
+property of the shape the owner had already replaced. Asserted against the
+executed criteria rather than argued.
+
+### What I am NOT claiming
+
+That the production CLI restores a real conversation. The deterministic
+evidence drives open → restore through the real manager, review cycles,
+verdicts and provider-context readers with the provider subprocess as its one
+seam. That seam is the live question this Job exists to ask.
+
+### Verification spending
+
+`verification-22.json` — the existing suite, 90 tests, status 0,
+25.897337019006955s, on the environment its own earlier receipts name so it is
+comparable with verification-18 and -20.
+`verification-23.json` — this claim's checks, 10 tests, status 0,
+0.274530970986234s, bound to the pinned snapshot.
+
+Author cumulative for W236087: 415.934725242s + 25.897337019006955s +
+0.274530970986234s = **442.106592232s**. One earlier read-only probe run of
+`resume_state.py` is not measured separately.
+
+State: passed for independent review.
