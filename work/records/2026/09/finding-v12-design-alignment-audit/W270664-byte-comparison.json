@@ -1,0 +1,74 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "prior": "dac1ba4ed7aa26d6ba13edfda952f261a5ada9132cbd66d2075e8046ac7740e4",
+    "current": "dac1ba4ed7aa26d6ba13edfda952f261a5ada9132cbd66d2075e8046ac7740e4",
+    "same": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/store.py",
+    "prior": "3d44991274f75e2260dc12a5b8012650256b8400a771e93dc8e4d50c5b48dbc6",
+    "current": "3d44991274f75e2260dc12a5b8012650256b8400a771e93dc8e4d50c5b48dbc6",
+    "same": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+    "prior": "f5b48b386408abe3733461eddc61ef8a9be80441e50c4e81d82cdb14bec86129",
+    "current": "f5b48b386408abe3733461eddc61ef8a9be80441e50c4e81d82cdb14bec86129",
+    "same": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+    "prior": "2630e18823297bd87a84b5fa47acf8e39bc93c64edacbb49bd889ad43a0b7e4e",
+    "current": "2630e18823297bd87a84b5fa47acf8e39bc93c64edacbb49bd889ad43a0b7e4e",
+    "same": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+    "prior": "9ce03a4429952c4d9af14b3a5a2f72ae9144b3de6056020d3e571b74fc53b6ff",
+    "current": "9ce03a4429952c4d9af14b3a5a2f72ae9144b3de6056020d3e571b74fc53b6ff",
+    "same": true
+  },
+  {
+    "path": "v12/python/tools/single_worker.py",
+    "prior": "860c6d49e05b9e2951d0e5e06d4ce51f39b71a6b65529b69619acea2925d27bb",
+    "current": "860c6d49e05b9e2951d0e5e06d4ce51f39b71a6b65529b69619acea2925d27bb",
+    "same": true
+  },
+  {
+    "path": "v12/python/tools/integration_worker.py",
+    "prior": "2fe76775747152737d6bcc30f6f5463499b3c16c14b25e3648de7b259dffbc21",
+    "current": "2fe76775747152737d6bcc30f6f5463499b3c16c14b25e3648de7b259dffbc21",
+    "same": true
+  },
+  {
+    "path": "v12/python/tools/dogfood_operator.py",
+    "prior": "155751864bae8f70b73deb7cfb6e2d2b8c2b43ba8b76af981da2707075ef25e9",
+    "current": "155751864bae8f70b73deb7cfb6e2d2b8c2b43ba8b76af981da2707075ef25e9",
+    "same": true
+  },
+  {
+    "path": "v12/python/tests/manager/test_workspaces.py",
+    "prior": "4e1c44d3ac8ef2614b227369d6102d473e778f917e35180fb9319a40ab2b820e",
+    "current": "4e1c44d3ac8ef2614b227369d6102d473e778f917e35180fb9319a40ab2b820e",
+    "same": true
+  },
+  {
+    "path": "v12/python/tests/manager/test_boundary_inventory.py",
+    "prior": "4776e8d43a8892276cadbd1b4e1b8c0ce5ed0641e6bc8abcd1553ca5ce0f3ddb",
+    "current": "4776e8d43a8892276cadbd1b4e1b8c0ce5ed0641e6bc8abcd1553ca5ce0f3ddb",
+    "same": true
+  },
+  {
+    "path": "work/records/2026/09/finding-v12-workspace-removal-outside-locks/test_removal_outside_the_lock.py",
+    "prior": "32ff6457af7608661f64df4edd5e9d4ff0a565deaea663a9b1192b3e4e9ef917",
+    "current": "32ff6457af7608661f64df4edd5e9d4ff0a565deaea663a9b1192b3e4e9ef917",
+    "same": true
+  },
+  {
+    "path": "work/records/2026/09/finding-v12-workspace-removal-outside-locks/review_token_generations_20260926.py",
+    "prior": "6cac12a1f2edf07542ccce5fd6ae518c2fa27441dd479cd90f325eac0080fc86",
+    "current": "6cac12a1f2edf07542ccce5fd6ae518c2fa27441dd479cd90f325eac0080fc86",
+    "same": true
+  }
+]

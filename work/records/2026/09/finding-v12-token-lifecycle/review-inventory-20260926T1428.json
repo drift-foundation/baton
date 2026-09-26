@@ -1,0 +1,156 @@
+{
+  "entries": 44,
+  "unowned": [],
+  "missing_probes": [],
+  "unexpected_probes": [],
+  "reached": [
+    [
+      [
+        "caller",
+        "tokens.py:domain_of",
+        "resource_kind"
+      ],
+      "a governed resource kind"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:domain_of",
+        "identity"
+      ],
+      "a governed resource identity"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:acquire",
+        "domain"
+      ],
+      "a governed conflict domain"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:acquire",
+        "operation"
+      ],
+      "a token operation identity"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:acquire",
+        "execution"
+      ],
+      "a token execution identity"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:acquire",
+        "attempt"
+      ],
+      "an assignment identity"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:acquire",
+        "eligible"
+      ],
+      "a pure-database eligibility predicate"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:acquire",
+        "seconds"
+      ],
+      "a resource token expiry"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:journal_launch",
+        "launch"
+      ],
+      "a launch operation identity"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:bind_container",
+        "container"
+      ],
+      "a bound container identity"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:bind_container",
+        "launch"
+      ],
+      "a launch operation identity"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:returned",
+        "cessation"
+      ],
+      "a container cessation answer"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:returned",
+        "cessation.domain"
+      ],
+      "a container cessation answer"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:returned",
+        "cessation.generation"
+      ],
+      "a container cessation answer"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:returned",
+        "cessation.launch"
+      ],
+      "a container cessation answer"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:returned",
+        "cessation.container"
+      ],
+      "a container cessation answer"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:returned",
+        "cessation.stopped"
+      ],
+      "a container cessation answer"
+    ],
+    [
+      [
+        "caller",
+        "tokens.py:returned",
+        "cessation.helpers"
+      ],
+      "a container cessation answer"
+    ]
+  ],
+  "witness_tests": 2,
+  "witness_failures": 0,
+  "witness_errors": 0,
+  "seconds": 5.019586343958508
+}

@@ -262,6 +262,16 @@ Decision and measured feedback-time comparison:
 
 ## Confirmed decisions are pinned before implementation
 
+Owner coordination delegation 2026-09-26: `baton.prompt` monitors canonical Work
+state and evidence and coordinates routine continuation, corrections, ownership,
+handoffs and milestone checkpoints within the accepted specification and selected
+scope. Any proposed specification adjustment requires Slawomir's explicit approval
+before changing the specification or implementing the adjusted behavior. This
+delegation grants no Route-handler impersonation, managed readiness consumption,
+Git mutation or bypass of independent review. Scheduling relationships are
+recorded in Baton's graph, not substituted with document prose. Exact ruling:
+[Owner coordination](work/records/2026/09/finding-v12-shared-resource-token/FINDING.md#owner-coordination-ruling--2026-09-26).
+
 - `docs/EFFECTIVE-BATON.md` is a shared methodology book for all projects and
   users: worked examples and adaptable strategies, not a prescribed setup.
   Role splits are examples, not protocol requirements. Keep concrete Job IDs,
@@ -431,11 +441,21 @@ a duplicate consumer. Compaction/replacement requires a verified supported
 runner operation, not deletion of session files. A claimed turn limit must name
 observed runner/provider evidence; normal end_turn is not proof of exhaustion.
 
-Human-owned WIP commits are useful recovery checkpoints after accepted slices
-or before context replacement when practical. They are neither acceptance
-evidence nor a prerequisite for continued authorized work. Agents never mutate
-Git state. Human absence is not a performance defect; unnecessary dependence
-on human approval for already-authorized continuation is.
+Owner ruling 2026-09-26: every major milestone requires a human-owned Git
+checkpoint, including completed independently reviewed Jobs and major accepted
+slices. This supersedes the earlier merely optional/practical milestone-WIP
+wording. At the milestone handoff, agents must identify the checkpoint due,
+prepare a truthful change/verification summary and a concrete commit message
+for Slawomir, and record the commit identity after observing the human's commit.
+Carry a pending checkpoint explicitly in the current PLAN/handoff until it is
+fulfilled. Do not silently forget it or describe a proposed commit as made.
+Routine correction passes are not each a new major milestone. Durable checkpointing
+before supported context replacement remains required as described above.
+
+Agents never stage, commit or otherwise mutate Git state. A Git checkpoint is
+a recovery aid, not acceptance evidence. Human absence is not a performance
+defect. Decision and first explicitly named milestone:
+[Required milestone checkpoints](work/records/2026/09/finding-v12-design-alignment-audit/FINDING.md#2026-09-26--every-major-milestone-requires-a-human-git-checkpoint).
 
 For early v12 workflow improvements, carry explicit continuation/correction/
 acceptance/owner-decision outcomes, durable continuation checkpoints and safe

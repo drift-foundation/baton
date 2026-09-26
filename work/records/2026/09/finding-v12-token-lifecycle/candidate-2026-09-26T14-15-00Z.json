@@ -1,0 +1,5 @@
+{
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "a1d0f7ec1e970525e0b7a13b76e6661950260cf027984911ad06a42b9bbb5b01",
+  "v12/python/tests/manager/test_boundary_inventory.py": "da9c9dea0f52f8cd91b2d1a8cbf270848821505a2ef5b13ce2a08ab88403237e",
+  "v12/python/tests/manager/test_dependencies.py": "e2c9f79c9a11886e79fd3cbd6d78ce8d6e6970555bc5fdb84a9936023292fbec"
+}

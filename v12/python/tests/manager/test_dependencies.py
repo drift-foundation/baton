@@ -374,6 +374,19 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
     # deriving "is this an operand" from a name is the guessing this case exists
     # to stop -- and an entry here is a claim somebody has to make deliberately.
     OPERANDS = {
+        # W275774 child A: the shared resource token's own operands. Declared rather than
+        # the check weakened -- each names a fact the token owner is given, not internal
+        # state it carries: the governed conflict DOMAIN and its RESOURCE_KIND, the
+        # EXECUTION permitted to act, the pure-database ELIGIBLE predicate its resource
+        # owner supplies, the journalled LAUNCH and the CONTAINER correlated to it, the
+        # typed CESSATION evidence, and the TOKEN document a later step acts under.
+        "domain", "resource_kind", "execution", "eligible", "launch", "container",
+        "cessation", "token",
+        # `control` is the INJECTED STORE CAPABILITY every journal-owning entry receives --
+        # the same operand shape as `store`, which is already declared here. Added under
+        # review 2026-09-26T14:01:00Z, which ruled the addition justified in this owned
+        # catalog despite its incidental benefit to other modules that also take it.
+        "control",
         # contracts
         "value", "payload", "document", "name", "names", "what", "required",
         "validator",

@@ -1,0 +1,56 @@
+{
+  "prior_manifest": "work/records/2026/09/finding-v12-db-lock-io-audit/source-sha256-end.json",
+  "compared": 104,
+  "changed": [
+    {
+      "path": "v12/python/src/baton_v12/checkpoint_profiles.py",
+      "prior": "40bfdfff35d286819bb3f07a525a77b4542c9aec1c571028ae06734ac75b5e31",
+      "current": "bcd539447066fa5e05fcf5340ec3c1b675920ccd9d859ec81d18889f2d3d4f04"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "prior": "3e977dfb0e12f58f05d85e5fc1e4dbe96b3e356db19dc60f9fe326e463c19022",
+      "current": "2630e18823297bd87a84b5fa47acf8e39bc93c64edacbb49bd889ad43a0b7e4e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "prior": "9a7bded4121ba6f0406db1e5aface00ed1c725cf507483b6460b27abc2e914f2",
+      "current": "f5b48b386408abe3733461eddc61ef8a9be80441e50c4e81d82cdb14bec86129"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "prior": "0474197400697a914401b02a7bd721f0cfd7063e113bc4f130d023f0cafcd955",
+      "current": "9ce03a4429952c4d9af14b3a5a2f72ae9144b3de6056020d3e571b74fc53b6ff"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/store.py",
+      "prior": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b",
+      "current": "3d44991274f75e2260dc12a5b8012650256b8400a771e93dc8e4d50c5b48dbc6"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "prior": "dafd976790d3a081ee5f96bdf28ec363334bcdd888504e2fa5c1c06a9d21b779",
+      "current": "dac1ba4ed7aa26d6ba13edfda952f261a5ada9132cbd66d2075e8046ac7740e4"
+    },
+    {
+      "path": "v12/python/tools/dogfood_operator.py",
+      "prior": "5b02cb02aaa764d70635199ed9ddbc443b44fac74a9e8bfb0c24faa7250bebf6",
+      "current": "155751864bae8f70b73deb7cfb6e2d2b8c2b43ba8b76af981da2707075ef25e9"
+    },
+    {
+      "path": "v12/python/tools/integration_worker.py",
+      "prior": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+      "current": "2fe76775747152737d6bcc30f6f5463499b3c16c14b25e3648de7b259dffbc21"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "prior": "61fdee2080a499866190a9611af42221e7df789af35fe5136d981fedb83ada18",
+      "current": "860c6d49e05b9e2951d0e5e06d4ce51f39b71a6b65529b69619acea2925d27bb"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "prior": "cd62d181e10354c2adf0ab6c7cee76790c64e2f61727a29714372ee49452b7b8",
+      "current": "12846a6dbfa9d50b0cb1a6a0a67a7f59a47e47b040de7a0dba984d303756f1fe"
+    }
+  ]
+}

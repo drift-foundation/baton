@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-09-26T13:19:35.110409+00:00",
+  "normative_ids": 92,
+  "matrix_ids": 92,
+  "missing": [],
+  "extra": [],
+  "duplicates": [],
+  "source_changed_since_manifest": [],
+  "method": "Static document coverage and source hashes only; no product or test execution."
+}

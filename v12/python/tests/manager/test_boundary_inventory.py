@@ -1971,8 +1971,68 @@ DEADLINE_OWNERS = {
 for _entry in DEADLINE_DELEGATES:
     DEADLINE_OWNERS.pop(_entry)
 
+# W275774 child A: the token entries whose owner is STATED rather than a `boundaries.*`
+# call, from the reviewer's exact list in review-inventory-20260926.json. Two rules only
+# -- the injected capability, and the document this module answered and re-reads -- and
+# each names a witness below. Everything a caller actually composes is probed instead.
+TOKEN_OWNERS = {
+    ("caller", "tokens.py:acquire", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:outstanding", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:token_of", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:journal_launch", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:bind_container", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:effects_permitted", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:returned", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:journal_launch", "token"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:journal_launch", "token.domain"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:journal_launch", "token.generation"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:journal_launch", "token.owner"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:bind_container", "token"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:bind_container", "token.domain"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:bind_container", "token.generation"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:bind_container", "token.owner"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:effects_permitted", "token"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:effects_permitted", "token.domain"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:effects_permitted", "token.generation"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:effects_permitted", "token.owner"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:returned", "token"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:returned", "token.domain"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:returned", "token.generation"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:returned", "token.owner"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:outstanding", "domain"):
+        "a conflict domain composed by `domain_of`, which owns both of its parts; it selects derived record identities and reads nothing a caller chose",
+    ("caller", "tokens.py:token_of", "domain"):
+        "as `outstanding`: `domain_of`'s owned answer, selecting derived identities only",
+    ("caller", "tokens.py:token_of", "generation"):
+        "an ordinal this module allocated and recorded; a generation naming no acquisition answers `None` rather than inventing one",
+}
+
 STATED_OWNERS = {
     **DEADLINE_OWNERS,
+    **TOKEN_OWNERS,
     ("adopted", "review_cycles.py:consumption_subject", "line_writers"):
         "exactly one active row for the caller attempt/generation; its sole projected identity is forwarded to writer_of",
     ("caller", "workspaces.py:AllocatedRoots.__init__", "_line"):
@@ -7775,7 +7835,109 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.credential_probes(), **self.launch_probes(),
                 **self.source_boundary_probes(),
                 **self.review_cycle_probes(),
-                **self.worker_entry_probes()}
+                **self.worker_entry_probes(),
+                **self.token_probes()}
+
+    def token_probes(self):
+        """W275774 child A: the shared resource token's receiving entries.
+
+        ONE COMPLETE ENTRY FIRST, per review 2026-09-26T14:08:00Z, rather than twenty rows
+        whose probes might not reach. This one drives the REAL public vector with exactly
+        one operand spoiled, so `refusing` requires the refusal to name the label -- a probe
+        stopped by an earlier precondition fails instead of passing for the wrong reason.
+        The remaining `tokens.py` entries follow this shape.
+        """
+        from baton_v12.worker_manager import tokens
+
+        def at(site, subject, domain="caller"):
+            return (domain, site, subject)
+
+        T = "tokens.py"
+        domain = tokens.domain_of("workspace", "line-7/workspace")
+
+        def acquiring(**spoiled):
+            operands = {"operation": "runtime.start:probe",
+                        "execution": "attempt-probe", "attempt": "attempt-probe"}
+            operands.update(spoiled)
+            place = operands.pop("domain", domain)
+            return lambda: tokens.acquire(self.store, place, **operands)
+
+        def held():
+            """One real acquisition, so the later vectors reach their own operands."""
+            return tokens.acquire(self.store, domain, operation="runtime.start:probe",
+                                  execution="attempt-probe", attempt="attempt-probe")
+
+        def cessation(**spoiled):
+            answer = {"domain": domain, "generation": 1, "launch": "launch:probe",
+                      "container": "container-probe", "stopped": True, "helpers": []}
+            answer.update(spoiled)
+            for gone in spoiled.pop("_without", ()):
+                answer.pop(gone, None)
+            return answer
+
+        def without(member):
+            def run():
+                token = held()
+                tokens.journal_launch(self.store, token, "launch:probe")
+                tokens.bind_container(self.store, token, "container-probe",
+                                      launch="launch:probe")
+                answer = cessation()
+                answer.pop(member)
+                tokens.returned(self.store, token, cessation=answer)
+            return run
+
+        def launching():
+            token = held()
+            tokens.journal_launch(self.store, token, "launch:probe")
+            return token
+
+        found = {
+            (at(f"{T}:domain_of", "resource_kind"), "a governed resource kind"): (
+                "a governed resource kind",
+                lambda: tokens.domain_of(SURROGATE, "line-7/workspace")),
+            (at(f"{T}:domain_of", "identity"), "a governed resource identity"): (
+                "a governed resource identity",
+                lambda: tokens.domain_of("workspace", SURROGATE)),
+            (at(f"{T}:acquire", "domain"), "a governed conflict domain"): (
+                "a governed conflict domain", acquiring(domain=SURROGATE)),
+            (at(f"{T}:acquire", "operation"), "a token operation identity"): (
+                "a token operation identity", acquiring(operation=SURROGATE)),
+            (at(f"{T}:acquire", "execution"), "a token execution identity"): (
+                "a token execution identity", acquiring(execution=SURROGATE)),
+            (at(f"{T}:acquire", "attempt"), "an assignment identity"): (
+                "an assignment identity", acquiring(attempt=SURROGATE)),
+            (at(f"{T}:acquire", "eligible"),
+             "a pure-database eligibility predicate"): (
+                "a pure-database eligibility predicate",
+                acquiring(eligible=SURROGATE)),
+            (at(f"{T}:acquire", "seconds"), "a resource token expiry"): (
+                "a resource token expiry", acquiring(seconds=SURROGATE)),
+            (at(f"{T}:journal_launch", "launch"), "a launch operation identity"): (
+                "a launch operation identity",
+                lambda: tokens.journal_launch(self.store, held(), SURROGATE)),
+            (at(f"{T}:bind_container", "container"), "a bound container identity"): (
+                "a bound container identity",
+                lambda: tokens.bind_container(self.store, launching(), SURROGATE,
+                                              launch="launch:probe")),
+            (at(f"{T}:bind_container", "launch"), "a launch operation identity"): (
+                "a launch operation identity",
+                lambda: tokens.bind_container(self.store, launching(),
+                                              "container-probe", launch=SURROGATE)),
+            (at(f"{T}:returned", "cessation"), "a container cessation answer"): (
+                "a container cessation answer",
+                lambda: tokens.returned(self.store, held(), cessation=SURROGATE)),
+        }
+        # THE DOCUMENT'S MEMBERS ARE SPOILED BY ABSENCE, not by a bad value. Their owner is
+        # `boundaries.document`'s `required=` membership check, so a member set to something
+        # wrong would be refused later by the identity comparison -- naming a different
+        # label -- and `refusing` would rightly call that a probe stopped for the wrong
+        # reason. Removing the member is what reaches the owner this entry names.
+        for member in ("domain", "generation", "launch", "container", "stopped",
+                       "helpers"):
+            found[(at(f"{T}:returned", f"cessation.{member}"),
+                   "a container cessation answer")] = (
+                "a container cessation answer", without(member))
+        return found
 
     def deadline_probes(self):
         from .test_runtime_deadlines import Deadlines
@@ -8579,7 +8741,63 @@ class EveryProbeProvesItArrived(BoundaryCase):
 # Which test method witnesses each stated owner. A stated rule is not a boundary
 # label, so it is exercised rather than probed -- and the mapping is checked both
 # ways, so a rule with no witness and a witness naming no rule both fail.
+TOKEN_WITNESSES = {
+    ("caller", "tokens.py:acquire", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:outstanding", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:token_of", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:journal_launch", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:bind_container", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:effects_permitted", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:returned", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:journal_launch", "token"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:journal_launch", "token.domain"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:journal_launch", "token.generation"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:journal_launch", "token.owner"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:bind_container", "token"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:bind_container", "token.domain"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:bind_container", "token.generation"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:bind_container", "token.owner"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:effects_permitted", "token"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:effects_permitted", "token.domain"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:effects_permitted", "token.generation"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:effects_permitted", "token.owner"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:returned", "token"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:returned", "token.domain"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:returned", "token.generation"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:returned", "token.owner"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:outstanding", "domain"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:token_of", "domain"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:token_of", "generation"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+}
+
 WITNESSES = {
+    **TOKEN_WITNESSES,
     ("caller", "workspaces.py:AllocatedRoots.__init__", "_line"):
         "test_line_launch_metadata_keeps_mint_and_durable_binding",
     # -- W71917: the source/workspace boundary -------------------------------
@@ -9156,6 +9374,96 @@ class DeadlineForwardingInventory(unittest.TestCase):
 
 
 class StatedRules(BoundaryCase):
+
+    def _token_fixture(self):
+        """Child A's fixture, from the ORDINARY test tree.
+
+        Review 2026-09-26T14:28:00Z: this used to import the dossier selector by path.
+        Reusable support now lives in `tests/manager/token_support.py`, so a record stays
+        evidence for one Work rather than becoming a library.
+        """
+        from .token_support import TokenFixture
+        return TokenFixture(self)
+
+    def test_a_token_control_capability_is_proven_by_use(self):
+        """WITNESS: the control store is a capability, exercised rather than validated.
+
+        W275774. `tokens.py` takes `control` at every entry and never runs it through a
+        `boundaries.*` document check, because what makes it trustworthy is not its shape:
+        it is reached only through its own owner APIs, and a store that cannot serve them
+        fails AS a capability.
+
+        THE REFUSAL IS EXACT, not "any exception". Review 2026-09-26T14:28:00Z caught this
+        accepting `Exception`, which would have passed on a typo as readily as on the
+        property -- the same "stopped for the wrong reason" failure `refusing` exists to
+        prevent. A closed connection raises `sqlite3.ProgrammingError`, and that is what is
+        required here.
+        """
+        import sqlite3
+        from baton_v12.worker_manager import tokens
+        fixture = self._token_fixture()
+        fixture.store._connection.close()
+        with self.assertRaises(sqlite3.ProgrammingError):
+            tokens.acquire(fixture.store, fixture.domain,
+                           operation="runtime.start:witness",
+                           execution="attempt-witness")
+
+    def test_a_carried_token_document_is_reread_before_it_is_acted_on(self):
+        """WITNESS: the token document a caller holds is checked, never trusted.
+
+        W275774. `journal_launch`, `bind_container`, `effects_permitted` and `returned` all
+        receive the acquisition document this module answered earlier, and none of them
+        believes it: each re-reads the record through `replay` and compares the owner first.
+
+        EVERY MAPPED SITE IS EXERCISED, on a BOUND token. Review 2026-09-26T14:28:00Z:
+        my first version forged the owner on an unbound token, so `effects_permitted`
+        answered False because no container was bound -- it could have had no owner guard at
+        all and still passed. The container is bound first now, so False is attributable to
+        the owner comparison, and `bind_container` and `returned` are driven too rather than
+        merely named in the table.
+        """
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import tokens
+        fixture = self._token_fixture()
+        token = fixture.held()
+        evidence = fixture.launched(token)
+        forged = dict(token, owner="somebody-elses-owner")
+
+        self.assertTrue(tokens.effects_permitted(fixture.store, token),
+                        "the real holder of a bound token may expose the resource")
+        self.assertFalse(tokens.effects_permitted(fixture.store, forged),
+                         "a forged owner is refused on a token that IS bound")
+        # THE TWO RECORD-CREATING SITES GET FRESH TOKENS. Measured: forging on the SAME
+        # token that `launched` already journalled made the journal's one-act-per-identity
+        # rule answer first with `operation-collision`, which is a correct refusal proving
+        # somebody else's rule. A fresh domain has no launch or bound record, so the owner
+        # comparison is what answers -- the same staging lesson as child A's selector.
+        # ONE fresh fixture per site, and the forged document comes from THAT fixture's own
+        # acquisition. Measured and corrected: my first staging passed a token acquired in
+        # one store to a vector called on ANOTHER store, so `_owning` refused because the
+        # record was ABSENT rather than because the owner was forged -- passing for the
+        # wrong reason, which is the whole thing this witness exists to avoid.
+        unlaunched = self._token_fixture()
+        forged_unlaunched = dict(unlaunched.held(), owner="somebody-elses-owner")
+        beside = self._token_fixture()
+        elsewhere = beside.held()
+        forged_beside = dict(elsewhere, owner="somebody-elses-owner")
+        tokens.journal_launch(beside.store, elsewhere, "launch:beside")
+        for what, act in (
+            ("journal_launch", lambda: tokens.journal_launch(
+                unlaunched.store, forged_unlaunched, "launch:forged")),
+            ("bind_container", lambda: tokens.bind_container(
+                beside.store, forged_beside, "container-forged",
+                launch="launch:beside")),
+            ("returned",
+             lambda: tokens.returned(fixture.store, forged, cessation=evidence)),
+        ):
+            with self.subTest(site=what):
+                with self.assertRaises(ContractRefusal) as caught:
+                    act()
+                self.assertEqual(caught.exception.code, "identity-mismatch")
+        self.assertEqual(len(tokens.outstanding(fixture.store, fixture.domain)), 1,
+                         "no forged act may retire the real generation")
 
     def _deadline_witness(self, method):
         from .test_runtime_deadlines import Deadlines
