@@ -483,7 +483,8 @@ class RemainingBoundaries(ContextCase):
         from baton_v12.worker_manager.workspaces import discard_execution_roots
         first, state = self.state()
         self.end_runtime(first)
-        discard_execution_roots(str(self.storage), self.attempt_id)
+        discard_execution_roots(str(self.storage), self.attempt_id,
+                                control=self.control)
         self.assertTrue(state.is_file())
         with mock.patch.object(self.port, "assignment_of", side_effect=AssertionError("ending attempted admission")):
             self.assertEqual(self.finalize()["status"], "ready")

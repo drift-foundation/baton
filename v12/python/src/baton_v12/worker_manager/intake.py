@@ -4061,6 +4061,27 @@ def _settle_recordless_cleanup(store, connection, attempt_id, observed,
         observe(store, attempt_id=attempt_id, axis="execution_runtime",
                 value="destroyed")
     observe(store, attempt_id=attempt_id, axis="cleanup", value="retained")
+    # W266336 stage 2 [P1], review 2026-09-25T18-36-24Z: A PENDING SUBMITTER
+    # KEEPS THE RESERVATION, whatever anybody else can see.
+    #
+    # Absence plus every provider ending is what this release has always
+    # required, and all of it can be established by a manager that is NOT the one
+    # holding the start call. A second handle cancelled, reconciled and ended an
+    # attempt while the original `adapter.start` had not returned, and the lane
+    # went with it -- so reuse was ordered behind an observation rather than
+    # behind the submitter. `start_submission_returned` is the submitter's own
+    # record, which nobody else can write.
+    #
+    # THE REFUSAL IS NON-DURABLE ON PURPOSE: the whole settlement rolls back, so
+    # the reservation, the axis and the cleanup state stay exactly as they were
+    # and the ending is retryable once the submitter comes back.
+    if not attempts.start_submission_returned(store, attempt):
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)}'s start submission has not "
+            f"returned to the manager that made it; a reservation is not given "
+            f"back on somebody else's observation of the runtime, because the "
+            f"submitter may still act")
     # W32649: the lane is given back only after positive absence and every
     # applicable provider ending -- reuse is ordered behind the proof, not
     # beside it.
@@ -4487,6 +4508,27 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     # a failed cleanup means the runtime survived its destroy, and a lane
     # released while a container is still there is the overlap this exists to
     # prevent. The `failed` branch above returns before this line.
+    # W266336 stage 2 [P1], review 2026-09-25T18-36-24Z: A PENDING SUBMITTER
+    # KEEPS THE RESERVATION, whatever anybody else can see.
+    #
+    # Absence plus every provider ending is what this release has always
+    # required, and all of it can be established by a manager that is NOT the one
+    # holding the start call. A second handle cancelled, reconciled and ended an
+    # attempt while the original `adapter.start` had not returned, and the lane
+    # went with it -- so reuse was ordered behind an observation rather than
+    # behind the submitter. `start_submission_returned` is the submitter's own
+    # record, which nobody else can write.
+    #
+    # THE REFUSAL IS NON-DURABLE ON PURPOSE: the whole settlement rolls back, so
+    # the reservation, the axis and the cleanup state stay exactly as they were
+    # and the ending is retryable once the submitter comes back.
+    if not attempts.start_submission_returned(store, attempt):
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)}'s start submission has not "
+            f"returned to the manager that made it; a reservation is not given "
+            f"back on somebody else's observation of the runtime, because the "
+            f"submitter may still act")
     lanes._release_lane(connection, attempt_id=attempt_id,
                        reference=lanes.lane_reference(attempt),
                        why=f"cleanup settled {ending}")
@@ -4508,8 +4550,11 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     from .workspaces import (configured_workspace_storage,
                              discard_execution_roots)
 
+    # W257624 R3: the store this cleanup already holds is the one that answers
+    # whether the attempt's roots are held, so the guard costs this site no new
+    # capability -- only the operand that makes it unskippable.
     discard_execution_roots(configured_workspace_storage(store).place,
-                            attempt_id)
+                            attempt_id, control=store)
     return documents.cleanup_settled(
         attempt_id=attempt_id, cleanup=ending, state=state,
         why=observed["why"], kept=list(kept), operation=dict(operation),

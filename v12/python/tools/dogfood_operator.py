@@ -4389,7 +4389,7 @@ def _for_retry(evidence, given, *, provider=None):
                     # the proof `adopted_assignment_workspace` performed
                     # survives to the adapter's use instead of being reduced
                     # to path strings this deployment asserts something about.
-                    assignment_roots=_proved_roots(given),
+                    assignment_roots=_proved_roots(given, store),
                     posture="execution",
                     mounts=[], workspace_group=_configured_group(store),
                     # W47225: THE LAUNCH ROOT IS ADOPTED, NOT LEFT BEHIND, AND
@@ -4486,7 +4486,7 @@ def _for_abandonment(given, *, run=None):
         authority = Authority.open(given["authority_store"])
         opened.append(authority.dispose)
         session = DeploymentSession(authority.session(given["participant"]))
-        roots = _proved_roots(given)
+        roots = _proved_roots(given, store)
         granted = credentials.CredentialHome(given["credential_home"])
         assignment = credentials.CredentialHome(
             os.path.dirname(roots["workspace"].rstrip("/")))
@@ -4577,7 +4577,7 @@ def _adopted_launch(evidence, given):
     return adopted
 
 
-def _proved_roots(given):
+def _proved_roots(given, control):
     """The attempt's existing roots, PROVED BY THE MANAGER and not here.
 
     The name is unchanged on purpose: what moved is WHERE the proof lives,
@@ -4597,8 +4597,8 @@ def _proved_roots(given):
     from baton_v12.worker_manager import workspaces
 
     try:
-        return workspaces.adopted_assignment_workspace(given["storage"],
-                                                       given["attempt_id"])
+        return workspaces.adopted_assignment_workspace(
+            given["storage"], given["attempt_id"], control=control)
     except ContractRefusal as refused:
         raise OperatorRefusal(
             f"attempt {given['attempt_id']!r} has no roots this manager will "

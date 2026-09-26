@@ -54,6 +54,23 @@ def _vector(schema):
     raise AssertionError(f"the published vectors carry no {schema}")
 
 
+
+def custodian_answer(argv):
+    """The verb and submission this custody argv carries, whichever shape.
+
+    W257624 R2 added a submission token after the verb. This fixture is
+    SHARED with suites that run against a pinned manager snapshot predating
+    that change -- `test_two_jobs`'s recorded command loads `baton_v12` from
+    `/home/sl/baton-runs/independent-review-247947/manager-source` -- so it
+    reads the verb where it is in BOTH shapes and passes a token only when the
+    argv actually carries one. Assuming the new shape made the pinned product's
+    verb read as a token, which is what sent twelve of those cases red.
+    """
+    where = argv.index("-c")
+    verb = argv[where + 2]
+    carried = argv[where + 3] if len(argv) > where + 3 else None
+    return verb, carried
+
 class TheContextServingBoundaryIsIsolated(unittest.TestCase):
     def setUp(self):
         from tests.manager.test_claude_context import ServingContextCase
@@ -2606,7 +2623,12 @@ class ComposedOneJobCase(ServingCase):
                 # THE CUSTODY HELPER, and the verb it is answering is its own
                 # last operand rather than one this fixture chose.
                 engine.vectors.append(list(argv))
-                return Engine.answer(stdout=json.dumps(reported(argv[-1])))
+                # W257624 R2: the verb, and the token when this product sends
+                # one -- see `custodian_answer`.
+                verb, carried = custodian_answer(argv)
+                return Engine.answer(stdout=json.dumps(
+                    reported(verb) if carried is None
+                    else reported(verb, carried)))
             if argv[1] == "rm":
                 gone.add(argv[-1])
                 if engine.runtime_id == argv[-1]:
@@ -6722,7 +6744,11 @@ class _ConcurrentEngine:
         if verb == "run" and "--entrypoint" in argv:
             # THE CUSTODY HELPER, answering the verb it was asked for -- its
             # own last operand, exactly as the accepted helper reads it.
-            return self.answer(stdout=json.dumps(reported(argv[-1])))
+            # W257624 R2: the verb, and the token when this product sends one.
+            verb, carried = custodian_answer(argv)
+            return self.answer(stdout=json.dumps(
+                reported(verb) if carried is None
+                else reported(verb, carried)))
         if verb == "run":
             return self._started(argv)
         held = self.records.get(argv[-1])

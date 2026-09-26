@@ -1,3 +1,7 @@
+# Current action — bounded Tuner disposition assessment, 2026-09-25
+
+Owner selects evidence-only recommendation and exact owner command in DISPOSITION-20260925.md; see the dated FINDING ruling. No execution or subject selection. Return to baton.decide. This supersedes the next action below for this assessment; prior accepted evidence remains valid.
+
 # Current action — independent review 250440
 
 The retained-input assessment is accepted by

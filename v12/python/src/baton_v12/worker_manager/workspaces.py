@@ -112,6 +112,7 @@ __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "adopted_assignment_workspace", "line_assignment_workspace",
            "directory_manifest", "discard_execution_roots", "discard_tree",
            "discard_workspace",
+           "refuse_if_held",
            "read_input_root"]
 
 # THE KERNEL'S OWN MOUNT TABLE, read rather than inferred.
@@ -1568,6 +1569,195 @@ HOME_ENTRIES = ("credential-state", "credentials", "custody",
 _REVIEW_LINE_HOME = ".baton-review-lines"
 
 
+def _serialized_removal(control, storage, assignment_id, what, removing):
+    """Check the holds and remove UNDER THE SAME WRITE LOCK R1's claim takes.
+
+    W257624 R3, review 2026-09-25T03-01-27Z: a query followed by an unprotected
+    mutation is not a guard. Between `refuse_if_held` answering clean and the
+    tree coming off the disk, a concurrent `custody_act` could commit a hold for
+    exactly that root -- and R1 deliberately commits BEFORE its engine effect,
+    so the window is real rather than theoretical.
+
+    SO THE SERIALIZING AUTHORITY IS THE ONE THAT ALREADY EXISTS.
+    `ControlStore.transact` takes `BEGIN IMMEDIATE` and `_claim_episode` runs
+    inside it, so performing the hold read AND the removal inside one transact
+    puts them on the same lock: a racing claim either commits first, and this
+    reads it and refuses, or it waits until the removal has finished and the
+    tree it would hold is already gone. There is no interval in between.
+
+    THE ORDER INSIDE THE LOCK IS CHECK-THEN-EFFECT, and the check is repeated
+    there rather than trusted from outside it -- the outer call is an early
+    refusal for the ordinary case, and this one is the decision.
+
+    THE FAILURE WINDOW, STATED. A crash after the removal and before the
+    journal commits leaves the tree gone and no record of this act; the journal
+    is then behind the filesystem, which is the direction this build already
+    tolerates for removals (`discard_workspace` answers `False` for an absent
+    home rather than refusing). A crash BEFORE the removal leaves both
+    unchanged. What cannot happen is a removal concurrent with a hold commit.
+    """
+    from .store import manager_signature
+
+    # THE OPERAND IS TYPED BEFORE THE LOCK IS TAKEN, for `transact`'s own
+    # stated reason: a capability that cannot be called would fault inside the
+    # transaction, which is the one place a fault costs more than a refusal.
+    # Found by the matrix -- checking the store only inside the callback meant
+    # `control.transact` was reached first and raised `AttributeError`.
+    if control is None or not hasattr(control, "transact") \
+            or not hasattr(control, "operation_record"):
+        _denied(f"{what} needs this manager's own control store to check the "
+                f"custody holds that would refuse it; an act that cannot ask "
+                f"is not one this boundary lets through")
+    # A READ IS NEVER REMOVAL AUTHORITY, AND `in_transaction` IS NOT A LOCK.
+    #
+    # W257624 R3 [P1], review 2026-09-25T03-13-33Z. My nested-transaction
+    # shortcut asked `connection.in_transaction` and went straight to the
+    # effect -- which skipped `transact` and therefore skipped the refusal
+    # `transact` makes FIRST: a read-only manager or a read snapshot performs no
+    # action. A stale snapshot then read "cleared" for a root whose new hold a
+    # writer had already committed, and the removal proceeded.
+    #
+    # `in_transaction` is true of a READ transaction too. It says a statement is
+    # open on this connection, not that this connection holds the write lock and
+    # certainly not that the caller is authorized to mutate.
+    #
+    # SO THE REFUSAL COMES FIRST, unconditionally, and the shortcut is narrowed
+    # to what it was actually for: `intake`'s cleanup already holds a genuine
+    # write action on this connection, and a nested `BEGIN IMMEDIATE` there is
+    # an error rather than a second lock.
+    if getattr(control, "_readonly", False) or getattr(control, "_snapshots",
+                                                       None):
+        _denied(f"{what} was asked of a read-only manager or a read snapshot; "
+                f"a snapshot answers what it was opened over and holds no "
+                f"write lock, so it can neither see a hold committed since nor "
+                f"authorize removing the resource one protects")
+    connection = getattr(control, "_connection", None)
+    if connection is not None and getattr(connection, "in_transaction", False):
+        refuse_if_held(control, storage, assignment_id, what)
+        return removing()
+    # EACH REMOVAL IS ITS OWN ACT, and the identity says so.
+    #
+    # W257624 R3, review 2026-09-25T03-23-28Z. I reached for `transact` to get
+    # the write lock and accidentally acquired REPLAY semantics with it: the
+    # identity was derived from the attempt alone, so a second removal was a
+    # replay of the first, the callback never ran, and the local answer was
+    # missing -- `KeyError('value')`. Worse, replay is the WRONG contract here.
+    # `discard_execution_roots` answers what THIS act removed, and a second act
+    # over an already-empty home removes nothing and must say `()`; handing back
+    # the first act's answer would report roots that are no longer there.
+    #
+    # So the act carries a nonce. What `transact` is used for is the lock it
+    # takes, not the effectively-once guarantee -- and a removal does not need
+    # that guarantee, because removing what is already gone is the state the
+    # caller asked for. Every call runs, every call answers its own truth, and
+    # the journal keeps one row per act rather than pretending two were one.
+    import uuid
+
+    operands = {"attempt_id": assignment_id, "root": "home", "act": what,
+                "act_id": uuid.uuid4().hex}
+    identity = f"workspace.removal:{digest(operands)[len('sha256:'):]}"
+
+    # THE REMOVAL'S OWN ANSWER SURVIVES, not a boolean cast of it. Review
+    # 2026-09-25T03-13-33Z: `discard_execution_roots` answers WHICH roots it
+    # removed -- an empty tuple when there were none -- and my `bool(...)`/
+    # `or True` coercion threw that away, so a caller could not tell "removed
+    # nothing" from "removed everything". The journal records a JSON-able
+    # summary; the caller gets the real value.
+    answered = {}
+
+    def removal(_connection):
+        refuse_if_held(control, storage, assignment_id, what)
+        answered["value"] = removing()
+        return {**operands, "removed": _summary(answered["value"])}
+
+    control.transact(identity, "workspace.removal",
+                     manager_signature("workspace.removal", operands), removal)
+    if "value" not in answered:                          # pragma: no cover
+        _refuse("a removal's own act did not run; this build does not report a "
+                "removal it did not perform", code="schema")
+    return answered["value"]
+
+
+def _summary(value):
+    """A JSON-able account of what a removal answered, for the journal."""
+    if isinstance(value, (list, tuple)):
+        return [str(one) for one in value]
+    return bool(value)
+
+
+def refuse_if_held(control, storage, assignment_id, what):
+    """Refuse when a custody hold stands over anything this act would touch.
+
+    W257624 R3, owner 260900/262043. R1 stopped the custody act behind a
+    standing hold and R2 decided what may lift one. This is every OTHER way the
+    same directories are reached -- allocated again, adopted by a restarted
+    manager, or removed.
+
+    THE STORE IS REQUIRED, and that is the whole point of the operand. A
+    configured module-level reader would be absent in exactly the deployments
+    nobody remembered to wire, and a protection that is off by default is not
+    one. The caller cannot skip this by forgetting.
+
+    BOTH ROOTS, ALWAYS, BECAUSE THEY OVERLAP. The two custody roots of one
+    attempt are not siblings: `custody._derived_root` puts the result root at
+    `<home>/workspace/result-<attempt>`, INSIDE the workspace. So a hold on
+    either one covers a tree the other contains or is contained by, and every
+    entry here operates on the whole attempt home. Checking one root would
+    leave the act free to remove the ancestor of a held descendant.
+
+    ONE EXACT CLEARANCE RELEASES ONE EPISODE. This refuses while ANY episode of
+    either root stands uncleared, so reconciling the result root's episode does
+    not release a workspace hold that is still standing.
+
+    THE READER IS THE JOURNAL'S. `custody_holds` is the one authority for
+    whether a root is held; it is consulted rather than shadowed, so there is no
+    second durable record of the same fact. The import is local because
+    `custody` imports this module.
+    """
+    from . import custody
+
+    boundaries.identity(assignment_id, "an assignment identity")
+    if control is None or not hasattr(control, "operation_record"):
+        _denied(f"{what} needs this manager's own control store to check the "
+                f"custody holds that would refuse it; an act that cannot ask "
+                f"is not one this boundary lets through")
+    # W257624 R3 [P1], review 2026-09-25T02-49-44Z: THE STORE MUST OWN THE
+    # RESOURCE, and asking the wrong journal is not asking.
+    #
+    # My first guard read holds from whatever store it was handed, so a caller
+    # holding a DIFFERENT real store -- an empty one, say -- got "no holds" for
+    # a genuinely held root and the removal proceeded. The operand being
+    # required bought nothing, because the answer came from a journal with no
+    # authority over this storage.
+    #
+    # SO THE BINDING IS PROVED BEFORE ANY EFFECT. `configured_workspace_storage`
+    # is the deployment's own record and the only way to obtain one, so a store
+    # whose configured root is not the root being acted on is a store that
+    # cannot speak for it -- whatever it does or does not remember about holds.
+    recorded = configured_workspace_storage(control).place
+    if _real(recorded, "the manager's configured workspace store") != \
+            _real(storage, "the manager's workspace storage"):
+        _denied(f"{what} was asked of a manager whose configured workspace "
+                f"store is {name_value(recorded)} while the act names "
+                f"{name_value(storage)}; a journal with no authority over this "
+                f"storage cannot report whether its resources are held, and "
+                f"an absent answer from the wrong store is not an absence")
+    for which in custody.CUSTODY_ROOTS:
+        for one in custody.custody_holds(control, assignment_id, which):
+            if one["cleared"]:
+                continue
+            _denied(
+                f"{what} is refused: attempt {name_value(assignment_id)}'s "
+                f"{which} root carries unreconciled uncertainty episode "
+                f"{one['episode']!r}, whose helper "
+                f"{name_value(one['held'].get('helper_identity'))} may still "
+                f"be acting on it. That root is FROZEN -- no reuse, no "
+                f"adoption and no deletion on the strength of an unsettled "
+                f"act -- until an operator reconciles it, and the two roots "
+                f"of one attempt overlap so neither may be touched while "
+                f"either is held")
+
+
 def _assignment_identity(assignment_id):
     boundaries.identity(assignment_id, "an assignment identity")
     if (assignment_id in (".", "..") or "/" in assignment_id
@@ -2571,7 +2761,7 @@ def _write_read_only(place, payload, name):
     return place
 
 
-def discard_workspace(storage, assignment_id):
+def discard_workspace(storage, assignment_id, *, control):
     """Remove ONLY what this component created, and say what it removed.
 
     Recoverable rather than exact: a tree already gone is the state this asks
@@ -2585,11 +2775,25 @@ def discard_workspace(storage, assignment_id):
     if not os.path.exists(home):
         return False
     _contained(home, root, "the assignment's workspace")
-    _remove(home)
-    return True
+    # W257624 R3: THE DELETION PATH IS THE FIRST GUARDED ENTRY, and the guard
+    # sits HERE rather than at the top of the body on purpose. Every operand
+    # this function already validates is validated first, so the refusal a
+    # caller gets for a bad path or a bad identity is unchanged and the
+    # boundary inventory still attributes those two operands where it did.
+    # What the hold changes is only whether a WELL-FORMED removal proceeds.
+    #
+    # AFTER the absence answer too: a home that is already gone is the state
+    # the caller asked for, and answering `False` for it reaches no resource.
+    # SERIALIZED, not merely checked -- see `_serialized_removal`. The hold read
+    # and the removal happen under the same `BEGIN IMMEDIATE` lock R1's claim
+    # takes, so a racing `custody_act` cannot commit a hold in between.
+    return _serialized_removal(
+        control, storage, assignment_id,
+        "removing this attempt's workspace home",
+        lambda: (_remove(home), True)[1])
 
 
-def adopted_assignment_workspace(storage, assignment_id):
+def adopted_assignment_workspace(storage, assignment_id, *, control):
     """The roots an attempt ALREADY HAS, proved and never allocated.
 
     W39358 review [P1]. A deployment resuming an attempt needs its roots and
@@ -2609,8 +2813,32 @@ def adopted_assignment_workspace(storage, assignment_id):
     attempt whose roots are gone: that is not a state an ending can be
     performed over.
     """
+    # W257624 R3, owner 262043: ADOPTION IS EXACTLY WHAT A HOLD FORBIDS, and
+    # the store is required for the same reason `discard_workspace`'s is -- a
+    # protection that is off when nobody remembered to wire it is not one, and
+    # the operand cannot be skipped by forgetting. R1's own refusal text already
+    # claims this ground: "no reuse, no ADOPTION and no deletion on the strength
+    # of an unsettled act".
+    #
+    # WHY THIS ONE IS NOT WRAPPED IN THE REMOVAL'S TRANSACTION, stated because
+    # the difference is a judgement and not an oversight. `_serialized_removal`
+    # exists to put a check and an EFFECT inside one write lock. This function
+    # performs no effect: it proves and answers, changing nothing on disk. A
+    # hold is always committed BEFORE its act submits -- that is R1's ordering,
+    # and the race tests measure it -- so a hold that could be acting is a hold
+    # this read sees. What remains is the caller's USE after the answer, and
+    # closing that would need `_claim_episode` to refuse while an adoption
+    # stands: mutual exclusion in both directions, a shared-primitive change to
+    # accepted R1 product. That is named in R3-ENUMERATION.md for coordination
+    # rather than made here, and it is not what this operand pretends to do.
+    # THIS FUNCTION'S OWN OPERANDS ARE VALIDATED BEFORE THE GUARD'S, because
+    # the boundary inventory names `storage` and `assignment_id` as this
+    # entry's, and a store-shaped refusal arriving first would answer a
+    # question nobody asked about a root that was never a root.
     _assignment_identity(assignment_id)
     root = _real(storage, "the manager's workspace storage")
+    refuse_if_held(control, storage, assignment_id,
+                   "adopting this attempt's workspace roots")
     home = os.path.join(root, assignment_id)
     _proved_own(home, root, assignment_id, "home")
     return AllocatedRoots(
@@ -2619,15 +2847,26 @@ def adopted_assignment_workspace(storage, assignment_id):
          for name in ROOT_NAMES}, _MINT)
 
 
-def line_assignment_workspace(storage, assignment_id, place, pinned):
+def line_assignment_workspace(storage, assignment_id, place, pinned, *,
+                              control):
     """Pair an attempt's inputs with its persistent line as the output root.
 
     The review lifecycle authorizes the writer. This lower boundary proves the
     persistent root remains the recorded object in the manager's reserved
     namespace and mints the same roots capability the launch path consumes.
     Ordinary assignment cleanup still targets only the assignment home.
+
+    W257624 R3, owner 262043: THE STORE IS REQUIRED HERE BECAUSE THIS ENTRY IS
+    ITSELF AN ADOPTION. It takes the attempt's `inputs` from
+    `adopted_assignment_workspace`, so leaving the operand off would have made
+    this the bypass around the guard that entry just acquired -- an exported
+    reuse path that answers roots for a held attempt. THE LINE SIDE IS NOT
+    COVERED BY A CUSTODY HOLD and is not meant to be: `_REVIEW_LINE_HOME` is a
+    namespace disjoint from every custody root, so no hold can name `place`.
+    The attempt's inputs, which a hold CAN name, are what this checks.
     """
-    roots = adopted_assignment_workspace(storage, assignment_id)
+    roots = adopted_assignment_workspace(storage, assignment_id,
+                                         control=control)
     root = _real(storage, "the manager's workspace storage")
     reserved = os.path.join(root, _REVIEW_LINE_HOME)
     boundaries.text(place, "a persistent development-line path")
@@ -2665,7 +2904,7 @@ def _granted_roots(roots, grant, *, line_proof=None):
                           roots._line, line_proof)
 
 
-def discard_execution_roots(storage, assignment_id):
+def discard_execution_roots(storage, assignment_id, *, control):
     """Remove the two roots this attempt's WORKSPACE ENDING owns, and no more.
 
     W43975 review 2026-08-30T15:21:44Z [P0] chose the boundary: `inputs` and
@@ -2696,6 +2935,34 @@ def discard_execution_roots(storage, assignment_id):
       relative to that descriptor rather than to a name something else can
       move.
     """
+    # W257624 R3: THE SECOND GUARDED ENTRY, traced from
+    # review-2026-09-25T02-49-44Z. This removes `inputs` and `workspace` --
+    # and `workspace` CONTAINS `result-<attempt>`, so a hold on either root
+    # covers a tree this would delete. Its one product caller is
+    # `intake.py:4511`, which already has the store it reads the configured
+    # place from, so the operand costs that call site nothing new.
+    #
+    # SERIALIZED THE SAME WAY `discard_workspace` is: the hold read and the
+    # removal share R1's own `BEGIN IMMEDIATE` lock, so a racing claim cannot
+    # land in between. The body below is unchanged and runs inside it.
+    # W257624 R3, review 2026-09-25T03-40-38Z: THIS ENTRY'S OWN OPERANDS COME
+    # FIRST. The boundary inventory names `storage` and `assignment_id` as
+    # `discard_execution_roots`'s, and when I gave the entry a required store the
+    # store-shaped refusal started arriving first -- so two accepted inventory
+    # probes escaped as TypeError and, once given the operand, would have been
+    # answered about the wrong thing. `_execution_roots_removed` validates both
+    # again; asking twice costs a realpath and keeps each refusal at its own
+    # boundary.
+    _assignment_identity(assignment_id)
+    _real(storage, "the manager's workspace storage")
+    return _serialized_removal(
+        control, storage, assignment_id,
+        "removing this attempt's execution roots",
+        lambda: _execution_roots_removed(storage, assignment_id))
+
+
+def _execution_roots_removed(storage, assignment_id):
+    """The removal itself, called only from inside the serialized act."""
     _assignment_identity(assignment_id)
     root = _real(storage, "the manager's workspace storage")
     home = os.path.join(root, assignment_id)

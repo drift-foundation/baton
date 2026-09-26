@@ -109,14 +109,22 @@ CUSTODY_OPERATIONS = ("inspect", "read", "hash", "archive", "normalize",
 # must agree, and a member added to one without the other fails here -- which
 # is the point: an answer this manager cannot recognise is not one it accounts
 # for.
+# W257624 R2: `submission` IS PART OF EVERY RESULT. It is the token the
+# manager committed for that exact act, echoed back by the program above, and
+# it is what makes one answer belong to one submission rather than to any act
+# over the same root. A result without it is not this contract's result.
 _CUSTODY_RESULT = {
-    "inspect": {"entries": list, "running_as": list},
-    "read": {"entries": list, "total_bytes": int, "running_as": list},
-    "hash": {"entries": list, "total_bytes": int, "running_as": list},
-    "archive": {"entries": list, "total_bytes": int, "running_as": list,
-                "content": str, "tree_digest": str},
-    "normalize": {"entries": int, "not_ours": int, "running_as": list},
-    "discard": {"removed": int, "kept": int, "running_as": list},
+    "inspect": {"submission": str, "entries": list, "running_as": list},
+    "read": {"submission": str, "entries": list, "total_bytes": int,
+             "running_as": list},
+    "hash": {"submission": str, "entries": list, "total_bytes": int,
+             "running_as": list},
+    "archive": {"submission": str, "entries": list, "total_bytes": int,
+                "running_as": list, "content": str, "tree_digest": str},
+    "normalize": {"submission": str, "entries": int, "not_ours": int,
+                  "running_as": list},
+    "discard": {"submission": str, "removed": int, "kept": int,
+                "running_as": list},
 }
 
 # THE CUSTODIAN'S OWN REFUSAL, which is the other document the program can
@@ -397,6 +405,25 @@ if verb not in VERBS:
     print(json.dumps({"custody": "refused", "why": "unknown operation"}))
     raise SystemExit(2)
 
+# W257624 R2: THE SUBMISSION TOKEN, echoed so one answer belongs to one act.
+#
+# The manager commits an opaque per-submission value before this program is
+# ever sent, and hands it in here as INERT INPUT: it is never a path, a mount,
+# a command or a name this program acts on -- it is read, checked for shape,
+# and printed back. Two submissions over one root are otherwise
+# indistinguishable, because the helper identity deliberately excludes the
+# episode so a restarted manager can re-derive it.
+#
+# CHECKED BEFORE ANYTHING IS TOUCHED. A missing or malformed token is a
+# refusal, not a mutation with a bad label: the root is left exactly as it was.
+SUBMISSION = sys.argv[2] if len(sys.argv) > 2 else ""
+if type(SUBMISSION) is not str or not SUBMISSION \
+        or len(SUBMISSION) > 128 \
+        or any(one not in "0123456789abcdef" for one in SUBMISSION):
+    print(json.dumps({"custody": "refused",
+                      "why": "the act carries no readable submission token"}))
+    raise SystemExit(2)
+
 MINE = os.getuid()
 
 
@@ -470,7 +497,8 @@ if verb == "normalize":
         grant = 0o070 if os.path.isdir(place) else 0o060
         os.chmod(place, (held.st_mode & 0o7777) | grant)
         changed += 1
-    print(json.dumps({"custody": "normalize", "entries": changed,
+    print(json.dumps({"custody": "normalize", "submission": SUBMISSION,
+                      "entries": changed,
                       "not_ours": skipped, "running_as": [MINE, os.getgid()]}))
     raise SystemExit(0)
 
@@ -484,7 +512,8 @@ if verb == "inspect":
                         "kind": ("link" if os.path.islink(place)
                                  else "directory" if os.path.isdir(place)
                                  else "file")})
-    print(json.dumps({"custody": "inspect", "entries": sorted(
+    print(json.dumps({"custody": "inspect", "submission": SUBMISSION,
+                      "entries": sorted(
         entries, key=lambda one: one["path"]),
         "running_as": [MINE, os.getgid()]}))
     raise SystemExit(0)
@@ -544,7 +573,8 @@ if verb in ("read", "hash", "archive"):
                 "ascii")
             one["complete"] = measured <= MAX_CARRIED
         entries.append(one)
-    answer = {"custody": verb, "entries": sorted(
+    answer = {"custody": verb, "submission": SUBMISSION,
+              "entries": sorted(
         entries, key=lambda one: one["path"]), "total_bytes": total,
         "running_as": [MINE, os.getgid()]}
     if verb == "archive":
@@ -596,7 +626,8 @@ if verb == "discard":
                 removed += 1
             except OSError:
                 kept += 1
-    print(json.dumps({"custody": "discard", "removed": removed, "kept": kept,
+    print(json.dumps({"custody": "discard", "submission": SUBMISSION,
+                      "removed": removed, "kept": kept,
                       "running_as": [MINE, os.getgid()]}))
     raise SystemExit(0)
 '''
@@ -991,7 +1022,7 @@ def _proved_absent(engine, run, *, name, runtime_id, removal_said=None):
 
 
 def _custody_vector(engine, *, image_digest, store, assignment_id,
-                    operation, which="workspace"):
+                    operation, submission, which="workspace"):
     """The closed argv that performs ONE custody act, restrictions and all.
 
     PRIVATE, and review [P0] round ten is why. It used to be the public
@@ -1093,7 +1124,7 @@ def _custody_vector(engine, *, image_digest, store, assignment_id,
     argv += ["--mount",
              f"type=bind,source={source},target={CUSTODY_ROOT},readonly=false"]
     argv += ["--entrypoint", "python3", image_digest,
-             "-c", CUSTODY_PROGRAM, operation]
+             "-c", CUSTODY_PROGRAM, operation, submission]
     # THE NAME COMES BACK BESIDE THE ARGV, and it is neither path-bearing nor
     # executable. `custody_act` needs it before the run to reconcile what may
     # already be answering to it, and deriving it twice would be two places
@@ -1350,11 +1381,29 @@ def custody_holds(store, assignment_id, which):
     import json as _json
 
     held = []
+    absent = None
     for episode in range(_MOST_HOLDS + 1):
         record = store.operation_record(
             _hold_identity(CUSTODY_HOLD_KIND, assignment_id, which, episode))
         if record is None:
-            break
+            # W257624 R2, review 2026-09-24T21-39-09Z: A GAP IS REFUSED RATHER
+            # THAN READ AS AN END. This used to `break`, so an absent episode
+            # made every LATER one invisible -- and an invisible uncertainty is
+            # a root that reads as unheld. The scan continues to the bound
+            # instead, and a present episode past an absent one is a record set
+            # this reader will not act on. The bound is why it can: 65
+            # primary-key lookups is what this reader already cost in the worst
+            # case, and reaching the bound was always itself a refusal.
+            if absent is None:
+                absent = episode
+            continue
+        if absent is not None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(assignment_id)}'s {which} root records "
+                f"uncertainty episode {episode!r} and no episode "
+                f"{absent!r}; a gap means this manager cannot say what the "
+                f"missing act did, and it is reconciled rather than read past")
         # EVERY MEMBER OF THE RECORD IS CHECKED, not merely its presence: a
         # row at a derived key is not evidence until its kind, its state and
         # its document all say what this reader is about to report.
@@ -1377,6 +1426,30 @@ def custody_holds(store, assignment_id, which):
                 f"{name_value(assignment_id)}'s {which} root episode "
                 f"{episode!r} names no helper; it is reconciled rather than "
                 f"read past")
+        # W257624 R2, review 2026-09-24T22-06-47Z: THE HOLD IS READ BACK THE
+        # WAY THE CLEARANCE IS. `clear_custody_hold` verified the hold's
+        # signature and its document's own coordinates; this reader did not, so
+        # a swapped hold document was reported as a standing episode and only
+        # refused if somebody tried to clear it.
+        from .store import manager_signature as _signed
+
+        if record["signature"] != _signed(CUSTODY_HOLD_KIND, document):
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the uncertainty recorded for attempt "
+                f"{name_value(assignment_id)}'s {which} root episode "
+                f"{episode!r} does not carry the signature its operation "
+                f"identity was committed under; a hold this manager cannot "
+                f"bind to its own act is not one it may read")
+        for one, expected in (("attempt_id", assignment_id),
+                              ("root", which), ("episode", episode)):
+            if document.get(one) != expected:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"the uncertainty at {which} root episode {episode!r} "
+                    f"records {one} {name_value(document.get(one))} and this "
+                    f"reader asked for {name_value(expected)}; a record about "
+                    f"another act is not this episode")
         cleared = store.operation_record(
             _hold_identity(CUSTODY_CLEARED_KIND, assignment_id, which,
                            episode))
@@ -1389,6 +1462,116 @@ def custody_holds(store, assignment_id, which):
                 f"{name_value(assignment_id)}'s {which} root episode "
                 f"{episode!r} is {cleared['state']!r} of kind "
                 f"{cleared['kind']!r}; an unreadable clearance lifts nothing")
+        if cleared is not None:
+            # W257624 R2: AND THE CLEARANCE CARRIES ITS OWN SIGNATURE. The kind
+            # and the state say a clearance was committed here; the signature
+            # says the document sitting in the row is the one it was committed
+            # under. A lift is the one direction where believing an
+            # unverifiable document is unsafe, so this reader checks it rather
+            # than reporting `cleared` on the strength of a key.
+            from .store import manager_signature
+
+            try:
+                lifting = _json.loads(cleared["result"])
+            except (TypeError, ValueError):
+                lifting = None
+            if type(lifting) is not dict or cleared["signature"] != \
+                    manager_signature(CUSTODY_CLEARED_KIND, lifting):
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"the clearance recorded for attempt "
+                    f"{name_value(assignment_id)}'s {which} root episode "
+                    f"{episode!r} does not carry the signature its operation "
+                    f"identity was committed under; a lift this manager "
+                    f"cannot bind to its own act lifts nothing")
+            # W257624 R2 [P1], review 2026-09-24T21-39-09Z: AND A SIGNATURE IS
+            # INTERNAL CONSISTENCY, NOT BINDING. A correctly signed body naming
+            # another root and episode was accepted here, because the check
+            # above asks only whether the document agrees with itself. What
+            # makes a lift THIS episode's is that its own coordinates, the
+            # helper it names and the evidence it carries all agree with the
+            # hold it claims to lift.
+            for one, expected in (("attempt_id", assignment_id),
+                                  ("root", which), ("episode", episode),
+                                  ("helper_identity",
+                                   document["helper_identity"])):
+                if lifting.get(one) != expected:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"the clearance recorded at attempt "
+                        f"{name_value(assignment_id)}'s {which} root episode "
+                        f"{episode!r} names {one} "
+                        f"{name_value(lifting.get(one))} and the hold it "
+                        f"would lift records {name_value(expected)}; a "
+                        f"correctly "
+                        f"signed document about another act lifts nothing")
+            # EXACTLY ONE OF THE TWO LIFTS, and each says which it is. An
+            # operator's reconciliation carries delivered evidence; the
+            # manager's own receipt carries the marker `_clear_hold` writes.
+            # A document carrying neither is a lift nobody can attribute, and
+            # one carrying both claims to be two different acts.
+            operator = type(lifting.get("settlement")) is dict
+            direct = lifting.get("accounted") == CUSTODY_DIRECT_ACT
+            if direct and not operator:
+                # THE DIRECT RECEIPT IS READ BACK TOO. Its document is what the
+                # act was accounted for by, so it is held to the same
+                # accountability rule that let the act clear itself -- a
+                # receipt whose document no longer answers for this verb is a
+                # lift this manager cannot stand behind.
+                receipt = lifting.get("accounted_document")
+                accounted, why = _accountable(document.get("verb"), receipt)
+                if accounted is None or (type(receipt) is not dict) or \
+                        receipt.get("custody") != document.get("verb"):
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"the direct-act receipt at attempt "
+                        f"{name_value(assignment_id)}'s {which} root episode "
+                        f"{episode!r} carries no accountable "
+                        f"{document.get('verb')} document: "
+                        + (why or "it answers for another act"))
+                # W257624 R2 [P1], review 2026-09-24T23-02-34Z: AND THE TOKEN
+                # IS COMPARED ON READBACK TOO.
+                #
+                # The direct receipt was held to accountability and never to
+                # ATTRIBUTION, so a correctly signed receipt echoing another
+                # submission's token read as a lift. The settlement path
+                # compared the token and this one did not; both are lifts, so
+                # both compare it.
+                committed = document.get("claimant")
+                if not committed:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"the uncertainty at {which} root episode {episode!r} "
+                        f"committed no submission token, so no answer can be "
+                        f"attributed to its act; a direct receipt cannot lift "
+                        f"what this manager cannot attribute")
+                if receipt.get("submission") != committed:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"the direct-act receipt at {which} root episode "
+                        f"{episode!r} answers for submission "
+                        f"{name_value(receipt.get('submission'))} and that "
+                        f"episode submitted {name_value(committed)}; a "
+                        f"receipt about another submission lifts nothing")
+            if operator and not direct:
+                # A DICTIONARY IS NOT A SETTLEMENT. Review
+                # 2026-09-24T21-55-12Z: this accepted `settlement: {}` because
+                # it asked only for the type. The lift is re-validated against
+                # the hold it claims to lift, by the same contract that let it
+                # be written -- so a clearance is readable as a lift only while
+                # its evidence still answers for this episode.
+                _settlement(document, lifting["settlement"],
+                            attempt_id=assignment_id, which=which,
+                            episode=episode)
+            if operator == direct:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"the clearance recorded for attempt "
+                    f"{name_value(assignment_id)}'s {which} root episode "
+                    f"{episode!r} is neither an operator reconciliation "
+                    f"carrying its settlement nor this manager's own "
+                    f"accountable-act receipt; a lift whose provenance is "
+                    f"unstated lifts nothing")
         held.append({
             "episode": episode,
             "held": document,
@@ -1396,7 +1579,12 @@ def custody_holds(store, assignment_id, which):
         })
     if len(held) > _MOST_HOLDS:
         raise ContractRefusal(
-            "refused", "limit",
+            # W257624 R2: `limit` IS AN INTEGRITY CODE. This said
+            # `refused`, which the contracts layer refuses as a
+            # closed-pairing violation -- so every bound in this module
+            # raised an AssertionError about its own refusal instead of
+            # the refusal. Found by reaching it.
+            "integrity", "limit",
             f"attempt {name_value(assignment_id)}'s {which} root carries more "
             f"uncertainty episodes than this manager counts")
     return held
@@ -1408,18 +1596,167 @@ def custody_holds(store, assignment_id, which):
 _MOST_HOLDS = 64
 
 
+# W257624 R2: WHAT ACTUALLY SETTLES ONE UNCERTAINTY EPISODE.
+#
+# Owner 260109 selects "a precise provider observation proving settlement of
+# that submitted mutation", and the PLAN names what is NOT enough: plain
+# observation text, a local CLI exit, an empty helper listing after a client
+# timeout, or any nonzero or unaccountable answer. Every one of those is
+# compatible with the request still sitting in the daemon's queue -- which is
+# the exact possibility the hold exists to refuse to act past. An operator who
+# looked and saw nothing has observed an absence, and an absence is not an
+# ending.
+#
+# SO A CLEARANCE CARRIES THE DAEMON'S OWN ANSWER ABOUT THAT HELPER, held to
+# the same accountability rule a live act is: `_accountable` already decides
+# whether a document is the asked-for verb's own result, and it is reused here
+# rather than restated. Nothing in this module asks an engine anything -- the
+# answer is delivered to it, and what this owns is whether the delivered answer
+# settles the episode it names.
+CUSTODY_ENGINE_ANSWER = "engine-answer"
+
+# AND THE OTHER LIFT, which is the manager's own. `custody_act` clears the
+# episode it opened when the helper answered ACCOUNTABLY, because an
+# accountable document could only have been printed by that helper. That lift
+# carries no delivered evidence and needs none; what it must not be is
+# indistinguishable from an operator reconciliation that simply omitted its
+# evidence, which is why it says so.
+CUSTODY_DIRECT_ACT = "direct-act"
+
+# THE CLOSED SHAPE, for the reason every document in this package is closed: an
+# unexpected member is a document from something other than the contract this
+# validator is about, and reading the recognised parts out of it is how a
+# manager ends up clearing a hold on the strength of a shape it did not check.
+_SETTLEMENT = {"source": str, "helper_identity": str,
+               "custodian_image_digest": str, "status": int, "document": dict}
+
+
+def _settlement(held, settlement, *, attempt_id, which, episode):
+    """The delivered answer, held against the episode it claims to settle.
+
+    REFUSES RATHER THAN INTERPRETS. Every rule here is one the PLAN names, and
+    each is about the same question: could this answer be true while the
+    submitted request is still pending? If it could, it does not settle.
+    """
+    if type(settlement) is not dict:
+        raise ContractRefusal(
+            "integrity", "schema",
+            "a settlement is the engine's own answer about the helper this "
+            "episode recorded, as one document")
+    missing = sorted(one for one in _SETTLEMENT if one not in settlement)
+    extra = sorted(one for one in settlement if one not in _SETTLEMENT)
+    if missing or extra:
+        raise ContractRefusal(
+            "integrity", "schema",
+            "a settlement is exactly "
+            + ", ".join(sorted(_SETTLEMENT))
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    for one, expected in sorted(_SETTLEMENT.items()):
+        if type(settlement[one]) is not expected:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"a settlement's {name_value(one)} is the "
+                f"{expected.__name__} this contract answers")
+    # ONLY THE ENGINE'S OWN ANSWER. A local exit status is this process's
+    # account of its own client, and a listing is a question about what exists
+    # rather than about what finished -- neither can exclude a delayed request,
+    # so neither is a source this accepts.
+    if settlement["source"] != CUSTODY_ENGINE_ANSWER:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"a settlement source is {name_value(CUSTODY_ENGINE_ANSWER)} and "
+            f"this one is {name_value(settlement['source'])}; an operator's "
+            f"account, a local command's exit status and an empty helper "
+            f"listing are all true while the submitted request is still "
+            f"pending, so none of them settles it")
+    # THE EXACT HELPER AND THE EXACT CUSTODIAN. An answer about another helper,
+    # or about the same name under a different custodian image, is an answer
+    # about a different act.
+    for one, recorded in (("helper_identity", held.get("helper_identity")),
+                          ("custodian_image_digest",
+                           held.get("custodian_image_digest"))):
+        if settlement[one] != recorded:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(attempt_id)}'s {which} root episode "
+                f"{episode!r} recorded {one} {name_value(recorded)} and this "
+                f"settlement answers for {name_value(settlement[one])}; an "
+                f"account of another act settles nothing here")
+    # NONZERO IS NOT AN ENDING THIS MANAGER MAY READ. The PLAN says so, and the
+    # reason is that a failing client says nothing about the daemon's queue.
+    if settlement["status"] != 0:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the settlement for episode {episode!r} answers status "
+            f"{settlement['status']!r}; a nonzero answer is an act this "
+            f"manager cannot account for, and an unaccounted act is exactly "
+            f"what this episode is holding")
+    # AND THE DOCUMENT IS THE VERB'S OWN RESULT, by the same rule a live act is
+    # held to. A custodian REFUSAL is accountable but is not a settled
+    # mutation, and the PLAN's "unaccountable answer" bar is this one.
+    verb = held.get("verb")
+    if verb not in _CUSTODY_RESULT:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"episode {episode!r} recorded verb {name_value(verb)}, which is "
+            f"not one this manager can be shown the settlement of")
+    accounted, why = _accountable(verb, settlement["document"])
+    answered = settlement["document"].get("custody")
+    if accounted is None or answered != verb:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the settlement for episode {episode!r} is not an accountable "
+            f"{verb} result: "
+            + (why or f"it answers {name_value(answered)} rather than "
+                      f"{name_value(verb)}"))
+    # W257624 R2, ATTRIBUTION-PLAN item 3: THE ECHOED TOKEN IS THE BINDING.
+    # It is the one fact in a delivered document that only the act this episode
+    # submitted could carry, so it -- not equality of ordinary result fields --
+    # is what ties evidence to a submission. A legacy hold that committed no
+    # token cannot be attributed and stays held, by the same rule.
+    expected = held.get("claimant")
+    offered = settlement["document"].get("submission") \
+        if type(settlement["document"]) is dict else None
+    if not expected:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"episode {episode!r} committed no submission token, so no "
+            f"delivered answer can be attributed to its act; it stays held "
+            f"rather than being reconciled on evidence about some other "
+            f"submission")
+    if offered != expected:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the settlement for episode {episode!r} answers for submission "
+            f"{name_value(offered)} and that episode submitted "
+            f"{name_value(expected)}; an answer about another submission "
+            f"settles nothing here, however ordinary its contents look")
+    return {one: settlement[one] for one in sorted(_SETTLEMENT)}
+
+
 def clear_custody_hold(store, *, attempt_id, which, episode, observed,
-                       helper_identity):
+                       helper_identity, settlement):
     """An OPERATOR's reconciliation of ONE uncertainty episode.
 
-    WHAT IT RECORDS IS WHAT WAS OBSERVED, not that a command was run. An
-    operator who writes "I looked and the helper is gone" is making a claim
-    this manager then relies on, so the claim is the record.
+    WHAT IT RECORDS IS WHAT WAS OBSERVED **AND** WHAT THE ENGINE ANSWERED.
+    W257624 R2: the operator's account is still required -- somebody has to say
+    what they did -- but it is no longer sufficient, because "I looked and the
+    helper is gone" is true of a request that has not run yet. `_settlement`
+    owns that bar.
 
-    A STALE CLEARANCE IS REFUSED. The episode must exist, must not already be
-    cleared, and the helper identity named must be the one that episode
-    recorded -- a clearance composed against another act, another root or
-    another episode is evidence about something else.
+    A CLEARANCE IS BOUND TO ONE EXACT EPISODE, member by member: the hold
+    record must be committed AND of the hold kind, its retained document must
+    carry the signature that identity was signed for, and the attempt, root and
+    episode inside that document must be the ones this clearance names. A
+    record found at a derived key is not evidence about this episode until all
+    of that agrees.
+
+    REPLAY IS THE STORE'S. An identical clearance at the same identity replays
+    its own record, which is what a journal does; a DIFFERENT one at that
+    identity is refused by §4.2, one identity carries one act. This function
+    therefore does not add an "already cleared" refusal of its own, and an
+    earlier draft of this docstring claimed it did.
     """
     from .store import manager_signature
 
@@ -1433,14 +1770,20 @@ def clear_custody_hold(store, *, attempt_id, which, episode, observed,
             "integrity", "schema",
             "a reconciliation records what the operator OBSERVED; a blank "
             "account is not an observation")
-    record = store.operation_record(
-        _hold_identity(CUSTODY_HOLD_KIND, attempt_id, which, episode))
+    identity = _hold_identity(CUSTODY_HOLD_KIND, attempt_id, which, episode)
+    record = store.operation_record(identity)
     if record is None or record["state"] != "committed":
         raise ContractRefusal(
             "refused", "precondition",
             f"attempt {name_value(attempt_id)}'s {which} root has no "
             f"uncertainty episode {episode!r} to reconcile; a clearance is "
             f"written against an episode this manager recorded")
+    if record["kind"] != CUSTODY_HOLD_KIND:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the record at attempt {name_value(attempt_id)}'s {which} root "
+            f"episode {episode!r} is of kind {record['kind']!r}; a clearance "
+            f"lifts a hold and not whatever else shares its key")
     import json as _json
 
     try:
@@ -1453,6 +1796,27 @@ def clear_custody_hold(store, *, attempt_id, which, episode, observed,
             f"the uncertainty recorded for attempt {name_value(attempt_id)}'s "
             f"{which} root episode {episode!r} retained no document; there is "
             f"nothing to reconcile it against")
+    # THE RETAINED DOCUMENT IS THE ONE THIS IDENTITY WAS SIGNED FOR. Without
+    # this, a row whose document had been replaced would be reconciled as
+    # though it were the hold that was committed.
+    if record["signature"] != manager_signature(CUSTODY_HOLD_KIND, document):
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the uncertainty recorded for attempt {name_value(attempt_id)}'s "
+            f"{which} root episode {episode!r} does not carry the signature "
+            f"its operation identity was committed under; a document this "
+            f"manager cannot bind to its own act is not evidence about it")
+    # AND THE DOCUMENT'S OWN BINDING, so a clearance cannot reconcile one
+    # episode's record while naming another's coordinates.
+    for one, named in (("attempt_id", attempt_id), ("root", which),
+                       ("episode", episode)):
+        if document.get(one) != named:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the uncertainty at {which} root episode {episode!r} records "
+                f"{one} {name_value(document.get(one))} and this clearance "
+                f"names {name_value(named)}; a reconciliation is written "
+                f"against the episode it actually describes")
     if document.get("helper_identity") != helper_identity:
         raise ContractRefusal(
             "refused", "precondition",
@@ -1460,10 +1824,34 @@ def clear_custody_hold(store, *, attempt_id, which, episode, observed,
             f"{name_value(document.get('helper_identity'))} and this "
             f"clearance names {name_value(helper_identity)}; a reconciliation "
             f"is evidence about the helper it actually observed")
+    settled = _settlement(document, settlement, attempt_id=attempt_id,
+                          which=which, episode=episode)
+    # W257624 R2 [P1], review 2026-09-24T21-39-09Z: ONE ACCOUNTABLE ANSWER
+    # ACCOUNTS FOR ONE ACT.
+    #
+    # `_custody_identity` deliberately excludes the episode -- that
+    # exclusion is what lets a restarted manager re-derive the name -- so two
+    # submissions
+    # over one root share a helper name, and settlements composed for them
+    # compare EQUAL. Every check above therefore passed for episode 0's
+    # evidence offered against episode 1, and the reviewer's regression cleared
+    # an unresolved act with a stale answer.
+    #
+    # SO A SETTLEMENT IS SPENT. Two submissions are two acts and one answer
+    # cannot settle both, which is a rule about the EVIDENCE rather than about
+    # the episode number a caller writes next to it.
+    # ATTRIBUTION-PLAN item 6: THE DOCUMENT-EQUALITY SPENT CHECK IS RETIRED.
+    # It was a stand-in for attribution and it was the wrong shape: two
+    # legitimate submissions can report identical counts and identities, so
+    # refusing a new observation because its ordinary fields repeat would block
+    # valid evidence. The submission token above does the work exactly -- a
+    # stale answer from any earlier act, successful or lost, echoes that act's
+    # token and is refused by name.
     operation_id = _hold_identity(CUSTODY_CLEARED_KIND, attempt_id, which,
                                   episode)
     body = {"attempt_id": attempt_id, "root": which, "episode": episode,
-            "helper_identity": helper_identity, "observed": observed}
+            "helper_identity": helper_identity, "observed": observed,
+            "settlement": settled}
     return store.transact(
         operation_id, CUSTODY_CLEARED_KIND,
         manager_signature(CUSTODY_CLEARED_KIND, body), lambda _c: dict(body))
@@ -1489,16 +1877,21 @@ def _claim_episode(store, assignment_id, which, operation, image_digest,
     refusal this stage wants and is the store's own rule rather than a new
     one.
     """
+    import json as _json
     import uuid
 
     from .store import manager_signature
 
-    standing = _standing_hold(store, assignment_id, which)
+    standing = _standing_overlap(store, assignment_id, which)
     if standing is not None:
+        held_root = standing["held"]["root"]
         raise ContractRefusal(
             "refused", "precondition",
-            f"attempt {name_value(assignment_id)}'s {which} root carries "
-            f"unreconciled uncertainty episode {standing['episode']!r}: an "
+            f"attempt {name_value(assignment_id)}'s {held_root} root carries "
+            f"unreconciled uncertainty episode {standing['episode']!r}, and "
+            f"this act would touch it by acting on the {which} root -- the two "
+            f"roots of one attempt overlap, so neither is free while either is "
+            f"held: an "
             f"earlier act submitted a request that produced no engine answer, "
             f"and the helper it would have created is "
             f"{name_value(standing['held']['helper_identity'])}. This root is "
@@ -1508,7 +1901,12 @@ def _claim_episode(store, assignment_id, which, operation, image_digest,
     held = custody_holds(store, assignment_id, which)
     if len(held) >= _MOST_HOLDS:
         raise ContractRefusal(
-            "refused", "limit",
+            # W257624 R2: `limit` IS AN INTEGRITY CODE. This said
+            # `refused`, which the contracts layer refuses as a
+            # closed-pairing violation -- so every bound in this module
+            # raised an AssertionError about its own refusal instead of
+            # the refusal. Found by reaching it.
+            "integrity", "limit",
             f"attempt {name_value(assignment_id)}'s {which} root has "
             f"{len(held)} recorded uncertainty episodes, which is this "
             f"manager's bound; it is reconciled rather than acted on again")
@@ -1520,20 +1918,27 @@ def _claim_episode(store, assignment_id, which, operation, image_digest,
     def claiming(_connection):
         # RE-READ INSIDE THE LOCK, which is what makes this exclusive rather
         # than merely early.
-        again = _standing_hold(store, assignment_id, which)
+        again = _standing_overlap(store, assignment_id, which)
         if again is not None:
             raise ContractRefusal(
                 "refused", "precondition",
-                f"attempt {name_value(assignment_id)}'s {which} root was held "
-                f"at episode {again['episode']!r} while this act was claiming "
-                f"one; nothing was submitted")
+                f"attempt {name_value(assignment_id)}'s "
+                f"{again['held']['root']} root was held at episode "
+                f"{again['episode']!r} while this act was claiming one for the "
+                f"overlapping {which} root; nothing was submitted")
         return dict(body)
 
     store.transact(
         _hold_identity(CUSTODY_HOLD_KIND, assignment_id, which, episode),
         CUSTODY_HOLD_KIND,
         manager_signature(CUSTODY_HOLD_KIND, body), claiming)
-    return episode
+    # AND THE WINNER'S OWN TOKEN. Reading it back out of the row looked safer
+    # and was worse: a refused row carries no result, so the read tripped over
+    # its own `None`. It is also unnecessary. R1's rule is what makes this
+    # sound -- the nonce puts every caller's operands at a different value, so
+    # `transact` either commits THIS body, replays an identical one (same
+    # nonce, same token), or refuses. If it returned, this body is the record.
+    return episode, body["claimant"]
 
 
 def _record_hold(store, assignment_id, which, operation, image_digest, name):
@@ -1552,7 +1957,12 @@ def _record_hold(store, assignment_id, which, operation, image_digest, name):
     held = custody_holds(store, assignment_id, which)
     if len(held) >= _MOST_HOLDS:
         raise ContractRefusal(
-            "refused", "limit",
+            # W257624 R2: `limit` IS AN INTEGRITY CODE. This said
+            # `refused`, which the contracts layer refuses as a
+            # closed-pairing violation -- so every bound in this module
+            # raised an AssertionError about its own refusal instead of
+            # the refusal. Found by reaching it.
+            "integrity", "limit",
             f"attempt {name_value(assignment_id)}'s {which} root has "
             f"{len(held)} recorded uncertainty episodes, which is this "
             f"manager's bound; it is reconciled rather than acted on again")
@@ -1567,12 +1977,24 @@ def _record_hold(store, assignment_id, which, operation, image_digest, name):
     return episode
 
 
-def _clear_hold(store, assignment_id, which, episode, name, *, observed):
-    """Clear ONE episode on the act's own evidence that the engine answered."""
+def _clear_hold(store, assignment_id, which, episode, name, *, observed,
+                accounted):
+    """Clear ONE episode on the act's own accountable answer.
+
+    W257624 R2: THE TWO LIFTS ARE NAMED APART. This one is the manager's own
+    receipt for an act it watched end accountably; `clear_custody_hold` writes
+    an operator's reconciliation carrying delivered evidence. The reader has to
+    tell them apart, and review 2026-09-24T21-39-09Z is right that it must do
+    so by a stated distinction rather than by which member happens to be
+    absent -- so this records `accounted` and that one records `settlement`,
+    and a clearance carrying neither or both is refused.
+    """
     from .store import manager_signature
 
     body = {"attempt_id": assignment_id, "root": which, "episode": episode,
-            "helper_identity": name, "observed": observed}
+            "helper_identity": name, "observed": observed,
+            "accounted": CUSTODY_DIRECT_ACT,
+            "accounted_document": accounted}
     store.transact(
         _hold_identity(CUSTODY_CLEARED_KIND, assignment_id, which, episode),
         CUSTODY_CLEARED_KIND,
@@ -1584,6 +2006,36 @@ def _standing_hold(store, assignment_id, which):
     for one in custody_holds(store, assignment_id, which):
         if not one["cleared"]:
             return one
+    return None
+
+
+def _standing_overlap(store, assignment_id, which):
+    """The oldest uncleared episode on ANY root whose tree overlaps `which`.
+
+    W257624 R3 [P1], review 2026-09-25T04-25-17Z. THE TWO ROOTS OF ONE ATTEMPT
+    ARE NOT SIBLINGS: `_derived_root` puts the result root at
+    `<home>/workspace/result-<attempt>`, INSIDE the workspace. So a hold on
+    either one covers material the other contains or is contained by, and a
+    helper acting on the descendant is acting inside the held ancestor.
+
+    ASKING ABOUT ONE ROOT WAS THEREFORE NOT ASKING. `_claim_episode` consulted
+    `_standing_hold` for its own `which` only, so with the workspace held the
+    ending's FIRST act -- `intake._normalized` visits the nested result root
+    first -- claimed, SUBMITTED and settled a result helper, and only then
+    refused at the workspace. The reviewer's regression measures the forbidden
+    second submission at the engine boundary, and a later refusal does not undo
+    an effect that already crossed.
+
+    ONE ATTEMPT ONLY, WHICH IS WHAT KEEPS CONCURRENCY. The overlap being closed
+    here is physical containment WITHIN one assignment home; two different
+    attempts share no tree, so this says nothing about them and does not
+    serialize them.
+    """
+    check_custody_root(which)
+    for root in CUSTODY_ROOTS:
+        standing = _standing_hold(store, assignment_id, root)
+        if standing is not None:
+            return standing
     return None
 
 
@@ -1869,9 +2321,33 @@ def custody_act(engine, run, *, image_digest, store, assignment_id,
     from .oci import EnginePort
 
     port = run if type(run) is EnginePort else EnginePort(run)
-    argv, name = _custody_vector(engine, image_digest=image_digest,
-                                 store=store, assignment_id=assignment_id,
-                                 operation=operation, which=which)
+    # W257624 R2: THE CLAIM COMES FIRST, because the act now carries the token
+    # that claim commits. The helper identity is derived the same way it always
+    # was -- from the durable store, attempt, root and verb -- so the name the
+    # claim records and the name the vector composes are still one derivation,
+    # and reclamation is unchanged. What moved is only the ORDER, which R1
+    # already wanted: nothing reaches an engine before admission.
+    # THE VERB AND THE ROOT ARE CHECKED BEFORE ANYTHING IS CLAIMED. Found by
+    # `tests.manager.test_custody`: with the claim moved ahead of the vector, a
+    # refused verb was committing an uncertainty episode on its way out and
+    # freezing the root, having submitted nothing. Admission is for acts this
+    # manager would actually perform, so the closed-set checks the vector
+    # already applies run here too -- the same functions, ahead of the claim.
+    operation = check_custody_operation(operation)
+    check_custody_root(which)
+    name = _custody_identity(_recorded_store(store), assignment_id, which,
+                             operation)
+    episode, submission = _claim_episode(store, assignment_id, which,
+                                         operation, image_digest, name)
+    argv, composed = _custody_vector(engine, image_digest=image_digest,
+                                     store=store, assignment_id=assignment_id,
+                                     operation=operation, which=which,
+                                     submission=submission)
+    if composed != name:                                 # pragma: no cover
+        raise ContractRefusal(
+            "refused", "precondition",
+            "the helper identity this act claimed and the one its vector "
+            "composed disagree; one derivation answers both or neither")
     # W257624 R1: THE EXCLUSION IS CLAIMED BEFORE ANY HELPER ACT AT ALL.
     #
     # Owner 257693 selects "no submission OR RECLAMATION behind a standing
@@ -1884,8 +2360,6 @@ def custody_act(engine, run, *, image_digest, store, assignment_id,
     # and writes the next episode inside ONE write transaction, so two
     # connections racing here serialize at the store: the loser sees the
     # winner's episode and refuses having submitted nothing.
-    episode = _claim_episode(store, assignment_id, which, operation,
-                             image_digest, name)
     # W43974: WHAT IS ALREADY ANSWERING TO THIS IDENTITY, decided before
     # anything launches. `--rm` reclaims on the engine's normal completion
     # path and on no other, so a manager or client that died mid-act left a
@@ -1965,16 +2439,61 @@ def custody_act(engine, run, *, image_digest, store, assignment_id,
                          f"{name_value(assignment_id)}; neither may be "
                          f"reused, reported settled, or deleted on the "
                          f"strength of this answer")
-    minted = _answered(operation, answered["status"],
-                       _custodian_document(answered["stdout"]),
+    printed = _custodian_document(answered["stdout"])
+    minted = _answered(operation, answered["status"], printed,
                        answered["stderr"][-MAX_DIAGNOSTIC:])
-    # THE ENGINE ANSWERED, so this act is not an external uncertainty however
-    # else it turned out. A refused or unaccountable ANSWER is this manager's
-    # own judgement about a helper that ran and exited; the hold is for the
-    # case where nothing came back at all.
-    _clear_hold(store, assignment_id, which, episode, name,
-                observed=f"the engine answered status "
-                         f"{answered['status']!r} for this act")
+    # W257624 R2 [P1], review 2026-09-24T21-39-09Z: AN ANSWER IS NOT AN ENDING;
+    # AN ACCOUNTABLE ANSWER IS.
+    #
+    # This used to clear whenever the port returned at all, and said so: "a
+    # refused or unaccountable ANSWER is this manager's own judgement about a
+    # helper that ran and exited". That reasoning is wrong for the same reason
+    # `_recovered` below stopped proving absence. Docker is client/server, so a
+    # nonzero status with no document is the CLIENT's account of its own
+    # failure -- it may have lost the response to a request the daemon is
+    # still running, which is exactly the uncertainty this episode holds.
+    #
+    # WHAT DISTINGUISHES THEM IS ACCOUNTABILITY, not the exit status.
+    #
+    # I proposed the status twice and was corrected twice. "The engine answered
+    # at all" cleared on a failed client that may have left a request running.
+    # "Status 0" then cleared on a client that exited zero having printed
+    # something illegible -- and review 2026-09-24T21-55-12Z is right that this
+    # is no better: an answer this manager cannot account for does not say what
+    # the helper did, so it cannot say the mutation finished.
+    #
+    # ONLY THE CUSTODIAN'S OWN DOCUMENT DOES. Nothing else can print one, so an
+    # accountable answer establishes that this helper ran and reported. Any
+    # other ending leaves the episode held, to be reconciled explicitly.
+    # What is reported is `minted` either way: an unaccountable answer was
+    # never custody and is not one now.
+    #
+    # AND THE DOCUMENT IT ACCOUNTED FOR IS RECORDED. An answer already spent on
+    # one act must not be offered as evidence for another, and that is true of
+    # the answers this manager consumed itself -- not only of ones an operator
+    # delivered later.
+    #
+    # AND IT IS ONE CONDITION, NOT EITHER HALF. I checked `unaccounted is None`
+    # alone, so a status-1 answer carrying a well-formed document cleared --
+    # review 2026-09-24T22-06-47Z. `ok` is the settled name for all three:
+    # the act ended cleanly, it said what it did, and it said THIS.
+    # AND THE ECHO MUST BE THIS SUBMISSION'S. An accountable result for the
+    # right verb is still an account of some act; the token is what says WHICH.
+    # A result echoing another submission's token clears nothing.
+    if minted.ok and printed.get("submission") != submission:
+        return _answered(
+            operation, answered["status"], None,
+            f"the act answered for submission "
+            f"{name_value(printed.get('submission'))} and this manager "
+            f"submitted {name_value(submission)}; an account of another "
+            f"submission is not an account of this one. FROZEN PENDING "
+            f"OPERATOR RECONCILIATION: helper identity {name_value(name)} and "
+            f"the {which} root of attempt {name_value(assignment_id)}")
+    if minted.ok:
+        _clear_hold(store, assignment_id, which, episode, name,
+                    observed=f"the helper answered accountably with status "
+                             f"{answered['status']!r} for this act",
+                    accounted=printed)
     return minted
 
 

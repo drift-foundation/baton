@@ -6216,7 +6216,7 @@ class BoundaryCase(unittest.TestCase):
              "an assignment identity"):
                 ("an assignment identity",
                  lambda: workspaces.discard_workspace(
-                     self.root, SURROGATE)),
+                     self.root, SURROGATE, control=self.store)),
             # -- W6592 cut A: the composition's own operands ------------------
             (at(f"{H}:certify_agent_session_profile", "profile"),
              "an agent-session profile"): ("an agent-session profile",
@@ -6306,7 +6306,8 @@ class BoundaryCase(unittest.TestCase):
                     self.configured_group(), SURROGATE, "a-1")),
             (at("workspaces.py:discard_workspace", "storage"),
              "a filesystem root"): ("a filesystem root",
-                lambda: workspaces.discard_workspace(SURROGATE, "a-1")),
+                lambda: workspaces.discard_workspace(
+                    SURROGATE, "a-1", control=self.store)),
             # W43975 and W39358 put two more entries onto the same store, and
             # both reach `_real` before anything else: the read-only adoption
             # a resuming deployment uses, and the selective removal an
@@ -6314,18 +6315,19 @@ class BoundaryCase(unittest.TestCase):
             (at("workspaces.py:adopted_assignment_workspace", "storage"),
              "a filesystem root"): ("a filesystem root",
                 lambda: workspaces.adopted_assignment_workspace(
-                    SURROGATE, "a-1")),
+                    SURROGATE, "a-1", control=None)),
             (at("workspaces.py:discard_execution_roots", "storage"),
              "a filesystem root"): ("a filesystem root",
-                lambda: workspaces.discard_execution_roots(SURROGATE, "a-1")),
+                lambda: workspaces.discard_execution_roots(
+                    SURROGATE, "a-1", control=None)),
             (at("workspaces.py:adopted_assignment_workspace", "assignment_id"),
              "an assignment identity"): ("an assignment identity",
                 lambda: workspaces.adopted_assignment_workspace(
-                    "/srv/workspaces", 7)),
+                    "/srv/workspaces", 7, control=None)),
             (at("workspaces.py:discard_execution_roots", "assignment_id"),
              "an assignment identity"): ("an assignment identity",
                 lambda: workspaces.discard_execution_roots(
-                    "/srv/workspaces", 7)),
+                    "/srv/workspaces", 7, control=None)),
             # W19784: the input root, at the same single owner. `_real`
             # refuses the surrogate as TEXT, before the pair is validated and
             # before anything reaches the filesystem -- so this probe proves
@@ -8165,11 +8167,22 @@ class EveryProbeProvesItArrived(BoundaryCase):
             return run
 
         def line_place():
+            # W257624 R3: the line boundary adopts the attempt's inputs, so it
+            # requires this manager's own store. A SEPARATE HANDLE configured to
+            # this probe's own storage, because the sibling probes in this
+            # inventory configure `self.store` to storages of their own and
+            # reconfiguring one store to a second root is refused.
+            probe = ControlStore.open(
+                os.path.join(self.root, "line-probe.sqlite3"),
+                incarnation="line-probe-1", clock=lambda: self.instants[-1])
+            self.addCleanup(probe.close)
+            workspaces.configure_workspace_storage(probe, self.root)
             roots = workspaces.assignment_workspace(
                 self.configured_group(), self.root, "attempt-line-probe")
             del roots
             workspaces.line_assignment_workspace(
-                self.root, "attempt-line-probe", SURROGATE, (0, 0))
+                self.root, "attempt-line-probe", SURROGATE, (0, 0),
+                control=probe)
 
         direct = {
             (at("consumption_subject", "attempt_id"), "a runtime attempt identity"):

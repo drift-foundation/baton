@@ -86,7 +86,14 @@ class TheComposedAbandonmentIsCalled(
                         source = parts.get("source")
             if named is None or not named.startswith(custody.CUSTODY_NAME):
                 return None
-            return source, argv[-1]
+            # W257624 R2: THE VERB IS THE PROGRAM'S FIRST ARGUMENT, not the
+            # last operand. The act now ends `... -c PROGRAM operation
+            # submission`, so `argv[-1]` is the submission token -- reading the
+            # verb from there made this fixture answer for a verb named after a
+            # nonce. Found by review-2026-09-24T22-22-09Z. Taken relative to
+            # `-c` so a later operand cannot move it again.
+            where = argv.index("-c")
+            return source, argv[where + 2]
 
         def acting(self, argv, mount, verb):
             """What the custodian PROGRAM prints, over the real directory.
@@ -107,6 +114,12 @@ class TheComposedAbandonmentIsCalled(
             act it cannot account for is not recorded is untouched.
             """
             self.vectors.append(list(argv))
+            # W257624 R2: THE TOKEN IS LEARNED FROM THE SUBMITTED ARGV, which
+            # is the only place a provider could learn it, and recorded in
+            # submission order so a case can name the act it is reconciling.
+            # Reading it off the latest hold instead would let a fixture
+            # manufacture attribution the real boundary cannot.
+            self.__dict__.setdefault("submissions", []).append(argv[-1])
             if mount is None or not os.path.isdir(mount):
                 return self.answer(status=2, stdout=json.dumps(
                     {"custody": "refused",
@@ -115,11 +128,11 @@ class TheComposedAbandonmentIsCalled(
             entries = sum(len(directories) + len(files) for _current,
                           directories, files in os.walk(mount))
             if verb == "discard":
-                document = {"custody": "discard", "removed": entries,
-                            "kept": 0}
+                document = {"custody": "discard", "submission": argv[-1],
+                            "removed": entries, "kept": 0}
             else:
-                document = {"custody": verb, "entries": entries,
-                            "not_ours": 0}
+                document = {"custody": verb, "submission": argv[-1],
+                            "entries": entries, "not_ours": 0}
             document["running_as"] = [os.getuid(), os.getgid()]
             return self.answer(stdout=json.dumps(document) + "\n")
 
@@ -747,7 +760,7 @@ class TheComposedAbandonmentIsCalled(
 
         worker = operations._worker
         roots = workspaces.adopted_assignment_workspace(
-            worker.given["workspace_storage"], attempt_id)
+            worker.given["workspace_storage"], attempt_id, control=control)
         # THE ORDINARY ENDING still answers BLOCKED ON INTAKE -- no refusal,
         # no adapter call, no cleanup record -- because it is authorized by a
         # receipt this attempt never produced.
@@ -1382,6 +1395,11 @@ class TheComposedAbandonmentIsCalled(
             def severed(one, argv, mount, verb, _held=held_acting):
                 del mount, verb
                 one.vectors.append(list(argv))
+                # THE TOKEN WAS HANDED OVER EVEN THOUGH NOTHING CAME BACK, and
+                # that is the whole point of a lost response: the submission
+                # happened. Recording it here is what lets a later
+                # reconciliation name the act it is about.
+                one.__dict__.setdefault("submissions", []).append(argv[-1])
                 raise RuntimeError("the fixture killed the client")
 
             engine.__class__.acting = severed
@@ -1391,7 +1409,7 @@ class TheComposedAbandonmentIsCalled(
             # answers a worker row the custody reader rightly rejects.
             engine.removed = True
         roots = workspaces.adopted_assignment_workspace(
-            worker.given["workspace_storage"], attempt_id)
+            worker.given["workspace_storage"], attempt_id, control=control)
         return control, worker._adapter(roots, None, None, None), attempt_id
 
     def test_an_unresolved_submission_holds_the_root(self):
@@ -1437,7 +1455,19 @@ class TheComposedAbandonmentIsCalled(
             [])
 
     def test_a_reconciliation_lifts_one_episode_and_the_act_proceeds(self):
-        """An operator's evidence, and what it does and does not lift."""
+        """An operator's evidence, and what it does and does not lift.
+
+        W257624 R2 RAISED THE BAR THIS CASE WAS WRITTEN AGAINST, and the case
+        is updated rather than the rule relaxed. It used to clear the hold on
+        the account "I inspected the daemon; no helper of that name exists",
+        which owner 260109's selection names as insufficient: an absence is
+        true of a request the daemon has not started, so it cannot exclude a
+        delayed one. `clear_custody_hold` now requires the daemon's own
+        accountable answer for the exact helper, and this case supplies one.
+        The operator's account is still required -- it is just no longer the
+        whole of the evidence. Every refusal this case already checked still
+        refuses, and `test_hold_clearance.py` owns the new bar in full.
+        """
         from baton_v12.contracts import ContractRefusal
         from baton_v12.worker_manager import custody as custody_module
 
@@ -1447,30 +1477,58 @@ class TheComposedAbandonmentIsCalled(
                 control, composed, assignment_id=attempt_id, which="result")
         [episode] = custody_module.custody_holds(control, attempt_id,
                                                  "result")
-        helper = episode["held"]["helper_identity"]
+        held = episode["held"]
+        helper = held["helper_identity"]
+        # THE DAEMON'S OWN ANSWER ABOUT THIS HELPER, which is what R2 requires
+        # and what the absence account above could never be.
+        # W257624 R2: THE ANSWER CARRIES THE SUBMISSION IT IS ABOUT. The token
+        # is read off what the provider was actually handed -- the engine
+        # records every argv it received -- because an answer this manager
+        # cannot attribute to this act settles nothing.
+        submitted = next(one for engine in self.engines
+                         for one in getattr(engine, "submissions", []))
+        settled = {"source": custody_module.CUSTODY_ENGINE_ANSWER,
+                   "helper_identity": helper,
+                   "custodian_image_digest": held["custodian_image_digest"],
+                   "status": 0,
+                   "document": {"custody": held["verb"],
+                                "submission": submitted, "entries": 1,
+                                "not_ours": 0,
+                                "running_as": [os.getuid(), os.getgid()]}}
 
         # A CLEARANCE NAMING ANOTHER HELPER IS EVIDENCE ABOUT SOMETHING ELSE.
         with self.assertRaises(ContractRefusal) as wrong:
             custody_module.clear_custody_hold(
                 control, attempt_id=attempt_id, which="result", episode=0,
                 observed="I looked; nothing is running",
-                helper_identity="baton-custody-" + "0" * 32)
+                helper_identity="baton-custody-" + "0" * 32,
+                settlement=settled)
         self.assertIn("evidence about the helper", wrong.exception.message)
         # A BLANK OBSERVATION IS NOT AN OBSERVATION.
         with self.assertRaises(ContractRefusal):
             custody_module.clear_custody_hold(
                 control, attempt_id=attempt_id, which="result", episode=0,
-                observed="   ", helper_identity=helper)
+                observed="   ", helper_identity=helper, settlement=settled)
         # AN EPISODE THAT DOES NOT EXIST IS REFUSED.
         with self.assertRaises(ContractRefusal):
             custody_module.clear_custody_hold(
                 control, attempt_id=attempt_id, which="result", episode=3,
-                observed="I looked", helper_identity=helper)
+                observed="I looked", helper_identity=helper,
+                settlement=settled)
+        # AND THE ABSENCE ACCOUNT THIS CASE USED TO CLEAR ON NOW REFUSES.
+        with self.assertRaises(ContractRefusal) as absent:
+            custody_module.clear_custody_hold(
+                control, attempt_id=attempt_id, which="result", episode=0,
+                observed="I inspected the daemon; no helper of that name "
+                         "exists",
+                helper_identity=helper,
+                settlement=dict(settled, source="helper-listing"))
+        self.assertIn("still pending", absent.exception.message)
 
         custody_module.clear_custody_hold(
             control, attempt_id=attempt_id, which="result", episode=0,
-            observed="I inspected the daemon; no helper of that name exists",
-            helper_identity=helper)
+            observed="I asked the daemon for this helper and it answered",
+            helper_identity=helper, settlement=settled)
         [cleared] = custody_module.custody_holds(control, attempt_id,
                                                  "result")
         self.assertTrue(cleared["cleared"])

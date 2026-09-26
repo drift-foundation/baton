@@ -1,0 +1,214 @@
+v12/python/src/baton_v12/authority/core.py:152 certify_contract [body]
+ 145:self._store.run, 150:self._bump_policy_generation, 149:self._now
+v12/python/src/baton_v12/authority/core.py:161 withdraw_certification [body]
+ 157:self._store.run, 159:self._bump_policy_generation
+v12/python/src/baton_v12/authority/core.py:179 permit_contract_transition [body]
+ 173:self._store.run, 177:self._bump_policy_generation
+v12/python/src/baton_v12/authority/core.py:199 set_policy [body]
+ 194:self._store.run, 197:self._bump_policy_generation
+v12/python/src/baton_v12/authority/core.py:350 bind_endpoint [body]
+ 331:self._store.get, 340:self._register_principal, 341:self._store.run, 347:self._bump_policy_generation, 348:self.principal_of, 335:Refusal, 346:self._now, 336:name_of, 337:name_of
+v12/python/src/baton_v12/authority/core.py:597 grant_capability [body]
+ 589:self._principal_for_write, 590:self._store.run, 595:self._bump_policy_generation, 594:self._now
+v12/python/src/baton_v12/authority/core.py:611 revoke_capability [body]
+ 605:self._store.run, 609:self._bump_policy_generation, 608:self.principal_of
+v12/python/src/baton_v12/authority/core.py:810 add_route_handler [body]
+ 804:self._principal_for_write, 805:self._store.run, 808:self._bump_policy_generation
+v12/python/src/baton_v12/authority/core.py:1028 works_with_labels [lambda: self._matching(set(wanted), set(unwanted))]
+ 1029:self._matching, 1029:set, 1029:set
+v12/python/src/baton_v12/authority/core.py:1106 project_work [lambda: self._projected(work_id)]
+ 1106:self._projected
+v12/python/src/baton_v12/authority/core.py:1943 activity [body]
+ 1927:self._expect, 1928:self._store.run, 1934:self._store.get, 1933:self._live_claim_seq, 1933:self._now, 1940:self._assignment_ref_of
+v12/python/src/baton_v12/authority/core.py:2577 settle_operation [body]
+ 2559:self._store.operation_row, 2574:self._store.record_retirement, 2565:Refusal, 2563:json.loads, 2569:json.loads
+v12/python/src/baton_v12/authority/store.py:500 replay [body]
+ 469:self.operation_row, 481:self._savepoint, 484:self._record, 492:self._db.execute, 493:self._record, 496:self._db.execute, 497:self._db.execute, 479:json.loads, 472:Refusal, 475:Refusal, 478:Refusal, 473:json.loads
+v12/python/src/baton_v12/integration/driver.py:675 _retain_publication [lambda connection: receipt]
+
+v12/python/src/baton_v12/integration/queue.py:925 _transact [action]
+
+v12/python/src/baton_v12/integration/reconciliation.py:597 _settle [act]
+ 582:connection.execute('SELECT state FROM integration_results WHERE result_id = ?', (result_id,)).fetchone, 588:connection.execute, 586:_refuse, 582:connection.execute, 593:canonical_text, 586:name_value
+v12/python/src/baton_v12/integration/reconciliation.py:1244 record_causal_observations [act]
+ 1229:connection.execute('SELECT state, content_digest FROM integration_results WHERE result_id = ?', (result_id,)).fetchone, 1236:connection.execute, 1234:_refuse, 1229:connection.execute, 1240:canonical_text, 1234:name_value
+v12/python/src/baton_v12/integration/reconciliation.py:1453 record_result_evidence [act]
+ 1436:connection.execute('SELECT state, content_digest, derived_result_digest FROM integration_results WHERE result_id = ?', (result_id,)).fetchone, 1445:connection.execute, 1443:_refuse, 1436:connection.execute, 1449:canonical_text, 1443:name_value
+v12/python/src/baton_v12/integration/reconciliation.py:1576 publish_result [act]
+ 1558:connection.execute('SELECT state FROM integration_results WHERE result_id = ?', (result_id,)).fetchone, 1567:connection.execute, 1564:_refuse, 1558:connection.execute, 1564:name_value
+v12/python/src/baton_v12/integration/reconciliation.py:1938 record_imported [act]
+ 1924:connection.execute('SELECT state FROM integration_results WHERE result_id = ?', (result_id,)).fetchone, 1931:connection.execute, 1928:_refuse, 1924:connection.execute, 1928:name_value
+v12/python/src/baton_v12/integration/reconciliation.py:2485 _transition_managed [act]
+ 2477:connection.execute('SELECT * FROM managed_integration_results WHERE managed_result_id = ?', (result_id,)).fetchone, 2480:sorted, 2482:connection.execute, 2483:managed_result_of, 2479:_refuse, 2477:connection.execute, 2478:_managed_snapshot, 2481:canonical_text, 2482:', '.join
+v12/python/src/baton_v12/integration/reconciliation.py:2536 record_managed_result [create]
+ 2515:_claim_result_key, 2518:connection.execute, 2534:managed_result_of, 2533:store._now
+v12/python/src/baton_v12/integration/reconciliation.py:2625 attach_managed_phase [attach]
+ 2564:connection.execute('SELECT * FROM managed_integration_results WHERE managed_result_id = ?', (managed_result_id,)).fetchone, 2613:connection.execute, 2623:managed_result_of, 2568:_refuse, 2573:_refuse, 2580:connection.execute("SELECT * FROM managed_integration_phases WHERE managed_result_id = ? AND phase = 'prepare'", (managed_result_id,)).fetchone, 2564:connection.execute, 2570:found.keys, 2585:_refuse, 2592:_refuse, 2600:json.loads, 2603:_refuse, 2608:_refuse, 2619:_stored, 2619:_stored, 2620:_stored, 2622:store._now, 2580:connection.execute, 2588:beside.keys, 2622:_stored, 2569:name_value, 2574:name_value, 2575:name_value, 2576:name_value, 2577:name_value, 2585:name_value, 2593:name_value, 2595:name_value, 2604:name_value, 2609:name_value, 2611:name_value
+v12/python/src/baton_v12/integration/reconciliation.py:3620 record_publication_intent [intend]
+ 3605:connection.execute, 3618:publication_of, 3616:_stored, 3617:store._now
+v12/python/src/baton_v12/integration/reconciliation.py:3654 record_publication_effect [record]
+ 3635:connection.execute('SELECT * FROM managed_publications WHERE publication_id = ?', (publication_id,)).fetchone, 3649:connection.execute, 3652:publication_of, 3639:_refuse, 3644:_refuse, 3647:_refuse, 3635:connection.execute, 3640:found.keys, 3639:name_value, 3644:name_value, 3645:name_value, 3647:name_value, 3648:name_value
+v12/python/src/baton_v12/integration/reconciliation.py:533 prepare_result [intend]
+ 516:store._now, 521:_claim_result_key, 525:connection.execute, 528:', '.join, 530:tuple, 527:', '.join, 530:_stored
+v12/python/src/baton_v12/job_manager/ending.py:557 register_ending [lambda connection: document]
+
+v12/python/src/baton_v12/job_manager/ending.py:609 settle_ending [lambda connection: document]
+
+v12/python/src/baton_v12/job_manager/episodes.py:264 open_next [act]
+ 252:store._now, 253:connection.execute, 258:documents.stage_episode
+v12/python/src/baton_v12/job_manager/episodes.py:309 end_episode [act]
+ 290:store._now, 303:documents.stage_episode, 291:connection.execute, 297:ContractRefusal, 299:name_value
+v12/python/src/baton_v12/job_manager/episodes.py:696 advance_correction [act]
+ 629:store._now, 688:documents.correction, 645:episode_of, 657:_unheld, 678:connection.execute, 683:documents.stage_episode, 648:ContractRefusal, 665:connection.execute, 672:ContractRefusal, 651:name_value, 675:name_value
+v12/python/src/baton_v12/job_manager/episodes.py:1218 restart_abandoned_correction [act]
+ 1156:episode_of, 1165:_unheld, 1178:_excluded_correction, 1179:_prepared_line, 1188:_job_correction, 1207:_adopted_restart, 1159:ContractRefusal, 1184:ContractRefusal, 1194:connection.execute, 1201:ContractRefusal, 1207:documents.abandoned_restart, 1198:store._now, 1162:name_value, 1163:name_value, 1180:name_value, 1204:name_value
+v12/python/src/baton_v12/job_manager/integration_capacity.py:411 recover_preparation_reservation [perform]
+ 402:integration_capacity_of, 405:any, 408:_refuse, 403:_recovery_basis, 406:preparation_intent_of, 407:allocation_of
+v12/python/src/baton_v12/job_manager/integration_capacity.py:539 record_preparation_intent [perform]
+ 533:_parent_facts, 537:dict, 535:_refuse, 535:name_value
+v12/python/src/baton_v12/job_manager/integration_capacity.py:775 register_integration_capacity [perform]
+ 667:preparation_intent_of, 681:allocation_of, 695:_row, 719:_row, 748:connection.execute, 773:integration_capacity_of, 683:_refuse, 687:_refuse, 691:_refuse, 698:_refuse, 701:_refuse, 711:_refuse, 723:_refuse, 761:connection.execute, 677:_refuse, 732:_refuse, 744:_refuse, 759:store._now, 672:_refuse, 676:dict, 683:name_value, 687:name_value, 691:name_value, 692:name_value, 698:name_value, 701:name_value, 702:name_value, 711:name_value, 712:name_value, 714:name_value, 723:name_value, 724:name_value, 677:name_value, 733:name_value, 735:name_value, 745:name_value, 672:name_value, 674:name_value, 675:name_value
+v12/python/src/baton_v12/job_manager/integration_capacity.py:1182 admit_integration_execution [perform]
+ 1013:_row, 1026:allocation_of, 1033:_row, 1167:connection.execute, 1180:integration_capacity_of, 1017:_refuse, 1020:_refuse, 1029:_refuse, 1038:_refuse, 1041:_refuse, 1045:_refuse, 1049:_refuse, 1056:_refuse, 1061:_refuse, 1072:_refuse, 1088:'; '.join, 1093:_refuse, 1102:recorded.get, 1115:by_phase.get, 1152:_refuse, 1166:_prove_grant, 1104:_refuse, 1112:_members, 1117:_refuse, 1122:_refuse, 1136:_refuse, 1145:_refuse, 1149:by_phase.values, 1173:json.dumps, 1173:dict, 1018:name_value, 1020:name_value, 1021:name_value, 1028:_preparation_recovered, 1030:name_value, 1031:name_value, 1038:name_value, 1039:name_value, 1041:name_value, 1042:name_value, 1043:name_value, 1045:name_value, 1046:name_value, 1049:name_value, 1050:name_value, 1051:name_value, 1056:name_value, 1057:name_value, 1059:name_value, 1061:name_value, 1063:name_value, 1065:name_value, 1072:name_value, 1073:name_value, 1074:name_value, 1091:sorted, 1093:name_value, 1152:name_value, 1153:name_value, 1154:name_value, 1031:(allocation or {}).get, 1089:name_value, 1090:name_value, 1104:name_value, 1105:name_value, 1106:name_value, 1107:name_value, 1117:name_value, 1123:name_value, 1124:name_value, 1125:name_value, 1137:name_value, 1146:name_value, 1148:name_value
+v12/python/src/baton_v12/job_manager/integration_capacity.py:1422 end_integration_execution [perform]
+ 1384:_row, 1407:_collected_content, 1408:_resolved_exclusion, 1409:connection.execute, 1420:integration_capacity_of, 1389:_refuse, 1392:_refuse, 1401:_refuse, 1405:_refuse, 1418:json.dumps, 1416:json.dumps, 1389:name_value, 1392:name_value, 1401:name_value, 1405:name_value, 1406:name_value
+v12/python/src/baton_v12/job_manager/integration_capacity.py:1464 require_integration_recovery [perform]
+ 1446:_row, 1457:connection.execute, 1462:integration_capacity_of, 1451:_refuse, 1454:_refuse, 1451:name_value, 1454:name_value, 1455:name_value
+v12/python/src/baton_v12/job_manager/integration_capacity.py:1504 begin_integration_ending [perform]
+ 1483:_row, 1492:connection.execute, 1498:connection.execute, 1502:integration_capacity_of, 1487:_refuse, 1490:_refuse, 1488:name_value, 1490:name_value
+v12/python/src/baton_v12/job_manager/integration_capacity.py:1605 settle_failed_integration [lambda connection: account]
+
+v12/python/src/baton_v12/job_manager/manager.py:1053 _record [perform]
+ 1040:store._now, 1041:connection.execute, 1048:documents.receipt, 1046:json.dumps
+v12/python/src/baton_v12/job_manager/scheduler.py:246 activate_pool [perform]
+ 208:connection.execute('SELECT * FROM pool_generations ORDER BY generation DESC LIMIT 1').fetchone, 226:store._now, 227:connection.execute, 213:list, 222:_generation_document, 223:connection.execute('SELECT COALESCE(MAX(generation), 0) + 1 FROM pool_generations').fetchone, 234:connection.execute, 208:connection.execute, 213:connection.execute, 219:_refuse, 232:canonical_text, 223:connection.execute, 241:canonical_text
+v12/python/src/baton_v12/job_manager/scheduler.py:400 reserve [perform]
+ 334:connection.execute('SELECT generation FROM pool_generations ORDER BY generation DESC LIMIT 1').fetchone, 341:_lane, 348:_exclusions, 361:list, 375:connection.execute('SELECT worker_id FROM worker_affinity WHERE development_line = ? AND lane = ?', (stage['work_id'], lane)).fetchone, 379:next, 384:store._now, 385:connection.execute, 398:allocation_of, 338:ContractRefusal, 342:dict, 354:ContractRefusal, 361:connection.execute, 370:ContractRefusal, 394:connection.execute, 334:connection.execute, 342:connection.execute, 375:connection.execute, 346:json.loads, 356:name_value, 358:name_value, 359:name_value, 372:name_value
+v12/python/src/baton_v12/job_manager/scheduler.py:480 _move [perform]
+ 429:connection.execute('SELECT allocation_state FROM stage_allocations WHERE assignment_id = ?', (assignment_id,)).fetchone, 446:store._now, 478:allocation_of, 433:allocation_of, 441:_refuse, 445:allocation_of, 464:integration_capacity.releasable, 468:integration_capacity.mark_root_ended, 469:connection.execute, 474:connection.execute, 429:connection.execute, 440:allocation_of, 467:_refuse, 441:name_value
+v12/python/src/baton_v12/job_manager/submission.py:76 submit [act]
+ 57:_unclaimed, 58:store._now, 59:connection.execute, 66:enumerate, 71:documents.submission_recorded, 67:_job, 68:enumerate, 63:json.dumps, 69:stages.append, 69:_stage
+v12/python/src/baton_v12/worker_manager/attempts.py:722 record_attempt [act]
+ 710:connection.execute, 718:documents.attempt_recorded, 717:store._now
+v12/python/src/baton_v12/worker_manager/attempts.py:919 activate_assignment [act]
+ 916:documents.assignment_activated, 895:connection.execute, 912:ContractRefusal, 903:', '.join, 909:tuple, 914:name_value
+v12/python/src/baton_v12/worker_manager/attempts.py:1265 _record_start_returned [lambda _connection: documents.runtime_start_requested(**operands)]
+ 1268:documents.runtime_start_requested
+v12/python/src/baton_v12/worker_manager/attempts.py:1588 request_runtime_start [act]
+ 1563:reserved.append, 1564:deadlines._start_allowed, 1579:lanes._occupy_lane, 1583:observe, 1585:documents.runtime_start_requested, 1564:_require_attempt, 1579:store._now
+v12/python/src/baton_v12/worker_manager/attempts.py:2168 _record_and_raise_start_failure [act]
+ 2159:settling.append, 2161:_require_attempt, 2162:documents.runtime_start_failed, 2159:_identified_within, 2160:_settle_unknown_start
+v12/python/src/baton_v12/worker_manager/attempts.py:2943 request_cancellation [lambda connection: documents.cancel_intent(attempt_id=attempt_id, assignment=expected, authority_operation_id=authority_operation_id, reason=reason)]
+ 2945:documents.cancel_intent
+v12/python/src/baton_v12/worker_manager/attempts.py:3515 _finalization_record [lambda connection: _quiescent(store, attempt_id, document)]
+ 3517:_quiescent
+v12/python/src/baton_v12/worker_manager/attempts.py:1990 _record_preparation_failure [act]
+ 1976:attaching.append, 1983:_require_attempt, 1984:documents.runtime_preparation_failed, 1969:attempt_start_failure_of, 1970:ContractRefusal, 1976:_identified_within, 1972:name_value
+v12/python/src/baton_v12/worker_manager/attempts.py:2827 _attach [act]
+ 2806:observe, 2812:documents.runtime_attached, 2781:connection.execute, 2786:ContractRefusal, 2788:name_value
+v12/python/src/baton_v12/worker_manager/context_delivery.py:554 discard_context_use [lambda connection: operands]
+
+v12/python/src/baton_v12/worker_manager/context_delivery.py:564 discard_context_use [discard]
+ 563:dict, 556:_storage, 557:_directories, 558:_directories, 559:_directories, 562:_clear_owned, 561:context._refuse, 560:_pin, 560:_pin, 560:_pin
+v12/python/src/baton_v12/worker_manager/context_delivery.py:91 configure_context_storage [lambda connection: held]
+
+v12/python/src/baton_v12/worker_manager/context_delivery.py:498 seal_generation [lambda connection: proposed]
+
+v12/python/src/baton_v12/worker_manager/custody.py:1855 clear_custody_hold [lambda _c: dict(body)]
+ 1857:dict
+v12/python/src/baton_v12/worker_manager/custody.py:1931 _claim_episode [claiming]
+ 1921:_standing_overlap, 1929:dict, 1923:ContractRefusal, 1925:name_value
+v12/python/src/baton_v12/worker_manager/custody.py:1973 _record_hold [lambda _c: dict(body)]
+ 1976:dict
+v12/python/src/baton_v12/worker_manager/custody.py:1998 _clear_hold [lambda _c: dict(body)]
+ 2001:dict
+v12/python/src/baton_v12/worker_manager/custody.py:2132 normalize_directory [lambda _connection: documents.directory_custody_settled(attempt_id=assignment_id, root=which, verb='normalize', account=answered.rendered, operation=answered.operation)]
+ 2134:documents.directory_custody_settled
+v12/python/src/baton_v12/worker_manager/deadlines.py:135 _pin_start [act]
+ 127:_identity, 130:store._now, 133:documents.deadline_pin, 129:_refuse, 131:boundaries.deadline
+v12/python/src/baton_v12/worker_manager/deadlines.py:300 _cooperative_failure [lambda connection: {**operands, 'observed_at': store._now()}]
+ 301:store._now
+v12/python/src/baton_v12/worker_manager/deadlines.py:436 discharge_deadline_quiescence_gate [lambda connection: documents.deadline_discharge(**operands, authority_receipt=answer)]
+ 437:documents.deadline_discharge
+v12/python/src/baton_v12/worker_manager/deadlines.py:193 observe_deadline [act]
+ 183:_identity, 186:_eligible, 187:store._now, 190:documents.deadline_reached, 185:_refuse, 189:_NotReached
+v12/python/src/baton_v12/worker_manager/handshake.py:527 settle_unsupported_version [act]
+ 471:_require_session, 487:_slot_row, 507:_require_attempt, 514:documents.session_unsupported_version, 474:ContractRefusal, 490:ContractRefusal, 509:ContractRefusal, 515:_fixed_assignment, 477:name_value, 478:name_value, 493:name_value, 494:name_value, 496:name_value, 511:name_value
+v12/python/src/baton_v12/worker_manager/intake.py:541 request_intake [lambda connection: _requested(store, connection, attempt_id, frozen, operation)]
+ 543:_requested
+v12/python/src/baton_v12/worker_manager/intake.py:654 record_intake [lambda connection: _seal(store, port, connection, attempt_id, expect, frozen, held, operation)]
+ 656:_seal
+v12/python/src/baton_v12/worker_manager/intake.py:974 decide_retention [lambda connection: _retain(store, connection, attempt_id, chosen, disposition, retention_policy_digest, operation)]
+ 976:_retain
+v12/python/src/baton_v12/worker_manager/intake.py:1257 authorize_cleanup [lambda connection: _settle(store, connection, attempt_id, receipt, retention_policy_digest, observed, operation, custody=adapter)]
+ 1259:_settle
+v12/python/src/baton_v12/worker_manager/intake.py:1515 discharge_quiescence_gate [lambda connection: _adopted_discharge(_composed_receipt({'attempt_id': attempt_id, 'assignment': expect, 'gate': answered['gate'], 'kind': answered['kind'], 'phase': answered['phase'], 'runtime_id': runtime_id, 'cleanup': settled['cleanup'], 'cleanup_operation_id': settled['operation']['operation_id'], 'operation_id': operation_id}), 'a gate discharge receipt', operation_id=operation_id, signature=signature, expect=expect, attempt_id=attempt_id)]
+ 1517:_adopted_discharge, 1517:_composed_receipt
+v12/python/src/baton_v12/worker_manager/intake.py:2195 authorize_failed_start_cleanup [lambda connection: _settle_recordless_cleanup(store, connection, attempt_id, observed, operation, why='failed-start cleanup settled retained', custody=adapter)]
+ 2197:_settle_recordless_cleanup
+v12/python/src/baton_v12/worker_manager/intake.py:2313 authorize_refused_session_cleanup [lambda connection: _settle_recordless_cleanup(store, connection, attempt_id, observed, operation, why='refused-session cleanup settled retained', custody=adapter)]
+ 2316:_settle_recordless_cleanup
+v12/python/src/baton_v12/worker_manager/intake.py:2567 abandon_attempt [lambda connection: documents.abandonment(intent=dict(intent['document']), fenced=dict(fenced), cleanup=_settle_recordless_cleanup(store, connection, attempt_id, observed, operation, why='abandonment cleanup settled retained', custody=adapter))]
+ 2569:documents.abandonment, 2570:dict, 2570:dict, 2571:_settle_recordless_cleanup
+v12/python/src/baton_v12/worker_manager/intake.py:3259 discharge_abandoned_quiescence_gate [lambda connection: _adopted_abandoned_discharge({'schema': ABANDONED_GATE_DISCHARGE_SCHEMA, 'attempt_id': attempt_id, 'assignment': expect, 'runtime_id': runtime_id, 'retention_policy_digest': retention_policy_digest, 'cleanup_operation': cleanup_operation, 'operation_id': operation_id, 'gate': gate, 'evidence': evidence, 'authority_receipt': dict(answered)}, 'an abandoned gate discharge receipt', operation_id=operation_id, signature=signature, expect=expect, attempt_id=attempt_id)]
+ 3261:_adopted_abandoned_discharge, 3271:dict
+v12/python/src/baton_v12/worker_manager/intake.py:3993 _authorize_deadline_cleanup [authorize]
+ 3990:eligible, 3991:dict
+v12/python/src/baton_v12/worker_manager/intake.py:4014 _authorize_deadline_cleanup [settle]
+ 4009:eligible, 4010:documents.deadline_cleanup, 4011:_settle_recordless_cleanup
+v12/python/src/baton_v12/worker_manager/intake.py:3482 _abandon_intent [lambda connection: eligible(connection, attempt_id, document)]
+ 3484:eligible
+v12/python/src/baton_v12/worker_manager/interrogation.py:296 _ask [act]
+ 252:committed.append, 274:_still_live, 275:store._now, 276:boundaries.deadline, 278:connection.execute, 287:documents.interrogation_requested, 268:boundaries.capability, 268:getattr, 289:documents.session_ref
+v12/python/src/baton_v12/worker_manager/offers.py:178 certify_profile [act]
+ 171:connection.execute, 175:documents.profile_certified
+v12/python/src/baton_v12/worker_manager/offers.py:266 _settle_terminal [act]
+ 263:documents.offer_settled, 253:connection.execute, 259:_offer_row, 260:documents.offer_settled_by_another
+v12/python/src/baton_v12/worker_manager/offers.py:840 _record_claim [act]
+ 806:detail.get, 837:documents.claim_recorded, 807:assignment.get, 810:connection.execute, 834:ContractRefusal, 808:type, 827:', '.join, 831:tuple, 836:name_value, 830:detail.get, 830:store._now, 831:held.get
+v12/python/src/baton_v12/worker_manager/offers.py:474 issue_offer [act]
+ 435:committed.append, 458:documents.offer_issued, 442:connection.execute, 453:ContractRefusal, 455:name_value
+v12/python/src/baton_v12/worker_manager/offers.py:763 accept_offer [act]
+ 754:documents.offer_accepted, 741:connection.execute, 751:ContractRefusal, 753:name_value
+v12/python/src/baton_v12/worker_manager/output.py:194 request_freeze [lambda connection: _request(store, port, connection, attempt_id, expect, operation, disposition)]
+ 196:_request
+v12/python/src/baton_v12/worker_manager/output.py:409 record_frozen_result [lambda connection: _record(store, connection, attempt_id, owned, recomputed, operation)]
+ 411:_record
+v12/python/src/baton_v12/worker_manager/provider_context.py:118 certify_context_profile [lambda connection: {'profile_digest': key, 'profile': held}]
+
+v12/python/src/baton_v12/worker_manager/provider_context.py:178 authorize_qualification_run [lambda connection: dict(operands)]
+ 181:dict
+v12/python/src/baton_v12/worker_manager/provider_context.py:374 certify_production_profile [lambda connection: dict(operands, profile_digest=production_digest)]
+ 378:dict
+v12/python/src/baton_v12/worker_manager/provider_context.py:629 _transition [act]
+ 622:_history, 625:_legal, 628:dict, 623:len, 624:_refuse, 627:check
+v12/python/src/baton_v12/worker_manager/provider_context.py:777 admit_context_use [lambda connection: {'context_id': context_id, 'use_id': use_id, 'revision': len(chain), 'payload': payload}]
+ 777:len
+v12/python/src/baton_v12/worker_manager/provider_context.py:1176 bind_context_invocation [commit]
+ 1172:_facts, 1175:dict, 1173:any, 1174:_refuse, 1175:digest, 1173:context_use_of
+v12/python/src/baton_v12/worker_manager/review_cycles.py:1089 create_line [act]
+ 1063:line_of, 1079:workspaces.configured_workspace_identity, 1080:workspaces.prove_line_integrity, 1081:workspaces.establish_line_access, 1082:connection.execute, 1065:ContractRefusal, 1067:_object, 1068:ContractRefusal
+v12/python/src/baton_v12/worker_manager/review_cycles.py:1191 grant_writer [act]
+ 1154:line_of, 1158:assignment_of, 1159:_same_assignment, 1177:store._now, 1178:connection.execute, 1186:connection.execute, 1156:ContractRefusal, 1163:ContractRefusal, 1172:_line_object, 1173:ContractRefusal
+v12/python/src/baton_v12/worker_manager/review_cycles.py:1225 record_progress [act]
+ 1216:connection.execute, 1214:ContractRefusal, 1223:digest, 1213:writer_of, 1220:digest, 1221:store._now
+v12/python/src/baton_v12/worker_manager/review_cycles.py:1385 freeze_checkpoint [act]
+ 1365:checkpoint_of, 1367:store._now, 1368:connection.execute, 1377:connection.execute, 1373:canonical_text
+v12/python/src/baton_v12/worker_manager/review_cycles.py:1462 attach_review [act]
+ 1444:line_of, 1449:connection.execute, 1457:connection.execute, 1447:ContractRefusal, 1456:store._now
+v12/python/src/baton_v12/worker_manager/review_cycles.py:1769 record_verdict [act]
+ 1726:_completed_review, 1727:_attachment, 1728:line_of, 1738:store._now, 1739:connection.execute, 1756:connection.execute, 1760:connection.execute, 1767:dict, 1730:ContractRefusal, 1736:ContractRefusal, 1763:connection.execute, 1753:canonical_text, 1754:digest, 1754:canonical_text, 1755:digest
+v12/python/src/baton_v12/worker_manager/review_cycles.py:1323 freeze_checkpoint [record_fence]
+ 1313:checkpoint_of, 1317:connection.execute, 1315:ContractRefusal, 1320:canonical_text, 1320:digest
+v12/python/src/baton_v12/worker_manager/review_cycles.py:2572 restore_abandoned_correction [take]
+ 2559:store._now, 2560:connection.execute, 2570:dict, 2565:ContractRefusal
+v12/python/src/baton_v12/worker_manager/review_cycles.py:2695 restore_abandoned_correction [act]
+ 2666:_resumed_writer, 2667:line_of, 2677:_sole_attachment, 2687:connection.execute, 2690:_adopted_correction, 2672:ContractRefusal, 2678:_line_object, 2679:ContractRefusal, 2691:dict
+v12/python/src/baton_v12/worker_manager/sessions.py:344 open_agent_session [lambda connection: _open(store, connection, port, attempt_id, posture, profile_digest)]
+ 346:_open
+v12/python/src/baton_v12/worker_manager/workspaces.py:643 configure_workspace_group [act]
+ 637:connection.execute, 640:str
+v12/python/src/baton_v12/worker_manager/workspaces.py:878 configure_workspace_storage [act]
+ 872:connection.execute
+v12/python/src/baton_v12/worker_manager/workspaces.py:1673 _serialized_removal [removal]
+ 1669:refuse_if_held, 1670:removing, 1671:_summary

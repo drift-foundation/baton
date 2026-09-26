@@ -81,7 +81,8 @@ class Custodian:
         self.normalized.append((assignment_id, which))
         return custody._answered(
             "normalize", 0,
-            {"custody": "normalize", "entries": 0, "not_ours": 0,
+            {"custody": "normalize", "submission": "0" * 32,
+             "entries": 0, "not_ours": 0,
              "running_as": [0, 0]}, None)
 
     def __init__(self, answer=None, destroyed=None):
@@ -1819,7 +1820,7 @@ class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
         # cleanup axis still `pending`. Driving `store.transact` to run its
         # action and then raise would have committed the axis moves outside
         # the journal, which is a state no crash produces.
-        discard_execution_roots(self.storage, ATTEMPT)
+        discard_execution_roots(self.storage, ATTEMPT, control=self.store)
         self.assertEqual(self.attempt_row()["cleanup"], "pending")
 
         home = os.path.join(self.storage, ATTEMPT)
@@ -1854,7 +1855,7 @@ class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
         self.assertEqual([one for _a, one in adapter.normalized],
                          ["result", "workspace"])
         adapter.normalized.clear()
-        discard_execution_roots(self.storage, ATTEMPT)
+        discard_execution_roots(self.storage, ATTEMPT, control=self.store)
 
         answered = self.settle(adapter)
 

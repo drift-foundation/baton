@@ -91,6 +91,15 @@ class Workspace(unittest.TestCase):
             clock=lambda: "2026-08-24T00:00:00.000Z")
         self.addCleanup(self.store.close)
         self.group = input_roots.configured_group(self.store)
+        # W257624 R3: THE DEPLOYMENT RECORDS ITS STORAGE, because the removal
+        # guard asks the store whether this root's resources are held and a
+        # store that configured nothing has no root to compare against. These
+        # cases are about cleaning up a storage tree this fixture created, so
+        # recording it is what the fixture always meant -- and the alternative,
+        # letting the guard tolerate an unconfigured store, would reopen the
+        # wrong-journal defect review 2026-09-25T02-49-44Z found. No assertion
+        # changes; only the deployment's own act is now performed.
+        workspaces.configure_workspace_storage(self.store, self.storage)
 
     def _forcibly_remove(self, root):
         # The component delivers READ-ONLY trees on purpose, so the fixture
@@ -701,18 +710,18 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
         origin = self.origin({"a.txt": b"one"})
         roots = self.workspace()
         self.staged(origin, roots)
-        self.assertTrue(discard_workspace(self.storage, "assignment-1"))
+        self.assertTrue(discard_workspace(self.storage, "assignment-1", control=self.store))
         self.assertFalse(os.path.exists(os.path.dirname(roots["inputs"])))
         # And the ORIGIN is untouched: cleanup concerns only what this
         # component created.
         self.assertTrue(os.path.exists(os.path.join(origin, "a.txt")))
 
     def test_removing_what_is_already_gone_is_an_answer_not_a_fault(self):
-        self.assertFalse(discard_workspace(self.storage, "never-created"))
+        self.assertFalse(discard_workspace(self.storage, "never-created", control=self.store))
 
     def test_cleanup_never_reaches_outside_its_storage(self):
         with self.assertRaises(ContractRefusal):
-            discard_workspace(self.storage, "../..")
+            discard_workspace(self.storage, "../..", control=self.store)
 
     def test_execution_cleanup_refuses_a_home_alias_to_a_sibling(self):
         """Containment inside the store is not ownership of this attempt.
@@ -727,13 +736,13 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
         sentinel = os.path.join(sibling["workspace"], "sibling.txt")
         with open(sentinel, "w", encoding="utf-8") as writing:
             writing.write("belongs to assignment-2")
-        discard_workspace(self.storage, "assignment-1")
+        discard_workspace(self.storage, "assignment-1", control=self.store)
         os.symlink(os.path.dirname(sibling["workspace"]),
                    os.path.dirname(mine["workspace"]))
 
         refused = False
         try:
-            discard_execution_roots(self.storage, "assignment-1")
+            discard_execution_roots(self.storage, "assignment-1", control=self.store)
         except ContractRefusal:
             refused = True
         except OSError:
@@ -774,7 +783,7 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
         with mock.patch.object(workspaces, "_emptied",
                                side_effect=replace_after_proof):
             try:
-                discard_execution_roots(self.storage, "assignment-1")
+                discard_execution_roots(self.storage, "assignment-1", control=self.store)
             except ContractRefusal:
                 refused = True
             except OSError:
@@ -816,7 +825,7 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
         with mock.patch.object(workspaces, "_emptied",
                                side_effect=replace_after_the_walk):
             with self.assertRaises(ContractRefusal) as caught:
-                discard_execution_roots(self.storage, "assignment-1")
+                discard_execution_roots(self.storage, "assignment-1", control=self.store)
 
         self.assertIn("replaced while its ending", str(caught.exception))
         self.assertTrue(os.path.isfile(sentinel),
@@ -842,7 +851,7 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
         os.symlink(sibling["workspace"], mine["workspace"])
 
         with self.assertRaises(ContractRefusal):
-            discard_execution_roots(self.storage, "assignment-1")
+            discard_execution_roots(self.storage, "assignment-1", control=self.store)
 
         self.assertTrue(os.path.isfile(sentinel),
                         "cleanup removed one root before proving the other")
@@ -888,9 +897,38 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
             thawed.append(os.fstat(descriptor).st_ino)
             return real(descriptor, mode)
 
-        with mock.patch.object(os, "getuid", return_value=os.getuid() + 1), \
-                mock.patch.object(os, "fchmod", side_effect=recorded):
-            removed = discard_execution_roots(self.storage, "assignment-1")
+        # W257624 R3: THE FOREIGN IDENTITY IS NARROWED TO THE THAW BOUNDARY.
+        #
+        # This patch used to span the whole act, and the removal guard now reads
+        # the deployment's configured store -- which refuses a store this
+        # manager does not own, correctly and before `_emptied` is reached. That
+        # refusal is production behaviour and is preserved; what was too broad
+        # was the fixture. This case's own docstring says the question it asks
+        # is `_emptied`'s -- "am I the owner" -- so the identity moves only
+        # while the walk is deciding that, and every assertion below is
+        # unchanged.
+        owner = os.getuid
+        foreign_uid = owner() + 1
+        inside = {"walk": False}
+
+        def answering():
+            return foreign_uid if inside["walk"] else owner()
+
+        real_walk = workspaces._execution_roots_removed
+
+        def walking(*arguments, **operands):
+            inside["walk"] = True
+            try:
+                return real_walk(*arguments, **operands)
+            finally:
+                inside["walk"] = False
+
+        with mock.patch.object(os, "getuid", side_effect=answering), \
+                mock.patch.object(os, "fchmod", side_effect=recorded), \
+                mock.patch.object(workspaces, "_execution_roots_removed",
+                                  side_effect=walking):
+            removed = discard_execution_roots(self.storage, "assignment-1",
+                                              control=self.store)
 
         self.assertNotIn(foreign, thawed,
                          "the walk tried to chmod a directory it does not own")
@@ -913,7 +951,7 @@ class CleanupTouchesOnlyWhatWasCreated(Workspace):
         self.assertEqual(os.stat(mine["inputs"]).st_mode & 0o777,
                          workspaces.READ_ONLY_DIR)
 
-        removed = discard_execution_roots(self.storage, "assignment-1")
+        removed = discard_execution_roots(self.storage, "assignment-1", control=self.store)
 
         self.assertEqual(sorted(removed), ["inputs", "workspace"])
         self.assertFalse(os.path.exists(mine["inputs"]),

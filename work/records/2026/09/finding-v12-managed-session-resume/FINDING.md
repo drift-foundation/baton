@@ -642,3 +642,9 @@ supersedes any reading that a live packet alone is the remaining obligation.
 Recommendation: an eligible real correction subject or a new pair under neutral
 criteria; deliberately steering the verdict is not selected. Preserve the
 accepted subject and all prior failed-run and consumed-grant evidence.
+
+## 2026-09-25 — owner selects bounded Tuner disposition assessment
+
+Owner approved an evidence-only Tuner assessment of W236087: recommend defer, narrow remaining scope, or the smallest suitable future proof, with one exact owner disposition command. This supersedes the current subject-selection next action for this assessment turn only; it does not select a new subject or any execution. Preserve the accepted proposal/verdict and historical evidence. A recommendation is not acceptance of production restore.
+
+Tuner owns a new DISPOSITION-20260925.md recommendation and any appended coordination summary in FINDING/PLAN under its claim. No product/test edits, tests, harness, live model/engine operations, deployed-store access, recovery or Git mutation. Use existing dossier evidence and read-only coordination/source inspection. Return directly to baton.decide with the recommendation and command. Do not add an adoption prerequisite or expand the recovery -> fresh packet -> two-Job proof -> bounded real v12 work path.

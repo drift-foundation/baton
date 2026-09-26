@@ -1227,6 +1227,66 @@ def label_context(store, attempt_id):
             "effective_scope": attempt["assignment_scope"]}
 
 
+def _start_returned_identity(operation_id):
+    """The submitter's OWN fact: this start call has come back.
+
+    W266336 stage 2 [P1], review 2026-09-25T18-36-24Z. Every other fact an ending
+    consults about a start -- the attached identity, the axis, the adapter's
+    listing, an absence observation -- can be produced by a DIFFERENT manager. So
+    none of them says the submitting call cannot still act, and a second manager
+    that cancels, reconciles and ends an attempt while the first is still inside
+    `adapter.start` released the lane on exactly that confusion.
+
+    This identity is derived from the start operation and written ONLY by
+    `request_runtime_start`, after its adapter call returns -- on the success,
+    refusal and fault paths alike. That function refuses any caller whose
+    execution axis is not `not-started`, so no second manager can be inside it:
+    the record is the submitter's alone.
+
+    WHAT IT DOES NOT SAY, because review 2026-09-25T18-48-10Z is right to insist
+    on it: a local return is NOT proof that a real engine finished anything. This
+    marker means only that the manager's own submitting call is no longer in
+    flight, which is exactly the fact the release gate was missing. Runtime
+    accounting and absence remain separate conditions, and the gate requires them
+    too.
+    """
+    return operation_id + ":returned"
+
+
+def _record_start_returned(store, attempt_id, operation_id):
+    """Commit that the submitting call has returned from the external start.
+
+    One short pure transaction, reusing the declared `runtime.start-requested`
+    shape -- whose members are exactly this attempt and this operation -- so no
+    new document kind is introduced for a fact this small. Written on the success,
+    refusal and fault paths alike, because in all three the call has come back.
+    """
+    operands = {"attempt_id": attempt_id, "operation_id": operation_id}
+    return store.transact(
+        _start_returned_identity(operation_id), "runtime.start-requested",
+        manager_signature("runtime.start-requested", operands),
+        lambda _connection: documents.runtime_start_requested(**operands))
+
+
+def start_submission_returned(store, attempt):
+    """Has this attempt's start submission come back to its submitter?
+
+    Answers True when no start was ever requested, because an attempt that never
+    submitted has nothing outstanding. Otherwise it is the submitter's own record
+    or nothing.
+    """
+    if attempt["execution_runtime"] == "not-started":
+        return True
+    operation_id = _start_operation_id(attempt)
+    operands = {"attempt_id": attempt["runtime_attempt_id"],
+                "operation_id": operation_id}
+    found, _record = store.replay(
+        _start_returned_identity(operation_id),
+        manager_signature("runtime.start-requested", operands),
+        kind="runtime.start-requested")
+    return found
+
+
 def _start_operation_id(attempt):
     """The ONE fixed start operation for an attempt.
 
@@ -1484,7 +1544,23 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None, deadline_p
                                   {"attempt_id": attempt_id, "labels": labels,
                                    "operation_id": operation_id})
 
+    # W266329 stage 1 [P1], review 2026-09-25T14-12-41Z: WHICH CALLER RESERVED.
+    #
+    # The preliminary `not-started` read above proves only its own instant, just
+    # as the lane read does -- but unlike the lane, the mutable axis had no
+    # authoritative counterpart inside `act`. A caller suspended after that read
+    # while another manager reserved and started the same attempt resumed here,
+    # REPLAYED this identity, and went on to call the adapter: a second external
+    # crossing after the reservation was already committed.
+    #
+    # `transact` runs this callback ONLY when it commits the act; a replay
+    # answers from the journal without entering it. So the callback itself is
+    # where a caller learns it is the owner, decided inside the write lock with
+    # no window, and the flag costs nothing.
+    reserved = []
+
     def act(connection):
+        reserved.append(True)
         deadlines._start_allowed(store, _require_attempt(store, attempt_id), deadline_policy)
         # W32649: THE LANE IS TAKEN IN THE SAME WRITE THAT MAKES THE START
         # ELIGIBLE, and before the adapter is called at all.
@@ -1510,6 +1586,14 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None, deadline_p
                                                  operation_id=operation_id)
 
     store.transact(operation_id, "runtime.start", signature, act)
+    if not reserved:
+        # A REPLAYING OR LOSING CALLER DOES NOT LAUNCH. Somebody else's act is
+        # what this identity answers, so there is nothing here to start -- and
+        # asking the adapter to start again would be the duplicate this whole
+        # ordering exists to prevent. RECONCILE INSTEAD, which is what the
+        # resumed caller does: decide what exists by identity and full labels
+        # rather than assume this call's own intent was carried out.
+        return reconcile_runtime(store, adapter, attempt_id=attempt_id)
     # AND ONLY THEN THE ADAPTER. A crash between the two boundaries is
     # answerable because the journal row exists; a crash before it leaves
     # nothing to answer for.
@@ -1542,6 +1626,7 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None, deadline_p
                                           "operation_id": operation_id,
                                           "input_root": inputs}))
     except ContractRefusal as refusal:
+        _record_start_returned(store, attempt_id, operation_id)
         raise _start_failed(store, adapter, attempt_id, refusal) from None
     except Exception as fault:                             # noqa: BLE001
         # RE-REVIEW [P0]: A FAULT IS A FAILED START TOO, and it takes THE SAME
@@ -1558,11 +1643,21 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None, deadline_p
         # THE FAULT ITSELF IS RE-RAISED UNCHANGED. This manager has no account
         # of what it was, and wrapping it would replace the thing that went
         # wrong with this manager's guess about it.
+        #
+        # AND THE SUBMISSION HAS RETURNED HERE TOO, which review
+        # 2026-09-25T18-48-10Z caught me claiming without doing. The marker was
+        # written on the success and refusal paths only, so a FAULT left no
+        # record that the submitting call had come back -- and the release gate,
+        # correctly refusing without it, then blocked the cleanup forever even
+        # after the exact runtime was known. Recorded BEFORE the settlement, so
+        # the marker survives a settlement that raises in its turn.
+        _record_start_returned(store, attempt_id, operation_id)
         # RECORDED THROUGH THE SAME BOUNDARY, with the fault preserved as a
         # fault rather than dressed as a refusal it never was.
         _settled_and_recorded(store, adapter, attempt_id,
                               _fault_failure(fault))
         raise
+    _record_start_returned(store, attempt_id, operation_id)
     return reconcile_runtime(store, adapter, attempt_id=attempt_id,
                              minted=started["runtime_id"],
                              minted_labels=started["labels"])
@@ -2471,6 +2566,44 @@ def _settled(store, attempt, runtime_id, value, why, *, within=None):
     # to go and check -- which is also why the state word is not an operand
     # here at all.
     inconclusive = value == "uncertain"
+    # W266336 stage 2 [P1], review 2026-09-25T18-19-46Z: A CANCELLED ATTEMPT CAN
+    # STILL LEARN ITS RUNTIME'S NAME.
+    #
+    # A submitter in flight when its generation was fenced creates a runtime
+    # AFTER the cancellation. Recording `running` over `cancel-requested` is
+    # correctly refused -- execution eligibility must never revive -- but the
+    # identity rode inside that same refusal, so `runtime_id` stayed null and
+    # every ending then refused for want of a runtime to name. The exact late
+    # runtime had no supported settlement at all.
+    #
+    # `stopping` IS a legal successor of `cancel-requested`, and from `stopping`
+    # only `quiescent`, `uncertain` and `destroyed` follow, so nothing here
+    # re-admits execution. The identity is attached, the ending can name and
+    # remove that exact runtime, and the axis still says the attempt was
+    # cancelled.
+    #
+    # AND IT CLAIMS ONLY THE CANCELLATION INTENT, which review
+    # 2026-09-25T18-36-24Z had to correct me on. I wrote that this manager had
+    # already ORDERED quiescence -- but on this very schedule the cancellation
+    # answers `quiescence.ordered=False` and issues no stop command, because there
+    # was no runtime to order anything about yet. INTENT, ORDER and DISCHARGE are
+    # three different facts. This state records that the attempt was cancelled and
+    # that an exact runtime was later found; it is NEVER on its own evidence that
+    # the runtime was stopped, and the release gate below does not accept it as
+    # such.
+    #
+    # DECIDED HERE BECAUSE THIS IS THE ONE OWNER of what an identification
+    # means: the value is used for the attachment, for the on-every-pass record
+    # below and for the answer, and mapping it in only one of the three would
+    # leave the other two disagreeing -- which is exactly what my first attempt
+    # at this correction did, inside `_attach`, until the second record refused.
+    standing = _require_attempt(store, attempt_id)["execution_runtime"]
+    if value not in TRANSITIONS["execution_runtime"][standing] \
+            and standing == "cancel-requested" and value == "running":
+        why = (f"observed {value} for an attempt already cancelled; the exact "
+               f"identity is recorded and the cancellation stands. This is not "
+               f"evidence that the runtime was stopped")
+        value, inconclusive = "stopping", True
     attached = _attach(store, attempt, runtime_id, value,
                        why if inconclusive else None, within=within)
     # A CANCELLATION IS A DIFFERENT DOCUMENT and passes straight through. It

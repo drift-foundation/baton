@@ -1,0 +1,272 @@
+{
+  "baseline_sha256": "b6083a63557abef8970040ca4c446e05f28a15a12672abc630024c3649cecf83",
+  "candidate_sha256": "a7760cd9e19067757207b91f4afdd4ff8124168462950581409ceb8c2a3cbeb5",
+  "scope": "44 baseline definitions before _restore_operation_id; equality does not prove survival of unknown pre-splice edits",
+  "functions": [
+    {
+      "name": "_id",
+      "baseline_sha256": "988be7a2a54e5bcc65712cb56b19d5ada9501af7bfc9c8bed1fb097711e3ed75",
+      "candidate_sha256": "988be7a2a54e5bcc65712cb56b19d5ada9501af7bfc9c8bed1fb097711e3ed75",
+      "identical": true
+    },
+    {
+      "name": "_profile",
+      "baseline_sha256": "516127863e38e06b49da78f04a254c26ff4a5f1b8ee5d40d3b3795e53c4b0123",
+      "candidate_sha256": "516127863e38e06b49da78f04a254c26ff4a5f1b8ee5d40d3b3795e53c4b0123",
+      "identical": true
+    },
+    {
+      "name": "line_of",
+      "baseline_sha256": "5e838612714ae1bbbadec381dddbf517c0a74d2686a7a32511fcf00c836fab85",
+      "candidate_sha256": "5e838612714ae1bbbadec381dddbf517c0a74d2686a7a32511fcf00c836fab85",
+      "identical": true
+    },
+    {
+      "name": "writer_of",
+      "baseline_sha256": "ecdc1054bd66e89e9bd97c80b21ce2939c10b1e5b906ed884f81b3f34c7fc6d3",
+      "candidate_sha256": "ecdc1054bd66e89e9bd97c80b21ce2939c10b1e5b906ed884f81b3f34c7fc6d3",
+      "identical": true
+    },
+    {
+      "name": "checkpoint_of",
+      "baseline_sha256": "745fe6378fa0a2ce568564ab144732654ad26ab520b8d7125be3fe50764a9081",
+      "candidate_sha256": "745fe6378fa0a2ce568564ab144732654ad26ab520b8d7125be3fe50764a9081",
+      "identical": true
+    },
+    {
+      "name": "_evidence",
+      "baseline_sha256": "b94fa3c326f8d6ba7b3c88c83585be2543e601a3002b189b4b882d216d4df264",
+      "candidate_sha256": "b94fa3c326f8d6ba7b3c88c83585be2543e601a3002b189b4b882d216d4df264",
+      "identical": true
+    },
+    {
+      "name": "_committed_operands",
+      "baseline_sha256": "252c3ee085cc8c47a876629d716ba34cd9c8eec8ebb559c227a72c24ecb3fddf",
+      "candidate_sha256": "252c3ee085cc8c47a876629d716ba34cd9c8eec8ebb559c227a72c24ecb3fddf",
+      "identical": true
+    },
+    {
+      "name": "_bound_to_act",
+      "baseline_sha256": "b80b4a0dd9385347bdca497aa9cfffb4e9d18a9c3195db1783313e4d1830f530",
+      "candidate_sha256": "b80b4a0dd9385347bdca497aa9cfffb4e9d18a9c3195db1783313e4d1830f530",
+      "identical": true
+    },
+    {
+      "name": "_committed_act",
+      "baseline_sha256": "2671294305a386c09afd235e0285535db8e44c7da3e0c28ff3a1b99c550278d9",
+      "candidate_sha256": "2671294305a386c09afd235e0285535db8e44c7da3e0c28ff3a1b99c550278d9",
+      "identical": true
+    },
+    {
+      "name": "_verdict_row",
+      "baseline_sha256": "48140f2f4e3ee7c2c683b9f2d31953adbf312da99cd8c6f11799eb0eebbb1c9b",
+      "candidate_sha256": "48140f2f4e3ee7c2c683b9f2d31953adbf312da99cd8c6f11799eb0eebbb1c9b",
+      "identical": true
+    },
+    {
+      "name": "review_of",
+      "baseline_sha256": "38c1b8843de3bdefcacfd0702639c37d927bc75e5f79434de04d67322b314214",
+      "candidate_sha256": "38c1b8843de3bdefcacfd0702639c37d927bc75e5f79434de04d67322b314214",
+      "identical": true
+    },
+    {
+      "name": "_requested_pair",
+      "baseline_sha256": "a0f65f15197e3c971b2898fa642fa2552fd8217223a881f283bc742a60973678",
+      "candidate_sha256": "a0f65f15197e3c971b2898fa642fa2552fd8217223a881f283bc742a60973678",
+      "identical": true
+    },
+    {
+      "name": "_one_by_attempt",
+      "baseline_sha256": "21da1d3aa35e7ecb107887922f849430902650db85fa64bbb7510aa77b8413a4",
+      "candidate_sha256": "21da1d3aa35e7ecb107887922f849430902650db85fa64bbb7510aa77b8413a4",
+      "identical": true
+    },
+    {
+      "name": "_journalled",
+      "baseline_sha256": "cd3be6d064dfc5bc8e7675e2ceb2febccb0c001375565f89d52744b48709bb43",
+      "candidate_sha256": "cd3be6d064dfc5bc8e7675e2ceb2febccb0c001375565f89d52744b48709bb43",
+      "identical": true
+    },
+    {
+      "name": "_committed_history",
+      "baseline_sha256": "1843e293ff389e6f4df5bc678ecb7bf4b5acfa6cedb30abfd954cc3e9d5dea48",
+      "candidate_sha256": "1843e293ff389e6f4df5bc678ecb7bf4b5acfa6cedb30abfd954cc3e9d5dea48",
+      "identical": true
+    },
+    {
+      "name": "_derived_identity",
+      "baseline_sha256": "bf7b24c368392114cf93004a5860736d7d36106cc71ae110e3384abab24b4131",
+      "candidate_sha256": "bf7b24c368392114cf93004a5860736d7d36106cc71ae110e3384abab24b4131",
+      "identical": true
+    },
+    {
+      "name": "_assignment_agrees",
+      "baseline_sha256": "15ab11028395fd3836341cfd42303b6f1ecb766b66ad8b5ccb3404000ccc3ad7",
+      "candidate_sha256": "15ab11028395fd3836341cfd42303b6f1ecb766b66ad8b5ccb3404000ccc3ad7",
+      "identical": true
+    },
+    {
+      "name": "writer_for_attempt",
+      "baseline_sha256": "b73b2c72c1277a4f2d90a3d3fc5cd379ad0896a817f0a1a416c7c7b41b064ed6",
+      "candidate_sha256": "b73b2c72c1277a4f2d90a3d3fc5cd379ad0896a817f0a1a416c7c7b41b064ed6",
+      "identical": true
+    },
+    {
+      "name": "review_for_attempt",
+      "baseline_sha256": "35f8bb5e2b0aebe70245e57d354b62dce2802a06cf39e2beab1cd3e03e6eb500",
+      "candidate_sha256": "35f8bb5e2b0aebe70245e57d354b62dce2802a06cf39e2beab1cd3e03e6eb500",
+      "identical": true
+    },
+    {
+      "name": "verdict_of",
+      "baseline_sha256": "0a393014b132a6ae142a5432dddf95f4c114aec7f576d36cff77546396c09cd9",
+      "candidate_sha256": "0a393014b132a6ae142a5432dddf95f4c114aec7f576d36cff77546396c09cd9",
+      "identical": true
+    },
+    {
+      "name": "_attachment_row",
+      "baseline_sha256": "1b6cd6669f6288e6ebfaff71055d4931c241f5506ac6b41fc98ceca85b633718",
+      "candidate_sha256": "1b6cd6669f6288e6ebfaff71055d4931c241f5506ac6b41fc98ceca85b633718",
+      "identical": true
+    },
+    {
+      "name": "_attachment",
+      "baseline_sha256": "108ee283439b3a9d10a77ca78a87a4b0da8dc3ee0ad3e49b0161e71022d6bbae",
+      "candidate_sha256": "108ee283439b3a9d10a77ca78a87a4b0da8dc3ee0ad3e49b0161e71022d6bbae",
+      "identical": true
+    },
+    {
+      "name": "_same_assignment",
+      "baseline_sha256": "61629ac811458ee11884c563e5f958dfa3787edae5286a2e0739fcbba8bdcfb4",
+      "candidate_sha256": "61629ac811458ee11884c563e5f958dfa3787edae5286a2e0739fcbba8bdcfb4",
+      "identical": true
+    },
+    {
+      "name": "_within",
+      "baseline_sha256": "6ed7030a5b0ac01143a9f4165a33542e4b5e46c9ed8b25f30e820807d78d8c1a",
+      "candidate_sha256": "6ed7030a5b0ac01143a9f4165a33542e4b5e46c9ed8b25f30e820807d78d8c1a",
+      "identical": true
+    },
+    {
+      "name": "_line_place",
+      "baseline_sha256": "8c969be9194484fc0f313ec146feb195dbfa308a4caa9323a1df763a6ebb9640",
+      "candidate_sha256": "8c969be9194484fc0f313ec146feb195dbfa308a4caa9323a1df763a6ebb9640",
+      "identical": true
+    },
+    {
+      "name": "_object",
+      "baseline_sha256": "01b130f160a5d7538cc7f3b51fe8d9a761d2681accf9489e87e60134d13b0b73",
+      "candidate_sha256": "01b130f160a5d7538cc7f3b51fe8d9a761d2681accf9489e87e60134d13b0b73",
+      "identical": true
+    },
+    {
+      "name": "_consumable_line",
+      "baseline_sha256": "ea48ea75579c283f7acd5ab8e416b37ff67ced5b3d85752f288f485882da6568",
+      "candidate_sha256": "ea48ea75579c283f7acd5ab8e416b37ff67ced5b3d85752f288f485882da6568",
+      "identical": true
+    },
+    {
+      "name": "_validate_line_object",
+      "baseline_sha256": "1a5c233f09c18e347912177b3509669a9120a5db42e07759888201accc97e6fb",
+      "candidate_sha256": "1a5c233f09c18e347912177b3509669a9120a5db42e07759888201accc97e6fb",
+      "identical": true
+    },
+    {
+      "name": "_storage",
+      "baseline_sha256": "c53df9d166067e91f5cf0183f1edd2434662ddc921bc9340c1790cd5496fb2e6",
+      "candidate_sha256": "c53df9d166067e91f5cf0183f1edd2434662ddc921bc9340c1790cd5496fb2e6",
+      "identical": true
+    },
+    {
+      "name": "_attempt",
+      "baseline_sha256": "815afc824a505600698a68001b0aa3b5268a688718040115467d360708ef1333",
+      "candidate_sha256": "815afc824a505600698a68001b0aa3b5268a688718040115467d360708ef1333",
+      "identical": true
+    },
+    {
+      "name": "_quiescent_completed",
+      "baseline_sha256": "9c384cc24ed414f4ba70bc717a42561093fa33a667918faf137686ab19ce9aa6",
+      "candidate_sha256": "9c384cc24ed414f4ba70bc717a42561093fa33a667918faf137686ab19ce9aa6",
+      "identical": true
+    },
+    {
+      "name": "_fence",
+      "baseline_sha256": "73b46ccf1bbbc152c03652acb6804489001012c161d91fbb3e8f5062e7edabf7",
+      "candidate_sha256": "73b46ccf1bbbc152c03652acb6804489001012c161d91fbb3e8f5062e7edabf7",
+      "identical": true
+    },
+    {
+      "name": "_committed_fence",
+      "baseline_sha256": "144794fb7f8e66baaa07e43ce9d05042b833ccacdd0b828f82b28a10b9940dd0",
+      "candidate_sha256": "144794fb7f8e66baaa07e43ce9d05042b833ccacdd0b828f82b28a10b9940dd0",
+      "identical": true
+    },
+    {
+      "name": "_current_fence",
+      "baseline_sha256": "8465ab01ca8e3b576494040d35d73fa5f1dd575ee25ff234d0da8a52bde4734c",
+      "candidate_sha256": "8465ab01ca8e3b576494040d35d73fa5f1dd575ee25ff234d0da8a52bde4734c",
+      "identical": true
+    },
+    {
+      "name": "_review_result",
+      "baseline_sha256": "96e6d3dfc778ebd1a76ab3b91d243c7138f136441f13fbe12d1c7f967148fb3a",
+      "candidate_sha256": "96e6d3dfc778ebd1a76ab3b91d243c7138f136441f13fbe12d1c7f967148fb3a",
+      "identical": true
+    },
+    {
+      "name": "create_line",
+      "baseline_sha256": "397bbf9ae9886c026fd1d8f7326e6377ac96ad9ee77fad157fe794a529b699d8",
+      "candidate_sha256": "397bbf9ae9886c026fd1d8f7326e6377ac96ad9ee77fad157fe794a529b699d8",
+      "identical": true
+    },
+    {
+      "name": "grant_writer",
+      "baseline_sha256": "27252d10703a4df9722cd4100790b394f6eb1ba4a3c40036312fe8b1cb5a4bb4",
+      "candidate_sha256": "29da510fb7820e8528a4ae870dbe6dfe8c6824b42e2595ed95571a621ae481bd",
+      "identical": false
+    },
+    {
+      "name": "record_progress",
+      "baseline_sha256": "3b4285b62b509561abb0f340efb2dbd3ec1b348fae796026f9d8fcbc92a4c901",
+      "candidate_sha256": "3b4285b62b509561abb0f340efb2dbd3ec1b348fae796026f9d8fcbc92a4c901",
+      "identical": true
+    },
+    {
+      "name": "freeze_checkpoint",
+      "baseline_sha256": "be2d433483dcb9ee66573b602a817b65781560545b464ab19d5f0164de875d6e",
+      "candidate_sha256": "be2d433483dcb9ee66573b602a817b65781560545b464ab19d5f0164de875d6e",
+      "identical": true
+    },
+    {
+      "name": "attach_review",
+      "baseline_sha256": "29b7eb752763695a7f7995ec2a7e8ce0ca5e0e124bfcad0c5c8c63b9eb270f60",
+      "candidate_sha256": "29b7eb752763695a7f7995ec2a7e8ce0ca5e0e124bfcad0c5c8c63b9eb270f60",
+      "identical": true
+    },
+    {
+      "name": "_custodied_review",
+      "baseline_sha256": "7359d80368c19b566b2600ca2a145e1d76f02ce58a146a5b15bd467f66690e7f",
+      "candidate_sha256": "7359d80368c19b566b2600ca2a145e1d76f02ce58a146a5b15bd467f66690e7f",
+      "identical": true
+    },
+    {
+      "name": "_cleaned_review",
+      "baseline_sha256": "b979e76353ca33fbd1a3541004c38945ef7e9ef48481116abc4dc304ba0fd5cd",
+      "candidate_sha256": "b979e76353ca33fbd1a3541004c38945ef7e9ef48481116abc4dc304ba0fd5cd",
+      "identical": true
+    },
+    {
+      "name": "_completed_review",
+      "baseline_sha256": "e15d554fad282ca4029b5b02bb0f6b4d52554f729e9d22861eac0d9353cad3fc",
+      "candidate_sha256": "e15d554fad282ca4029b5b02bb0f6b4d52554f729e9d22861eac0d9353cad3fc",
+      "identical": true
+    },
+    {
+      "name": "record_verdict",
+      "baseline_sha256": "3d3833b16bc011c38d5ca70cac689625d724ff6ce09492e9c8652b89ce204149",
+      "candidate_sha256": "3d3833b16bc011c38d5ca70cac689625d724ff6ce09492e9c8652b89ce204149",
+      "identical": true
+    }
+  ],
+  "grant_writer_diff": "--- baseline\n+++ candidate\n@@ -45,6 +45,16 @@\n     else:\n         raise ContractRefusal(\"refused\", \"precondition\",\n                               f\"line state {line['state']!r} does not admit a writer\")\n+    # THE RELOCATED PROOF, OUTSIDE THE TRANSACTION -- and after the replay above,\n+    # so a grant that already committed does not repeat it. `act` below compares\n+    # this pin and touches no file.\n+    #\n+    # NOT \"every filesystem proof this admission makes\", which is what this\n+    # comment claimed until review 2026-09-26T01:23:34Z corrected it: the\n+    # `_validate_line_object(line)` above runs FIRST on every call including a\n+    # replay, and this correction neither moved it nor has a mandate to. What a\n+    # replay skips is this access proof alone.\n+    proved = _proved_line_object(store, line)\n \n     def act(connection):\n         current = line_of(store, line_id)\n@@ -58,10 +68,18 @@\n                 or current[\"current_checkpoint_id\"] != line[\"current_checkpoint_id\"]):\n             raise ContractRefusal(\"stale-assignment\", \"generation\",\n                                   \"writer admission changed after its checkpoint validation\")\n-        _validate_line_object(current)\n-        workspaces._prove_line_access(\n-            current[\"line_path\"], (current[\"line_device\"], current[\"line_inode\"]),\n-            workspaces.configured_workspace_group(store).gid)\n+        # THE PIN, COMPARED RATHER THAN RE-MEASURED. `_proved_line_object` proved\n+        # the object and its access outside this lock; this binds the row being\n+        # written to the row those proofs were taken over, in pure SQL. The\n+        # triple is immutable after line creation, so what this refuses is a row\n+        # that was changed out of band rather than an ordinary transition -- and\n+        # an admission that could not tell those apart would be carrying a proof\n+        # about one object into a grant for another.\n+        if _line_object(current) != proved:\n+            raise ContractRefusal(\n+                \"runtime-observation\", \"identity-mismatch\",\n+                \"the development line row no longer names the object this \"\n+                \"writer admission proved\")\n         now = store._now()\n         connection.execute(\n             \"INSERT INTO line_writers (writer_id, line_id, runtime_attempt_id, \"\n"
+}

@@ -94,7 +94,8 @@ class Adapter:
         self.normalized.append((assignment_id, which))
         return custody._answered(
             "normalize", 0,
-            {"custody": "normalize", "entries": 0, "not_ours": 0,
+            {"custody": "normalize", "submission": "0" * 32,
+             "entries": 0, "not_ours": 0,
              "running_as": [0, 0]}, None)
 
     def observe(self, runtime_id):
@@ -2009,7 +2010,8 @@ class EveryEndingNormalizesBothRootsAndReplays(AttemptCase):
                 raise RuntimeError(f"the helper died over {which}")
             return custody._answered(
                 "normalize", 0,
-                {"custody": "normalize", "entries": 1, "not_ours": 0,
+                {"custody": "normalize", "submission": "0" * 32,
+             "entries": 1, "not_ours": 0,
                  "running_as": [0, 0]}, None)
 
         def destroy_abandoned(self, command):
@@ -3622,7 +3624,8 @@ class TheFailedStartReachesTheRuledEnding(
                 self.normalized.append((assignment_id, which))
                 return custody._answered(
                     "normalize", 0,
-                    {"custody": "normalize", "entries": 0, "not_ours": 0,
+                    {"custody": "normalize", "submission": "0" * 32,
+             "entries": 0, "not_ours": 0,
                      "running_as": [0, 0]}, None)
 
             def destroy_failed_start(self, command):
@@ -4056,7 +4059,8 @@ class TheFailedStartEndingSurvivesInterruption(TheFailedStartReachesTheRuledEndi
                 raise RuntimeError(f"the helper died over {which}")
             return custody._answered(
                 "normalize", 0,
-                {"custody": "normalize", "entries": 0, "not_ours": 0,
+                {"custody": "normalize", "submission": "0" * 32,
+             "entries": 0, "not_ours": 0,
                  "running_as": [0, 0]}, None)
 
         adapter.normalize_directory = normalize_directory

@@ -201,8 +201,8 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         # AND THE TREE IS THE MANAGER'S AGAIN, which is what the custody was
         # for -- a reclamation that did not end with the act performed would
         # have proved only that `docker rm` works.
-        self.assertTrue(workspaces.discard_workspace(self.storage,
-                                                     "attempt-1"))
+        self.assertTrue(workspaces.discard_workspace(
+            self.storage, "attempt-1", control=self.store))
 
     def test_a_stranded_exited_helper_is_reclaimed_too(self):
         """`--rm` never ran for it, so an exited container answering to the
@@ -275,7 +275,7 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
 
         # BEFORE: the manager fails closed, naming the owner in the way.
         with self.assertRaises(ContractRefusal) as caught:
-            workspaces.discard_workspace(self.storage, "attempt-1")
+            workspaces.discard_workspace(self.storage, "attempt-1", control=self.store)
         self.assertIn("owned by uid", caught.exception.message)
 
         acted = self.custody("normalize")
@@ -292,8 +292,8 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
         self.assertGreater(answered["entries"], 0, acted.rendered)
 
         # AFTER: the same call, unchanged, and the tree is gone.
-        self.assertTrue(workspaces.discard_workspace(self.storage,
-                                                     "attempt-1"))
+        self.assertTrue(workspaces.discard_workspace(
+            self.storage, "attempt-1", control=self.store))
         self.assertFalse(os.path.exists(os.path.join(self.storage,
                                                      "attempt-1")))
 
@@ -311,15 +311,15 @@ class CustodyRemovesWhatTheWorkerLeaves(Lifecycle):
                 acted = self.custody("normalize")
                 self.assertTrue(acted.ok, acted.diagnostic)
                 self.assertTrue(
-                    workspaces.discard_workspace(self.storage, "attempt-1"))
+                    workspaces.discard_workspace(self.storage, "attempt-1", control=self.store))
 
     def test_nested_hostile_modes_do_not_hide_objects_from_custody(self):
         roots = self.allocated()
         self.worker_leaves_nested_barriers(roots["workspace"])
         acted = self.custody("normalize")
         self.assertTrue(acted.ok, acted.diagnostic)
-        self.assertTrue(workspaces.discard_workspace(self.storage,
-                                                     "attempt-1"))
+        self.assertTrue(workspaces.discard_workspace(
+            self.storage, "attempt-1", control=self.store))
 
     def test_the_custodian_touches_nothing_it_does_not_own(self):
         """The manager's own directories are not the custodian's to change,

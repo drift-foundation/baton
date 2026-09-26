@@ -39,7 +39,7 @@ class TheHoldAdmitsExactlyOneSubmitter(TheComposedAbandonmentIsCalled):
         held, _stage = self.faulted_with_stage(incarnation)
         control, worker, attempt_id = held[1], held[2]._worker, held[5]
         roots = workspaces.adopted_assignment_workspace(
-            worker.given["workspace_storage"], attempt_id)
+            worker.given["workspace_storage"], attempt_id, control=control)
         return control, worker, worker._adapter(roots, None, None,
                                                 None), attempt_id, roots
 
@@ -249,17 +249,28 @@ class TheHoldAdmitsExactlyOneSubmitter(TheComposedAbandonmentIsCalled):
         self.assertIn("FROZEN", caught.exception.message)
         self.assertEqual(self.vectors(), before)
 
-    def test_a_crash_before_submission_leaves_no_episode(self):
-        """CRASH BEFORE SUBMISSION: nothing is claimed and nothing is held.
+    def test_a_composition_failure_now_lands_behind_a_committed_claim(self):
+        """THE ORDERING R2 CHANGED, revalidated rather than left stale.
 
-        Everything before the request crosses is a refusal that submitted
-        nothing, and it must keep committing nothing -- which is the accepted
-        rule this stage must not break.
+        Under R1 the vector was composed BEFORE the claim, so a failure here
+        committed nothing and this case said so. R2's attribution work moved
+        the claim FIRST -- the act carries the token that claim commits -- so
+        composition now runs behind a committed episode, and a failure here
+        leaves a DURABLE hold.
+
+        THAT IS THE CONSERVATIVE DIRECTION and it is the same answer as the
+        `_reconciled` interrupt below: the manager cannot compose the vector, so
+        it cannot know whether an earlier incarnation submitted one, and the
+        root stays frozen until somebody reconciles it. No engine vector is
+        issued either way, which is what this case still asserts.
+
+        Review 2026-09-24T22-22-09Z asked for exactly this revalidation.
         """
         control, _worker, composed, attempt_id, _roots = self.held_root(
             "hold-early")
         for engine in self.engines:
             engine.removed = True
+        before = self.vectors()
         held_vector = custody._custody_vector
 
         def failing(*arguments, **operands):
@@ -273,8 +284,325 @@ class TheHoldAdmitsExactlyOneSubmitter(TheComposedAbandonmentIsCalled):
                                         assignment_id=attempt_id,
                                         which="result")
         custody._custody_vector = held_vector
-        self.assertEqual(custody.custody_holds(control, attempt_id, "result"),
-                         [], "a pre-submission death claimed an episode")
+        # THE CLAIM IS COMMITTED and the hold stands, uncleared.
+        [standing] = custody.custody_holds(control, attempt_id, "result")
+        self.assertFalse(standing["cleared"])
+        self.assertEqual(standing["episode"], 0)
+        # AND NOTHING CROSSED TO THE ENGINE, which is the part that matters:
+        # composition is where this died, so no act was ever submitted.
+        self.assertEqual(self.vectors(), before)
+
+    def test_a_committed_hold_survives_a_crash_before_any_engine_vector(self):
+        """THE OTHER BOUNDARY, and the one R1 actually turns on.
+
+        Owner 258324 selects the "committed-hold/pre-submission crash-and-
+        reopen proof". Between `_claim_episode` committing and the custodian's
+        request crossing there is a second interval, and the conservative
+        answer there is the OPPOSITE of the composition case above: the hold
+        must be durable, because a manager that died here cannot know whether
+        anything ran.
+
+        The interrupt is placed at `_reconciled`, which is the first thing
+        after the claim and the first thing that would touch the engine -- so
+        the crash lands with the hold committed and NOT ONE engine vector
+        issued, which is the exact state this case is about.
+        """
+        control, _worker, composed, attempt_id, roots = self.held_root(
+            "hold-committed")
+        place = os.path.join(roots["workspace"], f"result-{attempt_id}")
+        sentinel = os.path.join(place, "operator-must-see-this.txt")
+        with open(sentinel, "w", encoding="utf-8") as writing:
+            writing.write("committed hold, nothing submitted\n")
+        bytes_before = self.walked(place)
+        vectors_before = self.vectors()
+
+        held_reconciled = custody._reconciled
+
+        def dying(*arguments, **operands):
+            del arguments, operands
+            raise RuntimeError("the fixture died after the claim committed")
+
+        custody._reconciled = dying
+        self.addCleanup(setattr, custody, "_reconciled", held_reconciled)
+        with self.assertRaises(RuntimeError):
+            custody.normalize_directory(control, composed,
+                                        assignment_id=attempt_id,
+                                        which="result")
+        custody._reconciled = held_reconciled
+
+        # NOT ONE VECTOR CROSSED, which is what makes this the pre-submission
+        # boundary rather than the post-submission one.
+        self.assertEqual(self.vectors(), vectors_before,
+                         "an engine vector crossed before the submission")
+        # AND THE HOLD IS COMMITTED ANYWAY.
+        control.close()
+        reopened = self.reopened("hold-committed-again")
+        self.addCleanup(reopened.close)
+        holds = custody.custody_holds(reopened, attempt_id, "result")
+        self.assertEqual(len(holds), 1, holds)
+        self.assertFalse(holds[0]["cleared"])
+        self.assertEqual(holds[0]["episode"], 0)
+        self.assertEqual(holds[0]["held"]["root"], "result")
+
+        # THE REOPENED MANAGER IS BOUND BY IT and issues nothing of its own.
+        with self.assertRaises(ContractRefusal) as caught:
+            custody.normalize_directory(reopened, composed,
+                                        assignment_id=attempt_id,
+                                        which="result")
+        self.assertIn("FROZEN", caught.exception.message)
+        self.assertEqual(self.vectors(), vectors_before,
+                         "the reopened manager submitted or reclaimed")
+        self.assertEqual(
+            len(custody.custody_holds(reopened, attempt_id, "result")), 1)
+        # AND THE ROOT KEEPS ITS BYTES across the whole of it.
+        self.assertEqual(self.walked(place), bytes_before,
+                         "the held root's bytes changed")
+
+    # -- controlled contested admission --------------------------------------
+    #
+    # Owner 258324 selects "controlled contested-admission interleavings",
+    # because review-2026-09-24T15-03-35Z found the barrier above only
+    # STARTS the two callers: one can finish admission before the other
+    # reaches its first hold read, so the race can pass through the ordinary
+    # standing-hold refusal without ever exercising the two boundaries that
+    # matter. These two cases force each of them by name.
+
+    def paused_at(self, attribute, waiting):
+        """Wrap one `custody` seam so a named thread stops inside it.
+
+        `waiting` is asked, per call, what that thread should do; returning a
+        callable runs it while the caller is held at that exact point. The
+        real function still runs -- these interleavings are about WHEN the
+        real code proceeds, never about what it answers.
+        """
+        held = getattr(custody, attribute)
+
+        def hooked(*arguments, **operands):
+            answer = held(*arguments, **operands)
+            pause = waiting(threading.current_thread().name, answer)
+            if pause is not None:
+                pause()
+            return answer
+
+        setattr(custody, attribute, hooked)
+        self.addCleanup(setattr, custody, attribute, held)
+
+    def contesting(self, attempt_id, composed, answers, lock, *, before=None):
+        """One racing caller, recording how its act ended.
+
+        `before` is handed this caller's OWN store before it acts, so a case
+        can wrap that connection's `transact` -- which is the one seam that is
+        provably once per claim. `_hold_identity` is not: `custody_holds`
+        computes one per episode it scans, so a hook there fires several times
+        per call and cannot say which one is the commit.
+        """
+        def racing():
+            opened = self.reopened(f"contest-{threading.get_ident()}")
+            if before is not None:
+                before(opened)
+            try:
+                try:
+                    custody.normalize_directory(opened, composed,
+                                                assignment_id=attempt_id,
+                                                which="result")
+                    ended = ("settled", None)
+                except ContractRefusal as refusal:
+                    ended = ("refused", refusal.message)
+                except BaseException as other:           # pragma: no cover
+                    ended = (type(other).__name__, str(other))
+            finally:
+                opened.close()
+            with lock:
+                answers.append((threading.current_thread().name, ended))
+
+        return racing
+
+    def joined(self, threads):
+        for one in threads:
+            one.start()
+        for one in threads:
+            one.join(timeout=30)
+            self.assertFalse(one.is_alive(),
+                             f"{one.name} never finished; the interleaving "
+                             f"did not release it")
+
+    def test_two_claimants_that_selected_one_episode_commit_only_one(self):
+        """THE NONCE COLLISION, forced rather than hoped for.
+
+        Both callers are held INSIDE their own `transact` call, after each has
+        selected its episode and before either commits. Every argument to
+        `transact` is evaluated by then -- the identity, the kind and the
+        signed body -- so neither can have committed when the other chose,
+        which is precisely the interleaving the start-barrier race could not
+        guarantee and the one the submitter nonce exists for.
+        """
+        control, _worker, composed, attempt_id, _roots = self.held_root(
+            "hold-contest-equal")
+        self.severing()
+        before = self.vectors()
+        chosen, lock = [], threading.Lock()
+        meeting = threading.Barrier(2, timeout=20)
+
+        def wrapping(opened):
+            held = opened.transact
+
+            def transacting(identity, kind, signature, body, *rest, **named):
+                if kind == custody.CUSTODY_HOLD_KIND:
+                    with lock:
+                        chosen.append(identity)
+                    meeting.wait()
+                return held(identity, kind, signature, body, *rest, **named)
+
+            opened.transact = transacting
+
+        answers = []
+        threads = [threading.Thread(target=self.contesting(attempt_id,
+                                                           composed, answers,
+                                                           lock,
+                                                           before=wrapping),
+                                    name=f"claimant-{index}")
+                   for index in range(2)]
+        self.joined(threads)
+
+        # THE INTERLEAVING HAPPENED: both selected, and they selected THE SAME
+        # episode identity. Without this the case would be a race again.
+        self.assertEqual(len(chosen), 2, chosen)
+        self.assertEqual(len(set(chosen)), 1, chosen)
+
+        self.assertEqual(len(answers), 2, answers)
+        self.assertTrue(all(one[1][0] == "refused" for one in answers),
+                        answers)
+        holds = custody.custody_holds(control, attempt_id, "result")
+        self.assertEqual(len(holds), 1, holds)
+        self.assertFalse(holds[0]["cleared"])
+        # ONE SUBMISSION, AND THE LOSER RECLAIMED NOTHING.
+        after = self.vectors()
+        self.assertEqual(after.get("run", 0) - before.get("run", 0), 1,
+                         f"submissions for one episode: {after}")
+        for verb in ("stop", "rm"):
+            self.assertEqual(after.get(verb, 0) - before.get(verb, 0), 0,
+                             f"a contested caller reclaimed: {after}")
+
+    def test_a_stale_absence_loses_to_the_committed_episode(self):
+        """THE IN-TRANSACTION RECHECK, forced rather than hoped for.
+
+        The loser reads the holds FIRST, while there genuinely are none, and
+        is then held there until the winner has committed episode 0 and
+        submitted. When it resumes, its initial answer is stale and only the
+        re-read inside `BEGIN IMMEDIATE` can catch it -- so this case fails if
+        that recheck is ever removed, which the nonce alone would not.
+        """
+        control, _worker, composed, attempt_id, _roots = self.held_root(
+            "hold-contest-stale")
+        self.severing()
+        before = self.vectors()
+        lock = threading.Lock()
+        winner_committed = threading.Event()
+        loser_read = threading.Event()
+        seen = []
+
+        def waiting(name, answer):
+            if name != "loser":
+                return None
+            with lock:
+                seen.append(answer)
+            if len(seen) > 1:               # the re-read inside the lock
+                return None
+            # THE STALE READ: no hold existed when the loser looked.
+            self.assertIsNone(answer, "the loser's first read saw a hold")
+            def holding():
+                loser_read.set()
+                if not winner_committed.wait(timeout=20):   # pragma: no cover
+                    raise AssertionError("the winner never committed")
+            return holding
+
+        # W257624 R3 [P1]: THE SEAM MOVED BECAUSE THE ADMISSION READ MOVED.
+        # This hooked `_standing_hold` and counted calls -- first the outer read,
+        # second the locked re-read. `_standing_overlap` now asks
+        # `_standing_hold` ONCE PER ROOT, so counting its calls no longer
+        # separates the two reads and the loser started refusing at the outer one
+        # instead, which is not what this case is about. Hooking the admission
+        # read itself restores exactly the original interleaving: one call per
+        # read, the stale None propagates into the transaction, and only the
+        # locked re-read can catch it. Every assertion is unchanged.
+        self.paused_at("_standing_overlap", waiting)
+        answers = []
+        loser = threading.Thread(target=self.contesting(attempt_id, composed,
+                                                        answers, lock),
+                                 name="loser")
+        loser.start()
+        self.assertTrue(loser_read.wait(timeout=20),
+                        "the loser never reached its first hold read")
+
+        # NOW the winner runs to completion, on its own connection.
+        winner = threading.Thread(target=self.contesting(attempt_id, composed,
+                                                         answers, lock),
+                                  name="winner")
+        winner.start()
+        winner.join(timeout=30)
+        self.assertFalse(winner.is_alive(), "the winner never finished")
+        holds = custody.custody_holds(control, attempt_id, "result")
+        self.assertEqual(len(holds), 1, holds)
+        winner_committed.set()
+        loser.join(timeout=30)
+        self.assertFalse(loser.is_alive(), "the loser never finished")
+
+        ended = dict(answers)
+        self.assertEqual(ended["winner"][0], "refused")     # the engine died
+        self.assertEqual(ended["loser"][0], "refused")
+        # THE LOSER REFUSED ON THE RE-READ, naming the episode it did not see
+        # the first time, and saying it submitted nothing.
+        self.assertIn("nothing was submitted", ended["loser"][1])
+        self.assertGreaterEqual(len(seen), 2,
+                                "the loser never re-read inside the lock")
+        self.assertEqual(
+            len(custody.custody_holds(control, attempt_id, "result")), 1)
+        after = self.vectors()
+        self.assertEqual(after.get("run", 0) - before.get("run", 0), 1,
+                         f"submissions for one episode: {after}")
+        for verb in ("stop", "rm"):
+            self.assertEqual(after.get(verb, 0) - before.get(verb, 0), 0,
+                             f"the losing caller reclaimed: {after}")
+
+    # -- the runner root -----------------------------------------------------
+
+    def test_the_runner_root_is_disk_backed_and_used_in_isolation(self):
+        """The root owner 258324 selected, VERIFIED rather than assumed.
+
+        The previous round created `/var/tmp/baton-w257624` without a grant
+        and said so. The owner has now selected it, on the condition that
+        disk-backed storage and ownership are verified, existing contents are
+        preserved, and the tests use isolated roots. This case is that check,
+        and it fails the run rather than the reviewer's patience if the runner
+        is ever pointed somewhere else.
+        """
+        from baton_v12.worker_manager.source_boundary import (
+            MEMORY_FILESYSTEMS, filesystem_of)
+        from tests.manager import disk_roots
+
+        named = os.environ.get(disk_roots.VARIABLE)
+        if named is None:                                # pragma: no cover
+            self.skipTest(f"{disk_roots.VARIABLE} is unset; this case is "
+                          f"about the root the owner selected")
+        # DISK-BACKED, by the product's own reader rather than by a name.
+        self.assertNotIn(filesystem_of(named), MEMORY_FILESYSTEMS)
+        # OWNED AND WRITABLE BY THIS PROCESS.
+        self.assertEqual(os.stat(named).st_uid, os.getuid())
+        self.assertTrue(os.access(named, os.W_OK))
+        # OUTSIDE THE CHECKOUT, so nothing here can touch source or snapshots.
+        checkout = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+        self.assertFalse(os.path.abspath(named).startswith(
+            os.path.abspath(checkout) + os.sep))
+        # AND THIS CASE'S OWN ROOT IS AN ISOLATED CHILD OF IT, not the root
+        # itself -- which is what keeps existing contents preserved.
+        standing = sorted(os.listdir(named))
+        mine = disk_roots.disk_backed_under(self)
+        self.assertEqual(os.path.dirname(os.path.abspath(mine)),
+                         os.path.abspath(named))
+        self.assertTrue(os.path.basename(mine).startswith("v12-w71917-"))
+        self.assertEqual(sorted(one for one in os.listdir(named)
+                                if one != os.path.basename(mine)), standing,
+                         "an existing entry under the selected root moved")
 
     def test_the_held_root_keeps_its_bytes(self):
         """NOTHING UNDER THE HELD ROOT CHANGES -- measured, not asserted."""

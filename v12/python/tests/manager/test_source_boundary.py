@@ -112,6 +112,12 @@ class BoundaryCase(unittest.TestCase):
             incarnation="source-boundary-1",
             clock=lambda: "2026-08-24T00:00:00.000Z")
         self.addCleanup(self.store.close)
+        # W257624 R3: THE DEPLOYMENT'S OWN RECORD, performed here because these
+        # cases adopt and remove roots under a storage tree this fixture
+        # created. The guard reads the configured store rather than trusting
+        # the operand, so a fixture that never recorded one is a deployment
+        # nobody wired -- which is the state the guard exists to refuse.
+        workspaces.configure_workspace_storage(self.store, self.storage)
         self.group = input_roots.configured_group(self.store)
         self.source = os.path.join(self.root, "nominated")
         os.makedirs(os.path.join(self.source, "pkg"))
@@ -1106,7 +1112,8 @@ class ARestartAdoptsTheExactManagerOwnedWorkspace(BoundaryCase):
         # A FRESH INCARNATION: the store is reopened and the roots are ADOPTED
         # rather than allocated, which is what a restarted manager does.
         adopted_roots = workspaces.adopted_assignment_workspace(self.storage,
-                                                               ATTEMPT)
+                                                               ATTEMPT,
+                                                               control=self.store)
         second = compose_source_boundary(nominate_source(self.source),
                                          adopted_roots, self.capacity())
         self.assertEqual(second.workspace, first.workspace)
@@ -1145,7 +1152,8 @@ class ARestartAdoptsTheExactManagerOwnedWorkspace(BoundaryCase):
                   encoding="utf-8") as writing:
             writing.write("a different tree at the same path\n")
         adopted_roots = workspaces.adopted_assignment_workspace(self.storage,
-                                                                ATTEMPT)
+                                                                ATTEMPT,
+                                                                control=self.store)
         second = compose_source_boundary(nominate_source(self.source),
                                          adopted_roots, self.capacity())
         # THE RECOMPOSED BOUNDARY AGREES WITH ITSELF, which is the whole point:
@@ -1205,7 +1213,8 @@ class ARestartAdoptsTheExactManagerOwnedWorkspace(BoundaryCase):
         os.rename(held, held + "-displaced")
         os.makedirs(held)
         adopted_roots = workspaces.adopted_assignment_workspace(self.storage,
-                                                                ATTEMPT)
+                                                                ATTEMPT,
+                                                                control=self.store)
         second = compose_source_boundary(nominate_source(self.source),
                                          adopted_roots, self.capacity())
         # THE RECOMPOSED BOUNDARY AGREES WITH ITSELF, which is the point.
@@ -1243,7 +1252,8 @@ class ARestartAdoptsTheExactManagerOwnedWorkspace(BoundaryCase):
         that catches the replacement."""
         _roots, first = self.composed()
         adopted_roots = workspaces.adopted_assignment_workspace(self.storage,
-                                                                ATTEMPT)
+                                                                ATTEMPT,
+                                                                control=self.store)
         second = compose_source_boundary(nominate_source(self.source),
                                          adopted_roots, self.capacity())
         again = adopt_source_boundary(
@@ -1282,7 +1292,8 @@ class ARestartAdoptsTheExactManagerOwnedWorkspace(BoundaryCase):
         with open(marker, "w", encoding="utf-8") as writing:
             writing.write("still the same root\n")
         adopted_roots = workspaces.adopted_assignment_workspace(self.storage,
-                                                               ATTEMPT)
+                                                               ATTEMPT,
+                                                               control=self.store)
         second = compose_source_boundary(nominate_source(self.source),
                                          adopted_roots, self.capacity())
         self.assertEqual(second.mountpoint, first.mountpoint)
@@ -1304,7 +1315,8 @@ class ARestartAdoptsTheExactManagerOwnedWorkspace(BoundaryCase):
                    os.path.join(home, "workspace"))
         with self.assertRaises(ContractRefusal) as caught:
             workspaces.adopted_assignment_workspace(self.storage,
-                                                    "attempt-second")
+                                                    "attempt-second",
+                                                    control=self.store)
         # `policy/denied`, which is the pair this manager already answers a
         # foreign root with. The code is read off the behaviour rather than
         # asserted from this file's expectation of it: what matters here is
@@ -1341,7 +1353,7 @@ class CleanupNeverRemovesMaterialThisManagerDidNotCreate(BoundaryCase):
 
         with mock.patch.object(os, "lstat", side_effect=elsewhere):
             with self.assertRaises(ContractRefusal) as caught:
-                workspaces.discard_workspace(self.storage, ATTEMPT)
+                workspaces.discard_workspace(self.storage, ATTEMPT, control=self.store)
         self.assertEqual(caught.exception.category, "policy")
         self.assertTrue(os.path.exists(kept),
                         "the removal touched material behind the mountpoint")
@@ -1379,7 +1391,7 @@ class CleanupNeverRemovesMaterialThisManagerDidNotCreate(BoundaryCase):
         with mock.patch.object(workspaces, "mount_table",
                                side_effect=also_mounted):
             with self.assertRaises(ContractRefusal) as caught:
-                workspaces.discard_workspace(self.storage, ATTEMPT)
+                workspaces.discard_workspace(self.storage, ATTEMPT, control=self.store)
         self.assertEqual(caught.exception.category, "policy")
         self.assertIn("mount point", caught.exception.message)
         self.assertTrue(os.path.exists(kept),
@@ -1420,7 +1432,7 @@ class CleanupNeverRemovesMaterialThisManagerDidNotCreate(BoundaryCase):
         with mock.patch.object(workspaces, "mount_table",
                                side_effect=also_mounted):
             with self.assertRaises(ContractRefusal) as caught:
-                workspaces.discard_workspace(self.storage, ATTEMPT)
+                workspaces.discard_workspace(self.storage, ATTEMPT, control=self.store)
         self.assertEqual(caught.exception.category, "policy")
         for place in kept:
             self.assertTrue(os.path.exists(place),
@@ -1455,7 +1467,7 @@ class CleanupNeverRemovesMaterialThisManagerDidNotCreate(BoundaryCase):
         with mock.patch.object(workspaces, "mount_table",
                                side_effect=also_mounted):
             with self.assertRaises(ContractRefusal):
-                workspaces.discard_workspace(self.storage, ATTEMPT)
+                workspaces.discard_workspace(self.storage, ATTEMPT, control=self.store)
         self.assertTrue(os.path.exists(mine),
                         "a refused cleanup removed material in another "
                         "subtree before it reached the mount")
@@ -1476,7 +1488,7 @@ class CleanupNeverRemovesMaterialThisManagerDidNotCreate(BoundaryCase):
         with mock.patch.object(workspaces, "MOUNTINFO",
                                "/proc/self/there-is-no-such-file"):
             with self.assertRaises(ContractRefusal) as caught:
-                workspaces.discard_workspace(self.storage, ATTEMPT)
+                workspaces.discard_workspace(self.storage, ATTEMPT, control=self.store)
         self.assertEqual(caught.exception.category, "integrity")
         self.assertTrue(os.path.exists(inside),
                         "the removal ran before it could read the table")
@@ -1507,7 +1519,7 @@ class CleanupNeverRemovesMaterialThisManagerDidNotCreate(BoundaryCase):
         self.assertEqual(os.lstat(boundary.mountpoint).st_dev,
                          os.lstat(foreign).st_dev)
         with self.assertRaises(ContractRefusal) as caught:
-            workspaces.discard_workspace(self.storage, ATTEMPT)
+            workspaces.discard_workspace(self.storage, ATTEMPT, control=self.store)
         self.assertEqual(caught.exception.category, "policy")
         self.assertTrue(os.path.exists(kept),
                         "the removal walked into a real bind mount")
@@ -1516,7 +1528,7 @@ class CleanupNeverRemovesMaterialThisManagerDidNotCreate(BoundaryCase):
         """The ordinary arc: the bind lives in the container's own namespace,
         so what cleanup finds on the host is an empty directory."""
         _roots, boundary = self.composed()
-        self.assertTrue(workspaces.discard_workspace(self.storage, ATTEMPT))
+        self.assertTrue(workspaces.discard_workspace(self.storage, ATTEMPT, control=self.store))
         self.assertFalse(os.path.exists(boundary.mountpoint))
         # AND THE NOMINATED SOURCE IS UNTOUCHED, which is the whole point of
         # it never having been this manager's material.

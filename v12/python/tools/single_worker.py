@@ -2430,7 +2430,8 @@ class _SingleWorker:
             # refusal here is the core's own precondition failing early rather
             # than a state this call may work around.
             roots = workspaces.adopted_assignment_workspace(
-                self.given["workspace_storage"], attempt_id)
+                self.given["workspace_storage"], attempt_id,
+                control=self.control)
         # A RETRY AFTER AN INTERRUPTED SETTLEMENT FINDS THE RUNTIME GONE, and
         # `_credential`'s live recovery cannot serve it: `recover_credentials`
         # adopts exactly ONE identified container and refuses every other

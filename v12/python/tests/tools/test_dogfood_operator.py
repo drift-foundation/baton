@@ -3280,9 +3280,22 @@ class EveryPostStartBranchEntersTheEnding(OperatorCase):
         os.makedirs(os.path.join(attempt, "workspace"))
         os.symlink(elsewhere, os.path.join(attempt, "inputs"))
 
+        # W257624 R3: the adoption boundary now requires this manager's own
+        # store, so the probe supplies a REAL one bound to the storage under
+        # test -- otherwise the case would refuse for a missing operand and
+        # prove nothing about the symlink it is named for.
+        from baton_v12.worker_manager import ControlStore
+        from baton_v12.worker_manager.workspaces import \
+            configure_workspace_storage
+
+        store = ControlStore.open(
+            os.path.join(self.home, "control-symlink-probe.sqlite3"),
+            incarnation="w257624-symlink-probe", clock=lambda: NOW)
+        self.addCleanup(store.close)
+        configure_workspace_storage(store, storage)
         with self.assertRaises(OperatorRefusal):
             dogfood_operator._proved_roots(
-                {"storage": storage, "attempt_id": "attempt-1"})
+                {"storage": storage, "attempt_id": "attempt-1"}, store)
 
     def test_the_narrow_retry_refuses_an_attempt_with_no_trusted_result(self):
         """Its whole licence is that a result worth preserving exists.
@@ -5497,7 +5510,8 @@ class TheCredentialIsMaterializedAfterActivationAndNotBefore(
         self.addCleanup(lambda: [release() for release in built["closing"]])
         home = credentials.CredentialHome(given["credential_home"])
         roots = adopted_assignment_workspace(given["storage"],
-                                             given["attempt_id"])
+                                             given["attempt_id"],
+                                             control=built["store"])
         made = launch.materialize(
             given["launch_home"],
             **dogfood_operator._launch_operands(
@@ -6729,8 +6743,14 @@ class TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime(
         # material kept on purpose and says nothing about file content, so
         # this case asserted the axis and proved nothing about the output the
         # ruling requires preserved.
+        from baton_v12.worker_manager import ControlStore as _Store
+
+        reading_store = _Store.open(given["control_store"],
+                                    incarnation=given["incarnation"],
+                                    clock=lambda: NOW)
+        self.addCleanup(reading_store.close)
         marker = os.path.join(
-            dogfood_operator._proved_roots(given)["workspace"],
+            dogfood_operator._proved_roots(given, reading_store)["workspace"],
             "proposal", "candidate", "the-worker-wrote-this.txt")
         os.makedirs(os.path.dirname(marker), exist_ok=True)
         body = b"an interrupted worker's untrusted output\n"

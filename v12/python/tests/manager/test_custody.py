@@ -47,9 +47,41 @@ _REPORTED = {
 }
 
 
-def reported(operation):
-    """One custodian document of the shape that verb really answers."""
-    return dict(_REPORTED[operation], custody=operation)
+# W257624 R2: THE TOKEN THE LAST ACT WAS SUBMITTED UNDER.
+#
+# Every custodian result now echoes the submission token the manager committed
+# for that act, and that value is a per-submission nonce nobody can predict. So
+# the stand-ins below RECORD what they were handed -- which is what a provider
+# does, and the only place one could learn it -- and `reported` answers with
+# that by default. The alternative was writing an observed token into fifty
+# existing assertions, which would have changed what they say rather than
+# keeping it.
+SUBMITTED = "0" * 32
+_LAST = {"submission": SUBMITTED}
+
+
+def echoed(argv):
+    """Record the token this act was submitted under, and answer it."""
+    _LAST["submission"] = argv[-1]
+    return argv[-1]
+
+
+def reported(operation, submission=None):
+    """One custodian document of the shape that verb really answers.
+
+    SHAPE-TOLERANT, because this helper is shared with suites that run against
+    a pinned manager snapshot predating W257624 R2's submission token --
+    `test_two_jobs` loads `baton_v12` from
+    `/home/sl/baton-runs/independent-review-247947/manager-source`. What the
+    loaded product DECLARES decides whether the token belongs in the document;
+    adding it unconditionally made it an unexpected member there, which is what
+    sent twelve of those cases red.
+    """
+    document = dict(_REPORTED[operation], custody=operation)
+    if "submission" in custody._CUSTODY_RESULT[operation]:
+        document["submission"] = (_LAST["submission"] if submission is None
+                                  else submission)
+    return document
 
 
 class CustodyCase(unittest.TestCase):
@@ -70,6 +102,17 @@ class CustodyCase(unittest.TestCase):
         # the deployment's act, and then read the manager's record back.
         workspaces.configure_workspace_storage(self.store, self.storage)
         workspaces.assignment_workspace(self.group, self.storage, "attempt-1")
+
+    def another(self, name):
+        """One more attempt with its own roots, for a case that needs a second.
+
+        W257624 R2: an unaccountable answer no longer lifts its uncertainty
+        episode, so a subTest loop sharing one attempt refused every case after
+        the first on the standing hold. Each such case takes its own attempt
+        instead; the assertions and the defect they cover are unchanged.
+        """
+        workspaces.assignment_workspace(self.group, self.storage, name)
+        return name
 
     def opened(self):
         from baton_v12.worker_manager import ControlStore
@@ -102,7 +145,23 @@ class CustodyCase(unittest.TestCase):
                         "stdout": "".join(json.dumps(one) + "\n"
                                           for one in (listing or [])),
                         "stderr": ""}
-            return answer(argv)
+            answered = answer(argv)
+            # W257624 R2: THE STAND-IN ECHOES THE TOKEN IT WAS HANDED, which is
+            # what a provider does and the only place one could learn it. A
+            # fixture answering with a placeholder would be answering for a
+            # submission this act never made, and the manager rightly declines
+            # to account for that. Cases that mean to answer for ANOTHER
+            # submission set `submission` themselves and keep it.
+            try:
+                document = json.loads(answered.get("stdout") or "")
+            except (TypeError, ValueError):
+                return answered
+            if type(document) is dict and "submission" in document \
+                    and document["submission"] in (SUBMITTED,
+                                                   _LAST["submission"]):
+                document["submission"] = echoed(argv)
+                answered = dict(answered, stdout=json.dumps(document))
+            return answered
 
         return run
 
@@ -146,8 +205,12 @@ class CustodyCase(unittest.TestCase):
                         "stdout": "".join(json.dumps(one) + "\n"
                                           for one in (listing or [])),
                         "stderr": ""}
+            # W257624 R2: the stand-in echoes the token it was handed, exactly
+            # as a provider does -- `argv[-1]` is the submission the manager
+            # committed for this act.
             return {"status": 0,
-                    "stdout": json.dumps(reported(operands["operation"])),
+                    "stdout": json.dumps(reported(operands["operation"],
+                                                  echoed(argv))),
                     "stderr": ""}
 
         return custody.custody_act("docker", run, **operands)
@@ -204,7 +267,7 @@ class TheVocabularyIsClosed(CustodyCase):
                 program = custody.CUSTODY_PROGRAM.replace(
                     'ROOT = "/custody"', f"ROOT = {root.name!r}", 1)
                 done = subprocess.run(
-                    [sys.executable, "-c", program, operation],
+                    [sys.executable, "-c", program, operation, SUBMITTED],
                     capture_output=True, timeout=30)
                 self.assertEqual(
                     done.returncode, 0,
@@ -230,7 +293,7 @@ class TheAnswerContractMatchesTheProgram(CustodyCase):
     def documented(self, root, operation):
         program = custody.CUSTODY_PROGRAM.replace(
             'ROOT = "/custody"', f"ROOT = {root!r}", 1)
-        done = subprocess.run([sys.executable, "-c", program, operation],
+        done = subprocess.run([sys.executable, "-c", program, operation, SUBMITTED],
                               capture_output=True, timeout=60)
         return done.returncode, done.stdout.decode("utf-8", "replace")
 
@@ -263,7 +326,16 @@ class TheAnswerContractMatchesTheProgram(CustodyCase):
                                                  "stdout": json.dumps(one),
                                                  "stderr": ""}),
                     image_digest=IMAGE,
-                    store=self.store, assignment_id="attempt-1",
+                    # W257624 R2: ONE ATTEMPT PER SUBTEST. An unaccountable
+                    # answer no longer lifts the act's uncertainty episode --
+                    # it cannot say what the helper did -- so these subTests
+                    # sharing one attempt made every case after the first
+                    # refuse on the standing hold. The assertions and the
+                    # defect they cover are unchanged; only the incidental
+                    # store reuse is.
+                    store=self.store,
+                    assignment_id=self.another(
+                        "attempt-verb-" + str(abs(hash(json.dumps(wrong))))),
                     operation="normalize")
                 self.assertFalse(answered.ok)
                 self.assertIsNone(answered.answer)
@@ -313,6 +385,7 @@ class TheAnswerContractMatchesTheProgram(CustodyCase):
             self.answering(
                 lambda argv: {"status": 0,
                               "stdout": json.dumps({"custody": "normalize",
+                                                    "submission": SUBMITTED,
                                                     "entries": 3}),
                               "stderr": ""}),
             image_digest=IMAGE, store=self.store,
@@ -365,7 +438,17 @@ class TheAnswerContractMatchesTheProgram(CustodyCase):
                                 dict(reported("normalize"), running_as=value)),
                             "stderr": ""}),
                     image_digest=IMAGE,
-                    store=self.store, assignment_id="attempt-1",
+                    # W257624 R2: ONE ATTEMPT PER SUBTEST. An unaccountable
+                    # answer no longer lifts the act's uncertainty episode --
+                    # it cannot say what the helper did -- so these subTests
+                    # sharing one attempt made every case after the first
+                    # refuse on the standing hold. The assertions and the
+                    # defect they cover are unchanged; only the incidental
+                    # store reuse is.
+                    store=self.store,
+                    assignment_id=self.another(
+                        "attempt-identity-"
+                        + str(abs(hash(json.dumps(wrong))))),
                     operation="normalize")
                 self.assertFalse(answered.ok)
                 self.assertIsNone(answered.answer)
@@ -396,15 +479,25 @@ class ThereIsNoCommandOperand(CustodyCase):
     def test_no_caller_operand_reaches_the_argv_as_a_command(self):
         """The ruling's "never a worker-supplied command", asserted.
 
-        The program is a CONSTANT of the module. The only caller-chosen token
-        after `-c` is the verb, and the verb is checked against a closed set
-        before it gets there.
+        The program is a CONSTANT of the module. Nothing after `-c` is
+        caller-chosen: the verb is checked against a closed set before it gets
+        there, and W257624 R2's submission token is a nonce this manager
+        COMMITTED for this act -- inert input the program reads and echoes, and
+        never a path, a mount or a command.
+
+        THE SUFFIX IS CLOSED AT FOUR, and the last value is checked against the
+        episode this act actually claimed, so an extra operand or a token from
+        anywhere else fails here.
         """
         argv = self.vector()
         self.assertEqual(argv[argv.index("-c") + 1], custody.CUSTODY_PROGRAM)
         self.assertEqual(argv[argv.index("-c") + 2], "normalize")
-        self.assertEqual(len(argv), argv.index("-c") + 3,
-                         "nothing follows the verb")
+        [held] = custody.custody_holds(self.store, "attempt-1", "workspace")
+        self.assertEqual(argv[argv.index("-c") + 3],
+                         held["held"]["claimant"],
+                         "the token is the winner hold's own committed value")
+        self.assertEqual(len(argv), argv.index("-c") + 4,
+                         "nothing follows the verb but its submission token")
 
     def test_the_entrypoint_is_the_managers_own(self):
         argv = self.vector()
@@ -599,7 +692,16 @@ class OneMountAndNothingElse(CustodyCase):
                         lambda argv, out=stdout: {"status": 0, "stdout": out,
                                                   "stderr": ""}),
                     image_digest=IMAGE,
-                    store=self.store, assignment_id="attempt-1",
+                    # W257624 R2: ONE ATTEMPT PER SUBTEST. An unaccountable
+                    # answer no longer lifts the act's uncertainty episode --
+                    # it cannot say what the helper did -- so these subTests
+                    # sharing one attempt made every case after the first
+                    # refuse on the standing hold. The assertions and the
+                    # defect they cover are unchanged; only the incidental
+                    # store reuse is.
+                    store=self.store,
+                    assignment_id=self.another(
+                        "attempt-nothing-" + str(abs(hash(stdout)))),
                     operation="normalize")
                 self.assertIsNone(answered.answer)
                 self.assertFalse(answered.ok)
@@ -1047,7 +1149,7 @@ class TheIdentityIsWhatMakesItUnconditional(CustodyCase):
         program = custody.CUSTODY_PROGRAM.replace(
             'ROOT = "/custody"', f"ROOT = {root.name!r}", 1)
         done = subprocess.run(
-            [sys.executable, "-c", program, "normalize"],
+            [sys.executable, "-c", program, "normalize", SUBMITTED],
             capture_output=True, timeout=30)
         self.assertEqual(done.returncode, 0,
                          done.stderr.decode("utf-8", "replace"))
@@ -1063,7 +1165,7 @@ class EveryObjectMeansLinksToo(CustodyCase):
     def run_program(self, root, operation):
         program = custody.CUSTODY_PROGRAM.replace(
             'ROOT = "/custody"', f"ROOT = {root!r}", 1)
-        return subprocess.run([sys.executable, "-c", program, operation],
+        return subprocess.run([sys.executable, "-c", program, operation, SUBMITTED],
                               capture_output=True, timeout=30)
 
     def test_inspect_reports_a_directory_symlink_without_following_it(self):
@@ -1126,7 +1228,7 @@ class TheReadingActsAreStreamedAndHonestlyBounded(CustodyCase):
                     resource.RLIMIT_AS,
                     (self.ADDRESS_SPACE, self.ADDRESS_SPACE))
 
-        return subprocess.run([sys.executable, "-c", program, operation],
+        return subprocess.run([sys.executable, "-c", program, operation, SUBMITTED],
                               capture_output=True, timeout=300,
                               preexec_fn=limit)
 
@@ -1182,7 +1284,7 @@ class TheReadingActsAreStreamedAndHonestlyBounded(CustodyCase):
             resource.setrlimit(resource.RLIMIT_AS,
                                (self.ADDRESS_SPACE, self.ADDRESS_SPACE))
 
-        done = subprocess.run([sys.executable, "-c", program, "hash"],
+        done = subprocess.run([sys.executable, "-c", program, "hash", SUBMITTED],
                               capture_output=True, timeout=300,
                               preexec_fn=limit)
         self.assertNotEqual(done.returncode, 0,
@@ -1384,8 +1486,9 @@ class TheStrandedHelperIsReclaimed(CustodyCase):
                 if argv[1] == "rm":
                     state["present"] = False
                 return {"status": 0, "stdout": "", "stderr": ""}
+            # W257624 R2: the run branch echoes the token it was handed.
             return {"status": 0,
-                    "stdout": json.dumps(reported("normalize")),
+                    "stdout": json.dumps(reported("normalize", echoed(argv))),
                     "stderr": ""}
 
         return custody.custody_act(
@@ -1508,7 +1611,7 @@ class TheStrandedHelperIsReclaimed(CustodyCase):
                 return {"status": 1, "stdout": "",
                         "stderr": f"Error: No such container: {argv[-1]}"}
             return {"status": 0,
-                    "stdout": json.dumps(reported("normalize")),
+                    "stdout": json.dumps(reported("normalize", echoed(argv))),
                     "stderr": ""}
 
         answered = custody.custody_act(
@@ -1578,7 +1681,9 @@ class TheStrandedHelperIsReclaimed(CustodyCase):
                         if argv[1] == "rm":
                             state["present"] = False
                         return {"status": 0, "stdout": "", "stderr": ""}
-                    return {"status": 0, "stdout": json.dumps(reported(verb)),
+                    return {"status": 0,
+                            "stdout": json.dumps(reported(verb,
+                                                          echoed(argv))),
                             "stderr": ""}
 
                 answered = custody.custody_act(
@@ -1613,7 +1718,7 @@ class TheActIsBounded(CustodyCase):
             f"SECONDS = {custody.CUSTODY_SECONDS}", "SECONDS = 1", 1).replace(
             "chunk = handle.read(CHUNK)",
             "import time; time.sleep(0.05); chunk = handle.read(CHUNK)", 1)
-        done = subprocess.run([sys.executable, "-c", program, "hash"],
+        done = subprocess.run([sys.executable, "-c", program, "hash", SUBMITTED],
                               capture_output=True, timeout=120)
         self.assertEqual(done.returncode, 3,
                          done.stdout.decode("utf-8", "replace"))
@@ -2169,8 +2274,8 @@ class OneSignedReceiptPerRoot(CustodyCase):
                 return self.answer
             return custody._answered(
                 "normalize", 0,
-                {"custody": "normalize", "entries": 3, "not_ours": 0,
-                 "running_as": [0, 0]},
+                {"custody": "normalize", "submission": SUBMITTED,
+                 "entries": 3, "not_ours": 0, "running_as": [0, 0]},
                 None)
 
     def test_one_accountable_act_commits_one_closed_receipt(self):
@@ -2376,7 +2481,8 @@ class OneSignedReceiptPerRoot(CustodyCase):
         self.assert_historical_damage_refuses("signature", values)
 
     def test_historical_receipt_requires_the_closed_positive_normalization_account(self):
-        account = {"custody": "normalize", "entries": 3, "not_ours": 0, "running_as": [0, 0]}
+        account = {"custody": "normalize", "submission": SUBMITTED,
+                   "entries": 3, "not_ours": 0, "running_as": [0, 0]}
         receipt = {"attempt_id": "attempt-1", "root": "result", "verb": "normalize",
                    "operation": "normalize", "account": json.dumps(account, sort_keys=True)}
         values = ["[]", "null", "{}"]
@@ -2418,8 +2524,8 @@ class TheEndingSurvivesInterruptionAtEveryDirectoryAct(CustodyCase):
                 raise RuntimeError(f"the helper died over {which}")
             return custody._answered(
                 "normalize", 0,
-                {"custody": "normalize", "entries": 1, "not_ours": 0,
-                 "running_as": [0, 0]}, None)
+                {"custody": "normalize", "submission": SUBMITTED,
+                 "entries": 1, "not_ours": 0, "running_as": [0, 0]}, None)
 
     def normalized(self, store, custodian):
         for which in ("result", "workspace"):

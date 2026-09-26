@@ -613,7 +613,7 @@ class TheInputRootIsFrozenAndNotOnlyItsFiles(Configured):
                          READ_ONLY_DIR)
 
         self.assertTrue(
-            workspaces.discard_workspace(self.storage, "assignment-going"))
+            workspaces.discard_workspace(self.storage, "assignment-going", control=self.store))
         self.assertFalse(os.path.exists(going["inputs"]))
         # THE SIBLING IS UNTOUCHED, mode included.
         self.assertEqual(os.stat(kept["inputs"]).st_mode & 0o777,
@@ -889,7 +889,7 @@ class TheRootsOwnENTRYIsFrozenToo(Configured):
         kept = self.composed("assignment-kept")
         going = self.composed("assignment-going")
         self.assertTrue(
-            workspaces.discard_workspace(self.storage, "assignment-going"))
+            workspaces.discard_workspace(self.storage, "assignment-going", control=self.store))
         self.assertFalse(os.path.exists(self.home_of(going)))
         self.assertEqual(os.stat(self.home_of(kept)).st_mode & 0o777,
                          READ_ONLY_DIR)
@@ -1157,10 +1157,10 @@ class TheRuledTrustModel(unittest.TestCase):
         kept = self.composed("attempt-kept")
         self.composed("attempt-going")
         self.assertTrue(
-            workspaces.discard_workspace(self.storage, "attempt-going"))
+            workspaces.discard_workspace(self.storage, "attempt-going", control=self.store))
         # A RETRY IS THE STATE ASKED FOR, not a refusal.
         self.assertFalse(
-            workspaces.discard_workspace(self.storage, "attempt-going"))
+            workspaces.discard_workspace(self.storage, "attempt-going", control=self.store))
         self.assertFalse(
             os.path.exists(os.path.join(self.storage, "attempt-going")))
         # AND THE SIBLING IS UNTOUCHED, contents and modes.
@@ -1173,7 +1173,7 @@ class TheRuledTrustModel(unittest.TestCase):
         outside = os.path.join(self._root.name, "not-storage")
         os.makedirs(outside)
         with self.assertRaises(Exception):
-            workspaces.discard_workspace(self.storage, "../not-storage")
+            workspaces.discard_workspace(self.storage, "../not-storage", control=self.store)
         self.assertTrue(os.path.isdir(outside))
 
     def test_a_stale_entry_of_any_other_kind_is_refused_too(self):
@@ -1679,7 +1679,7 @@ class TheConfiguredWorkspaceGroup(Delivery):
         with self.assertRaises(PermissionError):
             os.chmod(inner, 0o700)
         with self.assertRaises(ContractRefusal) as caught:
-            workspaces.discard_workspace(self.storage, self.attempt)
+            workspaces.discard_workspace(self.storage, self.attempt, control=self.store)
         self.assertIn("owned by uid", str(caught.exception))
         self.assertIn("fails closed", str(caught.exception))
         # AND NOTHING WAS WIDENED on the way to that refusal.

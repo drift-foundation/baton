@@ -24,6 +24,12 @@ stop MAILBOX:
 status MAILBOX:
 	python3 tools/infra_deployment.py status "{{MAILBOX}}"
 
+# Check saved login and one live request for every user-configured provider account.
+provider-checks $PROVIDER_CHECKS_CONFIG="":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	exec python3 tools/provider_checks.py
+
 # Create the repository-local development environment. Baton itself remains
 # stdlib-only; this installs test tooling only.
 venv:

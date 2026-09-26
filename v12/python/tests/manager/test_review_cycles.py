@@ -565,7 +565,7 @@ class ReviewCycles(unittest.TestCase):
             boundary_mounts(writable["boundary"])
         with self.assertRaisesRegex(ContractRefusal, "revoked"):
             adopt_source_boundary(writable["boundary"], writable["roots"])
-        discard_execution_roots(self.storage, "writer-attempt-1")
+        discard_execution_roots(self.storage, "writer-attempt-1", control=self.store)
         self.assertTrue(os.path.isdir(line["path"]))
 
         review = self.review(checkpoint["checkpoint_id"], 1)
@@ -584,7 +584,7 @@ class ReviewCycles(unittest.TestCase):
         self.verdict(review, 1, "accepted")
         with self.assertRaisesRegex(ContractRefusal, "revoked"):
             boundary_mounts(readonly["boundary"])
-        discard_execution_roots(self.storage, "review-attempt-1")
+        discard_execution_roots(self.storage, "review-attempt-1", control=self.store)
         self.assertTrue(os.path.isdir(line["path"]))
 
     def test_review_mount_revalidates_the_current_checkpoint(self):
@@ -709,7 +709,7 @@ class ReviewCycles(unittest.TestCase):
         for identity in (".baton-review-lines", ".baton-review-lines/child",
                          "other/../.baton-review-lines"):
             with self.subTest(identity=identity), self.assertRaises(ContractRefusal):
-                discard_workspace(self.storage, identity)
+                discard_workspace(self.storage, identity, control=self.store)
         self.assertTrue(os.path.isdir(line["path"]))
 
 
@@ -1974,7 +1974,8 @@ class Custodian:
         self.normalized.append((assignment_id, which))
         return custody._answered(
             "normalize", 0,
-            {"custody": "normalize", "entries": 0, "not_ours": 0,
+            {"custody": "normalize", "submission": "0" * 32,
+             "entries": 0, "not_ours": 0,
              "running_as": [0, 0]}, None)
 
     def destroy_abandoned(self, command):

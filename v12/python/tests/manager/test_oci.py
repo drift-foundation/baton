@@ -2147,7 +2147,9 @@ class StableLineLaunch(unittest.TestCase):
         self.assert_no_runtime_start()
 
     def test_ordinary_workspace_keeps_02770_launch_contract(self):
-        roots = workspaces.adopted_assignment_workspace(self.fixture.storage, "writer-attempt-1")
+        roots = workspaces.adopted_assignment_workspace(
+            self.fixture.storage, "writer-attempt-1",
+            control=self.fixture.store)
         self.assertEqual(os.stat(roots["workspace"]).st_mode & 0o7777, 0o2770)
         self.start(roots, delivered=False)
         self.assertIn("run", self.engine.vectors[-1])
