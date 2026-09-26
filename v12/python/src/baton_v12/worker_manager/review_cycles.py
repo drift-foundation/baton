@@ -24,6 +24,7 @@ __all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
            "abandoned_correction_of", "attach_review", "audit_checkpoint",
            "checkpoint_of",
            "create_line", "freeze_checkpoint", "grant_writer",
+           "RESTORE_SETTLED_KIND", "settle_restoration_execution",
            "integration_checkpoint", "line_of", "line_status",
            "record_progress", "record_verdict",
            "restore_abandoned_correction", "review_boundary",
@@ -103,6 +104,26 @@ _ABANDONED_REVOCATION = "abandoned"
 # no heartbeat: this is not a lease, it is one row per attempt at one act.
 RESTORE_EXECUTION_KIND = "review-line.restore-execution"
 
+# W257624, review 2026-09-26T04:58:07Z [P1]: THE COVERAGE AN EPISODE WAS CLAIMED UNDER,
+# RECORDED BEFORE ANY EFFECT.
+#
+# The settlement may read an EMPTY launch account as "nothing was ever started", because
+# each launch intent is committed before its child exists. That inference is only sound
+# if the executor that claimed the episode was actually running the accounting protocol
+# and actually held the exclusion -- and the claim row said nothing about either. Its
+# fields were exactly those of a pre-accounting episode, so a legacy claim and a
+# current-protocol crash before the first command were INDISTINGUISHABLE, and the
+# settlement read the second meaning into both.
+#
+# So the claim now carries its own provenance, written in the same transaction that takes
+# it and therefore before the profile is reached: which protocol recorded it, that launches
+# are recorded BEFORE they exist, and that the exclusion was held when it was taken. A
+# claim without this is a claim whose coverage is unknown, and unknown is HELD.
+RESTORE_ACCOUNTING_PROTOCOL = "launch-account/1"
+_CLAIM_COVERAGE = {"protocol": RESTORE_ACCOUNTING_PROTOCOL,
+                   "coverage": "pre-launch-record",
+                   "exclusion": "held"}
+
 # Per-invocation executor tokens. The process id separates processes and the counter
 # separates invocations within one, so two callers cannot compose the same episode
 # signature and silently replay each other's claim.
@@ -120,6 +141,49 @@ def _execution_id(recovery_id, episode):
     return f"{RESTORE_EXECUTION_KIND}:{recovery_id}:{episode}"
 
 
+# W257624, owner ruling 2026-09-26T02:57:40Z: AND WHEN AN INTERRUPTED EXECUTION MAY
+# BE RETRIED, which is the one thing the episode machinery could not say.
+#
+# A CLAIMED EPISODE WITH NO COMPLETION HELD FOREVER, deliberately, because an
+# exception is not evidence that a checkout stopped being written. What the ruling
+# adds is the other exit: a POSITIVE SETTLEMENT, journalled at its own identity,
+# recording BOTH halves of what ending an execution means -- that the executor has
+# ended and that its effects are accounted for.
+RESTORE_SETTLED_KIND = "review-line.restore-execution-settled"
+
+# W257624, review 2026-09-26T03:08:20Z [P1]: THE FORGEABLE ATTESTATION IS GONE.
+#
+# What stood here took a DOCUMENT -- a kind, an executor token and an observer string
+# -- and treated it as evidence that an execution had ended. The token is readable
+# from the journal, so any caller could author it about a demonstrably live executor;
+# the reviewer's reproduction did exactly that and lost a successor's bytes. A shape
+# check is not an observation and a blacklist of other words does not reject the same
+# unsupported inference wearing the permitted one. The helper is REMOVED rather than
+# tightened, because dead forgeable code is worse than none.
+#
+# THE BOUNDARY THAT ANSWERS IT now exists and the entry is ENABLED (2026-09-26, review
+# 271851): an exclusive advisory lock held beside the line for the span of the external
+# act, probed NON-BLOCKING by a later caller, which the kernel releases when a process
+# dies and which therefore distinguishes a crashed executor from a live one. The manager
+# performs that probe itself -- it is not handed a document about it -- and pairs it with
+# the launch account, because the kernel answers for managers and nothing but the account
+# answers for the children their runners forked.
+
+
+def _settled_episodes(store, recovery_id):
+    """Every episode of this recovery that carries a settlement, by number."""
+    settled = {}
+    for episode in range(1, len(_claimed_episodes(store, recovery_id)) + 1):
+        found = store.operation_record(_settled_id(recovery_id, episode))
+        if found is not None:
+            settled[episode] = found
+    return settled
+
+
+def _settled_id(recovery_id, episode):
+    return f"{RESTORE_SETTLED_KIND}:{recovery_id}:{episode}"
+
+
 def _claimed_episodes(store, recovery_id):
     """Every episode this store has a claim row for, lowest first.
 
@@ -134,6 +198,216 @@ def _claimed_episodes(store, recovery_id):
         if found is None:
             return episodes
         episodes.append(found)
+
+
+RESTORE_LAUNCH_KIND = "review-line.restoration-launch"
+
+
+def _launch_id(recovery_id, episode, ordinal, part):
+    return f"{RESTORE_LAUNCH_KIND}:{recovery_id}:{episode}:{ordinal}:{part}"
+
+
+def _launch_recorder(store, recovery_id, episode):
+    """The per-invocation recorder a restoration's launcher writes through.
+
+    W257624. BOUND TO THE EXACT STORE, RECOVERY AND EPISODE, which is the binding the
+    owner ruling requires: every identity below is derived from all three, so a launch
+    record can never be read as belonging to another recovery or another attempt at this
+    one.
+
+    EVERY LAUNCHED COMMAND IS COUNTED, not just the first. A restoration issues more than
+    one command, and an account that recorded only one would leave the others unexamined;
+    the ordinal advances per launch so each has its own intent and its own group.
+
+    THE INTENT IS COMMITTED BEFORE ITS CHILD EXISTS and the group immediately after the
+    fork -- that ordering is the launcher's, and this only supplies the durable place for
+    it. An intent with no group is the mid-call death window and its consumer HOLDS.
+
+    ONE-TIME ADMISSION, NOT A REPLAY. Review 2026-09-26T04:27:09Z [P2] reproduced the
+    defect and also caught a false claim of mine: I wrote that a second `intent` at a
+    taken ordinal refuses, and the code returned silently. A recorder recreated for the
+    same store, recovery and episode restarted its ordinals at one, found intent one
+    already recorded, returned as though it had recorded something, and the launcher then
+    forked a SECOND child under an identity that already accounted for a different one.
+
+    SO A RECREATED RECORDER REFUSES, and the ordinal is claimed from the RECORD rather
+    than counted in memory. Each `intent` opens a short raw transaction -- `create_line`'s
+    own precedent in this module -- reads the launches this episode holds, and writes the
+    next number; the closure then remembers only which ordinal IT won, so its `group` lands
+    against its own launch. A recorder built for an episode that already holds launches
+    refuses its first `intent` outright: the executor owning this episode already has its
+    recorder, so a second one is re-entry that cannot be told apart from an unaccounted
+    duplicate.
+
+    MEASURED, AND WEAKER THAN IT READS: with that refusal in place, counting in memory
+    instead of reading the record fails NO case of mine -- probed, 2026-09-26. The raw
+    transaction is defence in depth against a concurrency the outer exclusion already
+    forbids; the REFUSAL is what carries the property today.
+
+    AND A GROUP IS WRITTEN ONCE, WITH ITS BYTES COMPARED. A second `group` for an ordinal
+    that already holds one refuses unless it is byte-identical; the previous code returned
+    silently and would have let a different payload pass unnoticed, which is the same
+    defect one record along.
+    """
+    # ONE RECORDER PER EPISODE'S LAUNCH SEQUENCE. Review 2026-09-26T04:27:09Z [P2] reads
+    # the contract as a RECREATED recorder refusing, and that is the fail-closed reading:
+    # the executor that owns this episode already has its recorder, so a second one for an
+    # episode that already holds launches is re-entry that cannot be told apart from an
+    # unaccounted duplicate. Captured at construction, so this recorder's OWN later
+    # launches advance normally.
+    existing = _launch_count(store, recovery_id, episode)
+    claimed = []
+
+    def record(part, payload):
+        document = lambda ordinal: {
+            "schema": ABANDONED_CORRECTION_SCHEMA, "recovery": recovery_id,
+            "episode": episode, "ordinal": ordinal, "part": part,
+            "observed": dict(payload) if payload is not None else None}
+        if part == "intent":
+            if existing and not claimed:
+                raise ContractRefusal(
+                    "refused", "operation-collision",
+                    f"this recovery's episode {episode} already holds {existing} "
+                    f"recorded launch(es) and this recorder has claimed none of them; a "
+                    f"recreated recorder is re-entry rather than a fresh account, and a "
+                    f"launch it admitted could not be told apart from a duplicate")
+            connection = store._connection
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                taken = _launch_count(store, recovery_id, episode)
+                ordinal = taken + 1
+                held = document(ordinal)
+                store._record(
+                    _launch_id(recovery_id, episode, ordinal, part),
+                    RESTORE_LAUNCH_KIND,
+                    manager_signature(RESTORE_LAUNCH_KIND, held),
+                    "committed", _recorded(held), None)
+                connection.execute("COMMIT")
+            except BaseException:
+                try:
+                    connection.execute("ROLLBACK")
+                except Exception:
+                    pass
+                raise
+            claimed.append(ordinal)
+            return
+        if not claimed:
+            raise ContractRefusal(
+                "refused", "precondition",
+                "a restoration launch records its group against the intent it claimed, "
+                "and this recorder has claimed none")
+        ordinal = claimed[-1]
+        held = document(ordinal)
+        operation_id = _launch_id(recovery_id, episode, ordinal, part)
+        signature = manager_signature(RESTORE_LAUNCH_KIND, held)
+        recorded = store.operation_record(operation_id)
+        if recorded is not None:
+            if recorded["signature"] != signature:
+                raise ContractRefusal(
+                    "refused", "operation-collision",
+                    f"launch {ordinal} of this recovery already recorded a different "
+                    f"group; one launch has one group and a second account of it is not "
+                    f"a replay")
+            return
+        store.transact(operation_id, RESTORE_LAUNCH_KIND, signature,
+                       lambda connection: dict(held))
+
+    return record
+
+
+def _launched_commands(store, recovery_id, episode):
+    """Every launch this episode recorded, as (intent, group-or-absence) pairs."""
+    launches = []
+    ordinal = 1
+    while True:
+        intent = store.operation_record(_launch_id(recovery_id, episode, ordinal,
+                                                   "intent"))
+        if intent is None:
+            return launches
+        group = store.operation_record(_launch_id(recovery_id, episode, ordinal,
+                                                  "group"))
+        answered = None
+        if group is not None:
+            _, answered = store.replay(
+                _launch_id(recovery_id, episode, ordinal, "group"),
+                group["signature"], kind=RESTORE_LAUNCH_KIND)
+        launches.append((ordinal, answered))
+        ordinal += 1
+
+
+def _launch_count(store, recovery_id, episode):
+    """How many launches this episode has recorded. A pure journal read."""
+    return len(_launched_commands(store, recovery_id, episode))
+
+
+def _effects_ended(store, recovery_id, episode, cessation, what, *,
+                   unlaunched_is_settled=False):
+    """Refuse unless EVERY launch this episode recorded has positively ended.
+
+    W257624, review 2026-09-26T04:06:15Z [P1]. This is the check the completion did not
+    make. The bound launcher's direct child exited zero, a same-group descendant closed
+    its stdio and stayed, the profile answered that the checkout was clean -- and the
+    release committed while that descendant was still able to write, which it then did.
+    A profile's answer describes one instant; it says nothing about work still running.
+
+    SO BOTH EXITS ASK THE SAME ACCOUNT. The normal completion and the settlement are
+    gated here, not on a leader's exit status and not on profile evidence.
+
+    AN EMPTY LIST IS NOT AN ACCOUNT ON THE COMPLETION PATH. A restoration that ran its
+    profile and recorded no launch recorded nothing, and reading that as "everything
+    ended" is the same mistake in a different place.
+
+    BUT AN EMPTY LIST IS EXACTLY WHAT AN EXECUTOR THAT DIED BEFORE FORKING LEAVES, and
+    `unlaunched_is_settled` is the settlement's own reading of it -- allowed there and
+    nowhere else. The intent for each launch is COMMITTED BEFORE its child exists, which
+    is the whole reason it is written first: no intent means no child was ever started,
+    so there is nothing outstanding to observe. The settlement may only rely on that
+    having already proved, through the kernel, that no MANAGER still holds the execution;
+    an empty account on its own says nothing, and this parameter does not change that.
+
+    AN INTENT WITHOUT ITS GROUP IS THE MID-CALL DEATH WINDOW, and `unknown` from the
+    probe is unknown -- neither is ended, and both HOLD on BOTH paths. The refusal is
+    NON-DURABLE so the episode stays claimed, the line stays `writing` and nothing is
+    admitted.
+    """
+    launches = _launched_commands(store, recovery_id, episode)
+    if not launches:
+        if unlaunched_is_settled:
+            return 0
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what}'s episode {episode} recorded no launch, so nothing accounts for "
+            f"the external work it performed; an empty account is not an account and "
+            f"this act is held rather than releasing a line whose effects are unknown")
+    for ordinal, group in launches:
+        if group is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what}'s episode {episode} launch {ordinal} recorded an intent with "
+                f"no group behind it; a child may exist for it and nothing can say "
+                f"otherwise, so this act is held")
+        answered = cessation(group.get("observed"))
+        if answered != "ended":
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what}'s episode {episode} launch {ordinal} is {name_value(answered)} "
+                f"rather than ended; a restoration's line is released when its external "
+                f"work has stopped, not when its checkout happened to look clean")
+    return len(launches)
+
+
+def _unsettled_episodes(store, recovery_id):
+    """Every claimed episode of this recovery that carries no settlement, lowest first.
+
+    W257624. One reading of the journal, used by the executor gate in
+    `restore_abandoned_correction` and by `_admitted_execution`'s transaction, so the
+    condition a caller is held on and the condition its admission is decided on are the
+    same sentence rather than two similar ones.
+    """
+    claimed = _claimed_episodes(store, recovery_id)
+    settled = _settled_episodes(store, recovery_id)
+    return [number for number in range(1, len(claimed) + 1)
+            if number not in settled]
 
 
 def _admitted_execution(store, operation_id, line, writer, checkpoint, what):
@@ -197,20 +471,26 @@ def _admitted_execution(store, operation_id, line, writer, checkpoint, what):
                 f"{what}'s line row no longer names the object this admission was "
                 f"proved against")
         claimed = _claimed_episodes(store, operation_id)
-        if claimed:
+        unsettled = _unsettled_episodes(store, operation_id)
+        if unsettled:
             raise ContractRefusal(
                 "refused", "precondition",
                 f"{what}'s external restoration was claimed as episode "
-                f"{len(claimed)} and no completion stands behind it; that "
-                f"execution's effects are unknown, so this act is held rather than "
-                f"repeating them")
-        # THE CLAIM, IN THIS SAME TRANSACTION. Episode one is the only episode a
-        # first admission can take: any later number would mean an earlier
-        # execution exists, and the check above has already held that case.
-        episode, token = 1, _executor_token(store)
+                f"{unsettled[0]} and neither a completion nor a settlement stands "
+                f"behind it; that execution's effects are unknown, so this act is "
+                f"held rather than repeating them")
+        # THE CLAIM, IN THIS SAME TRANSACTION. The next episode is one past the last
+        # claimed one, and reaching here means every earlier episode carries a
+        # POSITIVE SETTLEMENT -- the owner ruling's condition for a retry. A caller
+        # can no longer take a later number merely because a competitor appeared,
+        # because an unsettled episode holds above.
+        episode, token = len(claimed) + 1, _executor_token(store)
+        # THE COVERAGE IS PART OF THE CLAIM, not a later annotation: this transaction runs
+        # before the profile is reached, under the exclusion this caller already holds, so
+        # the row is durable evidence of both by the time any effect could exist.
         document = {"schema": ABANDONED_CORRECTION_SCHEMA,
                     "recovery": operation_id, "episode": episode,
-                    "executor": token}
+                    "executor": token, **_CLAIM_COVERAGE}
         store._record(_execution_id(operation_id, episode),
                       RESTORE_EXECUTION_KIND,
                       manager_signature(RESTORE_EXECUTION_KIND, document),
@@ -2503,7 +2783,8 @@ def _correction_signature(taken):
 
 
 def restore_abandoned_correction(store, *, attempt_id, generation,
-                                 retention_policy_digest, profile):
+                                 retention_policy_digest, profile, launcher=None,
+                                 cessation=None):
     """Give a declared abandoned correction's line back, at its own checkpoint.
 
     W128692. W119114's composed proof measured what an operator declaration
@@ -2774,14 +3055,31 @@ def restore_abandoned_correction(store, *, attempt_id, generation,
     # not a failed one. Nothing journals a refused row, the committed intent
     # stands, and the exclusion stays taken -- which is the held state the owner
     # ruling requires rather than a presumption that the executor died.
-    if fixed["executor_incarnation"] != store.incarnation:
+    #
+    # AND "NOBODY HAS POSITIVELY SETTLED IT" IS NOW A READABLE CONDITION rather than a
+    # permanent one. W257624, review 2026-09-26T04:43:58Z requires a FRESH MANAGER RETRY
+    # after a settlement, and this gate was what made one impossible: the committed intent
+    # names the dead incarnation forever, so a new manager could never get past it. The
+    # gate now asks the journal the question its own message asks -- is there an episode
+    # nobody has settled -- and holds only then. Every earlier episode carrying a
+    # settlement is exactly the owner ruling's condition for a retry, and the same
+    # condition is re-read inside `_admitted_execution`'s transaction, so this read cannot
+    # be raced into an admission.
+    #
+    # AN INTENT WITH NO EPISODE AT ALL also passes here, and that is not a loosening: the
+    # intent commits before any episode is claimed and before the profile is reached, so
+    # nothing external can have been started, and the exclusion below is still taken
+    # before anything is admitted.
+    unsettled = _unsettled_episodes(store, operation_id)
+    if unsettled and fixed["executor_incarnation"] != store.incarnation:
         raise ContractRefusal(
             "refused", "precondition",
             f"{what}'s external restoration is in flight under manager "
             f"incarnation {name_value(fixed['executor_incarnation'])} and this "
-            f"is {name_value(store.incarnation)}; a restoration is performed by "
-            f"the executor that took its exclusion, and an execution nobody has "
-            f"positively settled stays held rather than being repeated")
+            f"is {name_value(store.incarnation)}; episode {unsettled[0]} of it is "
+            f"claimed with neither a completion nor a settlement behind it, and an "
+            f"execution nobody has positively settled stays held rather than being "
+            f"repeated")
 
     # COMPOSED FROM THE FIXED INTENT, so a resumed call and a fresh one answer
     # the same document rather than two accounts assembled from different
@@ -2812,140 +3110,571 @@ def restore_abandoned_correction(store, *, attempt_id, generation,
     # A STALE CALLER OBSERVES THE COMPLETION AND PERFORMS NO EFFECT. That is the exit
     # below, and it is the whole answer to that reproduction: the completed recovery
     # is re-read here rather than at step two only.
-    settled, episode, token = _admitted_execution(
-        store, operation_id, line, writer, checkpoint, what)
-    if settled is not None:
-        return settled
-    try:
-        # THE RESTORATION ITSELF, OUTSIDE EVERY TRANSACTION.
+    # THE EXECUTION EXCLUSION IS TAKEN BEFORE ADMISSION AND HELD ACROSS THE WHOLE
+    # EXTERNAL ACT. Review 2026-09-26T03:17:01Z: "no admission-before-acquire or
+    # probe-and-drop gap". The lock is an operating-system observation -- the kernel
+    # releases it when a holder dies -- so acquiring it is positive evidence that no
+    # MANAGER holds this recovery's execution, in this process or any other, and
+    # holding it means nothing slips between that evidence and the act it authorized.
+    #
+    # THE FILESYSTEM WORK IS OUTSIDE EVERY TRANSACTION, which is the standing ruling:
+    # the lock is opened and taken here, before `_admitted_execution` opens its own
+    # short transaction, and released only after the completion has committed.
+    #
+    # WHAT IT DOES NOT PROVE, and the refusal below does not claim it: that no external
+    # work a previous executor started is still running. The profile resets through a
+    # supplied runner and a runner child can outlive its manager; that is what the launch
+    # account answers, and `settle_restoration_execution` now asks it under this same lock.
+    with workspaces.hold_restoration_lock(_storage(store), line["line_id"],
+                                          control=store) as exclusive:
+        if not exclusive:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what}'s restoration execution is held by another manager on this "
+                f"line; one execution at a time, and an execution nobody has "
+                f"positively settled stays held rather than being repeated")
+        settled, episode, token = _admitted_execution(
+            store, operation_id, line, writer, checkpoint, what)
+        if settled is not None:
+            return settled
+        try:
+            # THE RESTORATION ITSELF, OUTSIDE EVERY TRANSACTION.
+            #
+            # W257624, owner ruling 2026-09-26T01:35:02Z, which WITHDRAWS the acceptance
+            # the previous shape rested on. Review 2026-09-09T16:04Z put the checkout
+            # write inside `store.transact` and this code said so plainly: "`store.
+            # transact` IS THE SERIALIZATION OWNER" and "THE TRADEOFF IS REAL AND IS THE
+            # REVIEWER'S TO HAVE ACCEPTED: the store's write lock is held across a
+            # bounded local restoration". That tradeoff is no longer available: no
+            # database lock may be held across I/O other than the database's own, and a
+            # read-only `stat` is I/O too. Both statements are superseded here rather
+            # than left standing beside code that contradicts them.
+            #
+            # WHAT SERIALIZES INSTEAD IS THE EXCLUSION THE INTENT TOOK. The intent
+            # revoked the writer in its own short transaction, so a second caller that
+            # arrives before it races on the intent identity and `transact` replays --
+            # exactly one revocation happens -- and a second caller that arrives after it
+            # takes the resumed path, which is the same path a crashed restorer's retry
+            # takes. The line stays `writing` throughout, so no successor can be admitted
+            # while this runs.
+            #
+            # AND THE OVERLAP IS PREVENTED BEFORE THIS IS REACHED, which is where it
+            # has to be. Review 2026-09-26T01:49:21Z [P1] reproduced the alternative
+            # with real bytes: a second caller performing this act concurrently
+            # overwrote an admitted successor's work and then answered success by
+            # replaying a completion it had not produced. A post-effect check cannot
+            # recover overwritten bytes, so the executor check above refuses a
+            # non-executor at step two, before it reaches the profile at all. An
+            # earlier form of this comment called that race an unclosed residual
+            # needing a separate owner decision; owner 270482 had already required
+            # exclusive restoration ownership, so that paragraph is WITHDRAWN rather
+            # than left standing beside code that now closes it.
+            #
+            # WHAT IS STILL HELD RATHER THAN SOLVED: a restoration whose executor
+            # incarnation is gone stays held, because an intent and a revocation are
+            # not evidence that their executor stopped. Nothing in this build
+            # positively settles a dead incarnation's in-flight external act; the
+            # bound dossier's PLAN records supplying one as remaining scope.
+            pinned = _proved_restoration_object(store, line, what)
+            # THE LAUNCH ACCOUNT IS BOUND HERE, to this store, this recovery and this
+            # episode, and the runner is built PER INVOCATION so nothing about it lives
+            # on the profile -- review 2026-09-26T03:46:49Z [P1]. A deployment with no
+            # launcher supplies no runner, the profile claims no covered lifetime, and
+            # the settlement holds rather than working around the absence.
+            # THE OPERAND IS PASSED ONLY WHEN THERE IS ONE, so a profile that never
+            # takes it is called exactly as it always was. That keeps this optional in
+            # EFFECT as well as in signature: no accepted fixture and no deployment
+            # profile has to grow a parameter to keep working, which matters because
+            # those fixtures are not mine to change.
+            # THE ACCOUNTABLE BOUNDARY IS REQUIRED BEFORE ANY DESTRUCTIVE WORK.
+            #
+            # Review 2026-09-26T04:15:08Z [P1] withdraws the asymmetry I argued for. A
+            # deployment that cannot account for a restoration's external work does not
+            # get today's behaviour as a courtesy: unknown, no-launcher and missing
+            # coverage HOLD, which 271584 and owner 271080 had already decided. And the
+            # refusal is HERE, before the checkout is touched, because a restoration that
+            # is performed and then cannot be released is worse than one never started.
+            if launcher is None or cessation is None:
+                raise ContractRefusal(
+                    "refused", "capability",
+                    f"{what} needs both a restoration launcher and a cessation observer "
+                    f"before it writes a checkout: external work that is not recorded "
+                    f"before it exists, or recorded and never asked about, can never be "
+                    f"accounted for -- and an unaccountable restoration is held rather "
+                    f"than performed")
+            if True:
+                evidence = profile.restore_checkpoint(
+                    line["line_path"], checkpoint["evidence"],
+                    runner=launcher(_launch_recorder(store, operation_id,
+                                                     episode)))
+            if evidence != checkpoint["evidence"]:
+                raise ContractRefusal(
+                    "integrity", "schema",
+                    f"{what}'s restore answered evidence that is not the checkpoint it "
+                    f"was asked to restore; a profile that changed the evidence "
+                    f"restored something else")
+
+            # THE OBSERVATION, OUTSIDE EVERY TRANSACTION and inside the exclusion this
+            # call has held since before admission. `_effects_ended` refuses unless every
+            # recorded launch of this episode has positively ended, so nothing below is
+            # reached while external work is still running.
+            accounted = _effects_ended(store, operation_id, episode, cessation, what)
+
+            def act(connection):
+                """THE RELEASE, AND NOTHING ELSE, IN ONE SHORT TRANSACTION.
+
+                Every operand it acts on is already committed or already proved: the
+                intent fixed the recovery, the restoration above performed the one
+                effect, and what is left is to hand the line to a successor. So this
+                holds the write lock for two statements and touches no file.
+
+                WHAT IT RE-PROVES, and each is a pure database read. The writer is still
+                revoked as THIS recovery revoked it; the line is still `writing` at the
+                exact checkpoint the intent fixed; nobody at all is attached; and the
+                line row still names the object the restoration was actually performed
+                against. A restoration whose line has moved on releases nothing.
+
+                AND THE REFUSALS ARE NON-DURABLE, so the transaction rolls back, no
+                refused row is journalled, and the committed intent stays retryable. A
+                durable refusal here would turn a transient interruption into a permanent
+                one.
+                """
+                # FENCED TO THE EXECUTOR, so a release is written only by the instance
+                # that performed the effect -- and the EPISODE CLAIM is what says which
+                # instance that is, not the incarnation recorded in the intent.
+                #
+                # W257624, 2026-09-26: this compared `fixed["executor_incarnation"]`, which
+                # names the manager that opened the recovery. Once a settlement lets a
+                # FRESH manager retry, that name belongs to the dead executor forever, so
+                # the comparison refused the very instance that had just performed the
+                # effect -- measured, as an error in the retry case below. The token check
+                # that follows is strictly stronger: a token is
+                # `incarnation:pid:invocation`, so holding the claim for THIS episode
+                # already proves the incarnation, the process and the individual call.
+                # AND TO THE EXACT EXECUTION EPISODE, which is what makes the release
+                # the act of the invocation that performed the effect rather than of
+                # whoever happens to arrive holding the same incarnation.
+                claimed = store.operation_record(
+                    _execution_id(operation_id, episode))
+                _, owner = store.replay(
+                    _execution_id(operation_id, episode),
+                    None if claimed is None else claimed["signature"],
+                    kind=RESTORE_EXECUTION_KIND) if claimed else (False, None)
+                if owner is None or owner.get("executor") != token:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"{what}'s release belongs to the executor that claimed "
+                        f"episode {episode}, and this act does not hold that claim")
+                # AND HOLDING THAT CLAIM IS NOT ENOUGH IF IT HAS BEEN SUPERSEDED.
+                #
+                # Review 2026-09-26T03:08:20Z: this checked possession of its OWN old
+                # claim and nothing else, so an executor whose episode had been settled
+                # and replaced by a retry still satisfied it -- and an old episode must
+                # never release a line a retry now owns. Both conditions are refused: a
+                # settled episode is one somebody else was told had ended, and a later
+                # claimed episode is a retry in possession.
+                if store.operation_record(_settled_id(operation_id, episode)) \
+                        is not None:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"{what}'s execution episode {episode} was settled as ended, so "
+                        f"this act may not release the line it was restoring; a "
+                        f"settlement is what let somebody else take over")
+                if store.operation_record(
+                        _execution_id(operation_id, episode + 1)) is not None:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"{what}'s execution was superseded by episode {episode + 1}; an "
+                        f"old episode does not release a line a retry now owns")
+                # THE ACCOUNT IS RE-READ HERE IN PURE SQL, and it was OBSERVED outside
+                # this transaction. Review 2026-09-26T04:15:08Z [P1]: the observation
+                # itself used to run here, so the production observer's `killpg` and
+                # `/proc` reads executed with the write lock held -- the exact rule this
+                # selection exists to enforce, broken while fixing something else.
+                #
+                # WHAT IS COMPARED IS THE IMMUTABLE ACCOUNT. `accounted` is the launch
+                # count the observation proved ended for THIS episode; if the episode's
+                # recorded launches have changed since, this is not the account that was
+                # observed and the release refuses. The outer exclusion is held across
+                # both halves, so nothing can start between them.
+                if _launch_count(store, operation_id, episode) != accounted:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"{what}'s episode {episode} recorded a launch after its effects "
+                        f"were observed to have ended; the account this release rests on "
+                        f"is not the account that was proved")
+                settled_writer = _resumed_writer(store, attempt_id, generation, what)
+                settled_line = line_of(store, line["line_id"])
+                if settled_writer["writer_id"] != writer["writer_id"] \
+                        or settled_line["state"] != "writing" \
+                        or settled_line["current_checkpoint_id"] \
+                        != checkpoint["checkpoint_id"]:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"{what}'s line no longer holds the exclusion this recovery "
+                        f"was proved against; a restoration does not release a line "
+                        f"whose attachment moved while it was being restored")
+                _sole_attachment(store, settled_line, None, what)
+                if _line_object(settled_line) != pinned:
+                    raise ContractRefusal(
+                        "runtime-observation", "identity-mismatch",
+                        f"{what}'s line row no longer names the object this "
+                        f"restoration was performed against")
+                # THE SAME LINE, THE SAME CHECKPOINT AND THE SAME REVISION. Nothing
+                # here freezes anything, and `current_checkpoint_id` is deliberately
+                # not written: it already names this checkpoint, and writing it would
+                # be this act claiming a pointer it did not move.
+                connection.execute(
+                    "UPDATE review_lines SET state = ? WHERE line_id = ?",
+                    (_CORRECTION_READY, line["line_id"]))
+                return _adopted_correction(
+                    dict(completed), f"{what}'s completed recovery",
+                    operation_id=operation_id, attempt_id=attempt_id,
+                    assignment=fixed["assignment"])
+
+            return store.transact(operation_id, RESTORE_KIND, signature, act)
+        finally:
+            # THE EPISODE IS NOT RELEASED HERE, and that distinction is the whole of
+            # the settlement question. The `with` above gives this line's EXECUTION
+            # exclusion back as the call leaves -- which is correct, because this
+            # manager is no longer executing -- but the claimed EPISODE stays
+            # UNSETTLED, because a profile exception is not evidence that the external
+            # work it started has ended. Releasing the episode here would be exactly
+            # the inference the review rules out; the lock and the episode answer
+            # different questions and only one of them is this frame's to answer.
+            pass
+
+
+def _proved_coverage(owner, episode, what):
+    """Refuse unless this episode's claim records the coverage it was taken under.
+
+    W257624, review 2026-09-26T04:58:07Z [P1]. A settlement reasons from the ABSENCE of
+    launch records, and absence only means "nothing started" for an executor that would
+    have recorded a launch before starting it and that held the exclusion while doing so.
+    An older claim carries neither fact, and its fields are identical to a current one's
+    minus this provenance -- so without this check a legacy episode and a
+    current-protocol crash before the first command are the same row.
+
+    MISSING, LEGACY OR A DIFFERENT PROTOCOL VERSION IS UNKNOWN, AND UNKNOWN IS HELD. That
+    is the same rule every other uncertainty in this recovery follows, and a held episode
+    stays retryable the moment a supported observation exists.
+    """
+    recorded = {name: owner.get(name) for name in _CLAIM_COVERAGE}
+    if recorded != _CLAIM_COVERAGE:
+        raise ContractRefusal(
+            "refused", "capability",
+            f"{what}'s execution episode {episode} was claimed without recorded "
+            f"coverage provenance -- it names {name_value(recorded)} rather than "
+            f"{name_value(dict(_CLAIM_COVERAGE))} -- so nothing says its executor "
+            f"recorded its launches before starting them or held the exclusion while it "
+            f"ran; an execution whose coverage is unknown is held rather than settled")
+
+
+def _settlement_label(episode, attempt):
+    return f"settlement-{episode}-{attempt}"
+
+
+def _retired_settlement_label(episode):
+    """The FIXED label the immediately preceding implementation wrote under.
+
+    W257624, review 2026-09-26T05:19:28Z. The attempt walk looked only at
+    `settlement-<episode>-<attempt>` and never at the single `settlement-<episode>` label
+    the previous cut used, so a store carrying an incomplete or still-running launch there
+    was walked straight past and a fresh attempt ran beside work nobody had accounted for.
+    Both formats declare the same coverage protocol, so provenance cannot tell them apart
+    and recognising the label is the only honest answer.
+
+    IT IS READ AND ACCOUNTED, NEVER WRITTEN, RENAMED OR DELETED. Those records are real
+    evidence about real children; a migration or a version bump that invalidated them
+    would be exactly the "reason around the evidence" this recovery is not allowed to do.
+    No new attempt is ever taken under this label -- fresh attempts are always versioned --
+    so it can only ever be accounted for and held on.
+    """
+    return f"settlement-{episode}"
+
+
+def _settlement_attempt(store, recovery_id, episode, cessation, what):
+    """Prove every PRIOR settlement-validation attempt stopped, then name a fresh one.
+
+    W257624, review 2026-09-26T05:08:54Z [P2]. The settlement validated through a runner
+    bound to ONE fixed label, so the first attempt that journalled a command made every
+    later attempt impossible: `_launch_recorder` saw an existing account and refused its
+    first intent as a recreated recorder. That refusal is right -- a launch identity is
+    never reused -- but the caller offered no continuation, so an interrupted validation
+    stranded the recovery permanently even after its effects had positively ended.
+
+    SO ATTEMPTS ARE ENUMERATED AND EACH PRIOR ONE IS PROVED STOPPED. This walks the
+    attempt labels in order. An attempt that launched anything must have had EVERY launch
+    positively end, through the same probe as everything else; `running`, `unknown` or an
+    intent with no group HOLDS, so a live own-child is never walked past. Only when it is
+    accounted for does the walk advance.
+
+    THE FRESH LABEL IS THE FIRST ONE WITH NO ACCOUNT, and that is not a blind suffix: the
+    walk stopped there because every earlier attempt was proved ended, and a label with no
+    launch record has no survivor to collide with -- each launch intent is committed before
+    its child exists. Nothing is deleted, no identity is reused, and the recorder's
+    one-time admission is untouched, because the recorder for this label is seeing its
+    first launch.
+
+    ANSWERS the label this attempt owns and the accounts of the attempts before it, which
+    the settlement binds into its decision and revalidates in its writing transaction.
+    """
+    prior = []
+    # THE RETIRED FIXED LABEL FIRST, because a store may carry an account under it and
+    # nothing else would ever look. It is accounted on exactly the same terms as any other
+    # attempt -- incomplete, running or unknown HOLDS -- and it is never chosen as a fresh
+    # attempt, so its records are read and kept rather than written over.
+    retired = _retired_settlement_label(episode)
+    if _launch_count(store, recovery_id, retired):
+        prior.append({"attempt": retired,
+                      "launches": _effects_ended(store, recovery_id, retired,
+                                                 cessation, what)})
+    attempt = 1
+    while True:
+        label = _settlement_label(episode, attempt)
+        if _launch_count(store, recovery_id, label) == 0:
+            return label, prior
+        prior.append({"attempt": label,
+                      "launches": _effects_ended(store, recovery_id, label,
+                                                 cessation, what)})
+        attempt += 1
+
+
+def settle_restoration_execution(store, *, attempt_id, generation, profile,
+                                 cessation, launcher):
+    """Record that an interrupted restoration's execution has POSITIVELY ended.
+
+    W257624, owner ruling 2026-09-26T02:57:40Z, and ENABLED here for the first time
+    (review 2026-09-26T04:43:58Z: "implement supported settlement under pinned
+    exclusion"). A claimed execution episode with no completion behind it holds every
+    later caller, deliberately: an exception is not evidence that a checkout stopped
+    being written. This is the only other exit, and it requires BOTH halves of what
+    ending an execution means, each OBSERVED BY THIS MANAGER rather than asserted to it.
+
+    THE EXECUTOR HALF IS THE KERNEL'S ANSWER, NOT A CALLER'S DOCUMENT. Review
+    2026-09-26T03:08:20Z [P1] reproduced a settlement obtained about a LIVE executor from
+    a caller-authored attestation read out of the journal, and the `ended` operand that
+    carried it is GONE from this signature. What stands in its place is the exclusive
+    advisory lock this recovery's execution is performed under: a living manager holds it
+    for the whole span of its external act, and the kernel releases it when that process
+    dies. So ACQUIRING it here is a positive observation that no manager -- in this
+    process or any other -- still holds this line's restoration execution. Failing to
+    acquire it means an executor is alive, and this refuses NON-DURABLY: the episode stays
+    claimed and nothing is admitted.
+
+    THE EFFECTS HALF IS TWO OBSERVATIONS, BOTH OUTSIDE EVERY TRANSACTION, because they
+    are external I/O and the standing ruling forbids holding a database lock over it:
+
+    - EVERY LAUNCH THIS EPISODE RECORDED must have positively ended, through the same
+      account and the same probe the normal completion is gated on. A manager can die
+      while a child of its runner lives on; the lock says nothing about that child, and
+      an unresolved or `unknown` child HOLDS.
+    - THE CHECKOUT IS CLEAN AT THE RETAINED CHECKPOINT, which is what "the effects are
+      accounted for" means for a working tree: the interrupted restoration either
+      completed its intended effect or left nothing of its own behind. A half-restored
+      tree is exactly the state a retry must not be let loose on.
+
+    AN EPISODE THAT RECORDED NO LAUNCH AT ALL IS SETTLEABLE HERE, and only here. Each
+    launch intent is committed BEFORE its child exists, so an empty account means no
+    child was ever started -- an executor that died between claiming the episode and its
+    first command. Combined with the lock, that is a complete account of nothing having
+    happened. On the completion path the same emptiness means a profile ran and recorded
+    nothing, which is not an account and holds.
+
+    THE ACCOUNT AND THE OWNERSHIP ARE REVALIDATED IN THE WRITING TRANSACTION, in pure
+    SQL: the line still names the object the validation was performed against, no
+    completion arrived, the claim row is still the one that was read, and the episode's
+    recorded launches are still the ones that were observed. The observations happened
+    outside the lock the write takes, so the write refuses if anything moved under them.
+
+    IT SETTLES ONE EPISODE AND DECIDES NOTHING ELSE. No completion is written, no line
+    state moves, no writer is revoked or restored and no successor is admitted -- the
+    retry this permits is an ordinary `restore_abandoned_correction` that takes the next
+    episode through the ordinary admission, and it may be performed by a FRESH manager
+    because a settled episode is what releases the executor-incarnation hold.
+    """
+    attempt_id, generation = _requested_pair(attempt_id, generation)
+    what = (f"the abandoned correction for attempt {name_value(attempt_id)} "
+            f"generation {generation}")
+    # THE OBSERVER IS MANDATORY, refused before anything is read. A settlement without a
+    # cessation probe could only ever guess about the children a dead executor's runner
+    # forked, and owner 271080 holds that unaccountable recovery is held rather than
+    # performed. This is the same rule `restore_abandoned_correction` applies to its own
+    # boundary operands.
+    if not callable(cessation) or not callable(launcher):
+        raise ContractRefusal(
+            "refused", "capability",
+            f"{what}'s execution cannot be settled without a cessation observer and a "
+            f"launcher: the kernel answers whether a MANAGER still holds the execution, "
+            f"nothing else answers whether the children its runner forked have ended, and "
+            f"the settlement's OWN validation commands need the same account as anybody "
+            f"else's, so an unaccountable execution is held rather than settled")
+    profile_name = _profile(profile, ("validate",))
+    recovery_id = _restore_operation_id(RESTORE_KIND, attempt_id, generation)
+    if store.operation_record(recovery_id) is not None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what} is already completed; a completed recovery needs no execution "
+            f"settlement and replays through its own record")
+    claimed = _claimed_episodes(store, recovery_id)
+    if not claimed:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what} has claimed no execution episode; there is no execution here to "
+            f"settle")
+    episode = len(claimed)
+    held = _settled_id(recovery_id, episode)
+    recorded = store.operation_record(held)
+    _, owner = store.replay(_execution_id(recovery_id, episode),
+                            claimed[-1]["signature"],
+                            kind=RESTORE_EXECUTION_KIND)
+    if owner is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s execution episode {episode} has no recorded claim to replay")
+    if recorded is not None:
+        # AN EXACT REPLAY ANSWERS ITS COMMITTED RECORD (§4.2) AND OBSERVES NOTHING. A
+        # settled episode is settled; re-probing would re-run external I/O for a decision
+        # already journalled, and a second observation could only disagree with the
+        # record it cannot change.
+        _, answered = store.replay(held, recorded["signature"],
+                                   kind=RESTORE_SETTLED_KIND)
+        return answered
+    intent = _restore_operation_id(RESTORE_INTENT_KIND, attempt_id, generation)
+    fixed = store.operation_record(intent)
+    if fixed is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} claimed an execution episode with no recovery intent behind it")
+    _, committed = store.replay(intent, fixed["signature"],
+                                kind=RESTORE_INTENT_KIND)
+    if committed is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s recovery intent has no recorded answer to replay")
+    line = line_of(store, committed["line_id"])
+    if line["profile_name"] != profile_name:
+        raise ContractRefusal(
+            "policy", "profile-uncertified",
+            f"{what}'s line was materialized by profile "
+            f"{name_value(line['profile_name'])} and this settlement offers "
+            f"{name_value(profile_name)}")
+    pinned = _proved_restoration_object(store, line, what)
+    checkpoint = checkpoint_of(store, committed["checkpoint_id"])
+    # THE EXECUTOR HALF. The lock is taken NON-BLOCKING and held across both effect
+    # observations and the write, so nothing slips between the evidence and the decision
+    # it authorizes -- the same discipline the restoration itself follows, under the same
+    # pinned lock object beside the same line.
+    with workspaces.hold_restoration_lock(_storage(store), line["line_id"],
+                                          control=store) as exclusive:
+        if not exclusive:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what}'s restoration execution is still held by a manager on this "
+                f"line, which is the kernel's answer that its executor is alive; an "
+                f"execution in flight is not settled and stays held")
+        # THE COVERAGE THIS EPISODE WAS CLAIMED UNDER, read before its account is
+        # believed. Review 2026-09-26T04:58:07Z [P1]: absence of launch records only
+        # means "nothing started" for an executor that records before it starts.
+        _proved_coverage(owner, episode, what)
+        # THE EFFECTS HALF, OUTSIDE EVERY TRANSACTION and inside the exclusion.
+        accounted = _effects_ended(store, recovery_id, episode, cessation, what,
+                                   unlaunched_is_settled=True)
+        # THE RETAINED INPUT OBJECT, NOT A SUCCESSFUL RESTORATION.
         #
-        # W257624, owner ruling 2026-09-26T01:35:02Z, which WITHDRAWS the acceptance
-        # the previous shape rested on. Review 2026-09-09T16:04Z put the checkout
-        # write inside `store.transact` and this code said so plainly: "`store.
-        # transact` IS THE SERIALIZATION OWNER" and "THE TRADEOFF IS REAL AND IS THE
-        # REVIEWER'S TO HAVE ACCEPTED: the store's write lock is held across a
-        # bounded local restoration". That tradeoff is no longer available: no
-        # database lock may be held across I/O other than the database's own, and a
-        # read-only `stat` is I/O too. Both statements are superseded here rather
-        # than left standing beside code that contradicts them.
+        # Review 2026-09-26T04:58:07Z [P2]. This asked for `current=True`, which is a
+        # CLEAN WORKTREE at the checkpoint -- so an execution whose effects had all ended
+        # but which stopped half way through its reset could never be settled, and never
+        # retried either: the one state a retry exists for was the one state that
+        # permanently refused. Cessation and the identity of the retained checkpoint are
+        # separate questions from whether a restoration succeeded, and only the first two
+        # belong here. The RETRY resets the tree and ITS completion validates clean, so
+        # nothing is released on a half-restored checkout by this change.
         #
-        # WHAT SERIALIZES INSTEAD IS THE EXCLUSION THE INTENT TOOK. The intent
-        # revoked the writer in its own short transaction, so a second caller that
-        # arrives before it races on the intent identity and `transact` replays --
-        # exactly one revocation happens -- and a second caller that arrives after it
-        # takes the resumed path, which is the same path a crashed restorer's retry
-        # takes. The line stays `writing` throughout, so no successor can be admitted
-        # while this runs.
-        #
-        # AND THE OVERLAP IS PREVENTED BEFORE THIS IS REACHED, which is where it
-        # has to be. Review 2026-09-26T01:49:21Z [P1] reproduced the alternative
-        # with real bytes: a second caller performing this act concurrently
-        # overwrote an admitted successor's work and then answered success by
-        # replaying a completion it had not produced. A post-effect check cannot
-        # recover overwritten bytes, so the executor check above refuses a
-        # non-executor at step two, before it reaches the profile at all. An
-        # earlier form of this comment called that race an unclosed residual
-        # needing a separate owner decision; owner 270482 had already required
-        # exclusive restoration ownership, so that paragraph is WITHDRAWN rather
-        # than left standing beside code that now closes it.
-        #
-        # WHAT IS STILL HELD RATHER THAN SOLVED: a restoration whose executor
-        # incarnation is gone stays held, because an intent and a revocation are
-        # not evidence that their executor stopped. Nothing in this build
-        # positively settles a dead incarnation's in-flight external act; the
-        # bound dossier's PLAN records supplying one as remaining scope.
-        pinned = _proved_restoration_object(store, line, what)
-        evidence = profile.restore_checkpoint(line["line_path"],
-                                             checkpoint["evidence"])
-        if evidence != checkpoint["evidence"]:
+        # AND THIS SETTLEMENT'S OWN COMMANDS ARE ACCOUNTED, under their own episode label
+        # beside the executor's. Validation runs commands; running them through the
+        # constructor runner would have put unaccounted external work right after the
+        # account was observed, which is the hole the accounting exists to close, and
+        # "they are only reads" is exactly the assumption that was wrong before.
+        # EVERY PRIOR SETTLEMENT ATTEMPT ACCOUNTED FOR BEFORE A NEW ONE IS NAMED.
+        own_episode, prior_attempts = _settlement_attempt(
+            store, recovery_id, episode, cessation, what)
+        validated = profile.validate(
+            line["line_path"], checkpoint["evidence"],
+            runner=launcher(_launch_recorder(store, recovery_id, own_episode)))
+        if validated != checkpoint["evidence"]:
             raise ContractRefusal(
                 "integrity", "schema",
-                f"{what}'s restore answered evidence that is not the checkpoint it "
-                f"was asked to restore; a profile that changed the evidence "
-                f"restored something else")
+                f"{what}'s settlement validated evidence that is not the checkpoint "
+                f"this recovery is about; effects are accounted for against the "
+                f"checkpoint the restoration was for and not against another")
+        # AND ITS OWN CHILDREN MUST HAVE ENDED TOO, asked with the same probe. A
+        # settlement that left its own validation running would be the same defect it is
+        # here to close, one caller along.
+        own_accounted = _effects_ended(store, recovery_id, own_episode, cessation, what,
+                                       unlaunched_is_settled=True)
+        observed = {"exclusion": "acquired", "launches": accounted,
+                    "settlement_attempt": own_episode,
+                    "settlement_launches": own_accounted,
+                    "prior_settlement_attempts": [dict(one) for one in prior_attempts],
+                    "coverage": RESTORE_ACCOUNTING_PROTOCOL,
+                    "effects": "retained-checkpoint-identity"}
+        document = {"schema": ABANDONED_CORRECTION_SCHEMA,
+                    "recovery": recovery_id, "episode": episode,
+                    "executor": owner["executor"], "ended": dict(observed),
+                    "line_id": line["line_id"],
+                    "checkpoint_id": checkpoint["checkpoint_id"],
+                    "checkpoint_digest": checkpoint["checkpoint_digest"],
+                    "line_object": list(pinned)}
+        signature = manager_signature(RESTORE_SETTLED_KIND, document)
 
         def act(connection):
-            """THE RELEASE, AND NOTHING ELSE, IN ONE SHORT TRANSACTION.
-
-            Every operand it acts on is already committed or already proved: the
-            intent fixed the recovery, the restoration above performed the one
-            effect, and what is left is to hand the line to a successor. So this
-            holds the write lock for two statements and touches no file.
-
-            WHAT IT RE-PROVES, and each is a pure database read. The writer is still
-            revoked as THIS recovery revoked it; the line is still `writing` at the
-            exact checkpoint the intent fixed; nobody at all is attached; and the
-            line row still names the object the restoration was actually performed
-            against. A restoration whose line has moved on releases nothing.
-
-            AND THE REFUSALS ARE NON-DURABLE, so the transaction rolls back, no
-            refused row is journalled, and the committed intent stays retryable. A
-            durable refusal here would turn a transient interruption into a permanent
-            one.
-            """
-            # FENCED TO THE EXECUTOR, so a release is written only by the
-            # instance that performed the effect. Redundant while the check
-            # above holds, and kept because a release is the act that hands a
-            # checkout to somebody else.
-            if fixed["executor_incarnation"] != store.incarnation:
-                raise ContractRefusal(
-                    "refused", "precondition",
-                    f"{what}'s release belongs to executor incarnation "
-                    f"{name_value(fixed['executor_incarnation'])} and this is "
-                    f"{name_value(store.incarnation)}")
-            # AND TO THE EXACT EXECUTION EPISODE, which is what makes the release
-            # the act of the invocation that performed the effect rather than of
-            # whoever happens to arrive holding the same incarnation.
-            claimed = store.operation_record(
-                _execution_id(operation_id, episode))
-            _, owner = store.replay(
-                _execution_id(operation_id, episode),
-                None if claimed is None else claimed["signature"],
-                kind=RESTORE_EXECUTION_KIND) if claimed else (False, None)
-            if owner is None or owner.get("executor") != token:
-                raise ContractRefusal(
-                    "refused", "precondition",
-                    f"{what}'s release belongs to the executor that claimed "
-                    f"episode {episode}, and this act does not hold that claim")
-            settled_writer = _resumed_writer(store, attempt_id, generation, what)
-            settled_line = line_of(store, line["line_id"])
-            if settled_writer["writer_id"] != writer["writer_id"] \
-                    or settled_line["state"] != "writing" \
-                    or settled_line["current_checkpoint_id"] \
-                    != checkpoint["checkpoint_id"]:
-                raise ContractRefusal(
-                    "refused", "precondition",
-                    f"{what}'s line no longer holds the exclusion this recovery "
-                    f"was proved against; a restoration does not release a line "
-                    f"whose attachment moved while it was being restored")
-            _sole_attachment(store, settled_line, None, what)
-            if _line_object(settled_line) != pinned:
+            # EVERY OBSERVATION REVALIDATED IN PURE SQL, because each was made outside
+            # the lock this write holds.
+            current = line_of(store, line["line_id"])
+            if _line_object(current) != pinned:
                 raise ContractRefusal(
                     "runtime-observation", "identity-mismatch",
-                    f"{what}'s line row no longer names the object this "
-                    f"restoration was performed against")
-            # THE SAME LINE, THE SAME CHECKPOINT AND THE SAME REVISION. Nothing
-            # here freezes anything, and `current_checkpoint_id` is deliberately
-            # not written: it already names this checkpoint, and writing it would
-            # be this act claiming a pointer it did not move.
-            connection.execute(
-                "UPDATE review_lines SET state = ? WHERE line_id = ?",
-                (_CORRECTION_READY, line["line_id"]))
-            return _adopted_correction(
-                dict(completed), f"{what}'s completed recovery",
-                operation_id=operation_id, attempt_id=attempt_id,
-                assignment=fixed["assignment"])
+                    f"{what}'s line row no longer names the object this settlement's "
+                    f"validation was performed against")
+            if store.operation_record(recovery_id) is not None:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{what} completed while its execution was being settled; a "
+                    f"completed recovery needs no settlement")
+            still = store.operation_record(_execution_id(recovery_id, episode))
+            if still is None or still["signature"] != claimed[-1]["signature"]:
+                raise ContractRefusal(
+                    "runtime-observation", "identity-mismatch",
+                    f"{what}'s execution episode {episode} is no longer the claim this "
+                    f"settlement observed; an execution is settled for the executor "
+                    f"that claimed it and not for a later one")
+            if _launch_count(store, recovery_id, own_episode) != own_accounted:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{what}'s settlement recorded a launch of its own after its "
+                    f"validation was observed, so its own account is no longer complete")
+            # AND EVERY EARLIER ATTEMPT'S ACCOUNT, because the decision is bound to ALL of
+            # them: an attempt proved stopped outside this transaction must still be the
+            # account that was proved when the row that rests on it is written.
+            for one in prior_attempts:
+                if _launch_count(store, recovery_id,
+                                 one["attempt"]) != one["launches"]:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"{what}'s earlier settlement attempt {one['attempt']} recorded a "
+                        f"launch after it was proved stopped, so this decision no longer "
+                        f"covers the work it rests on")
+            if _launch_count(store, recovery_id, episode) != accounted:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{what}'s episode {episode} recorded a launch after its effects "
+                    f"were observed, so the account this settlement rests on is no "
+                    f"longer complete and it is held rather than settling work it "
+                    f"never examined")
+            return dict(document)
 
-        return store.transact(operation_id, RESTORE_KIND, signature, act)
-    finally:
-        # NOTHING IS RELEASED HERE, AND THAT IS THE BEHAVIOUR CHANGE. The review
-        # forbids inferring from a profile exception that every external effect
-        # ended, so a claimed episode with no completion behind it stays UNSETTLED
-        # and every later caller is held. An interrupted restoration therefore needs
-        # a positive settling act, which this build does not have and which the bound
-        # dossier's PLAN records as remaining scope. Releasing here would be exactly
-        # the inference the review rules out.
-        pass
+        return store.transact(held, RESTORE_SETTLED_KIND, signature, act)
 
 
 def integration_checkpoint(store, line_id):

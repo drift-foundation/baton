@@ -4967,6 +4967,288 @@ def _git_run(argv, *, input=None):
             "stderr": answer.stderr.decode("utf-8", "replace")}
 
 
+def _issuing_domain():
+    """The LOCAL DOMAIN a recorded process number is only meaningful inside.
+
+    W257624, review 2026-09-26T05:34:27Z [P1]. A launch record carried a group, its leader
+    and that leader's start ticks, and nothing about WHERE those numbers were minted. The
+    observer then turned an unqualified `killpg` ESRCH into `ended` -- but ESRCH in one PID
+    view is not absence in the view that issued the number, and after a reboot the start
+    ticks describe a different machine-lifetime entirely. So absence was being read as
+    cessation on evidence that could not support it.
+
+    TWO FACTS, BOTH READ LOCALLY AND BOTH CHEAP. The PID namespace this process sees --
+    identified by the inode of `/proc/self/ns/pid`, which is what the kernel itself uses to
+    tell namespaces apart -- and the boot identity, which changes on every restart and
+    therefore scopes the start ticks. A record minted in another namespace or before a
+    reboot cannot match, and a comparison that cannot be made is UNKNOWN.
+
+    ANSWERS None WHEN IT CANNOT BE READ, and every caller treats that as unknown rather
+    than as a pass. This is not multi-host support: it does not identify the host and makes
+    no claim beyond "the same local domain, still running".
+    """
+    import os
+
+    try:
+        namespace = os.stat("/proc/self/ns/pid")
+        with open("/proc/sys/kernel/random/boot_id") as reading:
+            boot = reading.read().strip()
+    except OSError:
+        return None
+    if not boot:
+        return None
+    return {"pid_namespace": f"{namespace.st_dev}:{namespace.st_ino}", "boot": boot}
+
+
+def restoration_launcher(record):
+    """A Git runner whose external work is ACCOUNTED FOR BEFORE IT EXISTS.
+
+    W257624, review 2026-09-26T03:37:41Z. `subprocess.run` reports nothing until it
+    returns, so a manager killed during the call leaves an orphaned Git child that no
+    later caller knows to look for. A group discovered on return cannot cover a death
+    during the call; the record has to precede the child.
+
+    THE ORDER IS THE WHOLE POINT, and each step is what the one after it needs:
+
+      1. `record("intent", None)` commits, BEFORE any child exists, that an external
+         child MAY exist for this execution. From here a later caller can never conclude
+         "nothing was started" from the absence of a group.
+      2. The child starts in its OWN session -- `start_new_session=True` -- so its work
+         is in a group of its own rather than in this manager's.
+      3. `record("group", {...})` commits the group and its LEADER'S OWN START TIME
+         immediately after the fork and BEFORE the wait. The start time is what makes
+         process-id reuse detectable: a recycled number carries a different one, so a
+         later probe can tell "this group is gone" from "something else has that number
+         now".
+      4. Only then is the child waited for.
+
+    AN INTENT WITH NO GROUP IS THE REMAINING WINDOW -- a death between the fork and step
+    three -- and its consumer HOLDS on it rather than releasing. That is why step one
+    exists: the window produces an unknown that fails closed instead of silence that
+    reads as safety.
+
+    WHAT IT CANNOT ACCOUNT FOR, stated in the contract rather than discovered: a child
+    that calls `setsid` leaves the recorded session. Git does not, and a launcher that
+    supplies work which does has broken this contract rather than found a gap in it.
+
+    WHAT THIS DOES AND DOES NOT SIGNAL, corrected twice and now stated once. An earlier
+    version said "nothing here signals a process", which was false; the version after it
+    said the group was "signalled and verified absent", which was also false and
+    contradicted `_reap_group`'s own disclaimer -- review 2026-09-26T05:47:16Z asked for the
+    remaining prose. The truth is: on the ORDINARY path nothing is signalled, this records
+    and waits. On the FAILED-RECORD path the group this launcher itself created is signalled
+    BEST-EFFORT, because work that cannot be accounted for must not be left running, and
+    NOTHING about its absence is certified -- the original failure propagates with the
+    intent standing, so the execution is UNKNOWN and its consumer HOLDS. Nothing signals a
+    process this launcher did not create, and nothing signals anything on the probe or
+    settlement path.
+    """
+    import os
+    import subprocess
+
+    def launched(argv, *, input=None):
+        # THE DOMAIN IS READ BEFORE ANYTHING IS STARTED, and a launch that cannot say
+        # where its numbers will be minted is NOT PERFORMED. Review 2026-09-26T05:34:27Z
+        # [P1]: a record without that scope can never be read as ended, so starting a child
+        # under one would guarantee a permanent hold -- an unaccountable launch refused
+        # before the fork is the same rule this whole boundary follows.
+        domain = _issuing_domain()
+        if domain is None:
+            raise RuntimeError(
+                "a restoration launch cannot be accounted for: this deployment cannot "
+                "read its own PID namespace and boot identity, so a recorded process "
+                "number could never be compared against the domain that issued it")
+        record("intent", None)
+        child = subprocess.Popen(list(argv), stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 start_new_session=True)
+        try:
+            record("group", {"group": os.getpgid(child.pid),
+                             "leader": child.pid,
+                             "started": _process_started(child.pid),
+                             "pid_namespace": domain["pid_namespace"],
+                             "boot": domain["boot"]})
+        except BaseException:
+            # THE WHOLE GROUP IS ACCOUNTED FOR, NOT JUST THE LEADER.
+            #
+            # W257624, review 2026-09-26T03:46:49Z [P2]. This killed the direct leader
+            # only, and a finite same-group DESCENDANT could close stdio and keep writing
+            # after the launcher had already refused -- so a leader-only reap did not
+            # prove the effects had ended. The child was started in its own session, so
+            # the group is exactly the work this launcher created and signalling it is
+            # reaping its own, never somebody else's.
+            #
+            # AND ABSENCE IS NEVER ASSERTED HERE, which review 2026-09-26T05:41:32Z asked
+            # me to say without contradicting the disclaimer three lines down. An earlier
+            # version of this comment said absence was "VERIFIED rather than assumed"; it
+            # is not, because `_reap_group` certifies nothing. What actually happens is
+            # that the original failure is never replaced by a cheerful one: it propagates
+            # with the intent still standing, so the execution is UNKNOWN and its consumer
+            # HOLDS. A launcher that could not account for its work never reports that it
+            # did -- and it does not claim to have proved the work gone either.
+            # BEST-EFFORT, AND THE RAISE IS WHAT CARRIES THE MEANING. `_reap_group`
+            # certifies nothing -- see its docstring -- so the original failure
+            # propagates with the intent standing and the execution stays held.
+            _reap_group(child)
+            raise
+        out, err = child.communicate(input=input, timeout=GIT_SECONDS)
+        return {"returncode": child.returncode,
+                "stdout": out.decode("utf-8", "replace"),
+                "stderr": err.decode("utf-8", "replace")}
+
+    return launched
+
+
+def _reap_group(child):
+    """BEST-EFFORT CLEANUP of the group this launcher itself created. NOT a certificate.
+
+    THE GROUP AND NOT THE LEADER, because a descendant sharing the group outlives a
+    leader-only kill and can still write. `killpg` reaches the session this launcher
+    started with `start_new_session=True` and reaches nothing else.
+
+    AND THIS RETURNS NOTHING AN ACCOUNT MAY REST ON, which review 2026-09-26T03:56:38Z
+    is right to insist on and which my previous docstring got wrong. An unknown group, an
+    arbitrary `OSError`, an exhausted poll and a true absence all return the SAME WAY --
+    so the return value distinguishes none of them and is not evidence. Its ONLY caller
+    re-raises the original failure afterwards, so the execution stays unknown and held
+    whatever happened here; promoting this to positive evidence is exactly the mistake
+    the earlier text invited.
+
+    WHAT A REAL ABSENCE ACCOUNT NEEDS is the separate cessation probe: the recorded group
+    AND its leader's start time, so a recycled process id is distinguishable from the
+    original. That probe answers; this only tries to leave less behind.
+    """
+    import os
+    import signal
+    import time
+
+    try:
+        group = os.getpgid(child.pid)
+    except OSError:
+        group = None
+    if group is not None and group != os.getpgrp():
+        try:
+            os.killpg(group, signal.SIGKILL)
+        except OSError:
+            pass
+    # THE PIPES ARE CLOSED WITH THE CHILD, not left to a collector. Measured: a bare
+    # `wait` leaves `Popen`'s inherited readers open and the suite surfaced
+    # `ResourceWarning: unclosed file`, which under `-W error::ResourceWarning` is a
+    # defect in this launcher rather than noise. `communicate` drains and closes them.
+    try:
+        child.communicate(timeout=GIT_SECONDS)
+    except Exception:
+        for stream in (child.stdin, child.stdout, child.stderr):
+            if stream is not None and not stream.closed:
+                try:
+                    stream.close()
+                except Exception:
+                    pass
+    for _ in range(100):
+        if group is None or group == os.getpgrp():
+            return
+        try:
+            os.killpg(group, 0)
+        except OSError:
+            return
+        time.sleep(0.02)
+
+
+def restoration_cessation():
+    """Answer, positively, whether a recorded restoration group has ENDED.
+
+    W257624. The account a settlement needs, and the one thing `_reap_group` deliberately
+    does not provide. Given a launch record -- the group, its leader and that leader's own
+    start instant -- this answers one of exactly three things, and the caller holds on two
+    of them:
+
+      * `ended`: no member of that group remains, OR a group with that number exists whose
+        LEADER'S START INSTANT DIFFERS. The second is the same fact stated the other way:
+        process ids are recycled, so a live number with a different start instant means the
+        original is gone and something else has the number now.
+      * `running`: the group exists and its leader's start instant matches. The original
+        work is still there.
+      * `unknown`: the record is incomplete, or the kernel could not be asked. NEVER
+        treated as ended.
+
+    IT SIGNALS NOTHING. This is a liveness question asked with signal 0 and a `/proc`
+    read; stopping anything is a different act that nothing here performs.
+
+    AND IT IS THE DEPLOYMENT'S SEAM, not a manager's inference: a manager cannot ask a
+    kernel about a process it never started, so this is supplied to the settlement the way
+    every other boundary in that path is supplied.
+    """
+    import os
+    import signal
+
+    def observed(record):
+        if type(record) is not dict:
+            return "unknown"
+        group = record.get("group")
+        leader = record.get("leader")
+        started = record.get("started")
+        if not isinstance(group, int) or not isinstance(leader, int) \
+                or not isinstance(started, int) or isinstance(group, bool) \
+                or isinstance(leader, bool) or isinstance(started, bool):
+            return "unknown"
+        # THE DOMAIN THAT ISSUED THESE NUMBERS, COMPARED BEFORE THEY ARE PROBED.
+        #
+        # Review 2026-09-26T05:34:27Z [P1]. `killpg` answering ESRCH means "no such group
+        # IN THIS PID VIEW", which is not absence in the view that minted the number: a
+        # live original can be invisible from another namespace. And the start ticks are
+        # measured from a boot, so across a restart they describe a different
+        # machine-lifetime. Unless the record says where it was minted AND that matches
+        # here, no kernel answer about these numbers means anything -- so a missing,
+        # malformed, legacy or MISMATCHED scope is UNKNOWN, never ended.
+        here = _issuing_domain()
+        if here is None:
+            return "unknown"
+        if record.get("pid_namespace") != here["pid_namespace"] \
+                or record.get("boot") != here["boot"]:
+            return "unknown"
+        if group == os.getpgrp():
+            # A record naming THIS manager's own group is not a restoration child's
+            # group; nothing can be concluded from probing ourselves.
+            return "unknown"
+        try:
+            os.killpg(group, 0)
+        except ProcessLookupError:
+            return "ended"
+        except PermissionError:
+            # Something holds the number and this manager may not signal it. That is not
+            # absence, and it is not this manager's work either -- so it is unknown.
+            return "unknown"
+        except OSError:
+            return "unknown"
+        try:
+            if _process_started(leader) != started:
+                # The number is live but it is not the same process: the original ended
+                # and its id was reused.
+                return "ended"
+        except (OSError, ValueError, IndexError):
+            # The leader is gone while some other member of the group remains, so the
+            # work is not accounted for as ended.
+            return "running"
+        return "running"
+
+    return observed
+
+
+def _process_started(pid):
+    """This process's own start instant, as the kernel records it.
+
+    The twenty-second field of `/proc/<pid>/stat`, in clock ticks since boot. Read
+    rather than derived because the whole point is to distinguish one process from a
+    later one that reused its number, and only the kernel knows which is which. The
+    comm field can contain spaces and parentheses, so the scan starts after the LAST
+    closing parenthesis.
+    """
+    with open(f"/proc/{pid}/stat", "rb") as reading:
+        raw = reading.read()
+    fields = raw[raw.rindex(b")") + 2:].split()
+    return int(fields[19])
+
+
 def _export_run(argv, *, directory):
     """The runner the PREPARATION INPUT PRODUCER requires, which is not
     `_git_run`.

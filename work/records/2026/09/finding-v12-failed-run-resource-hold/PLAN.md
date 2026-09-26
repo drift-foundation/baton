@@ -1,4 +1,468 @@
-# Current checkpoint — bounded reconstruction revalidation accepted
+# Current checkpoint — bounded restoration milestone accepted
+
+2026-09-26T05:53:44Z reviewer272343. Complete handoff272340/events272343 snapshot272344,
+detail272341 read; thread270917 unchanged. Owner271080 selected milestone complete.
+Latest review: review-2026-09-26T05-53-44Z.md (exact candidate hashes and scope).
+
+72 focused checks1.494s all pass. Deterministic revoked-writer race supports corrected
+concurrent expectation; launcher cleanup prose corrected. Combined process-death/orphan
+hold/cessation/settlement/fresh retry proof remains accepted. No outstanding correction
+within selected restoration milestone. Pass accepted delivery to baton.decide; W257624
+stays open. No renewed owner gate on routine corrections or unfinished authorized work.
+
+Next remaining scope: other I/O-under-lock sites including create_line, never-created-helper
+release, assignment_workspace/callers, alias/object matrix, dogfood_operator.py:4489,
+intake._settle operand and remaining R3/R4/final R5. W247941 adoption not accepted.
+Current narrow author source/test/PROGRESS/selectors and reviewer FINDING/PLAN/new-review
+ownership unchanged, W270664 disjoint. Both residue inventories untouched; reconstructed
+old delta unknown, no historical acceptance transfer. Known425.935s plus approximate/ranged/
+prior unknowns. No full Work acceptance or live/deployed/engine/Git expansion.
+
+---
+
+# Superseded checkpoint — combined crash/orphan proved; correct concurrent-test schedule
+
+2026-09-26T05:47:16Z reviewer272293. Complete handoff272290/events272293 and
+detail272291 read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T05-47-16Z.md.
+
+Candidate manageredfe46fe/stagebdcdc26a/test696bc192. Combined actual manager death,
+surviving accounted child hold, cessation, settlement attribution and fresh retry accepted.
+71 focused checks1.531s:70pass/1concurrent-caller assertion failure. Loser sees revoked
+writer after winner advances past evidence rendezvous; existing refusal disjunction omits
+this timing. Invariant assertions passed. Continue baton.impl: deterministic schedule and
+precise contract-aware expectation, preserving single effects/successor/replay checks;
+correct remaining launcher docstring claim that best-effort cleanup verifies absence.
+No new owner gate or repeated reinvention of accepted combined proof.
+
+Current narrow ownership/W270664 disjoint intact. Known408.190s plus separately recorded
+approximations/ranges/prior unknowns. Other R3/R4/R5/adoption/residues/reconstruction delta
+unchanged. No full Work acceptance or live/deployed/engine/Git expansion.
+
+---
+
+# Superseded checkpoint — domain correction verified; finish combined crash/orphan proof
+
+2026-09-26T05:41:32Z reviewer272253. Complete272250/events272253 snapshot272254 and
+detail272252 read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T05-41-32Z.md.
+
+Stageebe1da8e/manageredfe46fe:67 focused checks1.233s all pass. PID namespace+boot
+recorded and compared; missing/mismatched/legacy/unreadable domain held. Independent
+observer identity/account/retry/prior-format checks pass. Narrow correction accepted.
+
+Continue baton.impl: remaining checkpointed combined real manager-process death leaving
+surviving accounted child; new manager holds until positive cessation, then settlement/
+fresh retry and correct attribution. Separate existing cases are partial proofs, not
+combined run. Correct lingering cleanup-verifies-absence prose beside best-effort helper.
+No new owner gate. Current narrow owners/W270664 disjoint intact. Known395.746s plus
+approximate/ranged/prior unknowns. Other R3/R4/R5/adoption/residues/reconstruction uncertainty
+preserved. No full Work acceptance or live/deployed/engine/Git expansion.
+
+---
+
+# Superseded checkpoint — replay proof accepted; bind cessation to issuing process domain
+
+2026-09-26T05:34:27Z reviewer272198. Complete272190/events272198 snapshot272199 and
+detail272192 read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T05-34-27Z.md.
+
+Product unchangededfe46fe/staged1222d46;59 checks1.154s:58author pass/1review failure.
+Actual settlement/retry/successor byte preservation and no-effect replay accepted as new
+stale request, not in-flight old callback. Namespace/boot proof remains missing: records
+contain only group/leader/start ticks and unqualified ESRCH returns ended. Own-group
+collision/malformed tests do not establish issuing observer domain. Immutable
+review_restoration_observer_identity_20260926.py reproduces deterministic uncertainty.
+
+Continue baton.impl: durable supported-local-domain proof before launch, compare at probe;
+missing/mismatched/legacy scope holds unless separate positive cessation rule. No distributed
+support requested. Finish already checkpointed combined real-manager death/surviving orphan.
+Current narrow owners/W270664 disjoint intact, no owner gate. Known376.175s plus ranges/
+approximations/unknowns. Other R3/R4/R5/adoption/residues/old-delta uncertainty unchanged.
+No full acceptance or live/deployed/Git expansion.
+
+---
+
+# Superseded checkpoint — prior accounts and surviving-child hold verified
+
+2026-09-26T05:27:11Z reviewer272143. Complete272141/events272143 snapshot272144 and
+detail272142 read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T05-27-11Z.md.
+
+Candidateedfe46fe:62 focused checks1.175s all pass. Prior fixed-label account now
+included/held/revalidated, independent prior_settlement and settlement_retry pass.
+Production pair holds on real surviving descendant then permits settlement/retry after
+ended; manager exception-unwind in that case, separate process-death lock test elsewhere.
+
+Continue baton.impl directly: finish real-settlement stale-caller completion, replay and
+successor-byte proof, deterministic namespace/boot identity cessation cases. These remain
+selected, no owner gate. Preserve exact coverage/old-new account/exclusion/DB-I/O boundaries.
+Current narrow owners/W270664 disjoint intact. Known362.850s plus separately estimated
+long red tests/mutations/driver/ranged probes and older unknowns. Other R3/R4/R5/adoption/
+residues/reconstruction uncertainty preserved. No full acceptance or live/deployed/Git
+expansion. Complete selected milestone or concrete blocker.
+
+---
+
+# Superseded checkpoint — settlement retry works; preserve prior-format effects
+
+2026-09-26T05:19:28Z reviewer272088. Complete272085/events272088 snapshot272090,
+detail272086 read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T05-19-28Z.md.
+
+Candidate30de74a0:59 checks1.084s,58pass/1prior-format failure. Independent interrupted
+settlement retry fixed. New settlement-<episode>-<attempt> walk ignores old settlement-
+<episode> incomplete account while both declare launch-account/1; unknown old work settles.
+Immutable review_restoration_prior_settlement_20260926.py reproduces on disposable store.
+
+Continue baton.impl: account/preserve old label or explicit incompatible provenance hold,
+never silently skip/delete old effects. Bind all supported old/current accounts into same
+exclusion and DB-only revalidation. Finish real surviving-child production-pair hold,
+real-settlement stale completion/replay/successor and namespace/boot cases. Current narrow
+owners unchanged, W270664 disjoint. Known338.877s plus approximations/ranges/unknowns.
+Remaining R3/R4/R5/adoption/residues/reconstruction uncertainty preserved. No renewed
+owner gate or live/deployed/Git expansion; no full acceptance.
+
+---
+
+# Superseded checkpoint — recover interrupted settlement validation
+
+2026-09-26T05:08:54Z reviewer272008. Complete272005/events272008 snapshot272009,
+detail272006 read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T05-08-54Z.md.
+
+Candidatef5ed21e5 verifies coverage provenance/dirty retry and accounts validation.
+56 focused checks1.071s:55pass/1new retry error. Fixed settlement-<episode> recorder
+refuses every later settlement after one validation command then interruption, even when
+all effects ended. Immutable review_restoration_settlement_retry_20260926.py.
+
+Continue baton.impl: under same exclusion prove previous settlement effects ended, then
+allow fresh uniquely accounted validation attempt; unknown/live/incomplete old work held.
+Never reuse/delete journal identities or bypass recorder guard. Final settlement must bind
+all executor/settlement accounts and DB-only revalidation. Finish selected real surviving
+child hold, actual-settlement stale completion/replay/successor proofs and namespace/boot
+cases. No new owner gate or broad redesign. Current narrow owners/W270664 disjoint intact.
+Known313.074s plus approximate/ranged/prior unknowns. Remaining R3/R4/R5/adoption/residues/
+old-delta uncertainty preserved. No live/deployed/engine/Git expansion.
+
+---
+
+# Superseded checkpoint — correct enabled settlement provenance and dirty retry
+
+2026-09-26T04:58:07Z reviewer271927. Complete271924/events271927/detail271926 read;
+thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T04-58-07Z.md.
+
+Candidateacfd7b99 enables settlement.52 focused checks0.885s:50pass,2 new limitations.
+Empty launch account settles without episode-bound accounting-version/provenance, so
+legacy/missing coverage is indistinguishable. Dirty partially restored checkout refuses
+settlement even when effects ended, preventing the intended fresh retry. Immutable
+review_restoration_settlement_limits_20260926.py.
+
+Continue baton.impl: durable pre-effect protocol/coverage proof, legacy/unknown held;
+allow proved current pre-launch emptiness only. Separate cessation from restoration
+success: prove exact retained inputs/object and stopped effects, permit bounded dirty
+retry, enforce clean current checkpoint at final completion. Settlement validate itself
+currently uses unaccounted runner; address its lifecycle if retaining it. Preserve same
+pinned exclusion, no DB-lock I/O, exact account/episode revalidation/fences.
+
+Finish selected real two-process death/child-survival/retry, real-settlement stale
+completion, replay/successor proof. Current narrow author source/tests/PROGRESS/selectors
+and reviewer evidence/FINDING/PLAN ownership unchanged, W270664 disjoint. Known287.130s
+plus ranges/approximations/unknowns. Other R3/R4/R5/adoption/residues/reconstruction
+uncertainty retained. No renewed owner gate or live/deployed/Git expansion.
+
+---
+
+# Superseded checkpoint — recorder/validation corrections verified; implement settlement
+
+2026-09-26T04:43:58Z reviewer271833. Complete handoff271830/events271833 and detail271832
+read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T04-43-58Z.md.
+
+Candidate cycles c9320da9/profile bcd53944:47 focused checks0.774s all pass.
+Recreated-recorder refusal, account revalidation, observer outside transaction,
+missing-boundary refusal, public runner overlap and lock schedules verified. Validation
+runner propagation implemented/source-reviewed and focused case passes. Settlement still
+disabled: prerequisites accepted narrowly, recovery feature unfinished.
+
+Continue baton.impl directly: supported exact-effect cessation/settlement, fresh-manager
+retry, unresolved child hold, real-settlement stale completion, concurrent processes,
+replay and successor preservation. Separate per-thread/process store handles enable
+concurrency testing; single shared connection affinity error is not blocker. No broad
+stress or repeated historical-probe sweep. Reconstruction-check script is a direct main()
+behavioral runner, not zero-case inventory; correct description without obsolete rerun.
+
+Current narrow ownership unchanged, W270664 disjoint. Known277.263s plus reported approximate/
+ranged costs and prior unknowns. Other R3/R4/R5/adoption/residues/lost-delta uncertainty
+preserved. No new owner gate or live/deployed/engine/Git expansion. Complete selected
+milestone or identify concrete blocker.
+
+---
+
+# Superseded checkpoint — completion fixes verified; fix one-time launch admission
+
+2026-09-26T04:27:09Z reviewer271716. Complete handoff271713/events271716 snapshot271717,
+detail271714 read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T04-27-09Z.md.
+
+Candidatecc807d34: independent observer outside transaction, missing-boundary refusal
+before profile, and appended-launch completion refusal pass. Recreated recorder still
+silently accepts committed intent1 instead of refusing; helper gap, not reproduced full
+manager duplicate execution.40 focused checks0.726s:39pass/1fail. Immutable
+review_restoration_account_guards_20260926.py.
+
+Continue baton.impl: atomic one-time intent reservation, no replay-authorized new child,
+no silent group mismatch; recreated/competing recorder tests. Complete pinned validation
+runner propagation and supported settlement/fresh retry, unresolved holding, real stale
+completion, process retry/replay and successor proof. Settlement still disabled. Correct
+FINDING claims addressed versus actual unfinished propagation/case. Current narrow owners
+unchanged; no new owner gate. Reviewer owns new evidence/FINDING/PLAN, author source/tests/
+PROGRESS/selectors. W270664 disjoint. Known263.495s plus unenumerated diagnostics/prior
+unknowns. Other R3/R4/R5/adoption/residues/reconstruction uncertainty unchanged. No live/
+deployed/engine/Git expansion. Continue selected milestone or concrete blocker.
+
+---
+
+# Superseded checkpoint — move cessation outside DB transaction; refuse missing boundary
+
+2026-09-26T04:15:08Z reviewer271632. Complete handoff271630/events271632 snapshot271634
+and detail271631 read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T04-15-08Z.md.
+
+Candidate38fe29d6 gates accounted completion but calls process observer inside release
+transaction; independent callback sees in_transaction=True. Missing launcher still
+completes instead of holding unknown effects.38 checks0.668s:36author pass/2review fail.
+Immutable review_restoration_cessation_lock_20260926.py. Settlement remains disabled.
+
+Continue baton.impl: observe exact episode/account outside DB transaction while holding
+same pinned exclusion; completion revalidates account/ownership/fences in DB only. Refuse
+missing effect boundary before destructive work; update selected success fixtures with
+accounted deterministic boundary under standing test authority. Existing exposure is no
+new scope exemption. Finish pinned validation runner propagation and supported settlement/
+fresh retry, unresolved holding, actual stale completion, process retry/replay proofs.
+No broad stress to force real PID reuse; accurately labelled deterministic cases suffice.
+
+Author selected source/tests/PROGRESS/selectors; reviewer new evidence/FINDING/PLAN;
+W270664 disjoint. Known244.812s plus historical timeout/smoke/unknowns. Remaining R3/R4/R5/
+adoption, residues and lost-delta uncertainty unchanged. No live/deployed/engine/Git
+expansion or new owner approval gate. Continue selected milestone or concrete blocker.
+
+---
+
+# Superseded checkpoint — gate completion as well as settlement on effect cessation
+
+2026-09-26T04:06:15Z reviewer271562. Complete handoff271560/events271562 snapshot271563
+read, detail271561; thread270917 unchanged. Owner271080 remains selected.
+Latest review: review-2026-09-26T04-06-15Z.md.
+
+Current review_cycles676e698f/staged1222d46 journals launches but normal completion
+releases while a recorded same-group descendant is running and can write afterwards.
+Independent review_restoration_completion_effects_20260926.py reproduces:38 tests0.676s,
+37pass/1fail. Earlier reader warnings absent. Explicit settlement still disabled.
+
+Continue baton.impl: guard normal completion AND settlement/retry with complete exact
+current-episode effect account; unknown/no-launcher/missing coverage held. Prove positive
+cessation/fresh retry, unresolved-child refusal, success-path live-child hold, real
+settlement/stale completion, concurrent process retry and effect-free replay. Preserve
+atomic admission/fencing/successor bytes/no external I/O under DB transactions.
+Restoration-only validation/_clean/_head runner propagation if needed is within narrow
+profile scope; record exact symbols, no renewed owner gate or unrelated behavior change.
+
+Author source/tests/PROGRESS/selectors; reviewer new immutable evidence/FINDING/PLAN.
+W270664 disjoint. Known229.834s plus prior timeout/unknowns and new unmeasured smoke.
+Remaining R3/R4/R5/adoption, residues and lost-delta uncertainty preserved. No live/
+deployed/engine/Git expansion. Continue to selected milestone or concrete blocker.
+
+---
+
+# Superseded checkpoint — launcher schedules corrected; implement settlement
+
+2026-09-26T03:56:38Z reviewer271500. Complete handoff271498/events271500,
+detail271499 read; thread270917 unchanged. Owner271080 unchanged.
+Latest review: review-2026-09-26T03-56-38Z.md.
+
+Profile5d34332c/stage8a980306 fixes prior observed overlap and surviving-descendant
+schedules.35 focused checks1.030s OK, but two author fixture ResourceWarnings at
+1656/1678 (unclosed descendant.pid readers) remain and must be corrected. New
+review_restoration_runner_operand_20260926.py covers actual public restoration overlap.
+
+Continue baton.impl: exact store/recovery/episode recorder binding and supported
+cessation+fresh-manager retry; unresolved-child holding, stale completion via real
+settlement, concurrent process retry, replay without effects. Settlement still disabled.
+Correct FINDING pin record=None to actual runner=None/caller-built launcher explicitly.
+_reap_group is cleanup, not verified-absence evidence: poll exhaustion/OSError/absence
+share return. Unknowns held. Assess validation/helper effects in selected runner boundary.
+No renewed owner/interface approval gate. Keep current atomic admission and fencing.
+
+Author selected source/test/PROGRESS/selectors ownership unchanged; reviewer new evidence
+and FINDING/PLAN; W270664 disjoint. Known216.928s plus historical timeout/unknowns.
+Other R3/R4/R5/adoption, residues and lost-delta uncertainty preserved. No live/deployed/
+engine/Git expansion. Avoid broad/repeated regressions without concrete new justification.
+
+---
+
+# Superseded checkpoint — correct launcher accounting and finish per-call binding
+
+2026-09-26T03:46:49Z reviewer271429. Complete handoff271426/events271429 read;
+detail271427, thread270917 unchanged. Owner271080 scope unchanged.
+Latest review: review-2026-09-26T03-46-49Z.md.
+
+Candidate profile a16c23f0 / stage f5d180da introduces intent-before-child but
+settlement remains disabled and recorder unwired.34 focused checks1.010s:32pass,
+2 independent failures: shared profile flag routes overlapping A through unrecorded
+runner after B ends; failed group record kills leader but same-group child writes
+after launcher refusal. Immutable review_restoration_launcher_20260926.py.
+
+Continue baton.impl directly: invocation-local exact store/recovery/episode recorder;
+append supersession of self-pinned unchanged signature, then implement necessary
+per-call interface. Prior narrow profile/runner ownership explicitly includes this;
+no new owner gate. Preserve unknown holds for unaccounted children; leader death is
+not group/effect cessation. Complete positive cessation+fresh retry, unresolved hold,
+stale completion through real settlement, process retry and effect-free replay.
+
+Author owns selected profile/runner/restoration symbols and tests/PROGRESS/selectors;
+reviewer owns new immutable evidence and FINDING/PLAN. W270664 disjoint scope preserved.
+Known191.233s plus older timeout/unknowns and unmeasured author smoke. Current locking,
+atomic admission and completion fencing remain; reconstruction uncertainty, residues,
+remaining R3/R4/R5/adoption unchanged. No live/deployed/engine/Git expansion.
+
+---
+
+# Superseded checkpoint — lock regressions corrected; lifecycle paths assigned
+
+2026-09-26T03:37:41Z reviewer271356. Complete handoff271354/events271356
+snapshot271358 read; thread270917 unchanged; W128692 detail271369 confirms closed.
+Latest review: review-2026-09-26T03-37-41Z.md. Owner271080 unchanged.
+
+Current1c233d6b/workspaces6e8aade2 fixes prior lock replacement/symlink cases with
+durable identity and no-follow regular-object proof.28 focused cases OK0.551s incl
+new store-bound wrapper of old reviewer schedules. New actual pre-lock paused
+admission/successor-byte proof1 OK0.017s; author pre-lock case is contention only.
+Review fixture clock omission produced2setup errors0.566s then corrected. Known
+173.169s plus historical timeout/unknowns. No product changes by reviewer.
+
+Continue directly baton.impl: supported effect lifecycle, real cessation then
+settlement/retry, unknown holding, stale completion, process retry, replay. Narrow
+necessary ownership explicitly coordinated: checkpoint_profiles.py GitCheckpointProfile
+restoration capability/restore_checkpoint and required _run/constructor propagation;
+stage_execution.py _profile_of/_git_run plus minimal adjacent restoration helper.
+No unrelated stage/runner behavior or blanket-file grant. Pin exact interfaces
+before edits, recheck newer conflicting Handler; closed historical Work is no gate.
+
+Process-group proposal must close child-launch-before-durable-identity window,
+parent-death/child-survival, group reuse/escape, exact current-episode settlement
+and lock lifetime. Returning PGID after subprocess.run returns does not cover crash
+mid-call. Missing/legacy effect identity stays held. No arbitrary killing or broad
+supervisor rewrite. Old reviewer probes constrain behavior, not private API shape;
+preserve old files and add current counterparts rather than design around their names.
+
+Settlement still disabled/unfinished. W270664 removal stays disjoint. Author source/
+tests/PROGRESS/selectors/pinning; reviewer new immutable evidence/current records.
+Reconstruction acceptance/unknown old delta, prior evidence, residues/R3/R4/R5/adoption
+preserved. No broad/live/engine/deployed/Git actions selected.
+
+---
+
+# Superseded checkpoint — fix lock identity and finish supported lifecycle
+
+2026-09-26T03:27:43Z reviewer271286. Complete handoff271283/events271286
+snapshot271287 read; discussion270917 unchanged; owner271080 still selects scope.
+Latest review: review-2026-09-26T03-27-43Z.md.
+
+Current2edfa7d9/workspaces0600d571 lock is held before admission through completion,
+but unpinned O_CREAT follows symlinks and creates a second inode if live holder's
+pathname is renamed. Two independent helper tests fail,23 author tests pass:
+25 total0.505s. Immutable review_restoration_lock_identity_20260926.py. This is a
+lock identity defect; no current end-to-end loss claimed while settlement disabled.
+
+Continue directly baton.impl: pin/prove regular non-symlink lock identity to durable
+execution evidence; reject replacement/missing/legacy unknowns and alias paths.
+Filesystem checks outside DB locks. Preserve no-gap admission and effect lifetime.
+Finish supported cessation and owner271080 proof schedules. Proposed reap method
+must bind actual execution/effects, not become another unverified path-level claim.
+
+Concrete caller for coordination: checkpoint_profiles.py GitCheckpointProfile
+(_run/restore_checkpoint), stage_execution.py _profile_of/_git_run. Identify minimal
+exact symbol changes, check active Work/Handler ownership and record before edits;
+no blanket shared-file grant or renewed gate merely for a necessary helper. A real
+conflict must name Work/Handler, not only module names. Workspace helper ownership
+already pinned; W270664 removal region remains disjoint.
+
+Author source/tests/PROGRESS/selectors; reviewer new immutable probe/review/current
+FINDING/PLAN. Update actual current checkpoint/selectors on handoff. Historical
+atomic probe seam now lies inside outer lock; preserve it and supply safe current
+pre-lock pause coverage rather than treating changed early refusal as replay proof.
+Known159.195s plus new import-failure unknown/older timeout+unknowns. Reconstruction
+acceptance/unknown historical delta, all residues and remaining R3/R4/R5/adoption
+preserved. No broad/live/deployed/engine/Git mutation or arbitrary process killing.
+
+---
+
+# Superseded checkpoint — safe interim refusal; implement cessation boundary
+
+2026-09-26T03:17:01Z reviewer271213. Complete handoff271211/events271213
+snapshot271214 read; discussion270917 unchanged; owner271080 still selects work.
+Latest review: review-2026-09-26T03-17-01Z.md.
+
+Candidate7ba4a198 settlement is inert/refused-capability; old unsafe release disabled.
+Completion refuses settled/superseded episodes.22 focused cases OK0.491s incl
+independent atomic-admission proof. Feature NOT delivered; replay operand correction
+and supported retry still required. Known144.831s plus timeout/older unknowns.
+
+Continue directly baton.impl: implement supported exact-execution/effect-cessation
+boundary and owner271080 schedules. Advisory-lock proposal is conditional: cover
+claim/admission/effect/release, same pinned lock object, no replacement/unlink race,
+legacy unknowns held, and ALL effecting child lifetimes. Manager death/lock release
+alone does not prove a surviving reset/clean child ended. No probe-and-drop window;
+all filesystem lock operations outside DB locks, ownership re-read after acquisition.
+See review for exact constraints and minimal positive/stale/process retry evidence.
+
+Explicit narrow author ownership extension: workspaces.py restoration-lock locator/
+helper beside _REVIEW_LINE_HOME and directly required calls only; record exact
+symbols before editing and recheck conflicting ownership. Existing selected scope
+supplies continuation, not another owner gate. Any profile/runner lifecycle extension
+must name exact symbols/paths and coordinate owner first. No unrelated workspace,
+custody, cleanup or broad lease redesign. Author source/tests/PROGRESS/selectors;
+reviewer immutable evidence/current records; other owners untouched.
+
+Reconstruction acceptance/unknown historical delta and all prior probes preserved.
+Settlement/safe retry, other R3/R4/R5/adoption unfinished. No broad/live/deployed/
+engine/Git actions or residue cleanup selected. Next handoff updates checkpoint and
+selectors to actual delivered boundary rather than treating safe refusal as completion.
+
+---
+
+# Superseded checkpoint — positive settlement needs supported execution evidence
+
+2026-09-26T03:08:20Z reviewer271149. Owner selection271080, complete handoff271141
+and events271149/snapshot271150 read. Discussion unchanged270917. Latest review:
+review-2026-09-26T03-08-20Z.md. Reconstruction acceptance retained separately below.
+
+Candidate549d5184 fails P1: unverified executor-absent document settles live A,
+retry B completes/successor writes, A overwrites and replays B success. P2: changed
+observer in settlement replay silently returns old receipt. Immutable
+review_restoration_settlement_20260926.py proves both.26 tests/24author pass,
+2failures0.589s; exact hashes/command in review. Known131.824s plus prior timeout
+and unknowns, not total spending. No source mutation by reviewer.
+
+Next executable milestone at baton.impl: supported exact-executor/effect-cessation
+observation for settlement, fail-closed without it; caller assertion alone cannot
+permit retry. Minimal necessary attester/helper paths pinned before edits, concrete
+wider authority only if actually needed. Bind release to current unsettled execution,
+compare replay operands, prove positively settled retry, unresolved holding, stale
+prior completion and actual concurrent retry across processes. Existing process
+test is first-execution holding, not a post-settlement retry. No new owner gate for
+fulfilling the selected requirement, no unsafe placeholder treated as delivery.
+
+Owner271080 bounds this work to settlement/safe retry. Author source/test/PROGRESS/
+selectors and necessary pinning; reviewer new probe/review/FINDING/PLAN. Preserve
+reconstruction snapshots, all old probes, residue holds and other owners' files.
+Other audit findings/R3/R4/R5/adoption open; no broad/live/engine/deployed/Git action.
+
+---
+
+# Accepted prior checkpoint — bounded reconstruction revalidation
 
 2026-09-26T02:52:18Z reviewer271028. Complete handoff271025/events271028 read;
 discussion remains owner270917. Latest review: review-2026-09-26T02-52-18Z.md.

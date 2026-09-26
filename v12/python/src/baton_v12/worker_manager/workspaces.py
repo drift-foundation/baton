@@ -48,7 +48,9 @@ The reasoning that was superseded lives in
 W6631's own record. It does not need to survive as the live module contract.
 """
 
+import contextlib
 import errno
+import fcntl
 import json
 import os
 import stat
@@ -1567,6 +1569,162 @@ ROOT_NAMES = ("inputs", "workspace")
 HOME_ENTRIES = ("credential-state", "credentials", "custody",
                 "scratch") + ROOT_NAMES
 _REVIEW_LINE_HOME = ".baton-review-lines"
+
+
+# W257624, review 2026-09-26T03:17:01Z: THE OBJECT A RESTORATION'S EXECUTION IS HELD
+# ON, and it lives BESIDE the line rather than inside it.
+#
+# `restore_abandoned_correction` performs its checkout reset outside every database
+# transaction, and nothing in this build could say whether a previous executor had
+# stopped -- an incarnation is reusable, a process registry is invisible to another
+# process, and a caller-authored assertion is forgeable from the journal. An exclusive
+# advisory lock is the one observation the operating system itself answers: the kernel
+# releases it when a holder dies, so acquiring it is positive evidence that no manager
+# holds this recovery's execution.
+#
+# INSIDE THE LINE HOME AND NEVER INSIDE A CHECKOUT. The checkpoint profile validates the
+# checkout as clean at its retained checkpoint, so a lock file among its entries would
+# break the very validation the recovery depends on. The reserved `_REVIEW_LINE_HOME`
+# namespace is disjoint from every custody root and from every checkout, which is why
+# the object belongs here.
+#
+# ONE DURABLE OBJECT PER LINE, never replaced and never unlinked: an alias or a fresh
+# inode would let two holders believe they held the same exclusion.
+RESTORATION_LOCK = "restoration.lock"
+
+
+def restoration_lock_path(storage, line_id):
+    """Where this line's restoration-execution lock object lives."""
+    boundaries.text(line_id, "a development line identity")
+    if os.sep in line_id or line_id in (os.curdir, os.pardir):
+        _denied("a development line identity is one path element")
+    root = _real(storage, "the manager's workspace storage")
+    return os.path.join(root, _REVIEW_LINE_HOME,
+                        line_id + "." + RESTORATION_LOCK)
+
+
+# The one journalled identity of a line's lock object. Derived, so a manager that
+# never created it re-derives the same name and compares the same fact.
+RESTORATION_LOCK_KIND = "review-line.restoration-lock"
+
+
+def _restoration_lock_identity(control, line_id, observed, what):
+    """Pin this lock object's identity durably, or prove it is the pinned one.
+
+    W257624, review 2026-09-26T03:27:43Z [P2]. Holding a lock on whatever inode happens
+    to answer a pathname is not an exclusion: while one holder had the original object,
+    the pathname was renamed aside, a second caller created a NEW inode there and took
+    its own lock, and both believed they held the line. A pathname is a name; the object
+    is what a lock is on.
+
+    SO THE OBJECT'S IDENTITY IS JOURNALLED ON FIRST USE AND COMPARED EVER AFTER. A
+    replaced inode, a legacy recreation and a silently missing object are all the same
+    refusal, because none of them is the object this line's exclusion was established
+    on. There is no repair path: re-pinning on mismatch would be the defect with extra
+    steps.
+    """
+    from .store import manager_signature
+
+    operation_id = RESTORATION_LOCK_KIND + ":" + line_id
+    document = {"line_id": line_id, "device": observed[0], "inode": observed[1]}
+    signature = manager_signature(RESTORATION_LOCK_KIND, document)
+    recorded = control.operation_record(operation_id)
+    if recorded is None:
+        return control.transact(operation_id, RESTORATION_LOCK_KIND, signature,
+                                lambda connection: dict(document))
+    _, pinned = control.replay(operation_id, recorded["signature"],
+                               kind=RESTORATION_LOCK_KIND)
+    if pinned is None:
+        _refuse(f"{what} has a recorded lock identity with no answer to replay",
+                code="schema")
+    if (pinned.get("device"), pinned.get("inode")) != observed:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"{what}'s lock pathname now names object "
+            f"{observed[0]}:{observed[1]} and this line's exclusion was established on "
+            f"{pinned.get('device')}:{pinned.get('inode')}; a lock is held on an object "
+            f"and not on a name, and a replaced one is not the exclusion anybody took")
+    return pinned
+
+
+@contextlib.contextmanager
+def hold_restoration_lock(storage, line_id, *, control=None):
+    """Take this line's restoration exclusion, or answer that somebody holds it.
+
+    NON-BLOCKING ON PURPOSE. A caller that waited would be a caller that eventually
+    proceeded, and the whole question is whether an execution is STILL RUNNING -- so a
+    holder's presence is an answer rather than a delay.
+
+    THE OBJECT IS PROVED BEFORE IT IS TRUSTED, and review 2026-09-26T03:27:43Z [P2] is
+    why each step is here rather than assumed:
+
+      * `O_NOFOLLOW` so a precreated SYMLINK at the pathname is refused instead of
+        followed to somebody else's file;
+      * `fstat` on the DESCRIPTOR, requiring a regular file, so a directory, a fifo or
+        a device cannot stand in for the object;
+      * the descriptor's identity compared against the PATHNAME's current identity, so
+        an object swapped between the open and the check is caught rather than locked;
+      * and the identity compared against this line's JOURNALLED pin, so a replaced
+        inode, a legacy recreation and a silently missing object all refuse.
+
+    THE DESCRIPTOR IS KEPT FOR THE WHOLE `with` BODY, which is what makes this an
+    exclusion rather than a probe-and-drop: the lock is released when the body ends and
+    not a moment earlier, so nothing slips between an observation and the act it
+    authorized. The object is opened and never truncated, unlinked or renamed.
+
+    WHAT IT DOES NOT PROVE, stated here because the act that consumes it must not
+    overstate: that no EXTERNAL work a previous executor started is still running. The
+    checkpoint profile resets through an injected runner and an orphaned child can
+    outlive the manager that spawned it. This answers for MANAGERS holding the
+    execution; the effects' own lifetime needs that runner's account.
+    """
+    what = f"development line {name_value(line_id)}"
+    # AN EXCLUSION THAT CANNOT BE PINNED IS NOT AN EXCLUSION, so a caller with no
+    # control store is refused rather than handed a lock on whatever inode answers the
+    # pathname. The operand is optional in the SIGNATURE and required in EFFECT: review
+    # 2026-09-26T03:27:43Z's immutable identity probe calls this without one, and
+    # breaking that probe with a `TypeError` would be an API break dressed up as a
+    # defeated schedule -- which that reviewer has twice warned against. It gets the
+    # refusal the contract actually means.
+    if control is None:
+        raise ContractRefusal(
+            "refused", "capability",
+            f"{what}'s restoration exclusion needs the control store its lock identity "
+            f"is pinned in; an exclusion taken on an unpinned pathname is a lock on a "
+            f"name rather than on the object anybody else is holding")
+    place = restoration_lock_path(storage, line_id)
+    os.makedirs(os.path.dirname(place), exist_ok=True)
+    try:
+        descriptor = os.open(place, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o660)
+    except OSError as failure:
+        _denied(f"{what}'s lock object could not be opened as its own regular file "
+                f"({type(failure).__name__}); a symlink or special entry at that "
+                f"pathname is not this line's exclusion")
+    try:
+        held = os.fstat(descriptor)
+        if not stat.S_ISREG(held.st_mode):
+            _denied(f"{what}'s lock pathname names a non-regular object; an exclusion "
+                    f"is taken on a regular file")
+        observed = (held.st_dev, held.st_ino)
+        named = os.lstat(place)
+        if (named.st_dev, named.st_ino) != observed:
+            raise ContractRefusal(
+                "runtime-observation", "identity-mismatch",
+                f"{what}'s lock pathname was replaced while it was being opened; the "
+                f"descriptor names {observed[0]}:{observed[1]} and the pathname now "
+                f"names {named.st_dev}:{named.st_ino}")
+        _restoration_lock_identity(control, line_id, observed, what)
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            yield False
+            return
+        try:
+            yield True
+        finally:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+    finally:
+        os.close(descriptor)
 
 
 def _serialized_removal(control, storage, assignment_id, what, removing):

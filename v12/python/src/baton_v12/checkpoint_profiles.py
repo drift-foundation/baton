@@ -236,9 +236,22 @@ class GitCheckpointProfile:
         if supplement is not None:
             supplement = _path(supplement, "a supplement repository")
         self._supplement = supplement
-
-    def _run(self, argv, what):
-        answer = self._runner(tuple(argv))
+        # W257624, review 2026-09-26T03:37:41Z: THE RESTORATION LAUNCH BOUNDARY, and it
+        # is optional so every existing deployment and suite keeps today's behaviour.
+        #
+        # A restoration's external work can outlive the manager that started it, and a
+        # runner that reports nothing until it returns cannot account for a manager
+        # killed during the call. A launcher records the work BEFORE the child exists;
+        # absent one, this profile claims no covered lifetime and the recovery that
+        # depends on such an account holds rather than proceeding.
+    def _run(self, argv, what, *, runner=None):
+        # W257624, review 2026-09-26T03:46:49Z [P1]: THE RUNNER IS AN OPERAND, NEVER
+        # INSTANCE STATE. A flag on this profile was shared between concurrent
+        # restorations, so one invocation clearing it on its way out left another --
+        # still active -- routing its remaining commands through the ordinary
+        # UNRECORDED runner, and the account then covered nothing. Nothing about one
+        # invocation is stored here; the runner travels down the call chain.
+        answer = (runner or self._runner)(tuple(argv))
         if type(answer) is not dict or set(answer) != {
                 "returncode", "stdout", "stderr"}:
             raise ProfileRefusal(
@@ -291,12 +304,14 @@ class GitCheckpointProfile:
             + "); this is not absence, and no supplemental delivery is "
               "attempted over a clone that cannot answer")
 
-    def _head(self, repository):
-        found = self._run(verify_vector(repository), "HEAD verification").strip()
+    def _head(self, repository, *, runner=None):
+        found = self._run(verify_vector(repository), "HEAD verification",
+                          runner=runner).strip()
         return check_declared_base(found)
 
-    def _clean(self, repository):
-        if self._run(status_vector(repository), "clean-worktree check") != "":
+    def _clean(self, repository, *, runner=None):
+        if self._run(status_vector(repository), "clean-worktree check",
+                     runner=runner) != "":
             raise ProfileRefusal(
                 "a checkpoint freezes a clean committed candidate; the private "
                 "line still has tracked or untracked worktree changes")
@@ -435,7 +450,29 @@ class GitCheckpointProfile:
         self.validate(repository, evidence, current=True)
         return evidence
 
-    def restore_checkpoint(self, repository, evidence):
+    def restore_checkpoint(self, repository, evidence, *, runner=None):
+        """W257624: the restoration, with its external work optionally ACCOUNTED FOR.
+
+        `runner` is the per-INVOCATION runner its caller built for this one restoration --
+        a launcher bound to the exact store, recovery and episode, which commits each
+        command's intent before that command's child exists. It is an OPERAND and is
+        never stored on this profile: review 2026-09-26T03:46:49Z [P1] found an instance
+        flag being shared between concurrent restorations, so one invocation clearing it
+        left another routing its remaining commands through the ordinary unrecorded
+        runner.
+
+        AND THE LAYERING IS WHY IT IS A RUNNER RATHER THAN A RECORDER. The launcher lives
+        with the deployment, so this module never reaches for it; the caller builds it and
+        hands it down. Absent one, behaviour is exactly what it was and this profile
+        claims NO covered lifetime -- which is what its consumer holds on rather than
+        works around.
+
+        ONLY THIS ACT IS ROUTED. The runner reaches the reset and the scratch removal --
+        the commands that write the checkout -- and no other act of this profile sees it.
+        """
+        return self._restored_checkpoint(repository, evidence, runner=runner)
+
+    def _restored_checkpoint(self, repository, evidence, *, runner=None):
         """Discard this private checkout's scratch back to a retained
         checkpoint.
 
@@ -492,14 +529,22 @@ class GitCheckpointProfile:
             # profile, the retained reference, its commit and tree, and the
             # reviewed path set -- and it is asked over the HELD object, so it
             # verifies the same checkout the writes will reach.
-            held = self.validate(checkout.place(), evidence)
+            held = self.validate(checkout.place(), evidence, runner=runner)
             head = check_declared_base(held["head"])
             self._run(reset_vector(checkout.place(), head),
-                      "checkpoint restoration")
-            self._run(clean_vector(checkout.place()), "scratch removal")
-            return self.validate(checkout.place(), held, current=True)
+                      "checkpoint restoration", runner=runner)
+            self._run(clean_vector(checkout.place()), "scratch removal",
+                      runner=runner)
+            return self.validate(checkout.place(), held, current=True,
+                                 runner=runner)
 
-    def validate(self, repository, evidence, *, current=False):
+    def validate(self, repository, evidence, *, current=False, runner=None):
+        # W257624. THE PER-INVOCATION RUNNER REACHES VALIDATION TOO, pinned by review
+        # 2026-09-26T03:56:38Z and unfinished until now. A restoration validates the
+        # checkpoint it is restoring, and those commands are part of THAT restoration's
+        # account; reading them through the constructor runner would leave them
+        # unaccounted while the act beside them was accounted. `runner=None` keeps the
+        # constructor runner, so every existing caller is unchanged.
         repository = _path(repository, "a private line repository")
         if type(evidence) is not dict or set(evidence) != {
                 "profile", "base", "head", "tree", "paths",
@@ -513,21 +558,22 @@ class GitCheckpointProfile:
         reference = _reference(evidence["reference"])
         held = self._run(["git", "-C", repository, "rev-parse", "--verify",
                           f"{reference}^{{commit}}"],
-                         "checkpoint-reference verification").strip()
+                         "checkpoint-reference verification", runner=runner).strip()
         if check_declared_base(held) != head:
             raise ProfileRefusal("the retained checkpoint reference moved")
         held_tree = self._run(tree_vector(repository, reference),
-                              "checkpoint-tree verification").strip()
+                              "checkpoint-tree verification",
+                              runner=runner).strip()
         if check_declared_base(held_tree) != tree:
             raise ProfileRefusal("the retained checkpoint tree changed")
         paths_text = self._run(diff_vector(repository, base, head),
-                               "checkpoint-path verification")
+                               "checkpoint-path verification", runner=runner)
         paths = sorted(path for path in paths_text.split("\x00") if path)
         if evidence["paths"] != paths or evidence["path_set_digest"] != digest(paths):
             raise ProfileRefusal("the checkpoint's reviewed path set changed")
         if current:
-            self._clean(repository)
-            if self._head(repository) != head:
+            self._clean(repository, runner=runner)
+            if self._head(repository, runner=runner) != head:
                 raise ProfileRefusal(
                     "the mutable line no longer matches the checkpoint requested "
                     "for current read-only review")

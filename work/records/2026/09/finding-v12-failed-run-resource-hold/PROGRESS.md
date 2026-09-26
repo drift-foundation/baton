@@ -3129,3 +3129,1259 @@ that those re-applied corrections are bytes I re-typed, not the reviewed candida
 `VERIFICATION-SELECTORS.md` `3c124daf63f1b111390b35e026cb2300a7828319b73b77f4eead4b361b926b51`.
 All four reviewer probes, every review, the reviewer's preserved candidates, both
 LIVE-RUN-RESIDUE inventories and Tuner's R5-PREPARATION.md untouched.
+
+## 2026-09-26 claim 271085 — positive settlement and safe retry
+
+Owner reroute 271080 selects only the unfinished positive-settlement and safe-retry
+portion. Pinned in the FINDING entry with exact ownership before editing, together
+with the concrete missing authority that decides the shape of what could be built.
+
+**THE CONCRETE MISSING AUTHORITY, which the owner asked be recorded precisely.** A
+settlement needs two facts: that the prior executor has ENDED, and that its EFFECTS
+are accounted for.
+
+- THE EFFECTS HALF IS SUPPORTED TODAY. The checkpoint profile can attest the
+  checkout: `validate(..., current=True)` proves the line is clean AT the retained
+  checkpoint, which is what "the effects are accounted for" means for a checkout —
+  the interrupted restoration either completed its intended effect or left nothing
+  half-applied. A tree in any other state is not settled.
+- THE EXECUTOR HALF HAS NO ATTESTER IN THIS BUILD. Nothing can be asked whether a
+  manager's own in-flight external act has stopped. `ControlStore` records an
+  incarnation and never reserves or proves one; `offers.py` settles offers on an
+  incarnation COMPARISON, which this ruling explicitly rejects; and `intake`'s
+  positive `runtime-absent` evidence is about an engine container, not a manager
+  holding a checkout open. So the attestation is an OPERAND the deployment supplies.
+  WIDER SCOPE STILL OWED: a supported attester for it. Until one exists a deployment
+  that cannot supply the evidence keeps the recovery held, which is correct.
+
+**WHAT WAS BUILT.** `settle_restoration_execution` journals a settlement for one
+execution episode at its own identity, and the admission hold now consults it: a
+claimed episode with neither a completion nor a settlement holds every later caller,
+and a settled one permits the NEXT episode. The settlement requires both halves:
+
+- `_ended_executor` owns the attestation's shape, cross-binds it to the exact
+  episode's executor token, and REFUSES BY KIND the four bases the ruling names.
+  `_INADMISSIBLE_ENDINGS` is a closed set — exception, fault, timeout, deadline,
+  elapsed, elapsed-time, incarnation, restart, reused-incarnation, assumed, presumed
+  — so those inferences cannot arrive wearing this operand's shape.
+- The effects half runs the profile OUTSIDE every transaction and compares the
+  answered evidence against the checkpoint the recovery is about; the committing
+  transaction then compares the line-object pin, so the row is bound to the object
+  validation was performed against.
+
+**PRESERVED, as the owner required:** atomic execution admission in one transaction,
+completion fencing to the exact episode and token, successor-byte protection, and no
+external I/O under a database lock. No existing behaviour was relaxed to make room.
+
+**THE FIVE SCHEDULES, all proved.** Positively settled interruption then a successful
+retry on a fresh episode, with the successor admitted and the writer revoked.
+Unresolved interruption refusing retry. Stale completion. Concurrent retry across
+handles after a settlement. Completed replay without another restore, plus a
+settlement replay and a refusal to settle a recovery that finished. Two further cases
+cover the gate itself: every inadmissible basis refused, and an attestation about
+another execution settling nothing.
+
+**24 cases OK, 0.528s, stable over ten consecutive runs.**
+
+**TWO MUTATION PROBES, both halves load-bearing.** Disabling the inadmissible-basis
+refusal fails nine subtests; replacing the profile validation with the checkpoint's
+own evidence fails the effects case. The file was restored from a byte copy each time
+with its hash verified equal.
+
+**ONE FLAKY CASE FOUND AND FIXED, and it was mine from two claims ago.**
+`test_a_caller_past_its_reads_is_held_when_it_loses_the_intent` asserted one specific
+refusal, and the loser is legitimately held at either of two boundaries depending on
+how far it had got: the executor-incarnation fence, or `_abandoned_writer` refusing a
+writer the winner's intent had already revoked. It failed about one run in four. Both
+boundaries are now enumerated exactly — not "any refusal" — and the crossing count
+carries the property that matters. Caught by running the selector repeatedly rather
+than once.
+
+**AND ONE ASSERTION I HAD WRONG IN THE NEW WORK.** I asserted that exactly one of two
+concurrent retriers returns a document; BOTH do. The loser reaches admission after the
+winner's completion commits, so it takes the replay exit and returns the SAME recovery
+having crossed nothing. That is the safe outcome, so the case now asserts one crossing
+and that every answer is either that one recovery or a hold.
+
+**REGRESSION:** `tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles`
+162/36 at the disclosed baseline; `test_grant_writer_admission` 12 OK; the stage-1
+selector 10 OK; the W266337 stage-3 proof 12 OK. The reviewer's
+`review_reconstruction_checks_20260926` collects no tests under a plain module
+selector — its own driver supplies them — so I did not treat a zero-test run as a pass.
+
+**HASHES.** `review_cycles.py` `549d51847266c474cfc552b87d8de6abf3de9b4a3d6879bd0237e20bc26dc1a5`
+(was `a7760cd9…`, the accepted reconstruction baseline);
+`test_restore_outside_the_lock.py` `476a417caca764c57077e875e1202a39eb39b723caf187419b2464804162088d`.
+All reviewer probes, the delta JSON, the reconstruction checks, every review and the
+preserved candidates are byte-unchanged.
+
+## 2026-09-26 claim 271176 — the forgeable attestation removed; feature returned incomplete
+
+**REVIEW 271171's P1 WAS RIGHT AND THE DESIGN ERROR WAS MINE.** I put the whole
+guarantee into an operand nobody verifies: a shape check, a literal kind, a token
+equality and a nonempty observer string. The token is readable from the journal, so any
+caller could author the document about a demonstrably live executor — and the reviewer's
+probe did exactly that, obtaining a settlement while the executor was still on the call
+stack, retrying, admitting a successor and losing its bytes. I had disclosed that no
+attester existed and shipped the path enabled anyway. **Disclosure is not
+authorization.** A blacklist of other words was never the point either: the defect was
+that a caller's assertion was taken as an observation at all.
+
+**WHAT I DID.**
+
+1. `_ended_executor` and `_INADMISSIBLE_ENDINGS` are **REMOVED**, not tightened — dead
+   forgeable code is worse than none.
+2. `settle_restoration_execution` is **FAIL-CLOSED** at its entry: it refuses
+   `refused/capability` before validating or recording anything, naming the missing
+   boundary. So an unsettled execution holds exactly as it did before this feature
+   existed, which is the owner ruling's own requirement, and P2's replay-operand defect
+   is removed along with the path that had it.
+3. The completion now refuses **settled or superseded** ownership, which the review
+   requires independently of the attester: a settled episode is one somebody else was
+   told had ended, and a later claimed episode is a retry in possession. An old episode
+   releases nothing.
+
+**THE BOUNDARY I IDENTIFY PRECISELY, so the next claim implements rather than designs.**
+"Has this execution ended?" is answerable by the operating system and by nothing else
+here, through **advisory file locking**: the executor holds an exclusive `flock` on a
+lock file kept BESIDE the line — under the review-lines home, never inside the checkout,
+so cleanliness validation is unaffected — for exactly the span of its external act; a
+later caller probes the same lock NON-BLOCKING, and success is a positive observation
+that no executor holds it. The kernel releases it when a process dies, so it
+distinguishes a **crashed** executor from a **live** one, which is the single fact
+nothing in this build can currently establish and the reason I have reported this gap
+five times. It is not a lease: no expiry, no renewal, no heartbeat, no elapsed time. It
+is not forgeable: the manager performs the probe itself.
+
+**REQUIRED PATH OWNERSHIP EXTENSION, recorded now.** The lock path belongs under
+`workspaces.py`'s `_REVIEW_LINE_HOME`, which that module owns, so a minimal helper there
+is needed beside the `review_cycles.py` work. `workspaces.py` is NOT in my ownership for
+this correction and I have not touched it.
+
+**21 cases OK, 0.473s, stable over six runs.** Three cases carry this claim: the entry
+fail-closed with nothing recorded and the retry still held; the reviewer's exact forgery
+shape refused along with the variants my blacklist used to enumerate; and — driven by
+labelled out-of-band rows, because no supported operation can produce a settlement — the
+completion refusing a settled episode and leaving the line unreleased.
+
+**MUTATION PROBE:** disabling the fail-closed refusal fails seven cases. The reviewer's
+`review_restoration_settlement_20260926` now errors on that refusal, 2 ran / 2 errors.
+
+**REGRESSION:** `tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles`
+162/36 baseline; `test_grant_writer_admission` 12 OK; the stage-1 pair 10 OK; the W266337
+stage-3 proof 12 OK.
+
+**I ALSO WITHDRAW AN OVERSTATEMENT.** My previous handoff claimed the five owner-named
+schedules were complete. They were not: the subprocess case is a pre-settlement
+first-execution refusal, and the retry-contention case was across handles only. Both the
+stale prior-episode completion proof and the cross-process post-settlement retry depend
+on a settlement that can actually be obtained, so they follow the boundary.
+
+**THIS CLAIM IS RETURNED INCOMPLETE.** The selected feature — positive settlement and
+safe retry — is not delivered. What is delivered is the removal of the defect that made
+it unsafe, the completion fix, and the boundary design with its ownership extension.
+
+**HASHES.** `review_cycles.py` `7ba4a198cfd0d9cc188f24aa662f94334651b4be4768618c2937b0cf2ef0964e`
+(was `549d5184…`); `test_restore_outside_the_lock.py` recorded in the handoff. All
+reviewer probes, the delta JSON, every review and the preserved candidates unchanged.
+
+## 2026-09-26 claim 271238 — the restoration-execution lock
+
+Review 271234 authorized continuation, verified the interim fail-closed refusal, and
+made the lock proposal CONDITIONAL. Pinned in the FINDING entry with exact symbols and
+the ownership coordination before any edit.
+
+**OWNERSHIP COORDINATION, checked rather than assumed.** W270664 also names
+`workspaces.py`. It is QUEUED at `baton.decide`, unclaimed, and its own selection says
+"Coordinate exact ownership with active W257624 before routing implementation; do not
+interrupt or overlap its correction." Its region is workspace REMOVAL —
+`discard_workspace`, `discard_execution_roots`, the intake cleanup transaction — which
+is disjoint from the three symbols I added. No live conflict; the FINDING entry is the
+coordination record for that Work's implementer.
+
+**EXACT SYMBOLS ADDED to `workspaces.py`, and nothing else in it read or changed:**
+`RESTORATION_LOCK`, `restoration_lock_path(storage, line_id)` and
+`hold_restoration_lock(storage, line_id)`. The object lives beside the line under
+`_REVIEW_LINE_HOME` and never inside a checkout, so the profile's cleanliness
+validation is untouched; it is opened with `O_CREAT` and never truncated, unlinked or
+renamed, so two holders cannot end up on two inodes at one pathname.
+
+**WIRED AS THE REVIEW REQUIRED.** The exclusion is taken BEFORE admission and held
+across the whole external act — no admission-before-acquire and no probe-and-drop gap —
+with the filesystem work outside every transaction and the completion committing before
+the `with` body ends. The episode is deliberately NOT released in the `finally`: the
+lock and the episode answer different questions, and only the lock's is this frame's to
+answer.
+
+**THE REVIEW'S CONDITION ACCEPTED, AND IT LIMITS THE CLAIM.** "Manager lock release
+alone does not prove all effects ended; `checkpoint_profiles.py` reset/clean run through
+supplied runner and a child can survive parent." That is correct. An acquired lock
+proves NO MANAGER holds this recovery's execution; it does not prove the external work a
+previous manager started has stopped. So the settlement entry stays fail-closed and the
+coordinated extension is named precisely: one checkpoint-profile capability —
+`reap_restoration(repository)` — that positively stops and reaps the external work it
+started and answers what it observed. Its owners are `checkpoint_profiles.py` and the
+runner contract; NEITHER is in my ownership and I have not touched them.
+
+**A MEASURED FINDING I AM REPORTING RATHER THAN BURYING.** My first mutation probe on
+the lock **passed** — removing the refusal broke no case. With the settlement
+fail-closed, every competing caller is already stopped by the unsettled-episode hold, so
+the lock guards only schedules that are not reachable yet. A guard nothing exercises is
+a guard nobody has checked. `test_the_lock_refuses_where_the_episode_hold_would_admit`
+now isolates it: a settlement row is planted (labelled out-of-band, at a seam the
+product does not offer) so the episode hold PERMITS a second caller, and what refuses
+that caller is then the lock and nothing else — the exact state the finished settlement
+will create legitimately, and the byte-loss the reviewer reproduced twice. The re-run
+mutation probe fails precisely that case.
+
+**23 cases OK, 0.520s, stable over five runs.** Two cases are new: the lock object
+itself — path in the reserved home and outside the checkout, not acquirable while a
+restoration is open, acquirable after, and the same inode across holds — and the
+isolation case above.
+
+**REGRESSION:** `tests.manager.test_workspaces` 136 OK (the suite that owns the file I
+extended); `tests.job_manager.test_review_driver` 164 OK;
+`tests.manager.test_review_cycles` 162/36 at the disclosed baseline.
+
+**FOUR EXISTING CASES were updated** because the lock refuses earlier than the episode
+hold for a competing caller; both boundaries are enumerated exactly rather than
+accepting any refusal.
+
+**HASHES.** `review_cycles.py` `2edfa7d94a09c7b90bcd0ed03403338907960fa85cd4453e9711916bce2f273d`;
+`workspaces.py` and `test_restore_outside_the_lock.py` recorded in the handoff.
+
+**STILL NOT DELIVERED:** the settlement itself, which needs the profile reap capability;
+a supported stopped-execution then retry; unresolved effect holding through that
+capability; a stale prior completion through a real settlement; and a cross-process
+post-settlement retry. All five depend on the named extension.
+
+## 2026-09-26 claim 271320 — lock identity pinned; lifecycle propagation identified
+
+Review 271310's P2 is correct: a lock on whatever inode answers a pathname is not an
+exclusion. While one holder had the original object, the pathname could be renamed
+aside, a second caller could `O_CREAT` a NEW inode there and take its own lock, and both
+would believe they held the line. A precreated symlink was accepted too.
+
+**FOUR PROOFS NOW STAND BETWEEN THE PATHNAME AND THE EXCLUSION**, each for a named
+failure: `O_NOFOLLOW` so a symlink is refused rather than followed to somebody else's
+file; `fstat` on the DESCRIPTOR requiring a regular file, so a directory, fifo or device
+cannot stand in; the descriptor's identity compared against the pathname's current
+identity, catching a swap between the open and the check; and the identity compared
+against a DURABLE JOURNALLED PIN, so a replaced inode, a legacy recreation and a
+silently missing object all refuse. There is no repair path — re-pinning on mismatch
+would be the defect with extra steps.
+
+**THE PIN IS JOURNALLED, NOT INFERRED.** `RESTORATION_LOCK_KIND` records
+`(device, inode)` at a derived identity on first use and every later acquisition
+replays and compares it. No schema change.
+
+**AN OPERAND THAT IS OPTIONAL IN SIGNATURE AND REQUIRED IN EFFECT.** The pin needs the
+control store. Making `control` a required keyword broke the reviewer's immutable
+identity probe with a `TypeError` — an API break dressed up as a defeated schedule,
+which that reviewer has warned against twice and was right both times. So `control`
+defaults to `None` and its absence REFUSES `refused/capability`: an exclusion that
+cannot be pinned is a lock on a name rather than on the object anybody else holds.
+Their symlink case passes on that refusal; their rename case now errors, because its
+outer acquisition legitimately refuses, so **I carry both schedules as author cases**
+rather than benefiting from the break.
+
+**THREE CASES ADDED.** The rename-replacement schedule, with the rename performed by the
+case and NOT by the helper — that review is explicit that "no-op renames by your helper
+do not prove nobody replaces the pathname"; the precreated symlink, with the target
+verified untouched; and the safe pre-lock pause the review asked for, since their
+atomic-admission probe now schedules inside the outer exclusion.
+
+**26 cases OK, 0.549s, stable over four runs. Two mutation probes:** removing the
+identity pin fails the rename case, removing `O_NOFOLLOW` fails the symlink case.
+
+**THE LIFECYCLE PROPAGATION, IDENTIFIED WITH OWNERSHIP CHECKED rather than assumed.**
+The review names the production callers precisely and I checked who owns them:
+`checkpoint_profiles.py` `GitCheckpointProfile._run` calls an INJECTED runner
+(`self._runner`), and the production runner is `stage_execution._git_run`, which uses
+`subprocess.run(..., timeout=GIT_SECONDS)`. W128692, the Work that created
+`restore_checkpoint`, is **closed**; no open Work holds that region. `subprocess.run`
+waits and reaps, so a child cannot outlive the CALL — the exposure is a manager killed
+mid-call, which orphans the git child.
+
+MINIMAL EXACT PROPAGATION: `_git_run` starts its child in its own process group
+(`start_new_session=True`) and reports that group; `GitCheckpointProfile` surfaces it
+from `_run`; `review_cycles` records it with the execution episode and probes it at
+settlement. That is a positive liveness probe over a recorded group — not arbitrary
+process killing, not a repository-only answer, and not another unverified attestation.
+I have NOT edited those files: they are not pinned to me, and the review is explicit
+that module names alone are not ownership.
+
+**A DESIGN ALTERNATIVE CONSIDERED AND REJECTED, recorded so it is not re-proposed:**
+`flock` the line DIRECTORY itself, whose `(device, inode)` is already pinned in
+`review_lines` and already validated by `_validate_line_object` — no new object, no
+rename surface, no new pin. Rejected for now only because it would remove
+`restoration_lock_path`, breaking the reviewer's probe more deeply than the operand
+does. It is the cleaner shape if the reviewer prefers it.
+
+**REGRESSION:** `tests.manager.test_workspaces` 136 OK; `tests.job_manager.test_review_driver`
+164 OK; `tests.manager.test_review_cycles` 162/36 baseline; `test_grant_writer_admission`
+12 OK.
+
+**STILL NOT DELIVERED:** the settlement, which needs the propagation above; supported
+stopped-execution then retry; unresolved effect holding; a stale prior completion through
+a real settlement; a cross-process post-settlement retry.
+
+**HASHES.** `workspaces.py` `6e8aade216538a91c6a355bdc4a8af42b0bb677259378a0d96b193767e78bf3d`;
+`review_cycles.py` and the test recorded in the handoff.
+
+## 2026-09-26 claim 271389 — the restoration launch boundary
+
+Review 271381 records explicit narrow ownership of the restoration lifecycle paths to
+me and tells me to implement rather than report that they need owners. Rechecked before
+editing: W257624 is the only open Work carrying a Handler; W128692 and its parent are
+closed with none. Exact interfaces pinned in the FINDING entry before any edit.
+
+**THE REVIEW'S DEFECT IN MY PROPOSAL WAS CORRECT.** "`subprocess.run` only reporting
+group on return cannot cover mid-call manager death." A group discovered when the call
+returns is never recorded if the manager dies during it, so the orphan would be
+unaccounted and a later caller would see nothing to probe. The record has to precede the
+child.
+
+**`stage_execution.restoration_launcher(record)`** is the boundary, and the ORDER is the
+whole of it: an INTENT is committed before any child exists; the child starts in its own
+session so its work is in a group of its own; the group and its LEADER'S START TIME are
+recorded immediately after the fork and BEFORE the wait; only then is the child waited
+for. The start time is what makes process-id reuse detectable — a recycled number
+carries a different one, so a later probe distinguishes "this group is gone" from
+"something else has that number now". Read from `/proc/<pid>/stat` after the last
+closing parenthesis, because the comm field can contain spaces and parentheses.
+
+**AN INTENT WITH NO GROUP IS THE REMAINING WINDOW** — a death between the fork and the
+group record — and its consumer HOLDS on it. That is why the intent exists at all: the
+window produces an unknown that fails closed rather than silence that reads as safety.
+
+**A FAILED RECORD ABANDONS NOTHING.** If the group cannot be committed, the launcher
+kills and waits for the child before propagating, so it never returns as though work
+were covered and never leaves work it could not account for.
+
+**`GitCheckpointProfile` gains ONE optional operand**, `launcher`, and
+`restoration_runner()` to answer its presence. It is scoped to `restore_checkpoint`
+alone through a flag set and cleared in a `finally`, so no other act of the profile is
+rerouted. Absent a launcher every existing deployment and suite keeps today's behaviour
+and the profile answers absence — which is what the settlement holds on.
+
+**29 cases OK, 0.549s, stable over three runs.** Three are new: the record order with a
+real harmless child (`/bin/sh -c echo`), the failed-record case, and the optional-operand
+visibility.
+
+**A MEASURED CORRECTION TO MY OWN CASE, reported rather than buried.** My first version
+of the failed-record case asserted only the exception and the record order, and a
+mutation that REMOVED the child reap passed it. A case that cannot tell an abandoned
+`sleep 30` from a reaped one is not evidence about abandonment. It now polls the recorded
+leader until it is gone and fails if it survives; the re-run mutation fails precisely
+that case.
+
+**MUTATION PROBES:** moving the intent after the child fails two cases; removing the reap
+fails the strengthened one.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK (the suite owning the file
+I extended); `tests.manager.test_workspaces` 136 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162/36
+at the disclosed baseline.
+
+**WHAT IS NOT YET WIRED, and it is one named interface decision rather than a gap in the
+design.** The launcher's recorder must be bound to the exact store, recovery and episode,
+and the profile is constructed per-deployment while the recovery and episode are known
+only inside `restore_abandoned_correction`. Passing the recorder per call means
+`restore_checkpoint` taking a new operand — which I pinned as UNCHANGED this claim and
+will not alter without pinning it first. So the settlement is still disabled: the
+boundary exists and is proved, and binding it to the recovery is the next pinned step.
+
+**STILL NOT DELIVERED:** that binding; the settlement requiring the exclusive acquisition
+(done) plus the group's account; supported stopped-execution with retry; unresolved effect
+holding; a stale prior completion through a real settlement; a cross-process
+post-settlement retry.
+
+**A LIMIT IN THE CONTRACT rather than discovered later:** a child that calls `setsid`
+leaves the recorded session. Git does not; a launcher supplying work that does has broken
+this contract rather than found a gap in it.
+
+**HASHES.** `stage_execution.py` `f5d180da207bb2a62d173b5a4aa285fa0b385c585bd508d742f45caa9d51b23d`;
+`checkpoint_profiles.py`, the test and the records in the handoff. Nothing signals a
+process anywhere in this design.
+
+## 2026-09-26 claim 271453 — both launch prerequisites, and a signature I superseded
+
+Review 271449's two prerequisites are accepted, the interface I had pinned as unchanged is
+superseded in the open, and one false statement of mine is corrected. Rechecked before
+editing: W257624 remains the only open Work with a Handler.
+
+**SUPERSESSION, APPENDED AS INSTRUCTED.** My own 2026-09-26T03:37:41Z pin said
+`restore_checkpoint`'s signature was UNCHANGED. Withdrawn. It was the right instinct on
+the wrong fact: I pinned a signature and then found the binding the review requires cannot
+be expressed without it. A pin is a record to correct in the open, not a reason to stop —
+and the review is right that asking permission for something already inside my ownership
+was the wrong move.
+
+**PINNED AND IMPLEMENTED:** `restore_checkpoint(self, repository, evidence, *, runner=None)`
+and `_run(self, argv, what, *, runner=None)`. The `launcher` constructor operand and the
+`_restoring` instance flag are REMOVED.
+
+**P1 WAS MINE.** A flag on the profile instance is shared state: two concurrent
+restorations share one object, so B clearing it on its way out left A — still active —
+routing its remaining commands through the ordinary UNRECORDED runner, and the account
+then covered nothing. Nothing about one invocation is stored on the profile now; the
+runner arrives as an operand and travels down the call chain, reaching only the reset and
+the scratch removal. The layering also decides the operand: the launcher lives with the
+deployment, so a product module never reaches for it — the caller builds it and hands it
+down.
+
+**P2 WAS MINE.** On a failed group record I killed the direct leader only, and a finite
+same-group DESCENDANT can close stdio and keep writing after the launcher has refused.
+`_reap_group` now signals the group this launcher itself created — the session it started
+with `start_new_session=True`, so never anybody else's — and then VERIFIES absence.
+If absence cannot be verified the original failure propagates with the intent standing,
+so the execution is unknown and held.
+
+**A FALSE STATEMENT CORRECTED.** My source comment and handoff said "nothing here signals
+a process". `child.kill()` signalled, and `os.killpg` now does. What is true, and what the
+comment says now: nothing signals a process this launcher did not create, and nothing
+signals anything on the probe or settlement path. Reaping work it started and cannot
+account for is not arbitrary killing.
+
+**A LEAK I INTRODUCED AND FIXED.** The reap used a bare `wait`, which left `Popen`'s
+inherited readers open; the suite surfaced `ResourceWarning: unclosed file`, which under
+`-W error::ResourceWarning` is a defect in my launcher rather than noise. It drains and
+closes through `communicate`, with an explicit close on the failure path.
+
+**30 cases OK, 0.588s, stable over three runs.**
+
+**TWO OF MY OWN CASES WERE TOO WEAK AND MUTATION FOUND BOTH.** The first failed-record
+case polled only the LEADER — the process I already knew was dead — so a leader-only reap
+PASSED it, which is exactly the defect P2 reported. It now has the descendant report
+itself through a file (the launcher owns the child's pipes, so stdout is unavailable), and
+the recorder waits until that descendant genuinely exists before failing, because
+otherwise the reap races a process that has not started. The re-run mutation fails it.
+Reported rather than quietly strengthened.
+
+**THEIR PROBE, MEASURED BOTH WAYS.** `review_restoration_launcher_20260926`:
+`test_failed_record_does_not_leave_same_group_effect` now PASSES against this candidate;
+`test_overlapping_restore_keeps_its_launcher` ERRORS on the removed constructor operand.
+An API break is not evidence a schedule was defeated, so P1's behaviour is carried as
+`test_overlapping_restorations_each_keep_their_own_runner`: two overlapping restorations on
+one profile, B running entirely inside A's first command, with every command verified to
+have reached its own invocation's runner and NOTHING reaching the ordinary unrecorded one.
+
+**MUTATION PROBES:** restoring the constructor operand fails the operand case; the
+leader-only reap fails the strengthened descendant case; the intent moved after the child
+fails two cases.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK; `tests.manager.test_workspaces`
+136 OK; `tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles`
+162/36 at the disclosed baseline.
+
+**STILL NOT DELIVERED:** the settlement. With `runner=` now pinned and implemented, the
+remaining work is `restore_abandoned_correction` building the recorder bound to store,
+recovery and episode, taking the deployment's launcher seam, passing the runner down, and
+requiring the group's account beside the exclusive acquisition — then positive cessation
+with fresh-manager retry, unresolved child refusal, stale completion through a real
+settlement, concurrent process retry, and replay without effects.
+
+**HASHES.** `checkpoint_profiles.py` `5d34332c45c39534bde0d07a4e39bfeb2a6be3e13cca5ed394e2eea0e96ee2bd`;
+`tools/stage_execution.py` `8a980306d47c4787941c094c967be97ebc2322e4a78ba9b7ab1319cd5a91ad92`;
+`test_restore_outside_the_lock.py` `2ffe0a69d58bd92ffd7f7116b353ffa84854ebde2f3a21c642d91c1d82be03f3`.
+
+## 2026-09-26 claim 271524 — the launch account bound to store, recovery and episode
+
+Review 271514 accepted the launcher prerequisites narrowly and named four things to
+correct plus the settlement to implement. All four corrections are done; the account is
+now bound; the settlement entry itself is still disabled and that is stated rather than
+implied.
+
+**FOUR CORRECTIONS, EACH BECAUSE THE REVIEW WAS RIGHT.**
+
+1. **My test leaked two readers.** Lines 1656/1678 used bare `open(scratch).read()`, and
+   their ResourceWarnings surfaced as UNRAISABLE destructor diagnostics — which
+   `-W error::ResourceWarning` does NOT fail on. So my "clean under -W error" was a
+   weaker statement than I made it sound. Both are `with` blocks now and the run is
+   silent.
+2. **`_reap_group`'s docstring was overstrong and is corrected in place.** It claimed to
+   verify absence. It does not: an unknown group, an arbitrary `OSError`, an exhausted
+   poll and a true absence all return the same way, so the return value distinguishes
+   none of them and is not evidence. It is best-effort CLEANUP, its only caller re-raises
+   afterwards, and the docstring now says so.
+3. **The FINDING pin said `record=None` with an internally built launcher.** What was
+   implemented is `runner=None` with a caller-built launcher, for a layering reason the
+   pin did not state: the launcher lives with the deployment, so a product module never
+   reaches for it. Corrected in the FINDING.
+4. **Runner coverage assessed, as asked.** The runner reaches the reset and the scratch
+   removal — the two commands that WRITE the checkout. `validate` before and after issues
+   read-only Git commands; a surviving read child cannot produce the byte loss this work
+   exists to prevent, and widening `validate` would touch a method used by acts outside
+   this selection. So the writes are covered, the reads are not, and that is a bounded
+   decision stated rather than an omission.
+
+**THE BINDING, IMPLEMENTED.** `_launch_recorder(store, recovery, episode)` journals every
+launched command at identities derived from all three, with an ordinal per launch so the
+second and later commands are counted rather than left unexamined.
+`restore_abandoned_correction` gains `launcher=None`, builds the recorder per invocation,
+and passes the resulting runner down. **The operand is passed only when there is one**, so
+a profile that never takes it is called exactly as before — no accepted fixture and no
+deployment profile has to grow a parameter, which matters because those fixtures are not
+mine.
+
+**THE SUPPORTED CESSATION ACCOUNT.** `stage_execution.restoration_cessation()` answers
+`ended`, `running` or `unknown` for a recorded launch. `ended` covers an absent group AND
+a live number whose leader's start instant differs — process-id reuse, which a bare group
+number cannot survive. `unknown` covers an incomplete record, a permission refusal and
+this manager's own group, and is never read as ended. It signals nothing: signal 0 and a
+`/proc` read.
+
+**33 cases OK, 0.605s, stable over three runs.** Three are new: the account bound to
+store/recovery/episode end to end with two real launches, each intent before its own
+group and nothing recorded under another episode; a deployment with no launcher recording
+no account and passing no operand; and the probe exercised on real processes across all
+five answers including reuse.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162/36
+at the disclosed baseline. The reviewer's `review_restoration_runner_operand_20260926`
+now PASSES.
+
+**STILL NOT DELIVERED, and the settlement entry remains disabled:** wiring
+`settle_restoration_execution` to require the exclusive acquisition (done) plus every
+recorded launch being accounted `ended` by the probe, with any intent lacking a group and
+any `unknown` holding; then positive cessation with fresh-manager retry, unresolved child
+refusal, stale completion through a real settlement, concurrent process retry and
+effect-free replay. Every piece those need now exists and is proved; what remains is the
+entry itself and its five schedules.
+
+**HASHES.** `review_cycles.py` `676e698fad639972985f2c5d993f362051bdc18885b2072eff645fd7e5f119c5`;
+`tools/stage_execution.py` `d1222d465073880bdcec14bc6619d6edf38fb5d8a3796ccef18f113890a74520`;
+`checkpoint_profiles.py` unchanged this claim at
+`5d34332c45c39534bde0d07a4e39bfeb2a6be3e13cca5ed394e2eea0e96ee2bd`;
+`test_restore_outside_the_lock.py` `acbbbfe787347161aa446e62a7309d052f99f57adedd5cfe78f80c5d6a9ce53b`.
+
+## 2026-09-26 claim 271589 — the success path no longer releases a line with live effects
+
+Review 271584's P1 is the most serious finding in this sequence and it was on the SUCCESS
+path. I built the launch account and then completed without consulting it: the launcher's
+direct child exited zero, a same-group descendant closed its stdio and stayed, the profile
+answered that the checkout was clean, and the release committed while that descendant could
+still write — which it then did, after completion.
+
+**MY ERROR, NAMED.** I treated the profile's "clean at the checkpoint" answer as proof the
+restoration was over. It describes one instant and says nothing about work still running.
+The account existed and the completion never asked it.
+
+**THREE CORRECTIONS DELIVERED.**
+
+1. **THE COMPLETION IS GATED ON THE EPISODE'S EFFECTS HAVING ENDED.** `_effects_ended`
+   probes every launch this episode recorded, and anything other than `ended` for every one
+   of them HOLDS: non-durable refusal, episode still claimed, line still `writing`, no
+   successor admitted. Both exits now ask the same account.
+2. **AN EMPTY LAUNCH LIST IS NOT AN ACCOUNT.** Under a launcher at least one recorded
+   launch is required; a restoration that launched nothing recorded nothing, and reading
+   that as "everything ended" is the same mistake in a different place.
+3. **WORK IS NOT LAUNCHED THAT CANNOT LATER BE ACCOUNTED FOR.** A launcher without a
+   cessation observer is refused `refused/capability` — recording children with no way to
+   ask about them produces an account nobody can read, which is worse than none because it
+   looks like one.
+
+**36 cases OK, 0.673s, stable over three runs.** Three are new: a live same-group descendant
+holding the completion with nothing released and the episode still claimed; the empty
+account refused; and the launcher-without-observer refusal. The descendant is a real process
+this case reaps itself.
+
+**MUTATION PROBE:** removing the gate fails the live-descendant and empty-account cases. The
+reviewer's `review_restoration_completion_effects_20260926` no longer reaches its premature
+completion — it is refused at the missing cessation observer, which is the earlier of the
+two boundaries its schedule now meets.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162/36 at
+the disclosed baseline.
+
+**AN ASYMMETRY I AM STATING RATHER THAN HIDING.** A deployment with NO launcher completes
+exactly as it always did, because no account can be produced for it. So the gate protects
+the accounted path and the unaccounted path keeps today's behaviour and today's exposure.
+That is a deliberate bound, not an oversight, and if the reviewer judges the unaccounted
+path must also hold, that is a larger change affecting every existing deployment and
+belongs to its own selection.
+
+**ONE PINNED ITEM ATTEMPTED AND WITHDRAWN THIS CLAIM.** Carrying the runner through
+`validate`, `_head` and `_clean` is pinned in the FINDING and I began it, but my edits
+produced two keyword-before-positional errors in a large file and I restored
+`checkpoint_profiles.py` to its reviewed hash
+`5d34332c45c39534bde0d07a4e39bfeb2a6be3e13cca5ed394e2eea0e96ee2bd` rather than continue
+patching blind at the end of a long turn. The symbols stay pinned; the threading is the next
+step. I would rather report an untouched file than a half-threaded one.
+
+**ALSO CARRIED FORWARD:** the start-instant mismatch case simulates a changed recorded value
+rather than a genuinely recycled process id, so that branch is exercised but not demonstrated
+against real reuse. The launch recorder's one-launch-per-account property (review item 3 of
+the previous round) is implemented by the ordinal advancing per `intent` but is NOT yet
+covered by a case of its own.
+
+**HASHES.** `review_cycles.py` `38fe29d6a63546cfdac608ab6a984473048e746344eb3897d2037b4d50d359d7`;
+`test_restore_outside_the_lock.py` `6b086a2f3a05866102f0be55252ea3bdf3b04774be9085848112ecc86c7b87d8`;
+`checkpoint_profiles.py` and `tools/stage_execution.py` unchanged this claim.
+
+## 2026-09-26 claim 271657 — probe out of the transaction; the asymmetry withdrawn
+
+Review 271647's two P1s are accepted and implemented.
+
+**P1a: I PUT KERNEL I/O BACK UNDER THE DATABASE LOCK.** `_effects_ended` was called from
+inside the completion's `store.transact`, so the production observer's `killpg` and `/proc`
+reads ran with `in_transaction` true — the exact rule this selection exists to enforce,
+broken while fixing something else. The observation now happens OUTSIDE every transaction,
+inside the same pinned outer exclusion; the completion transaction re-reads the account in
+pure SQL and refuses if the episode's recorded launches changed since the observation. The
+exclusion is held across both halves, so there is no probe-and-drop gap and no
+caller-supplied receipt.
+
+**P1b: MY COMPATIBILITY ASYMMETRY IS WITHDRAWN.** I argued a no-launcher deployment should
+keep today's behaviour. The review is right that unknown/no-launcher/missing coverage
+holding was already decided in 271584 and owner 271080, that it was not a new scope gate for
+me to reopen, and that I could cite no newer conflicting decision — because there is none.
+`restore_abandoned_correction` now REQUIRES both operands and refuses BEFORE any destructive
+work: an unaccountable restoration is held rather than performed.
+
+**MY FIXTURES ARE UPDATED under standing test authority**, exact path
+`work/records/2026/09/finding-v12-failed-run-resource-hold/test_restore_outside_the_lock.py`:
+a new `AccountedProfile` (mine) accepts the operand the product now always passes and issues
+one accounted command, because the accepted `Profile` is not mine to change; `accounted()`
+supplies a deterministic launcher and observer with no real process; and every case
+passes the boundary by default. Cases about a MISSING boundary pass `launcher=None` or
+`cessation=None` explicitly. Every reviewer immutable probe is untouched.
+
+**36 cases OK, 0.653s, stable over three runs.**
+
+**FOUR MEASURED CORRECTIONS INSIDE MY OWN TESTS, each found by running rather than
+reasoning.** Negative synthetic process ids were refused by canonical JSON. A placeholder
+argv was actually executed by the production launcher. My fixture's observer raced a shared
+list across threads and made a legitimate winner look held. And a case I restated claimed
+the competitor's entry reads never happened — the wrapper proved they do; the reads run
+before the exclusion, so the competitor is past its reads and refused at the lock anyway,
+which is the stronger fact and is what it now asserts.
+
+**TWO GUARDS I IMPLEMENTED THAT NO CASE COVERS, reported rather than left to be found.**
+Mutating away the completion's account-revalidation (`_launch_count != accounted`) fails
+NOTHING, so that guard is unexercised. And P1a itself — the observation running outside the
+transaction — has no case asserting `in_transaction` is false at the observer's own syscalls,
+though `AnOpenTransaction` is the tool for it. Both are real gaps in this claim's evidence
+and they are the first things I would write next.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162/36 at
+the disclosed baseline.
+
+**STILL NOT DONE:** the pinned validation-runner propagation (untouched again this claim —
+the test migration consumed the room); a one-launch-per-account case including a recreated
+recorder; the deterministic identity/namespace/boot cases the review accepts in place of
+forcing real process-id reuse; and the settlement entry with its five schedules. The
+settlement remains disabled.
+
+**HASHES.** `review_cycles.py` `cc807d347777e5cd2886e7aad0f6d126799eee9d70d8f3dd401d46f79999fa2e`;
+`test_restore_outside_the_lock.py` `b03bce3dda7bbaf76db5aca61d3a69fa1f34980ecc9ca51615a36d8cddef029f`;
+`checkpoint_profiles.py` and `tools/stage_execution.py` unchanged this claim.
+
+## 2026-09-26 claim 271740 — one-time launch admission; the pinned propagation done
+
+Review 271735's P2 is accepted and implemented, and the pinned validation-runner
+propagation is implemented rather than described.
+
+**P2: A RECREATED RECORDER NO LONGER ACCEPTS AN OLD INTENT.** It refuses its first
+`intent` outright when the episode already holds launches, the ordinal is claimed from the
+RECORD under a short raw `BEGIN IMMEDIATE` instead of counted in memory, and a second
+`group` for one launch must match its bytes or refuse with the first bytes kept. My earlier
+claim that a second `intent` at a taken ordinal refuses was false; the code returned
+silently, and so did the group path.
+
+**HONEST LIMIT, measured:** with the recreation refusal in place, reverting the ordinal
+claim to an in-memory count fails NO case. The raw transaction is defence in depth against
+a concurrency the outer exclusion forbids; the refusal carries the property. A genuine
+two-thread race cannot be staged on one `ControlStore` at all — one sqlite connection,
+thread affinity — so the case is deterministic and says why in its docstring.
+
+**THE PINNED PROPAGATION IS IN THE CODE.** `validate(..., runner=None)`,
+`_head(..., runner=None)`, `_clean(..., runner=None)`, and both of
+`restore_checkpoint`'s validations passing their per-invocation runner. Absent operand still
+means the constructor runner, so freeze, materialize and the manager's revalidations are
+unchanged — asserted in the same case.
+
+**40 cases OK, 0.702s.** Seven mutations this claim: the recreation refusal, the group-byte
+comparison, the claimed-intent precondition, the reference read's runner, `_clean`'s and
+`_head`'s — six fail a case; the in-memory ordinal count does NOT, and that is the limit
+recorded above.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162 ran /
+36 errors — and this claim NAMES that cause for the first time: one class,
+`AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint`, failing in setUp on an
+`intake.py` refusal about a start submission not returning to the manager that made it.
+`intake.py` is untouched here. That suite's restoration coverage is not running.
+
+**FINDING.md CORRECTED:** the claim-271657 "ALSO ADDRESSED THIS CLAIM" bullets are marked
+withdrawn at the point they were written, because they named the propagation and the
+recreated case as done while the code still had the old signatures.
+
+**STILL NOT DONE:** the settlement entry and its five schedules; deterministic
+identity/namespace/boot cases in place of real process-id reuse. The settlement remains
+disabled.
+
+### Addendum, same claim — A FORGED ATTESTATION IN MY OWN FIXTURE, caught by review 271735's probe
+
+Running every reviewer immutable probe against these bytes turned up a real defect in my
+fixture, and it is the exact failure mode this selection exists to prevent.
+
+`accounted()`'s observer answered `ended` for ANY record whose group was at or above
+900000, on the reasoning that the range is "far above any real process id on this host".
+**THIS HOST ALLOCATES PROCESS IDS ABOVE TWO MILLION.** So when
+`review_restoration_completion_effects_20260926` supplied the PRODUCTION launcher and took
+my default observer, the fixture attested that a real, still-running process had ended, the
+completion released the line, and the probe correctly reported "line released while
+recorded group could still write". A fixture spoke about work it had not performed.
+
+FIXED: the observer now answers only for tokens it actually minted, compared under the same
+lock that mints them — membership, not a numeric range. With that fix the same arrangement
+HOLDS (`launch 1 is 'unknown' rather than ended`), which is the outcome that probe wants;
+it now errors on that refusal instead of reaching its assertion, because its arrangement
+cannot produce a completion at all. The behaviour it guards is covered with real processes
+by `test_a_live_descendant_holds_the_completion`.
+
+THIRD TIME THIS FIXTURE WAS WRONG about the same thing — unlocked list scan, then the range
+check, now membership — and each was found by running rather than by reading.
+
+### Reviewer immutable probes: which cannot run against current bytes, and why
+
+Every one is preserved byte-unchanged; I edited none. Measured this claim:
+
+    review_restoration_account_guards_20260926        OK
+    review_restoration_runner_operand_20260926        OK
+    review_restoration_pinned_lock_20260926           OK
+    review_restoration_completion_effects_20260926    errors on the HOLD described above
+    review_restoration_cessation_lock_20260926        no refusal: its `self.restore()` gets
+        the accounted boundary from my migrated helper's default, so its arrangement no
+        longer expresses a MISSING boundary; the property is covered by that same
+        reviewer's later `test_missing_boundary_refuses_before_profile`, which passes
+    review_restoration_launcher_20260926              `GitCheckpointProfile(launcher=...)`
+        — the constructor operand removed by the accepted P1 fix
+    review_restoration_prelock_20260926               their fixture's `restoring()` takes no
+    review_restore_overlap_20260926                   `runner=` keyword — the accepted
+    review_restore_same_incarnation_20260926           per-invocation operand
+    review_restoration_settlement_20260926
+    review_restore_episode_gap_20260926               `_claim_execution` removed
+    review_restore_registry_edges_20260926            `_claim_restoration` removed
+    review_restore_atomic_admission_20260926          BlockingIOError: the pinned
+        restoration lock excludes its second caller at the kernel rather than in SQL
+    review_restoration_lock_identity_20260926         CLASSIFIED: it calls
+        `hold_restoration_lock(storage, line)` with no `control=`, which the pinned
+        identity requirement refuses — an exclusion on an unpinned pathname is a lock on a
+        name, not on the object anybody else holds. Its symlink case passes
+    review_reconstruction_checks_20260926             no tests ran (an inventory, not cases)
+
+These are API-supersession and arrangement effects of accepted decisions, not evidence a
+schedule was defeated — except the completion-effects one, which WAS evidence and is the
+defect above. Every entry above is now classified.
+
+## 2026-09-26 claim 271856 — THE SETTLEMENT IS ENABLED, and a fresh manager can retry
+
+Review 271851 asked for the supported settlement under the pinned exclusion. It exists.
+`settle_restoration_execution` no longer refuses `refused/capability`; it observes.
+
+**THE FORGEABLE OPERAND IS GONE FROM THE SIGNATURE, not merely rejected.** The entry is now
+`settle_restoration_execution(store, *, attempt_id, generation, profile, cessation)`. There
+is no `ended` document a caller can author, because review 271601's [P1] proved that any
+document about an executor is readable from the journal and therefore forgeable. Both halves
+are observed by the manager itself:
+
+- **THE EXECUTOR HALF IS THE KERNEL'S.** The settlement acquires the SAME advisory lock the
+  restoration is performed under, non-blocking, beside the same line, pinned to the same
+  journalled lock object. A living manager holds it for the whole span of its external act
+  and the kernel releases it when that process dies, so acquiring it is a positive
+  observation that no manager still holds this execution. Failing to acquire it refuses
+  NON-DURABLY: the episode stays claimed, the line stays `writing`.
+- **THE EFFECTS HALF IS TWO OBSERVATIONS, BOTH OUTSIDE EVERY TRANSACTION.** Every launch the
+  episode recorded must have positively ended, through the same account and probe the
+  completion is gated on — because the lock answers for MANAGERS and says nothing about a
+  child their runner forked. And the checkout must validate clean at the retained
+  checkpoint. `running`, `unknown`, or an intent with no group behind it all HOLD.
+- **AND EVERY OBSERVATION IS REVALIDATED IN THE WRITING TRANSACTION, in pure SQL:** the line
+  object pin, the absence of a completion, the episode's claim row still being the one that
+  was observed, and the recorded launch count still being the one that was examined.
+
+**AN EPISODE THAT RECORDED NO LAUNCH AT ALL IS SETTLEABLE, and this is a judgment I am
+flagging rather than burying.** Each launch intent is committed BEFORE its child exists, so
+an empty account means no child was ever started — an executor that died between claiming
+its episode and its first command, which is the commonest crash there is. Combined with the
+kernel's answer, that is a complete account of nothing having happened. On the COMPLETION
+path the same emptiness still holds, because there it means a profile ran and recorded
+nothing. The asymmetry is deliberate, it is the only thing standing between the ruling's
+second exit and an unreachable one, and it rests entirely on pre-fork recording being
+honest — `unlaunched_is_settled` is a keyword on the account helper so the reading is
+visible at both call sites.
+
+**TWO GATES HAD TO CHANGE FOR A FRESH MANAGER TO RETRY, and both were measured rather than
+reasoned:**
+
+- The step-two executor gate refused any manager whose incarnation differed from the
+  intent's. That name belongs to the dead executor FOREVER, so a fresh manager could never
+  get past it and the settlement would have been pointless. It now asks the journal the
+  question its own message asks — `_unsettled_episodes` — and holds only while an episode is
+  claimed with neither a completion nor a settlement behind it. The same condition is
+  re-read inside `_admitted_execution`'s transaction, so the read cannot be raced into an
+  admission.
+- The completion's RELEASE fence compared the same intent incarnation. That refused the very
+  instance that had just performed the effect — it surfaced as an error in the new retry
+  case. The episode-token fence beside it is strictly stronger (a token is
+  `incarnation:pid:invocation`), so the incarnation comparison is removed rather than
+  patched.
+
+**46 cases OK, 0.780s, three consecutive runs.** Seven new cases: the end-to-end
+crash → settle → fresh-manager retry; a live executor refused because the kernel says so; an
+unresolved child holding, plus the missing-observer refusal; the mid-call death window
+holding while an unlaunched episode settles; a replay that observes nothing again; a launch
+recorded after the observation; and a replaced claim row. Plus concurrent settle-and-retry
+through SEPARATE `ControlStore` handles, each opened and used in its own thread — which
+review 271851 correctly said was stageable and which my previous claim wrongly called
+impossible.
+
+**SEVEN MUTATIONS, ALL SEVEN LOAD-BEARING:** ignoring the lock, skipping the launch account,
+re-observing on replay, dropping the account revalidation, accepting any cessation operand,
+ignoring unsettled episodes in the executor gate, and dropping the claim-row revalidation.
+
+**WHAT IS DEFENCE IN DEPTH RATHER THAN A REACHABLE RACE, said plainly:** while the settlement
+holds the exclusion, no supported operation can replace the claim row or append a launch —
+claiming an episode happens under the same lock. The two cases covering those guards write
+at derived identities from inside the observation and their docstrings say so.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162 ran /
+36 errors, unchanged, and still the `intake.py` setUp refusal named last claim.
+
+**STILL NOT DONE:** deterministic namespace and boot-identity cases for the cessation probe
+itself (the settlement's holding on `unknown` is covered; the probe's own reuse branch is
+still simulated through a changed recorded start instant). Two recorder factories both
+constructed before the first intent still take distinct ordinals rather than refusing, which
+review 271851 asked me not to overstate — it prevents identity reuse and is not a refusal.
+
+## 2026-09-26 claim 271951 — coverage provenance, a settleable dirty tree, and a real second process
+
+Review 271948's two findings are accepted and implemented. Both were right, and the first
+is the sharpest finding against this settlement so far.
+
+**P1: A LEGACY CLAIM'S SILENCE IS NOT AN ACCOUNT.** The settlement reasons from the ABSENCE
+of launch records, and absence only means "nothing was started" for an executor that records
+a launch BEFORE starting it and that held the exclusion while it ran. The claim row said
+neither — its fields were exactly `{schema, recovery, episode, executor}`, identical to a
+pre-accounting episode — so a legacy claim and a current-protocol crash before the first
+command were THE SAME ROW, and the settlement read the second meaning into both.
+
+The claim now carries its own provenance, `RESTORE_ACCOUNTING_PROTOCOL` plus
+`coverage: pre-launch-record` and `exclusion: held`, written in the transaction that TAKES
+the claim — before the profile is reached, under the exclusion the caller already holds — so
+it is durable evidence of both by the time any effect could exist. `_proved_coverage`
+refuses any episode whose claim does not carry exactly that, so missing, legacy or a
+different protocol version is UNKNOWN and unknown is HELD. A current-protocol crash before
+the first command still settles, which is what review 271948 explicitly permitted: this is
+not a blanket refusal forever.
+
+**P2: A CLEAN-WORKTREE DEMAND MADE THE ONE STATE A RETRY EXISTS FOR PERMANENTLY
+UNSETTLEABLE.** The settlement asked `validate(current=True)`, so an execution whose effects
+had all ended but which stopped half way through its reset could never be settled and
+therefore never retried. Cessation and the identity of the retained checkpoint are separate
+questions from whether a restoration SUCCEEDED, and only the first two belong here. The
+settlement now validates the retained checkpoint WITHOUT `current=True`; the RETRY resets
+the tree and ITS completion validates clean, and the settlement still moves no line state
+at all, so nothing is released onto a half-restored checkout.
+
+**AND THE SETTLEMENT'S OWN VALIDATION COMMANDS ARE ACCOUNTED, which was the same defect
+one caller along.** Review 271948 caught the new `validate` call running through the
+ordinary constructor runner right after the account had been observed, and refused the
+"they are only reads" assumption — correctly, since I had just spent two claims proving that
+assumption wrong elsewhere. The settlement now takes a `launcher` operand, validates through
+a runner bound to its OWN episode label (`settlement-<n>`) beside the executor's, asks the
+same probe whether its own children ended, and revalidates BOTH accounts in the writing
+transaction. A settlement with no launcher or no observer refuses.
+
+**THE EXCLUSION IS NOW PROVED ACROSS REAL PROCESSES.** Review 271948 is right that threaded
+handles are partial evidence: they share one address space, so a thread holding `flock`
+proves only that separate open file descriptions exclude each other. A new case starts a
+real child interpreter which takes the same lock on the same object through its own
+`ControlStore` handle. While that process lives the settlement refuses — the kernel's answer
+that an executor is alive. Once it is KILLED the same settlement succeeds and the retry
+restores. The signal goes only to a process the case created, and the child is reaped.
+
+**A REAL FLAKE IN MY OWN SUITE, FOUND BY RUNNING THE DETERMINISM SET RATHER THAN BY
+READING.** One run in three failed. `test_a_concurrent_second_caller_produces_one_recovery`
+asserted the loser's refusal was the EXECUTOR-GATE message; once that gate became
+conditional on an unsettled episode, a loser arriving before any episode exists falls
+through to the kernel exclusion instead — the stronger of the two. The case now asserts the
+disjunction and says why; the invariant that matters, exactly one recovery, was already
+asserted beside it. **Eight consecutive full-module runs green after the fix**, because three
+was not enough to see it.
+
+**50 cases OK, about 0.99s.** Fourteen mutations across this claim and the last on the
+settlement path, thirteen load-bearing after I added the two cases that were missing — the
+executor-account and own-account revalidations, and the claim-row comparison. Every one of
+those three guards is DEFENCE IN DEPTH against a path the exclusion already closes, and
+their cases say so rather than implying the race is reachable.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162 ran /
+36 errors, unchanged, still the `intake.py` setUp refusal.
+
+**THE REVIEWER'S NEW IMMUTABLE PROBE, and what it reads now.**
+`review_restoration_settlement_limits_20260926.py`: its dirty-tree case PASSES. Its
+empty-account case now fails at the assertion that DOCUMENTED the defect —
+`set(document) == {schema, recovery, episode, executor}` — because the claim carries
+provenance, which is the fix; and its refusal expectation no longer holds for a
+current-protocol claim, which review 271948 itself permitted. My own case covers the other
+half: a claim written WITHOUT provenance is held, whatever its account looks like.
+
+**STILL NOT DONE:** the real-settlement stale-caller completion, replay and successor proof;
+a real surviving CHILD (not just a dead parent) holding the settlement through the production
+launcher/observer pair — the mechanism is the same `_effects_ended` the completion path
+already proves with real processes, but the settlement has no case of its own for it; and
+deterministic namespace and boot-identity cases for the cessation probe.
+
+## 2026-09-26 claim 272031 — an interrupted settlement can now retry itself
+
+Review 272027's P2 is accepted and implemented. The finding was that my own one-time launch
+admission — correct in itself — made a TRANSIENT interruption permanent: the settlement
+validated through a runner bound to ONE fixed label, so the first attempt that journalled a
+command made every later attempt impossible. The recorder saw an existing account and
+refused its first intent as a recreated recorder, and the recovery was stranded after its
+effects had positively ended. A second exit that cannot itself be retried is not a second
+exit.
+
+**ATTEMPTS ARE ENUMERATED AND EACH PRIOR ONE IS PROVED STOPPED.** `_settlement_attempt`
+walks the attempt labels in order. An attempt that launched anything must have had EVERY
+launch positively end, through the same probe as everything else — `running`, `unknown` or an
+intent with no group HOLDS, so a live own-child is never walked past. The fresh label is the
+first one with NO account, and that is not a blind suffix: the walk stopped there because
+every earlier attempt was proved ended, and a label with no launch record has no survivor to
+collide with, since each intent is committed before its child exists.
+
+**NOTHING IS DELETED, NO IDENTITY IS REUSED, AND THE RECORDER'S REFUSAL IS UNTOUCHED.** The
+recorder for the new label is seeing its first launch, so the one-time admission still holds
+exactly as review 271735 required it.
+
+**THE DECISION BINDS EVERY ACCOUNT AND REVALIDATES THEM ALL IN THE WRITING TRANSACTION:** the
+executor episode's count, this attempt's own count, and each earlier attempt's count. All
+three comparisons are pure SQL, because all three observations happen outside the transaction
+and inside the exclusion.
+
+**53 cases OK, about 1.03s, TEN consecutive runs.** Three new cases: the stopped-validation
+retry under a fresh attempt, with the prior attempt bound into the decision; a settlement's
+own live child holding the next attempt through `running` and `unknown` and then ceasing to
+hold once it ends; and an earlier attempt's late launch refused by the writing transaction.
+
+**FOUR MUTATIONS, ALL FOUR LOAD-BEARING:** the fixed label restored, prior attempts counted
+instead of proved stopped, prior accounts not revalidated, and the walk skipping ahead
+blindly. The third only became load-bearing after I wrote the case it was missing, which is
+the third time in this work that a revalidation guard needed its case written after the fact
+and I am recording the pattern rather than just the instance.
+
+**A MISTAKE I MADE TWICE IN ONE CLAIM.** My scripted edit matched a block that appears in two
+cases and landed in the wrong one, breaking a passing case while leaving the intended one
+unchanged — the same inverted-splice family as the earlier damage in this Work. I caught it
+because the determinism set went red, reverted it exactly and then edited inside the target
+function's own span. Cost: three red runs.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162 ran /
+36 errors, unchanged `intake.py` setUp refusal.
+
+**REVIEWER PROBES:** `settlement_retry` OK, `settlement_limits`' dirty case OK and its
+empty-account case still reading the provenance fix as described last claim,
+`account_guards`, `runner_operand`, `pinned_lock` OK.
+
+**STILL NOT DONE:** the real-settlement stale-caller completion, replay and successor proof; a
+real surviving CHILD through the production launcher/observer pair — the deterministic hold is
+now proved, the real-process version is not; and deterministic namespace and boot-identity
+cases for the cessation probe.
+
+## 2026-09-26 claim 272105 — the retired label accounted, and a real surviving child
+
+Review 272102's finding is accepted and implemented, and the selected real-process schedule
+is now proved rather than deferred again.
+
+**THE PREVIOUS IMPLEMENTATION'S LABEL IS STILL EVIDENCE.** My attempt walk looked only at
+`settlement-<episode>-<attempt>` and never at the single `settlement-<episode>` label the
+immediately preceding cut wrote under, so a store carrying an incomplete or still-running
+launch there was walked straight past and a fresh attempt could run beside work nobody had
+accounted for. Both formats declare the same coverage protocol, so provenance cannot tell
+them apart and recognising the label is the only honest answer.
+
+`_retired_settlement_label` is read FIRST and accounted on exactly the same terms as any
+other attempt — incomplete, `running` or `unknown` HOLDS — and it is never chosen as a fresh
+attempt, so its records are read and kept rather than written over. Nothing is deleted,
+renamed or migrated, and no version bump invalidates them: those rows are real evidence about
+real children, and reasoning around evidence is precisely what this recovery may not do. The
+retired account is bound into the decision alongside every other and revalidated in the same
+DB-only transaction, under the same exclusion.
+
+**A REAL SURVIVING CHILD NOW HOLDS THE SETTLEMENT, through the production pair.** Every
+settlement hold on a live child until now was a fixture answering `running` on request. The
+new case asks the PRODUCTION launcher and the PRODUCTION cessation probe about a REAL process
+group: the interrupted executor launches a leader that exits zero while a same-group
+descendant closes its stdio and stays, and then dies. The kernel says the manager is gone;
+the account says its child is not; the settlement is HELD with the episode still claimed.
+Once the group is gone the same call settles and the retry restores.
+
+**AND THAT CASE TAUGHT ME SOMETHING ABOUT MY OWN SCRIPT, measured rather than assumed.**
+Killing the pid the shell recorded left `sleep 30` alive in the same group and the probe went
+on answering `running` — correctly. The case now signals the whole GROUP, every member of
+which it started, and waits on the PROBE'S OWN ANSWER rather than on a pid check, because a
+killed process is briefly a zombie whose group still answers alive. That is the probe being
+right, not slow, and it is exactly the answer a settlement must wait for rather than assume.
+
+**A THIRD LEGITIMATE REFUSAL SHAPE in the concurrent case.** After the executor gate became
+conditional, a race loser can be refused by the executor gate, by the kernel exclusion, or by
+the line's own writer attachment once the winner has moved it. I have now measured all three
+and the case asserts the disjunction; the invariant that matters — exactly one recovery — was
+always asserted beside it.
+
+**56 cases OK, about 1.1s, NINE consecutive runs.** Three new cases: the retired label's
+incomplete account holding and its ended account continuing under a versioned attempt; a
+`running` and an `unknown` launch under the retired label holding until the probe says ended;
+and the real surviving child above.
+
+**THREE MUTATIONS, ALL THREE LOAD-BEARING:** the retired label ignored again, its account
+counted rather than proved stopped, and the retired label taken as a fresh attempt.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162 ran /
+36 errors, unchanged `intake.py` setUp refusal.
+
+**REVIEWER PROBES:** `prior_settlement` OK, `settlement_retry` OK, `account_guards` OK,
+`runner_operand` OK, `pinned_lock` OK; `settlement_limits`' dirty case OK with its
+empty-account case still reading the provenance fix as recorded two claims ago.
+
+**STILL NOT DONE:** the real-settlement stale-caller completion, replay and successor proof;
+and deterministic namespace and boot-identity cases for the cessation probe.
+
+## 2026-09-26 claim 272163 — the stale caller through a REAL settlement, and the probe's uncertainty
+
+Review 272155's remaining selected proofs. Two of the three are now cases; the third is
+reported honestly rather than claimed.
+
+**THE STALE CALLER, WITH NOTHING PLANTED.** Every earlier version of this leaned on rows this
+module wrote at derived identities. Nothing is planted here: an executor claims episode one,
+launches an accounted command that ENDS and dies inside its profile; a FRESH manager settles
+that episode through the product's own settlement, retries, and completes; a successor is
+admitted through `grant_writer` and WRITES real bytes; and then the original caller comes
+back. It performs no effect at all — its profile is never entered — it answers the SAME
+document the retry produced rather than a second one, and the successor's bytes are still on
+disk byte for byte afterwards. One completion, one settlement, two episodes, nothing
+unsettled, and the line belongs to the successor.
+
+**NAMESPACE AND BOOT UNCERTAINTY AS CASES, not as a stress run.** These are identity
+questions, not timing ones: a recorded group number means nothing on its own, because the
+same number exists in another PID namespace and after a reboot every number is somebody
+else's. Six records this kernel cannot confirm all answer `unknown` — incomplete, not a
+document, non-integer fields, a boolean group, this manager's OWN group, and its own group
+with a different start instant — and the case then drives the PRODUCT with a launch recorded
+under this manager's own group, which is what a record carried in from another namespace looks
+like when its number lands here. The settlement HOLDS on it.
+
+**A MEASURED COVERAGE STATEMENT I would rather publish than imply.** I probed the completion
+read inside `_admitted_execution` and removing it fails NO case, including the new stale-caller
+one. That is not a gap in the case: the property is carried by the recovery identity's own
+replay through `store.transact`, which answers a stale caller its committed document before
+that read is ever reached. The read is belt-and-braces beside the mechanism that actually
+decides, and I am recording which of the two carries the weight rather than presenting both as
+proofs. That is the fourth guard in this Work I have reported as defence in depth rather than
+claimed as covered.
+
+**THE COMBINED REAL-PROCESS RUN IS STILL NOT STAGED, and review 272155 named this exactly.**
+My two real-process cases cover the pieces separately: a child INTERPRETER holding the
+exclusion and dying (the kernel releases it, the settlement then proceeds) and an ORPHAN
+descendant surviving a manager whose call unwound by exception (the account holds the
+settlement until the group is gone). A single run in which one real manager process dies
+WHILE leaving an orphan behind is not staged, and neither case should be read as that.
+
+**58 cases OK, about 1.13s, SIX consecutive runs.** Two new cases, and one mutation probe
+whose result is the coverage statement above.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162 ran /
+36 errors, unchanged `intake.py` setUp refusal.
+
+**REVIEWER PROBES:** `prior_settlement`, `settlement_retry`, `account_guards`,
+`runner_operand`, `pinned_lock` all OK; `settlement_limits`' dirty case OK with its
+empty-account case still reading the provenance fix.
+
+**STILL NOT DONE:** the combined single-run manager death with a surviving orphan, named
+above.
+
+## 2026-09-26 claim 272216 — a process number is only read inside the domain that minted it
+
+Review 272213's P1 is accepted and implemented, and it is the sharpest thing anyone has said
+about this observer: the launch record carried a group, its leader and that leader's start
+ticks, and NOTHING about where those numbers were minted. `killpg` answering ESRCH means "no
+such group IN THIS PID VIEW", which is not absence in the view that issued the number — a live
+original can be invisible from another namespace — and the start ticks are measured from a
+boot, so across a restart they describe a different machine-lifetime. Absence was being read
+as cessation on evidence that cannot support it.
+
+**THE DOMAIN IS RECORDED BEFORE THE FORK AND COMPARED BEFORE THE PROBE.** `_issuing_domain`
+reads two local facts: the PID namespace, identified by the inode of `/proc/self/ns/pid` —
+what the kernel itself uses to tell namespaces apart — and the boot identity, which changes on
+every restart and therefore scopes the start ticks. The launcher records both in the group
+payload; the observer reads its own and compares before it asks the kernel anything. A
+missing, malformed, legacy or MISMATCHED scope is `unknown`, never ended, and an observer that
+cannot read its own domain compares nothing and therefore answers `unknown` too — a comparison
+that cannot be made is never a pass.
+
+**AN UNSCOPED LAUNCH IS REFUSED BEFORE THE FORK.** A record without its domain can never be
+read as ended, so starting a child under one would guarantee a permanent hold. The launcher
+reads the domain first and refuses if it cannot, recording nothing — the same rule the rest of
+this boundary follows, applied where the numbers are minted.
+
+**THIS DOES NOT CLAIM MULTI-HOST SUPPORT.** It identifies no host and makes no claim beyond
+"the same local domain, still running". A record from elsewhere simply cannot be compared, so
+it holds.
+
+**MY EARLIER "NAMESPACE AND BOOT" CASE DID NOT ESTABLISH EITHER, and the review was right to
+say so.** An own-group coincidence and a malformed record exercise the shape checks and
+nothing else. The new case changes exactly ONE field away from this deployment's own at a time
+— namespace, then boot, then both, then the legacy no-scope shape, then a scope of the wrong
+type — and asserts `unknown` in every one even though the number is absent HERE. Only a
+matching scope is read as ended. `killpg` is the one call patched, as the reviewer's own probe
+does it; no process is created and no kernel state is touched.
+
+**TWO PROSE CORRECTIONS the review asked for.** My stale-caller case said "nothing unsettled"
+beside an assertion that episode two IS unsettled; `_unsettled_episodes` means "carries no
+SETTLEMENT record", and episode two carries a COMPLETION instead — the other exit — which the
+case now says plainly. And that case is a NEW request from the stale caller after its old
+invocation had already raised, not the resumption of an in-flight callback; Python cannot
+resume a call that unwound and the docstring no longer lets that be read the other way.
+
+**60 cases OK, about 1.16s, nine consecutive runs.** Two new cases. FIVE MUTATIONS, ALL FIVE
+LOAD-BEARING: the observer ignoring the domain, comparing only the namespace, comparing only
+the boot, the launcher recording no domain, and an unscoped launch performed anyway.
+
+**ONE OF YOUR OLDER PROBES CHANGED ITS ANSWER, and I am naming it rather than letting a green
+list imply otherwise.** `review_restoration_launcher_20260926` already errored on the removed
+`launcher=` constructor operand and still does; nothing about it is newly broken by this
+change, but it does exercise the launcher and a reader comparing lists would want to know I
+checked.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162 ran / 36
+errors, unchanged. No other module reads `restoration_launcher` or `restoration_cessation`, so
+the record-shape change reaches nothing outside this boundary and its own cases.
+
+**STILL NOT DONE:** the combined single-run real manager death with a surviving orphan.
+
+## 2026-09-26 claim 272267 — the combined scenario, in one run, with real processes on both sides
+
+Review 272263's checkpoint. The last open item on the selected list is now a case, and the
+contradictory launcher prose is corrected without touching semantics.
+
+**A REAL MANAGER DIES MID-RESTORATION AND ANOTHER FINISHES THE JOB.** My two earlier
+real-process cases were partial evidence and the review said so: one had a child interpreter
+holding the exclusion and dying with no child of its own, the other had an orphan outliving a
+manager whose call merely unwound by exception. Neither is what this recovery exists for.
+
+The new case runs a REAL MANAGER IN A REAL INTERPRETER. It opens its own `ControlStore`,
+performs `restore_abandoned_correction` with the PRODUCTION launcher and probe, starts a
+same-group descendant that closes its stdio and stays, and then calls `os._exit` — so the
+process is GONE mid-restoration with its launch recorded, its episode claimed and its
+exclusion released by the kernel rather than by any code. Then, in order:
+
+1. **A fresh manager cannot settle while the descendant lives.** The kernel says no manager
+   holds the execution; the account says its child is still there; the settlement holds, the
+   episode stays claimed and the line stays `writing`.
+2. **THE ATTRIBUTION SURVIVES THE DEATH.** The claim still names the dead manager's own
+   executor token (`dying-manager:<pid>:<invocation>`), so what is being settled is
+   identifiable as ITS execution and not as anybody else's.
+3. **Once the descendant is gone the probe says so positively** and the settlement succeeds,
+   naming that same dead executor.
+4. **The fresh manager retries and the restoration completes**, releasing the line to
+   `correction-ready` with two claimed episodes.
+
+Every process signalled was started by the case, and both the manager and the group are
+reaped. The case is fast — about 0.25s — because nothing sleeps: the waits poll the probe and
+the recorded scratch file.
+
+**THE CONTRADICTORY LAUNCHER PROSE IS CORRECTED, SEMANTICS UNTOUCHED.** The failed-record
+cleanup comment said absence was "VERIFIED rather than assumed" three lines above
+`_reap_group`'s correct disclaimer that it certifies nothing. It is not verified; what happens
+is that the original failure is never replaced by a cheerful one, so the execution stays
+UNKNOWN and its consumer HOLDS. The comment now says that and explicitly retracts the earlier
+wording. No behaviour changed.
+
+**61 cases OK, about 1.40s, six consecutive runs.** The suite is slower than last claim by
+roughly 0.24s, which is the new case's real interpreter, and I would rather pay that than keep
+handing back the combined scenario as remaining.
+
+**MUTATION:** removing the pre-fork `record("intent", None)` — the ordering the whole account
+rests on — fails four cases and errors two.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162 ran / 36
+errors, unchanged.
+
+**REVIEWER PROBES:** `observer_identity`, `prior_settlement`, `settlement_retry`,
+`account_guards`, `runner_operand`, `pinned_lock` all OK.
+
+**NOTHING FROM THE SELECTED LIST REMAINS OPEN.** What is still outstanding is everything
+previously recorded as not claimed — the other I/O-under-lock sites, the never-created-helper
+release gap, `assignment_workspace` and its callers, the alias/object matrix,
+`dogfood_operator.py:4489`, the pending `intake.py` `_settle` operand (which is also what
+holds that suite's 36 setUp errors), remaining R3, R4, the final R5 packet and W247941
+adoption — plus the standing unknowns: the lost pre-splice delta, no transfer of historical
+acceptance to reconstructed bytes, and both residue inventories untouched.
+
+## 2026-09-26 claim 272315 — the fourth exclusion outcome, staged instead of tolerated
+
+Review 272313's two items. The finding is small and the correction it asked for is the
+opposite of the one I would have reached for.
+
+**A LOOSE DISJUNCTION IS NOT A PROOF, AND WIDENING IT AGAIN WOULD HAVE BEEN WORSE.** Caller
+`b` in the concurrent case took a refusal I had not enumerated: the FRESH path's own writer
+reader, refusing a writer it found `revoked`. My reflex would have been to add a fourth
+message anchor, which review 272313 explicitly refused — and rightly, because a case that
+accepts whatever refusal arrives proves nothing about which one should.
+
+**SO THE TIMING IS STAGED DETERMINISTICALLY AND ASSERTED PRECISELY.** The fresh branch decides
+there is no recovery intent, reads its evidence, and only THEN reads the writer — so a caller
+can pass the intent decision before a competitor commits and still read the writer after that
+competitor's intent revoked it. A revoked writer is exactly what the fresh path must refuse,
+because it is also what a correction that reached its checkpoint leaves behind, and the reader
+cannot tell those apart. The new case interposes on the writer read itself: the competitor's
+whole restoration runs inside the loser's first `writer_for_attempt` call, so the revocation
+PROVABLY precedes the read. It then asserts the exact refusal, ONE external effect, one
+claimed episode, `correction-ready` on the line, and a replay on the loser's own handle
+answering the winner's document with no second crossing.
+
+**AND THE CONCURRENT CASE'S ASSERTION IS NOW A CONTRACT.** Four outcomes are permitted, each
+named with the deterministic case that owns it — the executor gate, the kernel exclusion, the
+line's writer attachment, and the fresh path's writer read — and every one is asserted to be
+`refused/precondition` rather than merely "some refusal". The enumeration is backed by cases
+instead of by whatever a thread schedule produced.
+
+**A FIXTURE BUG IN MY OWN NEW CASE, found by running it.** I used the collected ANSWER as the
+re-entry guard, so the competitor's own writer read re-entered the wrapper and recursed until
+the interpreter gave up. The guard is now taken BEFORE the work it guards — the same lesson as
+the pre-fork record, in a test.
+
+**THE LAUNCHER DOCSTRING'S REMAINING CLAIM IS CORRECTED.** It still said the group was
+"signalled and verified absent" even after I fixed the inline comment. It now says the group is
+signalled BEST-EFFORT and that nothing about its absence is certified: the original failure
+propagates with the intent standing, so the execution is UNKNOWN and its consumer HOLDS. That
+is twice I have had to correct this same paragraph, and the wording now matches
+`_reap_group`'s own disclaimer instead of contradicting it three lines above. No semantics
+changed.
+
+**62 cases OK, about 1.41s, EIGHT consecutive runs.** MUTATION: letting the fresh path accept
+a non-active writer fails the new case.
+
+**REGRESSION:** `tests.manager.test_checkpoint_profiles` 42 OK;
+`tests.job_manager.test_review_driver` 164 OK; `tests.manager.test_review_cycles` 162 ran / 36
+errors, unchanged.
+
+**REVIEWER PROBES:** `observer_identity`, `prior_settlement`, `settlement_retry`,
+`account_guards`, `runner_operand`, `pinned_lock` all OK.
+
+**NOTHING FROM THE SELECTED LIST IS OPEN.** Outstanding work is what was already recorded as
+not claimed, unchanged.
