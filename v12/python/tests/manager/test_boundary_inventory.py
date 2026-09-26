@@ -5819,6 +5819,26 @@ class BoundaryCase(unittest.TestCase):
             self._group = input_roots.configured_group(self.store)
         return self._group
 
+    def _line_probe_store(self):
+        """A LIVE store configured to this probe's own storage.
+
+        W270664 F2, review 2026-09-26T10:26:51Z. Allocation now asks the journal whether a
+        cleanup, a removal or a hold owns these roots, and this probe reached it holding a
+        group whose store had already been closed -- so the only answers available were
+        "refuse" or the product pretending an unobservable journal is an empty one. The
+        mismatch is the FIXTURE'S: it needs a store with authority over `self.root`. Opened
+        the same way the sibling line-boundary probe opens its own, and closed on cleanup.
+        """
+        from baton_v12.worker_manager import workspaces as _ws
+        from baton_v12.worker_manager.store import ControlStore
+        if getattr(self, "_line_store", None) is None:
+            self._line_store = ControlStore.open(
+                os.path.join(self.root, "line-proof.sqlite3"),
+                incarnation="line-proof-1", clock=lambda: self.instants[-1])
+            self.addCleanup(self._line_store.close)
+            _ws.configure_workspace_storage(self._line_store, self.root)
+        return self._line_store
+
     def corrupt(self, statement, *operands):
         """Change persisted bytes behind this build's back.
 
@@ -6204,7 +6224,8 @@ class BoundaryCase(unittest.TestCase):
                 ("a development-line launch proof",
                  lambda: workspaces._granted_roots(
                      workspaces.assignment_workspace(
-                         self.configured_group(), self.root, "attempt-line-proof"),
+                         self.configured_group(), self.root, "attempt-line-proof",
+                         control=self._line_probe_store()),
                      lambda: True, line_proof="not a capability")),
             # -- W6631: the six focused gaps left after its declarations -----
             (at("workspaces.py:assignment_workspace", "assignment_id"),
@@ -8177,8 +8198,15 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 incarnation="line-probe-1", clock=lambda: self.instants[-1])
             self.addCleanup(probe.close)
             workspaces.configure_workspace_storage(probe, self.root)
+            # W270664 F2, review 2026-09-26T10:26:51Z: THE GOVERNING STORE IS NAMED.
+            # Allocation now asks the journal whether a cleanup, a removal or a hold owns
+            # these roots, and `probe` -- not the store that minted the group -- is the one
+            # configured to `self.root`. The mismatch was this fixture's, and it is fixed
+            # here rather than by letting the product treat an unobservable journal as an
+            # empty one.
             roots = workspaces.assignment_workspace(
-                self.configured_group(), self.root, "attempt-line-probe")
+                self.configured_group(), self.root, "attempt-line-probe",
+                control=probe)
             del roots
             workspaces.line_assignment_workspace(
                 self.root, "attempt-line-probe", SURROGATE, (0, 0),

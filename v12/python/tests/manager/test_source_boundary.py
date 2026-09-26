@@ -1342,18 +1342,39 @@ class CleanupNeverRemovesMaterialThisManagerDidNotCreate(BoundaryCase):
         # THE DEVICE IS WHAT A MOUNT CHANGES, so a foreign mount is simulated
         # by making the mountpoint answer another one. Actually mounting would
         # need privilege this test does not have and should not want.
+        # W270664 F2, review 2026-09-26T07:45:20Z: THE OBSERVATION MOVED, SO THE INJECTION
+        # HAD TO. `discard_workspace` now walks RETAINED DIRECTORY HANDLES and compares
+        # devices with `os.fstat` on the handle, so patching `os.lstat` by pathname no longer
+        # reaches the comparison this case is about -- the refusal stopped arriving because
+        # the injection stopped firing, not because the protection weakened. The same
+        # foreign-device simulation is therefore applied at BOTH observations, and the case
+        # now PROVES its injection fired instead of trusting that it did.
+        target = os.lstat(boundary.mountpoint)
+        fired = []
         real = os.lstat
+        real_fstat = os.fstat
 
         def elsewhere(place, *rest, **named):
             held = real(place, *rest, **named)
             if str(place) == boundary.mountpoint:
+                fired.append("lstat")
                 return os.stat_result(
                     tuple(held)[:2] + (held.st_dev + 1,) + tuple(held)[3:])
             return held
 
-        with mock.patch.object(os, "lstat", side_effect=elsewhere):
+        def elsewhere_by_handle(handle, *rest, **named):
+            held = real_fstat(handle, *rest, **named)
+            if (held.st_dev, held.st_ino) == (target.st_dev, target.st_ino):
+                fired.append("fstat")
+                return os.stat_result(
+                    tuple(held)[:2] + (held.st_dev + 1,) + tuple(held)[3:])
+            return held
+
+        with mock.patch.object(os, "lstat", side_effect=elsewhere), \
+                mock.patch.object(os, "fstat", side_effect=elsewhere_by_handle):
             with self.assertRaises(ContractRefusal) as caught:
                 workspaces.discard_workspace(self.storage, ATTEMPT, control=self.store)
+        self.assertTrue(fired, "the foreign-device simulation never reached the walk")
         self.assertEqual(caught.exception.category, "policy")
         self.assertTrue(os.path.exists(kept),
                         "the removal touched material behind the mountpoint")

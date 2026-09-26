@@ -1928,8 +1928,11 @@ class _SingleWorker:
         also getting a second opinion about how a container is started.
         """
         given = self.given
+        # W270664 F2: the store this worker acts through is the journal that says
+        # whether a cleanup or removal owns these roots, so it is named here.
         roots = workspaces.assignment_workspace(
-            self.group, given["workspace_storage"], attempt_id)
+            self.group, given["workspace_storage"], attempt_id,
+            control=self.control)
         if checkpoint:
             self.checkpoint("workspace")
         if self.stage is not None:
@@ -2209,7 +2212,8 @@ class _SingleWorker:
         # written, no launch is adopted, and nothing below can block.
         self._enqueue_activity(attempt_id)
         roots = workspaces.assignment_workspace(
-            self.group, self.given["workspace_storage"], attempt_id)
+            self.group, self.given["workspace_storage"], attempt_id,
+            control=self.control)
         # NO CREDENTIAL, NO LAUNCH DELIVERY, NO ORPHAN. All three are absent on
         # purpose: this call identifies and observes, and every one of those
         # operands exists for a START.
@@ -2360,7 +2364,8 @@ class _SingleWorker:
         """
         boundaries.identity(attempt_id, "a runtime attempt id")
         roots = workspaces.assignment_workspace(
-            self.group, self.given["workspace_storage"], attempt_id)
+            self.group, self.given["workspace_storage"], attempt_id,
+            control=self.control)
         return attempts.request_cancellation(
             self.control, self.port, _UncooperativeAgent(self.given),
             self._adapter(roots, None, None, None),

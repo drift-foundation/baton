@@ -1192,7 +1192,9 @@ def run_dogfood_task(*, engine, run, open_channel, store, port, session,
     # the input manifest digest, and the manifest describes the staged tree --
     # so the tree has to exist before there is a digest to freeze.
     group = _configured_group(store)
-    roots = workspaces.assignment_workspace(group, storage, attempt_id)
+    # W270664 F2: `store` is the journal governing `storage`, named at the call.
+    roots = workspaces.assignment_workspace(group, storage, attempt_id,
+                                            control=store)
     staged = stage_source(source, roots["inputs"])
     given = input_manifest(
         work_ref=work_ref, staged=staged, created_at=now,

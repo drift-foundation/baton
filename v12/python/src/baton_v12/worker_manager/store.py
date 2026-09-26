@@ -246,8 +246,18 @@ def _revived(record):
 class ControlStore:
     """One manager's handle on one control store."""
 
-    def __init__(self, connection, *, incarnation, clock, readonly=False):
+    def __init__(self, connection, *, incarnation, clock, readonly=False,
+                 database=None):
         self._connection = connection
+        # W270664 F2: WHICH DATABASE THIS HANDLE WAS OPENED ON.
+        #
+        # Provenance for the refusal a caller gets when this handle cannot be used
+        # from their thread -- it names the journal they must open for themselves.
+        # It is deliberately NOT accompanied by an object identity any more: three
+        # attempts to prove that a REOPENED connection is this same database were
+        # each defeated (reviews 10:53:09Z, 11:04:20Z, 11:19:15Z), so nothing here
+        # claims to support a reopen. See `workspaces._asking_control`.
+        self.database = database
         self.incarnation = incarnation
         self._clock = clock
         self._readonly = readonly
@@ -292,7 +302,8 @@ class ControlStore:
             else:
                 cls._initialize(connection)
             cls._request_wal(connection)
-            store = cls(connection, incarnation=incarnation, clock=clock)
+            store = cls(connection, incarnation=incarnation, clock=clock,
+                        database=os.path.abspath(path))
             # Proved AFTER the store exists, because the clock is the store's
             # and a clock that cannot stamp a row is a fault worth finding at
             # open rather than at the first journalled act.
@@ -339,7 +350,8 @@ class ControlStore:
             connection.row_factory = sqlite3.Row
             connection.execute(f"PRAGMA busy_timeout = {_BUSY_TIMEOUT_MS}")
             connection.execute("PRAGMA foreign_keys = ON")
-            store = cls(connection, incarnation=incarnation, clock=clock, readonly=True)
+            store = cls(connection, incarnation=incarnation, clock=clock, readonly=True,
+                        database=os.path.abspath(path))
             with store.snapshot():
                 if not cls._objects(connection):
                     raise ContractRefusal("refused", "precondition", "a read-only manager refuses an empty store without initializing it")

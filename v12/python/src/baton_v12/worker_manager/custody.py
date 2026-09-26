@@ -1916,6 +1916,23 @@ def _claim_episode(store, assignment_id, which, operation, image_digest,
             "helper_identity": name, "claimant": uuid.uuid4().hex}
 
     def claiming(_connection):
+        # W270664 F2: THE RECIPROCAL HALF OF THE REMOVAL EXCLUSION, read under the very
+        # lock that makes this claim exclusive. Review 2026-09-26T06:21:32Z: this callback
+        # read custody overlap and NOTHING about a removal, so a removal ownership on its
+        # own excluded nothing -- a hold could commit while the tree was coming off the
+        # disk. A removal admitted first is refused here; a hold admitted first is refused
+        # by `_admitted_removal`. Neither side is trusted to check only its own side.
+        from . import workspaces
+
+        removing = workspaces.standing_removal(store, assignment_id)
+        if removing:
+            ordinal, _ = removing[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(assignment_id)}'s roots are being removed under "
+                f"removal ownership {ordinal}, which has recorded no completion; a hold "
+                f"is not taken over a tree that is being deleted, and an uncertain "
+                f"removal is reconciled rather than held around")
         # RE-READ INSIDE THE LOCK, which is what makes this exclusive rather
         # than merely early.
         again = _standing_overlap(store, assignment_id, which)
@@ -2141,13 +2158,20 @@ def normalize_directory(store, custody, *, assignment_id, which,
             operation=answered.operation))
 
 
-def adopted_directory_custody(store, custody, assignment_id, which):
+def adopted_directory_custody(store, custody, assignment_id, which,
+                              prepared_store=None):
     """The committed receipt, READ BACK FROM THE JOURNAL.
 
     Review [P0] point 3: a terminal cleanup binds the receipts a caller HOLDS
     only if it read them from the journal itself. A caller-held document is
     one the caller composed, and the terminal claim's whole value is naming
     which directory acts authorized it.
+
+    W270664 F2: a caller reading this INSIDE its own write transaction passes
+    `prepared_store`, the frozen store it measured before the transaction
+    opened, so that deriving the signature costs no filesystem call. What the
+    receipt is read from -- the journal, through `replay`, at an identity
+    derived from the attempt and the root -- is not changed by that operand.
     """
     from .store import manager_signature
 
@@ -2160,7 +2184,7 @@ def adopted_directory_custody(store, custody, assignment_id, which):
     image = boundaries.text(
         getattr(custody, "custodian_image_digest", None),
         "the custodian image identity this act is signed with")
-    recorded = _recorded_store(store)
+    recorded = _recorded_store(store, prepared_store)
     found, already = store.replay(
         _custody_operation_id(assignment_id, which),
         manager_signature(
@@ -2222,9 +2246,21 @@ def historical_directory_custody(store, assignment_id, which):
     return receipt
 
 
-def _recorded_store(store):
-    from .workspaces import configured_workspace_storage
+def _recorded_store(store, prepared=None):
+    """The configured store's place, for the signature this act is written under.
 
+    W270664 F2: `prepared` is a store ALREADY measured outside every
+    transaction. Given one, the place is rebound to this database with no
+    filesystem call -- see `workspaces.recorded_storage_place`, which is where
+    the provenance and the staleness refusal live. Without one this is the
+    accepted reader, unchanged, and every caller that is not under a lock keeps
+    using it.
+    """
+    from .workspaces import (configured_workspace_storage,
+                             recorded_storage_place)
+
+    if prepared is not None:
+        return recorded_storage_place(store, prepared)
     return configured_workspace_storage(store).place
 
 

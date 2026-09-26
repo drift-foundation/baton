@@ -74,6 +74,17 @@ applies. Decision history:
 
 ## V12 delivery and v13 hardening boundary
 
+### Normative v12 specification — owner 2026-09-26
+
+Read [v12/DESIGN.md](v12/DESIGN.md) before planning, implementing or reviewing
+v12 changes. It specifies the target v12 system, not the running v11 deployment
+or an inventory of current code. Align bounded Work and acceptance with its
+requirements; report concrete code/spec gaps rather than weakening the spec to
+match implementation. Pin owner-approved changes in the owning FINDING and update
+DESIGN before dependent implementation. Current plans, evidence and exact review
+signoff remain in their owning Work records. All existing claim, scope, review,
+execution and human Git ownership rules continue to apply.
+
 Owner ruling 2026-09-14: deliver v12's reliable parallel development Jobs and a
 lightweight read-only Job monitor, then use that parallelism to accelerate v13
 hardening. Execution correctness, isolation, recovery, context reuse and honest

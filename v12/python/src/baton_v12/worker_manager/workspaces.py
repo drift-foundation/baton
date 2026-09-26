@@ -357,11 +357,22 @@ class WorkspaceGroup:
     The same shape `credentials.Delivery` and `launch.LaunchDelivery` already
     have at this boundary, for the same reason: what crosses is a thing the
     manager made, not data describing one.
+
+    W270664 F2, review 2026-09-26T09:15:26Z: IT ALSO CARRIES THE STORE IT WAS READ
+    FROM, and that is what lets allocation participate in the exclusion at all.
+    Allocation is the one entry that reached these roots with no way to ask the
+    journal -- `assignment_workspace(group, storage, attempt)` has no control operand
+    -- and the census under this claim found it has NO product caller to thread one
+    through: every call site is a test, a probe or a fixture. So the operand comes
+    from the capability that was already required and already minted from this
+    manager's own record. Holding a group now means the deployment configured it AND
+    names the journal that says so; `store` is not part of the group's IDENTITY, which
+    stays the gid, because two reads of one deployment's record are the same group.
     """
 
-    __slots__ = ("gid",)
+    __slots__ = ("gid", "store", "store_place")
 
-    def __init__(self, gid, _minted=None):
+    def __init__(self, gid, _minted=None, store=None, store_place=None):
         # MINTED ONLY BY THE READ OF THE DEPLOYMENT'S RECORD, which is what
         # makes this a capability rather than a wrapper. A type any caller can
         # construct would leave the hole exactly where the review found it:
@@ -373,6 +384,11 @@ class WorkspaceGroup:
                     "and is not constructed; a group a caller can mint is a "
                     "group a caller chose")
         object.__setattr__(self, "gid", check_workspace_group(gid))
+        object.__setattr__(self, "store", store)
+        # THE DATABASE FILE THIS STORE IS A HANDLE ON, captured at mint time --
+        # which is the only moment it is certainly readable, because it is read
+        # from the store's own connection and a connection belongs to its thread.
+        object.__setattr__(self, "store_place", store_place)
 
     def __setattr__(self, name, value):
         _refuse("a configured workspace group is immutable", code="schema")
@@ -756,7 +772,10 @@ def configured_workspace_group(store):
                 f"the deployment's committed configuration names {committed}; "
                 f"a group the record was edited to name is not a group the "
                 f"deployment configured", code="schema")
-    return WorkspaceGroup(committed, _MINT)
+    # W270664 F2: THE STORE THAT ANSWERED IS BOUND IN. It is this manager's own record
+    # that just proved the group, so it is the journal the group's own allocations ask.
+    return WorkspaceGroup(committed, _MINT, store=store,
+                          store_place=_database_place(store))
 
 
 class WorkspaceStorage:
@@ -806,7 +825,8 @@ class WorkspaceStorage:
         return hash(("WorkspaceStorage", self.place))
 
 
-def check_workspace_storage(place, *, what="the configured workspace store"):
+def check_workspace_storage(place, *, what="the configured workspace store",
+                            physical=True):
     """One absolute, manager-owned, unaliased directory, validated and owned.
 
     ASKED WITH `lstat`, never `isdir`. `os.path.isdir` follows a symlink and
@@ -830,6 +850,19 @@ def check_workspace_storage(place, *, what="the configured workspace store"):
     if os.path.normpath(place) != place.rstrip("/") or place != place.rstrip("/") and place != "/":
         _refuse(f"{what} is a canonical path with no traversal or trailing "
                 f"separator; {name_value(place)} is not", code="path")
+    if not physical:
+        # W270664 F2: THE LEXICAL HALF ALONE, FOR A READER UNDER A DATABASE
+        # LOCK, and it is never how a store is obtained.
+        #
+        # Everything above is a decision about the STRING and reaches nothing;
+        # everything below asks the filesystem, which is exactly what owner
+        # 270664 forbids while a write lock is held. `recorded_storage_place`
+        # is the only caller, it passes a place this same function has ALREADY
+        # validated physically outside the lock, and it requires the two
+        # database accounts to still name that exact place. So the physical
+        # answer is not skipped here -- it was taken earlier, on the same
+        # bytes, and is being rebound rather than retaken.
+        return place
     try:
         held = os.lstat(place)
     except OSError:
@@ -884,7 +917,7 @@ def configure_workspace_storage(store, place):
 STORAGE_CONFIGURE_OPERATION = "workspace-storage.configure"
 
 
-def _configured_storage(store):
+def _configured_storage(store, *, physical=True):
     found = store._connection.execute(
         "SELECT value FROM meta WHERE key = ?",
         (WORKSPACE_STORAGE_KEY,)).fetchone()
@@ -893,10 +926,11 @@ def _configured_storage(store):
     # ADOPTED, not trusted: a persisted value this process did not write, and a
     # store hand-edited to name `/` is exactly what the read has to refuse.
     return check_workspace_storage(found["value"],
-                                   what="the recorded workspace store")
+                                   what="the recorded workspace store",
+                                   physical=physical)
 
 
-def _committed_workspace_storage(store):
+def _committed_workspace_storage(store, *, physical=True):
     """The deployment's own act, read out of the journal.
 
     The three questions `_committed_workspace_group` asks, in the same order
@@ -922,7 +956,8 @@ def _committed_workspace_storage(store):
                                  "the committed workspace store configuration",
                                  required=("workspace_storage",))
     place = check_workspace_storage(answer["workspace_storage"],
-                                    what="the committed workspace store")
+                                    what="the committed workspace store",
+                                    physical=physical)
     if held["signature"] != manager_signature(STORAGE_CONFIGURE_OPERATION,
                                               {"place": place}):
         _refuse(f"the journalled workspace store configuration names "
@@ -942,8 +977,21 @@ def configured_workspace_storage(store):
     merely absent -- a record this build cannot cross-check is not one it mints
     a custody root from.
     """
-    projected = _configured_storage(store)
-    committed = _committed_workspace_storage(store)
+    return WorkspaceStorage(_agreed_storage_place(store, physical=True), _MINT)
+
+
+def _agreed_storage_place(store, *, physical):
+    """The one place BOTH accounts name, or the exact way they disagree.
+
+    W270664 F2 split this out of `configured_workspace_storage` so the
+    agreement can be re-decided under a database lock WITHOUT the filesystem.
+    Every refusal below is a read of this database and of nothing else; the
+    only thing `physical` chooses is whether the two places each account names
+    are also asked of the disk on the way past. The refusals, their order and
+    their categories are unchanged in both directions.
+    """
+    projected = _configured_storage(store, physical=physical)
+    committed = _committed_workspace_storage(store, physical=physical)
     if projected is None and committed is None:
         _denied("this manager has no configured workspace store; the "
                 "deployment records the one directory attempts are allocated "
@@ -965,7 +1013,56 @@ def configured_workspace_storage(store):
                 f"configuration names {name_value(committed)}; a store the "
                 f"record was edited to name is not a store the deployment "
                 f"configured", code="schema")
-    return WorkspaceStorage(committed, _MINT)
+    return committed
+
+
+def recorded_storage_place(store, prepared):
+    """The place a PREPARED store still names, bound to this database with no I/O.
+
+    W270664 F2, review 2026-09-26T08:43:12Z. The reviewer's trace pinned all
+    six filesystem calls the intake ending made under its own write lock to one
+    cause: `custody._recorded_store` calls `configured_workspace_storage`, once
+    per receipt, and each call asks `lstat` three times -- for the projection,
+    for the committed answer and again when the frozen store is minted. The
+    place is wanted there only as a SIGNATURE OPERAND, so what has to happen
+    inside the lock is not the physical validation; it is proving that the
+    place the signature is about is still the configured one.
+
+    So the physical evidence is taken OUTSIDE, by `configured_workspace_storage`
+    -- the only minter, so holding a `WorkspaceStorage` already means the
+    deployment configured that directory and this manager owned it, unaliased,
+    when it was measured -- and this function, called INSIDE, rebinds it:
+
+      * THE JOURNAL, through `_committed_workspace_storage`: the kind, the
+        answer through `replay`, and the signature RECOMPUTED over the place.
+        That is the provenance, and it is the same reader the outside path used.
+      * THE PROJECTION, and the two accounts agreeing, exactly as outside.
+      * AND THAT BOTH OF THEM STILL NAME THE PREPARED PLACE. A configuration
+        committed between the measurement and this transaction makes the
+        prepared evidence stale, and stale evidence is refused rather than
+        signed. This is the check that makes an operand ARGUMENT worth
+        anything: without it the caller would be handing in a place nobody
+        re-derived, which is the "caller composed it" defect the receipt
+        readers already refuse.
+
+    A PLAIN VALUE IS DELIBERATELY NOT ACCEPTED. The operand is the frozen
+    `WorkspaceStorage`, so a caller cannot reach this with a path it chose --
+    the rule `WorkspaceStorage` exists for is not weakened by moving where the
+    lstat happens.
+    """
+    if not isinstance(prepared, WorkspaceStorage):
+        _refuse("a prepared workspace store is the frozen answer "
+                "`configured_workspace_storage` mints, so that what is rebound "
+                "under the lock is evidence this manager measured rather than a "
+                "place a caller composed", code="schema")
+    place = _agreed_storage_place(store, physical=False)
+    if place != prepared.place:
+        _refuse(f"the workspace store was measured as {name_value(prepared.place)} "
+                f"before this transaction and this database now records "
+                f"{name_value(place)}; a configuration committed in between "
+                f"makes the prepared evidence stale, and an act is not signed "
+                f"for a store nobody validated", code="schema")
+    return place
 
 
 def check_workspace_group(gid, *, what="the configured workspace group"):
@@ -1727,7 +1824,1103 @@ def hold_restoration_lock(storage, line_id, *, control=None):
         os.close(descriptor)
 
 
-def _serialized_removal(control, storage, assignment_id, what, removing):
+# W270664 F2 -- removal ownership, admitted in the database and performed outside it.
+# Owner 270664 selects this correction; review 2026-09-26T06:21:32Z pinned the
+# reciprocal half. The restoration-lock region above belongs to W257624 and is
+# untouched by any of this.
+REMOVAL_OWNERSHIP_KIND = "workspace.removal-ownership"
+REMOVAL_COMPLETE_KIND = "workspace.removal-complete"
+
+
+ADOPTION_KIND = "workspace.adoption"
+ADOPTION_COMPLETE_KIND = "workspace.adoption-complete"
+
+
+def _adoption_id(assignment_id, ordinal):
+    return f"{ADOPTION_KIND}:{assignment_id}:{ordinal}"
+
+
+def _adoption_complete_id(assignment_id, ordinal):
+    return f"{ADOPTION_COMPLETE_KIND}:{assignment_id}:{ordinal}"
+
+
+def standing_adoption(control, assignment_id):
+    """Adoptions of this attempt that are admitted and not yet settled."""
+    standing = []
+    ordinal = 1
+    while True:
+        found = control.operation_record(_adoption_id(assignment_id, ordinal))
+        if found is None:
+            return standing
+        if control.operation_record(
+                _adoption_complete_id(assignment_id, ordinal)) is None:
+            standing.append((ordinal, found))
+        ordinal += 1
+
+
+def _admitted_adoption(control, assignment_id, what):
+    """Admit an adoption of this attempt's roots, EXCLUSIVELY against removal.
+
+    W270664 F2, review 2026-09-26T07:25:48Z. My first reciprocal attempt was a READ before
+    the act, and the reviewer's probe walked through it: adoption read "no standing removal",
+    a removal was admitted after that read, and adoption proceeded. A guard that answers
+    before the competing act commits excludes nothing.
+
+    SO ADOPTION IS ADMITTED TOO, in its own short `BEGIN IMMEDIATE`, and the removal's
+    admission reads THIS record inside its own. Whichever transaction commits first wins and
+    the other sees it: an actor already past its early read is refused at its OWN admission
+    rather than after it. That is the mutual part -- neither side is trusted to check only
+    the other's absence.
+
+    THE LIFETIME IS SHORT AND ALWAYS SETTLED. Adoption only proves roots it does not create,
+    so its in-flight record is closed on success and on failure alike; it is an exclusion
+    window, not a durable hold, and leaving one standing would block the attempt for nothing.
+    """
+    import uuid
+
+    from .store import _recorded, manager_signature
+
+    connection = control._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        removing = standing_removal(control, assignment_id)
+        if removing:
+            ordinal, _ = removing[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: removal {ordinal} of this attempt's roots was admitted "
+                f"and has recorded no completion, so these roots are being deleted and are "
+                f"not adopted until that removal is reconciled")
+        ordinal = 1
+        while control.operation_record(
+                _adoption_id(assignment_id, ordinal)) is not None:
+            ordinal += 1
+        document = {"attempt_id": assignment_id, "ordinal": ordinal, "act": what,
+                    "owner": uuid.uuid4().hex}
+        control._record(_adoption_id(assignment_id, ordinal), ADOPTION_KIND,
+                        manager_signature(ADOPTION_KIND, document),
+                        "committed", _recorded(document), None)
+        connection.execute("COMMIT")
+    except BaseException:
+        try:
+            connection.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+    return document
+
+
+def _settled_adoption(control, assignment_id, owned):
+    """Close an adoption's exclusion window, on success and on failure alike."""
+    from .store import manager_signature
+
+    document = {"attempt_id": assignment_id, "ordinal": owned["ordinal"],
+                "owner": owned["owner"]}
+    control.transact(_adoption_complete_id(assignment_id, owned["ordinal"]),
+                     ADOPTION_COMPLETE_KIND,
+                     manager_signature(ADOPTION_COMPLETE_KIND, document),
+                     lambda _connection: dict(document))
+
+
+# W270664 F2 -- THE CLEANUP'S OWN EXCLUSION, which outlives its removal.
+#
+# Review 2026-09-26T09:15:26Z reproduced the defect this pair closes. An enclosing
+# cleanup removes the two execution roots and its removal ownership COMPLETES; the
+# terminal ending has not committed yet. In that window nothing stands: the
+# reviewer's probe allocates the attempt's roots again, and the cleanup's retry then
+# deletes material created after the removal finished.
+#
+# A LONGER-LIVED RECORD IS WHAT THE WINDOW NEEDS, not a longer-lived removal. The
+# removal's ownership is about one deletion and is right to complete when the
+# deletion does; the CLEANUP is about everything from its eligibility to its
+# terminal settlement, so it takes a record that stands for exactly that span and
+# is settled in the ending's own transaction.
+CLEANUP_ADMISSION_KIND = "workspace.cleanup-admitted"
+CLEANUP_SETTLED_KIND = "workspace.cleanup-settled"
+
+# W270664 F2, review 2026-09-26T10:07:07Z: THE ADMISSION HAS A CURRENT OWNER, and a retry
+# TAKES IT OVER rather than joining it.
+#
+# The reviewer's `review_allocation_race_20260926` falsified the protocol I handed over: a
+# second same-operation cleanup adopted the standing admission, settled it, an allocation
+# then succeeded, and the FIRST caller -- still live, still inside its own
+# `discard_execution_roots` -- deleted the newly allocated material. Matching the operation
+# and the signature identified the same ACT; it said nothing about whether the previous
+# EXECUTION of that act had stopped. "Absence of a lease/heartbeat is not evidence the old
+# caller stopped", and idempotent deletion is not safety when what gets deleted is newer
+# than the act deleting it.
+#
+# So adoption is a FENCED TAKEOVER: the retry records a new owner generation and every act
+# performed under the admission -- its removal and its settlement -- must present the
+# CURRENT owner. The fenced predecessor is refused at its next journal-guarded step instead
+# of continuing to act on roots it no longer owns.
+CLEANUP_TAKEOVER_KIND = "workspace.cleanup-taken-over"
+
+
+def _cleanup_takeover_id(assignment_id, ordinal, generation):
+    return f"{CLEANUP_TAKEOVER_KIND}:{assignment_id}:{ordinal}:{generation}"
+
+
+def _current_cleanup_owner(control, assignment_id, ordinal, admitted_owner):
+    """Who may act under this admission NOW, and the next free generation.
+
+    Read by derived identity and through `replay`, so a takeover row edited in place to
+    name another owner no longer answers. The admission's own owner holds it until the
+    first takeover; each later one displaces the previous.
+    """
+    owner = admitted_owner
+    generation = 1
+    while True:
+        record = control.operation_record(
+            _cleanup_takeover_id(assignment_id, ordinal, generation))
+        if record is None:
+            return owner, generation
+        _, document = control.replay(
+            _cleanup_takeover_id(assignment_id, ordinal, generation),
+            record["signature"], kind=CLEANUP_TAKEOVER_KIND)
+        if document is not None and document.get("owner"):
+            owner = document["owner"]
+        generation += 1
+
+
+def _cleanup_admission_id(assignment_id, ordinal):
+    return f"{CLEANUP_ADMISSION_KIND}:{assignment_id}:{ordinal}"
+
+
+def _cleanup_settled_id(assignment_id, ordinal):
+    return f"{CLEANUP_SETTLED_KIND}:{assignment_id}:{ordinal}"
+
+
+def standing_cleanup(control, assignment_id):
+    """This attempt's cleanup admissions that carry no settlement.
+
+    Read by derived identity rather than by scanning, which is this build's rule for
+    operation records: another deployment's rows are invisible to it. An admission
+    with no settlement is STANDING whatever became of the manager that took it --
+    the same rule `standing_removal` follows, and for the same reason.
+    """
+    standing = []
+    ordinal = 1
+    while True:
+        found = control.operation_record(
+            _cleanup_admission_id(assignment_id, ordinal))
+        if found is None:
+            return standing
+        if control.operation_record(
+                _cleanup_settled_id(assignment_id, ordinal)) is None:
+            standing.append((ordinal, found))
+        ordinal += 1
+
+
+def _admitted_cleanup_document(control, assignment_id, ordinal, record):
+    """The standing admission's own document, read back through `replay`.
+
+    Never the record's `result` column read raw: `replay` recomputes the signature,
+    so an admission edited in place to name another operation no longer answers.
+    """
+    _, document = control.replay(
+        _cleanup_admission_id(assignment_id, ordinal), record["signature"],
+        kind=CLEANUP_ADMISSION_KIND)
+    return document
+
+
+def admit_cleanup(control, assignment_id, settlement, what):
+    """Own this attempt's roots from HERE until the settlement named commits.
+
+    W270664 F2, review 2026-09-26T09:15:26Z: "exact cleanup admission and allocation
+    mutual exclusion through terminal settlement, with recoverable retry belonging to
+    the same admitted operation."
+
+    `settlement` IS THE ENCLOSING ACT'S IDENTITY, not this attempt's. It carries the
+    operation the ending will commit under, the signature that operation was composed
+    from, and the incarnation admitting it. That is what makes a retry attributable:
+
+      * THE SAME OPERATION WITH THE SAME SIGNATURE ADOPTS what it already admitted, so
+        an interrupted cleanup can finish. This is the recoverable retry, and it is the
+        only thing that may take a standing admission over.
+      * ANY OTHER ACT IS REFUSED, and the refusal says which fact differed. Review
+        09:15:26Z is explicit that matching attempt ids are not enough: a second
+        cleanup of the same attempt, a re-run whose OPERANDS changed, and a competing
+        removal are all different acts over roots somebody else is mid-way through.
+      * THE INCARNATION IS ATTRIBUTION AND NOT A LIVENESS TEST, said plainly because
+        the difference matters. This build has no lease, heartbeat or liveness signal
+        for a manager, so a same-operation retry from a DIFFERENT incarnation is
+        treated as recovery of the same act rather than refused -- otherwise a crashed
+        manager's cleanup could never be finished by its successor. What protects that
+        case is not a liveness claim but idempotence: the admitted act's effect is
+        "these two roots are gone", both incarnations would settle the identical
+        record, and the settlement names who admitted it and who finished it.
+
+    ONE SHORT RAW TRANSACTION, database work only -- `create_line` and
+    `_admitted_removal` are the precedent. `transact` replays by identity and so
+    cannot make a fresh decision; this decision is fresh.
+    """
+    import uuid
+
+    from .store import _recorded, manager_signature
+
+    # VALIDATED WITHOUT A BOUNDARY LABEL, deliberately, and `_admitted_removal` is the
+    # precedent this follows. The boundary inventory attributes a CROSSING to every
+    # `boundaries.*` call site and requires each to be declared and probed; this operand
+    # does not cross into the manager -- it is composed by `intake.authorize_cleanup`
+    # from an operation identity and a signature this build derived itself. Measured: my
+    # first cut labelled these and added forty-two inventory failures for entries that
+    # are not crossings at all.
+    if not isinstance(settlement, dict):
+        _refuse("a cleanup admission names the settlement it will be closed by",
+                code="schema")
+    offered = {}
+    for member in ("operation", "signature", "incarnation"):
+        value = settlement.get(member)
+        if type(value) is not str or value == "":
+            _refuse(f"a cleanup settlement names its {member}; this is "
+                    f"{name_value(value)}", code="schema")
+        offered[member] = value
+    connection = control._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        # THE OTHER SIDE OF THE RECIPROCAL EXCLUSION, read under this lock: a cleanup does
+        # not start while a caller is in the middle of creating these roots.
+        competing = _competing_allocation(control, assignment_id, what)
+        if competing is not None:
+            raise ContractRefusal("refused", "precondition", competing)
+        for ordinal, record in standing_cleanup(control, assignment_id):
+            held = _admitted_cleanup_document(control, assignment_id, ordinal,
+                                              record)
+            standing = (held or {}).get("settlement") or {}
+            if standing.get("operation") != offered["operation"]:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{what} is refused: cleanup {ordinal} of this attempt's roots was "
+                    f"admitted under operation "
+                    f"{name_value(standing.get('operation'))} and has recorded no "
+                    f"settlement, so that cleanup is still between its removal and its "
+                    f"ending; these roots are not allocated, adopted, removed or "
+                    f"cleaned up again by another act until it settles")
+            if standing.get("signature") != offered["signature"]:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{what} is refused: cleanup {ordinal} of this attempt's roots was "
+                    f"admitted under this same operation with DIFFERENT operands, so "
+                    f"this is not a retry of the admitted act; an operation whose "
+                    f"operands changed is a second act wearing the first one's name")
+            # THE RETRY, TAKEN OVER RATHER THAN JOINED. Review 10:07:07Z: returning the
+            # SAME owner let two live executions of one act believe they held it, and the
+            # older one went on to delete material allocated after the newer one settled.
+            # The takeover is recorded in this same admitting transaction, so exactly one
+            # owner is current at every instant, and the displaced owner's next
+            # journal-guarded step -- admitting its removal, or settling -- refuses.
+            #
+            # THE TRANSACTION IS STILL CLOSED ON THIS PATH. Measured: returning from
+            # inside the `try` left `BEGIN IMMEDIATE` open, and the next thing the
+            # cleanup does is a removal -- which refuses to run under an open
+            # transaction and said so. The refusal was right and the leak was mine.
+            _, generation = _current_cleanup_owner(control, assignment_id, ordinal,
+                                                   held.get("owner"))
+            document = dict(held, owner=uuid.uuid4().hex, generation=generation)
+            taken = {"attempt_id": assignment_id, "ordinal": ordinal,
+                     "generation": generation, "owner": document["owner"],
+                     "act": what, "settlement": offered}
+            control._record(
+                _cleanup_takeover_id(assignment_id, ordinal, generation),
+                CLEANUP_TAKEOVER_KIND,
+                manager_signature(CLEANUP_TAKEOVER_KIND, taken),
+                "committed", _recorded(taken), None)
+            break
+        else:
+            ordinal = 1
+            while control.operation_record(
+                    _cleanup_admission_id(assignment_id, ordinal)) is not None:
+                ordinal += 1
+            document = {"attempt_id": assignment_id, "ordinal": ordinal,
+                        "act": what, "owner": uuid.uuid4().hex,
+                        "settlement": offered}
+            control._record(
+                _cleanup_admission_id(assignment_id, ordinal),
+                CLEANUP_ADMISSION_KIND,
+                manager_signature(CLEANUP_ADMISSION_KIND, document),
+                "committed", _recorded(document), None)
+        connection.execute("COMMIT")
+    except BaseException:
+        try:
+            connection.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+    return document
+
+
+def settle_cleanup(control, connection, assignment_id, admitted, what):
+    """Close the admission IN THE ENDING'S OWN TRANSACTION, atomically with it.
+
+    W270664 F2. This is the half that closes the gap: the exclusion ends exactly when
+    the ending commits, because it is the same commit. A crash before it leaves the
+    admission standing and the roots held; a rollback of the ending rolls this back
+    with it, which is why it is written here rather than in a transaction of its own.
+
+    NO FILESYSTEM CALL AND NO NESTED TRANSACTION. `connection` is the caller's open
+    one, so this writes through `_record` rather than `transact` -- pure database work
+    under a lock the caller already holds, which is what owner 270664's rule permits.
+
+    THE ADMISSION IS RE-READ RATHER THAN TRUSTED. The document the caller holds is one
+    the caller is holding; what authorizes the settlement is the record this journal
+    still has, with its signature recomputed, naming this act as its owner.
+    """
+    from .store import _recorded, manager_signature
+
+    # THE SAME REASON AS `admit_cleanup`: this is the document that function answered,
+    # not a value crossing into the manager, so it is checked rather than labelled.
+    if not isinstance(admitted, dict) or "ordinal" not in admitted \
+            or "owner" not in admitted:
+        _refuse("settling a cleanup needs the admission this act was given",
+                code="schema")
+    ordinal = admitted["ordinal"]
+    record = control.operation_record(
+        _cleanup_admission_id(assignment_id, ordinal))
+    if record is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s cleanup admission {ordinal} is no longer recorded, so this "
+            f"settlement cannot be attributed to the authority it was performed under")
+    held = _admitted_cleanup_document(control, assignment_id, ordinal, record)
+    # THE CURRENT OWNER, NOT THE ADMISSION'S FIRST ONE. Review 2026-09-26T10:07:07Z: a
+    # retry takes the admission over, so a displaced predecessor reaching this line is
+    # settling an exclusion that is no longer its to close -- and it was that settlement,
+    # in their probe, that let an allocation through in front of a still-live remover.
+    current, _generation = _current_cleanup_owner(control, assignment_id, ordinal,
+                                                  (held or {}).get("owner"))
+    if held is None or current != admitted["owner"] \
+            or held.get("attempt_id") != assignment_id:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"{what}'s cleanup admission {ordinal} names another act, so this "
+            f"settlement would close an exclusion this act does not own")
+    if control.operation_record(_cleanup_settled_id(assignment_id, ordinal)) \
+            is not None:
+        # ALREADY SETTLED IS NOT AN ERROR AND IS NOT A SECOND WRITE. A replayed
+        # ending reaches here with the same admission; the record it would write is
+        # the one already there.
+        return dict(held)
+    document = {"attempt_id": assignment_id, "ordinal": ordinal,
+                "owner": held["owner"],
+                "settlement": held.get("settlement"),
+                "settled_by": getattr(control, "incarnation", None)}
+    control._record(
+        _cleanup_settled_id(assignment_id, ordinal), CLEANUP_SETTLED_KIND,
+        manager_signature(CLEANUP_SETTLED_KIND, document),
+        "committed", _recorded(document), None)
+    return document
+
+
+# W270664 F2, review 2026-09-26T10:07:07Z: ALLOCATION IS ADMITTED TOO, because a check
+# that has returned is not an exclusion.
+#
+# Their probe committed a cleanup admission in the instant AFTER allocation's
+# `refuse_if_held` answered and BEFORE its `makedirs`, and allocation went on to create the
+# roots a cleanup then owned. My guard was a read; what allocation needs is a record that
+# stands across its own effect, exactly as the removal and the cleanup have.
+#
+# RECIPROCAL AND ATOMIC. Each side's admitting transaction takes `BEGIN IMMEDIATE` and reads
+# the others' standing records in pure SQL, so whichever commits first wins and the loser
+# sees it and refuses. No transaction is held across a filesystem effect on either side:
+# allocation commits its admission, creates, then completes.
+ALLOCATION_KIND = "workspace.allocation-admitted"
+ALLOCATION_COMPLETE_KIND = "workspace.allocation-complete"
+
+
+def _allocation_id(assignment_id, ordinal):
+    return f"{ALLOCATION_KIND}:{assignment_id}:{ordinal}"
+
+
+def _allocation_complete_id(assignment_id, ordinal):
+    return f"{ALLOCATION_COMPLETE_KIND}:{assignment_id}:{ordinal}"
+
+
+def standing_allocation(control, assignment_id):
+    """Allocations of this attempt's roots that are admitted and not yet complete."""
+    standing = []
+    ordinal = 1
+    while True:
+        found = control.operation_record(_allocation_id(assignment_id, ordinal))
+        if found is None:
+            return standing
+        if control.operation_record(
+                _allocation_complete_id(assignment_id, ordinal)) is None:
+            standing.append((ordinal, found))
+        ordinal += 1
+
+
+def _competing_allocation(control, assignment_id, what):
+    """The pure-SQL refusal a live allocation owes an act that would remove these roots.
+
+    One reader for both the cleanup side and the removal side, so the two cannot drift into
+    disagreeing about what "a caller is creating these roots right now" means.
+    """
+    allocating = standing_allocation(control, assignment_id)
+    if not allocating:
+        return None
+    ordinal, _ = allocating[0]
+    return (f"{what} is refused: allocation {ordinal} of this attempt's roots was admitted "
+            f"and has recorded no completion, so a caller is creating them right now and "
+            f"what it creates is newer than this act's authority over it")
+
+
+def _admitted_allocation(control, assignment_id, what):
+    """Own this attempt's roots for as long as they are being created.
+
+    The mirror of `_admitted_removal`, and deliberately the same shape: one short raw
+    transaction that reads the journal only, refuses on anything standing, and commits this
+    act's ownership. The creation then happens with NO lock held, and the completion is
+    written afterwards.
+
+    A CUSTODY HOLD IS READ HERE AS WELL AS OUTSIDE. `refuse_if_held` is the early refusal
+    for the ordinary case and reaches `realpath`; this is the one that DECIDES, under the
+    same authority a competing `custody_act`, cleanup or removal commits under.
+    """
+    import uuid
+
+    from .store import _recorded, manager_signature
+
+    connection = control._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        for ordinal, record in standing_cleanup(control, assignment_id):
+            held = _admitted_cleanup_document(control, assignment_id, ordinal,
+                                              record) or {}
+            standing = held.get("settlement") or {}
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: cleanup {ordinal} of this attempt's roots was "
+                f"admitted under operation {name_value(standing.get('operation'))} and has "
+                f"recorded no settlement, so these roots belong to that cleanup until it "
+                f"settles -- creating them now would hand it material to delete")
+        outstanding = standing_removal(control, assignment_id)
+        if outstanding:
+            ordinal, _ = outstanding[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: removal {ordinal} of this attempt's roots was admitted "
+                f"and has recorded no completion, so whether that removal is still running "
+                f"or stopped half way is unknown -- these roots are not created again until "
+                f"it is reconciled")
+        held = _journal_holds(control, assignment_id)
+        if held:
+            which, episode = held[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: this attempt's {which} root carries recorded custody "
+                f"episode {episode.get('episode')!r}, and the two roots of one attempt "
+                f"overlap, so neither is free while either is held")
+        ordinal = 1
+        while control.operation_record(
+                _allocation_id(assignment_id, ordinal)) is not None:
+            ordinal += 1
+        document = {"attempt_id": assignment_id, "ordinal": ordinal,
+                    "act": what, "owner": uuid.uuid4().hex}
+        control._record(
+            _allocation_id(assignment_id, ordinal), ALLOCATION_KIND,
+            manager_signature(ALLOCATION_KIND, document),
+            "committed", _recorded(document), None)
+        connection.execute("COMMIT")
+    except BaseException:
+        try:
+            connection.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+    return document
+
+
+def _completed_allocation(control, assignment_id, owned):
+    """Close the allocation's window, on success AND on failure.
+
+    DELIBERATELY NOT "UNCERTAINTY IS HELD", and the asymmetry with a removal is the point.
+    An interrupted REMOVAL stays held because the journal can only ever be behind the
+    filesystem for a deletion and nobody can tell what is already gone. An interrupted
+    CREATION leaves at most a partial tree that `makedirs(exist_ok=True)` is already
+    recoverable over -- and holding its window open would block this attempt's cleanup for
+    good, trading a permanent failure for a transient one.
+    """
+    from .store import manager_signature
+
+    document = {"attempt_id": assignment_id, "ordinal": owned["ordinal"],
+                "owner": owned["owner"]}
+    control.transact(_allocation_complete_id(assignment_id, owned["ordinal"]),
+                     ALLOCATION_COMPLETE_KIND,
+                     manager_signature(ALLOCATION_COMPLETE_KIND, document),
+                     lambda _connection: dict(document))
+
+
+# W270664 -- THE TOKEN BATON, BOUND TO THE RUNNING CONTAINER.
+#
+# Owner ruling OWNER-TOKEN-BATON-20260926.md and its Docker clarification (T270664/274827):
+# "active token is tied to an active Docker image, if token expires, active Docker is shut
+# down so it can be safely reset". The running object is the CONTAINER; the image is its
+# immutable launch input.
+#
+# WHAT THIS ADDS TO THE ACCEPTED ADMISSION RECORD rather than beside it, because the ruling
+# says to map existing claims to the contract and reuse what satisfies it. The removal
+# ownership already bound the conflict domain (this attempt's overlapping roots), the
+# operation and an owner identity, atomically, in one short transaction, before any effect.
+# What it did NOT carry is the three things that make it a BATON:
+#
+#   * a GENERATION, so one attempt's successive removals are ordered and a stale holder is
+#     nameable rather than merely wrong;
+#   * an EXPIRY, so an abandoned holder does not own the roots forever;
+#   * the CONTAINER, bound when it exists -- which is NOT at acquisition. Reserve happens
+#     before launch, so the token is acquired first and the container is bound to that exact
+#     token afterwards, and the delayed/unknown-launch exclusion is preserved meanwhile.
+#
+# AND EXPIRY IS NOT PERMISSION TO REPLACE. An expired token begins REVOCATION: the exact
+# bound container is stopped OUTSIDE every transaction, its termination is POSITIVELY
+# CONFIRMED, and only then may a new generation be admitted. A stop whose outcome is unknown,
+# or a surviving writable helper, keeps the roots held -- issuing a stop is not cessation.
+# HOW LONG A REMOVAL MAY HOLD THE ROOTS BEFORE ITS TOKEN EXPIRES. Generous on
+# purpose: a removal that takes longer than this has stopped being a removal and
+# has become something an operator reconciles through revocation.
+TOKEN_SECONDS = 900
+TOKEN_BOUND_KIND = "workspace.removal-token-bound"
+TOKEN_REVOKED_KIND = "workspace.removal-token-revoked"
+TOKEN_CEASED_KIND = "workspace.removal-token-ceased"
+
+
+def _token_bound_id(assignment_id, ordinal):
+    return f"{TOKEN_BOUND_KIND}:{assignment_id}:{ordinal}"
+
+
+def _token_revoked_id(assignment_id, ordinal):
+    return f"{TOKEN_REVOKED_KIND}:{assignment_id}:{ordinal}"
+
+
+def _token_ceased_id(assignment_id, ordinal):
+    return f"{TOKEN_CEASED_KIND}:{assignment_id}:{ordinal}"
+
+
+def _recorded_document(control, operation_id, kind):
+    """A committed record's own document, read back through `replay`."""
+    found = control.operation_record(operation_id)
+    if found is None:
+        return None
+    _, document = control.replay(operation_id, found["signature"], kind=kind)
+    return document
+
+
+def token_of(control, assignment_id, ordinal):
+    """This ownership's token as it now stands: its terms, container and revocation.
+
+    Assembled from the records rather than from anything a caller holds. `expired` is
+    decided against the store's own clock, which is the instant source the journal stamps
+    its rows from -- a module reaching for wall time here would be answering from a
+    different clock than the evidence.
+    """
+    owned = _recorded_document(control, _removal_ownership_id(assignment_id, ordinal),
+                              REMOVAL_OWNERSHIP_KIND) or {}
+    token = dict(owned.get("token") or {})
+    if not token:
+        return None
+    bound = _recorded_document(control, _token_bound_id(assignment_id, ordinal),
+                              TOKEN_BOUND_KIND)
+    token["container"] = (bound or {}).get("container")
+    token["revoked"] = _recorded_document(
+        control, _token_revoked_id(assignment_id, ordinal), TOKEN_REVOKED_KIND) is not None
+    ceased = _recorded_document(control, _token_ceased_id(assignment_id, ordinal),
+                               TOKEN_CEASED_KIND)
+    token["ceased"] = ceased is not None
+    token["expired"] = control._now() >= token["expires_at"]
+    return token
+
+
+def bind_token_container(control, assignment_id, ordinal, owned, container):
+    """Bind the eventual container to THIS exact token, after the reservation.
+
+    NOT AT ACQUISITION, and that is the owner's own instruction: "Do not assume a container
+    ID exists at initial reservation: preserve reserve-before-launch and uncertain/delayed
+    launch exclusion while binding the eventual container to that exact token." So the roots
+    are already owned and excluded when this runs; this records WHICH running object the
+    token's expiry will have to stop.
+
+    ONE BINDING PER TOKEN, conditioned on the owner. A stale holder cannot bind a container
+    to a generation it no longer owns, which is what would otherwise let an expiry revocation
+    stop somebody else's container.
+    """
+    from .store import manager_signature
+
+    container = boundaries.text(container, "a bound container identity")
+    document = {"attempt_id": assignment_id, "ordinal": ordinal,
+                "owner": owned["owner"],
+                "generation": owned["token"]["generation"],
+                "container": container}
+
+    def binding(_connection):
+        held = _recorded_document(control, _removal_ownership_id(assignment_id, ordinal),
+                                 REMOVAL_OWNERSHIP_KIND) or {}
+        if held.get("owner") != owned["owner"]:
+            raise ContractRefusal(
+                "runtime-observation", "identity-mismatch",
+                f"binding a container to removal token {ordinal} of attempt "
+                f"{name_value(assignment_id)} was asked by an act that does not own it")
+        return dict(document)
+
+    return control.transact(_token_bound_id(assignment_id, ordinal), TOKEN_BOUND_KIND,
+                            manager_signature(TOKEN_BOUND_KIND, document), binding)
+
+
+def revoke_expired_token(control, assignment_id, ordinal, stop):
+    """Begin revocation, STOP THE EXACT BOUND CONTAINER, and confirm it has ceased.
+
+    THE ORDER IS THE CONTRACT, and every external step is outside every transaction:
+
+      1. RECORD THE REVOCATION (database). From here no replacement generation is admitted
+         until cessation is recorded, so an expiry can never be mistaken for permission.
+      2. STOP AND CONFIRM (external, no lock held). `stop` is the controlled boundary: it is
+         handed the exact container this token was bound to and answers whether that
+         container is positively gone, along with whether any writable helper survives.
+      3. RECORD THE CESSATION (database) -- and ONLY on a positive answer.
+
+    UNKNOWN HOLDS. A stop whose outcome the boundary cannot establish, or a surviving
+    writable helper, records NO cessation: the roots stay held, a new generation stays
+    refused, and an operator reconciles. Issuing a stop request is not cessation, and this
+    function's answer is the record, not the request.
+    """
+    from .store import manager_signature
+
+    token = token_of(control, assignment_id, ordinal)
+    if token is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"removal {ordinal} of attempt {name_value(assignment_id)} carries no token to "
+            f"revoke")
+    if not token["expired"]:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"removal token {ordinal} of attempt {name_value(assignment_id)} has not expired; "
+            f"a live token is returned by its holder, not revoked by somebody else")
+    if not token["revoked"]:
+        revocation = {"attempt_id": assignment_id, "ordinal": ordinal,
+                      "generation": token["generation"],
+                      "container": token["container"]}
+        control.transact(_token_revoked_id(assignment_id, ordinal), TOKEN_REVOKED_KIND,
+                         manager_signature(TOKEN_REVOKED_KIND, revocation),
+                         lambda _connection: dict(revocation))
+    if token["ceased"]:
+        return token_of(control, assignment_id, ordinal)
+    # THE EXTERNAL STEP, WITH NOTHING HELD. A container that was never bound is not a
+    # container this manager may assume is gone: the boundary is still asked, because a
+    # token can expire between its acquisition and its launch and the launch may have
+    # happened without the binding committing.
+    answer = boundaries.document(
+        stop(token["container"]), "a container cessation answer",
+        required=("stopped", "helpers"))
+    if not answer["stopped"] or answer["helpers"]:
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"removal token {ordinal} of attempt {name_value(assignment_id)} is revoked and "
+            f"its container {name_value(token['container'])} is not positively gone "
+            f"(stopped={answer['stopped']!r}, surviving helpers="
+            f"{answer['helpers']!r}); these roots stay held and no new generation is "
+            f"admitted, because a stop request is not cessation")
+    cessation = {"attempt_id": assignment_id, "ordinal": ordinal,
+                 "generation": token["generation"],
+                 "container": token["container"],
+                 "confirmed_at": control._now()}
+    control.transact(_token_ceased_id(assignment_id, ordinal), TOKEN_CEASED_KIND,
+                     manager_signature(TOKEN_CEASED_KIND, cessation),
+                     lambda _connection: dict(cessation))
+    return token_of(control, assignment_id, ordinal)
+
+
+def _token_terms(control, assignment_id, ordinal, execution, seconds):
+    """This generation's terms, stamped from the store's own clock."""
+    taken = control._now()
+    return {"execution": boundaries.text(execution, "a token execution identity"),
+            "generation": ordinal,
+            "acquired_at": taken,
+            "expires_at": boundaries.deadline(taken, seconds,
+                                              "a removal token expiry")}
+
+
+def _removal_ownership_id(assignment_id, ordinal):
+    return f"{REMOVAL_OWNERSHIP_KIND}:{assignment_id}:{ordinal}"
+
+
+def _removal_complete_id(assignment_id, ordinal):
+    return f"{REMOVAL_COMPLETE_KIND}:{assignment_id}:{ordinal}"
+
+
+def standing_removal(control, assignment_id):
+    """The removal ownership records of this attempt that carry no completion.
+
+    W270664 F2. THE RECIPROCAL HALF OF THE EXCLUSION, and review 2026-09-26T06:21:32Z is
+    why it exists: `custody._claim_episode`'s claiming callback re-reads custody overlap
+    under its own `BEGIN IMMEDIATE` and reads NOTHING about a removal, so an ownership
+    record on its own would have excluded nothing -- a hold could still commit while the
+    tree was coming off the disk. Every act that would touch these roots asks this, under
+    the same database authority, BEFORE its effect.
+
+    READ BY DERIVED IDENTITY rather than by scanning the journal table, which is this
+    build's rule for operation records: another deployment's rows are invisible to it.
+
+    AN OWNERSHIP WITH NO COMPLETION IS STANDING, whatever happened to the caller that
+    took it. That is the held state an interrupted removal must leave behind: nothing here
+    guesses that a vanished remover finished.
+    """
+    standing = []
+    ordinal = 1
+    while True:
+        found = control.operation_record(
+            _removal_ownership_id(assignment_id, ordinal))
+        if found is None:
+            return standing
+        if control.operation_record(
+                _removal_complete_id(assignment_id, ordinal)) is None:
+            standing.append((ordinal, found))
+        ordinal += 1
+
+
+def _journal_holds(control, assignment_id):
+    """Both roots' STANDING custody holds, as a database-only reading.
+
+    BOTH ROOTS, ALWAYS, because `custody._derived_root` puts the result root INSIDE the
+    workspace: a hold on either covers a tree the other contains. This reads only the
+    journal, so it is safe inside the admission transaction -- `refuse_if_held` is the
+    fuller check and reaches `realpath`, which is why IT runs outside.
+
+    A CLEARED EPISODE IS HISTORY, NOT A HOLD, and review 2026-09-26T06:34:57Z caught me
+    treating it as one: my first cut returned every recorded episode, so a root whose
+    uncertainty an operator had already reconciled could NEVER be removed -- a permanent
+    false refusal, which is a worse failure than the one this correction is about. The
+    predicate is `custody._standing_overlap`, the accepted one `_claim_episode` itself uses;
+    it walks both roots and answers the oldest UNCLEARED episode, so a cleared history, a
+    mixed history and no history all answer the same as each other and only a live hold
+    refuses. Borrowing that predicate rather than writing a second one is deliberate: two
+    readers of the same fact are two chances to disagree about it.
+    """
+    from . import custody
+
+    standing = custody._standing_overlap(control, assignment_id, "workspace")
+    if standing is None:
+        return []
+    # THE EPISODE NAMES ITS OWN ROOT, and this reports THAT rather than a default.
+    # Review 2026-09-26T06:39:23Z: my fallback said "workspace" whenever the field was
+    # missing, so a RESULT-root hold could have been diagnosed as a workspace one -- a
+    # refusal that names the wrong resource is a refusal an operator cannot act on.
+    # `custody_holds` records `("root", which)` for every episode, so an episode without
+    # one is a malformed record and is refused as such instead of being relabelled.
+    # MEASURED, and it corrected my own assumption: not every episode document this reader
+    # returns carries a `root` field -- the standing episode from `_record_hold` does not --
+    # so demanding one turned a correct refusal into an integrity error. What matters is that
+    # the diagnostic never NAMES the wrong root, so an unlabelled episode is reported as
+    # covering the overlapping pair instead of being defaulted to "workspace", which is what
+    # review 2026-09-26T06:39:23Z flagged.
+    # THE ROOT IS standing["held"]["root"], which review 2026-09-26T06:44:15Z had to tell me
+    # after two wrong guesses: `_standing_overlap` answers {"held": <episode>, "episode": n},
+    # so the top-level document has no `root` at all. My first cut defaulted the name to
+    # "workspace" -- so a RESULT-root hold could be diagnosed as a workspace one -- and my
+    # second refused a missing top-level field as malformed, which turned a correct refusal
+    # into an integrity error. Reading the field that actually carries it fixes both.
+    held = standing.get("held") or {}
+    return [(held.get("root", "workspace-or-result"), held or standing)]
+
+
+def _pinned_home(storage, assignment_id):
+    """This attempt's home as an OBJECT -- device and inode -- or absence.
+
+    W270664 F2. A name is not an object: the audit's own alias findings are about exactly
+    that, and a removal authorized for one inode must not be performed against another.
+    Absence is answered rather than refused, because an absent home has its own accepted
+    answer at the caller.
+    """
+    home = os.path.join(_real(storage, "the manager's workspace storage"),
+                        assignment_id)
+    try:
+        observed = os.lstat(home)
+    except OSError:
+        return None
+    return (observed.st_dev, observed.st_ino)
+
+
+def _still_the_pinned_home(storage, assignment_id, pinned, what):
+    """Refuse unless the home is still the object the ownership was granted for.
+
+    WHAT THIS DOES NOT DO, AND I CLAIMED OTHERWISE. Review 2026-09-26T06:54:02Z swapped the
+    home AFTER this check answered and the production removal then deleted the substitute's
+    marker. So this is a TIME-OF-CHECK comparison, not a binding: it catches a replacement
+    that happened BEFORE the effect starts and nothing that happens after. My previous
+    handoff said the removal was "bound to an object, not to a name", and that was wrong --
+    a stat cannot bind anything, because the deletion that follows still resolves a
+    PATHNAME.
+
+    IT IS KEPT because it closes the admission-to-effect interval, which is a real interval
+    and has its own case. What it is NOT is the object binding the correction still owes:
+    that needs the deletion, the traversal and the final removal performed RELATIVE TO A
+    DIRECTORY DESCRIPTOR opened once and fstat-verified against the pin -- which is what
+    `discard_execution_roots` already does for the execution roots and what `_remove` does
+    not yet do for the home. The next claim owes that, and until then this comparison is
+    described here as exactly what it is.
+    """
+    if _pinned_home(storage, assignment_id) != pinned:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"{what} was admitted for this attempt's home as one object and the pathname "
+            f"now names a different one; a removal is performed on the object its "
+            f"authority was granted for and not on whatever answers the name")
+
+
+def _durably_in_use(control, assignment_id):
+    """Whether durable state says an attempt's roots are in use, as a DATABASE-ONLY read.
+
+    W270664 F2, review 2026-09-26T08:02:18Z. Settling the adoption window at the grant binding
+    was not a handover, because the removal read NOTHING that changes when a grant is bound.
+    This is that missing target: the very facts the grants themselves test --
+    `_writer_grant` is a writer ACTIVE for the attempt, `_review_grant` is an attachment ACTIVE
+    for it -- read here so the removal refuses for as long as they hold, which is precisely as
+    long as a grant could be live.
+
+    PURE SQL OVER THIS STORE'S OWN TABLES, so it is safe inside the admission transaction and
+    adds no import of the lifecycle module that owns those predicates. The removal already has
+    the store; review 08:02:18Z says so, and it was right that nothing new is needed to reach
+    these rows.
+    """
+    connection = control._connection
+    writing = connection.execute(
+        "SELECT writer_id FROM line_writers "
+        "WHERE runtime_attempt_id = ? AND state = 'active' LIMIT 1",
+        (assignment_id,)).fetchone()
+    if writing is not None:
+        return ("an active line writer", writing[0])
+    reviewing = connection.execute(
+        "SELECT attachment_id FROM review_attachments "
+        "WHERE runtime_attempt_id = ? AND state = 'active' LIMIT 1",
+        (assignment_id,)).fetchone()
+    if reviewing is not None:
+        return ("an active review attachment", reviewing[0])
+    return None
+
+
+def _admitted_removal(control, assignment_id, what, pinned=None, under=None,
+                      execution=None, seconds=TOKEN_SECONDS):
+    """Take removal ownership of this attempt's roots in ONE short transaction.
+
+    W270664 F2, owner 270664: "all external I/O occurs outside DB locks", and review
+    2026-09-26T06:21:32Z: "A completion-time hold check alone is too late." So the
+    exclusion is won BEFORE any effect and without touching a filesystem.
+
+    WHAT THIS TRANSACTION DOES, all of it database work: re-reads both roots' custody
+    holds from the journal, refuses if any stands, refuses if another removal ownership of
+    this attempt is still standing, and commits this act's ownership. A hold that commits
+    first wins here; a hold that arrives afterwards is refused by the reciprocal check in
+    `custody._claim_episode`, which reads `standing_removal` under its own lock.
+
+    THE RAW SHORT TRANSACTION IS THIS BUILD'S OWN PRECEDENT -- `create_line` and
+    `review_cycles._admitted_execution` take `BEGIN IMMEDIATE` and commit by hand -- and it
+    is necessary rather than stylistic: `transact` is keyed by an operation identity and
+    replays, so it cannot make a fresh decision, and the decision here must be fresh.
+
+    ANSWERS the ordinal and token this act owns. The caller performs its removal OUTSIDE
+    every transaction and then completes against exactly this ownership.
+    """
+    import uuid
+
+    from .store import _recorded, manager_signature
+
+    connection = control._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        held = _journal_holds(control, assignment_id)
+        if held:
+            which, episode = held[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: this attempt's {which} root carries recorded "
+                f"custody episode {episode.get('episode')!r}, and the two roots of one "
+                f"attempt overlap, so neither is free while either is held")
+        # DURABLE USE FIRST, because it outlives any window: while a writer or an attachment
+        # is ACTIVE for this attempt, its roots are in use and no removal is admitted -- which
+        # is what makes the grant binding a real handover rather than a dropped exclusion.
+        in_use = _durably_in_use(control, assignment_id)
+        if in_use is not None:
+            what_holds, which = in_use
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: this attempt's roots are held by {what_holds} "
+                f"({name_value(which)}), so they are in use and are not removed until that "
+                f"is no longer true")
+        competing = _competing_allocation(control, assignment_id, what)
+        if competing is not None:
+            raise ContractRefusal("refused", "precondition", competing)
+        adopting = standing_adoption(control, assignment_id)
+        if adopting:
+            ordinal, _ = adopting[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: adoption {ordinal} of this attempt's roots was "
+                f"admitted in this same journal and has recorded no completion, so the "
+                f"roots are in use; the removal is not admitted while it stands")
+        standing = standing_removal(control, assignment_id)
+        if standing:
+            ordinal, _ = standing[0]
+            # W270664, the owner's token contract: AN OUTSTANDING BATON IS WHAT REFUSES, and
+            # its expiry is a different sentence from its life.
+            held_token = token_of(control, assignment_id, ordinal)
+            if held_token is None or not held_token["expired"]:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{what} is refused: removal {ordinal} of this attempt's roots holds an "
+                    f"outstanding token (generation "
+                    f"{(held_token or {}).get('generation')}, execution "
+                    f"{name_value((held_token or {}).get('execution'))}) and has recorded no "
+                    f"completion, so whether that removal is still running or stopped half "
+                    f"way is unknown -- an uncertain removal is held rather than repeated")
+            if not held_token["ceased"]:
+                # EXPIRY IS NOT PERMISSION. The old holder's container must be stopped and
+                # its termination positively confirmed -- `revoke_expired_token` -- before any
+                # replacement generation is admitted. Until then these roots stay held, which
+                # is the owner's "unknown prior effects remain held" applied to the exact
+                # running object rather than to a presumption about it.
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{what} is refused: removal token {ordinal} of this attempt's roots "
+                    f"EXPIRED at {name_value(held_token['expires_at'])} and its cessation is "
+                    f"not established -- container "
+                    f"{name_value(held_token['container'])}, revoked="
+                    f"{held_token['revoked']!r}. Expiry begins revocation and is not "
+                    f"permission to replace: the bound container is stopped and its "
+                    f"termination confirmed before a new generation is admitted")
+        # W270664 F2, review 2026-09-26T10:07:07Z: A REMOVAL ACTING FOR A CLEANUP MUST
+        # STILL OWN THAT CLEANUP, proved HERE, in the transaction that authorizes the
+        # deletion, rather than when the cleanup began.
+        #
+        # THE DEFECT THIS CLOSES, exactly as their probe staged it: a first cleanup
+        # admitted and paused before its removal; a second same-operation caller took the
+        # admission, removed, and settled; an allocation then legitimately created fresh
+        # roots; and the first caller resumed and deleted them. Every earlier check had
+        # already passed -- nothing was standing, because the second caller had tidied up
+        # after itself. The fact that was true and unread is that the first caller's own
+        # authority had been taken away from it.
+        if under is not None:
+            owed = under.get("ordinal")
+            mine = under.get("owner")
+            standing_admission = {one: record for one, record
+                                  in standing_cleanup(control, assignment_id)}
+            if owed not in standing_admission:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{what} is refused: the cleanup admission {owed} it was authorized "
+                    f"by is no longer standing, so this deletion would act on roots its "
+                    f"own cleanup has already settled -- and anything allocated since is "
+                    f"newer than the authority that would remove it")
+            held_admission = _admitted_cleanup_document(
+                control, assignment_id, owed, standing_admission[owed]) or {}
+            current, _generation = _current_cleanup_owner(
+                control, assignment_id, owed, held_admission.get("owner"))
+            if current != mine:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{what} is refused: cleanup admission {owed} of this attempt's roots "
+                    f"has been taken over by a later act, so this caller no longer holds "
+                    f"the authority its removal would be performed under")
+        ordinal = 1
+        while control.operation_record(
+                _removal_ownership_id(assignment_id, ordinal)) is not None:
+            ordinal += 1
+        document = {"attempt_id": assignment_id, "ordinal": ordinal,
+                    "act": what, "owner": uuid.uuid4().hex,
+                    "home_object": None if pinned is None else list(pinned),
+                    # THE BATON'S OWN TERMS, acquired in this same short transaction as the
+                    # ownership -- eligibility, replay and acquisition are one atomic
+                    # decision, which is the contract's first clause. The container is NOT
+                    # here: it does not exist yet at reservation, and `bind_token_container`
+                    # binds the eventual one to this exact generation.
+                    "token": _token_terms(control, assignment_id, ordinal,
+                                          execution or getattr(control, "incarnation", None)
+                                          or "unnamed-execution", seconds)}
+        control._record(
+            _removal_ownership_id(assignment_id, ordinal),
+            REMOVAL_OWNERSHIP_KIND,
+            manager_signature(REMOVAL_OWNERSHIP_KIND, document),
+            "committed", _recorded(document), None)
+        connection.execute("COMMIT")
+    except BaseException:
+        try:
+            connection.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+    return document
+
+
+def _completed_removal(control, assignment_id, owned, value, what):
+    """Record what the removal did, conditioned on the ownership it was authorized by.
+
+    W270664 F2. The removal ran outside every transaction, so this one re-reads in PURE
+    SQL that the ownership this act took is still the record it committed and that no
+    custody hold arrived for either root while the tree was coming off the disk. Either
+    way the effect has already happened -- the journal can only ever be behind the
+    filesystem for a removal -- so what this protects is the ATTRIBUTION: a completion is
+    written for the act that performed it and for no other.
+
+    ONE ACT, ONE ANSWER, NO REPLAY OF SOMEBODY ELSE'S. The ordinal is this act's own, so a
+    later removal over an already-empty home records its own completion and answers its own
+    truth rather than being handed this one.
+    """
+    from .store import manager_signature
+
+    ordinal = owned["ordinal"]
+    document = {"attempt_id": assignment_id, "ordinal": ordinal,
+                "owner": owned["owner"], "removed": _summary(value)}
+    signature = manager_signature(REMOVAL_COMPLETE_KIND, document)
+
+    def completing(_connection):
+        recorded = control.operation_record(
+            _removal_ownership_id(assignment_id, ordinal))
+        if recorded is None:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what}'s removal ownership {ordinal} is no longer recorded, so this "
+                f"act cannot be attributed to the authority it was performed under")
+        _, held_by = control.replay(
+            _removal_ownership_id(assignment_id, ordinal), recorded["signature"],
+            kind=REMOVAL_OWNERSHIP_KIND)
+        if held_by is None or held_by.get("owner") != owned["owner"]:
+            raise ContractRefusal(
+                "runtime-observation", "identity-mismatch",
+                f"{what}'s removal ownership {ordinal} names another act, so this "
+                f"completion would attribute a removal to an authority that did not "
+                f"perform it")
+        arrived = _journal_holds(control, assignment_id)
+        if arrived:
+            which, episode = arrived[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} removed this attempt's roots and a custody hold for its "
+                f"{which} root was recorded at episode {episode.get('episode')!r} while "
+                f"it ran; the removal is recorded as unresolved rather than completed, "
+                f"because a hold that arrived during a deletion is exactly the state an "
+                f"operator has to reconcile")
+        return dict(document)
+
+    return control.transact(_removal_complete_id(assignment_id, ordinal),
+                            REMOVAL_COMPLETE_KIND, signature, completing)
+
+
+def _refuse_nested_removal(control, what):
+    """Refuse a removal asked inside an open transaction BEFORE any filesystem call.
+
+    W270664 F2, review 2026-09-26T08:33:54Z. The refusal existed but sat behind the entry's
+    preflight, so a nested caller still cost eleven `lstat` calls and a `stat` under its
+    transaction before being told no -- I/O under a database lock, which is the whole defect,
+    performed on the way to refusing it. This runs FIRST at both public entries.
+    """
+    connection = getattr(control, "_connection", None)
+    if connection is not None and getattr(connection, "in_transaction", False):
+        _denied(f"{what} was asked from inside an open database transaction; a removal takes "
+                f"its own ownership record and performs its effect with no lock held, so it is "
+                f"not performed under somebody else's transaction -- and nothing is inspected "
+                f"on the way to saying so")
+
+
+def _serialized_removal(control, storage, assignment_id, what, removing,
+                        under=None):
     """Check the holds and remove UNDER THE SAME WRITE LOCK R1's claim takes.
 
     W257624 R3, review 2026-09-25T03-01-27Z: a query followed by an unprotected
@@ -1789,51 +2982,52 @@ def _serialized_removal(control, storage, assignment_id, what, removing):
                 f"a snapshot answers what it was opened over and holds no "
                 f"write lock, so it can neither see a hold committed since nor "
                 f"authorize removing the resource one protects")
+    # W270664 F2: THE NESTED SHORTCUT IS GONE, and a caller inside a write transaction is
+    # REFUSED rather than served.
+    #
+    # It existed for exactly one caller -- `intake._settle`, which removed from inside its own
+    # `runtime.destroy` transaction -- and that call now happens in `authorize_cleanup` with no
+    # lock held. So there is no legitimate caller left, and serving one would be serving a
+    # removal that cannot take its ownership record, cannot be held when interrupted, and holds a
+    # database lock across a tree walk: every property this correction exists to establish,
+    # discarded for the convenience of a nested call.
     connection = getattr(control, "_connection", None)
     if connection is not None and getattr(connection, "in_transaction", False):
-        refuse_if_held(control, storage, assignment_id, what)
-        return removing()
-    # EACH REMOVAL IS ITS OWN ACT, and the identity says so.
+        _denied(f"{what} was asked from inside an open database transaction; a removal takes "
+                f"its own ownership record and performs its effect with no lock held, so it is "
+                f"not performed under somebody else's transaction")
+    # W270664 F2: PREPARE OUTSIDE, ADMIT IN THE DATABASE, REMOVE OUTSIDE, COMPLETE IN THE
+    # DATABASE. Owner 270664 forbids external I/O under a database lock, and review
+    # 2026-09-26T06:21:32Z forbids buying that with a completion-time check: the exclusion
+    # is won BEFORE the effect, by an ownership record, and `custody._claim_episode` reads
+    # that record under its own lock so the exclusion is mutual rather than one-sided.
     #
-    # W257624 R3, review 2026-09-25T03-23-28Z. I reached for `transact` to get
-    # the write lock and accidentally acquired REPLAY semantics with it: the
-    # identity was derived from the attempt alone, so a second removal was a
-    # replay of the first, the callback never ran, and the local answer was
-    # missing -- `KeyError('value')`. Worse, replay is the WRONG contract here.
-    # `discard_execution_roots` answers what THIS act removed, and a second act
-    # over an already-empty home removes nothing and must say `()`; handing back
-    # the first act's answer would report roots that are no longer there.
+    # THE FULL PREFLIGHT RUNS FIRST AND OUTSIDE EVERYTHING, because it reaches `realpath`
+    # and the filesystem: `refuse_if_held` is the early refusal for the ordinary case and
+    # the admission below re-reads the journal's holds under its lock, which is the part
+    # that must be serialized.
+    refuse_if_held(control, storage, assignment_id, what, under)
+    # THE OBJECT IS PINNED BEFORE ADMISSION AND COMPARED BEFORE THE EFFECT -- AND THAT IS
+    # NOT YET A BINDING. Review 2026-09-26T06:54:02Z proved the gap by swapping the home
+    # after the comparison answered, so see `_still_the_pinned_home` for what this does and
+    # does not establish. The comparison stays because the interval before the effect is
+    # real; the descriptor-relative removal the full property needs is still owed.
     #
-    # So the act carries a nonce. What `transact` is used for is the lock it
-    # takes, not the effectively-once guarantee -- and a removal does not need
-    # that guarantee, because removing what is already gone is the state the
-    # caller asked for. Every call runs, every call answers its own truth, and
-    # the journal keeps one row per act rather than pretending two were one.
-    import uuid
-
-    operands = {"attempt_id": assignment_id, "root": "home", "act": what,
-                "act_id": uuid.uuid4().hex}
-    identity = f"workspace.removal:{digest(operands)[len('sha256:'):]}"
-
-    # THE REMOVAL'S OWN ANSWER SURVIVES, not a boolean cast of it. Review
-    # 2026-09-25T03-13-33Z: `discard_execution_roots` answers WHICH roots it
-    # removed -- an empty tuple when there were none -- and my `bool(...)`/
-    # `or True` coercion threw that away, so a caller could not tell "removed
-    # nothing" from "removed everything". The journal records a JSON-able
-    # summary; the caller gets the real value.
-    answered = {}
-
-    def removal(_connection):
-        refuse_if_held(control, storage, assignment_id, what)
-        answered["value"] = removing()
-        return {**operands, "removed": _summary(answered["value"])}
-
-    control.transact(identity, "workspace.removal",
-                     manager_signature("workspace.removal", operands), removal)
-    if "value" not in answered:                          # pragma: no cover
-        _refuse("a removal's own act did not run; this build does not report a "
-                "removal it did not perform", code="schema")
-    return answered["value"]
+    # W270664 F2, review 2026-09-26T06:48:32Z. The ownership record authorized a removal of
+    # "this attempt's roots" by NAME, and the effect then runs outside every lock -- so a
+    # home replaced in that interval would have been deleted under an authority granted for
+    # a different object. `_real` already refuses a symlinked home at entry; this closes the
+    # interval AFTER that proof, which is the same reason `discard_execution_roots` opens a
+    # directory descriptor instead of trusting a pathname.
+    pinned = _pinned_home(storage, assignment_id)
+    owned = _admitted_removal(control, assignment_id, what, pinned, under)
+    _still_the_pinned_home(storage, assignment_id, pinned, what)
+    # THE EFFECT, WITH NO TRANSACTION OPEN. An exception here leaves the ownership standing
+    # with no completion, which is the HELD state: `standing_removal` reports it, this
+    # entry refuses to repeat it, and custody refuses to hold over it.
+    value = removing()
+    _completed_removal(control, assignment_id, owned, value, what)
+    return value
 
 
 def _summary(value):
@@ -1843,8 +3037,142 @@ def _summary(value):
     return bool(value)
 
 
-def refuse_if_held(control, storage, assignment_id, what):
-    """Refuse when a custody hold stands over anything this act would touch.
+def _database_place(store):
+    """The file this store is a handle on, asked of the connection itself.
+
+    W270664 F2. Not a path a caller supplies and not a configuration: `PRAGMA
+    database_list` is the connection's own account of what it is open on, so the reader
+    opened from it below is certainly the same journal. An in-memory or unnameable
+    database answers `None`, and an allocation that needs a reader for one is refused
+    rather than served from somewhere else.
+    """
+    try:
+        for _sequence, name, place in store._connection.execute(
+                "PRAGMA database_list").fetchall():
+            if name == "main" and place:
+                return place
+    except Exception:
+        return None
+    return None
+
+
+@contextlib.contextmanager
+def _asking_control(workspace_group, control):
+    """A control store USABLE ON THIS THREAD for the exclusion reads, or a REFUSAL.
+
+    W270664 F2. THE CLOSED AND OFF-THREAD CONTRACT, stated here because review
+    2026-09-26T11:19:15Z requires it recorded rather than implied:
+
+      * Allocation asks this manager's journal whether a cleanup, a removal or a custody
+        hold owns these roots. It asks through the control it was given -- the explicit
+        `control=` operand, or the store bound into the workspace group that minted the
+        capability.
+      * A SQLite connection belongs to the thread that opened it and can be closed. If
+        the given control's connection cannot be used HERE, this refuses. It does not
+        skip the question, and it no longer reopens the database on the caller's behalf.
+      * So a caller allocating from a thread that does not own the store's handle must
+        pass a control it can use on that thread. The seven tool call sites already name
+        their journal, and a fresh `ControlStore.open` is each handle's own authority
+        rather than a claim about somebody else's.
+
+    WHY THE REOPEN IS GONE, in the order it was taken apart, because three rejected
+    versions are worth more to the next reader than the conclusion alone:
+
+      1. A `stat` of the PATHNAME before the open proved nothing about what the open got
+         -- the database was swapped in between (review 10:53:09Z).
+      2. A process-wide scan for a descriptor naming that pathname was satisfied by an
+         unrelated descriptor a witness held on the original file, and its `connection`
+         argument was never used at all (review 11:04:20Z).
+      3. Attribution by CREATION -- only descriptors that appeared across the open -- was
+         defeated by opening an unrelated descriptor on the original file INSIDE that
+         window, after the replacement open and the pathname restore. An in-process lock
+         serializes only the opens that cooperate with it; nothing serializes arbitrary
+         descriptor creation (review 11:19:15Z).
+
+    Each version accepted a REPLACEMENT journal's answer for the selected one, and each
+    time I described it as bound identity. The remaining candidate was a durable
+    per-database identity; it is unselected, and it would not settle a byte-for-byte
+    clone occupying the same reachable path. So the honest behaviour is the refusal, and
+    the caller supplies the authority.
+    """
+    import sqlite3
+
+    # THE PROBE IS A PRAGMA AND NOT A `SELECT`. Measured: `SELECT 1` made
+    # `test_boundary_inventory`'s SQL reader fail with "a SELECT with no FROM", and because
+    # every one of its projections derives from that read, ONE unparseable statement
+    # cascaded into forty-two failures. The question here is "can this connection be used
+    # from this thread", which a PRAGMA answers exactly as well.
+    #
+    # THE PROBE IS ALSO NOT THE YIELD. Wrapping the caller's block in this `try` would
+    # swallow a `ProgrammingError` raised by the block itself.
+    usable = True
+    try:
+        control._connection.execute("PRAGMA database_list").fetchall()
+    except sqlite3.ProgrammingError:
+        usable = False
+    if usable:
+        yield control
+        return
+    _denied(f"allocating an execution workspace has to ask this manager's journal whether "
+            f"a cleanup, a removal or a custody hold owns these roots, and the control it "
+            f"was given cannot be used from this thread -- its connection is closed, or it "
+            f"belongs to another thread. The database at "
+            f"{name_value(getattr(control, 'database', None))} is not reopened on this "
+            f"caller's behalf: a reopened handle cannot be proved to be the journal that "
+            f"control was opened on, and accepting one that cannot be proved is how a "
+            f"replaced journal answered for the original three times over. A caller "
+            f"allocating from another thread passes a control it can use there")
+
+
+def _speaks_for(control, storage):
+    """Whether this journal has authority over this storage tree.
+
+    W270664 F2. The comparison `refuse_if_held` makes before it trusts its own answer,
+    asked as a question instead of as a refusal -- because allocation may legitimately
+    happen outside the configured store and must not be refused for it, while an act ON
+    the configured store must not be served by a journal that cannot speak for it.
+
+    THREE ANSWERS, NOT TWO, and review 2026-09-26T10:07:07Z is why: my first cut turned
+    ANY `ContractRefusal` -- including a corrupt or disagreeing configuration -- into "no
+    authority", which is a fail-open guard wearing a question's clothes. A deployment whose
+    two accounts of the workspace store disagree is exactly when an act must be refused,
+    not waved through.
+
+      * `True`  -- this journal's configured store IS this tree.
+      * `False` -- it is POSITIVELY another tree: both places were established and they
+                   differ, which is the accepted "allocate wherever it may already write"
+                   case and carries no protected resource.
+      * a REFUSAL -- the authority could not be established at all. Nothing is skipped on
+                     that path.
+
+    A manager with NO configured store is the one absence that answers `False` rather than
+    refusing: `_denied` there means the deployment never recorded a workspace store, so
+    there is no configured tree this one could be, and no cleanup, removal or hold can name
+    a root under a store that does not exist.
+    """
+    try:
+        recorded = configured_workspace_storage(control).place
+    except ContractRefusal as refused:
+        if refused.category == "policy" and refused.code == "denied":
+            return False
+        raise
+    return _real(recorded, "the manager's configured workspace store") == \
+        _real(storage, "the manager's workspace storage")
+
+
+def refuse_if_held(control, storage, assignment_id, what, under=None):
+    """Refuse when a custody hold OR AN UNRESOLVED REMOVAL stands over what this act touches.
+
+    W270664 F2, review 2026-09-26T07:21:42Z: the reciprocal exclusion belongs at the
+    chokepoint every entry already calls rather than bolted onto each of them. Allocation,
+    adoption and removal all pass through here, so one reading of the removal ownership
+    covers reuse, adoption and a second removal -- and it is the same reading
+    `custody._claim_episode` makes under its own lock, so neither side trusts only its own.
+
+    AND IT IS WHAT COVERS THE FINAL ENTRY. Review 07:01:39Z was right that parent-fd plus
+    stat plus `rmdir` is not exact-child authority; what makes the final removal safe is not
+    a better stat but that nothing else may create, adopt or remove at that name while the
+    ownership stands. That is an exclusion, not an inference.
 
     W257624 R3, owner 260900/262043. R1 stopped the custody act behind a
     standing hold and R2 decided what may lift one. This is every OTHER way the
@@ -1875,6 +3203,44 @@ def refuse_if_held(control, storage, assignment_id, what):
     from . import custody
 
     boundaries.identity(assignment_id, "an assignment identity")
+    if control is not None and hasattr(control, "operation_record"):
+        # W270664 F2, review 2026-09-26T09:15:26Z: THE CLEANUP'S ADMISSION IS READ AT
+        # THE SAME CHOKEPOINT, so allocation, adoption and a second removal are all
+        # excluded for the whole span between a cleanup's eligibility and its ending
+        # -- including the window after its removal completed, which is the window the
+        # reviewer's probe allocated into.
+        #
+        # AND THE ADMITTED ACT IS NOT REFUSED BY ITS OWN ADMISSION. `settlement` is the
+        # operation the caller is performing; the cleanup that owns the standing record
+        # passes it and proceeds, everybody else is told whose act is outstanding.
+        for ordinal, record in standing_cleanup(control, assignment_id):
+            held = _admitted_cleanup_document(control, assignment_id, ordinal,
+                                              record) or {}
+            # THE EXEMPTION IS THE CURRENT OWNER'S, not every caller who can name the
+            # same operation. Review 2026-09-26T10:07:07Z: two live executions of one act
+            # matched on operation and signature, and the older one went on deleting.
+            if under is not None and under.get("ordinal") == ordinal:
+                current, _generation = _current_cleanup_owner(
+                    control, assignment_id, ordinal, held.get("owner"))
+                if current == under.get("owner"):
+                    continue
+            standing = held.get("settlement") or {}
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: cleanup {ordinal} of this attempt's roots was "
+                f"admitted under operation {name_value(standing.get('operation'))} and "
+                f"has recorded no settlement, so that cleanup is still between its "
+                f"eligibility and its ending; these roots are not allocated, adopted "
+                f"or removed by another act while it stands")
+        outstanding = standing_removal(control, assignment_id)
+        if outstanding:
+            ordinal, _ = outstanding[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: removal {ordinal} of this attempt's roots was "
+                f"admitted and has recorded no completion, so whether that removal is "
+                f"still running or stopped half way is unknown -- these roots are not "
+                f"reused, adopted or removed again until it is reconciled")
     if control is None or not hasattr(control, "operation_record"):
         _denied(f"{what} needs this manager's own control store to check the "
                 f"custody holds that would refuse it; an act that cannot ask "
@@ -2319,7 +3685,8 @@ def _read_all(descriptor, allowance):
 # -- one private workspace per assignment -------------------------------------
 
 
-def assignment_workspace(workspace_group, storage, assignment_id):
+def assignment_workspace(workspace_group, storage, assignment_id, *,
+                         control=None):
     """TWO ROOTS, private to one assignment and never overlapping.
 
     `inputs` is read-only evidence and `workspace` is the only writable tree.
@@ -2365,126 +3732,196 @@ def assignment_workspace(workspace_group, storage, assignment_id):
     # concurrent allocation is exactly what it already promises to be safe
     # for. Consuming the answer is what the correction asks for; holding the
     # thing that produced it is not.
+    #
+    # W270664 F2, review 2026-09-26T09:15:26Z: THAT LAST PARAGRAPH IS NOW WRONG ABOUT
+    # THIS FUNCTION AND IS CORRECTED RATHER THAN LEFT STANDING. Allocation had "no other
+    # reason" to hold a store only while it was allowed to reach these roots without
+    # asking whether anybody else owned them -- and the reviewer's probe allocated an
+    # attempt's roots in the middle of its own cleanup, between the removal that emptied
+    # them and the ending that had not committed. An entry that cannot ask cannot be
+    # excluded, so this one asks now. THE THREAD AFFINITY IS REAL AND IS THE PRICE: the
+    # journal read below uses the store's connection, so allocation belongs on the
+    # thread that opened it, exactly as every other journal-reading entry here does.
+    # The capability is still what crosses -- the store arrives INSIDE the frozen answer
+    # this function already required, not as a second operand a caller composes.
     if type(workspace_group) is not WorkspaceGroup:
         _denied(f"an assignment workspace is allocated into the deployment's "
                 f"configured group, obtained from this manager's own record; "
                 f"this is {name_value(workspace_group)}")
+    workspace_group_capability = workspace_group
     workspace_group = workspace_group.gid
+    # THIS ENTRY'S OWN OPERANDS COME FIRST, and review 2026-09-25T03:40:38Z already paid
+    # for this lesson once on `discard_execution_roots`: when a guard runs ahead of an
+    # entry's own validation, the guard's refusal arrives for a bad operand and the
+    # accepted probe for that operand escapes as something else. Measured here exactly
+    # so -- three inventory probes (`storage`, `place`, `_line_proof`) changed shape
+    # until the storage validation below moved back in front of the exclusion.
     root = _real(storage, "the manager's workspace storage")
     if not os.path.isdir(root):
         _refuse("the manager's workspace storage is not a directory")
-    home = os.path.join(root, assignment_id)
-    made = {}
-    # EVERY ENTRY THE HOME WILL EVER HOLD IS PROVISIONED HERE, and the two
-    # mountable roots are still the only thing this function ANSWERS with.
+    if control is None:
+        control = workspace_group_capability.store
+    # THE EXCLUSION, AT THE CHOKEPOINT THE OTHER ENTRIES ALREADY USE. `refuse_if_held`
+    # answers for a custody hold, an unresolved removal AND an unsettled cleanup, over
+    # both overlapping roots, out of the journal that has authority over this storage.
     #
-    # W33935 re-review [P0]: freezing the `inputs` directory protects what is
-    # inside it and nothing else -- rename and replacement of the entry ITSELF
-    # are permissions of its PARENT, and the home was left at the process
-    # default.  So the whole `0555` root could be renamed aside and a writable
-    # one put at the same canonical path with different bytes in it.
-    #
-    # A parent can only be closed once nothing more needs to be created in it,
-    # which is why `custody`, `credentials` and `credential-state` are made
-    # now.  Those three are the adapter's and the credential home's, and
-    # naming them here is coupling made explicit rather than coupling avoided:
-    # the home is ONE directory with ONE layout, and
-    # `test_input_delivery.TheHomeLayoutIsDeclaredWhereItIsFrozen` holds the
-    # other two components to this list rather than trusting this comment.
-    # EXCLUSIVE FIRST ALLOCATION, SEPARATED FROM RESTART LOOKUP.
-    #
-    # Approver ruling M34768 asks for unique never-reused per-attempt
-    # directories and exclusive creation with collision refusal.  My first cut
-    # put a publication check here, the restart path refuted it, and I then
-    # concluded the two could not be separated at all -- which was wrong, and
-    # the re-review proved it with a case I had not thought of: a stale home
-    # whose `inputs` entry is a SYMLINK to another attempt's root.  That alias
-    # is still contained by manager storage, so containment accepted it and a
-    # second attempt received the first attempt's input root.
-    #
-    # The two ARE separable, and the proof is structural rather than a new
-    # durable record.  A home is named by its attempt, so a home at this path
-    # IS this attempt's -- provided its entries are genuinely its own
-    # directories.  So every entry that already exists must be a real
-    # directory, not a link, resolving to exactly the path under this home; an
-    # entry that is anything else is stale or aliased state and fails closed.
-    # An entry that does not exist is created here, which is the first
-    # allocation.
-    #
-    # THIS KEEPS THE RESTART PATH, which is what the previous cut broke: a
-    # restarted manager asking for the same attempt's roots finds real
-    # directories at their own paths and is answered, because reopening an
-    # attempt is not reusing an identity.
-    # THE HOME IS PROVED BEFORE IT ANCHORS ANYTHING.
-    #
-    # Re-review [P0]: the first cut of this proof checked only
-    # `os.path.isdir(home)`, which FOLLOWS SYMLINKS -- so a home that was
-    # itself a link to another attempt passed, and the child proofs then
-    # anchored on `realpath(home)`, which is the wrong sibling. Both sides of
-    # every child comparison were relocated together and compared equal. A
-    # structural proof applied to the children and not to the thing they are
-    # measured against is not applied.
-    expected_home = os.path.join(os.path.realpath(root), assignment_id)
-    _own_directory(home, expected_home, "assignment home")
-    for name in HOME_ENTRIES:
-        place = os.path.join(home, name)
-        _own_directory(place, os.path.join(expected_home, name),
-                       f"{name} root")
-        held = _contained(place, root, f"the assignment's {name} root")
-        if name in ROOT_NAMES:
-            made[name] = held
-    # ESTABLISHED, NOT REQUESTED, and the GROUP with it.  `os.makedirs`
-    # filters its mode through the umask; `os.chmod` on a directory that
-    # already exists is exact, which is the same distinction W33935 corrected
-    # at the two protocol documents.  `adopt_workspace_group` performs both,
-    # so allocation and the grant are one step and a workspace this function
-    # returns is one the worker can write.
-    adopt_workspace_group(made, workspace_group)
-    # THE RESULT ROOT IS MANDATORY AND THIS MANAGER ESTABLISHES IT.
-    #
-    # Approver ruling 2026-08-30 (W43975): the manager creates
-    # `workspace/result-<attempt-id>` BEFORE runtime start; custody derives
-    # that exact manager-owned locator, never creates a missing one, and
-    # refuses a contradictory absence.
-    #
-    # WHY IT IS ESTABLISHED RATHER THAN CREATED ON DEMAND. A directory a
-    # cleanup act invents is a directory that did not exist when the attempt
-    # ran, so an ending could report accountable custody over an empty tree it
-    # had just made while the worker's actual output sat somewhere else. The
-    # only way "this is the attempt's result root" can be a FACT at cleanup is
-    # for allocation to have made it a fact before the worker ever started.
-    #
-    # NESTED UNDER `workspace` RATHER THAN A HOME ENTRY, because it is the
-    # worker's own writable output area and the home is closed after
-    # allocation. It is deliberately not a member of the answer: `ROOT_NAMES`
-    # is what a container may MOUNT, and this is a subject of custody rather
-    # than a third mount.
-    #
-    # LOGS MAY EXIST WITH NO ACCEPTED ARTIFACTS -- the same ruling -- so an
-    # empty one is an ordinary outcome and never evidence that nothing ran.
-    result = os.path.join(made["workspace"], f"result-{assignment_id}")
-    _own_directory(result,
-                   os.path.join(expected_home, "workspace",
-                                f"result-{assignment_id}"),
-                   "result root")
-    _contained(result, root, "the assignment's result root")
-    # THE SAME GRANT THE WORKSPACE ITSELF GETS, through the same owner:
-    # `adopt_workspace_group` names its subject `workspace` because it adopts
-    # ONE writable root, and this is a writable root under it.
-    adopt_workspace_group({"workspace": result}, workspace_group)
-    # W36540 review [P0]: THE ANSWER CARRIES ITS OWN PROVENANCE.
-    #
-    # A custody act has to be able to tell "this manager allocated these roots"
-    # from "somebody made two directories with the expected names". Directory
-    # SHAPE cannot make that distinction: any caller in this process can
-    # `mkdir inputs; mkdir workspace` under a parent it owns and reproduce
-    # every structural property. Shape may VALIDATE authority; it cannot
-    # create it.
-    #
-    # So allocation mints a nominal type. It is still exactly a mapping --
-    # every existing caller reads `roots["workspace"]` unchanged -- and a
-    # plain dict is not an instance of it, which is the whole difference.
-    return AllocatedRoots(made, _MINT)
+    # ONLY WHERE THAT JOURNAL SPEAKS FOR THE TREE, and that condition is not a weakening
+    # -- it is this module's own accepted rule, stated in `WorkspaceStorage`: "A caller
+    # may still allocate a workspace wherever it may already write; what it can no
+    # longer do is have a container mounted on one." Measured while implementing this:
+    # the accepted `tests.manager.input_roots` fixture allocates under a directory the
+    # store never configured, and requiring the binding refused it. A tree this journal
+    # has no authority over also has no custody hold, no removal ownership and no
+    # cleanup admission that could concern it, so there is nothing there to exclude; the
+    # exclusion applies exactly where the protected resources can exist.
+    admitting = None
+    admitted = None
+    if control is not None and hasattr(control, "operation_record"):
+        what = (f"allocating attempt {name_value(assignment_id)}'s execution roots")
+        admitting = _asking_control(workspace_group_capability, control)
+        asking = admitting.__enter__()
+        try:
+            if _speaks_for(asking, storage):
+                refuse_if_held(asking, storage, assignment_id, what)
+                # AND THE ADMISSION, WHICH IS WHAT COVERS THE EFFECT. Review
+                # 2026-09-26T10:07:07Z committed a cleanup admission between the guard
+                # above and the creation below; this transaction re-reads the journal
+                # under `BEGIN IMMEDIATE` and is the decision, so a cleanup that
+                # committed in that instant is seen and this refuses.
+                admitted = _admitted_allocation(asking, assignment_id, what)
+            else:
+                admitting.__exit__(None, None, None)
+                admitting = None
+        except BaseException:
+            admitting.__exit__(None, None, None)
+            raise
+    # THE EFFECT, WITH THE ADMISSION STANDING AND NO TRANSACTION OPEN, and the
+    # completion written whatever happens. See `_completed_allocation` for why a
+    # failed creation closes its window rather than holding it: an interrupted
+    # creation is recoverable, and a window left open would block this attempt's
+    # cleanup permanently.
+    try:
+        home = os.path.join(root, assignment_id)
+        made = {}
+        # EVERY ENTRY THE HOME WILL EVER HOLD IS PROVISIONED HERE, and the two
+        # mountable roots are still the only thing this function ANSWERS with.
+        #
+        # W33935 re-review [P0]: freezing the `inputs` directory protects what is
+        # inside it and nothing else -- rename and replacement of the entry ITSELF
+        # are permissions of its PARENT, and the home was left at the process
+        # default.  So the whole `0555` root could be renamed aside and a writable
+        # one put at the same canonical path with different bytes in it.
+        #
+        # A parent can only be closed once nothing more needs to be created in it,
+        # which is why `custody`, `credentials` and `credential-state` are made
+        # now.  Those three are the adapter's and the credential home's, and
+        # naming them here is coupling made explicit rather than coupling avoided:
+        # the home is ONE directory with ONE layout, and
+        # `test_input_delivery.TheHomeLayoutIsDeclaredWhereItIsFrozen` holds the
+        # other two components to this list rather than trusting this comment.
+        # EXCLUSIVE FIRST ALLOCATION, SEPARATED FROM RESTART LOOKUP.
+        #
+        # Approver ruling M34768 asks for unique never-reused per-attempt
+        # directories and exclusive creation with collision refusal.  My first cut
+        # put a publication check here, the restart path refuted it, and I then
+        # concluded the two could not be separated at all -- which was wrong, and
+        # the re-review proved it with a case I had not thought of: a stale home
+        # whose `inputs` entry is a SYMLINK to another attempt's root.  That alias
+        # is still contained by manager storage, so containment accepted it and a
+        # second attempt received the first attempt's input root.
+        #
+        # The two ARE separable, and the proof is structural rather than a new
+        # durable record.  A home is named by its attempt, so a home at this path
+        # IS this attempt's -- provided its entries are genuinely its own
+        # directories.  So every entry that already exists must be a real
+        # directory, not a link, resolving to exactly the path under this home; an
+        # entry that is anything else is stale or aliased state and fails closed.
+        # An entry that does not exist is created here, which is the first
+        # allocation.
+        #
+        # THIS KEEPS THE RESTART PATH, which is what the previous cut broke: a
+        # restarted manager asking for the same attempt's roots finds real
+        # directories at their own paths and is answered, because reopening an
+        # attempt is not reusing an identity.
+        # THE HOME IS PROVED BEFORE IT ANCHORS ANYTHING.
+        #
+        # Re-review [P0]: the first cut of this proof checked only
+        # `os.path.isdir(home)`, which FOLLOWS SYMLINKS -- so a home that was
+        # itself a link to another attempt passed, and the child proofs then
+        # anchored on `realpath(home)`, which is the wrong sibling. Both sides of
+        # every child comparison were relocated together and compared equal. A
+        # structural proof applied to the children and not to the thing they are
+        # measured against is not applied.
+        expected_home = os.path.join(os.path.realpath(root), assignment_id)
+        _own_directory(home, expected_home, "assignment home")
+        for name in HOME_ENTRIES:
+            place = os.path.join(home, name)
+            _own_directory(place, os.path.join(expected_home, name),
+                           f"{name} root")
+            held = _contained(place, root, f"the assignment's {name} root")
+            if name in ROOT_NAMES:
+                made[name] = held
+        # ESTABLISHED, NOT REQUESTED, and the GROUP with it.  `os.makedirs`
+        # filters its mode through the umask; `os.chmod` on a directory that
+        # already exists is exact, which is the same distinction W33935 corrected
+        # at the two protocol documents.  `adopt_workspace_group` performs both,
+        # so allocation and the grant are one step and a workspace this function
+        # returns is one the worker can write.
+        adopt_workspace_group(made, workspace_group)
+        # THE RESULT ROOT IS MANDATORY AND THIS MANAGER ESTABLISHES IT.
+        #
+        # Approver ruling 2026-08-30 (W43975): the manager creates
+        # `workspace/result-<attempt-id>` BEFORE runtime start; custody derives
+        # that exact manager-owned locator, never creates a missing one, and
+        # refuses a contradictory absence.
+        #
+        # WHY IT IS ESTABLISHED RATHER THAN CREATED ON DEMAND. A directory a
+        # cleanup act invents is a directory that did not exist when the attempt
+        # ran, so an ending could report accountable custody over an empty tree it
+        # had just made while the worker's actual output sat somewhere else. The
+        # only way "this is the attempt's result root" can be a FACT at cleanup is
+        # for allocation to have made it a fact before the worker ever started.
+        #
+        # NESTED UNDER `workspace` RATHER THAN A HOME ENTRY, because it is the
+        # worker's own writable output area and the home is closed after
+        # allocation. It is deliberately not a member of the answer: `ROOT_NAMES`
+        # is what a container may MOUNT, and this is a subject of custody rather
+        # than a third mount.
+        #
+        # LOGS MAY EXIST WITH NO ACCEPTED ARTIFACTS -- the same ruling -- so an
+        # empty one is an ordinary outcome and never evidence that nothing ran.
+        result = os.path.join(made["workspace"], f"result-{assignment_id}")
+        _own_directory(result,
+                       os.path.join(expected_home, "workspace",
+                                    f"result-{assignment_id}"),
+                       "result root")
+        _contained(result, root, "the assignment's result root")
+        # THE SAME GRANT THE WORKSPACE ITSELF GETS, through the same owner:
+        # `adopt_workspace_group` names its subject `workspace` because it adopts
+        # ONE writable root, and this is a writable root under it.
+        adopt_workspace_group({"workspace": result}, workspace_group)
+        # W36540 review [P0]: THE ANSWER CARRIES ITS OWN PROVENANCE.
+        #
+        # A custody act has to be able to tell "this manager allocated these roots"
+        # from "somebody made two directories with the expected names". Directory
+        # SHAPE cannot make that distinction: any caller in this process can
+        # `mkdir inputs; mkdir workspace` under a parent it owns and reproduce
+        # every structural property. Shape may VALIDATE authority; it cannot
+        # create it.
+        #
+        # So allocation mints a nominal type. It is still exactly a mapping --
+        # every existing caller reads `roots["workspace"]` unchanged -- and a
+        # plain dict is not an instance of it, which is the whole difference.
+        answer = AllocatedRoots(made, _MINT)
+    finally:
+        if admitted is not None:
+            try:
+                _completed_allocation(asking, assignment_id, admitted)
+            finally:
+                admitting.__exit__(None, None, None)
+        elif admitting is not None:
+            admitting.__exit__(None, None, None)
+    return answer
 
 
 class AllocatedRoots:
@@ -2522,7 +3959,10 @@ class AllocatedRoots:
     argument type rather than quietly succeeding.
     """
 
-    __slots__ = ("_members", "_grant", "_grant_required", "_line", "_line_proof")
+    # W270664 F2: `_adoption` carries the admission an adopting caller holds until the grant
+    # takes over, so the exclusion does not end before the use it protects.
+    __slots__ = ("_members", "_grant", "_grant_required", "_line", "_line_proof",
+                 "_adoption")
 
     def __init__(self, made, _minted=None, _grant=None,
                  _grant_required=False, _line=False, _line_proof=None):
@@ -2552,6 +3992,7 @@ class AllocatedRoots:
         object.__setattr__(self, "_grant_required", _grant_required)
         object.__setattr__(self, "_line", _line)
         object.__setattr__(self, "_line_proof", _line_proof)
+        object.__setattr__(self, "_adoption", None)
 
     # -- the read half of the mapping protocol, and only the read half ------
     #
@@ -2927,10 +4368,21 @@ def discard_workspace(storage, assignment_id, *, control):
     delete anything outside the storage root it was given -- the containment
     check runs before the removal and not after.
     """
+    _refuse_nested_removal(control, "removing this attempt's workspace home")
     _assignment_identity(assignment_id)
     root = _real(storage, "the manager's workspace storage")
     home = os.path.join(root, assignment_id)
     if not os.path.exists(home):
+        outstanding = standing_removal(control, assignment_id)
+        if outstanding:
+            ordinal, _ = outstanding[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"this attempt's home is absent and removal {ordinal} of it was admitted "
+                f"with no completion recorded, so the absence cannot be read as the state "
+                f"this caller asked for -- it may be what an unfinished removal left "
+                f"behind, and an unresolved removal is reconciled rather than reported as "
+                f"done")
         return False
     _contained(home, root, "the assignment's workspace")
     # W257624 R3: THE DELETION PATH IS THE FIRST GUARDED ENTRY, and the guard
@@ -2942,13 +4394,25 @@ def discard_workspace(storage, assignment_id, *, control):
     #
     # AFTER the absence answer too: a home that is already gone is the state
     # the caller asked for, and answering `False` for it reaches no resource.
+    #
+    # W270664 F2, review 2026-09-26T06:39:23Z: BUT ABSENT IS NOT THE SAME AS RESOLVED. If a
+    # removal of this attempt was admitted and never completed, the home may be gone BECAUSE
+    # that removal was part way through -- so answering `False` would report the caller's
+    # desired state while the act that produced it is still unaccounted for. An unresolved
+    # removal is refused here, before the absence shortcut, and only a home that is absent
+    # with nothing outstanding answers `False`.
     # SERIALIZED, not merely checked -- see `_serialized_removal`. The hold read
     # and the removal happen under the same `BEGIN IMMEDIATE` lock R1's claim
     # takes, so a racing `custody_act` cannot commit a hold in between.
+    # THE OBJECT THIS ENTRY IS ABOUT, read once here so the effect can be compared against
+    # it rather than against whatever the name resolves to when the effect runs.
+    authorized = _pinned_home(root, assignment_id)
     return _serialized_removal(
         control, storage, assignment_id,
         "removing this attempt's workspace home",
-        lambda: (_remove(home), True)[1])
+        lambda: (_removed_pinned_home(root, assignment_id, pinned=authorized,
+                                      what="removing this attempt's workspace home"),
+                 True)[1])
 
 
 def adopted_assignment_workspace(storage, assignment_id, *, control):
@@ -2995,8 +4459,57 @@ def adopted_assignment_workspace(storage, assignment_id, *, control):
     # question nobody asked about a root that was never a root.
     _assignment_identity(assignment_id)
     root = _real(storage, "the manager's workspace storage")
-    refuse_if_held(control, storage, assignment_id,
-                   "adopting this attempt's workspace roots")
+    what = "adopting this attempt's workspace roots"
+    refuse_if_held(control, storage, assignment_id, what)
+    # ADMITTED, NOT MERELY CHECKED -- review 2026-09-26T07:25:48Z. The early read above can
+    # be overtaken; this transaction is what a competing removal has to win or lose against.
+    # THE WINDOW REACHES THE CALLER, AND ENDS AT A DEFINED HANDOVER.
+    #
+    # W270664 F2, review 2026-09-26T07:35:55Z: my first lifetime settled in a `finally`, so it
+    # closed BEFORE the caller received the roots and a removal admitted in that gap could
+    # delete what the caller was about to use. An exclusion that ends before the use it
+    # protects is not one.
+    #
+    # SO THE ADMISSION TRAVELS WITH THE ROOTS and is settled at the point the GRANT takes
+    # over -- `_granted_roots`, the "existing admitted authority" review 07:35:55Z pointed at.
+    # A grant is a predicate over durable state (`_review_grant`: attachment active, line
+    # reviewing, checkpoint matching; `_writer_grant`: writer active, line writing), so from
+    # the binding onwards the database itself says the roots are in use. Until then this
+    # window says it.
+    #
+    # ON FAILURE the window is settled here, because nothing was handed out, and a window
+    # nobody holds would block this attempt for nothing. A caller that takes roots and binds
+    # no grant releases with `release_adopted_workspace`.
+    owned = _admitted_adoption(control, assignment_id, what)
+    try:
+        roots = _adopted_roots(root, assignment_id)
+    except BaseException:
+        _settled_adoption(control, assignment_id, owned)
+        raise
+    object.__setattr__(roots, "_adoption", (control, assignment_id, owned))
+    return roots
+
+
+def release_adopted_workspace(roots):
+    """End an adoption's exclusion window for roots that bind no grant.
+
+    IDEMPOTENT, and harmless on roots that carry no admission -- the tools and
+    `line_assignment_workspace` hand out the same shape from paths that were never adopted.
+    """
+    carried = getattr(roots, "_adoption", None)
+    if carried is None:
+        return
+    control, assignment_id, owned = carried
+    # THE TOKEN IS CLEARED ONLY AFTER THE SETTLEMENT COMMITS. Review 2026-09-26T07:58:05Z:
+    # clearing first meant a failed settle left the window standing with nobody holding a way
+    # to end it -- an orphan by construction. A failed release therefore leaves the roots
+    # still holding their admission, so the caller can retry.
+    _settled_adoption(control, assignment_id, owned)
+    object.__setattr__(roots, "_adoption", None)
+
+
+def _adopted_roots(root, assignment_id):
+    """The proved roots themselves, inside an admitted adoption."""
     home = os.path.join(root, assignment_id)
     _proved_own(home, root, assignment_id, "home")
     return AllocatedRoots(
@@ -3023,8 +4536,27 @@ def line_assignment_workspace(storage, assignment_id, place, pinned, *,
     namespace disjoint from every custody root, so no hold can name `place`.
     The attempt's inputs, which a hold CAN name, are what this checks.
     """
+    # W270664 F2: THIS ENTRY ADOPTS ONLY TO PROVE THE ATTEMPT'S INPUTS and then builds its
+    # OWN roots for the line home, so the adopted object is discarded here -- and with it the
+    # exclusion window it carries would be lost, standing forever with nobody to release it.
+    # Measured: three review-mount cases in tests.manager.test_review_cycles failed exactly
+    # that way. The window is therefore released as soon as this entry has finished using what
+    # it adopted; the line home it returns is a namespace no custody hold and no removal names.
     roots = adopted_assignment_workspace(storage, assignment_id,
                                          control=control)
+    try:
+        return _composed_line_roots(roots, storage, assignment_id, place, pinned)
+    except BaseException:
+        # W270664 F2, review 2026-09-26T08:02:18Z: A REJECTED COMPOSITION MUST NOT ORPHAN THE
+        # WINDOW. Everything below the adoption can refuse -- an unreserved namespace, a moved
+        # line object -- and the caller then gets an exception rather than roots, so nothing it
+        # holds could ever release. The window is ended here on every failure path.
+        release_adopted_workspace(roots)
+        raise
+
+
+def _composed_line_roots(roots, storage, assignment_id, place, pinned):
+    """The line home composed beside the attempt's inputs, inside an admitted adoption."""
     root = _real(storage, "the manager's workspace storage")
     reserved = os.path.join(root, _REVIEW_LINE_HOME)
     boundaries.text(place, "a persistent development-line path")
@@ -3041,9 +4573,18 @@ def line_assignment_workspace(storage, assignment_id, place, pinned, *,
             or type(inode) is not int or type(inode) is bool
             or (held.st_dev, held.st_ino) != (device, inode)):
         _denied("the writable line no longer has its persisted object identity")
-    return AllocatedRoots({"inputs": roots["inputs"],
-                           "workspace": place}, _MINT,
-                          _grant_required=True, _line=True)
+    # W270664 F2, review 2026-09-26T07:58:05Z: THE WINDOW TRAVELS WITH THE INPUTS IT COVERS.
+    # This entry returns the ATTEMPT'S OWN `inputs` beside the line home, so releasing the
+    # adoption here -- which my previous cut did -- ended the exclusion while still handing
+    # those inputs out. The admission is carried onto the roots this entry returns instead, and
+    # ends where every other adopted set's does: at the grant binding, or at an explicit
+    # release by whoever holds them.
+    composed = AllocatedRoots({"inputs": roots["inputs"],
+                               "workspace": place}, _MINT,
+                              _grant_required=True, _line=True)
+    object.__setattr__(composed, "_adoption", getattr(roots, "_adoption", None))
+    object.__setattr__(roots, "_adoption", None)
+    return composed
 
 
 def _granted_roots(roots, grant, *, line_proof=None):
@@ -3058,11 +4599,28 @@ def _granted_roots(roots, grant, *, line_proof=None):
     boundaries.capability(grant, "an assignment roots live grant")
     if line_proof is not None:
         boundaries.capability(line_proof, "a development-line launch proof")
-    return AllocatedRoots(dict(roots), _MINT, grant, True,
-                          roots._line, line_proof)
+    granted = AllocatedRoots(dict(roots), _MINT, grant, True,
+                             roots._line, line_proof)
+    # THE HANDOVER HAPPENS ONLY IF THERE IS SOMETHING TO HAND OVER TO.
+    #
+    # W270664 F2, review 2026-09-26T08:09:45Z. Settling at every binding was still premature:
+    # `_granted_roots` is generic, and a grant can be bound when the DURABLE state says nothing
+    # -- no active writer, no active attachment -- so the settle dropped the exclusion with
+    # nothing behind it. The window is released here only when `_durably_in_use` already answers
+    # for this attempt, which is exactly the condition that makes the removal refuse; otherwise
+    # it keeps travelling with the roots and ends at an explicit release.
+    carried = getattr(roots, "_adoption", None)
+    if carried is not None:
+        control, assignment_id, _owned = carried
+        if _durably_in_use(control, assignment_id) is not None:
+            release_adopted_workspace(roots)
+        else:
+            object.__setattr__(granted, "_adoption", carried)
+            object.__setattr__(roots, "_adoption", None)
+    return granted
 
 
-def discard_execution_roots(storage, assignment_id, *, control):
+def discard_execution_roots(storage, assignment_id, *, control, under=None):
     """Remove the two roots this attempt's WORKSPACE ENDING owns, and no more.
 
     W43975 review 2026-08-30T15:21:44Z [P0] chose the boundary: `inputs` and
@@ -3111,12 +4669,14 @@ def discard_execution_roots(storage, assignment_id, *, control):
     # answered about the wrong thing. `_execution_roots_removed` validates both
     # again; asking twice costs a realpath and keeps each refusal at its own
     # boundary.
+    _refuse_nested_removal(control, "removing this attempt's execution roots")
     _assignment_identity(assignment_id)
     _real(storage, "the manager's workspace storage")
     return _serialized_removal(
         control, storage, assignment_id,
         "removing this attempt's execution roots",
-        lambda: _execution_roots_removed(storage, assignment_id))
+        lambda: _execution_roots_removed(storage, assignment_id),
+        under)
 
 
 def _execution_roots_removed(storage, assignment_id):
@@ -3324,7 +4884,166 @@ def _thaw(place):
     return True
 
 
-def _remove(place):
+def _removed_pinned_home(root, assignment_id, *, what, pinned=None):
+    """Remove this attempt's home as an OBJECT, through a descriptor that cannot be moved.
+
+    W270664 F2, reviews 2026-09-26T06:54:02Z and 07:01:39Z. A stat comparison before the
+    effect is a time-of-check test: the reviewer swapped the home after it answered and the
+    deletion, which still resolved a pathname, removed the substitute.
+
+    SO THE DESTRUCTIVE PART IS BOUND TO THE OPEN OBJECT. The home is opened
+    `O_NOFOLLOW|O_DIRECTORY` relative to its parent's own descriptor, its `fstat` is compared
+    against the entry the parent gave, and the CONTENTS are removed through
+    `/proc/self/fd/<descriptor>` -- a path that resolves to the open inode, so a rename of
+    the home, of its name, or of any ancestor cannot redirect the walk. The reviewed two-pass
+    mount-aware walk runs unchanged beneath it.
+
+    AND THE ONE WINDOW THAT REMAINS IS STATED RATHER THAN CLAIMED CLOSED. Review 07:01:39Z is
+    right that parent-fd plus stat plus `rmdir` is not exact-child authority: between the
+    stat and the `rmdir` the name can be replaced again, and this build has no `renameat2`
+    exchange or by-handle unlink to close it. What that window can cost is bounded and worth
+    naming exactly: the CONTENTS are already gone from the pinned object by then, and what a
+    late swap could lose is one EMPTY directory that something else put at the name. Nothing
+    with contents can be reached through it, because the only path that ever reaches contents
+    here is the descriptor's.
+
+    AN UNREADABLE HOME IS UNCERTAIN, NOT ABSENT: only `ENOENT` is absence.
+    """
+    parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        try:
+            entry = os.stat(assignment_id, dir_fd=parent, follow_symlinks=False)
+        except FileNotFoundError:
+            return
+        except OSError as failure:
+            _denied(f"{what} could not read this attempt's home relative to its parent "
+                    f"({failure.strerror}); an unreadable home is uncertain rather than "
+                    f"absent and this act is refused")
+        if not stat.S_ISDIR(entry.st_mode):
+            _refuse(f"{what} found a non-directory where this attempt's home belongs")
+        home = os.open(assignment_id, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                       dir_fd=parent)
+        try:
+            opened = os.fstat(home)
+            if (opened.st_dev, opened.st_ino) != (entry.st_dev, entry.st_ino):
+                raise ContractRefusal(
+                    "runtime-observation", "identity-mismatch",
+                    f"{what} opened an object the parent's entry does not name; a removal "
+                    f"acts on the object it proved")
+            # AND AGAINST THE OBJECT THE ADMISSION AUTHORIZED, which is the whole point.
+            #
+            # W270664 F2, measured against review 2026-09-26T07:01:39Z's probe: comparing the
+            # opened object only against the parent's CURRENT entry is self-consistent and
+            # therefore proves nothing -- a replacement swapped in before this call is opened,
+            # matches itself, and is deleted. The identity that authorizes this act is the one
+            # recorded in the ownership record BEFORE admission, so that is what the opened
+            # object is compared against. A substitute is refused instead of removed.
+            if pinned is not None and (opened.st_dev, opened.st_ino) != tuple(pinned):
+                raise ContractRefusal(
+                    "runtime-observation", "identity-mismatch",
+                    f"{what} was admitted for one object and this name now resolves to "
+                    f"another; the removal is performed on the object its authority names "
+                    f"and a replacement is refused rather than deleted")
+            _removed_through_handles(home, what)
+        finally:
+            os.close(home)
+        again = os.stat(assignment_id, dir_fd=parent, follow_symlinks=False)
+        if (again.st_dev, again.st_ino) != (entry.st_dev, entry.st_ino):
+            raise ContractRefusal(
+                "runtime-observation", "identity-mismatch",
+                f"{what} emptied the object it was authorized for and the parent's entry "
+                f"now names a different one; the final removal is not performed")
+        os.rmdir(assignment_id, dir_fd=parent)
+    finally:
+        os.close(parent)
+
+
+def _removed_through_handles(root, what):
+    """Remove an admitted tree through RETAINED DIRECTORY HANDLES, never through names.
+
+    W270664 F2, review 2026-09-26T07:14:23Z's sequence. Every earlier shape stored PATHS and
+    re-checked them, and review 07:07:30Z proved that a descendant replaced between the
+    admission and the effect is resolved through -- a time-of-check test cannot bind an
+    object, however many times it is repeated.
+
+    SO THE ADMISSION KEEPS WHAT IT PROVED. Pass one descends with `scandir` over an open
+    directory handle, opens each child directory `O_NOFOLLOW|O_DIRECTORY` RELATIVE to its
+    parent's handle, and keeps that handle. Pass two operates on those same handles: `fchmod`
+    on the handle, `unlink`/`rmdir` by NAME RELATIVE TO the handle. No name is resolved from
+    the root twice and no absolute path is rebuilt, so nothing a descendant becomes later can
+    redirect a scan, a mode change or a deletion outside the admitted objects.
+
+    THE REVIEWED GUARANTEES ARE PRESERVED. The device comparison and the mount-table check
+    still run over every directory BEFORE anything is removed -- `fstat` on the handle for the
+    device, and the handle's own `/proc/self/fd` link resolved for table membership, which is a
+    read of the kernel's answer rather than a path the caller could swap. The order is still
+    admit-everything-then-remove-deepest-first, so a refusal anywhere precedes every unlink.
+    The worker-owned refusal is kept: a child this manager may not modify stops the act.
+
+    EVERY HANDLE IS CLOSED on success, refusal and failure.
+    """
+    base = os.fstat(root).st_dev
+    mounted = mount_points(what=what)
+    admitted = []
+    opened = []
+    try:
+        pending = [(None, None, root)]
+        while pending:
+            parent, name, handle = pending.pop(0)
+            if os.fstat(handle).st_dev != base:
+                _denied(f"{what} reached a directory on another filesystem than the tree it "
+                        f"is removing, so it is a mount rather than material this manager "
+                        f"created; cleanup removes only what this manager made")
+            if os.path.realpath(f"/proc/self/fd/{handle}") in mounted:
+                _denied(f"{what} reached a mount point in this process's own mount table, "
+                        f"so it is somebody else's material behind a directory this manager "
+                        f"made; a bind mount from the same filesystem keeps the device "
+                        f"number, which is why the table is asked as well")
+            admitted.append((parent, name, handle))
+            with os.scandir(handle) as entries:
+                children = [entry.name for entry in entries
+                            if entry.is_dir(follow_symlinks=False)]
+            for child in children:
+                held = os.open(child, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                               dir_fd=handle)
+                opened.append(held)
+                pending.append((handle, child, held))
+        for parent, name, handle in reversed(admitted):
+            _thaw_handle(handle, what)
+            with os.scandir(handle) as entries:
+                members = [(entry.name, entry.is_dir(follow_symlinks=False),
+                            entry.stat(follow_symlinks=False)) for entry in entries]
+            for member, is_directory, held in members:
+                if held.st_uid != os.getuid() and not os.access(
+                        member, os.W_OK, dir_fd=handle, follow_symlinks=False):
+                    _denied(f"{what} could not remove {name_value(member)}: it is owned by "
+                            f"uid {held.st_uid} and this manager is uid {os.getuid()}; "
+                            f"cleanup fails closed rather than leaving a partly-removed tree")
+                if is_directory:
+                    os.rmdir(member, dir_fd=handle)
+                else:
+                    os.unlink(member, dir_fd=handle)
+            if parent is not None:
+                os.rmdir(name, dir_fd=parent)
+    finally:
+        for held in opened:
+            try:
+                os.close(held)
+            except OSError:
+                pass
+
+
+def _thaw_handle(handle, what):
+    """Make an admitted directory writable THROUGH ITS HANDLE, never through its name."""
+    try:
+        mode = stat.S_IMODE(os.fstat(handle).st_mode)
+        os.fchmod(handle, mode | stat.S_IRWXU)
+    except OSError as failure:
+        _denied(f"{what} could not make an admitted directory writable "
+                f"({failure.strerror}); cleanup fails closed")
+
+
+def _remove(place, *, final=True):
     """A depth-first removal that never follows a link OR A MOUNT out of the
     tree.
 
@@ -3379,7 +5098,15 @@ def _remove(place):
     wrong.
     """
     try:
-        base = os.lstat(place).st_dev
+        # THE ROOT IS MEASURED WITH `stat`, NOT `lstat`. W270664 F2, measured 2026-09-26:
+        # when the caller binds the removal to an open object by passing
+        # `/proc/self/fd/<fd>`, `lstat` answers PROCFS for that magic symlink and every real
+        # child then looks cross-device, so this function's own mount refusal rejected the
+        # manager's own workspace -- six errors. `stat` follows the one link the CALLER
+        # supplied deliberately and is identical to `lstat` for the ordinary real path every
+        # other caller passes. The walk below still uses `followlinks=False`, so no symlink
+        # INSIDE the tree is followed; only the root the caller named is.
+        base = os.stat(place).st_dev
     except OSError as failure:
         _refuse(f"the tree at {name_value(place)} could not be measured "
                 f"before removal ({type(failure).__name__})")
@@ -3395,7 +5122,13 @@ def _remove(place):
         # before its children, and a refusal here ends the whole cleanup, so a
         # mount is recognised while everything under it is still untouched and
         # unvisited.
-        if os.lstat(current).st_dev != base:
+        # THE ROOT IS NOT RE-MEASURED BY ITS NAME. W270664 F2, measured: `base` above is the
+        # root's device, and when the caller binds the removal to an open object the root's
+        # own name is a `/proc/self/fd/<fd>` magic symlink, whose `lstat` answers PROCFS --
+        # so re-checking it against itself refused. Every DESCENDANT is still measured with
+        # `lstat`, which is where the mount can actually appear; a component of the path is
+        # resolved by the kernel, so a descendant's answer is about the real directory.
+        if current != place and os.lstat(current).st_dev != base:
             _denied(f"{name_value(current)} is on another filesystem than the "
                     f"tree {name_value(place)} this manager is removing, so "
                     f"it is a mount rather than material this manager "
@@ -3433,7 +5166,8 @@ def _remove(place):
             else:
                 _unlink(child, current)
     _thaw(place)
-    os.rmdir(place)
+    if final:
+        os.rmdir(place)
 
 
 def _entries(place):

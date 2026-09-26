@@ -1254,11 +1254,84 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     # no retention claim follows from it.
     if observed["state"] == "absent":
         _normalized(store, adapter, attempt_id)
+    # W270664 F2: THE REMOVAL HAPPENS HERE, OUTSIDE THE ENDING'S TRANSACTION.
+    #
+    # Owner 270664 selects the enclosing cleanup entry as well as the standalone one, and this
+    # is that correction: `_settle` used to call `discard_execution_roots` from INSIDE the
+    # `runtime.destroy` transaction, so a tree walk, permission changes and every `unlink` ran
+    # with this manager's write lock held and blocked every unrelated write for the duration.
+    #
+    # THE ORDER THE REVIEWS REQUIRE IS PRESERVED: it is after the eligibility this function has
+    # already proved -- the ending is real, the receipt is the attempt's, both roots are
+    # normalized -- and BEFORE the ending is committed, so the lane is still held while the
+    # deletion happens and nothing is released on a half-removed tree. The removal takes its own
+    # ownership record, so a removal INTERRUPTED here stays unresolved and is held. THE LIMIT,
+    # corrected per review 2026-09-26T08:33:54Z: a removal that COMPLETED settles its ownership,
+    # so a crash after it and before this commit is held by NOTHING -- the ending retries, finds
+    # the home absent and commits. That retry gap is real, it is not covered by the ownership
+    # record, and no case of mine observes it yet.
+    #
+    # W270664 F2, review 2026-09-26T08:43:12Z: THE STORE IS MEASURED HERE TOO, once,
+    # and the ending below signs its receipts under that measurement instead of
+    # re-taking it under its own write lock. `None` on the surviving-runtime path is
+    # correct and not a gap: that ending claims no directory act, so it reads no
+    # receipt and needs no store -- it returns before `_adopted_custody`.
+    prepared_store = None
+    admitted_cleanup = None
+    if observed["state"] == "absent":
+        # EVERY REFUSING PRECONDITION IS ASKED BEFORE THE DELETION, not after it.
+        #
+        # W270664 F2, review 2026-09-26T08:28:42Z: my first hoist moved the removal ahead of
+        # `_settle` and therefore ahead of the checks INSIDE it, so a pending-submitter refusal
+        # arrived after the roots were already gone -- destructive work before eligibility, the
+        # exact ordering owner 270664 forbids. The predicate is the submitter's own record and
+        # is a database read, so it is asked here as well; `_settle` re-reads it inside the
+        # writing transaction, which is where a racing submitter is still caught.
+        if not attempts.start_submission_returned(store, attempt):
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"attempt {name_value(attempt_id)}'s start submission has not returned to the "
+                f"manager that made it; a reservation is not given back on somebody else's "
+                f"observation of the runtime, and its roots are not removed either")
+        from .workspaces import (admit_cleanup, configured_workspace_storage,
+                                 discard_execution_roots)
+
+        # ONE MEASUREMENT, TWO USES. The removal needs the place and the ending
+        # needs the frozen answer the place came out of, and asking twice would
+        # be two different readings of the same directory.
+        prepared_store = configured_workspace_storage(store)
+        # W270664 F2, review 2026-09-26T09:15:26Z: THE EXCLUSION IS TAKEN HERE AND ENDS AT
+        # THE ENDING'S COMMIT, so there is no window in which these roots are nobody's.
+        #
+        # THE DEFECT IT CLOSES, reproduced by review_cleanup_gap_20260926: the removal's own
+        # ownership completes when the deletion does -- correctly, it is a record about one
+        # deletion -- and until this admission existed, NOTHING stood between that completion
+        # and this ending's commit. The probe allocated the attempt's roots in that window and
+        # this cleanup's retry then deleted material created inside them.
+        #
+        # ADMITTED AFTER EVERY REFUSING PRECONDITION and before any effect: the ending is
+        # real, the receipt is the attempt's, both roots are normalized, and the submitter has
+        # come back. An admission taken ahead of those would hold roots for a cleanup that is
+        # then refused.
+        #
+        # THE SETTLEMENT NAMES THE OPERATION THIS WILL COMMIT UNDER, with its signature and
+        # this incarnation, which is what makes the retry attributable: the same operation
+        # with the same operands adopts what it already admitted; anything else is refused.
+        settlement = {"operation": operation["operation_id"],
+                      "signature": signature,
+                      "incarnation": store.incarnation}
+        admitted_cleanup = admit_cleanup(
+            store, attempt_id, settlement,
+            f"cleaning up attempt {name_value(attempt_id)}")
+        discard_execution_roots(prepared_store.place, attempt_id, control=store,
+                                under=admitted_cleanup)
     return store.transact(
         operation["operation_id"], "runtime.destroy", signature,
         lambda connection: _settle(store, connection, attempt_id, receipt,
                                    retention_policy_digest, observed,
-                                   operation, custody=adapter))
+                                   operation, custody=adapter,
+                                   prepared_store=prepared_store,
+                                   admitted_cleanup=admitted_cleanup))
 
 
 # W119548: THE ACT THAT DISCHARGES THE GATE A FENCE INSTALLED.
@@ -3927,19 +4000,24 @@ def _normalized(store, adapter, attempt_id, *, seconds=None, reclaim=None):
                                      reclaim=reclaim)
 
 
-def _adopted_custody(store, adapter, attempt_id):
+def _adopted_custody(store, adapter, attempt_id, prepared_store=None):
     """The two receipts, READ BACK, as the terminal claim's own evidence.
 
     Never the answers the caller happens to be holding: a caller-held document
     is one the caller composed, and what makes the terminal claim worth
     anything is that it names acts this manager can show it journalled.
+
+    W270664 F2: `prepared_store` is passed straight through to each receipt
+    read, and it is what keeps this loop from asking the filesystem three
+    times per root while its caller holds a write lock.
     """
     from . import custody as _custody
 
     adopted = {}
     for which in ("result", "workspace"):
         receipt = _custody.adopted_directory_custody(store, adapter,
-                                                     attempt_id, which)
+                                                     attempt_id, which,
+                                                     prepared_store)
         if receipt is None:
             raise ContractRefusal(
                 "refused", "precondition",
@@ -4457,7 +4535,8 @@ def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
 
 
 def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
-            observed, operation, custody=None):
+            observed, operation, custody=None, prepared_store=None,
+            admitted_cleanup=None):
     """The ending, decided from the observation and from what stays."""
     attempt = _attempt_of(connection, attempt_id)
     if attempt["cleanup"] not in ("pending", "blocked-on-intake"):
@@ -4491,7 +4570,28 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     # cleanup with nothing left behind is `complete`.
     ending = "retained" if kept or receipt["custody"] == "quarantined" \
         else "complete"
-    adopted = _adopted_custody(store, custody, attempt_id)
+    # W270664 F2: THE STORE WAS MEASURED BEFORE THIS TRANSACTION OPENED, and the
+    # absence of it is a WIRING failure rather than a deployment one.
+    #
+    # Review 2026-09-26T08:43:12Z traced all six of this ending's locked
+    # filesystem calls to the receipt reads below: each derived its signature
+    # operand by validating the configured store on disk, three `lstat` calls
+    # per root. `authorize_cleanup` now validates it once, outside, and hands
+    # the frozen answer in; `recorded_storage_place` rebinds it here against
+    # the journal and refuses it if the configuration moved in between.
+    #
+    # THIS REFUSAL IS WHY THERE IS NO SILENT WAY BACK. A default of `None`
+    # would let a future caller fall back to the locked reader and nothing
+    # would fail -- which is exactly how I shipped the earlier hoist that
+    # measured unchanged. An unprepared ending fails here instead.
+    if prepared_store is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"attempt {name_value(attempt_id)}'s ending was reached without the "
+            f"workspace store its receipts are signed under having been measured "
+            f"outside this transaction; the ending does not validate directories "
+            f"while it holds this manager's write lock")
+    adopted = _adopted_custody(store, custody, attempt_id, prepared_store)
     observe(store, attempt_id=attempt_id, axis="cleanup", value=ending)
     # W32649: AND THE LANE IS GIVEN BACK, in the same write as the ending.
     #
@@ -4532,6 +4632,29 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     lanes._release_lane(connection, attempt_id=attempt_id,
                        reference=lanes.lane_reference(attempt),
                        why=f"cleanup settled {ending}")
+    # W270664 F2, review 2026-09-26T09:15:26Z: AND THE CLEANUP'S EXCLUSION ENDS IN THIS
+    # SAME WRITE, which is the whole point of settling it here rather than anywhere else.
+    #
+    # The admission was taken in `authorize_cleanup` before the removal; from there to
+    # this line the attempt's roots are nobody else's to allocate, adopt or remove, and
+    # the window the reviewer's probe exploited does not exist. A rollback of this ending
+    # rolls the settlement back with it and the roots stay held; a crash before it leaves
+    # the admission standing, which is the held state this Work requires of every
+    # interruption. IT IS PURE DATABASE WORK under a lock this transaction already holds,
+    # so it does not reintroduce the defect F2 is about.
+    #
+    # THE SAME WIRING RULE AS THE PREPARED STORE: no silent fallback. An absent admission
+    # on this path means the ending was reached without the exclusion ever being taken.
+    if admitted_cleanup is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"attempt {name_value(attempt_id)}'s ending was reached without a cleanup "
+            f"admission, so nothing owned its roots between the removal and this "
+            f"commit; an ending does not settle an exclusion it never took")
+    from .workspaces import settle_cleanup
+
+    settle_cleanup(store, connection, attempt_id, admitted_cleanup,
+                   f"cleaning up attempt {name_value(attempt_id)}")
     # THE ONE ORDINARY REMOVAL, ORDERED BEHIND BOTH RECEIPTS.
     #
     # W43975 review [P0] point 5, as CORRECTED by review 2026-08-30T15:21:44Z.
@@ -4547,14 +4670,10 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     # act; a crash after this removal replays both receipts, observes the home
     # already absent, and commits the ending. `discard_workspace` is
     # recoverable rather than exact for exactly that reason.
-    from .workspaces import (configured_workspace_storage,
-                             discard_execution_roots)
-
-    # W257624 R3: the store this cleanup already holds is the one that answers
-    # whether the attempt's roots are held, so the guard costs this site no new
-    # capability -- only the operand that makes it unskippable.
-    discard_execution_roots(configured_workspace_storage(store).place,
-                            attempt_id, control=store)
+    # W270664 F2: THE REMOVAL IS NO LONGER PERFORMED HERE. It ran inside this transaction --
+    # the whole of F2's enclosing entry -- and now happens in `authorize_cleanup`, after the
+    # eligibility this ending rests on and before this commit, with no database lock held.
+    # W257624 R3's operand requirement is unchanged; it moved with the call.
     return documents.cleanup_settled(
         attempt_id=attempt_id, cleanup=ending, state=state,
         why=observed["why"], kept=list(kept), operation=dict(operation),

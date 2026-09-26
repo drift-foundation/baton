@@ -350,8 +350,12 @@ class IntegrationRuntimePort:
         # order §7.0 fixes: `input.json` is the pre-claim evidence and
         # `assignment.json` carries the live identity the claim just bound.
         # The bundle's own bind lands on `source_mountpoint` inside it.
+        # W270664 F2: THE GOVERNING JOURNAL IS NAMED AT THE CALL. Allocation is now
+        # excluded against a live cleanup, removal or custody hold over these roots, and
+        # `self.manager` is the store that has authority over `self._storage` -- said here
+        # rather than inferred from whichever store minted the group.
         roots = assignment_workspace(self.workspace_group, self._storage,
-                                     attempt_id)
+                                     attempt_id, control=self.manager)
         # THE MOUNTPOINT FIRST, THEN THE IMMUTABLE COMPOSITION, which is the
         # order a deployment must use: `compose_input_root` seals the root,
         # and a frozen input root cannot grow the directory the bundle's bind
@@ -587,7 +591,7 @@ class IntegrationRuntimePort:
             delivery=delivery, assignment=assignment, target=target,
             workspace_group=self.workspace_group)
         roots = assignment_workspace(self.workspace_group, self._storage,
-                                     attempt_id)
+                                     attempt_id, control=self.manager)
         # THE ATTEMPT-PRIVATE CREDENTIAL DELIVERY THIS EXECUTION PREPARED.
         # It is not minted here: by the time a port is asked to run, a lease is
         # held and a delivery is published, and that is not where a deployment
@@ -827,7 +831,8 @@ class IntegrationRuntimePort:
         return OciAdapter(
             self.engine, self.engine_run, identity=dict(self.identity),
             assignment_roots=assignment_workspace(
-                self.workspace_group, self._storage, attempt_id),
+                self.workspace_group, self._storage, attempt_id,
+                control=self.manager),
             posture="execution",
             workspace_group=self.workspace_group, network=self.network,
             integration_delivery=recovered)

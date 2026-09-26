@@ -1,14 +1,24 @@
-# baton-v12-poc — disposable Claude ACP natural-dispatch proof
+# Baton v12
+
+[DESIGN.md](DESIGN.md) is the normative **v12** specification: the system to build
+and follow, rather than a description of the deployed v11 system or a claim that
+current code already conforms. Its owning record tracks exact review/signoff.
+
+The remaining proof-of-concept description and Node instructions below concern
+the historical disposable reference. Their scope and compatibility statements
+do not describe the complete current `v12/` subtree or supersede DESIGN.md.
+
+## Historical baton-v12-poc — disposable Claude ACP natural-dispatch proof
 
 **Disposable** proof of concept for Baton Work `W76`
 (`baton:work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-claude-acp-dispatch-poc`),
 living in this repository as the self-contained `v12/` subtree
 (`.../findings/finding-v12-in-repository-migration`).
 
-This is **not Baton product source** and carries no compatibility promise.
-Nothing here is adopted Baton code, nothing in the v11 product imports
-it, no v11 recipe delegates to it, and the v11 distribution does not
-package it. It exists to answer one question:
+This historical Node proof is **not Baton product source** and carries no
+compatibility promise. Its modules are not adopted Baton code; the v11 product
+does not import them, delegate a recipe to them or package them. The proof was
+created to answer one question:
 
 > Can an operator submit an ordinary Baton Job and have a trusted Worker
 > Manager naturally dispatch it to one isolated Claude ACP worker —

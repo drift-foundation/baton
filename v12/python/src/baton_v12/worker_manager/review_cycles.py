@@ -1594,6 +1594,19 @@ def grant_writer(store, *, line_id, attempt_id, generation, worker_id, profile,
     proved = _proved_line_object(store, line)
 
     def act(connection):
+        # W270664 F2, review 2026-09-26T08:09:45Z: THE OTHER HALF OF THE REMOVAL EXCLUSION,
+        # read under the very lock that admits this grant. The removal refuses while a writer or
+        # an attachment is ACTIVE for the attempt; without this, a removal ADMITTED FIRST did not
+        # stop a grant being taken over roots it was about to delete. Now whichever act commits
+        # its admission first excludes the other.
+        outstanding = workspaces.standing_removal(store, attempt_id)
+        if outstanding:
+            ordinal, _ = outstanding[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"removal {ordinal} of attempt {name_value(attempt_id)}'s roots was admitted "
+                f"and has recorded no completion, so those roots are being deleted and are not "
+                f"granted until it is reconciled")
         current = line_of(store, line_id)
         if current["state"] not in ("idle", "correction-ready"):
             raise ContractRefusal("refused", "precondition",
@@ -1884,6 +1897,19 @@ def attach_review(store, *, checkpoint_id, attempt_id, generation,
     profile.validate(line["line_path"], checkpoint["evidence"], current=True)
 
     def act(connection):
+        # W270664 F2, review 2026-09-26T08:09:45Z: THE OTHER HALF OF THE REMOVAL EXCLUSION,
+        # read under the very lock that admits this grant. The removal refuses while a writer or
+        # an attachment is ACTIVE for the attempt; without this, a removal ADMITTED FIRST did not
+        # stop a grant being taken over roots it was about to delete. Now whichever act commits
+        # its admission first excludes the other.
+        outstanding = workspaces.standing_removal(store, attempt_id)
+        if outstanding:
+            ordinal, _ = outstanding[0]
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"removal {ordinal} of attempt {name_value(attempt_id)}'s roots was admitted "
+                f"and has recorded no completion, so those roots are being deleted and are not "
+                f"granted until it is reconciled")
         current = line_of(store, line["line_id"])
         if current["state"] != "review-ready" \
                 or current["current_checkpoint_id"] != checkpoint_id:
@@ -3954,14 +3980,34 @@ def review_boundary(store, *, attachment_id, profile):
     profile.validate(line["line_path"], checkpoint["evidence"], current=True)
     roots = workspaces.adopted_assignment_workspace(
         _storage(store), attachment["runtime_attempt_id"], control=store)
-    roots = workspaces._granted_roots(
-        roots, lambda: _review_grant(
-            store, attachment_id, line["line_id"], checkpoint["checkpoint_id"]))
-    nominated = source_boundary.nominate_source(line["line_path"])
-    if (nominated.device, nominated.inode) != (line["line_device"],
-                                               line["line_inode"]):
-        raise ContractRefusal("runtime-observation", "identity-mismatch",
-                              "the review checkpoint line is no longer its recorded object")
-    return {"roots": roots,
-            "boundary": source_boundary.compose_runtime_storage_boundary(
-                nominated, roots)}
+    # W270664 F2: THE ADOPTION'S WINDOW ENDS ON EVERY PATH OUT OF HERE.
+    #
+    # `adopted_assignment_workspace` opens an exclusion over these roots so nothing removes
+    # or reallocates them while they are proved and bound. On the way out it ends two
+    # different ways and both have to happen: `_granted_roots` HANDS IT OVER when the grant
+    # has something durable behind it, and everything else -- a refusal from the line
+    # identity check below, an interrupt, a failure inside the composition -- is CESSATION,
+    # which releases. Without the `finally` a refused review boundary left the window
+    # standing with nobody holding a way to end it, and this attempt's later removal or
+    # cleanup was refused by an adoption that no longer had a caller.
+    #
+    # `release_adopted_workspace` is idempotent and harmless once the token has moved on, so
+    # the handover path is unaffected by being named here as well.
+    handed = False
+    try:
+        roots = workspaces._granted_roots(
+            roots, lambda: _review_grant(
+                store, attachment_id, line["line_id"], checkpoint["checkpoint_id"]))
+        nominated = source_boundary.nominate_source(line["line_path"])
+        if (nominated.device, nominated.inode) != (line["line_device"],
+                                                   line["line_inode"]):
+            raise ContractRefusal("runtime-observation", "identity-mismatch",
+                                  "the review checkpoint line is no longer its recorded object")
+        answer = {"roots": roots,
+                  "boundary": source_boundary.compose_runtime_storage_boundary(
+                      nominated, roots)}
+        handed = True
+        return answer
+    finally:
+        if not handed:
+            workspaces.release_adopted_workspace(roots)

@@ -680,13 +680,69 @@ class OneAssignmentOneWorkspace(Workspace):
         exceptional one; what must never happen is two ASSIGNMENTS answering
         with one root.
         """
+        # W270664 F2, review 2026-09-26T11:04:20Z: EACH THREAD BRINGS ITS OWN HANDLE.
+        #
+        # Allocation now asks this manager's journal whether a cleanup, a removal or a
+        # custody hold owns these roots, and a SQLite connection belongs to the thread that
+        # opened it -- so a worker thread cannot ask through the fixture's main-thread
+        # store. The alternatives were measured and rejected: letting allocation skip the
+        # question off-thread is the fail-open the review refused, and reopening the
+        # database on the worker's behalf cannot be attributed to the connection it
+        # produced (descriptor numbers are reused, including across another thread's close).
+        # A caller that allocates off-thread holds its own authority, so that is what this
+        # case does now. The property under test is unchanged: 24 assignments, 8 threads,
+        # and no two answering with one root.
         names = [f"assignment-{index}" for index in range(24)]
+
+        def allocate(assignment):
+            beside = ControlStore.open(
+                os.path.join(self.root, "control.sqlite3"),
+                incarnation="workspaces-1",
+                clock=lambda: "2026-08-24T00:00:00.000Z")
+            try:
+                return assignment_workspace(self.group, self.storage, assignment,
+                                            control=beside)
+            finally:
+                beside.close()
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
-            answers = list(pool.map(self.workspace, names))
+            answers = list(pool.map(allocate, names))
         for name in ("inputs", "workspace"):
             places = [answer[name] for answer in answers]
             with self.subTest(name=name):
                 self.assertEqual(len(set(places)), len(names))
+
+    def test_the_original_shared_group_pattern_is_refused_off_thread(self):
+        """THE OLD PATTERN'S COVERAGE, RETAINED AS THE COMPATIBILITY IT NOW IS.
+
+        W270664 F2, review 2026-09-26T11:19:15Z asked for this rather than letting the
+        adapted case above quietly replace it. Until allocation participated in the
+        exclusion, a worker thread could allocate through this fixture's main-thread store
+        and nothing asked the journal anything. It asks now, a SQLite connection belongs to
+        the thread that opened it, and the three attempts to reopen that journal on the
+        worker's behalf were each defeated by a replaced database -- so the old pattern is
+        REFUSED rather than served.
+
+        THIS IS A COMPATIBILITY BREAK AND IT IS DOCUMENTED HERE, at the shape that broke:
+        an off-thread caller passes a control it can use on its own thread, exactly as the
+        case above does and as the seven tool call sites already do. Nothing is created for
+        the assignment it could not ask about.
+        """
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            outcome = pool.submit(self._shared_group_allocation, "assignment-shared")
+            refusal = outcome.result(10)
+        self.assertIsInstance(refusal, ContractRefusal)
+        self.assertEqual((refusal.category, refusal.code), ("policy", "denied"))
+        self.assertIn("cannot be used from this thread", refusal.message)
+        self.assertFalse(os.path.exists(
+            os.path.join(self.storage, "assignment-shared")))
+
+    def _shared_group_allocation(self, assignment):
+        """Allocate the OLD way -- shared group, this fixture's main-thread store."""
+        try:
+            return assignment_workspace(self.group, self.storage, assignment)
+        except ContractRefusal as refused:
+            return refused
 
     def test_the_same_assignment_asked_twice_gets_the_same_roots(self):
         """Recoverable rather than exclusive: a manager that crashed after
