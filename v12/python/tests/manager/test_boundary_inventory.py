@@ -2005,7 +2005,31 @@ PREPARATION_OWNERS = {
     # spans every staging writer. `preparing` is the ACTING preparation's own ordinal,
     # answered by `admit_preparation` in the same act -- it can only EXEMPT the window
     # it names, so a wrong or absent value refuses the act rather than widening it.
+    # W285464 review 2026-09-27T17-01-18Z: the OWNERSHIP CAPABILITY. The mint gates
+    # construction, so a caller-composed one is refused rather than believed; its two
+    # members are what the admission itself answered, compared by equality against the
+    # standing window; and `holding` can only let the act that HOLDS it continue -- an
+    # absent or foreign one refuses, which is what distinguishes a writer's lifetime
+    # from another name for the same attempt.
+    ("caller", "workspaces.py:PreparationOwnership.__init__", "_minted"):
+        "the manager mint gates construction; a caller-composed ownership is refused, so this operand is the authority rather than a document to validate",
+    ("caller", "workspaces.py:PreparationOwnership.__init__", "attempt"):
+        "composed by `admit_preparation` from the attempt it just admitted; it is compared against the standing window and carries no path or authority of its own",
+    ("caller", "workspaces.py:PreparationOwnership.__init__", "ordinal"):
+        "composed by `admit_preparation` from the ordinal it just recorded; it is compared against the standing window and selects nothing",
+    ("caller", "workspaces.py:admit_preparation", "holding"):
+        "the ownership the opening admission answered, compared by type and members; it can only continue the window it names, so an absent or foreign value refuses rather than widening",
+    ("caller", "workspaces.py:prepared_workspace_governance", "control"): _PREPARATION_STORE,
+    ("caller", "workspaces.py:prepared_workspace_governance", "assignment_id"):
+        "the attempt whose preparation the acquisition's own predicate re-reads; every record identity it asks about is DERIVED from it, so a value naming no attempt answers absence rather than reaching another's",
+    ("caller", "workspaces.py:prepared_workspace_governance", "mounted"):
+        "the writable root this start is about to mount, forwarded UNCHANGED to `tokens.workspace_governance`, whose containment owner proves it sits in a supported sibling arrangement and equals the pinned object",
+    ("caller", "workspaces.py:release_preparation", "control"): _PREPARATION_STORE,
+    ("caller", "workspaces.py:release_preparation", "holding"):
+        "the ownership the opening admission answered; only the act that HOLDS it may say its writer ended, so a caller without one is refused rather than believed",
     ("caller", "workspaces.py:admit_preparation", "control"): _PREPARATION_STORE,
+    ("caller", "workspaces.py:admit_preparation", "execution"):
+        "the caller's OWN execution identity, compared for EQUALITY against the standing window's: it can only let the same execution continue its own act, so a wrong or absent value refuses rather than widening. An unnamed caller never matches, which is why absence is stricter here rather than permissive",
     ("caller", "workspaces.py:standing_preparation", "control"): _PREPARATION_STORE,
     ("caller", "workspaces.py:standing_preparation", "assignment_id"):
         "the attempt this window reader is asked about; the record identity is DERIVED from it, so a value naming no window answers absence rather than reaching another attempt's",
@@ -9472,6 +9496,26 @@ WITNESSES = {
         "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
     ('caller', 'workspaces.py:admit_preparation', 'control'):
         "test_the_preparation_window_only_exempts_the_act_that_owns_it",
+    ('caller', 'workspaces.py:admit_preparation', 'execution'):
+        "test_only_the_same_execution_or_a_proved_ending_takes_a_window",
+    ('caller', 'workspaces.py:PreparationOwnership.__init__', '_minted'):
+        "test_only_the_HOLDER_of_a_preparation_ownership_continues_it",
+    ('caller', 'workspaces.py:PreparationOwnership.__init__', 'attempt'):
+        "test_only_the_HOLDER_of_a_preparation_ownership_continues_it",
+    ('caller', 'workspaces.py:PreparationOwnership.__init__', 'ordinal'):
+        "test_only_the_HOLDER_of_a_preparation_ownership_continues_it",
+    ('caller', 'workspaces.py:admit_preparation', 'holding'):
+        "test_only_the_HOLDER_of_a_preparation_ownership_continues_it",
+    ('caller', 'workspaces.py:release_preparation', 'control'):
+        "test_only_the_HOLDER_of_a_preparation_ownership_continues_it",
+    ('caller', 'workspaces.py:prepared_workspace_governance', 'control'):
+        "test_the_task_acquisition_carries_the_preparation_condition",
+    ('caller', 'workspaces.py:prepared_workspace_governance', 'assignment_id'):
+        "test_the_task_acquisition_carries_the_preparation_condition",
+    ('caller', 'workspaces.py:prepared_workspace_governance', 'mounted'):
+        "test_the_task_acquisition_carries_the_preparation_condition",
+    ('caller', 'workspaces.py:release_preparation', 'holding'):
+        "test_only_the_HOLDER_of_a_preparation_ownership_continues_it",
     ('caller', 'workspaces.py:standing_preparation', 'control'):
         "test_the_preparation_window_only_exempts_the_act_that_owns_it",
     ('caller', 'workspaces.py:standing_preparation', 'assignment_id'):
@@ -10158,6 +10202,105 @@ class StatedRules(BoundaryCase):
                     maintenance.maintenance_failure(self.store, "attempt-1",
                                                     wrong, 1)
 
+    def test_the_task_acquisition_carries_the_preparation_condition(self):
+        """WITNESS: the governance that decides the preparation condition under the
+        acquisition's own lock.
+
+        W285464. The predicate is journal-only by construction, so this drives it
+        directly: with no completed preparation it refuses the ACQUISITION, and the
+        refusal is the predicate's own words rather than an earlier gate's.
+        """
+        from baton_v12.worker_manager import tokens, workspaces
+
+        storage = os.path.join(self.root, "governed-storage")
+        os.makedirs(os.path.join(storage, "attempt-1", "workspace"))
+        workspaces.configure_workspace_storage(self.store, storage)
+        held = os.lstat(os.path.join(storage, "attempt-1", "workspace"))
+        attempt = {"runtime_attempt_id": "attempt-1",
+                   "workspace_device": held.st_dev,
+                   "workspace_inode": held.st_ino}
+        governance = workspaces.prepared_workspace_governance(
+            self.store, "attempt-1",
+            mounted=os.path.join(storage, "attempt-1", "workspace"))
+        self.assertEqual(governance.resource_kind, "workspace")
+        with self.assertRaises(ContractRefusal) as refused:
+            governance.reserve(self.store, attempt, operation="start:attempt-1")
+        self.assertIn("recorded no completed host preparation",
+                      str(refused.exception))
+        # AND NOTHING WAS ACQUIRED: the predicate refuses inside the acquisition.
+        domain = tokens.domain_of("workspace", tokens.workspace_identity(attempt))
+        self.assertEqual(tokens.outstanding(self.store, domain), [])
+
+    def test_only_the_HOLDER_of_a_preparation_ownership_continues_it(self):
+        """WITNESS: the ownership capability and the operand that presents it.
+
+        W285464. A caller cannot mint one, a holder cannot revise one, and a window
+        is continued only by the object its own admission answered -- an absent or
+        foreign ownership refuses, which is what a name for the same attempt could
+        not do.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        storage = os.path.join(self.root, "ownership-storage")
+        os.makedirs(storage)
+        workspaces.configure_workspace_storage(self.store, storage)
+        with self.assertRaises(ContractRefusal):
+            workspaces.PreparationOwnership("attempt-1", 1)
+        mine = workspaces.admit_preparation(self.store, "attempt-1", "preparing",
+                                           "execution-one")
+        other = workspaces.admit_preparation(self.store, "attempt-2",
+                                            "preparing another", "execution-two")
+        with self.assertRaises(ContractRefusal):
+            setattr(mine, "_ordinal", 99)
+        for presented in (None, other):
+            with self.subTest(holding=presented):
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.admit_preparation(
+                        self.store, "attempt-1", "somebody else's act",
+                        "execution-one", holding=presented)
+                self.assertIn("ordinal is not authority to write",
+                              str(refused.exception))
+        self.assertIs(workspaces.admit_preparation(
+            self.store, "attempt-1", "its own act", "execution-one",
+            holding=mine), mine)
+        # AND ONLY THE HOLDER MAY SAY ITS WRITER ENDED, which is the same rule one
+        # act along: the release closes the window it owns and nothing else.
+        with self.assertRaises(ContractRefusal):
+            workspaces.release_preparation(self.store, None, "not the holder")
+        workspaces.release_preparation(self.store, mine, "the writer returned")
+        self.assertEqual(workspaces.standing_preparation(self.store,
+                                                        "attempt-1"), [])
+
+    def test_only_the_same_execution_or_a_proved_ending_takes_a_window(self):
+        """WITNESS: the execution identity an adoption is compared against.
+
+        W285464 review 2026-09-27T16-41-41Z: an ordinal anybody receives is not
+        authority to write. Adoption needs a NAMED execution that matches, or a
+        proved ending of the previous manager process; an unnamed caller never
+        matches, so absence is stricter here rather than permissive.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        storage = os.path.join(self.root, "execution-window-storage")
+        os.makedirs(storage)
+        workspaces.configure_workspace_storage(self.store, storage)
+        self.assertEqual(workspaces.admit_preparation(
+            self.store, "attempt-1", "the first writer",
+            "execution-one").ordinal, 1)
+        for asking in (None, "execution-two", ""):
+            with self.subTest(execution=asking):
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.admit_preparation(self.store, "attempt-1",
+                                                 "a second execution", asking)
+                self.assertIn("ordinal is not authority to write",
+                              str(refused.exception))
+        # AND THE NAME ALONE NO LONGER CONTINUES IT: review 2026-09-27T17-01-18Z
+        # replaced equality with the ownership capability, so this witness asserts the
+        # refusal its own entry is now about.
+        with self.assertRaises(ContractRefusal):
+            workspaces.admit_preparation(self.store, "attempt-1",
+                                         "the same name resuming", "execution-one")
+
     def test_the_preparation_window_only_exempts_the_act_that_owns_it(self):
         """WITNESS: the preparation ownership window and its exemption.
 
@@ -10173,11 +10316,11 @@ class StatedRules(BoundaryCase):
         storage = os.path.join(self.root, "preparation-window-storage")
         os.makedirs(storage)
         workspaces.configure_workspace_storage(self.store, storage)
-        ordinal = workspaces.admit_preparation(self.store, "attempt-1",
-                                              "preparing these roots")
-        self.assertEqual(ordinal, 1)
+        owned = workspaces.admit_preparation(self.store, "attempt-1",
+                                            "preparing these roots")
+        self.assertEqual(owned.ordinal, 1)
         workspaces.refuse_if_held(self.store, storage, "attempt-1",
-                                  "its own allocation", preparing=ordinal)
+                                  "its own allocation", preparing=owned.ordinal)
         for wrong in (None, 2, 0):
             with self.subTest(preparing=wrong):
                 with self.assertRaises(ContractRefusal) as refused:

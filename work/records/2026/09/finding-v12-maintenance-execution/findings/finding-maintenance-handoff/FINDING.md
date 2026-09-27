@@ -120,3 +120,53 @@ Separate incident: author reports forbidden test_input_delivery live suite once,
 Claim287218, handoff287214; thread through286584. review-2026-09-27T16-41-41Z.md preserves staging-removal PASS0.103s and seven new tests PASS0.353s. Independent three-case matrix FAIL0.021s: allocation-first permits preparation, preparation-first permits custody, and unfinished preparation is blindly adopted by a second execution. HOST-8 is not per-execution cessation evidence. Prior author R1-closed and unconditional-adoption assertions are not accepted. Complete reciprocal matrix and conditional task transition under existing scope; no new owner gate.
 
 Input-delivery incident checkpoint retained with reported process completion and exact command; cause/time/resource residue unknown where not evidenced. No rerun, daemon history sweep or cleanup selected. Test selector preflight must cover changed previously-run modules too. Child unaccepted, prior narrow evidence preserved.
+
+
+## 2026-09-27T17-01-18Z — exact attempt identity does not prove execution exclusivity
+
+Claim287357, handoff287353; thread through286584. review-2026-09-27T17-01-18Z.md: prior matrix3PASS0.019s and author matrix8PASS0.124s retained. New composed same-attempt re-entry probe1FAIL0.101s: second admission succeeds during paused real staging because production supplies attempt_id as execution. Same-operation identity is not cessation or exclusion of duplicate execution. Guard/incarnation-based ending remains an unproved lifetime premise. Correct within existing H6 and finish atomic task transition/composed checklist. No new owner gate; child not accepted.
+
+
+## 2026-09-27T17-26-12Z — capability correction verified; H6/H8 still open
+
+Claim287527, handoff287525, thread286584. review-2026-09-27T17-26-12Z.md:9 focused PASS0.275s. Preserve same-attempt capability and reciprocal admission fixes. Guard/incarnation takeover remains unproved: no subprocess is not proof of guard-release writer drainage or prior process death. Source confirms admit_preparation transaction -> _guarding -> _real -> realpath, violating existing no-external-I/O-under-lock rule. Correct within H6/H8 and complete atomic task transition/composed proof. No new owner gate or graph change.
+
+
+## 2026-09-27T17-37-14Z — guard and admission I/O corrections preserved
+
+Claim287604, handoff287602, thread286584. review-2026-09-27T17-37-14Z.md:15PASS0.301s. Source confirms guard-based takeover and its realpath-under-transaction call removed; unknown holder remains held. Returned-writer release is separate from completion; full composed interruption/unwind proof still outstanding. Next atomic task-admission transition plus finite composed evidence; no renewed owner gate. Stale guard/name-equality docstrings must follow actual code. Child unaccepted, prior evidence retained.
+
+
+## 2026-09-27T17-48-17Z — acquisition predicate passes one direction; task-first overlap fails
+
+Claim287682, handoff287675; thread286584. review-2026-09-27T17-48-17Z.md: new acquisition class3PASS0.185s preserved. Independent task-first composed probe1FAIL0.072s: real task token commits, removal ownership is then admitted, and task reaches commanded. Reciprocal transition exclusion remains incomplete; correct full relevant matrix under existing scope. Maintenance-window-before-token interval requires explicit coverage too (source concern, not separately reproduced). No owner gate; child unaccepted.
+
+
+## 2026-09-27T18-00-36Z — remaining task-first custody/allocation edges
+
+Claim287769, handoff287766, thread286584. review-2026-09-27T18-00-36Z.md: task-first removal PASS0.068s and six new tests PASS0.360s preserved. New composed live-task edges2FAIL0.126s: custody normalize claim and mutating allocation admission both succeed after task start. Same-execution reconciliation must be read-only, not blanket renewed initial-preparation authority. Correct remaining existing matrix and complete composed proof; no new owner gate.
+
+
+## 2026-09-27T18-10-28Z — live-task exclusions and read-only allocation re-entry verified
+
+Claim287842, handoff287840, thread286584. review-2026-09-27T18-10-28Z.md: live-task edges2PASS0.126s plus four revalidation cases PASS0.232s. Preserve these fixes; directory type/owner proof alone is not full durable identity proof. Next finite composed H1/H2/H6/H7/H8/H9 and final candidate audit, correcting any reached defect without renewed owner approval. Child unaccepted; no graph/scope changes.
+
+
+## 2026-09-27T18-29-46Z — composed coverage audited precisely
+
+Claim287977, handoff287974, thread286584. review-2026-09-27T18-29-46Z.md: four composed tests PASS0.213s preserved, plus source confirms durable root identity comparison. Author only-H6/H7-remaining claim is not accepted: current H1 lacks full claim/bind/admit/activate trace, H2 only absent claim, H8 only engine second-connection boundary, H9 only selected mounts. Complete those exact existing requirements alongside H6/H7; no new scope or owner gate.
+
+
+## 2026-09-27T18:47:03Z — composed proof narrowed honestly
+
+Observed claim288084/handoff288082: focused H package11PASS0.546s. Accepted new slices: token/engine sequence, abrupt no-finally death with reopened standing window, filesystem second-connection progress. Whole package remains NOT ACCEPTED: H2 fixtures collide on unrelated identity before proving expiry/staleness; H7 full re-entry calls only allocation helper and unwind coverage is partial; H9 does not compare complete source/mode/multiplicity. Exact bounded corrections in review-2026-09-27T18-47-03Z.md and current PLAN. Preserve all earlier passes, owner286782 scope, incident and residual debt checkpoints. Discussion read through286584; events through288084. Routine correction directly impl, no scope escalation.
+
+
+## 2026-09-27T19:20:00Z — accepted corrections; preserve deleted regression
+
+Claim288321/handoff288319. Current composed/crash16PASS0.818s; retained offer expiry4PASS0.012s. H1/H2/H7/H9 corrections accepted within bounded deterministic evidence. Explicitly supersede18:47 demand for expiry at _claim: offers acceptance expiry plus claimed-only exact-attempt selection and reached absent-claim rejection are the relevant chain; existing accepted claims are not expired offers. Product bytes unchanged. Sole remaining correction is restoration of previously accepted H8 compose_input_root second-connection regression, now absent from current test file. Historical result retained, deletion is not authorized coverage loss. Exact review-2026-09-27T19-20-00Z.md; current PLAN updated. T285464 read through286584/events288321; direct impl correction, no new scope or owner gate.
+
+
+## 2026-09-27T19:29:57Z — bounded connected handoff accepted
+
+Claim288393/handoff288391; events through288393, T285464 through286584. Restored H8 filesystem/second-connection regression inspected and independently executed in17-case package:17PASS0.850s (wall0.963s). All prior selected product/other tracked test bytes unchanged; current test_single_worker SHA25689475e50e641b5d8bff5507920230f6a213b66842d6db359cdeab498436e1f93. ACCEPTED within owner286782 host-preparation scope, exact candidate-2026-09-27T19-29-57Z.json and review-2026-09-27T19-29-57Z.md. This resolves19:20 sole remaining correction; earlier evidence/history retained. W285465 extended restart and integrated G2 acceptance remain open; broad-suite debt and both incident checkpoints remain unresolved as recorded. Pass owner for disposition, no graph change or live/deployment/Git action.

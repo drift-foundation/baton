@@ -1949,6 +1949,24 @@ def _claim_episode(store, assignment_id, which, operation, image_digest,
         # BOTH OVERLAPPING ROOTS, for `_standing_overlap`'s own reason: the result
         # root sits INSIDE the workspace, so a preparation on either is acting inside
         # material the other contains.
+        # W285464 review 2026-09-27T16-41-41Z: AND THE HOST PREPARATION WINDOW.
+        # The amended TOK-7 lets the Host manager allocate, stage, publish and set
+        # permissions itself, so a preparation is a writer inside these roots -- and
+        # this callback knew about removals and maintenance windows and nothing about
+        # it. Read by derived identity, so no filesystem work happens under this lock.
+        preparing = workspaces._preparation_refusal(
+            store, assignment_id,
+            f"claiming a custody episode for the {which} root")
+        if preparing is not None:
+            raise preparing
+        # W285464 review 2026-09-27T18-00-36Z: AND A LIVE TASK TOKEN. A custody act is
+        # a writer inside these roots, so it is not claimed beside a running governed
+        # execution -- the token is returned first, which is the ownership transfer.
+        governed = workspaces._task_token_refusal(
+            store, assignment_id,
+            f"claiming a custody episode for the {which} root")
+        if governed is not None:
+            raise governed
         from . import maintenance
 
         for root in CUSTODY_ROOTS:

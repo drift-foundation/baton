@@ -416,6 +416,8 @@ def _conflicting(control, assignment_id, which):
                 f"preparation is not performed inside a tree an earlier act may "
                 f"still be writing")
     for what, standing in (
+            ("host preparation", workspaces.standing_preparation(
+                control, assignment_id)),
             ("allocation", workspaces.standing_allocation(control,
                                                           assignment_id)),
             ("removal", workspaces.standing_removal(control, assignment_id)),

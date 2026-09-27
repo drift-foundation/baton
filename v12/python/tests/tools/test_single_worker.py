@@ -528,9 +528,14 @@ class TheHostPreparationIsAccountedForBeforeAnyTaskStart(SingleWorkerCase):
         roots = workspaces.assignment_workspace(
             workspaces.configured_workspace_group(control), self.storage,
             attempt_id, control=control)
-        workspaces._admitted_allocation(control, attempt_id, "a second allocation")
+        # A DIFFERENT ATTEMPT, because this one's task token is now live and an
+        # allocation admission is refused for THAT reason -- measured, when the
+        # task-first guard landed. What this case is about is the gate reading a
+        # standing allocation, so it uses an attempt with no live token.
+        workspaces._admitted_allocation(control, "attempt-elsewhere",
+                                        "a second allocation")
         with self.assertRaises(ContractRefusal) as refused:
-            workspaces.require_prepared(control, attempt_id, roots,
+            workspaces.require_prepared(control, "attempt-elsewhere", roots,
                                         "starting this attempt's runtime")
         self.assertIn("may still be finishing", str(refused.exception))
         self.assertIn("allocation", str(refused.exception))
@@ -739,7 +744,7 @@ class ThePreparationOWNSTheRootsForItsWholeWriterLifetime(SingleWorkerCase):
                                                           "staging-unrelated")
         self.assertIsNotNone(why)
         self.assertIn("host preparation", why)
-        self.assertEqual(elsewhere, [1])
+        self.assertEqual([one.ordinal for one in elsewhere], [1])
         self.assertEqual([one for one, _ in workspaces.standing_preparation(
             control, "attempt-elsewhere")], [1])
         self.assertEqual(len(engine.starts), 1)
@@ -776,9 +781,10 @@ class ThePreparationOWNSTheRootsForItsWholeWriterLifetime(SingleWorkerCase):
         submit(job, self.submission)
         operations = self.operations(job, control, engine)
         self.addCleanup(operations.close)
-        ordinal = workspaces.admit_preparation(control, "attempt-interrupted",
-                                              "a preparation that then died")
-        self.assertEqual(ordinal, 1)
+        owned = workspaces.admit_preparation(control, "attempt-interrupted",
+                                            "a preparation that then died",
+                                            "execution-one")
+        self.assertEqual(owned.ordinal, 1)
         self.assertEqual([one for one, _ in workspaces.standing_preparation(
             control, "attempt-interrupted")], [1])
         for act in (lambda: workspaces._admitted_removal(
@@ -792,11 +798,1567 @@ class ThePreparationOWNSTheRootsForItsWholeWriterLifetime(SingleWorkerCase):
                 with self.assertRaises(ContractRefusal) as refused:
                     act()
                 self.assertIn("host preparation 1", str(refused.exception))
-        # AND A SECOND PREPARATION ADOPTS ITS OWN WINDOW rather than opening a
-        # second one, which is how a restart re-walks the same preparation.
+        # AND IT IS NOT TAKEN OVER BY ANYBODY WHO ASKS. My first version of this
+        # case asserted that a second `admit_preparation` adopted ordinal 1
+        # unconditionally, and review 2026-09-27T16-41-41Z was right to refuse that:
+        # HOST-8 excludes a duplicate MANAGER, not a second execution inside one, so
+        # an ordinal anybody receives is not authority to write.
+        for asking in (None, "another-execution"):
+            with self.subTest(execution=asking):
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.admit_preparation(
+                        control, "attempt-interrupted",
+                        "a second execution with no cessation evidence", asking)
+                self.assertIn("whether that writer has stopped is UNKNOWN",
+                              str(refused.exception))
+        # AND THE ACT THAT HOLDS THE CAPABILITY CONTINUES ITS OWN WINDOW, which is
+        # the one ground that needs no new evidence: it is the same act, and a name
+        # for the same attempt is NOT that -- review 2026-09-27T17-01-18Z reached a
+        # second admission through exactly that equality while the first writer was
+        # still able to finish.
+        again = workspaces.admit_preparation(
+            control, "attempt-interrupted", "the same act continuing",
+            "execution-one", holding=owned)
+        self.assertEqual(again.ordinal, 1)
+        self.assertIs(again, owned)
+
+
+class ThePreparationMatrixIsClosedInBothDirections(SingleWorkerCase):
+    """W285464 review 2026-09-27T16-41-41Z, the three edges it reached.
+
+    My admission checked removal, cleanup and adoption and omitted the standing
+    ALLOCATION; custody's reciprocal callback knew about removals and maintenance
+    windows and not about this one; and a second `admit_preparation` was answered
+    the standing ordinal without anything proving the first writer had stopped.
+    Each is driven here through the owner's own APIs.
+    """
+
+    def stored(self, label):
+        _job, control = self.stores(label)
+        from baton_v12.worker_manager import workspaces
+        workspaces.configure_workspace_storage(control, self.storage)
+        return control
+
+    def excluded_by(self, label, act, named):
+        """`act` is admitted first; a new preparation must then refuse.
+
+        ONE STORE PER CASE, measured twice now: this fixture answers one control
+        store per test, so a subTest loop left the first iteration's window standing
+        and the later acts refused each other instead of refusing the preparation.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        control = self.stored(f"matrix-{label}")
+        act(control)
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_preparation(control, "attempt-1",
+                                         "a competing preparation",
+                                         "execution-one")
+        self.assertIn(named, str(refused.exception))
+        self.assertIn("recorded no completion", str(refused.exception))
+        self.assertEqual(workspaces.standing_preparation(control, "attempt-1"),
+                         [])
+
+    def test_an_admitted_allocation_excludes_a_new_preparation(self):
+        """The edge the reviewer reached: my admission omitted this one."""
+        from baton_v12.worker_manager import workspaces
+
+        self.excluded_by("allocation",
+                         lambda control: workspaces._admitted_allocation(
+                             control, "attempt-1", "an existing allocator"),
+                         "allocation 1")
+
+    def test_an_admitted_removal_excludes_a_new_preparation(self):
+        from baton_v12.worker_manager import workspaces
+
+        self.excluded_by("removal",
+                         lambda control: workspaces._admitted_removal(
+                             control, "attempt-1", "an existing remover"),
+                         "removal 1")
+
+    def test_an_admitted_adoption_excludes_a_new_preparation(self):
+        from baton_v12.worker_manager import workspaces
+
+        self.excluded_by("adoption",
+                         lambda control: workspaces._admitted_adoption(
+                             control, "attempt-1", "an existing adopter"),
+                         "adoption 1")
+
+    def test_an_admitted_cleanup_excludes_a_new_preparation(self):
+        from baton_v12.worker_manager import workspaces
+
+        self.excluded_by("cleanup",
+                         lambda control: workspaces.admit_cleanup(
+                             control, "attempt-1",
+                             {"operation": "cleanup:attempt-1",
+                              "signature": "sig-1", "incarnation": "probe"},
+                             "an existing cleanup"),
+                         "cleanup 1")
+
+    def test_a_standing_preparation_excludes_a_custody_claim(self):
+        """The reciprocal edge custody was missing."""
+        from baton_v12.worker_manager import custody, workspaces
+
+        control = self.stored("matrix-custody")
+        workspaces.admit_preparation(control, "attempt-1", "preparing inputs",
+                                     "execution-one")
+        with self.assertRaises(ContractRefusal) as refused:
+            custody._claim_episode(
+                control, "attempt-1", "workspace", "normalize",
+                "sha256:" + "e" * 64,
+                custody._custody_identity(self.storage, "attempt-1",
+                                          "workspace", "normalize"))
+        self.assertIn("host preparation 1", str(refused.exception))
+        self.assertEqual(custody.custody_holds(control, "attempt-1",
+                                               "workspace"), [])
+
+    def test_a_standing_preparation_excludes_a_maintenance_act(self):
+        """And the facility's own shared reader, so the edge holds both ways."""
+        from baton_v12.worker_manager import maintenance, workspaces
+
+        control = self.stored("matrix-maintenance")
+        workspaces.admit_preparation(control, "attempt-1", "preparing inputs",
+                                     "execution-one")
+        why = maintenance._conflicting(control, "attempt-1", "workspace")
+        self.assertIsNotNone(why)
+        self.assertIn("host preparation 1", why)
+
+    def test_an_unnamed_or_foreign_execution_cannot_take_the_window(self):
+        from baton_v12.worker_manager import workspaces
+
+        control = self.stored("matrix-adoption")
+        owned = workspaces.admit_preparation(control, "attempt-1",
+                                            "the first writer", "execution-one")
+        self.assertEqual(owned.ordinal, 1)
+        for asking in (None, "execution-two"):
+            with self.subTest(execution=asking):
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.admit_preparation(control, "attempt-1",
+                                                 "a second execution", asking)
+                self.assertIn("whether that writer has stopped is UNKNOWN",
+                              str(refused.exception))
+                self.assertIn("ordinal is not authority to write",
+                              str(refused.exception))
+        # EVEN THE SAME NAME IS REFUSED WITHOUT THE CAPABILITY, which is the
+        # correction: only the act HOLDING the ownership continues it.
+        with self.assertRaises(ContractRefusal):
+            workspaces.admit_preparation(control, "attempt-1", "resuming by name",
+                                         "execution-one")
+        self.assertIs(workspaces.admit_preparation(
+            control, "attempt-1", "resuming with the capability", "execution-one",
+            holding=owned), owned)
+
+    def test_a_HELD_GUARD_IS_NOT_A_GROUND_and_the_uncertainty_is_held(self):
+        """MY OWN GROUND, WITHDRAWN, and the record says why.
+
+        I had allowed a takeover when the window's incarnation differed and this
+        process held the manager instance guard, arguing a gone process leaves no
+        in-process writer. Review 2026-09-27T17-26-12Z is right that the premise was
+        unproved: a held flock establishes PRESENT exclusivity, not that the previous
+        process died or that its writers drained -- and my own fixture only relabelled
+        an incarnation inside one live process, which is not an observation of
+        anything. It also reached `os.path.realpath` under a write lock, which DB-1
+        and DB-2 forbid.
+
+        So the uncertainty is HELD, and what resolves it is a reconciliation that
+        establishes the earlier writer ended -- which for a writer that RETURNS is the
+        release recorded by its own unwinding, and for a manager that DIED mid-write is
+        W285465's restart work.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        control = self.stored("guard-not-a-ground")
+        earlier = workspaces.admit_preparation(control, "attempt-1",
+                                               "an earlier manager's preparation",
+                                               "execution-one")
+        self.assertEqual(earlier.ordinal, 1)
+        guard = workspaces.hold_manager_instance(control, self.storage)
+        self.addCleanup(guard.release)
+        control.incarnation = "manager-after-restart"
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_preparation(control, "attempt-1",
+                                         "the successor's preparation",
+                                         "execution-two")
+        self.assertIn("whether that writer has stopped is UNKNOWN",
+                      str(refused.exception))
+        self.assertIn("reconciled", str(refused.exception))
+        self.assertEqual([one for one, _ in workspaces.standing_preparation(
+            control, "attempt-1")], [1])
+
+    def test_a_RETURNED_writer_releases_its_window_and_that_is_the_cessation(self):
+        """The one in-process ending that IS provable: the writer returned.
+
+        Reaching the release is being inside that act's own unwinding, so there is no
+        writer left -- no deadline, no label, no inference about another process. A
+        manager that dies mid-write runs no unwinding, which is exactly why that case
+        stays held.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        control = self.stored("released-window")
+        owned = workspaces.admit_preparation(control, "attempt-1", "preparing",
+                                             "execution-one")
+        self.assertEqual([one for one, _ in workspaces.standing_preparation(
+            control, "attempt-1")], [1])
+        # ONLY THE HOLDER MAY RELEASE.
+        with self.assertRaises(ContractRefusal):
+            workspaces.release_preparation(control, None, "somebody else")
+        workspaces.release_preparation(control, owned,
+                                       "the writer returned without completing")
+        self.assertEqual(workspaces.standing_preparation(control, "attempt-1"), [])
+        # AND A RELEASE IS NOT A COMPLETION: the start gate still refuses.
+        self.assertIsNone(workspaces.preparation_completed(control, "attempt-1"))
+        roots = {"inputs": os.path.join(self.storage, "attempt-1", "inputs"),
+                 "workspace": os.path.join(self.storage, "attempt-1", "workspace")}
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.require_prepared(control, "attempt-1", roots, "starting")
+        self.assertIn("recorded no completed host preparation",
+                      str(refused.exception))
+
+    def test_no_FILESYSTEM_read_happens_inside_the_admission_transaction(self):
+        """H8 at this admission, and it was a real source violation of mine.
+
+        My withdrawn guard ground called `_real` -- and so `os.path.realpath` -- from
+        inside `BEGIN IMMEDIATE`. The instrument records any `realpath` or `lstat` that
+        happens while this connection is in a transaction, and asserts the instrument
+        itself is live so an unused trap cannot pass.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        control = self.stored("no-io-under-lock")
+        seen = []
+        honest_realpath, honest_lstat = os.path.realpath, os.lstat
+
+        def realpath(*arguments, **named):
+            if control._connection.in_transaction:
+                seen.append(("realpath", arguments[:1]))
+            return honest_realpath(*arguments, **named)
+
+        def lstat(*arguments, **named):
+            if control._connection.in_transaction:
+                seen.append(("lstat", arguments[:1]))
+            return honest_lstat(*arguments, **named)
+
+        with mock.patch.object(os.path, "realpath", side_effect=realpath), \
+                mock.patch.object(os, "lstat", side_effect=lstat):
+            # THE INSTRUMENT IS LIVE: inside a transaction it records.
+            control._connection.execute("BEGIN IMMEDIATE")
+            os.path.realpath(self.storage)
+            control._connection.execute("COMMIT")
+            # LIVE, asserted rather than assumed -- `realpath` itself calls `lstat`,
+            # so this records more than one entry; what matters is that it records.
+            self.assertTrue(seen, "the instrument saw nothing and cannot fail")
+            self.assertIn("realpath", [one for one, _ in seen])
+            seen.clear()
+            owned = workspaces.admit_preparation(control, "attempt-1",
+                                                 "preparing", "execution-one")
+            second = workspaces.admit_preparation(control, "attempt-1",
+                                                  "continuing", "execution-one",
+                                                  holding=owned)
+        self.assertIs(second, owned)
+        self.assertEqual(seen, [],
+                         "the preparation admission observed the filesystem while "
+                         "holding a write lock")
+
+
+class OnlyTheHOLDEROfAPreparationMayContinueIt(SingleWorkerCase):
+    """W285464 review 2026-09-27T17-01-18Z, and my third correction of one rule.
+
+    First I adopted any standing window. Then I compared an EXECUTION name -- and the
+    production path passes the attempt identity, so every re-entry for that attempt
+    compared equal and a second act was admitted while the first could still write.
+    Continuation is a CAPABILITY now: the object the opening admission answered.
+    """
+
+    def test_a_second_call_with_the_production_operands_is_refused(self):
+        """The reviewer's own schedule, kept as my regression: the real staging
+        writer is paused and the admission is called again with exactly the operands
+        the worker passes."""
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores("holder-only")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        honest = workspaces.compose_input_root
+        outcome = []
+
+        def paused(*arguments, **named):
+            attempt = named["runtime_attempt_id"]
+            try:
+                workspaces.admit_preparation(
+                    control, attempt, "a second execution while the first is paused",
+                    attempt)
+                outcome.append(None)
+            except ContractRefusal as refused:
+                outcome.append(str(refused))
+            return honest(*arguments, **named)
+
+        with mock.patch.object(workspaces, "compose_input_root",
+                               side_effect=paused):
+            self.commanded(job, operations)
+        self.assertEqual(len(outcome), 1)
+        self.assertIsNotNone(outcome[0], "a second execution was admitted")
+        self.assertIn("ordinal is not authority to write", outcome[0])
+        self.assertEqual(len(engine.starts), 1)
+
+    def test_a_caller_cannot_mint_an_ownership(self):
+        from baton_v12.worker_manager import workspaces
+
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.PreparationOwnership("attempt-1", 1)
+        self.assertIn("minted by the admission", str(refused.exception))
+
+    def test_an_ownership_is_not_revised_by_its_holder(self):
+        from baton_v12.worker_manager import workspaces
+
+        control = self.stores("holder-immutable")[1]
+        workspaces.configure_workspace_storage(control, self.storage)
+        owned = workspaces.admit_preparation(control, "attempt-1", "preparing",
+                                            "execution-one")
+        for name in ("_ordinal", "_attempt", "ordinal"):
+            with self.subTest(member=name):
+                with self.assertRaises(ContractRefusal):
+                    setattr(owned, name, 99)
+        self.assertEqual(owned.ordinal, 1)
+        self.assertEqual(owned.attempt, "attempt-1")
+
+    def test_an_ownership_for_another_window_does_not_continue_this_one(self):
+        from baton_v12.worker_manager import workspaces
+
+        control = self.stores("holder-foreign")[1]
+        workspaces.configure_workspace_storage(control, self.storage)
+        mine = workspaces.admit_preparation(control, "attempt-1", "preparing one",
+                                           "execution-one")
+        other = workspaces.admit_preparation(control, "attempt-2", "preparing two",
+                                            "execution-two")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_preparation(control, "attempt-1",
+                                         "another attempt's ownership",
+                                         "execution-one", holding=other)
+        self.assertIn("ordinal is not authority to write",
+                      str(refused.exception))
+        self.assertIs(workspaces.admit_preparation(
+            control, "attempt-1", "its own ownership", "execution-one",
+            holding=mine), mine)
+
+    def test_the_preparation_path_SPAWNS_NOTHING_which_is_the_guard_premise(self):
+        """The invariant the takeover ground rests on, driven rather than asserted.
+
+        The guard ground says a gone process has no surviving writer BECAUSE every
+        writer of this path is a call in the manager process. That is only true while
+        preparation spawns nothing, so this measures it: from the preparation
+        admission to the completion record, no subprocess is created and the engine
+        is not called.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores("no-subprocess")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        spawned = []
+        honest_popen = subprocess.Popen
+        honest_admit = workspaces.admit_preparation
+        honest_record = workspaces.record_preparation
+        watching = {"inside": False}
+
+        def opened(*arguments, **named):
+            # THE HONEST FUNCTION, captured before the patch: calling the module
+            # attribute here recursed through the patch -- measured, as a
+            # RecursionError.
+            answer = honest_admit(*arguments, **named)
+            watching["inside"] = True
+            return answer
+
+        def recorded(*arguments, **named):
+            watching["inside"] = False
+            return honest_record(*arguments, **named)
+
+        def popen(*arguments, **named):
+            if watching["inside"]:
+                spawned.append(arguments[:1])
+            return honest_popen(*arguments, **named)
+
+        with mock.patch.object(workspaces, "admit_preparation",
+                               side_effect=opened), \
+                mock.patch.object(workspaces, "record_preparation",
+                                  side_effect=recorded), \
+                mock.patch.object(subprocess, "Popen", side_effect=popen):
+            self.commanded(job, operations)
+        self.assertEqual(spawned, [],
+                         "host preparation spawned a process, so a gone manager "
+                         "could leave a surviving writer and the guard ground is "
+                         "no longer sound")
+        self.assertEqual(len(engine.starts), 1,
+                         "the task still started, after preparation completed")
+
+
+class TheTaskTOKENIsAcquiredUnderThePreparationCondition(SingleWorkerCase):
+    """W285464 review 2026-09-27T17-37-14Z, the oldest outstanding item.
+
+    `require_prepared` is the early refusal and it reads the OBJECTS, which needs a
+    filesystem and therefore cannot happen under a lock. That left a gap: a conflict
+    arriving between the check and `tokens.acquire` was excluded by nothing. The
+    condition now travels INTO the acquisition as `tokens.acquire`'s own
+    pure-database `eligible` predicate, so the decision is made under the acquiring
+    `BEGIN IMMEDIATE`.
+    """
+
+    def interposed_before_acquisition(self, act, label):
+        """Run `act` after the start gate and before the token is acquired."""
+        from baton_v12.worker_manager import tokens
+
+        engine = Engine()
+        job, control = self.stores(label)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        honest = tokens.acquire
+        outcome = []
+
+        def racing(asking, domain, **named):
+            if not outcome:
+                outcome.append(act(control))
+            return honest(asking, domain, **named)
+
+        with mock.patch.object(tokens, "acquire", side_effect=racing):
+            try:
+                self.commanded(job, operations)
+                refused = None
+            except AssertionError as failed:
+                refused = str(failed)
+        return control, engine, outcome, refused
+
+    def test_a_conflict_arriving_before_the_acquisition_refuses_the_start(self):
+        """The reached interleaving: the gate has passed and a real removal is
+        admitted, and the ACQUISITION is what refuses."""
+        from baton_v12.worker_manager import tokens, workspaces
+
+        control, engine, outcome, _refused = self.interposed_before_acquisition(
+            lambda control: workspaces._admitted_removal(
+                control, self.attempt_of(control), "a removal after the gate"),
+            "condition-in-acquisition")
+        self.assertEqual(len(outcome), 1, "the interleaving was never reached")
+        # NO TASK STARTED, and the engine is the witness.
+        self.assertEqual(engine.starts, [])
+        # AND NO TOKEN WAS TAKEN over the workspace object.
+        attempt = self.attempt_of(control)
+        held = os.lstat(os.path.join(self.storage, attempt, "workspace"))
+        domain = tokens.domain_of("workspace",
+                                  f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual(tokens.outstanding(control, domain), [])
+
+    def test_the_ordinary_path_still_acquires_and_starts(self):
+        """The positive control: with nothing interposed, the condition is satisfied
+        and the ordinary start happens exactly once."""
+        from baton_v12.worker_manager import tokens
+
+        engine = Engine()
+        job, control = self.stores("condition-satisfied")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        projected = self.commanded(job, operations)
+        attempt_id = projected["jobs"][0]["stages"][0]["attempt_id"]
+        self.assertEqual(len(engine.starts), 1)
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual([one["execution"]
+                          for one in tokens.outstanding(control, domain)],
+                         [attempt_id])
+
+    def test_the_eligibility_predicate_reads_ONLY_the_journal(self):
+        """H8 at the acquisition: the predicate runs inside `BEGIN IMMEDIATE`, so a
+        filesystem call there would be the DB-2 violation this Work has already been
+        corrected for once. Instrumented, with a live-instrument control."""
+        engine = Engine()
+        job, control = self.stores("predicate-journal-only")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        seen = []
+        honest_realpath, honest_lstat = os.path.realpath, os.lstat
+
+        def realpath(*arguments, **named):
+            if control._connection.in_transaction:
+                seen.append("realpath")
+            return honest_realpath(*arguments, **named)
+
+        def lstat(*arguments, **named):
+            if control._connection.in_transaction:
+                seen.append("lstat")
+            return honest_lstat(*arguments, **named)
+
+        with mock.patch.object(os.path, "realpath", side_effect=realpath), \
+                mock.patch.object(os, "lstat", side_effect=lstat):
+            control._connection.execute("BEGIN IMMEDIATE")
+            os.lstat(self.storage)
+            control._connection.execute("COMMIT")
+            self.assertEqual(seen, ["lstat"], "the instrument cannot fail")
+            seen.clear()
+            self.commanded(job, operations)
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(seen, [],
+                         "something observed the filesystem while this connection "
+                         "held a write lock")
+
+    def attempt_of(self, control):
+        """This submission's attempt identity, read from the storage it allocated."""
+        return sorted(one for one in os.listdir(self.storage)
+                      if one.startswith("attempt-"))[0]
+
+
+class ALiveTaskTOKENOwnsTheRootsUntilItIsReturned(SingleWorkerCase):
+    """W285464 review 2026-09-27T17-48-17Z, the opposite acquisition order.
+
+    The acquisition decides the preparation condition under its own lock, which closes
+    the conflict-arrives-first schedule. The reviewer let the real acquisition COMMIT
+    and then admitted a real removal for the same attempt: both actors held authority,
+    because a first-winner predicate is not a transfer when the loser never asks about
+    the winner.
+
+    The loser asks now -- journal-only, from the attempt row's PINNED workspace object,
+    so no `lstat` happens under any transaction.
+    """
+
+    def with_a_live_task_token(self, label):
+        """Drive the ordinary path to a started task, then answer its store."""
+        engine = Engine()
+        job, control = self.stores(label)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        projected = self.commanded(job, operations)
+        attempt_id = projected["jobs"][0]["stages"][0]["attempt_id"]
+        self.assertEqual(len(engine.starts), 1)
+        return control, attempt_id
+
+    def test_a_removal_is_refused_while_the_task_token_is_outstanding(self):
+        """The reviewer's own schedule, as an ordinary after-the-fact assertion."""
+        from baton_v12.worker_manager import tokens, workspaces
+
+        control, attempt_id = self.with_a_live_task_token("task-owns-removal")
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual([one["execution"]
+                          for one in tokens.outstanding(control, domain)],
+                         [attempt_id])
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces._admitted_removal(control, attempt_id,
+                                         "a removal beside a live task")
+        self.assertIn("is held by token generation 1", str(refused.exception))
+        self.assertIn("ownership is transferred after that token is returned",
+                      str(refused.exception))
+
+    def test_a_cleanup_is_refused_while_the_task_token_is_outstanding(self):
+        from baton_v12.worker_manager import workspaces
+
+        control, attempt_id = self.with_a_live_task_token("task-owns-cleanup")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_cleanup(
+                control, attempt_id,
+                {"operation": f"cleanup:{attempt_id}", "signature": "sig-1",
+                 "incarnation": "probe"}, "a cleanup beside a live task")
+        self.assertIn("is held by token generation 1", str(refused.exception))
+
+    def test_an_adoption_is_refused_while_the_task_token_is_outstanding(self):
+        from baton_v12.worker_manager import workspaces
+
+        control, attempt_id = self.with_a_live_task_token("task-owns-adoption")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces._admitted_adoption(control, attempt_id,
+                                          "an adoption beside a live task")
+        self.assertIn("is held by token generation 1", str(refused.exception))
+
+    def test_a_FOREIGN_preparation_is_refused_while_the_task_token_is_outstanding(self):
+        """A second preparation of the same attempt by anything that is not its own
+        execution: refused, because taking the roots back is an ownership transfer."""
+        from baton_v12.worker_manager import workspaces
+
+        control, attempt_id = self.with_a_live_task_token("task-owns-preparation")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_preparation(control, attempt_id,
+                                         "a foreign preparation", "somebody-else")
+        self.assertIn("is held by token generation 1", str(refused.exception))
+
+    def test_the_attempts_OWN_reentry_is_not_refused_by_its_own_token(self):
+        """The exemption, and it is why the ordinary path still reconciles.
+
+        MEASURED: without it, every later tick's admission refused against the token
+        its own start had taken -- eighteen composed cases failed with my own refusal
+        text, which is how I found it.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        control, attempt_id = self.with_a_live_task_token("task-owns-own-reentry")
+        owned = workspaces.admit_preparation(control, attempt_id,
+                                             "its own re-entry", attempt_id)
+        self.assertEqual(owned.attempt, attempt_id)
+
+    def test_the_task_eligibility_also_refuses_a_standing_MAINTENANCE_window(self):
+        """The reviewer's source concern: the predicate did not name the maintenance
+        window, so an open window before any token could have been read as free."""
+        from baton_v12.worker_manager import maintenance, workspaces
+
+        engine = Engine()
+        job, control = self.stores("maintenance-before-token")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        honest = workspaces.require_prepared
+        opened = []
+
+        def gated(store, attempt, roots, what):
+            answer = honest(store, attempt, roots, what)
+            if not opened:
+                opened.append(maintenance._admitted(
+                    store, attempt, "workspace",
+                    operation=maintenance.ESTABLISH_RESULT_ROOT,
+                    name="baton-maintenance-" + "f" * 32,
+                    domain="workspace:probe", pre_allocation="probe/place"))
+            return answer
+
+        with mock.patch.object(workspaces, "require_prepared", side_effect=gated):
+            try:
+                self.commanded(job, operations)
+                started = True
+            except AssertionError:
+                started = False
+        self.assertEqual(len(opened), 1, "the window was never opened")
+        self.assertFalse(started, "a task started beside an open maintenance window")
+        self.assertEqual(engine.starts, [])
+
+
+class TheREENTRYBesideALiveTaskIsAREVALIDATION(SingleWorkerCase):
+    """W285464 review 2026-09-27T18-00-36Z, the last two matrix edges.
+
+    A custody claim and a mutating ALLOCATION admission were both still obtainable
+    while the task ran. Both are writers -- `_own_directory` attempts a `mkdir` and
+    the group adoption chmods -- so "the same attempt" is not a licence to write again
+    after handoff. The ordinary re-entry now takes a read-only revalidation instead,
+    and anything missing, replaced or partial refuses rather than being repaired.
+    """
+
+    def running(self, label):
+        engine = Engine()
+        job, control = self.stores(label)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        projected = self.commanded(job, operations)
+        self.assertEqual(len(engine.starts), 1)
+        return control, projected["jobs"][0]["stages"][0]["attempt_id"]
+
+    def test_a_custody_claim_is_refused_beside_a_live_task(self):
+        from baton_v12.worker_manager import custody
+
+        control, attempt_id = self.running("live-custody-edge")
+        with self.assertRaises(ContractRefusal) as refused:
+            custody._claim_episode(
+                control, attempt_id, "workspace", "normalize",
+                "sha256:" + "c" * 64,
+                custody._custody_identity(self.storage, attempt_id, "workspace",
+                                          "normalize"))
+        self.assertIn("is held by token generation 1", str(refused.exception))
+        self.assertEqual(custody.custody_holds(control, attempt_id, "workspace"),
+                         [])
+
+    def test_a_mutating_allocation_admission_is_refused_beside_a_live_task(self):
+        from baton_v12.worker_manager import workspaces
+
+        control, attempt_id = self.running("live-allocation-edge")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces._admitted_allocation(control, attempt_id,
+                                            "a new allocation beside a live task")
+        self.assertIn("is held by token generation 1", str(refused.exception))
+        self.assertEqual(workspaces.standing_allocation(control, attempt_id), [])
+
+    def test_the_ordinary_reentry_REVALIDATES_and_writes_nothing(self):
+        """The positive half, with positive instrumentation.
+
+        `assignment_workspace` is called again while the task is live -- which is what
+        every later tick does -- and it answers the same roots having performed no
+        `mkdir`, `chmod` or `chown` at all.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        control, attempt_id = self.running("live-reentry")
+        group = workspaces.configured_workspace_group(control)
+        made, moded, owned = [], [], []
+        honest_mkdir = os.mkdir
+
+        def mkdir(*arguments, **named):
+            made.append(arguments[:1])
+            return honest_mkdir(*arguments, **named)
+
+        with mock.patch.object(os, "mkdir", side_effect=mkdir), \
+                mock.patch.object(os, "chmod", side_effect=lambda *a: moded.append(a)), \
+                mock.patch.object(os, "chown", side_effect=lambda *a: owned.append(a)):
+            # THE INSTRUMENTS ARE LIVE.
+            honest_mkdir(os.path.join(self.root, "instrument-control"))
+            os.mkdir(os.path.join(self.root, "instrument-live"))
+            self.assertEqual(len(made), 1)
+            made.clear()
+            roots = workspaces.assignment_workspace(group, self.storage,
+                                                    attempt_id, control=control)
+        self.assertEqual(made, [], "the re-entry created something")
+        self.assertEqual(moded, [], "the re-entry changed a mode")
+        self.assertEqual(owned, [], "the re-entry changed a group")
+        self.assertEqual(roots["workspace"],
+                         os.path.join(self.storage, attempt_id, "workspace"))
+        self.assertEqual(roots["inputs"],
+                         os.path.join(self.storage, attempt_id, "inputs"))
+
+    def test_the_revalidation_REFUSES_material_that_is_gone(self):
+        """And it does not repair: a removed entry refuses beside a live task."""
+        from baton_v12.worker_manager import workspaces
+
+        control, attempt_id = self.running("live-reentry-missing")
+        group = workspaces.configured_workspace_group(control)
+        # THE HOME IS FROZEN AT 0555 by `compose_input_root`, so an entry cannot be
+        # removed from it -- measured, as EPERM on `rmdir`. What a lost entry looks
+        # like at this seam is therefore an attempt whose home never held one, which is
+        # the same question the revalidation asks.
         self.assertEqual(
-            workspaces.admit_preparation(control, "attempt-interrupted",
-                                         "the same preparation resuming"), 1)
+            stat.S_IMODE(os.lstat(os.path.join(self.storage,
+                                               attempt_id)).st_mode), 0o555)
+        elsewhere = "attempt-partially-prepared"
+        os.makedirs(os.path.join(self.storage, elsewhere, "workspace"))
+        os.makedirs(os.path.join(self.storage, elsewhere, "inputs"))
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces._revalidated_roots(self.storage, elsewhere,
+                                          "revalidating a partial home")
+        self.assertIn("is not the object this manager prepared",
+                      str(refused.exception))
+        self.assertIn("rather than repaired beside a live task",
+                      str(refused.exception))
+        # AND IT REPAIRED NOTHING: the missing entries are still missing.
+        for name in workspaces.HOME_ENTRIES:
+            if name in ("workspace", "inputs"):
+                continue
+            self.assertFalse(os.path.exists(os.path.join(self.storage, elsewhere,
+                                                         name)), name)
+
+
+class TheConnectedHANDOFFIsProvedEndToEnd(SingleWorkerCase):
+    """W285464: the composed H set, on the real ordinary no-context/no-review path.
+
+    Every case here drives `submit -> claim -> prepare -> start` through the actual
+    composition with real disposable stores and the fake engine. The H labels are the
+    PLAN's; each assertion is a hook that actually fired rather than a description.
+    """
+
+    def traced(self, label):
+        """One ordinary run, with every preparation hook recorded in order."""
+        from baton_v12.worker_manager import tokens, workspaces
+
+        engine = Engine()
+        job, control = self.stores(label)
+        submit(job, self.submission)
+        order = []
+        honest = {name: getattr(workspaces, name)
+                  for name in ("admit_preparation", "record_preparation",
+                               "require_prepared")}
+        acts = {name: getattr(tokens, name)
+                for name in ("acquire", "journal_launch", "bind_container",
+                             "admit_activation", "settle_activation")}
+
+        def noting(name, function):
+            def noted(*arguments, **named):
+                order.append(name)
+                return function(*arguments, **named)
+            return noted
+
+        patches = [mock.patch.object(workspaces, name,
+                                     side_effect=noting(name, honest[name]))
+                   for name in honest]
+        patches += [mock.patch.object(tokens, name,
+                                      side_effect=noting(name, acts[name]))
+                    for name in acts]
+        # THE ENGINE'S OWN ACTS JOIN THE SAME SEQUENCE, so the order compares token
+        # and engine steps against each other rather than two separate lists.
+        def recorded(argv, *, seconds=None):
+            # WRAPPED AT CONSTRUCTION, because the composition captures the callable it
+            # is given -- patching the instance afterwards records nothing, which this
+            # case and H8 both measured.
+            if launching(argv):
+                order.append("create" if argv[1] == "create" else argv[1])
+            elif activating(argv):
+                order.append("start")
+            return engine(argv, seconds=seconds)
+
+        operations = self.operations(job, control, recorded)
+        self.addCleanup(operations.close)
+        for one in patches:
+            one.start()
+            self.addCleanup(one.stop)
+        projected = self.commanded(job, operations)
+        attempt_id = projected["jobs"][0]["stages"][0]["attempt_id"]
+        # THE JOB AND THE OPERATIONS TRAVEL BACK, so a case can RE-ENTER this very
+        # composition rather than call one function on the side: review
+        # 2026-09-27T18-47-03Z refused my re-entry case for exactly that.
+        return control, engine, attempt_id, order, job, operations
+
+    def test_H1_the_whole_ordering_is_claim_prepare_account_revalidate_acquire_start(self):
+        from baton_v12.worker_manager import tokens, workspaces
+
+        control, engine, attempt_id, order, _job, _operations = self.traced(
+            "H1-ordering")
+        # THE CLAIM CAME FIRST: the canonical offer is claimed for this attempt.
+        self.assertEqual(len(claimed_offers_for(control, attempt_id)), 1)
+        # THEN OWNERSHIP, THE ACCOUNT, THE REVALIDATION AND THE ACQUISITION, in that
+        # order -- and the acquisition is LAST of the four.
+        first = {}
+        for index, name in enumerate(order):
+            first.setdefault(name, index)
+        self.assertLess(first["admit_preparation"], first["record_preparation"])
+        self.assertLess(first["record_preparation"], first["require_prepared"])
+        self.assertLess(first["require_prepared"], first["acquire"])
+        # THE DURABLE ACCOUNT EXISTS and the window it opened is closed.
+        self.assertIsNotNone(workspaces.preparation_completed(control, attempt_id))
+        self.assertEqual(workspaces.standing_preparation(control, attempt_id), [])
+        # THE TOKEN ACTS AND THE ENGINE ACTS, IN ORDER, and counted exactly: review
+        # 2026-09-27T18-29-46Z is right that four preparation hooks are not the whole
+        # ordering. `bind` and `admit` are the token's, `create` and `start` are the
+        # engine's, and the interleaving is the two-act shape the resource token
+        # requires -- create, bind, admit, then start.
+        self.assertEqual(order[first["acquire"]:],
+                         ["acquire", "journal_launch", "create", "bind_container",
+                          "admit_activation", "start", "settle_activation"])
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(engine.starts[0][1], "create")
+        self.assertEqual(len([one for one in engine.vectors
+                              if activating(one)]), 1,
+                         "the bound container must be activated exactly once")
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        outstanding = tokens.outstanding(control, domain)
+        self.assertEqual([one["execution"] for one in outstanding], [attempt_id])
+        current = tokens.token_of(control, domain, outstanding[0]["generation"])
+        self.assertEqual(current["container"], engine.runtime_id)
+        self.assertTrue(current["activation_settled"] if "activation_settled"
+                        in current else not current["activating"])
+
+    def refused_at_the_gate(self, label, mutate, expected):
+        """Drive the real run with `_claim`'s own reader MUTATED at the gate.
+
+        Review 2026-09-27T18-47-03Z: my first H2 cases fabricated rows that omitted the
+        members `_claim` compares, so they could collide on `offer_id` before the named
+        condition was exercised. `mutate` receives the HONEST reader's real rows for
+        this attempt and answers what the gate should see, so exactly one thing about an
+        otherwise-valid offer differs.
+
+        ONE RUN, and no preliminary store: reading the row from a second run first made
+        this fixture answer stores whose task was already started, and the pipeline then
+        did nothing at all -- measured, as an empty refusal list.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores(label)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        seen, refusals, offered = [], [], []
+        honest_reader = single_worker.claimed_offers_for
+        honest_admit = workspaces.admit_preparation
+        honest_refuse = single_worker._refuse
+
+        def answering(control_store, attempt):
+            rows = honest_reader(control_store, attempt)
+            offered.append(len(rows))
+            return mutate(rows)
+
+        def noting(*arguments, **named):
+            seen.append(arguments[1])
+            return honest_admit(*arguments, **named)
+
+        def noting_refusal(message, **named):
+            refusals.append(message)
+            return honest_refuse(message, **named)
+
+        for patcher in (mock.patch.object(single_worker, "claimed_offers_for",
+                                          side_effect=answering),
+                        mock.patch.object(workspaces, "admit_preparation",
+                                          side_effect=noting),
+                        mock.patch.object(single_worker, "_refuse",
+                                          side_effect=noting_refusal)):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        for _ in range(3):
+            try:
+                reconcile(job, operations, now=fixtures.NOW)
+            except ContractRefusal:
+                pass
+        self.assertTrue(any(expected in one for one in refusals),
+                        f"the gate never refused with {expected!r}: {refusals}")
+        # THE GATE WAS REACHED WITH A REAL ROW BEHIND IT.
+        self.assertTrue(offered and max(offered) >= 1,
+                        "the honest reader never answered this attempt's own offer")
+        self.assertEqual(seen, [], "a preparation was admitted without a claim")
+        self.assertEqual(engine.starts, [])
+        self.assertEqual(sorted(os.listdir(self.storage)),
+                         [".baton-manager-instance", ".baton-workspace-authority"])
+
+    def test_H2_no_claimed_offer_reaches_the_gate_and_prepares_nothing(self):
+        """A lost race: the gate sees none of this attempt's own offers."""
+        self.refused_at_the_gate("H2-no-claim", lambda rows: [],
+                                 "has 0 claimed offers")
+
+    def test_H2_two_claimed_offers_reach_the_gate_and_prepare_nothing(self):
+        """The REAL row, duplicated: one launch requires exactly one."""
+        self.refused_at_the_gate("H2-two-claims",
+                                 lambda rows: [dict(rows[0]), dict(rows[0])]
+                                 if rows else [],
+                                 "has 2 claimed offers")
+
+    def test_H2_another_stages_offer_reaches_the_gate_and_prepares_nothing(self):
+        """The REAL row with ONE member mutated: another stage's offer id."""
+        self.refused_at_the_gate(
+            "H2-other-offer",
+            lambda rows: [dict(rows[0], offer_id="offer-somebody-else")]
+            if rows else [],
+            "the claimed offer's offer_id does not match this stage")
+
+    def test_H2_another_participants_offer_reaches_the_gate_too(self):
+        """The REAL row with the participant mutated: somebody else's worker."""
+        self.refused_at_the_gate(
+            "H2-other-worker",
+            lambda rows: [dict(rows[0], participant="baton.somebody-else")]
+            if rows else [],
+            "the claimed offer's participant does not match this stage")
+
+    def test_H2_a_STALE_assignment_is_excluded_by_the_SELECTION_itself(self):
+        """The stale case, corrected to what the product actually does.
+
+        MEASURED, and it is why my earlier case was wrong: `_claim` does not compare
+        `runtime_attempt_id` or `expires_at` at all. Staleness is excluded one layer
+        earlier -- `claimed_offers_for` SELECTS by attempt, so another attempt's claimed
+        offer is never returned to this one, and the gate then refuses on the count. The
+        offer's EXPIRY is the Authority's own admission rule rather than this gate's,
+        and I no longer claim any test here reaches it.
+        """
+        engine = Engine()
+        job, control = self.stores("H2-stale")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        projected = self.commanded(job, operations)
+        attempt_id = projected["jobs"][0]["stages"][0]["attempt_id"]
+        rows = claimed_offers_for(control, attempt_id)
+        self.assertEqual([one["runtime_attempt_id"] for one in rows], [attempt_id])
+        self.assertEqual(claimed_offers_for(control, "attempt-somebody-else"), [])
+
+    def test_H1_the_claim_exists_BEFORE_the_preparation_is_admitted(self):
+        """Review 2026-09-27T18-47-03Z: H1 counted the claimed offer only after the
+        run. This observes it AT the admission, which is where the ordering matters."""
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores("H1-claim-first")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        observed = []
+        honest = workspaces.admit_preparation
+
+        def noting(*arguments, **named):
+            observed.append(len(claimed_offers_for(arguments[0], arguments[1])))
+            return honest(*arguments, **named)
+
+        with mock.patch.object(workspaces, "admit_preparation",
+                               side_effect=noting):
+            self.commanded(job, operations)
+        self.assertEqual(observed[:1], [1],
+                         "the preparation was admitted before the claim existed")
+        self.assertEqual(len(engine.starts), 1)
+
+    def test_H7_a_refusal_DURING_staging_unwinds_and_launches_nothing(self):
+        """H7: the refusal-cleanup path, instrumented.
+
+        The task document is published and then the protocol pair refuses, which is the
+        one ordering `_input` is written for: a death or refusal between them leaves a
+        partial root the next process refuses rather than repairs. This asserts what
+        DID happen (the publication, the refusal, the released window) and what did NOT
+        (no completion, no token, no launch).
+        """
+        from baton_v12.worker_manager import tokens, workspaces
+
+        engine = Engine()
+        job, control = self.stores("H7-staging-refusal")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        published = []
+        honest_compose = workspaces.compose_input_root
+
+        def refusing(*arguments, **named):
+            published.append(os.path.isfile(
+                os.path.join(arguments[0], "task.json")))
+            raise ContractRefusal("policy", "denied",
+                                  "the fixture refuses the protocol pair")
+
+        with mock.patch.object(workspaces, "compose_input_root",
+                               side_effect=refusing):
+            for _ in range(4):
+                try:
+                    reconcile(job, operations, now=fixtures.NOW)
+                except ContractRefusal:
+                    pass
+        attempt_id = [one for one in sorted(os.listdir(self.storage))
+                      if one.startswith("attempt-")][0]
+        # WHAT DID HAPPEN: the task document was published before the pair refused.
+        self.assertEqual(published[:1], [True])
+        # WHAT DID NOT: no completion, no token, no launch.
+        self.assertIsNone(workspaces.preparation_completed(control, attempt_id))
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual(tokens.outstanding(control, domain), [])
+        self.assertEqual(engine.starts, [])
+        # AND THE WINDOW IS RELEASED, because this writer RETURNED -- the refusal ran
+        # its unwinding, which is the one in-process ending that is provable. A partial
+        # root is therefore refused by the account being absent, not by a standing
+        # window nobody can discharge.
+        self.assertEqual(workspaces.standing_preparation(control, attempt_id), [])
+        roots = {"inputs": os.path.join(self.storage, attempt_id, "inputs"),
+                 "workspace": os.path.join(self.storage, attempt_id, "workspace")}
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.require_prepared(control, attempt_id, roots, "starting")
+        self.assertIn("recorded no completed host preparation",
+                      str(refused.exception))
+
+    HOST_WRITERS = ("mkdir", "makedirs", "chmod", "chown", "lchown", "rename",
+                    "replace", "unlink", "remove", "rmdir", "symlink", "link",
+                    "truncate", "mkfifo", "utime")
+
+    def host_writes(self):
+        """Every host WRITE this fixture's tree sees, by name and pathname.
+
+        Review 2026-09-27T18-47-03Z: instrumenting `mkdir`/`chmod`/`chown` alone is
+        not "no host write" -- a publication, a rename or an unlink would all have
+        passed. This covers the creating, renaming, removing and permission-changing
+        boundaries the composition actually uses, plus `os.open` with any writing
+        flag, and it filters to this fixture's own root so the interpreter's own
+        reads are not counted. The control and job stores are excluded BY NAME
+        because a tick legitimately writes its own journal; every other pathname
+        under the root is a host write and is recorded.
+        """
+        seen = []
+        honest = {name: getattr(os, name) for name in self.HOST_WRITERS}
+        honest_open = os.open
+        writing = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC
+
+        def mine(place):
+            return (isinstance(place, str) and place.startswith(self.root)
+                    and "sqlite3" not in place)
+
+        def noting(name):
+            def noted(*arguments, **named):
+                if arguments and mine(arguments[0]):
+                    seen.append((name, arguments[0]))
+                return honest[name](*arguments, **named)
+            return noted
+
+        def opening(place, flags, *arguments, **named):
+            if mine(place) and flags & writing:
+                seen.append(("open", place))
+            return honest_open(place, flags, *arguments, **named)
+
+        for name in self.HOST_WRITERS:
+            patcher = mock.patch.object(os, name, side_effect=noting(name))
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        patcher = mock.patch.object(os, "open", side_effect=opening)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        # THE INSTRUMENT IS PROVED LIVE, positively, on an object in this root --
+        # an unused trap cannot pass. Two records, from two different boundaries.
+        probe = os.path.join(self.root, "host-writer-instrument")
+        os.mkdir(probe)
+        handle = os.open(os.path.join(probe, "one"),
+                         os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        os.close(handle)
+        self.assertEqual([name for name, _place in seen], ["mkdir", "open"],
+                         "the host-writer instrument cannot fail")
+        seen.clear()
+        return seen
+
+    def test_H7_a_composed_REENTRY_writes_nothing_and_starts_nothing_NEW(self):
+        """H7's re-entry half, through the COMPOSITION itself.
+
+        The job and the operations are RETAINED and reconciled again -- which is what
+        a later tick of a live manager is -- with every host writer instrumented.
+
+        MEASURED, AND IT IS WHY THIS ASSERTS A SET RATHER THAN NOTHING AT ALL: a later
+        tick does call `makedirs(<launch home>/logs, exist_ok=True)` while adopting the
+        log delivery. It creates nothing -- the inode is unchanged across all of it --
+        and it is outside every root this attempt's container mounts, so what this
+        proves is that NO write reaches the attempt's own material and no second launch
+        is composed, with the one ensure named rather than hidden.
+        """
+        from baton_v12.worker_manager import tokens, workspaces
+
+        control, engine, attempt_id, _order, job, operations = self.traced(
+            "H7-composed-reentry")
+        account = workspaces.preparation_completed(control, attempt_id)
+        self.assertIsNotNone(account)
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        before = tokens.outstanding(control, domain)
+        logs = os.path.join(self.config["launch_home"], "logs")
+        marked = os.lstat(logs)
+        written = self.host_writes()
+        reconciled = 0
+        for _ in range(3):
+            reconcile(job, operations, now=fixtures.NOW)
+            status(job, operations, observed_at=fixtures.NOW)
+            reconciled += 1
+        # THE PATH WAS REACHED: three further ticks ran over a started attempt and it
+        # is still the commanded one.
+        self.assertEqual(reconciled, 3)
+        self.assertEqual(
+            status(job, operations,
+                   observed_at=fixtures.NOW)["jobs"][0]["stages"][0]["state"],
+            "waiting")
+        # NO POST-HANDOFF WRITE TOUCHES THIS ATTEMPT'S MATERIAL -- not its input root,
+        # not its workspace, not its scratch, not its launch or credential delivery.
+        owned = (os.path.join(self.storage, attempt_id),
+                 os.path.join(self.config["launch_home"], attempt_id),
+                 os.path.join(self.config["credential_home"]),
+                 os.path.join(logs, attempt_id), self.source)
+        self.assertEqual([one for one in written
+                          if any(one[1].startswith(root) for root in owned)], [])
+        # AND THE ONLY WRITER CALLED AT ALL IS THE SHARED LOG ROOT'S IDEMPOTENT
+        # ENSURE, which found what was already there.
+        self.assertEqual({one[1] for one in written}, {logs})
+        self.assertEqual({one[0] for one in written}, {"makedirs", "mkdir"})
+        after = os.lstat(logs)
+        self.assertEqual((marked.st_dev, marked.st_ino, marked.st_mode),
+                         (after.st_dev, after.st_ino, after.st_mode))
+        # NO SECOND LAUNCH, NO SECOND CREATE, NO SECOND ACTIVATION.
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(len([one for one in engine.vectors
+                              if activating(one)]), 1)
+        # AND NO SECOND PREPARATION: the account is the same one, the window stays
+        # closed, and the token generation is unchanged.
+        self.assertEqual(workspaces.preparation_completed(control, attempt_id),
+                         account)
+        self.assertEqual(workspaces.standing_preparation(control, attempt_id), [])
+        self.assertEqual([one["generation"] for one in
+                          tokens.outstanding(control, domain)],
+                         [one["generation"] for one in before])
+
+    def test_H7_the_ALLOCATION_ALONE_writes_nothing_over_a_prepared_root(self):
+        """The allocation boundary on its own, relabelled.
+
+        Review 2026-09-27T18-47-03Z is right that this is NOT the composed re-entry --
+        it calls `assignment_workspace` directly, with no claim, no gate and no start.
+        What it does prove, and what the case above cannot isolate, is that the
+        ALLOCATION itself is read-only over roots that already exist: the adoption
+        half of HOST-8, with the whole writer set watched.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        control, engine, attempt_id, _order, _job, _operations = self.traced(
+            "H7-allocation-only")
+        written = self.host_writes()
+        group = workspaces.configured_workspace_group(control)
+        roots = workspaces.assignment_workspace(group, self.storage, attempt_id,
+                                                control=control)
+        self.assertEqual(written, [], "the allocation wrote over a prepared root")
+        # AND IT ANSWERED THE SAME ROOTS the launch was composed over.
+        self.assertEqual(roots["inputs"],
+                         os.path.join(self.storage, attempt_id, "inputs"))
+        self.assertEqual(roots["workspace"],
+                         os.path.join(self.storage, attempt_id, "workspace"))
+        self.assertEqual(len(engine.starts), 1, "a second launch was composed")
+
+    def test_H7_a_FAILED_publication_removes_the_name_it_created(self):
+        """The publication-failure unwind, driven at the write itself.
+
+        The task document is created O_EXCL and then written; a write that cannot
+        complete leaves a pathname that exists and holds the wrong bytes, and the
+        product removes it -- the name its own exclusive creation established was free.
+        This drives the real refusal (`os.write` answering 0 for those bytes, which is
+        the product's own "could not be written whole" condition) and asserts the
+        removal, not a description of it.
+        """
+        from baton_v12.worker_manager import tokens, workspaces
+
+        engine = Engine()
+        job, control = self.stores("H7-publication-failure")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        honest_write = os.write
+        removed, stalled_at = [], []
+        honest_unlink = os.unlink
+
+        def stalled(handle, data):
+            if data[:16] == self.task_bytes[:16]:
+                stalled_at.append(len(data))
+                return 0
+            return honest_write(handle, data)
+
+        def noting_unlink(place, **named):
+            removed.append(place)
+            return honest_unlink(place, **named)
+
+        for patcher in (mock.patch.object(os, "write", side_effect=stalled),
+                        mock.patch.object(os, "unlink",
+                                          side_effect=noting_unlink)):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        for _ in range(3):
+            reconcile(job, operations, now=fixtures.NOW)
+        projected = status(job, operations, observed_at=fixtures.NOW)
+        stage = projected["jobs"][0]["stages"][0]
+        attempt_id = stage["attempt_id"]
+        # THE INTENDED PATH WAS REACHED: the write seam was driven with this
+        # deployment's own task bytes, and the deployment RECORDED the refusal --
+        # measured, and it corrects what I first asserted: this refusal does not
+        # escape `reconcile`, it ends the stage.
+        self.assertEqual(stalled_at, [len(self.task_bytes)])
+        self.assertEqual(stage["state"], "exceptional")
+        failure = attempt_preparation_failure_of(control, attempt_id)
+        self.assertIsNotNone(failure)
+        self.assertIn("could not be written whole", json.dumps(failure))
+        place = os.path.join(self.storage, attempt_id, "inputs",
+                             single_worker.TASK_DOCUMENT)
+        # THE NAME IT CREATED IS GONE, by the unlink it performed.
+        self.assertIn(place, removed)
+        self.assertFalse(os.path.lexists(place))
+        # AND NOTHING WAS ACCOUNTED FOR, TOKENED OR STARTED.
+        self.assertIsNone(workspaces.preparation_completed(control, attempt_id))
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual(tokens.outstanding(control, domain), [])
+        self.assertEqual(engine.starts, [])
+
+    def test_H7_the_prestart_unwind_ends_the_CREDENTIAL_before_the_LAUNCH(self):
+        """The pre-start unwind's ORDER, at the gate that refuses latest.
+
+        `require_prepared` is the last thing before a container exists, and by then
+        both pre-start deliveries are on the host. The product's rule is credential
+        first -- its teardown proves the bytes gone and only then releases the
+        registered value -- and the launch root second. This refuses exactly there
+        and asserts both the order and the residue.
+        """
+        from baton_v12.worker_manager import workspaces
+        from baton_v12.worker_manager import credentials, launch
+
+        engine = Engine()
+        job, control = self.stores("H7-prestart-unwind")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        order = []
+        honest_tear_down = credentials.CredentialHome.tear_down
+        honest_discard = launch.discard
+
+        def noting_tear_down(home, delivery, *arguments, **named):
+            # AUTOSPEC, so the instance arrives and the honest method can be called.
+            order.append("credential")
+            return honest_tear_down(home, delivery, *arguments, **named)
+
+        def noting_discard(root, *arguments, **named):
+            order.append("launch")
+            return honest_discard(root, *arguments, **named)
+
+        def refusing(*arguments, **named):
+            raise ContractRefusal("refused", "precondition",
+                                  "the fixture refuses at the preparation gate")
+
+        for patcher in (mock.patch.object(credentials.CredentialHome,
+                                          "tear_down",
+                                          side_effect=noting_tear_down,
+                                          autospec=True),
+                        mock.patch.object(launch, "discard",
+                                          side_effect=noting_discard),
+                        mock.patch.object(workspaces, "require_prepared",
+                                          side_effect=refusing)):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        for _ in range(3):
+            reconcile(job, operations, now=fixtures.NOW)
+        projected = status(job, operations, observed_at=fixtures.NOW)
+        stage = projected["jobs"][0]["stages"][0]
+        attempt_id = stage["attempt_id"]
+        # THE GATE REFUSED, WITH BOTH DELIVERIES ALREADY COMPOSED, so the unwind had
+        # something to do -- and it did the two in the product's stated order. The
+        # refusal is RECORDED rather than raised, which is this deployment's own
+        # ending for a post-claim composition that cannot carry the attempt further.
+        self.assertEqual(stage["state"], "exceptional")
+        recorded = attempt_preparation_failure_of(control, attempt_id)
+        self.assertIsNotNone(recorded)
+        self.assertIn("preparation gate", json.dumps(recorded))
+        self.assertEqual(order[:2], ["credential", "launch"])
+        # AND NEITHER DELIVERY IS LEFT ON THE HOST, with no container created.
+        self.assertFalse(os.path.lexists(
+            os.path.join(self.config["launch_home"], attempt_id, "launch.json")))
+        self.assertFalse(os.path.lexists(
+            os.path.join(self.config["credential_home"], "credentials",
+                         attempt_id)))
+        self.assertEqual(engine.starts, [])
+
+    def test_H8_a_second_connection_progresses_while_a_FILESYSTEM_writer_is_paused(self):
+        """H8's other half: the paused writer is a FILESYSTEM one, not the engine.
+
+        Review 2026-09-27T18-29-46Z: the engine boundary alone is not the obligation.
+        This pauses the real `compose_input_root` -- the staging writer that publishes
+        the protocol pair and freezes the root -- and completes an unrelated attempt's
+        preparation on a SECOND connection while it is in flight.
+
+        RESTORED VERBATIM, claim 288344. Review 2026-09-27T19-20-00Z found it gone: my
+        H7/H9 rewrite of the preceding claim replaced a span that reached from the
+        re-entry case to the engine-boundary H8, and this case sat inside it. An
+        accepted slice deleted by a splice is a coverage regression whoever did it, so
+        it is back unchanged and the H8 pair is whole again.
+        """
+        from baton_v12.worker_manager import ControlStore, workspaces
+
+        engine = Engine()
+        job, control = self.stores("H8-paused-writer")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        honest = workspaces.compose_input_root
+        transacting, progressed = [], []
+
+        def paused(*arguments, **named):
+            transacting.append(control._connection.in_transaction)
+            second = ControlStore.open(self.control_path,
+                                       incarnation="second-during-staging",
+                                       clock=lambda: fixtures.NOW)
+            try:
+                progressed.append(workspaces.admit_preparation(
+                    second, "attempt-unrelated-writer",
+                    "an unrelated attempt while staging is paused").ordinal)
+            finally:
+                second.close()
+            return honest(*arguments, **named)
+
+        with mock.patch.object(workspaces, "compose_input_root",
+                               side_effect=paused):
+            self.commanded(job, operations)
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(transacting, [False],
+                         "the staging writer ran while a write lock was held")
+        self.assertEqual(progressed, [1],
+                         "a second connection could not progress while the "
+                         "filesystem writer was in flight")
+
+    def test_H9_the_task_vectors_mount_exactly_what_this_deployment_allows(self):
+        """H9: the ACTUAL created vector, compared as a VECTOR.
+
+        Review 2026-09-27T18-47-03Z: keying the mounts by destination DISCARDS a
+        duplicate, so the previous form could not have failed on one. This compares
+        the whole list of (source, destination, mode) tuples -- count first, then
+        the exact set, then uniqueness -- against this attempt's known delivery
+        pathnames, so a duplicate, an extra and a retargeted source all fail.
+        """
+        control, engine, attempt_id, _order, _job, _operations = self.traced(
+            "H9-vectors")
+        created = engine.starts[0]
+        home = os.path.join(self.storage, attempt_id)
+        delivery = os.path.join(self.config["launch_home"], attempt_id)
+        # THE DOUBLED SEGMENT IS THE CREDENTIAL HOME'S OWN LAYOUT, measured off the
+        # created vector rather than assumed: the volatile root is
+        # `<credential home>/credentials/<attempt>` and the slot is one file in it.
+        credential = os.path.join(self.config["credential_home"], "credentials",
+                                  attempt_id, "api")
+        expected = [
+            (os.path.join(home, "inputs"), "/input", "ro"),
+            (os.path.join(home, "workspace"), "/output", "rw"),
+            (os.path.join(home, "scratch"), "/scratch", "rw"),
+            # THE SOURCE NOMINATION IS THE NOMINATED TREE ITSELF, mounted read-only
+            # at the mountpoint inside the input root rather than copied into it.
+            (self.source, "/input/source", "ro"),
+            (credential, "/run/baton/credentials/api", "ro"),
+            (os.path.join(delivery, "launch.json"), "/run/baton/launch.json", "ro"),
+            (os.path.join(delivery, "command"), "/run/baton/exchange/command", "ro"),
+            (os.path.join(delivery, "events"), "/run/baton/exchange/events", "rw"),
+            (os.path.join(self.config["launch_home"], "logs", attempt_id),
+             "/run/baton/attempt-logs", "rw"),
+        ]
+        vector = [(one["Source"], one["Destination"],
+                   "rw" if one["RW"] else "ro") for one in engine.mounts]
+        # THE COUNT, FIRST: an extra mount fails here before any comparison.
+        self.assertEqual(len(vector), len(expected), vector)
+        self.assertEqual(sorted(vector), sorted(expected))
+        # NO DUPLICATE, IN EITHER SENSE -- the same tuple twice, or two mounts over
+        # one destination.
+        self.assertEqual(len(set(vector)), len(vector))
+        self.assertEqual(len({one[1] for one in vector}), len(vector))
+        # THE CREDENTIAL DELIVERY IS ONE FILE that really exists, read-only, under
+        # the credential prefix -- not the attempt's credential directory.
+        self.assertTrue(os.path.isfile(credential), credential)
+        # NO SIBLING, NO ATTEMPT CREDENTIAL HOME AND NO CONTROL DATABASE.
+        for one in engine.mounts:
+            self.assertNotEqual(one["Source"], self.storage)
+            self.assertNotEqual(one["Source"], os.path.join(home, "credentials"))
+            self.assertNotEqual(one["Source"],
+                                os.path.join(home, "credential-state"))
+            self.assertNotIn("control.sqlite3", one["Source"])
+        self.assertNotIn(self.control_path, " ".join(created))
+
+    def test_H8_a_second_connection_makes_progress_during_the_engine_call(self):
+        """H8: the external boundary runs with no transaction held, and an unrelated
+        act on another connection completes while it is in flight.
+
+        THE ENGINE IS WRAPPED AT CONSTRUCTION, because the composition captures the
+        callable it is given: patching the instance afterwards changed nothing, which
+        is how I found it.
+        """
+        from baton_v12.worker_manager import ControlStore, workspaces
+
+        engine = Engine()
+        job, control = self.stores("H8-second-connection")
+        submit(job, self.submission)
+        progressed = []
+        transacting = []
+
+        def watched(argv, *, seconds=None):
+            if launching(argv) and not transacting:
+                transacting.append(control._connection.in_transaction)
+                second = ControlStore.open(self.control_path,
+                                           incarnation="second-connection",
+                                           clock=lambda: fixtures.NOW)
+                try:
+                    progressed.append(workspaces.admit_preparation(
+                        second, "attempt-unrelated",
+                        "an unrelated attempt's preparation").ordinal)
+                finally:
+                    second.close()
+            return engine(argv, seconds=seconds)
+
+        operations = self.operations(job, control, watched)
+        self.addCleanup(operations.close)
+        self.commanded(job, operations)
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(transacting, [False],
+                         "the engine was called while a write lock was held")
+        self.assertEqual(progressed, [1],
+                         "a second connection could not make unrelated progress "
+                         "while the external call was in flight")
+
+
+class AnABRUPTDeathLeavesTheWindowStandingAndLaunchesNothing(SingleWorkerCase):
+    """H6: a manager that dies mid-write runs no `finally`.
+
+    Everything in-process unwinds, so a genuine abrupt death cannot be simulated by
+    raising: the release would run. This forks a child that performs the real
+    preparation and calls `os._exit` inside it -- no unwinding, no atexit, no
+    `finally` -- and the parent then reopens the journal and asks what is true.
+
+    DETERMINISTIC AND OFFLINE: the child uses the same fake engine and the same
+    disposable stores, and there is no second Host manager and no live engine. The
+    child's exit code is checked, so a child that failed for another reason cannot be
+    read as the death this case is about.
+    """
+
+    def killed_during(self, point):
+        """Fork, prepare until `point`, and leave the process without unwinding."""
+        job, control = self.stores("abrupt-parent")
+        submit(job, self.submission)
+        job.close()
+        control.close()
+        read, write = os.pipe()
+        child = os.fork()
+        if child == 0:                                   # pragma: no cover
+            code = 3
+            try:
+                os.close(read)
+                from baton_v12.worker_manager import workspaces as inner
+                job, control = self.stores("abrupt-child")
+                engine = Engine()
+
+                def checkpoint(name):
+                    if name == point:
+                        standing = inner.standing_preparation(
+                            control, sorted(os.listdir(self.storage))[-1]
+                            if os.listdir(self.storage) else "none")
+                        os.write(write, b"reached")
+                        # NO UNWINDING AT ALL: not an exception, not `sys.exit`.
+                        os._exit(9)
+
+                operations = single_worker.operations_from(
+                    self.config, job, control, engine_run=engine,
+                    credential_provider=lambda *_: self.secret,
+                    clock=lambda: fixtures.NOW, checkpoint=checkpoint)
+                for _ in range(6):
+                    reconcile(job, operations, now=fixtures.NOW)
+            except BaseException:
+                code = 4
+            os._exit(code)
+        os.close(write)
+        signalled = os.read(read, 16)
+        os.close(read)
+        _pid, status = os.waitpid(child, 0)
+        self.assertEqual(signalled, b"reached",
+                         "the child never reached the preparation")
+        self.assertTrue(os.WIFEXITED(status))
+        self.assertEqual(os.WEXITSTATUS(status), 9,
+                         "the child did not die the way this case is about")
+        return self.stores("abrupt-after")
+
+    def test_the_window_stands_and_no_task_is_launched_or_reused(self):
+        from baton_v12.worker_manager import tokens, workspaces
+
+        job, control = self.killed_during("workspace")
+        attempt = [one for one in sorted(os.listdir(self.storage))
+                   if one.startswith("attempt-")]
+        self.assertEqual(len(attempt), 1,
+                         "the child did not reach its own allocation")
+        attempt_id = attempt[0]
+        # THE WINDOW IS STANDING: no completion and no release, because nothing ran.
+        self.assertEqual([one for one, _ in workspaces.standing_preparation(
+            control, attempt_id)], [1])
+        self.assertIsNone(workspaces.preparation_completed(control, attempt_id))
+        # NOTHING WAS LAUNCHED: no token was ever acquired over the workspace object.
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual(tokens.outstanding(control, domain), [])
+        # AND NOTHING MAY REUSE THESE ROOTS: every ownership-transferring admission and
+        # the start gate refuse, naming the window nobody closed.
+        roots = {"inputs": os.path.join(self.storage, attempt_id, "inputs"),
+                 "workspace": os.path.join(self.storage, attempt_id, "workspace")}
+        for act in (lambda: workspaces.require_prepared(control, attempt_id, roots,
+                                                       "starting this attempt"),
+                    lambda: workspaces._admitted_removal(control, attempt_id,
+                                                         "a later removal"),
+                    lambda: workspaces._admitted_adoption(control, attempt_id,
+                                                          "a later adoption"),
+                    lambda: workspaces.admit_preparation(control, attempt_id,
+                                                         "a later preparation",
+                                                         attempt_id)):
+            with self.subTest(act=act):
+                with self.assertRaises(ContractRefusal) as refused:
+                    act()
+                self.assertIn("host preparation 1", str(refused.exception))
+
+    def test_a_fresh_manager_does_not_launch_over_the_standing_window(self):
+        """The reuse half, driven through the real composition rather than by hand."""
+        from baton_v12.worker_manager import workspaces
+
+        job, control = self.killed_during("workspace")
+        engine = Engine()
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        for _ in range(6):
+            try:
+                reconcile(job, operations, now=fixtures.NOW)
+            except ContractRefusal:
+                pass
+        self.assertEqual(engine.starts, [],
+                         "a fresh manager launched over an unreconciled window")
+        attempt_id = [one for one in sorted(os.listdir(self.storage))
+                      if one.startswith("attempt-")][0]
+        self.assertEqual([one for one, _ in workspaces.standing_preparation(
+            control, attempt_id)], [1])
 
 
 class TheProductionCompositionIsRestartSafe(SingleWorkerCase):

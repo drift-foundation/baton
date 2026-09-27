@@ -2244,6 +2244,9 @@ def _admitted_adoption(control, assignment_id, what):
         refusal = _preparation_refusal(control, assignment_id, what)
         if refusal is not None:
             raise refusal
+        refusal = _task_token_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
 
         ordinal = 1
         while control.operation_record(
@@ -2451,6 +2454,9 @@ def admit_cleanup(control, assignment_id, settlement, what):
         # this same lock, because whichever transaction commits first must be the one
         # the other SEES.
         refusal = _preparation_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
+        refusal = _task_token_refusal(control, assignment_id, what)
         if refusal is not None:
             raise refusal
 
@@ -2684,6 +2690,15 @@ def _admitted_allocation(control, assignment_id, what, preparing=None):
         # this same lock, because whichever transaction commits first must be the one
         # the other SEES.
         refusal = _preparation_refusal(control, assignment_id, what, preparing)
+        if refusal is not None:
+            raise refusal
+        # W285464 review 2026-09-27T18-00-36Z: AND A LIVE TASK TOKEN, with NO
+        # same-attempt exemption here. An allocation is a WRITER -- `_own_directory`
+        # attempts a `mkdir` and the group adoption chmods -- so the fact that the
+        # execution is this attempt's own does not make a post-handoff write safe.
+        # The ordinary re-entry does not reach this admission at all: it takes the
+        # read-only revalidation path above.
+        refusal = _task_token_refusal(control, assignment_id, what)
         if refusal is not None:
             raise refusal
 
@@ -3017,6 +3032,47 @@ def _preparing_id(assignment_id, ordinal):
                                           "ordinal": ordinal})[len("sha256:"):]
 
 
+PREPARATION_RELEASED_KIND = "attempt-preparation.released"
+
+
+def _released_id(assignment_id, ordinal):
+    from ..contracts.canonical import digest
+
+    return PREPARATION_RELEASED_KIND + ":" + digest(
+        {"attempt_id": assignment_id, "ordinal": ordinal})[len("sha256:"):]
+
+
+def release_preparation(control, holding, why):
+    """Close a window whose WRITER HAS RETURNED, without claiming it completed.
+
+    W285464 review 2026-09-27T17-26-12Z. Holding every unfinished window forever is
+    conservative and, for an act that has actually ENDED, wrong: a preparation that
+    refused or raised has no writer left, and the proof is that this is being called
+    from that act's own unwinding. The call stack returning IS the cessation of an
+    in-process writer -- not a deadline, not a label, and not an inference about
+    another process.
+
+    WHAT STAYS HELD is the case nothing in this process can speak for: a manager that
+    died mid-write runs no `finally`, so its window has neither a completion nor a
+    release and the next act refuses. That is the honest remainder, and it is the one
+    `admit_preparation` reports as UNKNOWN.
+
+    ONLY THE HOLDER MAY RELEASE, for the same reason only the holder may continue.
+    """
+    from .store import manager_signature
+
+    if type(holding) is not PreparationOwnership:
+        _denied("a preparation window is released by the act that holds its "
+                "ownership; a caller without it is not the writer that ended")
+    document = {"attempt_id": holding.attempt, "ordinal": holding.ordinal,
+                "why": boundaries.text(why, "a preparation release reason")}
+    return control.transact(_released_id(holding.attempt, holding.ordinal),
+                            PREPARATION_RELEASED_KIND,
+                            manager_signature(PREPARATION_RELEASED_KIND,
+                                              document),
+                            lambda _connection: dict(document))
+
+
 def standing_preparation(control, assignment_id):
     """Preparation ownerships of this attempt that carry no completion.
 
@@ -3029,10 +3085,172 @@ def standing_preparation(control, assignment_id):
         found = control.operation_record(_preparing_id(assignment_id, ordinal))
         if found is None:
             return standing
-        if preparation_completed(control, assignment_id) is None:
+        # CLOSED BY EITHER FACT: the completion says the preparation finished; the
+        # release says its writer ended without finishing. A window with neither is
+        # the only one that stands, which is exactly "somebody may still be writing".
+        if preparation_completed(control, assignment_id) is None \
+                and control.operation_record(
+                    _released_id(assignment_id, ordinal)) is None:
             standing.append((ordinal, found))
         ordinal += 1
     return standing
+
+
+class PreparationOwnership:
+    """WHAT THE ACT THAT OPENED A PREPARATION WINDOW HOLDS, and nobody else can.
+
+    W285464 review 2026-09-27T17-01-18Z, and it is the third correction of this one
+    rule. First I adopted any standing window. Then I compared an EXECUTION name --
+    and the production path passes the attempt identity, so every re-entry for that
+    attempt matched: the reviewer paused the real staging writer, called the
+    admission again with exactly the production operands, and a second act was
+    admitted while the first could still write. A name for the same attempt was
+    never going to distinguish a writer's LIFETIME.
+
+    SO CONTINUATION NEEDS A CAPABILITY. This object is minted by the admission that
+    opened the window and held by the act that is doing the writing; a second call
+    cannot present it, so it is refused while that window stands. It carries no path
+    and no authority of its own -- it is evidence of WHICH act this is, and the
+    journal remains what records the window.
+
+    NOT A NONCE SCHEME FOR ITS OWN SAKE: the review prescribes none, and what it
+    requires is an enforceable owner. An object only the opening act holds is the
+    smallest enforceable thing in-process, and nothing secret is written into the
+    record -- the row names the ordinal, the incarnation and the act, and this is
+    compared by type and members.
+    """
+
+    __slots__ = ("_attempt", "_ordinal")
+
+    def __init__(self, attempt, ordinal, _minted=None):
+        if _minted is not _MINT:
+            _denied("a preparation ownership is minted by the admission that "
+                    "opened its window; a caller-composed one would be a claim to "
+                    "be writing rather than evidence of it")
+        object.__setattr__(self, "_attempt", attempt)
+        object.__setattr__(self, "_ordinal", ordinal)
+
+    def __setattr__(self, name, value):
+        _denied(f"a preparation ownership is what one admission answered; "
+                f"{name_value(name)} stands as minted")
+
+    def __delattr__(self, name):
+        self.__setattr__(name, None)
+
+    @property
+    def attempt(self):
+        return self._attempt
+
+    @property
+    def ordinal(self):
+        return self._ordinal
+
+
+def _revalidated_roots(storage, assignment_id, what, control=None):
+    """PROVE this attempt's prepared roots, creating and changing NOTHING.
+
+    W285464 review 2026-09-27T18-00-36Z. The ordinary path re-enters
+    `assignment_workspace` on every tick, and while its own task is LIVE that
+    re-entry must be a revalidation rather than a preparation: `_own_directory`
+    attempts a `mkdir` and `adopt_workspace_group` performs a `chown` and a `chmod`,
+    so "the same attempt" is not a licence to write again after handoff.
+
+    Every entry the home must hold is proved to be this manager's own real directory
+    -- the `_no_link` rule, so a symlink or a foreign-owned entry cannot pass -- and
+    anything MISSING, replaced or partial refuses. Nothing here repairs: repairing
+    beside a live task is writing beside it.
+    """
+    from . import custody
+
+    root = _real(storage, "the manager's workspace storage")
+    home = os.path.join(root, assignment_id)
+    made = {}
+    for name in ("",) + tuple(HOME_ENTRIES):
+        place = os.path.join(home, name) if name else home
+        try:
+            custody._no_link(place, what=f"the prepared {name or 'home'}")
+        except ContractRefusal as refused:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: attempt {name_value(assignment_id)}'s prepared "
+                f"{name or 'home'} is not the object this manager prepared "
+                f"({refused}); material that is missing, replaced or partial after "
+                f"handoff is refused rather than repaired beside a live task")
+        if name in ROOT_NAMES:
+            made[name] = _contained(place, root, f"the assignment's {name} root")
+    result = os.path.join(made["workspace"], f"result-{assignment_id}")
+    custody._no_link(result, what="the prepared result root")
+    # AND THE DURABLE IDENTITY, not merely the type and the owner. Review
+    # 2026-09-27T18-10-28Z: "directory/type/owner validation alone is not durable
+    # identity proof". The completion record holds the `device:inode` this preparation
+    # finished over, so the entries that are here now are compared against it -- a
+    # directory of the right shape at the right path is not the same object.
+    recorded = preparation_completed(control, assignment_id) if control is not None \
+        else None
+    if recorded is not None:
+        for name in ROOT_NAMES:
+            observed = _entry_identity(made[name])
+            if observed != recorded.get(name):
+                raise ContractRefusal(
+                    "runtime-observation", "identity-mismatch",
+                    f"{what} is refused: attempt {name_value(assignment_id)}'s "
+                    f"prepared {name} root was {name_value(recorded.get(name))} and "
+                    f"the entry there now is {name_value(observed)}; a replaced "
+                    f"object is not the one this preparation completed over")
+    return AllocatedRoots(made, _MINT)
+
+
+def _task_token_refusal(control, assignment_id, what, mine=None):
+    """The refusal a LIVE TASK TOKEN earns an ownership-transferring act, or `None`.
+
+    W285464 review 2026-09-27T17-48-17Z. The task acquisition now decides the
+    preparation condition under its own lock, which closes the conflict-arrives-first
+    schedule -- and the reviewer is right that the OPPOSITE order was unprotected: the
+    probe let the real acquisition commit and then admitted a real removal for the same
+    attempt, so both actors held authority. A first-winner predicate is not an atomic
+    transfer when the loser never asks about the winner.
+
+    JOURNAL READS ONLY, which is what lets this run inside another act's
+    `BEGIN IMMEDIATE`: the attempt row carries the PINNED workspace object -- the two
+    members `tokens.workspace_identity` reads -- so the domain is computed from durable
+    facts with no `lstat`, and `tokens.outstanding` is a walk over derived operation
+    identities.
+
+    NOT APPLIED TO ALLOCATION, deliberately and stated rather than implied: the
+    ordinary path re-enters `assignment_workspace` on every tick and ADOPTS the roots
+    its own live task is using, so refusing there would refuse the reconcile path
+    itself. What this guards are the acts that take ownership AWAY -- removal, cleanup,
+    adoption and a second preparation.
+    """
+    from . import attempts as _attempts
+    from . import tokens
+
+    try:
+        attempt = _attempts._require_attempt(control, assignment_id)
+    except ContractRefusal:
+        return None
+    if attempt.get("workspace_device") is None \
+            or attempt.get("workspace_inode") is None:
+        return None
+    domain = tokens.domain_of("workspace", tokens.workspace_identity(attempt))
+    for held in tokens.outstanding(control, domain):
+        if mine is not None and held["execution"] == mine:
+            # THE ATTEMPT'S OWN LIVE EXECUTION IS NOT A COMPETITOR WITH ITS OWN
+            # PREPARATION RE-ENTRY. Measured: without this, every later tick's
+            # `admit_preparation` refused against the token its own start had taken,
+            # and the composed suite reported eighteen refusals whose text was mine.
+            # An act that takes ownership AWAY passes no exemption and is refused by
+            # any outstanding generation.
+            continue
+        return ContractRefusal(
+            "refused", "precondition",
+            f"{what} is refused: the workspace object of attempt "
+            f"{name_value(assignment_id)} is held by token generation "
+            f"{held['generation']} (operation {name_value(held['operation'])}, "
+            f"execution {name_value(held['execution'])}), which has not been "
+            f"returned; a live governed execution owns these roots, and ownership "
+            f"is transferred after that token is returned rather than beside it")
+    return None
 
 
 def _preparation_refusal(control, assignment_id, what, preparing=None):
@@ -3061,7 +3279,8 @@ def _preparation_refusal(control, assignment_id, what, preparing=None):
 _MOST_PREPARATIONS = 64
 
 
-def admit_preparation(control, assignment_id, what):
+def admit_preparation(control, assignment_id, what, execution=None,
+                      holding=None):
     """Own this attempt's roots for the WHOLE preparation, atomically, or refuse.
 
     One short raw transaction, journal reads only -- `_admitted_allocation` and
@@ -3070,11 +3289,27 @@ def admit_preparation(control, assignment_id, what):
     ownership; the preparation then runs with NO lock held and the completion
     record closes the window.
 
-    A REPLAY ADOPTS ITS OWN WINDOW. A restart re-walking the same preparation must
-    not open a second one, so an existing window with no completion is answered
-    rather than refused -- the single-Host-manager guard (HOST-8) is what makes
-    "this window is mine" true, and the incarnation is recorded so an operator can
-    see whose it was.
+    CONTINUATION NEEDS THE OWNERSHIP, and nothing else does. Three rounds of review
+    ended here. My first cut answered the standing ordinal to any caller, reasoning
+    that HOST-8 makes the manager unique -- it excludes a duplicate MANAGER, not a
+    second execution, worker, delayed callback or uncertain writer inside one. My
+    second compared an execution NAME, and the production path passes the attempt
+    identity, so every re-entry matched. My third allowed a takeover when this process
+    held the instance guard and the recorded incarnation differed, which establishes
+    present exclusivity and NOT that the earlier process died or that its writers
+    drained.
+
+    SO THERE IS ONE GROUND: the caller presents the `PreparationOwnership` this
+    admission minted for that window. A standing window without it refuses, and the
+    refusal says a reconciliation -- establishing that the earlier writer ended -- is
+    what resolves it. `release_preparation` is that fact for a writer that RETURNS;
+    a manager that died mid-write leaves the unknown held, which is W285465's work.
+
+    `execution` is recorded as ATTRIBUTION only. It says which execution opened the
+    window, for an operator reading the row; it grants nothing, because a name for
+    the same attempt cannot distinguish a writer's lifetime.
+
+    ANYTHING ELSE REFUSES, naming the window, its execution and its incarnation.
     """
     from .store import _recorded, manager_signature
 
@@ -3084,9 +3319,59 @@ def admit_preparation(control, assignment_id, what):
     try:
         standing = standing_preparation(control, assignment_id)
         if standing:
-            connection.execute("COMMIT")
-            return standing[0][0]
-        for kind, held in (("removal", standing_removal(control, assignment_id)),
+            ordinal, record = standing[0]
+            import json as _json
+
+            held = record["result"]
+            held = _json.loads(held) if type(held) is str else (held or {})
+            # CONTINUATION NEEDS THE CAPABILITY, NOT A NAME. Review
+            # 2026-09-27T17-01-18Z: the production path passes the attempt identity
+            # as its execution, so every re-entry for that attempt compared equal --
+            # the reviewer paused the real staging writer, called this admission
+            # again with exactly the production operands, and a second act was
+            # admitted while the first could still write. A name for the same
+            # attempt cannot distinguish a writer's LIFETIME; an object only the
+            # opening act holds can.
+            if type(holding) is PreparationOwnership \
+                    and holding.attempt == assignment_id \
+                    and holding.ordinal == ordinal:
+                # THE ACT THAT OPENED IT, CONTINUING. A second call cannot present
+                # this object, which is the whole difference from comparing a name.
+                connection.execute("COMMIT")
+                return holding
+            # AND THERE IS NO SECOND GROUND ANY MORE, which is review
+            # 2026-09-27T17-26-12Z's correction and the honest end of three rounds on
+            # this rule.
+            #
+            # I had allowed a takeover when the window's incarnation differed and this
+            # process held the manager instance guard, arguing that a gone process has
+            # no in-process writers. The reviewer is right that the premise was not
+            # proved: holding a flock establishes PRESENT exclusivity, not that the
+            # previous process died or that its writers drained, and my own fixture
+            # only relabelled an incarnation inside one live process. A no-subprocess
+            # witness says what this path spawns; it does not observe a release.
+            #
+            # SO THE UNCERTAINTY IS HELD. A standing window whose holder is not here
+            # refuses, and the refusal says what would resolve it: a reconciliation
+            # that establishes the previous writer ended. That is the conservative
+            # outcome the review names as acceptable, and it is also what removes the
+            # last filesystem read from this transaction -- the guard lookup reached
+            # `_real` and therefore `os.path.realpath`, which is exactly the external
+            # observation DB-1/DB-2 forbid under a write lock.
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: host preparation {ordinal} of attempt "
+                f"{name_value(assignment_id)} was admitted by incarnation "
+                f"{name_value(held.get('incarnation'))} for execution "
+                f"{name_value(held.get('execution'))} and has recorded no "
+                f"completion, and this act does not hold its ownership; whether "
+                f"that writer has stopped is UNKNOWN. An ordinal is not authority "
+                f"to write and a deadline is not an ending: this window is "
+                f"reconciled -- by establishing that the earlier writer ended -- "
+                f"rather than taken over")
+        for kind, held in (("allocation", standing_allocation(control,
+                                                              assignment_id)),
+                           ("removal", standing_removal(control, assignment_id)),
                            ("cleanup", standing_cleanup(control, assignment_id)),
                            ("adoption", standing_adoption(control,
                                                           assignment_id))):
@@ -3106,6 +3391,13 @@ def admit_preparation(control, assignment_id, what):
                 f"recorded custody episode {episode.get('episode')!r}, and the "
                 f"two roots of one attempt overlap, so neither is free while "
                 f"either is held")
+        refusal = _maintenance_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
+        refusal = _task_token_refusal(control, assignment_id, what,
+                                      mine=execution)
+        if refusal is not None:
+            raise refusal
         ordinal = 1
         while control.operation_record(
                 _preparing_id(assignment_id, ordinal)) is not None:
@@ -3124,7 +3416,7 @@ def admit_preparation(control, assignment_id, what):
         # this package's ruled import set, which `test_dependencies` caught the
         # moment I reached for it.
         document = {"attempt_id": assignment_id, "ordinal": ordinal,
-                    "act": what,
+                    "act": what, "execution": execution,
                     "incarnation": str(getattr(control, "incarnation", ""))}
         control._record(_preparing_id(assignment_id, ordinal), PREPARING_KIND,
                         manager_signature(PREPARING_KIND, document),
@@ -3136,7 +3428,7 @@ def admit_preparation(control, assignment_id, what):
         except Exception:
             pass
         raise
-    return ordinal
+    return PreparationOwnership(assignment_id, ordinal, _MINT)
 
 
 def _prepared_id(assignment_id):
@@ -3268,6 +3560,110 @@ def require_prepared(control, assignment_id, roots, what):
                 f"now is {name_value(observed)}; a resource replaced between "
                 f"preparation and admission is not the resource that was prepared")
     return recorded
+
+
+def prepared_workspace_governance(control, assignment_id, mounted=None):
+    """The task's own workspace governance, with the PREPARATION CONDITION attached.
+
+    W285464 review 2026-09-27T17-37-14Z, and the oldest outstanding item: the start
+    gate was a CHECK before `request_runtime_start`, so a conflict that arrived
+    between the check and the acquisition was not excluded by anything. The review
+    asks for the condition to be decided under the acquisition's own lock.
+
+    `tokens.acquire` already takes exactly that: `eligible` is a PURE-DATABASE
+    predicate its resource owner supplies, evaluated inside the acquiring
+    `BEGIN IMMEDIATE`. So this composes the SAME `tokens.Governance` the ordinary
+    start already uses -- one domain, one journal, no second token system -- and
+    reserves through it with the preparation facts re-asked inside that transaction.
+
+    WHAT THE PREDICATE MAY READ, and it is the same restriction every other
+    journal-only reader here is under: standing preparation, allocation, removal,
+    cleanup and adoption windows, custody episodes, and the durable completion. No
+    filesystem, no engine -- the OBJECT comparison stays in `require_prepared`
+    outside every transaction, because an `lstat` under a write lock is the DB-2
+    violation this Work has already been corrected for once.
+
+    NO `roots` OPERAND: my first cut took one and read nothing from it. An operand
+    nothing reads is an operand a caller could believe means something, so it is gone
+    rather than declared.
+    """
+    from . import tokens
+
+    ordinary = tokens.workspace_governance(control=control, mounted=mounted)
+
+    def eligible(_connection):
+        for kind, standing in (
+                ("host preparation", standing_preparation(control,
+                                                          assignment_id)),
+                ("allocation", standing_allocation(control, assignment_id)),
+                ("removal", standing_removal(control, assignment_id)),
+                ("cleanup", standing_cleanup(control, assignment_id)),
+                ("adoption", standing_adoption(control, assignment_id))):
+            if standing:
+                ordinal = standing[0][0]
+                return (f"{kind} {ordinal} of attempt "
+                        f"{name_value(assignment_id)}'s roots was admitted and "
+                        f"has recorded no completion, so a host writer may still "
+                        f"be finishing inside them; a task token is not acquired "
+                        f"over resources whose preparation this manager cannot say "
+                        f"has ended")
+        for which, ordinal, held in _journal_maintenance(control, assignment_id):
+            return (f"attempt {name_value(assignment_id)}'s {which} root carries "
+                    f"unsettled maintenance window {ordinal} for "
+                    f"{name_value(held.get('verb'))}; a governed preparation may "
+                    f"still be writing, so a task token is not acquired beside it")
+        from . import custody
+
+        episode = custody._standing_overlap(control, assignment_id, "workspace")
+        if episode is not None:
+            return (f"attempt {name_value(assignment_id)}'s "
+                    f"{episode['held']['root']} root carries unreconciled "
+                    f"uncertainty episode {episode['episode']!r}; an act that may "
+                    f"still reach these roots is reconciled rather than started "
+                    f"over")
+        if preparation_completed(control, assignment_id) is None:
+            return (f"this manager has recorded no completed host preparation for "
+                    f"attempt {name_value(assignment_id)}, so whether every "
+                    f"governed writer finished is UNKNOWN; preparation completes "
+                    f"and is accounted for before a task token is acquired")
+        return None
+
+    class PreparedGovernance:
+        """`tokens.Governance` with the condition, and nothing else changed.
+
+        Every other verb is the ordinary governance's own -- release, overdue,
+        revoke -- so the endings, the reclamation and the conflict domain are
+        exactly the accepted G1 ones.
+        """
+
+        def __init__(self):
+            # INSTANCE ATTRIBUTES, because a function stored on a CLASS becomes a
+            # bound method and `self.identity(attempt)` then passes `self` as the
+            # attempt -- measured, as a TypeError from the first composed start.
+            self.resource_kind = ordinary.resource_kind
+            self.identity = ordinary.identity
+
+        def release(self, *arguments, **named):
+            return ordinary.release(*arguments, **named)
+
+        def overdue(self, *arguments, **named):
+            return ordinary.overdue(*arguments, **named)
+
+        def revoke(self, *arguments, **named):
+            return ordinary.revoke(*arguments, **named)
+
+        def reserve(self, asking, attempt, *, operation):
+            """Acquire with the preparation condition inside the SAME transaction."""
+            domain = tokens.domain_of(ordinary.resource_kind,
+                                      ordinary.identity(attempt))
+            token = tokens.acquire(
+                asking, domain, operation=operation,
+                execution=attempt["runtime_attempt_id"],
+                attempt=attempt["runtime_attempt_id"], eligible=eligible)
+            tokens.journal_launch(asking, token, operation)
+            return tokens.Reservation(asking, token, operation)
+
+    return PreparedGovernance()
 
 
 def _journal_maintenance(control, assignment_id):
@@ -3497,6 +3893,9 @@ def _admitted_removal(control, assignment_id, what, pinned=None, under=None,
         # this same lock, because whichever transaction commits first must be the one
         # the other SEES.
         refusal = _preparation_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
+        refusal = _task_token_refusal(control, assignment_id, what)
         if refusal is not None:
             raise refusal
 
@@ -4557,29 +4956,57 @@ def assignment_workspace(workspace_group, storage, assignment_id, *,
     # has no authority over also has no custody hold, no removal ownership and no
     # cleanup admission that could concern it, so there is nothing there to exclude; the
     # exclusion applies exactly where the protected resources can exist.
+    # W285464 review 2026-09-27T18-00-36Z: WHILE THIS ATTEMPT'S TASK IS LIVE, THIS
+    # IS A REVALIDATION. The ordinary path re-enters here on every tick, and after
+    # handoff the roots belong to a running execution: proving them is legitimate and
+    # writing to them is not. So a live token selects the read-only proof, which
+    # refuses missing, replaced or partial material rather than repairing it.
     admitting = None
     admitted = None
+    revalidate = False
     if control is not None and hasattr(control, "operation_record"):
         what = (f"allocating attempt {name_value(assignment_id)}'s execution roots")
         admitting = _asking_control(workspace_group_capability, control)
         asking = admitting.__enter__()
         try:
             if _speaks_for(asking, storage):
-                refuse_if_held(asking, storage, assignment_id, what,
-                               preparing=preparing)
+                # THE LIVE-TOKEN QUESTION IS ASKED THROUGH `asking`, not through the
+                # raw store: this entry's thread affinity is real -- the journal read
+                # belongs on the thread that opened the connection -- and asking the
+                # caller's own handle raised `sqlite3.ProgrammingError` ahead of the
+                # accepted off-thread refusal. Measured, by
+                # `test_the_original_shared_group_pattern_is_refused_off_thread`.
+                revalidate = _task_token_refusal(asking, assignment_id,
+                                                 what) is not None
+                if not revalidate:
+                    refuse_if_held(asking, storage, assignment_id, what,
+                                   preparing=preparing)
                 # AND THE ADMISSION, WHICH IS WHAT COVERS THE EFFECT. Review
                 # 2026-09-26T10:07:07Z committed a cleanup admission between the guard
                 # above and the creation below; this transaction re-reads the journal
                 # under `BEGIN IMMEDIATE` and is the decision, so a cleanup that
                 # committed in that instant is seen and this refuses.
-                admitted = _admitted_allocation(asking, assignment_id, what,
-                                                preparing=preparing)
+                if not revalidate:
+                    admitted = _admitted_allocation(asking, assignment_id, what,
+                                                    preparing=preparing)
             else:
                 admitting.__exit__(None, None, None)
                 admitting = None
         except BaseException:
             admitting.__exit__(None, None, None)
             raise
+    if revalidate:
+        # W285464 review 2026-09-27T18-00-36Z: A LIVE TASK MAKES THIS A REVALIDATION.
+        # The ordinary path re-enters here on every tick, and after handoff the roots
+        # belong to a running execution: proving them is legitimate and writing to them
+        # is not, so nothing below runs and missing or replaced material refuses rather
+        # than being repaired.
+        if admitting is not None:
+            admitting.__exit__(None, None, None)
+        return _revalidated_roots(
+            storage, assignment_id,
+            f"revalidating attempt {name_value(assignment_id)}'s prepared roots",
+            control=control)
     # THE EFFECT, WITH THE ADMISSION STANDING AND NO TRANSACTION OPEN, and the
     # completion written whatever happens. See `_completed_allocation` for why a
     # failed creation closes its window rather than holding it: an interrupted

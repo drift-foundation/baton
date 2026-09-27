@@ -411,6 +411,15 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # alongside the clock, the wait and the stopping predicate -- composing a
         # runtime adapter is the deployment's act, not the job manager's.
         "reclaim",
+        # W285464: `WHY` is the release's own account of an ended writer, recorded as
+        # evidence in the journal and never read back as authority. It is validated as
+        # durable text by `boundaries.text` at the entry.
+        "why",
+        # W285464: `HOLDING` is the ownership capability the opening admission answered,
+        # presented by the act that is doing the writing. It is evidence of WHICH act
+        # this is rather than internal state: a caller cannot mint one, and an absent or
+        # foreign one refuses instead of widening.
+        "holding",
         # W285464: `PREPARING` is the acting preparation's OWN ownership ordinal, which
         # this manager answered from `admit_preparation` in the same act. It is a fact
         # about which window the caller holds, and it can only EXEMPT that window --

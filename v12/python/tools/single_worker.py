@@ -1229,6 +1229,11 @@ class _SingleWorker:
                  stage=None, judgment_document=None,
                  execution_context=None, activity=None):
         self.given = given
+        # W285464: THE PREPARATION OWNERSHIPS THIS COMPOSITION HOLDS, per attempt.
+        # The capability lives for as long as this manager composition does, which is
+        # what lets the act that opened a window continue it across ticks while a
+        # second call -- one that cannot present the object -- is refused.
+        self._preparations = {}
         # W61599: WHERE AN ACTIVITY REQUEST GOES, or `None` for a composition
         # that admitted no ingestion helper -- which is every composition whose
         # store already had one, and every focused verification that composed
@@ -1837,8 +1842,19 @@ class _SingleWorker:
         activate_assignment(self.control, self.port, attempt_id=attempt_id,
                             expect=_assignment(row))
         self.checkpoint("activation")
+        # W285464 review 2026-09-27T17-26-12Z: THE WINDOW IS RELEASED WHEN THIS
+        # WRITER RETURNS, success or refusal. An unfinished preparation window is held
+        # because somebody may still be writing, and the one party that can say
+        # otherwise is the writer itself: reaching this `finally` IS the cessation of
+        # an in-process writer, not a deadline and not a label. A manager that DIES
+        # mid-write runs no `finally`, so its window keeps standing and
+        # `admit_preparation` reports it UNKNOWN -- which is the honest remainder.
+        self._releasing = None
         try:
+          try:
             return self._prepared(stage, row, attempt_id)
+          finally:
+            self._released()
         except SourceRefusal as failure:
             refusal = ContractRefusal("policy", "denied", _sayable(
                 str(failure),
@@ -1939,13 +1955,33 @@ class _SingleWorker:
         # `compose_input_root`. This window opens before the first governed writer
         # and is closed by the completion record, so "admitted with no completion"
         # is exactly "a writer may still be finishing here".
+        # THE EXECUTION IS THE ATTEMPT'S OWN RUNTIME IDENTITY, so a re-entry of THIS
+        # execution continues its own window and another execution does not take it
+        # over: review 2026-09-27T16-41-41Z is right that an ordinal anybody receives
+        # is not authority to write, and that HOST-8 excludes a duplicate manager
+        # rather than a second execution inside one.
+        # THE OWNERSHIP IS A CAPABILITY THIS ACT HOLDS, not a name it repeats.
+        # Review 2026-09-27T17-01-18Z: passing the attempt identity as an execution
+        # made every re-entry for that attempt compare equal, so a second call was
+        # admitted while the first writer could still finish. What continues a window
+        # now is presenting the object the opening admission answered -- and this
+        # composition holds it for exactly as long as it is preparing.
+        held = self._preparations.get(attempt_id)
         preparing = workspaces.admit_preparation(
             self.control, attempt_id,
-            f"preparing attempt {attempt_id}'s roots")
-        self.preparing = preparing
+            f"preparing attempt {attempt_id}'s roots", attempt_id,
+            holding=held)
+        self._preparations[attempt_id] = preparing
+        # AND THE WINDOW IS RELEASED WHEN THIS WRITER RETURNS. W285464 review
+        # 2026-09-27T17-26-12Z: an unfinished window is held because somebody may
+        # still be writing, and the one party that can say otherwise is the writer
+        # itself -- so the composition that opened it closes it on its way out unless
+        # the completion already did. A process that DIES mid-write runs no `finally`,
+        # which is why that case stays held and is reported UNKNOWN.
+        self._releasing = (attempt_id, preparing)
         roots = workspaces.assignment_workspace(
             self.group, given["workspace_storage"], attempt_id,
-            control=self.control, preparing=preparing)
+            control=self.control, preparing=preparing.ordinal)
         if checkpoint:
             self.checkpoint("workspace")
         if self.stage is not None:
@@ -2136,11 +2172,20 @@ class _SingleWorker:
                 # sits in one of the two sibling arrangements this build supports, the
                 # equality against the PINNED object is unchanged, and the domain is still
                 # the durable one every ending here resolves through.
+                # W285464 review 2026-09-27T17-37-14Z: THE CONDITION TRAVELS INTO
+                # THE ACQUISITION. `require_prepared` above is the early refusal and
+                # reads the OBJECTS, which needs a filesystem and therefore cannot
+                # happen under a lock; this governance re-asks the journal-only half
+                # inside `tokens.acquire`'s own `BEGIN IMMEDIATE`, so a conflict that
+                # arrives between the two is refused by the acquisition rather than
+                # slipping through the gap. Same domain, same journal, same G1
+                # endings -- only the eligibility is added.
                 answer = request_runtime_start(
                     self.control, adapter, attempt_id=attempt_id,
                     inputs=roots["inputs"],
-                    govern=tokens.workspace_governance(
-                        control=self.control, mounted=roots["workspace"]))
+                    govern=workspaces.prepared_workspace_governance(
+                        self.control, attempt_id,
+                        mounted=roots["workspace"]))
             else:
                 answer = reconcile_runtime(self.control, adapter,
                                            attempt_id=attempt_id)
@@ -2149,6 +2194,27 @@ class _SingleWorker:
             raise
         self.checkpoint("runtime")
         return answer
+
+    def _released(self):
+        """Close this composition's preparation window if it opened one.
+
+        Called from the caller's own `finally`, so the writer has returned by the time
+        this runs. If the preparation COMPLETED, its completion already closed the
+        window and this records nothing; otherwise the release says the writer ended
+        without finishing, which is a different fact from either.
+        """
+        naming = getattr(self, "_releasing", None)
+        if naming is None:
+            return
+        attempt_id, holding = naming
+        self._releasing = None
+        self._preparations.pop(attempt_id, None)
+        if workspaces.preparation_completed(self.control, attempt_id) is not None:
+            return
+        workspaces.release_preparation(
+            self.control, holding,
+            f"the composition preparing attempt {attempt_id} returned without "
+            f"recording a completion, so its writer has ended")
 
     def _unwound(self, adapter, delivery, launched, fresh):
         """End what THIS attempt's pre-start composition still holds.
