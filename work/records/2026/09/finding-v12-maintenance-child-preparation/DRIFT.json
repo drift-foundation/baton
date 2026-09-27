@@ -1,0 +1,68 @@
+[
+  {
+    "path": "v12/DESIGN.md",
+    "read_sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934",
+    "final_sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934",
+    "changed": false
+  },
+  {
+    "path": "v12/python/tools/single_worker.py",
+    "read_sha256": "7225a403015adc6b3ad94d8dbef16503f3db96568219b6c2d76641b950ba2a44",
+    "final_sha256": "7225a403015adc6b3ad94d8dbef16503f3db96568219b6c2d76641b950ba2a44",
+    "changed": false
+  },
+  {
+    "path": "v12/python/tools/job_manager.py",
+    "read_sha256": "d272bd9242c283cd492516ce57182f864959c4f03c220d5069cc438344e8f530",
+    "final_sha256": "d272bd9242c283cd492516ce57182f864959c4f03c220d5069cc438344e8f530",
+    "changed": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+    "read_sha256": "65310983bfc0ae09674bda7781ffb2c6bf781a42c3b1c60e444abc46014ca961",
+    "final_sha256": "c2b4aef4fa373167e83d533310c6239381de695bbd3cc71834495070c2eb02dd",
+    "changed": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "read_sha256": "50207908e522a77e3912b0fc43b731b11302892ffdda10ad6f9a1b6bd15fbb05",
+    "final_sha256": "50207908e522a77e3912b0fc43b731b11302892ffdda10ad6f9a1b6bd15fbb05",
+    "changed": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+    "read_sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+    "final_sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+    "changed": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+    "read_sha256": "2630e18823297bd87a84b5fa47acf8e39bc93c64edacbb49bd889ad43a0b7e4e",
+    "final_sha256": "2f88554e782d8ee1aab0a9a4aadb6840025c21fd87973d55bd0bb6872164cf8a",
+    "changed": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+    "read_sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+    "final_sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+    "changed": false
+  },
+  {
+    "path": "v12/python/tests/manager/test_maintenance.py",
+    "read_sha256": "e0a4c6490ddd5b310146e5da91c75ec18c313621862de901a9837a27dda0beb8",
+    "final_sha256": "e0a4c6490ddd5b310146e5da91c75ec18c313621862de901a9837a27dda0beb8",
+    "changed": false
+  },
+  {
+    "path": "v12/python/tests/tools/test_single_worker.py",
+    "read_sha256": "902ff4ee329e2a8e4462ebcb80a67e40cb3edcf3f723e221798719879b6e6e6b",
+    "final_sha256": "902ff4ee329e2a8e4462ebcb80a67e40cb3edcf3f723e221798719879b6e6e6b",
+    "changed": false
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_tool.py",
+    "read_sha256": "ad226d6f6d3e8c8277b9292e110ffdc63bb461ee71f683900bf0edb7e22351d9",
+    "final_sha256": "ad226d6f6d3e8c8277b9292e110ffdc63bb461ee71f683900bf0edb7e22351d9",
+    "changed": false
+  }
+]

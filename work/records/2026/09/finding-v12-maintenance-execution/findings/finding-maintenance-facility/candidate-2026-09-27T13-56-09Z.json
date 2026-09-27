@@ -1,0 +1,43 @@
+{
+  "work": "W285463",
+  "claim": 286024,
+  "verdict": "reverse allocation ordering correction required",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+      "sha256": "11ddeaf6d7343b86417e5ca54f35f88b8c84915b1d143d57c51cb50ca826e854"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "sha256": "2f88554e782d8ee1aab0a9a4aadb6840025c21fd87973d55bd0bb6872164cf8a"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "6810a8c4ccfabdab38ae31dbcb9937a941858e135faced7f78003a7ea68abf41"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "c2598c5c94f882cd5ad353e9fe5532d4115ef36df42912279b992ade2204cd14"
+    },
+    {
+      "path": "v12/python/tests/manager/test_maintenance.py",
+      "sha256": "3892b750dd7a41f6d25a6dd0dc2c39247e2f656a606f4bb7d3e45968379433f9"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "5b1c075cdf87606eb65eac3e71477f03dc0ca06b8aad6005dffc389588a9491f"
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "38b7ca09464a923c967bf02497fc4c2a01a63168c1b125da0ed9372f7ba1fb79"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-facility/PROGRESS.md",
+      "sha256": "42fa2b9dae8a30d2cda82dded98410a201dc6743edd01a806cf383d337f53117"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-facility/review_allocation_first_20260927.py",
+      "sha256": "7e0c92b14683efb3c242327da7288637767d4166c0f0a4941a61ae9e3650d151"
+    }
+  ]
+}

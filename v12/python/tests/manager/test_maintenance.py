@@ -22,6 +22,7 @@ import unittest
 from unittest import mock
 
 from baton_v12.contracts import ContractRefusal
+from baton_v12.contracts.errors import name_value
 from baton_v12.worker_manager import custody, maintenance, oci, tokens, workspaces
 
 from . import input_roots
@@ -177,8 +178,54 @@ class MaintenanceCase(unittest.TestCase):
                 found.append(short)
         return tuple(found)
 
+    def another(self, name):
+        """One more allocated attempt with NO result root, for a subTest case.
+
+        Each case needs its own domain: an unreturned generation excludes the
+        next acquisition over the same resource -- the facility working -- so a
+        loop sharing one attempt would measure that exclusion instead of the rule
+        it means to drive.
+        """
+        workspaces.assignment_workspace(self.group, self.storage, name)
+        os.rmdir(os.path.join(self.storage, name, "workspace",
+                              f"result-{name}"))
+        return name
+
+    def domain_of(self, assignment_id):
+        held = os.lstat(os.path.join(self.storage, assignment_id, "workspace"))
+        return tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+
+    def reopened(self):
+        """A FRESH store handle on the same journal, holding no answer object."""
+        from baton_v12.worker_manager import ControlStore
+        store = ControlStore.open(
+            os.path.join(self.root, "control.sqlite3"),
+            incarnation="maintenance-2", clock=lambda: self.instant)
+        self.addCleanup(store.close)
+        return store
+
+    def identity(self):
+        """The execution identity the create vector DECLARES, as (uid, gid).
+
+        Read through the product's own minting rather than composed here, so a
+        case that names it cannot drift from what `--user` carries.
+        """
+        from baton_v12.worker_manager import workspaces as w
+        minted = w.identity_for(w.WorkspaceGroup(self.group.gid, w._MINT))
+        return (minted.uid, minted.gid)
+
     def witnessed(self, engine):
         """Hook for a case that wants to act at the create boundary."""
+
+    def submitted(self, argv):
+        """The submission this act really committed: the token's own owner.
+
+        Read out of the argv the product composed, which is where it is -- a
+        fixture that wrote its own would be answering for a generation this act
+        never had, and every case about a document's VALUES would be stopped by
+        the submission rule before reaching them.
+        """
+        return argv[-2]
 
     def executed(self, argv, document=None):
         """Run the manager's own program against the mount it composed.
@@ -188,6 +235,8 @@ class MaintenanceCase(unittest.TestCase):
         facility did not select.
         """
         if document is not None:
+            if document.get("submission") is None:
+                document = dict(document, submission=self.submitted(argv))
             return json.dumps(document) + "\n"
         source = next(one for one in argv
                       if one.startswith("type=bind,")).split("source=", 1)[1]
@@ -536,8 +585,10 @@ class TheHostSettlesOnEvidenceAndHoldsEverythingElse(MaintenanceCase):
     def test_an_account_for_another_submission_accounts_for_nothing(self):
         answered = self.prepared(Engine(self, document={
             "maintenance": maintenance.ESTABLISH_RESULT_ROOT,
+            "version": maintenance.MAINTENANCE_VERSION,
             "submission": "0" * 64, "place": "result-attempt-1",
-            "established": True, "mode": "0o2770", "running_as": [65532, 1000]}))
+            "established": True, "mode": oct(maintenance.PREPARED_MODE),
+            "running_as": list(self.identity())}))
         self.assertFalse(answered.ok)
         self.assertTrue(answered.held)
         self.assertIn("is not an account of this one", answered.diagnostic)
@@ -554,6 +605,7 @@ class TheHostSettlesOnEvidenceAndHoldsEverythingElse(MaintenanceCase):
         """
         answered = self.prepared(Engine(self, document={
             "maintenance": maintenance.ESTABLISH_RESULT_ROOT,
+            "version": maintenance.MAINTENANCE_VERSION,
             "submission": "x", "place": "p", "established": True,
             "mode": "0o2770", "running_as": [1, 2], "extra": 1}))
         self.assertFalse(answered.ok)
@@ -777,8 +829,18 @@ class TheVocabularyAndTheSchemaAreOneContract(MaintenanceCase):
         self.assertLess(maintenance.PREPARE_SECONDS,
                         maintenance.MAINTENANCE_ACT_SECONDS)
         self.assertLess(maintenance.MAINTENANCE_ACT_SECONDS
-                        + maintenance.MAINTENANCE_STOP_SECONDS,
+                        + maintenance.RECLAIM_STOP_SECONDS,
                         maintenance.MAINTENANCE_SECONDS)
+        # THE DECLARED STOP GRACE IS THE ONE THIS PATH REALLY SPENDS, which review
+        # 2026-09-27T13-42-58Z caught being advertised as G1's 30 seconds while
+        # every reclamation here goes through `custody._reclaimed` at 5. A profile
+        # that names a number the code never passes is a claim, so the constant is
+        # held to custody's own and this case is what keeps them equal.
+        self.assertEqual(maintenance.RECLAIM_STOP_SECONDS,
+                         custody.CUSTODY_STOP_SECONDS)
+        self.assertNotEqual(maintenance.RECLAIM_STOP_SECONDS,
+                            tokens.STOP_GRACE_SECONDS)
+        self.assertFalse(hasattr(maintenance, "MAINTENANCE_STOP_SECONDS"))
         self.assertEqual(maintenance.RENEWALS_TAKEN, 0)
         self.prepared()
         # AND THE BOUND REALLY CROSSES: every engine call this facility makes
@@ -824,6 +886,897 @@ class TheAnswerIsNotACapability(MaintenanceCase):
         self.assertTrue(answered.returned)
         with self.assertRaises(TypeError):
             answered.answer["established"] = False
+
+
+
+
+class TheExclUSIONIsDecidedUnderTheWriteLockBothWays(MaintenanceCase):
+    """W285463 review R1, and the confirmed defect it named.
+
+    The first cut read `custody._standing_overlap` outside every transaction and
+    then acquired a token with NO condition attached, so a custody hold that
+    committed in between was invisible and the preparation wrote anyway. The
+    reviewer's probe interposed exactly there and measured the effect.
+
+    TWO PARTIES, TWO LOCKS, AND WHOEVER COMMITS FIRST WINS. The window admission
+    and the acquisition each re-read the journal under `BEGIN IMMEDIATE`, and the
+    custody claim now reads the maintenance window under its own -- so the
+    schedules below all end with exactly one actor and no effect from the loser.
+    """
+
+    def test_a_hold_that_commits_before_the_window_refuses_before_any_engine_call(self):
+        custody._record_hold(self.store, "attempt-1", "workspace", "normalize",
+                             IMAGE, "baton-custody-" + "a" * 32)
+        engine = Engine(self)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(engine)
+        self.assertIn("unreconciled uncertainty episode", str(refused.exception))
+        self.assertEqual(engine.seen, [])
+        self.assertEqual(maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace"), [])
+
+    def test_a_hold_that_appears_after_the_window_refuses_the_ACQUISITION_itself(self):
+        """The eligibility predicate, proved load-bearing.
+
+        Recorded through `custody._record_hold`, which is the unconditional
+        recorder and does NOT consult the maintenance window -- so this drives the
+        one schedule in which a hold can still appear between the window and the
+        acquisition. The ordinary claim path cannot reach this state any more,
+        which is the reciprocal case below; this proves the second line of
+        defence rather than assuming it.
+        """
+        honest = custody._reconciled
+        recorded = []
+
+        def racing(*arguments, **named):
+            answer = honest(*arguments, **named)
+            recorded.append(custody._record_hold(
+                self.store, "attempt-1", "workspace", "normalize", IMAGE,
+                "baton-custody-" + "b" * 32))
+            return answer
+
+        engine = Engine(self)
+        with mock.patch.object(custody, "_reconciled", racing):
+            with self.assertRaises(ContractRefusal) as refused:
+                self.prepared(engine)
+        self.assertEqual(len(recorded), 1)
+        # THE ACQUISITION'S OWN WORDS, which is what says the predicate decided it
+        # rather than the window admission that ran before the hold existed.
+        self.assertIn("decided inside the acquisition's own transaction",
+                      str(refused.exception))
+        self.assertIn("unreconciled uncertainty episode", str(refused.exception))
+        # NOTHING WAS ACQUIRED AND NOTHING RAN.
+        self.assertEqual(engine.ran, 0)
+        self.assertEqual(tokens.outstanding(self.store, self.domain()), [])
+        self.assertNotIn("create", [argv[1] for argv, _ in engine.seen])
+        # AND THE WINDOW CLOSED, because this refusal authorized no effect: a
+        # window left standing would freeze the root over an act that did nothing.
+        self.assertEqual(maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace"), [])
+        self.assertEqual(maintenance.maintenance_settlement(
+            self.store, "attempt-1", "workspace")["disposition"],
+            maintenance.SETTLED_REFUSED)
+
+    def test_a_custody_claim_is_refused_while_a_maintenance_window_stands(self):
+        """The reciprocal half R1 asked for, at the real claim path.
+
+        `custody._claim_episode` knew about removals and other holds and nothing
+        about a governed preparation. It reads the window by DERIVED IDENTITY --
+        no `lstat` under the write lock, which is why the window and not the token
+        is what it can ask about.
+        """
+        case = self
+        refusals = []
+
+        class Claiming(Engine):
+            def starting(self, argv):
+                try:
+                    custody._claim_episode(
+                        case.store, "attempt-1", "workspace", "normalize",
+                        IMAGE, "baton-custody-" + "c" * 32)
+                except ContractRefusal as refused:
+                    refusals.append(str(refused))
+                return super().starting(argv)
+
+        answered = self.prepared(Claiming(self))
+        self.assertTrue(answered.ok, answered.diagnostic)
+        self.assertEqual(len(refusals), 1)
+        self.assertIn("unsettled maintenance window 1", refusals[0])
+        self.assertIn("a governed preparation may still be writing", refusals[0])
+        # THE LOSER WROTE NOTHING: no episode was recorded at all.
+        self.assertIsNone(custody._standing_overlap(self.store, "attempt-1",
+                                                    "workspace"))
+        self.assertEqual(custody.custody_holds(self.store, "attempt-1",
+                                               "workspace"), [])
+
+    def test_the_reviewer_schedule_now_refuses_both_parties_and_frees_the_root(self):
+        """The reviewer's own schedule, kept as my regression.
+
+        Their probe's FIRST assertion -- that the interposed hold commits -- is
+        now unreachable, because the reciprocal half they also asked for refuses
+        it. What their probe was measuring, the effect, is zero; and the window
+        closes, so refusing both parties does not leave the root frozen.
+        """
+        honest = custody._reconciled
+        outcome = []
+
+        def racing(*arguments, **named):
+            answer = honest(*arguments, **named)
+            custody._claim_episode(
+                self.store, "attempt-1", "workspace", "normalize", IMAGE,
+                custody._custody_identity(self.storage, "attempt-1",
+                                          "workspace", "normalize"))
+            outcome.append("committed")
+            return answer
+
+        engine = Engine(self)
+        with mock.patch.object(custody, "_reconciled", racing):
+            with self.assertRaises(ContractRefusal) as refused:
+                self.prepared(engine)
+        self.assertEqual(outcome, [])
+        self.assertIn("unsettled maintenance window 1", str(refused.exception))
+        self.assertEqual(engine.ran, 0)
+        self.assertEqual(tokens.outstanding(self.store, self.domain()), [])
+        self.assertIsNone(custody._standing_overlap(self.store, "attempt-1",
+                                                    "workspace"))
+        self.assertEqual(maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace"), [])
+
+    def test_a_governed_live_container_is_not_ended_because_a_name_matches(self):
+        """R1's last paragraph: a derived name is not authority to kill.
+
+        The candidate answers to this act's derived name AND is bound to an
+        outstanding generation of this very domain -- an actor whose token still
+        permits it to write. Ending it would be the one thing a reclamation may
+        never do.
+        """
+        token = tokens.acquire(self.store, self.domain(),
+                               operation="maintenance-establish-result-root:"
+                                         "attempt-1:workspace:other",
+                               execution="maintenance-execution:other",
+                               attempt="attempt-1")
+        tokens.journal_launch(self.store, token, token["operation"])
+        tokens.bind_container(self.store, token, "runtime-live",
+                              launch=token["operation"])
+        engine = Engine(self)
+        engine.listing = [{"Names": self.name(), "ID": "runtime-live"}]
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(engine)
+        self.assertIn("not authority to end a live governed actor",
+                      str(refused.exception))
+        # NOT STOPPED AND NOT REMOVED, and the live actor's own generation is
+        # untouched: still outstanding, still bound to its container.
+        self.assertEqual([argv[1] for argv, _ in engine.seen],
+                         ["ps", "inspect"])
+        live = tokens.token_of(self.store, self.domain(), 1)
+        self.assertEqual(live["container"], "runtime-live")
+        self.assertFalse(live["returned"])
+        self.assertEqual([one["generation"]
+                          for one in tokens.outstanding(self.store,
+                                                        self.domain())], [1])
+
+
+class ALateCreatedRuntimeIsEndedOrRecordedAsUnknown(MaintenanceCase):
+    """W285463 review R2, and the gap it named.
+
+    The reviewer advanced the grant past expiry between the create and the bind.
+    `bind_container` refused -- correctly, because a late binding is what TOK-4
+    forbids -- and the act then exited with the inert container still there, no
+    stop, no removal and nothing recording its identity. The no-late-bind rule is
+    unchanged; what is added is that the exact runtime is reconciled outside every
+    transaction, and that an unproved absence is written down rather than lost.
+    """
+
+    def expiring(self, **named):
+        case = self
+
+        class Delayed(Engine):
+            def creating(self, argv):
+                answer = super().creating(argv)
+                case.instant = "2026-09-27T00:16:00.000Z"
+                return answer
+
+        return Delayed(self, **named)
+
+    def test_the_exact_container_is_ended_and_proved_absent(self):
+        engine = self.expiring()
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(engine)
+        self.assertIn("expired", str(refused.exception).lower())
+        self.assertIsNotNone(engine.created)
+        self.assertEqual(engine.ran, 0)
+        # STOP, THEN FORCE-REMOVE, THEN THE ENGINE'S OWN ABSENCE SENTENCE.
+        self.assertEqual([argv[1] for argv, _ in engine.seen][-3:],
+                         ["stop", "rm", "inspect"])
+        orphan = maintenance.maintenance_orphan(self.store, "attempt-1",
+                                                "workspace", 1)
+        self.assertEqual(orphan["container"], engine.created)
+        self.assertTrue(orphan["absence_proved"])
+        self.assertIn("expired", orphan["why"].lower())
+        # AND THE WINDOW CLOSES, because nothing was admitted and the runtime is
+        # provably gone, so no effect can still arrive.
+        self.assertEqual(maintenance.maintenance_settlement(
+            self.store, "attempt-1", "workspace")["disposition"],
+            maintenance.SETTLED_ORPHANED)
+        self.assertEqual(maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace"), [])
+
+    def test_an_unprovable_absence_is_recorded_and_the_window_stays_open(self):
+        engine = self.expiring(inspect_after_removal=False)
+        with self.assertRaises(ContractRefusal):
+            self.prepared(engine)
+        orphan = maintenance.maintenance_orphan(self.store, "attempt-1",
+                                                "workspace", 1)
+        self.assertEqual(orphan["container"], engine.created)
+        self.assertFalse(orphan["absence_proved"])
+        self.assertIn("could not prove the helper", orphan["observed"])
+        # THE HONEST HOLD: no settlement, the window stands, and the next act and
+        # a custody claim are both excluded until an operator reconciles it.
+        self.assertIsNone(maintenance.maintenance_settlement(
+            self.store, "attempt-1", "workspace"))
+        self.assertEqual([one for one, _ in maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace")], [1])
+        with self.assertRaises(ContractRefusal) as second:
+            custody._claim_episode(self.store, "attempt-1", "workspace",
+                                   "normalize", IMAGE,
+                                   "baton-custody-" + "d" * 32)
+        self.assertIn("unsettled maintenance window 1", str(second.exception))
+
+    def test_the_refusal_that_propagates_is_the_binding_refusal(self):
+        """Not the reclamation's. The reason the act stopped is the expiry, and a
+        cleanup failure must not replace it with something else."""
+        engine = self.expiring(inspect_after_removal=False)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(engine)
+        self.assertIn("expired", str(refused.exception).lower())
+        self.assertNotIn("could not prove", str(refused.exception))
+
+
+class TheHostsOwnSettlementIsDurable(MaintenanceCase):
+    """W285463 review R3. The token return says the resource is free; it does not
+    say what was prepared. This is the fact that was missing."""
+
+    def test_the_receipt_names_the_generation_the_container_and_the_object(self):
+        answered = self.prepared()
+        self.assertTrue(answered.ok, answered.diagnostic)
+        settled = maintenance.maintenance_settlement(self.store, "attempt-1",
+                                                     "workspace")
+        self.assertEqual(settled["disposition"], maintenance.SETTLED_PREPARED)
+        self.assertEqual(settled["version"], maintenance.MAINTENANCE_VERSION)
+        self.assertEqual(settled["generation"], answered.generation)
+        self.assertEqual(settled["container"], answered.container)
+        self.assertEqual(settled["verb"], maintenance.ESTABLISH_RESULT_ROOT)
+        self.assertEqual(settled["place"], "result-attempt-1")
+        self.assertEqual(settled["execution"],
+                         "maintenance-execution:attempt-1:workspace")
+        self.assertEqual(settled["attempt"], "attempt-1")
+        self.assertTrue(settled["established"])
+        # THE PRE-ALLOCATION IDENTITY'S PROMISE, KEPT AS A FACT: the prepared
+        # object's own identity, recorded beside the resource it sits inside.
+        held = os.lstat(self.result)
+        self.assertEqual(settled["object_identity"],
+                         f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual(settled["pre_allocation"].rsplit("/", 1)[0],
+                         settled["domain"].split(":", 1)[1])
+
+    def test_it_is_committed_before_the_token_goes_back(self):
+        """A resource handed on before its outcome was recorded would leave the
+        next holder unable to learn what happened to it."""
+        case = self
+        order = []
+        honest = tokens.returned
+
+        def returning(control, token, **named):
+            order.append(("settlement", maintenance.maintenance_settlement(
+                case.store, "attempt-1", "workspace") is not None))
+            order.append(("returned", True))
+            return honest(control, token, **named)
+
+        with mock.patch.object(tokens, "returned", returning):
+            self.prepared()
+        self.assertEqual(order, [("settlement", True), ("returned", True)])
+
+    def test_a_fresh_store_handle_reads_the_settlement(self):
+        """R3's fresh-handle half: no answer object is held, and the journal is
+        asked."""
+        answered = self.prepared()
+        settled = maintenance.maintenance_settlement(self.reopened(),
+                                                     "attempt-1", "workspace")
+        self.assertEqual(settled["container"], answered.container)
+        self.assertEqual(settled["disposition"], maintenance.SETTLED_PREPARED)
+        self.assertEqual(maintenance.maintenance_settlement(
+            self.reopened(), "attempt-1", "workspace", 1)["generation"],
+            answered.generation)
+
+    def test_no_settlement_exists_when_the_outcome_is_unknown(self):
+        answered = self.prepared(Engine(self, logs=1))
+        self.assertTrue(answered.held)
+        self.assertIsNone(maintenance.maintenance_settlement(
+            self.store, "attempt-1", "workspace"))
+        self.assertEqual([one for one, _ in maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace")], [1])
+
+    def test_a_report_whose_VALUES_are_not_this_acts_settles_nothing(self):
+        """R3: exact semantic values, not only their Python types.
+
+        Each case gets its own attempt, so what is measured is the value rule
+        rather than the resource exclusion.
+        """
+        declared = list(self.identity())
+        for member, wrong, why in (
+                ("version", maintenance.MAINTENANCE_VERSION + 1,
+                 "declares representation version"),
+                ("place", "result-somebody-else",
+                 "an account of another object is not an account of this one"),
+                ("mode", "0o2775", "the prepared object's permissions"),
+                ("running_as", [declared[0] + 1, declared[1]],
+                 "did not run as the identity that owns the worker's objects")):
+            with self.subTest(member=member):
+                attempt = self.another(f"attempt-{member.replace('_', '-')}")
+                good = {"maintenance": maintenance.ESTABLISH_RESULT_ROOT,
+                        "version": maintenance.MAINTENANCE_VERSION,
+                        "submission": None, "place": f"result-{attempt}",
+                        "established": True,
+                        "mode": oct(maintenance.PREPARED_MODE),
+                        "running_as": declared}
+                engine = Engine(self, document=dict(good, **{member: wrong}))
+                answered = self.prepared(engine, assignment_id=attempt)
+                self.assertFalse(answered.ok)
+                self.assertTrue(answered.held)
+                self.assertIn("UNRESOLVED", answered.diagnostic)
+                # THE REASON, not merely a refusal: a case that passed on some
+                # other check would be measuring something else.
+                self.assertIn(why, answered.diagnostic)
+                self.assertIsNone(maintenance.maintenance_settlement(
+                    self.store, attempt, "workspace"))
+                self.assertFalse(tokens.token_of(
+                    self.store, self.domain_of(attempt), 1)["returned"])
+
+    def test_the_real_programs_own_values_are_the_ones_that_validate(self):
+        """The negative control for the case above: with nothing substituted, the
+        program's own document passes the value rules and settles."""
+        answered = self.prepared()
+        self.assertIsNone(maintenance._mismatch(answered.answer,
+                                                "result-attempt-1",
+                                                self.group.gid))
+        self.assertEqual(answered.answer["version"],
+                         maintenance.MAINTENANCE_VERSION)
+
+
+class TheWorkspaceEntriesAreExcludedWhileAPreparationWrites(MaintenanceCase):
+    """W285463 review 2026-09-27T13-42-58Z, the remaining R1 blocker.
+
+    The reviewer reached TWO schedules with a preparation's container admitted and
+    running: `workspaces.refuse_if_held` returned, and `_admitted_removal`
+    committed a removal ownership. A preparation is a WRITER inside these roots, so
+    admitting an allocation, an adoption or a removal beside it is the defect
+    W270664 F2 closed for custody and removals, one party later.
+
+    The guard is one reader consulted at the chokepoint every entry already calls
+    AND inside the two admission transactions that make the fresh decision.
+    """
+
+    def concurrently(self, act):
+        """Run `act` at the moment the admitted container is running."""
+        case = self
+        outcome = []
+
+        class Concurrent(Engine):
+            def starting(self, argv):
+                case.assertTrue(maintenance.standing_maintenance(
+                    case.store, "attempt-1", "workspace"))
+                try:
+                    act()
+                    outcome.append(None)
+                except ContractRefusal as refused:
+                    outcome.append(str(refused))
+                return super().starting(argv)
+
+        answered = self.prepared(Concurrent(self))
+        self.assertTrue(answered.ok, answered.diagnostic)
+        self.assertEqual(len(outcome), 1)
+        return outcome[0]
+
+    def test_the_chokepoint_refuses_while_a_window_stands(self):
+        why = self.concurrently(lambda: workspaces.refuse_if_held(
+            self.store, self.storage, "attempt-1", "allocating these roots"))
+        self.assertIsNotNone(why, "a conflicting entry was admitted")
+        self.assertIn("unsettled maintenance window 1", why)
+        self.assertIn("a WRITER inside these roots", why)
+
+    def test_a_removal_ownership_is_not_admitted_beside_a_preparation(self):
+        why = self.concurrently(lambda: workspaces._admitted_removal(
+            self.store, "attempt-1", "removing these roots"))
+        self.assertIsNotNone(why, "a removal was admitted beside a live writer")
+        self.assertIn("unsettled maintenance window 1", why)
+
+    def test_allocation_itself_is_refused_while_a_window_stands(self):
+        """The public entry, not only the helper: this is the act the next child
+        will call at the preparation seam."""
+        why = self.concurrently(lambda: workspaces.assignment_workspace(
+            self.group, self.storage, "attempt-1", control=self.store))
+        self.assertIsNotNone(why, "roots were allocated beside a live writer")
+        self.assertIn("unsettled maintenance window 1", why)
+
+    def test_a_SETTLED_window_is_history_and_refuses_nothing(self):
+        """The other half, and the lesson `_journal_holds` already carries: a
+        permanent false refusal is a worse failure than the one being fixed.
+
+        After a completed preparation the window is settled, so allocation,
+        the chokepoint and a removal admission all proceed.
+        """
+        answered = self.prepared()
+        self.assertTrue(answered.ok, answered.diagnostic)
+        self.assertEqual(maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace"), [])
+        workspaces.refuse_if_held(self.store, self.storage, "attempt-1",
+                                  "allocating these roots")
+        workspaces.assignment_workspace(self.group, self.storage, "attempt-1",
+                                        control=self.store)
+        # ADMITTED, and the ownership it answers is this act's own: measured
+        # rather than guessed -- the answer is a document, not the (ordinal, token)
+        # pair I first assumed.
+        admitted = workspaces._admitted_removal(
+            self.store, "attempt-1", "removing these roots")
+        self.assertEqual(admitted["ordinal"], 1)
+
+    def test_an_unsettled_window_on_EITHER_root_excludes_the_other(self):
+        """Both roots, because the result root sits INSIDE the workspace.
+
+        Driven by an unprovable orphan on the workspace root and then by asking
+        about the attempt as a whole, which is what every workspace entry does.
+        """
+        engine = Engine(self, inspect_after_removal=False)
+
+        class Delayed(type(engine)):
+            def creating(self, argv):
+                answer = super().creating(argv)
+                self.case.instant = "2026-09-27T00:16:00.000Z"
+                return answer
+
+        with self.assertRaises(ContractRefusal):
+            self.prepared(Delayed(self, inspect_after_removal=False))
+        self.assertEqual([one for one, _ in maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace")], [1])
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.refuse_if_held(self.store, self.storage, "attempt-1",
+                                      "adopting these roots")
+        self.assertIn("unsettled maintenance window 1", str(refused.exception))
+        # AND THE NEXT PREPARATION IS REFUSED TOO, rather than adopting it.
+        engine = Engine(self)
+        with self.assertRaises(ContractRefusal) as again:
+            self.prepared(engine)
+        self.assertIn("an unknown to reconcile rather than one to continue from",
+                      str(again.exception))
+        self.assertEqual(engine.seen, [])
+
+
+class NoStandingWindowIsEverAdopted(MaintenanceCase):
+    """W285463 review 2026-09-27T13-42-58Z: do not let a same-operation replay
+    adopt another live executor's window and close it on its own refusal.
+
+    My first shape adopted a window matching verb, domain and derived container
+    identity -- which two live executors of one operation all share, so the second
+    would have adopted the first's window and could then clear a shared exclusion
+    somebody else was relying on. Nothing is adopted now.
+    """
+
+    def standing(self, root="workspace"):
+        """One window opened and left standing, as a crashed act leaves it."""
+        return maintenance._admitted(
+            self.store, "attempt-1", root,
+            operation=maintenance.ESTABLISH_RESULT_ROOT,
+            name=self.name(which=root), domain=self.domain(),
+            pre_allocation=f"{self.domain().split(':', 1)[1]}/result-attempt-1")
+
+    def test_an_identical_act_is_refused_rather_than_adopting_the_window(self):
+        self.assertEqual(self.standing(), 1)
+        engine = Engine(self)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(engine)
+        self.assertIn("unsettled maintenance window 1", str(refused.exception))
+        self.assertIn("clear on somebody else's behalf", str(refused.exception))
+        self.assertEqual(engine.seen, [])
+        # AND IT IS STILL STANDING: the refused act cleared nothing.
+        self.assertEqual([one for one, _ in maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace")], [1])
+        self.assertIsNone(maintenance.maintenance_settlement(
+            self.store, "attempt-1", "workspace"))
+
+    def test_a_window_on_the_RESULT_root_excludes_a_workspace_preparation(self):
+        self.assertEqual(self.standing("result"), 1)
+        engine = Engine(self)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(engine)
+        self.assertIn("result root carries unsettled maintenance window 1",
+                      str(refused.exception))
+        self.assertEqual(engine.seen, [])
+
+    def test_the_window_names_the_incarnation_that_opened_it(self):
+        self.standing()
+        record = self.store.operation_record(maintenance._act_identity(
+            maintenance.MAINTENANCE_OWNERSHIP_KIND, "attempt-1", "workspace", 1))
+        held = json.loads(record["result"]) if type(record["result"]) is str \
+            else record["result"]
+        self.assertEqual(held["incarnation"], "maintenance-1")
+        self.assertEqual(held["verb"], maintenance.ESTABLISH_RESULT_ROOT)
+        self.assertEqual(held["helper_identity"], self.name())
+
+    def test_the_settlement_and_the_token_return_are_correlatable(self):
+        """R3's last audit point, from the receipt alone.
+
+        A reader that holds only the durable settlement can name the generation and
+        ask the token journal what became of it -- which is what makes the two
+        separate facts one account rather than two disconnected ones.
+        """
+        answered = self.prepared()
+        fresh = self.reopened()
+        settled = maintenance.maintenance_settlement(fresh, "attempt-1",
+                                                     "workspace")
+        current = tokens.token_of(fresh, settled["domain"],
+                                 settled["generation"])
+        self.assertTrue(current["returned"])
+        self.assertEqual(current["container"], settled["container"])
+        self.assertEqual(current["owner"], settled["owner"])
+        self.assertEqual(settled["generation"], answered.generation)
+
+
+class TheOrderingMatrixIsProvedInBothDirections(MaintenanceCase):
+    """W285463 review 2026-09-27T13-56-09Z, the reverse ordering.
+
+    The reviewer committed a real `workspaces._admitted_allocation`, proved it
+    standing, and this facility ran a preparation inside roots another act was in
+    the middle of creating: `maintenance._admitted` and `_eligible` read custody
+    overlap and standing removals and NEITHER read a standing allocation, so the
+    workspaces-side guard only ever proved the maintenance-first direction.
+
+    One reader answers both decisions now -- `maintenance._conflicting` -- and the
+    cases below drive each admission in BOTH directions at its own atomic point.
+    The matrix in PROGRESS marks which rows are these selectors and which remain
+    source-only.
+    """
+
+    def settlement(self):
+        """The operands `intake.authorize_cleanup` composes for a cleanup."""
+        return {"operation": "cleanup:attempt-1", "signature": "sig-1",
+                "incarnation": "maintenance-1"}
+
+    # -- the other act first, then the preparation -------------------------
+
+    def refuses_after(self, act, kind, reader):
+        """`act` commits first; the preparation must then refuse having done nothing.
+
+        The ordinal is READ from the owner's own reader rather than written here:
+        `setUp` already performed one completed allocation, so an expectation of
+        "allocation 1" was my own arithmetic rather than the journal's -- measured
+        when it came back as 2.
+        """
+        act()
+        standing = reader(self.store, "attempt-1")
+        self.assertTrue(standing, "the act under test recorded nothing")
+        expected = (f"{kind} {standing[0][0]} of attempt "
+                    f"{name_value('attempt-1')}'s roots")
+        engine = Engine(self)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(engine)
+        self.assertIn(expected, str(refused.exception))
+        self.assertIn("a WRITER inside these roots", str(refused.exception))
+        # NOTHING RAN AND NOTHING WAS ACQUIRED.
+        self.assertEqual(engine.ran, 0)
+        self.assertEqual(engine.seen, [])
+        self.assertEqual(tokens.outstanding(self.store, self.domain()), [])
+        self.assertEqual(maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace"), [])
+
+    def test_an_admitted_allocation_excludes_a_preparation(self):
+        """The reviewer's own schedule, kept as my regression."""
+        self.refuses_after(
+            lambda: workspaces._admitted_allocation(
+                self.store, "attempt-1", "allocating these roots"),
+            "allocation", workspaces.standing_allocation)
+
+    def test_an_admitted_removal_excludes_a_preparation(self):
+        self.refuses_after(
+            lambda: workspaces._admitted_removal(
+                self.store, "attempt-1", "removing these roots"),
+            "removal", workspaces.standing_removal)
+
+    def test_an_admitted_cleanup_excludes_a_preparation(self):
+        self.refuses_after(
+            lambda: workspaces.admit_cleanup(
+                self.store, "attempt-1", self.settlement(),
+                "cleaning up these roots"),
+            "cleanup", workspaces.standing_cleanup)
+
+    def test_an_admitted_adoption_excludes_a_preparation(self):
+        self.refuses_after(
+            lambda: workspaces._admitted_adoption(
+                self.store, "attempt-1", "adopting these roots"),
+            "adoption", workspaces.standing_adoption)
+
+    # -- the preparation first, then the other act -------------------------
+
+    def refused_during(self, act):
+        case = self
+        outcome = []
+
+        class Concurrent(Engine):
+            def starting(self, argv):
+                case.assertTrue(maintenance.standing_maintenance(
+                    case.store, "attempt-1", "workspace"))
+                try:
+                    act()
+                    outcome.append(None)
+                except ContractRefusal as refused:
+                    outcome.append(str(refused))
+                return super().starting(argv)
+
+        answered = self.prepared(Concurrent(self))
+        self.assertTrue(answered.ok, answered.diagnostic)
+        self.assertEqual(len(outcome), 1)
+        self.assertIsNotNone(outcome[0], "the act was admitted beside a writer")
+        self.assertIn("unsettled maintenance window 1", outcome[0])
+        return outcome[0]
+
+    def test_a_preparation_excludes_a_cleanup_admission(self):
+        self.refused_during(lambda: workspaces.admit_cleanup(
+            self.store, "attempt-1", self.settlement(),
+            "cleaning up these roots"))
+
+    def test_a_preparation_excludes_an_adoption_admission(self):
+        self.refused_during(lambda: workspaces._admitted_adoption(
+            self.store, "attempt-1", "adopting these roots"))
+
+    # -- and the interposed race, which is why there are two decisions -----
+
+    def test_a_preparation_excludes_an_allocation_admission(self):
+        """And with BOTH sides guarded the interposed allocation cannot commit.
+
+        I wrote this case expecting the acquisition's predicate to refuse an
+        allocation admitted between the window and the acquire. Measured, it never
+        gets that far: the workspaces-side guard refuses the allocation itself, so
+        the schedule collapses into "whoever commits first wins". The predicate is
+        still load-bearing and is proved so by the `custody._record_hold` case
+        above, which is the one route that does not consult the window.
+        """
+        self.refused_during(lambda: workspaces._admitted_allocation(
+            self.store, "attempt-1", "allocating these roots"))
+
+    def test_a_window_on_the_RESULT_root_excludes_the_workspace_entries_too(self):
+        """Both roots on the workspaces side as well, driven rather than asserted.
+
+        `_journal_maintenance` walks `custody.CUSTODY_ROOTS`, so a window over the
+        nested result root covers the workspace every entry actually operates on.
+        """
+        maintenance._admitted(
+            self.store, "attempt-1", "result",
+            operation=maintenance.ESTABLISH_RESULT_ROOT,
+            name=self.name(which="result"), domain=self.domain(),
+            pre_allocation=f"{self.domain().split(':', 1)[1]}/result-attempt-1")
+        for act in (lambda: workspaces.refuse_if_held(
+                        self.store, self.storage, "attempt-1", "allocating"),
+                    lambda: workspaces._admitted_removal(
+                        self.store, "attempt-1", "removing"),
+                    lambda: workspaces._admitted_adoption(
+                        self.store, "attempt-1", "adopting"),
+                    lambda: workspaces.admit_cleanup(
+                        self.store, "attempt-1", self.settlement(),
+                        "cleaning up")):
+            with self.subTest(act=act):
+                with self.assertRaises(ContractRefusal) as refused:
+                    act()
+                self.assertIn("result root carries unsettled maintenance "
+                              "window 1", str(refused.exception))
+
+    def test_one_reader_answers_both_decisions(self):
+        """The structural half, so the two can never diverge again.
+
+        `_admitted` raises what `_conflicting` answers and `_eligible` returns it;
+        my previous cut had two separate readings and the allocation was missing
+        from both.
+        """
+        self.assertIsNone(maintenance._conflicting(self.store, "attempt-1",
+                                                   "workspace"))
+        workspaces._admitted_allocation(self.store, "attempt-1", "allocating")
+        standing = workspaces.standing_allocation(self.store, "attempt-1")
+        why = maintenance._conflicting(self.store, "attempt-1", "workspace")
+        self.assertIn(f"allocation {standing[0][0]} of attempt", why)
+        self.assertEqual(
+            maintenance._eligible(self.store, "attempt-1", "workspace")(None)
+            .startswith(why), True)
+
+
+class TheContainersOwnExitDecidesTheOutcome(MaintenanceCase):
+    """W285463 review 2026-09-27T14-07-07Z, and a confirmed false success of mine.
+
+    `docker wait` answers two different things: its CLI status says whether the
+    manager's command worked, and its STDOUT is the exit code of the container it
+    waited for. I ignored the stdout and then used the LOGS command's CLI status as
+    the act's status -- so a container that exited 17 came back `ok`, was settled as
+    `prepared` and had its token returned, because two engine commands ABOUT it had
+    succeeded. A correct report and a real filesystem effect do not turn a failed
+    execution into a successful one.
+    """
+
+    def exiting(self, stdout):
+        """An engine whose container reports this exact wait answer."""
+        case = self
+
+        class Exited(Engine):
+            def __call__(self, argv, *, seconds=None):
+                answer = super().__call__(argv, seconds=seconds)
+                if argv[1] == "wait":
+                    answer["stdout"] = stdout
+                return answer
+
+        return Exited(case)
+
+    def test_exit_zero_is_the_positive_control_and_still_settles(self):
+        answered = self.prepared(self.exiting("0\n"))
+        self.assertTrue(answered.ok, answered.diagnostic)
+        self.assertEqual(answered.status, 0)
+        settled = maintenance.maintenance_settlement(self.store, "attempt-1",
+                                                     "workspace")
+        self.assertEqual(settled["disposition"], maintenance.SETTLED_PREPARED)
+        self.assertEqual(settled["exit_status"], 0)
+
+    def test_a_nonzero_exit_is_recorded_AND_STILL_HOLDS_THE_RESOURCE(self):
+        """MY OWN EXPECTATION WAS THE REGRESSION, and the record says so.
+
+        I first wrote this case asserting the token WAS returned and the window
+        closed, on the argument that a known exit plus a proved cessation leaves no
+        uncertainty. Review 2026-09-27T14-27-04Z corrected the policy and is right:
+        three facts are separate (TOK-8) -- the container is gone, its exit is known,
+        and what it DID to the tree is not. A failed act may have left partial output
+        that needs repair (TOK-12), so freeing the resource would let an ordinary
+        replacement take a tree whose state nobody established.
+        """
+        engine = self.exiting("17\n")
+        answered = self.prepared(engine)
+        self.assertFalse(answered.ok)
+        self.assertTrue(answered.held)
+        self.assertFalse(answered.returned)
+        self.assertEqual(answered.status, 17)
+        self.assertIn("EXITED 17", answered.diagnostic)
+        self.assertIn("a known exit is not a known effect", answered.diagnostic)
+        # THE FAILURE IS DURABLE AND DISTINGUISHABLE, through a fresh handle -- and it
+        # is its OWN record rather than a settlement, so it discharges nothing.
+        fresh = self.reopened()
+        failure = maintenance.maintenance_failure(fresh, "attempt-1",
+                                                  "workspace", 1)
+        self.assertEqual(failure["exit_status"], 17)
+        self.assertEqual(failure["container"], answered.container)
+        self.assertEqual(failure["generation"], answered.generation)
+        self.assertTrue(failure["accounted"])
+        self.assertIsNone(maintenance.maintenance_settlement(fresh, "attempt-1",
+                                                             "workspace"))
+        # THE HOLD STANDS: token outstanding, window standing, and every other act
+        # over these roots still excluded.
+        self.assertFalse(tokens.token_of(self.store, self.domain(),
+                                         1)["returned"])
+        self.assertTrue(tokens.outstanding(self.store, self.domain()))
+        self.assertEqual([one for one, _ in maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace")], [1])
+        with self.assertRaises(ContractRefusal):
+            workspaces.refuse_if_held(self.store, self.storage, "attempt-1",
+                                      "allocating these roots")
+        # THE CONTAINER IS STILL PROVED ABSENT AND THE EFFECT RAN ONCE.
+        self.assertEqual([argv[1] for argv, _ in engine.seen][-3:],
+                         ["stop", "rm", "inspect"])
+        self.assertEqual(engine.ran, 1)
+
+    def test_a_failed_exit_whose_ACCOUNT_IS_LOST_holds_the_resource_too(self):
+        """The reviewer's own schedule: a real effect and then no readable report.
+
+        This is the case that makes the distinction concrete -- the account is gone,
+        so nothing at all is known about what the execution left behind.
+        """
+        case = self
+
+        class Lost(Engine):
+            def starting(self, argv):
+                answered = super().starting(argv)
+                self.stdout = "unreadable result\n"
+                return answered
+
+            def __call__(self, argv, *, seconds=None):
+                answered = super().__call__(argv, seconds=seconds)
+                if argv[1] == "wait":
+                    answered["stdout"] = "17\n"
+                return answered
+
+        engine = Lost(self)
+        answered = self.prepared(engine)
+        self.assertFalse(answered.ok)
+        self.assertFalse(answered.returned)
+        self.assertEqual(engine.ran, 1)
+        self.assertTrue(tokens.outstanding(self.store, self.domain()))
+        self.assertEqual([one for one, _ in maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace")], [1])
+        failure = maintenance.maintenance_failure(self.store, "attempt-1",
+                                                  "workspace", 1)
+        self.assertEqual(failure["exit_status"], 17)
+        # AND THE RECORD SAYS THE ACCOUNT WAS NOT ONE THIS MANAGER COULD READ.
+        self.assertFalse(failure["accounted"])
+        self.assertIsNone(failure["report"])
+
+    def test_a_failed_exit_whose_report_names_ANOTHER_submission_holds_too(self):
+        """A report for another generation is no better than none."""
+        engine = self.exiting("17\n")
+        engine.document = {
+            "maintenance": maintenance.ESTABLISH_RESULT_ROOT,
+            "version": maintenance.MAINTENANCE_VERSION,
+            "submission": "0" * 64, "place": "result-attempt-1",
+            "established": True, "mode": oct(maintenance.PREPARED_MODE),
+            "running_as": list(self.identity())}
+        answered = self.prepared(engine)
+        self.assertFalse(answered.ok)
+        self.assertFalse(answered.returned)
+        failure = maintenance.maintenance_failure(self.store, "attempt-1",
+                                                  "workspace", 1)
+        self.assertEqual(failure["exit_status"], 17)
+        self.assertFalse(failure["accounted"])
+        # AND THE RECORD NAMES WHICH RULE THE REPORT FAILED, so an operator reads a
+        # reason rather than a bare flag. Measured correction of mine: `accounted`
+        # first came from the SHAPE alone, so this document was written down as
+        # accounted for while naming another generation.
+        self.assertIn("answers for submission", failure["unaccounted"])
+        self.assertIsNone(failure["report"])
+        self.assertTrue(tokens.outstanding(self.store, self.domain()))
+
+    def test_a_wait_answer_this_manager_cannot_READ_is_an_unknown(self):
+        """Missing, multiple, non-numeric and out of range -- each its own attempt,
+        because an unreturned generation excludes the next acquisition."""
+        for label, stdout, why in (
+                ("missing", "\n", "0 exit codes"),
+                ("multiple", "0\n17\n", "2 exit codes"),
+                ("prose", "exited cleanly\n", "not a whole number"),
+                ("out-of-range", "4096\n", "outside the range")):
+            with self.subTest(label=label):
+                attempt = self.another(f"attempt-wait-{label}")
+                engine = self.exiting(stdout)
+                answered = self.prepared(engine, assignment_id=attempt)
+                self.assertFalse(answered.ok)
+                self.assertTrue(answered.held)
+                self.assertIsNone(answered.status)
+                self.assertIn("UNRESOLVED", answered.diagnostic)
+                self.assertIn(why, answered.diagnostic)
+                # NO SETTLEMENT, THE WINDOW STANDS, THE TOKEN IS HELD.
+                self.assertIsNone(maintenance.maintenance_settlement(
+                    self.store, attempt, "workspace"))
+                self.assertEqual(
+                    [one for one, _ in maintenance.standing_maintenance(
+                        self.store, attempt, "workspace")], [1])
+                self.assertFalse(tokens.token_of(
+                    self.store, self.domain_of(attempt), 1)["returned"])
+
+    def test_a_failed_wait_COMMAND_is_a_transport_unknown_not_an_exit(self):
+        """The other half of the distinction: nobody learned whether it ended, so
+        the container is not proved absent and nothing is settled."""
+        answered = self.prepared(Engine(self, waits=1))
+        self.assertFalse(answered.ok)
+        self.assertTrue(answered.held)
+        self.assertIn("could not learn whether the preparation", answered.diagnostic)
+        self.assertIsNone(maintenance.maintenance_settlement(
+            self.store, "attempt-1", "workspace"))
+        self.assertEqual([one for one, _ in maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace")], [1])
+        self.assertFalse(tokens.token_of(self.store, self.domain(),
+                                         1)["returned"])
+
+    def test_a_correct_report_does_not_rescue_a_failed_container(self):
+        """The reviewer's exact point, asserted as a property.
+
+        The program really ran, really created the object and really printed an
+        accountable versioned report -- and the act is still not a preparation.
+        """
+        engine = self.exiting("17\n")
+        answered = self.prepared(engine)
+        self.assertIsNotNone(answered.answer)
+        self.assertIsNone(answered.unaccounted)
+        self.assertTrue(answered.answer["established"])
+        self.assertTrue(os.path.isdir(self.result))
+        self.assertFalse(answered.ok)
 
 
 if __name__ == "__main__":       # pragma: no cover

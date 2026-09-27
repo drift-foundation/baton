@@ -1,0 +1,47 @@
+{
+  "work": "W285463",
+  "claim": 286097,
+  "verdict": "admission accepted; exit-status correction required",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+      "sha256": "01c637233d27e6da968b2992f7542d2fd659cbc6721dee8f6ad8e49b2acfcc10"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "sha256": "2f88554e782d8ee1aab0a9a4aadb6840025c21fd87973d55bd0bb6872164cf8a"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "6810a8c4ccfabdab38ae31dbcb9937a941858e135faced7f78003a7ea68abf41"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "0e0368a0bff481de4a4ceeda0d0feb68a0cd2e5269f3fc735df386bd86f6f587"
+    },
+    {
+      "path": "v12/python/tests/manager/test_maintenance.py",
+      "sha256": "56853dab7b98b56e89a15920245a12693682167d689b9159a71360e00081eb9e"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "5b1c075cdf87606eb65eac3e71477f03dc0ca06b8aad6005dffc389588a9491f"
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "38b7ca09464a923c967bf02497fc4c2a01a63168c1b125da0ed9372f7ba1fb79"
+    },
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-facility/PROGRESS.md",
+      "sha256": "86b709af98c75aec2f97e39c72d784a56d99b37e46090a4c8b08f0cf88dd59a9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-facility/review_exit_status_20260927.py",
+      "sha256": "94717ad70fddbed0a81a6f3dfc2908e6d2634159d9924e7ea9ad3c5d20944449"
+    }
+  ]
+}

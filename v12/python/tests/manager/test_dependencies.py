@@ -411,6 +411,12 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # alongside the clock, the wait and the stopping predicate -- composing a
         # runtime adapter is the deployment's act, not the job manager's.
         "reclaim",
+        # W285463: `ORDINAL` names ONE durable maintenance window over one root --
+        # the same shape `workspaces` already uses for a removal ownership. It is a
+        # fact about which recorded act a reader is asking about, not internal state:
+        # the identity is derived from it, so a value naming no window answers absence
+        # rather than selecting anything.
+        "ordinal",
         # contracts
         "value", "payload", "document", "name", "names", "what", "required",
         "validator",

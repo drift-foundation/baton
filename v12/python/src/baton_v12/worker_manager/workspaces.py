@@ -2232,6 +2232,11 @@ def _admitted_adoption(control, assignment_id, what):
                 f"{what} is refused: removal {ordinal} of this attempt's roots was admitted "
                 f"and has recorded no completion, so these roots are being deleted and are "
                 f"not adopted until that removal is reconciled")
+        # W285463 review 2026-09-27T13-56-09Z: AND THE MAINTENANCE WINDOW, at this
+        # act's OWN admission rather than only at the early chokepoint.
+        refusal = _maintenance_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
         ordinal = 1
         while control.operation_record(
                 _adoption_id(assignment_id, ordinal)) is not None:
@@ -2425,6 +2430,14 @@ def admit_cleanup(control, assignment_id, settlement, what):
         competing = _competing_allocation(control, assignment_id, what)
         if competing is not None:
             raise ContractRefusal("refused", "precondition", competing)
+        # W285463 review 2026-09-27T13-56-09Z: AND A GOVERNED PREPARATION, read under
+        # this same lock. A cleanup admitted beside a live maintenance writer is the
+        # same defect the allocation read above closes, one party along -- and it is
+        # asked at this act's OWN admission rather than only at the early chokepoint,
+        # because whichever transaction commits first must be the one the other SEES.
+        refusal = _maintenance_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
         for ordinal, record in standing_cleanup(control, assignment_id):
             held = _admitted_cleanup_document(control, assignment_id, ordinal,
                                               record)
@@ -2644,6 +2657,12 @@ def _admitted_allocation(control, assignment_id, what):
                 f"and has recorded no completion, so whether that removal is still running "
                 f"or stopped half way is unknown -- these roots are not created again until "
                 f"it is reconciled")
+        # W285463 R1: THE FRESH DECISION, under this act's own lock. The chokepoint
+        # above is the early refusal; this is the one that DECIDES, under the same
+        # authority a maintenance window commits under.
+        refusal = _maintenance_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
         held = _journal_holds(control, assignment_id)
         if held:
             which, episode = held[0]
@@ -2918,6 +2937,63 @@ def standing_removal(control, assignment_id):
         ordinal += 1
 
 
+def _journal_maintenance(control, assignment_id):
+    """Every STANDING maintenance window over EITHER root, database-only.
+
+    W285463 review 2026-09-27T13-42-58Z. The reviewer reached two schedules with a
+    governed preparation ACTIVE -- its container admitted and running -- in which
+    `refuse_if_held` returned and `_admitted_removal` committed. A preparation is a
+    writer inside these roots, so admitting an allocation, an adoption or a removal
+    beside it is the same defect W270664 F2 closed for custody and removals, one
+    party later.
+
+    BOTH ROOTS, for `_journal_holds`' own reason: `custody._derived_root` puts the
+    result root INSIDE the workspace, so a window over either covers a tree the
+    other contains.
+
+    THE WINDOW AND NOT THE TOKEN, and the reason is the same one that shaped the
+    maintenance side: a resource token's domain is `device:inode` of a root, so
+    resolving it means an `lstat` -- external I/O this reader must not perform,
+    because it is called from inside `BEGIN IMMEDIATE`. The window is recorded by
+    DERIVED identity, which is what makes it askable here at all.
+
+    THE READER IS THE OWNER'S. `maintenance.standing_maintenance` is the one
+    authority for whether a window stands; it is consulted rather than shadowed, so
+    there is no second durable record of the same fact. The import is local because
+    `maintenance` imports this module.
+    """
+    from . import custody, maintenance
+
+    found = []
+    for which in custody.CUSTODY_ROOTS:
+        for ordinal, record in maintenance.standing_maintenance(
+                control, assignment_id, which):
+            held = record["result"]
+            if type(held) is str:
+                import json as _json
+
+                held = _json.loads(held)
+            found.append((which, ordinal, held or {}))
+    return found
+
+
+def _maintenance_refusal(control, assignment_id, what):
+    """The refusal a standing maintenance window earns, or `None`."""
+    for which, ordinal, held in _journal_maintenance(control, assignment_id):
+        return ContractRefusal(
+            "refused", "precondition",
+            f"{what} is refused: attempt {name_value(assignment_id)}'s {which} "
+            f"root carries unsettled maintenance window {ordinal} for "
+            f"{name_value(held.get('verb'))}, whose container is "
+            f"{name_value(held.get('helper_identity'))} and whose governed "
+            f"resource is {name_value(held.get('domain'))}; a governed "
+            f"preparation is a WRITER inside these roots, so they are not "
+            f"allocated, adopted or removed beside it -- and an unsettled window "
+            f"is reconciled rather than acted past. The two roots of one attempt "
+            f"overlap, so neither is free while either carries one")
+    return None
+
+
 def _journal_holds(control, assignment_id):
     """Both roots' STANDING custody holds, as a database-only reading.
 
@@ -3075,6 +3151,14 @@ def _admitted_removal(control, assignment_id, what, pinned=None, under=None,
                 f"{what} is refused: this attempt's {which} root carries recorded "
                 f"custody episode {episode.get('episode')!r}, and the two roots of one "
                 f"attempt overlap, so neither is free while either is held")
+        # W285463 R1: AND THE MAINTENANCE WINDOW, read under this same lock. The
+        # reviewer's probe committed a removal ownership while a preparation's
+        # container was admitted and running; a removal admitted beside a live
+        # writer is the failure this whole transaction exists to prevent, one party
+        # later than the custody holds above.
+        refusal = _maintenance_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
         # DURABLE USE FIRST, because it outlives any window: while a writer or an attachment
         # is ACTIVE for this attempt, its roots are in use and no removal is admitted -- which
         # is what makes the grant binding a real handover rather than a dropped exclusion.
@@ -3582,6 +3666,14 @@ def refuse_if_held(control, storage, assignment_id, what, under=None):
                 f"admitted and has recorded no completion, so whether that removal is "
                 f"still running or stopped half way is unknown -- these roots are not "
                 f"reused, adopted or removed again until it is reconciled")
+        # W285463 R1: AND A GOVERNED MAINTENANCE WINDOW, at this same chokepoint.
+        # Allocation, adoption and removal all pass through here, so one reading
+        # covers all three -- which is exactly the argument this function was
+        # written under for the removal ownership, applied to the preparation that
+        # now writes into these roots.
+        refusal = _maintenance_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
     if control is None or not hasattr(control, "operation_record"):
         _denied(f"{what} needs this manager's own control store to check the "
                 f"custody holds that would refuse it; an act that cannot ask "

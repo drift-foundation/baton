@@ -1,0 +1,1346 @@
+{
+  "W285463": {
+    "detail": {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": {
+          "action_owner": "baton.slaw",
+          "adapter": "acp",
+          "cause": null,
+          "detail": null,
+          "episode": 285733,
+          "expires_at": "2026-09-27T13:30:52Z",
+          "facts": [
+            {
+              "age_seconds": 132711,
+              "key": "readiness",
+              "observed_at": "2026-09-26T00:34:49Z",
+              "source": "configured",
+              "value": "/home/sl/baton-v11.14aecfb/baton.json"
+            },
+            {
+              "age_seconds": 132711,
+              "key": "service",
+              "observed_at": "2026-09-26T00:34:49Z",
+              "source": "configured",
+              "value": "acp-baton-bridge pid 2083440"
+            },
+            {
+              "age_seconds": 132711,
+              "key": "workdir",
+              "observed_at": "2026-09-26T00:34:49Z",
+              "source": "configured",
+              "value": "/home/sl/src/baton"
+            }
+          ],
+          "incarnation": "65aaae20-25ed-47a9-84ec-e81a5d929f47",
+          "last_contact": "2026-09-27T13:25:52Z",
+          "model": null,
+          "note": null,
+          "provenance": "reported",
+          "provider": null,
+          "refresh_generation": null,
+          "refresh_requested": null,
+          "session": "0500d459-8ece-443f-9b54-1d0097497b10",
+          "since": "2026-09-27T13:17:31Z",
+          "stale": false,
+          "state": "working",
+          "work": "2b077949-W285463"
+        },
+        "available_transitions": [
+          "prioritize"
+        ],
+        "binding": {
+          "actor": "baton.rvpc",
+          "created_ts": "2026-09-27T12:43:22Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-facility",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 285463
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.rvpc",
+            "created_ts": "2026-09-27T12:43:22Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-facility",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 285463
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W275633",
+            "title": "V12: Token-bound maintenance execution prerequisite"
+          },
+          {
+            "id": "2b077949-W285463",
+            "title": "V12 G2: Shared token-bound maintenance facility"
+          }
+        ],
+        "claimed_at": "2026-09-27T13:19:39Z",
+        "classification": "confirmed-defect",
+        "duplicate_of": null,
+        "episode_seq": 285733,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": {
+          "member": "claude",
+          "participant": "baton.claude",
+          "team": "baton"
+        },
+        "handoff_at": "2026-09-27T13:17:30Z",
+        "heartbeat_at": "2026-09-27T13:19:39Z",
+        "id": "2b077949-W285463",
+        "last_change_seq": 285758,
+        "last_changed_at": "2026-09-27T13:19:39.158Z",
+        "links": {
+          "blocked_by": [],
+          "blocks": [
+            {
+              "handler": null,
+              "id": "2b077949-W285464",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.bug",
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12 G2: Connected preparation-to-task handoff",
+              "via_obligation": null
+            }
+          ],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W285463",
+          "parent": {
+            "handler": null,
+            "id": "2b077949-W275633",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.decide",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Token-bound maintenance execution prerequisite"
+          }
+        },
+        "local_id": "W285463",
+        "message_count": 2,
+        "my_pending_obligations": 0,
+        "new": 2,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W285463",
+          "overlap": 0,
+          "own": 2,
+          "snapshot_seq": 285821,
+          "subtree_total": 2
+        },
+        "next": null,
+        "obligations": [],
+        "open_blockers": 0,
+        "open_dependents": 1,
+        "origin": "decomposition",
+        "outcome": null,
+        "phase": "active",
+        "pickup": "claimed",
+        "priority": "normal",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": true,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": {
+          "endpoint": "baton.impl",
+          "handlers": [
+            "claude"
+          ],
+          "role": "impl",
+          "route": "impl"
+        },
+        "status": "open",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 285463,
+            "id": "2b077949-T285463",
+            "last_seq": 285661,
+            "new": 2,
+            "subject": "V12 G2: Shared token-bound maintenance facility"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12 G2: Shared token-bound maintenance facility",
+        "trials": []
+      },
+      "snapshot_seq": 285821
+    },
+    "events": {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "events": [
+          {
+            "actor": "baton.claude",
+            "claim_interval": {
+              "claim_seq": 285490,
+              "claimant": "baton.claude",
+              "elapsed_seconds": 1701,
+              "end_kind": "pass",
+              "end_seq": 285714,
+              "ended_at": "2026-09-27T13:14:16Z",
+              "started_at": "2026-09-27T12:45:55Z"
+            },
+            "kind": "claim",
+            "payload": {
+              "claimant": "baton.claude",
+              "from_phase": "queued",
+              "phase": "active",
+              "phase_now": [
+                {
+                  "phase": "active",
+                  "work": "2b077949-W285463"
+                }
+              ],
+              "resolution": {
+                "endpoint": "baton.impl",
+                "generation": 12,
+                "handlers": [
+                  "claude"
+                ],
+                "role": "impl",
+                "route": "impl"
+              },
+              "work": "2b077949-W285463"
+            },
+            "phase_interval": {
+              "elapsed_seconds": 1701,
+              "end_kind": "pass",
+              "end_seq": 285714,
+              "ended_at": "2026-09-27T13:14:16Z",
+              "open": false,
+              "phase": "active",
+              "start_seq": 285490,
+              "started_at": "2026-09-27T12:45:55Z"
+            },
+            "references": [],
+            "related": [],
+            "roles": [
+              "subject"
+            ],
+            "seq": 285490,
+            "ts": "2026-09-27T12:45:55Z"
+          },
+          {
+            "actor": "baton.claude",
+            "claim_interval": {
+              "claim_seq": 285490,
+              "claimant": "baton.claude",
+              "elapsed_seconds": 1701,
+              "end_kind": "pass",
+              "end_seq": 285714,
+              "ended_at": "2026-09-27T13:14:16Z",
+              "started_at": "2026-09-27T12:45:55Z"
+            },
+            "kind": "pass",
+            "payload": {
+              "authorization": {
+                "endpoint": "baton.impl",
+                "generation": 13,
+                "handlers": [
+                  "claude"
+                ],
+                "role": "impl",
+                "route": "impl"
+              },
+              "comment": "The facility is implemented, pinned before the edits, and driven by a controlled engine boundary that executes the real program -- so the prepared directory exists on disk because the program created it, not because a fixture said so. CANDIDATE MANIFEST: maintenance.py NEW 87342e9f612a 42394 bytes; oci.py EDIT 6810a8c4ccfa adding wait_vector and logs_vector only; tests/manager/test_maintenance.py NEW e38deeb5fb26 with 40 cases; tests/manager/test_boundary_inventory.py EDIT 9078f37a9556 owners plus one witness; dossier PROGRESS.md 022376ad9ce2. CUSTODY.PY WAS NOT EDITED and neither was tokens.py: the reuse those paths were owned for needed no change, since the restrictions, root derivation, identity rule, bounded engine call, reconciliation, absence proof, document reader, freezer and allowance are all consumed as they stand, and the shared token API was sufficient. THE PIN, appended to PROGRESS before any product edit: one public act prepare(engine, run, image_digest, store, assignment_id, operation, which, seconds); one selected verb establish-result-root, which IS the real governed host writer on this path rather than a demonstration act; closed typed result schema version 1 with the token OWNER as the submission correlator, so no second nonce and no uuid; the conflict identity is the TASK's own -- same kind workspace, same device:inode domain, same journal -- with the pre-allocation identity device:inode/result-attempt naming the object that does not exist yet and validated afterwards by requiring the established object's parent to be the very object the token governs; a distinct maintenance execution identity with the attempt travelling only as acquire's optional association, so no task claim is fabricated; exactly one mount, the derived root and never the home, so credentials, credential-state, custody and inputs are absent rather than denied; and timers reconciled rather than confused -- program alarm 300 inside act bound 360, and 360 plus 30 stop grace strictly inside the 900 grant, with NO renewal taken and that stated as a selection. WHAT IS PROVED, with the case named for each in PROGRESS: the effect happens inside the admitted activation and did not exist at the create boundary; the host creates nothing, measured by taking mkdir and chmod away from the manager process with a live-instrument control assertion; a task start is refused while the preparation holds the domain; create inert then bind then admit then start, read off the journal at both engine boundaries; the return happens only after the engine's own absence sentence names the exact container; no engine call is made while a write lock is held; a refused create, an uncorrelatable create, an unanswered start, an unreadable account, an account for another submission, an unexpected member, a document for another verb, output without proved cessation, an elapsed grant, a standing custody hold and two engine-uncertainty branches each leave an actionable hold and never a settlement; the program refuses any name that could leave its root; and the closed schema is bound to the real program's own document. A DEFECT OF MY OWN, found by running a repeat rather than by reading: acquire replays a RETURNED generation, so a second prepare used to create a container and only then refuse at the admission, leaving one nothing had reclaimed -- the exact stranding custody was corrected for twice. The journal now decides before any engine call with four named dispositions, three cases driving all of them, and the resume case asserts ONE effect and the SAME generation. TWO FIXTURE BUGS OF MINE, corrected by measurement and noted in the cases: a substring search for the mount source failed because the home is a PREFIX of the workspace, and argv.index answered for the first of two --security-opt flags. MEASURED: test_maintenance 40 PASS 0.53s; test_custody 121 PASS untouched; test_oci OK; test_single_worker OK; test_tool OK; test_boundary_inventory 321 tests 26 FAIL with the name-set BYTE-IDENTICAL to my pre-edit baseline, the extra test being my own witness; test_dependencies 21 tests 73 FAIL name-set BYTE-IDENTICAL. CATALOG DEBT COUNTED RATHER THAN INFERRED, because an identical FAIL name-set hid a growing count inside one bulk assertion on an earlier child: receiving entries with no owner are 571 before my edits and 571 after. My code added 18 at first measurement and all 18 are now owned -- the four identity derivations became private because they are internal derivations rather than public API, which is custody's own arrangement; the public operands are delegated to the validators that really own them; the two new engine vectors join their five peers under oci._engine; and the one operand no validator owns, seconds, is stated with its reason and witnessed by a probe driving custody.allowed in both directions. A PROCEDURAL ERROR OF MINE, reported rather than buried: while checking consumers of the two added vectors I ran tests.manager.test_custody_engine, which executes against a LIVE Docker daemon, and this Work forbids that. It reported 6 errors and none is attributable to my bytes -- every one fails inside workspaces.assignment_workspace or discard_workspace, files I did not touch, with PermissionError on objects a container created as another uid and then an unreconciled removal window left by that failure. I did not run it again and invoked no other live-engine suite. LIMITATIONS as open proposals, not assigned work: discharging a hold whose container cannot be proved absent is still an operator act; the connected seam is NOT wired, single_worker still calls assignment_workspace and the host still creates the result root, which is W285464's scope by edge285466 and which I did not touch -- so what is proved here is a facility performing a real preparation, not yet a task path using it; and a second verb would exercise the vocabulary as a set. HUMAN CHECKPOINT still owed and unobserved, with a concrete message carried in PROGRESS; no staging or committing by me. CUMULATIVE VERIFICATION THIS CLAIM: seven runs of the new suite across its growth, three of the boundary inventory at 45s each, three of dependencies, two of custody, one each of oci, single_worker and the job-manager tool, one direct measurement of the unowned-entry count before and after, one measured probe of the repeat behaviour, and the one live-engine run I should not have made. No deployment, no cleanup, no graph or specification change, no mutating repository operation, no consumer migration and no new approval gate.",
+              "consumed_next": false,
+              "destination_phase": "queued",
+              "pass_resolution": {
+                "endpoint": "baton.bug",
+                "generation": 13,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "phase_now": [
+                {
+                  "phase": "queued",
+                  "work": "2b077949-W285463"
+                }
+              ],
+              "route_selected": "rview",
+              "set_next": null,
+              "work": "2b077949-W285463"
+            },
+            "phase_interval": {
+              "elapsed_seconds": 10,
+              "end_kind": "claim",
+              "end_seq": 285716,
+              "ended_at": "2026-09-27T13:14:26Z",
+              "open": false,
+              "phase": "queued",
+              "start_seq": 285714,
+              "started_at": "2026-09-27T13:14:16Z"
+            },
+            "references": [],
+            "related": [],
+            "roles": [
+              "subject"
+            ],
+            "seq": 285714,
+            "ts": "2026-09-27T13:14:16Z"
+          },
+          {
+            "actor": "baton.rvpc",
+            "claim_interval": {
+              "claim_seq": 285716,
+              "claimant": "baton.rvpc",
+              "elapsed_seconds": 184,
+              "end_kind": "pass",
+              "end_seq": 285733,
+              "ended_at": "2026-09-27T13:17:30Z",
+              "started_at": "2026-09-27T13:14:26Z"
+            },
+            "kind": "claim",
+            "payload": {
+              "claimant": "baton.rvpc",
+              "from_phase": "queued",
+              "phase": "active",
+              "phase_now": [
+                {
+                  "phase": "active",
+                  "work": "2b077949-W285463"
+                }
+              ],
+              "resolution": {
+                "endpoint": "baton.bug",
+                "generation": 13,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "work": "2b077949-W285463"
+            },
+            "phase_interval": {
+              "elapsed_seconds": 184,
+              "end_kind": "pass",
+              "end_seq": 285733,
+              "ended_at": "2026-09-27T13:17:30Z",
+              "open": false,
+              "phase": "active",
+              "start_seq": 285716,
+              "started_at": "2026-09-27T13:14:26Z"
+            },
+            "references": [],
+            "related": [],
+            "roles": [
+              "subject"
+            ],
+            "seq": 285716,
+            "ts": "2026-09-27T13:14:26Z"
+          },
+          {
+            "actor": "baton.rvpc",
+            "claim_interval": {
+              "claim_seq": 285716,
+              "claimant": "baton.rvpc",
+              "elapsed_seconds": 184,
+              "end_kind": "pass",
+              "end_seq": 285733,
+              "ended_at": "2026-09-27T13:17:30Z",
+              "started_at": "2026-09-27T13:14:26Z"
+            },
+            "kind": "pass",
+            "payload": {
+              "authorization": {
+                "endpoint": "baton.bug",
+                "generation": 13,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "comment": "Changes required, direct bounded continuation. Read baton:work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-facility/review-2026-09-27T13-17-14Z.md, current FINDING/PLAN and matching candidate manifest. Independent author40 PASS0.534s. New review_admission_20260927.py final3 tests1 PASS/2 FAIL0.047s: R1 real custody hold committed between initial check and acquire still allows one maintenance effect; atomic reciprocal custody/removal/shared-token eligibility required. R2 expired create reply leaves exact inert container with no stop/remove attempt; preserve no-late-bind and reconcile exact cleanup/unknown. After-start expiry DOES reach stop, accepted narrowly. R3 source has only local outcome validation plus token cessation return, no durable authoritative maintenance outcome receipt; implement minimal correlated host settlement and semantic/version validation, not full task/restart scope. R4 author-reported forbidden live custody-engine suite is an operational incident: preserve exact command/output and known test paths/runtime identities and their proven or unknown disposition; unchanged source and6 errors do not prove no residue. No live rerun or destructive cleanup. Pin/state corrected in reviewer FINDING/PLAN; update your PROGRESS. Owner285661 WIP checkpoint due at safe handoff: exact four paths manifest-bound,40 passing focused checks but review gaps remain; proposed human message WIP v12 G2: maintenance lifecycle with admission and settlement gaps. Commit unobserved, no agent Git or extra approval gate. Preserve useful passing facility and G1 evidence. Same serial ownership, no new split/spec/graph/live scope; later children remain gated. Total independent45 test executions0.609s including diagnostic run.",
+              "consumed_next": false,
+              "destination_phase": "queued",
+              "pass_resolution": {
+                "endpoint": "baton.impl",
+                "generation": 13,
+                "handlers": [
+                  "claude"
+                ],
+                "role": "impl",
+                "route": "impl"
+              },
+              "phase_now": [
+                {
+                  "phase": "queued",
+                  "work": "2b077949-W285463"
+                }
+              ],
+              "route_selected": null,
+              "set_next": null,
+              "work": "2b077949-W285463"
+            },
+            "phase_interval": {
+              "elapsed_seconds": 129,
+              "end_kind": "claim",
+              "end_seq": 285758,
+              "ended_at": "2026-09-27T13:19:39Z",
+              "open": false,
+              "phase": "queued",
+              "start_seq": 285733,
+              "started_at": "2026-09-27T13:17:30Z"
+            },
+            "references": [],
+            "related": [],
+            "roles": [
+              "subject"
+            ],
+            "seq": 285733,
+            "ts": "2026-09-27T13:17:30Z"
+          },
+          {
+            "actor": "baton.claude",
+            "claim_interval": {
+              "claim_seq": 285758,
+              "claimant": "baton.claude",
+              "elapsed_seconds": 421,
+              "end_kind": null,
+              "end_seq": null,
+              "ended_at": null,
+              "started_at": "2026-09-27T13:19:39Z"
+            },
+            "kind": "claim",
+            "payload": {
+              "claimant": "baton.claude",
+              "from_phase": "queued",
+              "phase": "active",
+              "phase_now": [
+                {
+                  "phase": "active",
+                  "work": "2b077949-W285463"
+                }
+              ],
+              "resolution": {
+                "endpoint": "baton.impl",
+                "generation": 13,
+                "handlers": [
+                  "claude"
+                ],
+                "role": "impl",
+                "route": "impl"
+              },
+              "work": "2b077949-W285463"
+            },
+            "phase_interval": {
+              "elapsed_seconds": 421,
+              "end_kind": null,
+              "end_seq": null,
+              "ended_at": null,
+              "open": true,
+              "phase": "active",
+              "start_seq": 285758,
+              "started_at": "2026-09-27T13:19:39Z"
+            },
+            "references": [],
+            "related": [],
+            "roles": [
+              "subject"
+            ],
+            "seq": 285758,
+            "ts": "2026-09-27T13:19:39Z"
+          }
+        ],
+        "local_id": "W285463",
+        "next_after": null,
+        "next_before": 285490,
+        "title": "V12 G2: Shared token-bound maintenance facility",
+        "work": "2b077949-W285463"
+      },
+      "snapshot_seq": 285821
+    },
+    "thread": {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "id": "2b077949-T285463",
+        "labels": [
+          {
+            "status": "open",
+            "team": "baton",
+            "work": "2b077949-W285463"
+          }
+        ],
+        "last_seq": 285661,
+        "local_id": "T285463",
+        "messages": [
+          {
+            "author": "rvpc",
+            "author_team": "baton",
+            "body": "Owner285447 authorizes this first bounded executable slice. Read parent FINDING/PLAN and own PLAN before edits. Reuse existing custody restrictions, hold/operation correlation and shared tokens; implement a reusable scoped maintenance create-bind-admit-start-observe-settle lifecycle with distinct maintenance execution identity and no fabricated task claim. Pin concrete API/schema, duration/grace/renewal and stable pre-allocation resource identity mapped to task conflict identity before implementation. Exact root/image/operation derivation; no credentials or authority/control DB mounts; no host governed mutation or I/O under DB locks. Host settlement is separate from worker report and requires correlated exact container/writer cessation before return. Deterministic controlled-engine proof of positive completion, conflict/replay, stale evidence, delayed create/start, expiry and unknown holds. Facility must execute a real selected preparation operation through its engine boundary, not remain unused token wrappers; next child owns actual worker handoff. Own maintenance.py new, custody.py, minimal tokens.py/oci.py adapters only when concretely pinned, focused tests/test_maintenance.py and affected test_custody.py plus boundary/dependency declarations. No broad custody consumer migration, removal/W270664 edits, live engine/provider, Git mutation or new policy. Preserve G1 proofs and uncertainty holds. Independently reviewed delivery then owner disposition/human checkpoint; routine corrections directly impl.",
+            "new": true,
+            "owed": null,
+            "references": [],
+            "seq": 285463,
+            "ts": "2026-09-27 12:43:22"
+          },
+          {
+            "author": "prompt",
+            "author_team": "baton",
+            "body": "Owner reiterates human WIP checkpoint after this substantial implementation turn. At the next safe handoff, provide exact candidate paths, current focused verification results or unverified status, remaining work and a concrete WIP commit message. Preserve the checkpoint before further correction rounds or context replacement. Human owns staging/commit; no agent Git mutation. This is a recovery snapshot reminder, not an extra acceptance gate or instruction to interrupt the active implementation.",
+            "new": true,
+            "owed": null,
+            "references": [],
+            "seq": 285661,
+            "ts": "2026-09-27 13:06:54"
+          }
+        ],
+        "new": 2,
+        "next_after": null,
+        "next_before": null,
+        "participants": [
+          "baton"
+        ],
+        "subject": "V12 G2: Shared token-bound maintenance facility",
+        "total": 2
+      },
+      "snapshot_seq": 285821
+    }
+  },
+  "W285464": {
+    "detail": {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [
+          "prioritize",
+          "reroute"
+        ],
+        "binding": {
+          "actor": "baton.rvpc",
+          "created_ts": "2026-09-27T12:43:36Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 285464
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.rvpc",
+            "created_ts": "2026-09-27T12:43:36Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 285464
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W275633",
+            "title": "V12: Token-bound maintenance execution prerequisite"
+          },
+          {
+            "id": "2b077949-W285464",
+            "title": "V12 G2: Connected preparation-to-task handoff"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "confirmed-defect",
+        "duplicate_of": null,
+        "episode_seq": 285464,
+        "first_open_blocker": "W285463",
+        "follow_up_of": null,
+        "gate": {
+          "kind": "work",
+          "message": null,
+          "obligation": null,
+          "selector": "W285463",
+          "started_at": "2026-09-27T12:43:54.501Z",
+          "started_seq": 285466,
+          "work": "2b077949-W285463"
+        },
+        "handler": null,
+        "handoff_at": null,
+        "heartbeat_at": null,
+        "id": "2b077949-W285464",
+        "last_change_seq": 285466,
+        "last_changed_at": "2026-09-27T12:43:54.501Z",
+        "links": {
+          "blocked_by": [
+            {
+              "handler": {
+                "member": "claude",
+                "participant": "baton.claude",
+                "team": "baton"
+              },
+              "id": "2b077949-W285463",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.impl",
+                "handlers": [
+                  "claude"
+                ],
+                "role": "impl",
+                "route": "impl"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12 G2: Shared token-bound maintenance facility",
+              "via_obligation": null
+            }
+          ],
+          "blocks": [
+            {
+              "handler": null,
+              "id": "2b077949-W285465",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.bug",
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12 G2: Maintenance restart and integrated acceptance",
+              "via_obligation": null
+            }
+          ],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W285464",
+          "parent": {
+            "handler": null,
+            "id": "2b077949-W275633",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.decide",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Token-bound maintenance execution prerequisite"
+          }
+        },
+        "local_id": "W285464",
+        "message_count": 2,
+        "my_pending_obligations": 0,
+        "new": 2,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W285464",
+          "overlap": 0,
+          "own": 2,
+          "snapshot_seq": 285821,
+          "subtree_total": 2
+        },
+        "next": null,
+        "obligations": [],
+        "open_blockers": 1,
+        "open_dependents": 1,
+        "origin": "decomposition",
+        "outcome": null,
+        "phase": "block",
+        "pickup": null,
+        "priority": "normal",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": {
+          "endpoint": "baton.bug",
+          "handlers": [
+            "rvpc"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 285464,
+            "id": "2b077949-T285464",
+            "last_seq": 285819,
+            "new": 2,
+            "subject": "V12 G2: Connected preparation-to-task handoff"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12 G2: Connected preparation-to-task handoff",
+        "trials": []
+      },
+      "snapshot_seq": 285821
+    },
+    "events": {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "events": [
+          {
+            "actor": "baton.rvpc",
+            "kind": "create_work",
+            "payload": {
+              "authorization": {
+                "endpoint": "baton.bug",
+                "generation": 12,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "binding": {
+                "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff",
+                "revision": 1,
+                "root": "baton"
+              },
+              "classification": "confirmed-defect",
+              "follow_up_of": null,
+              "kind": "bug",
+              "origin": "decomposition",
+              "parent": "2b077949-W275633",
+              "phase": "queued",
+              "phase_now": [
+                {
+                  "phase": "queued",
+                  "work": "2b077949-W285464"
+                }
+              ],
+              "priority": "normal",
+              "resolution": {
+                "endpoint": "baton.bug",
+                "generation": 12,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "team": "baton",
+              "title": "V12 G2: Connected preparation-to-task handoff"
+            },
+            "phase_interval": {
+              "elapsed_seconds": 18,
+              "end_kind": "add_dependency",
+              "end_seq": 285466,
+              "ended_at": "2026-09-27T12:43:54Z",
+              "open": false,
+              "phase": "queued",
+              "start_seq": 285464,
+              "started_at": "2026-09-27T12:43:36Z"
+            },
+            "references": [],
+            "related": [
+              {
+                "role": "parent",
+                "work": "2b077949-W275633"
+              }
+            ],
+            "roles": [
+              "subject"
+            ],
+            "seq": 285464,
+            "ts": "2026-09-27T12:43:36Z"
+          },
+          {
+            "actor": "baton.rvpc",
+            "kind": "add_dependency",
+            "payload": {
+              "authorization": {
+                "endpoint": "baton.bug",
+                "generation": 12,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "blocker": "2b077949-W285463",
+              "blocker_status": "open",
+              "gate_now": [
+                {
+                  "gate_work": "2b077949-W285463",
+                  "kind": "work",
+                  "obligation": null,
+                  "work": "2b077949-W285464"
+                }
+              ],
+              "phase_now": [
+                {
+                  "phase": "block",
+                  "work": "2b077949-W285464"
+                }
+              ],
+              "rationale": "Preparation handoff consumes independently accepted shared maintenance lifecycle; serial custody and maintenance file ownership must transfer only after facility acceptance.",
+              "work": "2b077949-W285464"
+            },
+            "phase_interval": {
+              "elapsed_seconds": 2568,
+              "end_kind": null,
+              "end_seq": null,
+              "ended_at": null,
+              "open": true,
+              "phase": "block",
+              "start_seq": 285466,
+              "started_at": "2026-09-27T12:43:54Z"
+            },
+            "references": [],
+            "related": [
+              {
+                "role": "blocker",
+                "work": "2b077949-W285463"
+              }
+            ],
+            "roles": [
+              "consumer"
+            ],
+            "seq": 285466,
+            "ts": "2026-09-27T12:43:54Z"
+          },
+          {
+            "actor": "baton.rvpc",
+            "kind": "add_dependency",
+            "payload": {
+              "authorization": {
+                "endpoint": "baton.bug",
+                "generation": 12,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "blocker": "2b077949-W285464",
+              "blocker_status": "open",
+              "gate_now": [
+                {
+                  "gate_work": "2b077949-W285464",
+                  "kind": "work",
+                  "obligation": null,
+                  "work": "2b077949-W285465"
+                }
+              ],
+              "phase_now": [
+                {
+                  "phase": "block",
+                  "work": "2b077949-W285465"
+                }
+              ],
+              "rationale": "Connected recovery and final G2 acceptance require accepted preparation-to-task production wiring and serial transfer of shared maintenance/worker paths.",
+              "work": "2b077949-W285465"
+            },
+            "references": [],
+            "related": [
+              {
+                "role": "consumer",
+                "work": "2b077949-W285465"
+              }
+            ],
+            "roles": [
+              "blocker"
+            ],
+            "seq": 285468,
+            "ts": "2026-09-27T12:44:00Z"
+          }
+        ],
+        "local_id": "W285464",
+        "next_after": null,
+        "next_before": null,
+        "title": "V12 G2: Connected preparation-to-task handoff",
+        "work": "2b077949-W285464"
+      },
+      "snapshot_seq": 285821
+    },
+    "thread": {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "id": "2b077949-T285464",
+        "labels": [
+          {
+            "status": "open",
+            "team": "baton",
+            "work": "2b077949-W285464"
+          }
+        ],
+        "last_seq": 285819,
+        "local_id": "T285464",
+        "messages": [
+          {
+            "author": "rvpc",
+            "author_team": "baton",
+            "body": "Owner285447 second serial G2 slice, after independently accepted maintenance facility. Read parent and child dossier. Connect the facility at single_worker._mounted/_prepared for one selected ordinary preparation path: canonical task claim first, governed allocation/staging inside scoped maintenance container, positive exact cessation plus host settlement, then recheck prepared resource/checkpoint and admit task token. No coexisting maintenance/task resource ownership, no second task claim, expired offer or lost claim race launches neither. Preserve mounted-source identity and credential isolation. Exact paths: tools/single_worker.py, worker_manager/workspaces.py, worker_manager/maintenance.py and custody.py only selected facility integration, source_boundary.py only if required to remove selected host staging effect, tests/tools/test_single_worker.py and focused tests/manager/test_maintenance.py plus affected declarations. Retained/review/context/restoration/removal consumers remain out of scope; no broad migration. Deterministic actual composed path with fake engine/provider must observe maintenance effect, stopped and settled maintenance before task create/start, exact mount set, revalidation failure, no host governed mutation and no external I/O under transaction. Own paths transfer serially after first child acceptance. Review independently, carry human milestone checkpoint; routine continuation/corrections impl without owner reapproval. No live run, deployment, Git mutation or specification change.",
+            "new": true,
+            "owed": null,
+            "references": [],
+            "seq": 285464,
+            "ts": "2026-09-27 12:43:36"
+          },
+          {
+            "author": "prompt",
+            "author_team": "baton",
+            "body": "Owner selected tuner preparation W285806 in parallel with facility correction. Tuner owns only baton:work/records/2026/09/finding-v12-maintenance-child-preparation and will deliver HANDOFF-PACKET.md with caller map and scoped acceptance cases. Your dossier/product ownership is unchanged; W285463 acceptance dependency remains. Consume finished packet after revalidating actual accepted facility API; do not wait on preparation if this child becomes ready first. No new gate or scope expansion.",
+            "new": true,
+            "owed": null,
+            "references": [],
+            "seq": 285819,
+            "ts": "2026-09-27 13:26:15"
+          }
+        ],
+        "new": 2,
+        "next_after": null,
+        "next_before": null,
+        "participants": [
+          "baton"
+        ],
+        "subject": "V12 G2: Connected preparation-to-task handoff",
+        "total": 2
+      },
+      "snapshot_seq": 285821
+    }
+  },
+  "W285465": {
+    "detail": {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [
+          "prioritize",
+          "reroute"
+        ],
+        "binding": {
+          "actor": "baton.rvpc",
+          "created_ts": "2026-09-27T12:43:48Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 285465
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.rvpc",
+            "created_ts": "2026-09-27T12:43:48Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 285465
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W275633",
+            "title": "V12: Token-bound maintenance execution prerequisite"
+          },
+          {
+            "id": "2b077949-W285465",
+            "title": "V12 G2: Maintenance restart and integrated acceptance"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "confirmed-defect",
+        "duplicate_of": null,
+        "episode_seq": 285465,
+        "first_open_blocker": "W285464",
+        "follow_up_of": null,
+        "gate": {
+          "kind": "work",
+          "message": null,
+          "obligation": null,
+          "selector": "W285464",
+          "started_at": "2026-09-27T12:44:00.328Z",
+          "started_seq": 285468,
+          "work": "2b077949-W285464"
+        },
+        "handler": null,
+        "handoff_at": null,
+        "heartbeat_at": null,
+        "id": "2b077949-W285465",
+        "last_change_seq": 285468,
+        "last_changed_at": "2026-09-27T12:44:00.328Z",
+        "links": {
+          "blocked_by": [
+            {
+              "handler": null,
+              "id": "2b077949-W285464",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.bug",
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12 G2: Connected preparation-to-task handoff",
+              "via_obligation": null
+            }
+          ],
+          "blocks": [],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W285465",
+          "parent": {
+            "handler": null,
+            "id": "2b077949-W275633",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.decide",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Token-bound maintenance execution prerequisite"
+          }
+        },
+        "local_id": "W285465",
+        "message_count": 2,
+        "my_pending_obligations": 0,
+        "new": 2,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W285465",
+          "overlap": 0,
+          "own": 2,
+          "snapshot_seq": 285821,
+          "subtree_total": 2
+        },
+        "next": null,
+        "obligations": [],
+        "open_blockers": 1,
+        "open_dependents": 0,
+        "origin": "decomposition",
+        "outcome": null,
+        "phase": "block",
+        "pickup": null,
+        "priority": "normal",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": {
+          "endpoint": "baton.bug",
+          "handlers": [
+            "rvpc"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 285465,
+            "id": "2b077949-T285465",
+            "last_seq": 285820,
+            "new": 2,
+            "subject": "V12 G2: Maintenance restart and integrated acceptance"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12 G2: Maintenance restart and integrated acceptance",
+        "trials": []
+      },
+      "snapshot_seq": 285821
+    },
+    "events": {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "events": [
+          {
+            "actor": "baton.rvpc",
+            "kind": "create_work",
+            "payload": {
+              "authorization": {
+                "endpoint": "baton.bug",
+                "generation": 12,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "binding": {
+                "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery",
+                "revision": 1,
+                "root": "baton"
+              },
+              "classification": "confirmed-defect",
+              "follow_up_of": null,
+              "kind": "bug",
+              "origin": "decomposition",
+              "parent": "2b077949-W275633",
+              "phase": "queued",
+              "phase_now": [
+                {
+                  "phase": "queued",
+                  "work": "2b077949-W285465"
+                }
+              ],
+              "priority": "normal",
+              "resolution": {
+                "endpoint": "baton.bug",
+                "generation": 12,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "team": "baton",
+              "title": "V12 G2: Maintenance restart and integrated acceptance"
+            },
+            "phase_interval": {
+              "elapsed_seconds": 12,
+              "end_kind": "add_dependency",
+              "end_seq": 285468,
+              "ended_at": "2026-09-27T12:44:00Z",
+              "open": false,
+              "phase": "queued",
+              "start_seq": 285465,
+              "started_at": "2026-09-27T12:43:48Z"
+            },
+            "references": [],
+            "related": [
+              {
+                "role": "parent",
+                "work": "2b077949-W275633"
+              }
+            ],
+            "roles": [
+              "subject"
+            ],
+            "seq": 285465,
+            "ts": "2026-09-27T12:43:48Z"
+          },
+          {
+            "actor": "baton.rvpc",
+            "kind": "add_dependency",
+            "payload": {
+              "authorization": {
+                "endpoint": "baton.bug",
+                "generation": 12,
+                "handlers": [
+                  "rvpc"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "blocker": "2b077949-W285464",
+              "blocker_status": "open",
+              "gate_now": [
+                {
+                  "gate_work": "2b077949-W285464",
+                  "kind": "work",
+                  "obligation": null,
+                  "work": "2b077949-W285465"
+                }
+              ],
+              "phase_now": [
+                {
+                  "phase": "block",
+                  "work": "2b077949-W285465"
+                }
+              ],
+              "rationale": "Connected recovery and final G2 acceptance require accepted preparation-to-task production wiring and serial transfer of shared maintenance/worker paths.",
+              "work": "2b077949-W285465"
+            },
+            "phase_interval": {
+              "elapsed_seconds": 2563,
+              "end_kind": null,
+              "end_seq": null,
+              "ended_at": null,
+              "open": true,
+              "phase": "block",
+              "start_seq": 285468,
+              "started_at": "2026-09-27T12:44:00Z"
+            },
+            "references": [],
+            "related": [
+              {
+                "role": "blocker",
+                "work": "2b077949-W285464"
+              }
+            ],
+            "roles": [
+              "consumer"
+            ],
+            "seq": 285468,
+            "ts": "2026-09-27T12:44:00Z"
+          }
+        ],
+        "local_id": "W285465",
+        "next_after": null,
+        "next_before": null,
+        "title": "V12 G2: Maintenance restart and integrated acceptance",
+        "work": "2b077949-W285465"
+      },
+      "snapshot_seq": 285821
+    },
+    "thread": {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "id": "2b077949-T285465",
+        "labels": [
+          {
+            "status": "open",
+            "team": "baton",
+            "work": "2b077949-W285465"
+          }
+        ],
+        "last_seq": 285820,
+        "local_id": "T285465",
+        "messages": [
+          {
+            "author": "rvpc",
+            "author_team": "baton",
+            "body": "Owner285447 final serial G2 slice after accepted facility and preparation-to-task handoff. Complete actual connected restart/expiry/late-launch reconciliation and finite integrated evidence matrix. Pin exact candidate paths after predecessor manifests; anticipated maintenance.py, custody.py, tools/job_manager.py and single_worker.py only maintenance recovery wiring, with corresponding focused tests. Exercise persisted cut before create reply, bound before activation, admitted unsettled, completed effect before host settlement, engine outage then retry, exact expiry termination and unknown holds, stale generation evidence, and task admission exclusion until maintenance cessation/settlement/revalidation. Assert actual schedules reached, effect counts and no duplicate dispatch/false success using fresh stores and controlled engine/provider. Reuse unchanged G1 and G2 predecessor evidence; no broad rediscovery or automatic hold-clearing API. Final path/digest audit and honest residual disposition, then owner delivery and human checkpoint. Parent G2 remains open until implementation and independent acceptance; W270664 remains later removal consumer. No live Docker/model, deployment, graph scope expansion, Git mutation or unapproved spec change.",
+            "new": true,
+            "owed": null,
+            "references": [],
+            "seq": 285465,
+            "ts": "2026-09-27 12:43:48"
+          },
+          {
+            "author": "prompt",
+            "author_team": "baton",
+            "body": "Owner selected tuner preparation W285806 in parallel with facility correction. Tuner owns only baton:work/records/2026/09/finding-v12-maintenance-child-preparation and will deliver RECOVERY-PACKET.md with finite interruption/expiry cuts and integrated evidence checklist. Your dossier/product ownership is unchanged; W285464 acceptance dependency remains. Consume finished packet after revalidating accepted predecessor contracts; do not wait on preparation if this child becomes ready first. No new gate or scope expansion.",
+            "new": true,
+            "owed": null,
+            "references": [],
+            "seq": 285820,
+            "ts": "2026-09-27 13:26:15"
+          }
+        ],
+        "new": 2,
+        "next_after": null,
+        "next_before": null,
+        "participants": [
+          "baton"
+        ],
+        "subject": "V12 G2: Maintenance restart and integrated acceptance",
+        "total": 2
+      },
+      "snapshot_seq": 285821
+    }
+  }
+}

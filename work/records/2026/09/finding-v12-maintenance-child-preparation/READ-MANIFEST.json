@@ -1,0 +1,5122 @@
+[
+  {
+    "path": "v12/DESIGN.md",
+    "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934",
+    "bytes": 61178
+  },
+  {
+    "path": "v12/python/tools/single_worker.py",
+    "sha256": "7225a403015adc6b3ad94d8dbef16503f3db96568219b6c2d76641b950ba2a44",
+    "bytes": 210657,
+    "symbols": [
+      {
+        "name": "_refuse",
+        "line": 148,
+        "end": 149
+      },
+      {
+        "name": "_text",
+        "line": 152,
+        "end": 159
+      },
+      {
+        "name": "_path",
+        "line": 162,
+        "end": 167
+      },
+      {
+        "name": "_digest",
+        "line": 170,
+        "end": 174
+      },
+      {
+        "name": "_document",
+        "line": 177,
+        "end": 186
+      },
+      {
+        "name": "_read",
+        "line": 189,
+        "end": 220
+      },
+      {
+        "name": "_held",
+        "line": 223,
+        "end": 384
+      },
+      {
+        "name": "_source_manifest",
+        "line": 395,
+        "end": 420
+      },
+      {
+        "name": "_capacity",
+        "line": 423,
+        "end": 441
+      },
+      {
+        "name": "_task_bytes",
+        "line": 444,
+        "end": 529
+      },
+      {
+        "name": "_sayable",
+        "line": 532,
+        "end": 550
+      },
+      {
+        "name": "_now",
+        "line": 553,
+        "end": 556
+      },
+      {
+        "name": "_bearer",
+        "line": 559,
+        "end": 561
+      },
+      {
+        "name": "_engine_run",
+        "line": 564,
+        "end": 569
+      },
+      {
+        "name": "_assignment",
+        "line": 572,
+        "end": 576
+      },
+      {
+        "name": "_claim_facts",
+        "line": 579,
+        "end": 587
+      },
+      {
+        "name": "_assignment_manifest",
+        "line": 590,
+        "end": 609
+      },
+      {
+        "name": "_AuthoritySession",
+        "line": 612,
+        "end": 688
+      },
+      {
+        "name": "_more_than_the_mountpoint",
+        "line": 691,
+        "end": 732
+      },
+      {
+        "name": "_claim_refusal",
+        "line": 763,
+        "end": 815
+      },
+      {
+        "name": "_claim_detail",
+        "line": 818,
+        "end": 821
+      },
+      {
+        "name": "_ManagerClaimSession",
+        "line": 824,
+        "end": 862
+      },
+      {
+        "name": "_RecordedRuntime",
+        "line": 865,
+        "end": 914
+      },
+      {
+        "name": "_store_identity",
+        "line": 944,
+        "end": 967
+      },
+      {
+        "name": "_ActivityIngestion",
+        "line": 970,
+        "end": 1120
+      },
+      {
+        "name": "activity_ingestion",
+        "line": 1123,
+        "end": 1166
+      },
+      {
+        "name": "activity_release",
+        "line": 1169,
+        "end": 1183
+      },
+      {
+        "name": "_UncooperativeAgent",
+        "line": 1186,
+        "end": 1221
+      },
+      {
+        "name": "_SingleWorker",
+        "line": 1224,
+        "end": 3040
+      },
+      {
+        "name": "_Operations",
+        "line": 3063,
+        "end": 3089
+      },
+      {
+        "name": "operations_from",
+        "line": 3092,
+        "end": 3164
+      },
+      {
+        "name": "_bootstrap_dispose",
+        "line": 3167,
+        "end": 3181
+      },
+      {
+        "name": "job_execution_reader",
+        "line": 3184,
+        "end": 3213
+      },
+      {
+        "name": "effective_engine_run",
+        "line": 3216,
+        "end": 3231
+      },
+      {
+        "name": "worker_preflight",
+        "line": 3234,
+        "end": 3325
+      },
+      {
+        "name": "worker_operations",
+        "line": 3328,
+        "end": 3400
+      },
+      {
+        "name": "_judged_job",
+        "line": 3403,
+        "end": 3416
+      },
+      {
+        "name": "JudgmentExecution",
+        "line": 3419,
+        "end": 3592
+      },
+      {
+        "name": "_Observation",
+        "line": 3595,
+        "end": 3745
+      },
+      {
+        "name": "observation_from",
+        "line": 3748,
+        "end": 3750
+      },
+      {
+        "name": "observing_factory",
+        "line": 3753,
+        "end": 3759
+      },
+      {
+        "name": "factory",
+        "line": 3762,
+        "end": 3767
+      },
+      {
+        "name": "_context_declaration",
+        "line": 3770,
+        "end": 3777
+      },
+      {
+        "name": "_context_preflight",
+        "line": 3780,
+        "end": 3794
+      },
+      {
+        "name": "_context_descriptor",
+        "line": 3797,
+        "end": 3804
+      },
+      {
+        "name": "_context_mount",
+        "line": 3807,
+        "end": 3814
+      },
+      {
+        "name": "__init__",
+        "line": 623,
+        "end": 624
+      },
+      {
+        "name": "participant",
+        "line": 627,
+        "end": 628
+      },
+      {
+        "name": "project_work",
+        "line": 630,
+        "end": 631
+      },
+      {
+        "name": "slot_holder",
+        "line": 633,
+        "end": 634
+      },
+      {
+        "name": "assignment_of",
+        "line": 636,
+        "end": 637
+      },
+      {
+        "name": "cancel",
+        "line": 639,
+        "end": 640
+      },
+      {
+        "name": "claim",
+        "line": 642,
+        "end": 643
+      },
+      {
+        "name": "settle_operation",
+        "line": 645,
+        "end": 646
+      },
+      {
+        "name": "satisfy_gate",
+        "line": 648,
+        "end": 649
+      },
+      {
+        "name": "route_fenced",
+        "line": 651,
+        "end": 666
+      },
+      {
+        "name": "publish_answer",
+        "line": 668,
+        "end": 672
+      },
+      {
+        "name": "pass_work",
+        "line": 674,
+        "end": 688
+      },
+      {
+        "name": "claim",
+        "line": 855,
+        "end": 862
+      },
+      {
+        "name": "__init__",
+        "line": 898,
+        "end": 899
+      },
+      {
+        "name": "_refused",
+        "line": 902,
+        "end": 909
+      },
+      {
+        "name": "__getattr__",
+        "line": 911,
+        "end": 914
+      },
+      {
+        "name": "__init__",
+        "line": 989,
+        "end": 999
+      },
+      {
+        "name": "start",
+        "line": 1001,
+        "end": 1004
+      },
+      {
+        "name": "enqueue",
+        "line": 1006,
+        "end": 1010
+      },
+      {
+        "name": "stop",
+        "line": 1012,
+        "end": 1028
+      },
+      {
+        "name": "_serve",
+        "line": 1030,
+        "end": 1067
+      },
+      {
+        "name": "_release",
+        "line": 1069,
+        "end": 1072
+      },
+      {
+        "name": "_ingest",
+        "line": 1075,
+        "end": 1120
+      },
+      {
+        "name": "__init__",
+        "line": 1206,
+        "end": 1207
+      },
+      {
+        "name": "cancel",
+        "line": 1209,
+        "end": 1221
+      },
+      {
+        "name": "__init__",
+        "line": 1227,
+        "end": 1288
+      },
+      {
+        "name": "admit",
+        "line": 1290,
+        "end": 1304
+      },
+      {
+        "name": "delivered",
+        "line": 1306,
+        "end": 1322
+      },
+      {
+        "name": "_matches",
+        "line": 1324,
+        "end": 1401
+      },
+      {
+        "name": "_claim",
+        "line": 1403,
+        "end": 1438
+      },
+      {
+        "name": "_input",
+        "line": 1440,
+        "end": 1507
+      },
+      {
+        "name": "_published_task",
+        "line": 1509,
+        "end": 1598
+      },
+      {
+        "name": "_proved_task",
+        "line": 1600,
+        "end": 1632
+      },
+      {
+        "name": "_attempt_scratch",
+        "line": 1634,
+        "end": 1665
+      },
+      {
+        "name": "_adapter",
+        "line": 1667,
+        "end": 1703
+      },
+      {
+        "name": "_context_grant",
+        "line": 1705,
+        "end": 1724
+      },
+      {
+        "name": "_credential",
+        "line": 1726,
+        "end": 1751
+      },
+      {
+        "name": "_recovered",
+        "line": 1753,
+        "end": 1801
+      },
+      {
+        "name": "start",
+        "line": 1803,
+        "end": 1877
+      },
+      {
+        "name": "_naming",
+        "line": 1879,
+        "end": 1908
+      },
+      {
+        "name": "_mounted",
+        "line": 1910,
+        "end": 1943
+      },
+      {
+        "name": "_prepared",
+        "line": 1945,
+        "end": 2115
+      },
+      {
+        "name": "_unwound",
+        "line": 2117,
+        "end": 2169
+      },
+      {
+        "name": "observed_exchange",
+        "line": 2180,
+        "end": 2206
+      },
+      {
+        "name": "refresh_runtime",
+        "line": 2208,
+        "end": 2306
+      },
+      {
+        "name": "_enqueue_activity",
+        "line": 2308,
+        "end": 2338
+      },
+      {
+        "name": "command",
+        "line": 2340,
+        "end": 2374
+      },
+      {
+        "name": "cancel_attempt",
+        "line": 2376,
+        "end": 2414
+      },
+      {
+        "name": "abandon_attempt",
+        "line": 2416,
+        "end": 2539
+      },
+      {
+        "name": "_discharged_abandonment",
+        "line": 2541,
+        "end": 2569
+      },
+      {
+        "name": "ending",
+        "line": 2571,
+        "end": 2796
+      },
+      {
+        "name": "handoff",
+        "line": 2798,
+        "end": 2869
+      },
+      {
+        "name": "_passed",
+        "line": 2871,
+        "end": 2929
+      },
+      {
+        "name": "_session_of",
+        "line": 2931,
+        "end": 2938
+      },
+      {
+        "name": "_job_execution",
+        "line": 2940,
+        "end": 2973
+      },
+      {
+        "name": "_adopted",
+        "line": 2975,
+        "end": 2994
+      },
+      {
+        "name": "_launch_document",
+        "line": 2996,
+        "end": 3040
+      },
+      {
+        "name": "__init__",
+        "line": 3066,
+        "end": 3069
+      },
+      {
+        "name": "admit",
+        "line": 3071,
+        "end": 3072
+      },
+      {
+        "name": "cancel_attempt",
+        "line": 3074,
+        "end": 3077
+      },
+      {
+        "name": "abandon_attempt",
+        "line": 3079,
+        "end": 3084
+      },
+      {
+        "name": "close",
+        "line": 3086,
+        "end": 3089
+      },
+      {
+        "name": "dispose",
+        "line": 3175,
+        "end": 3179
+      },
+      {
+        "name": "reader",
+        "line": 3204,
+        "end": 3211
+      },
+      {
+        "name": "__init__",
+        "line": 3426,
+        "end": 3479
+      },
+      {
+        "name": "poll",
+        "line": 3481,
+        "end": 3508
+      },
+      {
+        "name": "result",
+        "line": 3510,
+        "end": 3592
+      },
+      {
+        "name": "__init__",
+        "line": 3618,
+        "end": 3680
+      },
+      {
+        "name": "_session_of",
+        "line": 3683,
+        "end": 3689
+      },
+      {
+        "name": "_job_execution",
+        "line": 3691,
+        "end": 3714
+      },
+      {
+        "name": "observe_exchange",
+        "line": 3716,
+        "end": 3745
+      },
+      {
+        "name": "act",
+        "line": 903,
+        "end": 908
+      }
+    ]
+  },
+  {
+    "path": "v12/python/tools/job_manager.py",
+    "sha256": "d272bd9242c283cd492516ce57182f864959c4f03c220d5069cc438344e8f530",
+    "bytes": 57086,
+    "symbols": [
+      {
+        "name": "_utc_clock",
+        "line": 50,
+        "end": 64
+      },
+      {
+        "name": "_job_store",
+        "line": 67,
+        "end": 78
+      },
+      {
+        "name": "_read",
+        "line": 81,
+        "end": 85
+      },
+      {
+        "name": "_engine_runner",
+        "line": 119,
+        "end": 127
+      },
+      {
+        "name": "_ReclaimAdapter",
+        "line": 130,
+        "end": 326
+      },
+      {
+        "name": "_Reclaiming",
+        "line": 329,
+        "end": 337
+      },
+      {
+        "name": "_reclaiming",
+        "line": 340,
+        "end": 453
+      },
+      {
+        "name": "_observing_unresolved",
+        "line": 456,
+        "end": 588
+      },
+      {
+        "name": "_after",
+        "line": 591,
+        "end": 605
+      },
+      {
+        "name": "_governed_rows",
+        "line": 608,
+        "end": 620
+      },
+      {
+        "name": "_governed_candidates",
+        "line": 623,
+        "end": 660
+      },
+      {
+        "name": "_emit",
+        "line": 663,
+        "end": 666
+      },
+      {
+        "name": "_submit",
+        "line": 669,
+        "end": 672
+      },
+      {
+        "name": "_status",
+        "line": 675,
+        "end": 726
+      },
+      {
+        "name": "_Observing",
+        "line": 729,
+        "end": 773
+      },
+      {
+        "name": "_exchange_read",
+        "line": 776,
+        "end": 790
+      },
+      {
+        "name": "_integration_read",
+        "line": 793,
+        "end": 806
+      },
+      {
+        "name": "_observation_from",
+        "line": 809,
+        "end": 823
+      },
+      {
+        "name": "_ReadOnly",
+        "line": 826,
+        "end": 860
+      },
+      {
+        "name": "_refuses",
+        "line": 873,
+        "end": 877
+      },
+      {
+        "name": "_operations_from",
+        "line": 880,
+        "end": 892
+      },
+      {
+        "name": "_release",
+        "line": 895,
+        "end": 918
+      },
+      {
+        "name": "_serve",
+        "line": 921,
+        "end": 994
+      },
+      {
+        "name": "main",
+        "line": 997,
+        "end": 1078
+      },
+      {
+        "name": "now",
+        "line": 59,
+        "end": 62
+      },
+      {
+        "name": "__init__",
+        "line": 151,
+        "end": 165
+      },
+      {
+        "name": "_asked",
+        "line": 167,
+        "end": 186
+      },
+      {
+        "name": "stop_expired",
+        "line": 188,
+        "end": 202
+      },
+      {
+        "name": "remove",
+        "line": 204,
+        "end": 226
+      },
+      {
+        "name": "normalize_directory",
+        "line": 228,
+        "end": 260
+      },
+      {
+        "name": "observe",
+        "line": 262,
+        "end": 274
+      },
+      {
+        "name": "_missing",
+        "line": 277,
+        "end": 294
+      },
+      {
+        "name": "_described",
+        "line": 297,
+        "end": 326
+      },
+      {
+        "name": "__init__",
+        "line": 334,
+        "end": 337
+      },
+      {
+        "name": "pass_over_attempts",
+        "line": 378,
+        "end": 451
+      },
+      {
+        "name": "__init__",
+        "line": 749,
+        "end": 760
+      },
+      {
+        "name": "canonical_operation",
+        "line": 762,
+        "end": 763
+      },
+      {
+        "name": "receipt_of",
+        "line": 765,
+        "end": 766
+      },
+      {
+        "name": "observe",
+        "line": 768,
+        "end": 769
+      },
+      {
+        "name": "refresh_runtime",
+        "line": 771,
+        "end": 773
+      },
+      {
+        "name": "__init__",
+        "line": 845,
+        "end": 851
+      },
+      {
+        "name": "canonical_operation",
+        "line": 853,
+        "end": 854
+      },
+      {
+        "name": "receipt_of",
+        "line": 856,
+        "end": 857
+      },
+      {
+        "name": "observe",
+        "line": 859,
+        "end": 860
+      },
+      {
+        "name": "bounded",
+        "line": 248,
+        "end": 254
+      },
+      {
+        "name": "stop",
+        "line": 968,
+        "end": 973
+      }
+    ]
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+    "sha256": "65310983bfc0ae09674bda7781ffb2c6bf781a42c3b1c60e444abc46014ca961",
+    "bytes": 57774,
+    "symbols": [
+      {
+        "name": "_act_identity",
+        "line": 211,
+        "end": 221
+      },
+      {
+        "name": "standing_maintenance",
+        "line": 224,
+        "end": 248
+      },
+      {
+        "name": "_window",
+        "line": 251,
+        "end": 260
+      },
+      {
+        "name": "maintenance_settlement",
+        "line": 263,
+        "end": 286
+      },
+      {
+        "name": "maintenance_orphan",
+        "line": 289,
+        "end": 292
+      },
+      {
+        "name": "_admitted",
+        "line": 295,
+        "end": 393
+      },
+      {
+        "name": "_eligible",
+        "line": 396,
+        "end": 424
+      },
+      {
+        "name": "_settled",
+        "line": 427,
+        "end": 452
+      },
+      {
+        "name": "_orphaned",
+        "line": 455,
+        "end": 471
+      },
+      {
+        "name": "check_preparation",
+        "line": 562,
+        "end": 576
+      },
+      {
+        "name": "_maintenance_identity",
+        "line": 579,
+        "end": 602
+      },
+      {
+        "name": "_prepared_name",
+        "line": 605,
+        "end": 614
+      },
+      {
+        "name": "_execution_identity",
+        "line": 617,
+        "end": 626
+      },
+      {
+        "name": "_operation_identity",
+        "line": 629,
+        "end": 639
+      },
+      {
+        "name": "_resource_identity",
+        "line": 642,
+        "end": 668
+      },
+      {
+        "name": "MaintenanceAnswer",
+        "line": 671,
+        "end": 749
+      },
+      {
+        "name": "_accountable",
+        "line": 752,
+        "end": 791
+      },
+      {
+        "name": "_answered",
+        "line": 794,
+        "end": 813
+      },
+      {
+        "name": "_document",
+        "line": 816,
+        "end": 824
+      },
+      {
+        "name": "_create_vector",
+        "line": 827,
+        "end": 879
+      },
+      {
+        "name": "_created",
+        "line": 882,
+        "end": 903
+      },
+      {
+        "name": "_ceased",
+        "line": 906,
+        "end": 924
+      },
+      {
+        "name": "prepare",
+        "line": 927,
+        "end": 1177
+      },
+      {
+        "name": "asking",
+        "line": 409,
+        "end": 422
+      },
+      {
+        "name": "__setattr__",
+        "line": 691,
+        "end": 695
+      },
+      {
+        "name": "__delattr__",
+        "line": 697,
+        "end": 698
+      },
+      {
+        "name": "operation",
+        "line": 701,
+        "end": 702
+      },
+      {
+        "name": "generation",
+        "line": 705,
+        "end": 706
+      },
+      {
+        "name": "container",
+        "line": 709,
+        "end": 710
+      },
+      {
+        "name": "status",
+        "line": 713,
+        "end": 714
+      },
+      {
+        "name": "answer",
+        "line": 717,
+        "end": 718
+      },
+      {
+        "name": "rendered",
+        "line": 721,
+        "end": 722
+      },
+      {
+        "name": "unaccounted",
+        "line": 725,
+        "end": 726
+      },
+      {
+        "name": "returned",
+        "line": 729,
+        "end": 730
+      },
+      {
+        "name": "held",
+        "line": 733,
+        "end": 734
+      },
+      {
+        "name": "diagnostic",
+        "line": 737,
+        "end": 738
+      },
+      {
+        "name": "ok",
+        "line": 741,
+        "end": 749
+      }
+    ]
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "sha256": "50207908e522a77e3912b0fc43b731b11302892ffdda10ad6f9a1b6bd15fbb05",
+    "bytes": 304507,
+    "symbols": [
+      {
+        "name": "_unescaped",
+        "line": 143,
+        "end": 149
+      },
+      {
+        "name": "mount_table",
+        "line": 152,
+        "end": 193
+      },
+      {
+        "name": "mount_points",
+        "line": 196,
+        "end": 209
+      },
+      {
+        "name": "WorkspaceGroup",
+        "line": 349,
+        "end": 405
+      },
+      {
+        "name": "WorkspaceIdentity",
+        "line": 408,
+        "end": 458
+      },
+      {
+        "name": "identity_for",
+        "line": 461,
+        "end": 483
+      },
+      {
+        "name": "declared_identity_mapping",
+        "line": 526,
+        "end": 558
+      },
+      {
+        "name": "_access_failure",
+        "line": 570,
+        "end": 597
+      },
+      {
+        "name": "configured_workspace_identity",
+        "line": 600,
+        "end": 609
+      },
+      {
+        "name": "_permission_act",
+        "line": 618,
+        "end": 619
+      },
+      {
+        "name": "configure_workspace_group",
+        "line": 622,
+        "end": 664
+      },
+      {
+        "name": "_configured_gid",
+        "line": 667,
+        "end": 679
+      },
+      {
+        "name": "_committed_workspace_group",
+        "line": 685,
+        "end": 735
+      },
+      {
+        "name": "configured_workspace_group",
+        "line": 738,
+        "end": 780
+      },
+      {
+        "name": "WorkspaceStorage",
+        "line": 783,
+        "end": 827
+      },
+      {
+        "name": "check_workspace_storage",
+        "line": 830,
+        "end": 881
+      },
+      {
+        "name": "configure_workspace_storage",
+        "line": 884,
+        "end": 920
+      },
+      {
+        "name": "_authority_marker",
+        "line": 947,
+        "end": 948
+      },
+      {
+        "name": "_instance_guard",
+        "line": 979,
+        "end": 980
+      },
+      {
+        "name": "ManagerInstanceGuard",
+        "line": 983,
+        "end": 1032
+      },
+      {
+        "name": "hold_manager_instance",
+        "line": 1035,
+        "end": 1108
+      },
+      {
+        "name": "_forget_inherited_guards",
+        "line": 1111,
+        "end": 1127
+      },
+      {
+        "name": "_record_guard",
+        "line": 1134,
+        "end": 1147
+      },
+      {
+        "name": "_guarding",
+        "line": 1150,
+        "end": 1160
+      },
+      {
+        "name": "claimed_workspace_authority",
+        "line": 1163,
+        "end": 1200
+      },
+      {
+        "name": "_claim_workspace_authority",
+        "line": 1203,
+        "end": 1243
+      },
+      {
+        "name": "_configured_storage",
+        "line": 1246,
+        "end": 1256
+      },
+      {
+        "name": "_committed_workspace_storage",
+        "line": 1259,
+        "end": 1293
+      },
+      {
+        "name": "configured_workspace_storage",
+        "line": 1296,
+        "end": 1306
+      },
+      {
+        "name": "_agreed_storage_place",
+        "line": 1309,
+        "end": 1357
+      },
+      {
+        "name": "recorded_storage_place",
+        "line": 1360,
+        "end": 1406
+      },
+      {
+        "name": "check_workspace_group",
+        "line": 1409,
+        "end": 1445
+      },
+      {
+        "name": "prove_workspace_group",
+        "line": 1448,
+        "end": 1491
+      },
+      {
+        "name": "adopt_workspace_group",
+        "line": 1494,
+        "end": 1518
+      },
+      {
+        "name": "_prove_line_access",
+        "line": 1524,
+        "end": 1538
+      },
+      {
+        "name": "establish_line_access",
+        "line": 1541,
+        "end": 1605
+      },
+      {
+        "name": "prove_line_integrity",
+        "line": 1608,
+        "end": 1841
+      },
+      {
+        "name": "_prove_line_consumable",
+        "line": 1844,
+        "end": 1987
+      },
+      {
+        "name": "_prove_execution_workspace",
+        "line": 1990,
+        "end": 1997
+      },
+      {
+        "name": "restoration_lock_path",
+        "line": 2034,
+        "end": 2041
+      },
+      {
+        "name": "_restoration_lock_identity",
+        "line": 2049,
+        "end": 2085
+      },
+      {
+        "name": "hold_restoration_lock",
+        "line": 2089,
+        "end": 2165
+      },
+      {
+        "name": "_adoption_id",
+        "line": 2180,
+        "end": 2181
+      },
+      {
+        "name": "_adoption_complete_id",
+        "line": 2184,
+        "end": 2185
+      },
+      {
+        "name": "standing_adoption",
+        "line": 2188,
+        "end": 2199
+      },
+      {
+        "name": "_admitted_adoption",
+        "line": 2202,
+        "end": 2251
+      },
+      {
+        "name": "_settled_adoption",
+        "line": 2254,
+        "end": 2263
+      },
+      {
+        "name": "_cleanup_takeover_id",
+        "line": 2301,
+        "end": 2302
+      },
+      {
+        "name": "_current_cleanup_owner",
+        "line": 2305,
+        "end": 2324
+      },
+      {
+        "name": "_cleanup_admission_id",
+        "line": 2327,
+        "end": 2328
+      },
+      {
+        "name": "_cleanup_settled_id",
+        "line": 2331,
+        "end": 2332
+      },
+      {
+        "name": "standing_cleanup",
+        "line": 2335,
+        "end": 2353
+      },
+      {
+        "name": "_admitted_cleanup_document",
+        "line": 2356,
+        "end": 2365
+      },
+      {
+        "name": "admit_cleanup",
+        "line": 2368,
+        "end": 2491
+      },
+      {
+        "name": "settle_cleanup",
+        "line": 2494,
+        "end": 2553
+      },
+      {
+        "name": "_allocation_id",
+        "line": 2572,
+        "end": 2573
+      },
+      {
+        "name": "_allocation_complete_id",
+        "line": 2576,
+        "end": 2577
+      },
+      {
+        "name": "standing_allocation",
+        "line": 2580,
+        "end": 2591
+      },
+      {
+        "name": "_competing_allocation",
+        "line": 2594,
+        "end": 2606
+      },
+      {
+        "name": "_admitted_allocation",
+        "line": 2609,
+        "end": 2672
+      },
+      {
+        "name": "_completed_allocation",
+        "line": 2675,
+        "end": 2692
+      },
+      {
+        "name": "_token_bound_id",
+        "line": 2728,
+        "end": 2729
+      },
+      {
+        "name": "_token_revoked_id",
+        "line": 2732,
+        "end": 2733
+      },
+      {
+        "name": "_token_ceased_id",
+        "line": 2736,
+        "end": 2737
+      },
+      {
+        "name": "_recorded_document",
+        "line": 2740,
+        "end": 2746
+      },
+      {
+        "name": "token_of",
+        "line": 2749,
+        "end": 2771
+      },
+      {
+        "name": "bind_token_container",
+        "line": 2774,
+        "end": 2806
+      },
+      {
+        "name": "revoke_expired_token",
+        "line": 2809,
+        "end": 2870
+      },
+      {
+        "name": "_token_terms",
+        "line": 2873,
+        "end": 2880
+      },
+      {
+        "name": "_removal_ownership_id",
+        "line": 2883,
+        "end": 2884
+      },
+      {
+        "name": "_removal_complete_id",
+        "line": 2887,
+        "end": 2888
+      },
+      {
+        "name": "standing_removal",
+        "line": 2891,
+        "end": 2918
+      },
+      {
+        "name": "_journal_holds",
+        "line": 2921,
+        "end": 2963
+      },
+      {
+        "name": "_pinned_home",
+        "line": 2966,
+        "end": 2980
+      },
+      {
+        "name": "_still_the_pinned_home",
+        "line": 2983,
+        "end": 3007
+      },
+      {
+        "name": "_durably_in_use",
+        "line": 3010,
+        "end": 3038
+      },
+      {
+        "name": "_admitted_removal",
+        "line": 3041,
+        "end": 3190
+      },
+      {
+        "name": "_completed_removal",
+        "line": 3193,
+        "end": 3244
+      },
+      {
+        "name": "_refuse_nested_removal",
+        "line": 3247,
+        "end": 3260
+      },
+      {
+        "name": "_serialized_removal",
+        "line": 3263,
+        "end": 3371
+      },
+      {
+        "name": "_summary",
+        "line": 3374,
+        "end": 3378
+      },
+      {
+        "name": "_database_place",
+        "line": 3381,
+        "end": 3397
+      },
+      {
+        "name": "_asking_control",
+        "line": 3401,
+        "end": 3465
+      },
+      {
+        "name": "_speaks_for",
+        "line": 3468,
+        "end": 3501
+      },
+      {
+        "name": "refuse_if_held",
+        "line": 3504,
+        "end": 3623
+      },
+      {
+        "name": "_assignment_identity",
+        "line": 3626,
+        "end": 3633
+      },
+      {
+        "name": "_refuse",
+        "line": 3636,
+        "end": 3637
+      },
+      {
+        "name": "_denied",
+        "line": 3640,
+        "end": 3641
+      },
+      {
+        "name": "_real",
+        "line": 3647,
+        "end": 3664
+      },
+      {
+        "name": "_within",
+        "line": 3667,
+        "end": 3675
+      },
+      {
+        "name": "_contained",
+        "line": 3678,
+        "end": 3682
+      },
+      {
+        "name": "_entry_ceilings",
+        "line": 3688,
+        "end": 3710
+      },
+      {
+        "name": "_byte_allowance",
+        "line": 3713,
+        "end": 3724
+      },
+      {
+        "name": "_byte_ceilings",
+        "line": 3727,
+        "end": 3740
+      },
+      {
+        "name": "directory_manifest",
+        "line": 3746,
+        "end": 3781
+      },
+      {
+        "name": "copied_manifest",
+        "line": 3784,
+        "end": 3868
+      },
+      {
+        "name": "_walk",
+        "line": 3871,
+        "end": 3922
+      },
+      {
+        "name": "_open_directory",
+        "line": 3925,
+        "end": 3939
+      },
+      {
+        "name": "_read_exactly",
+        "line": 3942,
+        "end": 4005
+      },
+      {
+        "name": "_read_all",
+        "line": 4008,
+        "end": 4023
+      },
+      {
+        "name": "assignment_workspace",
+        "line": 4029,
+        "end": 4265
+      },
+      {
+        "name": "AllocatedRoots",
+        "line": 4268,
+        "end": 4419
+      },
+      {
+        "name": "_own_directory",
+        "line": 4422,
+        "end": 4457
+      },
+      {
+        "name": "_frozen_delivery",
+        "line": 4460,
+        "end": 4495
+      },
+      {
+        "name": "compose_input_root",
+        "line": 4498,
+        "end": 4616
+      },
+      {
+        "name": "read_input_root",
+        "line": 4619,
+        "end": 4654
+      },
+      {
+        "name": "_write_read_only",
+        "line": 4657,
+        "end": 4701
+      },
+      {
+        "name": "discard_workspace",
+        "line": 4704,
+        "end": 4756
+      },
+      {
+        "name": "adopted_assignment_workspace",
+        "line": 4759,
+        "end": 4831
+      },
+      {
+        "name": "release_adopted_workspace",
+        "line": 4834,
+        "end": 4849
+      },
+      {
+        "name": "_adopted_roots",
+        "line": 4852,
+        "end": 4859
+      },
+      {
+        "name": "line_assignment_workspace",
+        "line": 4862,
+        "end": 4896
+      },
+      {
+        "name": "_composed_line_roots",
+        "line": 4899,
+        "end": 4928
+      },
+      {
+        "name": "_granted_roots",
+        "line": 4931,
+        "end": 4961
+      },
+      {
+        "name": "discard_execution_roots",
+        "line": 4964,
+        "end": 5020
+      },
+      {
+        "name": "_execution_roots_removed",
+        "line": 5023,
+        "end": 5083
+      },
+      {
+        "name": "_still_the_same",
+        "line": 5086,
+        "end": 5100
+      },
+      {
+        "name": "_emptied",
+        "line": 5103,
+        "end": 5146
+      },
+      {
+        "name": "_proved_own",
+        "line": 5149,
+        "end": 5165
+      },
+      {
+        "name": "_discarded_roots",
+        "line": 5168,
+        "end": 5180
+      },
+      {
+        "name": "discard_tree",
+        "line": 5184,
+        "end": 5206
+      },
+      {
+        "name": "_thaw",
+        "line": 5209,
+        "end": 5225
+      },
+      {
+        "name": "_removed_pinned_home",
+        "line": 5228,
+        "end": 5299
+      },
+      {
+        "name": "_removed_through_handles",
+        "line": 5302,
+        "end": 5374
+      },
+      {
+        "name": "_thaw_handle",
+        "line": 5377,
+        "end": 5384
+      },
+      {
+        "name": "_remove",
+        "line": 5387,
+        "end": 5511
+      },
+      {
+        "name": "_entries",
+        "line": 5514,
+        "end": 5528
+      },
+      {
+        "name": "_unlink",
+        "line": 5531,
+        "end": 5558
+      },
+      {
+        "name": "_line_or_assignment_identity",
+        "line": 5564,
+        "end": 5606
+      },
+      {
+        "name": "_object_identity",
+        "line": 5609,
+        "end": 5617
+      },
+      {
+        "name": "governed_resource_identity",
+        "line": 5620,
+        "end": 5714
+      },
+      {
+        "name": "__init__",
+        "line": 377,
+        "end": 393
+      },
+      {
+        "name": "__setattr__",
+        "line": 395,
+        "end": 396
+      },
+      {
+        "name": "__repr__",
+        "line": 398,
+        "end": 399
+      },
+      {
+        "name": "__eq__",
+        "line": 401,
+        "end": 402
+      },
+      {
+        "name": "__hash__",
+        "line": 404,
+        "end": 405
+      },
+      {
+        "name": "__init__",
+        "line": 436,
+        "end": 445
+      },
+      {
+        "name": "__setattr__",
+        "line": 447,
+        "end": 448
+      },
+      {
+        "name": "__repr__",
+        "line": 450,
+        "end": 451
+      },
+      {
+        "name": "__eq__",
+        "line": 453,
+        "end": 455
+      },
+      {
+        "name": "__hash__",
+        "line": 457,
+        "end": 458
+      },
+      {
+        "name": "act",
+        "line": 656,
+        "end": 661
+      },
+      {
+        "name": "__init__",
+        "line": 809,
+        "end": 815
+      },
+      {
+        "name": "__setattr__",
+        "line": 817,
+        "end": 818
+      },
+      {
+        "name": "__repr__",
+        "line": 820,
+        "end": 821
+      },
+      {
+        "name": "__eq__",
+        "line": 823,
+        "end": 824
+      },
+      {
+        "name": "__hash__",
+        "line": 826,
+        "end": 827
+      },
+      {
+        "name": "act",
+        "line": 912,
+        "end": 917
+      },
+      {
+        "name": "__init__",
+        "line": 994,
+        "end": 1003
+      },
+      {
+        "name": "release",
+        "line": 1005,
+        "end": 1017
+      },
+      {
+        "name": "_disown",
+        "line": 1019,
+        "end": 1025
+      },
+      {
+        "name": "__enter__",
+        "line": 1027,
+        "end": 1028
+      },
+      {
+        "name": "__exit__",
+        "line": 1030,
+        "end": 1032
+      },
+      {
+        "name": "named",
+        "line": 1658,
+        "end": 1664
+      },
+      {
+        "name": "account",
+        "line": 1670,
+        "end": 1697
+      },
+      {
+        "name": "visit",
+        "line": 1699,
+        "end": 1792
+      },
+      {
+        "name": "visit",
+        "line": 1887,
+        "end": 1965
+      },
+      {
+        "name": "binding",
+        "line": 2795,
+        "end": 2803
+      },
+      {
+        "name": "completing",
+        "line": 3214,
+        "end": 3241
+      },
+      {
+        "name": "__init__",
+        "line": 4308,
+        "end": 4336
+      },
+      {
+        "name": "__getitem__",
+        "line": 4343,
+        "end": 4344
+      },
+      {
+        "name": "__iter__",
+        "line": 4346,
+        "end": 4347
+      },
+      {
+        "name": "__len__",
+        "line": 4349,
+        "end": 4350
+      },
+      {
+        "name": "__contains__",
+        "line": 4352,
+        "end": 4353
+      },
+      {
+        "name": "keys",
+        "line": 4355,
+        "end": 4356
+      },
+      {
+        "name": "items",
+        "line": 4358,
+        "end": 4359
+      },
+      {
+        "name": "__eq__",
+        "line": 4367,
+        "end": 4368
+      },
+      {
+        "name": "__ne__",
+        "line": 4370,
+        "end": 4371
+      },
+      {
+        "name": "__repr__",
+        "line": 4375,
+        "end": 4376
+      },
+      {
+        "name": "__setattr__",
+        "line": 4378,
+        "end": 4380
+      },
+      {
+        "name": "__delattr__",
+        "line": 4382,
+        "end": 4383
+      },
+      {
+        "name": "copy",
+        "line": 4385,
+        "end": 4392
+      },
+      {
+        "name": "_frozen",
+        "line": 4406,
+        "end": 4410
+      }
+    ]
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+    "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+    "bytes": 51321,
+    "symbols": [
+      {
+        "name": "_refuse",
+        "line": 185,
+        "end": 186
+      },
+      {
+        "name": "_denied",
+        "line": 189,
+        "end": 190
+      },
+      {
+        "name": "filesystem_of",
+        "line": 196,
+        "end": 243
+      },
+      {
+        "name": "check_disk_backed",
+        "line": 246,
+        "end": 264
+      },
+      {
+        "name": "NominatedSource",
+        "line": 270,
+        "end": 316
+      },
+      {
+        "name": "nominate_source",
+        "line": 319,
+        "end": 394
+      },
+      {
+        "name": "_object_of",
+        "line": 397,
+        "end": 419
+      },
+      {
+        "name": "WorkspaceCapacity",
+        "line": 425,
+        "end": 467
+      },
+      {
+        "name": "workspace_capacity",
+        "line": 470,
+        "end": 495
+      },
+      {
+        "name": "SourceBoundary",
+        "line": 501,
+        "end": 543
+      },
+      {
+        "name": "source_mountpoint",
+        "line": 546,
+        "end": 581
+      },
+      {
+        "name": "compose_source_boundary",
+        "line": 584,
+        "end": 610
+      },
+      {
+        "name": "compose_runtime_storage_boundary",
+        "line": 613,
+        "end": 626
+      },
+      {
+        "name": "_compose_boundary",
+        "line": 629,
+        "end": 654
+      },
+      {
+        "name": "adopt_source_boundary",
+        "line": 657,
+        "end": 776
+      },
+      {
+        "name": "boundary_mounts",
+        "line": 779,
+        "end": 838
+      },
+      {
+        "name": "_live_guard",
+        "line": 841,
+        "end": 843
+      },
+      {
+        "name": "_pinned_pairs",
+        "line": 846,
+        "end": 864
+      },
+      {
+        "name": "_capacity",
+        "line": 867,
+        "end": 899
+      },
+      {
+        "name": "_within",
+        "line": 902,
+        "end": 910
+      },
+      {
+        "name": "source_consumption",
+        "line": 916,
+        "end": 932
+      },
+      {
+        "name": "declared_profile",
+        "line": 935,
+        "end": 967
+      },
+      {
+        "name": "_profile",
+        "line": 970,
+        "end": 983
+      },
+      {
+        "name": "__init__",
+        "line": 290,
+        "end": 297
+      },
+      {
+        "name": "__setattr__",
+        "line": 299,
+        "end": 301
+      },
+      {
+        "name": "__delattr__",
+        "line": 303,
+        "end": 304
+      },
+      {
+        "name": "__repr__",
+        "line": 306,
+        "end": 307
+      },
+      {
+        "name": "__eq__",
+        "line": 309,
+        "end": 313
+      },
+      {
+        "name": "__hash__",
+        "line": 315,
+        "end": 316
+      },
+      {
+        "name": "__init__",
+        "line": 446,
+        "end": 451
+      },
+      {
+        "name": "__setattr__",
+        "line": 453,
+        "end": 454
+      },
+      {
+        "name": "__delattr__",
+        "line": 456,
+        "end": 457
+      },
+      {
+        "name": "__repr__",
+        "line": 459,
+        "end": 460
+      },
+      {
+        "name": "__eq__",
+        "line": 462,
+        "end": 464
+      },
+      {
+        "name": "__hash__",
+        "line": 466,
+        "end": 467
+      },
+      {
+        "name": "__init__",
+        "line": 514,
+        "end": 533
+      },
+      {
+        "name": "__setattr__",
+        "line": 535,
+        "end": 536
+      },
+      {
+        "name": "__delattr__",
+        "line": 538,
+        "end": 539
+      },
+      {
+        "name": "__repr__",
+        "line": 541,
+        "end": 543
+      }
+    ]
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+    "sha256": "2630e18823297bd87a84b5fa47acf8e39bc93c64edacbb49bd889ad43a0b7e4e",
+    "bytes": 137366,
+    "symbols": [
+      {
+        "name": "_settled",
+        "line": 195,
+        "end": 265
+      },
+      {
+        "name": "_custody_identity",
+        "line": 268,
+        "end": 307
+      },
+      {
+        "name": "check_custody_operation",
+        "line": 310,
+        "end": 325
+      },
+      {
+        "name": "check_custody_root",
+        "line": 328,
+        "end": 346
+      },
+      {
+        "name": "_derived_root",
+        "line": 649,
+        "end": 760
+      },
+      {
+        "name": "_no_link",
+        "line": 763,
+        "end": 794
+      },
+      {
+        "name": "_list_vector",
+        "line": 797,
+        "end": 822
+      },
+      {
+        "name": "_listed_name",
+        "line": 825,
+        "end": 841
+      },
+      {
+        "name": "_reconciled",
+        "line": 844,
+        "end": 954
+      },
+      {
+        "name": "_reclaimed",
+        "line": 957,
+        "end": 985
+      },
+      {
+        "name": "_proved_absent",
+        "line": 988,
+        "end": 1021
+      },
+      {
+        "name": "_custody_vector",
+        "line": 1024,
+        "end": 1133
+      },
+      {
+        "name": "CustodyAnswer",
+        "line": 1136,
+        "end": 1253
+      },
+      {
+        "name": "_frozen",
+        "line": 1256,
+        "end": 1281
+      },
+      {
+        "name": "_accountable",
+        "line": 1284,
+        "end": 1328
+      },
+      {
+        "name": "_answered",
+        "line": 1331,
+        "end": 1346
+      },
+      {
+        "name": "_hold_identity",
+        "line": 1357,
+        "end": 1371
+      },
+      {
+        "name": "custody_holds",
+        "line": 1374,
+        "end": 1590
+      },
+      {
+        "name": "_settlement",
+        "line": 1634,
+        "end": 1735
+      },
+      {
+        "name": "clear_custody_hold",
+        "line": 1738,
+        "end": 1857
+      },
+      {
+        "name": "_claim_episode",
+        "line": 1860,
+        "end": 1958
+      },
+      {
+        "name": "_record_hold",
+        "line": 1961,
+        "end": 1994
+      },
+      {
+        "name": "_clear_hold",
+        "line": 1997,
+        "end": 2018
+      },
+      {
+        "name": "_standing_hold",
+        "line": 2021,
+        "end": 2026
+      },
+      {
+        "name": "_standing_overlap",
+        "line": 2029,
+        "end": 2056
+      },
+      {
+        "name": "normalize_directory",
+        "line": 2059,
+        "end": 2158
+      },
+      {
+        "name": "adopted_directory_custody",
+        "line": 2161,
+        "end": 2195
+      },
+      {
+        "name": "historical_directory_custody",
+        "line": 2198,
+        "end": 2246
+      },
+      {
+        "name": "_recorded_store",
+        "line": 2249,
+        "end": 2264
+      },
+      {
+        "name": "_custody_operation_id",
+        "line": 2267,
+        "end": 2285
+      },
+      {
+        "name": "allowed",
+        "line": 2288,
+        "end": 2323
+      },
+      {
+        "name": "custody_act",
+        "line": 2326,
+        "end": 2533
+      },
+      {
+        "name": "_recovered",
+        "line": 2536,
+        "end": 2568
+      },
+      {
+        "name": "_custodian_document",
+        "line": 2571,
+        "end": 2591
+      },
+      {
+        "name": "__setattr__",
+        "line": 1167,
+        "end": 1170
+      },
+      {
+        "name": "operation",
+        "line": 1175,
+        "end": 1177
+      },
+      {
+        "name": "status",
+        "line": 1180,
+        "end": 1188
+      },
+      {
+        "name": "answer",
+        "line": 1191,
+        "end": 1204
+      },
+      {
+        "name": "rendered",
+        "line": 1207,
+        "end": 1217
+      },
+      {
+        "name": "unaccounted",
+        "line": 1220,
+        "end": 1230
+      },
+      {
+        "name": "diagnostic",
+        "line": 1233,
+        "end": 1235
+      },
+      {
+        "name": "ok",
+        "line": 1238,
+        "end": 1249
+      },
+      {
+        "name": "__repr__",
+        "line": 1251,
+        "end": 1253
+      },
+      {
+        "name": "claiming",
+        "line": 1918,
+        "end": 1946
+      }
+    ]
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+    "sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+    "bytes": 95670,
+    "symbols": [
+      {
+        "name": "domain_of",
+        "line": 114,
+        "end": 135
+      },
+      {
+        "name": "_acquired_id",
+        "line": 138,
+        "end": 139
+      },
+      {
+        "name": "_launch_id",
+        "line": 142,
+        "end": 143
+      },
+      {
+        "name": "_bound_id",
+        "line": 146,
+        "end": 147
+      },
+      {
+        "name": "_activating_id",
+        "line": 150,
+        "end": 151
+      },
+      {
+        "name": "_activation_settled_id",
+        "line": 154,
+        "end": 155
+      },
+      {
+        "name": "_revoked_id",
+        "line": 158,
+        "end": 159
+      },
+      {
+        "name": "_expired_id",
+        "line": 162,
+        "end": 163
+      },
+      {
+        "name": "_ambiguous_id",
+        "line": 166,
+        "end": 167
+      },
+      {
+        "name": "_renewed_id",
+        "line": 170,
+        "end": 171
+      },
+      {
+        "name": "_returned_id",
+        "line": 174,
+        "end": 175
+      },
+      {
+        "name": "_document",
+        "line": 178,
+        "end": 188
+      },
+      {
+        "name": "outstanding",
+        "line": 191,
+        "end": 208
+      },
+      {
+        "name": "_renewals_of",
+        "line": 211,
+        "end": 226
+      },
+      {
+        "name": "unresolved",
+        "line": 229,
+        "end": 300
+      },
+      {
+        "name": "token_of",
+        "line": 303,
+        "end": 359
+      },
+      {
+        "name": "acquire",
+        "line": 362,
+        "end": 493
+      },
+      {
+        "name": "renew",
+        "line": 496,
+        "end": 570
+      },
+      {
+        "name": "_extended",
+        "line": 573,
+        "end": 667
+      },
+      {
+        "name": "journal_launch",
+        "line": 670,
+        "end": 691
+      },
+      {
+        "name": "bind_container",
+        "line": 694,
+        "end": 725
+      },
+      {
+        "name": "revoke",
+        "line": 728,
+        "end": 797
+      },
+      {
+        "name": "admit_activation",
+        "line": 800,
+        "end": 900
+      },
+      {
+        "name": "settle_activation",
+        "line": 903,
+        "end": 963
+      },
+      {
+        "name": "effects_permitted",
+        "line": 966,
+        "end": 983
+      },
+      {
+        "name": "_reclaiming",
+        "line": 986,
+        "end": 1021
+      },
+      {
+        "name": "returned",
+        "line": 1024,
+        "end": 1171
+      },
+      {
+        "name": "_owning",
+        "line": 1174,
+        "end": 1273
+      },
+      {
+        "name": "_observed_revision",
+        "line": 1276,
+        "end": 1295
+      },
+      {
+        "name": "_judged_expired",
+        "line": 1298,
+        "end": 1300
+      },
+      {
+        "name": "_judged_ambiguous",
+        "line": 1303,
+        "end": 1306
+      },
+      {
+        "name": "_judging",
+        "line": 1309,
+        "end": 1335
+      },
+      {
+        "name": "_judge_expired",
+        "line": 1338,
+        "end": 1413
+      },
+      {
+        "name": "_deadline_of",
+        "line": 1416,
+        "end": 1428
+      },
+      {
+        "name": "Reservation",
+        "line": 1440,
+        "end": 1469
+      },
+      {
+        "name": "generation_of",
+        "line": 1472,
+        "end": 1505
+      },
+      {
+        "name": "release",
+        "line": 1508,
+        "end": 1549
+      },
+      {
+        "name": "Governance",
+        "line": 1552,
+        "end": 1602
+      },
+      {
+        "name": "governed_workspace_identity",
+        "line": 1605,
+        "end": 1641
+      },
+      {
+        "name": "workspace_identity",
+        "line": 1644,
+        "end": 1664
+      },
+      {
+        "name": "workspace_governance",
+        "line": 1667,
+        "end": 1686
+      },
+      {
+        "name": "_held_generation",
+        "line": 1689,
+        "end": 1704
+      },
+      {
+        "name": "extend",
+        "line": 642,
+        "end": 665
+      },
+      {
+        "name": "journalling",
+        "line": 685,
+        "end": 687
+      },
+      {
+        "name": "binding",
+        "line": 719,
+        "end": 721
+      },
+      {
+        "name": "settling",
+        "line": 957,
+        "end": 958
+      },
+      {
+        "name": "returning",
+        "line": 1127,
+        "end": 1167
+      },
+      {
+        "name": "__init__",
+        "line": 1448,
+        "end": 1451
+      },
+      {
+        "name": "bind",
+        "line": 1453,
+        "end": 1464
+      },
+      {
+        "name": "settle",
+        "line": 1466,
+        "end": 1469
+      },
+      {
+        "name": "__init__",
+        "line": 1555,
+        "end": 1559
+      },
+      {
+        "name": "release",
+        "line": 1561,
+        "end": 1568
+      },
+      {
+        "name": "overdue",
+        "line": 1570,
+        "end": 1581
+      },
+      {
+        "name": "revoke",
+        "line": 1583,
+        "end": 1587
+      },
+      {
+        "name": "reserve",
+        "line": 1589,
+        "end": 1602
+      }
+    ]
+  },
+  {
+    "path": "v12/python/tests/manager/test_maintenance.py",
+    "sha256": "e0a4c6490ddd5b310146e5da91c75ec18c313621862de901a9837a27dda0beb8",
+    "bytes": 39962,
+    "symbols": [
+      {
+        "name": "Engine",
+        "line": 32,
+        "end": 121
+      },
+      {
+        "name": "MaintenanceCase",
+        "line": 124,
+        "end": 226
+      },
+      {
+        "name": "ThePreparationEffectHappensInsideTheExecution",
+        "line": 229,
+        "end": 298
+      },
+      {
+        "name": "TheTokenIsTheTasksOwnAndNotASecondJournal",
+        "line": 301,
+        "end": 366
+      },
+      {
+        "name": "TheLaunchIsTwoActsAndTheJournalDecidesBetweenThem",
+        "line": 369,
+        "end": 404
+      },
+      {
+        "name": "TheMountIsTheDerivedRootAndNeverTheHome",
+        "line": 407,
+        "end": 486
+      },
+      {
+        "name": "TheHostSettlesOnEvidenceAndHoldsEverythingElse",
+        "line": 489,
+        "end": 671
+      },
+      {
+        "name": "ARepeatedPreparationDecidesAtTheJournalBeforeTheEngine",
+        "line": 674,
+        "end": 753
+      },
+      {
+        "name": "TheVocabularyAndTheSchemaAreOneContract",
+        "line": 756,
+        "end": 811
+      },
+      {
+        "name": "TheAnswerIsNotACapability",
+        "line": 814,
+        "end": 839
+      },
+      {
+        "name": "__init__",
+        "line": 40,
+        "end": 58
+      },
+      {
+        "name": "__call__",
+        "line": 62,
+        "end": 86
+      },
+      {
+        "name": "answer",
+        "line": 88,
+        "end": 89
+      },
+      {
+        "name": "creating",
+        "line": 93,
+        "end": 102
+      },
+      {
+        "name": "starting",
+        "line": 104,
+        "end": 112
+      },
+      {
+        "name": "inspecting",
+        "line": 114,
+        "end": 121
+      },
+      {
+        "name": "setUp",
+        "line": 133,
+        "end": 147
+      },
+      {
+        "name": "opened",
+        "line": 149,
+        "end": 155
+      },
+      {
+        "name": "name",
+        "line": 159,
+        "end": 163
+      },
+      {
+        "name": "domain",
+        "line": 165,
+        "end": 167
+      },
+      {
+        "name": "recorded",
+        "line": 169,
+        "end": 178
+      },
+      {
+        "name": "identity",
+        "line": 180,
+        "end": 188
+      },
+      {
+        "name": "witnessed",
+        "line": 190,
+        "end": 191
+      },
+      {
+        "name": "executed",
+        "line": 193,
+        "end": 210
+      },
+      {
+        "name": "prepared",
+        "line": 214,
+        "end": 220
+      },
+      {
+        "name": "vector",
+        "line": 222,
+        "end": 223
+      },
+      {
+        "name": "unresolved",
+        "line": 225,
+        "end": 226
+      },
+      {
+        "name": "test_the_result_root_is_established_by_the_program_and_nothing_else",
+        "line": 232,
+        "end": 245
+      },
+      {
+        "name": "test_it_did_not_exist_until_the_admitted_activation_ran",
+        "line": 247,
+        "end": 261
+      },
+      {
+        "name": "test_the_host_creates_nothing_at_all_on_this_path",
+        "line": 263,
+        "end": 282
+      },
+      {
+        "name": "test_a_second_preparation_finds_it_established_rather_than_replacing_it",
+        "line": 284,
+        "end": 298
+      },
+      {
+        "name": "test_the_domain_is_the_one_a_task_start_resolves",
+        "line": 304,
+        "end": 318
+      },
+      {
+        "name": "test_a_task_start_cannot_acquire_while_the_preparation_holds_it",
+        "line": 320,
+        "end": 338
+      },
+      {
+        "name": "test_the_execution_identity_is_the_maintenance_act_and_not_the_attempt",
+        "line": 340,
+        "end": 354
+      },
+      {
+        "name": "test_the_pre_allocation_identity_names_the_object_inside_the_domain",
+        "line": 356,
+        "end": 366
+      },
+      {
+        "name": "test_the_container_is_created_inert_then_bound_and_admitted_then_started",
+        "line": 371,
+        "end": 381
+      },
+      {
+        "name": "test_the_created_vector_is_the_deferred_activation",
+        "line": 383,
+        "end": 392
+      },
+      {
+        "name": "test_the_token_is_returned_only_after_the_absence_is_proved",
+        "line": 394,
+        "end": 400
+      },
+      {
+        "name": "test_no_engine_call_is_made_while_a_write_lock_is_held",
+        "line": 402,
+        "end": 404
+      },
+      {
+        "name": "test_exactly_one_mount_is_composed_and_it_is_the_workspace",
+        "line": 409,
+        "end": 418
+      },
+      {
+        "name": "test_the_home_and_its_credential_siblings_are_not_mounted",
+        "line": 420,
+        "end": 440
+      },
+      {
+        "name": "test_the_restrictions_are_the_custodians_own",
+        "line": 442,
+        "end": 457
+      },
+      {
+        "name": "test_the_place_is_a_name_and_no_operand_carries_a_path",
+        "line": 459,
+        "end": 467
+      },
+      {
+        "name": "test_a_compound_name_is_refused_by_the_program_itself",
+        "line": 469,
+        "end": 486
+      },
+      {
+        "name": "test_a_create_the_engine_refused_exposes_nothing_and_holds_the_launch",
+        "line": 491,
+        "end": 498
+      },
+      {
+        "name": "test_a_container_this_manager_cannot_name_exactly_is_never_bound",
+        "line": 500,
+        "end": 521
+      },
+      {
+        "name": "test_an_activation_the_engine_did_not_answer_is_left_in_flight",
+        "line": 523,
+        "end": 532
+      },
+      {
+        "name": "test_an_unreadable_account_is_not_an_outcome_and_the_token_stays_held",
+        "line": 534,
+        "end": 544
+      },
+      {
+        "name": "test_an_account_for_another_submission_accounts_for_nothing",
+        "line": 546,
+        "end": 557
+      },
+      {
+        "name": "test_a_document_with_an_unexpected_member_accounts_for_nothing",
+        "line": 559,
+        "end": 576
+      },
+      {
+        "name": "test_a_document_for_another_verb_accounts_for_nothing",
+        "line": 578,
+        "end": 585
+      },
+      {
+        "name": "test_a_report_without_a_proved_absence_never_returns_the_token",
+        "line": 587,
+        "end": 600
+      },
+      {
+        "name": "test_an_expired_grant_holds_the_resource_and_admits_no_replacement",
+        "line": 602,
+        "end": 621
+      },
+      {
+        "name": "test_an_unreconciled_custody_hold_stops_the_preparation_before_anything",
+        "line": 623,
+        "end": 634
+      },
+      {
+        "name": "test_a_stranded_container_whose_absence_is_unproved_stops_the_act",
+        "line": 636,
+        "end": 647
+      },
+      {
+        "name": "test_a_container_running_another_image_is_not_this_managers_to_remove",
+        "line": 649,
+        "end": 671
+      },
+      {
+        "name": "test_a_completed_preparation_is_not_repeated_and_creates_nothing",
+        "line": 684,
+        "end": 695
+      },
+      {
+        "name": "test_a_partially_launched_preparation_is_recovery_and_not_a_relaunch",
+        "line": 697,
+        "end": 723
+      },
+      {
+        "name": "test_a_create_whose_reply_was_lost_is_resumed_with_one_effect",
+        "line": 725,
+        "end": 753
+      },
+      {
+        "name": "test_every_verb_this_build_owns_has_a_result_shape",
+        "line": 758,
+        "end": 760
+      },
+      {
+        "name": "test_a_verb_outside_the_vocabulary_reaches_no_engine",
+        "line": 762,
+        "end": 768
+      },
+      {
+        "name": "test_the_real_programs_document_is_the_one_this_module_accounts_for",
+        "line": 770,
+        "end": 785
+      },
+      {
+        "name": "test_the_timers_are_reconciled_with_the_grant_rather_than_confused",
+        "line": 787,
+        "end": 805
+      },
+      {
+        "name": "test_a_caller_allowance_may_only_lower_the_act_bound",
+        "line": 807,
+        "end": 811
+      },
+      {
+        "name": "test_it_carries_no_host_path",
+        "line": 816,
+        "end": 820
+      },
+      {
+        "name": "test_a_caller_cannot_mint_one",
+        "line": 822,
+        "end": 828
+      },
+      {
+        "name": "test_a_holder_cannot_revise_one",
+        "line": 830,
+        "end": 839
+      },
+      {
+        "name": "Watching",
+        "line": 325,
+        "end": 333
+      },
+      {
+        "name": "Ambiguous",
+        "line": 509,
+        "end": 511
+      },
+      {
+        "name": "Slow",
+        "line": 605,
+        "end": 610
+      },
+      {
+        "name": "Foreign",
+        "line": 653,
+        "end": 658
+      },
+      {
+        "name": "starting",
+        "line": 326,
+        "end": 333
+      },
+      {
+        "name": "creating",
+        "line": 510,
+        "end": 511
+      },
+      {
+        "name": "starting",
+        "line": 606,
+        "end": 610
+      },
+      {
+        "name": "inspecting",
+        "line": 654,
+        "end": 658
+      }
+    ]
+  },
+  {
+    "path": "v12/python/tests/tools/test_single_worker.py",
+    "sha256": "902ff4ee329e2a8e4462ebcb80a67e40cb3edcf3f723e221798719879b6e6e6b",
+    "bytes": 234057,
+    "symbols": [
+      {
+        "name": "TheWorkerSessionForwardsGateDischarge",
+        "line": 67,
+        "end": 134
+      },
+      {
+        "name": "Engine",
+        "line": 137,
+        "end": 204
+      },
+      {
+        "name": "launching",
+        "line": 217,
+        "end": 218
+      },
+      {
+        "name": "activating",
+        "line": 221,
+        "end": 223
+      },
+      {
+        "name": "running_now",
+        "line": 226,
+        "end": 236
+      },
+      {
+        "name": "TheContextConfigurationIsRequiredAndClosed",
+        "line": 239,
+        "end": 276
+      },
+      {
+        "name": "SingleWorkerCase",
+        "line": 279,
+        "end": 465
+      },
+      {
+        "name": "TheProductionCompositionIsRestartSafe",
+        "line": 468,
+        "end": 786
+      },
+      {
+        "name": "TheConfigurationBoundaryIsClosed",
+        "line": 789,
+        "end": 1088
+      },
+      {
+        "name": "TheWorkloadDocumentIsDeliveredWithTheProtocolPair",
+        "line": 1091,
+        "end": 1492
+      },
+      {
+        "name": "TheCertifiedWorkerReachesTheDeliveredTask",
+        "line": 1495,
+        "end": 1625
+      },
+      {
+        "name": "PreparationCase",
+        "line": 1628,
+        "end": 1672
+      },
+      {
+        "name": "APreparationFailureEndsInTheOwnersJournal",
+        "line": 1675,
+        "end": 1787
+      },
+      {
+        "name": "CredentialRestartProvesTheLiveRuntimeFirst",
+        "line": 1790,
+        "end": 1988
+      },
+      {
+        "name": "ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored",
+        "line": 1991,
+        "end": 2080
+      },
+      {
+        "name": "AnEndingIsReachedEvenWhenTheAccountCannotBeCarried",
+        "line": 2083,
+        "end": 2138
+      },
+      {
+        "name": "ARealStartRefusalKeepsItsOwnAccount",
+        "line": 2141,
+        "end": 2192
+      },
+      {
+        "name": "IdentificationIsOwedUntilItIsDone",
+        "line": 2195,
+        "end": 2292
+      },
+      {
+        "name": "TheEndingAndTheNamingAreOneAct",
+        "line": 2295,
+        "end": 2363
+      },
+      {
+        "name": "TheFailedStartEndingCommitsWithItsNaming",
+        "line": 2366,
+        "end": 2577
+      },
+      {
+        "name": "WhatNoRuntimeReceivedIsThisCompositionsToEnd",
+        "line": 2580,
+        "end": 2641
+      },
+      {
+        "name": "AnUntrustedBearerIsNeverAllowedToWedgeTheManager",
+        "line": 2644,
+        "end": 2692
+      },
+      {
+        "name": "AFaultedTerminalSurvivesTheContainerThatWroteIt",
+        "line": 2699,
+        "end": 3206
+      },
+      {
+        "name": "TheAnsweredEndingRunsThroughTheRealOwners",
+        "line": 3209,
+        "end": 3392
+      },
+      {
+        "name": "TheAuthorityBindingIsProvedBeforeAnythingIsConfigured",
+        "line": 3395,
+        "end": 3465
+      },
+      {
+        "name": "TheHistoricalEntryTakesNoLiveEvidence",
+        "line": 3480,
+        "end": 3570
+      },
+      {
+        "name": "TheRecordedRuntimeAdapterPerformsNothing",
+        "line": 3573,
+        "end": 3621
+      },
+      {
+        "name": "_Refusing",
+        "line": 3634,
+        "end": 3655
+      },
+      {
+        "name": "TheManagerClaimSessionMapsOneRefusalAndNothingElse",
+        "line": 3658,
+        "end": 3888
+      },
+      {
+        "name": "TheActivityAdmissionExcludesASecondHelperPerStore",
+        "line": 3891,
+        "end": 4092
+      },
+      {
+        "name": "TheActivityHelperIngestsOffTheServingLoop",
+        "line": 4095,
+        "end": 4274
+      },
+      {
+        "name": "TheBootstrapCompositionOwnsOneIngestionHelper",
+        "line": 4277,
+        "end": 4428
+      },
+      {
+        "name": "OptionalIntegrationContextDeclaration",
+        "line": 4431,
+        "end": 4457
+      },
+      {
+        "name": "ThreeWorkersOneJobThreeImages",
+        "line": 4460,
+        "end": 4619
+      },
+      {
+        "name": "TheDeploymentCanStopWhatItStarted",
+        "line": 4622,
+        "end": 4689
+      },
+      {
+        "name": "setUp",
+        "line": 68,
+        "end": 102
+      },
+      {
+        "name": "test_wrapper_preserves_the_exact_operand_document_and_session_answer",
+        "line": 104,
+        "end": 110
+      },
+      {
+        "name": "test_port_crosses_the_wrapper_and_replays_one_real_discharge",
+        "line": 112,
+        "end": 121
+      },
+      {
+        "name": "test_authority_refusals_cross_both_wrappers_unchanged",
+        "line": 123,
+        "end": 134
+      },
+      {
+        "name": "__init__",
+        "line": 140,
+        "end": 148
+      },
+      {
+        "name": "__call__",
+        "line": 150,
+        "end": 191
+      },
+      {
+        "name": "answer",
+        "line": 194,
+        "end": 195
+      },
+      {
+        "name": "starts",
+        "line": 198,
+        "end": 200
+      },
+      {
+        "name": "activations",
+        "line": 203,
+        "end": 204
+      },
+      {
+        "name": "test_exact_reserved_declaration_rejects_stale_media_and_other_shapes",
+        "line": 240,
+        "end": 263
+      },
+      {
+        "name": "test_legacy_implementation_cannot_silently_omit_context",
+        "line": 265,
+        "end": 276
+      },
+      {
+        "name": "setUp",
+        "line": 280,
+        "end": 420
+      },
+      {
+        "name": "stores",
+        "line": 422,
+        "end": 435
+      },
+      {
+        "name": "operations",
+        "line": 437,
+        "end": 441
+      },
+      {
+        "name": "_forget_secret",
+        "line": 443,
+        "end": 445
+      },
+      {
+        "name": "commanded",
+        "line": 447,
+        "end": 465
+      },
+      {
+        "name": "crash_and_restart",
+        "line": 469,
+        "end": 499
+      },
+      {
+        "name": "test_the_production_start_is_governed_by_a_resource_token",
+        "line": 501,
+        "end": 546
+      },
+      {
+        "name": "test_a_refused_admission_leaves_the_created_container_unrun",
+        "line": 548,
+        "end": 592
+      },
+      {
+        "name": "test_one_submission_becomes_one_observable_runtime_and_is_adopted",
+        "line": 594,
+        "end": 623
+      },
+      {
+        "name": "test_a_credential_source_refusal_is_exceptional_and_not_retried",
+        "line": 625,
+        "end": 660
+      },
+      {
+        "name": "test_an_accepted_offer_is_adopted_after_restart",
+        "line": 662,
+        "end": 677
+      },
+      {
+        "name": "test_restart_after_the_claim_commits",
+        "line": 679,
+        "end": 680
+      },
+      {
+        "name": "test_restart_after_the_attempt_record_commits",
+        "line": 682,
+        "end": 683
+      },
+      {
+        "name": "test_restart_after_activation_commits",
+        "line": 685,
+        "end": 686
+      },
+      {
+        "name": "test_restart_after_workspace_allocation",
+        "line": 688,
+        "end": 689
+      },
+      {
+        "name": "test_restart_after_the_source_boundary_is_composed",
+        "line": 699,
+        "end": 700
+      },
+      {
+        "name": "test_restart_after_the_boundary_is_adopted_for_the_start",
+        "line": 702,
+        "end": 703
+      },
+      {
+        "name": "test_restart_after_input_composition",
+        "line": 705,
+        "end": 706
+      },
+      {
+        "name": "test_restart_after_manifest_retention",
+        "line": 708,
+        "end": 709
+      },
+      {
+        "name": "test_restart_after_credential_materialization",
+        "line": 711,
+        "end": 712
+      },
+      {
+        "name": "test_restart_after_launch_delivery",
+        "line": 714,
+        "end": 715
+      },
+      {
+        "name": "test_restart_after_the_runtime_start_commits",
+        "line": 717,
+        "end": 718
+      },
+      {
+        "name": "test_restart_reconciles_the_start_journal_engine_call_window",
+        "line": 720,
+        "end": 756
+      },
+      {
+        "name": "test_an_unbound_profile_is_refused_before_an_offer_or_engine_act",
+        "line": 758,
+        "end": 776
+      },
+      {
+        "name": "test_authority_bootstrap_paths_do_not_cross_into_the_runtime_composer",
+        "line": 778,
+        "end": 786
+      },
+      {
+        "name": "test_static_authority_contract_and_role_relationships_are_bound",
+        "line": 790,
+        "end": 803
+      },
+      {
+        "name": "test_authority_resolves_the_exact_configured_principal",
+        "line": 805,
+        "end": 813
+      },
+      {
+        "name": "test_authority_resolves_the_exact_configured_participant",
+        "line": 815,
+        "end": 823
+      },
+      {
+        "name": "test_the_public_factory_reads_only_its_named_configuration",
+        "line": 825,
+        "end": 846
+      },
+      {
+        "name": "resealed",
+        "line": 848,
+        "end": 854
+      },
+      {
+        "name": "refused",
+        "line": 856,
+        "end": 867
+      },
+      {
+        "name": "test_a_configuration_of_the_superseded_schema_is_refused",
+        "line": 869,
+        "end": 886
+      },
+      {
+        "name": "test_a_configuration_without_a_task_document_is_refused",
+        "line": 888,
+        "end": 893
+      },
+      {
+        "name": "test_task_material_this_deployment_cannot_hold_is_refused",
+        "line": 895,
+        "end": 921
+      },
+      {
+        "name": "test_a_task_that_is_not_the_declared_human_contract_is_refused",
+        "line": 923,
+        "end": 946
+      },
+      {
+        "name": "test_a_source_destination_the_workload_does_not_read_is_refused",
+        "line": 948,
+        "end": 960
+      },
+      {
+        "name": "test_the_held_bytes_and_not_the_path_are_what_is_delivered",
+        "line": 962,
+        "end": 981
+      },
+      {
+        "name": "test_unknown_configuration_members_are_refused",
+        "line": 983,
+        "end": 991
+      },
+      {
+        "name": "test_a_changed_nominated_source_is_not_a_configuration_refusal",
+        "line": 993,
+        "end": 1019
+      },
+      {
+        "name": "test_a_manifest_claiming_measured_content_is_refused",
+        "line": 1021,
+        "end": 1026
+      },
+      {
+        "name": "test_a_source_that_does_not_declare_the_boundary_is_refused",
+        "line": 1028,
+        "end": 1034
+      },
+      {
+        "name": "test_a_nominated_source_that_is_a_link_is_refused",
+        "line": 1036,
+        "end": 1049
+      },
+      {
+        "name": "test_a_workspace_capacity_inside_the_scratch_bound_is_refused",
+        "line": 1051,
+        "end": 1068
+      },
+      {
+        "name": "test_a_workspace_capacity_declaring_an_entry_ceiling_is_refused",
+        "line": 1070,
+        "end": 1088
+      },
+      {
+        "name": "composed",
+        "line": 1099,
+        "end": 1107
+      },
+      {
+        "name": "judgment_root",
+        "line": 1109,
+        "end": 1120
+      },
+      {
+        "name": "test_judgment_subject_is_delivered_read_only_beside_unchanged_task",
+        "line": 1122,
+        "end": 1131
+      },
+      {
+        "name": "test_changed_judgment_subject_refuses_recovery_without_repair",
+        "line": 1133,
+        "end": 1144
+      },
+      {
+        "name": "test_the_root_carries_both_manifests_the_task_and_the_source",
+        "line": 1146,
+        "end": 1157
+      },
+      {
+        "name": "test_the_task_is_read_only_inside_a_frozen_root",
+        "line": 1159,
+        "end": 1169
+      },
+      {
+        "name": "test_the_engine_is_given_the_root_that_carries_the_task",
+        "line": 1171,
+        "end": 1181
+      },
+      {
+        "name": "test_a_restart_neither_rewrites_the_task_nor_starts_a_second_runtime",
+        "line": 1183,
+        "end": 1205
+      },
+      {
+        "name": "staged",
+        "line": 1208,
+        "end": 1211
+      },
+      {
+        "name": "rewritten",
+        "line": 1213,
+        "end": 1220
+      },
+      {
+        "name": "test_a_changed_task_in_a_composed_root_refuses_rather_than_repairs",
+        "line": 1222,
+        "end": 1246
+      },
+      {
+        "name": "contended",
+        "line": 1248,
+        "end": 1284
+      },
+      {
+        "name": "test_a_target_that_appears_before_the_creation_is_refused",
+        "line": 1286,
+        "end": 1304
+      },
+      {
+        "name": "test_a_link_at_the_final_name_is_refused_and_never_followed",
+        "line": 1306,
+        "end": 1328
+      },
+      {
+        "name": "test_the_published_document_is_the_held_bytes_at_a_real_file",
+        "line": 1330,
+        "end": 1349
+      },
+      {
+        "name": "test_a_task_changed_before_the_root_is_adopted_is_refused",
+        "line": 1351,
+        "end": 1404
+      },
+      {
+        "name": "test_a_task_this_composition_did_not_write_is_never_replaced",
+        "line": 1406,
+        "end": 1441
+      },
+      {
+        "name": "test_an_interrupted_composition_refuses_rather_than_completing_it",
+        "line": 1443,
+        "end": 1492
+      },
+      {
+        "name": "composed_root",
+        "line": 1516,
+        "end": 1524
+      },
+      {
+        "name": "test_a_work_request_over_the_composed_root_reaches_the_provider",
+        "line": 1526,
+        "end": 1625
+      },
+      {
+        "name": "setUp",
+        "line": 1637,
+        "end": 1646
+      },
+      {
+        "name": "offered",
+        "line": 1648,
+        "end": 1661
+      },
+      {
+        "name": "staged",
+        "line": 1664,
+        "end": 1667
+      },
+      {
+        "name": "serve",
+        "line": 1669,
+        "end": 1672
+      },
+      {
+        "name": "spoiled",
+        "line": 1685,
+        "end": 1715
+      },
+      {
+        "name": "test_a_structurally_foreign_workspace_is_exceptional_and_not_retried",
+        "line": 1717,
+        "end": 1727
+      },
+      {
+        "name": "test_a_partial_input_root_is_exceptional_and_not_retried",
+        "line": 1729,
+        "end": 1752
+      },
+      {
+        "name": "test_the_partial_input_refusal_is_typed_rather_than_an_assertion",
+        "line": 1754,
+        "end": 1787
+      },
+      {
+        "name": "published",
+        "line": 1801,
+        "end": 1842
+      },
+      {
+        "name": "ended",
+        "line": 1844,
+        "end": 1882
+      },
+      {
+        "name": "resumed",
+        "line": 1884,
+        "end": 1892
+      },
+      {
+        "name": "test_the_exact_recovery_adopts_through_the_public_proof",
+        "line": 1894,
+        "end": 1909
+      },
+      {
+        "name": "test_a_record_naming_another_runtime_is_refused_without_adopting",
+        "line": 1911,
+        "end": 1948
+      },
+      {
+        "name": "test_a_mismatched_credential_mount_is_refused_and_stopped",
+        "line": 1950,
+        "end": 1988
+      },
+      {
+        "name": "test_a_missing_launch_delivery_after_the_start_is_ended_and_named",
+        "line": 2010,
+        "end": 2065
+      },
+      {
+        "name": "test_a_missing_launch_delivery_before_a_start_is_authored_once",
+        "line": 2067,
+        "end": 2080
+      },
+      {
+        "name": "test_a_source_refusal_quoting_a_live_bearer_still_ends_the_stage",
+        "line": 2095,
+        "end": 2138
+      },
+      {
+        "name": "test_an_engine_that_denies_the_start_reports_its_own_refusal",
+        "line": 2152,
+        "end": 2192
+      },
+      {
+        "name": "test_a_crash_between_the_ending_and_the_naming_still_converges",
+        "line": 2209,
+        "end": 2254
+      },
+      {
+        "name": "test_contradictory_launch_material_is_named_and_never_repaired",
+        "line": 2256,
+        "end": 2292
+      },
+      {
+        "name": "dying_between",
+        "line": 2312,
+        "end": 2320
+      },
+      {
+        "name": "test_a_death_between_the_naming_and_the_ending_leaves_neither",
+        "line": 2322,
+        "end": 2363
+      },
+      {
+        "name": "denying",
+        "line": 2381,
+        "end": 2402
+      },
+      {
+        "name": "dying_between",
+        "line": 2404,
+        "end": 2410
+      },
+      {
+        "name": "deployed",
+        "line": 2412,
+        "end": 2423
+      },
+      {
+        "name": "roots",
+        "line": 2425,
+        "end": 2430
+      },
+      {
+        "name": "test_a_denied_start_that_left_a_container_ends_and_names_it",
+        "line": 2432,
+        "end": 2449
+      },
+      {
+        "name": "test_the_live_runtimes_mount_sources_are_left_where_they_are",
+        "line": 2451,
+        "end": 2486
+      },
+      {
+        "name": "test_a_refusal_before_that_boundary_still_ends_both_deliveries",
+        "line": 2488,
+        "end": 2529
+      },
+      {
+        "name": "test_a_death_between_the_naming_and_the_record_leaves_neither",
+        "line": 2531,
+        "end": 2577
+      },
+      {
+        "name": "test_a_launch_adopted_after_a_crash_is_disposed_of_by_the_ending",
+        "line": 2591,
+        "end": 2641
+      },
+      {
+        "name": "test_a_bearer_equal_to_the_attempt_id_still_ends_the_stage",
+        "line": 2657,
+        "end": 2692
+      },
+      {
+        "name": "Exiting",
+        "line": 2725,
+        "end": 2761
+      },
+      {
+        "name": "Silent",
+        "line": 2763,
+        "end": 2794
+      },
+      {
+        "name": "faulted",
+        "line": 2796,
+        "end": 2840
+      },
+      {
+        "name": "projected",
+        "line": 2842,
+        "end": 2844
+      },
+      {
+        "name": "test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime",
+        "line": 2846,
+        "end": 2867
+      },
+      {
+        "name": "unreachable",
+        "line": 2869,
+        "end": 2880
+      },
+      {
+        "name": "test_an_engine_that_cannot_be_asked_is_uncertain_not_gone",
+        "line": 2882,
+        "end": 2913
+      },
+      {
+        "name": "test_a_runner_that_timed_out_is_the_same_unasked_question",
+        "line": 2915,
+        "end": 2931
+      },
+      {
+        "name": "test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine",
+        "line": 2933,
+        "end": 2972
+      },
+      {
+        "name": "test_an_arbitrary_defect_in_this_composition_escapes",
+        "line": 2974,
+        "end": 2989
+      },
+      {
+        "name": "test_the_fault_alone_authorizes_no_act_at_all",
+        "line": 2991,
+        "end": 3013
+      },
+      {
+        "name": "test_repeated_sweeps_replay_the_same_facts_and_do_nothing",
+        "line": 3015,
+        "end": 3028
+      },
+      {
+        "name": "test_a_fresh_incarnation_reconstructs_the_same_observation",
+        "line": 3030,
+        "end": 3062
+      },
+      {
+        "name": "test_the_observation_only_status_surface_reports_the_same_terminal",
+        "line": 3064,
+        "end": 3089
+      },
+      {
+        "name": "test_a_real_observing_status_run_mutates_no_durable_state",
+        "line": 3091,
+        "end": 3193
+      },
+      {
+        "name": "test_the_observation_only_surface_opens_no_authority_and_no_engine",
+        "line": 3195,
+        "end": 3206
+      },
+      {
+        "name": "quiescing",
+        "line": 3229,
+        "end": 3250
+      },
+      {
+        "name": "worked",
+        "line": 3252,
+        "end": 3300
+      },
+      {
+        "name": "spoke",
+        "line": 3302,
+        "end": 3303
+      },
+      {
+        "name": "test_a_matching_terminal_drives_the_whole_ending",
+        "line": 3305,
+        "end": 3323
+      },
+      {
+        "name": "test_the_ending_is_not_asked_again_once_cleanup_is_settled",
+        "line": 3325,
+        "end": 3330
+      },
+      {
+        "name": "test_a_terminal_naming_another_envelope_stops_before_intake",
+        "line": 3332,
+        "end": 3353
+      },
+      {
+        "name": "test_a_terminal_with_no_usable_digest_never_reaches_the_ending",
+        "line": 3355,
+        "end": 3376
+      },
+      {
+        "name": "rewrite",
+        "line": 3378,
+        "end": 3392
+      },
+      {
+        "name": "foreign_store",
+        "line": 3416,
+        "end": 3421
+      },
+      {
+        "name": "test_a_store_bound_to_another_authority_refuses",
+        "line": 3423,
+        "end": 3434
+      },
+      {
+        "name": "test_the_refusal_leaves_the_control_store_unconfigured",
+        "line": 3436,
+        "end": 3458
+      },
+      {
+        "name": "test_the_matching_store_still_composes",
+        "line": 3460,
+        "end": 3465
+      },
+      {
+        "name": "Composition",
+        "line": 3490,
+        "end": 3502
+      },
+      {
+        "name": "worker",
+        "line": 3504,
+        "end": 3509
+      },
+      {
+        "name": "ending",
+        "line": 3511,
+        "end": 3512
+      },
+      {
+        "name": "patched",
+        "line": 3514,
+        "end": 3523
+      },
+      {
+        "name": "test_the_composition_is_entered_with_the_recorded_operands",
+        "line": 3528,
+        "end": 3542
+      },
+      {
+        "name": "test_the_assignment_carried_in_is_the_claim_rows_own",
+        "line": 3544,
+        "end": 3553
+      },
+      {
+        "name": "test_absence_falls_through_to_the_ordinary_ending",
+        "line": 3555,
+        "end": 3562
+      },
+      {
+        "name": "test_a_bootstrap_worker_never_asks_at_all",
+        "line": 3564,
+        "end": 3570
+      },
+      {
+        "name": "adapter",
+        "line": 3585,
+        "end": 3586
+      },
+      {
+        "name": "test_it_satisfies_exactly_what_the_driver_types",
+        "line": 3588,
+        "end": 3595
+      },
+      {
+        "name": "test_every_verb_refuses_and_names_itself",
+        "line": 3597,
+        "end": 3605
+      },
+      {
+        "name": "test_the_deployments_surface_matches_the_drivers",
+        "line": 3607,
+        "end": 3613
+      },
+      {
+        "name": "test_it_carries_nothing_else",
+        "line": 3615,
+        "end": 3621
+      },
+      {
+        "name": "__init__",
+        "line": 3639,
+        "end": 3642
+      },
+      {
+        "name": "claim",
+        "line": 3644,
+        "end": 3648
+      },
+      {
+        "name": "satisfy_gate",
+        "line": 3650,
+        "end": 3652
+      },
+      {
+        "name": "project_work",
+        "line": 3654,
+        "end": 3655
+      },
+      {
+        "name": "session",
+        "line": 3669,
+        "end": 3671
+      },
+      {
+        "name": "refusal",
+        "line": 3673,
+        "end": 3677
+      },
+      {
+        "name": "claimed",
+        "line": 3679,
+        "end": 3683
+      },
+      {
+        "name": "test_an_ordinary_refusal_becomes_a_precondition",
+        "line": 3687,
+        "end": 3698
+      },
+      {
+        "name": "test_a_remotely_durable_refusal_becomes_ambiguous",
+        "line": 3700,
+        "end": 3711
+      },
+      {
+        "name": "test_a_source_code_this_build_cannot_read_is_not_classified",
+        "line": 3713,
+        "end": 3718
+      },
+      {
+        "name": "test_a_malformed_durability_is_not_read_as_yes",
+        "line": 3720,
+        "end": 3732
+      },
+      {
+        "name": "test_a_refusal_missing_its_members_entirely_is_still_contained",
+        "line": 3734,
+        "end": 3745
+      },
+      {
+        "name": "test_the_sources_words_are_carried_bounded",
+        "line": 3749,
+        "end": 3757
+      },
+      {
+        "name": "test_an_unencodable_diagnostic_does_not_replace_the_refusal",
+        "line": 3759,
+        "end": 3769
+      },
+      {
+        "name": "test_only_the_diagnostic_rejection_reaches_the_static_fallback",
+        "line": 3771,
+        "end": 3788
+      },
+      {
+        "name": "test_an_unrelated_failure_at_that_constructor_is_not_absorbed",
+        "line": 3790,
+        "end": 3809
+      },
+      {
+        "name": "test_no_source_exception_is_chained_out",
+        "line": 3811,
+        "end": 3825
+      },
+      {
+        "name": "test_a_successful_claim_is_answered_exactly",
+        "line": 3829,
+        "end": 3833
+      },
+      {
+        "name": "test_an_existing_contract_refusal_keeps_its_identity",
+        "line": 3835,
+        "end": 3845
+      },
+      {
+        "name": "test_an_unrelated_exception_travels_out_untouched",
+        "line": 3847,
+        "end": 3858
+      },
+      {
+        "name": "test_every_other_forwarder_is_the_inherited_one",
+        "line": 3860,
+        "end": 3871
+      },
+      {
+        "name": "test_it_forwards_the_same_minted_session_and_mints_nothing",
+        "line": 3873,
+        "end": 3877
+      },
+      {
+        "name": "test_the_deployment_keeps_the_plain_forwarder",
+        "line": 3879,
+        "end": 3888
+      },
+      {
+        "name": "setUp",
+        "line": 3901,
+        "end": 3906
+      },
+      {
+        "name": "forget",
+        "line": 3908,
+        "end": 3911
+      },
+      {
+        "name": "store",
+        "line": 3913,
+        "end": 3917
+      },
+      {
+        "name": "admitted",
+        "line": 3919,
+        "end": 3923
+      },
+      {
+        "name": "test_the_identity_is_the_file_the_held_store_actually_has_open",
+        "line": 3925,
+        "end": 3929
+      },
+      {
+        "name": "test_a_store_with_no_file_admits_nothing",
+        "line": 3931,
+        "end": 3936
+      },
+      {
+        "name": "test_one_helper_is_admitted_and_a_second_over_the_same_store_is_not",
+        "line": 3938,
+        "end": 3945
+      },
+      {
+        "name": "test_a_distinct_composition_for_another_attempt_starts_no_helper",
+        "line": 3947,
+        "end": 4003
+      },
+      {
+        "name": "test_repeated_stops_keep_the_live_thread_handle_and_store",
+        "line": 4005,
+        "end": 4045
+      },
+      {
+        "name": "test_two_different_stores_each_admit_their_own",
+        "line": 4047,
+        "end": 4053
+      },
+      {
+        "name": "test_the_registry_is_bounded_and_fails_toward_no_diagnostic",
+        "line": 4055,
+        "end": 4059
+      },
+      {
+        "name": "test_a_helper_that_never_started_releases_its_slot",
+        "line": 4061,
+        "end": 4070
+      },
+      {
+        "name": "test_an_over_bound_stop_refuses_and_leaves_the_slot_held",
+        "line": 4072,
+        "end": 4089
+      },
+      {
+        "name": "test_releasing_nothing_is_not_a_refusal",
+        "line": 4091,
+        "end": 4092
+      },
+      {
+        "name": "setUp",
+        "line": 4106,
+        "end": 4133
+      },
+      {
+        "name": "forget",
+        "line": 4135,
+        "end": 4137
+      },
+      {
+        "name": "wrote",
+        "line": 4139,
+        "end": 4152
+      },
+      {
+        "name": "request",
+        "line": 4154,
+        "end": 4157
+      },
+      {
+        "name": "ingest",
+        "line": 4159,
+        "end": 4161
+      },
+      {
+        "name": "activity",
+        "line": 4163,
+        "end": 4164
+      },
+      {
+        "name": "test_a_blocked_resolver_leaves_enqueue_and_manager_reads_usable",
+        "line": 4166,
+        "end": 4195
+      },
+      {
+        "name": "test_a_bound_count_reaches_the_managers_own_record",
+        "line": 4197,
+        "end": 4202
+      },
+      {
+        "name": "test_an_absent_document_records_nothing",
+        "line": 4204,
+        "end": 4206
+      },
+      {
+        "name": "test_a_document_bound_to_another_turn_is_not_ingested",
+        "line": 4208,
+        "end": 4211
+      },
+      {
+        "name": "test_a_hostile_count_is_not_ingested",
+        "line": 4213,
+        "end": 4216
+      },
+      {
+        "name": "test_a_zero_is_never_recorded_as_an_observation",
+        "line": 4218,
+        "end": 4223
+      },
+      {
+        "name": "test_the_owners_own_rules_decide_repeats_and_regressions",
+        "line": 4225,
+        "end": 4235
+      },
+      {
+        "name": "test_a_root_naming_nothing_ingests_nothing_and_does_not_raise",
+        "line": 4237,
+        "end": 4240
+      },
+      {
+        "name": "test_no_launch_adoption_runs_on_the_diagnostic_path",
+        "line": 4242,
+        "end": 4250
+      },
+      {
+        "name": "test_the_helper_ingests_from_its_own_thread_and_its_own_handle",
+        "line": 4252,
+        "end": 4267
+      },
+      {
+        "name": "test_the_newest_request_wins_and_enqueueing_cannot_block",
+        "line": 4269,
+        "end": 4274
+      },
+      {
+        "name": "setUp",
+        "line": 4286,
+        "end": 4288
+      },
+      {
+        "name": "forget",
+        "line": 4290,
+        "end": 4292
+      },
+      {
+        "name": "test_the_composition_admits_one_and_hands_its_enqueue_to_the_worker",
+        "line": 4294,
+        "end": 4303
+      },
+      {
+        "name": "test_close_stops_the_helper_and_frees_the_admission",
+        "line": 4305,
+        "end": 4315
+      },
+      {
+        "name": "test_a_second_composition_over_one_store_composes_with_no_helper",
+        "line": 4317,
+        "end": 4329
+      },
+      {
+        "name": "test_an_over_bound_stop_is_reported_out_of_close",
+        "line": 4331,
+        "end": 4354
+      },
+      {
+        "name": "test_the_serving_loops_runtime_read_enqueues_and_reads_no_file",
+        "line": 4356,
+        "end": 4397
+      },
+      {
+        "name": "test_an_attempt_with_no_runtime_enqueues_nothing",
+        "line": 4399,
+        "end": 4409
+      },
+      {
+        "name": "test_a_failing_enqueue_never_stops_the_sweep",
+        "line": 4411,
+        "end": 4428
+      },
+      {
+        "name": "test_exact_context_free_integration_declaration_is_accepted",
+        "line": 4434,
+        "end": 4442
+      },
+      {
+        "name": "test_reserved_declaration_variants_remain_refused",
+        "line": 4444,
+        "end": 4457
+      },
+      {
+        "name": "configured_as",
+        "line": 4479,
+        "end": 4510
+      },
+      {
+        "name": "held",
+        "line": 4512,
+        "end": 4513
+      },
+      {
+        "name": "stage_for",
+        "line": 4515,
+        "end": 4519
+      },
+      {
+        "name": "job_for",
+        "line": 4521,
+        "end": 4524
+      },
+      {
+        "name": "worker_for",
+        "line": 4526,
+        "end": 4537
+      },
+      {
+        "name": "test_three_roles_on_three_images_all_match_one_job",
+        "line": 4539,
+        "end": 4557
+      },
+      {
+        "name": "test_a_worker_whose_image_is_not_its_own_manifests_is_refused",
+        "line": 4559,
+        "end": 4566
+      },
+      {
+        "name": "test_a_worker_that_moved_a_shared_member_is_still_refused",
+        "line": 4568,
+        "end": 4585
+      },
+      {
+        "name": "test_a_legacy_job_naming_the_whole_manifest_digest_says_so",
+        "line": 4587,
+        "end": 4601
+      },
+      {
+        "name": "test_the_two_refusals_are_told_apart",
+        "line": 4603,
+        "end": 4619
+      },
+      {
+        "name": "test_the_agent_reports_the_absent_channel_rather_than_pretending",
+        "line": 4632,
+        "end": 4649
+      },
+      {
+        "name": "test_the_agent_refuses_a_command_it_cannot_own",
+        "line": 4651,
+        "end": 4654
+      },
+      {
+        "name": "test_cancellation_goes_through_the_accepted_manager_path",
+        "line": 4656,
+        "end": 4682
+      },
+      {
+        "name": "test_a_malformed_attempt_identity_refuses_before_anything_opens",
+        "line": 4684,
+        "end": 4689
+      },
+      {
+        "name": "Recording",
+        "line": 80,
+        "end": 96
+      },
+      {
+        "name": "checkpoint",
+        "line": 475,
+        "end": 478
+      },
+      {
+        "name": "refusing",
+        "line": 566,
+        "end": 568
+      },
+      {
+        "name": "unavailable",
+        "line": 631,
+        "end": 633
+      },
+      {
+        "name": "InterruptedEngine",
+        "line": 721,
+        "end": 731
+      },
+      {
+        "name": "racing",
+        "line": 1264,
+        "end": 1270
+      },
+      {
+        "name": "plant",
+        "line": 1297,
+        "end": 1299
+      },
+      {
+        "name": "dying",
+        "line": 1365,
+        "end": 1368
+      },
+      {
+        "name": "before_input",
+        "line": 1415,
+        "end": 1426
+      },
+      {
+        "name": "dying",
+        "line": 1456,
+        "end": 1459
+      },
+      {
+        "name": "provider",
+        "line": 1586,
+        "end": 1588
+      },
+      {
+        "name": "spoil",
+        "line": 1719,
+        "end": 1723
+      },
+      {
+        "name": "spoil",
+        "line": 1738,
+        "end": 1743
+      },
+      {
+        "name": "Published",
+        "line": 1812,
+        "end": 1823
+      },
+      {
+        "name": "Renamed",
+        "line": 1921,
+        "end": 1928
+      },
+      {
+        "name": "Unmounted",
+        "line": 1961,
+        "end": 1969
+      },
+      {
+        "name": "quoting",
+        "line": 2106,
+        "end": 2109
+      },
+      {
+        "name": "Denying",
+        "line": 2153,
+        "end": 2158
+      },
+      {
+        "name": "dying",
+        "line": 2225,
+        "end": 2230
+      },
+      {
+        "name": "dying",
+        "line": 2315,
+        "end": 2317
+      },
+      {
+        "name": "CreatedThenDenied",
+        "line": 2382,
+        "end": 2400
+      },
+      {
+        "name": "dying",
+        "line": 2405,
+        "end": 2407
+      },
+      {
+        "name": "refusing",
+        "line": 2501,
+        "end": 2508
+      },
+      {
+        "name": "after_launch",
+        "line": 2597,
+        "end": 2602
+      },
+      {
+        "name": "unavailable",
+        "line": 2625,
+        "end": 2627
+      },
+      {
+        "name": "collide",
+        "line": 2663,
+        "end": 2668
+      },
+      {
+        "name": "__init__",
+        "line": 2734,
+        "end": 2746
+      },
+      {
+        "name": "__call__",
+        "line": 2748,
+        "end": 2761
+      },
+      {
+        "name": "__init__",
+        "line": 2784,
+        "end": 2785
+      },
+      {
+        "name": "consider",
+        "line": 2787,
+        "end": 2789
+      },
+      {
+        "name": "work",
+        "line": 2791,
+        "end": 2794
+      },
+      {
+        "name": "durable",
+        "line": 3120,
+        "end": 3135
+      },
+      {
+        "name": "call",
+        "line": 3238,
+        "end": 3246
+      },
+      {
+        "name": "__init__",
+        "line": 3491,
+        "end": 3494
+      },
+      {
+        "name": "historical",
+        "line": 3496,
+        "end": 3498
+      },
+      {
+        "name": "end",
+        "line": 3500,
+        "end": 3502
+      },
+      {
+        "name": "never",
+        "line": 3515,
+        "end": 3517
+      },
+      {
+        "name": "Bare",
+        "line": 3737,
+        "end": 3739
+      },
+      {
+        "name": "watching",
+        "line": 3958,
+        "end": 3960
+      },
+      {
+        "name": "ingest",
+        "line": 4016,
+        "end": 4020
+      },
+      {
+        "name": "resolving",
+        "line": 4176,
+        "end": 4180
+      },
+      {
+        "name": "__init__",
+        "line": 81,
+        "end": 84
+      },
+      {
+        "name": "__getattr__",
+        "line": 86,
+        "end": 87
+      },
+      {
+        "name": "satisfy_gate",
+        "line": 89,
+        "end": 96
+      },
+      {
+        "name": "__init__",
+        "line": 722,
+        "end": 724
+      },
+      {
+        "name": "__call__",
+        "line": 726,
+        "end": 731
+      },
+      {
+        "name": "__init__",
+        "line": 1813,
+        "end": 1815
+      },
+      {
+        "name": "__call__",
+        "line": 1817,
+        "end": 1823
+      },
+      {
+        "name": "__call__",
+        "line": 1922,
+        "end": 1928
+      },
+      {
+        "name": "__call__",
+        "line": 1962,
+        "end": 1969
+      },
+      {
+        "name": "__call__",
+        "line": 2154,
+        "end": 2158
+      },
+      {
+        "name": "__call__",
+        "line": 2394,
+        "end": 2400
+      },
+      {
+        "name": "__init__",
+        "line": 3738,
+        "end": 3739
+      },
+      {
+        "name": "checked_enqueue",
+        "line": 4372,
+        "end": 4379
+      },
+      {
+        "name": "exploding",
+        "line": 4419,
+        "end": 4420
+      }
+    ]
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_tool.py",
+    "sha256": "ad226d6f6d3e8c8277b9292e110ffdc63bb461ee71f683900bf0edb7e22351d9",
+    "bytes": 72759,
+    "symbols": [
+      {
+        "name": "ToolCase",
+        "line": 47,
+        "end": 59
+      },
+      {
+        "name": "Submitting",
+        "line": 62,
+        "end": 101
+      },
+      {
+        "name": "_Observer",
+        "line": 112,
+        "end": 140
+      },
+      {
+        "name": "observing",
+        "line": 143,
+        "end": 146
+      },
+      {
+        "name": "refusing",
+        "line": 149,
+        "end": 152
+      },
+      {
+        "name": "Reading",
+        "line": 155,
+        "end": 345
+      },
+      {
+        "name": "TheLoop",
+        "line": 348,
+        "end": 412
+      },
+      {
+        "name": "_Released",
+        "line": 420,
+        "end": 430
+      },
+      {
+        "name": "releasing_factory",
+        "line": 433,
+        "end": 434
+      },
+      {
+        "name": "failing_factory",
+        "line": 437,
+        "end": 450
+      },
+      {
+        "name": "leaking_factory",
+        "line": 453,
+        "end": 461
+      },
+      {
+        "name": "TheFactoryHandleIsReleased",
+        "line": 464,
+        "end": 516
+      },
+      {
+        "name": "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing",
+        "line": 523,
+        "end": 1141
+      },
+      {
+        "name": "TheRecoveryPassVisitsTheUNCERTAINTokensToo",
+        "line": 1144,
+        "end": 1374
+      },
+      {
+        "name": "_unsettled_governed_attempt",
+        "line": 1377,
+        "end": 1416
+      },
+      {
+        "name": "_running_governed_attempt",
+        "line": 1419,
+        "end": 1460
+      },
+      {
+        "name": "run_tool",
+        "line": 49,
+        "end": 53
+      },
+      {
+        "name": "document",
+        "line": 55,
+        "end": 59
+      },
+      {
+        "name": "test_submitting_a_document_records_the_pipeline",
+        "line": 64,
+        "end": 72
+      },
+      {
+        "name": "test_resubmitting_through_the_tool_replays",
+        "line": 74,
+        "end": 84
+      },
+      {
+        "name": "test_an_invalid_document_refuses_rather_than_recording_half",
+        "line": 86,
+        "end": 91
+      },
+      {
+        "name": "test_a_store_path_is_required_rather_than_defaulted",
+        "line": 93,
+        "end": 101
+      },
+      {
+        "name": "__init__",
+        "line": 116,
+        "end": 117
+      },
+      {
+        "name": "observe_exchange",
+        "line": 119,
+        "end": 133
+      },
+      {
+        "name": "conclude",
+        "line": 135,
+        "end": 137
+      },
+      {
+        "name": "close",
+        "line": 139,
+        "end": 140
+      },
+      {
+        "name": "test_status_without_a_control_store_reports_nobody_looked",
+        "line": 157,
+        "end": 167
+      },
+      {
+        "name": "test_status_with_a_control_store_observes_it",
+        "line": 169,
+        "end": 179
+      },
+      {
+        "name": "test_status_without_the_operand_still_reports_nobody_looked",
+        "line": 183,
+        "end": 202
+      },
+      {
+        "name": "test_the_operand_is_resolved_asked_and_then_released",
+        "line": 204,
+        "end": 234
+      },
+      {
+        "name": "test_the_observation_surface_carries_no_act_and_no_refresh",
+        "line": 236,
+        "end": 252
+      },
+      {
+        "name": "test_a_factory_that_cannot_read_the_exchange_is_refused_by_name",
+        "line": 254,
+        "end": 261
+      },
+      {
+        "name": "test_an_operand_that_is_not_module_attribute_is_refused",
+        "line": 263,
+        "end": 274
+      },
+      {
+        "name": "test_a_refusing_exchange_read_still_produces_a_status_document",
+        "line": 276,
+        "end": 297
+      },
+      {
+        "name": "test_observe_without_a_control_store_is_refused_not_ignored",
+        "line": 299,
+        "end": 322
+      },
+      {
+        "name": "test_the_status_surface_holds_no_authority_capability",
+        "line": 324,
+        "end": 332
+      },
+      {
+        "name": "test_the_tool_and_the_package_answer_the_same_document",
+        "line": 334,
+        "end": 345
+      },
+      {
+        "name": "setUp",
+        "line": 350,
+        "end": 355
+      },
+      {
+        "name": "continues",
+        "line": 357,
+        "end": 364
+      },
+      {
+        "name": "test_the_loop_recovers_once_and_then_sweeps",
+        "line": 366,
+        "end": 372
+      },
+      {
+        "name": "test_the_loop_answers_the_last_report",
+        "line": 374,
+        "end": 382
+      },
+      {
+        "name": "test_a_loop_that_never_ticks_still_reconciles",
+        "line": 384,
+        "end": 391
+      },
+      {
+        "name": "test_the_wait_and_the_stop_condition_are_capabilities",
+        "line": 393,
+        "end": 400
+      },
+      {
+        "name": "test_an_interval_that_is_not_a_positive_whole_number_refuses",
+        "line": 402,
+        "end": 409
+      },
+      {
+        "name": "test_the_default_tick_is_stated_rather_than_hidden",
+        "line": 411,
+        "end": 412
+      },
+      {
+        "name": "__init__",
+        "line": 425,
+        "end": 427
+      },
+      {
+        "name": "close",
+        "line": 429,
+        "end": 430
+      },
+      {
+        "name": "setUp",
+        "line": 473,
+        "end": 478
+      },
+      {
+        "name": "serve_with",
+        "line": 480,
+        "end": 489
+      },
+      {
+        "name": "test_a_returned_operations_object_is_always_released",
+        "line": 491,
+        "end": 496
+      },
+      {
+        "name": "test_a_factory_that_cleans_up_its_own_failure_leaves_nothing_held",
+        "line": 498,
+        "end": 503
+      },
+      {
+        "name": "test_a_factory_that_leaks_is_not_hidden_by_this_tool",
+        "line": 505,
+        "end": 516
+      },
+      {
+        "name": "WithBoth",
+        "line": 533,
+        "end": 549
+      },
+      {
+        "name": "WithExchangeOnly",
+        "line": 551,
+        "end": 552
+      },
+      {
+        "name": "test_a_factory_without_the_integration_read_still_composes",
+        "line": 554,
+        "end": 557
+      },
+      {
+        "name": "test_the_read_is_taken_by_name_and_nothing_else_travels",
+        "line": 559,
+        "end": 565
+      },
+      {
+        "name": "test_the_composed_expiry_pass_stops_and_confirms_a_real_overdue_runtime",
+        "line": 567,
+        "end": 619
+      },
+      {
+        "name": "test_a_running_no_intake_overdue_attempt_reaches_a_safe_return",
+        "line": 621,
+        "end": 685
+      },
+      {
+        "name": "_accountable",
+        "line": 687,
+        "end": 711
+      },
+      {
+        "name": "test_the_chain_carries_its_bounded_budget_into_every_engine_call",
+        "line": 713,
+        "end": 749
+      },
+      {
+        "name": "test_an_already_absent_removal_still_completes_the_chain",
+        "line": 751,
+        "end": 762
+      },
+      {
+        "name": "test_a_failed_normalization_holds_AND_ITS_RETRY_IS_REFUSED",
+        "line": 764,
+        "end": 817
+      },
+      {
+        "name": "test_a_failed_TOKEN_RETURN_retries_without_repeating_normalization",
+        "line": 819,
+        "end": 864
+      },
+      {
+        "name": "test_the_allowance_wrapper_clamps_work_and_cleanup_separately",
+        "line": 866,
+        "end": 908
+      },
+      {
+        "name": "test_AN_ALLOWANCE_CANNOT_RAISE_A_VECTORS_OWN_MAXIMUM",
+        "line": 910,
+        "end": 954
+      },
+      {
+        "name": "test_a_stale_pass_after_the_return_releases_no_later_generation",
+        "line": 956,
+        "end": 976
+      },
+      {
+        "name": "test_without_a_custodian_the_roots_stay_unaccounted_for",
+        "line": 978,
+        "end": 998
+      },
+      {
+        "name": "test_one_attempt_s_refusal_does_not_end_the_expiry_pass",
+        "line": 1000,
+        "end": 1021
+      },
+      {
+        "name": "test_the_lean_adapter_reads_absence_only_from_a_missing_identity",
+        "line": 1023,
+        "end": 1072
+      },
+      {
+        "name": "test_one_tick_reclaims_a_bounded_number_of_resources",
+        "line": 1074,
+        "end": 1092
+      },
+      {
+        "name": "test_the_bounded_pass_rotates_so_a_later_resource_is_reached",
+        "line": 1094,
+        "end": 1119
+      },
+      {
+        "name": "test_a_rotation_past_the_last_identity_begins_again",
+        "line": 1121,
+        "end": 1124
+      },
+      {
+        "name": "test_an_interruption_is_the_operator_s_and_not_an_observation",
+        "line": 1126,
+        "end": 1134
+      },
+      {
+        "name": "test_the_status_surface_gains_no_serving_or_refresh_capability",
+        "line": 1136,
+        "end": 1141
+      },
+      {
+        "name": "unsettled",
+        "line": 1155,
+        "end": 1156
+      },
+      {
+        "name": "engine",
+        "line": 1158,
+        "end": 1167
+      },
+      {
+        "name": "test_the_pass_observes_the_exact_container_the_token_bound",
+        "line": 1169,
+        "end": 1198
+      },
+      {
+        "name": "test_an_unreachable_engine_holds_and_says_so_per_attempt",
+        "line": 1200,
+        "end": 1222
+      },
+      {
+        "name": "test_a_LATER_TICK_RETRIES_after_the_engine_comes_back",
+        "line": 1224,
+        "end": 1245
+      },
+      {
+        "name": "test_the_pass_never_starts_or_dispatches_anything",
+        "line": 1247,
+        "end": 1263
+      },
+      {
+        "name": "test_a_contradiction_between_the_attachment_and_the_binding_is_reported",
+        "line": 1265,
+        "end": 1290
+      },
+      {
+        "name": "test_a_HISTORICAL_row_over_the_same_resource_attributes_nothing",
+        "line": 1292,
+        "end": 1320
+      },
+      {
+        "name": "test_a_GENUINE_owner_mismatch_is_still_reported",
+        "line": 1322,
+        "end": 1345
+      },
+      {
+        "name": "test_the_report_names_which_cut_each_unknown_is",
+        "line": 1347,
+        "end": 1359
+      },
+      {
+        "name": "test_a_settled_activation_is_never_visited",
+        "line": 1361,
+        "end": 1374
+      },
+      {
+        "name": "answer",
+        "line": 360,
+        "end": 362
+      },
+      {
+        "name": "__init__",
+        "line": 534,
+        "end": 535
+      },
+      {
+        "name": "observe_exchange",
+        "line": 537,
+        "end": 539
+      },
+      {
+        "name": "observe_integration",
+        "line": 541,
+        "end": 543
+      },
+      {
+        "name": "dispatch_exchange",
+        "line": 545,
+        "end": 546
+      },
+      {
+        "name": "conclude_attempt",
+        "line": 548,
+        "end": 549
+      },
+      {
+        "name": "engine",
+        "line": 585,
+        "end": 591
+      },
+      {
+        "name": "engine",
+        "line": 649,
+        "end": 660
+      },
+      {
+        "name": "engine",
+        "line": 691,
+        "end": 709
+      },
+      {
+        "name": "normalize",
+        "line": 794,
+        "end": 803
+      },
+      {
+        "name": "release",
+        "line": 838,
+        "end": 843
+      },
+      {
+        "name": "engine",
+        "line": 878,
+        "end": 880
+      },
+      {
+        "name": "recording",
+        "line": 922,
+        "end": 926
+      },
+      {
+        "name": "engine",
+        "line": 985,
+        "end": 990
+      },
+      {
+        "name": "engine",
+        "line": 1006,
+        "end": 1008
+      },
+      {
+        "name": "interrupting",
+        "line": 1129,
+        "end": 1130
+      },
+      {
+        "name": "run",
+        "line": 1162,
+        "end": 1165
+      },
+      {
+        "name": "unavailable",
+        "line": 1208,
+        "end": 1210
+      },
+      {
+        "name": "flaky",
+        "line": 1231,
+        "end": 1237
+      },
+      {
+        "name": "engine",
+        "line": 923,
+        "end": 925
+      }
+    ]
+  }
+]

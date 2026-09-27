@@ -1,0 +1,9 @@
+3fbfd9998c4c28c3944b9e10d34a78c6df3ebf9ef93b4a794f0a9cca0f971762  work/records/2026/09/finding-v12-maintenance-child-preparation/COORDINATION.json
+eedad7c96f742c5dbc02bea9e50043c3a66c3c533edbef95a261b37b3efaa256  work/records/2026/09/finding-v12-maintenance-child-preparation/DRIFT.json
+995986446724cb66deed81b2369d86ad2e68bd946c65fbea858db0b0bc144887  work/records/2026/09/finding-v12-maintenance-child-preparation/FINDING.md
+f7d488f4ee034450824c008560f58d961132a0634d5eb6ad325d03210cba392a  work/records/2026/09/finding-v12-maintenance-child-preparation/HANDOFF-PACKET.md
+cbfab8dd15b75f8f477eaaea375b10f90f3e8beb6dfe939e80155ab6362769e5  work/records/2026/09/finding-v12-maintenance-child-preparation/PLAN.md
+76bbe371089f04f21144fc5b46108bc65fc52c4ca983b0443d950ed8f4b317ca  work/records/2026/09/finding-v12-maintenance-child-preparation/PROGRESS.md
+0fb2c5c61c72dbe257c49d81d5070f4b88147e53653735d9de15a146dc395f6a  work/records/2026/09/finding-v12-maintenance-child-preparation/READ-MANIFEST.json
+9570bf2469a57a891aae7bbd43ee2e7acae2a3a87467e244cf580cd641a0627b  work/records/2026/09/finding-v12-maintenance-child-preparation/RECOVERY-PACKET.md
+b5262fe268dd46b11e36ed633fb7939a4a2f7406a78d75aba52c841b7b929076  work/records/2026/09/finding-v12-maintenance-child-preparation/VERIFICATION.md

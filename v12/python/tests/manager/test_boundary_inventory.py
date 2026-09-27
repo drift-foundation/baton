@@ -1986,7 +1986,25 @@ SELECTOR_OWNER = (
     "typed check in `tokens.py` -- the rule is a type identity rather than a document shape, "
     "so it is stated and witnessed rather than probed for a boundary label")
 
+_MAINTENANCE_STORE = "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs"
+_MAINTENANCE_ORDINAL = "the ordinal of ONE durable maintenance window, which this journal itself assigned; the record identity is DERIVED from it, so a value naming no window answers absence rather than selecting another attempt's record"
+
 MAINTENANCE_OWNERS = {
+    # W285463 review R1/R3: the durable window readers. `control` is the same
+    # injected capability every journal-owning entry in this build takes, and
+    # `ordinal` is a fact about WHICH recorded act is being asked about.
+    ("caller", "maintenance.py:standing_maintenance", "control"): _MAINTENANCE_STORE,
+    ("caller", "maintenance.py:maintenance_settlement", "control"): _MAINTENANCE_STORE,
+    ("caller", "maintenance.py:maintenance_orphan", "control"): _MAINTENANCE_STORE,
+    ("caller", "maintenance.py:maintenance_settlement", "ordinal"): _MAINTENANCE_ORDINAL,
+    ("caller", "maintenance.py:maintenance_orphan", "ordinal"): _MAINTENANCE_ORDINAL,
+    # W285463 review 2026-09-27T14-39-47Z: the FAILED-EXECUTION reader, which arrived
+    # with the correction that a failed execution records a failure and discharges
+    # nothing. Its operands are the same two facts its two sibling readers take, and
+    # they are declared here rather than removed by making the reader private -- the
+    # review is explicit that suppressing an inventory entry is not the fix.
+    ("caller", "maintenance.py:maintenance_failure", "control"): _MAINTENANCE_STORE,
+    ("caller", "maintenance.py:maintenance_failure", "ordinal"): _MAINTENANCE_ORDINAL,
     # W285463: THE DECREASING CALLER ALLOWANCE, owned by `custody.allowed`'s rule
     # rather than by a boundary label, exactly as every other allowance in this
     # build is: `None` IS TODAY and gets this module's own maximum, a bounded
@@ -3346,6 +3364,17 @@ DELEGATED = {
         ("oci.py:_engine", "caller:engine"),
     ("caller", "maintenance.py:prepare", "run"):
         ("oci.py:EnginePort.__init__", "caller:run"),
+    # W285463 review R1/R3: the three durable-window readers. Their root kind is
+    # owned by the same closed-pair check the act itself delegates to, which is
+    # what keeps one rule in one place across four entries.
+    ("caller", "maintenance.py:standing_maintenance", "which"):
+        ("custody.py:check_custody_root", "caller:which"),
+    ("caller", "maintenance.py:maintenance_settlement", "which"):
+        ("custody.py:check_custody_root", "caller:which"),
+    ("caller", "maintenance.py:maintenance_orphan", "which"):
+        ("custody.py:check_custody_root", "caller:which"),
+    ("caller", "maintenance.py:maintenance_failure", "which"):
+        ("custody.py:check_custody_root", "caller:which"),
     ("caller", "oci.py:OciAdapter.__init__", "engine"):
         ("oci.py:_engine", "caller:engine"),
     ("caller", "oci.py:run_vector", "labels"):
@@ -9377,6 +9406,20 @@ WITNESSES = {
     **TOKEN_WITNESSES,
     ("caller", "maintenance.py:prepare", "seconds"):
         "test_a_maintenance_allowance_may_only_lower_this_modules_bound",
+    ("caller", "maintenance.py:standing_maintenance", "control"):
+        "test_a_maintenance_window_reader_is_a_capability_proven_by_use",
+    ("caller", "maintenance.py:maintenance_settlement", "control"):
+        "test_a_maintenance_window_reader_is_a_capability_proven_by_use",
+    ("caller", "maintenance.py:maintenance_orphan", "control"):
+        "test_a_maintenance_window_reader_is_a_capability_proven_by_use",
+    ("caller", "maintenance.py:maintenance_settlement", "ordinal"):
+        "test_an_unrecorded_window_ordinal_answers_absence",
+    ("caller", "maintenance.py:maintenance_orphan", "ordinal"):
+        "test_an_unrecorded_window_ordinal_answers_absence",
+    ("caller", "maintenance.py:maintenance_failure", "control"):
+        "test_a_maintenance_window_reader_is_a_capability_proven_by_use",
+    ("caller", "maintenance.py:maintenance_failure", "ordinal"):
+        "test_an_unrecorded_window_ordinal_answers_absence",
     ("caller", "workspaces.py:AllocatedRoots.__init__", "_line"):
         "test_line_launch_metadata_keeps_mint_and_durable_binding",
     # -- W71917: the source/workspace boundary -------------------------------
@@ -9983,6 +10026,62 @@ class StatedRules(BoundaryCase):
                            operation="runtime.start:witness",
                            execution="attempt-witness")
 
+    def test_a_maintenance_window_reader_is_a_capability_proven_by_use(self):
+        """WITNESS: the control store is exercised, not validated by shape.
+
+        W285463. The window readers take `control` for the same reason every
+        `tokens` entry does -- they reach it only through its own owner API, and a
+        store that cannot serve that fails AS a capability. The refusal is EXACT:
+        a closed connection raises `sqlite3.ProgrammingError`.
+        """
+        import sqlite3
+        from baton_v12.worker_manager import maintenance
+
+        self.store._connection.close()
+        # EVERY READER THIS ENTRY NAMES, and review 2026-09-27T14-39-47Z is why the
+        # list is spelled out: a witness that never calls the reader it stands for
+        # witnesses nothing. Each one fails AS a capability on a closed connection.
+        for reading in (lambda: maintenance.standing_maintenance(
+                            self.store, "attempt-1", "workspace"),
+                        lambda: maintenance.maintenance_settlement(
+                            self.store, "attempt-1", "workspace"),
+                        lambda: maintenance.maintenance_orphan(
+                            self.store, "attempt-1", "workspace", 1),
+                        lambda: maintenance.maintenance_failure(
+                            self.store, "attempt-1", "workspace", 1)):
+            with self.assertRaises(sqlite3.ProgrammingError):
+                reading()
+
+    def test_an_unrecorded_window_ordinal_answers_absence(self):
+        """WITNESS: an ordinal SELECTS nothing it does not name.
+
+        W285463. The record identity is a digest over the attempt, the root and
+        the ordinal, so an ordinal for which nothing was recorded answers absence
+        -- it cannot reach another attempt's window, which is why the operand is
+        stated rather than given a boundary label.
+        """
+        from baton_v12.worker_manager import maintenance
+
+        for ordinal in (0, 1, 7, 10 ** 9):
+            with self.subTest(ordinal=ordinal):
+                self.assertIsNone(maintenance.maintenance_settlement(
+                    self.store, "attempt-1", "workspace", ordinal))
+                self.assertIsNone(maintenance.maintenance_orphan(
+                    self.store, "attempt-1", "workspace", ordinal))
+                # W285463 review 2026-09-27T14-39-47Z: THE FAILED-EXECUTION READER
+                # TOO, driven here rather than merely named by this entry.
+                self.assertIsNone(maintenance.maintenance_failure(
+                    self.store, "attempt-1", "workspace", ordinal))
+        self.assertEqual(maintenance.standing_maintenance(
+            self.store, "attempt-1", "workspace"), [])
+        # AND THE ROOT KIND IS THE CLOSED PAIR'S, at this reader as at its siblings:
+        # a value that names no root selects nothing rather than reaching one.
+        for wrong in ("home", "", "workspace/result", None):
+            with self.subTest(root=wrong):
+                with self.assertRaises(ContractRefusal):
+                    maintenance.maintenance_failure(self.store, "attempt-1",
+                                                    wrong, 1)
+
     def test_a_maintenance_allowance_may_only_lower_this_modules_bound(self):
         """WITNESS: the preparation allowance, exercised at both directions.
 
@@ -10003,7 +10102,10 @@ class StatedRules(BoundaryCase):
         self.assertEqual(custody.allowed(lambda: 120, most), 120)
         # AND A SUB-SECOND REMAINDER IS "DO NOT START" RATHER THAN A ROUND UP.
         self.assertEqual(custody.allowed(0.1, most), 0)
-        self.assertLess(most + maintenance.MAINTENANCE_STOP_SECONDS,
+        # The act bound plus the stop grace custody REALLY spends, inside the
+        # grant. `MAINTENANCE_STOP_SECONDS` was withdrawn: it advertised G1's 30
+        # seconds while every reclamation here spends `CUSTODY_STOP_SECONDS`.
+        self.assertLess(most + maintenance.RECLAIM_STOP_SECONDS,
                         maintenance.MAINTENANCE_SECONDS)
 
     def test_a_manager_guard_is_its_own_modules_composition(self):

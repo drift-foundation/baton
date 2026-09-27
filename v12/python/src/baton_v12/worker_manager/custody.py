@@ -1933,6 +1933,38 @@ def _claim_episode(store, assignment_id, which, operation, image_digest,
                 f"removal ownership {ordinal}, which has recorded no completion; a hold "
                 f"is not taken over a tree that is being deleted, and an uncertain "
                 f"removal is reconciled rather than held around")
+        # W285463 R1: AND THE RECIPROCAL HALF FOR A GOVERNED MAINTENANCE ACT, read
+        # under this same lock. Review 2026-09-27T13-17-14Z: this callback knew about
+        # removals and other custody holds and NOTHING about the token-bound
+        # preparation that now writes into these roots -- so a custody hold could
+        # commit while a maintenance container was mounted on the workspace, and each
+        # side would have excluded the other only by luck of ordering.
+        #
+        # THE WINDOW IS WHAT IS READ, NOT THE TOKEN, and that is not a second lock:
+        # the token's domain is `device:inode` of a root, so asking the token journal
+        # here would mean an `lstat` UNDER `BEGIN IMMEDIATE` -- the external I/O DB-2
+        # forbids inside a transaction. `standing_maintenance` is derived-identity
+        # journal reads only, which is what makes it askable from in here.
+        #
+        # BOTH OVERLAPPING ROOTS, for `_standing_overlap`'s own reason: the result
+        # root sits INSIDE the workspace, so a preparation on either is acting inside
+        # material the other contains.
+        from . import maintenance
+
+        for root in CUSTODY_ROOTS:
+            for ordinal, record in maintenance.standing_maintenance(
+                    store, assignment_id, root):
+                held = record["result"]
+                held = (_json.loads(held) if type(held) is str
+                        else (held or {}))
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"attempt {name_value(assignment_id)}'s {root} root carries "
+                    f"unsettled maintenance window {ordinal} for "
+                    f"{name_value(held.get('verb'))}, whose container is "
+                    f"{name_value(held.get('helper_identity'))}; a custody hold is "
+                    f"not taken over a tree a governed preparation may still be "
+                    f"writing, and that window is reconciled rather than acted past")
         # RE-READ INSIDE THE LOCK, which is what makes this exclusive rather
         # than merely early.
         again = _standing_overlap(store, assignment_id, which)

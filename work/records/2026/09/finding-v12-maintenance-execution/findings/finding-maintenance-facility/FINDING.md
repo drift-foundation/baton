@@ -43,3 +43,45 @@ no-implementation checkpoint. Read review-2026-09-27T13-17-14Z.md for confirmed 
 gap, R3 durable settlement and R4 live-suite incident. Author40 PASS; reviewer final3 tests
 1 PASS/2 FAIL. Routine direct implementation correction, no decomposition or spec change.
 Owner discussion through285661; human WIP checkpoint due, commit identity unobserved.
+
+## 2026-09-27T13-42-58Z — partial correction accepted, workspace exclusion pinned
+
+See review-2026-09-27T13-42-58Z.md. Old custody probe commitment premise explicitly superseded by valid reciprocal
+refusal; new v2 proves zero effects. R2 orphan handling and R3 durable settlement accepted
+narrowly. Confirmed remaining R1: workspace entry and removal admission pass during active
+maintenance. Minimal workspaces.py reciprocal guards and focused test_workspaces.py now
+authorized/owned by this child, preserving W270664 execution and later handoff scope.
+R4 three-run incident checkpoint accepted with residue/history unknown retained; no broad
+history reconstruction or cleanup gate.54 author PASS; reviewer v2 1 PASS/2 FAIL.
+
+## 2026-09-27T13-56-09Z — reverse allocation schedule fails
+
+Latest review-2026-09-27T13-56-09Z.md: previous v2 exclusion3 PASS and author63 PASS; new allocation-first probe
+commits actual standing allocation then maintenance executes1 effect. Confirmed remaining
+R1 reciprocal-admission defect. Supersedes any claim of complete bidirectional workspace
+exclusion, preserves corrected maintenance-first guards, no-window-adoption and R2/R3.
+No new scope, split, owner decision or live execution. Discussion through285661.
+
+## 2026-09-27T14-07-07Z — R1 complete; container outcome defect found in final audit
+
+review-2026-09-27T14-07-07Z.md accepts selected bidirectional per-attempt exclusion and preserves R2.
+Confirmed R3 remaining: wait CLI0/stdout17 and logs CLI0 yields ok=True/prepared settlement.
+Actual container exit status must govern outcome, not logs command success. New exact probe
+fails; ordering suites remain green. Old admission probe now2 PASS/1 superseded-premise FAIL.
+No new scope or owner decision. Discussion through285661; WIP checkpoint due/unobserved.
+
+## 2026-09-27T14-27-04Z — failed-exit unknown-effects regression
+
+See review-2026-09-27T14-27-04Z.md. Original exit17 false-success probe now passes;77 author checks pass.
+New real-effect/lost-report/exit17 probe confirms token and maintenance window released despite
+unknown effects. Known execution failure is not known resource settlement (TOK-8/TOK-12).
+Unconditional failed-exit release is not accepted and supersedes no existing unknown-hold
+requirement. Retain gate and durable uncertainty; no new policy/repair API needed.
+
+## 2026-09-27T14-39-47Z — behavior accepted, final reader declaration correction
+
+review-2026-09-27T14-39-47Z.md:79 author plus1 reviewer PASS. Failed-exit hold correction accepted;
+R1/R2/R3 behavior complete for selected facility. Direct inventory reports574 unowned: three
+new maintenance_failure operands control/ordinal/which lack ownership/delegation. Exact
+three-entry witness correction remains before final digest acceptance;571 inherited debt
+not waived. No new product behavior or policy selected. Discussion through285661.
