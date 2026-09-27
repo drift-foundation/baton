@@ -1,3 +1,23 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+The September8 immediate repair sequence below is superseded for scheduling by
+W165786's selected v13 classification and September15 deferral of baseline failures.
+W116014 and W116016 are closed satisfying; preserve their evidence instead of
+recreating catalog/resource children. W48697's serial residual inventory remains
+open and the aggregate twelve-check/final-verification obligation is not waived.
+No broad suite or old resource deletion is selected now. At later scheduling,
+revalidate surviving check identities and current shared-file ownership, preserve
+actual negatives, and use AGENTS standing test authority and per-run verification
+limits. The old 'activate then claim' prose does not override canonical claim-only
+activation. A concrete selected-path false-success defect needs bounded treatment;
+it is not hidden by the baseline-failure deferral.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Plan
 
 ## Current scheduling — owner confirmed 2026-09-08

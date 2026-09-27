@@ -1,3 +1,22 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+The September15 delivery sequence below is superseded by current v12/DESIGN.md
+and W247941 PLAN: initial adoption on supported fresh contexts after connected
+parallel proof; required context reuse before final v12 delivery. W61599 and
+W161234 historical acceptance is retained, not proof of the expanded specification.
+Preserve the existing v13 membership table and all identities/containment. Broad
+inventories, suites, engine portability, hierarchy and rich UI remain deferred.
+Concrete work-loss, duplicate-effect, isolation or false-success defects on the
+selected v12 path cannot be deferred merely by that table (DESIGN section18).
+W174357's later owner parking supersedes the older permission to finish its queued
+review now. No backlog copy, reparent, authority cutover or v13 execution is selected.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # V13 campaign plan
 
 ## 2026-09-15 — owner confirms the usable-v12 delivery path

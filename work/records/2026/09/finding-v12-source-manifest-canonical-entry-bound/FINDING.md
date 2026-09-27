@@ -122,3 +122,20 @@ copier and uses repository locator plus immutable commit.
 
 Implementation remains an isolated v12 assignment; this approval does not
 route the Work to the legacy v11 implementer.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+Keep the selected temporary generic-tree representation limit and all unaccepted
+boundary evidence; this Work is assigned to v13 in W165786's owner-selected table.
+DESIGN ART-2, TOK-7 and section18 supersede any reading that the generic manager
+must copy/hash a Git-backed nominated source or that this parked broad profile
+repair gates initial adoption. If a selected generic format requires copying,
+its driver uses scoped token-bound execution and preserves bounded preflight,
+no-follow identity and atomic publication requirements. No change to the selected
+512 limit, frozen schema, or current product is made here; a larger representation
+still requires its own selected contract. Historical evidence remains unchanged.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

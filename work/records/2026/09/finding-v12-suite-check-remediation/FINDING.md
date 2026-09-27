@@ -93,3 +93,22 @@ Use focused verification per repair and retain the one final ordinary suite
 after the groups pass; no repeated broad campaign competes with proof delivery.
 Future repair children and review handoffs preserve this scheduling distinction
 unless a concrete failure makes the repair a demonstrated milestone blocker.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+The September8 immediate repair sequence below is superseded for scheduling by
+W165786's selected v13 classification and September15 deferral of baseline failures.
+W116014 and W116016 are closed satisfying; preserve their evidence instead of
+recreating catalog/resource children. W48697's serial residual inventory remains
+open and the aggregate twelve-check/final-verification obligation is not waived.
+No broad suite or old resource deletion is selected now. At later scheduling,
+revalidate surviving check identities and current shared-file ownership, preserve
+actual negatives, and use AGENTS standing test authority and per-run verification
+limits. The old 'activate then claim' prose does not override canonical claim-only
+activation. A concrete selected-path false-success defect needs bounded treatment;
+it is not hidden by the baseline-failure deferral.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

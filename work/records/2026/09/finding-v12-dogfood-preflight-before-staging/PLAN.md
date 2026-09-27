@@ -1,3 +1,23 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+The required fail-fast immutable prerequisite checks remain. DESIGN HOST-1,
+HOST-3–HOST-5, ART-2/ART-3, SCH-1/SCH-6 and TOK-7 supersede any reading of the old
+preflight plan as authority for host source copying or pre-claim governed staging.
+Use declared profile/toolchain/storage/credential structure and supported readiness
+facts, then canonical task claim before governed maintenance launch; recheck mutable
+authority at admission. No automatic identity-probe container or permission repair.
+Preserve stage-once/input identity and actual verification-environment evidence.
+Remain parked until a concrete selected consumer needs this correction; current G2
+owns its preparation path and cannot be edited underneath its executor. Tests in a
+future bounded scope use deterministic providers by default; the old 'ordinary
+dogfood attempt' wording is not a blanket live-engine/provider grant.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Plan
 
 1. [done] Reproduce the fresh-store ordering through the real dogfood arc and

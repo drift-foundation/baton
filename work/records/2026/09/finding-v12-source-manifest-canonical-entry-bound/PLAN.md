@@ -1,3 +1,21 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+Keep the selected temporary generic-tree representation limit and all unaccepted
+boundary evidence; this Work is assigned to v13 in W165786's owner-selected table.
+DESIGN ART-2, TOK-7 and section18 supersede any reading that the generic manager
+must copy/hash a Git-backed nominated source or that this parked broad profile
+repair gates initial adoption. If a selected generic format requires copying,
+its driver uses scoped token-bound execution and preserves bounded preflight,
+no-follow identity and atomic publication requirements. No change to the selected
+512 limit, frozen schema, or current product is made here; a larger representation
+still requires its own selected contract. Historical evidence remains unchanged.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Plan
 
 1. [done] Preserve W61984 run2 and confirm the refusal happened before offer,

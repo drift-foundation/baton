@@ -1986,6 +1986,17 @@ SELECTOR_OWNER = (
     "typed check in `tokens.py` -- the rule is a type identity rather than a document shape, "
     "so it is stated and witnessed rather than probed for a boundary label")
 
+MAINTENANCE_OWNERS = {
+    # W285463: THE DECREASING CALLER ALLOWANCE, owned by `custody.allowed`'s rule
+    # rather than by a boundary label, exactly as every other allowance in this
+    # build is: `None` IS TODAY and gets this module's own maximum, a bounded
+    # caller may only ask for LESS, and a non-positive remainder answers zero,
+    # which every boundary here reads as "do not start". There is no authority in
+    # this operand to own -- it cannot raise a bound, only spend inside one.
+    ("caller", "maintenance.py:prepare", "seconds"):
+        "a monotonically decreasing caller allowance, clamped by `custody.allowed` at this module's own MAINTENANCE_ACT_SECONDS; it may only lower the bound, never raise it, and a sub-second remainder answers zero",
+}
+
 TOKEN_OWNERS = {
     # W275774 review 2026-09-27T01-49-32Z: THE PRIVILEGED MODE SWITCH, owned by a local
     # typed check rather than a boundary label -- `boundaries` publishes no flag verb, and
@@ -2165,6 +2176,7 @@ TOKEN_OWNERS = {
 STATED_OWNERS = {
     **DEADLINE_OWNERS,
     **TOKEN_OWNERS,
+    **MAINTENANCE_OWNERS,
     ("adopted", "review_cycles.py:consumption_subject", "line_writers"):
         "exactly one active row for the caller attempt/generation; its sole projected identity is forwarded to writer_of",
     ("caller", "workspaces.py:AllocatedRoots.__init__", "_line"):
@@ -3308,6 +3320,32 @@ DELEGATED = {
         ("oci.py:_engine", "caller:engine"),
     ("caller", "oci.py:destroy_vector", "engine"):
         ("oci.py:_engine", "caller:engine"),
+    # W285463: the deferred activation's two readers, owned by the same private
+    # rule as every other vector here -- one rule in one place, which is what
+    # this block already says about the five above.
+    ("caller", "oci.py:wait_vector", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "oci.py:logs_vector", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    # W285463: the maintenance facility's public act. Every operand it takes is
+    # validated by the act that USES it, named here rather than re-checked at the
+    # entry: the verb by this module's own closed-vocabulary check, the root kind
+    # and the attempt by the custody owners that re-open the durable record, the
+    # image by the composer that refuses anything but a sha256 digest, the engine
+    # by the same `_engine` rule above, and the run capability by the engine port
+    # that is constructed from it before anything is composed.
+    ("caller", "maintenance.py:prepare", "operation"):
+        ("maintenance.py:check_preparation", "caller:operation"),
+    ("caller", "maintenance.py:prepare", "which"):
+        ("custody.py:check_custody_root", "caller:which"),
+    ("caller", "maintenance.py:prepare", "assignment_id"):
+        ("custody.py:_derived_root", "caller:assignment_id"),
+    ("caller", "maintenance.py:prepare", "image_digest"):
+        ("maintenance.py:_create_vector", "caller:image_digest"),
+    ("caller", "maintenance.py:prepare", "engine"):
+        ("oci.py:_engine", "caller:engine"),
+    ("caller", "maintenance.py:prepare", "run"):
+        ("oci.py:EnginePort.__init__", "caller:run"),
     ("caller", "oci.py:OciAdapter.__init__", "engine"):
         ("oci.py:_engine", "caller:engine"),
     ("caller", "oci.py:run_vector", "labels"):
@@ -9337,6 +9375,8 @@ TOKEN_WITNESSES = {
 
 WITNESSES = {
     **TOKEN_WITNESSES,
+    ("caller", "maintenance.py:prepare", "seconds"):
+        "test_a_maintenance_allowance_may_only_lower_this_modules_bound",
     ("caller", "workspaces.py:AllocatedRoots.__init__", "_line"):
         "test_line_launch_metadata_keeps_mint_and_durable_binding",
     # -- W71917: the source/workspace boundary -------------------------------
@@ -9942,6 +9982,29 @@ class StatedRules(BoundaryCase):
             tokens.acquire(fixture.store, fixture.domain,
                            operation="runtime.start:witness",
                            execution="attempt-witness")
+
+    def test_a_maintenance_allowance_may_only_lower_this_modules_bound(self):
+        """WITNESS: the preparation allowance, exercised at both directions.
+
+        W285463. `maintenance.prepare` takes `seconds` and hands it to
+        `custody.allowed` with this module's own maximum, so the operand cannot
+        raise a bound -- which is why it is stated here rather than given a
+        boundary label. Driven at the function that owns the rule, with this
+        module's real constant, because that is what the entry claims.
+        """
+        from baton_v12.worker_manager import custody, maintenance
+
+        most = maintenance.MAINTENANCE_ACT_SECONDS
+        # `None` IS TODAY: an unbounded caller gets this module's own maximum.
+        self.assertEqual(custody.allowed(None, most), most)
+        # A BOUNDED CALLER MAY ONLY ASK FOR LESS.
+        self.assertEqual(custody.allowed(most + 1000, most), most)
+        self.assertEqual(custody.allowed(120, most), 120)
+        self.assertEqual(custody.allowed(lambda: 120, most), 120)
+        # AND A SUB-SECOND REMAINDER IS "DO NOT START" RATHER THAN A ROUND UP.
+        self.assertEqual(custody.allowed(0.1, most), 0)
+        self.assertLess(most + maintenance.MAINTENANCE_STOP_SECONDS,
+                        maintenance.MAINTENANCE_SECONDS)
 
     def test_a_manager_guard_is_its_own_modules_composition(self):
         """WITNESS: the HOST-8 guard's operands are composed here, and the LOCK is it.

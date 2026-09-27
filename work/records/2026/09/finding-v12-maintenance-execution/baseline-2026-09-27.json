@@ -1,0 +1,35 @@
+{
+  "work": "W275633",
+  "claim": 285450,
+  "purpose": "source preparation baseline, not implementation acceptance",
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "sha256": "2630e18823297bd87a84b5fa47acf8e39bc93c64edacbb49bd889ad43a0b7e4e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "50207908e522a77e3912b0fc43b731b11302892ffdda10ad6f9a1b6bd15fbb05"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "97f5e7eeb3323ee6976ec5933312d131f1f4c84f7625f775a12af0d73b9528ef"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "7225a403015adc6b3ad94d8dbef16503f3db96568219b6c2d76641b950ba2a44"
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "d272bd9242c283cd492516ce57182f864959c4f03c220d5069cc438344e8f530"
+    }
+  ]
+}

@@ -257,3 +257,20 @@ credentials or child output.
 This ruling makes W61981 implementation-ready but does not schedule it now.
 Its correction remains a separate future isolated v12 attempt and does not
 block independent review of W52821.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+Retain explicit contained verification context and distinct context/command outcomes.
+The old 'second manager-copied immutable input source' wording is superseded as an
+execution-location prescription by DESIGN ART-2/ART-3, TOK-7 and REV-2: the generic
+manager must not recursively copy/hash nominated source; any selected governed
+materialization is performed by a token-bound task/maintenance execution under the
+appropriate source driver. Preserve no-escape/no-overlap and missing-input refusal,
+exact fixture provenance and truthful not-run/timed-out results. Remain parked;
+select a bounded current consumer only if this gap affects its verification path.
+No existing failed verification is relabelled passing and no broad rerun is selected.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

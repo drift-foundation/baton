@@ -309,3 +309,23 @@ A deployment may still choose a snapshot, remote fetch or cache when the
 source is not locally available or needs stronger isolation, but those are
 explicit input-provider choices. They are not mandatory launch steps and the
 zero-copy direct read-only bind is the default local path.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+Current scope is the retained decision/evidence owner, not monolithic implementation,
+per T62098/71842 and71940. W71917/W71918 were the bounded source/workspace and
+review-cycle consumers; historical proposal acceptance does not certify current
+DESIGN conformance. Keep unfinished lineage/import evidence until explicitly mapped.
+DESIGN ART-2/ART-4 and REV-4–REV-7 supersede item8's mandatory separate integration
+stage: reviewed proposal handback and human/copilot integration are the default;
+isolated integration Jobs remain optional. Preserve exact base/object transport,
+independent checkpoint review, target drift/ownership checks and no hidden overlays.
+TOK-5/TOK-7 apply to persistent-line freeze/retention: stop the outgoing container
+and use scoped maintenance effects. The generic manager remains Git-neutral and
+must not copy/hash the nominated source tree. Keep this parked Work open; a mapped
+historical mechanism is not proof that every original obligation is discharged.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

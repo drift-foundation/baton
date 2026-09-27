@@ -1,11 +1,39 @@
-# Explicit adoption finish line — W247941
+# Current specification/policy alignment — 2026-09-27, W285642
 
-W239533 accepted independent review -> W247941 bounded parallel deployment
-assessment and READY report -> owner satisfying disposition -> real v12 Jobs.
-W247941 is bound to work/records/2026/09/finding-v12-real-jobs-adoption-gate.
-Its W239533 ledger dependency awaits the owner route-handler operation. Reuse
-is an early v12 Job, not an initial-adoption gate. Reuse sufficient evidence;
-no broad new test campaign or refactor.
+The current adoption pointer remains W247941 and v12/DESIGN.md. Its required
+W275633 dependency was installed by owner operation285604; the earlier statement
+that this operation is pending is superseded. The W285642 alignment inventory
+records actual versus proposed relationships, preserving all historical children.
+No blanket G1–G9 or v13 gate is added; no historical closure proves current adoption.
+W285642 is independent coordination work and does not gate delivery.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
+# Current adoption authority — specification realignment, 2026-09-27
+
+Follow `v12/DESIGN.md` and the current
+[W247941 checkpoint](../../09/finding-v12-real-jobs-adoption-gate/PLAN.md).
+The owner requires that checkpoint to replace the older recovery/startup-led
+adoption sequence. W247941 remains open and NOT READY; existing evidence and
+Work identities are preserved. Accepted W239533 alone does not establish
+conformance to the current specification.
+
+G1 W275617 is accepted; the selected active path is G2 W275633 maintenance,
+followed by the concrete consumer corrections and connected parallel proof
+required by the spec. Reconcile the current path in W247941 rather than adding
+a second adoption plan here. Actual dependencies live in Baton; W247941's plan
+identifies the pending owner graph operation separately from installed gates.
+Fresh contexts may support initial adoption; reuse remains required for v12.
+
+The older adoption sequences below, including headings saying "Current" or
+"Explicit adoption finish line", are SUPERSEDED as scheduling instructions by
+this entry and W247941's current plan. Their decisions and evidence remain
+historical; standing workflow policies still apply unless explicitly superseded.
+This changes no product specification, active assignment or live-run authority.
 
 ---
 

@@ -1,3 +1,28 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+v12/DESIGN.md now exists and is normative; the earlier absent-spec/awaiting-design
+checkpoint is superseded. W275513 accepted the static audit, not this implementation.
+G1 W275617 is accepted and G2 W275633 is the installed open prerequisite (edge275666).
+Keep this Work as the removal consumer; do not resume its rejected private token
+implementation or duplicate shared tokens/maintenance. After G2 independent
+acceptance and serial file handoff, consume its actual API for both removal entries
+and selected intake cleanup, with DB-only admission/settlement and token-bound
+container filesystem effects (DB-1–DB-7, TOK-1–TOK-12, ART-9).
+Preserve review-2026-09-26T11-47-38Z.md and all three failing generation/binding/
+typed-cessation probes as historical defects to re-evaluate against the consumer,
+not waived passes. Preserve no-implicit-reopen, exact handle identity, actual-use
+exclusion/tool release, hold clearance, both-root/alias/object/final-entry and
+interrupt/replay obligations. The recordless intake F2 residual remains explicitly
+unaccepted; pin any ownership extension before editing it. No claim of current
+source conformance or whole F2 acceptance is made. Do not seek a new specification
+merely because the old checkpoint preceded its publication.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Current checkpoint — owner alignment required; token candidate not accepted
 
 2026-09-26T11:47:38Z reviewer274939; detail274938/handoff274936/events274939,

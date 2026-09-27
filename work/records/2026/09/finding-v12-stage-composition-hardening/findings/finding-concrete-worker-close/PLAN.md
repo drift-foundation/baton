@@ -1,3 +1,19 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+Keep the confirmed close/release mismatch, parked v13 classification and exact
+future two-path scope; no current leak is newly established. AGENTS September14
+verification ruling and DESIGN LIM-4 explicitly supersede the 60s cumulative
+approval/admission ceiling below. Record measured/estimated/unknown costs honestly,
+use sensible per-run timeout and preserve independent review. Deferral and source
+ownership are unchanged. A concrete resource/ownership failure on the selected
+v12 path must be handled as bounded correctness, not waived as hardening.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Current action — 2026-09-11T01:15:02Z — park separable cleanup correction
 
 Completed on ledger: parked140585 after W119400 close140582; planned impl route

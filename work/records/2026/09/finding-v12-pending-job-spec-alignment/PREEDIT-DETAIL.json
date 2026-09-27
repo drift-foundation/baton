@@ -1,0 +1,6642 @@
+{
+  "W2": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-08-23T14:27:39Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-isolated-agent-workers",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 2
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-08-23T14:27:39Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-isolated-agent-workers",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 2
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W2",
+          "title": "Design v12 isolated agent workers"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 183794,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-09-16T04:45:18Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W2",
+      "last_change_seq": 183794,
+      "last_changed_at": "2026-09-16T04:45:18.944Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W161230",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: Run integration through managed relocatable execution",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W161234",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: Prove code correction and restart without duplicate execution",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W156162",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: Configure execution and verification budgets per Job",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W61599",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Make live worker progress observable",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W63255",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Fence pre-attach assignments during explicit abandonment",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [],
+        "contains": [
+          {
+            "handler": null,
+            "id": "2b077949-W3",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.ops",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12 M2: Prove local isolated execution"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W7",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12 M3: Build the proposal pipeline"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W8",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12 M4: Certify agent and remote runtimes"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W9",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12 M5: Prove resilience and scale"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W10",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12 M6: Prepare rollout and adoption"
+          }
+        ],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W2",
+        "parent": null
+      },
+      "local_id": "W2",
+      "message_count": 10,
+      "my_pending_obligations": 0,
+      "new": 10,
+      "new_breakdown": {
+        "children": [
+          {
+            "id": "2b077949-W3",
+            "new": 362
+          },
+          {
+            "id": "2b077949-W7",
+            "new": 4
+          },
+          {
+            "id": "2b077949-W8",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W9",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W10",
+            "new": 1
+          }
+        ],
+        "id": "2b077949-W2",
+        "overlap": 0,
+        "own": 10,
+        "snapshot_seq": 285685,
+        "subtree_total": 379
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "self-initiated",
+      "outcome": null,
+      "phase": "queued",
+      "pickup": "overdue",
+      "priority": "low",
+      "progress": {
+        "children": 5,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.ops",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 2,
+          "id": "2b077949-T2",
+          "last_seq": 183808,
+          "new": 10,
+          "subject": "Design v12 isolated agent workers"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Design v12 isolated agent workers",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W247941": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-23T13:14:58Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 247941
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-23T13:14:58Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 247941
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W247941",
+          "title": "V12 adoption gate: clear independent parallel real development Jobs"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 257681,
+      "first_open_blocker": "W257624",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W257624",
+        "started_at": "2026-09-24T14:52:04.437Z",
+        "started_seq": 257675,
+        "work": "2b077949-W257624"
+      },
+      "handler": null,
+      "handoff_at": "2026-09-24T14:07:25Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W247941",
+      "last_change_seq": 257681,
+      "last_changed_at": "2026-09-24T14:52:50.706Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W239533",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: Independent managed review of a retained proposal",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W257624",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.decide",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Bounded failed-run recovery and durable resource hold",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W257627",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.decide",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Diagnose original worker startup failure and prepare fresh packet",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W275633",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.decide",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Token-bound maintenance execution prerequisite",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W247941",
+        "parent": null
+      },
+      "local_id": "W247941",
+      "message_count": 5,
+      "my_pending_obligations": 0,
+      "new": 5,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W247941",
+        "overlap": 0,
+        "own": 5,
+        "snapshot_seq": 285685,
+        "subtree_total": 5
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 3,
+      "open_dependents": 0,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": "pending",
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 247941,
+          "id": "2b077949-T247941",
+          "last_seq": 285597,
+          "new": 5,
+          "subject": "V12 adoption gate: clear independent parallel real development Jobs"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12 adoption gate: clear independent parallel real development Jobs",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W257624": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-24T14:44:49Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-failed-run-resource-hold",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 257624
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-24T14:44:49Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-failed-run-resource-hold",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 257624
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": true,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W257624",
+          "title": "V12: Bounded failed-run recovery and durable resource hold"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 272356,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-09-26T05:54:56Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W257624",
+      "last_change_seq": 272356,
+      "last_changed_at": "2026-09-26T05:54:56.613Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W247941",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.decide",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12 adoption gate: clear independent parallel real development Jobs",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W257624",
+        "parent": null
+      },
+      "local_id": "W257624",
+      "message_count": 6,
+      "my_pending_obligations": 0,
+      "new": 6,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W257624",
+        "overlap": 0,
+        "own": 6,
+        "snapshot_seq": 285685,
+        "subtree_total": 6
+      },
+      "next": null,
+      "obligations": [
+        {
+          "accepted_into": null,
+          "endpoint": "baton.decide",
+          "flavor": "response",
+          "resolved_seq": 270917,
+          "seq": 270863,
+          "status": "responded",
+          "thread": "2b077949-T257624"
+        }
+      ],
+      "open_blockers": 0,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "queued",
+      "pickup": "overdue",
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 257624,
+          "id": "2b077949-T257624",
+          "last_seq": 270917,
+          "new": 6,
+          "subject": "V12: Bounded failed-run recovery and durable resource hold"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Bounded failed-run recovery and durable resource hold",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W257627": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-24T14:45:03Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 257627
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-24T14:45:03Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 257627
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": true,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W257627",
+          "title": "V12: Diagnose original worker startup failure and prepare fresh packet"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "suspected-defect",
+      "duplicate_of": null,
+      "episode_seq": 258299,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-09-24T16:27:00Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W257627",
+      "last_change_seq": 258299,
+      "last_changed_at": "2026-09-24T16:27:00.720Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W247941",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.decide",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12 adoption gate: clear independent parallel real development Jobs",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W257627",
+        "parent": null
+      },
+      "local_id": "W257627",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W257627",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "queued",
+      "pickup": "overdue",
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 257627,
+          "id": "2b077949-T257627",
+          "last_seq": 257627,
+          "new": 1,
+          "subject": "V12: Diagnose original worker startup failure and prepare fresh packet"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Diagnose original worker startup failure and prepare fresh packet",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W270664": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.claude",
+        "created_ts": "2026-09-26T06:19:54Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-workspace-removal-outside-locks",
+        "prior": 0,
+        "rationale": "Owner 270664 requires a dedicated dossier bound before implementation. This one holds F2's authority and selection, the F2 sites RE-ANCHORED BY NAME against current bytes (the audit's eight line numbers are all stale after W257624's accepted additions to workspaces.py), the properties the correction may not trade away, the exact function-level ownership boundary against live W257624, the pinned correction design reusing existing lifecycle machinery, and the nine deterministic evidence obligations. No product source or test was changed under this claim.",
+        "revision": 1,
+        "root": "baton",
+        "seq": 272528
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.claude",
+          "created_ts": "2026-09-26T06:19:54Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-workspace-removal-outside-locks",
+          "prior": 0,
+          "rationale": "Owner 270664 requires a dedicated dossier bound before implementation. This one holds F2's authority and selection, the F2 sites RE-ANCHORED BY NAME against current bytes (the audit's eight line numbers are all stale after W257624's accepted additions to workspaces.py), the properties the correction may not trade away, the exact function-level ownership boundary against live W257624, the pinned correction design reusing existing lifecycle machinery, and the nine deterministic evidence obligations. No product source or test was changed under this claim.",
+          "revision": 1,
+          "root": "baton",
+          "seq": 272528
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W270664",
+          "title": "V12: Remove workspace-deletion I/O from database transactions"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 274959,
+      "first_open_blocker": "W275633",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W275633",
+        "started_at": "2026-09-26T13:28:19.002Z",
+        "started_seq": 275666,
+        "work": "2b077949-W275633"
+      },
+      "handler": null,
+      "handoff_at": "2026-09-26T11:49:02Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W270664",
+      "last_change_seq": 275666,
+      "last_changed_at": "2026-09-26T13:28:19.002Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W275633",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.decide",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Token-bound maintenance execution prerequisite",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W270664",
+        "parent": null
+      },
+      "local_id": "W270664",
+      "message_count": 4,
+      "my_pending_obligations": 0,
+      "new": 4,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W270664",
+        "overlap": 0,
+        "own": 4,
+        "snapshot_seq": 285685,
+        "subtree_total": 4
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 0,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": "pending",
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 270664,
+          "id": "2b077949-T270664",
+          "last_seq": 274873,
+          "new": 4,
+          "subject": "V12: Remove workspace-deletion I/O from database transactions"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Remove workspace-deletion I/O from database transactions",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W236087": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-22T05:39:19Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-managed-session-resume",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 236087
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-22T05:39:19Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-managed-session-resume",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 236087
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W236087",
+          "title": "V12: Integrate managed session resume for reviewer corrections"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 262170,
+      "first_open_blocker": null,
+      "follow_up_of": "2b077949-W177936",
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-09-25T02:50:46Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W236087",
+      "last_change_seq": 262183,
+      "last_changed_at": "2026-09-25T02:52:36.721Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W239533",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: Independent managed review of a retained proposal",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": {
+          "handler": null,
+          "id": "2b077949-W177936",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "V12: Prepare production context qualification packet"
+        },
+        "follow_ups": [],
+        "id": "2b077949-W236087",
+        "parent": null
+      },
+      "local_id": "W236087",
+      "message_count": 8,
+      "my_pending_obligations": 0,
+      "new": 8,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W236087",
+        "overlap": 0,
+        "own": 8,
+        "snapshot_seq": 285685,
+        "subtree_total": 8
+      },
+      "next": null,
+      "obligations": [
+        {
+          "accepted_into": null,
+          "endpoint": "baton.decide",
+          "flavor": "response",
+          "resolved_seq": 236120,
+          "seq": 236105,
+          "status": "responded",
+          "thread": "2b077949-T236087"
+        }
+      ],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "external-report",
+      "outcome": null,
+      "phase": "parked",
+      "pickup": "pending",
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 236087,
+          "id": "2b077949-T236087",
+          "last_seq": 239616,
+          "new": 8,
+          "subject": "V12: Integrate managed session resume for reviewer corrections"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Integrate managed session resume for reviewer corrections",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W62098": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-01T15:06:16Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-proposal-import-base-closure",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 62098
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-01T15:06:16Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-proposal-import-base-closure",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 62098
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W62098",
+          "title": "Make retained v12 proposals complete against their import base"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 64451,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-09-01T23:00:18Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W62098",
+      "last_change_seq": 71935,
+      "last_changed_at": "2026-09-02T21:44:41.934Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W62098",
+        "parent": null
+      },
+      "local_id": "W62098",
+      "message_count": 9,
+      "my_pending_obligations": 0,
+      "new": 9,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W62098",
+        "overlap": 0,
+        "own": 9,
+        "snapshot_seq": 285685,
+        "subtree_total": 9
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "self-initiated",
+      "outcome": null,
+      "phase": "parked",
+      "pickup": "pending",
+      "priority": "low",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.ops",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 62098,
+          "id": "2b077949-T62098",
+          "last_seq": 71940,
+          "new": 9,
+          "subject": "Make retained v12 proposals complete against their import base"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Make retained v12 proposals complete against their import base",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W61981": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-01T14:47:14Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-complete-verification-context",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 61981
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-01T14:47:14Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-complete-verification-context",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 61981
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W61981",
+          "title": "Make v12 verification context complete and explicit"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 62019,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-09-01T14:53:45Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W61981",
+      "last_change_seq": 62056,
+      "last_changed_at": "2026-09-01T14:59:09.920Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W61981",
+        "parent": null
+      },
+      "local_id": "W61981",
+      "message_count": 3,
+      "my_pending_obligations": 0,
+      "new": 3,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W61981",
+        "overlap": 0,
+        "own": 3,
+        "snapshot_seq": 285685,
+        "subtree_total": 3
+      },
+      "next": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "self-initiated",
+      "outcome": null,
+      "phase": "parked",
+      "pickup": "pending",
+      "priority": "low",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.ops",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 61981,
+          "id": "2b077949-T61981",
+          "last_seq": 62048,
+          "new": 3,
+          "subject": "Make v12 verification context complete and explicit"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Make v12 verification context complete and explicit",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W62535": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-01T16:33:08Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-dogfood-preflight-before-staging",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 62535
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-01T16:33:08Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-dogfood-preflight-before-staging",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 62535
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W62535",
+          "title": "Preflight v12 dogfood before staging source"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 62581,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-09-01T16:41:58Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W62535",
+      "last_change_seq": 65341,
+      "last_changed_at": "2026-09-02T01:56:31.256Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W62535",
+        "parent": null
+      },
+      "local_id": "W62535",
+      "message_count": 2,
+      "my_pending_obligations": 0,
+      "new": 2,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W62535",
+        "overlap": 0,
+        "own": 2,
+        "snapshot_seq": 285685,
+        "subtree_total": 2
+      },
+      "next": {
+        "endpoint": "baton.ops",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "self-initiated",
+      "outcome": null,
+      "phase": "parked",
+      "pickup": "pending",
+      "priority": "low",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.decide",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 62535,
+          "id": "2b077949-T62535",
+          "last_seq": 62580,
+          "new": 2,
+          "subject": "Preflight v12 dogfood before staging source"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Preflight v12 dogfood before staging source",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W63214": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-01T18:50:05Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-source-manifest-canonical-entry-bound",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 63214
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-01T18:50:05Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-source-manifest-canonical-entry-bound",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 63214
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W63214",
+          "title": "Make v12 source staging respect canonical entry bounds"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 64488,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-09-01T23:06:02Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W63214",
+      "last_change_seq": 65342,
+      "last_changed_at": "2026-09-02T01:56:31.344Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W63214",
+        "parent": null
+      },
+      "local_id": "W63214",
+      "message_count": 2,
+      "my_pending_obligations": 0,
+      "new": 2,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W63214",
+        "overlap": 0,
+        "own": 2,
+        "snapshot_seq": 285685,
+        "subtree_total": 2
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "self-initiated",
+      "outcome": null,
+      "phase": "parked",
+      "pickup": "pending",
+      "priority": "low",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.ops",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 63214,
+          "id": "2b077949-T63214",
+          "last_seq": 64487,
+          "new": 2,
+          "subject": "Make v12 source staging respect canonical entry bounds"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Make v12 source staging respect canonical entry bounds",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W165786": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-14T02:57:01Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v13-parallel-hardening",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 165786
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-14T02:57:01Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v13-parallel-hardening",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 165786
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W165786",
+          "title": "V13: Harden the platform using v12 parallel Jobs"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 167873,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W165786",
+      "last_change_seq": 168025,
+      "last_changed_at": "2026-09-14T09:28:14.669Z",
+      "links": {
+        "blocked_by": [],
+        "blocks": [],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W165786",
+        "parent": null
+      },
+      "local_id": "W165786",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W165786",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 0,
+      "origin": "self-initiated",
+      "outcome": null,
+      "phase": "parked",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.feat",
+        "handlers": [
+          "rvpc"
+        ],
+        "role": "rview",
+        "route": "rview"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 165786,
+          "id": "2b077949-T165786",
+          "last_seq": 165786,
+          "new": 1,
+          "subject": "V13: Harden the platform using v12 parallel Jobs"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V13: Harden the platform using v12 parallel Jobs",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W48697": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-08-30T19:31:17Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 48697
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-08-30T19:31:17Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 48697
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116924,
+      "first_open_blocker": "W117026",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W117026",
+        "started_at": "2026-09-08T06:36:50.939Z",
+        "started_seq": 117055,
+        "work": "2b077949-W117026"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W48697",
+      "last_change_seq": 117055,
+      "last_changed_at": "2026-09-08T06:36:50.939Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116031",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Preserve actual origins and dynamic labels in boundary inventory discovery",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116032",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Drive writer-key corruption through the real inventory reader",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117026",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Resolve the surviving worker-entry operation-identity inventory delta",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W115981",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Resolve and verify the twelve v12 suite checks diagnosed by W115824",
+            "via_obligation": null
+          }
+        ],
+        "contains": [
+          {
+            "handler": null,
+            "id": "2b077949-W116031",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Preserve actual origins and dynamic labels in boundary inventory discovery"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116032",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Drive writer-key corruption through the real inventory reader"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116952",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Review the concrete B3 inventory module scopes and serial sequence"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116962",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Prepare exact accounting for contextual helper declarations"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116972",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Complete lanes receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116975",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete review_cycles receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116977",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete intake receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116979",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete authority_port receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116981",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete interrogation receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116987",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete sessions receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116992",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete attempts receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116995",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete workspaces receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116997",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete oci receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116999",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete handshake receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117002",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete documents receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117004",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete credentials receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117006",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete exchange receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117008",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete launch receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117017",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete source_boundary receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117020",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete custody receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117022",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete posture_slots receiving-boundary inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117024",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Prepare bounded output attempt-key fixture scope"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W117174",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Implement approved exact helper declaration accounting"
+          }
+        ],
+        "duplicate_of": null,
+        "duplicates": [
+          {
+            "handler": null,
+            "id": "2b077949-W54802",
+            "outcome": "rejected",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Boundary inventory: 46 owned entries have no probe, 3 probes no owner"
+          }
+        ],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W48697",
+        "parent": null
+      },
+      "local_id": "W48697",
+      "message_count": 6,
+      "my_pending_obligations": 0,
+      "new": 6,
+      "new_breakdown": {
+        "children": [
+          {
+            "id": "2b077949-W116031",
+            "new": 17
+          },
+          {
+            "id": "2b077949-W116032",
+            "new": 2
+          },
+          {
+            "id": "2b077949-W116952",
+            "new": 2
+          },
+          {
+            "id": "2b077949-W116962",
+            "new": 0
+          },
+          {
+            "id": "2b077949-W116972",
+            "new": 14
+          },
+          {
+            "id": "2b077949-W116975",
+            "new": 9
+          },
+          {
+            "id": "2b077949-W116977",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W116979",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W116981",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W116987",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W116992",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W116995",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W116997",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W116999",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W117002",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W117004",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W117006",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W117008",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W117017",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W117020",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W117022",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W117024",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W117174",
+            "new": 1
+          }
+        ],
+        "id": "2b077949-W48697",
+        "overlap": 0,
+        "own": 6,
+        "snapshot_seq": 285685,
+        "subtree_total": 67
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "external-report",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "low",
+      "progress": {
+        "children": 23,
+        "closed": 6
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 48697,
+          "id": "2b077949-T48697",
+          "last_seq": 117204,
+          "new": 6,
+          "subject": "Complete the global v12 receiving-boundary inventory"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete the global v12 receiving-boundary inventory",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W115981": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-08T03:55:15Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-suite-check-remediation",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 115981
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-08T03:55:15Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-suite-check-remediation",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 115981
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W115981",
+          "title": "Resolve and verify the twelve v12 suite checks diagnosed by W115824"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116004,
+      "first_open_blocker": "W48697",
+      "follow_up_of": "2b077949-W115824",
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W48697",
+        "started_at": "2026-09-08T04:01:44.842Z",
+        "started_seq": 116027,
+        "work": "2b077949-W48697"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W115981",
+      "last_change_seq": 119159,
+      "last_changed_at": "2026-09-08T12:46:16.682Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116014",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Register the three missing v12 test catalog members",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116016",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Reconcile exact old v12 engine residue and obtain selected disposition",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W48697",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete the global v12 receiving-boundary inventory",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [],
+        "contains": [
+          {
+            "handler": null,
+            "id": "2b077949-W116014",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Register the three missing v12 test catalog members"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W116016",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Reconcile exact old v12 engine residue and obtain selected disposition"
+          }
+        ],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": {
+          "handler": null,
+          "id": "2b077949-W115824",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "Account for and scope repairs for the 12 unresolved v12 suite checks"
+        },
+        "follow_ups": [],
+        "id": "2b077949-W115981",
+        "parent": null
+      },
+      "local_id": "W115981",
+      "message_count": 8,
+      "my_pending_obligations": 0,
+      "new": 8,
+      "new_breakdown": {
+        "children": [
+          {
+            "id": "2b077949-W116014",
+            "new": 4
+          },
+          {
+            "id": "2b077949-W116016",
+            "new": 3
+          }
+        ],
+        "id": "2b077949-W115981",
+        "overlap": 0,
+        "own": 8,
+        "snapshot_seq": 285685,
+        "subtree_total": 15
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 0,
+      "origin": "external-report",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 2,
+        "closed": 2
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 115981,
+          "id": "2b077949-T115981",
+          "last_seq": 129710,
+          "new": 8,
+          "subject": "Resolve and verify the twelve v12 suite checks diagnosed by W115824"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Resolve and verify the twelve v12 suite checks diagnosed by W115824",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W129838": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-09T18:02:48Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-stage-composition-hardening/findings/finding-concrete-worker-close",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 129838
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-09T18:02:48Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-stage-composition-hardening/findings/finding-concrete-worker-close",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 129838
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W103950",
+          "title": "V12: Extend stage composition hardening coverage"
+        },
+        {
+          "id": "2b077949-W129838",
+          "title": "V12: Close concrete worker operations during stage construction unwind"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 140586,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W129838",
+      "last_change_seq": 140586,
+      "last_changed_at": "2026-09-11T01:18:34.316Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W119400",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: Accept multi-Job deployment composition",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W103950",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Extend stage composition hardening coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W129838",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W103950",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.bug",
+            "handlers": [
+              "rvpc"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12: Extend stage composition hardening coverage"
+        }
+      },
+      "local_id": "W129838",
+      "message_count": 3,
+      "my_pending_obligations": 0,
+      "new": 3,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W129838",
+        "overlap": 0,
+        "own": 3,
+        "snapshot_seq": 285685,
+        "subtree_total": 3
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 0,
+      "open_dependents": 1,
+      "origin": "self-initiated",
+      "outcome": null,
+      "phase": "parked",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.impl",
+        "handlers": [
+          "claude"
+        ],
+        "role": "impl",
+        "route": "impl"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 129838,
+          "id": "2b077949-T129838",
+          "last_seq": 140577,
+          "new": 3,
+          "subject": "V12: Close concrete worker operations during stage construction unwind"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Close concrete worker operations during stage construction unwind",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W116975": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:29:18Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 116975
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:29:18Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 116975
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116975",
+          "title": "Complete review_cycles receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 120990,
+      "first_open_blocker": "W121042",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W121042",
+        "started_at": "2026-09-08T17:10:11.095Z",
+        "started_seq": 121054,
+        "work": "2b077949-W121042"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W116975",
+      "last_change_seq": 121054,
+      "last_changed_at": "2026-09-08T17:10:11.095Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116972",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Complete lanes receiving-boundary inventory coverage",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W120587",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Repair review-attachment returned-key inventory stimulus",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W120785",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Resolve adopted-column owner precedence in boundary inventory",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W121042",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Resolve review-cycle nested fence inventory probes",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W116977",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete intake receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [
+          {
+            "handler": null,
+            "id": "2b077949-W120587",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Repair review-attachment returned-key inventory stimulus"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W121031",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Complete review reader identity inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W121034",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Complete consumption-subject inventory coverage"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W121039",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "rvpc"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Resolve review-cycle helper-call inventory residuals"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W121042",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Resolve review-cycle nested fence inventory probes"
+          }
+        ],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W116975",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W116975",
+      "message_count": 7,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [
+          {
+            "id": "2b077949-W120587",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W121031",
+            "new": 2
+          },
+          {
+            "id": "2b077949-W121034",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W121039",
+            "new": 3
+          },
+          {
+            "id": "2b077949-W121042",
+            "new": 1
+          }
+        ],
+        "id": "2b077949-W116975",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 9
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 5,
+        "closed": 3
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 116975,
+          "id": "2b077949-T116975",
+          "last_seq": 121052,
+          "new": 1,
+          "subject": "Complete review_cycles receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete review_cycles receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W116977": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:29:27Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 116977
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:29:27Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 116977
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116977",
+          "title": "Complete intake receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116977,
+      "first_open_blocker": "W116975",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W116975",
+        "started_at": "2026-09-08T06:29:32.536Z",
+        "started_seq": 116978,
+        "work": "2b077949-W116975"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W116977",
+      "last_change_seq": 119163,
+      "last_changed_at": "2026-09-08T12:46:17.184Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116975",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete review_cycles receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W116979",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete authority_port receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W116977",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W116977",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W116977",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 116977,
+          "id": "2b077949-T116977",
+          "last_seq": 116977,
+          "new": 1,
+          "subject": "Complete intake receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete intake receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W116979": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:29:36Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 116979
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:29:36Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 116979
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116979",
+          "title": "Complete authority_port receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116979,
+      "first_open_blocker": "W116977",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W116977",
+        "started_at": "2026-09-08T06:29:44.470Z",
+        "started_seq": 116980,
+        "work": "2b077949-W116977"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W116979",
+      "last_change_seq": 119164,
+      "last_changed_at": "2026-09-08T12:46:17.306Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116977",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete intake receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W116981",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete interrogation receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W116979",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W116979",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W116979",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 116979,
+          "id": "2b077949-T116979",
+          "last_seq": 116979,
+          "new": 1,
+          "subject": "Complete authority_port receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete authority_port receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W116981": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:29:50Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 116981
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:29:50Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 116981
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116981",
+          "title": "Complete interrogation receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116981,
+      "first_open_blocker": "W116979",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W116979",
+        "started_at": "2026-09-08T06:29:54.950Z",
+        "started_seq": 116982,
+        "work": "2b077949-W116979"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W116981",
+      "last_change_seq": 119165,
+      "last_changed_at": "2026-09-08T12:46:17.429Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116979",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete authority_port receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W116987",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete sessions receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W116981",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W116981",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W116981",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 116981,
+          "id": "2b077949-T116981",
+          "last_seq": 116981,
+          "new": 1,
+          "subject": "Complete interrogation receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete interrogation receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W116987": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:29:59Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 116987
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:29:59Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 116987
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116987",
+          "title": "Complete sessions receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116987,
+      "first_open_blocker": "W116981",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W116981",
+        "started_at": "2026-09-08T06:30:03.722Z",
+        "started_seq": 116991,
+        "work": "2b077949-W116981"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W116987",
+      "last_change_seq": 119166,
+      "last_changed_at": "2026-09-08T12:46:17.557Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116981",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete interrogation receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W116992",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete attempts receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W116987",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W116987",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W116987",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 116987,
+          "id": "2b077949-T116987",
+          "last_seq": 116987,
+          "new": 1,
+          "subject": "Complete sessions receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete sessions receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W116992": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:30:06Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 116992
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:30:06Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 116992
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116992",
+          "title": "Complete attempts receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116992,
+      "first_open_blocker": "W116987",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W116987",
+        "started_at": "2026-09-08T06:30:11.744Z",
+        "started_seq": 116993,
+        "work": "2b077949-W116987"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W116992",
+      "last_change_seq": 119167,
+      "last_changed_at": "2026-09-08T12:46:17.683Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116987",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete sessions receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W116995",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete workspaces receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W116992",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W116992",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W116992",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 116992,
+          "id": "2b077949-T116992",
+          "last_seq": 116992,
+          "new": 1,
+          "subject": "Complete attempts receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete attempts receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W116995": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:30:16Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 116995
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:30:16Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 116995
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116995",
+          "title": "Complete workspaces receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116995,
+      "first_open_blocker": "W116992",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W116992",
+        "started_at": "2026-09-08T06:30:20.556Z",
+        "started_seq": 116996,
+        "work": "2b077949-W116992"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W116995",
+      "last_change_seq": 119168,
+      "last_changed_at": "2026-09-08T12:46:17.808Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116992",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete attempts receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W116997",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete oci receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W116995",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W116995",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W116995",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 116995,
+          "id": "2b077949-T116995",
+          "last_seq": 116995,
+          "new": 1,
+          "subject": "Complete workspaces receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete workspaces receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W116997": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:30:24Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 116997
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:30:24Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 116997
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116997",
+          "title": "Complete oci receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116997,
+      "first_open_blocker": "W116995",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W116995",
+        "started_at": "2026-09-08T06:30:32.497Z",
+        "started_seq": 116998,
+        "work": "2b077949-W116995"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W116997",
+      "last_change_seq": 119169,
+      "last_changed_at": "2026-09-08T12:46:17.930Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116995",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete workspaces receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W116999",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete handshake receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W116997",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W116997",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W116997",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 116997,
+          "id": "2b077949-T116997",
+          "last_seq": 116997,
+          "new": 1,
+          "subject": "Complete oci receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete oci receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W116999": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:30:43Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-handshake-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 116999
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:30:43Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-handshake-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 116999
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116999",
+          "title": "Complete handshake receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 116999,
+      "first_open_blocker": "W116997",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W116997",
+        "started_at": "2026-09-08T06:30:48.342Z",
+        "started_seq": 117001,
+        "work": "2b077949-W116997"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W116999",
+      "last_change_seq": 119170,
+      "last_changed_at": "2026-09-08T12:46:18.059Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116997",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete oci receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W117002",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete documents receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W116999",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W116999",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W116999",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 116999,
+          "id": "2b077949-T116999",
+          "last_seq": 116999,
+          "new": 1,
+          "subject": "Complete handshake receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete handshake receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W117002": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:30:55Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-documents-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 117002
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:30:55Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-documents-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 117002
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W117002",
+          "title": "Complete documents receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 117002,
+      "first_open_blocker": "W116999",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W116999",
+        "started_at": "2026-09-08T06:31:03.857Z",
+        "started_seq": 117003,
+        "work": "2b077949-W116999"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W117002",
+      "last_change_seq": 119171,
+      "last_changed_at": "2026-09-08T12:46:18.191Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W116999",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete handshake receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W117004",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete credentials receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W117002",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W117002",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W117002",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 117002,
+          "id": "2b077949-T117002",
+          "last_seq": 117002,
+          "new": 1,
+          "subject": "Complete documents receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete documents receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W117004": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:31:10Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-credentials-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 117004
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:31:10Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-credentials-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 117004
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W117004",
+          "title": "Complete credentials receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 117004,
+      "first_open_blocker": "W117002",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W117002",
+        "started_at": "2026-09-08T06:31:17.205Z",
+        "started_seq": 117005,
+        "work": "2b077949-W117002"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W117004",
+      "last_change_seq": 119172,
+      "last_changed_at": "2026-09-08T12:46:18.318Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W117002",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete documents receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W117006",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete exchange receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W117004",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W117004",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W117004",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 117004,
+          "id": "2b077949-T117004",
+          "last_seq": 117004,
+          "new": 1,
+          "subject": "Complete credentials receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete credentials receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W117006": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:31:22Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-exchange-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 117006
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:31:22Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-exchange-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 117006
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W117006",
+          "title": "Complete exchange receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 117006,
+      "first_open_blocker": "W117004",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W117004",
+        "started_at": "2026-09-08T06:31:26.375Z",
+        "started_seq": 117007,
+        "work": "2b077949-W117004"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W117006",
+      "last_change_seq": 119173,
+      "last_changed_at": "2026-09-08T12:46:18.447Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W117004",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete credentials receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W117008",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete launch receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W117006",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W117006",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W117006",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 117006,
+          "id": "2b077949-T117006",
+          "last_seq": 117006,
+          "new": 1,
+          "subject": "Complete exchange receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete exchange receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W117008": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:31:33Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-launch-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 117008
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:31:33Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-launch-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 117008
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W117008",
+          "title": "Complete launch receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 117008,
+      "first_open_blocker": "W117006",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W117006",
+        "started_at": "2026-09-08T06:31:39.194Z",
+        "started_seq": 117013,
+        "work": "2b077949-W117006"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W117008",
+      "last_change_seq": 119174,
+      "last_changed_at": "2026-09-08T12:46:18.570Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W117006",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete exchange receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W117017",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete source_boundary receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W117008",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W117008",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W117008",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 117008,
+          "id": "2b077949-T117008",
+          "last_seq": 117008,
+          "new": 1,
+          "subject": "Complete launch receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete launch receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W117017": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:31:47Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-source-boundary-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 117017
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:31:47Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-source-boundary-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 117017
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W117017",
+          "title": "Complete source_boundary receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 117017,
+      "first_open_blocker": "W117008",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W117008",
+        "started_at": "2026-09-08T06:31:52.328Z",
+        "started_seq": 117018,
+        "work": "2b077949-W117008"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W117017",
+      "last_change_seq": 119175,
+      "last_changed_at": "2026-09-08T12:46:18.698Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W117008",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete launch receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W117020",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete custody receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W117017",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W117017",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W117017",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 117017,
+          "id": "2b077949-T117017",
+          "last_seq": 117017,
+          "new": 1,
+          "subject": "Complete source_boundary receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete source_boundary receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W117020": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:31:55Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-custody-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 117020
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:31:55Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-custody-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 117020
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W117020",
+          "title": "Complete custody receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 117020,
+      "first_open_blocker": "W117017",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W117017",
+        "started_at": "2026-09-08T06:32:01.303Z",
+        "started_seq": 117021,
+        "work": "2b077949-W117017"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W117020",
+      "last_change_seq": 119176,
+      "last_changed_at": "2026-09-08T12:46:18.819Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W117017",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete source_boundary receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W117022",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete posture_slots receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W117020",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W117020",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W117020",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 117020,
+          "id": "2b077949-T117020",
+          "last_seq": 117020,
+          "new": 1,
+          "subject": "Complete custody receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete custody receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W117022": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:32:05Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 117022
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:32:05Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 117022
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W117022",
+          "title": "Complete posture_slots receiving-boundary inventory coverage"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 117022,
+      "first_open_blocker": "W117020",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W117020",
+        "started_at": "2026-09-08T06:32:10.788Z",
+        "started_seq": 117023,
+        "work": "2b077949-W117020"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W117022",
+      "last_change_seq": 119177,
+      "last_changed_at": "2026-09-08T12:46:18.947Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W117020",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete custody receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W117024",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Prepare bounded output attempt-key fixture scope",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W117022",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W117022",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W117022",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 117022,
+          "id": "2b077949-T117022",
+          "last_seq": 117022,
+          "new": 1,
+          "subject": "Complete posture_slots receiving-boundary inventory coverage"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Complete posture_slots receiving-boundary inventory coverage",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W117024": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:32:14Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-output-fixture-scope",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 117024
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:32:14Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-output-fixture-scope",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 117024
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W117024",
+          "title": "Prepare bounded output attempt-key fixture scope"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 117024,
+      "first_open_blocker": "W117022",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W117022",
+        "started_at": "2026-09-08T06:32:19.303Z",
+        "started_seq": 117025,
+        "work": "2b077949-W117022"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W117024",
+      "last_change_seq": 119178,
+      "last_changed_at": "2026-09-08T12:46:19.075Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W117022",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete posture_slots receiving-boundary inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W117026",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Resolve the surviving worker-entry operation-identity inventory delta",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W117024",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W48697",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        }
+      },
+      "local_id": "W117024",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W117024",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 117024,
+          "id": "2b077949-T117024",
+          "last_seq": 117024,
+          "new": 1,
+          "subject": "Prepare bounded output attempt-key fixture scope"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Prepare bounded output attempt-key fixture scope",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W117026": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "close",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T06:32:22Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-worker-entry-inventory-followup",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 117026
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T06:32:22Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-worker-entry-inventory-followup",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 117026
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W117026",
+          "title": "Resolve the surviving worker-entry operation-identity inventory delta"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 117026,
+      "first_open_blocker": "W117024",
+      "follow_up_of": "2b077949-W39666",
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W117024",
+        "started_at": "2026-09-08T06:32:28.749Z",
+        "started_seq": 117028,
+        "work": "2b077949-W117024"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W117026",
+      "last_change_seq": 119179,
+      "last_changed_at": "2026-09-08T12:46:19.202Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W117024",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Prepare bounded output attempt-key fixture scope",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W48697",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Complete the global v12 receiving-boundary inventory",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": {
+          "handler": null,
+          "id": "2b077949-W39666",
+          "outcome": "satisfying",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "Inventory the worker-entry transport's receiving boundaries"
+        },
+        "follow_ups": [],
+        "id": "2b077949-W117026",
+        "parent": null
+      },
+      "local_id": "W117026",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W117026",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 285685,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.tune",
+        "handlers": [
+          "tuner"
+        ],
+        "role": "tuner",
+        "route": "tuner"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 117026,
+          "id": "2b077949-T117026",
+          "last_seq": 117026,
+          "new": 1,
+          "subject": "Resolve the surviving worker-entry operation-identity inventory delta"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Resolve the surviving worker-entry operation-identity inventory delta",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  },
+  "W121039": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.tuner",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.tuner",
+        "created_ts": "2026-09-08T17:32:34Z",
+        "git_provenance": null,
+        "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory/findings/finding-helper-call-residuals",
+        "prior": 0,
+        "rationale": "Unique enriched record for exact helper residual provenance and bounded correction disposition under claim121208.",
+        "revision": 1,
+        "root": "baton",
+        "seq": 121214
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-08T17:32:34Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory/findings/finding-helper-call-residuals",
+          "prior": 0,
+          "rationale": "Unique enriched record for exact helper residual provenance and bounded correction disposition under claim121208.",
+          "revision": 1,
+          "root": "baton",
+          "seq": 121214
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W48697",
+          "title": "Complete the global v12 receiving-boundary inventory"
+        },
+        {
+          "id": "2b077949-W116975",
+          "title": "Complete review_cycles receiving-boundary inventory coverage"
+        },
+        {
+          "id": "2b077949-W121039",
+          "title": "Resolve review-cycle helper-call inventory residuals"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 121783,
+      "first_open_blocker": null,
+      "follow_up_of": null,
+      "gate": null,
+      "handler": null,
+      "handoff_at": "2026-09-08T17:41:40Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W121039",
+      "last_change_seq": 121812,
+      "last_changed_at": "2026-09-08T19:17:12.584Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W121034",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Complete consumption-subject inventory coverage",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W121042",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Resolve review-cycle nested fence inventory probes",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W121039",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W116975",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.tune",
+            "handlers": [
+              "tuner"
+            ],
+            "role": "tuner",
+            "route": "tuner"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Complete review_cycles receiving-boundary inventory coverage"
+        }
+      },
+      "local_id": "W121039",
+      "message_count": 5,
+      "my_pending_obligations": 0,
+      "new": 3,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W121039",
+        "overlap": 0,
+        "own": 3,
+        "snapshot_seq": 285685,
+        "subtree_total": 3
+      },
+      "next": null,
+      "obligations": [
+        {
+          "accepted_into": null,
+          "endpoint": "baton.ops",
+          "flavor": "response",
+          "resolved_seq": 121783,
+          "seq": 121291,
+          "status": "responded",
+          "thread": "2b077949-T121039"
+        }
+      ],
+      "open_blockers": 0,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "parked",
+      "pickup": "pending",
+      "priority": "normal",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": true,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.bug",
+        "handlers": [
+          "rvpc"
+        ],
+        "role": "rview",
+        "route": "rview"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 121039,
+          "id": "2b077949-T121039",
+          "last_seq": 121783,
+          "new": 3,
+          "subject": "Resolve review-cycle helper-call inventory residuals"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Resolve review-cycle helper-call inventory residuals",
+      "trials": []
+    },
+    "snapshot_seq": 285685
+  }
+}

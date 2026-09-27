@@ -1,3 +1,27 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+Keep the accepted restoration milestone and review-2026-09-26T05-53-44Z.md with
+its original limits. The remaining R3/R4/R5 list below is residual evidence, not
+a current instruction to resume the old host-helper implementation wholesale.
+DESIGN DB-1–DB-7, TOK-5–TOK-12, HOST-1 and REC-1–REC-6 require shared durable
+tokens, stopped exact containers, effect settlement and token-bound maintenance
+for governed restore/reset/allocation. Host process-group proofs remain valuable
+historical evidence; they do not exempt governed filesystem writers from TOK-7.
+Use accepted G1 W275617 and G2 W275633 rather than another local lock/token scheme.
+Next selected execution must pin the bounded recovery/create_line/caller consumer
+and exact serial ownership after G2; connected cross-store/DB gaps may be prepared
+independently where no G2-owned file is edited. Preserve never-created-helper,
+alias/object, assignment_workspace, intake._settle, dogfood_operator and final
+packet residuals, residue inventories and unknown reconstructed delta. No broad
+source audit or all-sites repair is selected by this checkpoint. W247941 remains
+blocked on this Work; no historical test acceptance closes that dependency.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Current checkpoint — bounded restoration milestone accepted
 
 2026-09-26T05:53:44Z reviewer272343. Complete handoff272340/events272343 snapshot272344,

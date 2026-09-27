@@ -685,3 +685,72 @@ five-path ownership. No source/test edits, implementation or live execution
 occurred. Workspaces/additional guard paths need explicit coordination before
 edits; D1 remains read-only outside its new dossier. W44342 stays parked.
 Ledger changes and last consumed positions are in CHECKPOINT-257612.md.
+
+## 2026-09-27 — owner requires specification-based adoption checkpoint
+
+Slawomir identifies the stale adoption checkpoint as a risk of directing work
+down the wrong path and requires adoption to follow the current specification.
+Recorded by baton.prompt before rewriting the current plan. Keep W247941 as
+the adoption identity; do not falsely close it or discard implementation and
+evidence to start again. Replace its current checkpoint instead.
+
+This explicitly supersedes the September 24 R1–R5 / D1–D2 / A1–A2 sequence as
+the CURRENT adoption roadmap, including DECOMPOSITION-257612.md and
+CHECKPOINT-257612.md as scheduling instructions. They remain historical evidence,
+not present execution authority. Existing component acceptances and outstanding
+defects are preserved; their applicability must be checked against current code
+and v12/DESIGN.md, not silently transferred or waived.
+
+The authority is v12/DESIGN.md, currently SHA256
+239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934,
+especially sections 1, 17 and 18. The target remains useful independent parallel
+Jobs with independent review, safe token/container handoffs, durable results,
+actionable recovery and honest monitoring. Supported fresh contexts may serve
+initial adoption; context reuse remains required for final v12 delivery.
+Do not turn a one-Job diagnostic into adoption acceptance, or require every
+audit recommendation before testing the selected conforming end-to-end path.
+
+Current foundation W275617 is accepted. W275633's three maintenance children
+remain the selected active implementation path; do not restart or interrupt them.
+Reconcile only concrete gaps exercised by the selected adoption path, including
+workspace lifecycle, result retention/review and affected database boundaries.
+Any required implementation gets an existing or bounded new owning Work with
+actual dependencies. No blanket G1–G9 implementation selection is made here.
+
+Graph classification at snapshot285575: retain the satisfied W239533 edge and
+the open W257624 recovery and W257627 fresh-packet edges pending current-spec
+revalidation; their old whole-Work closure criteria are not automatically the
+new release definition. Add W275633 as a direct prerequisite of W247941 because
+the selected first preparation-to-task path needs token-bound maintenance.
+That graph addition requires the current consumer Route handler (baton.decide);
+prompt may prepare and discuss it but cannot impersonate that handler. Until
+confirmed by canonical readback it is a pending operation, not an installed gate.
+Do not remove old edges or invent new acceptance solely to make the graph ready.
+
+This decision authorizes checkpoint/coordination correction, not a live run,
+deployment, spec change, claim takeover or Git mutation. Prompt owns the W247941
+FINDING/PLAN and W2 adoption pointer for this update; no implementation PROGRESS
+or active G2 dossier is changed.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+Owner operation285604 installed the direct W275633 prerequisite. This supersedes
+the pending-operation status and executable block instruction below: do not repeat
+it as outstanding work. Canonical current blockers are W257624, W257627 and
+W275633; W239533 remains a satisfied historical input. W285642 records the finite
+backlog reconciliation, not another adoption gate. G2 continues undisturbed.
+The concrete remaining path is preparation/task -> token-bound custody/retention
+-> independent review -> honest terminal/hold projection, then independent parallel
+proof with useful work. Reuse is required for final v12, not initial adoption.
+W257624 retains recovery/DB/caller gaps; W257627 retains fresh packet preparation.
+Their whole-Work gates are retained until selected bounded provider obligations
+are mapped and installed before any removal. The audit's G3/G5/G6/G8 labels are
+recommendations, not executed or accepted Work. Use existing G1 evidence and G2
+API after serial handoff; select only consumer corrections actually on this path.
+Prompt's earlier exclusive coordination ownership statement is superseded for this
+W285642 tuner correction; product and active G2 ownership stay unchanged.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

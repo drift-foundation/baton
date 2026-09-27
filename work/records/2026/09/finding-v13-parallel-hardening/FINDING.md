@@ -113,3 +113,21 @@ Current delivery sequence:
 Preparation must shorten this path. Classify findings by whether they concretely prevent this usable release; defer unrelated baseline repairs and broader hardening to W165786 after readiness. Preserve execution correctness, isolation and honest reviewed result collection; do not manufacture success or add speculative release gates. Do not repeat accepted architecture reviews or broad suites merely because work changes hands.
 
 After readiness, use v12 parallel Jobs for small bounded v13 tasks. Keep v11 as the current coordination authority during preparation; no backlog copying or unselected authority cutover. This usable-release objective does not falsely close W2 while its historical open children remain. Record readiness explicitly against the selected minimum outcome.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+The September15 delivery sequence below is superseded by current v12/DESIGN.md
+and W247941 PLAN: initial adoption on supported fresh contexts after connected
+parallel proof; required context reuse before final v12 delivery. W61599 and
+W161234 historical acceptance is retained, not proof of the expanded specification.
+Preserve the existing v13 membership table and all identities/containment. Broad
+inventories, suites, engine portability, hierarchy and rich UI remain deferred.
+Concrete work-loss, duplicate-effect, isolation or false-success defects on the
+selected v12 path cannot be deferred merely by that table (DESIGN section18).
+W174357's later owner parking supersedes the older permission to finish its queued
+review now. No backlog copy, reparent, authority cutover or v13 execution is selected.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

@@ -648,3 +648,27 @@ accepted subject and all prior failed-run and consumed-grant evidence.
 Owner approved an evidence-only Tuner assessment of W236087: recommend defer, narrow remaining scope, or the smallest suitable future proof, with one exact owner disposition command. This supersedes the current subject-selection next action for this assessment turn only; it does not select a new subject or any execution. Preserve the accepted proposal/verdict and historical evidence. A recommendation is not acceptance of production restore.
 
 Tuner owns a new DISPOSITION-20260925.md recommendation and any appended coordination summary in FINDING/PLAN under its claim. No product/test edits, tests, harness, live model/engine operations, deployed-store access, recovery or Git mutation. Use existing dossier evidence and read-only coordination/source inspection. Return directly to baton.decide with the recommendation and command. Do not add an adoption prerequisite or expand the recovery -> fresh packet -> two-Job proof -> bounded real v12 work path.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+DESIGN sections1,9,18 and the September23 required-reuse ruling supersede the
+optional-final-delivery statement in DISPOSITION-20260925.md and any matching
+historical scheduling text. Reuse is REQUIRED for final v12 delivery; supported
+fresh contexts may establish initial adoption first. Parking is preserved and is
+not acceptance or waiver of the remaining managed restore/correction proof.
+Keep W177936 closed with its accepted qualification evidence. The current accepted
+subject has no honest changes-requested verdict; do not rewrite it to create one.
+On selected eligible work, pin a real correction subject and retained context plus
+workspace, use a fresh execution/token after confirmed predecessor termination,
+and prove useful restored continuation, attribution and cleanup/unknown holds.
+Governed context materialization/save/disposal must consume shared token-bound
+maintenance; admission/binding must obey DB-1–DB-7. The inherited accepted W239533
+edge stays satisfied; no initial-adoption gate is added. The stale parking command
+in the historical disposition is not a new command to run. Owner selects the real
+subject/live provider question when needed; ordinary deterministic preparation
+and honest acceptance remain distinct.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

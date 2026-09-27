@@ -1,3 +1,28 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+DESIGN sections1,9,18 and the September23 required-reuse ruling supersede the
+optional-final-delivery statement in DISPOSITION-20260925.md and any matching
+historical scheduling text. Reuse is REQUIRED for final v12 delivery; supported
+fresh contexts may establish initial adoption first. Parking is preserved and is
+not acceptance or waiver of the remaining managed restore/correction proof.
+Keep W177936 closed with its accepted qualification evidence. The current accepted
+subject has no honest changes-requested verdict; do not rewrite it to create one.
+On selected eligible work, pin a real correction subject and retained context plus
+workspace, use a fresh execution/token after confirmed predecessor termination,
+and prove useful restored continuation, attribution and cleanup/unknown holds.
+Governed context materialization/save/disposal must consume shared token-bound
+maintenance; admission/binding must obey DB-1–DB-7. The inherited accepted W239533
+edge stays satisfied; no initial-adoption gate is added. The stale parking command
+in the historical disposition is not a new command to run. Owner selects the real
+subject/live provider question when needed; ordinary deterministic preparation
+and honest acceptance remain distinct.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Current action — bounded Tuner disposition assessment, 2026-09-25
 
 Owner selects evidence-only recommendation and exact owner command in DISPOSITION-20260925.md; see the dated FINDING ruling. No execution or subject selection. Return to baton.decide. This supersedes the next action below for this assessment; prior accepted evidence remains valid.

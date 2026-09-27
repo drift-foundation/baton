@@ -209,3 +209,24 @@ unchanged on accepted B2 candidate3973301e... .
 W116952 independently accepted the planning partition and required a separate actual implementation gate for proposal results. W116962 prepared an unapplied candidate830496b44569e7a88c29771577d616f94b52bcd3066c48f6fa338aab24a30d04 with source-call identities and actual entry claims, preserving the live3973301e... baseline. See findings/finding-declaration-accounting-proposal/PROPOSAL.md and evidence/research.json there. Eleven controls pass in both the standalone model and candidate; the candidate aggregate still fails on77 residual rows. It resolves13 symbolic rows, exposes18 previously hidden rows, retains4 symbolic rows, and preserves1365 entries and existing owner triples.
 
 Created W117174, bound to findings/finding-declaration-accounting-implementation/, as the actual implementation result after independent review and explicit bounded existing-test disposition. Lanes/module execution now also waits for that result. The new Work is conditional and grants no current assertion-edit authority. Its accepted implementation must revalidate exact module input deltas; the earlier planning packet remains historical evidence. This research does not complete B3 or W48697 and does not silently waive any original check.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+The September8 active-repair/declaration-disposition checkpoint below is superseded
+for scheduling by the owner-selected v13 classification in W165786. W117174,
+W116972 and earlier scanner/fixture providers are closed satisfying in the retained
+canonical graph; they are not pending approval or implementation. W116975 and its
+remaining children carry the next unresolved serial inventory obligations; the
+actual parent gate remains W117026. Preserve module identities, residual counts as
+historical inputs, joined completeness and the shared-file serial chain.
+AGENTS standing September13 test authority supersedes per-test approval restrictions;
+September14 verification accounting supersedes cumulative stopwatch admission gates.
+Before later selected execution, record concrete changed test paths/reasons and
+fresh module evidence; never delete real defect coverage to make equality pass.
+DESIGN section17 requires boundary evidence, not a broad inventory as an initial
+adoption gate. No inventory test or new census is run in W285642.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

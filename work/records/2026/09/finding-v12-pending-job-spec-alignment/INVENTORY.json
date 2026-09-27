@@ -1,0 +1,554 @@
+[
+  {
+    "work": "W2",
+    "phase": "queued",
+    "binding": "work/records/2026/08/finding-v12-isolated-agent-workers",
+    "disposition": "update current plan",
+    "spec": "\u00a71/18; ID-1; DEP-4",
+    "assessment": "Current adoption pointer retained; installed285604 edge acknowledged. Historical children prevent umbrella closure; readiness and cutover remain separate."
+  },
+  {
+    "work": "W3",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-local-isolated-execution",
+    "disposition": "aligned/keep parked",
+    "spec": "\u00a718; HOST-3/4; ID-1",
+    "assessment": "Docker evidence/account reconciliation and open Podman child remain; no whole-M2 certification. Old phase-pending note is historical: ledger is parked. Not the adoption gate."
+  },
+  {
+    "work": "W7",
+    "phase": "block",
+    "binding": null,
+    "disposition": "owner decision required",
+    "spec": "REV-4/6/7; \u00a718",
+    "assessment": "Old M3 proposal-pipeline umbrella has open W16830 and W3 gate. Preserve identity; map remaining useful proposal obligations to current handback before selecting execution. Mandatory automated integration is superseded; cannot close a parent with unresolved child."
+  },
+  {
+    "work": "W8",
+    "phase": "block",
+    "binding": null,
+    "disposition": "aligned/keep deferred",
+    "spec": "\u00a718; HOST-3/4",
+    "assessment": "Owner-selected v13 remote/provider certification. Retain Docker minimum in active delivery; no broad runtime certification gate."
+  },
+  {
+    "work": "W9",
+    "phase": "block",
+    "binding": null,
+    "disposition": "aligned/keep deferred",
+    "spec": "\u00a718; REC-3",
+    "assessment": "Owner-selected v13 broad resilience/scale, still depends on W7/W8. Concrete current-path recovery remains required separately."
+  },
+  {
+    "work": "W10",
+    "phase": "block",
+    "binding": null,
+    "disposition": "aligned/keep deferred",
+    "spec": "\u00a718; DEP-4",
+    "assessment": "Historical M6 rollout umbrella is v13; initial v12 adoption is W247941. Retain W9 edge and no automatic authority cutover."
+  },
+  {
+    "work": "W9901",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers",
+    "disposition": "aligned/keep deferred",
+    "spec": "ID-5; \u00a719",
+    "assessment": "Rich hierarchy/grants/UI remains v13. Shared principal identity constraints remain valid; do not reactivate full inheritance for v12."
+  },
+  {
+    "work": "W16830",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-approval-attestations",
+    "disposition": "aligned/keep deferred",
+    "spec": "ID-5; REV-1/6; \u00a719",
+    "assessment": "Advanced approval attestations/threshold policy is v13. Preserve W3 gate and W7 containment; no inferred mandatory singleton integrator."
+  },
+  {
+    "work": "W28880",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-work-tags",
+    "disposition": "aligned/keep deferred",
+    "spec": "ID-1; OBS-1; \u00a718",
+    "assessment": "Owner-selected Work labels retained with W29401/W29408 obligations. Stale W16821-pending prose is historical; authority child is closed. No tag-derived scheduling authority."
+  },
+  {
+    "work": "W29401",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli",
+    "disposition": "update on later scheduling",
+    "spec": "OBS-1; DEP-3; \u00a718",
+    "assessment": "Historical library exposure accepted; old no-CLI-host observation must be revalidated against selected current command surface. Remain parked; do not invent host or close missing CLI exposure."
+  },
+  {
+    "work": "W29408",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-tui",
+    "disposition": "aligned/keep deferred",
+    "spec": "OBS-1; \u00a718",
+    "assessment": "Labels/TUI presentation remains v13 behind W29401; cannot introduce mutation into initial read-only monitor."
+  },
+  {
+    "work": "W32391",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-v12-podman-lifecycle-certification",
+    "disposition": "aligned/keep deferred",
+    "spec": "\u00a718; HOST-3/4",
+    "assessment": "Additional Podman engine certification remains v13; historical engine availability claims are not current environment facts or Docker gates."
+  },
+  {
+    "work": "W33755",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-v12-direct-topology-conformance-certification",
+    "disposition": "aligned/keep deferred",
+    "spec": "\u00a717/18; DEP-3",
+    "assessment": "Expanded conformance/version transition accepted for v13; preserve old frozen registers and exact evidence, no current exhaustive certification."
+  },
+  {
+    "work": "W39366",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-v12-supervised-dogfood-hardening",
+    "disposition": "aligned/keep deferred",
+    "spec": "\u00a717/18; REC-3",
+    "assessment": "Broad dogfood hardening remains deferred; only concrete false-success/isolation failure on selected path elevates a bounded correction."
+  },
+  {
+    "work": "W39435",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-v12-flat-dossier-storage",
+    "disposition": "owner decision required",
+    "spec": "OBS-4; \u00a718",
+    "assessment": "Historical v13 allocation conflicts with treating all flat-dossier behavior as optional final-v12. DESIGN requires new v12 dossiers flat and stable; preserve existing paths. Owner should select only missing materializer/binding minimum before that surface ships, leaving richer navigation deferred; no new migration gate here."
+  },
+  {
+    "work": "W39649",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-worker-telemetry-introspection",
+    "disposition": "aligned/keep deferred",
+    "spec": "OBS-1/2/3; \u00a718",
+    "assessment": "Provider-neutral rich telemetry remains v13. Existing lightweight monitor still owes honest current token/unknown/diagnostic projection; do not make full ACP/Codex schema work a gate."
+  },
+  {
+    "work": "W44342",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-custody-engine-operation-settlement",
+    "disposition": "update on later scheduling",
+    "spec": "DB-7; TOK-4/10/11; HOST-1/2",
+    "assessment": "Keep unresolved engine-side operation problem. Old optional pre-claim check/activation recipe is superseded by canonical claim then token-bound preparation. Do not implement independent provider daemon merely because old research proposed it; integrate exact uncertain launch with shared G1."
+  },
+  {
+    "work": "W48697",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4",
+    "assessment": "Applied current v13 scheduling, completed-prerequisite and standing test-policy supersession. Residual serial module coverage and joined equality stay owed; no fresh census run."
+  },
+  {
+    "work": "W61981",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-complete-verification-context",
+    "disposition": "update current plan",
+    "spec": "ART-2/3; TOK-7; REV-2",
+    "assessment": "Applied source-driver/maintenance placement correction to manager-copy wording; retain contained verification input and truthful context/result axes."
+  },
+  {
+    "work": "W62098",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-proposal-import-base-closure",
+    "disposition": "update current plan",
+    "spec": "ART-2/4; REV-4/6/7",
+    "assessment": "Applied bounded-consumer and optional-integration correction; retain exact commit/object transport and rejected-proposal evidence. No monolithic restart or whole-Work closure."
+  },
+  {
+    "work": "W62535",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-dogfood-preflight-before-staging",
+    "disposition": "update current plan",
+    "spec": "HOST-1/3/5; SCH-1/6; TOK-7",
+    "assessment": "Applied current claim/preparation/location rules and deterministic default. Retain actual toolchain readiness and stage-once negatives; G2 active ownership unchanged."
+  },
+  {
+    "work": "W63214",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-source-manifest-canonical-entry-bound",
+    "disposition": "update current plan",
+    "spec": "ART-2/3; TOK-7; \u00a718",
+    "assessment": "Applied v13 generic-tree boundary and container-bound copier qualification. Existing temporary512/513 evidence retained; not a Git source-tree mandate."
+  },
+  {
+    "work": "W91072",
+    "phase": "parked",
+    "binding": null,
+    "disposition": "aligned/keep deferred",
+    "spec": "ART-5; \u00a718",
+    "assessment": "Live byte/entry quota enforcement remains deferred. Launch free-space estimate is not an enforced quota; no resource guarantee may be overstated."
+  },
+  {
+    "work": "W103525",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-deterministic-scheduler-stress",
+    "disposition": "aligned/keep deferred",
+    "spec": "SCH-2/3/6; \u00a718",
+    "assessment": "Current plan already supersedes old replacement/stress requirement with v13 scope. Preserve accepted deterministic traces and their partial coverage; no full certification."
+  },
+  {
+    "work": "W103950",
+    "phase": "block",
+    "binding": "work/records/2026/09/finding-v12-stage-composition-hardening",
+    "disposition": "aligned/keep deferred",
+    "spec": "REC-3/6; \u00a718",
+    "assessment": "Expanded stage hardening remains v13, open concrete-close child preserved. Historical W110783 complaint needs bounded current-path reconciliation, not full suite."
+  },
+  {
+    "work": "W106052",
+    "phase": "parked",
+    "binding": null,
+    "disposition": "excluded: v11 coordination",
+    "spec": "DEP-4; ID-1",
+    "assessment": "Existing-Work parent attachment limitation; retain documentary grouping and actual dependencies. Not a v12 Job specification rewrite."
+  },
+  {
+    "work": "W110783",
+    "phase": "parked",
+    "binding": null,
+    "disposition": "owner/handler consumer decision",
+    "spec": "REC-3/6; ART-4",
+    "assessment": "Historical post-fence ending replay defect may overlap accepted later assembly. Reconcile against selected current ending path before execution; no new code audit or closure proof here. If reproduced there it is required correctness, not deferrable by label."
+  },
+  {
+    "work": "W111793",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-api-model-adapters-and-testing",
+    "disposition": "aligned/keep deferred",
+    "spec": "RUN-3; ID-6; \u00a718",
+    "assessment": "API-only adapters/testing roles are permitted architecture, not required current provider selection. Parked phase already applied; no vendor call or new lane."
+  },
+  {
+    "work": "W114077",
+    "phase": "parked",
+    "binding": null,
+    "disposition": "owner/handler consumer decision",
+    "spec": "TOK-5/6; REC-1/2/6",
+    "assessment": "Preserve intermittent stop/observe/abandon failure. Determine relevance to selected recovery using focused evidence before declaring fixed or invoking engines; no broad rerun."
+  },
+  {
+    "work": "W114252",
+    "phase": "parked",
+    "binding": null,
+    "disposition": "aligned/keep deferred",
+    "spec": "SCH-1; REV-7; DEP-3",
+    "assessment": "Explicit mode/executable scope extension remains v13; current fail-closed refusal preserved. Standing test permission is not executable-mode product permission."
+  },
+  {
+    "work": "W114516",
+    "phase": "parked",
+    "binding": null,
+    "disposition": "owner/handler consumer decision",
+    "spec": "HOST-3; OBS-3; \u00a717/18",
+    "assessment": "Retain intermittent engine list/worker entry and image-build143 observations. No causal/current-run claim; select only a reproduced blocker, not whole engine suite."
+  },
+  {
+    "work": "W115981",
+    "phase": "block",
+    "binding": "work/records/2026/09/finding-v12-suite-check-remediation",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4",
+    "assessment": "Applied v13 baseline-repair classification and closed catalog/resource-provider facts. Twelve-check and final-verification obligation remains; no global-green adoption requirement."
+  },
+  {
+    "work": "W116975",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete review_cycles receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W116977",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete intake receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W116979",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete authority_port receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W116981",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete interrogation receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W116987",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete sessions receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W116992",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete attempts receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W116995",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete workspaces receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W116997",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete oci receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W116999",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-handshake-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete handshake receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W117002",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-documents-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete documents receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W117004",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-credentials-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete credentials receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W117006",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-exchange-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete exchange receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W117008",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-launch-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete launch receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W117017",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-source-boundary-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete source_boundary receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W117020",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-custody-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete custody receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W117022",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Complete posture_slots receiving-boundary inventory coverage exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W117024",
+    "phase": "block",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-output-fixture-scope",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Prepare bounded output attempt-key fixture scope exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W117026",
+    "phase": "block",
+    "binding": "work/records/2026/09/finding-v12-worker-entry-inventory-followup",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Resolve the surviving worker-entry operation-identity inventory delta exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W121039",
+    "phase": "parked",
+    "binding": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory/findings/finding-helper-call-residuals",
+    "disposition": "update current plan",
+    "spec": "\u00a717/18; LIM-4; SEC-5",
+    "assessment": "Applied v13/standing-test-policy supersession; retain Resolve review-cycle helper-call inventory residuals exact module/fixture residuals, independent evidence and serial shared-file gate. Research-only scope is not expanded to product/scanner implementation."
+  },
+  {
+    "work": "W121042",
+    "phase": "block",
+    "binding": null,
+    "disposition": "update on later scheduling",
+    "spec": "\u00a717/18; LIM-4",
+    "assessment": "Nested-fence inventory remains v13, blocked on W121039. Lightweight Work has no dossier yet; preserve exact three residual pairs and create its record only on enrichment. Standing test authority supersedes old per-test gate, not runtime/scanner scope."
+  },
+  {
+    "work": "W129838",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-stage-composition-hardening/findings/finding-concrete-worker-close",
+    "disposition": "update current plan",
+    "spec": "REC-6; LIM-4; \u00a718",
+    "assessment": "Applied cumulative60s gate supersession; preserve concrete close/release defect and parked v13 classification. No current leak inferred."
+  },
+  {
+    "work": "W136578",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-integration-result-hardening",
+    "disposition": "update on later scheduling",
+    "spec": "OBS-1/3; REC-3/6; \u00a718",
+    "assessment": "Current PLAN still repeats old H-7 missing-binding description; T136578/167959 says source changed and W167896 owns bounded viewer proof. Preserve historical negatives but revalidate H-7 before correction; broad storage/recovery remains deferred."
+  },
+  {
+    "work": "W144335",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-sealed-intake-reentry",
+    "disposition": "owner/handler consumer decision",
+    "spec": "REC-1/6; ART-7/8; OBS-3",
+    "assessment": "Sealed-intake replay masking original unable/held reason remains unresolved. Select bounded correction if current adoption failure path reaches it; no reset-to-frozen or fabricated verdict."
+  },
+  {
+    "work": "W144813",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-integration-launch-refusal",
+    "disposition": "aligned/keep deferred",
+    "spec": "REV-6; REC-3/6; OBS-3",
+    "assessment": "Optional integration launch-refusal re-entry remains deferred for proposal-only adoption. If selected integration needs it, preserve original failure and exact partial launch; no root replacement."
+  },
+  {
+    "work": "W165786",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v13-parallel-hardening",
+    "disposition": "update current plan",
+    "spec": "\u00a71/18; CTX-1; DEP-4",
+    "assessment": "Applied current adoption/reuse sequence and later operator-review parking; retained all v13 identities/membership and concrete correctness exception."
+  },
+  {
+    "work": "W174357",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-operator-replacement-design",
+    "disposition": "aligned/keep deferred",
+    "spec": "SCH-6; \u00a718",
+    "assessment": "Current plan correctly parks generalized operator replacement design/review. Preserve proposed bytes without treating designation as required initial v12 feature."
+  },
+  {
+    "work": "W236087",
+    "phase": "parked",
+    "binding": "work/records/2026/09/finding-v12-managed-session-resume",
+    "disposition": "update current plan",
+    "spec": "\u00a71/9/18; TOK-5/7; CTX-1\u20137",
+    "assessment": "Applied required-final-reuse supersession, kept parked honest-subject selection and accepted qualification. No reuse gate added to initial adoption; maintenance/cross-store integration still owed."
+  },
+  {
+    "work": "W247941",
+    "phase": "block",
+    "binding": "work/records/2026/09/finding-v12-real-jobs-adoption-gate",
+    "disposition": "update current plan",
+    "spec": "\u00a71/17/18; SCH-3/5; REV-4",
+    "assessment": "Applied installed-G2 edge correction and bounded connected-path checkpoint. NOT READY; preserve W257624/W257627 gates until actual replacement providers exist."
+  },
+  {
+    "work": "W257624",
+    "phase": "queued",
+    "binding": "work/records/2026/09/finding-v12-failed-run-resource-hold",
+    "disposition": "update current plan",
+    "spec": "DB-1\u20137; TOK-5\u201312; REC-1\u20136",
+    "assessment": "Applied shared-token/maintenance consumer correction; accepted process-based milestone retained with scope limits. No wholesale old R3/R4/R5 implementation recipe."
+  },
+  {
+    "work": "W257627",
+    "phase": "queued",
+    "binding": "work/records/2026/09/finding-v12-startup-failure-fresh-packet",
+    "disposition": "update current plan",
+    "spec": "HOST-1; ART-7; REV-1\u20134; \u00a717",
+    "assessment": "Applied fresh packet planning versus executable prerequisite distinction. D1 accepted, D2 absent; no installed incoming gates and no false packet-ready claim."
+  },
+  {
+    "work": "W266096",
+    "phase": "queued",
+    "binding": null,
+    "disposition": "excluded: v11 operation",
+    "spec": "ID-2/7; DEP-4",
+    "assessment": "Reviewer readiness/claim incident in current v11 deployment; preserve independently. This sweep adds no dependency or resolution claim."
+  },
+  {
+    "work": "W270664",
+    "phase": "block",
+    "binding": "work/records/2026/09/finding-v12-workspace-removal-outside-locks",
+    "disposition": "update current plan",
+    "spec": "DB-1\u20137; TOK-1\u201312; ART-9",
+    "assessment": "Applied present-spec/shared-prerequisite consumer checkpoint; preserve rejected local-token evidence and remaining removal obligations. Actual G2 edge remains."
+  },
+  {
+    "work": "W275633",
+    "phase": "queued",
+    "binding": "work/records/2026/09/finding-v12-maintenance-execution",
+    "disposition": "aligned/keep",
+    "spec": "TOK-7/12; HOST-1; \u00a717",
+    "assessment": "Finite three-child G2 plan matches current design. Keep parent open through independent integrated acceptance; no broad consumer migration implied."
+  },
+  {
+    "work": "W285463",
+    "phase": "active",
+    "binding": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-facility",
+    "disposition": "aligned/keep active, read-only",
+    "spec": "TOK-1\u201312; HOST-1; DB-1\u20137",
+    "assessment": "Claude active at snapshot; facility/API/pre-allocation conflict identity owned there. Preserve owner285661 human checkpoint reminder at safe handoff, no interruption or edit."
+  },
+  {
+    "work": "W285464",
+    "phase": "block",
+    "binding": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff",
+    "disposition": "aligned/keep",
+    "spec": "HOST-1; TOK-5/7; ART-3",
+    "assessment": "Actual composed preparation-to-task handoff is explicitly scoped, blocked on W285463; retain serial file transfer and effect/cessation/settlement/task order."
+  },
+  {
+    "work": "W285465",
+    "phase": "block",
+    "binding": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery",
+    "disposition": "aligned/keep",
+    "spec": "TOK-4/6/10/11; REC-3; \u00a717",
+    "assessment": "Connected maintenance restart/expiry and integrated G2 acceptance blocked on W285464; no blanket all-consumer acceptance."
+  },
+  {
+    "work": "W285642",
+    "phase": "active",
+    "binding": "work/records/2026/09/finding-v12-pending-job-spec-alignment",
+    "disposition": "excluded: this audit",
+    "spec": "\u00a71/18; OBS-5",
+    "assessment": "Finite coordination sweep, independent of delivery; no gate to G2/adoption."
+  }
+]

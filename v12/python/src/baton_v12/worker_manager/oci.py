@@ -1717,6 +1717,46 @@ def destroy_vector(engine, *, runtime_id):
     return [engine, "rm", "--force", "--volumes", runtime_id]
 
 
+def wait_vector(engine, *, runtime_id):
+    """Ask the engine WHEN this exact container ended, and block until it has.
+
+    W285463. The deferred activation is the reason this exists: `run` answers
+    when a foreground act is over, but `create` + `start` leaves a container
+    running and the manager holding only its identity. A maintenance
+    preparation is a bounded act whose ending the host must observe before it
+    can prove anything about the writer, and polling an inspection would be
+    this manager inventing a clock.
+
+    IT IS NOT AN ABSENCE PROOF AND IS NOT USED AS ONE. What it establishes is
+    that the process this identity names is no longer running; that the
+    container and its mount hold are GONE is `_absent_prose`'s question, asked
+    afterwards by the reclamation path.
+    """
+    engine = _engine(engine)
+    boundaries.identity(runtime_id, "a runtime id")
+    return [engine, "wait", runtime_id]
+
+
+def logs_vector(engine, *, runtime_id):
+    """Ask the engine what THIS EXACT container printed.
+
+    W285463, and the trust argument is the one `custody` already makes about a
+    foreground run's stdout rather than a new one: the document is accountable
+    because only the manager's own program can print it, and the engine is the
+    party that attributes output to the container it created. A deferred
+    activation has no stdout the manager holds, so this is where the same
+    document is read -- correlated by the submission the program echoes, which
+    for a maintenance act is its token's own owner.
+
+    ONE IDENTITY, NO FOLLOW AND NO SELECTOR. There is nothing here to widen
+    into "read what any container said", which is what a label-filtered or
+    tailing form would be.
+    """
+    engine = _engine(engine)
+    boundaries.identity(runtime_id, "a runtime id")
+    return [engine, "logs", runtime_id]
+
+
 # -- reading what the engine said ---------------------------------------------
 
 

@@ -172,3 +172,28 @@ above, preserving their historical findings. Simulated authority/provider and
 proposal-claim boundaries remain explicit; no real git-line transport, live
 execution or whole parallel lifecycle is certified. Return to owner. D1 stays
 accepted; D2 stays unselected and subject to its recorded prerequisites.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+D1 and the bounded declaration correction remain accepted at their original
+candidate/evidence scope; D2 is still unexecuted. The old unconditional R1–R5
+then D2 sequencing is superseded as a scheduling recipe by W247941's current-spec
+plan. Prepare packet documentation alongside consumer corrections where inputs
+permit; freeze a runnable packet only after its exact prerequisite candidates
+are accepted. Do not infer that accepted diagnosis already supplies a fresh packet.
+Use DESIGN HOST-1, TOK-5–TOK-12, ART-7, REV-1–REV-4, OBS-1 and sections17–18:
+selected maintenance preparation, task, stopped-producer custody/retention,
+independent review, failure/hold/recovery and read-only observation must be connected.
+Name candidate/profile, immutable inputs, isolated roots, limits, literal commands,
+expected artifacts and simulated versus real boundaries. Bind any remaining live
+Docker/provider question to its own selected command; no new live run here.
+W247941 consumes this Work and W257624/W275633 separately. This Work has no current
+incoming dependency; packet planning is therefore not claimed to be scheduler-gated.
+Before dependent execution, install exact selected provider edges (or stage-specific
+bounded provider Work) rather than relying on the old D2 prose alone. No edge is
+removed or added by this correction.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

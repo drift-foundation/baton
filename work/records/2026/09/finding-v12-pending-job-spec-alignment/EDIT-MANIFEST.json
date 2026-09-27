@@ -1,0 +1,392 @@
+[
+  {
+    "work": "W2",
+    "path": "work/records/2026/08/finding-v12-isolated-agent-workers/PLAN.md",
+    "base_sha256": "7c113574b182170732d8f0eb52388467f40b7fff7c44fe9e294bf458a2347f6f",
+    "candidate_sha256": "1380d2b4369aae4bfa971ae28779a8bc0222afe0846b4c841b4164f2e0a54105"
+  },
+  {
+    "work": "W247941",
+    "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate/FINDING.md",
+    "base_sha256": "5be6df64535c945d21e981f9651a00190568802066ee06459bb59f3b986fe37d",
+    "candidate_sha256": "eb70104fddd61a719da12403ea33b583a14fb0dde98fb91327d63759c4b5544e"
+  },
+  {
+    "work": "W247941",
+    "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate/PLAN.md",
+    "base_sha256": "e66ebe254eb19c74448fb71644cfd47f6030dbf39f8dd9dfc252965b2329485d",
+    "candidate_sha256": "aab13f2610f2ed85d61c8d2be8313c17b0dcd75ea1662cad750144be7867252a"
+  },
+  {
+    "work": "W257624",
+    "path": "work/records/2026/09/finding-v12-failed-run-resource-hold/FINDING.md",
+    "base_sha256": "460c7dd872b4296b21e160db6cbfe4ed5ea3265dee4c9da8510e98e9d7b7b1f4",
+    "candidate_sha256": "d266bd736583c906cad49eb17b99d912833d421141a32ee5772f557e23cf3261"
+  },
+  {
+    "work": "W257624",
+    "path": "work/records/2026/09/finding-v12-failed-run-resource-hold/PLAN.md",
+    "base_sha256": "923a8fa05af2c1541528c5da93ff25729592f031907a528b00bbb14cd4eab736",
+    "candidate_sha256": "f4650b8a4fa23e4723d83bed2f6e0d0b51fbbf385be5319ba584c62be3461290"
+  },
+  {
+    "work": "W257627",
+    "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/FINDING.md",
+    "base_sha256": "29e6f086a7a9ed87bab0bd1fa0b4540059791e528640c0b18208f7871e17b0ed",
+    "candidate_sha256": "dc033cb0891a8e19c6a2aaf9f500bdd7cf207443b7d44a08cdd576838934f1f6"
+  },
+  {
+    "work": "W257627",
+    "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/PLAN.md",
+    "base_sha256": "b7248c4b32b2d500a40b7b75b3bb513142a03474de5f6434d624221986469396",
+    "candidate_sha256": "624df91be6783fddb5f1d51afbb31bf53efe18ad793a5fbc4475e9805b89ec88"
+  },
+  {
+    "work": "W270664",
+    "path": "work/records/2026/09/finding-v12-workspace-removal-outside-locks/FINDING.md",
+    "base_sha256": "3f25dae01eb7a796075ec243052b48b8e7e6d01241eee6fb38dfd54020bb16f8",
+    "candidate_sha256": "b07ed41dc9910660db4748ae01562de96f191bb0b1f66590ba2077fbb7033fc7"
+  },
+  {
+    "work": "W270664",
+    "path": "work/records/2026/09/finding-v12-workspace-removal-outside-locks/PLAN.md",
+    "base_sha256": "159908eb075e7d2089948ac3b8ca31b03571662c3d5717b9bfbb9f93ffeba18f",
+    "candidate_sha256": "dbfffdf8bafec959e3fd7bd0c6f1c2157daa1f47dedccba492d9d7e45368028f"
+  },
+  {
+    "work": "W236087",
+    "path": "work/records/2026/09/finding-v12-managed-session-resume/FINDING.md",
+    "base_sha256": "150d90f45483a3f10f2e00115341fa6b8ac5206379ccf0926383934bb47a58fa",
+    "candidate_sha256": "20d2cdd65d82cd8f856b790254d2939d752f697d01ec761cbb57ea000794863c"
+  },
+  {
+    "work": "W236087",
+    "path": "work/records/2026/09/finding-v12-managed-session-resume/PLAN.md",
+    "base_sha256": "f50a404f948c87878123a3d7ecccdfe1c0466fb7a52124ecea5e18a9503b51fa",
+    "candidate_sha256": "740cc92d32fed12c4e53b892e46cb4d695445c253e8eb3c426eb28edb4c9689c"
+  },
+  {
+    "work": "W62098",
+    "path": "work/records/2026/09/finding-v12-proposal-import-base-closure/FINDING.md",
+    "base_sha256": "792ae7da40cdc136ff681844e904ff7891b0b2971d58e8fd8ddd839928b66dda",
+    "candidate_sha256": "70e4f7917be159d2d036332474ffad0369e38337b784774f945c92b98e7d3378"
+  },
+  {
+    "work": "W62098",
+    "path": "work/records/2026/09/finding-v12-proposal-import-base-closure/PLAN.md",
+    "base_sha256": "c50868f32e575f962cd20842487cfa680aac28a4edcc79667f7e049099dff164",
+    "candidate_sha256": "fee7d62d87b06675e1ea97e13056bfd82ea31c5d7fdc5b14b99a08a9a77861bc"
+  },
+  {
+    "work": "W61981",
+    "path": "work/records/2026/09/finding-v12-complete-verification-context/FINDING.md",
+    "base_sha256": "0cafdbbad39f98e326a15f0049fe750ea6b01a3f655e757a343da43d12c901b8",
+    "candidate_sha256": "310cf207ca657abbdbc6635702baf64b79c31f5fac9af6d6de183eff13cd8271"
+  },
+  {
+    "work": "W61981",
+    "path": "work/records/2026/09/finding-v12-complete-verification-context/PLAN.md",
+    "base_sha256": "d1f5fa233bca436e99a61093b4f96ec782aa5bdb7a4bc3cbff731513550f533d",
+    "candidate_sha256": "89a40377a09e383e7b72062f9c442c113911c0eceddc0f7aba9e79720c524d43"
+  },
+  {
+    "work": "W62535",
+    "path": "work/records/2026/09/finding-v12-dogfood-preflight-before-staging/FINDING.md",
+    "base_sha256": "ee0d25c146ef2e6b7faaca4549be0cbea5d9a8c8b56336bbd599aadfb77e80e7",
+    "candidate_sha256": "02785422e10d3f7e29681d7c10e0e4f83acaa1799e01ca0f2d56b9610e994b1d"
+  },
+  {
+    "work": "W62535",
+    "path": "work/records/2026/09/finding-v12-dogfood-preflight-before-staging/PLAN.md",
+    "base_sha256": "d9a3419aae3497ac698155076bb141fdc4ed4abca43729a84b89df743145d36c",
+    "candidate_sha256": "35b330cf03f2ee1897d7a411b16e379a536c35fabb4864ad1386a34124765170"
+  },
+  {
+    "work": "W63214",
+    "path": "work/records/2026/09/finding-v12-source-manifest-canonical-entry-bound/FINDING.md",
+    "base_sha256": "0ebfcce1c5ea8288a346f3d5257e4238580cfc4535a20a8b7896e70d49ea9928",
+    "candidate_sha256": "18f153c4c27a1b7e315c480861415e2b57fd359ce9d02f78006bb35b80e0a5c7"
+  },
+  {
+    "work": "W63214",
+    "path": "work/records/2026/09/finding-v12-source-manifest-canonical-entry-bound/PLAN.md",
+    "base_sha256": "9ba368ff914f6567dc8a9440058bba4a5524427876c66de8e6adc9688cfacc08",
+    "candidate_sha256": "a7169727110ff93b3494b7ca723689b6993fd98e09b3b73d36cea4b244bd66b2"
+  },
+  {
+    "work": "W165786",
+    "path": "work/records/2026/09/finding-v13-parallel-hardening/FINDING.md",
+    "base_sha256": "758c45cb72beea358986e6ab4c0c83be7506ade8c999a91764c538482f5e070b",
+    "candidate_sha256": "fc2ad45d94a41d3f49ae5b4460e9f8d102995c7250339d2575f6849895b94f7c"
+  },
+  {
+    "work": "W165786",
+    "path": "work/records/2026/09/finding-v13-parallel-hardening/PLAN.md",
+    "base_sha256": "f053b62b276cf77cfacdd778dcee7fd872b0da55f243eab8182b0586be668436",
+    "candidate_sha256": "308bb2cb63bf7fa44befa1b74177c61dee95b1e651e40ba0d62f64c22a12d282"
+  },
+  {
+    "work": "W48697",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/FINDING.md",
+    "base_sha256": "53f4b7d6a0080da334481fb83d3a93604f81ad1073fcd45f6613c78185ae78fc",
+    "candidate_sha256": "ec3e4e5aabc3db6c14175635e248eb1517dd0a7a2eb69692193c45dc1e7ad1b9"
+  },
+  {
+    "work": "W48697",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/PLAN.md",
+    "base_sha256": "08e7a5b98d2d5c5904fdc14bd1bcf971754deb879a6d74e42f2ca20da5180e21",
+    "candidate_sha256": "b3e2a5c03f287dc3e95f411b1e4690c53702b321b30360b00594cf133ea81844"
+  },
+  {
+    "work": "W115981",
+    "path": "work/records/2026/09/finding-v12-suite-check-remediation/FINDING.md",
+    "base_sha256": "087d57d7444f52de44fca915236df21322cc178e1593bdb4155337209a329c2b",
+    "candidate_sha256": "c215a0468aa35808675bf4aa98838245c965e33b1c35647af495563dbef64a96"
+  },
+  {
+    "work": "W115981",
+    "path": "work/records/2026/09/finding-v12-suite-check-remediation/PLAN.md",
+    "base_sha256": "61f1fdba182f137706f6c81deb40c884cec60124ea5a09898290f0ea29a054d6",
+    "candidate_sha256": "39f922cecbe8aa1d6cce4f010c24437cad143a820344acf2b2480cd94e86d59f"
+  },
+  {
+    "work": "W129838",
+    "path": "work/records/2026/09/finding-v12-stage-composition-hardening/findings/finding-concrete-worker-close/FINDING.md",
+    "base_sha256": "52b92667b0c7f2b50ad270b920f4d2b609e9626b057a96e48ba90fbaef254bb2",
+    "candidate_sha256": "1a4d54dfcc750cbdf79f716202411c0e995f7db3ff38b40ce45dfc9fcfae5d6e"
+  },
+  {
+    "work": "W129838",
+    "path": "work/records/2026/09/finding-v12-stage-composition-hardening/findings/finding-concrete-worker-close/PLAN.md",
+    "base_sha256": "37ec3f7225b01d683fbe3b3885bda5e4300e73f78824892ba6e0fa1e8f0bdd9a",
+    "candidate_sha256": "bb4c5c5fa0d13cb64977baa1d30d9604763bddfb4e6e5f8c683bcc149bd1b205"
+  },
+  {
+    "work": "W116975",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory/FINDING.md",
+    "base_sha256": "29813d76fff0d8388d80db3be265f9fd2df3c00e475a44e943b5eb4933da4480",
+    "candidate_sha256": "c004721a654ae662f6d89fb0cfbe122c251a89c1583513c10b7300e0d4021ad6"
+  },
+  {
+    "work": "W116975",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory/PLAN.md",
+    "base_sha256": "fa0cb88bfe8124f22fa1f1ea2f194ebf81c524b5f3ecdec4bdf328bd7a12bb9a",
+    "candidate_sha256": "37e41e73d1fbaa98e947654f03762a4f17028ec28e10f9ac0e63fccaac4949f0"
+  },
+  {
+    "work": "W116977",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory/FINDING.md",
+    "base_sha256": "5bf084dbeaa27e158fc579f0f8f2fbb73eb0cb0e5131bb3a72b3b22c2f482167",
+    "candidate_sha256": "9cbe6835fa0a125dc62527d6daf1be5513ac4801f4646926c1dbdce5d14914dd"
+  },
+  {
+    "work": "W116977",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory/PLAN.md",
+    "base_sha256": "2b505ef7eb69e9cfe269821c9e2c1f2a6ac51606fff6bd0f38ab348abeaa8b1a",
+    "candidate_sha256": "588ccc16dad739b6e1b429de7210dde80dd8dfee984bb1a7402ae8c6ddbd42a0"
+  },
+  {
+    "work": "W116979",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory/FINDING.md",
+    "base_sha256": "aa9e9aaef02a4d4d595750e21bb3eb398b2678919e4ef686c5a09cdb95814827",
+    "candidate_sha256": "782f9ed7f1a83d81fce9f3c55e97c7f4fea8400645b7c1df6a01cc13038a59ca"
+  },
+  {
+    "work": "W116979",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory/PLAN.md",
+    "base_sha256": "3291d0385577cb240b7646004e1cc4367d06c92da8a8dbc64ef77240c7495737",
+    "candidate_sha256": "9315bf49a632ceb5e3ea6461e4c0ae6f365177b81134593075382fdd8d219ba7"
+  },
+  {
+    "work": "W116981",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory/FINDING.md",
+    "base_sha256": "b9cc0a575585198747d98bfcf0414245be1f9be39a41517fcb7b138a3b4f5868",
+    "candidate_sha256": "0cf84ed55bdaa83a82f0bddfcd35432f0c523ea7beff1f1154e93283e90ed50b"
+  },
+  {
+    "work": "W116981",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory/PLAN.md",
+    "base_sha256": "69b78d37291513d50416bfc7c89fe1b7327bc89e7b5448ba5d52ba5ed4417693",
+    "candidate_sha256": "ea6d68dbe10bcf3edffebe83f1ea48f98694b0241cb271db78baff7af0fe3ef1"
+  },
+  {
+    "work": "W116987",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory/FINDING.md",
+    "base_sha256": "135ebbf24ecbc02669c2cf5a71022fee90cd6eea59b7123bc38b560638ab6dd0",
+    "candidate_sha256": "e6b4c3a42fb0ffffd7a3b4daad3707792b6e5e81968458065298ca05fd53ee43"
+  },
+  {
+    "work": "W116987",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory/PLAN.md",
+    "base_sha256": "a167963d84512e693fc502605bc0744c30d01ed3be40140c205d818378781d19",
+    "candidate_sha256": "1831790b4f691965435ff23c911bbaeafcb155f5490d545f06b02d6f8052e25a"
+  },
+  {
+    "work": "W116992",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory/FINDING.md",
+    "base_sha256": "55414021edccd5b82abf2aca839eb174b9765eddd9b86a11c1fa8ed778e4de26",
+    "candidate_sha256": "0d27125cdf0ee357f3309cbe61820ccbab100c30ce576939eebb15edcc7ec4d0"
+  },
+  {
+    "work": "W116992",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory/PLAN.md",
+    "base_sha256": "ee0f172bfacc05bb25159d781a1b687b8f18b95dc2eeb02e35cf8f0b4af9a306",
+    "candidate_sha256": "e455bd852bdcb399257ebc5f023aae6f730d62eb8a45291d1c4c5acb485acbed"
+  },
+  {
+    "work": "W116995",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory/FINDING.md",
+    "base_sha256": "4e684d316e29fe1759691736b71a74d6ab8ec34d39953735bd3023a9a1f91455",
+    "candidate_sha256": "17c3597f9d30d4322bcb9198e250d3b149bcc67321457066963e510ea33274d3"
+  },
+  {
+    "work": "W116995",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory/PLAN.md",
+    "base_sha256": "9bcf582525f23bad911d64e8549c60b3839e3d2aca797fc11fe09947127a290f",
+    "candidate_sha256": "00810c35505a8d747e08fdc32030d7e450616de9452dbafdfaf2dcb348e0fadd"
+  },
+  {
+    "work": "W116997",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory/FINDING.md",
+    "base_sha256": "0742f479f5a5d5378ab8f90356ec316aec1f6e89ef7157335a0673c8f506a434",
+    "candidate_sha256": "d6402f5f8c0b36d8232480d2ad6308c67b5c312dad180aa9057be815b3741347"
+  },
+  {
+    "work": "W116997",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory/PLAN.md",
+    "base_sha256": "cb22951c7a03cd3ad9c7e75882940925737d3610e209bc6a12fe5a8d7eaf1194",
+    "candidate_sha256": "4e625e4045572e46cdaf5d0a4975958556b6e59114ad35eb084734e6829b69f4"
+  },
+  {
+    "work": "W116999",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-handshake-inventory/FINDING.md",
+    "base_sha256": "cdc7fe0a919e05319216440b20033b3d32e9ba99b43db26f9d9dc1ae2c02d12c",
+    "candidate_sha256": "72fd88367232fb556ae712aecbba0eeb2b1ecef1a35633a3af45ee4f6f8b9dcf"
+  },
+  {
+    "work": "W116999",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-handshake-inventory/PLAN.md",
+    "base_sha256": "ee0fac4f82413e6707b383e8c2e19c18dddaaadf1a2d4783d7edf4c81b66acbc",
+    "candidate_sha256": "c3f9ad354eeeb9477a094a1874559d7bd2a205a58d290346f4d5410ceb767112"
+  },
+  {
+    "work": "W117002",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-documents-inventory/FINDING.md",
+    "base_sha256": "2a68fe28956c6221f08685b868c49bbbc1fad96194f6eba70005ea4a0cbf471b",
+    "candidate_sha256": "cfef42cade1b211de32f8ae3e5969c8d094994e11b032cabaebff9f862b44c70"
+  },
+  {
+    "work": "W117002",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-documents-inventory/PLAN.md",
+    "base_sha256": "d824831f8eeceb8b85ce6129f12014052341da5ce8a7ad675fd9cf1fb89e27dd",
+    "candidate_sha256": "0467953a63454a45ce59b6d496dc7bb8a6b48749a9496614fadf03d17fe82367"
+  },
+  {
+    "work": "W117004",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-credentials-inventory/FINDING.md",
+    "base_sha256": "2b1785282e47d8002e936d8d49b939cf1b08e1904af4bd0bffc15b3750cce963",
+    "candidate_sha256": "1fbea2a777faa605a341a95f2f7e191bdaa443db2464b27aaa6d84581915543d"
+  },
+  {
+    "work": "W117004",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-credentials-inventory/PLAN.md",
+    "base_sha256": "c7a2548044b539b34988f51d935296a326c84312b555e20cb422d928ca41300b",
+    "candidate_sha256": "28a9246948b2499a6bd9041ff92b2d113f89ab7b717ad56fdcf41349e28b4660"
+  },
+  {
+    "work": "W117006",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-exchange-inventory/FINDING.md",
+    "base_sha256": "46219c4ed6329a19dee50e40364474e59ed76506a4dfc05c96810453405e6962",
+    "candidate_sha256": "40ee6365c5dddc11c4a2f0ef2595a63d6abbc5372c0dd66914b3e7dae8964d44"
+  },
+  {
+    "work": "W117006",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-exchange-inventory/PLAN.md",
+    "base_sha256": "95ff81f1d41d27118f0467268d9514bd267214c2b5132c61e999cc04cede93d4",
+    "candidate_sha256": "99280b6a6445176a213f864f5a2b9d623a19d45f2f4ad9df3964c15ab6147dd7"
+  },
+  {
+    "work": "W117008",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-launch-inventory/FINDING.md",
+    "base_sha256": "2760319c5ce457ba7bdc0cd1ec551accf22e6cfdd0048fc23f888ed3b94aeb7e",
+    "candidate_sha256": "e2643bb763cf5f5a43ef29c4eb9e0b8562cadad1846d0530366b5d8027e56d40"
+  },
+  {
+    "work": "W117008",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-launch-inventory/PLAN.md",
+    "base_sha256": "471f0570fec479cf02bea7ab0e2b13c664632e3a551759afb21b19e73998344b",
+    "candidate_sha256": "ec83daf7c8e69eb72ed42c0b99cf5e37e6a3be28481e8d39547cb5787b311e62"
+  },
+  {
+    "work": "W117017",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-source-boundary-inventory/FINDING.md",
+    "base_sha256": "9448c6a30fd1f0a4c0415288c16f20e06488578ff58395a97f5cafbbf0e36a66",
+    "candidate_sha256": "910ec7cd2d1eacbd18c1c5ba1e3bf465bf9673a5a2bcb6172587110e69152671"
+  },
+  {
+    "work": "W117017",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-source-boundary-inventory/PLAN.md",
+    "base_sha256": "16919e1792d15347f109e60ec6d8100b8a76711771d24c98eb8aecf2e11d0dac",
+    "candidate_sha256": "295d35f678f18a65c6af5bf2ab4a030bafebb1af2a50798f256b85116485b031"
+  },
+  {
+    "work": "W117020",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-custody-inventory/FINDING.md",
+    "base_sha256": "ab2552d9e36af2c393214e7df43eef2ea61ded1e070f701227978b4def836658",
+    "candidate_sha256": "113ad582240814e3ea72b2ad81592a91069d4bac841760a2c89193258bd498b3"
+  },
+  {
+    "work": "W117020",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-custody-inventory/PLAN.md",
+    "base_sha256": "5fac0fff2be24cf2508254e3d7d323e895d5bd7958c8ca404f3f693ece2510cd",
+    "candidate_sha256": "acd3406ae87b7d2e18333113f5517d1bab40ba03b827bf324868daed3f9d92ef"
+  },
+  {
+    "work": "W117022",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory/FINDING.md",
+    "base_sha256": "3ba7c30950bdd711b306b95a0656bb37e9d3d1c3d528c9892bfd0d52c1a8136c",
+    "candidate_sha256": "819c2cff13e85eee5e04ff6e6d9544d1d85aa194fab9a49f2f2fe203e0303f14"
+  },
+  {
+    "work": "W117022",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory/PLAN.md",
+    "base_sha256": "e0b3fa92b99e5feed1d539b92eca595ed94f3b348503957e50b2ca1e0752f3c8",
+    "candidate_sha256": "b31d31f94453c95cbb49b53a1bd9920b9a17576a18760664d75085f253699cf1"
+  },
+  {
+    "work": "W117024",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-output-fixture-scope/FINDING.md",
+    "base_sha256": "993bebc017055eb327b39aec04c130187e6a1038057d93de61da441756f38257",
+    "candidate_sha256": "89b3a8fbccb6f7c3c7d36690641d1a57fceb346614f243d0ab9281efe56bd442"
+  },
+  {
+    "work": "W117024",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-output-fixture-scope/PLAN.md",
+    "base_sha256": "0797e8e2a7a3ecd5b4bf81499a32d9b26fb74cfb5b1748cf83b53c13c1717a1d",
+    "candidate_sha256": "1da5a55db9172edfeb5bb8f4b6753d5e19fb2372c8b832c4d55f9bd71887a38a"
+  },
+  {
+    "work": "W117026",
+    "path": "work/records/2026/09/finding-v12-worker-entry-inventory-followup/FINDING.md",
+    "base_sha256": "71e4d953395868aa5b4eec547bb857b703084bdc6ba441a7537e2ae5d6235da6",
+    "candidate_sha256": "b212f1493b65fe992bd729feac10f666c79b6d744ab667a4e0bd35d545cf486e"
+  },
+  {
+    "work": "W117026",
+    "path": "work/records/2026/09/finding-v12-worker-entry-inventory-followup/PLAN.md",
+    "base_sha256": "e1823385bd471059cf0c624ecda6e28deac813c5ab9f2d58a2d162284f9f3d74",
+    "candidate_sha256": "5998376850ea6d2ee66e14cf11a335682d80ae6e7c31e92a577846d04aa7e485"
+  },
+  {
+    "work": "W121039",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory/findings/finding-helper-call-residuals/FINDING.md",
+    "base_sha256": "36b843a5fbdf2c3cd01644d78fec5a42b2263c057a29415c8952fe26bee53f2d",
+    "candidate_sha256": "c8bbe49ac32a406c2e7bc66cd2c331875ff22821d2774cbb3ea53beb871a37d1"
+  },
+  {
+    "work": "W121039",
+    "path": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory/findings/finding-helper-call-residuals/PLAN.md",
+    "base_sha256": "7ef94a044ed75c04949c797b6dc4bd482196319703ec2a7e02fa7d8a1593e939",
+    "candidate_sha256": "8c67ff26df9e41cc7e85092dfa27d81d52f98ea2d7c4cdeeb65c92f07e84788d"
+  }
+]

@@ -1,3 +1,25 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+This module remains in the owner-selected v13 inventory program (W165786),
+with its exact original evidence, residual acceptance and canonical serial dependencies
+preserved. The earlier additive-only/per-test-disposition/no-test-deletion permission
+wording is superseded by AGENTS September13 standing test-change authority; ordinary
+verification does not require cumulative-budget replenishment under September14
+policy (DESIGN section17, LIM-4). Record actual changed paths and behavioral reasons,
+coordinate the shared inventory file, independently review changed expectations and
+retain genuine defect coverage. A narrow per-run timeout remains useful; old10s/15s
+figures are not cumulative admission gates. Research-only product scope remains
+research-only; test authority does not authorize runtime/schema/scanner expansion.
+At future selected execution refresh stale census/candidate references and consume
+actual accepted prerequisites. No automatic restart, new implementation allocation,
+full-suite run or initial-adoption dependency follows from this policy correction.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Plan
 
 1. Claim after reviewed serial prerequisites; read the full record and evidence/inputs.json.

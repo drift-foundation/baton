@@ -1,3 +1,24 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+Current scope is the retained decision/evidence owner, not monolithic implementation,
+per T62098/71842 and71940. W71917/W71918 were the bounded source/workspace and
+review-cycle consumers; historical proposal acceptance does not certify current
+DESIGN conformance. Keep unfinished lineage/import evidence until explicitly mapped.
+DESIGN ART-2/ART-4 and REV-4–REV-7 supersede item8's mandatory separate integration
+stage: reviewed proposal handback and human/copilot integration are the default;
+isolated integration Jobs remain optional. Preserve exact base/object transport,
+independent checkpoint review, target drift/ownership checks and no hidden overlays.
+TOK-5/TOK-7 apply to persistent-line freeze/retention: stop the outgoing container
+and use scoped maintenance effects. The generic manager remains Git-neutral and
+must not copy/hash the nominated source tree. Keep this parked Work open; a mapped
+historical mechanism is not proof that every original obligation is discharged.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Plan
 
 1. [done] Preserve W52821 run5b, its source, its signed final candidate and the

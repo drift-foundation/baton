@@ -392,6 +392,39 @@ The working process is unchanged by the layout:
   durable repository policy) still lives outside it; a record is evidence and
   decision history, not a hiding place for product artifacts.
 
+## Reviewer decomposition authority — owner 2026-09-27
+
+The reviewer role includes proactive decomposition within accepted scope,
+without another owner nudge. At assignment start, and when delivery gaps grow
+or repeated handoffs stop converging, assess whether distinct outcomes can be
+implemented and reviewed independently. Split when that improves delivery;
+keep a tightly coupled correction together when it has one bounded acceptance
+result. Decomposition is not permission to expand scope or weaken acceptance.
+
+Pin the reason, finite outcomes, exact file ownership and acceptance boundaries
+in the owning FINDING/PLAN. Preserve existing identity and evidence, name the
+joined acceptance consumer, and coordinate a safe handoff before changing an
+active executor's allocation. Shared-file changes remain serial unless explicit
+ownership makes parallel execution safe.
+
+For the current v11 workflow, the appropriately authorized Route handler uses
+the existing claim protocol to create child Work and actual Baton dependency
+edges before releasing dependent execution. Read back the canonical graph;
+document prose does not install a gate. Route the first executable slice through
+the configured implementation endpoint without an extra routine approval round.
+Keep the umbrella open through required child delivery and integrated acceptance.
+Routine corrections and independent review retain their existing handoff rules.
+
+This procedure does not authorize claim takeover, broader execution, product or
+specification changes, or Git mutation. Bring a concrete scope/specification
+decision to Slawomir; ordinary decomposition within accepted scope needs none.
+When transitioning to v12, verify the supported Job, dependency and execution
+ownership mechanisms before applying this authority. Do not carry v11 commands
+or Route assumptions into v12 merely because the reviewer role is unchanged.
+
+Decision and version-neutral role addition:
+[Reviewer authority](work/records/2026/09/finding-reviewer-decomposition-authority/FINDING.md).
+
 ## The active-work claim (finding-active-work-claim, 2026-08-16)
 
 - No participant starts implementation, review, or other execution owned by

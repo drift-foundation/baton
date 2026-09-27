@@ -68,3 +68,18 @@ Canonical disposition completed: W119400 close140582 released the existing
 gate normally; phase140585 parked W129838, and reroute140586 restored baton.impl
 while preserving parked state. The earlier blocked-to-parked request was refused
 by the gate rule and made no change. No Work claim or source execution occurred.
+
+
+## 2026-09-27 — W285642 current-spec/policy supersession
+
+Keep the confirmed close/release mismatch, parked v13 classification and exact
+future two-path scope; no current leak is newly established. AGENTS September14
+verification ruling and DESIGN LIM-4 explicitly supersede the 60s cumulative
+approval/admission ceiling below. Record measured/estimated/unknown costs honestly,
+use sensible per-run timeout and preserve independent review. Deferral and source
+ownership are unchanged. A concrete resource/ownership failure on the selected
+v12 path must be handled as bounded correctness, not waived as hardening.
+
+Coordination-only update by baton.tuner under claim285648/handoff285645;
+current execution remains in PLAN and canonical Baton state. Historical evidence
+and independent reviews are unchanged. No product/test/live execution selected.

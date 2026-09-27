@@ -1,3 +1,25 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+The September8 active-repair/declaration-disposition checkpoint below is superseded
+for scheduling by the owner-selected v13 classification in W165786. W117174,
+W116972 and earlier scanner/fixture providers are closed satisfying in the retained
+canonical graph; they are not pending approval or implementation. W116975 and its
+remaining children carry the next unresolved serial inventory obligations; the
+actual parent gate remains W117026. Preserve module identities, residual counts as
+historical inputs, joined completeness and the shared-file serial chain.
+AGENTS standing September13 test authority supersedes per-test approval restrictions;
+September14 verification accounting supersedes cumulative stopwatch admission gates.
+Before later selected execution, record concrete changed test paths/reasons and
+fresh module evidence; never delete real defect coverage to make equality pass.
+DESIGN section17 requires boundary evidence, not a broad inventory as an initial
+adoption gate. No inventory test or new census is run in W285642.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Plan
 
 ## Current gate — declaration proposal disposition pending 2026-09-08

@@ -1,3 +1,21 @@
+# Current specification/policy alignment — 2026-09-27, W285642
+
+Retain explicit contained verification context and distinct context/command outcomes.
+The old 'second manager-copied immutable input source' wording is superseded as an
+execution-location prescription by DESIGN ART-2/ART-3, TOK-7 and REV-2: the generic
+manager must not recursively copy/hash nominated source; any selected governed
+materialization is performed by a token-bound task/maintenance execution under the
+appropriate source driver. Preserve no-escape/no-overlap and missing-input refusal,
+exact fixture provenance and truthful not-run/timed-out results. Remain parked;
+select a bounded current consumer only if this gap affects its verification path.
+No existing failed verification is relabelled passing and no broad rerun is selected.
+
+Coordination-only correction by baton.tuner under claim285648/handoff285645.
+See baton:work/records/2026/09/finding-v12-pending-job-spec-alignment/ALIGNMENT.md.
+Earlier text below is preserved history wherever explicitly superseded here.
+
+---
+
 # Plan
 
 1. [done] Preserve W52821 run5b's candidate, evidence and exact verification
