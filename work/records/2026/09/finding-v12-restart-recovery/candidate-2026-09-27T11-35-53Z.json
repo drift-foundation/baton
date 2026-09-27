@@ -1,0 +1,38 @@
+{
+  "work": "W275776",
+  "claim": 284929,
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "41f151e03e1b9f3b009ea6b0928f6db6c91e1ade90ee66e1b650d9e2d7c9288e"
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "d27a41edd3775d6c3db030bf1955505cede7718de4c927687fbf8e1b31441eff"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "sha256": "595d656e2afd4c66ce55a9d1667711b5bf3eaadeba8466a359d36b527248399e"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "2457b3142a9dcab8db9b4285d20edf14b704b5696192306ceca152461cf4e399"
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "b3a218f0968830ebdb714882cd7eebb253a43199e46eba32347dc9f74aedd4f0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-restart-recovery/test_restart_recovery.py",
+      "sha256": "99450de75f4143f2d9bb59594ecb9177f4f9bc3701f01f3825194502aeebd3e9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-restart-recovery/review_restart_tick_20260927.py",
+      "sha256": "af91c8b94e55d6150294d9097a267edb642a191bed41c3f88f710dd39991d8ce"
+    }
+  ]
+}

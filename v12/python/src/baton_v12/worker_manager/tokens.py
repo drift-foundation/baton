@@ -226,6 +226,80 @@ def _renewals_of(control, domain, generation):
         revision += 1
 
 
+def unresolved(control, domain):
+    """Every outstanding generation of this domain whose LAUNCH nobody settled.
+
+    W275776 (Child C), TOK-10: "Restart recovery processes overdue and uncertain tokens
+    before admitting conflicts." `outstanding` answers the overdue half's input and the
+    reclaim pass already consumes it through `Governance.overdue`; THIS is the uncertain
+    half, and it was missing -- measured on the connected path before this was written:
+
+      * the adapter's reply is lost, or the manager is killed, after the activation was
+        admitted and before anything settled it;
+      * the token therefore records a journalled launch and a BOUND CONTAINER, while the
+        attempt row may still say only `start-requested` with nothing attached;
+      * `Governance.overdue` answers `None`, because the deadline has not passed -- so
+        `tools/job_manager.py:_governed_candidates` does not select it, and no other caller
+        in the tree reads the outstanding set. Nothing reconciled it until its lifetime ran
+        out, while the container it names may have been writing the resource.
+
+    AN UNSETTLED LAUNCH IS THE FACT THIS ANSWERS ON, and W275776 review 2026-09-27T11-45-17Z
+    is why it is no longer "an admitted, unsettled activation". That narrower rule missed a cut
+    the reviewer named and I then measured: a manager killed AFTER `journal_launch` and
+    `bind_container` committed but BEFORE the admission was asked leaves a journalled launch, a
+    BOUND CONTAINER -- the engine had already created it -- and `activating` False, so the
+    previous reader answered nothing for it while the container sat there and the resource
+    stayed held. Measured at that exact cut before this was widened.
+
+    So the rule is: a launch was journalled, the activation is not SETTLED, and the generation
+    is outstanding, unreturned and unrevoked. Child A's rule is what makes "not settled" the
+    right line -- a refusal or a fault can follow a REAL activation, so those outcomes are
+    unknown and are deliberately left unsettled to keep the resource held -- and each entry
+    NAMES which of the three cuts it is, because they are not the same unknown:
+
+      * `launched-unbound`: the launch is journalled and no container identity was ever bound,
+        so the engine may have created something whose identity this manager never learned.
+        There is nothing to observe BY ID, and that is itself the report.
+      * `bound-not-admitted`: a container was bound and the activation was never asked for. The
+        container may exist and be inert -- created and never started -- and the admission is
+        still the act that would permit it.
+      * `admitted-unsettled`: the activation was admitted and never resolved, so the container
+        may be running right now.
+
+    IT DECIDES NOTHING AND CHANGES NOTHING. This is a reader: no engine is asked, no record
+    is written, nothing is returned or revoked. What it answers is the exact attribution a
+    caller needs to ask the engine through the accepted reconciliation -- the execution and
+    operation that reserved the generation, the launch it journalled, the container it bound
+    and the deadline it is owed -- so an unknown is actionable with exact references rather
+    than a synonym for "safe to retry" (REC-4).
+    """
+    boundaries.text(domain, "a governed conflict domain")
+    held = []
+    for acquired in outstanding(control, domain):
+        state = token_of(control, domain, acquired["generation"])
+        if state is None or state["revoked"] or state["returned"]:
+            continue
+        if state["launch"] is None or state["activation_started"] is not None:
+            # NOTHING CROSSED, or the activation was positively resolved. Neither is an
+            # unknown, and a reader that swept them would make every healthy execution a
+            # recovery candidate.
+            continue
+        if state["container"] is None:
+            cut = "launched-unbound"
+        elif not state["activating"]:
+            cut = "bound-not-admitted"
+        else:
+            cut = "admitted-unsettled"
+        held.append({"domain": domain, "generation": state["generation"],
+                     "execution": state["execution"],
+                     "operation": state["operation"],
+                     "launch": state["launch"], "container": state["container"],
+                     "expires_at": state["expires_at"],
+                     "expired": state["expired"],
+                     "revision": state["revision"], "cut": cut})
+    return held
+
+
 def token_of(control, domain, generation):
     """This generation as it now stands: terms, launch, container and return.
 

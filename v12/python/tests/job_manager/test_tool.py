@@ -16,6 +16,7 @@ import json
 import os
 import sys
 import unittest
+from unittest import mock
 
 # THE DISTRIBUTION ROOT, NAMED FROM THIS FILE. `tools` is repository tooling
 # rather than part of the wheel, so it is importable only when the
@@ -27,6 +28,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__)))))
 
 from baton_v12.contracts import ContractRefusal                 # noqa: E402
+from baton_v12.worker_manager import attempts as manager_attempts  # noqa: E402
 from baton_v12.job_manager import TICK_SECONDS, serve, submit   # noqa: E402
 
 from tools import job_manager                                  # noqa: E402
@@ -1137,6 +1139,281 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
         self.assertIsNone(surface.refresh_runtime({"attempt_id": "a"}))
         for verb in ("dispatch", "conclude", "admit", "claim"):
             self.assertFalse(hasattr(surface, verb), verb)
+
+
+class TheRecoveryPassVisitsTheUNCERTAINTokensToo(unittest.TestCase):
+    """W275776 (Child C), TOK-10: "restart recovery processes overdue AND UNCERTAIN
+    tokens before admitting conflicts."
+
+    Measured before this was wired, and the reviewer's probe measured it independently:
+    for an outstanding token whose activation was admitted and never settled, this pass
+    made ZERO engine calls and reported nothing, because `_governed_candidates` selects on
+    `Governance.overdue` and such a token is not overdue. Every case here drives the REAL
+    composed pass -- the one `serve` is handed -- over real rows and a controlled runner.
+    """
+
+    def unsettled(self):
+        return _unsettled_governed_attempt(self)
+
+    def engine(self, answers):
+        """A controlled engine runner that records every vector it is given."""
+        vectors = []
+
+        def run(argv, *, seconds=None):
+            del seconds
+            vectors.append(list(argv))
+            return answers(argv)
+
+        return vectors, run
+
+    def test_the_pass_observes_the_exact_container_the_token_bound(self):
+        from baton_v12.worker_manager import tokens
+
+        case = self.unsettled()
+        control = case["store"]
+        vectors, run = self.engine(lambda argv: {
+            "status": 0, "stderr": "",
+            "stdout": json.dumps({"Id": case["runtime_id"],
+                                  "State": {"Running": True}})})
+        answer = job_manager._reclaiming(control, "docker", run)(
+            now="2026-08-24T00:05:00.000Z")
+        # THE OBSERVATION HAPPENED, and it named the container the TOKEN recorded.
+        self.assertEqual([one[1] for one in vectors], ["inspect"])
+        self.assertEqual(vectors[0][-1], case["runtime_id"])
+        # AND THE REPORT CARRIES THE EXACT REFERENCES REC-4 REQUIRES.
+        self.assertEqual(len(answer["unresolved"]), 1)
+        held = answer["unresolved"][0]
+        self.assertEqual(held["domain"], case["domain"])
+        self.assertEqual(held["generation"], 1)
+        self.assertEqual(held["execution"], case["attempt_id"])
+        self.assertEqual(held["container"], case["runtime_id"])
+        self.assertEqual(held["observation"], "running")
+        self.assertFalse(held["expired"])
+        self.assertTrue(held["held"])
+        # NOTHING WAS RECLAIMED, because nothing here is overdue.
+        self.assertEqual(answer["reclaimed"], [])
+        self.assertEqual(answer["refused"], [])
+        # AND THE RESOURCE IS STILL HELD: observation is not settlement.
+        self.assertEqual(len(tokens.outstanding(control, case["domain"])), 1)
+        self.assertTrue(tokens.token_of(control, case["domain"], 1)["activating"])
+
+    def test_an_unreachable_engine_holds_and_says_so_per_attempt(self):
+        """TOK-10's actionable held state: the fault is an answer, the hold stays, and
+        one unreachable engine does not end the pass."""
+        from baton_v12.worker_manager import tokens
+
+        case = self.unsettled()
+        control = case["store"]
+
+        def unavailable(argv, *, seconds=None):
+            del seconds, argv
+            raise OSError("the engine is unreachable")
+
+        answer = job_manager._reclaiming(control, "docker", unavailable)(
+            now="2026-08-24T00:05:00.000Z")
+        self.assertEqual(len(answer["unresolved"]), 1)
+        held = answer["unresolved"][0]
+        # `uncertain` IS THE MODULE'S OWN WORD for an observation that could not be
+        # established, and the reclaim adapter answers it for an unreachable engine
+        # rather than raising -- measured, and the report uses the same vocabulary.
+        self.assertEqual(held["observation"], "uncertain")
+        self.assertIn("could not be asked", held["why"])
+        self.assertEqual(held["container"], case["runtime_id"])
+        self.assertEqual(len(tokens.outstanding(control, case["domain"])), 1)
+
+    def test_a_LATER_TICK_RETRIES_after_the_engine_comes_back(self):
+        """The retry the review asked for: the hold is not terminal, and the next tick
+        asks again rather than remembering a failure."""
+        case = self.unsettled()
+        control = case["store"]
+        state = {"up": False}
+
+        def flaky(argv, *, seconds=None):
+            del seconds
+            if not state["up"]:
+                raise OSError("the engine is unreachable")
+            return {"status": 0, "stderr": "",
+                    "stdout": json.dumps({"Id": case["runtime_id"],
+                                          "State": {"Running": True}})}
+
+        pass_over = job_manager._reclaiming(control, "docker", flaky)
+        first = pass_over(now="2026-08-24T00:05:00.000Z")
+        self.assertEqual(first["unresolved"][0]["observation"], "uncertain")
+        state["up"] = True
+        second = pass_over(now="2026-08-24T00:05:10.000Z")
+        self.assertEqual(second["unresolved"][0]["observation"], "running")
+        self.assertEqual(second["unresolved"][0]["container"], case["runtime_id"])
+
+    def test_the_pass_never_starts_or_dispatches_anything(self):
+        """Section 17's Recovery row: no duplicate container or provider dispatch. The
+        pass may only ask -- so no vector it composes may be a run, create or start."""
+        case = self.unsettled()
+        vectors, run = self.engine(lambda argv: {
+            "status": 1, "stdout": "",
+            "stderr": "Error: No such object: " + argv[-1]})
+        answer = job_manager._reclaiming(case["store"], "docker", run)(
+            now="2026-08-24T00:05:00.000Z")
+        self.assertTrue(vectors)
+        for argv in vectors:
+            self.assertNotIn(argv[1], ("run", "create", "start", "exec"))
+        # AND AN ABSENT CONTAINER IS REPORTED, NOT TREATED AS AN ENDING: the accepted
+        # ending for a proved non-launch needs its own record, which this cut may never
+        # have written.
+        self.assertEqual(answer["unresolved"][0]["observation"], "absent")
+        self.assertTrue(answer["unresolved"][0]["held"])
+
+    def test_a_contradiction_between_the_attachment_and_the_binding_is_reported(self):
+        """W275776 R2: the attempt row names one runtime and the token authorized another.
+
+        `reconcile_runtime` attaches whichever container carries the attempt's complete
+        label set -- the accepted exactness -- so the id a previous process bound can be
+        the stale one. The two names then disagree, and the resource's stop path acts on
+        the BOUND one while the attempt's ending acts on the attached one. The pass reports
+        that rather than choosing, and the hold stands.
+        """
+        case = self.unsettled()
+        control = case["store"]
+        control._connection.execute(
+            "UPDATE attempts SET runtime_id = ? WHERE runtime_attempt_id = ?",
+            ("another-runtime", case["attempt_id"]))
+        vectors, run = self.engine(lambda argv: {
+            "status": 0, "stderr": "",
+            "stdout": json.dumps({"Id": case["runtime_id"],
+                                  "State": {"Running": True}})})
+        answer = job_manager._reclaiming(control, "docker", run)(
+            now="2026-08-24T00:05:00.000Z")
+        held = answer["unresolved"][0]
+        self.assertEqual(held["container"], case["runtime_id"])
+        self.assertEqual(held["contradicts_binding"], "another-runtime")
+        self.assertTrue(held["held"])
+        # AND THE ENGINE WAS ASKED ABOUT THE BOUND ONE, which is the token's own fact.
+        self.assertEqual(vectors[0][-1], case["runtime_id"])
+
+    def test_a_HISTORICAL_row_over_the_same_resource_attributes_nothing(self):
+        """W275776 review 2026-09-27T11-52-29Z [P2], reproduced and now this Work's case.
+
+        Serial attempts over one retained resource share a domain, and a row is only how
+        that domain was DISCOVERED. Reading the attachment off the discovery row let a
+        historical attempt's old runtime be reported as the current token's contradiction --
+        a false actionable contradiction, which is worse than none. The attachment is the
+        execution the TOKEN names, and nothing else.
+        """
+        case = self.unsettled()
+        control = case["store"]
+        owner = dict(manager_attempts._require_attempt(control, case["attempt_id"]))
+        historical = dict(owner, runtime_attempt_id="historical-attempt",
+                          runtime_id="historical-container")
+        vectors, run = self.engine(lambda argv: {
+            "status": 0, "stderr": "",
+            "stdout": json.dumps({"Id": case["runtime_id"],
+                                  "State": {"Running": True}})})
+        with mock.patch.object(job_manager, "_governed_rows",
+                               return_value=[historical, owner]):
+            answer = job_manager._reclaiming(control, "docker", run)(
+                now="2026-08-24T00:05:00.000Z")
+        self.assertEqual(len(answer["unresolved"]), 1,
+                         "one domain was reported more than once")
+        held = answer["unresolved"][0]
+        self.assertEqual(held["execution"], case["attempt_id"])
+        self.assertEqual(held["container"], case["runtime_id"])
+        self.assertNotIn("contradicts_binding", held)
+        self.assertEqual(vectors[0][-1], case["runtime_id"])
+
+    def test_a_GENUINE_owner_mismatch_is_still_reported(self):
+        """The other half: correlating with the owner must not silence a real
+        disagreement. The OWNER's own attachment differs from the token's binding, and
+        that is reported exactly as before."""
+        case = self.unsettled()
+        control = case["store"]
+        control._connection.execute(
+            "UPDATE attempts SET runtime_id = ? WHERE runtime_attempt_id = ?",
+            ("another-runtime", case["attempt_id"]))
+        owner = dict(manager_attempts._require_attempt(control, case["attempt_id"]))
+        historical = dict(owner, runtime_attempt_id="historical-attempt",
+                          runtime_id="historical-container")
+        _vectors, run = self.engine(lambda argv: {
+            "status": 0, "stderr": "",
+            "stdout": json.dumps({"Id": case["runtime_id"],
+                                  "State": {"Running": True}})})
+        with mock.patch.object(job_manager, "_governed_rows",
+                               return_value=[historical, owner]):
+            answer = job_manager._reclaiming(control, "docker", run)(
+                now="2026-08-24T00:05:00.000Z")
+        held = answer["unresolved"][0]
+        self.assertEqual(held["contradicts_binding"], "another-runtime",
+                         "the owner's real mismatch was silenced")
+        self.assertTrue(held["held"])
+
+    def test_the_report_names_which_cut_each_unknown_is(self):
+        """W275776 R2: `bound-not-admitted` and `admitted-unsettled` are different
+        unknowns -- an inert created container against one that may be running -- and the
+        report says which."""
+        case = self.unsettled()
+        vectors, run = self.engine(lambda argv: {
+            "status": 0, "stderr": "",
+            "stdout": json.dumps({"Id": case["runtime_id"],
+                                  "State": {"Running": True}})})
+        answer = job_manager._reclaiming(case["store"], "docker", run)(
+            now="2026-08-24T00:05:00.000Z")
+        self.assertEqual(answer["unresolved"][0]["cut"], "admitted-unsettled")
+        del vectors
+
+    def test_a_settled_activation_is_never_visited(self):
+        """The ordinary running attempt: its activation is settled, so the uncertain
+        visit has nothing to ask about and makes no engine call for it."""
+        case = _running_governed_attempt(self)
+        vectors, run = self.engine(lambda argv: {
+            "status": 0, "stderr": "",
+            "stdout": json.dumps({"Id": case["runtime_id"],
+                                  "State": {"Running": False}})})
+        # The clock in that fixture is past the lifetime, so the overdue half acts --
+        # what this asserts is that the UNCERTAIN report is empty for it.
+        answer = job_manager._reclaiming(case["store"], "docker", run)(
+            now="2026-08-24T01:00:00.000Z")
+        self.assertEqual(answer["unresolved"], [])
+        del vectors
+
+
+def _unsettled_governed_attempt(case):
+    """One attempt whose LAUNCH nobody settled, holding an UNEXPIRED governed token.
+
+    W275776 (Child C): the state an interrupted manager leaves and the expiry scan never
+    selected. Built from the same intake fixture and the same accepted acts as the overdue
+    case beside it, with exactly two differences, and both are the point:
+
+      * the activation is ADMITTED and NEVER SETTLED -- `reservation.bind(...)()` admits it
+        and `settle` is not called -- which is what a manager killed between the engine's
+        `create` and its `start` leaves behind;
+      * the clock is NOT moved past the lifetime, so nothing here is overdue and
+        `Governance.overdue` answers `None` for it.
+    """
+    from baton_v12.worker_manager import attempts as manager_attempts
+    from baton_v12.worker_manager import tokens
+    from baton_v12.worker_manager import workspaces as _workspaces
+    from tests.manager import input_roots as _input_roots
+    from tests.manager import test_intake
+
+    fixture = test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence()
+    fixture.setUp()
+    case.addCleanup(fixture.doCleanups)
+    fixture.running_attempt()
+    manager_attempts.pin_boundary_identity(
+        fixture.store, attempt_id=test_intake.ATTEMPT, source=(66, 111),
+        workspace=(66, 4242))
+    attempt = fixture.attempt_row()
+    governance = tokens.workspace_governance()
+    reservation = governance.reserve(
+        fixture.store, attempt,
+        operation=manager_attempts._start_operation_id(attempt))
+    reservation.bind(attempt["runtime_id"])()          # ADMITTED, never settled
+    storage = _workspaces.configured_workspace_storage(fixture.store).place
+    _workspaces.assignment_workspace(
+        _input_roots.configured_group(fixture.store), storage,
+        test_intake.ATTEMPT)
+    return {"runtime_id": attempt["runtime_id"],
+            "domain": tokens.domain_of("workspace", "66:4242"),
+            "attempt_id": test_intake.ATTEMPT,
+            "store": fixture.store}
 
 
 def _running_governed_attempt(case):

@@ -1,3 +1,21 @@
+# Current delivery checkpoint — 2026-09-27T12-37-13Z
+
+Reviewer baton.rvpc under Child C claim285386, authorized umbrella checkpoint refresh.
+This section supersedes all older "current", "next" and "not started" descriptions below;
+they remain historical. Selected G1 children have independent bounded acceptance: lifecycle
+review2026-09-27T02-27-07Z, renewal review2026-09-27T03-31-52Z, restart recovery
+[final review](../finding-v12-restart-recovery/review-2026-09-27T12-37-13Z.md). Latest child discussion read285076.
+
+Next action is owner disposition of accepted Child C and this umbrella through canonical
+state. Parent remains open; no graph mutation, G2/G3 acceptance or silent debt transfer.
+The final Child C manifest compares the A/B candidate set and binds all four reviewed C
+changes. Unknown holds and separately recorded unaccepted inventory/fixture debt remain.
+No monolithic implementation restart. Human checkpoint suggestion: "v12: reconcile interrupted
+token launches and preserve restart holds"; Git remains human-owned and is not a gate to
+already-authorized continuation. Refer to canonical graph for dependencies, not this prose.
+
+## Preserved historical checkpoints
+
 # Current checkpoint — G1 shared resource token
 
 ## Latest action — owner275757, reviewer claim275772

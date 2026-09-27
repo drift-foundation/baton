@@ -1,0 +1,30 @@
+{
+  "work": "W275776",
+  "claim": 285271,
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4"
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "d272bd9242c283cd492516ce57182f864959c4f03c220d5069cc438344e8f530"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "sha256": "ad226d6f6d3e8c8277b9292e110ffdc63bb461ee71f683900bf0edb7e22351d9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-restart-recovery/test_dispatch_cuts.py",
+      "sha256": "63788ef16d0d7b6a184ce491d642a230b1ac09d913fb3eec5eb4d73aca28f092"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-restart-recovery/MATRIX.md",
+      "sha256": "88ba22cabe4b83d52b67ac72826651352310bfeb1c68ab6559a37bcbf7200c08"
+    }
+  ]
+}

@@ -369,10 +369,25 @@ def _reclaiming(control, engine, run, custodian=None):
     # transactions, so rotation changes only the ORDER in which candidates are
     # visited -- never whether one qualifies -- and unknown holds are untouched.
     resumed = [None]
+    # W275776 (Child C): THE UNCERTAIN HALF HAS ITS OWN CURSOR, for the same fairness
+    # reason the overdue half does. The two sets overlap only by accident -- an
+    # unresolved launch is usually NOT overdue -- so sharing one cursor would let a
+    # long run of overdue candidates starve the unresolved ones and vice versa.
+    resumed_unresolved = [None]
 
     def pass_over_attempts(*, now):
         del now
         reclaimed, refused = [], []
+        # W275776, TOK-10: "Restart recovery processes overdue AND UNCERTAIN tokens
+        # before admitting conflicts." The uncertain visit runs FIRST and separately.
+        #
+        # MEASURED BEFORE IT WAS WRITTEN: `_governed_candidates` selects on
+        # `governance.overdue(...)`, so an outstanding token whose LAUNCH nobody settled
+        # was no candidate at all until its lifetime ran out -- and the reviewer's probe
+        # showed this pass making ZERO engine calls for exactly that state. The token
+        # record already knew the container it had bound; nothing was looking at it.
+        unresolved = _observing_unresolved(control, governance, adapter,
+                                          resumed_unresolved)
         chosen = _after(_governed_candidates(control, governance),
                         resumed[0])[:_RECLAIM_CANDIDATES]
         if chosen:
@@ -428,9 +443,149 @@ def _reclaiming(control, engine, run, custodian=None):
                 refused.append({"attempt_id": row["runtime_attempt_id"],
                                 "why": f"the reclaim faulted: {fault!r}"})
         return {"reclaimed": reclaimed, "refused": refused,
-                "resumes_after": resumed[0]}
+                "resumes_after": resumed[0],
+                # W275776: THE EXACT UNRESOLVED EXECUTIONS, reported rather than acted on
+                # -- see `_observing_unresolved` for why this pass observes and holds
+                # rather than attaching.
+                "unresolved": unresolved,
+                "unresolved_resumes_after": resumed_unresolved[0]}
 
     return pass_over_attempts
+
+
+def _observing_unresolved(control, governance, adapter, resumed):
+    """Visit each persisted UNCERTAIN token, ask the engine about it, and report.
+
+    W275776 (Child C), TOK-10 and HOST-2. A restart reconciles "the recorded attempt,
+    token, launch operation, engine object, command receipt and custody state", and the
+    uncertain half of that had no visitor: the expiry scan selects overdue tokens, and an
+    interrupted launch leaves an outstanding token whose activation was admitted and never
+    settled, usually well inside its deadline.
+
+    WHAT THIS DOES, and the boundary is deliberately narrow:
+
+      * `tokens.unresolved` answers the set, with the execution, operation, launch,
+        container and deadline the token itself recorded. That is the exact reference
+        REC-4 requires an unknown to carry.
+      * For each one, the engine is asked ONE bounded question -- does the container this
+        generation bound still exist, and what is it -- through the same `observe` verb
+        the reclaim already uses. Outside every transaction.
+      * The answer is REPORTED and the hold is RETAINED. Nothing here attaches, returns,
+        revokes, stops or dispatches.
+
+    WHY IT DOES NOT ATTACH, which is the part worth stating rather than discovering.
+    `attempts.reconcile_runtime` is the accepted act that attaches an execution, and it
+    requires a DELIVERY-SCOPED adapter: its `list` compares the engine's reported image
+    against the exact image that delivery resolved, which this lean reclaim adapter has no
+    way to know. Handing it an adapter that skipped that comparison would be a second,
+    weaker spelling of a boundary that exists to stop a stale image being adopted on
+    matching labels alone. So the observation stays here and the ATTACHMENT stays with the
+    worker path that holds the delivery -- `tools/single_worker.py`'s own restart branch,
+    which already reconciles from `start-requested`. This pass makes that path's work
+    discoverable and keeps the resource held until then.
+
+    AND POSITIVE ATTACHMENT WOULD NOT BE A SETTLEMENT ANYWAY. Finding the container alive
+    says nothing about whether the launch this manager never saw return completed, and it
+    is not permission to dispatch again; the activation stays unsettled, which is what
+    keeps the resource held. An `absent` answer is likewise not an ending: the accepted
+    ending for a proved non-launch is `intake.authorize_failed_start_cleanup`, which needs
+    the failed-start record this cut may never have written. Both are reported.
+
+    BOUNDED AND FAIR, with its own rotation cursor, and per-attempt fault isolation: an
+    engine that cannot be asked about one execution leaves the others visited.
+    """
+    found = []
+    visited = set()
+    for row in _after(_governed_rows(control, governance),
+                      resumed[0])[:_RECLAIM_CANDIDATES]:
+        resumed[0] = row["runtime_attempt_id"]
+        try:
+            domain = tokens.domain_of("workspace", governance.identity(row))
+        except ContractRefusal:
+            continue
+        # ONE DOMAIN IS REPORTED ONCE. W275776 review 2026-09-27T11-52-29Z: serial attempts
+        # over one retained resource share a domain, so the discovery can reach the same
+        # generation through several rows -- and reporting it once per row would be the same
+        # unknown said several times.
+        if domain in visited:
+            continue
+        visited.add(domain)
+        for held in tokens.unresolved(control, domain):
+            report = {"domain": held["domain"], "generation": held["generation"],
+                      "execution": held["execution"],
+                      "operation": held["operation"], "launch": held["launch"],
+                      "container": held["container"],
+                      "expires_at": held["expires_at"],
+                      "expired": held["expired"],
+                      # W275776 R2: WHICH CUT THIS IS, carried from the token's own record.
+                      # `bound-not-admitted` and `admitted-unsettled` are different unknowns
+                      # -- an inert created container against one that may be running -- and
+                      # an operator reading this report needs to be told which.
+                      "cut": held["cut"], "held": True}
+            if held["container"] is None:
+                # NOTHING TO ASK ABOUT BY ID. The launch is journalled and no container
+                # identity was ever bound, so there is no engine object to observe -- the
+                # hold is the whole answer.
+                found.append(dict(report, observation="no-container-bound"))
+                continue
+            try:
+                answered = adapter.observe(held["container"])
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except ContractRefusal as refusal:
+                # `uncertain` IS THIS MODULE'S EXISTING WORD for "this manager could not
+                # establish what exists", and `_ReclaimAdapter` already answers it for
+                # everything unrecognised. Measured while writing the cases: an
+                # unreachable engine never reaches these branches at all because the
+                # adapter converts the fault into that answer itself -- so inventing a
+                # second word here would have described the same state two ways.
+                found.append(dict(report, observation="uncertain",
+                                  why=refusal.message))
+                continue
+            except Exception as fault:                     # noqa: BLE001
+                found.append(dict(report, observation="uncertain",
+                                  why=f"the engine could not be asked: {fault!r}"))
+                continue
+            observed = dict(report, observation=answered.get("state", "uncertain"),
+                            why=answered.get("why"))
+            # W275776 R2: AND A CONTRADICTION IS SAID OUT LOUD RATHER THAN AVERAGED AWAY.
+            #
+            # The attempt row may name a DIFFERENT runtime than the one this generation's
+            # token authorized. OBSERVED, AND DELIBERATELY NOT ENDORSED HERE:
+            # `reconcile_runtime` today attaches whichever container carries the attempt's
+            # complete label set, which a probe of mine measured after expecting a refusal.
+            # W275776 reviews 2026-09-27T11-52-29Z and 12-00-40Z are explicit that measuring
+            # that behaviour is NOT authority to substitute a container bound to another token
+            # identity, and no predecessor acceptance covers such a substitution. So this code
+            # takes no position on whether the attachment is right; it only reports that the
+            # two names disagree.
+            #
+            # Either way the two names disagree, and the disagreement matters: the resource's
+            # stop and expiry path acts on the BOUND container while the attempt's own
+            # ending acts on the attached one. So it is reported, and the hold stands. The
+            # review's instruction is exactly this -- a contradictory observation is held,
+            # never resolved by picking one.
+            # AND THE ATTACHMENT IS THE TOKEN OWNER'S OWN, not the discovery row's.
+            #
+            # W275776 review 2026-09-27T11-52-29Z [P2], reproduced and confirmed: this read
+            # `row["runtime_id"]`, and a row is only how the DOMAIN was discovered. A
+            # historical attempt over the same retained resource carries its own old runtime,
+            # so the report named the current execution and its correct bound container while
+            # claiming a contradiction taken from somebody else's row -- a false actionable
+            # contradiction, which is worse than none. The owner is the execution the TOKEN
+            # names, and it is read here rather than assumed to be the row in hand.
+            try:
+                owner = attempts._require_attempt(control, held["execution"])
+            except ContractRefusal as refusal:
+                observed["attachment"] = "unreadable"
+                observed["attachment_why"] = refusal.message
+                found.append(observed)
+                continue
+            attached = owner["runtime_id"]
+            if attached is not None and attached != held["container"]:
+                observed["contradicts_binding"] = attached
+            found.append(observed)
+    return found
 
 
 def _after(candidates, attempt_id):
@@ -450,6 +605,21 @@ def _after(candidates, attempt_id):
     return candidates
 
 
+def _governed_rows(control, governance):
+    """Every attempt row this manager recorded with a pinned boundary object.
+
+    W275776: the ROW DISCOVERY both halves of recovery share, split out of
+    `_governed_candidates` so the overdue half keeps its own eligibility question and the
+    uncertain half can ask a different one over the same rows. The query is unchanged and
+    the ordering is still by identity, which is what makes both rotations stable.
+    """
+    del governance
+    return list(attempts._attempts(
+        control,
+        "WHERE workspace_device IS NOT NULL AND workspace_inode IS NOT NULL "
+        "ORDER BY runtime_attempt_id"))
+
+
 def _governed_candidates(control, governance):
     """The attempts whose GOVERNED TOKEN is still outstanding, and only those.
 
@@ -467,10 +637,7 @@ def _governed_candidates(control, governance):
     silent skip, so it is asked here where the answer is a candidacy decision.
     """
     candidates = []
-    for row in attempts._attempts(
-            control,
-            "WHERE workspace_device IS NOT NULL AND workspace_inode IS NOT NULL "
-            "ORDER BY runtime_attempt_id"):
+    for row in _governed_rows(control, governance):
         # W275774 review 17:35:44Z: ONLY THE ABSENCE OF A RESOURCE IDENTITY IS
         # SWALLOWED HERE. `overdue` already answers `None` when this attempt reserved
         # no generation, so catching every refusal as "no reservation" was hiding

@@ -2021,6 +2021,10 @@ TOKEN_OWNERS = {
     # finite token partition the review listed. Injected stores and the acquisition
     # document this module answered are stated; every operand that a later act really
     # validates is delegated to that act and probed there.
+    # W275776 (Child C), TOK-10: the RESTART READER. Its store is the same injected
+    # capability every other token entry takes; its `domain` is validated in place by
+    # `boundaries.text`, so only this entry is stated.
+    ("caller", "tokens.py:unresolved", "control"): "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
     # W275775 review 2026-09-27T02-43-54Z [C3]: THE OBSERVED REVISION, owned by a local
     # typed check. `boundaries.generation` was the wrong owner and its wrongness was the
     # defect: it requires a POSITIVE integer, and the first renewal of a generation is asked
@@ -9190,6 +9194,8 @@ class EveryProbeProvesItArrived(BoundaryCase):
 # label, so it is exercised rather than probed -- and the mapping is checked both
 # ways, so a rule with no witness and a witness naming no rule both fail.
 TOKEN_WITNESSES = {
+    ("caller", "tokens.py:unresolved", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
     ("caller", "tokens.py:renew", "expected_revision"):
         "test_the_observed_revision_is_a_whole_number_including_zero",
     ("caller", "tokens.py:renew", "control"):

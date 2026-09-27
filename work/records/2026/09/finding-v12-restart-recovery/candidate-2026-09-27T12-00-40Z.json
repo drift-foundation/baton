@@ -1,0 +1,38 @@
+{
+  "work": "W275776",
+  "claim": 285117,
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4"
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "9afc38ae5b8b1b5d3a58badf5ed645e389c96078572ddfd79493b7b4fc394cb0"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "sha256": "ad226d6f6d3e8c8277b9292e110ffdc63bb461ee71f683900bf0edb7e22351d9"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "2457b3142a9dcab8db9b4285d20edf14b704b5696192306ceca152461cf4e399"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-restart-recovery/test_restart_recovery.py",
+      "sha256": "96550cea6a38e706fdb94f71deb459961209ab8c57786169a02884e4388e1235"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-restart-recovery/test_worker_resume.py",
+      "sha256": "c01fc8798ec45d2d26f8dd85a95d2022bbb4e3ca659ca63cf5724f589fc85f96"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-restart-recovery/review_report_attribution_20260927.py",
+      "sha256": "9da2ce4d07cd17f38f81b95ebbd636d77faec5400e0b5777061d32a56b938584"
+    }
+  ]
+}
