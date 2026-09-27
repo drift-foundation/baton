@@ -45,7 +45,8 @@ __all__ = ["CONTRACTS", "ASSIGNMENT", "profile_certified",
            "FAILED_START_DESTROY_COMMAND",
            "attempt_recorded", "assignment_activated", "observation",
            "runtime_labels", "runtime_start_requested", "runtime_attached",
-           "runtime_uncertain", "runtime_cancel", "cancel_intent",
+           "runtime_uncertain", "runtime_not_submitted", "runtime_cancel",
+           "cancel_intent",
            "quiescence_ordered", "quiescence_not_ordered",
            "attempt_cancelled", "FENCED_BEFORE_START",
            "fenced_before_start",
@@ -234,6 +235,15 @@ CONTRACTS = {
     "runtime.attached": (("attempt_id", "decision", "runtime_id",
                           "observed"), ("why",)),
     "runtime.uncertain": (("attempt_id", "decision", "why"), ()),
+    # W275774: A DURABLY PROVED NON-SUBMISSION, which is the opposite fact from
+    # the one above and had no way to be said. `runtime.uncertain` means this
+    # manager could not establish what exists; this means it CAN -- the start
+    # request never crossed the adapter under this operation, and the adapter's
+    # own discovery then found no runtime carrying these labels. Same members,
+    # because the account is the same shape; a different kind, because reporting
+    # a positive absence as uncertainty is what left ordinary token contention
+    # needing an operator.
+    "runtime.not-submitted": (("attempt_id", "decision", "why"), ()),
     "runtime.cancel": (("attempt_id", "decision", "why"), ("runtimes",)),
     "attempt.cancel-intent": (("attempt_id", "assignment",
                                "authority_operation_id", "reason"), ()),
@@ -873,6 +883,10 @@ def runtime_attached(**members):
 
 def runtime_uncertain(**members):
     return _emit("runtime.uncertain", members)
+
+
+def runtime_not_submitted(**members):
+    return _emit("runtime.not-submitted", members)
 
 
 def runtime_start_failed(**members):

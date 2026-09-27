@@ -1,0 +1,9 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "97f5e7eeb3323ee6976ec5933312d131f1f4c84f7625f775a12af0d73b9528ef",
+  "v12/python/src/baton_v12/worker_manager/intake.py": "0cf28ab80e1d0dfb8c3f05814aaab5a135f46a0a62c3b32c43bb107bbe73beb3",
+  "v12/python/src/baton_v12/worker_manager/attempts.py": "88c0b14ebedb68e8d25fa54e328abf143a19999f4b586e4cbdfd427127830c5d",
+  "v12/python/tools/job_manager.py": "d27a41edd3775d6c3db030bf1955505cede7718de4c927687fbf8e1b31441eff",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_expiry_reclaim.py": "3e054c3b7cdbece4f57d48f493cbc091f61486d1e614b640d96b744998e3bbb3",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_expiry_running_v3_20260926.py": "0f4cbf2f6f2e8c0b81fde371961b26e2dd8f7b6cb37fb14b66491c149f46026e"
+}

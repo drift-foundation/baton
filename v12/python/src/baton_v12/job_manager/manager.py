@@ -802,7 +802,7 @@ def _adopt(store, operations, held):
 
 
 def serve(store, operations, *, clock, sleep, should_continue,
-          interval=TICK_SECONDS):
+          interval=TICK_SECONDS, reclaim=None):
     """The long-lived process, with its waiting and its stopping INJECTED.
 
     A loop that reached for `time.sleep` and a module-level flag would be a
@@ -823,10 +823,39 @@ def serve(store, operations, *, clock, sleep, should_continue,
             "integrity", "schema",
             f"a serving loop ticks a positive whole number of seconds apart; "
             f"this is {name_value(interval)}")
+    # W275774 review 17:17:15Z: TYPED BEFORE THE FIRST EFFECTFUL ACT.
+    #
+    # The check ran after `reconcile`, which recovers and can adopt runtimes -- so a
+    # deployment that passed something uncallable did real work first and only then
+    # learned its expiry pass was unusable. A run that cannot reclaim must not begin.
+    if reclaim is not None:
+        boundaries.capability(reclaim, "a resource reclaim pass")
     report = reconcile(store, operations, now=clock())
     while should_continue():
         sleep(interval)
         report = sweep(store, operations, now=clock())
+        # W275774: THE OVERDUE-RESOURCE PASS, INJECTED for the same reason the clock
+        # and the wait are.
+        #
+        # Reclaiming an expired resource needs a runtime adapter, and composing one
+        # is the deployment's act rather than this module's: the tool that knows how
+        # to build an adapter for an attempt passes a pass that uses it. So this owns
+        # only WHEN the sweep happens -- once per tick, after the ordinary sweep, so
+        # a reclaim never races the launch pass in the same tick.
+        #
+        # ITS REFUSALS ARE NOT SWALLOWED. A reclaim that cannot proceed says so and
+        # ends the run, because a long-lived loop that silently skipped expiry would
+        # leave resources held forever with nothing in the record to say why. A
+        # deployment that wants a tick to survive one bad attempt wraps that policy
+        # into the pass it supplies, where the choice is visible.
+        if reclaim is not None:
+            # W275774 review 17:27:42Z: THE PASS'S OWN ANSWER IS KEPT, not discarded.
+            # A held-or-refused outcome is the actionable part of an expiry tick --
+            # which resources are still held and why -- and dropping it left an
+            # operator with a sweep report that said nothing about expiry at all.
+            reclaimed = reclaim(now=clock())
+            if reclaimed is not None:
+                report = dict(report, reclaimed=reclaimed)
     return report
 
 

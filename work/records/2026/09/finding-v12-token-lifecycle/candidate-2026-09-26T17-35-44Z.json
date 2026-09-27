@@ -1,0 +1,8 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/tools/job_manager.py": "d938886becf25a54bda0c2d4b6a84dd49758efd9d16dcfc3a81a7221aca6687a",
+  "v12/python/tests/job_manager/test_tool.py": "d24f4e400d4f4b7b7f15d49bfc678bfc4a1f05eede8fbfa0e36919ef40f0df57",
+  "v12/python/src/baton_v12/job_manager/manager.py": "cd476d66063fd1a7324408f1cba3f4168f05446e5142771cc53579961bceddbe",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_reclaim_exact_identity_20260926.py": "3b2f82e4e2b7e83d69852702bfa642a7253156dc0ce5a1451e6b2e031169b310",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_reclaim_observation_20260926.py": "0b8d305db68ba6e9494d2ac0be3f4d51a28f10f690dd08dfdf9e79a7621b1a5a"
+}

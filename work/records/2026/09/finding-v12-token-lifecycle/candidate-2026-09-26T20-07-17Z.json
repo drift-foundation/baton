@@ -1,0 +1,9 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/src/baton_v12/worker_manager/attempts.py": "d8b8167a97e952b14d04cb73cfafd4244478e6d5087e3ec0b0bd8b2ab0577d21",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_connected_lifecycle.py": "97bee4dd958ee6ac67810261ab0b2f4b634422a7b76325932f5aeaa2653a059b",
+  "work/records/2026/09/finding-v12-token-lifecycle/wip-breakage-inventory-20260926.md": "a1437eac037c1f6458d9c3ec0a16282edf8c1a01f54d4c9e015d108de668eec3",
+  "v12/python/tests/manager/test_refused_session_cleanup.py": "fbdae84338adbf5fafafe25c64f043af61ab44546d16e856c5b61428e3fa8e06",
+  "v12/python/tests/tools/test_dogfood_operator.py": "a7d2956171d78bc09acd8c315c00286eff7ae7b43b8a57345343f67e111c2080",
+  "v12/python/tests/job_manager/test_recovery.py": "aeb4e9493eb04c87ce05e947a1c4c9b2a8e6f0f4e3635210f82ea8bfe9a1aab2"
+}

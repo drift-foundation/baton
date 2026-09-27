@@ -825,6 +825,21 @@ if __name__ == "__main__":
 
 RETENTION = "sha256:" + "7" * 64
 OTHER_POLICY = "sha256:" + "9" * 64
+# W275774: the policy an attempt's delivery is made under, which every real
+# attempt row carries and a runtime is labelled with. Distinct from RETENTION,
+# which is the abandonment's own policy operand.
+DELIVERY_POLICY = "sha256:" + "5" * 64
+# W275774: the command the restoration's launch account is taken over.
+#
+# W257624 made `restore_abandoned_correction` refuse without BOTH a launcher and
+# a cessation observer, because external work that is not recorded before it
+# exists can never be accounted for. The pair is the deployment's own; what this
+# fixture supplies is the COMMAND, and it is a no-op: the profile stand-in writes
+# no checkout, so there is no reset and no clean to route, and this stands exactly
+# where the real profile's two write commands are for the one purpose of making
+# the launch account genuine instead of composed. No case asserts anything about
+# it, and nothing here claims the fixture restored a repository.
+RESTORATION_COMMAND = ["/bin/true"]
 EXCLUDED = "abandoned-after-exclusion"
 
 
@@ -875,7 +890,10 @@ class Custodian:
 
         return custody._answered(
             "normalize", 0,
-            {"custody": "normalize", "entries": 0, "not_ours": 0,
+            # W275774: the `submission` member the custody act answers with; a double
+            # that omits it makes every ending refuse for want of an accountable act.
+            {"custody": "normalize", "submission": "0" * 32,
+             "entries": 0, "not_ours": 0,
              "running_as": [0, 0]}, None)
 
     def destroy_abandoned(self, command):
@@ -915,10 +933,75 @@ class OneAbandonedCorrectionEpisodeIsReplaced(DriverCase):
         # instance rather than to the shared fixture class.
         self.profile.restore_checkpoint = self.restoring
 
-    def restoring(self, repository, evidence):
+    def attempt(self, attempt_id, generation, participant, principal,
+                work_id=WORK_A):
+        """W275774: the shared row, plus the policy its delivery was made under.
+
+        `_runtime_labels` refuses an attempt whose `policy_digest` is null, so a
+        row without one cannot reach a real runtime start at all -- and the
+        abandonment below now drives one. Added HERE rather than in the shared
+        `DriverCase`, which this leaf does not own; every real delivery records
+        this digest, and nothing in this file reads it.
+        """
+        answer = super().attempt(attempt_id, generation, participant,
+                                 principal, work_id=work_id)
+        self.control._connection.execute(
+            "UPDATE attempts SET policy_digest = ? WHERE runtime_attempt_id = ?",
+            (DELIVERY_POLICY, attempt_id))
+        return answer
+
+    def restoring(self, repository, evidence, *, runner=None):
+        """W275774: and the ROUTED COMMAND, in the real profile's own order.
+
+        The production profile takes `runner` per invocation and routes the two
+        commands that write the checkout through it, after the before-any-write
+        validation. This stand-in writes no checkout, so it routes the no-op
+        command in the same position -- see RESTORATION_COMMAND.
+        """
         self.profile.validate(repository, evidence)
+        if runner is not None:
+            runner(RESTORATION_COMMAND)
         self.profile.current_revision = int(evidence["head"], 16)
         return self.profile.validate(repository, evidence, current=True)
+
+    def launched(self, attempt_id):
+        """The attempt as an abandonment finds it: a runtime attached, no worker
+        answer and nothing accounted for.
+
+        W275774: THE START IS THE PRODUCTION ONE, and it has to be. This was one
+        `UPDATE ... execution_runtime = 'running'`, and W266336's release gate
+        reads a fact no row update can carry: `start_submission_returned` -- the
+        SUBMITTER'S OWN journalled record, which nobody but
+        `request_runtime_start` writes. So every ending in this class refused with
+        "start submission has not returned to the manager that made it", for want
+        of a fact none of these cases is about.
+
+        The real path writes exactly the two facts the update wrote -- the same
+        `runtime-<attempt>` identity and the `running` axis -- and the marker and
+        the occupied lane come with them because the real path produced them.
+        """
+        from baton_v12.worker_manager import request_runtime_start
+        from tests.manager.test_attempts import Adapter
+
+        adapter = Adapter("runtime-" + attempt_id)
+        request_runtime_start(self.control, adapter, attempt_id=attempt_id)
+        return adapter
+
+    def accounted(self):
+        """The accountable-launch pair a restoration refuses without.
+
+        W275774. THE DEPLOYMENT'S OWN PAIR, from `tools.stage_execution`: the
+        launcher commits each command's intent before its child exists and its
+        group immediately after the fork, and the observer answers through the
+        kernel -- so the ending this recovery releases on is proved rather than
+        asserted. Built per call because the launcher is per-invocation by
+        contract.
+        """
+        from tools.stage_execution import (restoration_cessation,
+                                           restoration_launcher)
+
+        return {"launcher": restoration_launcher,
+                "cessation": restoration_cessation()}
 
     def abandoned(self, *, discharge=True, restore=True, policy=RETENTION):
         """One Job whose live implementation episode is an abandoned
@@ -944,10 +1027,7 @@ class OneAbandonedCorrectionEpisodeIsReplaced(DriverCase):
             attempt_id=self.abandoned_attempt, generation=2,
             worker_id="impl-worker-2", profile=self.profile,
             based_checkpoint_id=self.checkpoint_id)["writer_id"]
-        self.control._connection.execute(
-            "UPDATE attempts SET runtime_id = ?, execution_runtime = 'running' "
-            "WHERE runtime_attempt_id = ?",
-            ("runtime-" + self.abandoned_attempt, self.abandoned_attempt))
+        self.launched(self.abandoned_attempt)
         self.abandon_port = AbandoningPort(WRITER, authority_uuid=UUID,
                                            work_id=WORK_A)
         abandon_attempt(self.control, self.abandon_port, Custodian(),
@@ -961,7 +1041,8 @@ class OneAbandonedCorrectionEpisodeIsReplaced(DriverCase):
         if restore and discharge:
             self.restored = restore_abandoned_correction(
                 self.control, attempt_id=self.abandoned_attempt, generation=2,
-                retention_policy_digest=policy, profile=self.profile)
+                retention_policy_digest=policy, profile=self.profile,
+                **self.accounted())
         return self.abandoned_attempt
 
     def abandoned_from_another_checkpoint(self):
@@ -994,10 +1075,7 @@ class OneAbandonedCorrectionEpisodeIsReplaced(DriverCase):
                      attempt_id=self.abandoned_attempt, generation=2,
                      worker_id="impl-worker-2", profile=self.profile,
                      based_checkpoint_id=self.other_checkpoint)
-        self.control._connection.execute(
-            "UPDATE attempts SET runtime_id = ?, execution_runtime = 'running' "
-            "WHERE runtime_attempt_id = ?",
-            ("runtime-" + self.abandoned_attempt, self.abandoned_attempt))
+        self.launched(self.abandoned_attempt)
         port = AbandoningPort(WRITER, authority_uuid=UUID, work_id=WORK_A)
         abandon_attempt(self.control, port, Custodian(),
                         attempt_id=self.abandoned_attempt, reason=self.REASON,
@@ -1007,7 +1085,8 @@ class OneAbandonedCorrectionEpisodeIsReplaced(DriverCase):
             retention_policy_digest=RETENTION)
         self.restored = restore_abandoned_correction(
             self.control, attempt_id=self.abandoned_attempt, generation=2,
-            retention_policy_digest=RETENTION, profile=self.profile)
+            retention_policy_digest=RETENTION, profile=self.profile,
+            **self.accounted())
         return self.abandoned_attempt
 
     def accepted_round(self):

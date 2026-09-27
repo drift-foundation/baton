@@ -614,7 +614,7 @@ def prepare_review(control, *, checkpoint_id, attempt_id, generation,
 def end_implementation(control, port, adapter, publication, *, attempt_id,
                        disposition, terminal, writer_id, generation, profile,
                        retention_disposition, retention_policy_digest,
-                       proposal):
+                       proposal, govern=None):
     """End one implementation attempt into an immutable, published checkpoint.
 
     THE ORDER, and every step of it is somebody else's operation:
@@ -691,7 +691,7 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
             disposition=disposition, terminal=terminal, writer_id=writer_id,
             generation=generation, profile=profile,
             retention_disposition=retention_disposition,
-            retention_policy_digest=retention_policy_digest)
+            retention_policy_digest=retention_policy_digest, govern=govern)
     writer = _own_writer(control, writer_id=writer_id, attempt_id=attempt_id,
                          generation=generation)
     _profile_of_the_line(control, profile, writer["line_id"])
@@ -742,8 +742,22 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
     checkpoint = review_cycles.freeze_checkpoint(
         control, writer_id=writer_id, generation=generation, profile=profile,
         port=port)
+    # W275774: THE GOVERNANCE THIS DEPLOYMENT'S START RESERVED UNDER.
+    #
+    # A GOVERNED START WITH AN UNGOVERNED ENDING IS WORSE THAN NO GOVERNANCE,
+    # which `single_worker` already says at its own two endings and which this
+    # driver did not obey: `authorize_cleanup` returns the resource only when it
+    # is given the authority that reserved it, so a deployment whose starts are
+    # governed and whose endings run through here held its workspace for the life
+    # of the store -- and the correction round that came back to the same line was
+    # refused by generation one of its own predecessor.
+    #
+    # AN OPERAND RATHER THAN A COMPOSITION, because which resources a deployment
+    # governs is the deployment's fact. `None` is exactly what it always was: no
+    # resource is named, nothing is released, and no existing caller changes.
     authorize_cleanup(control, port, adapter, attempt_id=attempt_id,
-                      retention_policy_digest=retention_policy_digest)
+                      retention_policy_digest=retention_policy_digest,
+                      govern=govern)
     return {"attempt_id": attempt_id, "disposition": disposition,
             "result_id": frozen["result_id"],
             "manifest_digest": frozen["manifest_digest"],
@@ -1141,7 +1155,7 @@ def _fence_settled(control, *, writer_id, attempt_id, generation):
 def _cleaning_implementation(control, port, adapter, publication, *,
                              attempt_id, disposition, terminal, writer_id,
                              generation, profile, retention_disposition,
-                             retention_policy_digest):
+                             retention_policy_digest, govern=None):
     """W124784: finish the ONE act an ending whose checkpoint froze still owes.
 
     WHY THIS IS NOT `_resumed_implementation`. That one answers behind a
@@ -1206,8 +1220,11 @@ def _cleaning_implementation(control, port, adapter, publication, *,
     # operation, so an ending re-entered after a cleanup that committed and
     # whose axis has not yet been read reaches the same answer rather than a
     # second destroy.
+    # W275774: the same governance the ordinary ending carries, because this is
+    # the ordinary ending's LAST ACT re-entered rather than a different one.
     authorize_cleanup(control, port, adapter, attempt_id=attempt_id,
-                      retention_policy_digest=retention_policy_digest)
+                      retention_policy_digest=retention_policy_digest,
+                      govern=govern)
     return {"attempt_id": attempt_id, "disposition": disposition,
             "result_id": frozen["result_id"],
             "manifest_digest": frozen["manifest_digest"],
@@ -1220,7 +1237,8 @@ def _cleaning_implementation(control, port, adapter, publication, *,
 
 
 def end_review(control, port, adapter, *, attachment_id, disposition, verdict,
-               profile, retention_disposition, retention_policy_digest):
+               profile, retention_disposition, retention_policy_digest,
+               govern=None):
     """End one review attempt into a recorded verdict, and route on it.
 
     `disposition` is what the REVIEW WORKER's attempt ended as -- the manager's
@@ -1256,13 +1274,14 @@ def end_review(control, port, adapter, *, attachment_id, disposition, verdict,
         control, port, adapter, attachment_id=attachment_id,
         disposition=disposition, terminal=None, profile=profile,
         retention_disposition=retention_disposition,
-        retention_policy_digest=retention_policy_digest,
+        retention_policy_digest=retention_policy_digest, govern=govern,
         resolve=lambda _frozen: verdict)
 
 
 def end_review_from_result(control, port, adapter, *, attachment_id,
                            disposition, terminal, profile,
-                           retention_disposition, retention_policy_digest):
+                           retention_disposition, retention_policy_digest,
+                           govern=None):
     """End one review attempt on the verdict its own frozen output carries.
 
     W110772. THE PRODUCTION ENTRY POINT, and the whole of its difference from
@@ -1323,7 +1342,7 @@ def end_review_from_result(control, port, adapter, *, attachment_id,
         control, port, adapter, attachment_id=attachment_id,
         disposition=disposition, terminal=terminal, profile=profile,
         retention_disposition=retention_disposition,
-        retention_policy_digest=retention_policy_digest,
+        retention_policy_digest=retention_policy_digest, govern=govern,
         resolve=lambda _frozen: review_verdict_from_result(
             control, attachment_id=attachment_id)["verdict"])
 
@@ -1351,7 +1370,7 @@ def _own_terminal(terminal):
 
 def _ended_review(control, port, adapter, *, attachment_id, disposition,
                   terminal, profile, retention_disposition,
-                  retention_policy_digest, resolve):
+                  retention_policy_digest, resolve, govern=None):
     """The ordered core both review endings run, and the ONE thing that
     differs between them is `resolve`.
 
@@ -1438,8 +1457,12 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
                 "cleaned_up": False}
     cleaned_up = True
     if not historical:
+        # W275774: AND THE REVIEW WORKER'S RESOURCE IS RETURNED TOO. A reviewer's
+        # workspace is governed by the same start, so an ungoverned ending here
+        # holds it exactly as the producer's was held.
         cleanup = authorize_cleanup(control, port, adapter, attempt_id=attempt_id,
-                                    retention_policy_digest=retention_policy_digest)
+                                    retention_policy_digest=retention_policy_digest,
+                                    govern=govern)
         cleaned_up = (type(cleanup) is dict and cleanup.get("state") == "absent"
                       and cleanup.get("cleanup") in ("retained", "complete"))
     if not cleaned_up:

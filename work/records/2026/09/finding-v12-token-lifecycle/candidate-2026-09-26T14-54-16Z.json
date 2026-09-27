@@ -1,0 +1,7 @@
+{
+  "v12/python/src/baton_v12/worker_manager/oci.py": "f81f1674b906d93a5646353f50958bdaf2c1e9fdf2704cd588d4c4cbae935231",
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "a1d0f7ec1e970525e0b7a13b76e6661950260cf027984911ad06a42b9bbb5b01",
+  "v12/python/tests/manager/test_dependencies.py": "f5c15e984152d356c605540476ff337f21892c300c34ef15c93d5fbf8e30db7f",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_activation_boundary.py": "9b9c5425b190b9b079d40957c48e382e5440d2b31d375c94e2d925273aacd5db",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_activation_expiry_20260926.py": "c2f287e1da29390fc7ec28f6cdb55857badf53bb5cd88345323dc1c1a6d14dd2"
+}

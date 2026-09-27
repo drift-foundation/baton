@@ -1,0 +1,96 @@
+F
+======================================================================
+FAIL: test_the_accepted_candidate_seeds_job_b_on_the_same_stores (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_accepted_candidate_seeds_job_b_on_the_same_stores)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 10330, in test_the_accepted_candidate_seeds_job_b_on_the_same_stores
+    self.accepted(held, "job-a", "implementation-worker",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  "review-worker", first,
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+                  "print('the first job answered')\n")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7780, in accepted
+    self.produced(held, job_id, attempt_id, body, edits=edits)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7764, in produced
+    return self.drive_job(held.job, held.composed, job_id,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "implementation", "completed")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7670, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's implementation stage never reached 'completed': {'implementation': 'answering', 'review': 'blocked'}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.419s
+
+FAILED (failures=1)
+[
+  {
+    "call": "_admitted_adoption",
+    "assignment": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "operand": "adopting this attempt's workspace roots",
+    "answer": {
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "ordinal": 1,
+      "act": "adopting this attempt's workspace roots",
+      "owner": "2810de330973472eab776d2495e2b3a0"
+    },
+    "stack": [
+      "/home/sl/src/baton/v12/python/tools/single_worker.py:1970:_prepared",
+      "/home/sl/src/baton/v12/python/tools/single_worker.py:1940:_mounted",
+      "/home/sl/src/baton/v12/python/tools/stage_execution.py:1289:mount",
+      "/home/sl/src/baton/v12/python/tools/stage_execution.py:1375:_prepare",
+      "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/review_driver.py:576:prepare_implementation",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py:3935:writer_boundary",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py:4878:line_assignment_workspace",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py:4816:adopted_assignment_workspace"
+    ]
+  },
+  {
+    "call": "_settled_adoption",
+    "assignment": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "operand": {
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "ordinal": 1,
+      "act": "adopting this attempt's workspace roots",
+      "owner": "2810de330973472eab776d2495e2b3a0"
+    },
+    "answer": null,
+    "stack": [
+      "/home/sl/src/baton/v12/python/tools/single_worker.py:1970:_prepared",
+      "/home/sl/src/baton/v12/python/tools/single_worker.py:1940:_mounted",
+      "/home/sl/src/baton/v12/python/tools/stage_execution.py:1289:mount",
+      "/home/sl/src/baton/v12/python/tools/stage_execution.py:1375:_prepare",
+      "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/review_driver.py:576:prepare_implementation",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py:3938:writer_boundary",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py:4949:_granted_roots",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py:4840:release_adopted_workspace"
+    ]
+  },
+  {
+    "call": "_admitted_adoption",
+    "assignment": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "operand": "adopting this attempt's workspace roots",
+    "answer": {
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "ordinal": 2,
+      "act": "adopting this attempt's workspace roots",
+      "owner": "494f5b34b0f6421f938768a6bcafda05"
+    },
+    "stack": [
+      "/home/sl/src/baton/v12/python/tools/single_worker.py:2103:_prepared",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py:1677:request_runtime_start",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/oci.py:2517:start",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py:1987:_prove_execution_workspace",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py:3941:<lambda>",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py:3821:_writer_access",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py:4878:line_assignment_workspace",
+      "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/workspaces.py:4816:adopted_assignment_workspace"
+    ]
+  }
+]

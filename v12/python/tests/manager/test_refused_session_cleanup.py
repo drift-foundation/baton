@@ -61,7 +61,15 @@ class Custodian:
         self.normalized.append((assignment_id, which))
         return custody._answered(
             "normalize", 0,
-            {"custody": "normalize", "entries": 0, "not_ours": 0,
+            # W275774: THE `submission` MEMBER, which this double predates. The
+            # custody act's answer carries the submission it normalized under, and
+            # `custody._accountable` refuses an answer without one -- so a double
+            # that omits it makes every ending here refuse for want of an
+            # accountable act rather than for the reason its case is about. The
+            # intake suite's own custodian already answers it; this is the same
+            # value, spelled the same way.
+            {"custody": "normalize", "submission": "0" * 32,
+             "entries": 0, "not_ours": 0,
              "running_as": [0, 0]}, None)
 
     def __init__(self, **overrides):
@@ -670,7 +678,10 @@ class TheRefusedSessionEndingSurvivesInterruption(RefusedSessionCase):
                 raise RuntimeError(f"the helper died over {which}")
             return custody._answered(
                 "normalize", 0,
-                {"custody": "normalize", "entries": 0, "not_ours": 0,
+                # W275774: the `submission` member the custody act answers with; a double
+                # that omits it makes every ending refuse for want of an accountable act.
+                {"custody": "normalize", "submission": "0" * 32,
+                 "entries": 0, "not_ours": 0,
                  "running_as": [0, 0]}, None)
 
         adapter.normalize_directory = normalize_directory

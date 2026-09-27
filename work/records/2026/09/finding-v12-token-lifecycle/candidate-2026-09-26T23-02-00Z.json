@@ -1,0 +1,21 @@
+{
+  "work": "W275774",
+  "claim": 279847,
+  "files": [
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "7225a403015adc6b3ad94d8dbef16503f3db96568219b6c2d76641b950ba2a44",
+      "bytes": 210657
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "9ce03a4429952c4d9af14b3a5a2f72ae9144b3de6056020d3e571b74fc53b6ff",
+      "bytes": 223832
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_adoption_trace_20260926.py",
+      "sha256": "688913e5d7f9e5a0cb4eb7c7a866d2011cc371535e1303d2ad946ee464d91901",
+      "bytes": 1041
+    }
+  ]
+}

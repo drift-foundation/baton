@@ -1,4 +1,35 @@
-# Current checkpoint — shutdown-on-handoff specification signed
+# Current checkpoint — per-instance host-manager scope clarified
+
+Owner clarification 2026-09-26: one active Host manager per workspace/DB; many
+independent managers with separate DBs/workspaces may share a machine. The final
+FINDING entry pins this and explicitly supersedes W275774's cross-manager/shared
+workspace interpretation. DESIGN section 2 now states the deployment boundary.
+Messages T275774/278980 and 278991 notify the implementation/review handlers;
+their current implementation checkpoint must follow this owner scope.
+
+The owner subsequently selected refusal: duplicate manager startup for the same
+workspace/DB is a configuration error. DESIGN HOST-8 requires a clear startup
+refusal before dispatch/resource mutation, permits separate instances on one host,
+and excludes standby/takeover and a lifetime DB lock. The final FINDING entry
+explicitly supersedes the earlier pending enforcement choice. Existing
+within-instance worker/attempt safety and stopped-manager reconciliation remain
+required. Managed handlers should implement/review the bounded startup guard and
+identify any wider scope explicitly. Prompt owns only this DESIGN/FINDING/PLAN
+amendment; managed handlers retain product ownership.
+Owner selected the OS file lock mechanism in the newest FINDING entry: exclusive
+nonblocking per-instance guard, scoped lifetime descriptor, no child retention or
+alias bypass, automatic release on process death. HOST-8 now records it. Verify
+duplicate refusal, independent instances and exit/death release with focused local
+process tests; worker-token recovery remains separate. W275774 handlers own
+implementation and independent review; the amendment itself is not acceptance.
+The earlier signed digest below is historical, not a signoff on the amended bytes.
+Independent assessment of this amendment remains outstanding. No implementation
+acceptance or graph change follows from the clarification.
+
+The preceding shutdown amendment checkpoint is preserved below as history; its
+claims of current bytes and next action are superseded by this checkpoint.
+
+## Historical checkpoint — shutdown-on-handoff specification signed
 
 Work W274875. Author: baton.prompt, 2026-09-26. Canonical events read through
 275184 (Claude's amendment signoff returned to owner); discussion through275131;

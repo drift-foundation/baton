@@ -43,6 +43,32 @@ ACQUIRED_KIND = "resource-token.acquired"
 LAUNCH_KIND = "resource-token.launch"
 BOUND_KIND = "resource-token.bound"
 RETURNED_KIND = "resource-token.returned"
+# W275774 review 15:00:16Z: THE IN-FLIGHT ACTIVATION IS ITSELF A DURABLE FACT.
+#
+# An independent probe defeated the previous argument exactly: a permission was
+# read, another host then settled the inert container and took generation 2, and
+# the suspended starter activated generation 1's container afterwards -- two
+# holders of one resource. "Expiry does not free the token" was true and did not
+# help, because SETTLEMENT frees it, and settlement was allowed to happen under a
+# live activation.
+#
+# So an activation is admitted before the engine is asked, and the admission is a
+# record rather than a boolean somebody computed. While it is unresolved the
+# resource cannot be handed on: `returned` refuses. The hold ends when the
+# activation's outcome is settled, which is the conclusive external answer the
+# review required rather than a timeout or an assumption.
+ACTIVATING_KIND = "resource-token.activating"
+ACTIVATION_SETTLED_KIND = "resource-token.activation-settled"
+# W275774 review 16:37:09Z: EXPIRY IS NOT SELF-EXECUTING.
+#
+# An expired generation stops being ENTITLED to act, and that is all it does: TOK-5
+# says the resource is revoked rather than replaced, because the container may still
+# be running and the workspace may still be written. So reclaiming an overdue
+# resource is four acts and not one -- REVOKE the entitlement durably, STOP the
+# container, POSITIVELY CONFIRM it is gone, and only then SETTLE the return. The
+# revocation is the first of them and it is journalled, so the old holder is refused
+# at its next journal-guarded step instead of racing the reclaim.
+REVOKED_KIND = "resource-token.revoked"
 
 
 def domain_of(resource_kind, identity):
@@ -79,6 +105,18 @@ def _launch_id(domain, generation):
 
 def _bound_id(domain, generation):
     return f"{BOUND_KIND}:{domain}:{generation}"
+
+
+def _activating_id(domain, generation):
+    return f"{ACTIVATING_KIND}:{domain}:{generation}"
+
+
+def _activation_settled_id(domain, generation):
+    return f"{ACTIVATION_SETTLED_KIND}:{domain}:{generation}"
+
+
+def _revoked_id(domain, generation):
+    return f"{REVOKED_KIND}:{domain}:{generation}"
 
 
 def _returned_id(domain, generation):
@@ -130,7 +168,15 @@ def token_of(control, domain, generation):
     answer["container"] = (bound or {}).get("container")
     answer["returned"] = _document(control, _returned_id(domain, generation),
                                    RETURNED_KIND) is not None
+    admitted = _document(control, _activating_id(domain, generation),
+                         ACTIVATING_KIND)
+    settled = _document(control, _activation_settled_id(domain, generation),
+                        ACTIVATION_SETTLED_KIND)
+    answer["activating"] = admitted is not None and settled is None
+    answer["activation_started"] = None if settled is None else settled["started"]
     answer["expired"] = control._now() >= acquired["expires_at"]
+    answer["revoked"] = _document(control, _revoked_id(domain, generation),
+                                  REVOKED_KIND) is not None
     return answer
 
 
@@ -325,6 +371,244 @@ def bind_container(control, token, container, *, launch):
                             manager_signature(BOUND_KIND, document), binding)
 
 
+def revoke(control, resource_identity, resource_kind, *, execution, operation):
+    """Withdraw an OVERDUE generation's entitlement, durably and first.
+
+    THE FIRST OF THE FOUR ACTS a reclaim performs. It changes no container and
+    frees no resource: what it does is record that this generation may no longer
+    act, so the old holder is refused at its next journal-guarded step rather than
+    racing whatever the reclaim does next. TOK-5's "revoked rather than replaced"
+    is exactly this ordering -- the resource stays held by the revoked generation
+    until its cessation is confirmed.
+
+    ONLY AN EXPIRED GENERATION MAY BE REVOKED. A live one is somebody's valid
+    permission, and taking it away because a sweep happened to look would make the
+    lifetime advisory. An already-revoked generation replays its own record.
+    """
+    from .store import _recorded, manager_signature
+
+    domain = domain_of(resource_kind, resource_identity)
+    connection = control._connection
+    # W275774 review 2026-09-26T19-13-42Z: THE WHOLE DECISION IS ONE TRANSACTION,
+    # and the reason is `admit_activation`'s reason applied where I had not applied
+    # it. Every read here -- which generation this execution holds, whether it has
+    # been returned, whether it is overdue -- used to happen BEFORE `BEGIN
+    # IMMEDIATE`, and only the replay record was read under the lock. So the
+    # unstable half was again an ABSENCE: a caller suspended after reading
+    # `returned` as false resumed and wrote a revocation for a generation that had
+    # since been returned and replaced, which is a withdrawal of an entitlement
+    # generation 2 now holds nothing about.
+    #
+    # The lock decides now. The replay record is read first and the TERMINAL FACTS
+    # LAST, for the ordering reason the admission states: `BEGIN IMMEDIATE` excludes
+    # another connection's writer, and reading the terminal facts last additionally
+    # excludes work that reaches the store from inside this very transaction.
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        generation = generation_of(control, domain, execution=execution,
+                                   operation=operation)
+        if generation is None:
+            connection.execute("COMMIT")
+            return None
+        existing = _document(control, _revoked_id(domain, generation),
+                             REVOKED_KIND)
+        # AND THE FRESHEST TERMINAL READS, taken after everything else.
+        current = token_of(control, domain, generation)
+        if current["returned"]:
+            connection.execute("COMMIT")
+            return None
+        if not current["expired"]:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"generation {generation} of {name_value(domain)} expires at "
+                f"{name_value(current['expires_at'])} and is not overdue; a live "
+                f"permission is not revoked because a sweep looked at it")
+        if existing is not None:
+            connection.execute("COMMIT")
+            return dict(existing)
+        document = {"domain": domain, "generation": generation,
+                    "owner": current["owner"],
+                    "container": current["container"],
+                    "expired_at": current["expires_at"]}
+        control._record(_revoked_id(domain, generation), REVOKED_KIND,
+                        manager_signature(REVOKED_KIND, document), "committed",
+                        _recorded(document), None)
+        connection.execute("COMMIT")
+    except BaseException:
+        try:
+            connection.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+    return document
+
+
+def admit_activation(control, token, *, container):
+    """ADMIT ONE ACTIVATION, DURABLY, BEFORE THE ENGINE IS ASKED TO RUN ANYTHING.
+
+    THE ANSWER IS A RECORD, NOT A BOOLEAN. Review 15:00:16Z showed a caller
+    answering `True` from a read it had taken earlier, after the resource had been
+    settled and handed to generation 2; a boolean cannot be told apart from a stale
+    boolean. What this returns is the admission itself, naming the domain,
+    generation and exact container, so a consumer can require the document.
+
+    AND THE WHOLE DECISION IS ONE TRANSACTION. Review 15:19:45Z destroyed my
+    previous argument in one sentence: monotone POSITIVE terminal facts do not
+    stabilize an ABSENCE read. I was checking that no settlement and no return
+    existed, outside the lock, and then letting `transact` replay -- so a
+    settlement, a return and a generation-2 acquisition could all commit in between
+    and the replay would still hand back an admission that authorized a start. The
+    absence was the unstable half and I reasoned about the presence.
+
+    So this takes `BEGIN IMMEDIATE` itself instead of delegating to `transact`, and
+    under that lock it reads the terminal facts, decides the replay disposition, and
+    writes. A RETRY OF AN ACTIVATION STILL IN FLIGHT replays its own record, which
+    is what makes an interrupted starter safe to resume. Anything terminal --
+    settled, or the generation returned -- refuses, because at that point what the
+    caller holds is A HISTORICAL RESULT AND NOT A FRESH PERMISSION TO START. Those
+    are different things and this is where they are told apart.
+    """
+    from .store import _recorded, manager_signature
+
+    container = boundaries.text(container, "a bound container identity")
+    document = {"domain": token["domain"], "generation": token["generation"],
+                "owner": token["owner"], "container": container}
+    signature = manager_signature(ACTIVATING_KIND, document)
+    connection = control._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        bound = _document(control, _bound_id(token["domain"], token["generation"]),
+                          BOUND_KIND)
+        if bound is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"token generation {token['generation']} of "
+                f"{name_value(token['domain'])} has bound no container, so there "
+                f"is nothing to admit an activation for")
+        if bound["container"] != container:
+            raise ContractRefusal(
+                "runtime-observation", "identity-mismatch",
+                f"this token governs container {name_value(bound['container'])} "
+                f"and the activation names {name_value(container)}; an admission "
+                f"for another container is not this token's execution")
+        # THE REPLAY DISPOSITION, DECIDED HERE AND NOT BY THE JOURNAL. An admission
+        # still in flight answers itself -- one executor resuming its own act. One
+        # that names different operands is a different act wearing this one's name.
+        admitted = _document(control, _activating_id(token["domain"],
+                                                     token["generation"]),
+                             ACTIVATING_KIND)
+        # THE TERMINAL FACTS ARE THE LAST THING READ BEFORE THE DISPOSITION, and
+        # that ordering is the correction rather than a detail.
+        #
+        # Review 15:19:45Z first: monotone POSITIVE facts do not stabilize an
+        # ABSENCE read, and absence was the half I depended on. Moving the checks
+        # under the lock was necessary and not sufficient -- with them read FIRST, a
+        # settlement, a return and a generation-2 acquisition could still land
+        # between them and the admission read, and the replay answered anyway. That
+        # is what the independent probe drives, by interleaving exactly there.
+        #
+        # So the disposition is decided on the FRESHEST reads this transaction can
+        # take: everything else is read first, and whether this generation may still
+        # authorize an execution is asked last. `BEGIN IMMEDIATE` excludes another
+        # connection's writer; this ordering additionally excludes work that reaches
+        # the store from inside this very transaction, which is the case a lock
+        # cannot help with.
+        _owning(control, token, "admitting an activation")
+        if _document(control, _activation_settled_id(token["domain"],
+                                                     token["generation"]),
+                     ACTIVATION_SETTLED_KIND) is not None:
+            raise ContractRefusal(
+                "refused", "already-terminal",
+                f"the activation of generation {token['generation']} of "
+                f"{name_value(token['domain'])} has already been settled; its record "
+                f"is the history of what happened and not permission to start again")
+        if admitted is not None:
+            if admitted["container"] != container \
+                    or admitted["owner"] != token["owner"]:
+                raise ContractRefusal(
+                    "refused", "operation-collision",
+                    f"generation {token['generation']} of "
+                    f"{name_value(token['domain'])} already admitted an activation of "
+                    f"{name_value(admitted['container'])} for another owner; one "
+                    f"executor holds an activation at a time")
+            connection.execute("COMMIT")
+            return dict(admitted)
+        control._record(_activating_id(token["domain"], token["generation"]),
+                        ACTIVATING_KIND, signature, "committed",
+                        _recorded(document), None)
+        connection.execute("COMMIT")
+    except BaseException:
+        try:
+            connection.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+    return document
+
+
+def settle_activation(control, token, *, container, started):
+    """Resolve the in-flight activation with its CONCLUSIVE outcome.
+
+    AND ONLY A CONCLUSIVE ONE. Review 15:14:13Z corrects an instruction I had
+    written: a caller must NOT settle `started=False` merely because
+    `adapter.start` refused. A fault or a later check can follow a real
+    activation, so a refusal is evidence about this manager's decision and not
+    about the engine. An outcome nobody knows is left UNSETTLED on purpose -- the
+    resource stays held, which is the honest state, rather than freed on a guess.
+
+    Until this exists the resource is held: `returned` will not settle a
+    generation whose activation nobody has answered for, because a container that
+    may or may not have been started is the unknown the token exists to hold. The
+    outcome is a real boolean -- a truthy string is not an answer, the same
+    lesson the cessation evidence already carries.
+    """
+    from .store import manager_signature
+
+    container = boundaries.text(container, "a bound container identity")
+    if started is not True and started is not False:
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"the activation outcome for container {name_value(container)} is "
+            f"{name_value(started)} and not the boolean True or False; an "
+            f"activation nobody positively resolved stays in flight")
+    admitted = _document(control, _activating_id(token["domain"],
+                                                 token["generation"]),
+                         ACTIVATING_KIND)
+    if admitted is None or admitted["container"] != container:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"no activation of container {name_value(container)} was admitted "
+            f"for token generation {token['generation']} of "
+            f"{name_value(token['domain'])}; there is nothing to settle")
+    # W275774 review 15:14:13Z [P1]: THE SETTLEMENT IS THE ADMITTED OWNER'S ACT.
+    #
+    # It accepted a forged owner, which made the one record that releases the
+    # in-flight hold writable by anybody holding a copy of the token. The owner is
+    # compared against THE ADMISSION'S OWN RECORD rather than through `_owning`,
+    # deliberately: `_owning` refuses an expired generation, and settling the
+    # outcome of an activation whose generation has since expired is exactly the
+    # legitimate reconciliation this must still allow. Expiry is a reason to stop
+    # ACTING, not a reason to refuse the answer about what already happened.
+    if admitted["owner"] != token["owner"]:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"settling the activation of container {name_value(container)} for "
+            f"generation {token['generation']} of {name_value(token['domain'])} was "
+            f"asked by an act that does not own the admission; only the owner that "
+            f"was admitted may answer for its outcome")
+    document = {"domain": token["domain"], "generation": token["generation"],
+                "owner": token["owner"], "container": container,
+                "started": started}
+
+    def settling(_connection):
+        return dict(document)
+
+    return control.transact(
+        _activation_settled_id(token["domain"], token["generation"]),
+        ACTIVATION_SETTLED_KIND,
+        manager_signature(ACTIVATION_SETTLED_KIND, document), settling)
+
+
 def effects_permitted(control, token):
     """Whether the governed resource may be exposed to this token's effects YET.
 
@@ -345,7 +629,45 @@ def effects_permitted(control, token):
     return True
 
 
-def returned(control, token, *, cessation):
+def _reclaiming(value):
+    """EXACTLY `True` OR `False`, and nothing that merely looks like one.
+
+    W275774 review 2026-09-27T01-49-32Z reproduced the defect with two inputs:
+    `returned(..., reclaiming='false')` and `release(..., reclaiming=1)`. Both are
+    TRUTHY, so both selected the manager-reclaim path -- the one exception to the
+    ordinary holder's expiry and revocation refusals -- and an expired generation was
+    returned by a caller that had asked for the opposite, or for nothing in
+    particular.
+
+    THE SAME RULE `stopped` ALREADY HAS, one operand along. Review
+    2026-09-26T13:41:00Z refused `stopped="false"` for exactly this reason: a
+    two-valued switch that accepts any object accepts the wrong answer with the same
+    silence as the right one. `reclaiming` selects a PRIVILEGE, so it is the last
+    operand that should be read loosely.
+
+    REFUSED BEFORE ANY EFFECT AND BEFORE ANY REPLAY, so a malformed request never
+    reaches a journal read, a generation lookup or a settlement -- and a repeated
+    malformed request is refused again rather than answering some earlier act's
+    record.
+
+    LOCAL AND TYPED, per that review: `boundaries` publishes no flag verb, and
+    growing the shared API for one operand would be a wider change than the defect.
+    `bool` is checked by identity rather than by `isinstance`, because `True` and
+    `1` are equal and `isinstance(1, bool)` is False but `isinstance(True, int)` is
+    True -- so the test that actually excludes `1` is the type itself.
+    """
+    if type(value) is not bool:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"a manager-reclaim selector is exactly true or false; "
+            f"{name_value(repr(value))} is {type(value).__name__} and a truthy "
+            f"value of another type would silently select the manager settlement "
+            f"that is the one exception to a holder's expiry and revocation "
+            f"refusals")
+    return value
+
+
+def returned(control, token, *, cessation, reclaiming=False):
     """Return the token, conditional on this exact generation and proven cessation.
 
     TOK-5 as amended (DESIGN 7f504a5e): confirmed termination of the exact outgoing
@@ -361,6 +683,8 @@ def returned(control, token, *, cessation):
     """
     from .store import manager_signature
 
+    # (0) THE MODE SELECTOR, FIRST OF ALL, because it decides which refusals apply.
+    reclaiming = _reclaiming(reclaiming)
     # (1) TYPED, EXACT AND NOT TRUTHY. Review 2026-09-26T13:41:00Z found three holes in
     # one line: the document carried no binding to this token, `stopped="false"` passed
     # the conditional because a non-empty string is true, and an UNBOUND return skipped
@@ -400,6 +724,26 @@ def returned(control, token, *, cessation):
             f"{name_value(token['domain'])} reports stopped="
             f"{cessation['stopped']!r}, which is not the boolean True; a value that merely "
             f"looks true is not a confirmed termination")
+    # W275774 review 15:00:16Z [P1]: AND AN ACTIVATION IN FLIGHT HOLDS THE RESOURCE.
+    #
+    # THIS IS THE HOLE THE PROBE FOUND, and it was not expiry. Settlement frees the
+    # domain for a replacement, and it was being allowed to do so while a starter
+    # sat between its admission and the engine call -- so generation 2 could be
+    # acquired and generation 1's container started afterwards. Two holders of one
+    # resource, reached without anything expiring.
+    #
+    # An admitted activation whose outcome nobody has resolved is exactly the
+    # "unknown" this token exists to hold: the container may be about to run. So the
+    # return refuses until the activation is settled either way, which makes the
+    # hold last through the conclusive outcome rather than through a guess.
+    if current["activating"]:
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"generation {token['generation']} of {name_value(token['domain'])} has an "
+            f"ADMITTED ACTIVATION of container {name_value(current['container'])} that "
+            f"nobody has settled, so whether it is about to run is UNKNOWN; the resource "
+            f"stays held until that activation is resolved, because a replacement taken "
+            f"now could be joined by this one")
     if current["container"] is None and current["launch"] is not None:
         raise ContractRefusal(
             "runtime-observation", "quiescence-unknown",
@@ -427,7 +771,45 @@ def returned(control, token, *, cessation):
                 "launch": current["launch"], "stopped": True}
 
     def returning(_connection):
-        _owning(control, token, "returning the token")
+        # W275774: WHO IS SETTLING MATTERS, and this is the distinction my own expiry
+        # case forced me to draw properly.
+        #
+        # A STALE HOLDER returning on its own authority after expiry is still
+        # refused -- that is `test_an_expired_generation_cannot_bind_or_return`, and
+        # it is right: a holder whose permission ran out does not get to declare the
+        # resource free. A RECLAIM is the opposite situation: the entitlement was
+        # withdrawn deliberately, the container was stopped and its absence
+        # positively confirmed, and refusing that settlement would leave every
+        # reclaimed resource held forever, because the only path that could free it
+        # is the one expiry and revocation close.
+        #
+        # So `reclaiming` names which of those two this is. It relaxes NOTHING else:
+        # the owner is still compared against the record, and the cessation evidence
+        # is still checked member by member against what was bound.
+        _owning(control, token, "returning the token", reclaiming=reclaiming)
+        # W275774 review 15:14:13Z [P1]: RE-ASKED HERE, INSIDE THE COMMITTING
+        # TRANSACTION, and the earlier check above is only the cheap early one.
+        #
+        # The probe was exact: an activation admitted between the preliminary read
+        # and this transaction slipped past, because the decision was being made on
+        # a value read before the lock was held. This is the same prepare-outside,
+        # decide-in-DB discipline the correction paths already use -- the authority
+        # is the read that happens under the write lock, and the two disagreeing is
+        # only possible in the direction that refuses.
+        admitted = _document(control, _activating_id(token["domain"],
+                                                     token["generation"]),
+                             ACTIVATING_KIND)
+        settled = _document(control, _activation_settled_id(token["domain"],
+                                                            token["generation"]),
+                            ACTIVATION_SETTLED_KIND)
+        if admitted is not None and settled is None:
+            raise ContractRefusal(
+                "runtime-observation", "quiescence-unknown",
+                f"generation {token['generation']} of {name_value(token['domain'])} "
+                f"has an ADMITTED ACTIVATION of container "
+                f"{name_value(admitted['container'])} that nobody has settled, so "
+                f"whether it is about to run is UNKNOWN; the resource stays held "
+                f"until that activation is resolved")
         return dict(document)
 
     return control.transact(_returned_id(token["domain"], token["generation"]),
@@ -435,12 +817,27 @@ def returned(control, token, *, cessation):
                             manager_signature(RETURNED_KIND, document), returning)
 
 
-def _owning(control, token, what):
+def _owning(control, token, what, *, reclaiming=False):
     """Re-read the acquisition and require this act to be its owner.
 
     The document the caller holds is one the caller is holding; what authorizes each
     step is the record this journal still has, with its signature recomputed.
     """
+    # W275774: A REVOCATION STOPS ACTING AND DOES NOT STOP SETTLING, which is the
+    # same distinction expiry already draws. Withdrawing the entitlement is what
+    # keeps a stale holder from launching, binding or admitting an activation; if it
+    # also blocked the RETURN then the only path that can free a reclaimed resource
+    # would be the one the revocation closes, and every revoked generation would
+    # hold its resource forever. My own case found exactly that.
+    if not reclaiming and _document(
+            control, _revoked_id(token["domain"], token["generation"]),
+            REVOKED_KIND) is not None:
+        raise ContractRefusal(
+            "refused", "already-terminal",
+            f"{what} for generation {token['generation']} of "
+            f"{name_value(token['domain'])} is refused: that generation has been "
+            f"REVOKED, so its entitlement is withdrawn; only a manager settlement "
+            f"holding positive cessation evidence may act on it now")
     held = _document(control, _acquired_id(token["domain"], token["generation"]),
                      ACQUIRED_KIND)
     if held is None or held.get("owner") != token["owner"]:
@@ -460,7 +857,7 @@ def _owning(control, token, what):
             f"{what} for generation {token['generation']} of "
             f"{name_value(token['domain'])} is refused: that token has been returned, and "
             f"a returned generation authorizes nothing further")
-    if control._now() >= held["expires_at"]:
+    if not reclaiming and control._now() >= held["expires_at"]:
         raise ContractRefusal(
             "refused", "precondition",
             f"{what} for generation {token['generation']} of "
@@ -468,3 +865,279 @@ def _owning(control, token, what):
             f"{name_value(held['expires_at'])}. Expiry begins revocation, and a late "
             f"binding or return under an expired token is not an exception to it")
     return held
+
+
+# -- the consumer's side: one governed start, composed once -------------------
+#
+# W275774 review 15:28:31Z asked the CALLER to demonstrate that it reserves ONE
+# external crossing and that retries reconcile onto it. That is a composition
+# rather than a new rule, and it lives here rather than in `attempts.py` so the
+# ordering -- reserve, journal the launch, bind, admit, settle -- is owned in one
+# place by the module that owns the records.
+
+
+class Reservation:
+    """One attempt's reservation of one resource, and the acts it authorizes.
+
+    Handed to `attempts.request_runtime_start`, which passes `bind` into the
+    adapter and calls `settle` only on a conclusive outcome. It holds no engine
+    handle and performs no I/O: every method here is a journal decision.
+    """
+
+    def __init__(self, control, token, launch):
+        self.control = control
+        self.token = token
+        self.launch = launch
+
+    def bind(self, container):
+        """Bind the created container, and answer the ADMISSION for its start.
+
+        Called between the engine's `create` and its `start`, which is the only
+        moment at which the container's identity exists and no process has
+        touched the resource. The returned callable is asked at the last moment
+        before activation and answers the admission record itself -- never a
+        boolean, which could not be told apart from a stale one.
+        """
+        bind_container(self.control, self.token, container, launch=self.launch)
+        return lambda: admit_activation(self.control, self.token,
+                                        container=container)
+
+    def settle(self, container):
+        """The activation positively happened: the engine answered."""
+        return settle_activation(self.control, self.token, container=container,
+                                 started=True)
+
+
+def generation_of(control, domain, *, execution, operation):
+    """The generation THIS execution and operation reserved, or `None`.
+
+    W275774 review 15:55:27Z [P1]: a recovered return must name the generation its
+    own act reserved, NOT whatever is outstanding now. The previous cut took "the
+    one outstanding generation", so a stale recovery arriving after generation 2 had
+    been acquired would have returned GENERATION 2 -- somebody else's live hold,
+    released by a message about a dead one.
+
+    So the generation is found by the pair that identifies the original act, and a
+    recovery whose own generation is already returned finds it and stops.
+
+    AND THE PAIR IS OWNED HERE, WHICH IT WAS NOT. W275774 inventory B/D, 2026-09-27:
+    `acquire` validates `operation` and `execution` and this resolver did not, so the
+    two acts that reach a generation THROUGH it -- `release` and `revoke` -- took the
+    identifying pair unvalidated and merely COMPARED it against journal documents. A
+    comparison is not ownership: a non-text operand matched nothing and left "no
+    generation was reserved by ...", a refusal that reads like an absent record rather
+    than a malformed request. Validated in the ONE resolver both callers use, so
+    neither has its own spelling of the same rule.
+    """
+    boundaries.text(domain, "a governed conflict domain")
+    execution = boundaries.text(execution, "a token execution identity")
+    operation = boundaries.text(operation, "a token operation identity")
+    generation = 1
+    while True:
+        acquired = _document(control, _acquired_id(domain, generation),
+                             ACQUIRED_KIND)
+        if acquired is None:
+            return None
+        if acquired["execution"] == execution \
+                and acquired["operation"] == operation:
+            return generation
+        generation += 1
+
+
+def release(control, resource_identity, resource_kind, *, execution, operation,
+            cessation, reclaiming=False):
+    """Return the resource on CONFIRMED cessation of the exact bound container.
+
+    THE OTHER END OF THE LIFECYCLE, and the piece whose absence measurably made a
+    governed start one-shot: nothing returned a token, so the first governed start
+    held its domain for the life of the store.
+
+    RESTART-SAFE, AND BOUND TO ITS OWN ACT. It takes the resource identity and the
+    execution/operation pair rather than a token document -- the process that must
+    return a resource is routinely not the one that reserved it -- and it resolves
+    the generation THAT PAIR reserved. A generation already returned answers `None`,
+    so a repeated ending is idempotent rather than fatal, and a later generation
+    belonging to somebody else is never touched.
+
+    `cessation` IS THE CALLER'S EVIDENCE AND IS NOT INVENTED HERE. Review 15:55:27Z
+    caught the previous cut synthesizing `stopped=True` from a state column and
+    defaulting `helpers` to empty -- which is asserting that no writer survived
+    rather than observing it. This requires the document, `returned` re-checks it
+    against what was bound, and nothing here supplies a default for either field.
+    """
+    reclaiming = _reclaiming(reclaiming)
+    domain = domain_of(resource_kind, resource_identity)
+    offered = boundaries.document(cessation, "a container cessation answer",
+                                  required=("container", "stopped", "helpers"))
+    generation = generation_of(control, domain, execution=execution,
+                               operation=operation)
+    if generation is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"no generation of {name_value(domain)} was reserved by execution "
+            f"{name_value(execution)} under operation {name_value(operation)}; "
+            f"there is nothing this ending can return")
+    current = token_of(control, domain, generation)
+    if current["returned"]:
+        return None
+    token = {"domain": domain, "generation": generation,
+             "owner": current["owner"]}
+    return returned(control, token, reclaiming=reclaiming, cessation={
+        "domain": domain, "generation": generation,
+        "launch": current["launch"], "container": offered["container"],
+        "stopped": offered["stopped"], "helpers": offered["helpers"]})
+
+
+class Governance:
+    """The authority one resource family's starts are serialized against."""
+
+    def __init__(self, resource_kind, identity):
+        self.resource_kind = boundaries.text(resource_kind,
+                                             "a governed resource kind")
+        self.identity = boundaries.capability(identity,
+                                              "a governed resource identity")
+
+    def release(self, control, attempt, *, operation, cessation,
+                reclaiming=False):
+        """This family's return: the resource identity is the governance's own."""
+        reclaiming = _reclaiming(reclaiming)
+        return release(control, self.identity(attempt), self.resource_kind,
+                       execution=attempt["runtime_attempt_id"],
+                       operation=operation, cessation=cessation,
+                       reclaiming=reclaiming)
+
+    def overdue(self, control, attempt, *, operation):
+        """This attempt's generation if it is overdue and unreturned, else `None`."""
+        domain = domain_of(self.resource_kind, self.identity(attempt))
+        generation = generation_of(control, domain,
+                                   execution=attempt["runtime_attempt_id"],
+                                   operation=operation)
+        if generation is None:
+            return None
+        current = token_of(control, domain, generation)
+        if current["returned"] or not current["expired"]:
+            return None
+        return current
+
+    def revoke(self, control, attempt, *, operation):
+        """This family's revocation, on its own resource identity."""
+        return revoke(control, self.identity(attempt), self.resource_kind,
+                      execution=attempt["runtime_attempt_id"],
+                      operation=operation)
+
+    def reserve(self, control, attempt, *, operation):
+        """Reserve the resource for this attempt BEFORE any launch is attempted.
+
+        The launch is journalled under the START OPERATION'S OWN IDENTITY, so the
+        launch the token names is the journalled start rather than a second act
+        beside it -- and a retry of that operation replays this same reservation
+        rather than allocating a second generation.
+        """
+        domain = domain_of(self.resource_kind, self.identity(attempt))
+        token = acquire(control, domain, operation=operation,
+                        execution=attempt["runtime_attempt_id"],
+                        attempt=attempt["runtime_attempt_id"])
+        journal_launch(control, token, operation)
+        return Reservation(control, token, operation)
+
+
+def governed_workspace_identity(control, attempt, mounted=None):
+    """The workspace resource identity WITH ITS OVERLAP ARGUMENT, when a store is here.
+
+    W275774 review 18:27:07Z directed the shared durable domain and overlap exclusion,
+    and this is the half the token owner can hold: it delegates to the containment
+    owner, which has the paths this module deliberately does not.
+
+    `workspaces.governed_resource_identity` answers `device:inode` ONLY after checking
+    that the root sits in the sibling position the configured storage arranges -- so
+    two attempts naming one object share a domain, and two attempts naming different
+    objects provably cannot be writing the same tree. A root reached by some other
+    arrangement is refused rather than handed out as an identity that looks unique and
+    is not.
+
+    THE ROW-ONLY FORM BELOW REMAINS, and its limit is now explicit rather than
+    implied: it names the same object and makes NO overlap argument, so it is the
+    fallback for callers that hold no store and not the governed path.
+    """
+    from . import workspaces
+
+    argued = workspaces.governed_resource_identity(
+        control, attempt["runtime_attempt_id"], mounted=mounted)
+    # AND IT MUST BE THE OBJECT THIS ATTEMPT PINNED, which is what keeps the domain
+    # STABLE across the lifecycle. Review 18:33:48Z named the risk: if the live object
+    # were allowed to differ from the pinned one, a start would reserve under one
+    # domain and its ending would compute another and find no generation to return.
+    # So the containment argument is required to agree with the pinned identity, and a
+    # disagreement is a refusal rather than a silently different resource.
+    pinned = workspace_identity(attempt)
+    if argued != pinned:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"attempt {name_value(attempt['runtime_attempt_id'])} pinned workspace "
+            f"object {name_value(pinned)} and its governed root now resolves to "
+            f"{name_value(argued)}; the resource a start reserved is not the resource "
+            f"this act would name")
+    return argued
+
+
+def workspace_identity(attempt):
+    """The attempt's workspace object, as the resource its starts contend for.
+
+NAMES THE OBJECT AND MAKES NO OVERLAP ARGUMENT, which is now stated as the
+    difference rather than as a caveat. Review 14:41:35Z ruled the device/inode
+    selection an implementation proposal precisely because nested roots can differ by
+    inode while sharing writable descendants, so naming the same object is not on its
+    own an exclusion.
+
+    `governed_workspace_identity` above is the form that carries the argument, by
+    delegating to the containment owner. This one is for a caller holding no store,
+    and a `Governance` composed on it excludes only same-object contention.
+    """
+    device, inode = attempt["workspace_device"], attempt["workspace_inode"]
+    if device is None or inode is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt['runtime_attempt_id'])} has no pinned "
+            f"workspace object, so the resource its start contends for cannot be "
+            f"named; a governed start requires the boundary identity first")
+    return f"{device}:{inode}"
+
+
+def workspace_governance(*, control=None, mounted=None):
+    """Starts serialized against the workspace object they mount.
+
+    WITH a control store the identity carries its overlap argument, because the
+    containment owner is asked. WITHOUT one it names the same object and excludes
+    same-object contention only -- which is the honest difference, not a detail.
+
+    W275774 review 2026-09-26T22-07-51Z: `mounted` IS THE ROOT THIS START ACTUALLY
+    MOUNTS, and passing it is how a caller keeps the overlap argument in a deployment
+    whose writable root is not `<storage>/<attempt>/workspace`. The containment owner
+    proves the root sits in one of the two sibling arrangements this build supports; the
+    equality against the PINNED object is unchanged, so the domain is still the durable
+    one every ending resolves through. Supplying nothing leaves the ordinary derivation
+    exactly as it was.
+    """
+    if control is None:
+        return Governance("workspace", workspace_identity)
+    return Governance("workspace",
+                      lambda attempt: governed_workspace_identity(
+                          control, attempt, mounted=mounted))
+
+
+def _held_generation(control, domain):
+    """The one outstanding generation of this domain, or `None`.
+
+    Restart-safe by construction: it reads the journal rather than expecting the
+    caller to still hold the token document it was handed before the restart.
+    """
+    held = outstanding(control, domain)
+    if not held:
+        return None
+    if len(held) > 1:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"resource {name_value(domain)} has {len(held)} outstanding token "
+            f"generations, which is a state this owner never creates; nothing is "
+            f"returned until that is reconciled")
+    return held[0]["generation"]

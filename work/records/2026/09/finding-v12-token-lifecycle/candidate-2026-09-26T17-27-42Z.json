@@ -1,0 +1,8 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/tools/job_manager.py": "5f18c99b2e57b5e0c5530c304034e3e9c8abfe10c67144cdac47e037f9b36c67",
+  "v12/python/tests/job_manager/test_tool.py": "7219d71af942e07844a3dd383bfc8cdd1ebd3f04b4b4adc8a83b71f7d5786792",
+  "v12/python/src/baton_v12/job_manager/manager.py": "3795d21a05ac9881e4fb8e8dcafe8f5228c24e2903d6c3fcd5697585a44a88e2",
+  "v12/python/src/baton_v12/worker_manager/intake.py": "668d1f7250df40d56391c321ad259ccf41081fe9d8a18e1fe08e1f924a780241",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_reclaim_observation_20260926.py": "0b8d305db68ba6e9494d2ac0be3f4d51a28f10f690dd08dfdf9e79a7621b1a5a"
+}

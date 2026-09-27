@@ -1,0 +1,6 @@
+{
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "8405bfc710ab01a20e68fbad85c7aa8bcca3d63bd26b90279a2ae25312aa088c",
+  "v12/python/tests/manager/test_boundary_inventory.py": "40e0a3c9473de5a4a5c846bd60e4f1c80906a81d682759220cb6ffa665459ffc",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_activation_boundary.py": "5499ae95ef040cf8a0eba8944cc2e749fa91effba5646d8b0e0a3479ddcfbe75",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_admission_lock_20260926.py": "3c2985e2d20517b94f02bca77b83ad066f1ad2065b29a9bc385eb9225ab1f6d2"
+}

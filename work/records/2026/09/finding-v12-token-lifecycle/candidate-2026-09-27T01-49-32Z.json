@@ -1,0 +1,31 @@
+{
+  "work": "W275774",
+  "claim": 280990,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "210a03730ae0e9c1cd1b47fb4475cb0c53f58430044c70b32dfee5387d67c119",
+      "bytes": 59614
+    },
+    {
+      "path": "v12/python/tests/manager/test_review_cycles.py",
+      "sha256": "1e3d6a07985138376acb13bdb4cbc8b9fdf3bb92e6615f33d50d70fa28421053",
+      "bytes": 156546
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "49232b2080835dc03c9714d6c09ff64cb97ccb878a5c0c242d55ded5d0e8c9c4",
+      "bytes": 797274
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "0429503654791dd7b336b0819963df2bfa49990be9119176fa8f6492dc075473",
+      "bytes": 60328
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_reclaiming_type_v2_20260927.py",
+      "sha256": "dc34e03ed853828b6f06a13ee9502349866382a3f6141570dc4aa79dad754ad3",
+      "bytes": 1483
+    }
+  ]
+}

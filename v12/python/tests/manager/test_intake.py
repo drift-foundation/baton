@@ -2667,11 +2667,16 @@ class TheQuiescenceGateIsDischargedFromTheCommittedCleanup(IntakeCase):
         self.assertEqual(self.attempt_axis("cleanup"), "complete")
         # Cleanup asked the authority nothing about a gate.
         self.assertEqual(self.satisfied(), [])
+        # W275774: `govern` joins the pin rather than loosening it. The pin's
+        # subject is that CLEANUP ASKS THE AUTHORITY NOTHING ABOUT A GATE -- the
+        # assertions above -- and it keeps that subject: `govern` is the resource-token
+        # authority a governed ending returns its workspace to, it defaults to absent so
+        # every ungoverned caller is unchanged, and it reaches no gate and no authority.
         self.assertEqual(
             sorted(one for one in
                    inspect.signature(authorize_cleanup).parameters),
-            ["adapter", "attempt_id", "port", "retention_policy_digest",
-             "store"])
+            ["adapter", "attempt_id", "govern", "port",
+             "retention_policy_digest", "store"])
 
     def test_the_discharge_writes_no_manager_axis(self):
         self.settled()

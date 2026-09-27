@@ -1230,13 +1230,45 @@ def _integration_mounts(integration_delivered, posture=None, others=()):
     return tuple(composed)
 
 
+# W275774 TOK-4: THE TWO WAYS TO COMPOSE ONE RUNTIME.
+#
+# `run --detach` creates the container AND runs it in a single engine act, so
+# the identity a resource token must be bound to DOES NOT EXIST until the
+# process is already running with its mounts present. Review 14:41:35Z put it
+# exactly: binding after the reply cannot retroactively prevent pre-binding
+# effects, and a worker that politely waits for input is worker cooperation
+# rather than host exclusion.
+#
+# `create` composes the SAME vector -- same mounts, same restrictions, same
+# labels, same user -- and leaves it inert. Nothing in it can touch the
+# resource, because no process exists to touch it. That is what makes a
+# pre-effect binding expressible at all: the host itself, not the worker,
+# withholds the effect until a second act asks for it.
+ACTIVATE_IMMEDIATELY = "immediate"
+ACTIVATE_DEFERRED = "deferred"
+ACTIVATIONS = {ACTIVATE_IMMEDIATELY: ("run", "--detach"),
+               ACTIVATE_DEFERRED: ("create",)}
+
+
+def activation_vector(engine, *, runtime_id):
+    """The second act: run what `ACTIVATE_DEFERRED` composed and left inert.
+
+    Deliberately tiny and deliberately separate. Everything that decides what
+    this container IS was decided and journalled before it existed; this only
+    asks the engine to run the thing already bound by name.
+    """
+    engine = _engine(engine)
+    boundaries.identity(runtime_id, "a created runtime id")
+    return [engine, "start", runtime_id]
+
+
 def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                mounts=(), credentials_delivered=(), launch_delivered=None,
                exchange_delivered=None, source_delivered=None,
                logs_delivered=None, scratch_delivered=None,
                integration_delivered=None, context_delivered=None,
                name, workspace_group=None, network=NETWORK_NONE,
-               interactive=False):
+               interactive=False, activation=ACTIVATE_IMMEDIATELY):
     """The closed argv that STARTS one runtime, restrictions and all.
 
     The image is named BY DIGEST. A tag is a name somebody can move, and a
@@ -1254,7 +1286,16 @@ def run_vector(engine, *, image_digest, labels, assignment_roots, posture,
                 f"runtime is started from an image this manager can name "
                 f"exactly", code="digest")
     boundaries.identity(name, "a runtime name")
-    argv = [engine, "run", "--detach", "--name", name]
+    # THE ONE LINE THE ACTIVATION CHOICE CHANGES, and it changes nothing else
+    # on purpose: a deferred vector that differed from the immediate one in any
+    # other respect would mean the container a token was bound to is not the
+    # container that later runs.
+    boundaries.text(activation, "a runtime activation")
+    if activation not in ACTIVATIONS:
+        _denied(f"{name_value(activation)} is not a runtime activation; a "
+                f"runtime activation is one of "
+                f"{', '.join(sorted(ACTIVATIONS))}")
+    argv = [engine, *ACTIVATIONS[activation], "--name", name]
     # W38956: THE CHANNEL, HELD OPEN, and OFF unless a caller asks for it.
     #
     # Without `--interactive` a detached container's stdin is `/dev/null`: the
@@ -2262,12 +2303,28 @@ class OciAdapter:
             _denied("the execution grant does not name this delivered "
                     "context")
 
-    def start(self, request):
+    def start(self, request, *, bind=None):
         """Start one runtime and answer WHAT WAS STARTED, not that it worked.
 
         A duplicate start fails closed: the engine is asked what already
         carries these labels BEFORE anything is created, because two runtimes
         for one assignment is the state no later reconciliation can undo.
+
+        W275774 TOK-4: `bind` MAKES THE LAUNCH TWO ACTS. Given a binding, this
+        composes the deferred vector, creates an inert container, hands its
+        identity to `bind` -- which is where the resource token records the
+        exact container it now governs -- and only then asks the engine to run
+        it. A `bind` that refuses means nothing ran, and the created container
+        is settled by name like every other post-create exit here.
+
+        `bind` RETURNS A PERMISSION, which is asked again immediately before the
+        activation and must answer `True`. Review 14:54:16Z measured why: a
+        starter suspended between the two acts activated a container whose token
+        had expired in the meantime, because a successful binding was being read
+        as a standing permission rather than as a fact about one past instant.
+
+        Without `bind` the historical single act is unchanged, because an
+        assignment governed by no resource token has nothing to bind to.
         """
         # W194457, owner decision 2026-09-17 (OWNER-TRUSTED-IDENTITY): THERE IS
         # NO RUNTIME PROBE HERE AND THERE IS NOTHING TO ACTIVATE.
@@ -2492,7 +2549,13 @@ class OciAdapter:
                 context_delivered=self.context_delivery,
                 name=_runtime_name(taken["operation_id"]),
                 workspace_group=self.workspace_group,
-                network=self.network, interactive=self.interactive)
+                network=self.network, interactive=self.interactive,
+                # W275774: DEFERRED EXACTLY WHEN SOMETHING WILL BIND. The
+                # choice is the caller's presence of a binding rather than a
+                # separate flag, so "governed by a token" and "created before
+                # it runs" cannot fall out of step.
+                activation=(ACTIVATE_DEFERRED if bind is not None
+                            else ACTIVATE_IMMEDIATELY))
             # W110934: THE LAST PROOF BEFORE THE ENGINE, and it is deliberately
             # AFTER the duplicate probe, the workspace proof and the vector.
             #
@@ -2531,6 +2594,93 @@ class OciAdapter:
                 boundaries.identity(runtime_id, "a started runtime id")
         except ContractRefusal as refusal:
             self._refused_start(labels, refusal.message)
+        # W275774 TOK-4: THE BINDING HAPPENS HERE, BETWEEN THE TWO ACTS.
+        #
+        # What exists at this point is a container with every mount declared
+        # and NO PROCESS. The resource cannot be touched yet -- not because the
+        # worker is well behaved, but because the host has not been asked to run
+        # anything. So this is the only moment at which a binding is both
+        # possible (the identity exists) and still ahead of every effect.
+        #
+        # A REFUSAL HERE IS A POST-CREATE EXIT, which is why it takes
+        # `_refused_start` rather than returning: the inert container exists and
+        # must be settled by name, exactly like the mount-disagreement exit
+        # below. Nothing ran, and nothing is left for a later adoption to find
+        # without a record.
+        if bind is not None and runtime_id:
+            try:
+                permit = bind(runtime_id)
+            except ContractRefusal as refusal:
+                self._refused_start(
+                    labels,
+                    f"the created runtime {name_value(runtime_id)} could not "
+                    f"be bound before activation, so it was not started: "
+                    f"{refusal.message}")
+            # W275774 review 14:54:16Z [P1]: THE PERMISSION IS ASKED AGAIN HERE,
+            # AND A SUCCESSFUL BINDING IS NOT ITSELF A PERMISSION.
+            #
+            # The defect this closes was measured by an independent probe: bind
+            # while the token was valid, suspend the starter until after expiry,
+            # and this activated anyway -- because "bind returned" was being read
+            # as "may run", which is a past-tense fact about a different instant.
+            # A starter can be descheduled for any length of time between those
+            # two engine calls, so the only answer worth acting on is the one
+            # taken at the last moment this manager controls.
+            #
+            # THE ANSWER IS NOT THIS ADAPTER'S TO COMPUTE. It holds no token and
+            # knows no lifecycle; what it holds is a capability the binding
+            # returned, which re-reads the durable record and answers for that
+            # instant. Anything other than a positive True -- including a
+            # binding that returned no permission at all -- is a refusal, so a
+            # caller cannot obtain an activation by omission.
+            # W275774 review 15:00:16Z [P1]: A BOOLEAN IS NOT A PERMISSION.
+            #
+            # The previous cut accepted `permit() is True`, and an independent
+            # probe walked straight through it: the permission was read while the
+            # token was live, the resource was then settled and handed to
+            # generation 2, and the stale `True` still admitted an activation of
+            # generation 1's container. A verdict a caller computed earlier cannot
+            # be told apart from a verdict that has since become false.
+            #
+            # SO WHAT IS REQUIRED IS THE ADMISSION RECORD ITSELF, naming the exact
+            # container about to run. The resource owner mints it durably at the
+            # moment it admits the activation, and while it is unresolved the
+            # resource cannot be handed to a replacement -- so an admission that
+            # exists and names this runtime is a fact about NOW rather than a
+            # summary of an earlier read. A bare `True`, or a document about some
+            # other container, is refused and nothing is activated.
+            try:
+                boundaries.capability(permit, "an activation permission")
+                admitted = boundaries.document(
+                    permit(), "an activation admission",
+                    required=("domain", "generation", "container"),
+                    optional=("owner",))
+                if admitted["container"] != runtime_id:
+                    _denied(f"the activation admission names container "
+                            f"{name_value(admitted['container'])} and the created "
+                            f"runtime is {name_value(runtime_id)}; an admission "
+                            f"for another container admits nothing here")
+            except ContractRefusal as refusal:
+                self._refused_start(labels, refusal.message)
+            # AND NOW, AND ONLY NOW, IT MAY RUN.
+            #
+            # A WINDOW REMAINS BETWEEN THIS ANSWER AND THE ENGINE, and no check
+            # inside one process can close it. What makes it safe is the other
+            # half of the contract, which lives in the token rather than here:
+            # an expired generation whose launch was journalled is NOT returned
+            # merely by expiring, so the resource is not handed to a replacement
+            # until cessation is conclusively settled. A late activation can
+            # therefore only ever be the generation that already holds the
+            # resource -- never a second holder beside a replacement.
+            try:
+                activated = self.run(activation_vector(
+                    self.engine, runtime_id=runtime_id))
+                if activated["status"] != 0:
+                    _denied(f"the engine refused to activate the bound "
+                            f"runtime {name_value(runtime_id)}: "
+                            f"{name_value(activated['stderr'][:MAX_DIAGNOSTIC])}")
+            except ContractRefusal as refusal:
+                self._refused_start(labels, refusal.message)
         if not runtime_id:
             # THE ENGINE SAID NOTHING. That is not "started something unnamed";
             # it is an answer this adapter cannot turn into an identity, and
@@ -3072,8 +3222,37 @@ class OciAdapter:
         identity and answers `quiescent`, `running`, `absent` or `uncertain` --
         and `uncertain` is the honest answer whenever the engine's account does
         not settle the question.
+
+        THE CANCELLATION'S STOP, and only that. `attempts._order_quiescence` is
+        its one crossing owner: a cancellation fences the assignment at the
+        authority first and stops the runtime after, and this is the second half
+        of that ordering. The expiry sweep's stop is `stop_expired` below.
         """
-        taken = boundaries.document(request, "a stop request",
+        return self._stopped(request, "a stop request")
+
+    def stop_expired(self, request):
+        """The RECEIPT-FREE EXPIRY STOP, as its own capability.
+
+        W275774 review 2026-09-26T20-07-17Z. `intake.reclaim_expired_resource`
+        crossed `stop` too, so one capability had two crossing owners -- which
+        the boundary inventory refuses, and rightly: the two acts differ in what
+        authorizes them. A cancellation's stop follows an authority fence over a
+        live assignment. A reclaim's stop follows nothing but an OVERDUE TOKEN
+        GENERATION: there is no fence, no intake receipt and no destroy receipt,
+        because a sweep is not an assignment ending and must not drag the
+        authority into one.
+
+        THE SEMANTICS ARE THE SAME BY CONSTRUCTION, which is why this is a name
+        and a core rather than a second implementation. Same exact identity,
+        same operation identity riding with it, same engine vector and timeout,
+        same prove-afterwards answer -- two orders that agree until one is
+        edited is the failure this avoids.
+        """
+        return self._stopped(request, "an expiry stop request")
+
+    def _stopped(self, request, what):
+        """The one ordered-then-proved stop both capabilities are."""
+        taken = boundaries.document(request, what,
                                     required=("runtime_id", "operation_id"))
         runtime_id = boundaries.identity(taken["runtime_id"], "a runtime id")
         boundaries.identity(taken["operation_id"], "an operation identity")

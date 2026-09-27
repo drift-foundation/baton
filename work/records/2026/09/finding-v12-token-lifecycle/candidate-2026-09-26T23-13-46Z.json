@@ -1,0 +1,16 @@
+{
+  "work": "W275774",
+  "claim": 279932,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "ad9f8f55fcdcb3c1e08ab6070951810941e141d0171b54e35a7834fe4a2457ce",
+      "bytes": 225379
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "883a96d8a38d1cb7d81b0579c462c65d985e783fe1833b10cd355b4be9ff3e02",
+      "bytes": 544521
+    }
+  ]
+}

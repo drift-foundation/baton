@@ -711,7 +711,10 @@ class TheArcIsEffectivelyOnceAndAFreshAttemptIsFresh(OperatorCase):
             self.normalized.append((assignment_id, which))
             return custody._answered(
                 "normalize", 0,
-                {"custody": "normalize", "entries": 0, "not_ours": 0,
+                # W275774: the `submission` member the custody act answers with; a double
+                # that omits it makes every ending refuse for want of an accountable act.
+                {"custody": "normalize", "submission": "0" * 32,
+                 "entries": 0, "not_ours": 0,
                  "running_as": [0, 0]}, None)
 
         def start(self, operands):
@@ -4447,7 +4450,8 @@ class ThePublicRetryRunsFromRealDurableState(intake_fixture.IntakeCase):
 
             return custody._answered(
                 "normalize", 0,
-                {"custody": "normalize", "entries": 0, "not_ours": 0,
+                {"custody": "normalize", "submission": "0" * 32,
+                 "entries": 0, "not_ours": 0,
                  "running_as": [0, 0]}, None)
 
         # THE OUTPUT CUSTODY HALF, answered from the fixture's own composers
@@ -4752,7 +4756,8 @@ class ThePublicRecoveryEndsAnInterruptedAttempt(
             del store, assignment_id, which
             return custody._answered(
                 "normalize", 0,
-                {"custody": "normalize", "entries": 0, "not_ours": 0,
+                {"custody": "normalize", "submission": "0" * 32,
+                 "entries": 0, "not_ours": 0,
                  "running_as": [0, 0]}, None)
 
         built["adapter"].normalize_directory = normalize_directory
@@ -6127,7 +6132,8 @@ class TheDocumentedRecoveryEndsRealAttachedState(
             built["adapter"].normalize_directory = (
                 lambda store, *, assignment_id, which: custody._answered(
                     "normalize", 0,
-                    {"custody": "normalize", "entries": 0, "not_ours": 0,
+                    {"custody": "normalize", "submission": "0" * 32,
+                     "entries": 0, "not_ours": 0,
                      "running_as": [0, 0]}, None))
             return built
 
@@ -6260,7 +6266,8 @@ class TheRecoveryMatrixOverDurableAttachedState(
             built["adapter"].normalize_directory = (
                 lambda store, *, assignment_id, which: custody._answered(
                     "normalize", 0,
-                    {"custody": "normalize", "entries": 0, "not_ours": 0,
+                    {"custody": "normalize", "submission": "0" * 32,
+                     "entries": 0, "not_ours": 0,
                      "running_as": [0, 0]}, None))
             return built
 

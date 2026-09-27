@@ -1,0 +1,7 @@
+{
+  "v12/python/src/baton_v12/worker_manager/attempts.py": "c09d07a88dff8192524570d91f6fef8a4184b7c80e9e78f83759b891481ea309",
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "5057b34e31d6b282f473aeef4575958524ca937dfaa2bcc6bce5427be505892b",
+  "v12/python/tools/single_worker.py": "860c6d49e05b9e2951d0e5e06d4ce51f39b71a6b65529b69619acea2925d27bb",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_governed_start.py": "bd9a0411279acc28d72185305173dd16d24bd45268ba1aa43bdcd377e6dab7b4",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_governed_caller_20260926.py": "fab35eb9b6cf5ab02603770d68dbe89f5185bdee7709690adc994c365c23d9b8"
+}

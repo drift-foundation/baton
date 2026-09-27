@@ -1,0 +1,16 @@
+{
+  "work": "W275774",
+  "claim": 280015,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "bytes": 225379,
+      "sha256": "ad9f8f55fcdcb3c1e08ab6070951810941e141d0171b54e35a7834fe4a2457ce"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_writer_access_admission.py",
+      "bytes": 7884,
+      "sha256": "d7843c2abb0f9d2db995d36da1ce7eba5dbec22b6a6776674e7e1cf6fcff00c0"
+    }
+  ]
+}

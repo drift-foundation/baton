@@ -1,0 +1,349 @@
+{
+  "work": "W275774",
+  "claim": 281251,
+  "scope": "Final one-instance Child A reviewed tree; whole-file hashes include shared pre-existing content. No import/deployment/Git authorization. DESIGN is authority input.",
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "bytes": 61178,
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934",
+      "prior_manifest": "candidate-2026-09-26T21-33-35Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/manager.py",
+      "bytes": 58227,
+      "sha256": "cd476d66063fd1a7324408f1cba3f4168f05446e5142771cc53579961bceddbe",
+      "prior_manifest": "candidate-2026-09-26T17-35-44Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "bytes": 96094,
+      "sha256": "02bc903ef44253132dc0bd711a9e0beb04fe500c4cb91b6c24f9670c451e98ba",
+      "prior_manifest": "candidate-2026-09-27T01-25-07Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "bytes": 208637,
+      "sha256": "b55045ebf7a617af662da191306f4ebc06711fe27a70b69a5a256cba11bd6bc4",
+      "prior_manifest": "candidate-2026-09-26T22-29-30Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "bytes": 137366,
+      "sha256": "2630e18823297bd87a84b5fa47acf8e39bc93c64edacbb49bd889ad43a0b7e4e",
+      "prior_manifest": "candidate-2026-09-26T18-27-07Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "bytes": 49799,
+      "sha256": "898b8a65e99f8a289d5a460b74fca080d7cc6ede35c2bd48fe76e8d49e7a9fde",
+      "prior_manifest": "candidate-2026-09-26T19-53-28Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "bytes": 281416,
+      "sha256": "0cf28ab80e1d0dfb8c3f05814aaab5a135f46a0a62c3b32c43bb107bbe73beb3",
+      "prior_manifest": "candidate-2026-09-26T20-48-20Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "bytes": 234036,
+      "sha256": "97f5e7eeb3323ee6976ec5933312d131f1f4c84f7625f775a12af0d73b9528ef",
+      "prior_manifest": "candidate-2026-09-26T22-29-30Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "bytes": 225379,
+      "sha256": "ad9f8f55fcdcb3c1e08ab6070951810941e141d0171b54e35a7834fe4a2457ce",
+      "prior_manifest": "candidate-2026-09-27T00-44-18Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "bytes": 61819,
+      "sha256": "c2039970b589600ee69b27e6dde2b2d6295af822517b3e3c14f2d8c6ca951382",
+      "prior_manifest": "candidate-2026-09-27T02-08-05Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "bytes": 304507,
+      "sha256": "50207908e522a77e3912b0fc43b731b11302892ffdda10ad6f9a1b6bd15fbb05",
+      "prior_manifest": "candidate-2026-09-26T22-49-50Z.json",
+      "matches_prior": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_recovery.py",
+      "bytes": 73264,
+      "sha256": "2e56427e6b21892d943235e8b680bd7085a58c103ee3d9702323fbd3e87362a7",
+      "prior_manifest": "candidate-2026-09-27T00-44-18Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "bytes": 58377,
+      "sha256": "595d656e2afd4c66ce55a9d1667711b5bf3eaadeba8466a359d36b527248399e",
+      "prior_manifest": "candidate-2026-09-26T21-44-57Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "bytes": 827026,
+      "sha256": "6b15ff386399963f97fcabe873e933da0b7e86cc0c294b1d06aec7f7c73673c8",
+      "prior_manifest": "candidate-2026-09-27T02-08-05Z.json",
+      "matches_prior": false
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "bytes": 64436,
+      "sha256": "2d70cf4e16df8058d2fabb74f41fad6d23e43f6c3fb6a372292cc08974375611",
+      "prior_manifest": "candidate-2026-09-27T01-25-07Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_custody.py",
+      "bytes": 132081,
+      "sha256": "c5c91058f198cac6f3287c57c416b92021383a288216c66efb501318e599d5c9",
+      "prior_manifest": "candidate-2026-09-26T18-11-15Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "bytes": 60328,
+      "sha256": "0429503654791dd7b336b0819963df2bfa49990be9119176fa8f6492dc075473",
+      "prior_manifest": "candidate-2026-09-27T01-49-32Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_intake.py",
+      "bytes": 193702,
+      "sha256": "8808b1ce54a4c99f1c01a2a120bde404a4a658392285029b0a61188438812c98",
+      "prior_manifest": "candidate-2026-09-26T16-29-48Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "bytes": 126920,
+      "sha256": "88e97f398edd5b66a2e3661858ed49ae5876e84dc24ead395a34cb6249e271cc",
+      "prior_manifest": "candidate-2026-09-26T22-07-51Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_refused_session_cleanup.py",
+      "bytes": 34609,
+      "sha256": "fbdae84338adbf5fafafe25c64f043af61ab44546d16e856c5b61428e3fa8e06",
+      "prior_manifest": "candidate-2026-09-26T20-07-17Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_review_cycles.py",
+      "bytes": 156546,
+      "sha256": "1e3d6a07985138376acb13bdb4cbc8b9fdf3bb92e6615f33d50d70fa28421053",
+      "prior_manifest": "candidate-2026-09-27T01-49-32Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/manager/token_support.py",
+      "bytes": 2090,
+      "sha256": "625a50c8d295e6085a633dd79e03d197890f6a150d8fd3f4b4afda9f26117c72",
+      "prior_manifest": "candidate-2026-09-26T14-34-51Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_dogfood_operator.py",
+      "bytes": 390640,
+      "sha256": "a7d2956171d78bc09acd8c315c00286eff7ae7b43b8a57345343f67e111c2080",
+      "prior_manifest": "candidate-2026-09-26T20-07-17Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "bytes": 234057,
+      "sha256": "902ff4ee329e2a8e4462ebcb80a67e40cb3edcf3f723e221798719879b6e6e6b",
+      "prior_manifest": "candidate-2026-09-26T16-37-09Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "bytes": 609325,
+      "sha256": "24d386377924680f6ef911fdde3207891f485a363e7caba8e47a9f4b83c8deaf",
+      "prior_manifest": "candidate-2026-09-27T01-25-07Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "bytes": 46630,
+      "sha256": "d27a41edd3775d6c3db030bf1955505cede7718de4c927687fbf8e1b31441eff",
+      "prior_manifest": "candidate-2026-09-26T21-44-57Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "bytes": 210657,
+      "sha256": "7225a403015adc6b3ad94d8dbef16503f3db96568219b6c2d76641b950ba2a44",
+      "prior_manifest": "candidate-2026-09-26T23-02-00Z.json",
+      "matches_prior": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "bytes": 384835,
+      "sha256": "57dc1cf14455cbf0c09bfb498f4e7dce6863a0bb1448856d9cf93974cdffc000",
+      "prior_manifest": "candidate-2026-09-27T01-25-07Z.json",
+      "matches_prior": true
+    }
+  ],
+  "dossier_test_evidence": [
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_abandonment_replay_20260926.py",
+      "sha256": "d485f29c85fb9ea811c2794d334bc43bb6c055d7c9a95570ab21cc1f4e097d79"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_activation_admission_20260926.py",
+      "sha256": "7f2d032a40d1087d8ff5d2bd2cc6d4a5a206744980a0ecc0c888ddd7aa99d8e9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_activation_atomicity_20260926.py",
+      "sha256": "d2d3be56099618ba7c575554bb14624a1b10276fb0871290bc65a4b40fa3d781"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_activation_expiry_20260926.py",
+      "sha256": "c2f287e1da29390fc7ec28f6cdb55857badf53bb5cd88345323dc1c1a6d14dd2"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_admission_lock_20260926.py",
+      "sha256": "3c2985e2d20517b94f02bca77b83ad066f1ad2065b29a9bc385eb9225ab1f6d2"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_admission_replay_race_20260926.py",
+      "sha256": "537cac6a569e75914aed29751edeee861d4994f02dc4855cdf0eaa5261c67211"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_adoption_trace_20260926.py",
+      "sha256": "688913e5d7f9e5a0cb4eb7c7a866d2011cc371535e1303d2ad946ee464d91901"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_expiry_running_20260926.py",
+      "sha256": "f1b396c7db5efd1a74ea13e9a7336932f4cb787804f5b4a159e4d2d1b8e66060"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_expiry_running_v2_20260926.py",
+      "sha256": "cd5a708056eb50843ee0debadc85c3a021e088451c94fee4f507ce7898a54484"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_expiry_running_v3_20260926.py",
+      "sha256": "0f4cbf2f6f2e8c0b81fde371961b26e2dd8f7b6cb37fb14b66491c149f46026e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_finalization_release_20260926.py",
+      "sha256": "6f8aef3633d0c9092c89344ebd95e964ad42d0c61e1c57ce609ea0690aac766d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_governed_caller_20260926.py",
+      "sha256": "fab35eb9b6cf5ab02603770d68dbe89f5185bdee7709690adc994c365c23d9b8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_guard_fork_20260926.py",
+      "sha256": "2bff2aa8216df9ceec96a6002ba803ba461ac8cceadf3b80f6dba9dcab49788e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_nonlaunch_uncertainty_20260926.py",
+      "sha256": "85dafc6a0ec25be225f3187589c3ddab81ac157de0c6780e8c2a8bd8387cb72f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_overlap_home_20260926.py",
+      "sha256": "ba11ebf5a352102277860ecd462a2da51c92a3a0ee74fb5c0d0b7bff1f045639"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_pinned_overlap_20260926.py",
+      "sha256": "055a51e53941c2fda3f2e77a3f88651d1f6232a8a8988ed79c51966f7a1791c6"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_reclaim_exact_identity_20260926.py",
+      "sha256": "3b2f82e4e2b7e83d69852702bfa642a7253156dc0ce5a1451e6b2e031169b310"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_reclaim_fairness_20260926.py",
+      "sha256": "093cf54633cc735d6a22daf7dae35089a80e2772c147ec8eb516798b51a9510e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_reclaim_observation_20260926.py",
+      "sha256": "0b8d305db68ba6e9494d2ac0be3f4d51a28f10f690dd08dfdf9e79a7621b1a5a"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_reclaim_observation_v2_20260926.py",
+      "sha256": "16390ed0bf9e15c3c7ce56e08b215a2bf60b2ca3db4daed3bacb4e60360502d8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_reclaiming_type_20260927.py",
+      "sha256": "4b86c29594462478f0266e9d9ecea66d7c3379f2fc0b3d0bc6158a0dcb70e4c2"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_reclaiming_type_v2_20260927.py",
+      "sha256": "dc34e03ed853828b6f06a13ee9502349866382a3f6141570dc4aa79dad754ad3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_replay_20260926.py",
+      "sha256": "ec3b4ed0de92eb01823f407ba146b5810218b87cf7c47a6e55d5439bcc61581d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_restoration_admission_20260927.py",
+      "sha256": "c93e00100fab1fc158410d38f130c65c9ff549db44d1e043980621c7c4bb7b3e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_revoked_pending_activation_20260926.py",
+      "sha256": "a899c956e153faf26fc5defe38e5005c7f40ac728b4ff6793eb1bcac089a71f4"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_activation_boundary.py",
+      "sha256": "5499ae95ef040cf8a0eba8944cc2e749fa91effba5646d8b0e0a3479ddcfbe75"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_connected_lifecycle.py",
+      "sha256": "f49709816419d5abedec996fa791f52da8928ce16effedbeb789a609a261d295"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_expiry_reclaim.py",
+      "sha256": "3e054c3b7cdbece4f57d48f493cbc091f61486d1e614b640d96b744998e3bbb3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_governed_endings.py",
+      "sha256": "b5342784fa550ed4f968f15c054828c116c049fafd68e163eaa33ac3a82732a2"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_governed_start.py",
+      "sha256": "ee110f741db3e100750a4700811ad991deb696bf0f7bcdb0702bff782595f9c6"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_instance_guard.py",
+      "sha256": "0078f8d511e02105da461215abd8ef151ed116263374c9861bfe2b340e480fa1"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_reclaim_selector.py",
+      "sha256": "69bf163c2919c96e4384ba19517d4d27fe377a1d01f27200dd6ce9d91e818813"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_shared_authority.py",
+      "sha256": "21c66723b9ccad1d7c5b62852c289e83e42050b1e607abacf6afc66d7de0a119"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_token_lifecycle.py",
+      "sha256": "5bb3daf4fb942ec215d06a116567819959c59362f9eea2aeb3b3a0a7767526ae"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_tool_abandonment.py",
+      "sha256": "01e26b430707ad5f929a5363c9c5f5da066fc386975947e6c3d6d1f6052b2a59"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_writer_access_admission.py",
+      "sha256": "d7843c2abb0f9d2db995d36da1ce7eba5dbec22b6a6776674e7e1cf6fcff00c0"
+    }
+  ]
+}

@@ -106,6 +106,8 @@ __all__ = ["INPUT_MANIFEST", "ASSIGNMENT_MANIFEST", "MAX_ENTRIES",
            "SUPPORTED_IDENTITY_MAPPING",
            "PERMISSION_ACTS", "establish_line_access", "prove_line_integrity",
            "WORKSPACE_STORAGE_KEY", "STORAGE_CONFIGURE_OPERATION",
+           "MANAGER_INSTANCE_GUARD", "ManagerInstanceGuard",
+           "hold_manager_instance",
            "WorkspaceStorage", "check_workspace_storage",
            "configure_workspace_storage", "configured_workspace_storage",
            "MAX_BYTES", "MAX_DEPTH", "READ_ONLY_DIR", "READ_ONLY_FILE",
@@ -900,6 +902,10 @@ def configure_workspace_storage(store, place):
                 f"{name_value(place)}; every attempt already allocated under "
                 f"the first store would become unfindable, so a changed store "
                 f"is a fresh store rather than a reconfiguration")
+    # AND THE ROOT ITSELF SAYS WHICH TOKEN AUTHORITY GOVERNS IT, before anything is
+    # committed: a second deployment binding this root to its own control store is
+    # refused here rather than discovered when two managers write one workspace.
+    _claim_workspace_authority(store, place)
     signature = manager_signature(STORAGE_CONFIGURE_OPERATION,
                                   {"place": place})
 
@@ -915,6 +921,326 @@ def configure_workspace_storage(store, place):
 
 
 STORAGE_CONFIGURE_OPERATION = "workspace-storage.configure"
+
+
+# W275774 review 2026-09-26T20-57-02Z: THE STORAGE ROOT NAMES ITS TOKEN AUTHORITY.
+#
+# The review's finding, stated as this module's rule: device and inode in INDEPENDENT
+# stores are not shared authority. Two managers configured with one workspace storage
+# root and two control stores each hold their own token journal, so each one's
+# `tokens.acquire` excludes only its own attempts -- and the resource they are both
+# writing to is excluded by nobody. Per-store siblings prove nothing about that.
+#
+# So the root carries a marker naming the control store whose journal governs it, and a
+# deployment that would bind it to a second authority is REFUSED. Two managers over one
+# storage root therefore share one control store -- which is what makes the exclusion
+# real, because one journal and one `BEGIN IMMEDIATE` is the exclusion -- or they do not
+# share the root.
+#
+# SINGLE HOST, which is the selected scope. The marker names an absolute path on this
+# host; it is not a distributed lease and says nothing about two hosts mounting one
+# filesystem.
+WORKSPACE_AUTHORITY_MARKER = ".baton-workspace-authority"
+WORKSPACE_AUTHORITY_SCHEMA = "baton.workspace-authority/1"
+
+
+def _authority_marker(place):
+    return os.path.join(place, WORKSPACE_AUTHORITY_MARKER)
+
+
+# W275774, DESIGN HOST-8 as amended by owner 279031: ONE ACTIVE MANAGER PER INSTANCE.
+#
+# The selected mechanism, and nothing wider: an EXCLUSIVE NON-BLOCKING OS FILE LOCK held
+# on a descriptor that lives as long as the manager does. A second manager configured for
+# the same instance fails to take it and REFUSES STARTUP with a configuration error,
+# before dispatching work or mutating a managed resource. It does not wait as standby and
+# it does not take over. Independent instances -- their own database, their own workspace
+# -- never meet each other's guard at all.
+#
+# WHAT THIS IS NOT. It is not a lease: nothing renews, nothing expires and no clock is
+# read. It is not machine-wide: the guard is one file inside the managed workspace root,
+# so two unrelated deployments on one host are unrelated here too. It holds NO database
+# transaction and NO database lock, which HOST-8 requires and which is why the lock is an
+# OS one. And RELEASING IT FREES NOTHING ELSE: a dead manager's guard is gone and its
+# worker tokens are still outstanding, because a process exiting is not a cessation
+# anybody observed -- HOST-2 and HOST-7 reconciliation still owe that proof.
+MANAGER_INSTANCE_GUARD = ".baton-manager-instance"
+
+# THE DESCRIPTORS THIS PROCESS HOLDS, keyed by the resolved workspace root.
+#
+# HOST-8 excludes a second MANAGER, and a manager is a process: the bootstrap, staged and
+# judgment compositions inside ONE manager all reach the same startup and must not refuse
+# each other. So a second hold of a root this process already guards answers the SAME
+# guard rather than a second lock -- which is also what "lifetime descriptor" means, since
+# the descriptor outlives any one composition that asked for it.
+_HELD_GUARDS = {}
+
+
+def _instance_guard(place):
+    return os.path.join(place, MANAGER_INSTANCE_GUARD)
+
+
+class ManagerInstanceGuard:
+    """The held descriptor that makes this process the one active manager.
+
+    THE DESCRIPTOR IS THE GUARD, which is why it is an attribute of a live object and not
+    a boolean somebody remembers: the lock exists exactly as long as this file is open,
+    so a manager that exits -- cleanly, killed or crashed -- releases it and a manager
+    that is running cannot be doubled.
+    """
+
+    __slots__ = ("place", "path", "holder", "pid", "_descriptor")
+
+    def __init__(self, place, path, holder, descriptor):
+        self.place = place
+        self.path = path
+        self.holder = holder
+        # WHICH PROCESS ACQUIRED IT. Not ownership authority over the file -- the LOCK is
+        # that, and HOST-8 says so -- but the one fact a process needs about a descriptor
+        # in its hands: whether it took it. A forked child holds the same descriptor and
+        # took nothing.
+        self.pid = os.getpid()
+        self._descriptor = descriptor
+
+    def release(self):
+        """Give the guard up. Ordinary shutdown, and what a test drives deliberately.
+
+        IT FREES NOTHING BUT THE GUARD. No token is returned, no cessation is proved and
+        no hold is reconciled here: those belong to the endings that observe them.
+
+        AND IT CLOSES RATHER THAN UNLOCKS, which is what makes it safe in a process that
+        inherited the descriptor. `flock` holds its lock on the OPEN FILE DESCRIPTION, so
+        an explicit `LOCK_UN` from a forked child would release the PARENT's exclusion --
+        review 21:26:24Z ruled that out by name. Closing one descriptor that refers to a
+        description another descriptor still refers to releases nothing.
+        """
+        self._disown()
+
+    def _disown(self):
+        """Stop holding this descriptor, WITHOUT unlocking what anybody else holds."""
+        descriptor, self._descriptor = self._descriptor, None
+        if descriptor is not None:
+            if _HELD_GUARDS.get(self.place) is self:
+                del _HELD_GUARDS[self.place]
+            os.close(descriptor)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_ignored):
+        self.release()
+        return False
+
+
+def hold_manager_instance(store, place):
+    """Become the one active manager for this instance, or refuse startup.
+
+    THE ORDER IS THE CONTRACT: this is called before a manager dispatches work or
+    mutates a managed resource, so a duplicate is refused while it has done neither.
+
+    NO CHILD RETENTION: the descriptor is opened close-on-exec, so a container, a
+    custodian or any other program this manager execs cannot carry the guard past its
+    parent and cannot hold it open after the manager is gone.
+
+    NO ALIAS BYPASS: the root is resolved before the guard path is composed, so two
+    spellings of one directory -- a symlink, a `..`, a trailing slash -- are one guard
+    rather than two.
+
+    NO REPLACEMENT OF A HELD GUARD: after the lock is taken, the descriptor's own object
+    identity is compared against the path's. A second manager that unlinked the guard and
+    created its own file would hold a lock on a file nobody guards, so the comparison is
+    what makes the refusal unavoidable rather than racy.
+    """
+    place = _real(check_workspace_storage(place), "a managed workspace root")
+    standing = _HELD_GUARDS.get(place)
+    if standing is not None:
+        if standing.pid == os.getpid():
+            return standing
+        # INHERITED, NOT ACQUIRED. Review 21:26:24Z reproduced this: a forked child holds
+        # the parent's live descriptor AND this cache, so it could retain the lock past
+        # the parent's death and could answer "I am the manager" without acquiring
+        # anything. `_forget_inherited_guards` below runs at fork and is the primary
+        # correction; this is the same rule applied to any child that reached here by a
+        # path that handler did not cover. The descriptor is dropped -- closed, never
+        # unlocked -- and this call goes on to ACQUIRE, which is what a manager must do.
+        standing._disown()
+    path = _instance_guard(place)
+    mine = getattr(store, "database", None)
+    if type(mine) is not str or mine == "":
+        _refuse("this manager's control store has no path, so the instance it guards "
+                "cannot be named", code="schema")
+    try:
+        descriptor = os.open(path, os.O_RDWR | os.O_CREAT | os.O_CLOEXEC, 0o600)
+    except OSError as fault:
+        _refuse(f"the manager instance guard could not be opened at "
+                f"{name_value(path)}: {fault.strerror or fault!r}")
+    try:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as fault:
+            if fault.errno not in (errno.EACCES, errno.EAGAIN, errno.EWOULDBLOCK):
+                _refuse(f"the manager instance guard at {name_value(path)} could not be "
+                        f"taken: {fault.strerror or fault!r}")
+            _denied(f"another manager is already active for workspace "
+                    f"{name_value(place)}{_guarding(descriptor)}; only one Host manager "
+                    f"may be active for one workspace and database, so this start is a "
+                    f"configuration error rather than a standby -- point this manager at "
+                    f"its own database and workspace, or stop the active one first")
+        held = os.fstat(descriptor)
+        try:
+            found = os.stat(path)
+        except OSError as fault:
+            _refuse(f"the manager instance guard at {name_value(path)} went away while "
+                    f"being taken: {fault.strerror or fault!r}; a lock on a file nobody "
+                    f"guards is not an exclusion")
+        if (held.st_dev, held.st_ino) != (found.st_dev, found.st_ino):
+            _denied(f"the manager instance guard at {name_value(path)} was replaced while "
+                    f"being taken: this descriptor holds device {held.st_dev} inode "
+                    f"{held.st_ino} and the path now names device {found.st_dev} inode "
+                    f"{found.st_ino}; a guard another manager unlinked is not one this "
+                    f"manager holds")
+        _record_guard(descriptor, store, mine)
+    except BaseException:
+        os.close(descriptor)
+        raise
+    held = ManagerInstanceGuard(place, path, mine, descriptor)
+    _HELD_GUARDS[place] = held
+    return held
+
+
+def _forget_inherited_guards():
+    """A forked child inherits descriptors and this cache; it inherits NO OWNERSHIP.
+
+    W275774 review 2026-09-26T21-26-24Z [P1]. `O_CLOEXEC` covers `exec` and says nothing
+    about a child that never execs: after `os.fork` the child held the live guard
+    descriptor and a cache entry claiming it was the active manager, so it could outlive
+    its parent still holding the lock, or act as the manager without ever acquiring one.
+
+    CLOSED, NOT UNLOCKED, and the distinction is the whole correction. `flock` holds its
+    lock on the OPEN FILE DESCRIPTION that fork shares, so `LOCK_UN` here would release
+    the PARENT's exclusion -- the one thing the review forbade. Closing the child's own
+    descriptor leaves the parent's untouched: the lock persists exactly as long as the
+    parent holds it, and the child holds nothing.
+    """
+    for guard in list(_HELD_GUARDS.values()):
+        guard._disown()
+    _HELD_GUARDS.clear()
+
+
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_forget_inherited_guards)
+
+
+def _record_guard(descriptor, store, database):
+    """Who holds it, for the refusal a duplicate reads. ADVISORY, and said so.
+
+    The LOCK is the exclusion; this is the account an operator sees in the refusal, so a
+    missing or unreadable record narrows the message and changes no decision.
+    """
+    body = canonical_bytes({"schema": "baton.manager-instance/1",
+                            "control_store": database,
+                            "incarnation": getattr(store, "incarnation", None)})
+    try:
+        os.ftruncate(descriptor, 0)
+        os.pwrite(descriptor, body, 0)
+    except OSError:
+        pass
+
+
+def _guarding(descriptor):
+    """What the holder's own record says, as a clause for the refusal."""
+    try:
+        body = os.pread(descriptor, 4096, 0)
+        taken = json.loads(body.decode("utf-8"))
+        held = taken["control_store"]
+    except Exception:                                      # noqa: BLE001
+        return ""
+    if type(held) is not str or held == "":
+        return ""
+    return f", holding control store {name_value(held)}"
+
+
+def claimed_workspace_authority(place):
+    """Which control store already governs this storage root, or `None`.
+
+    AN UNREADABLE MARKER IS NOT AN UNCLAIMED ROOT. Absence answers `None` -- a root
+    nobody has claimed is the ordinary first case -- and anything else that cannot be
+    read as this exact document is a refusal, because "I could not tell" must not become
+    "nobody else is here".
+
+    W275774 C2, 2026-09-27: AND THE ROOT IS THIS MODULE'S SINGLE PATH OWNER'S. The
+    inventory found this entry unowned and it was: a non-text root reached
+    `os.path.join` and raised a `TypeError` out of a reader whose every caller handles
+    `ContractRefusal`. `_real` is the one owner for every path this component is handed
+    -- its own comment says so -- so it is used here rather than a second spelling, and
+    both callers already pass a resolved root, so nothing they do changes.
+    """
+    place = _real(place, "a managed workspace root")
+    try:
+        with open(_authority_marker(place), "rb") as reading:
+            body = reading.read()
+    except FileNotFoundError:
+        return None
+    except OSError as fault:
+        _refuse(f"the workspace authority marker in {name_value(place)} could not be "
+                f"read: {fault.strerror or fault!r}; an unreadable claim is not an "
+                f"absent one")
+    try:
+        taken = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as fault:
+        _refuse(f"the workspace authority marker in {name_value(place)} is not this "
+                f"build's document: {fault!r}", code="schema")
+    taken = boundaries.document(taken, "a workspace authority marker",
+                               required=("schema", "control_store"))
+    if taken["schema"] != WORKSPACE_AUTHORITY_SCHEMA:
+        _refuse(f"the workspace authority marker in {name_value(place)} names schema "
+                f"{name_value(taken['schema'])} and this build writes "
+                f"{name_value(WORKSPACE_AUTHORITY_SCHEMA)}", code="schema")
+    return boundaries.text(taken["control_store"],
+                           "a claimed workspace authority's control store")
+
+
+def _claim_workspace_authority(store, place):
+    """Bind this storage root to THIS manager's token authority, or refuse.
+
+    OUTSIDE EVERY DATABASE LOCK, which is why it is called before the configuring
+    transaction rather than inside it: writing a marker is external I/O and DB-1 is not
+    negotiable for a convenience.
+
+    A CLAIM WITHOUT A CONFIGURATION IS HARMLESS AND IS NOT CLEANED UP. If the
+    configuration that follows refuses, the marker names the store that tried -- and the
+    only thing a marker does is exclude a DIFFERENT store, so the same manager's retry
+    matches it and proceeds.
+    """
+    mine = getattr(store, "database", None)
+    if type(mine) is not str or mine == "":
+        _refuse("this manager's control store has no path to bind a workspace storage "
+                "root to; a shared authority cannot be recorded for a store this build "
+                "cannot name", code="schema")
+    held = claimed_workspace_authority(place)
+    if held is not None and held != mine:
+        _denied(f"workspace store {name_value(place)} is already bound to control store "
+                f"{name_value(held)} and this manager's store is {name_value(mine)}; "
+                f"two token journals over one storage root exclude nobody from the "
+                f"resource they are both writing to, so managers sharing a root share "
+                f"one control store or they do not share the root")
+    if held is not None:
+        return held
+    body = canonical_bytes({"schema": WORKSPACE_AUTHORITY_SCHEMA,
+                            "control_store": mine})
+    # WRITTEN THEN RENAMED, so a reader never sees half a claim.
+    pending = _authority_marker(place) + ".pending"
+    try:
+        with open(pending, "wb") as writing:
+            writing.write(body)
+        os.chmod(pending, 0o600)
+        os.replace(pending, _authority_marker(place))
+    except OSError as fault:
+        with contextlib.suppress(OSError):
+            os.unlink(pending)
+        _refuse(f"the workspace authority marker could not be written in "
+                f"{name_value(place)}: {fault.strerror or fault!r}")
+    return mine
 
 
 def _configured_storage(store, *, physical=True):
@@ -1013,6 +1339,21 @@ def _agreed_storage_place(store, *, physical):
                 f"configuration names {name_value(committed)}; a store the "
                 f"record was edited to name is not a store the deployment "
                 f"configured", code="schema")
+    # AND THE ROOT'S OWN CLAIM, where the filesystem may be asked at all. W275774
+    # review 2026-09-26T20-57-02Z: `physical=False` is the form W270664 F2 split out so
+    # agreement can be re-decided under a DATABASE LOCK, which reads no filesystem --
+    # so this check belongs to the physical form alone. A configuration older than the
+    # marker sees no claim and proceeds; what fails closed is a root some OTHER control
+    # store has bound, because that root's token journal is not the one this manager
+    # acquires from.
+    if physical:
+        held = claimed_workspace_authority(committed)
+        mine = getattr(store, "database", None)
+        if held is not None and type(mine) is str and held != mine:
+            _denied(f"workspace store {name_value(committed)} is bound to control "
+                    f"store {name_value(held)} and this manager's store is "
+                    f"{name_value(mine)}; the token journal that governs this root is "
+                    f"not the one this manager would acquire from")
     return committed
 
 
@@ -5215,3 +5556,159 @@ def _unlink(child, parent, *, directory=False):
             f"the worker owns, and neither `chmod` nor a write inside it is "
             f"this manager's to perform. Cleanup fails closed rather than "
             f"leaving a partly-removed tree.")
+
+
+# -- W275774: THE OVERLAP ARGUMENT A CONFLICT DOMAIN RESTS ON ------------------
+
+
+def _line_or_assignment_identity(storage, assignment_id, mounted):
+    """The identity of a root the caller actually mounts, in either arrangement.
+
+    ONE OF TWO SIBLING ARRANGEMENTS, and nothing else:
+
+      * ORDINARY -- `<storage>/<assignment>/workspace`. The home is a direct child of the
+        configured storage, so every attempt's root is a sibling of every other's.
+      * PRIVATE LINE -- `<storage>/.baton-review-lines/<line>/checkout`, which is exactly
+        what `review_cycles._line_place` composes and what `_composed_line_roots` refuses
+        anything but. The line home is a direct child of the reserved namespace, and that
+        namespace is a direct child of the storage, so every line's checkout is a sibling
+        of every other line's and of every assignment's workspace.
+
+    MEASURED RATHER THAN ASSUMED, twice over: my first cut of this function had the line
+    root as a direct child of the reserved namespace and every line start refused, because
+    the checkout sits one level deeper inside its own line home. The arrangement is read
+    off the composer rather than guessed at now.
+
+    THE TWO NAMESPACES CANNOT COLLIDE. `_assignment_identity` admits no leading dot, so no
+    assignment home can BE `.baton-review-lines`; and the two leaf names differ, so a
+    checkout can never be mistaken for a workspace.
+    """
+    place = _real(storage.place, "the configured workspace storage")
+    root = _real(boundaries.text(mounted, "an attempt's writable root"),
+                 f"attempt {name_value(assignment_id)}'s mounted writable root")
+    home = os.path.dirname(root)
+    leaf = os.path.basename(root)
+    ordinary = os.path.join(place, assignment_id)
+    lines = os.path.join(place, _REVIEW_LINE_HOME)
+    if leaf == "workspace" and os.path.isdir(ordinary) \
+            and home == _real(ordinary,
+                              f"attempt {name_value(assignment_id)}'s storage home") \
+            and os.path.dirname(home) == place:
+        return _object_identity(root, assignment_id)
+    if leaf == "checkout" and os.path.isdir(lines) \
+            and os.path.dirname(home) == _real(lines,
+                                               "the reserved line namespace") \
+            and os.path.dirname(os.path.dirname(home)) == place:
+        return _object_identity(root, assignment_id)
+    _refuse(f"attempt {name_value(assignment_id)}'s mounted writable root "
+            f"{name_value(root)} is neither its own storage workspace nor a line "
+            f"checkout under {name_value(lines)}; a resource whose position cannot be "
+            f"shown is one whose overlap cannot be excluded")
+
+
+def _object_identity(root, assignment_id):
+    """`device:inode`, or a typed refusal for a root this manager cannot see."""
+    try:
+        found = os.stat(root)
+    except OSError as fault:
+        _refuse(f"attempt {name_value(assignment_id)}'s mounted writable root could not "
+                f"be read at {name_value(root)}: {fault.strerror or fault!r}; an "
+                f"identity is not invented for a root this manager cannot see")
+    return f"{found.st_dev}:{found.st_ino}"
+
+
+def governed_resource_identity(store, assignment_id, mounted=None):
+    """The canonical identity of the resource one attempt's execution contends for,
+    answered ONLY when that resource cannot overlap another attempt's.
+
+    W275774, review 2026-09-26T22-07-51Z: `mounted` IS THE ROOT THE CALLER IS ABOUT TO
+    MOUNT, and the operand exists because this function's layout assumption was wrong for
+    one of the two arrangements this build supports.
+
+    THE DEFECT IT REPAIRS. With no operand this composes `<storage>/<assignment>/workspace`
+    -- correct for the ordinary layout and NOT for a PRIVATE LINE, whose writable root is a
+    directory inside the reserved `.baton-review-lines` namespace. Every governed start in
+    a line deployment was therefore refused `identity-mismatch`, because the pin recorded
+    the line home while this re-derived a path that names another directory. My first
+    correction dropped the containment argument at that seam instead of fixing it, which
+    the review rightly refused: an ordinary start must not lose its overlap exclusion
+    because a different layout exists.
+
+    SO THE POSITION IS PROVED FOR EITHER ARRANGEMENT, and both are sibling arrangements
+    under ONE configured storage:
+
+      * ORDINARY: `<storage>/<assignment>/workspace`, whose home is a direct child of the
+        storage -- every attempt's root is then a sibling of every other's;
+      * PRIVATE LINE: a direct child of `<storage>/.baton-review-lines`, which is the
+        namespace `_composed_line_roots` already requires a line to live in -- every line
+        is then a sibling of every other line, and of every assignment home.
+
+    Anything else is refused exactly as before. A caller that supplies no root gets the
+    ordinary derivation unchanged, so no accepted caller moves.
+
+    THE ARGUMENT THE TOKEN OWNER CANNOT MAKE FOR ITSELF, which is why it lives here.
+    `tokens.domain_of` serializes on a string and holds no paths, so it can say that
+    two attempts naming one object share a domain -- and it CANNOT say that two
+    attempts naming DIFFERENT objects are not writing the same tree. Nested roots can
+    differ by inode while sharing writable descendants, and a domain that missed that
+    would be an exclusion with a hole in it.
+
+    THE STRUCTURAL FACT THAT CLOSES IT: every attempt's governed workspace is
+    `<storage>/<assignment>/workspace` under ONE configured storage, so any two
+    attempts' governed roots are SIBLINGS -- and siblings cannot contain one another.
+    That is checked here rather than assumed: the root is resolved and required to sit
+    in exactly that position, so a root reached by some other arrangement (a link into
+    another attempt's tree, a storage nested inside another) is REFUSED instead of
+    being handed out as an identity that looks unique and is not.
+
+    The identity itself is the object's `device:inode`, which is what makes two
+    attempts over one retained workspace share a domain.
+    """
+    boundaries.identity(assignment_id, "an assignment identity")
+    storage = configured_workspace_storage(store)
+    if mounted is not None:
+        return _line_or_assignment_identity(storage, assignment_id, mounted)
+    root = _real(os.path.join(storage.place, assignment_id, "workspace"),
+                 f"attempt {name_value(assignment_id)}'s governed workspace")
+    # THE POSITION, CHECKED. `_within` compares segments, so a sibling sharing a
+    # prefix is not mistaken for a child.
+    expected = _real(os.path.join(storage.place, assignment_id),
+                     f"attempt {name_value(assignment_id)}'s storage home")
+    if os.path.dirname(root) != expected:
+        _refuse(f"attempt {name_value(assignment_id)}'s governed workspace resolves "
+                f"to {name_value(root)}, which is not the sibling position "
+                f"{name_value(expected)} this storage arranges; a resource whose "
+                f"position cannot be shown is one whose overlap cannot be excluded")
+    # W275774 review 18:33:48Z [P1]: A DIRECT CHILD, NOT MERELY SOMEWHERE WITHIN.
+    #
+    # My first check asked only that the home resolve somewhere inside the storage, and
+    # an independent probe walked straight through it: symlink `storage/attempt-b`
+    # (the HOME) at `attempt-a/workspace`, and the root becomes
+    # `attempt-a/workspace/workspace` -- nested inside attempt-a's writable tree, with
+    # `dirname(root) == home` satisfied and the home still "within" the storage. Two
+    # overlapping trees, two identities.
+    #
+    # The sibling property is that the home is a DIRECT CHILD of the configured
+    # storage, so that is what is checked. My own negative case symlinked the workspace
+    # rather than the home, which is why it missed this.
+    root_of_storage = _real(storage.place, "the configured workspace storage")
+    if os.path.dirname(expected) != root_of_storage:
+        _refuse(f"attempt {name_value(assignment_id)}'s storage home resolves to "
+                f"{name_value(expected)}, which is not a direct child of "
+                f"{name_value(root_of_storage)}; only a direct child is a sibling of "
+                f"every other attempt's home, and without that the overlap cannot be "
+                f"excluded")
+    # W275774: A MISSING ROOT IS A TYPED REFUSAL, not a leaked `OSError`.
+    #
+    # My own split case found this: after a normalization removed the tree, `os.stat`
+    # raised `FileNotFoundError` straight out of this function. Every caller here
+    # handles `ContractRefusal` and nothing handles an `OSError`, so the job manager's
+    # candidate scan would have died on one absent workspace instead of reporting it --
+    # and the absent case is precisely when a token may still be held.
+    try:
+        found = os.stat(root)
+    except OSError as fault:
+        _refuse(f"attempt {name_value(assignment_id)}'s governed workspace could not "
+                f"be read at {name_value(root)}: {fault.strerror or fault!r}; an "
+                f"identity is not invented for a root this manager cannot see")
+    return f"{found.st_dev}:{found.st_ino}"

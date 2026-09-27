@@ -387,6 +387,30 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # review 2026-09-26T14:01:00Z, which ruled the addition justified in this owned
         # catalog despite its incidental benefit to other modules that also take it.
         "control",
+        # W275774 TOK-4, the pre-effect launch boundary. `ACTIVATION` selects whether a
+        # composed vector runs immediately or is created inert, and `BIND` is the act a
+        # governed launch performs between those two engine calls -- the only moment at
+        # which a container's identity exists and no process has touched the resource yet.
+        # Both are facts the caller supplies about what may happen, not manager state.
+        "activation", "bind",
+        # And `STARTED` is the conclusive outcome of one admitted activation -- the
+        # answer that ends the in-flight hold, added under review 2026-09-26T15:00:16Z.
+        "started",
+        # And `GOVERN` is the resource-token authority a start is serialized against --
+        # absent for an ungoverned start, which is why it is an operand and not a mode.
+        "govern",
+        # `RESOURCE_IDENTITY` is the resource owner's own canonical identity for the exact
+        # governed object, which a return names instead of carrying a token document --
+        # the restart-safe shape review 15:55:27Z required.
+        "resource_identity",
+        # `RECLAIMING` names WHICH settlement this is: a manager settlement holding
+        # positive cessation evidence, rather than a stale holder declaring its own
+        # expired resource free. Added under review 2026-09-26T16:37:09Z's expiry work.
+        "reclaiming",
+        # `RECLAIM` is the overdue-resource pass a deployment injects into `serve`,
+        # alongside the clock, the wait and the stopping predicate -- composing a
+        # runtime adapter is the deployment's act, not the job manager's.
+        "reclaim",
         # contracts
         "value", "payload", "document", "name", "names", "what", "required",
         "validator",
@@ -545,6 +569,14 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # the injected runtime adapter and provider agent, and what a call
         # says it started
         "adapter", "agent", "minted", "minted_labels",
+        # W275774: THE ROOT A GOVERNED ACT WAS ACTUALLY MOUNTED OVER. `mounted`
+        # is the containment argument a private-line workspace needs: the
+        # attempt row pins one object, and the governed identity is the pinned
+        # object PLUS the root this launch really used, so the two are compared
+        # rather than assumed equal. Supplied per call by the caller that
+        # composed the roots, which is what makes it an operand and not state
+        # this module carries between calls.
+        "mounted",
         # W6634: the sealing half. `outputs` is the assignment's DECLARED
         # outputs, owned once at construction -- what may be collected is the
         # assignment's statement, not a per-call argument. `roots`, `declared`,

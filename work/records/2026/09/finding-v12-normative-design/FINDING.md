@@ -253,3 +253,72 @@ containers, confirmed shutdown before normal return, and the outstanding F2
 proofs in its latest review. Any wider required change must be identified rather
 than silently expanding F2. Specification signoff does not execute or accept that
 work. No test, provider, engine, deployment or Git mutation occurred here.
+
+## 2026-09-26 — Owner clarifies per-instance host-manager exclusivity
+
+**Confirmed.** Slawomir states that there will never be two Host managers on the
+same workspace/DB, and clarifies that many managers may run on one machine, each
+with its own DB. The deployment boundary is one active Host manager per managed
+workspace/DB, not one manager per machine. Independent instances do not coordinate
+ownership of the same writable workspace through separate stores. Concurrent
+workers, attempts and operations within one instance retain all token, overlap,
+expiry, cessation and database/I/O requirements.
+
+This explicitly supersedes the cross-manager/shared-workspace acceptance
+interpretation in W275774's reviews at 20:48:20Z and 20:57:02Z and the corresponding
+current-plan requirement. Preserve those reviews as historical evidence. The
+supported deployment does not require distributed grants or coordination between
+independent control stores for one workspace. Coordination messages T275774/278980
+and 278991 carry this correction to the implementation and review handlers.
+
+**Open enforcement choice.** The owner subsequently proposes a provision blocking
+two managers so only one is active. Prompt has asked whether a duplicate startup
+should refuse or wait as standby. That choice is pending; do not infer takeover,
+standby, a machine-wide singleton, or authority to hold a DB transaction open for
+the manager lifetime. Continue other selected implementation meanwhile.
+
+Prompt owns the bounded DESIGN scope clarification and this record/PLAN. The
+existing exact-byte design signoff remains historical; it does not sign this
+amendment. No product implementation, Work graph change or acceptance is performed
+by recording this decision.
+
+## 2026-09-26 — Owner selects refusal of duplicate manager startup
+
+**Confirmed.** Slawomir selects "it should refuse startup" and explains that a
+concurrent manager for the same workspace/DB is a user configuration error. This
+explicitly supersedes the preceding open refusal-versus-standby choice. A second
+Host manager MUST refuse startup with a clear configuration error while that
+instance already has an active Host manager. It must not begin work dispatch or
+resource mutation. Different instances with separate DBs/workspaces on the same
+machine remain permitted. No standby, takeover or cross-store ownership protocol
+is selected. Existing stopped-manager restart/reconciliation rules remain intact.
+
+DESIGN HOST-8 records the behavior. A guard must enforce per-instance exclusivity
+without holding a DB transaction/lock across manager execution or external I/O.
+The exact bounded guard implementation and focused tests belong to the managed
+implementation/review roles. W275774 continuation should replace the unsupported
+cross-manager/shared-workspace requirement with this startup refusal and retain
+within-instance token safety. Any necessary wider scope must be identified before
+expansion. This is owner-selected behavior, not independent implementation
+acceptance or permission to alter Git or the Work dependency graph.
+
+## 2026-09-26 — Owner selects OS file lock for manager lifetime
+
+**Confirmed.** After comparing a persistent DB ownership row with an OS file lock,
+Slawomir selects the OS file lock. This supersedes the previously unspecified
+guard mechanism. Acquire an exclusive nonblocking lock on a per-instance guard
+file before work begins; hold its descriptor for the manager lifetime. A
+duplicate startup refuses immediately. Scoped descriptor ownership releases the
+lock on normal exit, and the OS releases it on process death; worker/child
+processes must not retain the guard descriptor. File existence, PID metadata and
+heartbeat age are not ownership authority. Do not unlink/replace a held guard
+file, or allow path aliases for the same instance to create independent guards.
+
+This is a local per-instance guard, separate from DB transactions and worker
+resource-token leases. Independent DB/workspace instances on one machine remain
+isolated and can run concurrently. Manager death releases only its manager guard;
+it does not establish Docker cessation or release outstanding worker tokens.
+Restart still reconciles those resources under the existing specification.
+Use focused local process tests for competing startup, independent instances and
+release after exit/death; no live Docker/provider run is needed for this question.
+Implementation and independent review remain with W275774's managed handlers.

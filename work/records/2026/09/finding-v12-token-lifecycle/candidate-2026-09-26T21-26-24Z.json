@@ -1,0 +1,36 @@
+{
+  "work": "W275774",
+  "claim": 279166,
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "bytes": 61178,
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "bytes": 296445,
+      "sha256": "80d541a33fdfd3e638eb8500e56f89473cd95333fbe4988360f3674622a43f45"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "bytes": 208444,
+      "sha256": "feb0b45a9f8097f46c80c6c412d10b394408e7d9e0767111454836d18a1e2627"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_instance_guard.py",
+      "bytes": 14662,
+      "sha256": "71fb0d661de17c6920f0bac79b86c0ef0b57c0ff4ea9a94668d95d2e4bc45c9f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_shared_authority.py",
+      "bytes": 14868,
+      "sha256": "21c66723b9ccad1d7c5b62852c289e83e42050b1e607abacf6afc66d7de0a119"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_guard_fork_20260926.py",
+      "bytes": 1677,
+      "sha256": "2bff2aa8216df9ceec96a6002ba803ba461ac8cceadf3b80f6dba9dcab49788e"
+    }
+  ]
+}

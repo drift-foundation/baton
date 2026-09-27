@@ -2035,7 +2035,12 @@ class OneAttemptsEndingNeverRemovesAnothersCredential(
         home = self.materialized(self.credential_home())
         orphan = self.orphan(home)
         adapter = self.removing(orphan, home=home)
-        adapter.observe = lambda runtime_id: {
+        # W275774 inventory F3: THE `seconds` OPERAND, which this double predates. The
+        # observe seam carries the ending's remaining allowance now, so a double with a
+        # one-argument signature raised `TypeError` before the case reached its own
+        # subject. Accepted and ignored: what this case measures is the removal and the
+        # ending, not how the bound was spent.
+        adapter.observe = lambda runtime_id, seconds=None: {
             "runtime_id": runtime_id, "state": "absent",
             "why": "the exact runtime is absent"}
         answered = adapter.destroy_abandoned(self.command())

@@ -1,0 +1,31 @@
+{
+  "work": "W275774",
+  "claim": 280822,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "bytes": 96094,
+      "sha256": "02bc903ef44253132dc0bd711a9e0beb04fe500c4cb91b6c24f9670c451e98ba"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "bytes": 384835,
+      "sha256": "57dc1cf14455cbf0c09bfb498f4e7dce6863a0bb1448856d9cf93974cdffc000"
+    },
+    {
+      "path": "v12/python/tests/manager/test_review_cycles.py",
+      "bytes": 155354,
+      "sha256": "b1432c46e640b5d917e13a8138ccb717a2e587c727d9d4edb0299c580ec47b65"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "bytes": 609325,
+      "sha256": "24d386377924680f6ef911fdde3207891f485a363e7caba8e47a9f4b83c8deaf"
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_context.py",
+      "bytes": 64436,
+      "sha256": "2d70cf4e16df8058d2fabb74f41fad6d23e43f6c3fb6a372292cc08974375611"
+    }
+  ]
+}

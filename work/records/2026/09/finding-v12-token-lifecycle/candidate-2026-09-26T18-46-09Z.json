@@ -1,0 +1,7 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "c54d614f2e9a39ee13a15d84bd1802e13eac96fc1c34a5ad4b1b25209220a2d0",
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "debf4256e4d58067a068477c0b15f18f2525e175774cf1a3c1f38d0eb04342c6",
+  "v12/python/tools/single_worker.py": "18ddf62f3a2c07d7099af0ef94740581444201e139212cd68f6f02e9ca2fe334",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_governed_start.py": "5f514c74e0ec46a006f1e0ade360dc6449674d0ac45c7a75d6d85075527a34e7"
+}

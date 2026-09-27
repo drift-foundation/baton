@@ -1,0 +1,11 @@
+{
+  "work": "W275774",
+  "claim": 279706,
+  "files": [
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "bytes": 544521,
+      "sha256": "883a96d8a38d1cb7d81b0579c462c65d985e783fe1833b10cd355b4be9ff3e02"
+    }
+  ]
+}

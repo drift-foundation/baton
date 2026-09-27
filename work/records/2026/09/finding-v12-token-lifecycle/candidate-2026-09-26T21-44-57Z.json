@@ -1,0 +1,16 @@
+{
+  "work": "W275774",
+  "claim": 279308,
+  "files": [
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "bytes": 58377,
+      "sha256": "595d656e2afd4c66ce55a9d1667711b5bf3eaadeba8466a359d36b527248399e"
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "bytes": 46630,
+      "sha256": "d27a41edd3775d6c3db030bf1955505cede7718de4c927687fbf8e1b31441eff"
+    }
+  ]
+}

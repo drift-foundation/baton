@@ -18,10 +18,12 @@ from baton_v12.worker_manager import (ControlStore, attach_review,
                                       review_for_attempt, review_of,
                                       verdict_of, writer_boundary,
                                       writer_for_attempt, writer_of)
+from baton_v12.worker_manager import review_cycles
 from baton_v12.worker_manager.review_cycles import (ATTACH_KIND, GRANT_KIND,
                                                      RESTORE_KIND,
                                                      abandoned_correction_of,
-                                                     restore_abandoned_correction)
+                                                     restore_abandoned_correction,
+                                                     settle_restoration_execution)
 from baton_v12.worker_manager.source_boundary import (adopt_source_boundary,
                                                        boundary_mounts,
                                                        compose_runtime_storage_boundary,
@@ -40,6 +42,26 @@ NOW = "2026-09-05T12:00:00.000Z"
 AUTHORITY = "0123456789abcdef0123456789abcdef"
 WORK = "01234567-W71918"
 BASE = "a" * 40
+# W275774: the policy an attempt's delivery is made under, which every real
+# attempt row carries and a runtime is labelled with. Distinct from the
+# RETENTION digest below, which is the abandonment's own policy operand.
+DELIVERY_POLICY = "sha256:" + "5" * 64
+# W275774: the command the restoration's launch account is taken over.
+#
+# W257624 made `restore_abandoned_correction` refuse without BOTH a launcher and
+# a cessation observer, because external work that is not recorded before it
+# exists can never be accounted for -- and these cases predate that pair. The
+# pair they are now given is THE DEPLOYMENT'S OWN, from `tools.stage_execution`:
+# the launcher commits each command's intent before its child exists and its
+# group immediately after the fork, and the observer answers through the kernel.
+# So the account is a real one and the ending is proved rather than asserted.
+#
+# WHAT THE FIXTURE SUPPLIES IS THE COMMAND, AND IT IS A NO-OP. The profile below
+# writes no checkout, so there is no reset and no clean to route; this stands
+# exactly where the real profile's two write commands are, for the one purpose of
+# making the launch account genuine instead of composed. No case asserts anything
+# about it, and nothing here claims the fixture restored a repository.
+RESTORATION_COMMAND = ["/bin/true"]
 
 
 class Port:
@@ -64,6 +86,8 @@ class Profile:
         self.materialize_calls = 0
         self.current_revision = None
         self.restore_calls = []
+        self.restore_runs = []
+        self.validate_runs = []
 
     def materialize(self, source, repository, declared_base):
         self.materialize_calls += 1
@@ -84,7 +108,19 @@ class Profile:
         self.current_revision = revision
         return dict(evidence)
 
-    def validate(self, repository, evidence, *, current=False):
+    def validate(self, repository, evidence, *, current=False, runner=None):
+        """W275774: and the ROUTED COMMAND, because a settlement's reads are work
+        too.
+
+        `settle_restoration_execution` validates the retained checkpoint through a
+        runner of its own, under its own episode label, precisely so that the
+        commands its validation runs are accounted for beside the executor's --
+        "they are only reads" being the assumption that was wrong before. So this
+        stand-in takes the operand and routes the no-op where those commands are;
+        every other caller of `validate` passes none and is unaffected.
+        """
+        if runner is not None:
+            self.validate_runs.append(runner(RESTORATION_COMMAND))
         revision = int(evidence["head"], 16)
         if self.held.get(revision) != evidence:
             raise ContractRefusal("policy", "profile-uncertified",
@@ -102,11 +138,22 @@ class Profile:
     # for a failed restoration without reaching a real filesystem.
     restore_refusal = None
 
-    def restore_checkpoint(self, repository, evidence):
+    def restore_checkpoint(self, repository, evidence, *, runner=None):
+        """W275774: and the ROUTED COMMAND, in the real profile's own order.
+
+        The production profile takes `runner` per invocation and routes exactly
+        the two commands that write the checkout through it, AFTER the
+        before-any-write validation. So the runner is invoked here and not
+        earlier: a restoration that refuses at that validation has started no
+        external work, and recording a launch for it would account for a child
+        that never existed.
+        """
         self.restore_calls.append((repository, dict(evidence)))
         self.validate(repository, evidence)
         if self.restore_refusal is not None:
             raise self.restore_refusal
+        if runner is not None:
+            self.restore_runs.append(runner(RESTORATION_COMMAND))
         self.current_revision = int(evidence["head"], 16)
         return self.validate(repository, evidence, current=True)
 
@@ -132,16 +179,22 @@ class ReviewCycles(unittest.TestCase):
         self.temporary.cleanup()
 
     def attempt(self, attempt_id, generation, participant, principal):
+        # W275774: AND THE POLICY ITS DELIVERY WAS MADE UNDER. `_runtime_labels`
+        # refuses an attempt whose `policy_digest` is null -- a runtime is
+        # labelled with that policy and reconciliation has no other way to learn
+        # it -- so a row without one cannot reach a real start at all. Every real
+        # delivery records it; this fixture's row-level composition simply never
+        # did, because nothing here used to start anything.
         self.store._connection.execute(
             "INSERT INTO attempts (runtime_attempt_id, adapter_name, "
-            "adapter_digest, profile_digest, created_at, work_id, "
+            "adapter_digest, profile_digest, policy_digest, created_at, work_id, "
             "authority_uuid, assignment_participant, assignment_generation, "
             "assignment_claim_event_seq, assignment_principal, assignment_scope, "
             "assignment_role, assignment_grant, assignment_policy_generation) "
-            "VALUES (?, 'adapter', 'adapter-digest', 'profile-digest', ?, ?, ?, "
+            "VALUES (?, 'adapter', 'adapter-digest', 'profile-digest', ?, ?, ?, ?, "
             "?, ?, ?, ?, 'scope', 'role', 'grant', 1)",
-            (attempt_id, NOW, WORK, AUTHORITY, participant, generation,
-             generation, principal))
+            (attempt_id, DELIVERY_POLICY, NOW, WORK, AUTHORITY, participant,
+             generation, generation, principal))
         return attempt_id
 
     def line(self):
@@ -2022,11 +2075,29 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
 
     def running(self, attempt_id):
         """The attempt as an abandonment finds it: a runtime attached, no
-        worker answer and nothing accounted for."""
-        self.store._connection.execute(
-            "UPDATE attempts SET runtime_id = ?, execution_runtime = 'running' "
-            "WHERE runtime_attempt_id = ?", ("runtime-" + attempt_id,
-                                             attempt_id))
+        worker answer and nothing accounted for.
+
+        W275774: THE START IS THE PRODUCTION ONE, and it has to be. This used to
+        be one `UPDATE ... execution_runtime = 'running'`, and W266336's release
+        gate reads a fact no row update can carry: `start_submission_returned`
+        -- the SUBMITTER'S OWN journalled record, which nobody but
+        `request_runtime_start` writes. So every ending in this class refused with
+        "start submission has not returned to the manager that made it", for want
+        of a fact none of these cases is about.
+
+        `request_runtime_start` over the narrow adapter double writes exactly the
+        two facts the update wrote -- the same `runtime-<attempt>` identity and
+        the `running` axis -- and the marker and the occupied lane come with them
+        because the real path is what produced them. The adapter is returned so a
+        case can read what it was asked.
+        """
+        from baton_v12.worker_manager import request_runtime_start
+
+        from .test_attempts import Adapter
+
+        adapter = Adapter("runtime-" + attempt_id)
+        request_runtime_start(self.store, adapter, attempt_id=attempt_id)
+        return adapter
 
     def abandonment_port(self):
         return self.ports.setdefault(
@@ -2050,12 +2121,43 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
                 retention_policy_digest=policy)
         return self.writer_row
 
+    def accounted(self):
+        """The accountable-launch pair a restoration refuses without.
+
+        W275774. Built fresh per call because the launcher is per-invocation by
+        contract -- it is handed a recorder bound to one store, one recovery and
+        one episode -- and sharing an observer between cases would make one
+        case's kernel answer another's.
+        """
+        from tools.stage_execution import (restoration_cessation,
+                                           restoration_launcher)
+
+        return {"launcher": restoration_launcher,
+                "cessation": restoration_cessation()}
+
     def restore(self, **overrides):
         operands = {"attempt_id": self.abandoned_attempt, "generation": 2,
                     "retention_policy_digest": RETENTION,
                     "profile": self.profile}
+        operands.update(self.accounted())
         operands.update(overrides)
         return restore_abandoned_correction(self.store, **operands)
+
+    def settled(self, **overrides):
+        """W275774: the SUPPORTED exit for an execution nobody completed.
+
+        A claimed episode with no completion behind it holds every later caller,
+        deliberately -- an exception is not evidence that a checkout stopped being
+        written. `settle_restoration_execution` is the only other exit, and it
+        takes the same accountable pair: the kernel's answer that no manager still
+        holds this line's execution, plus the positive ending of every launch that
+        episode recorded. Nothing here forges a settlement or deletes an episode.
+        """
+        operands = {"attempt_id": self.abandoned_attempt, "generation": 2,
+                    "profile": self.profile}
+        operands.update(self.accounted())
+        operands.update(overrides)
+        return settle_restoration_execution(self.store, **operands)
 
     def refused(self, act=None, **overrides):
         with self.assertRaises(ContractRefusal) as caught:
@@ -2204,15 +2306,32 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
         Reached by removing the COMPLETION rather than by calling the act
         twice: a second call is the replay, which is a different case and is
         covered as one.
+
+        W275774: ASSERTED AS A REFUSAL AND A STATE, not as a word. This looked for
+        "revoked" in the message; the current act reaches the LINE's state first --
+        a correction still owed a restore leaves its line `writing`, and this one
+        is `correction-ready` because the restoration already gave it back -- so
+        the message names that instead. The property the case is about is that
+        there is nothing to give back and NO EFFECT is performed for it, and that
+        is what this now asserts: the refusal's exact category and code, the
+        revoked writer and the released line read from the rows, and not one
+        further profile call.
         """
         self.abandoned()
         answered = self.restore()
         self.store._connection.execute(
             "DELETE FROM operations WHERE operation_id = ?",
             (answered["operation_id"],))
+        calls = len(self.profile.restore_calls)
         refusal = self.refused()
-        self.assertEqual(refusal.category, "refused")
-        self.assertIn("revoked", refusal.message)
+        self.assertEqual((refusal.category, refusal.code),
+                         ("refused", "precondition"))
+        self.assertEqual(
+            writer_of(self.store, self.writer_row["writer_id"])["state"],
+            "revoked")
+        self.assertEqual(line_of(self.store, self.line_id)["state"],
+                         "correction-ready")
+        self.assertEqual(len(self.profile.restore_calls), calls)
 
     # -- what the evidence has to say ---------------------------------------
 
@@ -2265,52 +2384,75 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
     # -- interruption, replay and concurrency --------------------------------
 
     def test_a_failed_restoration_admits_nobody(self):
+        """W275774: the EXCLUSION, not the writer row, is what holds here.
+
+        This asserted the writer was still `active` after the failure, which was
+        true while the effect ran inside the transaction. W257624 moved the effect
+        OUTSIDE every transaction -- no database lock may be held across I/O -- so
+        the intent TAKES the exclusion by revoking the writer first and a failed
+        restoration leaves that revocation standing. That is the state a retry has
+        to find, and it admits nobody either: the line is still `writing`, no
+        completion exists, and a successor is refused. What the case is about is
+        unchanged; where the exclusion is recorded is not.
+        """
         self.abandoned()
         self.profile.restore_refusal = ContractRefusal(
             "policy", "profile-uncertified", "the checkout could not be reset")
         self.assertEqual(self.refused().code, "profile-uncertified")
-        # THE EXCLUSION IS EXACTLY WHERE IT WAS.
+        # THE EXCLUSION IS EXACTLY WHERE THE INTENT PUT IT, and nothing is released.
         self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
         self.assertEqual(
             writer_of(self.store, self.writer_row["writer_id"])["state"],
-            "active")
+            "revoked")
         self.assertIsNone(abandoned_correction_of(
             self.store, attempt_id=self.abandoned_attempt, generation=2))
         self.assertEqual(self.refused(self.admit).category, "refused")
 
     def test_the_effect_and_the_release_happen_in_one_serialized_act(self):
-        """REVIEW 2026-09-09T16:04Z, and the reviewer's proposal is where this
-        finally lands.
+        """ONE SERIALIZED ACT, AND W257624 MOVED WHAT SERIALIZES IT.
 
-        My first cut revoked at completion and checked before the write; my
-        second revoked in the intent and checked again. Neither serializes an
-        effect that happens BETWEEN a check and a commit. `store.transact` does:
-        it takes the write lock, re-reads the replay under it, runs the action
-        and commits together -- so the restoration and the release that lets a
-        successor in are one act.
+        The obsolete prose this docstring carried -- "`store.transact` IS the
+        serialization owner", the effect inside the write lock -- is WITHDRAWN by
+        that Work's own ruling: no database lock may be held across I/O, and a
+        `stat` is I/O. What serializes the act now is the exclusion the intent
+        took plus the restoration lock held across the whole execution, and the
+        release is the short transaction at the end. The case's subject is
+        unchanged: nothing a successor could use appears until the act finishes.
 
-        WHAT THIS MEASURES is that the effect really is inside it: at the
-        moment the profile is asked, the exclusion is untouched and the
-        completion is not yet committed, and both change only when the
-        transaction does.
+        WHAT THIS NOW MEASURES, at the moment the profile is asked: the writer is
+        already revoked (the intent took the exclusion), the line is still
+        `writing` so no successor can be admitted, no completion exists, and the
+        profile is called OUTSIDE any database transaction -- which is the
+        property the old shape could not have, and the reason it changed. All
+        three of the original after-assertions stand exactly as they were.
         """
         self.abandoned()
         seen = {}
         original = self.profile.restore_checkpoint
 
-        def watching(repository, evidence):
+        # W275774: `**routed` FORWARDS THE PER-INVOCATION RUNNER. The production
+        # act passes it to every restoration, so a wrapper that dropped it would
+        # make the profile below record no launch and the completion hold.
+        def watching(repository, evidence, **routed):
             seen["writer"] = writer_of(
                 self.store, self.writer_row["writer_id"])["state"]
             seen["line"] = line_of(self.store, self.line_id)["state"]
             seen["completed"] = abandoned_correction_of(
                 self.store, attempt_id=self.abandoned_attempt, generation=2)
-            return original(repository, evidence)
+            # THE EFFECT IS OUTSIDE EVERY DATABASE TRANSACTION, which is the
+            # standing ruling this act was reshaped to obey. Asked of the
+            # connection itself rather than inferred from the ordering.
+            seen["in_transaction"] = self.store._connection.in_transaction
+            seen["admission"] = self.refused(self.admit).category
+            return original(repository, evidence, **routed)
 
         self.profile.restore_checkpoint = watching
         answered = self.restore()
-        self.assertEqual(seen["writer"], "active")
+        self.assertEqual(seen["writer"], "revoked")
         self.assertEqual(seen["line"], "writing")
         self.assertIsNone(seen["completed"])
+        self.assertFalse(seen["in_transaction"])
+        self.assertEqual(seen["admission"], "refused")
         self.assertEqual(writer_of(self.store,
                                    self.writer_row["writer_id"])["state"],
                          "revoked")
@@ -2324,32 +2466,41 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
         """THE COUNTEREXAMPLE, DRIVEN AGAIN, against the serialization.
 
         The reviewer's interleaving reaches a second recovery from inside the
-        first one's profile effect. On one connection that is REENTRY, not a
-        second transaction: a nested `transact` would release the outer act's
-        savepoint. It is refused there, so no second effect and no release to a
-        successor happens while the first act holds the lock.
+        first one's profile effect. No second effect and no release to a
+        successor happens while the first act holds its exclusion.
+
+        W275774: WHAT REFUSES IT IS NO LONGER THE NESTED TRANSACTION. This
+        expected `operation-collision` from a nested `transact`, which was the
+        boundary while the effect ran inside the write lock. W257624 moved the
+        effect out and put the whole execution under an exclusive non-blocking
+        restoration lock, so the reentrant duplicate is now refused
+        `refused/precondition` by that lock -- one execution at a time -- before
+        it can reach a profile at all. Same counterexample, same conclusion, the
+        exact current refusal asserted rather than an arbitrary exception.
         """
         self.abandoned()
         original = self.profile.restore_checkpoint
         resumed = {}
 
-        def paused(repository, evidence):
+        def paused(repository, evidence, **routed):
             if resumed:
-                return original(repository, evidence)
+                return original(repository, evidence, **routed)
             resumed["b"] = self.refused(
                 lambda: restore_abandoned_correction(
                     self.store, attempt_id=self.abandoned_attempt,
                     generation=2, retention_policy_digest=RETENTION,
-                    profile=self.profile))
+                    profile=self.profile, **self.accounted()))
             resumed["admission"] = self.refused(self.admit).category
-            return original(repository, evidence)
+            return original(repository, evidence, **routed)
 
         self.profile.restore_checkpoint = paused
         answered = self.restore()
 
         self.assertEqual((resumed["b"].category, resumed["b"].code),
-                         ("refused", "operation-collision"))
-        self.assertIn("nested restoration", resumed["b"].message)
+                         ("refused", "precondition"))
+        self.assertIn("is held by another manager on this line",
+                      resumed["b"].message)
+        self.assertIn("one execution at a time", resumed["b"].message)
         # NO SUCCESSOR WAS ADMITTED IN THE WINDOW, and exactly one effect ran.
         self.assertEqual(resumed["admission"], "refused")
         self.assertEqual(len(self.profile.restore_calls), 1)
@@ -2359,15 +2510,34 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
         """THE ACTUAL OVERLAP the owner scope asks for, not a sequential one.
 
         A second manager over the same store calls the recovery WHILE the first
-        is inside its serialized effect. `transact` holds the write lock, so the
-        second blocks on `BEGIN IMMEDIATE`, then re-reads the replay under that
-        lock and returns the committed result without entering the action.
+        is inside its effect, on its own connection in its own thread.
+
+        W275774: AND IT IS HELD RATHER THAN BLOCKED. This expected the second
+        caller to block on `BEGIN IMMEDIATE` and answer the committed replay,
+        which is what happened while the effect ran inside the write lock.
+        W257624 moved the effect outside every transaction, so there is no lock to
+        block on: the second manager finds this line's execution in flight under
+        another incarnation with neither a completion nor a settlement behind it,
+        and is refused `refused/precondition` -- an execution nobody has
+        positively settled stays held rather than being repeated. EXACTLY ONE
+        EFFECT still runs, which is what the case is for, and the replay the old
+        shape measured is still available once the first act has COMPLETED: that
+        is asserted here too, so nothing the case proved is dropped.
         """
         self.abandoned()
         answers = {}
         original = self.profile.restore_checkpoint
         started = threading.Event()
-        overlapped = threading.Event()
+        # W275774: A REAL RENDEZVOUS, NOT A TIMED GUESS. This waited 0.2s inside the
+        # first effect for an event that was only set AFTER that effect returned, so
+        # the overlap it claimed to measure rested on the competitor happening to be
+        # scheduled inside the window. The competitor now signals when it has
+        # ANSWERED, and the first effect does not complete until that signal
+        # arrives -- so the second call provably happened WHILE the first was inside
+        # its effect. Deadlock-free by the property this case is about: the effect is
+        # outside every database transaction, so the competitor can reach its own
+        # refusal while the first holds nothing a reader needs.
+        answered = threading.Event()
 
         def other():
             started.wait(5)
@@ -2380,16 +2550,22 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
             try:
                 answers["second"] = restore_abandoned_correction(
                     second, attempt_id=self.abandoned_attempt, generation=2,
-                    retention_policy_digest=RETENTION, profile=self.profile)
+                    retention_policy_digest=RETENTION, profile=self.profile,
+                    **self.accounted())
             except BaseException as failure:      # recorded, not swallowed
                 answers["second"] = failure
             finally:
                 second.close()
+                # SIGNALLED AFTER THE ANSWER IS RECORDED, so the waiter below knows
+                # the competitor has finished rather than merely started.
+                answered.set()
 
-        def holding(repository, evidence):
+        def holding(repository, evidence, **routed):
             started.set()
-            overlapped.wait(0.2)
-            return original(repository, evidence)
+            self.assertTrue(answered.wait(10),
+                            "the competing manager never answered, so no overlap "
+                            "was measured")
+            return original(repository, evidence, **routed)
 
         self.profile.restore_checkpoint = holding
         runner = threading.Thread(target=other)
@@ -2397,10 +2573,29 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
         try:
             answers["first"] = self.restore()
         finally:
-            overlapped.set()
             runner.join(10)
+        # AND THE COMPETITOR REALLY FINISHED, rather than being abandoned alive.
+        self.assertFalse(runner.is_alive())
+        self.assertIn("second", answers)
 
-        self.assertEqual(answers["second"], answers["first"])
+        held = answers["second"]
+        self.assertIsInstance(held, ContractRefusal)
+        self.assertEqual((held.category, held.code), ("refused", "precondition"))
+        self.assertIn("is in flight under manager incarnation", held.message)
+        self.assertIn("neither a completion nor a settlement", held.message)
+        # EXACTLY ONE EFFECT, AND THE COMPLETION IS THE FIRST CALLER'S.
+        self.assertEqual(len(self.profile.restore_calls), 1)
+        self.assertEqual(answers["first"]["state"], "correction-ready")
+        # AND THE REPLAY THE OLD SHAPE MEASURED, once the act has completed.
+        after = ControlStore.open(self.control_path, incarnation="manager-3",
+                                  clock=lambda: NOW)
+        self.addCleanup(after.close)
+        self.assertEqual(
+            restore_abandoned_correction(
+                after, attempt_id=self.abandoned_attempt, generation=2,
+                retention_policy_digest=RETENTION, profile=self.profile,
+                **self.accounted()),
+            answers["first"])
         self.assertEqual(len(self.profile.restore_calls), 1)
 
     def test_a_second_connection_replays_without_entering_the_effect(self):
@@ -2422,45 +2617,80 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
         self.assertEqual(
             restore_abandoned_correction(
                 second, attempt_id=self.abandoned_attempt, generation=2,
-                retention_policy_digest=RETENTION, profile=self.profile),
+                retention_policy_digest=RETENTION, profile=self.profile,
+                **self.accounted()),
             first)
         self.assertEqual(len(self.profile.restore_calls), calls)
 
     def test_the_exclusion_is_proved_under_the_lock_and_not_before_it(self):
-        """A line moved between the entry proof and the transaction is caught
-        by the re-read inside the write, which is where a decision that
-        authorizes a destructive act has to be made."""
+        """A line moved between the entry proof and the decision that authorizes
+        the destructive act is caught by the re-read inside that decision, and
+        NOTHING is performed for it.
+
+        W275774: THE INJECTION POINT WAS STALE, and that is all that was wrong
+        here. This hooked the first `review-line.restore-abandoned:` transaction,
+        which USED to be the act that admitted the execution; under W257624 the
+        admission is `_admitted_execution` and that operation identity now belongs
+        to the COMPLETION -- so the move landed after the effect had already run
+        and the case measured the wrong boundary. The schedule moves to just
+        before the current atomic admission and the no-effect assertion STAYS:
+        the pre-effect exclusion is exactly what must still hold. The separate
+        case for a line moved AFTER the effect
+        (`test_an_admission_during_the_restore_stops_the_completion`) keeps
+        refusing the completion, and is untouched.
+        """
         self.abandoned()
-        original = store_transact = type(self.store).transact
-        moved = {}
+        original = admitted = review_cycles._admitted_execution
 
-        def moving(store, operation_id, kind, signature, action):
-            if operation_id.startswith("review-line.restore-abandoned:") \
-                    and not moved:
-                moved["yes"] = True
-                store._connection.execute(
-                    "UPDATE review_lines SET state = 'reviewing' "
-                    "WHERE line_id = ?", (self.line_id,))
-            return original(store, operation_id, kind, signature, action)
+        def moving(store, operation_id, line, writer, checkpoint, what):
+            store._connection.execute(
+                "UPDATE review_lines SET state = 'reviewing' "
+                "WHERE line_id = ?", (self.line_id,))
+            return original(store, operation_id, line, writer, checkpoint, what)
 
-        with mock.patch.object(type(self.store), "transact", moving):
+        with mock.patch.object(review_cycles, "_admitted_execution", moving):
             refusal = self.refused()
-        self.assertEqual(refusal.category, "refused")
+        self.assertEqual((refusal.category, refusal.code),
+                         ("refused", "precondition"))
         self.assertIn("no longer holds the exclusion", refusal.message)
         self.assertEqual(self.profile.restore_calls, [])
         self.assertIsNone(abandoned_correction_of(
             self.store, attempt_id=self.abandoned_attempt, generation=2))
-        self.assertEqual(store_transact, original)
+        self.assertEqual(review_cycles._admitted_execution, admitted)
 
     def test_an_interrupted_restore_finishes_under_the_same_exclusion(self):
         """The intent commits before the profile act, so a crash between them
         leaves a recorded intent with no completion -- which is exactly what a
-        retry has to find."""
+        retry has to find.
+
+        W275774: AND THE RETRY IS NOT FREE ANY MORE, which is the half W257624
+        added rather than a change of subject. An interrupted execution's effects
+        are UNKNOWN, so the bare retry is HELD and no second effect happens; the
+        episode has to be POSITIVELY SETTLED first -- the kernel's answer that no
+        manager still holds the execution, plus the ending of every launch it
+        recorded -- and only then does the same recovery finish under the same
+        exclusion. Both the completion and the two-effect attribution this case
+        has always asserted are preserved.
+        """
         self.abandoned()
         self.profile.restore_refusal = ContractRefusal(
             "policy", "profile-uncertified", "interrupted")
         self.refused()
         self.profile.restore_refusal = None
+        # THE UNKNOWN EXECUTION HOLDS, AND IT RUNS NOTHING.
+        after = len(self.profile.restore_calls)
+        held = self.refused()
+        self.assertEqual((held.category, held.code), ("refused", "precondition"))
+        self.assertIn("neither a completion nor a settlement", held.message)
+        self.assertEqual(len(self.profile.restore_calls), after)
+        self.assertIsNone(abandoned_correction_of(
+            self.store, attempt_id=self.abandoned_attempt, generation=2))
+        # THE SUPPORTED SETTLEMENT, which decides nothing but that episode.
+        account = self.settled()
+        self.assertEqual(account["ended"]["exclusion"], "acquired")
+        self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
+        self.assertIsNone(abandoned_correction_of(
+            self.store, attempt_id=self.abandoned_attempt, generation=2))
         answered = self.restore()
         self.assertEqual(answered["state"], "correction-ready")
         self.assertEqual(len(self.profile.restore_calls), 2)
@@ -2620,10 +2850,20 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
         self.assertEqual(len(self.profile.restore_calls), calls)
 
     def test_a_transient_profile_failure_stays_retryable(self):
-        """The effect runs inside `transact`, so its failure must not become a
-        journalled refusal: `ProfileRefusal` is not a `ContractRefusal` and
-        takes the fault branch, which rolls the whole transaction back and
-        leaves the committed intent standing."""
+        """A profile fault is not a journalled refusal: `ProfileRefusal` is not a
+        `ContractRefusal`, nothing durable records it, and the committed intent
+        stays standing for a retry.
+
+        W275774: the old prose put the effect inside `transact` and rested the
+        retryability on that rollback. W257624 moved the effect outside every
+        transaction, so what makes this retryable is that the intent is already
+        committed and no completion followed -- and the intent's own revocation
+        stands, which is the exclusion the retry runs under. RETRYABLE STILL MEANS
+        THROUGH THE SUPPORTED EXIT: an interrupted execution's effects are
+        unknown, so the episode is settled positively before the same recovery
+        finishes. The original conclusion -- the same act reaches
+        `correction-ready` afterwards -- is unchanged.
+        """
         from baton_v12.source_profiles import ProfileRefusal
 
         self.abandoned()
@@ -2635,8 +2875,12 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
         self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
         self.assertEqual(
             writer_of(self.store, self.writer_row["writer_id"])["state"],
-            "active")
+            "revoked")
         self.profile.restore_refusal = None
+        held = self.refused()
+        self.assertEqual((held.category, held.code), ("refused", "precondition"))
+        self.assertIn("neither a completion nor a settlement", held.message)
+        self.settled()
         self.assertEqual(self.restore()["state"], "correction-ready")
 
     def test_an_admission_during_the_restore_stops_the_completion(self):
@@ -2645,8 +2889,8 @@ class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
         self.abandoned()
         original = self.profile.restore_checkpoint
 
-        def racing(repository, evidence):
-            answered = original(repository, evidence)
+        def racing(repository, evidence, **routed):
+            answered = original(repository, evidence, **routed)
             self.store._connection.execute(
                 "UPDATE review_lines SET state = 'reviewing' WHERE line_id = ?",
                 (self.line_id,))

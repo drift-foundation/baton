@@ -1,0 +1,6 @@
+{
+  "v12/python/tools/job_manager.py": "394d27793f4d0b12ccb7dfaabeb5e992cf7eba972b02f47d5fe2313fc17e04e6",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "39d1a190b7d1e0dc256fa4a066467fa9f5512cf2cd4ffd144f9bac0b9e4e0a89",
+  "v12/python/tests/manager/test_custody.py": "c5c91058f198cac6f3287c57c416b92021383a288216c66efb501318e599d5c9",
+  "v12/python/tests/job_manager/test_tool.py": "7c4eb61aa88c251275253794359271e7599e56a15fca5245d02759cb073191b8"
+}

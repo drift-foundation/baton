@@ -3818,12 +3818,36 @@ def _writer_access(store, writer_id, generation, roots, gid, labels):
         raise ContractRefusal("stale-assignment", "generation",
                               "the launch is not this development line's current writer assignment")
     _validate_line_object(line)
+    # W275774, review 2026-09-26T23-02-00Z: THE EXPECTED ROOTS ARE A COMPARISON VALUE, AND
+    # THEIR ADMISSION ENDS WITH THE COMPARISON.
+    #
+    # `line_assignment_workspace(..., control=store)` ADMITS an adoption over the line's
+    # roots -- that is what the store operand is for -- and this call composes them only to
+    # compare against the actual launch roots. Nothing released that admission on either
+    # path, so every governed start left a standing exclusion behind: the independent trace
+    # (`adoption-trace-2026-09-26T23-02-00Z.txt`) follows it from `_prepared` through
+    # `request_runtime_start`, `OciAdapter.start`, `_prove_execution_workspace` and
+    # `line_proof` to here, and it is the "adoption 2 ... has recorded no completion" that
+    # made every later ending's root removal impossible.
+    #
+    # AFTER THE LAST PROTECTED USE, which is the comparison itself: `_prove_line_access`
+    # below reads the ACTUAL `roots`, never `expected`. The release is in a `finally` so the
+    # mismatch refusal ends the window too -- a failed validation must not leave one
+    # standing either.
+    #
+    # NOTHING ELSE MOVES. The original `roots` and the writer's grant are untouched, every
+    # writer, label, gid and object check above is unchanged, and
+    # `release_adopted_workspace` ends only the admission held on THIS temporary object --
+    # so a foreign admission over the same roots keeps blocking exactly as before.
     expected = workspaces.line_assignment_workspace(
         _storage(store), writer["runtime_attempt_id"], line["line_path"],
         (line["line_device"], line["line_inode"]), control=store)
-    if dict(roots) != dict(expected):
-        raise ContractRefusal("runtime-observation", "identity-mismatch",
-                              "the actual launch roots differ from the durable writer line")
+    try:
+        if dict(roots) != dict(expected):
+            raise ContractRefusal("runtime-observation", "identity-mismatch",
+                                  "the actual launch roots differ from the durable writer line")
+    finally:
+        workspaces.release_adopted_workspace(expected)
     return workspaces._prove_line_access(
         roots["workspace"], (line["line_device"], line["line_inode"]), gid)
 

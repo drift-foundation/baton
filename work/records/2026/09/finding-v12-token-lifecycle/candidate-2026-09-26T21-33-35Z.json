@@ -1,0 +1,31 @@
+{
+  "work": "W275774",
+  "claim": 279225,
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "bytes": 61178,
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "bytes": 299100,
+      "sha256": "e137d807edef65b29773fe58ce5f7a6cc45643447592c8a0e105a086b987e68a"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "bytes": 208726,
+      "sha256": "3cdf0752b8ee35979e1474425f5269ee7d908139017c70a373dfdaf681f48b0d"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_instance_guard.py",
+      "bytes": 23021,
+      "sha256": "0078f8d511e02105da461215abd8ef151ed116263374c9861bfe2b340e480fa1"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_guard_fork_20260926.py",
+      "bytes": 1677,
+      "sha256": "2bff2aa8216df9ceec96a6002ba803ba461ac8cceadf3b80f6dba9dcab49788e"
+    }
+  ]
+}

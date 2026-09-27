@@ -1,0 +1,8 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "debf4256e4d58067a068477c0b15f18f2525e175774cf1a3c1f38d0eb04342c6",
+  "v12/python/src/baton_v12/worker_manager/attempts.py": "04123234c53956b31563562b6a41e54a17b6ebf0a746d403f6458d566a92fcad",
+  "v12/python/src/baton_v12/worker_manager/intake.py": "9c539803e229d85b0754779ad5495fba8f3897cf09f56ab0cfb0597aa19c3adb",
+  "v12/python/tools/single_worker.py": "18ddf62f3a2c07d7099af0ef94740581444201e139212cd68f6f02e9ca2fe334",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_connected_lifecycle.py": "0a06c8daf8a0e4f4f68ebdbf03bf7ccdfd821674542e850b2d1866d7cf30a763"
+}

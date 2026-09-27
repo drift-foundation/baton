@@ -74,6 +74,14 @@ and tools. They are separate responsibilities even if a small deployment starts
 several host components in one process. Neither can substitute its observations
 for facts owned by another component.
 
+The deployment boundary is one active Host Worker Manager per managed
+workspace/DB. Many independent host managers MAY run on the same machine, each
+with its own database and managed workspace. Two independent host managers do
+not govern the same writable workspace through separate coordination stores.
+Parallel workers, attempts and host operations within one instance MUST use that
+instance's authoritative ownership state and obey the token and resource-conflict
+rules below. This is per-instance exclusivity, not a machine-wide singleton.
+
 | Component | Owns | Must not claim |
 | --- | --- | --- |
 | Work authority | Work identity, route, claim, assignment generation, authorization and durable workflow gates | That a process has stopped merely because a claim ended |
@@ -382,6 +390,21 @@ operator's back to make adoption succeed.
 The serving loop must not depend on agent cooperation or a user opening status to
 notice expiry. A manager outage cannot free its resources. Safety is maintained
 by retained holds; recovery must expose and resolve lost enforcement availability.
+
+**HOST-8.** Only one Host Worker Manager may be active for a managed workspace/DB.
+A second manager configured for that same instance MUST refuse startup with a
+clear configuration error before dispatching work or mutating managed resources.
+It MUST NOT wait as standby or take over from the active manager. Independent
+managers with separate databases and workspaces MAY run on the same machine.
+The exclusivity guard MUST NOT hold a DB transaction or DB lock across manager
+execution or external I/O. The guard MUST use an exclusive, nonblocking OS file
+lock for the instance, with its descriptor held for the manager lifetime and
+released on exit or process death. Child processes MUST NOT retain that descriptor.
+Aliases for the same instance MUST resolve to the same guard; a held guard file
+MUST NOT be unlinked or replaced. File existence, PID metadata and heartbeat age
+are not ownership authority. Restart after the prior manager has stopped still
+requires the reconciliation and retained-hold behavior in HOST-2 and HOST-7;
+release of the manager guard does not release worker tokens or prove cessation.
 
 ## 7. Inside-container manager and agent execution
 

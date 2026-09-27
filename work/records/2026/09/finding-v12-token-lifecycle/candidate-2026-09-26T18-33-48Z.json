@@ -1,0 +1,9 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/src/baton_v12/worker_manager/workspaces.py": "89a3d459f1b86d29e3092231b23f3cc422b1ff116b0fd4c6561cb9d497640c1c",
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "0aa0a3d4ef83fa06605ebb9f544416a60c9b6ea055e045339057d785fb3525b6",
+  "v12/python/tools/job_manager.py": "79fd29ca6d86cb08d962ed4b495305d9e26d984f4190ca6770c286d80752bdcc",
+  "v12/python/tools/single_worker.py": "c3aa1fe3620bd38b5f04dfb6592a622d10d280e76012b534846c9c0d773b94a6",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_governed_start.py": "33ae2229cec97238eb8da7d291ab5edc6281e52cf45c0a707c6a7f82c9304e7d",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_overlap_home_20260926.py": "ba11ebf5a352102277860ecd462a2da51c92a3a0ee74fb5c0d0b7bff1f045639"
+}

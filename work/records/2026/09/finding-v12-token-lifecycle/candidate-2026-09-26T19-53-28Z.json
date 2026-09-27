@@ -1,0 +1,10 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/src/baton_v12/worker_manager/attempts.py": "3c54fe33fc3345bb0304fc7671173d0b694b23b01235aa53c3e67f097d82a5aa",
+  "v12/python/src/baton_v12/worker_manager/intake.py": "423a77575e5d82ccfa435fc59007b76b9f4cf7399bb539164b4b24c4bf83bf72",
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "36dfd66143fea9c2520c9b3a70954366593b6178c742198d861918c79249bcd1",
+  "v12/python/src/baton_v12/worker_manager/documents.py": "898b8a65e99f8a289d5a460b74fca080d7cc6ede35c2bd48fe76e8d49e7a9fde",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_connected_lifecycle.py": "f586170f61fda8016a9002eb976d50028e9f9b4454bcc32c6f2fe824f7b3234b",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_expiry_reclaim.py": "a15377e34bde5904715930203c72cf39d2c28a0a6748d38b8d034d49e90d80bf",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_nonlaunch_uncertainty_20260926.py": "85dafc6a0ec25be225f3187589c3ddab81ac157de0c6780e8c2a8bd8387cb72f"
+}

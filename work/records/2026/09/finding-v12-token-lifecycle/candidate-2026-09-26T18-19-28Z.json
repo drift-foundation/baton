@@ -1,0 +1,6 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/tools/job_manager.py": "79fd29ca6d86cb08d962ed4b495305d9e26d984f4190ca6770c286d80752bdcc",
+  "v12/python/tests/job_manager/test_tool.py": "d0076f3dc906309b7fa9f6e4d51698f0a474743f740468b3af094a3118d5c515",
+  "v12/python/src/baton_v12/worker_manager/intake.py": "9c539803e229d85b0754779ad5495fba8f3897cf09f56ab0cfb0597aa19c3adb"
+}

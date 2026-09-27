@@ -1,0 +1,21 @@
+{
+  "work": "W275774",
+  "claim": 279620,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "bytes": 208637,
+      "sha256": "b55045ebf7a617af662da191306f4ebc06711fe27a70b69a5a256cba11bd6bc4"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "bytes": 234036,
+      "sha256": "97f5e7eeb3323ee6976ec5933312d131f1f4c84f7625f775a12af0d73b9528ef"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "bytes": 540452,
+      "sha256": "11813f6bf7704f496eeb91734db3e81db60a013dc7647fc365a95a859d4a64e6"
+    }
+  ]
+}

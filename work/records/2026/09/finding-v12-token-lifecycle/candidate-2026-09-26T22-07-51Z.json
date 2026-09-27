@@ -1,0 +1,26 @@
+{
+  "work": "W275774",
+  "claim": 279456,
+  "files": [
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "6fb0a6e68d4f51d64b54402371c4844db6a5f376b9516e769b8778d88ee62f91",
+      "bytes": 210413
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "d5f7023a7acf69c619a48017ffbf9c19f3e4df2214dbbda01647676a4a1a2cc8",
+      "bytes": 790606
+    },
+    {
+      "path": "v12/python/tests/manager/test_oci.py",
+      "sha256": "88e97f398edd5b66a2e3661858ed49ae5876e84dc24ead395a34cb6249e271cc",
+      "bytes": 126920
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_pinned_overlap_20260926.py",
+      "sha256": "055a51e53941c2fda3f2e77a3f88651d1f6232a8a8988ed79c51966f7a1791c6",
+      "bytes": 1162
+    }
+  ]
+}

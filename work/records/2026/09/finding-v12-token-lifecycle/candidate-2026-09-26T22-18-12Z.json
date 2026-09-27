@@ -1,0 +1,26 @@
+{
+  "work": "W275774",
+  "claim": 279538,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "bytes": 303957,
+      "sha256": "1f2f797dead7010546e9ea81a0be8a7b9c84d8f1df4114c75d389b54ccf3d6c9"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "bytes": 58767,
+      "sha256": "fe46bcda3797387b4c1f2b2981e6c58ad3ac7d339ae7aebcdca05fc8c400fa07"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "bytes": 210657,
+      "sha256": "7225a403015adc6b3ad94d8dbef16503f3db96568219b6c2d76641b950ba2a44"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/test_governed_start.py",
+      "bytes": 47300,
+      "sha256": "ee110f741db3e100750a4700811ad991deb696bf0f7bcdb0702bff782595f9c6"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/tools/single_worker.py": "c3aa1fe3620bd38b5f04dfb6592a622d10d280e76012b534846c9c0d773b94a6",
+  "v12/python/tests/tools/test_single_worker.py": "902ff4ee329e2a8e4462ebcb80a67e40cb3edcf3f723e221798719879b6e6e6b",
+  "v12/python/src/baton_v12/worker_manager/intake.py": "bae85d3b8a8c8d0a17a111c920c7f285164b9841fe00bb5d54950a24a6aa18f5",
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "9a11db39f68b51a81ce6fd5dfbc04cf26cd7777c56b5df377e8e88bfc7566c18",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_governed_endings.py": "b5342784fa550ed4f968f15c054828c116c049fafd68e163eaa33ac3a82732a2",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_abandonment_replay_20260926.py": "d485f29c85fb9ea811c2794d334bc43bb6c055d7c9a95570ab21cc1f4e097d79"
+}

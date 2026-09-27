@@ -27,6 +27,7 @@ import threading
 from datetime import datetime, timezone
 
 from baton_v12.authority import Authority, Refusal, claim_signature
+from baton_v12.worker_manager import tokens
 from baton_v12.contracts import (ContractRefusal, check_manifest_structure,
                                  check_no_durable_secret, digest,
                                  digest_of_bytes, job_input_identity)
@@ -2060,9 +2061,50 @@ class _SingleWorker:
             if fresh:
                 if given.get("provider_context") is not None:
                     self.stage.revalidate_context(self, stage)
+                # W275774: THE GOVERNED START. The workspace object this
+                # assignment mounts is the resource its start contends for, so
+                # the start is reserved against it, the container is bound before
+                # any effect, and the activation is admitted at the last moment.
+                # W275774 review 18:33:48Z [P1]: THE ARGUED IDENTITY AT THE START.
+                #
+                # Overlap exclusion is decided at ACQUISITION -- the only moment it
+                # matters, because that is when one resource is or is not already held.
+                # So the start passes the control store and gets the identity carrying
+                # the containment argument, which also proves it EQUALS the pinned
+                # object. The endings below deliberately keep the pinned form: by then
+                # the workspace may legitimately be gone, and an identity that refused
+                # for a missing path would silently skip an attempt whose token is still
+                # held. Equal at acquisition, stable afterwards.
+                # W275774, MEASURED DEFECT OF MY OWN, 2026-09-26 claim 279322: THE
+                # CONTROL-BOUND FORM IS WRONG FOR THIS DEPLOYMENT.
+                #
+                # `governed_workspace_identity` re-derives the writable root as
+                # `<configured storage>/<attempt>/workspace` and requires it to equal the
+                # PINNED object. That holds for the plain layout and NOT for a private
+                # line: `workspaces.adopted_persistent_line` composes roots whose
+                # `workspace` IS THE LINE HOME, so the pin records that object and the
+                # re-derived path names a different directory. The equality check then
+                # refused every implementation start with
+                # "the resource a start reserved is not the resource this act would name".
+                #
+                # Measured, not reasoned: `test_oci`'s context-mount cases and
+                # `test_stage_execution` failed with exactly that refusal, and I had
+                # previously reported those as pre-existing WIP -- which review 21:33:35Z
+                # was right to refuse as an unattributed claim.
+                #
+                # AND THE REPAIR IS THE ROOT, NOT A DOWNGRADE. Review 22:07:51Z refused
+                # my first correction -- pins-only governance here -- because it dropped
+                # the acquisition overlap argument for ORDINARY starts as well, to fix a
+                # layout mismatch that only a private line has. What this passes instead
+                # is the root it is about to mount: the containment owner proves that root
+                # sits in one of the two sibling arrangements this build supports, the
+                # equality against the PINNED object is unchanged, and the domain is still
+                # the durable one every ending here resolves through.
                 answer = request_runtime_start(
                     self.control, adapter, attempt_id=attempt_id,
-                    inputs=roots["inputs"])
+                    inputs=roots["inputs"],
+                    govern=tokens.workspace_governance(
+                        control=self.control, mounted=roots["workspace"]))
             else:
                 answer = reconcile_runtime(self.control, adapter,
                                            attempt_id=attempt_id)
@@ -2469,6 +2511,13 @@ class _SingleWorker:
             self.control, self.port, adapter, attempt_id=attempt_id,
             reason=reason,
             retention_policy_digest=self.given["retention_policy_digest"],
+            # W275774 review 16:29:48Z [P1]: THE ABANDONED ENDING GOVERNS TOO, and
+            # leaving it out was the exact defect I had warned about in the abstract
+            # one claim earlier -- a governed start acquires a token that an
+            # ungoverned ending cannot return. Abandonment is the case a resource
+            # token exists for, a runtime whose worker never answered, so this is the
+            # ending where a permanent hold would hurt most.
+            govern=tokens.workspace_governance(),
             # ONE ALLOWANCE, READ AT EACH BOUNDARY. `seconds` may be a
             # callable answering what is left, so the observation above, the
             # removal, both custody acts and the discharge below all spend
@@ -2731,9 +2780,13 @@ class _SingleWorker:
             disposition=self.given["retention_disposition"],
             retention_policy_digest=self.given["retention_policy_digest"])
         passed = self._passed(attempt_id, _assignment(row))
+        # AND THE ENDING RETURNS WHAT THE START RESERVED. A governed start with an
+        # ungoverned ending is worse than no governance: the workspace would stay
+        # held for the life of the store.
         authorize_cleanup(
             self.control, self.port, adapter, attempt_id=attempt_id,
-            retention_policy_digest=self.given["retention_policy_digest"])
+            retention_policy_digest=self.given["retention_policy_digest"],
+            govern=tokens.workspace_governance())
         return {"disposition": disposition,
                 "manifest_digest": frozen["manifest_digest"],
                 "result_id": frozen["result_id"],
@@ -3211,6 +3264,23 @@ def worker_preflight(given, control_store, *, credential_provider=None,
                     code="capability")
         provider = UserCredentialSources(
             given["credential_sources"], max_bearer=credentials.MAX_BEARER)
+    # W275774, DESIGN HOST-8 as amended by owner 279031: ONE ACTIVE MANAGER, AND THE
+    # REFUSAL HAPPENS BEFORE ANYTHING IS WRITTEN.
+    #
+    # FIRST, and review 21:26:24Z is why it moved. The guard used to be taken after the
+    # two configuring acts below, so a duplicate manager committed configuration into the
+    # database the ACTIVE manager owns before being refused. HOST-8 requires the refusal
+    # before work is dispatched or a managed resource is mutated, and a configuration
+    # written into another manager's store is exactly such a mutation.
+    #
+    # The root comes from the deployment's own configuration document rather than from the
+    # store, which is what makes this possible at all: nothing needs to be recorded before
+    # the instance can be named.
+    #
+    # THE DESCRIPTOR OUTLIVES THIS CALL on purpose: the guard is held by the process for
+    # as long as it is a manager, and a second composition inside this same process
+    # answers the guard it already holds rather than a second lock.
+    workspaces.hold_manager_instance(control_store, given["workspace_storage"])
     configure_workspace_group(control_store, given["workspace_group"])
     workspaces.configure_workspace_storage(control_store,
                                            given["workspace_storage"])

@@ -999,7 +999,16 @@ class ManagedSessionResume(ServingContextCase):
             chain, admitted = context._use(held.control, attempt)
             self.assertEqual(review_cycles.writer_of(held.control, admitted["payload"]["writer_id"])["state"], "revoked")
         vectors = self.engine.vectors
-        starts = [index for index, argv in enumerate(vectors) if argv[1] == "run" and "--entrypoint" not in argv]
+        # W275774: THE LAUNCHING VERB IS THE ADAPTER'S OWN, and it is now two acts.
+        # A governed launch creates the container inert and starts it only after the
+        # token is bound and the activation admitted, so `run` no longer appears for
+        # a launch at all -- the remaining `run` vectors are the custody acts this
+        # selector already excludes by their entrypoint. Derived from
+        # `oci.ACTIVATIONS`, the table that composes those vectors, rather than
+        # spelled again here, so the two cannot drift apart.
+        launching = {composed[0] for composed in oci.ACTIVATIONS.values()}
+        starts = [index for index, argv in enumerate(vectors)
+                  if argv[1] in launching and "--entrypoint" not in argv]
         removals = [index for index, argv in enumerate(vectors) if argv[1] == "rm"]
         self.assertTrue(any(starts[0] < index < starts[1] for index in removals))
         self.assertTrue(any(starts[1] < index < starts[2] for index in removals))

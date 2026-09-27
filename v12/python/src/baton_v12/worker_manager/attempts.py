@@ -1451,7 +1451,8 @@ def authorize_input_root(store, *, attempt_id, inputs):
     return given, delivered
 
 
-def request_runtime_start(store, adapter, *, attempt_id, inputs=None, deadline_policy=None):
+def request_runtime_start(store, adapter, *, attempt_id, inputs=None,
+                          deadline_policy=None, govern=None):
     """Commit a signed start operation, THEN call the adapter with it.
 
     Review [P1] in the frozen host: an axis label is not an effectively-once
@@ -1462,6 +1463,13 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None, deadline_p
     """
     boundaries.capability(getattr(adapter, "start", None),
                           "the runtime adapter's start")
+    # W275774: THE GOVERNED START. `govern` is the resource-token authority this
+    # deployment wants this start serialized against; passing none leaves the
+    # historical ungoverned start exactly as it was, because an assignment no
+    # token governs has nothing to reserve and nothing to bind.
+    if govern is not None:
+        boundaries.capability(getattr(govern, "reserve", None),
+                              "a resource-token reservation")
     attempt = _require_attempt(store, attempt_id)
     if attempt["assignment_generation"] is None:
         raise ContractRefusal(
@@ -1621,10 +1629,56 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None, deadline_p
     # the adapter at construction, exactly as the credential delivery is and
     # for the same reason: an attempt-scoped, manager-owned, non-assignment
     # mount whose two acts are exposing it at a fixed path and tearing it down.
+    # W275774 TOK-1/TOK-4: RESERVE BEFORE LAUNCH, THEN BIND BEFORE EFFECTS.
+    #
+    # The reservation happens HERE, after the start operation is journalled and
+    # before the adapter is called, so the launch the token names IS the journalled
+    # start rather than a second act adjacent to it. The binding and the activation
+    # admission travel INTO the adapter, which withholds the engine's `start` until
+    # both have answered -- see `oci.OciAdapter.start`.
+    #
+    # ONE EXTERNAL CROSSING, which is the property review 15:28:31Z asked the caller
+    # to demonstrate. A retry of this same operation replays its own reservation and
+    # its own admission instead of allocating a second generation, so a repeated call
+    # reconciles onto the crossing already attempted rather than making another.
+    reservation = None
+    if govern is not None:
+        # W275774 review 15:39:57Z [P1]: A REFUSED RESERVATION IS A NON-SUBMISSION,
+        # AND IT MUST BE ACCOUNTED FOR LIKE EVERY OTHER PRE-ENGINE FAILURE.
+        #
+        # The probe found this exactly: the reservation sits AFTER the start and lane
+        # commit, so a conflicting reservation left the attempt recorded as
+        # start-requested with the adapter never called and nothing to reconcile --
+        # a start nobody submitted and nobody accounted for.
+        #
+        # So it takes the SAME settlement boundary the adapter's own refusal takes:
+        # the start operation is recorded as returned and the failure is settled
+        # through `_start_failed`. NOTHING CROSSED, which is the one thing that
+        # makes this safe to report as a failed start rather than an unknown one --
+        # no container was created, because the engine was never reached.
+        #
+        # AND `submitted=False` SAYS SO DURABLY. Review 2026-09-26T19-13-42Z
+        # found the gap this leaves otherwise: the settlement asked the adapter,
+        # got an empty listing, and recorded `uncertain` -- the value reserved
+        # for a state this manager cannot establish -- for an attempt whose
+        # start provably never crossed. Ordinary contention then produced an
+        # attempt no ending could act on. The flag narrows only the branch that
+        # had nothing left to ask; every discovery the adapter can answer is
+        # unchanged, including finding another manager's runtime for these
+        # labels.
+        try:
+            reservation = govern.reserve(store, attempt, operation=operation_id)
+        except ContractRefusal as refusal:
+            _record_start_returned(store, attempt_id, operation_id)
+            raise _start_failed(store, adapter, attempt_id, refusal,
+                                submitted=False,
+                                operation=operation_id) from None
     try:
         started = _started(adapter.start({"labels": labels,
                                           "operation_id": operation_id,
-                                          "input_root": inputs}))
+                                          "input_root": inputs},
+                                         **({} if reservation is None
+                                            else {"bind": reservation.bind})))
     except ContractRefusal as refusal:
         _record_start_returned(store, attempt_id, operation_id)
         raise _start_failed(store, adapter, attempt_id, refusal) from None
@@ -1657,6 +1711,16 @@ def request_runtime_start(store, adapter, *, attempt_id, inputs=None, deadline_p
         _settled_and_recorded(store, adapter, attempt_id,
                               _fault_failure(fault))
         raise
+    # W275774: THE ACTIVATION IS SETTLED ONLY ON A CONCLUSIVE OUTCOME.
+    #
+    # Reached only when the adapter ANSWERED, which means the engine activated the
+    # container the token was bound to; that is conclusive and is recorded as such.
+    # Review 15:14:13Z is why there is no `started=False` on the failure paths above:
+    # a refusal or a fault can follow a REAL activation, so those outcomes are
+    # UNKNOWN and are left unsettled, which keeps the resource held rather than
+    # freeing it on a guess.
+    if reservation is not None and started["runtime_id"]:
+        reservation.settle(started["runtime_id"])
     _record_start_returned(store, attempt_id, operation_id)
     return reconcile_runtime(store, adapter, attempt_id=attempt_id,
                              minted=started["runtime_id"],
@@ -2257,7 +2321,8 @@ def _settle_unknown_start(store, attempt_id):
     return "; this attempt's execution runtime is recorded uncertain"
 
 
-def _start_failed(store, adapter, attempt_id, refusal):
+def _start_failed(store, adapter, attempt_id, refusal, *, submitted=True,
+                  operation=None):
     """W6636 [P0]: a refused start is SETTLED before its refusal is raised.
 
     The operation is journalled above and `execution_runtime` says
@@ -2303,10 +2368,12 @@ def _start_failed(store, adapter, attempt_id, refusal):
                            refusal.message
                            + _settled_and_recorded(
                                store, adapter, attempt_id,
-                               _refusal_failure(refusal)))
+                               _refusal_failure(refusal),
+                               submitted=submitted, operation=operation))
 
 
-def _settled_and_recorded(store, adapter, attempt_id, failure):
+def _settled_and_recorded(store, adapter, attempt_id, failure, *,
+                          submitted=True, operation=None):
     """ASK, then commit the settlement and the record as ONE act.
 
     ONE BOUNDARY FOR BOTH KINDS OF FAILURE. A refusal and a fault differ in
@@ -2331,7 +2398,104 @@ def _settled_and_recorded(store, adapter, attempt_id, failure):
     settlement that threw would replace it.
     """
     plan, asked = _identification(store, adapter, attempt_id)
+    if not submitted:
+        plan = _proved_non_launch(plan, store=store, attempt_id=attempt_id,
+                                  operation=operation)
     return asked + _record_start_failure(store, attempt_id, failure, plan)
+
+
+def _proved_non_launch(plan, *, store=None, attempt_id=None, operation=None):
+    """A start that never reached the engine, once the engine has been ASKED.
+
+    W275774 review 2026-09-26T19-13-42Z. The only caller that can know this is the
+    governed start whose RESERVATION was refused: the reservation sits between the
+    journalled start and `adapter.start`, so a refusal there means no start request
+    crossed under this operation. That fact used to be flattened into `uncertain`
+    -- the value reserved for a state this manager cannot establish -- which left
+    ordinary token contention as an attempt no ending would act on and a Work whose
+    runtime lane nothing would ever release.
+
+    IT NARROWS AN ANSWER AND NEVER REPLACES ONE:
+
+      * a plan that ATTACHED a runtime is untouched -- the adapter found a
+        container carrying these labels, and a non-submission by THIS call says
+        nothing about who started that one;
+      * a CANCELLING plan is untouched for the same reason;
+      * NO PLAN AT ALL is untouched, because it means the adapter could not be
+        asked, and a failure to look is not a proof of absence.
+
+    AND THE DECISION WORD IS NOT THE EVIDENCE, which review 2026-09-26T19-53-28Z
+    found me treating as though it were. `_identify` has TWO uncertain outputs: an
+    empty listing with no identity to ask about, and an empty listing with a KNOWN
+    identity whose `observe` could not say what it is. The first cut converted both,
+    so an exact container the engine could not describe was reported as positive
+    absence -- the very substitution this Work exists to remove, made by the
+    function meant to remove it. The reviewer's probe drives it directly.
+
+    So the narrowing now requires the TYPED evidence `_identify` writes --
+    `known_identity` is `None` only on the no-identity branch -- and an absent
+    member narrows nothing, because a plan from any other path has not said what
+    this needs to know. Nothing reads the diagnostic prose.
+
+    AND THE ROW IS REVALIDATED HERE, on the freshest read available before the
+    record commits: this attempt must still name NO runtime, must still stand at the
+    `start-requested` this call committed, and must still derive the very start
+    operation that refusal followed. A prior or pending writer that attached
+    anything in the meantime is exactly what the review asks be excluded, and an
+    attachment is visible in the row whether this call's adapter saw it or not.
+    `_reconciled` takes the same three reads again inside the write, because this
+    one proves only its own instant.
+
+    THE PLAN IS THE FIRST OPERAND AND THE EVIDENCE OPERANDS ARE OPTIONAL, so a
+    caller that supplies no row to revalidate against NARROWS NOTHING. That is the
+    fail-closed direction, and it keeps the reviewer's probe calling this exactly as
+    it does: a plan alone cannot establish a non-launch.
+    """
+    if plan is None or plan["decision"] != "uncertain":
+        return plan
+    if "known_identity" not in plan or plan["known_identity"] is not None:
+        return plan
+    if store is None or attempt_id is None or operation is None:
+        return plan
+    if not _nothing_was_launched(store, attempt_id, operation):
+        return plan
+    return {"decision": "not-submitted", "runtimes": None,
+            "operation": operation,
+            "why": "no start request crossed the adapter under this operation, "
+                   "and the adapter then reported no runtime carrying these "
+                   "labels; this attempt has no runtime and none was created"}
+
+
+def _nothing_was_launched(store, attempt_id, operation):
+    """Whether this attempt's row still says nobody launched anything.
+
+    THE THREE READS, and each one excludes a different writer. No `runtime_id`: no
+    prior or concurrent attachment named a container for this attempt. Still
+    `start-requested`: nothing else has settled this axis, so the state being
+    narrowed is this call's own act. And the same start operation: the record about
+    to be written is the one THIS refusal followed rather than another act wearing
+    its name.
+
+    NEVER RAISES A ROW IT CANNOT READ INTO THE CALLER'S FAILURE. This runs while
+    another failure is already on its way out; a row that cannot be read is simply
+    not evidence of non-launch, and the caller keeps its uncertain plan.
+
+    AND THE OPERATION IS REQUIRED RATHER THAN A WILDCARD. Review 2026-09-26T20-07-17Z:
+    this accepted `operation=None` as "skip that check" while the commit-time caller
+    reads it off the plan with `.get`, so internal evidence that had lost the operand
+    would have passed a check this function's own docstring claims to make. No
+    full-path exploit was reproduced and the classifier always passes one; a check
+    that can be bypassed by an absent value is still not the check it says it is.
+    """
+    if operation is None:
+        return False
+    try:
+        row = _require_attempt(store, attempt_id)
+    except Exception:                                      # noqa: BLE001
+        return False
+    return (row["runtime_id"] is None
+            and row["execution_runtime"] == "start-requested"
+            and _start_operation_id(row) == operation)
 
 
 def _started(answer):
@@ -2345,8 +2509,26 @@ def _started(answer):
     """
     if answer is None:
         return {"runtime_id": None, "labels": None}
+    # W275774, MEASURED 2026-09-26 claim 279553: THE DELIVERY ENDINGS BELONG TO THIS
+    # CONTRACT, because the adapter already answers them and this refused them.
+    #
+    # `oci.OciAdapter.start`'s no-identity answer is
+    # `{"runtime_id": None, "labels": None, **self._undelivered(labels)}` -- W26291's
+    # rule that an engine which named nothing still owes a named ending for the
+    # credential and the launch document. This contract named neither member, so that
+    # answer was refused `integrity/schema` and a clean "the engine said nothing" became
+    # an unparseable one: the attempt went `uncertain` and its stage `exceptional`.
+    #
+    # HOW IT SURFACED, stated because the attribution matters: the two-act launch composes
+    # `create` before `start`, and a fixture engine written for the single-act `run`
+    # answers no identity for `create` -- so this path, which was previously reached only
+    # by a genuinely silent engine, became the ordinary one in those deployments. The
+    # members are ACCEPTED AND NOT READ here; what becomes of a delivery is the failure
+    # settlement's business, and `_refused_start` on the adapter's side already owns it.
     taken = boundaries.document(answer, "the adapter's start answer",
-                                required=(), optional=("runtime_id", "labels"))
+                                required=(),
+                                optional=("runtime_id", "labels",
+                                          "credentials", "launch"))
     runtime_id = taken.get("runtime_id")
     labels = taken.get("labels")
     if runtime_id is not None:
@@ -2466,7 +2648,15 @@ def _identify(store, adapter, attempt_id, minted=None, minted_labels=None):
             # ASKED AND STILL UNKNOWN. The identity is not erased -- an
             # attachment already made stands, and a lost `minted` stays the
             # caller's to reconcile again.
+            #
+            # W275774 review 2026-09-26T19-53-28Z: AND THIS UNCERTAINTY NAMES A
+            # RUNTIME, which is what makes it a different fact from the one
+            # below. `known_identity` says so as a TYPED member rather than
+            # leaving a consumer to read the prose: this is an exact container
+            # the engine could not describe, and nothing may turn it into
+            # absence.
             return {"decision": "uncertain", "runtimes": None,
+                    "known_identity": known,
                     "why": f"the adapter lists no runtime for these labels "
                            f"and cannot say what {name_value(known)} is: "
                            f"{why}"}
@@ -2480,7 +2670,16 @@ def _identify(store, adapter, attempt_id, minted=None, minted_labels=None):
     # NO EXACT IDENTITY AT ALL, which is the one reconciliation that still
     # cannot ask the question: nothing was started by this call and nothing is
     # recorded, so there is no runtime to name.
+    #
+    # W275774: AND A CALLER THAT NEVER REACHED THE ENGINE NARROWS THIS ANSWER
+    # rather than this branch guessing for it -- see `_proved_non_launch` below,
+    # which is applied to the plan this returns. `known_identity` is `None`
+    # HERE AND ONLY HERE, and it is the typed evidence that narrowing requires:
+    # review 2026-09-26T19-53-28Z found the first cut converting on the decision
+    # word alone, which also caught the branch above -- an exact runtime the
+    # engine could not describe, reported as positive absence.
     return {"decision": "uncertain", "runtimes": None,
+            "known_identity": None,
             "why": "the adapter reports no runtime and this attempt names "
                    "none; a second start would risk two runtimes for one "
                    "assignment"}
@@ -2513,6 +2712,46 @@ def _reconciled(store, attempt_id, plan, *, within=None):
         return documents.runtime_uncertain(attempt_id=attempt_id,
                                            decision="uncertain",
                                            why=plan["why"])
+    # W275774: A PROVED NON-SUBMISSION IS RECORDED AS THE ABSENCE IT IS.
+    #
+    # `destroyed` is the axis's positive-absence value -- `OBSERVED_RUNTIME`
+    # maps the engine's `absent` onto it -- and it is reachable from both
+    # `not-started` and `start-requested`. `_settle_unknown_start` states the
+    # rule this obeys rather than bends: nothing positive may be written when
+    # nothing was established. Here something was, twice over -- no request
+    # crossed and the engine named no runtime for these labels -- so the honest
+    # record is absence and not confusion.
+    #
+    # TERMINAL, AND THAT IS NOT A NEW COST. The axis leaves `destroyed` nowhere,
+    # and `request_runtime_start` already refuses every axis but `not-started`,
+    # so this attempt could not have started again from `uncertain` either. The
+    # review asks for no same-attempt automatic retry; what this buys is an
+    # attempt whose state an ending can act on instead of one an operator must
+    # reconcile by hand.
+    if plan["decision"] == "not-submitted":
+        # AND THE SAME THREE READS AGAIN, INSIDE THE WRITE. Review
+        # 2026-09-26T19-53-28Z asks that only a proven non-submission with no prior
+        # or pending writer become absence, and the narrowing that produced this
+        # plan proved its own instant outside any lock. This runs within the
+        # record's own transaction -- `_identified_within` opens a savepoint in it
+        # -- so an attachment that landed in between is seen here, and what is
+        # written then is the honest `uncertain` rather than the absence this plan
+        # asked for. Nothing is lost by the downgrade: `uncertain` is where this
+        # settlement went before the narrowing existed at all.
+        if not _nothing_was_launched(store, attempt_id, plan.get("operation")):
+            observe(store, attempt_id=attempt_id, axis="execution_runtime",
+                    value="uncertain")
+            return documents.runtime_uncertain(
+                attempt_id=attempt_id, decision="uncertain",
+                why="no start request crossed the adapter under this operation, "
+                    "and this attempt named a runtime or moved its execution "
+                    "axis before the ending committed; an absence is not "
+                    "recorded over another writer's act")
+        observe(store, attempt_id=attempt_id, axis="execution_runtime",
+                value="destroyed")
+        return documents.runtime_not_submitted(attempt_id=attempt_id,
+                                               decision="not-submitted",
+                                               why=plan["why"])
     return _settled(store, _require_attempt(store, attempt_id),
                     plan["runtime_id"], plan["observed"], plan["why"],
                     within=within)
@@ -3390,7 +3629,8 @@ def _authority_finalize_operation_id(attempt):
     })[len("sha256:"):]
 
 
-def finalize_quiescent_assignment(store, port, *, attempt_id, reason):
+def finalize_quiescent_assignment(store, port, *, attempt_id, reason,
+                                  govern=None, cessation=None):
     """End the exact live assignment of an already-quiescent attempt.
 
     CALLING THIS IS THE OPERATOR'S DECISION. There is no deadline, no timer and
@@ -3481,6 +3721,37 @@ def finalize_quiescent_assignment(store, port, *, attempt_id, reason):
                          record["authority_operation_id"], record["reason"],
                          expected["work_ref"]["work_id"],
                          expected["work_ref"]["authority_uuid"])
+    # W275774 review 15:55:27Z [P1]: THE RESOURCE IS RETURNED ONLY ONCE THE ENDING
+    # HAS ACTUALLY HAPPENED, and this position is the correction.
+    #
+    # The previous cut released before the eligibility decision, and an independent
+    # probe walked straight through it: a quiescent attempt with no terminal
+    # disposition had its token released and THEN the finalization refused -- a
+    # resource freed for an assignment that never ended. Eligibility here is not a
+    # local precheck I can hoist; it is the AUTHORITY's decision, made in
+    # `port.cancel` above. So the return goes after it.
+    #
+    # My earlier reasoning for the other order was that a return failing after the
+    # ending would leave a resource held with nothing left to finalize. That is a
+    # real risk and it is the SMALLER one, and it is bounded: the return is
+    # idempotent and bound to its own execution and operation, so a later
+    # finalization of the same attempt returns the same generation rather than
+    # nothing or somebody else's.
+    #
+    # THE EVIDENCE IS THE CALLER'S, NOT THIS FUNCTION'S. The same review caught the
+    # previous cut synthesizing `stopped=True` from a state column and defaulting
+    # `helpers` to empty, which asserts that no writer survived rather than
+    # observing it. A governed finalization must be handed the cessation its own
+    # observer produced.
+    if govern is not None:
+        if cessation is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"finalizing attempt {name_value(attempt_id)} under resource "
+                f"governance requires the cessation observed for its runtime; this "
+                f"manager does not invent a termination or the absence of writers")
+        govern.release(store, attempt, operation=_start_operation_id(attempt),
+                       cessation=cessation)
     return documents.attempt_finalized(intent=dict(record),
                                        fenced=dict(fenced))
 

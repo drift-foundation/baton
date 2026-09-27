@@ -1,0 +1,36 @@
+{
+  "work": "W275774",
+  "claim": 280550,
+  "files": [
+    {
+      "path": "v12/python/tests/job_manager/test_recovery.py",
+      "bytes": 73264,
+      "sha256": "2e56427e6b21892d943235e8b680bd7085a58c103ee3d9702323fbd3e87362a7"
+    },
+    {
+      "path": "v12/python/tests/manager/test_review_cycles.py",
+      "bytes": 145737,
+      "sha256": "3382bd32b45dd652b4953ca310c4a05d13dab1604620451e893197dab53a3c5e"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "bytes": 607643,
+      "sha256": "59619b376d83ef5752a8700defa3c7d3b80ee3112facba45f6066df2106a81e3"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "bytes": 225379,
+      "sha256": "ad9f8f55fcdcb3c1e08ab6070951810941e141d0171b54e35a7834fe4a2457ce"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "bytes": 384177,
+      "sha256": "12846a6dbfa9d50b0cb1a6a0a67a7f59a47e47b040de7a0dba984d303756f1fe"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-lifecycle/review_restoration_admission_20260927.py",
+      "bytes": 1530,
+      "sha256": "c93e00100fab1fc158410d38f130c65c9ff549db44d1e043980621c7c4bb7b3e"
+    }
+  ]
+}

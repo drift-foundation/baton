@@ -74,7 +74,7 @@ from baton_v12.worker_manager import (assignment_of,
                                       configured_workspace_group,
                                       discharge_quiescence_gate,
                                       gate_discharge_of, load_manifest,
-                                      review_cycles)
+                                      review_cycles, tokens)
 
 from . import single_worker
 
@@ -1549,6 +1549,12 @@ class StageComposition:
                 profile=deployment.profile,
                 retention_disposition=deployment.retention_disposition,
                 retention_policy_digest=deployment.retention_policy_digest,
+                # W275774: THE ENDING RETURNS WHAT THIS DEPLOYMENT'S START
+                # RESERVED. Every worker here starts through the governed start,
+                # so an ungoverned ending would hold the workspace for the life of
+                # the store -- and the correction round that comes back to the same
+                # line would be refused by its own predecessor's generation.
+                govern=tokens.workspace_governance(),
                 # THE PROPOSAL OPERAND IS THE DRIVER'S, NOT A DOCUMENT THIS
                 # DEPLOYMENT COMPOSES. `retain_proposal` reads the worker's own
                 # opaque claim out of the frozen result and every other member
@@ -1570,7 +1576,10 @@ class StageComposition:
                 terminal=context["terminal"],
                 profile=deployment.profile,
                 retention_disposition=deployment.retention_disposition,
-                retention_policy_digest=deployment.retention_policy_digest)
+                retention_policy_digest=deployment.retention_policy_digest,
+                # W275774: and the reviewer's own governed workspace, for the same
+                # reason the producer's is returned above.
+                govern=tokens.workspace_governance())
         from baton_v12.worker_manager import provider_context, context_delivery
         binding = provider_context.context_invocation_of(deployment.control, attempt_id)
         if self.role == "implementation" and (worker.given.get("provider_context") is not None or binding is not None):

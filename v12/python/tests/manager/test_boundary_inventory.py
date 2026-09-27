@@ -1975,7 +1975,89 @@ for _entry in DEADLINE_DELEGATES:
 # call, from the reviewer's exact list in review-inventory-20260926.json. Two rules only
 # -- the injected capability, and the document this module answered and re-reads -- and
 # each names a witness below. Everything a caller actually composes is probed instead.
+ROW_OWNER = (
+    "the attempt row the caller adopted through its own owner -- `attempts._attempt_row` "
+    "validates it as `a persisted attempt` at that crossing -- and this family reads exactly "
+    "two members from it, both of which are re-validated downstream by the act they reach; "
+    "re-deriving the row here would make this module a second authority on what an attempt is")
+
+SELECTOR_OWNER = (
+    "a two-valued mode selector, refused unless it is exactly `True` or `False` by a local "
+    "typed check in `tokens.py` -- the rule is a type identity rather than a document shape, "
+    "so it is stated and witnessed rather than probed for a boundary label")
+
 TOKEN_OWNERS = {
+    # W275774 review 2026-09-27T01-49-32Z: THE PRIVILEGED MODE SWITCH, owned by a local
+    # typed check rather than a boundary label -- `boundaries` publishes no flag verb, and
+    # the review was explicit that growing the shared API for this one operand is not
+    # required. Witnessed by `test_a_manager_reclaim_selector_is_exactly_boolean`.
+    # W275774, 2026-09-27: THE GOVERNANCE FAMILY. Its injected store is the same
+    # capability every other token entry takes, and its `attempt` operand is a row an
+    # owner already validated -- the two members this family reads are re-validated by
+    # the acts they reach, and those delegations are declared in TOKEN_DELEGATES.
+    ("caller", "tokens.py:Governance.overdue", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:Governance.release", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:Governance.reserve", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:Governance.revoke", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    # W275774 C2, 2026-09-27: THE HOST-8 GUARD, whose four constructor operands this
+    # module composes itself. `hold_manager_instance` resolves the root, derives the guard
+    # path from it, opens the descriptor and reads its own pid; a hand-built instance holds
+    # no lock, so there is no caller document here to validate -- what makes the guard real
+    # is the descriptor's own flock, which HOST-8 requires and which cannot be faked by
+    # arguments. Witnessed by `test_a_manager_guard_is_its_own_modules_composition`.
+    ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "place"):
+        "composed by `hold_manager_instance` from the resolved managed root; the guard's authority is the held OS lock, never these arguments",
+    ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "path"):
+        "composed by `hold_manager_instance` from the resolved root and the fixed guard name; the guard's authority is the held OS lock, never these arguments",
+    ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "holder"):
+        "composed by `hold_manager_instance` from this process's own identity; the guard's authority is the held OS lock, never these arguments",
+    ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "descriptor"):
+        "the descriptor `hold_manager_instance` itself opened and locked; it is the guard, and a descriptor is proven by holding the lock rather than by its shape",
+    # W275774 C2, 2026-09-27: the RESERVATION and the IDENTITY family, finishing the
+    # finite token partition the review listed. Injected stores and the acquisition
+    # document this module answered are stated; every operand that a later act really
+    # validates is delegated to that act and probed there.
+    ("caller", "tokens.py:Reservation.__init__", "control"): "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:governed_workspace_identity", "control"): "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:workspace_governance", "control"): "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:Reservation.__init__", "token"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:governed_workspace_identity", "attempt"): ROW_OWNER,
+    ("caller", "tokens.py:workspace_identity", "attempt"): ROW_OWNER,
+    ("caller", "tokens.py:workspace_identity", "attempt.runtime_attempt_id"):
+        "a member of the attempt row its own owner validated, read here only to NAME the "
+        "attempt in a refusal message -- nothing is decided from it, so there is no rule "
+        "for a boundary to own",
+    ("caller", "tokens.py:workspace_identity", "attempt.workspace_device"): ROW_OWNER,
+    ("caller", "tokens.py:workspace_identity", "attempt.workspace_inode"): ROW_OWNER,
+    ("caller", "tokens.py:settle_activation", "started"):
+        "a conclusive activation outcome, refused by `settle_activation`'s own typed check "
+        "unless it is exactly `True` or `False` -- and DELIBERATELY not the schema refusal "
+        "the reclaim selector takes: an unresolved outcome is `runtime-observation/"
+        "quiescence-unknown`, because an activation nobody answered for stays IN FLIGHT and "
+        "the resource stays held. Stated rather than probed for a boundary label, and "
+        "witnessed below",
+    ("caller", "tokens.py:Governance.overdue", "attempt"): ROW_OWNER,
+    ("caller", "tokens.py:Governance.release", "attempt"): ROW_OWNER,
+    ("caller", "tokens.py:Governance.reserve", "attempt"): ROW_OWNER,
+    ("caller", "tokens.py:Governance.revoke", "attempt"): ROW_OWNER,
+    ("caller", "tokens.py:returned", "reclaiming"): SELECTOR_OWNER,
+    ("caller", "tokens.py:release", "reclaiming"): SELECTOR_OWNER,
+    ("caller", "tokens.py:Governance.release", "reclaiming"): SELECTOR_OWNER,
+    # W275774 inventory B/D, 2026-09-27: the RESOLVER family. `generation_of` now owns
+    # the domain and the identifying pair itself (it only compared them before), and the
+    # two acts that reach a generation through it delegate to it rather than spelling the
+    # same rule twice -- see TOKEN_DELEGATES below. Only their injected store is stated.
+    ("caller", "tokens.py:generation_of", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:release", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:revoke", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
     ("caller", "tokens.py:acquire", "control"):
         "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
     ("caller", "tokens.py:outstanding", "control"):
@@ -2021,6 +2103,31 @@ TOKEN_OWNERS = {
     ("caller", "tokens.py:returned", "token.generation"):
         "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
     ("caller", "tokens.py:returned", "token.owner"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    # W275774 review 15:19:45Z: THE NEW ACTIVATION APIs, declared so this catalog
+    # describes the CURRENT module rather than an earlier snapshot of it. Same two
+    # rules as every entry above -- the injected capability, and the document this
+    # module answered and re-reads -- because `admit_activation` and
+    # `settle_activation` receive exactly those and nothing a caller composed.
+    ("caller", "tokens.py:admit_activation", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:admit_activation", "token"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:admit_activation", "token.domain"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:admit_activation", "token.generation"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:admit_activation", "token.owner"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:settle_activation", "control"):
+        "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:settle_activation", "token"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:settle_activation", "token.domain"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:settle_activation", "token.generation"):
+        "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
+    ("caller", "tokens.py:settle_activation", "token.owner"):
         "the acquisition document this module itself answered; every act re-reads the record through `replay` and compares the owner first, so the caller's copy is evidence to check rather than authority to trust",
     ("caller", "tokens.py:outstanding", "domain"):
         "a conflict domain composed by `domain_of`, which owns both of its parts; it selects derived record identities and reads nothing a caller chose",
@@ -2615,10 +2722,16 @@ STATED_OWNERS = {
     # `documents.runtime_labels` through `oci._labels`, so this member arrives
     # proved; what the comparison adds is a RELATIONSHIP between two already
     # owned values, which is a semantic rule rather than a second crossing.
-    ("caller", "oci.py:OciAdapter.start", "labels.runtime_attempt_id"):
-        "oci._labels -> documents.runtime_labels, at the top of the same "
-        "operation; the comparison against the delivery's attempt is a rule "
-        "over two owned values",
+    # W275774: THIS EXCEPTION IS GONE, AND RE-POINTING IT WAS THE WRONG REPAIR.
+    # The two-act launch gave `start` a named `request` document, so the member
+    # is reached as `request.labels.runtime_attempt_id` -- and that path is
+    # ALREADY owned, by the envelope's own `request.labels` validation against
+    # `documents.RUNTIME_LABELS`. Measured: re-pointing the key made the entry
+    # owned TWICE, which is the opposite defect. So the exception is withdrawn
+    # rather than moved; what it used to state -- that the comparison against
+    # the delivery's attempt is a semantic rule over two already-owned values --
+    # is still true and is still driven by
+    # `test_one_delivery_belongs_to_one_attempt`, which stays where it is.
     ("caller", "documents.py:collect_requested", "members"):
         "documents._emit against this document's own contract: exactly these "
         "members, and nothing about their values",
@@ -2830,14 +2943,27 @@ STATED_OWNERS = {
     ("caller", "oci.py:stop_vector", "seconds"):
         "an exact positive whole number, with `bool` excluded because it is "
         "an int and a stop timeout of `True` is not one second",
-    # NEVER TRUSTED, ONLY COMPARED. The engine's `Running` member is matched
-    # against the two exact singletons and anything else -- absent, a string,
-    # a number, `None` -- falls through to `uncertain`. A manager that treated
-    # confusion as death would release an assignment whose worker is running,
-    # so this field cannot refuse and must not be owned as though it could.
-    ("caller", "oci.py:OciAdapter.observe", "document.Running"):
-        "compared with `is True` / `is False` and anything else answers "
-        "`uncertain`; this read cannot refuse, because confusion is not death",
+    # W275774 inventory G, WITHDRAWN AFTER TRACING IT, and the trace is the reason.
+    #
+    # This declared `document.Running` at `OciAdapter.observe` as a CALLER entry that
+    # cannot refuse. Following the value: `answer = self.run(...)` is not a modelled
+    # crossing at all -- `_run` is, inside `EnginePort.__call__`, which is where this
+    # inventory deliberately owns the engine's answer ONCE and where `run.status`,
+    # `run.stdout` and `run.stderr` are its entries. `observe` then binds
+    # `_decoded(answer["stdout"], ...)`, so the inspection document is a value THIS
+    # MANAGER produced out of an already-owned member.
+    #
+    # So there is no second crossing here to own, and the correction is not new
+    # provenance: teaching the discovery to follow a decode would own the engine's answer
+    # twice, which is the rule that comment rejects by name. Measured both ways -- a
+    # `json.loads` pass-through was written, run and reverted; it produced 17 further
+    # entries over already-owned engine answers and still did not produce this one,
+    # because the decode here is `_decoded` rather than `json.loads`.
+    #
+    # WHAT THE DECLARATION SAID IS STILL TRUE AND IS KEPT WHERE IT BELONGS: `Running` is
+    # compared with `is True` / `is False`, anything else answers `uncertain`, and that
+    # rule lives in `_running_state`'s own docstring with
+    # `test_an_unrecognised_running_member_is_uncertain_and_never_absent` as its witness.
     # -- W39666: the worker-entry transport's composite operands -------------
     #
     # EACH OF THESE IS A SEQUENCE WHOSE MEMBERS ARE LAYER-OWNED AND WHOSE
@@ -3008,8 +3134,80 @@ NO_PROBE = {
         "the same",
 }
 
+# W275774 inventory B/D, 2026-09-27: the two governed acts that reach a generation
+# through `generation_of`, and the domain both compose through `domain_of`. Each names
+# the exact owner in this module rather than repeating its rule: a second spelling of
+# "a governed resource kind" is a second authority on what a resource is, which is the
+# defect `domain_of`'s own docstring exists to prevent.
+TOKEN_DELEGATES = {
+    # W275774 C2, 2026-09-27: the two public guard/authority entries whose root this
+    # module's single path owner validates, and the containment argument.
+    # MEASURED, not assumed: the guard resolves its root through
+    # `check_workspace_storage` FIRST, so that -- and not `_real` -- is the owner a
+    # probe actually reaches. My first declaration named `_real` and the probe proved
+    # it wrong by refusing one label earlier.
+    ("caller", "workspaces.py:hold_manager_instance", "place"):
+        ("workspaces.py:check_workspace_storage", "caller:place"),
+    ("caller", "workspaces.py:claimed_workspace_authority", "place"):
+        ("workspaces.py:_real", "caller:path"),
+    ("caller", "workspaces.py:governed_resource_identity", "mounted"):
+        ("workspaces.py:_line_or_assignment_identity", "caller:mounted"),
+    # W275774 C2, 2026-09-27: the reservation's two acts and the identity family's two
+    # operands, each named at the act that owns it. `mounted` is owned by the containment
+    # owner rather than here, which is the whole point of delegating to it.
+    ("caller", "tokens.py:Reservation.__init__", "launch"):
+        ("tokens.py:bind_container", "caller:launch"),
+    ("caller", "tokens.py:Reservation.bind", "container"):
+        ("tokens.py:bind_container", "caller:container"),
+    ("caller", "tokens.py:Reservation.settle", "container"):
+        ("tokens.py:settle_activation", "caller:container"),
+    ("caller", "tokens.py:governed_workspace_identity", "attempt.runtime_attempt_id"):
+        ("workspaces.py:governed_resource_identity", "caller:assignment_id"),
+    ("caller", "tokens.py:governed_workspace_identity", "mounted"):
+        ("workspaces.py:_line_or_assignment_identity", "caller:mounted"),
+    ("caller", "tokens.py:workspace_governance", "mounted"):
+        ("workspaces.py:_line_or_assignment_identity", "caller:mounted"),
+    # W275774, 2026-09-27: the governance family's two read members and its own operands,
+    # each named at the act that actually owns it rather than re-checked here.
+    ("caller", "tokens.py:Governance.reserve", "attempt.runtime_attempt_id"):
+        ("tokens.py:acquire", "caller:execution"),
+    ("caller", "tokens.py:Governance.reserve", "operation"):
+        ("tokens.py:acquire", "caller:operation"),
+    ("caller", "tokens.py:Governance.release", "attempt.runtime_attempt_id"):
+        ("tokens.py:generation_of", "caller:execution"),
+    ("caller", "tokens.py:Governance.release", "operation"):
+        ("tokens.py:generation_of", "caller:operation"),
+    ("caller", "tokens.py:Governance.release", "cessation"):
+        ("tokens.py:release", "caller:cessation"),
+    ("caller", "tokens.py:Governance.overdue", "attempt.runtime_attempt_id"):
+        ("tokens.py:generation_of", "caller:execution"),
+    ("caller", "tokens.py:Governance.overdue", "operation"):
+        ("tokens.py:generation_of", "caller:operation"),
+    ("caller", "tokens.py:Governance.revoke", "attempt.runtime_attempt_id"):
+        ("tokens.py:generation_of", "caller:execution"),
+    ("caller", "tokens.py:Governance.revoke", "operation"):
+        ("tokens.py:generation_of", "caller:operation"),
+    ("caller", "tokens.py:release", "resource_kind"):
+        ("tokens.py:domain_of", "caller:resource_kind"),
+    ("caller", "tokens.py:release", "resource_identity"):
+        ("tokens.py:domain_of", "caller:identity"),
+    ("caller", "tokens.py:release", "execution"):
+        ("tokens.py:generation_of", "caller:execution"),
+    ("caller", "tokens.py:release", "operation"):
+        ("tokens.py:generation_of", "caller:operation"),
+    ("caller", "tokens.py:revoke", "resource_kind"):
+        ("tokens.py:domain_of", "caller:resource_kind"),
+    ("caller", "tokens.py:revoke", "resource_identity"):
+        ("tokens.py:domain_of", "caller:identity"),
+    ("caller", "tokens.py:revoke", "execution"):
+        ("tokens.py:generation_of", "caller:execution"),
+    ("caller", "tokens.py:revoke", "operation"):
+        ("tokens.py:generation_of", "caller:operation"),
+}
+
 DELEGATED = {
     **DEADLINE_DELEGATES,
+    **TOKEN_DELEGATES,
     ("adopted", "review_cycles.py:consumption_subject", "line_writers.writer_id"):
         ("review_cycles.py:writer_of", "caller:writer_id"),
     ("caller", "review_cycles.py:review_of", "attachment_id"):
@@ -7891,7 +8089,227 @@ class EveryProbeProvesItArrived(BoundaryCase):
             tokens.journal_launch(self.store, token, "launch:probe")
             return token
 
+        def releasing(**spoiled):
+            """The real return vector, with exactly one operand spoiled.
+
+            W275774 inventory B/D: the cessation document is VALID in every one of
+            these, because `release` owns it in place before it resolves a
+            generation -- a probe that spoiled it too would stop at that earlier
+            boundary and pass for the wrong reason.
+            """
+            operands = {"resource_identity": "line-7/workspace",
+                        "resource_kind": "workspace",
+                        "execution": "attempt-probe",
+                        "operation": "runtime.start:probe",
+                        "cessation": {"container": "container-probe",
+                                      "stopped": True, "helpers": []}}
+            operands.update(spoiled)
+            return lambda: tokens.release(self.store, **operands)
+
+        def revoking(**spoiled):
+            operands = {"resource_identity": "line-7/workspace",
+                        "resource_kind": "workspace",
+                        "execution": "attempt-probe",
+                        "operation": "runtime.start:probe"}
+            operands.update(spoiled)
+            return lambda: tokens.revoke(self.store, **operands)
+
+        def resolving(**spoiled):
+            operands = {"domain": domain, "execution": "attempt-probe",
+                        "operation": "runtime.start:probe"}
+            operands.update(spoiled)
+            return lambda: tokens.generation_of(
+                self.store, operands.pop("domain"), **operands)
+
+        def governed(act, **spoiled):
+            """One real governance vector with exactly one operand spoiled.
+
+            W275774, 2026-09-27: the row carries a VALID workspace object in every
+            one of these, because the family resolves its resource identity from
+            those two members before it reaches the operand under test -- a probe
+            that spoiled them would stop at the identity and pass for the wrong
+            reason.
+            """
+            row = {"runtime_attempt_id": "attempt-probe",
+                   "workspace_device": 66306, "workspace_inode": 55316903}
+            row.update(spoiled.pop("_row", {}))
+            operands = {"operation": "runtime.start:probe"}
+            operands.update(spoiled)
+            governance = tokens.workspace_governance()
+            return lambda: getattr(governance, act)(self.store, row, **operands)
+
+        def governed_release(**spoiled):
+            operands = {"cessation": {"container": "container-probe",
+                                      "stopped": True, "helpers": []}}
+            operands.update(spoiled)
+            return governed("release", **operands)
+
+        def reserved(launch="launch:probe"):
+            """A real reservation object over a real acquisition."""
+            token = held()
+            return tokens.Reservation(self.store, token, launch)
+
+        def storaged():
+            """The configured workspace storage these identity vectors read.
+
+            W275774 C2: `governed_resource_identity` reads the configured storage
+            before it reaches the containment owner, so a probe without one would
+            refuse for want of configuration and pass for the wrong reason.
+            """
+            place = os.path.join(self.root, "governed-storage")
+            if not os.path.isdir(place):
+                os.mkdir(place)
+            workspaces.configure_workspace_storage(self.store, place)
+            return place
+
+        def identified(**spoiled):
+            row = {"runtime_attempt_id": "attempt-probe",
+                   "workspace_device": 66306, "workspace_inode": 55316903}
+            row.update(spoiled.pop("_row", {}))
+            operands = dict(spoiled)
+
+            def run():
+                storaged()
+                return tokens.governed_workspace_identity(self.store, row,
+                                                          **operands)
+            return run
+
+        def governed_mount(mounted):
+            row = {"runtime_attempt_id": "attempt-probe",
+                   "workspace_device": 66306, "workspace_inode": 55316903}
+
+            def run():
+                storaged()
+                return tokens.workspace_governance(
+                    control=self.store, mounted=mounted).overdue(
+                        self.store, row, operation="runtime.start:probe")
+            return run
+
+        def identified_root(mounted):
+            """The containment owner's vector, with its storage configured first.
+
+            MEASURED: `governed_resource_identity` reads the configured workspace
+            store before it reaches the containment owner, so a probe without one
+            refuses `policy/denied` for want of configuration and would pass for the
+            wrong reason.
+            """
+            def run():
+                place = os.path.join(self.root, "governed-root-probe")
+                if not os.path.isdir(place):
+                    os.mkdir(place)
+                workspaces.configure_workspace_storage(self.store, place)
+                return workspaces.governed_resource_identity(
+                    self.store, "attempt-probe", mounted=mounted)
+            return run
+
         found = {
+            # W275774 C2, 2026-09-27: the two public guard/authority roots, owned by this
+            # component's single path owner.
+            (at("workspaces.py:hold_manager_instance", "place"),
+             "the configured workspace store"): (
+                "the configured workspace store",
+                lambda: workspaces.hold_manager_instance(self.store, SURROGATE)),
+            (at("workspaces.py:claimed_workspace_authority", "place"),
+             "a filesystem root"): (
+                "a filesystem root",
+                lambda: workspaces.claimed_workspace_authority(SURROGATE)),
+            (at("workspaces.py:governed_resource_identity", "mounted"),
+             "an attempt's writable root"): (
+                "an attempt's writable root",
+                identified_root(SURROGATE)),
+            # W275774 C2, 2026-09-27: THE RESERVATION'S TWO ACTS AND THE IDENTITY
+            # FAMILY'S TWO OPERANDS, each reaching the act that owns it.
+            (at(f"{T}:Reservation.__init__", "launch"),
+             "a launch operation identity"): (
+                "a launch operation identity",
+                lambda: reserved(launch=SURROGATE).bind("container-probe")),
+            (at(f"{T}:Reservation.bind", "container"),
+             "a bound container identity"): (
+                "a bound container identity",
+                lambda: reserved().bind(SURROGATE)),
+            (at(f"{T}:Reservation.settle", "container"),
+             "a bound container identity"): (
+                "a bound container identity",
+                lambda: reserved().settle(SURROGATE)),
+            (at(f"{T}:governed_workspace_identity", "attempt.runtime_attempt_id"),
+             "an assignment identity"): (
+                "an assignment identity",
+                identified(_row={"runtime_attempt_id": SURROGATE})),
+            (at(f"{T}:governed_workspace_identity", "mounted"),
+             "an attempt's writable root"): (
+                "an attempt's writable root", identified(mounted=SURROGATE)),
+            (at(f"{T}:workspace_governance", "mounted"),
+             "an attempt's writable root"): (
+                "an attempt's writable root", governed_mount(SURROGATE)),
+            # W275774, 2026-09-27: THE GOVERNANCE FAMILY'S DELEGATIONS, each proved at
+            # the act that owns the operand rather than asserted in the table.
+            (at(f"{T}:Governance.reserve", "attempt.runtime_attempt_id"),
+             "a token execution identity"): (
+                "a token execution identity",
+                governed("reserve", _row={"runtime_attempt_id": SURROGATE})),
+            (at(f"{T}:Governance.reserve", "operation"),
+             "a token operation identity"): (
+                "a token operation identity",
+                governed("reserve", operation=SURROGATE)),
+            (at(f"{T}:Governance.overdue", "attempt.runtime_attempt_id"),
+             "a token execution identity"): (
+                "a token execution identity",
+                governed("overdue", _row={"runtime_attempt_id": SURROGATE})),
+            (at(f"{T}:Governance.overdue", "operation"),
+             "a token operation identity"): (
+                "a token operation identity",
+                governed("overdue", operation=SURROGATE)),
+            (at(f"{T}:Governance.revoke", "attempt.runtime_attempt_id"),
+             "a token execution identity"): (
+                "a token execution identity",
+                governed("revoke", _row={"runtime_attempt_id": SURROGATE})),
+            (at(f"{T}:Governance.revoke", "operation"),
+             "a token operation identity"): (
+                "a token operation identity",
+                governed("revoke", operation=SURROGATE)),
+            (at(f"{T}:Governance.release", "attempt.runtime_attempt_id"),
+             "a token execution identity"): (
+                "a token execution identity",
+                governed_release(_row={"runtime_attempt_id": SURROGATE})),
+            (at(f"{T}:Governance.release", "operation"),
+             "a token operation identity"): (
+                "a token operation identity",
+                governed_release(operation=SURROGATE)),
+            (at(f"{T}:Governance.release", "cessation"),
+             "a container cessation answer"): (
+                "a container cessation answer",
+                governed_release(cessation=SURROGATE)),
+            # W275774 inventory B/D, 2026-09-27: THE RESOLVER AND THE TWO ACTS THAT
+            # REACH A GENERATION THROUGH IT. `generation_of` owns the domain and the
+            # identifying pair itself; `release` and `revoke` delegate to it and to
+            # `domain_of`, and each delegation is proved here through the REAL public
+            # vector rather than asserted in the table.
+            (at(f"{T}:generation_of", "domain"), "a governed conflict domain"): (
+                "a governed conflict domain", resolving(domain=SURROGATE)),
+            (at(f"{T}:generation_of", "execution"), "a token execution identity"): (
+                "a token execution identity", resolving(execution=SURROGATE)),
+            (at(f"{T}:generation_of", "operation"), "a token operation identity"): (
+                "a token operation identity", resolving(operation=SURROGATE)),
+            (at(f"{T}:release", "resource_kind"), "a governed resource kind"): (
+                "a governed resource kind", releasing(resource_kind=SURROGATE)),
+            (at(f"{T}:release", "resource_identity"),
+             "a governed resource identity"): (
+                "a governed resource identity",
+                releasing(resource_identity=SURROGATE)),
+            (at(f"{T}:release", "execution"), "a token execution identity"): (
+                "a token execution identity", releasing(execution=SURROGATE)),
+            (at(f"{T}:release", "operation"), "a token operation identity"): (
+                "a token operation identity", releasing(operation=SURROGATE)),
+            (at(f"{T}:revoke", "resource_kind"), "a governed resource kind"): (
+                "a governed resource kind", revoking(resource_kind=SURROGATE)),
+            (at(f"{T}:revoke", "resource_identity"),
+             "a governed resource identity"): (
+                "a governed resource identity",
+                revoking(resource_identity=SURROGATE)),
+            (at(f"{T}:revoke", "execution"), "a token execution identity"): (
+                "a token execution identity", revoking(execution=SURROGATE)),
+            (at(f"{T}:revoke", "operation"), "a token operation identity"): (
+                "a token operation identity", revoking(operation=SURROGATE)),
             (at(f"{T}:domain_of", "resource_kind"), "a governed resource kind"): (
                 "a governed resource kind",
                 lambda: tokens.domain_of(SURROGATE, "line-7/workspace")),
@@ -8742,6 +9160,65 @@ class EveryProbeProvesItArrived(BoundaryCase):
 # label, so it is exercised rather than probed -- and the mapping is checked both
 # ways, so a rule with no witness and a witness naming no rule both fail.
 TOKEN_WITNESSES = {
+    ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "place"):
+        "test_a_manager_guard_is_its_own_modules_composition",
+    ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "path"):
+        "test_a_manager_guard_is_its_own_modules_composition",
+    ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "holder"):
+        "test_a_manager_guard_is_its_own_modules_composition",
+    ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "descriptor"):
+        "test_a_manager_guard_is_its_own_modules_composition",
+    ("caller", "tokens.py:Reservation.__init__", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:governed_workspace_identity", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:workspace_governance", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:Reservation.__init__", "token"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:governed_workspace_identity", "attempt"):
+        "test_a_governed_attempt_row_is_its_own_owners",
+    ("caller", "tokens.py:workspace_identity", "attempt"):
+        "test_a_governed_attempt_row_is_its_own_owners",
+    ("caller", "tokens.py:workspace_identity", "attempt.runtime_attempt_id"):
+        "test_a_governed_attempt_row_is_its_own_owners",
+    ("caller", "tokens.py:workspace_identity", "attempt.workspace_device"):
+        "test_a_governed_attempt_row_is_its_own_owners",
+    ("caller", "tokens.py:workspace_identity", "attempt.workspace_inode"):
+        "test_a_governed_attempt_row_is_its_own_owners",
+    ("caller", "tokens.py:settle_activation", "started"):
+        "test_an_activation_outcome_is_exactly_boolean_and_unknown_stays_held",
+    ("caller", "tokens.py:Governance.overdue", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:Governance.release", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:Governance.reserve", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:Governance.revoke", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:Governance.overdue", "attempt"):
+        "test_a_governed_attempt_row_is_its_own_owners",
+    ("caller", "tokens.py:Governance.release", "attempt"):
+        "test_a_governed_attempt_row_is_its_own_owners",
+    ("caller", "tokens.py:Governance.reserve", "attempt"):
+        "test_a_governed_attempt_row_is_its_own_owners",
+    ("caller", "tokens.py:Governance.revoke", "attempt"):
+        "test_a_governed_attempt_row_is_its_own_owners",
+    ("caller", "tokens.py:returned", "reclaiming"):
+        "test_a_manager_reclaim_selector_is_exactly_boolean",
+    ("caller", "tokens.py:release", "reclaiming"):
+        "test_a_manager_reclaim_selector_is_exactly_boolean",
+    ("caller", "tokens.py:Governance.release", "reclaiming"):
+        "test_a_manager_reclaim_selector_is_exactly_boolean",
+    # W275774 inventory B/D, 2026-09-27: the resolver family's injected stores, witnessed
+    # by the same case as every other one -- the rule is identical and a second witness
+    # for it would be a second account of one property.
+    ("caller", "tokens.py:generation_of", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:release", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:revoke", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
     ("caller", "tokens.py:acquire", "control"):
         "test_a_token_control_capability_is_proven_by_use",
     ("caller", "tokens.py:outstanding", "control"):
@@ -8787,6 +9264,26 @@ TOKEN_WITNESSES = {
     ("caller", "tokens.py:returned", "token.generation"):
         "test_a_carried_token_document_is_reread_before_it_is_acted_on",
     ("caller", "tokens.py:returned", "token.owner"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:admit_activation", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:admit_activation", "token"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:admit_activation", "token.domain"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:admit_activation", "token.generation"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:admit_activation", "token.owner"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:settle_activation", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:settle_activation", "token"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:settle_activation", "token.domain"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:settle_activation", "token.generation"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
+    ("caller", "tokens.py:settle_activation", "token.owner"):
         "test_a_carried_token_document_is_reread_before_it_is_acted_on",
     ("caller", "tokens.py:outstanding", "domain"):
         "test_a_carried_token_document_is_reread_before_it_is_acted_on",
@@ -8888,8 +9385,6 @@ WITNESSES = {
         "test_a_writable_flag_is_a_yes_or_a_no",
     ("caller", "oci.py:stop_vector", "seconds"):
         "test_a_stop_timeout_is_a_positive_whole_number",
-    ("caller", "oci.py:OciAdapter.observe", "document.Running"):
-        "test_an_unrecognised_running_member_is_uncertain_and_never_absent",
     # -- W6627: the operator interrogation split -----------------------------
     ("caller", "interrogation.py:probe", "session_epoch"):
         "test_a_session_epoch_counts_from_one",
@@ -9217,8 +9712,6 @@ WITNESSES = {
         "test_a_declaration_is_owned_once_at_construction",
     ("caller", "oci.py:OciAdapter.__init__", "input_manifest_digest"):
         "test_a_declaration_is_owned_once_at_construction",
-    ("caller", "oci.py:OciAdapter.start", "labels.runtime_attempt_id"):
-        "test_one_delivery_belongs_to_one_attempt",
     ("caller", "documents.py:collect_requested", "members"):
         "test_every_outbound_constructor_holds_its_contract",
     ("caller", "documents.py:intake_artifact", "members"):
@@ -9407,6 +9900,164 @@ class StatedRules(BoundaryCase):
             tokens.acquire(fixture.store, fixture.domain,
                            operation="runtime.start:witness",
                            execution="attempt-witness")
+
+    def test_a_manager_guard_is_its_own_modules_composition(self):
+        """WITNESS: the HOST-8 guard's operands are composed here, and the LOCK is it.
+
+        W275774 C2, 2026-09-27. `ManagerInstanceGuard` is constructed in exactly one
+        place -- `hold_manager_instance`, which resolves the root, derives the guard
+        path from it, opens the descriptor and takes the lock -- so its four operands
+        are this module's own values and not a caller's document.
+
+        AND THE PROPERTY THAT MAKES THAT SAFE IS ASSERTED, not assumed: a hand-built
+        instance naming the same root holds NO lock, so it cannot answer as the
+        manager. The single construction site is read from the source, and the real
+        guard's own exclusion is driven beside it: while this process holds it, a
+        second acquisition answers the SAME guard rather than a second lock.
+        """
+        import ast
+        import os
+        import tempfile
+        from baton_v12.worker_manager import workspaces as _ws
+
+        source = ast.parse(open(_ws.__file__).read())
+        built = [node for node in ast.walk(source)
+                 if isinstance(node, ast.Call)
+                 and isinstance(node.func, ast.Name)
+                 and node.func.id == "ManagerInstanceGuard"]
+        self.assertEqual(len(built), 1, "the guard is constructed in one place")
+        holder = tempfile.TemporaryDirectory(prefix="v12-guard-witness-")
+        self.addCleanup(holder.cleanup)
+        place = os.path.join(holder.name, "storage")
+        os.mkdir(place)
+        probe = ControlStore.open(os.path.join(holder.name, "guard.sqlite3"),
+                                  incarnation="guard-witness", clock=lambda: NOW)
+        self.addCleanup(probe.close)
+        _ws.configure_workspace_storage(probe, place)
+        guard = _ws.hold_manager_instance(probe, place)
+        self.addCleanup(guard.release)
+        self.assertIs(_ws.hold_manager_instance(probe, place), guard)
+        hand_built = _ws.ManagerInstanceGuard(place, guard.path, "not-this-process",
+                                              None)
+        self.assertNotEqual(hand_built.holder, guard.holder)
+        self.assertIsNone(hand_built._descriptor)
+
+    def test_an_activation_outcome_is_exactly_boolean_and_unknown_stays_held(self):
+        """WITNESS: the activation outcome is typed, and unknown is not false.
+
+        W275774 C2, 2026-09-27. `settle_activation` takes the one fact nobody else can
+        supply -- whether the engine actually activated the container the token is
+        bound to -- and it refuses anything that is not exactly `True` or `False`.
+
+        AND ITS REFUSAL IS DELIBERATELY NOT THE RECLAIM SELECTOR'S. That one is
+        `integrity/schema`, because a malformed mode switch is a malformed request;
+        this one is `runtime-observation/quiescence-unknown`, because an activation
+        nobody answered for is IN FLIGHT and the resource must stay held. Both are
+        witnessed rather than probed because a type identity is not a boundary label,
+        and the difference between them is the thing worth asserting: this case
+        requires the exact category and code, and that the generation is STILL
+        OUTSTANDING afterwards.
+        """
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import tokens
+
+        fixture = self._token_fixture()
+        token = fixture.held()
+        tokens.journal_launch(fixture.store, token, "launch:witness")
+        tokens.bind_container(fixture.store, token, "container-witness",
+                              launch="launch:witness")
+        tokens.admit_activation(fixture.store, token,
+                                container="container-witness")
+        for offered in ("true", 1, None):
+            with self.subTest(started=repr(offered)):
+                with self.assertRaises(ContractRefusal) as caught:
+                    tokens.settle_activation(fixture.store, token,
+                                             container="container-witness",
+                                             started=offered)
+                self.assertEqual((caught.exception.category,
+                                  caught.exception.code),
+                                 ("runtime-observation", "quiescence-unknown"))
+                self.assertIn("stays in flight", caught.exception.message)
+        self.assertEqual(
+            len(tokens.outstanding(fixture.store, fixture.domain)), 1,
+            "a malformed outcome must not have settled anything")
+        tokens.settle_activation(fixture.store, token,
+                                 container="container-witness", started=True)
+
+    def test_a_governed_attempt_row_is_its_own_owners(self):
+        """WITNESS: the governance reads a row somebody else already validated.
+
+        W275774, 2026-09-27. `Governance.reserve/release/overdue/revoke` take the
+        ATTEMPT ROW rather than an identity, and this module composes no second idea
+        of what an attempt is: the row comes from `attempts._attempt_row`, which owns
+        it as `a persisted attempt` at its own adopted crossing, and the two members
+        this family reads are re-validated by the acts they reach.
+
+        BOTH HALVES, because either alone would be an assertion about a table. The
+        owner is read from the source inventory itself, and then a REAL governance act
+        is driven with a spoiled member inside an otherwise valid row, so the
+        downstream re-validation is exercised rather than described.
+        """
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import tokens
+
+        self.assertIn(("row", "a persisted attempt",
+                       "read:attempts.py:_attempts|attempts"),
+                      owning_validators()["attempts.py:_attempt_row"])
+        fixture = self._token_fixture()
+        governance = tokens.workspace_governance()
+        spoiled = {"runtime_attempt_id": SURROGATE,
+                   "workspace_device": 66306, "workspace_inode": 55316903}
+        with self.assertRaises(ContractRefusal) as caught:
+            governance.reserve(fixture.store, spoiled,
+                               operation="runtime.start:witness")
+        self.assertIn("a token execution identity", caught.exception.message)
+
+    def test_a_manager_reclaim_selector_is_exactly_boolean(self):
+        """WITNESS: the privileged mode switch is typed locally, not truthily.
+
+        W275774 review 2026-09-27T01-49-32Z. `reclaiming` is the ONE exception to a
+        holder's expiry and revocation refusals, and it was read for truth: an
+        expired, bound generation with matching cessation evidence was returned by
+        `reclaiming='false'` and released by `reclaiming=1`. The rule is not a
+        boundary label -- `boundaries` publishes no flag verb and growing the shared
+        API for one operand would be wider than the defect -- so it is a local typed
+        check, and this is where the catalog witnesses it.
+
+        BOTH MODES ARE WITNESSED BESIDE THE REFUSAL, because a check that refused
+        everything would satisfy a test that only looked for refusals: the ordinary
+        holder still cannot return after expiry, and the manager settlement still
+        can. Exhaustive input coverage lives in the dossier selector
+        `test_reclaim_selector.py`; what is required here is that the entry has an
+        owner and that the owner is real.
+        """
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import tokens
+        expired = "2026-09-27T00:00:00.000Z"
+
+        for offered in ("false", 1):
+            with self.subTest(reclaiming=repr(offered)):
+                fixture = self._token_fixture()
+                token = fixture.held(seconds=1)
+                evidence = fixture.launched(token)
+                fixture.instant = expired
+                with self.assertRaises(ContractRefusal) as caught:
+                    tokens.returned(fixture.store, token, cessation=evidence,
+                                    reclaiming=offered)
+                self.assertEqual((caught.exception.category,
+                                  caught.exception.code), ("integrity", "schema"))
+                self.assertEqual(
+                    len(tokens.outstanding(fixture.store, fixture.domain)), 1)
+
+        held = self._token_fixture()
+        token = held.held(seconds=1)
+        evidence = held.launched(token)
+        held.instant = expired
+        with self.assertRaises(ContractRefusal) as ordinary:
+            tokens.returned(held.store, token, cessation=evidence)
+        self.assertEqual(ordinary.exception.category, "refused")
+        tokens.returned(held.store, token, cessation=evidence, reclaiming=True)
+        self.assertEqual(tokens.outstanding(held.store, held.domain), [])
 
     def test_a_carried_token_document_is_reread_before_it_is_acted_on(self):
         """WITNESS: the token document a caller holds is checked, never trusted.

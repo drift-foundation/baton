@@ -1,0 +1,6 @@
+{
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "b203d97323e421086738e97f493b707900e76d616ae96c17acc5d23a5e07a0bb",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "39d1a190b7d1e0dc256fa4a066467fa9f5512cf2cd4ffd144f9bac0b9e4e0a89",
+  "work/records/2026/09/finding-v12-token-lifecycle/test_activation_boundary.py": "bd827d9c1840f72961f00813e93c7475934f38f2a0115fd2050446e5fcf915fb",
+  "work/records/2026/09/finding-v12-token-lifecycle/review_activation_atomicity_20260926.py": "d2d3be56099618ba7c575554bb14624a1b10276fb0871290bc65a4b40fa3d781"
+}

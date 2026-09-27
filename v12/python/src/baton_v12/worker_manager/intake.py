@@ -1117,8 +1117,59 @@ def retentions_of(store, attempt_id):
 # -- cleanup ------------------------------------------------------------------
 
 
+def _resource_cessation(settled, attempt, attempt_id):
+    """The cessation a COMMITTED cleanup actually proves, or `None`.
+
+    W275774 review 16:05:19Z: "document shape alone is not runtime/writer/effect
+    proof." So this composes nothing optimistic and defaults nothing. It reads the
+    cleanup record this manager committed and answers only when that record carries
+    both halves of the proof a resource return needs:
+
+      * `state == "absent"` is the POSITIVE observation that the exact runtime is
+        gone -- the same fact `_absence_proof` requires before a gate discharge, and
+        the reason a `failed` cleanup (runtime survived its destroy) proves nothing.
+      * `directory_custody` is non-`None` EXACTLY when that absence was followed by
+        normalization under this manager's own custody of each governed root, which
+        `_committed_custody` has already matched against the normalization owner's
+        record. That is what justifies reporting NO SURVIVING WRITER: the roots are
+        held by this manager, not merely believed quiet.
+
+    Anything short of both answers `None`, and the caller returns nothing -- which
+    leaves the resource held, the honest state for an unproven cessation.
+    """
+    if settled.get("state") != "absent" or settled.get("directory_custody") is None:
+        return None
+    if attempt["runtime_id"] is None:
+        return None
+    return {"container": attempt["runtime_id"], "stopped": True, "helpers": []}
+
+
+def _released(store, govern, attempt, attempt_id, settled):
+    """Return the governed resource IF this ending proved its cessation."""
+    if govern is None:
+        return
+    cessation = _resource_cessation(settled, attempt, attempt_id)
+    if cessation is None:
+        return
+    # AFTER THE ENDING IS COMMITTED, for the reason review 15:55:27Z gave about the
+    # finalization: an ending that refuses must not have released anything. The
+    # return is idempotent and bound to the execution and operation that reserved
+    # the generation, so a replay of this ending returns the same generation rather
+    # than nothing or somebody else's.
+    # `reclaiming=True` HERE TOO, and the name means "a manager settlement on
+    # confirmed cessation" rather than anything about sweeps. What the token refuses
+    # without it is a STALE HOLDER declaring its own resource free after expiry. This
+    # is the other thing entirely: the ending holds a positive absence observation
+    # and this manager's own committed custody of the roots, which is the strongest
+    # evidence in the system. Refusing it would mean a revoked generation could never
+    # be settled by the very act that proves it free.
+    govern.release(store, attempt,
+                   operation=attempts._start_operation_id(attempt),
+                   cessation=cessation, reclaiming=True)
+
+
 def authorize_cleanup(store, port, adapter, *, attempt_id,
-                      retention_policy_digest):
+                      retention_policy_digest, govern=None):
     """Destroy the runtime, and end the cleanup axis at the ending it reached.
 
     `blocked-on-intake` IS A STATE, NOT A RETRY. The frozen axis has it, which
@@ -1159,6 +1210,14 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     found, already = store.replay(operation["operation_id"], signature,
                                   kind="runtime.destroy")
     if found:
+        # W275774: THE REPLAY RETURNS THE RESOURCE TOO, and my own case caught this
+        # gap. The ending is journalled, so a repeat of it comes back HERE and never
+        # reaches the release below -- which means a return that failed after the
+        # ending had already committed could never be recovered by running the
+        # ending again. That is precisely the case review 16:05:19Z asked for. The
+        # release is idempotent and bound to the execution and operation that
+        # reserved the generation, so replaying it is safe and converging.
+        _released(store, govern, attempt, attempt_id, already)
         return already
     # Every check below this line applies to a genuinely NEW destroy. The
     # terminal-cleanup refusal is one of them ON PURPOSE: an EXACT retry of a
@@ -1325,13 +1384,16 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
             f"cleaning up attempt {name_value(attempt_id)}")
         discard_execution_roots(prepared_store.place, attempt_id, control=store,
                                 under=admitted_cleanup)
-    return store.transact(
+    settled = store.transact(
         operation["operation_id"], "runtime.destroy", signature,
         lambda connection: _settle(store, connection, attempt_id, receipt,
                                    retention_policy_digest, observed,
                                    operation, custody=adapter,
                                    prepared_store=prepared_store,
                                    admitted_cleanup=admitted_cleanup))
+    # W275774: AND THE GOVERNED RESOURCE GOES BACK, if this cleanup proved it free.
+    _released(store, govern, attempt, attempt_id, settled)
+    return settled
 
 
 # W119548: THE ACT THAT DISCHARGES THE GATE A FENCE INSTALLED.
@@ -2251,15 +2313,50 @@ def authorize_failed_start_cleanup(store, port, adapter, *, attempt_id,
             f"attempt {name_value(attempt_id)} execution runtime is uncertain; "
             f"the failed start attached no identity this manager can name, so "
             f"there is nothing to remove and nothing to prove absent")
-    if attempt["runtime_id"] is None:
+    if attempt["runtime_id"] is None and \
+            attempt["execution_runtime"] != "destroyed":
         raise ContractRefusal(
             "refused", "precondition",
             f"attempt {name_value(attempt_id)} has no attached runtime; this "
             f"ending exists for a start that CREATED a container, and a start "
             f"that created none has no exact identity to remove")
-    observed = _destroyed_failed_start(adapter, attempt, attempt_id, operation,
-                                       record["digest"],
-                                       retention_policy_digest)
+    if attempt["runtime_id"] is None:
+        # W275774 review 2026-09-26T19-13-42Z: A PROVED NON-LAUNCH IS AN ENDING
+        # TOO, and until now it was the one failed start with no way out.
+        #
+        # A start whose RESERVATION was refused never reached the engine, so
+        # `_identify` records positive absence rather than uncertainty -- see
+        # `attempts._identify`'s `submitted` rule -- and this attempt holds a
+        # durable start-failure record with `destroyed` and no identity. The
+        # refusal above is still exactly right for the state it names, which is
+        # "no identity AND no proof"; this is the other state, "no identity
+        # BECAUSE nothing was created", and refusing it left ordinary token
+        # contention holding its Work's runtime lane with no ending anywhere in
+        # that Work's future to release it.
+        #
+        # THE EVIDENCE IS THE AXIS AND NOT THIS CALL'S OPINION. `destroyed` is
+        # written only by a positive observation, and the same rule is already
+        # how `_resource_cessation` reads an attempt that never attached one --
+        # so this admits the fact that module admits rather than inventing a
+        # second meaning for it. `uncertain` is still refused above; nothing
+        # here weakens the frozen asymmetry.
+        #
+        # NO CROSSING, BECAUSE THERE IS NOTHING TO DESTROY. The engine is not
+        # asked to remove a container nobody created, and both providers are
+        # `not-delivered` for the reason the receipt path states: a runtime that
+        # was never started mounted nothing. The roots are still normalized and
+        # the receipts still adopted below, because THOSE are what authorize the
+        # removal and the retention.
+        observed = {"state": "absent",
+                    "why": "no runtime was created for this attempt: its start "
+                           "failure is recorded with no identity and this "
+                           "attempt's execution runtime is destroyed",
+                    "credentials": {"lifecycle_state": "not-delivered"},
+                    "launch": {"lifecycle_state": "not-delivered"}}
+    else:
+        observed = _destroyed_failed_start(adapter, attempt, attempt_id,
+                                           operation, record["digest"],
+                                           retention_policy_digest)
     pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
     if pending is not None:
         return pending
@@ -2392,7 +2489,8 @@ def authorize_refused_session_cleanup(store, port, adapter, *, session_ref,
 
 
 def abandon_attempt(store, port, adapter, *, attempt_id, reason,
-                    retention_policy_digest, seconds=None, reclaim=None):
+                    retention_policy_digest, seconds=None, reclaim=None,
+                    govern=None):
     """W44716: end the attempt an operator DECLARES abandoned.
 
     THE FOURTH ENDING, and approver ruling 2026-08-30 is why it is one. A
@@ -2496,6 +2594,17 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
     if found:
         # EXACT REPLAY IS CHECKED BEFORE THE MUTABLE PRECONDITIONS, so a
         # successfully retained ending stays replayable after it is terminal.
+        #
+        # W275774 review 16:22:13Z [P1]: AND THE REPLAY RETURNS THE RESOURCE TOO.
+        # I fixed this on the ordinary cleanup last claim and left the abandoned
+        # family with the same hole, which an independent probe found immediately:
+        # the ending commits, the release fails, and the retry answered the saved
+        # ending without ever returning -- stranding the generation permanently,
+        # because a terminal ending is the last thing that will ever run for this
+        # attempt. `_released` is idempotent and resolves the generation from the
+        # execution and operation that reserved it, so a stale replay finds its own
+        # returned generation and cannot touch a later one.
+        _released(store, govern, attempt, attempt_id, already["cleanup"])
         return already
     # THIS DERIVED CLEANUP MAY NOT REVISIT A FINISHED ENDING. Review
     # 2026-08-30T11:56:53Z [P0]: skipping the mutable eligibility for a
@@ -2637,7 +2746,7 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
     if observed["state"] == "absent":
         _normalized(store, adapter, attempt_id, seconds=seconds,
                     reclaim=reclaim)
-    return store.transact(
+    answer = store.transact(
         operation["operation_id"], "runtime.destroy-abandoned", signature,
         lambda connection: documents.abandonment(
             intent=dict(intent["document"]), fenced=dict(fenced),
@@ -2645,6 +2754,15 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
                 store, connection, attempt_id, observed, operation,
                 why="abandonment cleanup settled retained",
                 custody=adapter)))
+    # W275774: THE ABANDONED ENDING RETURNS THE RESOURCE TOO, on the same proof.
+    #
+    # An abandonment is exactly the case a resource token exists for -- a runtime
+    # whose worker never answered -- so leaving its workspace held forever would
+    # make the governed lifecycle worse than the ungoverned one. The evidence is the
+    # same: this family's cleanup record carries its own observed state and custody,
+    # and `_resource_cessation` answers `None` unless both prove the resource free.
+    _released(store, govern, attempt, attempt_id, answer["cleanup"])
+    return answer
 
 
 # W128682: THE ABANDONED FAMILY'S OWN EVIDENCE AND ITS OWN DISCHARGE.
@@ -4678,3 +4796,290 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
         attempt_id=attempt_id, cleanup=ending, state=state,
         why=observed["why"], kept=list(kept), operation=dict(operation),
         directory_custody=adopted)
+
+
+# -- W275774: RECLAIMING AN OVERDUE RESOURCE, in four acts --------------------
+
+
+def reclaim_operation_id(attempt, generation):
+    """This reclaim's OWN operation identity, derived and receipt-free.
+
+    W275774 review 16:55:05Z [P1]: the first cut reused `destroy_operation`, which
+    legitimately requires an intake receipt -- and a RUNNING attempt has none. So the
+    reclaim committed its revocation and then refused on that schema BEFORE calling
+    the engine at all: revoked, and nothing stopped. Weakening the ordinary cleanup's
+    receipt contract would have been the wrong repair, because that contract is what
+    makes a cleanup authorized. A reclaim is simply not a cleanup: it performs no
+    intake and claims no retention, so it carries its own identity instead of
+    borrowing one whose preconditions it cannot meet.
+    """
+    # THE TWO MEMBERS THIS IDENTITY IS MADE OF, and the row carries many more, so
+    # the shape is checked by reading them rather than by an exact-membership
+    # document check -- a persisted attempt row is not a caller document.
+    boundaries.identity(attempt["runtime_attempt_id"], "an attempt identity")
+    boundaries.identity(attempt["runtime_id"], "a runtime identity")
+    taken = attempt
+    return "resource.reclaim:" + digest({
+        "kind": "resource.reclaim",
+        "attempt_id": taken["runtime_attempt_id"],
+        "runtime_id": taken["runtime_id"],
+        "generation": generation})
+
+
+def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
+    """Revoke, STOP, positively confirm, then settle -- in that order.
+
+    Review 16:37:09Z selected this as the basic host expiry, and 16:55:05Z corrected
+    its shape. Expiry is not self-executing: an overdue generation stops being
+    ENTITLED to act, and the container it governs may still be running with the
+    workspace still mounted writable. So reclaiming is four acts and the order is the
+    content:
+
+      1. REVOKE, durably and first, so the old holder is refused at its next
+         journal-guarded step rather than racing this reclaim. Only an expired
+         generation can be revoked.
+      2. STOP the exact container, through the adapter's `stop` -- NOT the ordinary
+         cleanup's `destroy`, which is receipt-bound and which a running attempt
+         could not satisfy. **EXTERNAL I/O BETWEEN TRANSACTIONS**: the revocation
+         above committed and closed, and the settlement below opens its own.
+      3. POSITIVELY CONFIRM, by asking the adapter what that exact identity now is.
+         Anything other than a positive absence or quiescence proves nothing.
+      4. SETTLE, which is the ordinary return on the custody this manager already
+         committed for the governed roots.
+
+    An unknown or delayed outcome answers `held`: the generation stays revoked and
+    the resource stays held, which is why step 1 is not conditional on step 3.
+    """
+    # W275774 review 2026-09-26T20-07-17Z: THE EXPIRY STOP IS ITS OWN CAPABILITY.
+    # This crossed `stop`, which `attempts._order_quiescence` already owns, so one
+    # capability had two crossing owners -- and the two acts are not the same act:
+    # a cancellation's stop follows an authority fence, and this one follows an
+    # overdue token generation with no fence and no receipt anywhere. Routing a
+    # sweep through the cancellation's owner would drag that fence into it, which
+    # is the shape this narrower verb exists to avoid.
+    boundaries.capability(getattr(adapter, "stop_expired", None),
+                          "the runtime adapter's expiry stop")
+    attempt = _attempt_of(store._connection, attempt_id)
+    operation_id = attempts._start_operation_id(attempt)
+    overdue = govern.overdue(store, attempt, operation=operation_id)
+    if overdue is None:
+        return {"reclaimed": "not-overdue", "attempt_id": attempt_id}
+    if attempt["runtime_id"] is None:
+        # W275774 review 17:09:10Z [P1]: NO ATTACHED IDENTITY IS NOT "NEVER LAUNCHED".
+        #
+        # I wrote that inference and it is wrong in the one direction that matters: a
+        # launch may have crossed to the engine and its reply may have been lost, so
+        # `runtime_id is None` can mean a container this manager cannot name is
+        # running right now with the workspace mounted writable. That is the
+        # unknown/delayed launch case, and inferring absence from it would free a
+        # resource that is still being written.
+        #
+        # So the TOKEN'S OWN LAUNCH EVIDENCE decides which of the two this is, and the
+        # answer carries it either way. The entitlement is withdrawn in both -- an
+        # overdue holder stops being entitled regardless -- and the resource stays
+        # held, because neither case has a cessation to confirm.
+        govern.revoke(store, attempt, operation=operation_id)
+        launched = overdue.get("launch") is not None
+        return {"reclaimed": "held", "attempt_id": attempt_id,
+                "state": attempt["execution_runtime"], "launched": launched,
+                "why": ("this generation JOURNALLED A LAUNCH and no container was "
+                        "ever bound, so whether an execution is running is UNKNOWN; "
+                        "the revocation stands and the resource stays held"
+                        if launched else
+                        "this generation journalled no launch and no runtime is "
+                        "attached, so there is nothing to stop; the revocation "
+                        "stands and the roots are the ending's to settle")}
+    # 1. THE ENTITLEMENT GOES FIRST.
+    govern.revoke(store, attempt, operation=operation_id)
+    # 2. THE SHUTDOWN, outside every lock, under this reclaim's own identity.
+    #
+    # W275774 review 17:54:31Z [P1]: STOP AND THEN REMOVE, correlated to the same
+    # reclaim. A stop-only reclaim left the container PRESENT, so the observation could
+    # never reach `absent` and the revoked-resource ending -- which requires absence --
+    # could never run. The two halves did not compose, and a lifecycle whose halves
+    # cannot meet frees nothing.
+    #
+    # The removal is a separate verb because stopping and removing are separate facts:
+    # a container that stopped but could not be removed is still holding its mounts,
+    # and reporting them together would lose exactly that distinction.
+    reclaim_id = reclaim_operation_id(attempt, overdue["generation"])
+    try:
+        adapter.stop_expired({"runtime_id": attempt["runtime_id"],
+                              "operation_id": reclaim_id})
+        remove = getattr(adapter, "remove", None)
+        if remove is not None:
+            remove({"runtime_id": attempt["runtime_id"],
+                    "operation_id": reclaim_id})
+    except ContractRefusal as refusal:
+        # A REFUSED STOP IS NOT A CESSATION. The revocation stands, the resource
+        # stays held, and the reason is carried rather than swallowed.
+        return {"reclaimed": "held", "attempt_id": attempt_id, "state": "uncertain",
+                "why": f"the stop was refused: {refusal.message}"}
+    # 3. AND WHAT THAT EXACT IDENTITY NOW IS, asked of the adapter.
+    state, _value, why = attempts._observed(adapter, attempt["runtime_id"])
+    # THE OBSERVATION'S OWN VOCABULARY: `attempts.OBSERVED_RUNTIME` names the four
+    # states an adapter may answer, and `absent` is the positive "this exact identity
+    # does not exist". My first cut compared against the mapped VALUE `destroyed`
+    # instead of the answered state, so a positively absent runtime read as
+    # inconclusive and nothing was ever confirmed.
+    if state not in ("absent", "quiescent"):
+        return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
+                "why": f"cessation is not positively proved: {why}"}
+    cessation = _resource_cessation(
+        {"state": "absent",
+         # A RECLAIM NORMALIZES NOTHING, so it carries no directory custody of its
+         # own and must not pretend to. What it can honestly report is the custody
+         # this manager already committed for those roots.
+         "directory_custody": _custody_already_committed(store, attempt_id)},
+        attempt, attempt_id)
+    if cessation is None:
+        # AND THE DIAGNOSTIC NAMES THE OBSERVED STATE rather than asserting absence.
+        # Review 17:09:10Z: this said "the container is gone", which is true of
+        # `absent` and NOT of `quiescent` -- a quiescent container still exists and
+        # still holds its mounts. Reporting them the same way would put a false fact
+        # in the record a later reader relies on.
+        return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
+                "why": f"the runtime observed {name_value(state)} and no "
+                       f"writer-absence proof exists yet, so the revoked generation "
+                       f"keeps the resource"}
+    # 4. THE RETURN, as a manager settlement on confirmed cessation.
+    govern.release(store, attempt, operation=operation_id, cessation=cessation,
+                   reclaiming=True)
+    return {"reclaimed": "returned", "attempt_id": attempt_id, "state": state,
+            "container": cessation["container"]}
+
+
+def _custody_already_committed(store, attempt_id):
+    """The directory custody this manager committed for the governed roots, or None.
+
+    Asked of the normalization owner rather than re-derived here, and absent unless
+    EVERY governed root has it -- a partial answer is not a proof that no writer
+    survives anywhere.
+    """
+    from . import custody as _custody
+
+    held = {}
+    for which in _CUSTODY_ROOTS:
+        try:
+            held[which] = _custody.historical_directory_custody(
+                store, attempt_id, which)
+        except ContractRefusal:
+            # NOT AN ERROR HERE, and this is the distinction that matters: the
+            # normalization owner refuses because there is no committed
+            # normalization for that root, and the absence of a proof is exactly
+            # what this function exists to report. A reclaim over an attempt whose
+            # roots were never normalized has no basis for saying no writer
+            # survives, so it says nothing and the resource stays held.
+            return None
+    return held
+
+
+def settle_revoked_resource(store, adapter, *, attempt_id, govern,
+                            seconds=None, reclaim=None):
+    """The REVOKED generation's own ending: normalize the roots, then return.
+
+    W275774 review 17:44:30Z named this as the executable milestone, and the gap it
+    closes is one my own cases exposed: a reclaim revokes and stops but normalizes
+    nothing, and the ordinary cleanup is authorized by an intake RECEIPT that a
+    reclaimed running attempt never had. So a revoked resource could sit held with no
+    operation able to free it -- the reclaim lacking the custody proof, the cleanup
+    lacking its authorization.
+
+    THE ORDER IS THE CONTENT, again:
+
+      1. THE GENERATION MUST ALREADY BE REVOKED. This ending does not withdraw an
+         entitlement; that is the reclaim's act and its own precondition (only an
+         overdue generation may be revoked). An unrevoked generation is somebody's
+         live permission and this refuses to settle it.
+      2. THE CONTAINER MUST BE POSITIVELY GONE, asked of the adapter here rather than
+         remembered from the reclaim, because time passed in between and a remembered
+         absence is not an observation. Anything short of absence holds.
+      3. NORMALIZE, through the custody owner's own acts and OUTSIDE any transaction,
+         which is where `_normalized` already puts them.
+      4. RETURN, on the custody this normalization just committed -- so the
+         writer-absence claim rests on this manager holding every governed root, not
+         on a guess.
+
+    AND NO OLD WRITABLE RESTART. The container is gone before step 3 and the
+    generation is revoked throughout, so `_owning` refuses every act a stale holder
+    could attempt -- a launch, a binding, an activation admission. A replacement
+    becomes possible only after step 4 commits, which is after the proof.
+    """
+    from . import tokens
+
+    boundaries.capability(getattr(adapter, "observe", None),
+                          "the runtime adapter's observe")
+    attempt = _attempt_of(store._connection, attempt_id)
+    operation_id = attempts._start_operation_id(attempt)
+    domain = tokens.domain_of(govern.resource_kind, govern.identity(attempt))
+    generation = tokens.generation_of(
+        store, domain, execution=attempt_id, operation=operation_id)
+    if generation is None:
+        return {"settled": "nothing-reserved", "attempt_id": attempt_id}
+    current = tokens.token_of(store, domain, generation)
+    if current["returned"]:
+        return {"settled": "already-returned", "attempt_id": attempt_id}
+    if not current["revoked"]:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"generation {generation} of {name_value(domain)} has not been revoked; "
+            f"this ending settles a withdrawn entitlement and does not withdraw one, "
+            f"because an unrevoked generation is a live permission")
+    if attempt["runtime_id"] is None:
+        return {"settled": "held", "attempt_id": attempt_id,
+                "why": "no runtime was ever attached, so this ending has no "
+                       "container to confirm gone and no writer absence to claim"}
+    # W275774 review 17:54:31Z [P1]: THE EXCLUSION IS ESTABLISHED BEFORE THE EFFECTS.
+    #
+    # My order was wrong in the one way that matters. I normalized and THEN called the
+    # return, which refuses while an activation is in flight -- so an admitted
+    # unresolved activation meant this ending DELETED AND MOVED FILES and only
+    # afterwards discovered it was not allowed to settle. Normalizing under a possible
+    # writer is precisely what this ending must never do, and I had written that
+    # sentence while doing it.
+    #
+    # An admitted activation with no settled outcome means a container MAY BE ABOUT TO
+    # RUN over these roots. A momentary absence observation cannot settle that: the
+    # submission may simply not have taken effect yet. So it is asked here, before any
+    # effect, and the return re-asks it under the write lock afterwards -- the
+    # exclusion is established first and kept through the settlement.
+    if current["activating"]:
+        return {"settled": "held", "attempt_id": attempt_id,
+                "why": "an ADMITTED ACTIVATION of this generation has no settled "
+                       "outcome, so a container may be about to run over these roots; "
+                       "a momentary absence does not settle a delayed submission"}
+    # AND THE EVIDENCE MUST BE ABOUT THIS EXACT EXECUTION. The container this ending
+    # is about to account for is the one the token bound, under the launch it
+    # journalled -- not whatever identity the attempt row happens to carry now.
+    if current["container"] != attempt["runtime_id"]:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"generation {generation} of {name_value(domain)} governs container "
+            f"{name_value(current['container'])} and this attempt now carries "
+            f"{name_value(attempt['runtime_id'])}; this ending settles the bound "
+            f"execution and not a different one")
+    if current["launch"] is None:
+        return {"settled": "held", "attempt_id": attempt_id,
+                "why": "this generation bound a container under no journalled launch, "
+                       "which is a state to reconcile rather than to settle"}
+    state, _value, why = attempts._observed(adapter, attempt["runtime_id"])
+    if state != "absent":
+        # ASKED AGAIN RATHER THAN REMEMBERED. The reclaim's absence was true at the
+        # reclaim's instant; a container can be restarted by a hand outside this
+        # manager, and normalizing under a running writer is the one thing this
+        # ending must never do.
+        return {"settled": "held", "attempt_id": attempt_id, "state": state,
+                "why": f"the runtime is not positively absent now: {why}"}
+    _normalized(store, adapter, attempt_id, seconds=seconds, reclaim=reclaim)
+    cessation = _resource_cessation(
+        {"state": "absent",
+         "directory_custody": _custody_already_committed(store, attempt_id)},
+        attempt, attempt_id)
+    if cessation is None:
+        return {"settled": "held", "attempt_id": attempt_id, "state": state,
+                "why": "normalization committed no custody for every governed root, "
+                       "so no writer-absence proof exists and the resource stays held"}
+    govern.release(store, attempt, operation=operation_id, cessation=cessation,
+                   reclaiming=True)
+    return {"settled": "returned", "attempt_id": attempt_id, "state": state,
+            "container": cessation["container"]}

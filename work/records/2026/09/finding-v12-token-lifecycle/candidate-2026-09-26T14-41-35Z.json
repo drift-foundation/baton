@@ -1,0 +1,8 @@
+{
+  "v12/DESIGN.md": "7f504a5edbb46acae739cab0727173fc1c51098300ae8048d25b56bba274cee0",
+  "v12/python/src/baton_v12/worker_manager/tokens.py": "a1d0f7ec1e970525e0b7a13b76e6661950260cf027984911ad06a42b9bbb5b01",
+  "v12/python/src/baton_v12/worker_manager/attempts.py": "7f4aa5489177fb10237953a3a51e0775edb389855685fc69375faf3c8dfadd56",
+  "v12/python/src/baton_v12/worker_manager/oci.py": "f3bd76095d7190182811adb6c02975d6e007ac38cc90a7c2184b5bc238ca3ef2",
+  "v12/python/src/baton_v12/job_manager/manager.py": "cc0439946aa3648441665e75f92163e8546d29fff3514d9f2ab5a13ebdd5e0ad",
+  "v12/python/tools/single_worker.py": "860c6d49e05b9e2951d0e5e06d4ce51f39b71a6b65529b69619acea2925d27bb"
+}

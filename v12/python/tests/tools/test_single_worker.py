@@ -143,12 +143,26 @@ class Engine:
         self.labels = {}
         self.image = None
         self.mounts = []
+        # W275774: whether the composed container is RUNNING, which `create` leaves
+        # false and `start` makes true.
+        self.running = False
 
     def __call__(self, argv, *, seconds=None):
         del seconds
         self.vectors.append(list(argv))
-        if argv[1] == "run":
+        if activating(argv):
+            # W275774 review 16:29:48Z: ACTIVATION IS A STATE CHANGE HERE, not a
+            # generic success. A fixture that answered `Running=True` straight after
+            # `create` could not tell a bound-but-inert container from a running one,
+            # which is the very distinction the token boundary exists to enforce.
+            if argv[2] != self.runtime_id:
+                return self.answer(status=1, stderr="no such container")
+            self.running = True
+            return self.answer()
+        if launching(argv):
             self.runtime_id = "runtime-single-1"
+            # CREATED AND INERT unless this vector is the single-act `run`.
+            self.running = argv[1] == "run"
             self.image = argv[-1]
             self.labels = {}
             self.mounts = []
@@ -171,7 +185,7 @@ class Engine:
             return self.answer(stdout=json.dumps(row) + "\n")
         if argv[1] == "inspect":
             body = {"Id": self.runtime_id,
-                    "State": {"Running": True},
+                    "State": {"Running": self.running},
                     "Mounts": list(self.mounts)}
             return self.answer(stdout=json.dumps(body))
         return self.answer()
@@ -182,7 +196,44 @@ class Engine:
 
     @property
     def starts(self):
-        return [one for one in self.vectors if one[1] == "run"]
+        """The LAUNCH vectors: one per container composed, either shape."""
+        return [one for one in self.vectors if launching(one)]
+
+    @property
+    def activations(self):
+        return [one for one in self.vectors if activating(one)]
+
+
+# W275774: A LAUNCH IS EITHER ENGINE SHAPE, and these doubles have to know both.
+#
+# A governed start composes `create` and then `start`, because a resource token must be
+# bound to a container that exists and is NOT yet running -- see `oci.ACTIVATIONS`. An
+# ungoverned start still composes `run --detach`. Both are ONE LAUNCH of one container,
+# so every fixture below that used to ask `argv[1] == "run"` asks this instead, and the
+# behavioural checks each one performs are unchanged.
+LAUNCHING = ("run", "create")
+
+
+def launching(argv):
+    return len(argv) > 1 and argv[1] in LAUNCHING
+
+
+def activating(argv):
+    """The second act of a governed launch: running what `create` left inert."""
+    return len(argv) > 1 and argv[1] == "start"
+
+
+def running_now(argv):
+    """The vector after which a container is RUNNING, either shape.
+
+    W275774 review 16:29:48Z: the fixtures that model a process dying "after the
+    engine call" were keyed on `run`, which both created and ran the container. With
+    a governed two-act launch that instant moved: `create` leaves the container inert
+    and `start` is when it begins running. These fixtures are about a death AFTER a
+    runtime exists and runs, so they key on that instant rather than on the first of
+    the two acts -- which preserves exactly the state each case was written to reach.
+    """
+    return len(argv) > 1 and argv[1] in ("run", "start")
 
 
 class TheContextConfigurationIsRequiredAndClosed(unittest.TestCase):
@@ -447,6 +498,99 @@ class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
                                                 stage["attempt_id"])), 1)
         resumed.close()
 
+    def test_the_production_start_is_governed_by_a_resource_token(self):
+        """W275774: THE COMPOSED VERIFICATION that governance is actually ON here.
+
+        "162 tests pass" proves nothing by itself about whether the governed path
+        was taken, so this asks the engine and the journal directly:
+
+          * the launch composed `create` and then `start`, which is the two-act
+            shape a resource token requires -- a container bound before it runs;
+          * the workspace object this attempt mounts carries a token generation
+            whose launch is the journalled start operation and whose container is
+            the runtime the engine named;
+          * and the activation was settled, so the resource is held by a live
+            generation rather than by an unresolved one.
+        """
+        from baton_v12.worker_manager import attempts as manager_attempts
+        from baton_v12.worker_manager import tokens
+
+        engine = Engine()
+        job, control = self.stores("governed-start")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        projected = self.commanded(job, operations)
+        stage = projected["jobs"][0]["stages"][0]
+        attempt_id = stage["attempt_id"]
+        # THE ENGINE'S OWN ACCOUNT: one launch, and it was the inert shape.
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(engine.starts[0][1], "create",
+                         "a governed start must compose the inert vector")
+        self.assertEqual(len(engine.activations), 1,
+                         "the bound container must then be activated exactly once")
+        self.assertEqual(engine.activations[0][2], engine.runtime_id)
+        # AND THE JOURNAL'S: the workspace object is held by this attempt's start.
+        attempt = manager_attempts._require_attempt(control, attempt_id)
+        domain = tokens.domain_of(
+            "workspace", tokens.workspace_identity(attempt))
+        held = tokens.outstanding(control, domain)
+        self.assertEqual([one["execution"] for one in held], [attempt_id])
+        current = tokens.token_of(control, domain, held[0]["generation"])
+        self.assertEqual(current["container"], engine.runtime_id)
+        self.assertEqual(current["launch"],
+                         manager_attempts._start_operation_id(attempt))
+        self.assertTrue(current["activation_started"])
+        self.assertFalse(current["activating"])
+        operations.close()
+        job.close()
+        control.close()
+
+    def test_a_refused_admission_leaves_the_created_container_unrun(self):
+        """W275774 review 16:29:48Z: THE NEGATIVE EFFECT CONTROL.
+
+        The composed case above is the positive control -- the admission succeeds
+        and the container runs. This is its counterpart, and it is the property the
+        whole two-act boundary exists for: when the resource token will not admit
+        the activation, the container that was created MUST NOT RUN.
+
+        The refusal is injected at the token owner rather than faked at the engine,
+        so what is measured is the production path's response to a real refusal: no
+        activation vector reaches the engine, the container stays inert by the
+        fixture's own state, and the pipeline does not report a running worker.
+        """
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import tokens
+
+        honest = tokens.admit_activation
+
+        def refusing(control, token, *, container):
+            raise ContractRefusal("refused", "precondition",
+                                  "the fixture withholds this activation")
+
+        tokens.admit_activation = refusing
+        try:
+            engine = Engine()
+            job, control = self.stores("refused-admission")
+            submit(job, self.submission)
+            operations = self.operations(job, control, engine)
+            for _ in range(6):
+                try:
+                    reconcile(job, operations, now=fixtures.NOW)
+                except ContractRefusal:
+                    break
+        finally:
+            tokens.admit_activation = honest
+        # THE CONTAINER WAS COMPOSED AND NEVER RAN.
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(engine.starts[0][1], "create")
+        self.assertEqual(engine.activations, [],
+                         "an unadmitted activation must never reach the engine")
+        self.assertFalse(engine.running,
+                         "the created container must still be inert")
+        operations.close()
+        job.close()
+        control.close()
+
     def test_one_submission_becomes_one_observable_runtime_and_is_adopted(self):
         engine = Engine()
         job, control = self.stores("first")
@@ -580,7 +724,7 @@ class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
                 self.interrupted = False
 
             def __call__(self, argv, *, seconds=None):
-                if argv[1] == "run" and not self.interrupted:
+                if running_now(argv) and not self.interrupted:
                     answer = super().__call__(argv, seconds=seconds)
                     self.interrupted = True
                     raise KeyboardInterrupt("fixture process stopped")
@@ -1675,7 +1819,7 @@ class CredentialRestartProvesTheLiveRuntimeFirst(PreparationCase):
                     self.armed = False
                     raise KeyboardInterrupt("fixture process stopped")
                 answer = super().__call__(argv, seconds=seconds)
-                self.armed = self.armed or argv[1] == "run"
+                self.armed = self.armed or running_now(argv)
                 return answer
 
         engine = Published()
@@ -2008,7 +2152,7 @@ class ARealStartRefusalKeepsItsOwnAccount(PreparationCase):
     def test_an_engine_that_denies_the_start_reports_its_own_refusal(self):
         class Denying(Engine):
             def __call__(self, argv, *, seconds=None):
-                if argv[1] == "run":
+                if launching(argv):
                     self.vectors.append(list(argv))
                     return self.answer(status=1, stderr="engine denied start")
                 return super().__call__(argv, seconds=seconds)
@@ -2236,11 +2380,21 @@ class TheFailedStartEndingCommitsWithItsNaming(PreparationCase):
 
     def denying(self):
         class CreatedThenDenied(Engine):
-            """`run` creates the container AND reports failure."""
+            """The launch leaves a RUNNING container behind AND reports failure.
+
+            W275774: the denial is keyed on the instant the container starts
+            running -- `run` for an ungoverned launch, `start` for a governed one --
+            and the container is deliberately left running. That is the shape this
+            case is about: a failure reported over a runtime that exists and
+            executes, which is the dangerous interval the ending has to name.
+            Denying the inert `create` instead would be a different case, the one
+            `ItsOwnAccount` already drives, where nothing was created at all.
+            """
 
             def __call__(self, argv, *, seconds=None):
                 answer = super().__call__(argv, seconds=seconds)
-                if argv[1] == "run":
+                if running_now(argv):
+                    self.running = True
                     return self.answer(status=1,
                                        stderr="engine denied start")
                 return answer

@@ -42,6 +42,7 @@ from baton_v12.job_manager import (JobStore, ManagerOperations, Unobserved,
                                    read_submission, reconcile, serve, status,
                                    submit)
 from baton_v12.worker_manager import ControlStore
+from baton_v12.worker_manager import attempts, boundaries, intake, oci, tokens
 
 __all__ = ["main"]
 
@@ -82,6 +83,414 @@ def _read(path):
         return sys.stdin.read()
     with open(path, "r", encoding="utf-8") as handle:
         return handle.read()
+
+
+# -- W275774: THE OVERDUE-RESOURCE PASS THIS DEPLOYMENT SERVES ----------------
+#
+# Review 17:17:15Z: an optional hook `serve` never receives is not a production
+# connection. So the pass is composed HERE, where a deployment tool belongs, and
+# handed to `serve` on every serving run.
+#
+# THE ADAPTER IS LEAN ON PURPOSE. Reclaiming needs exactly two engine acts -- stop
+# the exact container and ask what that identity now is -- and neither needs mounts,
+# deliveries or an assignment. So this composes `oci.stop_vector` and
+# `oci.inspect_vector` directly instead of building a full runtime adapter, which
+# would require roots a reclaim has no business naming.
+
+
+# W275774: THE TWO BOUNDS A TICK'S EXPIRY WORK HAS, stated exactly.
+#
+# A reclaim's engine calls are short by nature -- stop one container, describe one
+# identity -- so the 600-second default this tool uses elsewhere is the wrong bound
+# for them, and the number of resources one tick visits is capped so a backlog is
+# worked through ACROSS ticks rather than inside one.
+#
+# WHAT THE ARITHMETIC ACTUALLY SAYS, restated as the reclaim grew a third act. A
+# reclaim now makes at most THREE engine calls -- stop, remove, inspect -- each bounded
+# by `_RECLAIM_SECONDS`, for each of at most `_RECLAIM_CANDIDATES` resources. That is a
+# COMMAND ALLOWANCE of 3 * 30 * 16 = 1440 seconds, and the 960 in earlier records is
+# historical. It is an upper bound on time spent waiting for THOSE calls and NOT a
+# whole-loop latency: the ending's own observation and custody acts are additional, and
+# nothing here bounds the database work.
+_RECLAIM_SECONDS = 30
+_RECLAIM_CANDIDATES = 16
+
+
+def _engine_runner(argv, *, seconds=None):
+    """One engine invocation, as a subprocess. The same shape `single_worker` uses."""
+    import subprocess
+
+    finished = subprocess.run(argv, capture_output=True,
+                              timeout=600 if seconds is None else seconds)
+    return {"status": finished.returncode,
+            "stdout": finished.stdout.decode("utf-8", "replace"),
+            "stderr": finished.stderr.decode("utf-8", "replace")}
+
+
+class _ReclaimAdapter:
+    """The two verbs a reclaim performs, over one engine.
+
+    W275774 review 17:27:42Z found three defects here and all three were the same
+    mistake in different clothes: reading a POSITIVE fact out of evidence that did
+    not carry it.
+
+      * A missing engine socket answers "no such file or directory", and a substring
+        test for "no such" turned an UNREACHABLE ENGINE into a gone container. So
+        absence is now recognised only from an exact missing-CONTAINER answer that
+        NAMES the identity that was asked about.
+      * An inspection that described some other container was accepted for the one
+        requested. The body's own identity is now compared.
+      * `Running: null` is not `false`. A non-boolean is not a state, so it answers
+        uncertain rather than quiescent.
+
+    Everything unrecognised answers `uncertain`, which the reclaim treats as a hold.
+    That is the only safe default: a resource whose writer may still exist stays
+    held, and nothing here converts a fault into a licence.
+    """
+
+    def __init__(self, engine, run, custodian_image_digest=None):
+        self._engine = engine
+        self._run = run
+        # W275774 review 18:02:47Z: THE CUSTODIAN, when the deployment configures one.
+        #
+        # I claimed both P1s closed last claim and that was wrong: this adapter never
+        # had `normalize_directory`, so the conditional ending ALWAYS took the
+        # awaits-normalizing branch and no production path ever completed a
+        # revoked-resource ending. The reviewer was right to keep the finding open.
+        #
+        # What the custodian act actually needs is small -- the engine, the runner and
+        # a custodian image digest, exactly as `oci.OciAdapter.normalize_directory`
+        # uses them. It needs no roots and no deliveries, which is why this lean
+        # adapter can carry it without becoming the full runtime adapter.
+        self.custodian_image_digest = custodian_image_digest
+
+    def _asked(self, argv):
+        """One engine invocation whose FAULTS are answers rather than escapes.
+
+        `subprocess` raises `TimeoutExpired` and an unreachable binary raises
+        `OSError`; neither is a `ContractRefusal`, so before this they escaped the
+        reclaim's own catch and ended the whole serving pass. An engine that could
+        not be asked is an UNKNOWN, which is a hold.
+        """
+        try:
+            return self._run(argv, seconds=_RECLAIM_SECONDS)
+        except (ContractRefusal, KeyboardInterrupt, SystemExit):
+            # W275774 review 17:35:44Z: NARROWED. A `BaseException` catch swallowed
+            # `KeyboardInterrupt` and `SystemExit`, so an operator stopping this
+            # process was reported as an engine that could not be asked. A refusal is
+            # the caller's to handle and an interruption is the operator's; neither is
+            # an observation.
+            raise
+        except Exception as fault:                         # noqa: BLE001
+            return {"status": -1, "stdout": "",
+                    "stderr": f"the engine could not be asked: {fault!r}"}
+
+    def stop_expired(self, command):
+        # W275774 review 2026-09-26T20-07-17Z: NAMED FOR THE ACT IT PERFORMS. This
+        # adapter exists for the expiry sweep alone; offering the cancellation's
+        # `stop` name was what gave that capability a second crossing owner.
+        taken = boundaries.document(command, "a reclaim stop command",
+                                    required=("runtime_id", "operation_id"))
+        answer = self._asked(oci.stop_vector(self._engine,
+                                             runtime_id=taken["runtime_id"]))
+        if answer["status"] != 0:
+            raise ContractRefusal(
+                "runtime-observation", "quiescence-unknown",
+                f"the engine did not stop {taken['runtime_id']!r}: "
+                f"{answer['stderr'][:240]!r}")
+        return {"runtime_id": taken["runtime_id"],
+                "operation_id": taken["operation_id"]}
+
+    def remove(self, command):
+        """The removal that makes absence REACHABLE, correlated to the reclaim.
+
+        W275774 review 17:54:31Z: a stop-only reclaim left the container present, so no
+        later observation could report `absent` and the revoked-resource ending could
+        never run. Stopping and removing are separate facts and stay separate verbs: a
+        container that stopped but could not be removed is still holding its mounts.
+        """
+        taken = boundaries.document(command, "a reclaim remove command",
+                                    required=("runtime_id", "operation_id"))
+        answer = self._asked(oci.destroy_vector(self._engine,
+                                                runtime_id=taken["runtime_id"]))
+        if answer["status"] != 0 and self._missing(
+                taken["runtime_id"], answer["stderr"]) != "absent":
+            # A REMOVAL OF SOMETHING ALREADY GONE IS NOT A FAILURE, and that is the one
+            # non-zero answer this accepts -- exactly, by the same parsed identity rule
+            # as the observation.
+            raise ContractRefusal(
+                "runtime-observation", "quiescence-unknown",
+                f"the engine did not remove {taken['runtime_id']!r}: "
+                f"{answer['stderr'][:240]!r}")
+        return {"runtime_id": taken["runtime_id"],
+                "operation_id": taken["operation_id"]}
+
+    def normalize_directory(self, store, *, assignment_id, which, seconds=None,
+                            reclaim=None):
+        """One custody act, delegated to the normalization owner.
+
+        Present only when a custodian image is configured: `_reclaiming` composes this
+        adapter WITHOUT the capability otherwise, so the ending's own capability check
+        refuses rather than this method pretending to normalize.
+
+        W275774 review 18:11:15Z: THE SUPPLIED ALLOWANCES ARE HONOURED, not dropped.
+        My first cut did `del seconds, reclaim`, which silently discarded the caller's
+        budget -- so a caller that bounded an ending's remaining time got an unbounded
+        custody act instead. The wrapper below is `oci.OciAdapter.normalize_directory`'s
+        established pattern, reused rather than reinvented: each vector keeps its own
+        maximum, an allowance can only LOWER it, and the ACTING vector spends the work
+        budget while every other vector spends the total.
+        """
+        from baton_v12.worker_manager import custody as _custody
+
+        run = self._run
+        if seconds is not None:
+            def bounded(argv, *, seconds=None, _run=self._run, _work=seconds,
+                        _total=reclaim if reclaim is not None else seconds):
+                most = (_custody.CUSTODY_ACT_SECONDS if seconds is None
+                        else seconds)
+                acting = len(argv) > 1 and argv[1] == "run"
+                return _run(argv, seconds=_custody.allowed(
+                    _work if acting else _total, most))
+
+            run = bounded
+        return _custody.custody_act(
+            self._engine, run,
+            image_digest=self.custodian_image_digest, store=store,
+            assignment_id=assignment_id, operation="normalize", which=which)
+
+    def observe(self, runtime_id):
+        answer = self._asked(oci.inspect_vector(self._engine,
+                                                runtime_id=runtime_id))
+        if answer["status"] != 0:
+            return {"runtime_id": runtime_id,
+                    "state": self._missing(runtime_id, answer["stderr"]),
+                    "why": f"the engine answered {answer['stderr'][:240]!r}"}
+        described = self._described(runtime_id, answer["stdout"])
+        if described is None:
+            return {"runtime_id": runtime_id, "state": "uncertain",
+                    "why": "the engine's description could not be read as this "
+                           "exact identity's state"}
+        return described
+
+    @staticmethod
+    def _missing(runtime_id, stderr):
+        """`absent` ONLY for an exact missing-container answer about THIS identity.
+
+        W275774 review 17:35:44Z: a substring test accepted
+        "No such container: container-a-other" as the absence of `container-a`. So the
+        identity is PARSED OUT of the message and compared exactly -- an answer about
+        a neighbouring name says nothing about this one, and freeing a resource on it
+        would be the worst possible misreading.
+        """
+        said = (stderr or "")
+        for marker in ("No such container:", "No such object:"):
+            at = said.find(marker)
+            if at < 0:
+                continue
+            named = said[at + len(marker):].strip().split()[0:1]
+            if named and named[0] == runtime_id:
+                return "absent"
+        return "uncertain"
+
+    @staticmethod
+    def _described(runtime_id, stdout):
+        """The exact identity's own state, or `None` when that is not what arrived."""
+        try:
+            body = json.loads(stdout)
+        except (TypeError, ValueError):
+            return None
+        if isinstance(body, list):
+            if len(body) != 1:
+                return None
+            body = body[0]
+        if not isinstance(body, dict):
+            return None
+        named = body.get("Id")
+        if not isinstance(named, str) or named != runtime_id:
+            # EXACT, AND NOTHING LOOSER. Review 17:35:44Z: my bidirectional prefix
+            # rule accepted an EMPTY `Id` for every identity (everything starts with
+            # "") and accepted `container-a-other` for `container-a`. A prefix is not
+            # an identity. If short-id resolution is ever needed it will be an
+            # explicit, validated canonicalisation with its own cases, not a
+            # comparison that happens to be lenient.
+            return None
+        state = body.get("State")
+        if not isinstance(state, dict):
+            return None
+        running = state.get("Running")
+        if running is not True and running is not False:
+            return None
+        return {"runtime_id": runtime_id,
+                "state": "running" if running else "quiescent",
+                "why": "the engine described this exact identity"}
+
+
+class _Reclaiming:
+    """The lean adapter WITHOUT the custody verb, for a deployment that configured
+    no custodian image. Composed explicitly rather than by omission so the reason is
+    readable at the seam that decides it."""
+
+    def __init__(self, adapter):
+        self.stop_expired = adapter.stop_expired
+        self.remove = adapter.remove
+        self.observe = adapter.observe
+
+
+def _reclaiming(control, engine, run, custodian=None):
+    """One expiry pass over every attempt that has a runtime to reclaim.
+
+    BOUNDED, which review 17:17:15Z asked for by name: it walks the attempts this
+    manager itself recorded with an attached runtime, so the work per tick is the
+    number of live attempts rather than the whole journal, and each attempt's own
+    reclaim decides in its own transactions whether anything is overdue at all.
+
+    ONE ATTEMPT'S REFUSAL DOES NOT END THE PASS, and this is the visible policy
+    `manager.serve` deliberately does not choose: a sweep that died on one unreachable
+    engine would leave every OTHER overdue resource held. The refusals are collected
+    and answered, never swallowed.
+    """
+    governance = tokens.workspace_governance()
+    # THE CAPABILITY IS COMPOSED ONLY WHEN IT CAN BE HONOURED. Without a configured
+    # custodian image there is no normalization this pass can perform, and an adapter
+    # advertising the verb anyway would turn the ending's refusal into a false start.
+    adapter = _ReclaimAdapter(engine, run, custodian_image_digest=custodian)
+    if custodian is None:
+        adapter = _Reclaiming(adapter)
+    # W275774 review 17:40:10Z [P1]: THE CAP WAS NOT FAIR, only bounded.
+    #
+    # A capped pass that always started at the beginning visited the SAME first
+    # sixteen held resources on every tick, so a seventeenth was never reached at
+    # all -- a bound that starves is worse than the unbounded sweep it replaced,
+    # because the starved resource is held forever with nothing ever looking at it.
+    #
+    # So the pass remembers where it stopped and the next one CONTINUES AFTER IT,
+    # wrapping around. Eligibility is still decided per attempt in its own
+    # transactions, so rotation changes only the ORDER in which candidates are
+    # visited -- never whether one qualifies -- and unknown holds are untouched.
+    resumed = [None]
+
+    def pass_over_attempts(*, now):
+        del now
+        reclaimed, refused = [], []
+        chosen = _after(_governed_candidates(control, governance),
+                        resumed[0])[:_RECLAIM_CANDIDATES]
+        if chosen:
+            resumed[0] = chosen[-1]["runtime_attempt_id"]
+        for row in chosen:
+            try:
+                outcome = intake.reclaim_expired_resource(
+                    control, adapter,
+                    attempt_id=row["runtime_attempt_id"], govern=governance)
+                # W275774 review 17:54:31Z: AND THE ENDING RUNS IN THE SAME PASS.
+                #
+                # There was no production caller of `settle_revoked_resource` at all,
+                # so a revoked resource was never normalized or returned by anything.
+                # The reclaim withdraws and removes; the ending accounts for the roots
+                # and returns. Running them in one pass is what makes the lifecycle
+                # actually close -- and the ending refuses on its own preconditions
+                # (revoked, absent now, no activation in flight) rather than trusting
+                # what the reclaim just did.
+                # AND THE ENDING ONLY IF THIS ADAPTER CAN NORMALIZE, which the lean
+                # one cannot. Measured rather than assumed: wiring the ending in
+                # unconditionally refused with "the runtime adapter's
+                # directory-custody act is a capability this manager calls; this is
+                # none". The ending accounts for the governed ROOTS, which means
+                # custody acts, which means the full custodian composition -- more
+                # than the two verbs a reclaim needs. Pretending otherwise would have
+                # turned every tick into a refusal.
+                if outcome.get("reclaimed") in ("held", "returned") \
+                        and getattr(adapter, "normalize_directory", None) is not None:
+                    outcome = dict(outcome, ending=intake.settle_revoked_resource(
+                        control, adapter,
+                        attempt_id=row["runtime_attempt_id"], govern=governance))
+                elif outcome.get("reclaimed") == "held":
+                    outcome = dict(
+                        outcome,
+                        ending="awaits-normalizing-ending",
+                        ending_why="this pass's adapter performs no custody acts, so "
+                                   "the roots are not accounted for here and the "
+                                   "resource stays held")
+                reclaimed.append(outcome)
+            except ContractRefusal as refusal:
+                refused.append({"attempt_id": row["runtime_attempt_id"],
+                                "why": refusal.message})
+            except (KeyboardInterrupt, SystemExit):
+                # THE OPERATOR'S, NOT THIS PASS'S. Stopping the process is not an
+                # attempt-level fault and must not be recorded as one.
+                raise
+            except Exception as fault:                     # noqa: BLE001
+                # W275774 review 17:27:42Z: A FAULT IS NOT A LICENCE AND NOT AN END.
+                # `TimeoutExpired` and `OSError` are not `ContractRefusal`s, so before
+                # this they escaped and ended the whole pass -- leaving every OTHER
+                # overdue resource unreclaimed because one engine hung. The resource
+                # for this attempt stays held, because nothing was confirmed.
+                refused.append({"attempt_id": row["runtime_attempt_id"],
+                                "why": f"the reclaim faulted: {fault!r}"})
+        return {"reclaimed": reclaimed, "refused": refused,
+                "resumes_after": resumed[0]}
+
+    return pass_over_attempts
+
+
+def _after(candidates, attempt_id):
+    """The candidates in order, ROTATED to continue after the last one visited.
+
+    Ordered by attempt identity so the rotation is stable across ticks and across
+    restarts -- a fresh process begins at the start again, which is a sweep beginning
+    at the start rather than a resource being skipped.
+    """
+    if attempt_id is None:
+        return candidates
+    for index, row in enumerate(candidates):
+        if row["runtime_attempt_id"] > attempt_id:
+            return candidates[index:] + candidates[:index]
+    # EVERY CANDIDATE SORTS AT OR BEFORE THE LAST ONE VISITED, so the rotation has
+    # come round: the next tick starts from the beginning again.
+    return candidates
+
+
+def _governed_candidates(control, governance):
+    """The attempts whose GOVERNED TOKEN is still outstanding, and only those.
+
+    Review 17:27:42Z corrected the query twice over. `WHERE runtime_id IS NOT NULL`
+    was wrong in both directions: it swept every historically attached attempt,
+    including ones whose resource was returned long ago, and it SKIPPED an attempt
+    whose launch is unresolved precisely because no container was ever attached --
+    which is the case an expiry sweep most needs to reach, since an unresolved launch
+    may be writing right now.
+
+    So the candidates are chosen by the TOKEN rather than by the runtime column: an
+    attempt is a candidate when its own generation is outstanding and unreturned. The
+    pinned boundary identity is required, because an attempt with no workspace object
+    names no resource; that is a refusal inside `workspace_identity` rather than a
+    silent skip, so it is asked here where the answer is a candidacy decision.
+    """
+    candidates = []
+    for row in attempts._attempts(
+            control,
+            "WHERE workspace_device IS NOT NULL AND workspace_inode IS NOT NULL "
+            "ORDER BY runtime_attempt_id"):
+        # W275774 review 17:35:44Z: ONLY THE ABSENCE OF A RESOURCE IDENTITY IS
+        # SWALLOWED HERE. `overdue` already answers `None` when this attempt reserved
+        # no generation, so catching every refusal as "no reservation" was hiding
+        # INTEGRITY failures -- a signature that no longer verifies, a record whose
+        # owner changed -- behind a candidacy decision. Those must reach the caller.
+        try:
+            identity = governance.identity(row)
+        except ContractRefusal:
+            # No pinned workspace object: this attempt names no resource, so it is
+            # not a candidate and nothing is wrong.
+            continue
+        del identity
+        outstanding = governance.overdue(
+            control, row, operation=attempts._start_operation_id(row))
+        if outstanding is not None:
+            candidates.append(row)
+    # EVERY CANDIDATE IS LISTED, and the CAP IS APPLIED AFTER ROTATION rather than by
+    # stopping this scan. Listing is database reads over this manager's own attempts;
+    # the expensive part of a tick is the engine, and that is what the cap bounds.
+    return candidates
 
 
 def _emit(document, stream):
@@ -401,10 +810,18 @@ def _serve(taken, clock, stream):
                 if taken.once:
                     return _emit(reconcile(store, operations, now=clock()),
                                  stream)
+                # W275774: AND THE EXPIRY PASS IS SUPPLIED, not defaulted away.
+                # A deployment whose factory composes its own pass wins, because it
+                # may know more about its adapters than this tool does; otherwise
+                # this tool's own lean pass is used.
                 return _emit(serve(store, operations, clock=clock,
                                    sleep=time.sleep,
                                    should_continue=lambda: running[0],
-                                   interval=taken.interval), stream)
+                                   interval=taken.interval,
+                                   reclaim=getattr(operations, "reclaim", None)
+                                   or _reclaiming(control, taken.engine,
+                                                  _engine_runner,
+                                                  taken.custodian_image)), stream)
             finally:
                 if operations is not None:
                     _release(operations, stream)
@@ -479,6 +896,14 @@ def main(argv, *, clock=None, stream=None):
                          help="seconds between ticks")
     serving.add_argument("--once", action="store_true",
                          help="recover and sweep exactly once, then stop")
+    serving.add_argument("--engine", default="docker",
+                         help="the OCI engine this deployment's expiry pass asks "
+                              "to stop and inspect an overdue runtime")
+    serving.add_argument("--custodian-image", default=None,
+                         help="the custodian image digest the expiry pass normalizes "
+                              "a reclaimed attempt's roots with; without it a "
+                              "reclaimed resource is revoked and stopped but its "
+                              "roots are not accounted for, so it stays held")
     serving.set_defaults(run=_serve)
 
     taken = parser.parse_args(argv)
