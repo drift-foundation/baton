@@ -1779,5 +1779,298 @@ class TheContainersOwnExitDecidesTheOutcome(MaintenanceCase):
         self.assertFalse(answered.ok)
 
 
+class TheOrdinaryALLOCATIONHappensInsideTheExecution(MaintenanceCase):
+    """W285464, the first connected slice: the governed host writer moves.
+
+    `workspaces.assignment_workspace` creates the attempt home, its six entries and
+    `workspace/result-<attempt>` and adopts the configured group on the writable
+    roots -- in the manager's own process, holding no token. This verb performs
+    exactly those effects inside the admitted execution, over the configured
+    STORAGE narrowly mounted, and the host proves the subtree afterwards.
+
+    The fixture allocates `attempt-1` for the base class, so these cases use an
+    attempt whose home does NOT exist and remove nothing by hand.
+    """
+
+    def unallocated(self, name="attempt-fresh"):
+        """An attempt identity with no home at all."""
+        self.assertFalse(os.path.exists(os.path.join(self.storage, name)))
+        return name
+
+    def allocating(self, engine=None, assignment_id=None):
+        attempt = assignment_id or self.unallocated()
+        return attempt, self.prepared(
+            engine, assignment_id=attempt,
+            operation=maintenance.ALLOCATE_ASSIGNMENT_ROOTS)
+
+    def test_the_home_its_entries_and_the_result_root_are_established(self):
+        attempt, answered = self.allocating()
+        self.assertTrue(answered.ok, answered.diagnostic)
+        home = os.path.join(self.storage, attempt)
+        self.assertTrue(os.path.isdir(home))
+        for entry in workspaces.HOME_ENTRIES:
+            self.assertTrue(os.path.isdir(os.path.join(home, entry)), entry)
+        result = os.path.join(home, "workspace", f"result-{attempt}")
+        self.assertTrue(os.path.isdir(result))
+        # THE WRITABLE ROOTS CARRY THE GROUP AND THE EXACT MODE, which is what
+        # `adopt_workspace_group` establishes on the host today.
+        for writable in (os.path.join(home, "workspace"), result):
+            observed = os.lstat(writable)
+            self.assertEqual(oct(stat.S_IMODE(observed.st_mode)),
+                             oct(maintenance.PREPARED_MODE))
+            self.assertEqual(observed.st_gid, self.group.gid)
+
+    def test_the_HOST_MAKES_EXACTLY_ONE_EMPTY_DIRECTORY_AND_NOTHING_ELSE(self):
+        """The cost of enforcing confinement, measured rather than described.
+
+        `--mount type=bind` refuses a source that does not exist, so one empty
+        directory must appear before the act can be confined to it. This manager
+        creates exactly that -- `os.mkdir` at mode 0o700, inside the window and
+        after the token is acquired -- and every GOVERNED effect (the layout, the
+        modes, the group adoption, the result root) happens inside the execution.
+
+        POSITIVE INSTRUMENTATION: the traps record, so an unused trap cannot pass,
+        and the recorded set is compared exactly.
+        """
+        attempt = self.unallocated("attempt-trapped")
+        home = os.path.join(self.storage, attempt)
+        made, moded, owned = [], [], []
+        honest = os.mkdir
+
+        def recording(where, *arguments, **named):
+            made.append((where, arguments, named))
+            return honest(where, *arguments, **named)
+
+        with mock.patch("os.mkdir", recording), \
+                mock.patch("os.chmod", side_effect=lambda *a: moded.append(a)), \
+                mock.patch("os.chown", side_effect=lambda *a: owned.append(a)):
+            answered = self.prepared(
+                assignment_id=attempt,
+                operation=maintenance.ALLOCATE_ASSIGNMENT_ROOTS)
+        self.assertTrue(answered.ok, answered.diagnostic)
+        # EXACTLY ONE HOST MKDIR, of the cradle, at exactly this mode.
+        self.assertEqual([one[0] for one in made], [home])
+        self.assertEqual(made[0][1], (maintenance.CRADLE_MODE,))
+        # AND NO HOST chmod OR chown AT ALL: the modes and the group are the
+        # execution's, which is the whole point of moving the writer.
+        self.assertEqual(moded, [])
+        self.assertEqual(owned, [])
+        # THE GOVERNED LAYOUT EXISTS, established inside the execution.
+        for entry in workspaces.HOME_ENTRIES:
+            self.assertTrue(os.path.isdir(os.path.join(home, entry)), entry)
+        observed = os.lstat(os.path.join(home, "workspace"))
+        self.assertEqual(oct(stat.S_IMODE(observed.st_mode)),
+                         oct(maintenance.PREPARED_MODE))
+        self.assertEqual(observed.st_gid, self.group.gid)
+        # AND THE RECEIPT SAYS WHICH OF THE TWO THE CRADLE WAS.
+        settled = maintenance.maintenance_settlement(
+            self.store, attempt, maintenance.MAINTENANCE_HOME)
+        self.assertEqual(settled["cradle"], "created")
+
+    def test_the_mount_EXCLUDES_every_sibling_attempt(self):
+        """THE CASE I HAD WRONG, replaced by the enforcement it should have been.
+
+        My first cut mounted the configured STORAGE writable and asserted that a
+        cooperative program left a sibling attempt unchanged. Review
+        2026-09-27T15-11-34Z and the owner clarification of the same day are both
+        right: a bind mount has no sub-path, so every sibling -- credentials
+        included -- was inside the writable source, and "this program did not touch
+        them" is a statement about one program's manners rather than about what the
+        container could reach. Confinement is the mount or it is nothing.
+
+        This asserts the boundary the reviewer's probe asserts: the sibling is NOT
+        a descendant of the bind source.
+        """
+        witness = os.path.join(self.storage, "attempt-1")
+        self.assertTrue(os.path.isdir(witness))
+        attempt, answered = self.allocating()
+        self.assertTrue(answered.ok, answered.diagnostic)
+        argv = self.vector("create")
+        mounts = [one for one in argv if one.startswith("type=bind,")]
+        self.assertEqual(len(mounts), 1)
+        source = dict(part.split("=", 1)
+                      for part in mounts[0].split(","))["source"]
+        # THE MOUNT IS THIS ATTEMPT'S OWN HOME, and the storage is not mounted.
+        self.assertEqual(source, os.path.join(self.storage, attempt))
+        self.assertNotEqual(source, self.storage)
+        # AND NO SIBLING IS INSIDE IT -- the reviewer's exact assertion.
+        self.assertNotEqual(os.path.commonpath((source, witness)), source)
+        for sibling in os.listdir(self.storage):
+            if sibling == attempt:
+                continue
+            other = os.path.join(self.storage, sibling)
+            with self.subTest(sibling=sibling):
+                self.assertNotEqual(os.path.commonpath((source, other)), source)
+        self.assertEqual(
+            mounts[0],
+            f"type=bind,source={source},"
+            f"target={maintenance.MAINTENANCE_ROOT},readonly=false")
+        self.assertNotIn(os.path.join(self.root, "control.sqlite3"),
+                         " ".join(argv))
+
+    def test_a_name_that_could_leave_the_storage_never_reaches_an_engine(self):
+        """Still refused, and now BEFORE the cradle exists as well as before the
+        mount: a name is validated by the host, and the mount confines what the
+        validated name selected."""
+        engine = Engine(self)
+        for wrong in ("../escape", "nested/attempt", ".", "..", "/absolute"):
+            with self.subTest(assignment_id=wrong):
+                with self.assertRaises(ContractRefusal):
+                    self.prepared(
+                        engine, assignment_id=wrong,
+                        operation=maintenance.ALLOCATE_ASSIGNMENT_ROOTS)
+        self.assertEqual(engine.seen, [])
+
+    def test_the_pre_allocation_identity_names_the_storage_and_the_attempt(self):
+        attempt = self.unallocated()
+        held = os.lstat(self.storage)
+        governed, pre = maintenance._allocation_identity(self.storage, attempt)
+        self.assertEqual(governed, f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual(pre, f"{held.st_dev}:{held.st_ino}/{attempt}")
+        # STABLE BEFORE THE HOME EXISTS, which is the property it is for.
+        self.assertFalse(os.path.exists(os.path.join(self.storage, attempt)))
+        self.assertEqual(maintenance._allocation_identity(self.storage,
+                                                          attempt)[1], pre)
+
+    def test_the_receipt_records_the_mapping_to_the_TASKS_own_domain(self):
+        """The pre-allocation identity's whole promise, kept as a durable fact."""
+        attempt, answered = self.allocating()
+        settled = maintenance.maintenance_settlement(
+            self.reopened(), attempt, maintenance.MAINTENANCE_HOME)
+        self.assertEqual(settled["disposition"], maintenance.SETTLED_PREPARED)
+        workspace = os.lstat(os.path.join(self.storage, attempt, "workspace"))
+        self.assertEqual(settled["workspace_identity"],
+                         f"{workspace.st_dev}:{workspace.st_ino}")
+        # AND IT IS THE DOMAIN THE TASK'S OWN GOVERNANCE WILL RESOLVE, computed
+        # here from an attempt row rather than from this module.
+        row = {"runtime_attempt_id": attempt,
+               "workspace_device": workspace.st_dev,
+               "workspace_inode": workspace.st_ino}
+        self.assertEqual(settled["task_domain"],
+                         tokens.domain_of("workspace",
+                                          tokens.workspace_identity(row)))
+        self.assertEqual(settled["pre_allocation"].rsplit("/", 1)[1], attempt)
+        self.assertEqual(settled["place"], attempt)
+
+    def test_a_standing_allocation_window_excludes_every_workspace_entry(self):
+        """The exclusion carrier while the object does not exist yet."""
+        attempt = self.unallocated()
+        case = self
+        outcome = []
+
+        class Concurrent(Engine):
+            def starting(self, argv):
+                case.assertTrue(maintenance.standing_maintenance(
+                    case.store, attempt, maintenance.MAINTENANCE_HOME))
+                for act in (lambda: workspaces.assignment_workspace(
+                                case.group, case.storage, attempt,
+                                control=case.store),
+                            lambda: workspaces.refuse_if_held(
+                                case.store, case.storage, attempt,
+                                "allocating these roots"),
+                            lambda: workspaces._admitted_removal(
+                                case.store, attempt, "removing these roots")):
+                    try:
+                        act()
+                        outcome.append(None)
+                    except ContractRefusal as refused:
+                        outcome.append(str(refused))
+                return super().starting(argv)
+
+        answered = self.prepared(
+            Concurrent(self), assignment_id=attempt,
+            operation=maintenance.ALLOCATE_ASSIGNMENT_ROOTS)
+        self.assertTrue(answered.ok, answered.diagnostic)
+        self.assertEqual(len(outcome), 3)
+        for why in outcome:
+            self.assertIsNotNone(why, "an act was admitted beside the allocation")
+            self.assertIn("unsettled maintenance window 1", why)
+
+    def test_a_partial_home_the_program_reported_is_not_confirmed(self):
+        """The host decides, and a report is not the world.
+
+        The engine double answers a well-formed allocation report for an attempt
+        whose home nothing created, so every member is right and nothing exists.
+        """
+        attempt = self.unallocated("attempt-claimed")
+        expected = sorted(tuple(workspaces.HOME_ENTRIES)
+                          + (os.path.join("workspace", f"result-{attempt}"),))
+        engine = Engine(self, document={
+            "maintenance": maintenance.ALLOCATE_ASSIGNMENT_ROOTS,
+            "version": maintenance.MAINTENANCE_VERSION, "submission": None,
+            "place": attempt, "established": True, "entries": expected,
+            "mode": oct(maintenance.PREPARED_MODE),
+            "running_as": list(self.identity())})
+        answered = self.prepared(
+            engine, assignment_id=attempt,
+            operation=maintenance.ALLOCATE_ASSIGNMENT_ROOTS)
+        self.assertFalse(answered.ok)
+        self.assertTrue(answered.held)
+        # THE HOST'S OWN WORDS about the layout it reads, which is what it checked:
+        # the cradle exists because the mount needed it, and NOTHING inside it does.
+        self.assertIn("the allocated home is not the layout this manager reads",
+                      answered.diagnostic)
+        self.assertIn("stays held", answered.diagnostic)
+        self.assertIsNone(maintenance.maintenance_settlement(
+            self.store, attempt, maintenance.MAINTENANCE_HOME))
+        self.assertFalse(os.path.exists(os.path.join(self.storage, attempt,
+                                                     "workspace")))
+
+    def test_a_report_naming_another_home_layout_settles_nothing(self):
+        attempt = self.unallocated("attempt-layout")
+        engine = Engine(self, document={
+            "maintenance": maintenance.ALLOCATE_ASSIGNMENT_ROOTS,
+            "version": maintenance.MAINTENANCE_VERSION, "submission": None,
+            "place": attempt, "established": True,
+            "entries": ["inputs", "workspace"],
+            "mode": oct(maintenance.PREPARED_MODE),
+            "running_as": list(self.identity())})
+        answered = self.prepared(
+            engine, assignment_id=attempt,
+            operation=maintenance.ALLOCATE_ASSIGNMENT_ROOTS)
+        self.assertFalse(answered.ok)
+        self.assertIn("home layout", answered.diagnostic)
+        self.assertIsNone(maintenance.maintenance_settlement(
+            self.store, attempt, maintenance.MAINTENANCE_HOME))
+
+    def test_a_verb_cannot_be_pointed_at_another_root(self):
+        """The root a preparation mounts is the verb's, not the caller's."""
+        engine = Engine(self)
+        for operation, wrong in (
+                (maintenance.ALLOCATE_ASSIGNMENT_ROOTS, "workspace"),
+                (maintenance.ESTABLISH_RESULT_ROOT,
+                 maintenance.MAINTENANCE_HOME),
+                (maintenance.ESTABLISH_RESULT_ROOT, "result")):
+            with self.subTest(operation=operation, which=wrong):
+                with self.assertRaises(ContractRefusal) as refused:
+                    self.prepared(engine, operation=operation, which=wrong)
+                self.assertIn("decided by the verb this manager owns",
+                              str(refused.exception))
+        self.assertEqual(engine.seen, [])
+
+    def test_the_second_allocation_of_one_attempt_is_refused_not_repeated(self):
+        attempt, answered = self.allocating()
+        self.assertTrue(answered.ok, answered.diagnostic)
+        engine = Engine(self)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(engine, assignment_id=attempt,
+                          operation=maintenance.ALLOCATE_ASSIGNMENT_ROOTS)
+        self.assertIn("has been RETURNED", str(refused.exception))
+        self.assertEqual(engine.seen, [])
+
+    def test_the_vocabulary_and_the_mounted_root_table_are_one_set(self):
+        self.assertEqual(sorted(maintenance.MOUNTED_ROOT),
+                         sorted(maintenance.PREPARATIONS))
+        self.assertEqual(sorted(maintenance._PREPARED),
+                         sorted(maintenance.PREPARATIONS))
+        for root in maintenance.MOUNTED_ROOT.values():
+            self.assertIn(root, maintenance.MAINTENANCE_ROOTS)
+        # AND CUSTODY'S OWN CLOSED PAIR IS UNWIDENED, which is the pin: a third
+        # member there would change every reader of it.
+        self.assertEqual(custody.CUSTODY_ROOTS, ("workspace", "result"))
+        self.assertEqual(maintenance.MAINTENANCE_ROOTS,
+                         custody.CUSTODY_ROOTS + ("home",))
+
+
 if __name__ == "__main__":       # pragma: no cover
     unittest.main()

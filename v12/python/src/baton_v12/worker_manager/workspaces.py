@@ -2962,10 +2962,15 @@ def _journal_maintenance(control, assignment_id):
     there is no second durable record of the same fact. The import is local because
     `maintenance` imports this module.
     """
-    from . import custody, maintenance
+    from . import maintenance
 
     found = []
-    for which in custody.CUSTODY_ROOTS:
+    # EVERY ROOT A PREPARATION CAN HOLD, which is the facility's own closed set
+    # rather than custody's pair: W285464 added the configured STORAGE, because an
+    # allocation's home does not exist yet and what it mounts is the parent. A
+    # reader that walked only the custody pair would not see a standing allocation
+    # at all -- measured, by reaching it.
+    for which in maintenance.MAINTENANCE_ROOTS:
         for ordinal, record in maintenance.standing_maintenance(
                 control, assignment_id, which):
             held = record["result"]

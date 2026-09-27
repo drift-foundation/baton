@@ -261,13 +261,27 @@ Sending `stop`, seeing a provider exit, or passing a deadline is not that proof.
 The holder's voluntary polling is not the enforcement mechanism.
 
 **TOK-7.** Every writer capable of affecting the resource must be accounted for,
-including task subprocesses, maintenance work and delayed helpers. All governed
-workspace, context, input/output and artifact-custody filesystem mutations MUST
-run in token-bound Docker executions. This includes allocation, staging,
-permission/normalization changes, checkpoint freeze, copying into retained
-custody, deletion and reset. Host filesystem helpers are not an alternative
-enforcement mechanism for those effects. Stopping the agent container cannot
-prove an unrelated host writer stopped.
+including task subprocesses, maintenance work and delayed helpers.
+
+**Initial preparation exception — owner 2026-09-27.** The single Host manager may
+prepare a fresh private attempt before job-container handoff: allocate its
+directories, create source mountpoints, publish task/input/assignment files and
+set initial permissions. No maintenance container is required for this phase.
+Preparation requires exclusive ownership and current claim/eligibility; no job
+container may access the resources until preparation completes, the host durably
+records it and revalidates their identity before task admission. All external I/O
+remains outside DB transactions (DB-1). Interrupted or timed-out preparation MUST
+NOT permit launch or reuse while any host writer can still complete. Restart
+reconciles partial state and uncertain writers; deadline expiry alone does not
+prove cessation. After handoff, this exception grants no host mutation authority.
+
+Other governed workspace, context, input/output and artifact-custody filesystem
+mutations MUST run in token-bound Docker executions. This includes subsequent
+checkpoint freeze, copying into retained custody, deletion and reset. Host
+filesystem helpers are not an alternative enforcement mechanism for those
+effects. Stopping the agent container cannot prove an unrelated host writer
+stopped. The September 26 blanket container-only rule is superseded solely for
+initial preparation; later cleanup, recovery and custody rules remain in force.
 
 The host remains responsible for authorizing these operations, validating
 correlated evidence and committing its own authoritative receipt. That is
@@ -285,7 +299,7 @@ be used to hide workspace/custody mutations under the name of metadata. Engine
 creation/termination and its own storage are the runtime enforcement boundary,
 not tasks that require another agent container to supervise them. All host
 external I/O still obeys DB-1. This distinction terminates the supervision chain
-without exempting any governed resource writer.
+with the explicit initial-preparation exception above.
 
 **TOK-8.** Authority fences and physical cessation are complementary. A stale
 container cannot publish a result, but it may still damage a mounted workspace;
@@ -346,17 +360,21 @@ untracked host epilogue or an infinite chain of containers stopping containers.
 
 **HOST-1.** Before writable execution: validate selected contract/profile, declared
 inputs and resource policy; reserve eligible capacity; settle the canonical claim;
-prepare resources under maintenance ownership; confirm the maintenance container
-and its writers stopped and settle that operation;
+prepare fresh private resources on the host under TOK-7 initial-preparation
+ownership; durably record completion and prove no preparation writer remains;
 then admit the task token, validate/bind delivery and launch one exact task
-execution. Task admission rechecks the prepared resource/checkpoint; preparation
-is not an irrevocable entitlement to a later grant. Conflicting maintenance and
-task tokens MUST NOT coexist. Preparation that mutates governed storage uses the
-separately bound maintenance execution in TOK-7; host coordination does not make
-those writes host-local. Maintenance has its own operation/token/runtime identity
-and derives scope from the selected lifecycle act, without fabricating a second
-task claim. A maintenance container is not a pre-claim model/consent container.
-An expired offer or lost claim race authorizes no task or preparation launch.
+execution. Task admission rechecks prepared resource/checkpoint identity;
+preparation is not an irrevocable entitlement to a later grant. An expired offer
+or lost claim authorizes no new preparation or task launch.
+
+For operations still requiring maintenance execution under TOK-7, confirm the
+exact maintenance container and its writers stopped and settle the operation
+before conflicting task admission. Conflicting maintenance and task tokens MUST
+NOT coexist. Maintenance has its own operation/token/runtime identity and derives
+scope from the selected lifecycle act without fabricating a second task claim.
+A maintenance container is not a pre-claim model/consent container. The previous
+requirement for a separate maintenance execution for initial preparation is
+superseded by the September 27 owner selection.
 
 **HOST-2.** Host orchestration is persistent and recoverable. A restart reconciles
 the recorded attempt, token, launch operation, engine object, command receipt and
@@ -838,12 +856,13 @@ not sign off implementation, deployments or historical experiments.
 
 Owner selection, 2026-09-26, resolves the first draft's open choices:
 
-1. **Container-bound mutations.** All governed resource filesystem effects run
-   in token-bound containers, including maintenance allocation/staging, custody
-   freeze/retention, deletion and reset. Host authorization remains distinct from
-   writer placement. This requires moving existing host resource helpers behind
-   the maintenance execution boundary; attaching a token to an agent container
-   while leaving the actual writer on the host does not conform.
+1. **Writer placement (amended by owner 2026-09-27).** Initial private attempt
+   allocation, staging, input/task publication and initial permission setup may
+   run on the Host manager under TOK-7 and HOST-1. This supersedes the September
+   26 blanket container-only allocation/staging rule. Later governed effects,
+   including custody freeze/retention, deletion and reset, still require
+   token-bound containers. Host preparation must finish and be durably accounted
+   for before task admission; timeouts do not establish writer cessation.
 2. **Host enforcement and renewable permission.** The host grants, explicitly
    renews, revokes and enforces tokens using its trusted deadline authority. The
    inside-container manager can use the execution's granted token but cannot
@@ -880,7 +899,7 @@ in those records are not automatically requirements.
 | [Assignment contract](../work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/SPEC.md) | Full identity, monotonic generations, distinct owners and replay; transition-era v11 selectors are not the v12 design |
 | [Worker-control/manifests](../work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/SPEC.md) | Read-only input pair, worker completion versus custody receipt, generic payload boundary; pre-claim consent wording is superseded by the later one-runtime ruling |
 | [Token-baton owner decision](../work/records/2026/09/finding-v12-workspace-removal-outside-locks/OWNER-TOKEN-BATON-20260926.md) | Short DB transactions, exclusive resource ownership and mandatory Docker cessation on expiry; token polling, mere expiry and report-only liveness cannot supply this guarantee |
-| [Consolidated design owner decisions](../work/records/2026/09/finding-v12-normative-design/FINDING.md) | All governed mutations in token-bound containers, host enforcement, explicit renewal only before expiry, token-bound reset and confirmed shutdown on normal handoff; former open choices and unspecified normal-return mechanism are superseded |
+| [Consolidated design owner decisions](../work/records/2026/09/finding-v12-normative-design/FINDING.md) | Container-bound mutations except September 27 host initial preparation (TOK-7/HOST-1), host enforcement, explicit renewal only before expiry, token-bound reset and confirmed shutdown on normal handoff; earlier blanket writer-placement rule superseded for initial preparation |
 | [Live-session detach and restoration evidence](../work/records/2026/09/finding-v12-live-session-workspace-detach/FINDING.md) | Preserve independently accepted live-process detach/reattach and separate new-process restoration proofs; live-runtime handoff is deferred from v12, with no matched speed comparison or implicit production adoption |
 | [Container permission boundary](../work/records/2026/09/finding-v12-container-is-the-agent-security-boundary/FINDING.md) | Broad tools inside confinement; per-command approval inside an accepted worker is superseded |
 | [Trusted identity ruling](../work/records/2026/09/finding-v12-workspace-shared-identity/OWNER-TRUSTED-IDENTITY-20260917.md) | Deliberately configured UID/GID; automatic identity-probe lifecycle is superseded |

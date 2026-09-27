@@ -64,3 +64,39 @@ Dependency acts285466/285468 install handoff-after-facility and recovery-after-h
 children snapshot285483 verifies gates. First facility child routed to baton.impl at285482.
 Parent preparation complete, implementation remains unaccepted. Exact scopes/owned paths are
 in child plans. Review-2026-09-27T12-46-00Z records source-only verification and disposition.
+
+
+## 2026-09-27 — owner selects host-side initial preparation
+
+Slawomir explicitly selected host initial preparation, then confirmed retaining the
+current host staging/input-file model after its responsibilities were explained.
+For v12, the single Host manager may allocate a fresh private attempt workspace,
+create source mountpoints, publish task/input/assignment documents, and set initial
+permissions before job-container handoff. No maintenance container is required for
+this initial preparation. This supersedes the initial-preparation portion of TOK-7,
+HOST-1 and section 19 in DESIGN, the earlier no-host-allocation ruling in this
+dossier (including OWNER-ISOLATION-20260927.md), and the pending bootstrap decision
+in review-2026-09-27T15-24-51Z. Historical reviews remain evidence under their then
+applicable specification, not acceptance of this revised target.
+
+Preserve sibling isolation, claim/eligibility checks, exclusive preparation
+ownership, durable preparation completion and identity revalidation before task
+admission. Filesystem and engine I/O remain outside DB transactions. Interrupted
+or timed-out host preparation must not authorize launch or reuse while a host
+writer can still complete; restart must reconcile partial state and uncertain
+writers. A token or timeout alone is not proof of cessation. After container
+handoff, initial-preparation authority does not permit host mutation of its
+resources. Later cleanup, recovery, retained custody, deletion/reset and context
+operations retain their existing rules; this decision does not select a host
+implementation for them or a Docker-volume migration.
+
+W285464 now revalidates the existing ordinary no-context/no-review host path and
+corrects concrete preparation/handoff defects against this revised contract.
+Revise H1–H9 accordingly: prove exclusive host preparation, no external I/O under
+DB locks, durable/revalidated handoff and no launch/reuse with unfinished writers;
+do not require a maintenance-container start merely for initial preparation.
+W285465 retains restart/integrated proof, adjusted to the selected model. Preserve
+W285463 acceptance and useful maintenance machinery for remaining governed acts.
+No graph changes, closure, live execution or deployment are selected. Routine
+implementation/corrections continue directly; independent acceptance remains
+required. Recorded by baton.prompt from explicit owner decisions.

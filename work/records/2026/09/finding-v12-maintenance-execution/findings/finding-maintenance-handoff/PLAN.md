@@ -1,18 +1,44 @@
-# W285464 current executable checkpoint
+# Current owner selection — host initial preparation (2026-09-27)
 
-Prepared under parent claim285450, owner285447. Born thread T285464 is the complete
-scope handoff; no implementation yet. Parent scope and ownership apply. Claim before work.
+The latest FINDING entry “owner selects host-side initial preparation” supersedes
+the initial-preparation requirements and bootstrap decision in the checkpoint below.
+Revalidate the ordinary host allocation/staging/input/permission path against
+updated v12/DESIGN.md TOK-7 and HOST-1; no maintenance container is required for
+initial preparation. Keep exclusive ownership, durable/revalidated handoff, sibling
+isolation, no external I/O under DB locks, and refusal of launch/reuse while host
+writers are unfinished or uncertain. Update H1–H9 and W285465 restart proof to
+this model. Later cleanup/recovery/custody rules remain unchanged.
 
-1. After predecessor satisfying closure, revalidate accepted facility manifest/API and claim this Work. Pin the exact ordinary preparation call chain and all governed writers it reaches. Do not silently claim review/context/restoration flows are migrated; preserve their evidence.
-2. Connect real composed single_worker _mounted/_prepared: canonical claim and eligibility before maintenance, then selected allocation/staging under maintenance identity. Host metadata remains separate. No task credential or authority/control DB mount in maintenance.
-3. Confirm exact maintenance cessation and host settlement/token return; re-prove prepared resource/checkpoint at conditional task admission. Different task token generation must use the same conflict domain or a proved atomic mapping/exclusion; no interval admits two writers. Changed source/object, lost claim race or expired offer refuses before task/preparation launch as appropriate.
-4. Deterministic real composed manager/worker proof: one maintenance effect then cessation/settlement before task create/start; fake engine records vectors/order, provider boundary counts dispatch; reject unknown/stale cessation, live helper, outstanding token, replaced object and invalid claim. Host mutation trap must actually reach selected preparation and detect any filesystem write outside the simulated maintenance execution. Database-lock probes cover engine and affected filesystem boundaries.
-5. Independent review, exact manifest, accepted evidence and human checkpoint. Transfer shared files only at safe serial handoff. Final child owns additional restart cuts and integrated G2 audit.
+Existing serial path ownership remains. Preserve partial evidence and accepted
+W285463; no child acceptance or graph change is implied. Routine continuation
+returns to implementation, independent acceptance still required.
 
-## Limits and delivery
+## Superseded checkpoint — historical context
 
-Focused deterministic fake/replay engine/provider tests with sensible per-run timeout,
-measured durations and honest unknowns. No live engine/model, deployment, destructive
-cleanup, second Host manager on same workspace/DB, or Git mutation. No spec changes without
-owner. Routine corrections/continuation go directly to baton.impl; acceptance to owner.
-Never end holding a claim. Checkpoint exact evidence, next step and latest discussion position.
+# W285464 checkpoint — owner bootstrap decision
+
+Claim286666; handoff286664/events286666; T285464 read through286584.
+Review review-2026-09-27T15-24-51Z.md; exact candidate candidate-2026-09-27T15-24-51Z.json.
+NOT ACCEPTED. Pass baton.decide for exact bootstrap mechanism/scope decision.
+
+Confirmed: attempt-home bind excludes sibling attempts (probe PASS0.021s).
+Blocked candidate operation: maintenance._cradled host os.mkdir(home,0700) before container
+creation (probe FAIL0.010s). Current TOK-7 includes allocation; token/window does not exempt
+host execution. Author one-mkdir expectation is not an approved behavior change.
+
+Owner action: select compliant bootstrap approach/necessary bounded scope or explicitly
+amend this exact requirement with lifecycle constraints. Reviewer recommends preserving
+current isolation and governed-write placement. Author alternatives are not proven exhaustive;
+no compliant-implementation impossibility claim. No new live run/deployment selected.
+
+After disposition: author pins decision before product changes; complete _mounted/_prepared
+ordinary no-context/no-review path, governed source/task/input staging/freeze/refusal cleanup,
+then H1–H9 in advisory HANDOFF-PACKET.md and original FINDING. Claim-before-preparation,
+exact cessation/settlement before conditional task admission, prepared identity revalidation,
+replay without duplicate effect, unknown holds, actual mount and positive mutation/DB-lock
+probes remain required. W285465 retains extra restart/integrated proof; graph unchanged.
+
+Existing exact path ownership in FINDING remains; author PROGRESS/history preserved.
+No candidate acceptance, child closure or broad migration. Human predecessor56431e14
+inherited; this child has no accepted milestone. Preserve prior facility/G1 evidence,
+R4 incident and unaccepted residuals. No agent Git, cleanup, live Docker/provider or deployment.

@@ -322,3 +322,19 @@ Restart still reconciles those resources under the existing specification.
 Use focused local process tests for competing startup, independent instances and
 release after exit/death; no live Docker/provider run is needed for this question.
 Implementation and independent review remain with W275774's managed handlers.
+
+
+## 2026-09-27 — host initial preparation supersedes blanket container placement
+
+Owner explicitly selected retaining host initial allocation, staging, task/input
+publication and initial permission setup for fresh private attempts. Updated
+v12/DESIGN.md TOK-7, HOST-1 and section 19 on the owner’s behalf. This supersedes
+earlier decisions in this record requiring those initial effects to execute in
+a separate maintenance container. Sibling isolation, exclusive preparation,
+durable/revalidated handoff, no external I/O under DB locks, and no launch/reuse
+while preparation writers remain unfinished or uncertain are retained. Later
+cleanup/recovery/custody operations retain existing rules. Exact ruling and
+execution continuation: ../finding-v12-maintenance-execution/findings/finding-maintenance-handoff/FINDING.md
+entry “owner selects host-side initial preparation”. No implementation acceptance,
+deployment, live execution or graph change follows from this specification edit.
+Recorded by baton.prompt from the owner’s explicit instruction.

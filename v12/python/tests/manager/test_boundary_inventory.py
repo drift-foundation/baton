@@ -3355,26 +3355,33 @@ DELEGATED = {
     ("caller", "maintenance.py:prepare", "operation"):
         ("maintenance.py:check_preparation", "caller:operation"),
     ("caller", "maintenance.py:prepare", "which"):
-        ("custody.py:check_custody_root", "caller:which"),
+        ("maintenance.py:check_maintenance_root", "caller:which"),
     ("caller", "maintenance.py:prepare", "assignment_id"):
-        ("custody.py:_derived_root", "caller:assignment_id"),
+        ("maintenance.py:_mounted_root", "caller:assignment_id"),
     ("caller", "maintenance.py:prepare", "image_digest"):
         ("maintenance.py:_create_vector", "caller:image_digest"),
     ("caller", "maintenance.py:prepare", "engine"):
         ("oci.py:_engine", "caller:engine"),
     ("caller", "maintenance.py:prepare", "run"):
         ("oci.py:EnginePort.__init__", "caller:run"),
-    # W285463 review R1/R3: the three durable-window readers. Their root kind is
-    # owned by the same closed-pair check the act itself delegates to, which is
-    # what keeps one rule in one place across four entries.
+    # W285463 review R1/R3: the durable-window readers. Their root kind is owned by
+    # the same closed-set check the act itself delegates to, which is what keeps one
+    # rule in one place across five entries.
+    #
+    # W285464: THAT OWNER MOVED, and the declaration moved with it. The facility
+    # gained a third root -- the configured STORAGE an allocation mounts before the
+    # attempt's own roots exist -- so the check is `maintenance.check_maintenance_root`
+    # rather than custody's two-member pair, which is deliberately unwidened. A
+    # declaration naming the old owner would resolve (that function still exists and
+    # still carries a label) while being untrue about what this entry reaches.
     ("caller", "maintenance.py:standing_maintenance", "which"):
-        ("custody.py:check_custody_root", "caller:which"),
+        ("maintenance.py:check_maintenance_root", "caller:which"),
     ("caller", "maintenance.py:maintenance_settlement", "which"):
-        ("custody.py:check_custody_root", "caller:which"),
+        ("maintenance.py:check_maintenance_root", "caller:which"),
     ("caller", "maintenance.py:maintenance_orphan", "which"):
-        ("custody.py:check_custody_root", "caller:which"),
+        ("maintenance.py:check_maintenance_root", "caller:which"),
     ("caller", "maintenance.py:maintenance_failure", "which"):
-        ("custody.py:check_custody_root", "caller:which"),
+        ("maintenance.py:check_maintenance_root", "caller:which"),
     ("caller", "oci.py:OciAdapter.__init__", "engine"):
         ("oci.py:_engine", "caller:engine"),
     ("caller", "oci.py:run_vector", "labels"):
@@ -10076,7 +10083,11 @@ class StatedRules(BoundaryCase):
             self.store, "attempt-1", "workspace"), [])
         # AND THE ROOT KIND IS THE CLOSED PAIR'S, at this reader as at its siblings:
         # a value that names no root selects nothing rather than reaching one.
-        for wrong in ("home", "", "workspace/result", None):
+        # W285464: the closed set gained `home` for the allocation, so the examples
+        # of a value that names NO root changed with it -- `storage` was the name I
+        # first chose for that root and is deliberately not one. Measured: leaving
+        # `home` here turned this witness into an assertion that a real root refuses.
+        for wrong in ("storage", "", "workspace/result", None):
             with self.subTest(root=wrong):
                 with self.assertRaises(ContractRefusal):
                     maintenance.maintenance_failure(self.store, "attempt-1",

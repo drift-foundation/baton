@@ -1,3 +1,20 @@
+# Current owner selection — host initial preparation (2026-09-27)
+
+The latest FINDING entry “owner selects host-side initial preparation” supersedes
+the initial-preparation requirements and bootstrap decision in the checkpoint below.
+Revalidate the ordinary host allocation/staging/input/permission path against
+updated v12/DESIGN.md TOK-7 and HOST-1; no maintenance container is required for
+initial preparation. Keep exclusive ownership, durable/revalidated handoff, sibling
+isolation, no external I/O under DB locks, and refusal of launch/reuse while host
+writers are unfinished or uncertain. Update H1–H9 and W285465 restart proof to
+this model. Later cleanup/recovery/custody rules remain unchanged.
+
+Existing serial path ownership remains. Preserve partial evidence and accepted
+W285463; no child acceptance or graph change is implied. Routine continuation
+returns to implementation, independent acceptance still required.
+
+## Superseded checkpoint — historical context
+
 # W275633 current checkpoint — bounded G2 implementation queued
 
 Reviewer claim285450; detail285449, events285450, T275633 through275633 read.
