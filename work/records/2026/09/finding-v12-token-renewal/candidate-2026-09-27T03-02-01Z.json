@@ -1,0 +1,30 @@
+{
+  "work": "W275775",
+  "claim": 281506,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "207bcf1786e0bbb448cf6d58b310f7e216c4aac477ec7d44f997dbd0ec3476dd"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "dc2d1fc575ec397c121fb7d0fd17772933de641b7c7aa62be618a283d37263a7"
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "b3a218f0968830ebdb714882cd7eebb253a43199e46eba32347dc9f74aedd4f0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/test_renewal_arbitration.py",
+      "sha256": "d0f0b0b83a25e5f61aedf0cffbc5c618f7a51f635f29a181dcbcf1fa7c1c4553"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_stale_expiry_judgement_20260927.py",
+      "sha256": "4938545c35ae5f4a3d40c04f4c9a118980f40cc6c950430f9d49b5e5e8585fb9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_renewal_edges_v2_20260927.py",
+      "sha256": "c579123b0cffb85a5592144335ba5c09a2e80d96573a10da3c3d3213758fbeb4"
+    }
+  ]
+}

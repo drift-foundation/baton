@@ -2021,6 +2021,27 @@ TOKEN_OWNERS = {
     # finite token partition the review listed. Injected stores and the acquisition
     # document this module answered are stated; every operand that a later act really
     # validates is delegated to that act and probed there.
+    # W275775 review 2026-09-27T02-43-54Z [C3]: THE OBSERVED REVISION, owned by a local
+    # typed check. `boundaries.generation` was the wrong owner and its wrongness was the
+    # defect: it requires a POSITIVE integer, and the first renewal of a generation is asked
+    # for against the observed revision ZERO -- the value `token_of` answers -- so the
+    # obvious reader-to-renew round trip was refused on its first call. A whole number
+    # including zero is a type identity rather than a document shape, so it is stated and
+    # witnessed here, like the reclaim selector and the activation outcome.
+    ("caller", "tokens.py:renew", "expected_revision"):
+        "the revision the public reader answers as `revision`, checked by a local typed rule -- exactly a whole number, zero included, and not a bool -- because a `boundaries` verb for positive generations refused the zero every first renewal must name",
+    # W275775 (Child B), TOK-9: the RENEWAL act. Its store is the same injected capability
+    # every other token entry takes; the generation and owner it reads are the acquisition
+    # document's own members, which `_owning` re-reads and compares before anything is
+    # decided -- so the caller's copy is evidence to check rather than authority to trust.
+    ("caller", "tokens.py:renew", "control"): "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
+    ("caller", "tokens.py:renew", "token.generation"):
+        "a member of the acquisition document this module itself answered; `_owning` re-reads the record under this generation and refuses an act that does not own it, so the caller's copy selects the record rather than authorizing anything",
+    # (`renew`'s `token.owner` declaration was WITHDRAWN here: the [P1] correction moved the
+    # body into `_extended`, so `renew` no longer reads that member and a declaration naming
+    # it is a stale owner -- which `test_no_declared_owner_is_stale` caught immediately. The
+    # rule it stated has not changed and is still `_owning`'s: the committed record's owner
+    # is compared, which is what makes a forged owner a refusal rather than a renewal.)
     ("caller", "tokens.py:Reservation.__init__", "control"): "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
     ("caller", "tokens.py:governed_workspace_identity", "control"): "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
     ("caller", "tokens.py:workspace_governance", "control"): "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs",
@@ -3140,6 +3161,15 @@ NO_PROBE = {
 # "a governed resource kind" is a second authority on what a resource is, which is the
 # defect `domain_of`'s own docstring exists to prevent.
 TOKEN_DELEGATES = {
+    # W275775: `renew`'s lifetime, owned one call along and re-pointed TWICE by measurement
+    # rather than by reading. It was first declared as a self-delegation while the deadline
+    # was composed inside the transaction callback, where the discovery cannot attribute it;
+    # hoisting that composition into the act's body made the entry layer-owned and
+    # `test_no_entry_is_owned_twice` caught the delegation owning it a second time; and the
+    # [P1] correction then moved the body into `_extended`, so the owner moved with it. The
+    # probe below is what proves which of those is true at any moment.
+    ("caller", "tokens.py:renew", "seconds"):
+        ("tokens.py:_extended", "caller:seconds"),
     # W275774 C2, 2026-09-27: the two public guard/authority entries whose root this
     # module's single path owner validates, and the containment argument.
     # MEASURED, not assumed: the guard resolves its root through
@@ -9160,6 +9190,12 @@ class EveryProbeProvesItArrived(BoundaryCase):
 # label, so it is exercised rather than probed -- and the mapping is checked both
 # ways, so a rule with no witness and a witness naming no rule both fail.
 TOKEN_WITNESSES = {
+    ("caller", "tokens.py:renew", "expected_revision"):
+        "test_the_observed_revision_is_a_whole_number_including_zero",
+    ("caller", "tokens.py:renew", "control"):
+        "test_a_token_control_capability_is_proven_by_use",
+    ("caller", "tokens.py:renew", "token.generation"):
+        "test_a_carried_token_document_is_reread_before_it_is_acted_on",
     ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "place"):
         "test_a_manager_guard_is_its_own_modules_composition",
     ("caller", "workspaces.py:ManagerInstanceGuard.__init__", "path"):
@@ -10012,6 +10048,37 @@ class StatedRules(BoundaryCase):
             governance.reserve(fixture.store, spoiled,
                                operation="runtime.start:witness")
         self.assertIn("a token execution identity", caught.exception.message)
+
+    def test_the_observed_revision_is_a_whole_number_including_zero(self):
+        """WITNESS: `renew`'s condition is the reader's own revision, typed locally.
+
+        W275775 [C3]. The operand is the number of committed renewals a caller observed,
+        which is ZERO for a generation nobody has renewed -- so the rule cannot be
+        `boundaries.generation`, which owns positive generations. Both halves are
+        witnessed: zero is accepted and renews the token, and the shapes that are not
+        whole numbers are refused before anything is decided. `True` is included
+        deliberately: it is an `int` in Python and would otherwise read as revision 1.
+        """
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import tokens
+
+        fixture = self._token_fixture()
+        token = fixture.held()
+        self.assertEqual(tokens.token_of(fixture.store, fixture.domain, 1)["revision"], 0)
+        for offered in ("0", 1.0, True, None, -1, [0]):
+            with self.subTest(expected_revision=repr(offered)):
+                with self.assertRaises(ContractRefusal) as caught:
+                    tokens.renew(fixture.store, token,
+                                 execution=token["execution"],
+                                 operation=token["operation"],
+                                 expected_revision=offered)
+                self.assertEqual((caught.exception.category,
+                                  caught.exception.code), ("integrity", "schema"))
+        answered = tokens.renew(fixture.store, token,
+                                execution=token["execution"],
+                                operation=token["operation"], expected_revision=0)
+        self.assertEqual(answered["revision"], 1)
+        self.assertEqual(tokens.token_of(fixture.store, fixture.domain, 1)["revision"], 1)
 
     def test_a_manager_reclaim_selector_is_exactly_boolean(self):
         """WITNESS: the privileged mode switch is typed locally, not truthily.

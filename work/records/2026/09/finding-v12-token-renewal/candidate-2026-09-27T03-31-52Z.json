@@ -1,0 +1,67 @@
+{
+  "work": "W275775",
+  "claim": 281715,
+  "verdict": "accepted bounded Child B renewal/arbitration",
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "bytes": 61178,
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "bytes": 91083,
+      "sha256": "73079b182348eca4b8d69ed5846acf5790be7ba45886325188c8b5c4c1c5343b"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "bytes": 832196,
+      "sha256": "ddb3bf093e79200166693f6679795ca80ae8625d89dc12d31169c11576a0e6fc"
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "bytes": 60818,
+      "sha256": "b3a218f0968830ebdb714882cd7eebb253a43199e46eba32347dc9f74aedd4f0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_expiry_clock_gap_20260927.py",
+      "bytes": 1092,
+      "sha256": "7ee014f075d4651d4aa9e33f0cd348352ded070fd1e6da7ea7803b6202a8b1a7"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_final_arbitration_20260927.py",
+      "bytes": 4112,
+      "sha256": "64b0edffb87833cda14768bbb890fd36c7f33d0b1d0a8d614f2abeb4556f8156"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_judgement_atomicity_20260927.py",
+      "bytes": 2617,
+      "sha256": "0b29ff14bc29630aeba4e7c4da17cd72872111be1a2d4f42ee24dfeffcb5a826"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_renewal_edges_20260927.py",
+      "bytes": 1277,
+      "sha256": "44bba093c9b9ca350e35c9e0ffb7a34588f5252ecad61b6460cb3ff458093738"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_renewal_edges_v2_20260927.py",
+      "bytes": 1274,
+      "sha256": "c579123b0cffb85a5592144335ba5c09a2e80d96573a10da3c3d3213758fbeb4"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_stale_expiry_judgement_20260927.py",
+      "bytes": 1768,
+      "sha256": "4938545c35ae5f4a3d40c04f4c9a118980f40cc6c950430f9d49b5e5e8585fb9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/test_renewal_arbitration.py",
+      "bytes": 57176,
+      "sha256": "ee23c4c7ca01c79dcca760fb84cccb62f70c6f70d38379d0dd544105e6241fc5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_operand_comparison_20260927.json",
+      "bytes": 350917,
+      "sha256": "33474afc9773543aef19a9d7ebc33a40965168a5d3768e2d740b9430b078f951"
+    }
+  ]
+}

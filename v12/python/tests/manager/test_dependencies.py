@@ -577,6 +577,13 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # composed the roots, which is what makes it an operand and not state
         # this module carries between calls.
         "mounted",
+        # W275775: THE STATE A RENEWAL CLAIMS TO HAVE OBSERVED. `expected_revision` is
+        # the CONDITION of the conditional decision TOK-9 requires -- the caller names
+        # the deadline revision it believes is current, and a caller naming a committed
+        # one replays it while a caller naming a later one is refused. Supplied per call
+        # and never carried between them, which is exactly what separates an operand
+        # from a cursor.
+        "expected_revision",
         # W6634: the sealing half. `outputs` is the assignment's DECLARED
         # outputs, owned once at construction -- what may be collected is the
         # assignment's statement, not a per-call argument. `roots`, `declared`,

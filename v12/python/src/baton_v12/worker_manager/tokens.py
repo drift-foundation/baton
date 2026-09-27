@@ -69,6 +69,46 @@ ACTIVATION_SETTLED_KIND = "resource-token.activation-settled"
 # revocation is the first of them and it is journalled, so the old holder is refused
 # at its next journal-guarded step instead of racing the reclaim.
 REVOKED_KIND = "resource-token.revoked"
+# W275775 (Child B), TOK-9: ONE RECORD PER REVISION OF ONE GENERATION'S DEADLINE.
+#
+# The identity carries the revision rather than only the generation, which is what makes a
+# renewal both replayable and non-repeatable: asking again for revision 3 answers the
+# committed revision 3, and asking for a revision that is not the next one cannot reach a
+# write at all. A single `renewed:<domain>:<generation>` id would have had to choose between
+# those two properties.
+RENEWED_KIND = "resource-token.renewed"
+# W275775 review 2026-09-27T02-43-54Z [P1]: THE EXPIRY DECISION, MADE DURABLE.
+#
+# A deadline compared against the wall clock is a decision that can be UNMADE: the probe
+# advanced the host clock past a token's deadline, watched `renew` refuse it as expired, moved
+# the same clock back, and renewed it. TOK-9 forbids exactly that -- "no heartbeat, late
+# renewal request or clock adjustment revives the token" -- and also says ambiguous timing
+# means hold, so a request arriving on a clock that has gone backwards is not a licence.
+#
+# So the first act that JUDGES a generation expired records that judgement, and from then on
+# the fact is the record rather than the arithmetic. It is written by the act that made the
+# decision, in its own short transaction, and it is read by every later act.
+#
+# WHAT IT DOES NOT DO, because the whole point of TOK-5 is that expiry is not permission:
+# it frees nothing, returns nothing, and stops no container. It also does not block the
+# SETTLEMENT paths -- a revocation, a manager return on confirmed cessation and a reclaim all
+# still act on an expired generation, which is the only way a held resource is ever released.
+# What it blocks is REVIVAL.
+EXPIRED_KIND = "resource-token.expired"
+# W275775 review 2026-09-27T03-12-19Z [C1]: AND THE THIRD ANSWER, WHICH TOK-9 NAMES.
+#
+# "Ambiguous timing means hold/reconcile." The reviewer's counterexample is exactly that
+# ambiguity: a request observed its deadline had passed, and before the decision could be
+# recorded the host clock moved BACKWARDS, so at the moment of writing the token was not
+# expired -- and a conditional write that simply declined left the caller refused and the
+# next attempt free to renew. Neither "expired" nor "live" is the truth there; the truth is
+# that this manager's timing cannot be trusted for this generation, and the honest outcome is
+# a durable HOLD rather than a guess in either direction.
+#
+# LIKE THE EXPIRY JUDGEMENT, IT IS A DECISION AND NOT A CONSEQUENCE: it frees nothing, returns
+# nothing and stops nothing. What it does is refuse further RENEWAL until the ambiguity is
+# reconciled, so a clock that went backwards cannot be used to buy time.
+TIMING_AMBIGUOUS_KIND = "resource-token.timing-ambiguous"
 
 
 def domain_of(resource_kind, identity):
@@ -119,6 +159,18 @@ def _revoked_id(domain, generation):
     return f"{REVOKED_KIND}:{domain}:{generation}"
 
 
+def _expired_id(domain, generation):
+    return f"{EXPIRED_KIND}:{domain}:{generation}"
+
+
+def _ambiguous_id(domain, generation):
+    return f"{TIMING_AMBIGUOUS_KIND}:{domain}:{generation}"
+
+
+def _renewed_id(domain, generation, revision):
+    return f"{RENEWED_KIND}:{domain}:{generation}:{revision}"
+
+
 def _returned_id(domain, generation):
     return f"{RETURNED_KIND}:{domain}:{generation}"
 
@@ -156,8 +208,34 @@ def outstanding(control, domain):
         generation += 1
 
 
+def _renewals_of(control, domain, generation):
+    """Every committed renewal of this generation, in revision order.
+
+    W275775. READ FROM THE JOURNAL BY DERIVED IDENTITY, like every other token fact:
+    revision 1 is the first renewal, and the walk stops at the first absent one, so a
+    record written under some other identity cannot lengthen a lifetime here.
+    """
+    found = []
+    revision = 1
+    while True:
+        document = _document(control, _renewed_id(domain, generation, revision),
+                             RENEWED_KIND)
+        if document is None:
+            return found
+        found.append(document)
+        revision += 1
+
+
 def token_of(control, domain, generation):
-    """This generation as it now stands: terms, launch, container and return."""
+    """This generation as it now stands: terms, launch, container and return.
+
+    W275775: AND ITS CURRENT DEADLINE, which is the acquisition's only until a renewal
+    moves it. This is the single place the effective deadline is composed, so `revoke`,
+    `_owning`, `Governance.overdue` and the conflict message all arbitrate against the
+    SAME current state rather than each against the acquisition -- which is what TOK-9
+    means by renewal and expiry competing against that state. A reader that kept the
+    acquisition's own `expires_at` would have made every renewal cosmetic.
+    """
     acquired = _document(control, _acquired_id(domain, generation), ACQUIRED_KIND)
     if acquired is None:
         return None
@@ -174,7 +252,34 @@ def token_of(control, domain, generation):
                         ACTIVATION_SETTLED_KIND)
     answer["activating"] = admitted is not None and settled is None
     answer["activation_started"] = None if settled is None else settled["started"]
-    answer["expired"] = control._now() >= acquired["expires_at"]
+    # W275775: THE RENEWED DEADLINE REPLACES THE ACQUIRED ONE, and the acquisition's is
+    # kept beside it rather than overwritten: a restart reconciling a token needs to know
+    # what it was granted originally as well as what it is owed now.
+    renewals = _renewals_of(control, domain, generation)
+    answer["acquired_expires_at"] = acquired["expires_at"]
+    answer["renewals"] = len(renewals)
+    answer["revision"] = len(renewals)
+    if renewals:
+        answer["expires_at"] = renewals[-1]["expires_at"]
+        answer["renewed_at"] = renewals[-1]["renewed_at"]
+    else:
+        answer["renewed_at"] = None
+    answer["renewals_remaining"] = max(0, RENEWAL_LIMIT - len(renewals))
+    # W275775 [P1]: A JUDGED EXPIRY IS STICKY, and this reader says so. Without the record
+    # this answered the arithmetic alone, so a clock that went backwards made a token that
+    # had already been judged expired look live again -- and a reader that contradicts an
+    # authoritative decision is how a caller talks itself into reviving one.
+    judged = _document(control, _expired_id(domain, generation), EXPIRED_KIND)
+    answer["expiry_judged_at"] = None if judged is None else judged["observed_at"]
+    answer["expired"] = judged is not None or control._now() >= answer["expires_at"]
+    # W275775 [C1]: AND WHETHER THIS MANAGER CAN SAY WHAT TIME IT IS for this generation. A
+    # reader that hid an ambiguity hold would let a caller believe a live token is simply
+    # live, when what actually stands is "held until somebody reconciles the timing".
+    unsure = _document(control, _ambiguous_id(domain, generation),
+                       TIMING_AMBIGUOUS_KIND)
+    answer["timing_ambiguous"] = unsure is not None
+    answer["timing_observed_at"] = None if unsure is None else unsure["observed_at"]
+    answer["timing_decided_at"] = None if unsure is None else unsure["decided_at"]
     answer["revoked"] = _document(control, _revoked_id(domain, generation),
                                   REVOKED_KIND) is not None
     return answer
@@ -282,7 +387,8 @@ def acquire(control, domain, *, operation, execution, attempt=None,
                 f"resource {name_value(domain)} is owned by token generation "
                 f"{held['generation']} (operation {name_value(held['operation'])}, "
                 f"execution {name_value(held['execution'])}, expires "
-                f"{name_value(held['expires_at'])}) and that token has not been "
+                f"{name_value(_deadline_of(control, domain, held['generation'], held))}) "
+                f"and that token has not been "
                 f"returned; an outstanding baton excludes every conflicting "
                 f"acquisition, and an expired one is revoked rather than replaced")
         if eligible is not None:
@@ -311,6 +417,180 @@ def acquire(control, domain, *, operation, execution, attempt=None,
             pass
         raise
     return document
+
+
+def renew(control, token, *, execution, operation, expected_revision,
+          seconds=LIFETIME_SECONDS):
+    """Extend THIS generation's deadline, once, against the state it names.
+
+    W275775, TOK-9: "The host MAY explicitly renew a still-unexpired, unrevoked token for
+    the same resource, generation, operation and execution under the selected bounded
+    policy. Renewal is an atomic conditional control-store decision with a durable
+    operation ID, expected deadline revision and recorded new deadline."
+
+    EXPLICIT, NOT IMPLICIT. There is no heartbeat here and no timer: a caller asks for an
+    extension and either gets exactly one or is refused. TOK-9's first paragraph is the
+    reason -- "Heartbeats report liveness; they do not implicitly extend a token" -- and the
+    shape of this function is that sentence: nothing about observing a live worker reaches
+    this code, and nothing here can be reached without asking.
+
+    `expected_revision` IS THE CONDITION, AND IT IS THE REVISION THE PUBLIC READER RETURNS.
+    W275775 review 2026-09-27T02-43-54Z: my first cut described the acquisition as revision 0
+    and then required a positive input, so a caller that did the obvious thing --
+    `renew(..., expected_revision=token_of(...)["revision"])` -- was refused on its very
+    first call, and prose and code held opposite conventions. They now hold one:
+    `expected_revision` IS `token_of(...)["revision"]`, the number of renewals this generation
+    has committed. An unrenewed generation stands at 0 and its first renewal is asked for with
+    0; the record that renewal writes is revision 1, which is what the reader then returns.
+
+    A caller that believes the deadline is older than it is names a revision that is already
+    committed, and `transact` answers THAT record rather than writing a new one -- so a retry
+    after a lost reply returns the extension that already happened instead of extending a
+    second time, which is TOK-9's "same-operation replay returns the recorded renewal without
+    extending again" and "a lost renewal reply grants nothing beyond the committed authority
+    state". A caller that names a revision further ahead than the state is refused: a renewal
+    cannot skip the state it claims to have observed.
+
+    WHAT IT CANNOT DO, and each is a refusal rather than a silent no-op:
+
+      * revive an EXPIRED generation. Once the deadline has passed, expiry has won and
+        TOK-9 is explicit that no late request revives it. THE REFUSAL ITSELF IS NOT
+        JOURNALLED -- no refused operation row is written and the request stays retryable --
+        but the EXPIRY it discovered is recorded, conditionally, by `_judge_expired`: see
+        `_judging`. W275775 review 2026-09-27T03-02-01Z asked for this sentence to be
+        corrected rather than left saying "non-durable" beside a judgement that commits. What
+        the record changes is only that the timing fact can no longer be argued with; the
+        resource stays exactly as held as it was, nothing is returned and nothing is
+        replaced.
+      * act on a REVOKED or RETURNED generation, for the same reason `_owning` refuses
+        every other late act on one.
+      * cross EXECUTION or OPERATION. Renewal is for "the same resource, generation,
+        operation and execution"; a different execution asking is not a renewal, it is a
+        second holder asking for somebody else's permission.
+      * exceed the bounded policy. `RENEWAL_LIMIT` is that bound, and its recorded
+        semantics are followed exactly: exhaustion does NOT free the resource, it means
+        this holder must finish or be revoked, so the refusal leaves the token held.
+      * create a writer or move a Job limit. This writes one record and touches nothing
+        else -- no lane, no attempt row, no allocation -- which is TOK-9's "It does not
+        create a new writer or reset Job execution limits".
+
+    ONE SHORT WRITE, NO EXTERNAL I/O. DB-1: the whole decision is database work inside one
+    `transact`, and the deadline is computed from the store's own clock rather than from
+    anything a caller supplied.
+    """
+    from .store import manager_signature
+
+    execution = boundaries.text(execution, "a token execution identity")
+    operation = boundaries.text(operation, "a token operation identity")
+    revision = _observed_revision(expected_revision)
+    domain = boundaries.text(token["domain"], "a governed conflict domain")
+    generation = token["generation"]
+    what = (f"renewing generation {generation} of {name_value(domain)}")
+    # THE OWNER, THE LIFECYCLE AND THE CURRENT DEADLINE, through the same gate every other
+    # late act passes: `_owning` re-reads the acquisition, refuses a revoked, returned or
+    # EXPIRED generation, and answers the committed record rather than the caller's copy.
+    # ONE GATE AROUND THE WHOLE ATTEMPT, so expiry found in the preflight and expiry found
+    # under the write lock have the SAME durable semantics -- see `_judging`.
+    return _judging(control, domain, generation,
+                    lambda: _extended(control, token, domain, generation, what,
+                                      execution, operation, revision, seconds, held=None))
+
+
+def _extended(control, token, domain, generation, what, execution, operation,
+              revision, seconds, held=None):
+    """The renewal attempt itself: every condition, then one conditional write.
+
+    Split out of `renew` so the expiry judgement can wrap the WHOLE attempt rather than only
+    its preflight -- W275775 review 2026-09-27T03-02-01Z asked for exactly that equivalence.
+    """
+    from .store import manager_signature
+
+    held = _owning(control, token, what)
+    if held["execution"] != execution or held["operation"] != operation:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"{what} was asked for execution {name_value(execution)} under operation "
+            f"{name_value(operation)}, and that generation was acquired by execution "
+            f"{name_value(held['execution'])} under {name_value(held['operation'])}; a "
+            f"renewal is for the same resource, generation, operation and execution, and "
+            f"anything else is a second holder asking for somebody else's permission")
+    standing = _renewals_of(control, domain, generation)
+    if revision > len(standing):
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what} names expected revision {revision} and this generation stands at "
+            f"{len(standing)}; a renewal cannot skip the state it claims to have observed")
+    # W275775 review 2026-09-27T02-43-54Z [P2]: A REPLAY IS NOT A NEW EXTENSION, AND THE
+    # BOUND APPLIES ONLY TO A NEW ONE.
+    #
+    # The probe found this exactly: revisions 1..4 committed, then the caller repeats its
+    # fourth request because it never saw the reply -- and the bound refused it before
+    # `transact` could answer the record that already exists. So the lost reply at the limit
+    # was the one lost reply that could not be recovered, which inverts TOK-9's "a lost
+    # renewal reply grants nothing beyond the committed authority state": it granted LESS
+    # than the committed state, by hiding it.
+    #
+    # `revision < len(standing)` is a request whose record is already committed: it spends
+    # no allowance, and `transact` answers it from the journal below. The bound is checked
+    # for a NEW extension only -- and again inside the write, where it cannot be stale.
+    renewing_anew = revision == len(standing)
+    if renewing_anew and len(standing) >= RENEWAL_LIMIT:
+        raise ContractRefusal(
+            "policy", "denied",
+            f"{what} is refused: this generation has been renewed {len(standing)} times and "
+            f"the bounded policy allows {RENEWAL_LIMIT}. Exhaustion does not free the "
+            f"resource -- the holder finishes or is revoked, and the resource stays held "
+            f"either way")
+    # THE NEW DEADLINE IS COMPOSED OUTSIDE THE LOCK, exactly where `acquire` composes its
+    # own and for the same recorded reason: DB-1 keeps non-database work out of the
+    # transaction, and this is arithmetic over the store's clock rather than a decision.
+    # What the transaction decides is whether this extension is ALLOWED -- the owner, the
+    # lifecycle, the current deadline and the revision are all re-proved under the write
+    # lock below -- so reading the instant here costs the serialization nothing.
+    taken = control._now()
+    # THE SIGNATURE COVERS THE REQUEST, NOT THE CLOCK, and this is Child A's correction
+    # applied rather than rediscovered: review 2026-09-26T13:41:00Z found `returned`
+    # stamping a fresh clock value into its SIGNED operands, so an exact replay changed its
+    # own signature and collided with itself. A renewal is the same shape -- the caller's
+    # request is the resource, generation, revision, operation, execution, owner and
+    # lifetime, and the instant is what this manager ANSWERS. So the clock-derived members
+    # ride the recorded document and a retry after a lost reply replays instead of colliding.
+    operands = {"version": TOKEN_VERSION, "domain": domain,
+                "generation": generation, "revision": revision + 1,
+                "operation": operation, "execution": execution,
+                "owner": held["owner"], "seconds": seconds}
+    document = dict(operands, renewed_at=taken,
+                    expires_at=boundaries.deadline(
+                        taken, seconds, "a renewed resource token expiry"))
+    identity = _renewed_id(domain, generation, revision + 1)
+    signature = manager_signature(RENEWED_KIND, operands)
+
+    def extend(connection):
+        """Reached ONLY when this identity has no committed record -- see `transact`."""
+        # RE-PROVED INSIDE THE WRITE, because everything above is a read and a read proves
+        # only its own instant. `transact` holds the write lock here, so a competing
+        # revocation or return that committed in between is seen NOW -- which is the
+        # serialization TOK-9's renewal-versus-expiry competition asks for, and the reason
+        # this is one transaction rather than a check followed by a write.
+        _owning(control, token, what)
+        current = _renewals_of(control, domain, generation)
+        if len(current) != revision:
+            raise ContractRefusal(
+                "refused", "operation-collision",
+                f"{what} was asked against revision {revision} and another renewal "
+                f"committed first; one revision has one renewal")
+        # AND THE BOUND, RE-PROVED WHERE IT CANNOT BE STALE. The read above happened before
+        # the write lock; this is the decision. A replay never reaches here at all.
+        if len(current) >= RENEWAL_LIMIT:
+            raise ContractRefusal(
+                "policy", "denied",
+                f"{what} is refused: this generation has been renewed {len(current)} times "
+                f"and the bounded policy allows {RENEWAL_LIMIT}. Exhaustion does not free "
+                f"the resource -- the holder finishes or is revoked, and the resource stays "
+                f"held either way")
+        return dict(document)
+
+    return control.transact(identity, RENEWED_KIND, signature, extend)
 
 
 def journal_launch(control, token, launch):
@@ -857,14 +1137,221 @@ def _owning(control, token, what, *, reclaiming=False):
             f"{what} for generation {token['generation']} of "
             f"{name_value(token['domain'])} is refused: that token has been returned, and "
             f"a returned generation authorizes nothing further")
-    if not reclaiming and control._now() >= held["expires_at"]:
+    # W275775: AGAINST THE CURRENT DEADLINE, WHICH A RENEWAL MAY HAVE MOVED.
+    #
+    # TOK-9: "Renewal and expiry compete against that same current state." This read the
+    # ACQUISITION's own `expires_at`, so once renewal existed a holder that had legitimately
+    # extended its deadline would still have been refused here at the original one -- the
+    # renewal would have granted nothing, which is the failure the requirement names from
+    # the other side. `_deadline_of` walks the committed renewals, so the fact this refuses
+    # on is the same one `token_of`, `revoke` and the conflict message see.
+    #
+    # AND THE COMMITTED RECORD IS WHAT DECIDES, never the caller's copy: the token document
+    # a caller holds carries the deadline it was given, and an extension it never learned
+    # about is still an extension. Nothing here trusts `token["expires_at"]`.
+    # W275775 review 2026-09-27T03-21-53Z [P1b]: ONE READ, NOT TWO. The deadline and the
+    # revision it came from are derived from the SAME list of committed renewals, because a
+    # pair read at two instants is a torn observation: the reviewer's probe renewed between
+    # the two reads, so the refusal carried an OLD deadline beside the NEW revision, and a
+    # correlation check comparing only the revision then accepted it and held a token whose
+    # real deadline had never passed.
+    standing = _renewals_of(control, token["domain"], token["generation"])
+    deadline = standing[-1]["expires_at"] if standing else held["expires_at"]
+    # W275775 [P1]: AND A JUDGEMENT ALREADY MADE OUTWEIGHS THE CLOCK. The record is
+    # consulted first because it cannot be un-made: a generation judged expired stays
+    # expired for every act this gate protects, whatever the clock says afterwards.
+    judged = _judged_expired(control, token["domain"], token["generation"])
+    # W275775 [C1]: AND A TIMING AMBIGUITY HOLDS TOO, for the same reason a judged expiry
+    # does: this manager cannot say what time it is for this generation, so it does not get
+    # to act on a guess. Settlement paths pass `reclaiming=True` and are unaffected.
+    unsure = _judged_ambiguous(control, token["domain"], token["generation"])
+    if not reclaiming and unsure is not None:
         raise ContractRefusal(
             "refused", "precondition",
             f"{what} for generation {token['generation']} of "
+            f"{name_value(token['domain'])} is refused: this manager's timing for that "
+            f"generation is AMBIGUOUS -- at {name_value(unsure['observed_at'])} it had "
+            f"passed {name_value(unsure['expires_at'])}, and the clock then read "
+            f"{name_value(unsure['decided_at'])}. Ambiguous timing is held and reconciled, "
+            f"never resolved by asking again")
+    now = control._now()
+    if not reclaiming and (judged is not None or now >= deadline):
+        refusal = ContractRefusal(
+            "refused", "precondition",
+            f"{what} for generation {token['generation']} of "
             f"{name_value(token['domain'])} is refused: that token expired at "
-            f"{name_value(held['expires_at'])}. Expiry begins revocation, and a late "
+            f"{name_value(deadline)}"
+            + ("" if judged is None else
+               f" and was judged expired at {name_value(judged['observed_at'])}")
+            + ". Expiry begins revocation, and a late "
             f"binding or return under an expired token is not an exception to it")
+        # THE OBSERVATION THIS DECISION WAS MADE ON, carried to whoever records it.
+        #
+        # W275775 review 2026-09-27T03-12-19Z [C1]: the recorder used to take a FRESH reading
+        # of the clock, so the window between deciding and recording was invisible to it --
+        # a clock that moved backwards in that window simply made the record decline. The
+        # deadline, the revision and the INSTANT this refusal rests on travel with it, so the
+        # recorder can correlate them against what stands and tell an overtaken observation
+        # (somebody renewed) from a moved clock (nobody did).
+        refusal.timing = {"expires_at": deadline, "observed_at": now,
+                          "revision": len(standing)}
+        raise refusal
     return held
+
+
+def _observed_revision(value):
+    """The revision a caller says it OBSERVED: exactly a whole number, zero included.
+
+    W275775 review 2026-09-27T02-43-54Z. `boundaries.generation` was the wrong owner here --
+    it requires a positive integer, and the first renewal of a generation is asked for
+    against the observed revision ZERO, which is what `token_of` answers for a token nobody
+    has renewed. Validated locally and typed, like the two other closed-vocabulary operands
+    this module owns, and witnessed in the boundary catalog rather than probed for a label.
+
+    BOOLEANS ARE NOT NUMBERS HERE. `True` is an `int` in Python and would otherwise read as
+    revision 1, which would let `renew(..., expected_revision=True)` replay somebody's first
+    renewal; the type is checked exactly.
+    """
+    if type(value) is not int or value < 0:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"an expected deadline revision is a whole number of committed renewals -- the "
+            f"value `token_of` answers as `revision`, zero for a generation nobody has "
+            f"renewed -- and {name_value(repr(value))} is not one")
+    return value
+
+
+def _judged_expired(control, domain, generation):
+    """The durable expiry judgement for this generation, or `None`."""
+    return _document(control, _expired_id(domain, generation), EXPIRED_KIND)
+
+
+def _judged_ambiguous(control, domain, generation):
+    """The durable timing-ambiguity hold for this generation, or `None`."""
+    return _document(control, _ambiguous_id(domain, generation),
+                     TIMING_AMBIGUOUS_KIND)
+
+
+def _judging(control, domain, generation, act):
+    """Run a renewal attempt, and record an expiry judgement if one is TRUE afterwards.
+
+    W275775 [P1], and the two things the reviewer asked this to stop doing.
+
+    NO MESSAGE MATCHING. My first cut inspected the refusal's text for "expired at" and only
+    then judged, which made a durable authority fact depend on prose. The refusal now CARRIES
+    the observation its decision rested on -- deadline, revision and instant -- and only an
+    expiry refusal carries one, so the typed operand selects the path and the prose is
+    irrelevant. W275775 review 2026-09-27T03-12-19Z asked for exactly that correlation.
+
+    AND EXPIRY FIRST DISCOVERED INSIDE THE TRANSACTION GETS THE SAME SEMANTICS. `renew`
+    re-proves ownership under the write lock, so expiry can be found there too -- and a write
+    made inside that transaction would be rolled back with it. So the judgement is attempted
+    around the WHOLE attempt, after any transaction has unwound, in its own short write.
+    Never nested, and never a lock held across anything external.
+
+    A RENEWAL THAT SUCCEEDS JUDGES NOTHING: it just moved the deadline, so the condition
+    cannot hold. Only the refusal path asks.
+    """
+    try:
+        return act()
+    except ContractRefusal as refusal:
+        observed = getattr(refusal, "timing", None)
+        if observed is not None:
+            _judge_expired(control, domain, generation, observed)
+        raise
+
+
+def _judge_expired(control, domain, generation, observed):
+    """Classify this generation's timing ONCE, on ONE snapshot, and record the answer.
+
+    W275775 review 2026-09-27T03-21-53Z [P1a]. My previous cut made two decisions in two
+    transactions -- "is it expired?" then "did the clock move backwards?" -- each reading its
+    own snapshot, and the reviewer scheduled a clock that made BOTH decline: no expiry record,
+    no ambiguity record, and the next attempt renewed. Two conditional writes are not an
+    exhaustive decision, however carefully each one is written.
+
+    SO THERE IS ONE TRANSACTION AND IT ALWAYS DECIDES. It takes the write lock, reads the
+    acquisition, the committed renewals, the deadline they imply and the instant ONCE, and
+    classifies:
+
+      * THE OBSERVATION DOES NOT CORRELATE -- a different revision or a different deadline
+        than what stands. Then it was overtaken (somebody renewed) and it is not about this
+        state at all: nothing is recorded, and the caller's own refusal remains its own
+        business. This is the earlier stale-observation correction, kept exactly.
+      * IT CORRELATES AND THE DEADLINE HAS PASSED -> EXPIRED is recorded. Authoritative.
+      * IT CORRELATES AND THE DEADLINE HAS NOT PASSED -> the observation that refused and the
+        state that stands disagree about the time, with no renewal in between. That is TOK-9's
+        ambiguous timing, and AMBIGUOUS is recorded. It covers the clock moving backwards
+        between the observation and this decision, and it covers any other disagreement of
+        this manager's own clock with itself: the branch is the ELSE, so a correlated
+        observation can never leave both records absent.
+
+    ONE SHORT WRITE, ITS OWN LOCK, NOTHING NESTED AND NO EXTERNAL I/O -- the same shape
+    `acquire` uses, for the same DB-1 reason. A record already committed under either identity
+    is answered instead of written, so a second judgement replays the first.
+    """
+    from .store import _recorded, manager_signature
+
+    operands = {"version": TOKEN_VERSION, "domain": domain, "generation": generation}
+    expired_at_id = _expired_id(domain, generation)
+    ambiguous_at_id = _ambiguous_id(domain, generation)
+    connection = control._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        # A DECISION ALREADY MADE IS THE ANSWER. Read inside the lock, so a concurrent
+        # judgement cannot be half-visible.
+        for identity, kind in ((expired_at_id, EXPIRED_KIND),
+                               (ambiguous_at_id, TIMING_AMBIGUOUS_KIND)):
+            standing = _document(control, identity, kind)
+            if standing is not None:
+                connection.execute("COMMIT")
+                return standing
+        acquired = _document(control, _acquired_id(domain, generation), ACQUIRED_KIND)
+        renewals = _renewals_of(control, domain, generation)
+        deadline = (renewals[-1]["expires_at"] if renewals
+                    else (acquired or {}).get("expires_at"))
+        revision = len(renewals)
+        now = control._now()
+        if acquired is None or revision != observed["revision"] \
+                or deadline != observed["expires_at"]:
+            # OVERTAKEN, OR ABOUT NOTHING. No record: this observation is not about the state
+            # that stands, and a durable claim from it would be exactly the defect the
+            # previous correction closed.
+            connection.execute("COMMIT")
+            return None
+        if now >= deadline:
+            identity, kind = expired_at_id, EXPIRED_KIND
+        else:
+            identity, kind = ambiguous_at_id, TIMING_AMBIGUOUS_KIND
+        document = {"version": TOKEN_VERSION, "domain": domain,
+                    "generation": generation, "expires_at": deadline,
+                    "revision": revision,
+                    "observed_at": observed["observed_at"], "decided_at": now}
+        control._record(identity, kind, manager_signature(kind, operands),
+                        "committed", _recorded(document), None)
+        connection.execute("COMMIT")
+        return document
+    except BaseException:
+        try:
+            connection.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+
+
+def _deadline_of(control, domain, generation, acquired=None):
+    """The deadline this generation is owed NOW: its last renewal's, or its own.
+
+    W275775. ONE DERIVATION, used by every act that arbitrates against the deadline, so
+    "renewal and expiry compete against that same current state" is a property of one
+    function rather than an agreement between several readers.
+    """
+    if acquired is None:
+        acquired = _document(control, _acquired_id(domain, generation), ACQUIRED_KIND)
+        if acquired is None:
+            return None
+    renewals = _renewals_of(control, domain, generation)
+    return renewals[-1]["expires_at"] if renewals else acquired["expires_at"]
 
 
 # -- the consumer's side: one governed start, composed once -------------------

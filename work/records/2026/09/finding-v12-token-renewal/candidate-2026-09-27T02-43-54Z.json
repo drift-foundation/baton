@@ -1,0 +1,36 @@
+{
+  "work": "W275775",
+  "claim": 281381,
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "239151a039b8a609347cdd73e97d181213fede1f2821a5d01ee5a9768c975934",
+      "bytes": 61178
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "adea8046a8f9bb3935cb6d7fdf087081206bf2f23c89bd17724bc699e064d9f3",
+      "bytes": 73955
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "10b1851d3ff03953d202a8f3a5906317e11e2d03c1625e2b4a18a567fe220a78",
+      "bytes": 828747
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "b3a218f0968830ebdb714882cd7eebb253a43199e46eba32347dc9f74aedd4f0",
+      "bytes": 60818
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/test_renewal_arbitration.py",
+      "sha256": "032b2f6fc4a25ed32adfaa7c542a1fdd1eb6958d13695cddb6e31da5db863ec7",
+      "bytes": 19001
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_renewal_edges_20260927.py",
+      "sha256": "44bba093c9b9ca350e35c9e0ffb7a34588f5252ecad61b6460cb3ff458093738",
+      "bytes": 1277
+    }
+  ]
+}

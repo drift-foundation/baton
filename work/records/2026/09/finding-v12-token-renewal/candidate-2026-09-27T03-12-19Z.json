@@ -1,0 +1,26 @@
+{
+  "work": "W275775",
+  "claim": 281582,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "8058324e49c9457eae7a438c767df918f118f7f56b25a067541fa3068e4909f0"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "ddb3bf093e79200166693f6679795ca80ae8625d89dc12d31169c11576a0e6fc"
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "b3a218f0968830ebdb714882cd7eebb253a43199e46eba32347dc9f74aedd4f0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/test_renewal_arbitration.py",
+      "sha256": "b8d85b151196d13cacb7f806756ffcbc0518f74fafd9bdc88831136674fe9eb8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-token-renewal/review_expiry_clock_gap_20260927.py",
+      "sha256": "7ee014f075d4651d4aa9e33f0cd348352ded070fd1e6da7ea7803b6202a8b1a7"
+    }
+  ]
+}
