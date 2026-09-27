@@ -85,3 +85,10 @@ R1/R2/R3 behavior complete for selected facility. Direct inventory reports574 un
 new maintenance_failure operands control/ordinal/which lack ownership/delegation. Exact
 three-entry witness correction remains before final digest acceptance;571 inherited debt
 not waived. No new product behavior or policy selected. Discussion through285661.
+
+
+## 2026-09-27T14-48-27Z — bounded facility independently accepted
+
+Claim286381, handoff286373, T285463 through286387. Final review [review-2026-09-27T14-48-27Z.md](review-2026-09-27T14-48-27Z.md) and matching candidate-2026-09-27T14-48-27Z.json accept the seven-path facility candidate. Sole catalog correction complete: two reader witnesses PASS0.006s, direct inventory571 unowned/zero maintenance-owned. Prior accepted product and maintenance-test bytes unchanged. Preserve functional evidence, historical superseded probe and R4 incident; no whole-catalog green claim. W285464 connected handoff and W285465 restart/integrated acceptance remain outstanding under existing graph.
+
+Human WIP checkpoint now independently observed at56431e14dffbf145d9ae62a59b0aa7611df5d6a7 perT286387 and read-only git log; this supersedes prior due/unobserved wording. Recovery snapshot only, not independent acceptance or proof subsequent dossier edits are committed. Owner disposition next; no new implementation, scope, live execution or Git authority.
