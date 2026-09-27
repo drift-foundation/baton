@@ -1,0 +1,102 @@
+{
+  "work": "W285464",
+  "claim": 287022,
+  "verdict": "correction and continuation; not accepted",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+      "sha256": "5221fd9f595c828c9b69a12be86a95a11fcac6f4c23bd9c36d104c54c0f5bc43",
+      "bytes": 83463
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "feaacf66eec7ec62da66e4013c521156e7040f157677b45b3db94c073220725c",
+      "bytes": 317893
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "sha256": "2f88554e782d8ee1aab0a9a4aadb6840025c21fd87973d55bd0bb6872164cf8a",
+      "bytes": 139390
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "6810a8c4ccfabdab38ae31dbcb9937a941858e135faced7f78003a7ea68abf41",
+      "bytes": 235894
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+      "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "bytes": 51321
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "864265690c7e5eb0fad8c4afa862b3d7e6815b6bf01fe4b0fd2016fb60412e72",
+      "bytes": 212243
+    },
+    {
+      "path": "v12/python/tests/manager/test_maintenance.py",
+      "sha256": "126e25ddfb8faac3064c735adffafbdd69104a970ad08c6300e1f2d65b9b1f4f",
+      "bytes": 88396
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "762ce8c8d5c8535b3cc359e026b061513351d9c5d7a4c01c4fe4e522d003ce13",
+      "bytes": 849570
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "59a53a3a4a28f8996f3747c49bdc24ecdc972dc1f6d3a4ae76beb23cf748db1b",
+      "bytes": 61564
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "ff4a0ed9c5dd0a1392803b7af0c04fea255c5125f5cae0fac3e21ff8c8b7471d",
+      "bytes": 242617
+    },
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "cfbfbb3b320d3b74c09a44b2e3709741c7bc06fba02a618d8ca93b7779096ad4",
+      "bytes": 62486
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff/FINDING.md",
+      "sha256": "2764516317e1cd7b7746b45bb50cd5c92201dfe4fe55a5b354c6e0e875128b01",
+      "bytes": 11581
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff/PLAN.md",
+      "sha256": "a4c53ccb7fe9789c89e6f9f67b839554db67e0f3918070781b7d67ee863bc929",
+      "bytes": 3842
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff/PROGRESS.md",
+      "sha256": "cdd53eb662abd507faf846c80c93084bd81cfd8aee202652d130661571c62375",
+      "bytes": 32633
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff/review_mount_scope_20260927.py",
+      "sha256": "41d80b0e109806ede1152829abd88592a5d0b6f841647789f39f00c356ea44d4",
+      "bytes": 1198
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff/review_host_allocation_20260927.py",
+      "sha256": "2d643e9b9966417eceab423ee78b025096650c66bf6a62405e72f72c31a3b527",
+      "bytes": 805
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff/OWNER-ISOLATION-20260927.md",
+      "sha256": "32a11a2840f47adc59d7daebb7305e35a2d8675d9795702cf07721819cb48c68",
+      "bytes": 1381
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff/review-2026-09-27T16-13-26Z.md",
+      "sha256": "26c9d56b254c71a7bafddb1b0142100f9d607bbab0614bd3bba4e75edbc84b60",
+      "bytes": 4546
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-handoff/review_staging_exclusion_20260927.py",
+      "sha256": "1f402bf948f99be01300784f4b13057a89d3c0dcff6bcc9fc2faf9bd50e4709c",
+      "bytes": 1708
+    }
+  ]
+}

@@ -1989,6 +1989,47 @@ SELECTOR_OWNER = (
 _MAINTENANCE_STORE = "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs"
 _MAINTENANCE_ORDINAL = "the ordinal of ONE durable maintenance window, which this journal itself assigned; the record identity is DERIVED from it, so a value naming no window answers absence rather than selecting another attempt's record"
 
+_PREPARATION_STORE = "the injected control-store capability: not a caller document to validate but a capability proven by use, reached only through its own owner APIs"
+_PREPARATION_ROOTS = "the roots THIS manager's own `assignment_workspace` answered, carried to be RE-READ: `require_prepared` lstats each entry and compares it against the durable record, so a caller substituting another mapping is refused by the comparison rather than trusted by it"
+
+PREPARATION_OWNERS = {
+    # W285464, owner-amended TOK-7 (2026-09-27): the host preparation account and
+    # its admission gate. `control` is the same injected capability every
+    # journal-owning entry in this build takes; `roots` and its two members are the
+    # allocated mapping, and the gate's whole job is to distrust them -- it reads
+    # the objects and refuses a mismatch, which is why there is nothing here for a
+    # document validator to own; `published` names the documents the preparation
+    # wrote, recorded as evidence and never read back as authority; and `what` is
+    # the act's own description, used only inside refusal text.
+    # W285464 review 2026-09-27T16-13-26Z: and the PREPARATION OWNERSHIP window that
+    # spans every staging writer. `preparing` is the ACTING preparation's own ordinal,
+    # answered by `admit_preparation` in the same act -- it can only EXEMPT the window
+    # it names, so a wrong or absent value refuses the act rather than widening it.
+    ("caller", "workspaces.py:admit_preparation", "control"): _PREPARATION_STORE,
+    ("caller", "workspaces.py:standing_preparation", "control"): _PREPARATION_STORE,
+    ("caller", "workspaces.py:standing_preparation", "assignment_id"):
+        "the attempt this window reader is asked about; the record identity is DERIVED from it, so a value naming no window answers absence rather than reaching another attempt's",
+    ("caller", "workspaces.py:admit_preparation", "what"):
+        "the acting caller's own description of its act, used only inside this admission's refusal text -- it selects nothing and reaches no resource",
+    ("caller", "workspaces.py:refuse_if_held", "preparing"):
+        "the acting preparation's OWN ordinal; it can only exempt the window it names, so a wrong or absent value makes this stricter rather than weaker",
+    ("caller", "workspaces.py:assignment_workspace", "preparing"):
+        "the acting preparation's OWN ordinal, forwarded to the admission and the chokepoint; it can only exempt the window it names, so a wrong or absent value makes allocation stricter rather than weaker",
+    ("caller", "workspaces.py:preparation_completed", "control"): _PREPARATION_STORE,
+    ("caller", "workspaces.py:record_preparation", "control"): _PREPARATION_STORE,
+    ("caller", "workspaces.py:require_prepared", "control"): _PREPARATION_STORE,
+    ("caller", "workspaces.py:record_preparation", "roots"): _PREPARATION_ROOTS,
+    ("caller", "workspaces.py:record_preparation", "roots.inputs"): _PREPARATION_ROOTS,
+    ("caller", "workspaces.py:record_preparation", "roots.workspace"): _PREPARATION_ROOTS,
+    ("caller", "workspaces.py:require_prepared", "roots"): _PREPARATION_ROOTS,
+    ("caller", "workspaces.py:require_prepared", "roots.inputs"): _PREPARATION_ROOTS,
+    ("caller", "workspaces.py:require_prepared", "roots.workspace"): _PREPARATION_ROOTS,
+    ("caller", "workspaces.py:record_preparation", "published"):
+        "the names this preparation published, recorded as EVIDENCE in the durable account and never read back as authority; nothing is decided from them, so there is no rule for a boundary to own",
+    ("caller", "workspaces.py:require_prepared", "what"):
+        "the acting caller's own description of its act, used only inside this gate's refusal text -- it selects nothing and reaches no resource",
+}
+
 MAINTENANCE_OWNERS = {
     # W285463 review R1/R3: the durable window readers. `control` is the same
     # injected capability every journal-owning entry in this build takes, and
@@ -2195,6 +2236,7 @@ STATED_OWNERS = {
     **DEADLINE_OWNERS,
     **TOKEN_OWNERS,
     **MAINTENANCE_OWNERS,
+    **PREPARATION_OWNERS,
     ("adopted", "review_cycles.py:consumption_subject", "line_writers"):
         "exactly one active row for the caller attempt/generation; its sole projected identity is forwarded to writer_of",
     ("caller", "workspaces.py:AllocatedRoots.__init__", "_line"):
@@ -3355,33 +3397,26 @@ DELEGATED = {
     ("caller", "maintenance.py:prepare", "operation"):
         ("maintenance.py:check_preparation", "caller:operation"),
     ("caller", "maintenance.py:prepare", "which"):
-        ("maintenance.py:check_maintenance_root", "caller:which"),
+        ("custody.py:check_custody_root", "caller:which"),
     ("caller", "maintenance.py:prepare", "assignment_id"):
-        ("maintenance.py:_mounted_root", "caller:assignment_id"),
+        ("custody.py:_derived_root", "caller:assignment_id"),
     ("caller", "maintenance.py:prepare", "image_digest"):
         ("maintenance.py:_create_vector", "caller:image_digest"),
     ("caller", "maintenance.py:prepare", "engine"):
         ("oci.py:_engine", "caller:engine"),
     ("caller", "maintenance.py:prepare", "run"):
         ("oci.py:EnginePort.__init__", "caller:run"),
-    # W285463 review R1/R3: the durable-window readers. Their root kind is owned by
-    # the same closed-set check the act itself delegates to, which is what keeps one
-    # rule in one place across five entries.
-    #
-    # W285464: THAT OWNER MOVED, and the declaration moved with it. The facility
-    # gained a third root -- the configured STORAGE an allocation mounts before the
-    # attempt's own roots exist -- so the check is `maintenance.check_maintenance_root`
-    # rather than custody's two-member pair, which is deliberately unwidened. A
-    # declaration naming the old owner would resolve (that function still exists and
-    # still carries a label) while being untrue about what this entry reaches.
+    # W285463 review R1/R3: the three durable-window readers. Their root kind is
+    # owned by the same closed-pair check the act itself delegates to, which is
+    # what keeps one rule in one place across four entries.
     ("caller", "maintenance.py:standing_maintenance", "which"):
-        ("maintenance.py:check_maintenance_root", "caller:which"),
+        ("custody.py:check_custody_root", "caller:which"),
     ("caller", "maintenance.py:maintenance_settlement", "which"):
-        ("maintenance.py:check_maintenance_root", "caller:which"),
+        ("custody.py:check_custody_root", "caller:which"),
     ("caller", "maintenance.py:maintenance_orphan", "which"):
-        ("maintenance.py:check_maintenance_root", "caller:which"),
+        ("custody.py:check_custody_root", "caller:which"),
     ("caller", "maintenance.py:maintenance_failure", "which"):
-        ("maintenance.py:check_maintenance_root", "caller:which"),
+        ("custody.py:check_custody_root", "caller:which"),
     ("caller", "oci.py:OciAdapter.__init__", "engine"):
         ("oci.py:_engine", "caller:engine"),
     ("caller", "oci.py:run_vector", "labels"):
@@ -9413,6 +9448,40 @@ WITNESSES = {
     **TOKEN_WITNESSES,
     ("caller", "maintenance.py:prepare", "seconds"):
         "test_a_maintenance_allowance_may_only_lower_this_modules_bound",
+    ('caller', 'workspaces.py:preparation_completed', 'control'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:record_preparation', 'control'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:require_prepared', 'control'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:record_preparation', 'roots'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:record_preparation', 'roots.inputs'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:record_preparation', 'roots.workspace'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:require_prepared', 'roots'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:require_prepared', 'roots.inputs'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:require_prepared', 'roots.workspace'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:record_preparation', 'published'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:require_prepared', 'what'):
+        "test_the_preparation_gate_distrusts_the_roots_it_is_handed",
+    ('caller', 'workspaces.py:admit_preparation', 'control'):
+        "test_the_preparation_window_only_exempts_the_act_that_owns_it",
+    ('caller', 'workspaces.py:standing_preparation', 'control'):
+        "test_the_preparation_window_only_exempts_the_act_that_owns_it",
+    ('caller', 'workspaces.py:standing_preparation', 'assignment_id'):
+        "test_the_preparation_window_only_exempts_the_act_that_owns_it",
+    ('caller', 'workspaces.py:admit_preparation', 'what'):
+        "test_the_preparation_window_only_exempts_the_act_that_owns_it",
+    ('caller', 'workspaces.py:refuse_if_held', 'preparing'):
+        "test_the_preparation_window_only_exempts_the_act_that_owns_it",
+    ('caller', 'workspaces.py:assignment_workspace', 'preparing'):
+        "test_the_preparation_window_only_exempts_the_act_that_owns_it",
     ("caller", "maintenance.py:standing_maintenance", "control"):
         "test_a_maintenance_window_reader_is_a_capability_proven_by_use",
     ("caller", "maintenance.py:maintenance_settlement", "control"):
@@ -10083,15 +10152,87 @@ class StatedRules(BoundaryCase):
             self.store, "attempt-1", "workspace"), [])
         # AND THE ROOT KIND IS THE CLOSED PAIR'S, at this reader as at its siblings:
         # a value that names no root selects nothing rather than reaching one.
-        # W285464: the closed set gained `home` for the allocation, so the examples
-        # of a value that names NO root changed with it -- `storage` was the name I
-        # first chose for that root and is deliberately not one. Measured: leaving
-        # `home` here turned this witness into an assertion that a real root refuses.
-        for wrong in ("storage", "", "workspace/result", None):
+        for wrong in ("home", "", "workspace/result", None):
             with self.subTest(root=wrong):
                 with self.assertRaises(ContractRefusal):
                     maintenance.maintenance_failure(self.store, "attempt-1",
                                                     wrong, 1)
+
+    def test_the_preparation_window_only_exempts_the_act_that_owns_it(self):
+        """WITNESS: the preparation ownership window and its exemption.
+
+        W285464. The window spans every staging writer, so the act that HOLDS it
+        must allocate through it while everybody else is refused. Both sides are
+        driven, plus the reader's own operands: a wrong ordinal makes the act
+        stricter rather than weaker, an attempt with no window reads absence, and
+        the store is a capability proven by use.
+        """
+        import sqlite3
+        from baton_v12.worker_manager import workspaces
+
+        storage = os.path.join(self.root, "preparation-window-storage")
+        os.makedirs(storage)
+        workspaces.configure_workspace_storage(self.store, storage)
+        ordinal = workspaces.admit_preparation(self.store, "attempt-1",
+                                              "preparing these roots")
+        self.assertEqual(ordinal, 1)
+        workspaces.refuse_if_held(self.store, storage, "attempt-1",
+                                  "its own allocation", preparing=ordinal)
+        for wrong in (None, 2, 0):
+            with self.subTest(preparing=wrong):
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.refuse_if_held(self.store, storage, "attempt-1",
+                                              "somebody else's act",
+                                              preparing=wrong)
+                self.assertIn("host preparation 1", str(refused.exception))
+        self.assertEqual(workspaces.standing_preparation(self.store,
+                                                        "attempt-elsewhere"), [])
+        self.store._connection.close()
+        with self.assertRaises(sqlite3.ProgrammingError):
+            workspaces.standing_preparation(self.store, "attempt-1")
+
+    def test_the_preparation_gate_distrusts_the_roots_it_is_handed(self):
+        """WITNESS: the host-preparation account and its admission gate.
+
+        W285464 under the owner's amended TOK-7. Three properties, each exercised
+        here rather than described: the store is a CAPABILITY (a closed connection
+        fails as one), the gate READS the objects rather than trusting the mapping
+        it was handed, and an absent account refuses.
+        """
+        import sqlite3
+        from baton_v12.worker_manager import workspaces
+
+        storage = os.path.join(self.root, "preparation-storage")
+        os.makedirs(os.path.join(storage, "attempt-1", "inputs"))
+        os.makedirs(os.path.join(storage, "attempt-1", "workspace"))
+        roots = {"inputs": os.path.join(storage, "attempt-1", "inputs"),
+                 "workspace": os.path.join(storage, "attempt-1", "workspace")}
+        # AN ABSENT ACCOUNT REFUSES, which is the gate's first question.
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.require_prepared(self.store, "attempt-1", roots,
+                                        "starting this attempt")
+        self.assertIn("recorded no completed host preparation",
+                      str(refused.exception))
+        # RECORDED, THEN THE SAME OBJECTS PASS...
+        workspaces.record_preparation(self.store, "attempt-1", roots,
+                                     ("task.json",))
+        self.assertEqual(
+            workspaces.require_prepared(self.store, "attempt-1", roots,
+                                        "starting this attempt")["attempt_id"],
+            "attempt-1")
+        # ...AND A SUBSTITUTED MAPPING DOES NOT: the entries are re-read.
+        other = os.path.join(self.root, "substituted-workspace")
+        os.makedirs(other)
+        with self.assertRaises(ContractRefusal) as swapped:
+            workspaces.require_prepared(self.store, "attempt-1",
+                                        dict(roots, workspace=other),
+                                        "starting this attempt")
+        self.assertIn("is not the resource that was prepared",
+                      str(swapped.exception))
+        # AND THE STORE IS PROVEN BY USE.
+        self.store._connection.close()
+        with self.assertRaises(sqlite3.ProgrammingError):
+            workspaces.preparation_completed(self.store, "attempt-1")
 
     def test_a_maintenance_allowance_may_only_lower_this_modules_bound(self):
         """WITNESS: the preparation allowance, exercised at both directions.

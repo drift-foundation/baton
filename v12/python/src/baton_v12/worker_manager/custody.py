@@ -1951,9 +1951,7 @@ def _claim_episode(store, assignment_id, which, operation, image_digest,
         # material the other contains.
         from . import maintenance
 
-        # EVERY ROOT A PREPARATION CAN HOLD, including the configured storage a
-        # W285464 allocation mounts before this attempt's own roots exist.
-        for root in maintenance.MAINTENANCE_ROOTS:
+        for root in CUSTODY_ROOTS:
             for ordinal, record in maintenance.standing_maintenance(
                     store, assignment_id, root):
                 held = record["result"]

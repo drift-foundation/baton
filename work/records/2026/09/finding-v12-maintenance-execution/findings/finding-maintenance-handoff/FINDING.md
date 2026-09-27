@@ -99,3 +99,24 @@ W285463 acceptance and useful maintenance machinery for remaining governed acts.
 No graph changes, closure, live execution or deployment are selected. Routine
 implementation/corrections continue directly; independent acceptance remains
 required. Recorded by baton.prompt from explicit owner decisions.
+
+
+## 2026-09-27T15-47-25Z — withdrawal verified; revised host model executable
+
+Claim286843, owner reroute286782, handoff286841; discussion through286584. review-2026-09-27T15-47-25Z.md verifies restoration: six accepted facility candidate paths exact; maintenance.py differs only by a blank line after embedded program place assignment, independently compared to digest-matching human checkpoint56431e14. Maintenance79PASS1.130s. No unknown behavioral residue or new owner gate.
+
+Old host-mkdir and maintenance-allocation probes are historical and now import a removed class; their requirements are superseded for initial preparation by the owner ruling above. No change to later cleanup/custody/recovery rules. Current H1–H9 now require exclusive host preparation, durable completion, conditional identity-revalidated admission, and no launch/reuse while writers remain unfinished or uncertain. Existing host path still needs implementation/proof; child not accepted. Continue directly to impl.
+
+
+## 2026-09-27T16-13-26Z — completion record partial; staging exclusion fails
+
+Claim287022, handoff287015; discussion through286584. See review-2026-09-27T16-13-26Z.md and matching manifest. Five new tests PASS0.287s; reached compose_input_root interleaving admits removal while staging can still write (final probe1FAIL0.067s, first harness failure0.068s). A late start refusal is not whole-preparation ownership. Correct existing H3/H6/H7 exclusion; preserve partial receipt/identity evidence.
+
+Separate incident: author reports forbidden test_input_delivery live suite once,22 errors/failures. Exact command/time/process/resources and uncertainty checkpoint requested without rerun or broad daemon history. Insertion-only code does not alone prove failure causality. Pin explicit deterministic selector preflight. Routine correction to impl; child unaccepted, no graph/owner gate.
+
+
+## 2026-09-27T16-41-41Z — finite preparation ownership gaps
+
+Claim287218, handoff287214; thread through286584. review-2026-09-27T16-41-41Z.md preserves staging-removal PASS0.103s and seven new tests PASS0.353s. Independent three-case matrix FAIL0.021s: allocation-first permits preparation, preparation-first permits custody, and unfinished preparation is blindly adopted by a second execution. HOST-8 is not per-execution cessation evidence. Prior author R1-closed and unconditional-adoption assertions are not accepted. Complete reciprocal matrix and conditional task transition under existing scope; no new owner gate.
+
+Input-delivery incident checkpoint retained with reported process completion and exact command; cause/time/resource residue unknown where not evidenced. No rerun, daemon history sweep or cleanup selected. Test selector preflight must cover changed previously-run modules too. Child unaccepted, prior narrow evidence preserved.

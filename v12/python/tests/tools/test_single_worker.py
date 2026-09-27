@@ -465,6 +465,340 @@ class SingleWorkerCase(unittest.TestCase):
         self.fail("the one-worker pipeline did not reach a commanded worker")
 
 
+class TheHostPreparationIsAccountedForBeforeAnyTaskStart(SingleWorkerCase):
+    """W285464 under the owner's amended TOK-7 (2026-09-27).
+
+    The Host manager may now allocate, stage, publish and set initial permissions
+    itself. What came with that permission is what these cases drive: the host must
+    DURABLY RECORD that its preparation finished, must REVALIDATE the prepared
+    objects before the task is admitted, and must not launch while any host writer
+    could still be finishing. A deadline proves none of it.
+
+    H1 and H7 in part, and H4 and H6 at this seam; the composed fixture is the real
+    ordinary no-context/no-review path with a fake engine.
+    """
+
+    def prepared_record(self, control, attempt_id):
+        from baton_v12.worker_manager import workspaces
+        return workspaces.preparation_completed(control, attempt_id)
+
+    def test_the_finished_preparation_is_recorded_and_names_what_it_prepared(self):
+        """H1: the durable account exists, and it describes the objects the task is
+        started over rather than merely saying something happened."""
+        from baton_v12.worker_manager import attempts as manager_attempts
+        from baton_v12.worker_manager import tokens
+
+        engine = Engine()
+        job, control = self.stores("prepared-record")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        projected = self.commanded(job, operations)
+        stage = projected["jobs"][0]["stages"][0]
+        attempt_id = stage["attempt_id"]
+        self.assertEqual(len(engine.starts), 1)
+        recorded = self.prepared_record(control, attempt_id)
+        self.assertIsNotNone(recorded, "no durable preparation account was written")
+        self.assertEqual(recorded["attempt_id"], attempt_id)
+        self.assertIn("task.json", recorded["published"])
+        # THE WORKSPACE IT RECORDS IS THE OBJECT THE TASK'S OWN TOKEN CONTENDS FOR,
+        # compared through the attempt row rather than through this record.
+        attempt = manager_attempts._require_attempt(control, attempt_id)
+        self.assertEqual(recorded["workspace"],
+                         tokens.workspace_identity(attempt))
+        self.assertNotEqual(recorded["inputs"], recorded["workspace"])
+        operations.close()
+
+    def test_no_task_starts_while_a_host_writer_could_still_finish(self):
+        """H6: an admitted allocation with no completion means somebody may still
+        be writing, and a deadline says nothing about that.
+
+        The window is committed through the owner's own API before the worker
+        reaches its start gate, so what refuses is the gate rather than a fixture.
+        """
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores("writer-still-open")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        projected = self.commanded(job, operations)
+        stage = projected["jobs"][0]["stages"][0]
+        attempt_id = stage["attempt_id"]
+        roots = workspaces.assignment_workspace(
+            workspaces.configured_workspace_group(control), self.storage,
+            attempt_id, control=control)
+        workspaces._admitted_allocation(control, attempt_id, "a second allocation")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.require_prepared(control, attempt_id, roots,
+                                        "starting this attempt's runtime")
+        self.assertIn("may still be finishing", str(refused.exception))
+        self.assertIn("allocation", str(refused.exception))
+        operations.close()
+
+    def test_no_task_starts_when_nothing_recorded_the_preparation(self):
+        """H6: absent account, no launch -- the honest state of an interrupted
+        preparation on the tick that follows it."""
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores("nothing-recorded")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        projected = self.commanded(job, operations)
+        attempt_id = projected["jobs"][0]["stages"][0]["attempt_id"]
+        roots = workspaces.assignment_workspace(
+            workspaces.configured_workspace_group(control), self.storage,
+            "attempt-never-prepared", control=control)
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.require_prepared(control, "attempt-never-prepared", roots,
+                                        "starting this attempt's runtime")
+        self.assertIn("recorded no completed host preparation",
+                      str(refused.exception))
+        self.assertIn("UNKNOWN", str(refused.exception))
+        operations.close()
+
+    def test_a_replaced_prepared_root_refuses_before_any_task_is_created(self):
+        """H4: the objects are compared, not the record with itself.
+
+        The workspace this preparation completed over is moved aside and another
+        directory put at the same path -- same characters, different inode.
+        """
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores("replaced-root")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        projected = self.commanded(job, operations)
+        stage = projected["jobs"][0]["stages"][0]
+        attempt_id = stage["attempt_id"]
+        recorded = self.prepared_record(control, attempt_id)
+        self.assertIsNotNone(recorded)
+        roots = {"inputs": os.path.join(self.storage, attempt_id, "inputs"),
+                 "workspace": os.path.join(self.storage, attempt_id, "workspace")}
+        # STILL THE SAME OBJECTS: the gate passes before anything is replaced.
+        workspaces.require_prepared(control, attempt_id, roots,
+                                    "starting this attempt's runtime")
+        # THE ROOT CANNOT BE RENAMED INSIDE THE HOME, and that is itself evidence
+        # the freeze happened: `compose_input_root` closes the home at `0555`, so
+        # `os.rename` is EPERM -- measured, when I first wrote this case that way.
+        # What a replacement therefore looks like at this gate is a composition
+        # answering a DIFFERENT object at the same role, which is exactly what the
+        # comparison exists to catch.
+        self.assertEqual(
+            stat.S_IMODE(os.lstat(os.path.dirname(roots["workspace"])).st_mode),
+            0o555)
+        replacement = os.path.join(self.root, "another-workspace")
+        os.mkdir(replacement)
+        roots = dict(roots, workspace=replacement)
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.require_prepared(control, attempt_id, roots,
+                                        "starting this attempt's runtime")
+        self.assertIn("is not the resource that was prepared",
+                      str(refused.exception))
+        self.assertIn("workspace", str(refused.exception))
+        # AND THE ORIGINAL EVIDENCE IS UNCHANGED: nothing repinned itself.
+        self.assertEqual(self.prepared_record(control, attempt_id), recorded)
+        operations.close()
+
+    def test_the_record_replays_rather_than_recording_a_second_preparation(self):
+        """H5 at this seam: a restart walks the same preparation and writes the same
+        operands at the same identity, so the account is one fact rather than two."""
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores("replayed-record")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        projected = self.commanded(job, operations)
+        attempt_id = projected["jobs"][0]["stages"][0]["attempt_id"]
+        recorded = self.prepared_record(control, attempt_id)
+        roots = {"inputs": os.path.join(self.storage, attempt_id, "inputs"),
+                 "workspace": os.path.join(self.storage, attempt_id, "workspace")}
+        again = workspaces.record_preparation(control, attempt_id, roots,
+                                             ("task.json",))
+        self.assertEqual(again["attempt_id"], attempt_id)
+        self.assertEqual(self.prepared_record(control, attempt_id), recorded)
+        operations.close()
+
+
+class ThePreparationOWNSTheRootsForItsWholeWriterLifetime(SingleWorkerCase):
+    """W285464 review 2026-09-27T16-13-26Z, and the defect it reached.
+
+    The allocation's own window closes when creation ends, so the source
+    mountpoint, the task publication, the protocol pair and the freeze all ran with
+    nothing excluding a competing admission -- the reviewer interposed at
+    `compose_input_root`, before its publication, and a REAL removal was admitted.
+    A gate before the start does not make that safe: the competing writer has
+    already been admitted over material somebody was still writing.
+
+    H3 and H6 at the composed seam; every act below is the owner's own API.
+    """
+
+    def interposed(self, act, label):
+        """Run `act` inside the real staging writer, before it publishes."""
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores(label)
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        honest = workspaces.compose_input_root
+        outcome = []
+
+        def paused(*arguments, **named):
+            attempt = named["runtime_attempt_id"]
+            try:
+                act(control, attempt)
+                outcome.append(None)
+            except ContractRefusal as refused:
+                outcome.append(str(refused))
+            return honest(*arguments, **named)
+
+        with mock.patch.object(workspaces, "compose_input_root",
+                               side_effect=paused):
+            projected = self.commanded(job, operations)
+        self.assertEqual(len(outcome), 1, "the staging writer was never reached")
+        return control, projected, outcome[0], engine
+
+    def test_a_removal_cannot_enter_while_staging_can_still_write(self):
+        """The reviewer's own schedule, kept as my regression."""
+        from baton_v12.worker_manager import workspaces
+
+        control, projected, why, engine = self.interposed(
+            lambda control, attempt: workspaces._admitted_removal(
+                control, attempt, "competing with input publication"),
+            "staging-removal")
+        self.assertIsNotNone(why, "a removal was admitted mid-staging")
+        self.assertIn("host preparation", why)
+        self.assertIn("may still be creating, staging, publishing or freezing", why)
+        # AND THE ORDINARY PATH STILL COMPLETED: the exclusion refuses the
+        # competitor rather than breaking the preparation that owns the roots.
+        self.assertEqual(len(engine.starts), 1)
+
+    def test_a_cleanup_cannot_enter_while_staging_can_still_write(self):
+        from baton_v12.worker_manager import workspaces
+
+        _control, _projected, why, engine = self.interposed(
+            lambda control, attempt: workspaces.admit_cleanup(
+                control, attempt,
+                {"operation": f"cleanup:{attempt}", "signature": "sig-1",
+                 "incarnation": "probe"}, "competing cleanup"),
+            "staging-cleanup")
+        self.assertIsNotNone(why, "a cleanup was admitted mid-staging")
+        self.assertIn("host preparation", why)
+        self.assertEqual(len(engine.starts), 1)
+
+    def test_an_adoption_cannot_enter_while_staging_can_still_write(self):
+        """ONE INTERPOSED SCHEDULE PER CASE, measured: a subTest loop sharing this
+        fixture reuses the attempt identity the submission derives, so the second
+        iteration adopted an already-staged home, never reached the writer, and
+        failed for that reason rather than on the rule."""
+        from baton_v12.worker_manager import workspaces
+
+        _control, _projected, why, engine = self.interposed(
+            lambda control, attempt: workspaces._admitted_adoption(
+                control, attempt, "competing adoption"),
+            "staging-adoption")
+        self.assertIsNotNone(why, "an adoption was admitted mid-staging")
+        self.assertIn("host preparation", why)
+        self.assertEqual(len(engine.starts), 1)
+
+    def test_a_second_ALLOCATION_cannot_enter_while_staging_can_still_write(self):
+        from baton_v12.worker_manager import workspaces
+
+        _control, _projected, why, engine = self.interposed(
+            lambda control, attempt: workspaces._admitted_allocation(
+                control, attempt, "competing allocation"),
+            "staging-allocation")
+        self.assertIsNotNone(why, "a second allocation was admitted mid-staging")
+        self.assertIn("host preparation", why)
+        self.assertEqual(len(engine.starts), 1)
+
+    def test_an_UNRELATED_attempt_is_free_while_this_one_prepares(self):
+        """The exclusion is per-attempt, so it serializes nothing it should not.
+
+        Inside the same interposed schedule -- this attempt's staging holding its
+        roots -- an UNRELATED attempt takes its own preparation ownership.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        elsewhere = []
+
+        def both(control, attempt):
+            elsewhere.append(workspaces.admit_preparation(
+                control, "attempt-elsewhere", "an unrelated preparation"))
+            workspaces._admitted_removal(control, attempt,
+                                        "competing with input publication")
+
+        control, _projected, why, engine = self.interposed(both,
+                                                          "staging-unrelated")
+        self.assertIsNotNone(why)
+        self.assertIn("host preparation", why)
+        self.assertEqual(elsewhere, [1])
+        self.assertEqual([one for one, _ in workspaces.standing_preparation(
+            control, "attempt-elsewhere")], [1])
+        self.assertEqual(len(engine.starts), 1)
+
+    def test_the_window_is_closed_by_the_COMPLETION_and_not_by_the_clock(self):
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores("window-closed")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        projected = self.commanded(job, operations)
+        attempt_id = projected["jobs"][0]["stages"][0]["attempt_id"]
+        # AFTERWARDS: the completion exists and the window is no longer standing,
+        # so ordinary cleanup and removal are free again.
+        self.assertIsNotNone(workspaces.preparation_completed(control,
+                                                             attempt_id))
+        self.assertEqual(workspaces.standing_preparation(control, attempt_id), [])
+        workspaces.refuse_if_held(control, self.storage, attempt_id,
+                                  "a later ordinary act")
+
+    def test_an_interrupted_preparation_leaves_the_window_STANDING(self):
+        """H6: interruption is not an ending, and the hold is what says so.
+
+        The window is opened through the owner's API and no completion follows --
+        which is what a process that died mid-staging leaves behind. Every other
+        admission is then refused, and the start gate refuses too.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        engine = Engine()
+        job, control = self.stores("interrupted-preparation")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        ordinal = workspaces.admit_preparation(control, "attempt-interrupted",
+                                              "a preparation that then died")
+        self.assertEqual(ordinal, 1)
+        self.assertEqual([one for one, _ in workspaces.standing_preparation(
+            control, "attempt-interrupted")], [1])
+        for act in (lambda: workspaces._admitted_removal(
+                        control, "attempt-interrupted", "a later removal"),
+                    lambda: workspaces._admitted_adoption(
+                        control, "attempt-interrupted", "a later adoption"),
+                    lambda: workspaces.refuse_if_held(
+                        control, self.storage, "attempt-interrupted",
+                        "a later ordinary act")):
+            with self.subTest(act=act):
+                with self.assertRaises(ContractRefusal) as refused:
+                    act()
+                self.assertIn("host preparation 1", str(refused.exception))
+        # AND A SECOND PREPARATION ADOPTS ITS OWN WINDOW rather than opening a
+        # second one, which is how a restart re-walks the same preparation.
+        self.assertEqual(
+            workspaces.admit_preparation(control, "attempt-interrupted",
+                                         "the same preparation resuming"), 1)
+
+
 class TheProductionCompositionIsRestartSafe(SingleWorkerCase):
     def crash_and_restart(self, point):
         engine = Engine()

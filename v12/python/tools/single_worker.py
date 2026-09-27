@@ -1931,9 +1931,21 @@ class _SingleWorker:
         given = self.given
         # W270664 F2: the store this worker acts through is the journal that says
         # whether a cleanup or removal owns these roots, so it is named here.
+        # W285464 review 2026-09-27T16-13-26Z: OWNERSHIP FIRST, AND IT SPANS EVERY
+        # WRITER. The allocation's own window closes when creation ends, so the
+        # source mountpoint, the task publication, the protocol pair and the freeze
+        # all used to run with nothing excluding a competing admission -- the
+        # reviewer's probe admitted a real removal in the middle of
+        # `compose_input_root`. This window opens before the first governed writer
+        # and is closed by the completion record, so "admitted with no completion"
+        # is exactly "a writer may still be finishing here".
+        preparing = workspaces.admit_preparation(
+            self.control, attempt_id,
+            f"preparing attempt {attempt_id}'s roots")
+        self.preparing = preparing
         roots = workspaces.assignment_workspace(
             self.group, given["workspace_storage"], attempt_id,
-            control=self.control)
+            control=self.control, preparing=preparing)
         if checkpoint:
             self.checkpoint("workspace")
         if self.stage is not None:
@@ -2016,6 +2028,20 @@ class _SingleWorker:
         self.checkpoint("input")
         retain_manifest(self.control, manifest, "inputManifest")
         self.checkpoint("manifest")
+        # W285464, amended TOK-7: THE HOST DURABLY RECORDS THAT ITS PREPARATION
+        # FINISHED, after the last governed writer on this path and before the task
+        # is admitted. `_input` is that last writer -- it publishes the task and the
+        # protocol pair and freezes the root -- so the account is written here, with
+        # the objects a task is about to be started over named by `device:inode`.
+        #
+        # A RESTART REACHES THIS LINE THROUGH THE SAME PATH and writes the same
+        # operands at the same identity, so it replays rather than recording a
+        # second preparation.
+        workspaces.record_preparation(
+            self.control, attempt_id, roots,
+            (TASK_DOCUMENT,) + (("judgment.json",)
+                                if self.judgment_document is not None else ()))
+        self.checkpoint("prepared")
         state = attempt_runtime_of(self.control, attempt_id)
         fresh = state["execution_runtime"] == "not-started"
         if given.get("provider_context") is not None:
@@ -2059,6 +2085,16 @@ class _SingleWorker:
                                     boundary,
                                     scratch=self._attempt_scratch(attempt_id))
             if fresh:
+                # W285464, amended TOK-7: NO LAUNCH WHILE A HOST WRITER COULD STILL
+                # FINISH, AND NOT OVER A REPLACED RESOURCE. The gate asks the
+                # journal three things -- is any preparation writer still able to
+                # complete, did the preparation finish at all, and are the inputs
+                # and workspace the very objects it completed over -- and refuses
+                # before any container is created. A deadline is not cessation, so
+                # nothing here infers an ending from elapsed time.
+                workspaces.require_prepared(
+                    self.control, attempt_id, roots,
+                    f"starting attempt {attempt_id}'s runtime")
                 if given.get("provider_context") is not None:
                     self.stage.revalidate_context(self, stage)
                 # W275774: THE GOVERNED START. The workspace object this

@@ -84,66 +84,7 @@ __all__ = ["PREPARATIONS", "MAINTENANCE_ROOT", "MAINTENANCE_PROGRAM",
 # demonstration act -- the mutation it performs is the one
 # `workspaces.assignment_workspace` performs on the host today.
 ESTABLISH_RESULT_ROOT = "establish-result-root"
-
-# W285464: THE ORDINARY ALLOCATION, which is the governed host writer this child
-# exists to move. `workspaces.assignment_workspace` creates the attempt home, its
-# six entries and `workspace/result-<attempt>` and adopts the configured group on
-# the writable roots -- all in the manager's own process, holding no token. This
-# verb performs exactly those effects inside the admitted execution.
-ALLOCATE_ASSIGNMENT_ROOTS = "allocate-assignment-roots"
-
-PREPARATIONS = (ESTABLISH_RESULT_ROOT, ALLOCATE_ASSIGNMENT_ROOTS)
-
-# WHICH ROOT EACH VERB MOUNTS, and this is the pin the allocation forced.
-#
-# `establish-result-root` acts INSIDE an existing workspace, so `custody`'s own
-# closed pair answers it. An allocation cannot: the attempt home does not exist
-# yet, so what must be mounted is the configured STORAGE the home will be created
-# in -- a shared parent.
-#
-# A SHARED PARENT IS NOT AUTHORITY OVER SIBLINGS, and that boundary is the whole
-# reason this is written down. The program is given ONE name, validated by the host
-# from the durable attempt identity, and refuses any name that could leave its own
-# subtree -- a separator, a traversal, an absolute path. It creates and touches
-# nothing else, and the host proves afterwards that what appeared is exactly the
-# subtree it asked for. `custody.CUSTODY_ROOTS` is NOT widened: its closed pair is
-# about directories custody derives, and a third member there would change every
-# reader of it.
-MAINTENANCE_HOME = "home"
-MAINTENANCE_ROOTS = custody.CUSTODY_ROOTS + (MAINTENANCE_HOME,)
-MOUNTED_ROOT = {ESTABLISH_RESULT_ROOT: "workspace",
-                ALLOCATE_ASSIGNMENT_ROOTS: MAINTENANCE_HOME}
-
-# THE CRADLE, AND IT IS THE ONE HOST SYSCALL ON THIS PATH.
-#
-# W285464 review 2026-09-27T15-11-34Z and the owner clarification of the same day
-# are both right and my first cut was wrong: I mounted the configured STORAGE
-# writable and argued that a validated name plus an untouched-sibling assertion
-# confined the act. It does not. A bind mount has no sub-path, so every sibling
-# attempt -- credentials included -- was inside the writable source, and "this
-# program did not touch them" is a statement about one cooperative program rather
-# than about what the container could reach.
-#
-# CONFINEMENT IS THE MOUNT OR IT IS NOTHING. So the mount is the attempt's OWN
-# home and nothing above it, which makes sibling isolation a property of the
-# boundary rather than of the program's manners.
-#
-# AND THAT REQUIRES THE HOME TO EXIST, because `--mount type=bind` refuses a
-# source that does not. One empty directory therefore has to appear before the
-# governed act can be confined to it, and this manager creates it: `os.mkdir`,
-# mode 0o700, no group, no content, inside the maintenance WINDOW and AFTER the
-# token is acquired, recorded in the durable receipt as `cradle`.
-#
-# I AM NOT CALLING THAT A CLEAN WIN, and the handoff says so to the reviewer and
-# the owner in those words. It is a host `mkdir` on a preparation path whose
-# stated goal is that the host writes nothing, and the alternatives -- a
-# deployment that provisions per-attempt directories in advance, or an engine
-# feature that binds a sub-path -- are outside what this child may choose. What
-# IS true and measurable: every GOVERNED effect (the layout, the modes, the group
-# adoption, the result root) happens inside the admitted execution, the host's
-# one syscall creates an empty unreachable-by-anyone-else directory, and it is
-# accounted for rather than untracked.
-CRADLE_MODE = 0o700
+PREPARATIONS = (ESTABLISH_RESULT_ROOT,)
 
 # WHAT EACH VERB ANSWERS, closed and typed -- the receiving half of the same
 # rule `check_preparation` is the sending half of, and the same discipline
@@ -157,13 +98,6 @@ _PREPARED = {
     ESTABLISH_RESULT_ROOT: {"version": int, "submission": str, "place": str,
                             "established": bool, "mode": str,
                             "running_as": list},
-    # W285464: the allocation answers WHICH entries it established, because the
-    # home's layout is the contract every later act reads -- `HOME_ENTRIES` plus
-    # the manager-derived result root. A report that established a different set
-    # is not an account of this allocation.
-    ALLOCATE_ASSIGNMENT_ROOTS: {"version": int, "submission": str, "place": str,
-                                "established": bool, "entries": list,
-                                "mode": str, "running_as": list},
 }
 
 # THE PROGRAM'S OWN TYPED REFUSAL, which is the other document it can print. It
@@ -327,7 +261,7 @@ def standing_maintenance(control, assignment_id, which):
     opened it. Nothing here guesses that a vanished act finished.
     """
     boundaries.identity(assignment_id, "an assignment identity")
-    check_maintenance_root(which)
+    custody.check_custody_root(which)
     standing = []
     ordinal = 1
     while ordinal <= _MOST_ACTS:
@@ -365,7 +299,7 @@ def maintenance_settlement(control, assignment_id, which, ordinal=None):
     Without an `ordinal` it answers the latest recorded window's settlement.
     """
     boundaries.identity(assignment_id, "an assignment identity")
-    check_maintenance_root(which)
+    custody.check_custody_root(which)
     if ordinal is not None:
         return _window(control, assignment_id, which, ordinal,
                        MAINTENANCE_SETTLED_KIND)
@@ -391,7 +325,7 @@ def maintenance_failure(control, assignment_id, which, ordinal):
     is still standing when this exists.
     """
     boundaries.identity(assignment_id, "an assignment identity")
-    check_maintenance_root(which)
+    custody.check_custody_root(which)
     return _window(control, assignment_id, which, ordinal,
                    MAINTENANCE_FAILED_KIND)
 
@@ -399,7 +333,7 @@ def maintenance_failure(control, assignment_id, which, ordinal):
 def maintenance_orphan(control, assignment_id, which, ordinal):
     """The exact runtime a refused act created and could not prove gone."""
     boundaries.identity(assignment_id, "an assignment identity")
-    check_maintenance_root(which)
+    custody.check_custody_root(which)
     return _window(control, assignment_id, which, ordinal,
                    MAINTENANCE_ORPHAN_KIND)
 
@@ -473,13 +407,7 @@ def _conflicting(control, assignment_id, which):
     """
     from . import workspaces
 
-    # ASKED WITH A CUSTODY ROOT, because that is the only vocabulary
-    # `_standing_overlap` accepts and its ANSWER is per-attempt anyway: it walks
-    # both roots and reports the oldest uncleared episode of either. A storage
-    # window is not a custody root, and asking about one would refuse rather than
-    # answer -- measured, by reaching it.
-    standing = custody._standing_overlap(control, assignment_id,
-                                         custody.CUSTODY_ROOTS[0])
+    standing = custody._standing_overlap(control, assignment_id, which)
     if standing is not None:
         return (f"attempt {name_value(assignment_id)}'s "
                 f"{standing['held']['root']} root carries unreconciled uncertainty "
@@ -547,7 +475,7 @@ def _admitted(control, assignment_id, which, *, operation, name, domain,
         conflict = _conflicting(control, assignment_id, which)
         if conflict is not None:
             raise ContractRefusal("refused", "precondition", conflict)
-        for root in MAINTENANCE_ROOTS:
+        for root in custody.CUSTODY_ROOTS:
             for ordinal, record in standing_maintenance(control, assignment_id,
                                                         root):
                 import json as _json
@@ -694,8 +622,7 @@ import stat
 import sys
 
 ROOT = "/maintenance"
-VERBS = ("establish-result-root", "allocate-assignment-roots")
-ENTRIES = __ENTRIES__
+VERBS = ("establish-result-root",)
 MODE = 0o2770
 SECONDS = __SECONDS__
 VERSION = __VERSION__
@@ -738,57 +665,6 @@ if not PLACE or PLACE in (os.curdir, os.pardir) or os.sep in PLACE \
 
 place = os.path.join(ROOT, PLACE)
 
-
-def owned(where):
-    """The entry as it IS, or None -- asked with lstat, never followed."""
-    try:
-        return os.lstat(where)
-    except FileNotFoundError:
-        return None
-
-
-def established_directory(where, what):
-    """Create it if absent; refuse anything that is not its own directory."""
-    held = owned(where)
-    if held is None:
-        os.mkdir(where)
-        return True
-    if stat.S_ISLNK(held.st_mode) or not stat.S_ISDIR(held.st_mode):
-        refuse("%s already exists and is not its own directory; a preparation "
-               "establishes and never replaces" % what, 5)
-    return False
-
-
-if VERB == "allocate-assignment-roots":
-    # THE ORDINARY ALLOCATION, performed HERE rather than on the host: every entry
-    # the home will ever hold and the manager-derived result root inside the
-    # writable one. THE ROOT IS THE HOME ITSELF, because the mount was narrowed to
-    # this one attempt's directory -- so there is no sibling in this filesystem view
-    # to reach, by any name, cooperative program or not. The group comes from THIS
-    # PROCESS's own primary gid, which the engine set from the manager's declared
-    # `--user`, so there is no group operand a caller could choose.
-    entries = []
-    for name in ENTRIES:
-        established_directory(os.path.join(ROOT, name), name)
-        entries.append(name)
-    result = os.path.join(ROOT, "workspace", "result-" + PLACE)
-    established_directory(result, "the result root")
-    entries.append(os.path.join("workspace", "result-" + PLACE))
-    # THE WRITABLE ROOTS ARE ADOPTED EXACTLY, which is `adopt_workspace_group`'s
-    # own rule: `chown(-1, gid)` changes only the group, and `chmod` on an
-    # existing directory is exact where `mkdir`'s mode is filtered by the umask.
-    for writable in (os.path.join(ROOT, "workspace"), result):
-        os.chown(writable, -1, os.getgid())
-        os.chmod(writable, MODE)
-    answered({"maintenance": VERB, "version": VERSION,
-              "submission": SUBMISSION, "place": PLACE,
-              "established": bool(entries),
-              "entries": sorted(entries),
-              "mode": oct(stat.S_IMODE(os.lstat(
-                  os.path.join(ROOT, "workspace")).st_mode)),
-              "running_as": [os.getuid(), os.getgid()]})
-    raise SystemExit(0)
-
 established = False
 try:
     held = os.lstat(place)
@@ -822,23 +698,9 @@ answered({"maintenance": VERB, "version": VERSION, "submission": SUBMISSION,
 # tell one representation from another and the receipt would record a number
 # nothing had validated. It is substituted from this module's own constant, like
 # the alarm, so the program and the validator cannot disagree.
-def _home_entries():
-    """The home layout, read from its owner rather than spelled twice.
-
-    `workspaces.HOME_ENTRIES` is the list `assignment_workspace` provisions, and
-    `test_input_delivery.TheHomeLayoutIsDeclaredWhereItIsFrozen` already holds the
-    other components to it. Substituted into the program so the container creates
-    the same layout the host would have, and a change to that list reaches here.
-    """
-    from . import workspaces
-
-    return tuple(workspaces.HOME_ENTRIES)
-
-
 MAINTENANCE_PROGRAM = _PROGRAM_SOURCE.replace(
     "__SECONDS__", str(PREPARE_SECONDS)).replace(
-    "__VERSION__", str(MAINTENANCE_VERSION)).replace(
-    "__ENTRIES__", repr(_home_entries()))
+    "__VERSION__", str(MAINTENANCE_VERSION))
 
 
 def check_preparation(operation):
@@ -884,72 +746,6 @@ def _maintenance_identity(store_place, assignment_id, which, operation):
     return found
 
 
-def check_maintenance_root(which):
-    """One root kind this facility can mount, or a refusal.
-
-    `custody.check_custody_root`'s shape, widened by exactly one member for the
-    allocation -- and widened HERE rather than in custody, whose closed pair is
-    about directories it derives and has other readers.
-    """
-    boundaries.text(which, "a maintenance root name")
-    if which not in MAINTENANCE_ROOTS:
-        raise ContractRefusal(
-            "integrity", "schema",
-            f"{name_value(which)} is not a root this facility mounts; the ones "
-            f"it owns are {', '.join(MAINTENANCE_ROOTS)}")
-    return which
-
-
-def _mounted_root(store, assignment_id, which):
-    """The ONE directory this act mounts, re-opened from durable state.
-
-    TWO DERIVATIONS, ONE RULE. For a verb acting inside an existing root this
-    delegates to `custody._derived_root`, which is the accepted owner of that
-    lookup. For the allocation there is nothing of the attempt's to derive yet, so
-    what is mounted is the deployment's CONFIGURED STORAGE -- read from its own
-    record, proved real, and never a caller operand.
-
-    Answers `(source, gid, recorded, place)`: the mount source, the configured
-    group, the recorded storage spelling for the identity digest, and the NAME the
-    program is given inside that mount.
-    """
-    from . import workspaces
-
-    if which != MAINTENANCE_HOME:
-        source, gid, recorded = custody._derived_root(store, assignment_id,
-                                                     which)
-        return source, gid, recorded, _prepared_name(assignment_id)
-    boundaries.identity(assignment_id, "an assignment identity")
-    if os.sep in assignment_id or (os.altsep and os.altsep in assignment_id) \
-            or assignment_id in (os.curdir, os.pardir):
-        raise ContractRefusal(
-            "policy", "denied",
-            f"{name_value(assignment_id)} is not an assignment identity; an "
-            f"attempt is NAMED and a name carrying a path separator is a way to "
-            f"compose a home this manager never allocated")
-    group = workspaces.configured_workspace_group(store)
-    recorded = workspaces.configured_workspace_storage(store).place
-    storage = workspaces._real(recorded, "the manager's workspace storage")
-    if not os.path.isdir(storage):
-        raise ContractRefusal(
-            "integrity", "path",
-            f"the manager's configured workspace storage "
-            f"{name_value(recorded)} is not a directory, so an allocation has "
-            f"nowhere this manager may mount")
-    # THE HOME, AND NOTHING ABOVE IT. Derived from the deployment's own record and
-    # this attempt's validated name, and proved to be inside the configured store
-    # -- so what the engine is asked to bind is one attempt's directory.
-    home = os.path.join(storage, assignment_id)
-    if not workspaces._within(os.path.join(os.path.realpath(storage),
-                                           assignment_id), storage):
-        raise ContractRefusal(
-            "policy", "denied",
-            f"{name_value(home)} resolves outside this deployment's configured "
-            f"workspace store; an allocation prepares an attempt directory this "
-            f"manager's own storage contains")
-    return home, group.gid, recorded, assignment_id
-
-
 def _prepared_name(assignment_id):
     """The object `establish-result-root` establishes, as a NAME.
 
@@ -985,50 +781,6 @@ def _operation_identity(operation, assignment_id, which):
     a second act beside it.
     """
     return f"maintenance-{operation}:{assignment_id}:{which}"
-
-
-def _allocation_identity(source, assignment_id):
-    """The PRE-ALLOCATION identity of an attempt whose home does not exist yet.
-
-    W285464, and this is the pin the review asked for before any edit: "define the
-    stable pre-allocation conflict identity before the task workspace exists and
-    prove its mapping to the task's eventual object identity".
-
-    `<storage device>:<storage inode>/<attempt>` -- the object named by its
-    CONTAINER plus its own name, exactly the form `_resource_identity` already uses
-    one level down. It is stable before the home exists, derivable afterwards, and
-    it names a DEPLOYMENT's storage rather than a global: two deployments, two
-    identities, and two attempts in one storage are two identities.
-
-    HOW IT MAPS TO THE TASK'S OBJECT, in three parts that are each written down
-    rather than assumed:
-
-      * WHILE THE OBJECT DOES NOT EXIST the exclusion carrier is the maintenance
-        WINDOW, which is per-attempt and covers both custody roots and this one.
-        Every workspaces admission and the custody claim read it, so no allocation,
-        adoption, removal, cleanup or custody act runs beside the preparation --
-        and the task's own start calls `assignment_workspace`, which is one of
-        those admissions.
-      * WHEN THE OBJECT EXISTS the host proves the created `workspace` root is
-        inside this exact storage under this exact attempt name, and records its
-        `device:inode` in the durable settlement beside this identity. That record
-        IS the mapping: a later reader holding the receipt can compare the task's
-        `workspace:<device>:<inode>` domain against the object this allocation
-        prepared.
-      * THE TASK'S TOKEN IS UNCHANGED. It still contends for
-        `workspace:<device>:<inode>` through `tokens.workspace_governance`; this
-        facility adds no second token system and does not serialize unrelated
-        attempts, because neither the window nor this identity is global.
-    """
-    held = os.lstat(source)
-    if not stat.S_ISDIR(held.st_mode) or stat.S_ISLNK(held.st_mode):
-        raise ContractRefusal(
-            "policy", "denied",
-            f"{name_value(source)} is not a directory this manager allocated "
-            f"into, so the resource an allocation would contend for cannot be "
-            f"named")
-    return (f"{held.st_dev}:{held.st_ino}",
-            f"{held.st_dev}:{held.st_ino}/{assignment_id}")
 
 
 def _resource_identity(place, name):
@@ -1430,17 +1182,6 @@ def _mismatch(document, place_name, gid):
                 f"{name_value(document.get('version'))} and this manager "
                 f"composes version {MAINTENANCE_VERSION}; a document of another "
                 f"representation is not one whose members this build may read")
-    if document.get("maintenance") == ALLOCATE_ASSIGNMENT_ROOTS:
-        from . import workspaces
-
-        expected = sorted(tuple(workspaces.HOME_ENTRIES)
-                          + (os.path.join("workspace",
-                                          f"result-{place_name}"),))
-        if list(document["entries"]) != expected:
-            return (f"the allocation reports establishing "
-                    f"{document['entries']!r} and this manager's home layout is "
-                    f"{expected!r}; a home with another set of entries is not the "
-                    f"one every later act reads")
     if document["place"] != place_name:
         return (f"the account reports preparing {name_value(document['place'])} "
                 f"and this act asked for {name_value(place_name)}; an account of "
@@ -1459,85 +1200,6 @@ def _mismatch(document, place_name, gid):
     return None
 
 
-def _cradled(home):
-    """Make the empty directory the mount will confine the act to, or adopt it.
-
-    `os.mkdir` and NOTHING ELSE: mode `0o700`, no group adoption, no content. An
-    existing entry is adopted only if it is this manager's own real directory --
-    `custody._no_link`'s rule, so a symlink or a foreign-owned entry at this name
-    refuses rather than becoming the thing a container is pointed at.
-
-    Answers `"created"` or `"present"` for the durable receipt, so a reader can
-    tell which of the two happened.
-    """
-    if custody._no_link(home, what="the attempt home", missing_ok=True) is True:
-        return "present"
-    os.mkdir(home, CRADLE_MODE)
-    return "created"
-
-
-def _allocated(source, assignment_id, gid):
-    """Prove the allocation's OWN subtree, and answer the mapping it establishes.
-
-    W285464. The program reported; this is the host deciding. Every entry the home
-    must hold is proved to be its own real directory owned by this manager -- the
-    `_no_link` rule, which is why a symlinked entry cannot pass -- the two writable
-    roots are proved to carry the configured group and the exact mode, and the
-    SUBTREE is proved to be the one this act asked for rather than any other name
-    in the shared parent.
-
-    Answers `(identity, why)`: on success the mapping members for the durable
-    receipt, including the `device:inode` of the workspace object -- which IS the
-    identity the task's own token will contend for.
-    """
-    from . import workspaces
-
-    # `source` IS THE HOME for this verb: the mount was narrowed to it, so the
-    # confirmation reads the same object the engine bound rather than recomposing
-    # a path from the storage.
-    home = source
-    held = custody._no_link(home, what="the allocated attempt home",
-                            missing_ok=True)
-    if held is not True:
-        return None, (f"the allocation reported establishing "
-                      f"{name_value(assignment_id)} and this manager cannot "
-                      f"confirm its home inside the configured storage")
-    for name in tuple(workspaces.HOME_ENTRIES):
-        try:
-            custody._no_link(os.path.join(home, name),
-                             what=f"the allocated {name} entry")
-        except ContractRefusal as refused:
-            return None, (f"the allocated home is not the layout this manager "
-                          f"reads: {refused}")
-    result = os.path.join(home, "workspace", f"result-{assignment_id}")
-    try:
-        custody._no_link(result, what="the allocated result root")
-    except ContractRefusal as refused:
-        return None, f"the allocated result root is not this manager's: {refused}"
-    for writable in (os.path.join(home, "workspace"), result):
-        observed = os.lstat(writable)
-        if stat.S_IMODE(observed.st_mode) != PREPARED_MODE:
-            return None, (f"{name_value(writable)} carries mode "
-                          f"{oct(stat.S_IMODE(observed.st_mode))} and this "
-                          f"manager establishes {oct(PREPARED_MODE)}; the writable "
-                          f"root's permissions are why the allocation exists")
-        if observed.st_gid != gid:
-            return None, (f"{name_value(writable)} is in group "
-                          f"{observed.st_gid} and the deployment configured "
-                          f"{gid}; a root the worker's group cannot write is not "
-                          f"an allocated root")
-    # AND THE MAPPING, which is the pre-allocation identity's whole promise: the
-    # object the task's token will name, recorded beside the identity that held the
-    # resource before it existed.
-    workspace = os.lstat(os.path.join(home, "workspace"))
-    inside = os.lstat(home)
-    return ({"object_identity": f"{inside.st_dev}:{inside.st_ino}",
-             "workspace_identity": f"{workspace.st_dev}:{workspace.st_ino}",
-             "task_domain": tokens.domain_of(
-                 MAINTENANCE_KIND,
-                 f"{workspace.st_dev}:{workspace.st_ino}")}, None)
-
-
 def _established_identity(source, place_name):
     """The object identity of what was established, for the durable receipt.
 
@@ -1550,7 +1212,7 @@ def _established_identity(source, place_name):
 
 
 def prepare(engine, run, *, image_digest, store, assignment_id, operation,
-            which=None, seconds=None):
+            which="workspace", seconds=None):
     """ONE SCOPED MAINTENANCE PREPARATION, performed under a shared token.
 
     The whole lifecycle, in one act, with nothing executable crossing back.
@@ -1580,34 +1242,13 @@ def prepare(engine, run, *, image_digest, store, assignment_id, operation,
     """
     port = run if type(run) is oci.EnginePort else oci.EnginePort(run)
     operation = check_preparation(operation)
-    # THE ROOT THIS VERB MOUNTS IS THE VERB'S, not the caller's default. An
-    # allocation cannot act inside an attempt root that does not exist yet, so the
-    # verb selects which derivation runs -- and a caller that names a root the verb
-    # does not act in is refused rather than quietly re-pointed.
-    if which is None:
-        which = MOUNTED_ROOT[operation]
-    check_maintenance_root(which)
-    if which != MOUNTED_ROOT[operation]:
-        raise ContractRefusal(
-            "refused", "precondition",
-            f"{name_value(operation)} acts in the "
-            f"{name_value(MOUNTED_ROOT[operation])} root and this act names "
-            f"{name_value(which)}; the root a preparation mounts is decided by "
-            f"the verb this manager owns, not by its caller")
-    source, gid, recorded, place_name = _mounted_root(store, assignment_id,
-                                                      which)
+    custody.check_custody_root(which)
+    place_name = _prepared_name(assignment_id)
+    source, gid, recorded = custody._derived_root(store, assignment_id, which)
     name = _maintenance_identity(recorded, assignment_id, which, operation)
     # THE DOMAIN, AND ITS PRE-ALLOCATION IDENTITY, both read from the object
     # this act re-opened -- outside every transaction.
-    if which == MAINTENANCE_HOME:
-        # THE IDENTITY IS STILL THE PRE-ALLOCATION ONE, read from the CONTAINING
-        # storage rather than from the home -- which is the point of a
-        # pre-allocation identity: it must be derivable before the object it names
-        # exists, and the cradle below is created under it.
-        governed, pre_allocation = _allocation_identity(
-            os.path.dirname(source), assignment_id)
-    else:
-        governed, pre_allocation = _resource_identity(source, place_name)
+    governed, pre_allocation = _resource_identity(source, place_name)
     domain = tokens.domain_of(MAINTENANCE_KIND, governed)
     # WHAT THIS OPERATION ALREADY DID, READ BEFORE ANY ENGINE CALL.
     #
@@ -1701,18 +1342,6 @@ def prepare(engine, run, *, image_digest, store, assignment_id, operation,
         raise
     launch = token["operation"]
     tokens.journal_launch(store, token, launch)
-    # THE CRADLE: the one empty directory a bind mount needs before it can confine
-    # anything. Created only for the allocation verb, only after this act holds the
-    # window AND the token, outside every transaction, mode 0o700 and nothing else
-    # -- no group, no content, no permissions the worker's group could use. See
-    # `CRADLE_MODE` for why this exists and what it costs.
-    cradle = None
-    if which == MAINTENANCE_HOME:
-        try:
-            cradle = _cradled(source)
-        except BaseException:
-            _closing(store, assignment_id, which, ordinal, domain, operation)
-            raise
     # THE SUBMISSION CORRELATOR IS THE TOKEN'S OWN OWNER, reused rather than
     # drawn: it is already a digest over the domain, operation, execution,
     # acquiring instant and this manager's incarnation, so an echo of it says
@@ -1932,34 +1561,24 @@ def prepare(engine, run, *, image_digest, store, assignment_id, operation,
     # be the very object this token governs, so what was prepared is provably
     # inside the resource rather than merely named like it.
     established = os.path.join(source, place_name)
-    mapping, unconfirmed = {}, None
-    if operation == ALLOCATE_ASSIGNMENT_ROOTS:
-        mapping, unconfirmed = _allocated(source, assignment_id, gid)
-    else:
-        try:
-            held = os.lstat(established)
-        except FileNotFoundError:
-            held = None
-        if held is None or stat.S_ISLNK(held.st_mode) \
-                or not stat.S_ISDIR(held.st_mode) \
-                or f"{os.lstat(source).st_dev}:{os.lstat(source).st_ino}" \
-                != pre_allocation.rsplit("/", 1)[0]:
-            unconfirmed = (f"the preparation reported establishing "
-                           f"{name_value(place_name)} and this manager cannot "
-                           f"confirm it inside the object this generation "
-                           f"governs")
-        else:
-            mapping = {"object_identity": _established_identity(source,
-                                                                place_name)}
-    if unconfirmed is not None:
+    try:
+        held = os.lstat(established)
+    except FileNotFoundError:
+        held = None
+    if held is None or stat.S_ISLNK(held.st_mode) \
+            or not stat.S_ISDIR(held.st_mode) \
+            or f"{os.lstat(source).st_dev}:{os.lstat(source).st_ino}" \
+            != pre_allocation.rsplit("/", 1)[0]:
         _ceased(engine, port, name=name, container=container)
         return _answered(
             operation, generation, container, printed["status"], document,
             returned=False,
-            diagnostic=f"{unconfirmed} (generation {generation} of "
-                       f"{name_value(domain)}, pre-allocation identity "
-                       f"{name_value(pre_allocation)}); the resource stays held "
-                       f"rather than accepted on the report")
+            diagnostic=f"the preparation reported establishing "
+                       f"{name_value(place_name)} and this manager cannot "
+                       f"confirm it inside the object generation {generation} "
+                       f"of {name_value(domain)} governs (pre-allocation "
+                       f"identity {name_value(pre_allocation)}); the resource "
+                       f"stays held rather than accepted on the report")
     # CESSATION, PROVED, AND ONLY THEN THE RETURN.
     _ceased(engine, port, name=name, container=container)
     # R3: THE AUTHORITATIVE SETTLEMENT IS COMMITTED BEFORE THE TOKEN GOES BACK.
@@ -1978,8 +1597,7 @@ def prepare(engine, run, *, image_digest, store, assignment_id, operation,
               "pre_allocation": pre_allocation,
               "established": minted.answer["established"],
               "mode": minted.answer["mode"], "exit_status": exit_status,
-              "cradle": cradle,
-              **mapping,
+              "object_identity": _established_identity(source, place_name),
               "running_as": list(minted.answer["running_as"]),
               "cessation": "the engine's own absence sentence named this "
                            "container after its removal"})

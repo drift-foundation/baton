@@ -411,6 +411,16 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
         # alongside the clock, the wait and the stopping predicate -- composing a
         # runtime adapter is the deployment's act, not the job manager's.
         "reclaim",
+        # W285464: `PREPARING` is the acting preparation's OWN ownership ordinal, which
+        # this manager answered from `admit_preparation` in the same act. It is a fact
+        # about which window the caller holds, and it can only EXEMPT that window --
+        # a wrong or absent value makes the act stricter rather than weaker.
+        "preparing",
+        # W285464: `PUBLISHED` names the documents a finished host preparation wrote,
+        # recorded as evidence in its durable account. It is a fact about what
+        # happened, not internal state: nothing is decided from it, and the gate
+        # re-reads the objects rather than trusting anything the caller said.
+        "published",
         # W285463: `ORDINAL` names ONE durable maintenance window over one root --
         # the same shape `workspaces` already uses for a removal ownership. It is a
         # fact about which recorded act a reader is asking about, not internal state:
