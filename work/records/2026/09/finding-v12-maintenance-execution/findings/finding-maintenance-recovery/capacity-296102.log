@@ -1,0 +1,631 @@
+........................................................FF.....F.FFF.......E....E.EEEEE.EE.EEE...E.............../usr/lib/python3.13/tempfile.py:1132: ResourceWarning: Implicitly cleaning up <TemporaryDirectory '/tmp/v12-job-manager-ba03q55t'>
+  _warnings.warn(warn_message, ResourceWarning)
+/usr/lib/python3.13/tempfile.py:1132: ResourceWarning: Implicitly cleaning up <TemporaryDirectory '/tmp/v12-job-manager-nexkdkc5'>
+  _warnings.warn(warn_message, ResourceWarning)
+/usr/lib/python3.13/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7cba3a8da4d0>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7cba3a8da2f0>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7cba3a8d9d50>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/json/decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7cba3a8d8f40>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..E..........E.E......FF.E.
+======================================================================
+ERROR: test_a_released_reservation_is_refused_by_its_own_owner (tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer.test_a_released_reservation_is_refused_by_its_own_owner)
+MEASURED, and it changed this case. `release` leaves the allocation
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 3187, in test_a_released_reservation_is_refused_by_its_own_owner
+    held.admit(stage, {"input_digest": self.input_digest})
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1135, in admit
+    return self._preparation.admit(self._operations, stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1355, in admit
+    plan = self.planned(stage, held)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1608, in planned
+    "input_digest": held["job_input_digest"],
+                    ~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'job_input_digest'
+
+======================================================================
+ERROR: test_a_committed_intent_with_no_published_input_refuses (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_committed_intent_with_no_published_input_refuses)
+THE CASE THAT REPLACED TWO OF MINE, and the reason is the point.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2987, in test_a_committed_intent_with_no_published_input_refuses
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_a_resumed_creation_does_not_mint_a_second_child_work (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_resumed_creation_does_not_mint_a_second_child_work)
+The intent carries the operation id `create_work` is called with,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2852, in test_a_resumed_creation_does_not_mint_a_second_child_work
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_admission_is_committed_before_anything_starts (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_admission_is_committed_before_anything_starts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2828, in test_admission_is_committed_before_anything_starts
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_an_absent_intent_carries_no_constraint (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_an_absent_intent_carries_no_constraint)
+NAMED FOR WHAT IT PROVES, which review claim169416 caught me getting
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 3001, in test_an_absent_intent_carries_no_constraint
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_actor_holds_one_live_claim_and_the_preparation_takes_it (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_actor_holds_one_live_claim_and_the_preparation_takes_it)
+WHY THIS FIXTURE PRE-CLAIMS NOTHING, asserted rather than asserted
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2767, in test_the_actor_holds_one_live_claim_and_the_preparation_takes_it
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_claim_carries_the_authoritys_own_authorization (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_claim_carries_the_authoritys_own_authorization)
+The assignment is not the whole of what a claim answers.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2800, in test_the_claim_carries_the_authoritys_own_authorization
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_offer_is_the_one_the_plan_registered (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_offer_is_the_one_the_plan_registered)
+Admission compares the membership against the registered plan, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2820, in test_the_offer_is_the_one_the_plan_registered
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_parent_keeps_its_one_reserved_root (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_parent_keeps_its_one_reserved_root)
+The same actor holds the parent while it prepares: one root, one
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2872, in test_the_parent_keeps_its_one_reserved_root
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_runtime_attempt_is_recorded_by_the_composition (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_runtime_attempt_is_recorded_by_the_composition)
+THE OWNER ACT THIS COMPOSITION OWES, and whose operands.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2715, in test_the_runtime_attempt_is_recorded_by_the_composition
+    _store, _stage, _allocation, _execution, held = self.prepared()
+                                                    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_whole_sequence_runs_against_real_owners (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_whole_sequence_runs_against_real_owners)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2733, in test_the_whole_sequence_runs_against_real_owners
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2657, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<5 lines>...
+        accept=self.accepting(), identity=self.IDENTITY,
+    contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1820, in prepare
+    self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               assignment=_admissible(assignment),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               input_manifest=input_manifest))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1872, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+    ...<2 lines>...
+        execution_attempt_id=runtime_attempt_id, assignment=assignment,
+        input_manifest=input_manifest)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-9''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_wrapper_admits_preparation_and_defers_the_parent (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_wrapper_admits_preparation_and_defers_the_parent)
+THE SELECTED SEAM, END TO END, and the deferral actually reached.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2938, in test_the_wrapper_admits_preparation_and_defers_the_parent
+    wrapper.admit(stage, {"input_digest": request["input_digest"]})
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1135, in admit
+    return self._preparation.admit(self._operations, stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1355, in admit
+    plan = self.planned(stage, held)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1608, in planned
+    "input_digest": held["job_input_digest"],
+                    ~~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'job_input_digest'
+
+======================================================================
+ERROR: test_an_exact_repeat_replays_and_changed_operands_collide (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_an_exact_repeat_replays_and_changed_operands_collide)
+Every operation here is journalled under an identity derived from
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1708, in test_an_exact_repeat_replays_and_changed_operands_collide
+    repeated = capacity.admit_integration_execution(
+        store, self.control(), orchestration_id=self.ORCHESTRATION,
+        phase="prepare", execution_attempt_id="prepare-attempt-1",
+        assignment=self.claim_of("prepare-attempt-1"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_a_start_after_admission_proceeds (tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission.test_a_start_after_admission_proceeds)
+And the reversal: once capacity has admitted the member, the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2423, in test_a_start_after_admission_proceeds
+    capacity.admit_integration_execution(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self.control(), orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        phase="prepare", execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of("prepare-attempt-1"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_admitted_member_is_read_from_the_store_not_remembered (tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission.test_the_admitted_member_is_read_from_the_store_not_remembered)
+A composition that trusted its own bookkeeping would authorise a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2443, in test_the_admitted_member_is_read_from_the_store_not_remembered
+    capacity.admit_integration_execution(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self.control(), orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        phase="prepare", execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of("prepare-attempt-1"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_parent_offer_is_not_settled_by_preparing (tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission.test_the_parent_offer_is_not_settled_by_preparing)
+The same actor holds the parent while it prepares, so the root must
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2465, in test_the_parent_offer_is_not_settled_by_preparing
+    capacity.admit_integration_execution(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self.control(), orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        phase="prepare", execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of("prepare-attempt-1"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none
+
+======================================================================
+ERROR: test_the_identical_admission_from_another_connection_replays (tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation.test_the_identical_admission_from_another_connection_replays)
+THE OTHER ALLOWED OUTCOME. Two connections attempting the SAME act
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1797, in test_the_identical_admission_from_another_connection_replays
+    again = capacity.admit_integration_execution(
+        second, self._control, orchestration_id=self.ORCHESTRATION,
+        phase="prepare", execution_attempt_id="prepare-attempt-1",
+        assignment=self.claim_of("prepare-attempt-1"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 989, in admit_integration_execution
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 225, in document
+    _refuse(f"{what} is one exact document; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none
+
+======================================================================
+FAIL: test_an_offer_settled_for_another_participant_is_refused (tests.job_manager.test_managed_integration_capacity.TheOfferIdentityIsComplete.test_an_offer_settled_for_another_participant_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1425, in test_an_offer_settled_for_another_participant_is_refused
+    self.assertIn("participant", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'participant' not found in "execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none"
+
+======================================================================
+FAIL: test_an_offer_settled_under_another_authority_is_refused (tests.job_manager.test_managed_integration_capacity.TheOfferIdentityIsComplete.test_an_offer_settled_under_another_authority_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1433, in test_an_offer_settled_under_another_authority_is_refused
+    self.assertIn("authority_uuid", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'authority_uuid' not found in "execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none"
+
+======================================================================
+FAIL: test_the_recorded_attempt_may_disagree_alone (tests.job_manager.test_managed_integration_capacity.ThePersistedEvidenceIsOwnedEndToEnd.test_the_recorded_attempt_may_disagree_alone)
+THE THIRD ACCOUNT, on its own. The two refusals added last claim
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1392, in test_the_recorded_attempt_may_disagree_alone
+    self.assertIn("was recorded with 'sha256:" + "e" * 20,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "was recorded with 'sha256:eeeeeeeeeeeeeeeeeeee" not found in "execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none"
+
+======================================================================
+FAIL: test_a_plan_naming_an_offer_nobody_issued_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_plan_naming_an_offer_nobody_issued_is_refused)
+[P1] The offer the claim SETTLED is the offer that was planned.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 778, in test_a_plan_naming_an_offer_nobody_issued_is_refused
+    self.assertIn("its claim settled", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'its claim settled' not found in "execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none"
+
+======================================================================
+FAIL: test_a_plan_whose_digests_disagree_with_the_claim_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_plan_whose_digests_disagree_with_the_claim_is_refused) (digest='profile_digest')
+[P1] The plan says what the phase was meant to run, the offer says
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 802, in test_a_plan_whose_digests_disagree_with_the_claim_is_refused
+    self.assertIn(f"planned with {name}", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'planned with profile_digest' not found in "execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none"
+
+======================================================================
+FAIL: test_a_plan_whose_digests_disagree_with_the_claim_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_plan_whose_digests_disagree_with_the_claim_is_refused) (digest='input_digest')
+[P1] The plan says what the phase was meant to run, the offer says
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 802, in test_a_plan_whose_digests_disagree_with_the_claim_is_refused
+    self.assertIn(f"planned with {name}", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'planned with input_digest' not found in "execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none"
+
+======================================================================
+FAIL: test_a_second_connection_waits_for_the_write_lock (tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation.test_a_second_connection_waits_for_the_write_lock)
+THE CONTENTION ITSELF, deterministically ordered.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1908, in test_a_second_connection_waits_for_the_write_lock
+    self.assertNotIsInstance(done[0], BaseException)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal("execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none") is an instance of <class 'BaseException'>
+
+======================================================================
+FAIL: test_an_admission_that_lost_to_an_ending_is_refused (tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation.test_an_admission_that_lost_to_an_ending_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1820, in test_an_admission_that_lost_to_an_ending_is_refused
+    self.assertIn("admission is closed", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'admission is closed' not found in "execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none"
+
+----------------------------------------------------------------------
+Ran 139 tests in 1.538s
+
+FAILED (failures=8, errors=17)

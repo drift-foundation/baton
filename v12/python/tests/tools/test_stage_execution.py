@@ -878,6 +878,84 @@ class ComposedLifecycleCase(DriverCase):
                 "result_digest": result_digest}
 
 
+class TheRECOVEREDReviewLineCarriesItsOwnCapability(unittest.TestCase):
+    """W285465 review 2026-09-28T08-35-38Z: the edge that dropped the operand.
+
+    `_prepare` passes the acting preparation's capability into `_recovered`, and the
+    implementation branch there forwards it to `writer_boundary`. The REVIEW branch dropped
+    it, so every tick after the first that recomposes an active review mount while the
+    preparation window stands was refused by that window.
+
+    WHAT THIS PROVES AND WHAT IT DOES NOT, stated rather than left to a test name: it proves
+    the OPERAND CROSSES the composer on both branches, which is exactly the defect. What the
+    capability then MEANS is the adoption entry's rule, covered by that entry's own cases --
+    this asserts nothing about it and doubles neither owner's account.
+    """
+
+    class Deployment:
+        control = "the-control"
+        profile = "the-profile"
+
+    def composed(self, role):
+        return stage_execution.StageComposition(
+            self.Deployment(), role=role, worker_id="a-worker")
+
+    def test_the_REVIEW_branch_forwards_what_it_was_given(self):
+        seen = {}
+
+        def review_for_attempt(control, *, attempt_id, generation):
+            return {"attachment_id": "an-attachment", "state": "active",
+                    "checkpoint_id": "a-checkpoint"}
+
+        def review_boundary(control, *, attachment_id, profile, preparing=None):
+            seen["preparing"] = preparing
+            return "a-boundary"
+
+        with mock.patch.multiple(stage_execution.review_cycles,
+                                 review_for_attempt=review_for_attempt,
+                                 review_boundary=review_boundary):
+            answered = self.composed("review")._recovered(
+                "an-attempt", 1, preparing="the-capability")
+        self.assertEqual(answered["boundary"], "a-boundary")
+        self.assertEqual(seen["preparing"], "the-capability")
+
+    def test_the_IMPLEMENTATION_branch_still_forwards_its_own(self):
+        """The reciprocal, so a later edit cannot fix one branch by breaking the other."""
+        seen = {}
+
+        def writer_for_attempt(control, *, attempt_id, generation):
+            return {"writer_id": "a-writer", "line_id": "a-line",
+                    "state": "active", "based_checkpoint_id": None}
+
+        def writer_boundary(control, *, writer_id, generation, preparing=None):
+            seen["preparing"] = preparing
+            return "a-boundary"
+
+        with mock.patch.multiple(stage_execution.review_cycles,
+                                 writer_for_attempt=writer_for_attempt,
+                                 writer_boundary=writer_boundary):
+            answered = self.composed("implementation")._recovered(
+                "an-attempt", 1, preparing="the-capability")
+        self.assertEqual(answered["boundary"], "a-boundary")
+        self.assertEqual(seen["preparing"], "the-capability")
+
+    def test_an_INACTIVE_review_attachment_composes_no_boundary_at_all(self):
+        """The negative control: no mount is composed for history, capability or not."""
+        def review_for_attempt(control, *, attempt_id, generation):
+            return {"attachment_id": "an-attachment", "state": "ended",
+                    "checkpoint_id": "a-checkpoint"}
+
+        def review_boundary(*arguments, **named):
+            raise AssertionError("an ended attachment composed a mount")
+
+        with mock.patch.multiple(stage_execution.review_cycles,
+                                 review_for_attempt=review_for_attempt,
+                                 review_boundary=review_boundary):
+            self.assertIsNone(self.composed("review")._recovered(
+                "an-attempt", 1, preparing="the-capability")["boundary"])
+
+
+
 class TheComposedLifecycleRunsOverRealStores(ComposedLifecycleCase):
     """Item 3's own cases, over the harness above."""
 

@@ -1,0 +1,25 @@
+..........................................................................................E...........................................F....
+======================================================================
+ERROR: test_the_runtime_attempt_is_recorded_by_the_composition (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_runtime_attempt_is_recorded_by_the_composition)
+THE OWNER ACT THIS COMPOSITION OWES, and whose operands.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2767, in test_the_runtime_attempt_is_recorded_by_the_composition
+    self.IDENTITY["input_digest"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'input_digest'
+
+======================================================================
+FAIL: test_a_second_connection_waits_for_the_write_lock (tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation.test_a_second_connection_waits_for_the_write_lock)
+THE CONTENTION ITSELF, deterministically ordered.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1937, in test_a_second_connection_waits_for_the_write_lock
+    self.assertNotIsInstance(done[0], BaseException)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal("execution 'prepare-attempt-1''s configured input manifest is one exact document; this is none") is an instance of <class 'BaseException'>
+
+----------------------------------------------------------------------
+Ran 139 tests in 1.570s
+
+FAILED (failures=1, errors=1)

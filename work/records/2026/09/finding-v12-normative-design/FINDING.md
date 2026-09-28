@@ -338,3 +338,80 @@ execution continuation: ../finding-v12-maintenance-execution/findings/finding-ma
 entry “owner selects host-side initial preparation”. No implementation acceptance,
 deployment, live execution or graph change follows from this specification edit.
 Recorded by baton.prompt from the owner’s explicit instruction.
+
+
+## 2026-09-28 UTC — no automatic permission normalization on selected v12 path
+
+Owner confirms shared-group-accessible job files; inaccessible output is a
+reported permission error with workspace preservation, not automatic repair.
+Owner explicitly rejects starting a maintenance container at this point.
+DESIGN HOST-5 now pins this selection and supersedes mandatory normalization
+and per-root repair generations for the current completion/recovery path.
+Automatic permission repair is deferred, not a release gate. No general host
+cleanup/custody mutation authority is inferred. Exact ruling:
+../finding-v12-maintenance-execution/findings/finding-maintenance-recovery/OWNER-NO-AUTOMATIC-NORMALIZATION-20260928.md.
+Active implementer and reviewer notified through T285465 message291205; they
+own alignment of execution records and acceptance evidence. Recorded by baton.prompt.
+
+
+## 2026-09-28 — separate permission errors from execution ownership
+
+Owner selects exact Docker/writer cessation, non-mutating access check, durable
+outcome, then safe execution release. Access failure alone is not writer
+uncertainty and must not require automatic repair or retain the execution gate.
+Preserve inaccessible material and its honest error; no deletion/reuse or false
+collection success is granted. DESIGN HOST-5 completion clarification updated.
+Implementation direction and exact supersession are in
+../finding-v12-maintenance-execution/findings/finding-maintenance-recovery/OWNER-SIMPLE-COMPLETION-20260928.md.
+Use one shared check for selected endings with their exact authority/replay rules;
+active handler retains product ownership. Recorded by baton.prompt from owner.
+
+
+## 2026-09-28 — primary four-step v12 lifecycle supersedes maintenance gates
+
+Owner explicitly selects: (1) host prepares folders/inputs, (2) start one Docker
+job with lease, (3) natural end or stop with exact Docker termination confirmation,
+(4) record checked status and release execution gate. Owner instructed prompt to
+update DESIGN and follow up with reviewer/Claude.
+
+DESIGN now states this as the primary lifecycle and aligns TOK-7/TOK-12, HOST-1/5,
+ART-3/7/9, the system diagram and section19. All running job writers are confined
+to the one job container; confirmed Docker termination proves they stopped. Do
+not demand hypothetical independent-writer evidence for this model. Concrete
+unknown Docker/launch state still holds, and an actually observed external writer
+is an invariant violation to account for. Host preparation finishes before launch.
+
+Host read-only access/output validation and durable status replace mandatory
+normalization receipts. Permission errors preserve files and report failure, not
+a running execution or automatic repair. Existing private durable output storage
+is retained and protected from writable reuse; no maintenance retention copy or
+freeze is needed merely to complete. Result acceptance is distinct from release.
+No automatic helper, reset, deletion or permission repair is selected. Earlier
+mandatory maintenance/custody/per-root-generation completion and recovery rules
+are explicitly superseded. Historical evidence remains; no blanket rollback.
+
+Implement one shared completion check across existing endings with exact identity,
+authority and replay. Recovery reconciles the same four steps. Classify remaining
+failures against this contract; retain useful fixes/tests, remove only obsolete
+repair requirements. Do not start a new framework or broad rewrite. Current
+W285465 claim and product ownership remain, independent review required.
+
+
+## 2026-09-28 — execution release does not require a result check
+
+Owner selected the further simplification explicitly: after exact Docker
+termination, record execution status, preserve the workspace as it is, and release
+the execution gate. No proactive output/permission/digest/manifest scan is needed
+to finish execution. Human integration or an independently selected reviewer or
+consumer inspects output later and reports actual access/validation failures then.
+Container success is not output correctness, completeness or integration acceptance.
+
+DESIGN primary step4, TOK-7, HOST-1/5, ART-7 and verification/policy summaries
+updated. This supersedes the output/access-check-before-release part of prior
+OWNER-SIMPLE-COMPLETION-20260928.md, four-step findings and implementation plans.
+Keep exact runtime identity, confirmed termination, durable status, replay and
+workspace preservation. Unknown container/launch state still holds; unknown exit
+status is reported honestly, not confused with unknown termination. Result
+acceptance requirements remain at consumption, not execution release. No automatic
+cleanup/repair/copy, false accepted-result receipts, live run or Git operation.
+Recorded by baton.prompt from the owner's explicit selection.

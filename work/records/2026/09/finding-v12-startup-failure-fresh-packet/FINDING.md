@@ -197,3 +197,95 @@ removed or added by this correction.
 Coordination-only update by baton.tuner under claim285648/handoff285645;
 current execution remains in PLAN and canonical Baton state. Historical evidence
 and independent reviews are unchanged. No product/test/live execution selected.
+
+
+## 2026-09-28 — selected fresh single-job packet preparation
+
+Owner reroute291710, tuner claim291715, supersedes the old unconditional R1–R5
+then D2 scheduling recipe and earlier mandatory maintenance initial-preparation/
+normalization assumptions. Read current W247941 PLAN/latest owner FINDING and
+DESIGN TOK-7/HOST-1/HOST-5. Draft one bounded useful Job now alongside W285465;
+freeze only after exact prerequisite candidate acceptance. Host initial preparation
+is permitted; accessible output must progress without normalization/helper launch;
+access errors preserve workspace and report the exact operation. Retained-result
+evidence, cessation, identity, isolation and DB-1 still apply. D1 and declaration
+correction retain their accepted historical scope, not current packet acceptance.
+
+Own only documentation, packet data and focused deterministic packet checks in
+this dossier. Product/shared tools, W285465 and W257624 are read-only. No live
+engine/provider, build, deployment, cleanup or Git mutation. No dependency changes.
+Map reached blockers and propose explicit provider dispositions; preserve residual
+obligations. Missing supported operations must be reported, never copied around.
+Independent review is next; routine corrections need no renewed owner gate.
+Last current handoff read291710, claim291715, threadT257627/257627; events after
+accepted handoff258299 read through291715 (snapshot291718, no pagination).
+
+
+### 2026-09-28 — concrete packet command gap and draft delivery
+
+Observed read-only: baseline_bindings.py always emits contextual implementation;
+baseline.py requires a context profile. The existing TwoJobGate constructor rejects
+one Job explicitly. Supported stack start is persistent, and its stop is not task
+cessation. Therefore no inspected accepted recipe provides this selected bounded
+one-job fresh-context start. This is B1 in SINGLE-JOB-PACKET-20260928.md, an unresolved
+command/packet defect owned here, not permission to copy an old helper or claim a
+shell timeout is recovery. Draft literal bootstrap/submission/status/log surfaces
+are provided; a runnable bounded-start argv cannot honestly be supplied yet.
+
+Current W285465 PLAN/review03:21:57 retains five no-helper ending gaps; canonical
+snapshot291729 confirms active implementation. Its APIs and source may move. Current
+create_line commits before profile.materialize and intake._settle requires an
+outside-measured prepared_store; these source observations narrow old residuals but
+are not independent acceptance. BLOCKERS-20260928.md maps every named W257624
+residual to reached proof, inherited evidence or preserved out-of-path obligation,
+and proposes actual existing-provider edges without executing graph changes.
+
+New immutable task/excerpts select useful operator documentation. INPUTS and
+CANDIDATE manifests distinguish draft operands, historical image provenance and
+observed source hashes from the absent frozen candidate. No live authentication,
+OCI access, current image contents or final shared-mode behavior claimed. Next:
+independent draft review and bounded existing-composer/supervisor implementation
+assignment; final freeze/rehearsal follows accepted providers. No new owner gate
+for routine corrections, and no W285465 ownership change.
+
+## 2026-09-28T03-34-19Z — independent draft assessment and exact B1 scope decision
+
+Claim291770, handoff291767; current events after258299 through291770 and discussion257627 read. review-2026-09-28T03-34-19Z.md verifies static hashes/interfaces0.008088s, confirms bounded fresh-context recipe gap and preserves B1–B5. Full packet NOT accepted/launchable. B1-SCOPE-PROPOSAL-20260928.md supplies concrete four-path correction at existing single-job baseline. Owner291710 expressly limits writes to this dossier and shared tools read-only; author request to assign shared edits does not supersede it. Return owner for exact shared-path/executor selection, not renewed routine dossier permission. Historical D1 and declaration evidence preserved; graph unchanged.
+
+
+## 2026-09-28 — B1 selected for tuner implementation
+
+Owner291841 selects B1-SCOPE-PROPOSAL-20260928.md; claim291848 succeeds. This
+supersedes its awaiting-selection status and the earlier shared-path prohibition
+only for baseline.py, baseline_bindings.py, test_baseline.py and
+test_baseline_bindings.py under finding-v12-single-implementation-proof. Pre-edit
+git diff for those four paths is empty; no active G2 files overlap. Exact current
+handoff read through291848 and T257627/257627; no discussion pagination.
+
+Implementation choice: preserve historical packet/1 and default contextual
+composition. Explicit context_mode=fresh emits packet/2 with context={mode:fresh},
+plain worker config and no context profile/receipt/grant. Validate mode against
+deployment/submission before opening stores; fresh evidence rejects any context
+invocation rather than merely skipping qualification. Reuse existing one-job gate,
+supervisor/cessation and result checks. No lifecycle fix or helper fork. Focused
+new tests cover generated command entrypoints, mode confusion, context exclusion,
+caps, result accounting and unchanged contextual contract. No live engine/provider.
+
+## 2026-09-28T03-53-13Z — four-path authority selected; partial B1 independently verified
+
+Owner291841 explicitly supersedes prior shared-path restriction for selected four files, exclusive tuner. Claim291940 review review-2026-09-28T03-53-13Z.md: seven hashes match;29PASS0.329s; retained fresh positive1FAIL0.314s at preparation/adopted-root guard. Posted exact reached G2 consumer finding T285465/291949. No guard bypass, fifth-path edit or claim transfer. B1/final packet unaccepted; routine selected-scope continuation without owner gate.
+
+
+## 2026-09-28T04-03-57Z — partial deadline clarification and dependency drift
+
+Reviewer claim292014, author291999. Fresh cooperative serving reserves cleanup within the300-second total (240 serving/60 reserve); this supersedes the former fresh serving300 plus separate60 cleanup interpretation. Historical contextual semantics remain. No hard wall-clock or active-runtime acceptance is implied. Four selected hashes match; shared workspaces.py drift prevents candidate-bound independent rerun. See review-2026-09-28T04-03-57Z.md. Continue under owner291841 with baton.tune after reviewed G2 dependency; preserve all earlier evidence.
+
+
+## 2026-09-28T04-08-43Z — concrete dependency wait replaces unchanged redelivery
+
+Claim292081/handoff292063. Four selected hashes unchanged. G2 independent review04-07-04 confirms atomic adoption remains broken and pass292076 routes the pinned correction to impl. See review-2026-09-28T04-08-43Z.md. Request exact corrected candidate plus independent review as a blocking directed obligation on this Work; no dependency edge or new scope. On receipt validate evidence then continue tuner authority291841. Preserve B1–B5 and earlier accepted evidence.
+
+
+## 2026-09-28T04-15-33Z — required provider classification W285465
+
+Claim292144, response292130/events292144. review-2026-09-28T04-15-33Z.md explicitly supersedes message-only/no-edge scheduling: W285465 provides unresolved connected preparation and no-helper ending acceptance required by B1/B2/final packet. Install required blocker W257627 on W285465, pass tuner blocked. Partial response cleared M292090 but supplies no acceptance. Earlier accepted bounded slice requires explicit future reclassification; no silent bypass. Product scope and existing four-path authority unchanged.

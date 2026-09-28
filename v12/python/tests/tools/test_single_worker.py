@@ -6,6 +6,7 @@ engine boundary replaced with a recording process capability.
 """
 
 import copy
+import hashlib
 import json
 import os
 import pathlib
@@ -2359,6 +2360,525 @@ class AnABRUPTDeathLeavesTheWindowStandingAndLaunchesNothing(SingleWorkerCase):
                       if one.startswith("attempt-")][0]
         self.assertEqual([one for one, _ in workspaces.standing_preparation(
             control, attempt_id)], [1])
+
+
+class EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld(SingleWorkerCase):
+    """W285465 HP1/HP2/HP3/HP5: an abrupt death in EACH host preparation phase.
+
+    The accepted predecessor proved one cut -- a death at the allocation -- and the
+    W285465 handoff is explicit that this does not prove every phase. So this forks a
+    child per phase, kills it with `os._exit` inside the real composition, and asks the
+    reopened journal what is true. The phases are the composition's own checkpoints:
+
+        workspace   the private allocation exists; nothing is staged yet
+        boundary    the source mountpoint exists inside the input root
+        input       the task document and the protocol pair are published and the
+                    root is FROZEN -- the filesystem work is COMPLETE
+        manifest    the retained manifest is committed and the completion is NOT
+                    (HP2's distinct row: the last moment before `record_preparation`)
+        prepared    the durable completion IS committed (HP3's positive resume)
+
+    HP5 IS A PROPERTY OF THE HARNESS, not a separate cut: the child's process-local
+    `_preparations` map dies with it, and every question below is asked through handles
+    opened afterwards over the same persisted state. An empty map is never read as "no
+    writer" -- what answers is the journal.
+
+    WHAT THESE CUTS ARE NOT, corrected by review 2026-09-27T23-45-11Z and stated here
+    rather than left to be inferred from a test name: every cut lands on a PHASE
+    BOUNDARY -- the instant after a phase's writes returned -- so they prove that a
+    COMPLETED phase authorizes nothing further. They are NOT interior partial writes: a
+    half-created directory tree, a mid-publication document or a partly applied
+    permission set is a different cut, and the interior ones remain unproved here. The
+    one interior effect this suite does reach is the publication's own failure path,
+    `TheConnectedHANDOFFIsProvedEndToEnd.test_H7_a_FAILED_publication_removes_the_name_
+    it_created`, which stalls the write itself.
+
+    DETERMINISTIC AND OFFLINE, as the predecessor was: the same fake engine, the same
+    disposable stores, one Host manager, no live engine or provider, and the child's
+    exact exit status is checked so a child that failed some other way cannot be read
+    as the death this case is about.
+    """
+
+    SIBLING = "attempt-" + "5" * 64
+
+    def sibling(self):
+        """An unrelated attempt's material, and its exact identity beforehand.
+
+        HP1 requires that sibling bytes and identities are unchanged by an
+        interruption and by the recovery that follows, so there has to BE a sibling:
+        a real home beside the one the child prepares, with content of its own.
+        """
+        home = os.path.join(self.storage, self.SIBLING)
+        os.makedirs(os.path.join(home, "inputs"))
+        os.makedirs(os.path.join(home, "workspace"))
+        with open(os.path.join(home, "inputs", "task.json"), "wb") as writing:
+            writing.write(b'{"schema":"the sibling own task"}')
+        with open(os.path.join(home, "workspace", "answer.txt"), "wb") as writing:
+            writing.write(b"the sibling own answer\n")
+        return self.identity_of(home)
+
+    @staticmethod
+    def identity_of(root):
+        """Every entry under `root` by relative name: mode, object and content."""
+        found = {}
+        for walked, directories, files in os.walk(root):
+            directories.sort()
+            for name in sorted(directories) + sorted(files):
+                place = os.path.join(walked, name)
+                held = os.lstat(place)
+                content = None
+                if stat.S_ISREG(held.st_mode):
+                    with open(place, "rb") as reading:
+                        content = hashlib.sha256(reading.read()).hexdigest()
+                found[os.path.relpath(place, root)] = (
+                    stat.S_IMODE(held.st_mode), held.st_dev, held.st_ino, content)
+        return found
+
+    def killed_at(self, point):
+        """Fork, prepare up to `point`, and leave without unwinding anything."""
+        job, control = self.stores("hp-parent")
+        submit(job, self.submission)
+        job.close()
+        control.close()
+        read, write = os.pipe()
+        child = os.fork()
+        if child == 0:                                   # pragma: no cover
+            code = 3
+            try:
+                os.close(read)
+                job, control = self.stores("hp-child")
+                engine = Engine()
+
+                def checkpoint(name):
+                    if name == point:
+                        os.write(write, b"reached")
+                        # NO UNWINDING AT ALL: not an exception, not `sys.exit`, so
+                        # no `finally` releases the window and no cleanup repairs
+                        # anything. This is the fact a RuntimeError cannot model.
+                        os._exit(9)
+
+                operations = single_worker.operations_from(
+                    self.config, job, control, engine_run=engine,
+                    credential_provider=lambda *_: self.secret,
+                    clock=lambda: fixtures.NOW, checkpoint=checkpoint)
+                for _ in range(6):
+                    reconcile(job, operations, now=fixtures.NOW)
+            except BaseException:
+                code = 4
+            os._exit(code)
+        os.close(write)
+        signalled = os.read(read, 16)
+        os.close(read)
+        _pid, status = os.waitpid(child, 0)
+        self.assertEqual(signalled, b"reached",
+                         f"the child never reached {point!r}")
+        self.assertTrue(os.WIFEXITED(status))
+        self.assertEqual(os.WEXITSTATUS(status), 9,
+                         "the child did not die the way this case is about")
+        # FRESH HANDLES OVER THE SAME PERSISTED STATE, which is HP5: nothing of the
+        # dead writer's process-local tracking survives to be consulted.
+        job, control = self.stores("hp-after")
+        attempts = [one for one in sorted(os.listdir(self.storage))
+                    if one.startswith("attempt-") and one != self.SIBLING]
+        self.assertEqual(len(attempts), 1,
+                         f"the child did not allocate exactly one home: {attempts}")
+        return job, control, attempts[0]
+
+    def held_after(self, point, sibling):
+        """The whole HELD outcome for a cut before the completion is written."""
+        from baton_v12.worker_manager import tokens, workspaces
+
+        job, control, attempt_id = self.killed_at(point)
+        # THE WINDOW IS STANDING, at this attempt and this exact ordinal: the journal
+        # says a writer was admitted and neither completed nor released.
+        self.assertEqual(workspaces.standing_preparation(control, attempt_id)[0][0],
+                         1)
+        self.assertEqual(len(workspaces.standing_preparation(control, attempt_id)), 1)
+        # AND THERE IS NO COMPLETION, so the files on disk -- however complete they
+        # are -- are not an account that anything may consume.
+        self.assertIsNone(workspaces.preparation_completed(control, attempt_id))
+        # NO TASK TOKEN WAS EVER ACQUIRED over the workspace object.
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual(tokens.outstanding(control, domain), [])
+        # THE HOLD IS ACTIONABLE AND NAMES THE RESOURCE: every act that would take
+        # these roots over refuses, naming the window nobody closed.
+        roots = {"inputs": os.path.join(self.storage, attempt_id, "inputs"),
+                 "workspace": os.path.join(self.storage, attempt_id, "workspace")}
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.require_prepared(control, attempt_id, roots,
+                                        "starting this attempt")
+        self.assertIn("host preparation 1", str(refused.exception))
+        for act, what in (
+                (lambda: workspaces._admitted_removal(
+                    control, attempt_id, "a later removal"), "removal"),
+                (lambda: workspaces._admitted_adoption(
+                    control, attempt_id, "a later adoption"), "adoption"),
+                (lambda: workspaces.admit_preparation(
+                    control, attempt_id, "a later preparation", attempt_id),
+                 "preparation")):
+            with self.assertRaises(ContractRefusal) as refused:
+                act()
+            self.assertIn("host preparation 1", str(refused.exception),
+                          f"the {what} did not name the standing window")
+        # AND A WHOLE FRESH COMPOSITION LAUNCHES NOTHING over it -- the recovery a
+        # restarted manager actually performs, not a hand-made call.
+        engine = Engine()
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        for _ in range(6):
+            try:
+                reconcile(job, operations, now=fixtures.NOW)
+            except ContractRefusal:
+                pass
+        self.assertEqual(engine.starts, [],
+                         "a restarted manager launched over a standing window")
+        self.assertEqual(engine.vectors, [],
+                         "a restarted manager reached the engine at all")
+        self.assertIsNone(workspaces.preparation_completed(control, attempt_id))
+        self.assertEqual(len(workspaces.standing_preparation(control, attempt_id)), 1)
+        # THE SIBLING IS UNTOUCHED, by the interruption and by the recovery.
+        self.assertEqual(
+            self.identity_of(os.path.join(self.storage, self.SIBLING)), sibling,
+            "the interrupted attempt or its recovery changed a sibling")
+        return control, attempt_id
+
+    def test_HP1_a_death_AFTER_the_ALLOCATION_holds_and_launches_nothing(self):
+        # THE CUT IS THE BOUNDARY AFTER `assignment_workspace` RETURNED, not a
+        # half-made tree: what this proves is that a finished allocation with nothing
+        # staged into it authorizes nothing.
+        sibling = self.sibling()
+        _control, attempt_id = self.held_after("workspace", sibling)
+        # THE PHASE IS PROVED REACHED BY WHAT IS THERE: the private home exists and
+        # nothing has been staged into the input root yet.
+        home = os.path.join(self.storage, attempt_id)
+        self.assertTrue(os.path.isdir(os.path.join(home, "workspace")))
+        self.assertEqual(os.listdir(os.path.join(home, "inputs")), [])
+
+    def test_HP1_a_death_after_the_SOURCE_MOUNTPOINT_holds_and_launches_nothing(self):
+        sibling = self.sibling()
+        _control, attempt_id = self.held_after("boundary", sibling)
+        # THE MOUNTPOINT IS THERE AND EMPTY, and the task is NOT published yet: this
+        # is the staging phase, distinguishable from the two around it.
+        inputs = os.path.join(self.storage, attempt_id, "inputs")
+        mountpoint = os.path.join(inputs, single_worker.SOURCE_DESTINATION)
+        self.assertTrue(os.path.isdir(mountpoint))
+        self.assertEqual(os.listdir(mountpoint), [])
+        self.assertFalse(os.path.lexists(
+            os.path.join(inputs, single_worker.TASK_DOCUMENT)))
+
+    def test_HP1_a_death_after_PUBLICATION_and_PERMISSIONS_holds_and_launches(self):
+        """The publication and permission phase: the filesystem work is COMPLETE."""
+        sibling = self.sibling()
+        _control, attempt_id = self.held_after("input", sibling)
+        inputs = os.path.join(self.storage, attempt_id, "inputs")
+        place = os.path.join(inputs, single_worker.TASK_DOCUMENT)
+        # THE DOCUMENT IS PUBLISHED, WITH THIS DEPLOYMENT'S OWN BYTES, and the
+        # PERMISSIONS are the ones the delivery promises -- the read-only document
+        # inside a frozen root. That is the phase, proved by its own effects.
+        with open(place, "rb") as reading:
+            self.assertEqual(reading.read(), self.task_bytes)
+        self.assertEqual(stat.S_IMODE(os.lstat(place).st_mode), 0o444)
+        self.assertEqual(stat.S_IMODE(os.lstat(inputs).st_mode), 0o555)
+        # AND THIS CUT IS EARLIER THAN HP2's: the manifest has NOT been retained
+        # yet, which is what distinguishes the two adjacent phases by their effects
+        # rather than by the checkpoint name I asked for.
+        self.assertEqual(_control._connection.execute(
+            "SELECT count(*) FROM manifests").fetchone()[0], 0)
+
+    def test_HP2_a_COMPLETE_FILESYSTEM_without_the_record_proves_nothing(self):
+        """HP2, and it is the row the whole design rests on.
+
+        The cut is after `retain_manifest` and before `record_preparation`: every host
+        write has happened and the durable completion has not. The files are therefore
+        as complete as they will ever be, and they still authorize nothing -- no task
+        admission, no launch, no reuse. `held_after` asks all of that; what this adds
+        is the positive proof that the filesystem really is finished at this cut, so
+        the refusal cannot be explained by something missing on disk.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        sibling = self.sibling()
+        control, attempt_id = self.held_after("manifest", sibling)
+        inputs = os.path.join(self.storage, attempt_id, "inputs")
+        home = os.path.join(self.storage, attempt_id)
+        with open(os.path.join(inputs, single_worker.TASK_DOCUMENT), "rb") as reading:
+            self.assertEqual(reading.read(), self.task_bytes)
+        for name in ("workspace", "scratch", "credentials"):
+            self.assertTrue(os.path.isdir(os.path.join(home, name)), name)
+        self.assertTrue(os.path.isdir(
+            os.path.join(inputs, single_worker.SOURCE_DESTINATION)))
+        self.assertEqual(stat.S_IMODE(os.lstat(inputs).st_mode), 0o555)
+        # THE MANIFEST WAS RETAINED -- the DB write immediately before the completion
+        # -- so this cut is the LAST moment before the account rather than an earlier
+        # phase. Read off the store's own table, because that is the effect.
+        # MEASURED: the table keys the row by the DOCUMENT'S schema, not by the
+        # definition name the caller passes, and the row survived the abrupt exit --
+        # so the retention really did commit before the death.
+        self.assertEqual(
+            [one[0] for one in control._connection.execute(
+                "SELECT schema FROM manifests").fetchall()],
+            [self.manifest["schema"]])
+        # AND THE ACCOUNT IS ABSENT. Files plus a retained manifest are not a
+        # completion, and nothing here infers one from them.
+        self.assertIsNone(workspaces.preparation_completed(control, attempt_id))
+
+    def test_HP3_a_death_AFTER_the_record_resumes_to_EXACTLY_ONE_task(self):
+        """HP3, and the connected POSITIVE path: zero launches is not success.
+
+        The completion is committed and the writer is gone. A restarted manager with
+        fresh handles and an empty process-local map must revalidate the durable
+        identities and reach EXACTLY ONE task -- one create, one start -- without
+        redoing host work and without a second preparation account.
+        """
+        from baton_v12.worker_manager import tokens, workspaces
+
+        sibling = self.sibling()
+        job, control, attempt_id = self.killed_at("prepared")
+        # THE ACCOUNT IS DURABLE AND THE WINDOW IS CLOSED BY IT.
+        account = workspaces.preparation_completed(control, attempt_id)
+        self.assertIsNotNone(account)
+        self.assertEqual(workspaces.standing_preparation(control, attempt_id), [])
+        # AND NO TASK EXISTS YET: the completion is not admission.
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual(tokens.outstanding(control, domain), [])
+        engine = Engine()
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        # THE RECOVERY'S OWN HOST WRITES ARE COUNTED SEPARATELY from its durable
+        # acts: an exclusive creation of the task document would mean the resume
+        # republished what the dead writer had already published.
+        published, admitted, accounted = [], [], []
+        honest_open = os.open
+        honest_admit = workspaces.admit_preparation
+        honest_record = workspaces.record_preparation
+
+        def opening(place, flags, *arguments, **named):
+            if isinstance(place, str) \
+                    and place.endswith(single_worker.TASK_DOCUMENT) \
+                    and flags & os.O_EXCL:
+                published.append(place)
+            return honest_open(place, flags, *arguments, **named)
+
+        def noting_admit(*arguments, **named):
+            admitted.append(arguments[1])
+            return honest_admit(*arguments, **named)
+
+        def noting_record(*arguments, **named):
+            accounted.append(arguments[1])
+            return honest_record(*arguments, **named)
+
+        for patcher in (mock.patch.object(os, "open", side_effect=opening),
+                        mock.patch.object(workspaces, "admit_preparation",
+                                          side_effect=noting_admit),
+                        mock.patch.object(workspaces, "record_preparation",
+                                          side_effect=noting_record)):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        projected = self.commanded(job, operations)
+        # EXACTLY ONE TASK: one inert create, one activation, and the same attempt.
+        self.assertEqual(projected["jobs"][0]["stages"][0]["attempt_id"], attempt_id)
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(engine.starts[0][1], "create")
+        self.assertEqual(len([one for one in engine.vectors
+                              if activating(one)]), 1)
+        # NO REPUBLICATION, and the account is the SAME one -- `record_preparation`
+        # was reached again on the ordinary path and replayed at the same identity
+        # rather than writing a second preparation.
+        self.assertEqual(published, [],
+                         "the resume republished the task document")
+        self.assertEqual(accounted, [attempt_id])
+        self.assertEqual(workspaces.preparation_completed(control, attempt_id),
+                         account)
+        # THE WINDOW THE RESUME OPENED IS CLOSED AGAIN, and the token is held by
+        # this attempt's own execution.
+        self.assertEqual(admitted, [attempt_id])
+        self.assertEqual(workspaces.standing_preparation(control, attempt_id), [])
+        outstanding = tokens.outstanding(control, domain)
+        self.assertEqual([one["execution"] for one in outstanding], [attempt_id])
+        self.assertEqual(
+            tokens.token_of(control, domain,
+                            outstanding[0]["generation"])["container"],
+            engine.runtime_id)
+        # AND THE SIBLING IS STILL UNTOUCHED by a recovery that DID launch.
+        self.assertEqual(
+            self.identity_of(os.path.join(self.storage, self.SIBLING)), sibling)
+
+
+    def test_HP6_a_REPLACED_root_after_the_record_refuses_and_repins_nothing(self):
+        """HP6/HP7's mismatch half, through the RECOVERY rather than in-process.
+
+        The accepted predecessor proved a replaced root refuses before any task is
+        created; what this adds is the same substitution across an abrupt death, so the
+        manager deciding it has nothing in memory. The completion names the objects it
+        completed over by `device:inode`; a directory of the right shape at the right
+        path is a different object, and the recovery must refuse it, launch nothing,
+        and leave the account exactly as it found it -- no silent repinning.
+        """
+        from baton_v12.worker_manager import tokens, workspaces
+
+        sibling = self.sibling()
+        job, control, attempt_id = self.killed_at("prepared")
+        account = workspaces.preparation_completed(control, attempt_id)
+        self.assertIsNotNone(account)
+        home = os.path.join(self.storage, attempt_id)
+        workspace = os.path.join(home, "workspace")
+        before = os.lstat(workspace)
+        # THE HOME IS FROZEN AT 0555 by `compose_input_root`, so the substitution has
+        # to be made by the fixture acting as the host -- measured, because a rename
+        # inside the frozen home is EPERM.
+        os.chmod(home, 0o755)
+        os.rename(workspace, os.path.join(home, "workspace-moved-aside"))
+        os.mkdir(workspace, 0o770)
+        os.chmod(home, 0o555)
+        after = os.lstat(workspace)
+        self.assertNotEqual((before.st_dev, before.st_ino),
+                            (after.st_dev, after.st_ino),
+                            "the substitution did not change the object")
+        engine = Engine()
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        for _ in range(6):
+            reconcile(job, operations, now=fixtures.NOW)
+        # ZERO TASKS, and the refusal is the recorded ending of this deployment.
+        self.assertEqual(engine.starts, [])
+        stage = status(job, operations,
+                       observed_at=fixtures.NOW)["jobs"][0]["stages"][0]
+        self.assertEqual(stage["state"], "exceptional")
+        recorded = attempt_preparation_failure_of(control, attempt_id)
+        self.assertIsNotNone(recorded)
+        # WHICH GATE CAUGHT IT, MEASURED RATHER THAN ASSUMED: on the recovery path the
+        # WRITE-ONCE BOUNDARY PIN fires first -- it re-observes the roots before the
+        # completion record is consulted -- and its refusal says the workspace became
+        # another object and will not be re-pinned. The completion record's own
+        # revalidation is the accepted predecessor's
+        # `test_a_replaced_prepared_root_refuses_before_any_task_is_created`; this row
+        # does not claim to reach it, and asserting the pin is what actually happens.
+        self.assertEqual(recorded["failure"]["code"], "operation-collision")
+        self.assertIn("a root that became another object is refused rather than "
+                      "re-pinned", recorded["failure"]["message"])
+        # NOTHING WAS REPINNED: the completion is the same account, over the same
+        # named objects, and no token was taken over the substitute.
+        self.assertEqual(workspaces.preparation_completed(control, attempt_id),
+                         account)
+        domain = tokens.domain_of("workspace", f"{after.st_dev}:{after.st_ino}")
+        self.assertEqual(tokens.outstanding(control, domain), [])
+        # AND NO WINDOW IS LEFT STANDING: the refused writer RETURNED, so it released
+        # what it opened -- a refusal is not an abandoned window.
+        self.assertEqual(workspaces.standing_preparation(control, attempt_id), [])
+        self.assertEqual(
+            self.identity_of(os.path.join(self.storage, self.SIBLING)), sibling)
+
+    def test_HP4_a_writer_that_can_still_FINISH_blocks_the_launch_then_finishes(self):
+        """HP4: while a host writer may still complete, nothing may launch or reuse.
+
+        WHAT THIS ACTUALLY MODELS, stated rather than implied: ONE Host manager, with
+        the real writer interposed INSIDE `compose_input_root` -- review
+        2026-09-27T23-45-11Z is right that a checkpoint taken after the writes returned
+        is a weaker seam, so the delay is now taken while that writer is IN FLIGHT and
+        has not yet returned. At that instant it genuinely can still finish. Every
+        question is asked on an INDEPENDENT coordination connection, so each answer is
+        the journal's to somebody who is not the writer. There is no second manager and
+        no uncontrolled process: the handoff forbids both.
+
+        THREE THINGS ARE ASKED THERE, and the third is the one the review required:
+
+          * the start gate refuses, naming the standing window;
+          * a SECOND preparation admission for this same attempt refuses -- an ordinal
+            anybody can read is not authority to write;
+          * a replay carrying the WRONG ATTEMPT is refused for its OWN reason, and the
+            distinct refusal is the proof that no cross-attempt effect occurred: stale
+            evidence about another name neither resolves this window nor completes
+            anything. Review 2026-09-27T23-45-11Z is right that my previous lookup of
+            `preparation_completed` for an unused name proved nothing at all.
+
+        THEN THE WRITER FINISHES, and the same composition reaches exactly one task. A
+        hold that never clears would satisfy the first half and be useless.
+        """
+        from baton_v12.worker_manager import ControlStore, tokens, workspaces
+
+        engine = Engine()
+        job, control = self.stores("HP4-delayed-writer")
+        submit(job, self.submission)
+        asked = []
+        other = "attempt-" + "9" * 64
+        honest_compose = workspaces.compose_input_root
+
+        def paused(*arguments, **named):
+            if asked:
+                return honest_compose(*arguments, **named)
+            attempt_id = [one for one in sorted(os.listdir(self.storage))
+                          if one.startswith("attempt-")][0]
+            roots = {"inputs": os.path.join(self.storage, attempt_id, "inputs"),
+                     "workspace": os.path.join(self.storage, attempt_id,
+                                               "workspace")}
+            second = ControlStore.open(self.control_path,
+                                       incarnation="hp4-independent-reader",
+                                       clock=lambda: fixtures.NOW)
+            try:
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.require_prepared(
+                        second, attempt_id, roots,
+                        "starting while a writer can still finish")
+                gate = str(refused.exception)
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.admit_preparation(
+                        second, attempt_id,
+                        "a second preparation while the first can still finish",
+                        attempt_id)
+                again = str(refused.exception)
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.require_prepared(
+                        second, other, roots,
+                        "starting a DIFFERENT attempt over these roots")
+                stale = str(refused.exception)
+                asked.append((attempt_id, gate, again, stale))
+                self.assertIsNone(
+                    workspaces.preparation_completed(second, attempt_id))
+                self.assertEqual(
+                    [one for one, _ in workspaces.standing_preparation(
+                        second, attempt_id)], [1])
+                self.assertEqual(
+                    workspaces.standing_preparation(second, other), [])
+            finally:
+                second.close()
+            return honest_compose(*arguments, **named)
+
+        patcher = mock.patch.object(workspaces, "compose_input_root",
+                                    side_effect=paused)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        projected = self.commanded(job, operations)
+        attempt_id = projected["jobs"][0]["stages"][0]["attempt_id"]
+        # THE SEAM WAS REACHED ONCE, at this attempt, with the writer in flight.
+        self.assertEqual([one[0] for one in asked], [attempt_id])
+        _at, gate, again, stale = asked[0]
+        self.assertIn("host preparation 1", gate)
+        self.assertIn("host preparation 1", again)
+        # THE WRONG-ATTEMPT REPLAY IS REFUSED FOR ITS OWN REASON: the distinct text is
+        # what proves this window did not answer for another name.
+        self.assertNotIn("host preparation 1", stale)
+        self.assertIn(other[:24], stale)
+        # AND THE HOLD CLEARED BY THE WRITER FINISHING -- not by a deadline, not by a
+        # deletion, and not by anything the fixture told the journal.
+        self.assertIsNotNone(workspaces.preparation_completed(control, attempt_id))
+        self.assertEqual(workspaces.standing_preparation(control, attempt_id), [])
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(len([one for one in engine.vectors
+                              if activating(one)]), 1)
+        held = os.lstat(os.path.join(self.storage, attempt_id, "workspace"))
+        domain = tokens.domain_of("workspace", f"{held.st_dev}:{held.st_ino}")
+        self.assertEqual([one["execution"] for one in
+                          tokens.outstanding(control, domain)], [attempt_id])
+        # AND THE OTHER NAME GAINED NOTHING FROM ANY OF IT, counted separately from
+        # this attempt's own effects.
+        self.assertIsNone(workspaces.preparation_completed(control, other))
+        self.assertEqual(workspaces.standing_preparation(control, other), [])
+        self.assertEqual(
+            tokens.outstanding(control, tokens.domain_of("workspace", "0:0")), [])
 
 
 class TheProductionCompositionIsRestartSafe(SingleWorkerCase):

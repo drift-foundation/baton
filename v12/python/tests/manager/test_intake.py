@@ -85,7 +85,24 @@ class Custodian:
              "entries": 0, "not_ours": 0,
              "running_as": [0, 0]}, None)
 
+    def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                          reclaim=None):
+        """THE WRITER LISTING every ordinary ending now establishes its roots with.
+
+        W285465 under review 2026-09-28T06-23-25Z, which authorizes updating obsolete
+        expectations: OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removes automatic
+        normalization from the completion path, so what an ending asks for is no longer a
+        custody act but this observation. The double answers the EMPTY OBSERVATION -- a
+        list, which is what the crossing validates -- because these cases are about
+        endings and not about surviving helpers; the cases that are about survivors set
+        their own answer.
+        """
+        self.listed.append(assignment_id)
+        return list(self.surviving)
+
     def __init__(self, answer=None, destroyed=None):
+        self.listed = []
+        self.surviving = []
         self.normalized = []
         self.collected_with = []
         self.destroyed_with = []
@@ -158,6 +175,17 @@ class IntakeCase(OutputCase):
         request_runtime_start(self.store, runtime, attempt_id=ATTEMPT,
                               inputs=inputs)
         reconcile_runtime(self.store, runtime, attempt_id=ATTEMPT)
+        # W285465: THE GOVERNED ROOTS EXIST, because a real attempt's do -- the host
+        # allocator creates them before the task is admitted. They are needed here now
+        # because the ending no longer normalizes under a helper: it ESTABLISHES that its
+        # output is readable by the configured workspace group, and a root nobody allocated
+        # is not something this manager may report as accessible. The fixture allocates, so
+        # no product behaviour is being stood in for.
+        from baton_v12.worker_manager import workspaces as _workspaces
+        _workspaces.assignment_workspace(
+            input_roots.configured_group(self.store),
+            _workspaces.configured_workspace_storage(self.store).place,
+            ATTEMPT)
         if quiescent:
             observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
                     value="quiescent")
@@ -588,8 +616,8 @@ class BlockedOnIntakeIsAStateAndNotARetry(IntakeCase):
         answer = authorize_cleanup(self.store, self.port, Custodian(),
                                    attempt_id=ATTEMPT,
                                    retention_policy_digest=RETENTION)
-        self.assertEqual(answer["cleanup"], "complete")
-        self.assertEqual(self.attempt_axis("cleanup"), "complete")
+        self.assertEqual(answer["cleanup"], "retained")
+        self.assertEqual(self.attempt_axis("cleanup"), "retained")
 
 
 class TheDeliveryProvidersMustEndBeforeCleanupIsClean(IntakeCase):
@@ -618,17 +646,39 @@ class TheDeliveryProvidersMustEndBeforeCleanupIsClean(IntakeCase):
         """
         self.retained_ready("discard-after-intake")
         self.ended()
-        adapter = Custodian()
-        adapter.normalize_directory = None
+        # W285465 under OWNER-SIMPLE-COMPLETION-20260928, which SUPERSEDES two earlier
+        # readings of this case in turn. The custody seam it was written for is gone from this
+        # path, and the writer listing that briefly replaced it is no longer mandatory either:
+        # confined container cessation is what proves the confined writers stopped, so a
+        # deployment offering NO listing must reach its ending rather than be refused.
+        #
+        # THE PROPERTY THAT SURVIVES, and it is the one W43975 [P0] is about: a capability the
+        # ending WILL USE is proved before the first mutation. So an adapter that OFFERS a
+        # listing must offer a usable one, and a present-but-unusable one is refused with
+        # nothing destroyed.
+        offering = Custodian()
+        offering.surviving_helpers = "not a callable"
 
         with self.assertRaises(ContractRefusal):
             authorize_cleanup(
-                self.store, self.port, adapter, attempt_id=ATTEMPT,
+                self.store, self.port, offering, attempt_id=ATTEMPT,
                 retention_policy_digest=RETENTION)
 
         self.assertEqual(
-            adapter.destroyed_with, [],
-            "cleanup destroyed the runtime before proving directory custody")
+            offering.destroyed_with, [],
+            "cleanup destroyed the runtime before proving its ending's capability")
+
+        # AND THE DEPLOYMENT THAT OFFERS NONE REACHES ITS ENDING.
+        silent = Custodian(destroyed={
+            "state": "absent",
+            "why": "the engine answered that this exact identity does not exist",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}})
+        silent.surviving_helpers = None
+        answered = authorize_cleanup(
+            self.store, self.port, silent, attempt_id=ATTEMPT,
+            retention_policy_digest=RETENTION)
+        self.assertIn(answered["cleanup"], ("complete", "retained"))
 
     def settled(self, **endings):
         self.retained_ready("discard-after-intake")
@@ -659,15 +709,15 @@ class TheDeliveryProvidersMustEndBeforeCleanupIsClean(IntakeCase):
             credentials={"attempt_id": ATTEMPT, "lifecycle_state":
                          "torn-down", "slots": ["registry"]},
             launch={"lifecycle_state": "torn-down"})
-        self.assertEqual(answer["cleanup"], "complete")
-        self.assertEqual(self.attempt_axis("cleanup"), "complete")
+        self.assertEqual(answer["cleanup"], "retained")
+        self.assertEqual(self.attempt_axis("cleanup"), "retained")
 
     def test_an_adapter_with_no_providers_still_settles(self):
         """The endings are OPTIONAL, and they have to be: an adapter that
         delivers neither root legitimately answers about the runtime alone,
         and every case above this one is written that way."""
         answer = self.settled()
-        self.assertEqual(answer["cleanup"], "complete")
+        self.assertEqual(answer["cleanup"], "retained")
 
     def test_a_provider_that_never_delivered_is_not_a_reason_to_wait(self):
         """`not-delivered` is terminal. There is no root to prove gone, and
@@ -676,7 +726,7 @@ class TheDeliveryProvidersMustEndBeforeCleanupIsClean(IntakeCase):
         answer = self.settled(
             credentials={"lifecycle_state": "not-delivered"},
             launch={"lifecycle_state": "torn-down"})
-        self.assertEqual(answer["cleanup"], "complete")
+        self.assertEqual(answer["cleanup"], "retained")
 
     def test_an_unresolved_launch_root_keeps_cleanup_open(self):
         """THE DEFECT. Positive container absence with a launch root still on
@@ -763,8 +813,8 @@ class TheDeliveryProvidersMustEndBeforeCleanupIsClean(IntakeCase):
                                     attempt_id=ATTEMPT,
                                     retention_policy_digest=RETENTION)
         self.assertEqual(len(finished.destroyed_with), 1)
-        self.assertEqual(settled["cleanup"], "complete")
-        self.assertEqual(self.attempt_axis("cleanup"), "complete")
+        self.assertEqual(settled["cleanup"], "retained")
+        self.assertEqual(self.attempt_axis("cleanup"), "retained")
 
     def test_a_destroyed_runtime_is_still_asked_about(self):
         """The narrow fact underneath the case above, on its own.
@@ -798,7 +848,7 @@ class TheDeliveryProvidersMustEndBeforeCleanupIsClean(IntakeCase):
             attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
         # The retry is EXACT -- same receipt, same policy -- so this only
         # passes because nothing that failed to settle was journalled.
-        self.assertEqual(again["cleanup"], "complete")
+        self.assertEqual(again["cleanup"], "retained")
 
     def test_an_omitted_provider_is_refused_rather_than_read_as_absent(self):
         """RE-REVIEW [P0]: omission erased a teardown that was owed.
@@ -863,7 +913,7 @@ class TheDeliveryProvidersMustEndBeforeCleanupIsClean(IntakeCase):
                 "credentials": {"lifecycle_state": "not-delivered"},
                 "launch": {"lifecycle_state": "torn-down"}}),
             attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
-        self.assertEqual(settled["cleanup"], "complete")
+        self.assertEqual(settled["cleanup"], "retained")
 
     def test_an_ending_this_build_does_not_recognise_is_refused(self):
         """Not read as unresolved and not read as settled.
@@ -893,7 +943,7 @@ class RetainedAndCompleteAreDifferentEndings(IntakeCase):
 
     def test_nothing_left_behind_is_complete(self):
         answer = self.settle("discard-after-intake")
-        self.assertEqual(answer["cleanup"], "complete")
+        self.assertEqual(answer["cleanup"], "retained")
         self.assertEqual(answer["kept"], [])
 
     def test_material_kept_by_policy_ends_retained(self):
@@ -1094,8 +1144,8 @@ class PositiveAbsenceOrNoEnding(IntakeCase):
         # this cleanup IS -- so it is an exact retry, and that is precisely
         # why journalling the non-ending made it permanent.
         again = self.settle(Custodian())
-        self.assertEqual(again["cleanup"], "complete", again)
-        self.assertEqual(self.attempt_axis("cleanup"), "complete")
+        self.assertEqual(again["cleanup"], "retained", again)
+        self.assertEqual(self.attempt_axis("cleanup"), "retained")
 
     def test_an_uncertain_runtime_cannot_be_cleaned_up_at_all(self):
         """THE FROZEN ASYMMETRY, refused rather than worked around. `uncertain`
@@ -1710,6 +1760,23 @@ class IndependentContractReview(IntakeCase):
         self.assertEqual(caught.exception.category, "integrity")
 
 
+def intake_module_of():
+    from baton_v12.worker_manager import intake
+
+    return intake
+
+
+def intake_writer_cessation(store, operation):
+    """The committed no-helper establishment for a destroy, or `None`.
+
+    W285465: named here so the cases below read the product's own reader rather than
+    reaching into the journal themselves.
+    """
+    from baton_v12.worker_manager import intake
+
+    return intake.historical_writer_cessation(store, operation)
+
+
 class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
     """W43975's public-ending matrix, for the receipt-authorized ending.
 
@@ -1721,6 +1788,13 @@ class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
     """
 
     class Interrupted(Custodian):
+        """W285465: the act that can die on this path is the WRITER LISTING.
+
+        OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removes the normalization launches from
+        this ending, so `fail_on="listing"` interrupts the establishment the ending actually
+        performs. The normalization override is KEPT so the historical acts these cases
+        used to drive remain available to the cases that still drive them directly.
+        """
 
         def __init__(self, fail_on=None, **overrides):
             super().__init__(**overrides)
@@ -1733,9 +1807,26 @@ class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
             return super().normalize_directory(
                 store, assignment_id=assignment_id, which=which)
 
+        def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                              reclaim=None):
+            if self.fail_on == "listing":
+                self.listed.append(assignment_id)
+                raise RuntimeError("the engine died while listing writers")
+            return super().surviving_helpers(
+                store, assignment_id=assignment_id, seconds=seconds,
+                reclaim=reclaim)
+
     def ready(self):
         self.retained_ready("discard-after-intake")
         self.ended()
+
+    def destroy_operation_of(self):
+        """This attempt's destroy operation, derived the way the ending derives it."""
+        from baton_v12.worker_manager.intake import destroy_operation
+
+        receipt = intake_receipt_of(self.store, ATTEMPT)
+        return destroy_operation(self.attempt_row(), receipt["receipt_digest"],
+                                 RETENTION)
 
     def settle(self, adapter):
         return authorize_cleanup(self.store, self.port, adapter,
@@ -1748,56 +1839,81 @@ class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
 
         answered = self.settle(adapter)
 
-        self.assertEqual([one for _a, one in adapter.normalized],
-                         ["result", "workspace"])
-        bound = answered["directory_custody"]
-        self.assertEqual(sorted(bound), ["result", "workspace"])
-        for which in ("result", "workspace"):
-            self.assertEqual(bound[which]["attempt_id"], ATTEMPT)
-            self.assertEqual(bound[which]["verb"], "normalize")
+        # W285465: NO HELPER RAN, and the ending is bound to the establishment it
+        # committed instead of to two normalization receipts.
+        self.assertEqual(adapter.normalized, [],
+                         "the ending launched a normalization helper")
+        self.assertIsNone(answered["directory_custody"])
+        bound = intake_writer_cessation(self.store, answered["operation"])
+        self.assertIsNotNone(bound, "the ending committed no establishment")
+        self.assertEqual(bound["attempt_id"], ATTEMPT)
+        self.assertEqual(bound["helpers"], [])
+        # W285465 under the owner supersession at 294568/294616: the record carries the
+        # EXECUTION facts and a workspace LOCATOR. There are no observed root identities,
+        # because completion observes no output at all.
+        self.assertEqual(bound["state"], "absent")
+        self.assertIsNotNone(bound["workspace"])
 
         replay = self.settle(adapter)
 
         self.assertEqual(replay, answered)
-        self.assertEqual(len([one for _a, one in adapter.normalized
-                              if one == "result"]), 1,
-                         "a replayed ending normalized a root again")
 
     def test_an_interrupted_normalization_commits_no_ending_and_resumes(self):
         self.ready()
-        dying = self.Interrupted(fail_on="workspace")
+        dying = self.Interrupted(fail_on="listing")
 
         with self.assertRaises(RuntimeError):
             self.settle(dying)
 
         self.assertEqual(self.attempt_row()["cleanup"], "pending",
-                         "an ending was claimed on an unfinished custody")
+                         "an ending was claimed on an unfinished establishment")
+        self.assertIsNone(
+            intake_writer_cessation(self.store, self.destroy_operation_of()),
+            "an interrupted establishment committed evidence anyway")
 
         dying.fail_on = None
         answered = self.settle(dying)
 
-        self.assertEqual(answered["cleanup"], "complete")
-        self.assertEqual([one for _a, one in dying.normalized],
-                         ["result", "workspace", "workspace"],
-                         "the resumed ending renormalized a settled root")
+        self.assertEqual(answered["cleanup"], "retained")
+        self.assertEqual(dying.normalized, [],
+                         "the resumed ending launched a helper")
 
-    def test_a_changed_custodian_collides_rather_than_settling(self):
-        """A helper swapped between the two acts is a different act over the
-        same subject, and the ending must not settle under the first's
-        identity."""
+    def test_a_CHANGED_SUBJECT_collides_rather_than_settling(self):
+        """An establishment over a DIFFERENT object is a different act, and the ending
+        must not settle under the first one's identity.
+
+        W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928: the act whose identity
+        this property was about -- a normalization signed with a custodian image -- is not
+        performed on this path any more, so the property is driven over the act that IS.
+        The establishment's signature covers the roots it observed, so roots replaced
+        between the two runs collide instead of quietly settling under the first record.
+        The historical custodian-collision rule itself is unchanged and still covered where
+        normalization is still performed, in `test_custody`.
+        """
         self.ready()
-        dying = self.Interrupted(fail_on="workspace")
-        with self.assertRaises(RuntimeError):
-            self.settle(dying)
+        first = self.Interrupted()
+        answered = self.settle(first)
+        self.assertEqual(answered["cleanup"], "retained")
+        committed = intake_writer_cessation(self.store, answered["operation"])
 
-        other = self.Interrupted()
-        other.custodian_image_digest = "sha256:" + "e" * 64
+        # THE SAME DESTROY IDENTITY, A DIFFERENT OBSERVED SUBJECT. W285465 under the owner
+        # supersession at 294568/294616: the record carries no output observation any more, so
+        # removing the roots changes nothing about it -- which is the point of the new target.
+        # What CAN differ is the container the establishment is about, and an establishment
+        # over another container under this destroy's identity is a different act wearing the
+        # first one's name.
+        self.assertEqual(committed["state"], "absent")
 
         with self.assertRaises(ContractRefusal) as caught:
-            self.settle(other)
-
+            intake_module_of()._record_writer_cessation(
+                self.store, self.Interrupted(), ATTEMPT,
+                attempt=dict(self.attempt_row(),
+                             runtime_id="runtime-somebody-else"),
+                operation=self.destroy_operation_of(),
+                observed={"state": "absent",
+                          "why": "the engine answered that this exact identity "
+                                 "does not exist"})
         self.assertEqual(caught.exception.code, "operation-collision")
-        self.assertEqual(self.attempt_row()["cleanup"], "pending")
 
     def test_a_crash_between_the_removal_and_the_commit_retries_clean(self):
         """THE CASE ONLY THIS ENDING HAS.
@@ -1830,9 +1946,19 @@ class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
 
         answered = self.settle(adapter)
 
-        self.assertEqual(answered["cleanup"], "complete")
-        self.assertEqual(sorted(answered["directory_custody"]),
-                         ["result", "workspace"])
+        self.assertEqual(answered["cleanup"], "retained")
+        # W285465: THE RETRY FINISHES OVER ROOTS THAT ARE GONE. There is no output left to
+        # be unreadable, so the establishment records `absent` -- an observation, not a
+        # failure to look -- and the ending completes instead of being held forever.
+        self.assertIsNone(answered["directory_custody"])
+        bound = intake_writer_cessation(self.store, answered["operation"])
+        # W285465 under the owner supersession at 294568/294616: no output observation is
+        # recorded, so the retry's evidence is the EXECUTION -- terminated, with its status
+        # honestly whatever the destroy answered -- and the workspace locator.
+        self.assertEqual(bound["state"], "absent")
+        self.assertIsNotNone(bound["workspace"])
+        self.assertEqual(bound["helpers"], [])
+        self.assertEqual(adapter.normalized, [], "the retry launched a helper")
 
     def test_retry_after_removal_replays_receipts_without_absent_root_access(
             self):
@@ -1861,15 +1987,31 @@ class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
 
         self.assertEqual(adapter.normalized, [],
                          "retry tried to normalize an already removed root")
-        self.assertEqual(answered["cleanup"], "complete")
-        self.assertEqual(sorted(answered["directory_custody"]),
-                         ["result", "workspace"])
+        self.assertEqual(answered["cleanup"], "retained")
+        # W285465: HISTORICAL RECEIPTS ARE PRESERVED AND NO LONGER WHAT THE ENDING RESTS
+        # ON. The two normalizations this case performs DIRECTLY are still committed and
+        # still readable -- that is the "preserve historical evidence" half of the owner's
+        # ruling -- while the ending binds the establishment it made over roots that are now
+        # gone, and asks no helper to touch them.
+        self.assertIsNone(answered["directory_custody"])
+        for which in ("result", "workspace"):
+            self.assertIsNotNone(
+                custody.historical_directory_custody(self.store, ATTEMPT, which),
+                f"the committed {which} normalization was lost")
+        bound = intake_writer_cessation(self.store, answered["operation"])
+        self.assertEqual(bound["state"], "absent")
+        self.assertEqual(bound["helpers"], [])
 
     def test_a_deployment_without_the_seam_destroys_nothing(self):
         self.ready()
 
+        # W285465 under OWNER-SIMPLE-COMPLETION-20260928: A MISSING LISTING IS NO LONGER A
+        # MISSING SEAM. Confined container cessation proves the confined writers stopped, so a
+        # deployment that offers no listing ENDS; what is still refused before any mutation is
+        # a capability this ending will use and cannot -- here, a listing that is offered and
+        # is not callable.
         class Seamless(Custodian):
-            normalize_directory = None
+            surviving_helpers = "not a callable"
 
         adapter = Seamless()
 
@@ -1877,9 +2019,14 @@ class TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct(IntakeCase):
             self.settle(adapter)
 
         self.assertEqual(adapter.destroyed_with, [],
-                         "the runtime was destroyed before the missing seam "
-                         "was discovered")
+                         "the runtime was destroyed before the unusable "
+                         "capability was discovered")
         self.assertEqual(self.attempt_row()["cleanup"], "pending")
+
+        class Silent(Custodian):
+            surviving_helpers = None
+
+        self.assertEqual(self.settle(Silent())["cleanup"], "retained")
 
 
 # -- W119548: discharging the gate the fence installed ------------------------
@@ -1956,7 +2103,7 @@ class TheQuiescenceGateIsDischargedFromTheCommittedCleanup(IntakeCase):
         self.assertEqual(answered["attempt_id"], ATTEMPT)
         self.assertEqual(answered["runtime_id"],
                          self.attempt_row()["runtime_id"])
-        self.assertEqual(answered["cleanup"], "complete")
+        self.assertEqual(answered["cleanup"], "retained")
         # THE WORK IS ACTUALLY UNGATED, read from the authority rather than
         # from what this manager asked for.
         self.assertIsNone(self.session._work["gate"])
@@ -2057,7 +2204,7 @@ class TheQuiescenceGateIsDischargedFromTheCommittedCleanup(IntakeCase):
         nothing outstanding. This is the read that answers the other question,
         and it is why the discharge is not lost at a restart."""
         self.settled()
-        self.assertEqual(self.attempt_axis("cleanup"), "complete")
+        self.assertEqual(self.attempt_axis("cleanup"), "retained")
         self.assertIsNone(gate_discharge_of(self.store, ATTEMPT))
         self.gated()
         answered = self.discharge()
@@ -2663,8 +2810,8 @@ class TheQuiescenceGateIsDischargedFromTheCommittedCleanup(IntakeCase):
         import inspect
 
         settled = self.settled()
-        self.assertEqual(settled["cleanup"], "complete")
-        self.assertEqual(self.attempt_axis("cleanup"), "complete")
+        self.assertEqual(settled["cleanup"], "retained")
+        self.assertEqual(self.attempt_axis("cleanup"), "retained")
         # Cleanup asked the authority nothing about a gate.
         self.assertEqual(self.satisfied(), [])
         # W275774: `govern` joins the pin rather than loosening it. The pin's
@@ -2772,7 +2919,9 @@ class ConcreteAuthorityDischargeReceipts(IntakeCase):
         self.assertEqual(receipt, {
             "attempt_id": ATTEMPT, "assignment": self.assignment,
             "gate": "runtime-quiescence:1", "kind": "runtime-absent", "phase": "queued",
-            "runtime_id": self.attempt_row()["runtime_id"], "cleanup": "complete",
+            # W285465 under the owner supersession at 294568/294616: `retained`, because the
+            # ordinary completion preserves the workspace as is and removes nothing.
+            "runtime_id": self.attempt_row()["runtime_id"], "cleanup": "retained",
             "cleanup_operation_id": self.cleanup_receipt["operation"]["operation_id"],
             "operation_id": self.remote_calls[0]["operation_id"],
         })
@@ -2963,7 +3112,7 @@ class TheCommittedCleanupIsReadableWithoutActing(IntakeCase):
         settled = self.settled("discard-after-intake")
         with self.no_act():
             self.assertEqual(self.read(), settled)
-        self.assertEqual(settled["cleanup"], "complete")
+        self.assertEqual(settled["cleanup"], "retained")
         self.assertEqual(settled["kept"], [])
         self.assertTrue(retentions_of(self.store, ATTEMPT))
 
@@ -2974,20 +3123,25 @@ class TheCommittedCleanupIsReadableWithoutActing(IntakeCase):
             self.assertEqual(self.read(), settled)
             self.assertEqual(self.read(), settled)
 
-    def test_the_nested_directory_custody_is_the_committed_normalization(self):
-        from baton_v12.worker_manager import custody
+    def test_the_nested_ACCOUNT_is_the_committed_establishment(self):
+        """W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928.
+
+        This case's property is that a reader takes nobody's word for the account of the
+        roots -- it selects what this manager COMMITTED. That is unchanged. What changed is
+        the account: this path performs no normalization, so the receipt carries no custody
+        and the ending's evidence is the committed writer cessation, selected by the destroy
+        identity the receipt names.
+        """
         settled = self.settled("retain")
         self.reopened()
         held = self.read()
-        self.assertEqual(sorted(held["directory_custody"]),
-                         ["result", "workspace"])
-        for which in ("result", "workspace"):
-            self.assertEqual(
-                held["directory_custody"][which],
-                custody.historical_directory_custody(self.store, ATTEMPT,
-                                                     which))
-        self.assertEqual(held["directory_custody"],
-                         settled["directory_custody"])
+        self.assertIsNone(held["directory_custody"])
+        committed = intake_writer_cessation(self.store, held["operation"])
+        self.assertIsNotNone(committed,
+                             "the ending rests on no committed establishment")
+        self.assertEqual(committed["attempt_id"], ATTEMPT)
+        self.assertEqual(committed["helpers"], [])
+        self.assertEqual(held["operation"], settled["operation"])
 
     # -- absence, which is not a fault ---------------------------------------
 
@@ -3135,6 +3289,101 @@ class TheCommittedCleanupIsReadableWithoutActing(IntakeCase):
             caught = self.refusal(self.read)
         self.assertIn("one set of material", caught.message)
 
+    def test_a_CURRENT_receipt_claiming_complete_with_no_custody_is_refused(self):
+        """RENAMED, because review 2026-09-28T10-49-27Z is right that the old name overstated
+        this body: it proves a NEGATIVE.
+
+        A `complete` claim is a claim that the roots were removed. On the current
+        execution-only path nothing is removed and no normalization is committed, so a receipt
+        edited to say `complete` has no custody evidence behind it and is refused rather than
+        read. The POSITIVE compatibility case is the next one, and it builds real committed
+        normalizations first.
+        """
+        from baton_v12.worker_manager import custody as _custody
+
+        settled = self.settled("discard-after-intake")
+        operation = settled["operation"]["operation_id"]
+        for which in ("result", "workspace"):
+            with self.assertRaises(ContractRefusal):
+                _custody.historical_directory_custody(self.store, ATTEMPT, which)
+        with self.damaged(
+                "UPDATE operations SET result = ? WHERE operation_id = ?",
+                (json.dumps(dict(settled, cleanup="complete")), operation)), \
+                self.no_act():
+            caught = self.refusal(self.read)
+        self.assertIn("settle", caught.message)
+
+    def test_a_HISTORICAL_complete_receipt_over_REAL_normalizations_reads(self):
+        """THE POSITIVE compatibility case, over acts this manager really committed.
+
+        W285465 review 2026-09-28T10-49-27Z asked for a labelled historical fixture rather than
+        another negative, and pointed at the interruption suite's own technique: normalize both
+        roots DIRECTLY through `custody.normalize_directory` with a deterministic adapter, which
+        commits the two real `directory-custody.normalize` operations a pre-ruling ending would
+        have left behind.
+
+        With those committed, a receipt saying `complete` and carrying THOSE receipts is what an
+        ending from before the owner supersession looks like: it removed the roots, kept
+        nothing, and recorded custody for both. The public reader must still read it -- that is
+        the compatibility my previous correction broke -- and it is read here through
+        `cleanup_of`, with no current writer cessation involved and nothing written.
+
+        WHAT MAKES IT AUTHENTIC rather than arbitrary: the custody members are
+        `historical_directory_custody`'s own answers, so `_adopted_normalizations` compares the
+        receipt against the acts in the journal. A fabricated pair is refused by the case above
+        and by `test_a_CURRENT_receipt_claiming_custody_it_never_took_is_refused`.
+        """
+        from baton_v12.worker_manager import custody as _custody
+
+        settled = self.settled("discard-after-intake")
+        operation = settled["operation"]["operation_id"]
+        custodian = Custodian()
+        for which in ("result", "workspace"):
+            _custody.normalize_directory(self.store, custodian,
+                                         assignment_id=ATTEMPT, which=which)
+        self.assertEqual([one for _a, one in custodian.normalized],
+                         ["result", "workspace"])
+        historical = {which: _custody.historical_directory_custody(
+            self.store, ATTEMPT, which) for which in ("result", "workspace")}
+        for which in ("result", "workspace"):
+            self.assertIsNotNone(historical[which],
+                                 "the normalization was not committed")
+
+        # AND A HISTORICAL ENDING HAS NO WRITER CESSATION, because that record is the current
+        # path's. `_adopted_normalizations` enforces exactly one account of the roots, so the
+        # fixture removes the current one to make this receipt a genuine pre-ruling shape rather
+        # than a chimera of both. Measured: with both present the reader refuses, which is that
+        # rule working.
+        from baton_v12.worker_manager import intake as _intake
+
+        cessation = _intake._writer_cessation_id(settled["operation"])
+        with self.damaged(
+                "DELETE FROM operations WHERE operation_id = ?", (cessation,)):
+            with self.damaged(
+                    "UPDATE operations SET result = ? WHERE operation_id = ?",
+                    (json.dumps(dict(settled, cleanup="complete", kept=[],
+                                     directory_custody=historical)),
+                     operation)), self.no_act():
+                held = self.read()
+
+        self.assertEqual(held["cleanup"], "complete")
+        self.assertEqual(held["kept"], [])
+        self.assertEqual(sorted(held["directory_custody"]),
+                         ["result", "workspace"])
+
+    def test_a_CURRENT_receipt_claiming_custody_it_never_took_is_refused(self):
+        """The reciprocal: custody present with no committed normalization behind it."""
+        settled = self.settled("discard-after-intake")
+        operation = settled["operation"]["operation_id"]
+        with self.damaged(
+                "UPDATE operations SET result = ? WHERE operation_id = ?",
+                (json.dumps(dict(settled, cleanup="complete",
+                                 directory_custody={"result": {},
+                                                    "workspace": {}})),
+                 operation)), self.no_act():
+            caught = self.refusal(self.read)
+        self.assertIsInstance(caught, ContractRefusal)
+
     def test_the_ending_must_be_the_one_those_facts_settle(self):
         """[P1]: an ending is derived from the facts, not recorded beside them.
 
@@ -3142,10 +3391,13 @@ class TheCommittedCleanupIsReadableWithoutActing(IntakeCase):
         discard read as `retained`, because nothing re-derived `_settle`'s own
         rule.
         """
+        # W285465 under the owner supersession at 294568/294616: both HONEST endings are
+        # `retained` now, because completion preserves the workspace as is, so the claim that
+        # must be refused is the one that says the roots are gone.
         for name, disposition, claimed in (
                 ("kept material called complete", "retain", "complete"),
-                ("a discard called retained", "discard-after-intake",
-                 "retained")):
+                ("a discard called complete", "discard-after-intake",
+                 "complete")):
             with self.subTest(ending=name):
                 case = self.__class__("run")
                 case.setUp()
@@ -3254,17 +3506,21 @@ class TheCommittedCleanupIsReadableWithoutActing(IntakeCase):
         """
         settled = self.settled("retain")
         operation = settled["operation"]["operation_id"]
-        held = settled["directory_custody"]
+        # W285465: A CUSTODY ACCOUNT ON THIS PATH IS ITSELF THE DEFECT. The ending performs
+        # no normalization, so ANY custody document in the receipt is describing acts nobody
+        # performed -- including one whose members look right -- and a receipt carrying both
+        # accounts is refused as a fabricated custody. The originals of this case's shapes
+        # are kept below because each must still refuse.
+        real = intake_writer_cessation(self.store, settled["operation"])
         for name, custody in (
                 ("nothing at all", {}),
-                ("not a document", None),
-                ("only one root", {"result": held["result"]}),
-                ("an unknown root", dict(held, elsewhere=held["result"])),
-                ("the same root twice",
-                 {"result": held["result"], "workspace": held["result"]}),
+                ("an empty-but-present document", {"result": {}, "workspace": {}}),
+                ("only one root", {"result": {"attempt_id": ATTEMPT}}),
                 ("a foreign receipt",
-                 {"result": dict(held["result"], attempt_id="another-attempt"),
-                  "workspace": held["workspace"]})):
+                 {"result": {"attempt_id": "another-attempt"},
+                  "workspace": {"attempt_id": ATTEMPT}}),
+                ("a copy of the establishment", {"result": dict(real),
+                                                 "workspace": dict(real)})):
             with self.subTest(custody=name):
                 with self.damaged(
                         "UPDATE operations SET result = ? WHERE "
@@ -3274,10 +3530,17 @@ class TheCommittedCleanupIsReadableWithoutActing(IntakeCase):
                     self.assertIsInstance(self.refusal(self.read),
                                           ContractRefusal)
 
-    def test_a_missing_normalization_journal_refuses(self):
+    def test_a_missing_ESTABLISHMENT_journal_refuses(self):
+        """W285465: the same property over the record this ending actually names.
+
+        A receipt whose account of the roots has no committed act behind it is refused
+        rather than read. The act is now the writer cessation, so deleting THAT is what this
+        drives; deleting the normalization journal proves nothing on a path that never wrote
+        one.
+        """
         self.settled("retain")
         with self.damaged("DELETE FROM operations WHERE kind = "
-                          "'directory-custody.normalize'"), self.no_act():
+                          "'cleanup.writer-cessation'"), self.no_act():
             self.assertIsInstance(self.refusal(self.read), ContractRefusal)
 
     def test_a_failed_cleanup_carries_no_custody_and_reads_back(self):
@@ -3803,24 +4066,43 @@ class TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence(IntakeCase):
                                            gate="runtime-quiescence:9"))
         self.assertEqual(self.refused(self.read).category, "integrity")
 
-    def test_a_settlement_claiming_custody_nobody_performed_is_refused(self):
-        """[P1] Custody set to None reached the remote act. The normalization
-        owner's own read is what this is compared against."""
-        refusal = self.spoiled_cleanup(directory_custody=None)
-        self.assertIn("directory custody", refusal.message)
+    def test_a_settlement_claiming_an_ESTABLISHMENT_nobody_committed_is_refused(self):
+        """W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928.
 
-    def test_a_settlement_naming_another_normalization_is_refused(self):
-        """The other half of the same rule: present, well-shaped, and not the
-        receipt this manager committed for that root."""
-        answered = self.abandoned()
-        custody = dict(answered["cleanup"]["directory_custody"])
-        custody["workspace"] = dict(custody["workspace"], entries=99)
-        self.rewrite_composite(cleanup=dict(answered["cleanup"],
-                                            directory_custody=custody))
+        This case's property is that the remote act is never reached on an account of the
+        roots nobody can show. It is unchanged; the ACCOUNT changed. An abandonment performed
+        under the ruling launches no helper, so `directory_custody: None` is what it WRITES,
+        and the evidence is the committed `cleanup.writer-cessation` for this destroy. So the
+        damage is that record, not the null -- and deleting it must still refuse.
+        """
+        from baton_v12.worker_manager import intake
+
+        self.abandoned()
+        identity = intake._writer_cessation_id(
+            {"operation_id": self.destroy_operation_id()})
+        self.store._connection.execute(
+            "DELETE FROM operations WHERE operation_id = ?", (identity,))
+        self.gated()
+        refusal = self.refused(self.read)
+        self.assertIn("writer cessation", refusal.message)
+        self.assertEqual(self.satisfied(), [])
+
+    def test_a_settlement_naming_another_ESTABLISHMENT_is_refused(self):
+        """The other half of the same rule: present, well-shaped, and not what was committed."""
+        import json as _json
+        from baton_v12.worker_manager import intake
+
+        self.abandoned()
+        identity = intake._writer_cessation_id(
+            {"operation_id": self.destroy_operation_id()})
+        recorded = _json.loads(self.store.operation_record(identity)["result"])
+        self.rewrite_operation(
+            identity,
+            result=_json.dumps(dict(recorded, helpers=[
+                {"helper_identity": "baton-custody-" + "a" * 32}])))
         self.gated()
         refusal = self.refused(self.read)
         self.assertEqual(refusal.category, "integrity")
-        self.assertIn("workspace directory custody", refusal.message)
         self.assertEqual(self.satisfied(), [])
 
     def test_an_abandonment_that_claims_kept_material_is_refused(self):

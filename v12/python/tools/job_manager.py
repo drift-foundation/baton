@@ -38,6 +38,7 @@ import json
 import sys
 
 from baton_v12.contracts import ContractRefusal
+from baton_v12.contracts.errors import name_value
 from baton_v12.job_manager import (JobStore, ManagerOperations, Unobserved,
                                    read_submission, reconcile, serve, status,
                                    submit)
@@ -225,6 +226,64 @@ class _ReclaimAdapter:
         return {"runtime_id": taken["runtime_id"],
                 "operation_id": taken["operation_id"]}
 
+    def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                          reclaim=None):
+        """WHICH custody helpers of this attempt still answer -- and it starts nothing.
+
+        W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928. The selected completion
+        and recovery endings may no longer run a normalization helper, so the committed
+        custody receipt that used to justify reporting "no surviving writer" is not
+        available to them. What replaces it has to be ESTABLISHED, and this is the seam
+        that can: the custodian image digest and the engine live here, and
+        `custody.surviving_helpers` is a READ -- the journal's recorded episodes, with an
+        uncleared one surviving whatever the engine says, and the engine asked for each
+        derived name.
+
+        NOTHING IS CREATED OR STARTED, which is the whole point: it answers the writer
+        half of a truthful cessation without the helper the owner ruling forbids here.
+        """
+        from baton_v12.worker_manager import custody as _custody
+
+        # W285465 review 2026-09-28T03-13-46Z: THE CALLER'S ALLOWANCE BOUNDS THIS READ.
+        # My first cut handed the raw runner over, so twelve `ps` vectors each took the
+        # package maximum while the ending had been given seconds=7 and reclaim=3. Every
+        # vector this read issues is a RECLAMATION verb -- it starts nothing -- so each
+        # spends the total and is clamped by its own maximum, which an allowance may only
+        # lower. Same wrapper shape `normalize_directory` already uses.
+        run = self._run
+        if seconds is not None or reclaim is not None:
+            def bounded(argv, *, seconds=None, _run=self._run, _work=seconds,
+                        _total=reclaim if reclaim is not None else seconds):
+                most = (_custody.CUSTODY_ACT_SECONDS if seconds is None
+                        else seconds)
+                # W285465 review 2026-09-28T03-17-54Z: A DO-NOT-START CONTRACT.
+                #
+                # My closure lowered the allowance and then called the runner anyway, so
+                # an EXHAUSTED budget still sent twelve listings with zero seconds. An
+                # allowance that has run out is not a small allowance; it is permission
+                # this act no longer has, and the vector must not be issued at all.
+                #
+                # AND IT IS RE-READ BETWEEN VECTORS, because a deployment may hand a
+                # CALLABLE remaining-budget -- exhaustion that arrives mid-read has to be
+                # seen by the next vector rather than by a value captured once.
+                total = _total() if callable(_total) else _total
+                if total is None:
+                    total = _work
+                granted = _custody.allowed(total, most)
+                if granted is None or granted <= 0:
+                    raise ContractRefusal(
+                        "refused", "precondition",
+                        f"this act's allowance is exhausted ({name_value(granted)} "
+                        f"seconds), so {name_value(argv[1] if len(argv) > 1 else None)} "
+                        f"is not issued; an exhausted allowance is permission this act "
+                        f"no longer has rather than a smaller one")
+                return _run(argv, seconds=granted)
+
+            run = bounded
+        return _custody.surviving_helpers(
+            self._engine, run, store, assignment_id,
+            image_digest=self.custodian_image_digest)
+
     def normalize_directory(self, store, *, assignment_id, which, seconds=None,
                             reclaim=None):
         """One custody act, delegated to the normalization owner.
@@ -410,22 +469,17 @@ def _reclaiming(control, engine, run, custodian=None):
                 # one cannot. Measured rather than assumed: wiring the ending in
                 # unconditionally refused with "the runtime adapter's
                 # directory-custody act is a capability this manager calls; this is
-                # none". The ending accounts for the governed ROOTS, which means
-                # custody acts, which means the full custodian composition -- more
-                # than the two verbs a reclaim needs. Pretending otherwise would have
-                # turned every tick into a refusal.
-                if outcome.get("reclaimed") in ("held", "returned") \
-                        and getattr(adapter, "normalize_directory", None) is not None:
+                # none". W285465 under the owner supersession at 294568/294616: THAT
+                # CONDITION IS GONE. The revoked settlement no longer performs or requires any
+                # custody act -- it observes the exact container's termination, records the
+                # execution status, preserves the workspace as is and releases the exact gate --
+                # so gating it on a custodian composition held every reclaimed resource on this
+                # lean pass for a capability the ending does not use. The two verbs a reclaim
+                # needs are the two verbs it needs.
+                if outcome.get("reclaimed") in ("held", "returned"):
                     outcome = dict(outcome, ending=intake.settle_revoked_resource(
                         control, adapter,
                         attempt_id=row["runtime_attempt_id"], govern=governance))
-                elif outcome.get("reclaimed") == "held":
-                    outcome = dict(
-                        outcome,
-                        ending="awaits-normalizing-ending",
-                        ending_why="this pass's adapter performs no custody acts, so "
-                                   "the roots are not accounted for here and the "
-                                   "resource stays held")
                 reclaimed.append(outcome)
             except ContractRefusal as refusal:
                 refused.append({"attempt_id": row["runtime_attempt_id"],

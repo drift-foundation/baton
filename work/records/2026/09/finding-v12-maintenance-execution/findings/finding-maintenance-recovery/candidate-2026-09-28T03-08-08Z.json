@@ -1,0 +1,172 @@
+{
+  "work": "W285465",
+  "claim": 291569,
+  "verdict": "adapter reader verified in focused quiet case; connected behavior pending",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+      "sha256": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce",
+      "bytes": 83571
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "67a695e59ba91ecf36af4524bb9fe54f9fb535071ce2e7baf6bf38fe145b55dc",
+      "bytes": 351222
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "sha256": "3ba6ce4aa9fe02dc20ea7f473ec9984072a34effdb83c907a3e594806caa2118",
+      "bytes": 143487
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "2308898dcd65e0dcd5ddc5eae6863c955e3da3d210968ad0601396028e06d7fb",
+      "bytes": 237064
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+      "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "bytes": 51321
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "772a67fd232362c61c7b22b371954105d61872dcbf28332641ef39e47c308926",
+      "bytes": 217261
+    },
+    {
+      "path": "v12/python/tests/manager/test_maintenance.py",
+      "sha256": "d40136f8316e900478ba7705ed96ce0d91306b7a59ea367878a72fd71d88dfc1",
+      "bytes": 98459
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "a3143e4efe6bb709792627b7c0579c8b23a26132f5525366ffc8da09d329ea59",
+      "bytes": 863564
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "995a6afa4d2d3c147a21c17642ef8091862c755598c2ebaaf634f691c40a5f2f",
+      "bytes": 62502
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "4c6ac99b1e139c2e3ed86c524b259175ab8bb5e2f3ba1d7ceded223e4858fa34",
+      "bytes": 362086
+    },
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "cf40d1faa412ccee7039c3e3240aef82cb9c1b96bcc85b24bfdd7f077f93b5fe",
+      "bytes": 63673
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/offers.py",
+      "sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+      "bytes": 53060
+    },
+    {
+      "path": "v12/python/tests/manager/test_offers.py",
+      "sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+      "bytes": 67617
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "5d7bd82e85c2223079f859726aa05bb23f23aabaeaef16e1ecfff9a31d5d56fb",
+      "bytes": 58267
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "sha256": "0229549d6d25a56d960d7159cb25d9170ed017b7260eec7c1ad1b19fce413be4",
+      "bytes": 74888
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "2507101d7fe41c0b6fdb5f4d905042f2172b10043e718e9b0720782f8f5f89c5",
+      "bytes": 288708
+    },
+    {
+      "path": "v12/python/tests/manager/test_intake.py",
+      "sha256": "8808b1ce54a4c99f1c01a2a120bde404a4a658392285029b0a61188438812c98",
+      "bytes": 193702
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/FINDING.md",
+      "sha256": "969e18803d86dbfb254f71fde495b5b2bc8212205dd514a8d7250d17c275c087",
+      "bytes": 20379
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/PLAN.md",
+      "sha256": "1bf93ca5b54aef305b37663f2e10b95620c3bd2e8f2daaf8728c9c7997c39a29",
+      "bytes": 2411
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/PROGRESS.md",
+      "sha256": "a863d77957e77b64a55e6107dd028a703c8844c4db94aaf7859141733aed7bd5",
+      "bytes": 156537
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "bytes": 95670
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_recovery_clearance_20260928.py",
+      "sha256": "b60d2e447c23640979f6031c483651878194e17955ddce5d9bd8c012db5d729b",
+      "bytes": 2247
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_inert_recovery_20260928.py",
+      "sha256": "f3b1ac0fad6ef8c790d3ddbea4898f0882c5cb57b89f2b2525cf30f2d3dcc507",
+      "bytes": 1727
+    },
+    {
+      "path": "v12/python/tests/manager/test_custody.py",
+      "sha256": "c5c91058f198cac6f3287c57c416b92021383a288216c66efb501318e599d5c9",
+      "bytes": 132081
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_recovery_gap_20260928.py",
+      "sha256": "8d7d0fbc7cd19217b5888f795dfda317753d0e78a43504a0e3c59eb1223febe2",
+      "bytes": 1337
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_budget_boundary_20260928.py",
+      "sha256": "074a9550e19bc8ec3c5721cb57a4c9bb5bb00d693373d0841614dce9ef94431c",
+      "bytes": 1548
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_governed_start_20260928.py",
+      "sha256": "3e1b41f4a584b4b7e9f50aa92b114bfbd20bd64e5c5b2d7dd17279f859543bd8",
+      "bytes": 601
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_empty_listing_20260928.py",
+      "sha256": "ce050c9067147ea25c6b009724198b793a951482ac34c2ad7d7fb5a4bd49f59a",
+      "bytes": 774
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/classification-2026-09-28T02-26-11Z.md",
+      "sha256": "13e925f68f9bbe9013a4508cc210633c2be71d5303c1b0d27b3d0550fcf62084",
+      "bytes": 11730
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/pre-narrowing-2026-09-28T02-26-11Z.patch",
+      "sha256": "d4880807e754a16977b3be88b33b00dcd4f83f52cb784bfdd04b3d61ee4d72a6",
+      "bytes": 194625
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/OWNER-NO-AUTOMATIC-NORMALIZATION-20260928.md",
+      "sha256": "33407739c59a87d72409d9e0110387d3405ccce08ba25fca6516f2a4fc8b0b70",
+      "bytes": 2497
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_output_access_20260928.py",
+      "sha256": "d56256290cc74995bc43a85e704ae0a6c19d7fef073441da8b5647293a0aabd9",
+      "bytes": 880
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review-2026-09-28T03-08-08Z.md",
+      "sha256": "41820f04b26c0d6387b694bd9e1f178774566f073cef5651b134e4c258de25df",
+      "bytes": 3347
+    }
+  ]
+}

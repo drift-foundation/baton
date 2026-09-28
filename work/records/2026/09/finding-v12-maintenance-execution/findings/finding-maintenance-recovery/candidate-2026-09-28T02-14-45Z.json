@@ -1,0 +1,152 @@
+{
+  "work": "W285465",
+  "claim": 291148,
+  "verdict": "empty-listing blocker disproved; connected implementation pending",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+      "sha256": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce",
+      "bytes": 83571
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "080368fe8fcad62608f5818904365f3dad5c8b9843b3295aaac828f0d5e9872c",
+      "bytes": 353663
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "sha256": "fd6a5e13ff7e394c0d3060571e6e2fe6df65a6d7854058a9e08bae403241f905",
+      "bytes": 148932
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "2f1121f91c0f75efe2792bb65a9d68b54f130592bb6472fc05d1b525e6b62e8c",
+      "bytes": 237676
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+      "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "bytes": 51321
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "772a67fd232362c61c7b22b371954105d61872dcbf28332641ef39e47c308926",
+      "bytes": 217261
+    },
+    {
+      "path": "v12/python/tests/manager/test_maintenance.py",
+      "sha256": "1e2feb46b7a9296dc4cb8b047b1a7b03a0a52c2da916ffb3e16c9477c61f0dca",
+      "bytes": 145661
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "aadeaabbd9a15b2aae3468494aba27699c86415d58285f598cb84dbba317c45d",
+      "bytes": 882226
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "e2ecc7bdf459485fb6f31ebf957eed9ca5bf3f7aea878eff7df5fed67fff28c4",
+      "bytes": 63958
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "4c6ac99b1e139c2e3ed86c524b259175ab8bb5e2f3ba1d7ceded223e4858fa34",
+      "bytes": 362086
+    },
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "cfbfbb3b320d3b74c09a44b2e3709741c7bc06fba02a618d8ca93b7779096ad4",
+      "bytes": 62486
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/offers.py",
+      "sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+      "bytes": 53060
+    },
+    {
+      "path": "v12/python/tests/manager/test_offers.py",
+      "sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+      "bytes": 67617
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "d272bd9242c283cd492516ce57182f864959c4f03c220d5069cc438344e8f530",
+      "bytes": 57086
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "sha256": "441c0883bd945960b028bd0ac0f73771e5a6f63ed0e8202b98a4875ba7468cb9",
+      "bytes": 74955
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "373f5bacf8aca1c7e9ae5ed8d352eec41499b54e24d6e6cd7ada7659fc748a02",
+      "bytes": 281721
+    },
+    {
+      "path": "v12/python/tests/manager/test_intake.py",
+      "sha256": "8808b1ce54a4c99f1c01a2a120bde404a4a658392285029b0a61188438812c98",
+      "bytes": 193702
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/FINDING.md",
+      "sha256": "efbd13c86c88efbe9bae695335929cc4cb4557e7fd0bd8d2b0cb07fa9ea68f92",
+      "bytes": 15375
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/PLAN.md",
+      "sha256": "6cb395e8042dc3318d112b2a59fa08ee0c9a7a374b6b6d68a863265cd8891553",
+      "bytes": 1446
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/PROGRESS.md",
+      "sha256": "5f808c9545bbb8c7bd516a5a1fccae4af1d993d3155c501d66408ded58e2512f",
+      "bytes": 114475
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "486a0aa4d1123c756fe1d63a0a069dfa2849a7aa4410de7ac811253bf79e1809",
+      "bytes": 133684
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_recovery_clearance_20260928.py",
+      "sha256": "b60d2e447c23640979f6031c483651878194e17955ddce5d9bd8c012db5d729b",
+      "bytes": 2247
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_inert_recovery_20260928.py",
+      "sha256": "f3b1ac0fad6ef8c790d3ddbea4898f0882c5cb57b89f2b2525cf30f2d3dcc507",
+      "bytes": 1727
+    },
+    {
+      "path": "v12/python/tests/manager/test_custody.py",
+      "sha256": "854a5d7207f65788e078384e0d19867ac806455d8b48bfb640bdd4ef06dbd001",
+      "bytes": 134387
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_recovery_gap_20260928.py",
+      "sha256": "8d7d0fbc7cd19217b5888f795dfda317753d0e78a43504a0e3c59eb1223febe2",
+      "bytes": 1337
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_budget_boundary_20260928.py",
+      "sha256": "074a9550e19bc8ec3c5721cb57a4c9bb5bb00d693373d0841614dce9ef94431c",
+      "bytes": 1548
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_governed_start_20260928.py",
+      "sha256": "3e1b41f4a584b4b7e9f50aa92b114bfbd20bd64e5c5b2d7dd17279f859543bd8",
+      "bytes": 601
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_empty_listing_20260928.py",
+      "sha256": "ce050c9067147ea25c6b009724198b793a951482ac34c2ad7d7fb5a4bd49f59a",
+      "bytes": 774
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review-2026-09-28T02-14-45Z.md",
+      "sha256": "04794e8a377de638f54480071150215d39e32fcc7d1adc7bd17cbec51e9d7eab",
+      "bytes": 2623
+    }
+  ]
+}

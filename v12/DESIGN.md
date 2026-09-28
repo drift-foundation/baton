@@ -40,6 +40,50 @@ The records have distinct purposes:
 | Append-only review | Independent assessment of exact candidate bytes and evidence |
 | Baton authority | Current Work relationships, routing, claims, gates and disposition |
 
+## Primary v12 Job lifecycle — owner selection 2026-09-28
+
+The selected fresh-job path is exactly:
+
+1. **Prepare on the host.** Under exclusive attempt ownership, prepare private
+   folders, inputs and initial permissions. Finish preparation before launch.
+2. **Start one job container under a lease.** Bind the lease and launch record
+   to the exact Docker execution. All running job writers, including agent tools
+   and subprocesses, are confined to that container. The host does not continue
+   preparation writes alongside it; this path starts no maintenance/helper container.
+3. **Confirm it ended.** Observe natural termination, or stop it on expiry,
+   cancellation or failure, and positively confirm the exact container stopped.
+   Under this confinement, that confirms its job writers stopped. A sent stop
+   request, provider exit or expired lease alone is insufficient. Do not require
+   a separate hypothetical-writer proof after confirmed Docker termination.
+4. **Record execution status and release the gate.** Durably record the exact
+   container's observed termination/exit status (including unknown exit status
+   honestly), preserve the workspace as it is, and release that attempt's
+   execution ownership. No output scan, permission check, manifest/digest
+   validation or quality judgment is a prerequisite. A successful container exit
+   means execution ended successfully, not that its output is correct, complete,
+   reviewed or accepted for integration. Output inspection and acceptance belong
+   to the human integrator or an independently selected reviewer/consumer when
+   they use the result. Report access or validation failures at that point.
+   Preservation does not authorize deletion, overwrite or silent writable reuse.
+
+If Docker cannot confirm the execution state, or an outstanding create/start can
+still produce a running container, retain the gate and report that concrete
+uncertainty. Evidence of an actual writer outside the selected confinement is
+an invariant violation to account for, not a new routine writer-discovery phase.
+Restart reconciles these same four steps and their persisted identities/outcomes;
+it must not duplicate execution or introduce a second recovery lifecycle.
+All filesystem and Docker I/O remains outside DB transactions. Durable identity,
+conditional admission, replay and honest status requirements remain in force.
+
+This sequence supersedes earlier mandatory normalization receipts, per-root
+maintenance generations and maintenance/custody launches as completion or
+recovery prerequisites for this path. No automatic permission repair, retention
+copy, deletion or reset is selected. Retain output in its private existing storage;
+record where the workspace remains without claiming output validation, a copy
+or a freeze that did not occur. Separately selected future maintenance cannot become a gate
+on completing this lifecycle. The remaining sections specify its invariants,
+not additional mandatory containers or speculative completion phases.
+
 ## 2. System shape
 
 The trusted host is Python. Provider-specific SDKs, CLIs and model adapters live
@@ -56,13 +100,11 @@ flowchart TB
     H --> T[Durable token and operation ownership]
     H --> E[Docker engine adapter]
     E --> D[One controlled execution container]
-    E --> X[Token-bound maintenance container]
     D --> R[Inside-container manager / task runner]
     R --> P[Provider adapter and agent tools]
     I[Read-only declared input] --> D
     D --> O[Private writable output and context use]
     H --> K[Immutable result and private context custody]
-    X --> K
     K --> V[Independent review execution]
     V --> U
     J --> M[Read-only Job monitor]
@@ -88,7 +130,7 @@ rules below. This is per-instance exclusivity, not a machine-wide singleton.
 | Job manager/scheduler | Submitted intent, stages, eligibility, capacity allocation, corrections and ending obligations | That a reserved worker executed, or a producer result was accepted |
 | Host Worker Manager | Exact attempts, token ownership, launch journal, runtime reconciliation, delivery, custody and cleanup coordination | Git semantics, provider inference, self-authored reviewer verdicts, or unobserved runtime death |
 | Docker adapter | Closed create/start/inspect/stop/destroy operations and correlated engine observations | Work authorization or candidate acceptance |
-| Maintenance executor | Exact granted filesystem operation in a token-bound container: prepare, freeze, retain, normalize, delete or reset named managed resources | Authority DB access, token grants, arbitrary host paths or acceptance of its own output |
+| Optional separately selected maintenance executor | An explicitly selected future resource operation; not part of the primary Job lifecycle or its completion gate | Automatic launch for normalization/retention/reset, authority DB access, token grants or acceptance of its own output |
 | Inside-container manager | Validate delivered assignment, receipt commands, invoke provider, supervise tools, publish bounded events and completion | Host lifecycle authority, direct DB access, token grants or self-renewal |
 | Provider adapter/agent | Conversation, reasoning and authorized task/tool work within confinement | Authority inferred from prose or tool success |
 | Source/artifact driver | Format-specific acquisition, Git or other payload interpretation, explicit result consumption | Generic Worker Manager authority |
@@ -101,6 +143,21 @@ rules below. This is per-instance exclusivity, not a machine-wide singleton.
 deliverable with explicit inputs, scope, acceptance and result policy. Campaigns
 roll up Jobs; they are not one indefinitely growing implementation assignment.
 Containment expresses organization; explicit dependencies express execution order.
+
+Terminology:
+
+| Term | Meaning |
+| --- | --- |
+| Job specification | What needs doing: sources and other inputs, requested outcome, shared constraints, acceptance criteria and result policy. |
+| Execution specification | How a selected execution will handle the Job: provider, role-specific instructions, runtime/profile/image and applicable execution settings, within the Job's constraints. The runtime/input manifest describes this setup; it is not the execution itself. |
+| Attempt | One actual run under an execution specification, with its own identity, lifecycle and attributed results. |
+
+The Job specification remains stable while the process of handling it can vary.
+Different providers, execution configurations or retries do not by themselves
+change the Job specification. Changes to its inputs, requested outcome or shared
+constraints change that specification and must not silently reinterpret earlier
+attempts or their evidence. These terms distinguish intent, execution setup and
+actual execution; they do not prescribe additional schema objects or manifests.
 
 **ID-2.** Route, Handler and Next answer different questions: who may claim, who
 currently holds the claim, and where the result should go. Only a successful
@@ -116,6 +173,17 @@ separate identities. None substitutes for assignment generation.
 principal, selected runtime/profile/image provenance and its original assignment
 binding. Reattachment observes that same execution; replacement is a new attempt.
 Different authorities MUST NOT collide merely because local Job labels match.
+
+Owner clarification 2026-09-28: one Job may fan out to N providers (for example,
+Claude, Codex and Gemini), including providers performing the same role. Sources,
+requested task and shared constraints define the common Job input identity;
+provider, image, runtime configuration and role-specific instructions belong to
+each execution. Each execution has its own attempt, token binding and attributed
+results, subject to the existing resource-exclusion rules. Different runtime
+identities do not create different Jobs. Compare Job inputs with Job inputs and
+bind each execution to its exact runtime configuration; do not require runtime
+identity equality across executions. This specifies the distinction, not a new
+manifest format or permission to weaken identity checks.
 
 **ID-5.** Principals are distinct from team-scoped role bindings. Capacity and
 review independence resolve actual principals rather than counting aliases as
@@ -255,51 +323,34 @@ database operation or heartbeat. Independent resources may still run in parallel
 
 **TOK-6. Expiry requires Docker shutdown.** Record revocation and block further
 admission; stop the exact bound container outside all DB transactions; positively
-confirm termination and exclusion of associated writers; settle known effects
+confirm termination (which proves job-writer cessation under the primary path's confinement); settle known effects
 and retain uncertain ones; only then allow reset or a new token generation.
 Sending `stop`, seeing a provider exit, or passing a deadline is not that proof.
 The holder's voluntary polling is not the enforcement mechanism.
 
-**TOK-7.** Every writer capable of affecting the resource must be accounted for,
-including task subprocesses, maintenance work and delayed helpers.
+**TOK-7. Writer placement.** The primary lifecycle defines two non-overlapping
+writer phases: trusted host preparation, then the one leased job container.
+The single Host manager prepares a fresh private attempt: directories, source
+mountpoints, task/input/assignment files and initial permissions. Preparation
+requires exclusive ownership and current claim/eligibility, finishes before
+container launch, and is durably recorded. A failed or interrupted preparation
+cannot launch partial inputs; reconcile its actual state before retry. Do not
+start detached host writers that can outlive this preparation phase unaccounted.
 
-**Initial preparation exception — owner 2026-09-27.** The single Host manager may
-prepare a fresh private attempt before job-container handoff: allocate its
-directories, create source mountpoints, publish task/input/assignment files and
-set initial permissions. No maintenance container is required for this phase.
-Preparation requires exclusive ownership and current claim/eligibility; no job
-container may access the resources until preparation completes, the host durably
-records it and revalidates their identity before task admission. All external I/O
-remains outside DB transactions (DB-1). Interrupted or timed-out preparation MUST
-NOT permit launch or reuse while any host writer can still complete. Restart
-reconciles partial state and uncertain writers; deadline expiry alone does not
-prove cessation. After handoff, this exception grants no host mutation authority.
+During job execution all job writes occur inside its confined container. No
+maintenance container is required for preparation, completion, access checking
+or status settlement. After confirmed termination the host preserves the private storage and records
+its authoritative execution outcome. Output inspection is a later consumer act,
+not a completion requirement. That control record is not a worker's
+self-acceptance and does not require a filesystem normalization receipt.
 
-Other governed workspace, context, input/output and artifact-custody filesystem
-mutations MUST run in token-bound Docker executions. This includes subsequent
-checkpoint freeze, copying into retained custody, deletion and reset. Host
-filesystem helpers are not an alternative enforcement mechanism for those
-effects. Stopping the agent container cannot prove an unrelated host writer
-stopped. The September 26 blanket container-only rule is superseded solely for
-initial preparation; later cleanup, recovery and custody rules remain in force.
-
-The host remains responsible for authorizing these operations, validating
-correlated evidence and committing its own authoritative receipt. That is
-custody ownership, not permission to execute a deletion/copy on the host. A
-trusted maintenance container carries out the selected resource mutation under
-its own exact operation/token/runtime binding and narrowly scoped mounts; it
-does not receive the producer's credentials, authority database or general host
-access. It needs no model invocation. Any filesystem materialization of a custody
-receipt belongs to that governed storage operation; the authoritative host
-settlement is a control-store act, never a worker-authored acceptance claim.
-
-Host control-store transactions, manager command/receipt metadata in separate
-control storage, and Docker lifecycle calls remain host duties. They MUST NOT
-be used to hide workspace/custody mutations under the name of metadata. Engine
-creation/termination and its own storage are the runtime enforcement boundary,
-not tasks that require another agent container to supervise them. All host
-external I/O still obeys DB-1. This distinction terminates the supervision chain
-with the explicit initial-preparation exception above.
+Other filesystem mutations, such as an eventual retention copy, permission
+repair, deletion or reset, require separate explicit selection and bounded
+ownership. They are not automatic epilogues or v12 completion prerequisites.
+Previously specified container-bound mechanisms remain historical implementation
+options, not authority to launch them on this path. This supersedes the former
+blanket maintenance-container requirement. Docker lifecycle and control-store
+operations remain host duties; all external I/O obeys DB-1.
 
 **TOK-8.** Authority fences and physical cessation are complementary. A stale
 container cannot publish a result, but it may still damage a mounted workspace;
@@ -340,41 +391,26 @@ active generation 2. Revoked or superseded reservations cannot acquire a late
 container binding. String truthiness, a caller's boolean assertion, or an old
 cleanup receipt cannot substitute for the trusted adapter's correlated evidence.
 
-**TOK-12. Reset is itself controlled work.** After proven cessation of the old
-execution and settlement of its known effects, keep ordinary use gated if the
-resource still needs repair/reset. The host may admit a fresh maintenance token
-generation for exactly that recovery operation, carrying forward the unresolved
-resource condition and known recovery input; it must not clear unrelated holds.
-Bind and run the maintenance container, record its actual result, positively
-confirm that container and its writers have stopped, then settle/return its token.
-Only a successful required
-reset plus its settlement makes the resource eligible for ordinary use.
-
-A failed/expired reset follows the same revocation, cessation and held-effect
-rules; it cannot authorize a replacement by declaring itself done. Cleanup of
-its engine object is a host Docker operation. Any later deletion of retained
-managed files is another explicitly authorized maintenance operation, not an
-untracked host epilogue or an infinite chain of containers stopping containers.
+**TOK-12. Reset is separate work.** The primary Job lifecycle does not perform
+an automatic repair/reset and does not require a fresh maintenance generation
+before reporting the outcome and releasing stopped execution ownership. Preserve
+failed output and report its error. Any later reset/deletion requires explicit
+selection, exact resource identity, proven cessation and protection of retained
+evidence and unrelated holds. The historical per-root maintenance reset sequence
+is not a current completion/recovery gate. No reset mechanism is selected here.
 
 ## 6. Host manager and Docker lifecycle
 
-**HOST-1.** Before writable execution: validate selected contract/profile, declared
-inputs and resource policy; reserve eligible capacity; settle the canonical claim;
-prepare fresh private resources on the host under TOK-7 initial-preparation
-ownership; durably record completion and prove no preparation writer remains;
-then admit the task token, validate/bind delivery and launch one exact task
-execution. Task admission rechecks prepared resource/checkpoint identity;
-preparation is not an irrevocable entitlement to a later grant. An expired offer
-or lost claim authorizes no new preparation or task launch.
-
-For operations still requiring maintenance execution under TOK-7, confirm the
-exact maintenance container and its writers stopped and settle the operation
-before conflicting task admission. Conflicting maintenance and task tokens MUST
-NOT coexist. Maintenance has its own operation/token/runtime identity and derives
-scope from the selected lifecycle act without fabricating a second task claim.
-A maintenance container is not a pre-claim model/consent container. The previous
-requirement for a separate maintenance execution for initial preparation is
-superseded by the September 27 owner selection.
+**HOST-1.** Implement the primary four-step lifecycle. Validate selected
+contract/profile, inputs and resource policy; reserve eligible capacity and
+settle the canonical claim; finish exclusive host preparation; then admit the
+lease and bind/launch one exact task container. Admission rechecks prepared
+resource/checkpoint identity. An expired offer or lost claim authorizes no new
+preparation or task launch. On ending, confirm exact Docker termination, record
+the observed execution status and release execution ownership with its exact identity.
+Use one shared completion check/record across the selected ending paths while
+preserving each caller's authorization and replay rules. Neither normal completion
+nor failure recovery requires an automatic maintenance execution.
 
 **HOST-2.** Host orchestration is persistent and recoverable. A restart reconciles
 the recorded attempt, token, launch operation, engine object, command receipt and
@@ -397,6 +433,15 @@ Broad freedom inside the container does not imply host-root authority.
 Validate its declared structure and report actual access failures; do not invent
 mandatory startup probe containers or recursive permission normalization. Shared
 UID/GID is an access arrangement, not the isolation boundary.
+
+Jobs must create files with the configured shared group and modes sufficient
+for required host access. No proactive permission scan is required to complete
+an execution. If a later consumer encounters inaccessible output, report the
+permission error at that operation and preserve the files. Do not repair permissions, run a helper,
+or claim successful collection. Once exact Docker termination is confirmed under
+the primary path's confinement, permission failure alone does not retain execution
+ownership. Any separate resource hold must name a concrete unresolved condition;
+it must not disguise automatic normalization as a prerequisite to release.
 
 **HOST-6.** Record cleanup as an owed operation with exact runtime, resource and
 retention bindings. Cleanup failure does not erase a valid retained result, release
@@ -492,7 +537,8 @@ claim is not rewritten after claim. The post-claim assignment manifest conveys
 the minted generation; a path or environment string cannot substitute for it.
 Preparing/digesting the pre-claim input manifest in memory is distinct from
 installing it in a governed filesystem root. Installation/staging follows TOK-7
-and HOST-1; it must not become a host-write exception or a pre-claim task launch.
+and HOST-1: the host stages these files before launch, after the required claim.
+It must not become a pre-claim task launch.
 
 **ART-4.** A development line may retain one private disk-backed workspace across
 serial correction attempts. At most one writer owns it. Review receives an exact
@@ -512,16 +558,23 @@ declared result paths and generic digests. Required artifacts must actually exis
 A commit/hash/URI without retained resolvable content is not a durable result.
 Partial publication is incomplete even if a filename exists or the process exits 0.
 
-**ART-7.** After confirmed producer-container termination, the host custody owner authorizes
-validation, freeze and retention of the exact declared bytes. A token-bound
-maintenance execution performs the governed filesystem effects into scoped
-custody storage that the producer cannot write. After validating the result and
-confirming the maintenance container and its writers stopped, the host commits its own immutable
-result receipt in trusted control custody, outside producer-writable storage.
-That receipt binds assignment/attempt, worker envelope, input/policy, content,
-maintenance operation/token and cessation evidence. A worker's report cannot
-substitute for this host settlement. The custody owner's responsibility does not
-require its filesystem work to execute on the host; TOK-7 fixes that placement.
+**ART-7. Execution completion is not output acceptance.** After confirmed
+producer-container termination, record its execution status and workspace locator
+in trusted control state, preserve existing files and release execution ownership.
+No result/permission/digest scan, normalization receipt, retention copy or helper
+launch is required for this transition. Do not claim output bytes were validated,
+retained as an accepted artifact or approved merely because the container exited.
+
+The human integrator or independently selected reviewer/consumer later checks
+required output, access, identity, declared digests and fitness for its intended
+use. Any accepted-result record must bind the actual inspected candidate and
+support its claims; missing/inaccessible/invalid output fails that consumption or
+acceptance, not the already-proven execution termination. ART-6's publication
+contract and independent review requirements apply to claiming a valid result,
+not to releasing the execution gate. Preserve material from writable reuse while
+it is offered for inspection. This owner selection supersedes earlier ART-7
+requirements for proactive host output validation at completion as well as
+mandatory maintenance-container retention.
 
 **ART-8.** Normal result publication occurs under the appropriate live generation
 and ending contract. Revoked/late output is retained or quarantined as evidence;
@@ -529,10 +582,11 @@ it is not published on behalf of a dead assignment. A later authorized consumer
 may explicitly adopt useful evidence without pretending the old execution succeeded.
 
 **ART-9.** Retention decisions distinguish accepted candidates, rejected revisions,
-partial output, logs, private context and disposable scratch. Deletion needs explicit
-custody/retention authority plus an exclusive maintenance token and its bound
-container; the host authorizes and settles deletion instead of walking/deleting
-the resource itself. Preserve unknown holds and immutable historical evidence.
+partial output, logs, private context and disposable scratch. Preserve existing
+output and immutable historical evidence; execution-gate release does not authorize
+deletion or overwrite. Any later deletion/copy/reset is a separately selected
+operation with exact resource and retention authority. It is not required for
+Job completion, and no automatic maintenance container is selected for it.
 A digest by itself is not a recovery backup.
 
 ## 9. Context reuse and correction continuity
@@ -809,7 +863,7 @@ label simulated and live evidence accurately and reuse applicable accepted proof
 | Token return/handoff | Every normal role/resource handoff, including maintenance, waits for confirmed exact outgoing-container termination and settlement; done/output/detach/stop-request alone refuse; unknown/stale termination and surviving writers keep the hold; replay returns once without repeating effects |
 | Expiry | Still-live container cannot be replaced; exact stop and positive cessation precede reset/new acquisition; delayed launch, engine failure and unknown helpers remain held |
 | Renewal | Valid same-execution renewal is recorded once; competing expiry/renewal serialize; stale expiry cannot defeat a committed renewal; expired/revoked/stale/cross-execution renewal refuses; lost reply/replay does not extend twice |
-| Maintenance/reset | Governed filesystem effects run inside the token-bound maintenance execution; host control metadata is separate; interrupted reset holds ordinary admission; replacement needs positive old-writer cessation; maintenance success is settled independently |
+| Primary completion/recovery | Host preparation completes before one leased job container; exact Docker termination and durable execution status permit release with workspace preserved; result/access checks happen at later consumption, not as a release gate; zero maintenance/helper launches; restart reconciles the same lifecycle |
 | Recovery | Manager restart at each selected external-effect cut preserves identities, unknowns and custody, with no duplicate container/provider dispatch |
 | Workspace/review | Writer and reviewer cannot overlap on mutable line; review binds exact retained checkpoint; changed bytes/identity refuse |
 | Context | Useful correction in a new container restores the qualified conversation and retained workspace after confirmed old-container shutdown; fresh execution/token identity, competing-use/wrong-profile refusal, failed-save visibility and credential exclusion remain proved |
@@ -856,22 +910,21 @@ not sign off implementation, deployments or historical experiments.
 
 Owner selection, 2026-09-26, resolves the first draft's open choices:
 
-1. **Writer placement (amended by owner 2026-09-27).** Initial private attempt
-   allocation, staging, input/task publication and initial permission setup may
-   run on the Host manager under TOK-7 and HOST-1. This supersedes the September
-   26 blanket container-only allocation/staging rule. Later governed effects,
-   including custody freeze/retention, deletion and reset, still require
-   token-bound containers. Host preparation must finish and be durably accounted
-   for before task admission; timeouts do not establish writer cessation.
+1. **Primary four-step lifecycle (owner 2026-09-28).** Host preparation, one leased
+   job container, confirmed Docker termination, then durable execution status and
+   execution-gate release. No automatic maintenance/helper launch, normalization
+   receipt or repair-generation chain. Permission errors preserve files and report
+   failure; they are not evidence of a running writer. This supersedes earlier
+   blanket container-only mutation and mandatory post-job maintenance policies.
 2. **Host enforcement and renewable permission.** The host grants, explicitly
    renews, revokes and enforces tokens using its trusted deadline authority. The
    inside-container manager can use the execution's granted token but cannot
    extend it. Renewal is permitted only while the same token/execution remains
    valid. Expiry requires Docker shutdown and proven cessation before replacement.
-3. **Recovery executor.** Reset receives its own scoped maintenance token after
-   old-writer cessation, while ordinary use remains gated until recovery settles.
-   Docker supervision and control-state publication remain host duties; they
-   do not require a maintenance container to stop its own supervisor.
+3. **Recovery reconciles the same lifecycle.** Recover exact preparation, lease,
+   launch, Docker state and outcome records without duplicate execution. Keep a
+   gate for concrete uncertain runtime/launch state, not missing repair receipts.
+   Automatic reset is deferred; a future selected reset is separate work.
 4. **Shutdown on every ownership handoff.** Confirm termination of the exact
    outgoing container before normal resource/role transfer, as well as on expiry
    or revocation. Preserve durable state and restore context in a new execution.
@@ -899,7 +952,7 @@ in those records are not automatically requirements.
 | [Assignment contract](../work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/SPEC.md) | Full identity, monotonic generations, distinct owners and replay; transition-era v11 selectors are not the v12 design |
 | [Worker-control/manifests](../work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/SPEC.md) | Read-only input pair, worker completion versus custody receipt, generic payload boundary; pre-claim consent wording is superseded by the later one-runtime ruling |
 | [Token-baton owner decision](../work/records/2026/09/finding-v12-workspace-removal-outside-locks/OWNER-TOKEN-BATON-20260926.md) | Short DB transactions, exclusive resource ownership and mandatory Docker cessation on expiry; token polling, mere expiry and report-only liveness cannot supply this guarantee |
-| [Consolidated design owner decisions](../work/records/2026/09/finding-v12-normative-design/FINDING.md) | Container-bound mutations except September 27 host initial preparation (TOK-7/HOST-1), host enforcement, explicit renewal only before expiry, token-bound reset and confirmed shutdown on normal handoff; earlier blanket writer-placement rule superseded for initial preparation |
+| [Consolidated design owner decisions](../work/records/2026/09/finding-v12-normative-design/FINDING.md) | September 28 primary four-step lifecycle supersedes mandatory maintenance preparation/normalization/retention/reset gates; host preparation, one leased job container, confirmed shutdown, execution status and release; later consumer output acceptance; explicit renewal only before expiry |
 | [Live-session detach and restoration evidence](../work/records/2026/09/finding-v12-live-session-workspace-detach/FINDING.md) | Preserve independently accepted live-process detach/reattach and separate new-process restoration proofs; live-runtime handoff is deferred from v12, with no matched speed comparison or implicit production adoption |
 | [Container permission boundary](../work/records/2026/09/finding-v12-container-is-the-agent-security-boundary/FINDING.md) | Broad tools inside confinement; per-command approval inside an accepted worker is superseded |
 | [Trusted identity ruling](../work/records/2026/09/finding-v12-workspace-shared-identity/OWNER-TRUSTED-IDENTITY-20260917.md) | Deliberately configured UID/GID; automatic identity-probe lifecycle is superseded |

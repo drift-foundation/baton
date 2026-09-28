@@ -1374,6 +1374,10 @@ class ManagedPreparation:
             policy_digest=held["policy_digest"],
             profile_name=held["profile_name"],
             accept=held["accept"], identity=held["identity"],
+            # W285465 review 2026-09-28T12-37-18Z: THE CONFIGURED MANIFEST TRAVELS to the
+            # admission, which derives the Job identity from it and verifies the exact runtime
+            # digest against the attempt record.
+            input_manifest=held["runtime_configuration"]["input_manifest"],
             contract=held.get("contract"),
             admit=(None if self._runtime is None else
                    lambda: self._runtime.admit(held)))
@@ -1596,7 +1600,19 @@ class ManagedPreparation:
                  "execution_offer_id": held["execution_offer_id"],
                  "participant": held["participant"],
                  "task_digest": held["task_digest"],
-                 "input_digest": held["input_digest"],
+                 # W285465 review 2026-09-28T12-01-33Z: THE PLAN IS JOB-FACING. The admission
+                 # compares this member against the OFFER the Job claimed, and a Job names its
+                 # manifest's Job-scoped projection -- so the plan names the projection too. The
+                 # exact runtime manifest digest is a different fact and is not touched here; it
+                 # stays on the held request, the publication and the attempt identity.
+                 # AND A JOB DICT ALREADY NAMES THE JOB VALUE. Review 2026-09-28T13-33-16Z:
+                 # `planned` is reached both with the configured `held` -- which carries the
+                 # projection explicitly beside the runtime digest -- and with a bare Job whose
+                 # `input_digest` IS the Job-facing value. Requiring the explicit member broke
+                 # the second shape with a KeyError instead of comparing anything, so each
+                 # caller's own Job-facing value is taken.
+                 "input_digest": held.get("job_input_digest",
+                                          held["input_digest"]),
                  "profile_digest": held["profile_digest"]},
                 {"phase": "apply",
                  "execution_attempt_id": stage["attempt_id"],
@@ -1705,7 +1721,8 @@ class PreparationExecution:
 
     def prepare(self, *, orchestration_id, root_assignment_id, request, plan,
                 execution_work_id, execution_route, policy_digest,
-                profile_name, accept, identity, contract=None, admit=None):
+                profile_name, accept, identity, input_manifest=None,
+                contract=None, admit=None):
         """Decide, create, offer, claim, admit -- and answer what was fixed.
 
         THE ATTEMPT AND THE OFFER COME FROM THE REGISTERED PLAN, not from
@@ -1784,9 +1801,21 @@ class PreparationExecution:
         # The ordinary child manifest is the offer/attempt/capacity identity.
         # The published source tree has its own digest in the request; it is
         # checked by the workload and adoption, not substituted for a manifest.
+        # W285465 review 2026-09-28T12-21-08Z: THE RUNTIME RECORD KEEPS ITS OWN OPERANDS.
+        #
+        # This overwrote the runtime identity's `input_digest` with the PLANNED one, which was
+        # harmless while the two were the same value and became the defect the moment the plan
+        # started naming the Job-scoped projection: the attempt record's operands changed, its
+        # signature changed with them, and the replay refused with "already recorded with a
+        # different kind or signature".
+        #
+        # The record is about the RUNTIME, so it carries the runtime identity the composer holds
+        # -- the exact manifest digest -- unchanged. The Job-facing projection belongs to the
+        # plan, the offer and the admission's correspondence check, not here. Nothing about the
+        # earlier full-runtime record moves, and the replay keeps working because the operands
+        # are identical to what it committed.
         record_attempt(self._manager, attempt_id=runtime_attempt_id,
-                       **dict(identity,
-                              input_digest=planned["input_digest"]))
+                       **dict(identity))
         activate_assignment(self._manager, self._port,
                             attempt_id=runtime_attempt_id,
                             expect=claimed["assignment"])
@@ -1796,7 +1825,8 @@ class PreparationExecution:
                       if one["execution_attempt_id"] == runtime_attempt_id)
         admitted = (capacity if member["state"] == "ended" else
                     self.admit(intent, runtime_attempt_id=runtime_attempt_id,
-                               assignment=_admissible(assignment)))
+                               assignment=_admissible(assignment),
+                               input_manifest=input_manifest))
         return {"intent": intent, "offer_id": offer_id, "claim": claimed,
                 "assignment": assignment, "admitted": admitted,
                 "execution_attempt_id": runtime_attempt_id}
@@ -1839,13 +1869,19 @@ class PreparationExecution:
                            profile_name=profile_name,
                            mint_bearer=self._mint)
 
-    def admit(self, intent, *, runtime_attempt_id, assignment):
+    def admit(self, intent, *, runtime_attempt_id, assignment,
+              input_manifest=None):
         """Step 5. THE GATE. Nothing may start before this commits."""
+        # W285465 review 2026-09-28T12-37-18Z: THE CONFIGURED MANIFEST CROSSES HERE. The
+        # admission derives the Job identity from it and verifies the exact runtime digest
+        # against the attempt record, which is what makes the correspondence provable rather
+        # than two caller digests asserting it about each other.
         return admit_integration_execution(
             self._jobs, self._control,
             orchestration_id=intent["orchestration_id"],
             phase=PREPARATION_PHASE,
-            execution_attempt_id=runtime_attempt_id, assignment=assignment)
+            execution_attempt_id=runtime_attempt_id, assignment=assignment,
+            input_manifest=input_manifest)
 
     def start(self, orchestration_id, runtime_attempt_id, launch):
         """The ordinary launch, BEHIND the admission that authorises it.

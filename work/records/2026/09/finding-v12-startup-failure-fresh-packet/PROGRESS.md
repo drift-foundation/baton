@@ -438,3 +438,68 @@ created or read; no product file edited; no accepted test edited; no
 output-type redesign; no D2 work; recovery scope unchanged; W44342 untouched.
 Every store, workspace and custody root is a per-case temporary directory
 removed by its own cleanup.
+
+
+## 2026-09-28 — baton.tuner claim291715: fresh single-job draft
+
+Owner291710 selects documentation/packet preparation, superseding unconditional
+old D2 sequencing. Authored only this dossier FINDING/PLAN/PROGRESS and six dated
+packet/input artifacts plus static verification. Current Work/thread position is
+in PLAN. Reused accepted D1/declaration proof without rerunning historical tests.
+
+Delivered exact supported command surfaces and a concrete missing bounded-start
+finding, not a runnable-packet claim. Proposed useful documentation task, immutable
+excerpt hashes, isolated future roots, explicit limits, observed source manifest,
+historical image provenance and exact B1–B5 residual/provider dispositions. No
+shared composer copy, product edit, store read, live run, build/deployment, cleanup,
+Git mutation or active-G2 path edit. No runtime test time added. Final immutable
+candidate, generated inputs, bounded start and deterministic rehearsal remain
+explicitly pending accepted dependencies and owned B1 correction.
+
+
+## 2026-09-28 — B1 implementation start, baton.tuner claim291848
+
+Owner291841 selects four exact baseline/composer/test files; empty pre-edit diff
+confirmed. Choice recorded in FINDING before edits. Author owns only these four
+files and this dossier's attributable evidence; active G2 and historical evidence
+stay untouched. Current review03:34:19 read. Final freeze remains prerequisite-bound.
+
+
+### B1 claim291848 — partial correction and exact connected blocker
+
+Implemented explicit fresh packet/2 without changing contextual packet/1 default;
+plain deployment, no context grant/profile/receipt, positive context-exclusion check,
+fresh destination protection, generated start/status commands, one-job accounting
+and result checks retained. Four authorized paths enumerated and hashed in
+B1-CANDIDATE-291848.json; exact continuation and commands in B1-CHECKPOINT-291848.md.
+
+29 focused tests PASS0.335s; earlier focused28 PASS0.271s. Connected fresh positive
+remains FAIL at real host-preparation/adopted-root guard before runtime; unchanged
+contextual positive also FAIL before result. All attempts/costs and exact public
+refusal recorded in checkpoint (known unittest2.593s this claim). No full B1 or
+packet acceptance claimed. No product fifth-path edit or guard workaround. Next
+reviewer coordinates exact G2/consumer correction, then resumes connected literal
+start/status/positive/interruption/access proofs. B2–B5 and final freeze remain.
+
+### 2026-09-28 — baton.tuner claim291959, handoff291955
+
+Continued owner291841 four-path scope. Added two emitted-start argv byte-drift
+refusals preserving affected bytes. Corrected fresh-mode 300-second total to
+reserve60 for cleanup (240 serving); contextual behavior unchanged. Added real
+submission/accounting pre-admission deadline check with synthetic serving ticks.
+32 focused PASS0.405s; all current iterations1.521s, cumulative author4.114s;
+reviewer prior0.643s separately. git diff --check clean. No connected-positive
+acceptance: G2 claim291981 remains active, consumer291949 pending reviewed fix.
+Exact evidence/continuation B1-CHECKPOINT-291959.md, B1-CANDIDATE-291959.json,
+B1-FOCUSED-291959.sh. Await independent review; retain previous positive failure
+and B2–B5 freeze/provider boundaries. No fifth shared path or live execution.
+
+### 2026-09-28 — baton.tuner claim292052, handoff292048
+
+Four selected candidate hashes still match; G2 currently under independent
+review292053, author reports missing review_cycles caller wiring. No reviewed
+preparation correction available to consume. No tests or implementation changes;
+author4.114s/reviewer0.643s historical unchanged. Recorded exact dependency resume
+condition and OS/environment rehearsal sequence in B1-CONTINUATION-292052.md.
+Return for dependency scheduling with existing four-path authority preserved;
+no new permission request, fifth-path edit, graph change or packet acceptance.

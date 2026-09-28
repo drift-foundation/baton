@@ -55,6 +55,19 @@ class Custodian:
     # W43975: the typed directory-custody seam this ending now settles on.
     custodian_image_digest = "sha256:" + "c" * 64
 
+    def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                          reclaim=None):
+        """W285465: THE SEAM THIS ENDING REQUIRES NOW.
+
+        OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removes the normalization launches from the
+        refused-session ending, so what it proves at entry and establishes its roots'
+        quiescence with is this observation. The double answers the EMPTY OBSERVATION -- a
+        list, the shape the crossing validates -- because these cases are about the ending's
+        authority and not about surviving helpers.
+        """
+        self.listed.append(assignment_id)
+        return []
+
     def normalize_directory(self, store, *, assignment_id, which):
         from baton_v12.worker_manager import custody
 
@@ -74,6 +87,7 @@ class Custodian:
 
     def __init__(self, **overrides):
         self.normalized = []
+        self.listed = []
         self.commands = []
         self.overrides = overrides
 
@@ -684,8 +698,23 @@ class TheRefusedSessionEndingSurvivesInterruption(RefusedSessionCase):
                  "entries": 0, "not_ours": 0,
                  "running_as": [0, 0]}, None)
 
+        def surviving_helpers(store, *, assignment_id, seconds=None,
+                              reclaim=None):
+            # W285465: the act this ending performs now, and the one that can die.
+            adapter.listed.append(assignment_id)
+            if fail_on == "listing":
+                raise RuntimeError("the engine died while listing writers")
+            return []
+
         adapter.normalize_directory = normalize_directory
+        adapter.surviving_helpers = surviving_helpers
         return adapter
+
+    def committed(self, answered):
+        from baton_v12.worker_manager import intake
+
+        return intake.historical_writer_cessation(self.store,
+                                                  answered["operation"])
 
     def attempt_row(self):
         beside = sqlite3.connect(self.path, isolation_level=None)
@@ -705,54 +734,104 @@ class TheRefusedSessionEndingSurvivesInterruption(RefusedSessionCase):
 
         answered = self.settled(adapter)
 
-        self.assertEqual([one for _a, one in adapter.normalized],
-                         ["result", "workspace"])
-        self.assertEqual(sorted(answered["directory_custody"]),
-                         ["result", "workspace"])
+        # W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928: no helper ran, and the
+        # ending binds the establishment it committed. The property -- an ending binds the
+        # account of its roots and replays without acting again -- is unchanged.
+        self.assertEqual(adapter.normalized, [],
+                         "the ending launched a normalization helper")
+        self.assertEqual(adapter.listed, [ATTEMPT])
+        self.assertIsNone(answered["directory_custody"])
+        self.assertIsNotNone(self.committed(answered),
+                             "the ending committed no establishment")
         self.assertEqual(self.settled(adapter), answered,
                          "the settled ending did not replay")
-        self.assertEqual(len(adapter.normalized), 2,
-                         "a replayed ending normalized a root again")
 
-    def test_an_interrupted_normalization_commits_no_ending_and_resumes(self):
+    def test_an_interrupted_ESTABLISHMENT_commits_no_ending_and_resumes(self):
         self.refused()
         self.ended()
-        dying = self.interrupted(fail_on="workspace")
+        dying = self.interrupted(fail_on="listing")
 
         with self.assertRaises(RuntimeError):
             self.settled(dying)
         self.assertEqual(self.attempt_row()["cleanup"], "pending",
-                         "an ending was claimed on an unfinished custody")
+                         "an ending was claimed on an unfinished establishment")
 
         resumed = self.interrupted()
         answered = self.settled(resumed)
 
         self.assertEqual(answered["cleanup"], "retained")
-        self.assertEqual([one for _a, one in resumed.normalized],
-                         ["workspace"],
-                         "the resumed ending renormalized a settled root")
+        self.assertEqual(resumed.normalized, [],
+                         "the resumed ending launched a helper")
+        self.assertIsNotNone(self.committed(answered))
 
-    def test_a_changed_custodian_collides_rather_than_settling(self):
+    def test_a_SURVIVING_writer_refuses_this_ending_too(self):
+        """This family's positive-cessation control."""
         self.refused()
         self.ended()
-        dying = self.interrupted(fail_on="workspace")
-        with self.assertRaises(RuntimeError):
-            self.settled(dying)
-
-        other = self.interrupted()
-        other.custodian_image_digest = "sha256:" + "e" * 64
-
+        adapter = self.interrupted()
+        adapter.surviving_helpers = lambda store, *, assignment_id, \
+            seconds=None, reclaim=None: [
+                {"helper_identity": "baton-custody-" + "a" * 32,
+                 "why": "the engine listed this helper as running"}]
         with self.assertRaises(ContractRefusal) as caught:
-            self.settled(other)
-
-        self.assertEqual(caught.exception.code, "operation-collision")
+            self.settled(adapter)
+        self.assertIn("still survives", str(caught.exception))
         self.assertEqual(self.attempt_row()["cleanup"], "pending")
+
+    def test_an_UNREADABLE_listing_answer_is_RECORDED_and_does_not_hold(self):
+        # W285465 under OWNER-SIMPLE-COMPLETION-20260928: SUPERSEDED. Confined container
+        # cessation proves the confined writers stopped, so neither a missing listing nor an
+        # unreadable answer holds this ending; what the record must not do is claim the listing
+        # established anything.
+        self.refused()
+        self.ended()
+        adapter = self.interrupted()
+        adapter.surviving_helpers = lambda store, *, assignment_id, \
+            seconds=None, reclaim=None: None
+        answered = self.settled(adapter)
+        self.assertEqual(answered["cleanup"], "retained")
+        ceased = self.committed(answered)
+        self.assertEqual(ceased["established"], "container-cessation")
+        self.assertIn("not an observation this manager can read",
+                      ceased["listing"])
+
+    def test_a_deployment_that_CANNOT_LIST_is_refused_before_the_destroy(self):
+        """REPLACES the changed-custodian collision on this path.
+
+        W285465: that case swapped the custodian image between two normalization acts, and
+        this ending performs none. What the seam rule still says is that the capability this
+        ending USES is proved before any destructive work, so a deployment that cannot list
+        is refused and nothing is destroyed. The historical collision rule itself is unchanged
+        where normalization is still performed, in `test_custody`.
+        """
+        self.refused()
+        self.ended()
+        adapter = self.interrupted()
+        adapter.surviving_helpers = None
+        # W285465 under OWNER-SIMPLE-COMPLETION-20260928: SUPERSEDED -- a deployment that
+        # offers no listing COMPLETES on the container's own cessation. What is still refused
+        # before any destructive work is a listing that is OFFERED and cannot be used.
+        answered = self.settled(adapter)
+        self.assertEqual(answered["cleanup"], "retained")
+        adapter = self.interrupted()
+        adapter.surviving_helpers = "not a callable"
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled(adapter)
+        self.assertIn("writer-listing act", str(caught.exception))
 
     def test_the_home_is_retained_rather_than_removed(self):
         self.refused()
         self.ended()
+        # W285465: THE ROOTS ARE ALLOCATED THE WAY THE HOST ALLOCATES THEM, not composed by
+        # hand. The ending establishes that its output is readable by the configured workspace
+        # group, and a directory this fixture invented is not a root this manager can account
+        # for -- measured, and it is the allocator that owns those modes and that group.
+        from baton_v12.worker_manager import workspaces as _workspaces
+        from tests.manager import input_roots as _input_roots
+
         home = os.path.join(self.storage, ATTEMPT)
-        os.makedirs(os.path.join(home, "workspace"), exist_ok=True)
+        _workspaces.assignment_workspace(
+            _input_roots.configured_group(self.store), self.storage, ATTEMPT)
 
         self.settled(self.interrupted())
 

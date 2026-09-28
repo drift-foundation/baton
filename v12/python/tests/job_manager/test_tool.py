@@ -598,7 +598,15 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
         # The reclaim's own three acts: stop, remove, then confirm. The ending's
         # second observation is absent from this list precisely because the ending
         # could not run from a non-custodial adapter -- asserted below.
-        self.assertEqual([one[1] for one in vectors], ["stop", "rm", "inspect"])
+        # W285465 under the owner supersession at 294568/294616: the SETTLEMENT that now
+        # follows the reclaim re-asks the exact identity before it releases anything, so the
+        # chain carries a second `inspect`. That is the confirmation the ruling requires -- the
+        # reclaim's absence was true at the reclaim's instant -- and it starts nothing, which
+        # the sentinel below asserts.
+        self.assertEqual([one[1] for one in vectors],
+                         ["stop", "rm", "inspect", "inspect"])
+        self.assertNotIn("run", [one[1] for one in vectors],
+                         "the expiry pass started something")
         self.assertTrue(all(one[-1] == case["runtime_id"] for one in vectors),
                         "every act named the exact container")
         self.assertEqual(answer["refused"], [])
@@ -610,10 +618,11 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
         # so the ending cannot run from it and the pass says so instead of refusing.
         # A deployment whose factory supplies a custodian-capable adapter gets the
         # ending in the same tick; this one records what it could not do.
-        self.assertEqual(answer["reclaimed"][0]["ending"],
-                         "awaits-normalizing-ending")
-        self.assertIn("performs no custody acts",
-                      answer["reclaimed"][0]["ending_why"])
+        # W285465 under the owner supersession at 294568/294616: the lean pass SETTLES now --
+        # the selected settlement performs no custody act, so waiting for a custodian it never
+        # calls held every reclaimed resource for nothing. The release is read from the answer
+        # here and from the ledger in `test_without_a_custodian_the_RECLAIM_STILL_SETTLES`.
+        self.assertEqual(answer["reclaimed"][0]["ending"]["settled"], "returned")
         self.assertTrue(
             tokens.token_of(control, case["domain"], 1)["revoked"],
             "the overdue entitlement was withdrawn by the serving pass")
@@ -739,14 +748,19 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
                     self.assertEqual(
                         seconds, job_manager._RECLAIM_SECONDS,
                         "a reclaim's engine calls carry their own bound")
-        self.assertIn("run", carried, "the custody act reached the engine")
-        # AND THE CUSTODY VECTORS CARRY THE ACT'S OWN MAXIMUM rather than merely
-        # something that is not None: an unbounded caller gets the package's maximum,
-        # which is the rule `custody.allowed` states and this now measures.
-        from baton_v12.worker_manager import custody as _custody
-        for seconds in carried["run"]:
-            self.assertEqual(seconds, _custody.CUSTODY_ACT_SECONDS,
-                             "an unbounded caller spends the custody act's own maximum")
+        # W285465 under the owner supersession at 294568/294616: NO `run` VECTOR, and its
+        # ABSENCE is asserted rather than its bound. The chain starts no helper, so a `run` here
+        # would be the launch this ruling forbids -- which makes the strengthening this case is
+        # about a statement over the vectors the chain DOES issue, plus the sentinel that it
+        # issues no other kind.
+        self.assertNotIn("run", carried,
+                         f"the reclaim chain started something: {vectors}")
+        self.assertEqual(sorted(carried), ["inspect", "ps", "rm", "stop"],
+                         f"the chain issued an unexpected vector: {sorted(carried)}")
+        # AND THE LISTING'S OWN READS CARRY A BOUND TOO, from the same wrapper.
+        for seconds in carried["ps"]:
+            self.assertIsNotNone(seconds,
+                                 "a listing read reached the engine unbounded")
 
     def test_an_already_absent_removal_still_completes_the_chain(self):
         from baton_v12.worker_manager import tokens
@@ -761,7 +775,7 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
         self.assertEqual(answer["reclaimed"][0]["ending"]["settled"], "returned")
         self.assertEqual(tokens.outstanding(case["store"], case["domain"]), [])
 
-    def test_a_failed_normalization_holds_AND_ITS_RETRY_IS_REFUSED(self):
+    def test_an_UNCONFIRMED_runtime_HOLDS_and_its_RETRY_confirms(self):
         """NO REPEATED UNSAFE EFFECT -- and the retry does NOT converge, which is a
         real finding rather than a test I could force.
 
@@ -802,21 +816,40 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
                     "stdout": json.dumps(
                         _custody_suite.reported("normalize")) + "\n"}
 
-        vectors = []
-        pass_over = job_manager._reclaiming(
-            control, "docker", self._accountable(vectors, normalize=normalize),
-            "sha256:" + "c" * 64)
-        first = pass_over(now="2026-08-24T01:00:00.000Z")
-        self.assertEqual(first["reclaimed"], [])
-        self.assertIn("did not answer accountably", first["refused"][0]["why"])
-        self.assertEqual(len(tokens.outstanding(control, case["domain"])), 1,
-                         "a failed normalization must not free the resource")
-        again = pass_over(now="2026-08-24T01:00:00.000Z")
-        self.assertIn("unreconciled uncertainty", again["refused"][0]["why"])
-        self.assertEqual(len(tokens.outstanding(control, case["domain"])), 1,
-                         "and it stays held while that uncertainty stands")
+        # W285465 under the owner supersession at 294568/294616: THE HOLD THIS PATH CAN HAVE IS
+        # AN UNCONFIRMED CONTAINER, not a failed custody act -- no helper runs here at all. So
+        # the engine reports the runtime STILL PRESENT on the first pass and absent on the
+        # second, which is the concrete unknown/surviving Docker hold the ruling keeps.
+        confirming = [True]
 
-    def test_a_failed_TOKEN_RETURN_retries_without_repeating_normalization(self):
+        def inspecting(argv, *, seconds=None):
+            del seconds
+            if argv[1] == "inspect":
+                if confirming[0]:
+                    # STILL THERE, for EVERY read in this pass: the reclaim's own confirmation
+                    # and the settlement's re-ask must both see it, or the pass would release on
+                    # the second look at a container the first one found running.
+                    return {"status": 0, "stdout": json.dumps(
+                        [{"Id": "runtime-1", "State": {"Running": True}}]) + "\n",
+                        "stderr": ""}
+                return {"status": 1, "stdout": "",
+                        "stderr": "Error: No such container: " + argv[-1]}
+            return {"status": 0, "stdout": "", "stderr": ""}
+
+        pass_over = job_manager._reclaiming(control, "docker", inspecting)
+        first = pass_over(now="2026-08-24T01:00:00.000Z")
+        confirming[0] = False
+        held = first["reclaimed"] + first["refused"]
+        self.assertTrue(held, "the pass answered nothing about this attempt")
+        self.assertEqual(len(tokens.outstanding(control, case["domain"])), 1,
+                         "an unconfirmed runtime must not free the resource")
+        # THE RETRY, with the identity now positively absent.
+        again = pass_over(now="2026-08-24T01:00:00.000Z")
+        del again
+        self.assertEqual(tokens.outstanding(control, case["domain"]), [],
+                         "the confirmed absence did not release the resource")
+
+    def test_a_failed_TOKEN_RETURN_retries_without_repeating_its_EFFECT(self):
         """W275774 review 18:23:27Z: THE OMITTED REQUIREMENT.
 
         Normalization SUCCEEDS accountably and the token return then fails. The
@@ -847,8 +880,15 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
             pass_over = job_manager._reclaiming(
                 control, "docker", engine, "sha256:" + "c" * 64)
             first = pass_over(now="2026-08-24T01:00:00.000Z")
-            normalizations = len([one for one, _ in vectors if one[1] == "run"])
-            self.assertTrue(normalizations, "normalization must have happened")
+            # W285465 under the owner supersession at 294568/294616: THE EFFECT THIS CASE IS
+            # ABOUT IS THE REMOVAL, not a normalization. The settlement starts no helper, so
+            # there is no `run` to count; what must not repeat is the destructive engine work
+            # the first pass already did, and the sentinel that nothing was started is asserted
+            # beside it.
+            self.assertNotIn("run", [one[1] for one, _ in vectors],
+                             "the settlement started something")
+            effects = [one[1] for one, _ in vectors if one[1] in ("stop", "rm")]
+            self.assertTrue(effects, "the first pass performed no engine effect")
             self.assertEqual(len(tokens.outstanding(control, case["domain"])), 1,
                              "a failed return leaves the resource held")
             # THE RETRY, with the return now able to commit.
@@ -857,19 +897,40 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
             tokens.release = honest
         self.assertEqual(tokens.outstanding(control, case["domain"]), [],
                          "the retry returns the original generation")
-        # AND THE EFFECT COUNT, which is what "without repeating" means.
-        self.assertEqual(len([one for one, _ in vectors if one[1] == "run"]),
-                         normalizations,
-                         "the retry normalized again over accounted-for roots")
+        # AND WHAT "WITHOUT REPEATING" MEANS HERE, measured rather than assumed. The retry DOES
+        # re-issue its removal -- `rm` appears twice -- and that is the accepted design this
+        # module states in its own words: a destroy is force-removal followed by an inspection
+        # of the exact identity, and an identity already gone answers absent, which is why a
+        # retry is safe. What must not repeat is a STATE CHANGE, so the assertion is that the
+        # retry performed no second start and the resource returned exactly ONCE.
+        self.assertEqual([one[1] for one, _ in vectors].count("rm"), 2,
+                         "the retry did not re-issue its idempotent removal")
+        self.assertNotIn("run", [one[1] for one, _ in vectors],
+                         "the retry started something")
+        # AND THE RETURN IS COUNTED, not asserted in prose. Review 2026-09-28T11-09-51Z is right
+        # that "exactly ONE resource return" was a claim my assertions did not make: an empty
+        # outstanding set says the resource is free, not that it was returned once. The journal
+        # says it -- exactly one committed `resource-token.returned` for this domain.
+        returns = control._connection.execute(
+            "SELECT COUNT(*) FROM operations WHERE kind = ? AND state = "
+            "'committed' AND operation_id LIKE ?",
+            ("resource-token.returned", f"%{case['domain']}%")).fetchone()[0]
+        self.assertEqual(returns, 1,
+                         "the resource was returned more than once")
+        del effects
         del first, again
 
     def test_the_allowance_wrapper_clamps_work_and_cleanup_separately(self):
         """The wrapper's SMALLER-SUPPLIED branch, which my budget case never reached.
 
-        It asserted defaults and non-`None` only. This drives `normalize_directory`
-        with a supplied work budget and a distinct cleanup total, and reads what each
-        vector actually carries: the ACTING vector spends the work budget, every other
-        vector spends the total, and each is clamped by that vector's own maximum.
+        It asserted defaults and non-`None` only. This drives the LISTING read with a supplied
+        work budget and a distinct cleanup total, and reads what each vector actually carries.
+
+        WHAT IT PROVES AND WHAT IT DOES NOT, corrected by review 2026-09-28T11-09-51Z: the
+        listing starts nothing, so every vector it issues is a RECLAMATION verb and spends the
+        cleanup total, clamped by its own maximum. The wrapper's ACTING-vector branch -- the one
+        that spends the work budget -- is not exercised here, because this path issues no acting
+        vector at all. The old docstring claimed both halves; only the cleanup half is measured.
         """
         from baton_v12.worker_manager import custody as _custody
 
@@ -890,22 +951,53 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
         # method answers a `CustodyAnswer` that is `ok=False` -- an act that ran and could
         # not be accounted for -- and it is the ENDING, not this adapter, that turns that
         # into a refusal. The old comment claimed "the act itself refuses"; it does not.
-        answered = adapter.normalize_directory(
-            case["store"], assignment_id=ATTEMPT, which="workspace",
-            seconds=7, reclaim=3)
-        self.assertEqual(answered.operation, "normalize")
-        self.assertFalse(answered.ok,
-                         "this stand-in engine's empty answer is unaccountable")
+        # W285465 under the owner supersession at 294568/294616: THE BOUNDED ACT IS THE
+        # LISTING. This drove `normalize_directory`, which the selected settlement never
+        # performs, and driving it now meets the genuine live-token guard. The wrapper under
+        # test is the SAME one; what moves is the act it is measured over. And the listing
+        # issues NO `run` vector, because it starts nothing -- so every vector here spends the
+        # cleanup total, which is the rule this case is about.
+        adapter.surviving_helpers(case["store"], assignment_id=ATTEMPT,
+                                  seconds=7, reclaim=3)
         self.assertTrue(seen, "the wrapper reached the engine")
+        self.assertNotIn("run", [verb for verb, _ in seen],
+                         "the listing started something")
         for verb, seconds in seen:
             with self.subTest(verb=verb):
                 self.assertIsNotNone(seconds)
-                expected = 7 if verb == "run" else 3
                 self.assertEqual(
-                    seconds, _custody.allowed(expected,
-                                              _custody.CUSTODY_ACT_SECONDS),
-                    "the acting vector spends the work budget and every other "
-                    "vector spends the cleanup total, each clamped by its own max")
+                    seconds, _custody.allowed(3, _custody.CUSTODY_ACT_SECONDS),
+                    "every reclamation vector spends the cleanup total, "
+                    "clamped by its own maximum")
+
+    def test_the_ADAPTER_answers_surviving_helpers_and_starts_nothing(self):
+        """W285465: the seam the selected endings need, since they may run no helper.
+
+        The custodian image digest and the engine live on the adapter, so this is where a
+        writer-absence answer can be established without the helper the owner ruling
+        forbids. What this asserts is that it ANSWERS and that it STARTS NOTHING: no
+        create, no run, no start anywhere in the vectors it issued.
+        """
+        from baton_v12 import worker_manager as _manager
+
+        seen = []
+
+        def engine(argv, *, seconds=None):
+            seen.append(list(argv))
+            if argv[1] == "ps":
+                return {"status": 0, "stdout": "", "stderr": ""}
+            return {"status": 0, "stdout": "", "stderr": ""}
+
+        case = _running_governed_attempt(self)
+        adapter = job_manager._ReclaimAdapter(
+            "docker", engine, custodian_image_digest="sha256:" + "c" * 64)
+        self.assertEqual(
+            adapter.surviving_helpers(case["store"], assignment_id="attempt-1"), [])
+        self.assertTrue(seen, "the adapter never asked the engine")
+        for argv in seen:
+            self.assertNotIn(argv[1], ("create", "run", "start"),
+                             f"the writer-absence read started something: {argv}")
+        del _manager
 
     def test_AN_ALLOWANCE_CANNOT_RAISE_A_VECTORS_OWN_MAXIMUM(self):
         """VECTOR-SPECIFIC MAXIMUM CONTROL, which my budget cases only asserted in prose.
@@ -916,6 +1008,10 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
         with no allowance at all -- that is its own maximum, whatever the constants are --
         and then repeats the act with an allowance far larger than any of them, asserting
         every vector carries exactly the same seconds as before.
+
+        OVER THE LISTING READ, which is the bounded act this adapter performs; the acting-vector
+        branch is not reached from here, and review 2026-09-28T11-09-51Z asked that the
+        docstrings stop implying otherwise.
         """
         from tests.manager.test_intake import ATTEMPT
 
@@ -931,20 +1027,23 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
         # so neither is free while either is held", since the first act left an
         # unreconciled uncertainty episode. `_running_governed_attempt` builds a fresh
         # fixture per call, so two calls are two worlds.
+        # W285465 under the owner supersession at 294568/294616: THE BOUNDED ACT IS THE
+        # LISTING. This drove `normalize_directory`, which the selected settlement never
+        # performs -- and driving it now meets the live-token guard, because the roots belong to
+        # the execution being settled. That guard is genuine and is left alone; what moves is
+        # the act this case measures, to the one this adapter still bounds.
         unbounded, raised = [], []
         case = _running_governed_attempt(self)
         first = job_manager._ReclaimAdapter(
             "docker", recording(unbounded),
             custodian_image_digest="sha256:" + "c" * 64)
-        self.assertFalse(first.normalize_directory(
-            case["store"], assignment_id=ATTEMPT, which="workspace").ok)
+        first.surviving_helpers(case["store"], assignment_id=ATTEMPT)
         second = job_manager._ReclaimAdapter(
             "docker", recording(raised),
             custodian_image_digest="sha256:" + "c" * 64)
         beside = _running_governed_attempt(self)
-        self.assertFalse(second.normalize_directory(
-            beside["store"], assignment_id=ATTEMPT, which="workspace",
-            seconds=10 ** 9, reclaim=10 ** 9).ok)
+        second.surviving_helpers(beside["store"], assignment_id=ATTEMPT,
+                                 seconds=10 ** 9, reclaim=10 ** 9)
         self.assertTrue(unbounded, "the unbounded act reached the engine")
         self.assertEqual([verb for verb, _ in unbounded],
                          [verb for verb, _ in raised],
@@ -975,8 +1074,19 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
         self.assertEqual([one["generation"] for one in held], [2],
                          "generation 2 must still hold the resource")
 
-    def test_without_a_custodian_the_roots_stay_unaccounted_for(self):
-        """The honest half: no configured custodian, no normalization, still held."""
+    def test_without_a_custodian_the_RECLAIM_STILL_SETTLES(self):
+        """W285465 under the owner supersession at 294568/294616: SUPERSEDED, and this is the
+        case that named the old rule.
+
+        It asserted that a lean pass with no custodian left the resource HELD, waiting for a
+        normalizing ending. The selected settlement performs no custody act at all -- it
+        observes the exact container's termination, records the execution status, preserves the
+        workspace as is and releases the exact gate -- so gating it on a custodian held every
+        reclaimed resource for a capability the ending does not use.
+
+        WHAT THIS NOW HOLDS ONTO: the resource is actually RETURNED, read from the ledger, and
+        the preserved workspace is not deleted by the settlement that released it.
+        """
         from baton_v12.worker_manager import tokens
 
         case = _running_governed_attempt(self)
@@ -992,10 +1102,12 @@ class TheStatusSurfaceMayReadIntegrationAndStillActOnNothing(unittest.TestCase):
         answer = job_manager._reclaiming(control, "docker", engine)(
             now="2026-08-24T01:00:00.000Z")
         outcome = answer["reclaimed"][0]
-        self.assertEqual(outcome["ending"], "awaits-normalizing-ending")
+        self.assertEqual(outcome["ending"]["settled"], "returned")
         self.assertTrue(tokens.token_of(control, case["domain"], 1)["revoked"])
-        self.assertEqual(len(tokens.outstanding(control, case["domain"])), 1,
-                         "revoked and stopped, but the roots are unaccounted for")
+        # THE ACTUAL GOVERNED RELEASE, read from the ledger rather than from the answer: the
+        # generation is no longer outstanding.
+        self.assertEqual(tokens.outstanding(control, case["domain"]), [],
+                         "the settlement reported a return the ledger does not have")
 
     def test_one_attempt_s_refusal_does_not_end_the_expiry_pass(self):
         """The visible policy `manager.serve` deliberately does not choose: a sweep
@@ -1401,15 +1513,21 @@ def _unsettled_governed_attempt(case):
         fixture.store, attempt_id=test_intake.ATTEMPT, source=(66, 111),
         workspace=(66, 4242))
     attempt = fixture.attempt_row()
+    # W285465: THE ALLOCATION COMES FIRST, because that is the only order production
+    # ever has. MEASURED, and it is why this moved: W285464's accepted revalidation
+    # makes `assignment_workspace` a READ-ONLY proof while this attempt's task token is
+    # outstanding, so allocating after the bind asked it to prove roots that did not
+    # exist yet and every case in this class errored with "a custody root is a directory
+    # this manager created". The host allocates, then the task takes the token.
+    storage = _workspaces.configured_workspace_storage(fixture.store).place
+    _workspaces.assignment_workspace(
+        _input_roots.configured_group(fixture.store), storage,
+        test_intake.ATTEMPT)
     governance = tokens.workspace_governance()
     reservation = governance.reserve(
         fixture.store, attempt,
         operation=manager_attempts._start_operation_id(attempt))
     reservation.bind(attempt["runtime_id"])()          # ADMITTED, never settled
-    storage = _workspaces.configured_workspace_storage(fixture.store).place
-    _workspaces.assignment_workspace(
-        _input_roots.configured_group(fixture.store), storage,
-        test_intake.ATTEMPT)
     return {"runtime_id": attempt["runtime_id"],
             "domain": tokens.domain_of("workspace", "66:4242"),
             "attempt_id": test_intake.ATTEMPT,
@@ -1434,12 +1552,6 @@ def _running_governed_attempt(case):
         fixture.store, attempt_id=test_intake.ATTEMPT, source=(66, 111),
         workspace=(66, 4242))
     attempt = fixture.attempt_row()
-    governance = tokens.workspace_governance()
-    reservation = governance.reserve(
-        fixture.store, attempt,
-        operation=manager_attempts._start_operation_id(attempt))
-    reservation.bind(attempt["runtime_id"])()
-    reservation.settle(attempt["runtime_id"])
     # W275774 review 18:11:15Z pointed at the CANONICAL setup, which I had been
     # guessing at: `tests/manager/test_custody.py CustodyCase.setUp` allocates through
     # `workspaces.assignment_workspace(group, storage, attempt)` rather than creating
@@ -1454,6 +1566,15 @@ def _running_governed_attempt(case):
     _workspaces.assignment_workspace(
         _input_roots.configured_group(fixture.store), storage,
         test_intake.ATTEMPT)
+    # W285465: AND THE TOKEN IS TAKEN AFTER THE ALLOCATION, for the reason recorded in
+    # `_unsettled_governed_attempt` -- the accepted revalidation refuses to prove roots
+    # that do not exist yet, and the production order is allocate then govern.
+    governance = tokens.workspace_governance()
+    reservation = governance.reserve(
+        fixture.store, attempt,
+        operation=manager_attempts._start_operation_id(attempt))
+    reservation.bind(attempt["runtime_id"])()
+    reservation.settle(attempt["runtime_id"])
     fixture.store._clock = lambda: "2026-08-24T01:00:00.000Z"
     return {"runtime_id": attempt["runtime_id"],
             "domain": tokens.domain_of("workspace", "66:4242"),

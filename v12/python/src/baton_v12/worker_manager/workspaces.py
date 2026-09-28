@@ -2199,7 +2199,7 @@ def standing_adoption(control, assignment_id):
         ordinal += 1
 
 
-def _admitted_adoption(control, assignment_id, what):
+def _admitted_adoption(control, assignment_id, what, preparing=None):
     """Admit an adoption of this attempt's roots, EXCLUSIVELY against removal.
 
     W270664 F2, review 2026-09-26T07:25:48Z. My first reciprocal attempt was a READ before
@@ -2241,10 +2241,29 @@ def _admitted_adoption(control, assignment_id, what):
         # which spans every staging writer rather than only the creation. Read under
         # this same lock, because whichever transaction commits first must be the one
         # the other SEES.
-        refusal = _preparation_refusal(control, assignment_id, what)
+        # THE SAME OWNERSHIP REACHES THE ATOMIC GUARD, which is where the reviewer's
+        # holder probe was refused after the early read let it through. The ordinal
+        # arriving here has already been proven to come from this attempt's minted
+        # capability at the entry above; nothing numeric reaches it from a caller.
+        refusal = _preparation_refusal(control, assignment_id, what, preparing)
         if refusal is not None:
             raise refusal
-        refusal = _task_token_refusal(control, assignment_id, what)
+        # W285465 review 2026-09-28T05-00-19Z: THE ATTEMPT'S OWN LIVE TASK IS NOT A
+        # COMPETITOR WITH ITS OWN RE-PROOF. The consumer's fresh positive reached here
+        # AFTER the task token was acquired -- the access re-proof adopts the line roots
+        # again -- and this read refused it against generation 1 of its own
+        # `runtime.start`.
+        #
+        # THE EXEMPTION IS NOT BLANKET, and it is the accepted `mine` rule rather than a
+        # new one: it applies ONLY when the caller PRESENTED this attempt's own
+        # preparation capability, which the entry above has already proven is this
+        # store's mint for this attempt, and it exempts ONLY that attempt's own
+        # execution. Any other outstanding generation still refuses, a caller with no
+        # capability still refuses, and nothing returns a token early or completes a
+        # preparation.
+        refusal = _task_token_refusal(
+            control, assignment_id, what,
+            mine=assignment_id if preparing is not None else None)
         if refusal is not None:
             raise refusal
 
@@ -2381,8 +2400,19 @@ def _admitted_cleanup_document(control, assignment_id, ordinal, record):
     return document
 
 
-def admit_cleanup(control, assignment_id, settlement, what):
+def admit_cleanup(control, assignment_id, settlement, what, cessation=None):
     """Own this attempt's roots from HERE until the settlement named commits.
+
+    THE OWNERSHIP TRANSFER TAKES NO OPERAND AND TRUSTS NO DOCUMENT. Review
+    2026-09-28T07-26-54Z: a caller-presented cessation naming a live bound container moved
+    ownership with nothing behind it. What authorizes the transfer now is the COMMITTED
+    cessation `intake` writes under the very operation this settlement names -- see
+    `_ceased_generation`. Absent that record, an outstanding generation refuses this
+    admission exactly as before, and it is how ownership moves from
+    a governed execution to this admission without an instant in which neither holds. See
+    `_ceased_generation`: the container must be the one this manager BOUND to the
+    outstanding generation, positively stopped, with no surviving writer. Absent it, an
+    outstanding generation refuses this admission exactly as before.
 
     W270664 F2, review 2026-09-26T09:15:26Z: "exact cleanup admission and allocation
     mutual exclusion through terminal settlement, with recoverable retry belonging to
@@ -2412,6 +2442,18 @@ def admit_cleanup(control, assignment_id, settlement, what):
     `_admitted_removal` are the precedent. `transact` replays by identity and so
     cannot make a fresh decision; this decision is fresh.
     """
+    # W285465 review 2026-09-28T07-26-54Z: A PRESENTED CESSATION IS REFUSED OUTRIGHT.
+    #
+    # The keyword stays because the reviewer's immutable probe names it, and because saying
+    # so is stronger than quietly ignoring it: a caller offering evidence about a container's
+    # cessation is offering exactly the thing that must never be trusted here. The authority
+    # is the COMMITTED record at this settlement's own operation and nothing else, so anyone
+    # who has one need not present it and anyone who presents one is telling this guard
+    # something it will not take.
+    if cessation is not None:
+        _denied(f"{what} presents its own account of a container's cessation; an ownership "
+                f"transfer is authorized by the cessation this manager COMMITTED under the "
+                f"operation this settlement names, never by evidence a caller carries")
     import uuid
 
     from .store import _recorded, manager_signature
@@ -2456,7 +2498,12 @@ def admit_cleanup(control, assignment_id, settlement, what):
         refusal = _preparation_refusal(control, assignment_id, what)
         if refusal is not None:
             raise refusal
-        refusal = _task_token_refusal(control, assignment_id, what)
+        # THE OPERATION THIS ADMISSION IS ALREADY BOUND TO is the only thing the transfer
+        # takes from the caller; the evidence is the committed record at that identity.
+        refusal = _task_token_refusal(
+            control, assignment_id, what,
+            ceased=(settlement or {}).get("operation")
+            if type(settlement) is dict else None)
         if refusal is not None:
             raise refusal
 
@@ -3064,13 +3111,24 @@ def release_preparation(control, holding, why):
     if type(holding) is not PreparationOwnership:
         _denied("a preparation window is released by the act that holds its "
                 "ownership; a caller without it is not the writer that ended")
+    # W285465: AND IT IS THIS STORE'S OWN MINT, for the cross-store reason the adoption
+    # entry now states -- a capability another store handed out is not the writer that
+    # ended here, whatever attempt and ordinal it names.
+    if not _minted_here(control, holding):
+        _denied("a preparation window is released by the act this store's admission "
+                "minted; an ownership another store handed out closes nothing here")
     document = {"attempt_id": holding.attempt, "ordinal": holding.ordinal,
                 "why": boundaries.text(why, "a preparation release reason")}
-    return control.transact(_released_id(holding.attempt, holding.ordinal),
-                            PREPARATION_RELEASED_KIND,
-                            manager_signature(PREPARATION_RELEASED_KIND,
-                                              document),
-                            lambda _connection: dict(document))
+    released = control.transact(_released_id(holding.attempt, holding.ordinal),
+                                PREPARATION_RELEASED_KIND,
+                                manager_signature(PREPARATION_RELEASED_KIND,
+                                                  document),
+                                lambda _connection: dict(document))
+    # THE MINT IS DEREGISTERED ONLY AFTER THE RELEASE COMMITS, so a refused release leaves
+    # the writer still holding what it holds. A released capability then stops working,
+    # which is the release validation this correction owes.
+    _mints_of(control).discard(holding)
+    return released
 
 
 def standing_preparation(control, assignment_id):
@@ -3094,6 +3152,44 @@ def standing_preparation(control, assignment_id):
             standing.append((ordinal, found))
         ordinal += 1
     return standing
+
+
+def _mints_of(control):
+    """This STORE's own live set of preparation ownerships, created on first mint.
+
+    W285465 review 2026-09-28T04-26-06Z [P1]. A genuine capability minted by a SEPARATE
+    store adopted the target's held roots, because the object carried no provenance and
+    the type and attempt checks cannot see where it came from. The reviewer then ruled out
+    every RECORDED value I proposed: with equal attempt, ordinal, instant and incarnation a
+    derivation collides by construction, and a value in a row proves possession of the row
+    rather than of the admission.
+
+    SO THE DISTINGUISHING FACT IS NOT A VALUE. It is BEING the object this store's
+    admission handed out. The set lives on the store, so a capability another store minted
+    is simply absent from it whatever its members say, and no copyable field decides
+    anything.
+
+    AND IT PROMISES NOTHING ABOUT A RESTART. This is live in-process state: a reopened
+    manager holds no mint and is refused, so an interrupted writer's window stays HELD and
+    UNKNOWN rather than being inherited by whoever reopens the journal.
+    """
+    held = getattr(control, "_preparation_mints", None)
+    if held is None:
+        held = set()
+        try:
+            control._preparation_mints = held
+        except Exception:                                  # pragma: no cover
+            # A STORE THAT CANNOT CARRY ITS OWN MINTS GETS NO EXEMPTION, which is the
+            # strict direction: `_minted_here` then answers False for everything.
+            return set()
+    return held
+
+
+def _minted_here(control, holding):
+    """Whether THIS store's admission handed out exactly this object."""
+    if type(holding) is not PreparationOwnership:
+        return False
+    return any(one is holding for one in _mints_of(control))
 
 
 class PreparationOwnership:
@@ -3188,7 +3284,32 @@ def _revalidated_roots(storage, assignment_id, what, control=None):
     recorded = preparation_completed(control, assignment_id) if control is not None \
         else None
     if recorded is not None:
-        for name in ROOT_NAMES:
+        # AGAINST THE LAYOUT THE RECORD IS ABOUT. W285465 review 2026-09-28T05-11-31Z:
+        # this reader reconstructs the ORDINARY attempt layout above -- `made` is
+        # `<storage>/<attempt>/<root>` and nothing else -- while a composition on a LINE
+        # path completed over a persistent line home, and the record's `device:inode`
+        # members carry no path with which to tell the two apart. Comparing them anyway
+        # refused a correct preparation as a replaced object.
+        #
+        # The record now STATES its layout, so:
+        #   `attempt` -- the recorded workspace IS this object; compare both roots.
+        #   `line`    -- the recorded workspace is a line home this reader cannot locate
+        #                and must not guess at; compare the INPUTS, which are the
+        #                attempt's own under either layout, and leave the line object's
+        #                identity to the line boundary that holds the line record.
+        # Anything else is INDETERMINATE and refuses: an unstated layout would make the
+        # comparison below a comparison of unknown operands, which is what was wrong.
+        layout = recorded.get("workspace_layout")
+        if layout not in ("attempt", "line"):
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: attempt {name_value(assignment_id)}'s prepared "
+                f"record states its workspace layout as "
+                f"{name_value(layout)}, and this revalidation reconstructs the "
+                f"attempt layout only; an identity comparison whose operands are not "
+                f"known to be the same object is refused rather than performed")
+        compared = ROOT_NAMES if layout == "attempt" else ("inputs",)
+        for name in compared:
             observed = _entry_identity(made[name])
             if observed != recorded.get(name):
                 raise ContractRefusal(
@@ -3200,7 +3321,87 @@ def _revalidated_roots(storage, assignment_id, what, control=None):
     return AllocatedRoots(made, _MINT)
 
 
-def _task_token_refusal(control, assignment_id, what, mine=None):
+# W285465 review 2026-09-28T07-26-54Z: THE ENDING'S OWN EVIDENCE KIND, named here because
+# this guard must READ it and must not import the ending that writes it. `intake` commits one
+# of these per destroy, under the identity below; the coupling is this constant and the
+# identity rule, and it is stated rather than implied.
+CESSATION_KIND = "cleanup.writer-cessation"
+
+
+def _cessation_id(operation_id):
+    """The identity `intake` commits an ending's writer cessation under."""
+    return f"{operation_id}:writer-cessation"
+
+
+def _ceased_generation(control, domain, held, assignment_id, operation_id):
+    """Whether the JOURNAL proves this outstanding generation has ceased.
+
+    W285465 review 2026-09-28T07-26-54Z, and my previous cut was unsafe exactly as measured:
+    it took a cessation DOCUMENT from the caller and only checked the container against the
+    journal, so a plain mapping naming a live bound container -- no destroy, no listing, no
+    committed cessation anywhere -- moved ownership. `review_unproved_transfer_20260928.py`
+    is that probe.
+
+    So nothing is presented any more. The only operand is the operation this admission is
+    ALREADY bound to -- the caller's own settlement names it, and the admission commits under
+    it -- and the evidence is the committed record `intake` writes at that identity before it
+    asks for this admission:
+
+      * a COMMITTED operation of the ending's own kind at the derived identity, which only
+        this manager's own journalled act can produce;
+      * established for THIS attempt;
+      * reporting the exact runtime ABSENT and NO surviving writer;
+      * over the container this manager BOUND to the generation in question, read back
+        through `tokens.token_of` rather than from anything a caller holds.
+
+    Anything missing, uncommitted or disagreeing answers `False`, and the generation goes on
+    owning the roots.
+    """
+    # IMPORTED HERE, like every other `tokens` reader in this module: the pairing is
+    # deliberate and module-scope would make it circular.
+    from . import tokens
+
+    if not isinstance(operation_id, str) or not operation_id:
+        return False
+    record = control.operation_record(_cessation_id(operation_id))
+    if record is None or record["kind"] != CESSATION_KIND \
+            or record["state"] != "committed":
+        return False
+    try:
+        established = json.loads(record["result"])
+    except (TypeError, ValueError):
+        return False
+    if type(established) is not dict:
+        return False
+    if established.get("attempt_id") != assignment_id \
+            or established.get("state") != "absent" \
+            or established.get("helpers") != []:
+        return False
+    # AND THE SCHEDULE, not only the subject. Review 2026-09-28T07-47-09Z: a container
+    # identity is reused across generations of one attempt, so container equality alone
+    # cannot say WHICH run ceased -- a cessation established over generation 1 must not
+    # authorize a transfer away from generation 2. The establishment names its generation
+    # and the start that generation journalled, and both are compared against the journal's
+    # account of the generation this guard is actually looking at.
+    if established.get("generation") is None \
+            or established.get("launch") is None:
+        # AN UNBOUND ESTABLISHMENT AUTHORIZES NOTHING. `intake` records a null schedule when
+        # the attempt has no governed run to name -- and an attempt with no governed run has
+        # no outstanding generation, so this branch is only ever reached by a record being
+        # offered against a generation it never saw.
+        return False
+    if established.get("generation") != held["generation"]:
+        return False
+    current = tokens.token_of(control, domain, held["generation"])
+    if current is None or current.get("container") is None \
+            or current.get("launch") is None:
+        return False
+    if established.get("launch") != current["launch"]:
+        return False
+    return established.get("container") == current["container"]
+
+
+def _task_token_refusal(control, assignment_id, what, mine=None, ceased=None):
     """The refusal a LIVE TASK TOKEN earns an ownership-transferring act, or `None`.
 
     W285464 review 2026-09-27T17-48-17Z. The task acquisition now decides the
@@ -3234,6 +3435,31 @@ def _task_token_refusal(control, assignment_id, what, mine=None):
         return None
     domain = tokens.domain_of("workspace", tokens.workspace_identity(attempt))
     for held in tokens.outstanding(control, domain):
+        if ceased is not None and _ceased_generation(control, domain, held,
+                                                    assignment_id, ceased):
+            # W285465 review 2026-09-28T07-11-39Z: THE ORDINARY ENDING'S OWN OWNERSHIP
+            # TRANSFER, and it is a transfer rather than an exemption.
+            #
+            # The traced blocker: `authorize_cleanup` observed the exact runtime absent,
+            # established and committed that no writer survives, and was then refused its
+            # cleanup admission by the very generation whose cessation it had just proved.
+            # The accepted order cannot be inverted either -- returning first and admitting
+            # afterwards leaves an instant where NOTHING owns the roots, which is the
+            # exclusivity gap this guard exists to prevent.
+            #
+            # So the admission may take over from a generation ONLY when the acting ending
+            # presents the cessation that exact generation would be returned on, and only
+            # when `_ceased_generation` proves it against the journal: the same generation,
+            # the container this manager BOUND to it, positively stopped, and no surviving
+            # writer. Ownership therefore never lapses -- the admission is taken while the
+            # generation still stands, and the generation is returned after the ending
+            # commits, exactly as accepted.
+            #
+            # WHAT THIS IS NOT: it is not an exemption for a matching execution id, it does
+            # not look at expiry, and it accepts no evidence a caller composed about a
+            # container this manager did not bind. Anything short of that match refuses
+            # below, unchanged.
+            continue
         if mine is not None and held["execution"] == mine:
             # THE ATTEMPT'S OWN LIVE EXECUTION IS NOT A COMPETITOR WITH ITS OWN
             # PREPARATION RE-ENTRY. Measured: without this, every later tick's
@@ -3332,7 +3558,14 @@ def admit_preparation(control, assignment_id, what, execution=None,
             # admitted while the first could still write. A name for the same
             # attempt cannot distinguish a writer's LIFETIME; an object only the
             # opening act holds can.
+            # W285465 review 2026-09-28T04-44-01Z: AND IT MUST BE THIS STORE'S OWN MINT.
+            # I fixed the adoption and the release and left this branch comparing type,
+            # attempt and ordinal -- so a capability another store handed out still
+            # continued the window HERE, and `_mounted` uses this returned authority
+            # before it allocates. The same identity question is asked at the atomic
+            # re-entry now, and a genuine holder's own object still continues.
             if type(holding) is PreparationOwnership \
+                    and _minted_here(control, holding) \
                     and holding.attempt == assignment_id \
                     and holding.ordinal == ordinal:
                 # THE ACT THAT OPENED IT, CONTINUING. A second call cannot present
@@ -3428,7 +3661,11 @@ def admit_preparation(control, assignment_id, what, execution=None,
         except Exception:
             pass
         raise
-    return PreparationOwnership(assignment_id, ordinal, _MINT)
+    minted = PreparationOwnership(assignment_id, ordinal, _MINT)
+    # REGISTERED WITH THE STORE THAT ADMITTED IT, which is what makes it this store's
+    # capability rather than a shape anybody can present.
+    _mints_of(control).add(minted)
+    return minted
 
 
 def _prepared_id(assignment_id):
@@ -3475,10 +3712,76 @@ def record_preparation(control, assignment_id, roots, published):
                     _real(roots["workspace"], "the attempt's workspace"))),
                 "inputs": _entry_identity(roots["inputs"]),
                 "workspace": _entry_identity(roots["workspace"]),
+                # W285465 review 2026-09-28T05-11-31Z: WHICH LAYOUT THIS RECORD IS ABOUT.
+                #
+                # The identities here are `device:inode` and carry NO path, so a later
+                # reader cannot tell whether the workspace recorded is the attempt's own
+                # `<storage>/<attempt>/workspace` or a LINE home a composition selected --
+                # and the live-token revalidation reconstructs the ORDINARY attempt layout,
+                # so on a line path it compared two genuinely different objects and refused
+                # a correct preparation. Measured by the reviewer as recorded
+                # 66306:55317182 against current 66306:55317178.
+                #
+                # So the record SAYS. `attempt` means the workspace is the attempt's own
+                # object and the revalidation compares it; `line` means the output root is a
+                # persistent line home, whose identity its own boundary proves against the
+                # line record, and the revalidation compares the inputs -- which are the
+                # attempt's own either way -- rather than an object it cannot locate.
+                # ANCHORED ON THE ATTEMPT'S OWN INPUTS, and review 2026-09-28T05-38-48Z
+                # measured why: comparing the workspace against its OWN parent's
+                # `workspace` entry is a BASENAME TEST, so a persistent line home that
+                # happens to be named `workspace` was classified `attempt` and then
+                # refused against the attempt's own object -- the very defect, moved.
+                #
+                # The inputs are `<storage>/<attempt>/inputs` under EITHER layout, because
+                # `_composed_line_roots` carries the adopted attempt inputs through
+                # unchanged and replaces only the output root. So the attempt home is
+                # `dirname(inputs)`, and the workspace is this attempt's own object exactly
+                # when it is that home's `workspace` entry: the same path
+                # `_revalidated_roots` reconstructs, decided by LOCATION and not by name.
+                "workspace_layout": _recorded_layout(roots),
                 "published": sorted(published)}
     return control.transact(_prepared_id(assignment_id), PREPARED_KIND,
                             manager_signature(PREPARED_KIND, document),
                             lambda _connection: dict(document))
+
+
+def _recorded_layout(roots):
+    """WHICH LAYOUT a completion record is about: `attempt` or `line`.
+
+    Review 2026-09-28T05-38-48Z, and both halves of it:
+
+      * NOT A BASENAME TEST. My submitted bytes compared the workspace against its OWN
+        parent's `workspace` entry, which asks what the directory is CALLED -- so a real
+        persistent line home named `workspace` was classified `attempt` and the live-token
+        revalidation refused it against the attempt's own object. The location is asked
+        against the attempt's own `inputs`, which are `<storage>/<attempt>/inputs` under
+        either layout because `_composed_line_roots` carries the adopted inputs through
+        unchanged and replaces only the output root.
+      * NOT AN INFERENCE EITHER: "do not infer every non-attempt path is an authorized
+        line without its existing binding checks". So the AUTHORITY for `line` is the
+        marker `_composed_line_roots` sets, which only exists after that entry proved the
+        reserved namespace, the real directory and the persisted object identity. A path
+        that is merely not the attempt's own object proves nothing and is REFUSED.
+
+    The two must agree. A set marked as a composed line whose workspace IS the attempt's
+    own object, or an unmarked set whose workspace is somewhere else, is a contradiction
+    this refuses rather than records: a record that names the wrong layout is exactly the
+    defect being corrected.
+    """
+    composed = getattr(roots, "_line", False) is True
+    own = (_real(roots["workspace"], "the attempt's workspace")
+           == os.path.join(os.path.dirname(
+               _real(roots["inputs"], "the attempt's inputs")), "workspace"))
+    if composed and own:
+        _refuse("a composed persistent line cannot be the attempt's own workspace "
+                "object; the roots this completion is being recorded for contradict "
+                "themselves")
+    if not composed and not own:
+        _refuse("this completion's output root is neither the attempt's own workspace "
+                "object nor a persistent line composed through the boundary that proves "
+                "one; an unbound root is not recorded as a line")
+    return "line" if composed else "attempt"
 
 
 def _entry_identity(place):
@@ -3895,7 +4198,19 @@ def _admitted_removal(control, assignment_id, what, pinned=None, under=None,
         refusal = _preparation_refusal(control, assignment_id, what)
         if refusal is not None:
             raise refusal
-        refusal = _task_token_refusal(control, assignment_id, what)
+        # W285465 review 2026-09-28T07-11-39Z: UNDER AN ADMITTED CLEANUP, OWNERSHIP HAS
+        # ALREADY MOVED. The cleanup admission validated the ending's proved cessation
+        # against the journal and took these roots over from the generation while it still
+        # stood -- see `_ceased_generation`. Re-asking the raw token here would refuse the
+        # deletion that admission exists to authorize, which is exactly where the traced
+        # blocker moved to once the admission passed.
+        #
+        # AND IT IS THE ADMISSION THAT IS TRUSTED, NOT THE OPERAND: the standing admission
+        # is proved below against this journal, by ordinal and by current owner, before any
+        # deletion happens; a caller presenting an `under` nobody admitted is refused there.
+        # Without `under`, the generation refuses this removal exactly as before.
+        refusal = (None if under is not None
+                   else _task_token_refusal(control, assignment_id, what))
         if refusal is not None:
             raise refusal
 
@@ -5627,7 +5942,8 @@ def discard_workspace(storage, assignment_id, *, control):
                  True)[1])
 
 
-def adopted_assignment_workspace(storage, assignment_id, *, control):
+def adopted_assignment_workspace(storage, assignment_id, *, control,
+                                 preparing=None):
     """The roots an attempt ALREADY HAS, proved and never allocated.
 
     W39358 review [P1]. A deployment resuming an attempt needs its roots and
@@ -5672,7 +5988,42 @@ def adopted_assignment_workspace(storage, assignment_id, *, control):
     _assignment_identity(assignment_id)
     root = _real(storage, "the manager's workspace storage")
     what = "adopting this attempt's workspace roots"
-    refuse_if_held(control, storage, assignment_id, what)
+    # W285465 review 2026-09-28T04-14-10Z [P1] and the 04-19-10Z adjudication: A NUMBER IS
+    # NOT OWNERSHIP. The reviewer's probe adopted roots another attempt's window held by
+    # passing ordinal 1 and holding nothing -- ordinals collide across attempts, so an
+    # ordinal operand exempts anyone who can count.
+    #
+    # SO THIS ENTRY TAKES THE CAPABILITY. Only the `PreparationOwnership` the admission
+    # minted for THIS attempt exempts that attempt's own window; a bare ordinal is refused
+    # as the capability error it is, a capability over another attempt exempts nothing, and
+    # an absent operand leaves this act exactly as strict as it was. `admit_preparation`
+    # remains the only mint, and the numeric shape of the superseded historical probe is
+    # deliberately NOT accepted -- accepting both would restore the hole to keep an old
+    # test green.
+    ordinal = None
+    if preparing is not None:
+        if type(preparing) is not PreparationOwnership:
+            _denied(f"{what} presents {name_value(preparing)} as its preparation "
+                    f"ownership; an ordinal is a number anyone can count and is not "
+                    f"authority, so the capability the admission minted is required")
+        if not _minted_here(control, preparing):
+            _denied(f"{what} presents a preparation ownership this store's admission did "
+                    f"not mint; a capability another store handed out is not authority "
+                    f"here, whatever attempt or ordinal it names")
+        if preparing.attempt != assignment_id:
+            _denied(f"{what} presents a preparation ownership for attempt "
+                    f"{name_value(preparing.attempt)}; a window over another attempt "
+                    f"exempts nothing here, because ordinals collide across attempts")
+        ordinal = preparing.ordinal
+    refuse_if_held(control, storage, assignment_id, what, preparing=ordinal)
+    # AND THE SAME ALLOWANCE AT THE EARLY READ, for the reason the admission states: the
+    # attempt's own live task is not a competitor with this attempt's own re-proof, and
+    # only a caller holding this attempt's capability gets it.
+    if ordinal is not None:
+        refusal = _task_token_refusal(control, assignment_id, what,
+                                      mine=assignment_id)
+        if refusal is not None:
+            raise refusal
     # ADMITTED, NOT MERELY CHECKED -- review 2026-09-26T07:25:48Z. The early read above can
     # be overtaken; this transaction is what a competing removal has to win or lose against.
     # THE WINDOW REACHES THE CALLER, AND ENDS AT A DEFINED HANDOVER.
@@ -5692,7 +6043,7 @@ def adopted_assignment_workspace(storage, assignment_id, *, control):
     # ON FAILURE the window is settled here, because nothing was handed out, and a window
     # nobody holds would block this attempt for nothing. A caller that takes roots and binds
     # no grant releases with `release_adopted_workspace`.
-    owned = _admitted_adoption(control, assignment_id, what)
+    owned = _admitted_adoption(control, assignment_id, what, ordinal)
     try:
         roots = _adopted_roots(root, assignment_id)
     except BaseException:
@@ -5731,7 +6082,7 @@ def _adopted_roots(root, assignment_id):
 
 
 def line_assignment_workspace(storage, assignment_id, place, pinned, *,
-                              control):
+                              control, preparing=None):
     """Pair an attempt's inputs with its persistent line as the output root.
 
     The review lifecycle authorizes the writer. This lower boundary proves the
@@ -5754,8 +6105,13 @@ def line_assignment_workspace(storage, assignment_id, place, pinned, *,
     # Measured: three review-mount cases in tests.manager.test_review_cycles failed exactly
     # that way. The window is therefore released as soon as this entry has finished using what
     # it adopted; the line home it returns is a namespace no custody hold and no removal names.
+    # W285465: THE ACTING PREPARATION'S OWN CAPABILITY TRAVELS INTO THE ADOPTION, so the
+    # writer that holds the window is not refused by it while the composition it is doing
+    # the preparing for reaches this boundary. Validated there, not here: the adoption
+    # entry owns the rule -- this store's own mint, this attempt -- and a caller without
+    # one is refused exactly as before.
     roots = adopted_assignment_workspace(storage, assignment_id,
-                                         control=control)
+                                         control=control, preparing=preparing)
     try:
         return _composed_line_roots(roots, storage, assignment_id, place, pinned)
     except BaseException:

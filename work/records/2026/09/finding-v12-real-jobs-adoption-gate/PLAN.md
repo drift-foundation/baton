@@ -1,3 +1,28 @@
+# Current executable checkpoint — single-job E2E first, owner 2026-09-28
+
+1. Finish narrowed W285465 and independently assess G2/W275633; preserve scope.
+2. In parallel, W257627 tuner prepares one bounded fresh single-job E2E packet:
+   exact candidate/image/profile, isolated roots, commands, limits, expected output
+   and failure inspection. Reuse accepted diagnosis and supported interfaces.
+3. Map W257624 residuals and other reached consumer gaps to concrete run blockers
+   versus inherited evidence or out-of-path work. Present exact graph dispositions;
+   existing W247941 dependencies remain until explicitly changed. No broad audit.
+4. Freeze and independently review the packet against accepted candidate bytes;
+   present exact remaining live execution selection, then run the selected job.
+5. After single-job evidence, prove independent parallel Jobs for adoption.
+
+Use current DESIGN HOST-5/TOK-7/HOST-1: host preparation; no automatic
+normalization/helper launch on the selected completion/recovery path. Permission
+errors preserve workspace; no false collection/retention/cleanup success. Existing
+result evidence, isolation, writer cessation and DB-1 requirements remain.
+
+This explicitly supersedes earlier mandatory maintenance-path and whole-old-
+checklist scheduling instructions below. It neither closes providers nor changes
+graph edges. Exact owner ruling is the latest FINDING entry. Packet preparation
+may proceed now; no live run/build/deployment/Git operation is selected here.
+
+## Historical checkpoints — superseded where conflicting with the above
+
 # Current specification/policy alignment — 2026-09-27, W285642
 
 Owner operation285604 installed the direct W275633 prerequisite. This supersedes

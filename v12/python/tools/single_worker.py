@@ -893,7 +893,14 @@ class _RecordedRuntime:
     # here refuses at `_typed` with the verb named, which is the failure this
     # composition wants rather than a silent absence.
     VERBS = ("stop", "list", "observe", "seal", "collect", "retain", "destroy",
-             "normalize_directory", "prove_line_consumable")
+             "normalize_directory", "prove_line_consumable",
+             # W285465, review 2026-09-28T06-52-46Z: the ending's writer listing joins the
+             # surface, as the REFUSING shape like every other verb here. A historical
+             # resume performs no runtime act, so an inert adapter that ANSWERED this --
+             # with an empty list, say -- would be fabricating the very observation the
+             # ordinary ending exists to establish. It refuses in this object's words
+             # instead, and the typing succeeds because the shape is present.
+             "surviving_helpers")
 
     def __init__(self, image_digest):
         self.custodian_image_digest = image_digest
@@ -1985,7 +1992,11 @@ class _SingleWorker:
         if checkpoint:
             self.checkpoint("workspace")
         if self.stage is not None:
-            composed = self.stage.mount(self, stage, roots)
+            # W285465: THE ACTING PREPARATION'S OWN CAPABILITY GOES TO THE STAGE OWNER,
+            # which is the producer hop the consumer's fresh positive reaches. This
+            # composition holds `preparing` because it just admitted the window; the stage
+            # forwards it and the adoption entry decides.
+            composed = self.stage.mount(self, stage, roots, preparing=preparing)
             return composed["roots"], composed["boundary"]
         return roots, source_boundary.compose_source_boundary(
             given["source_nomination"], roots, given["workspace_capacity"])

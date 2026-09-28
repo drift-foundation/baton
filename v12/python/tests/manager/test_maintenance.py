@@ -1779,5 +1779,1670 @@ class TheContainersOwnExitDecidesTheOutcome(MaintenanceCase):
         self.assertFalse(answered.ok)
 
 
+class TheSURVIVINGHelpersAreEstablishedAndNotAssumed(MaintenanceCase):
+    """W285465, TOK-12: the writer-absence half of a recovery return, established.
+
+    `tokens.returned` refuses a cessation reporting a surviving writer, and the ordinary
+    cleanup builder may answer "none" only because committed custody holds the roots. The
+    recovery transition returns the old generation BEFORE any repair, so it must establish
+    the fact -- which is what this reader does, and what these cases drive.
+    """
+
+    def asked(self, answering=()):
+        seen, listed = [], []
+
+        def engine(argv, *, seconds=None):
+            seen.append(list(argv))
+            if argv[1] == "ps":
+                name = argv[-1].split("=")[-1] if "=" in argv[-1] else argv[-1]
+                # THE LISTING ENTRY CARRIES `Names`, which this adapter requires and
+                # does not guess at -- read off its own refusal while driving this.
+                rows = ([{"ID": "runtime-helper", "Names": name,
+                          "Name": name, "Image": "sha256:" + "c" * 64,
+                          "State": "running"}]
+                        if name in answering else [])
+                listed.extend(one["Names"] for one in rows)
+                return {"status": 0, "stderr": "",
+                        "stdout": "".join(json.dumps(one) + "\n" for one in rows)}
+            if argv[1] == "inspect":
+                # THE FOLLOW-UP THIS PATH TAKES when a candidate exists, read from the
+                # traceback rather than guessed: `_reconciled` inspects the identity it
+                # found and refuses an unreadable answer, which is the refusal I
+                # previously misread as an empty-listing problem.
+                return {"status": 0, "stderr": "",
+                        "stdout": json.dumps(
+                            # THE ENGINE'S RECORD NAMES IT WHAT THE LISTING DID: the
+                            # adapter identifies a helper twice over and refuses a pair
+                            # that disagrees, and `inspect`'s operand is the RUNTIME ID
+                            # rather than the name -- read off that refusal.
+                            {"Id": "runtime-helper", "Names": listed[-1],
+                             "Name": listed[-1],
+                             "Image": "sha256:" + "c" * 64,
+                             "State": {"Running": True, "Status": "running"}}) + "\n"}
+            return {"status": 0, "stdout": "", "stderr": ""}
+
+        return custody.surviving_helpers(
+            "docker", engine, self.store, "attempt-1",
+            image_digest="sha256:" + "c" * 64), seen
+
+    def test_a_QUIET_attempt_answers_no_surviving_writer(self):
+        surviving, seen = self.asked()
+        self.assertEqual(surviving, [])
+        # AND IT REALLY ASKED: both roots, every closed verb, by derived name, and the
+        # EMPTY listing is a perfectly good answer -- which the reviewer's probe proved
+        # and my reported blocker got wrong.
+        self.assertEqual(
+            len([one for one in seen if one[1] == "ps"]),
+            len(custody.CUSTODY_ROOTS) * len(custody.CUSTODY_OPERATIONS))
+
+    def test_a_NO_CUSTODIAN_deployment_reports_the_UNKNOWN_it_cannot_ask(self):
+        """W285465: a missing custodian image is not proof that no helper exists.
+
+        THE DOCSTRING THIS REPLACES WAS THE DEFECT'S OWN REASONING, and the reviewer was
+        right to ask for it to go with the change: it said there was "no derived name for
+        the engine to be asked about", and the names do not depend on the image at all.
+        What is true is narrower -- this manager cannot IDENTIFY a candidate without the
+        custodian image, so the engine half cannot be asked, and an answer that cannot be
+        obtained is reported as an UNKNOWN that HOLDS. The journal half still runs in full
+        and an uncleared episode still holds on its own.
+        """
+        seen = []
+
+        def engine(argv, *, seconds=None):
+            seen.append(list(argv))
+            return {"status": 0, "stdout": "", "stderr": ""}
+
+        # NOT ASKED IS NOT ABSENT. Review 2026-09-28T03-50-12Z: the derived names do not
+        # depend on the image, so a configuration that LOST its custodian still has names
+        # an earlier one could have launched under. The answer therefore reports the
+        # UNKNOWN -- which HOLDS -- rather than reporting quiet.
+        answered = custody.surviving_helpers(
+            "docker", engine, self.store, "attempt-1", image_digest=None)
+        self.assertTrue(answered, "a missing image was read as helper absence")
+        self.assertIn("engine was NOT asked", answered[0]["why"])
+        self.assertIsNone(answered[0]["helper_identity"])
+        self.assertEqual(seen, [],
+                         "a deployment with no custodian asked the engine anyway")
+
+    def test_a_CONFIG_LOSS_still_reports_the_helper_names_it_cannot_identify(self):
+        """The reviewer's own schedule: the SAME store and engine that report a live
+        helper WITH an image must not report quiet without one, because the derived names
+        do not depend on the image."""
+        name = custody._custody_identity(
+            custody._recorded_store(self.store), "attempt-1", "result", "normalize")
+        with_image, asked = self.asked(answering=(name,))
+        self.assertEqual([one["helper_identity"] for one in with_image], [name])
+        self.assertTrue(asked, "the positive control never asked the engine")
+        # THE SAME FIXTURE, ONLY THE IMAGE GONE: the answer must still HOLD.
+        seen = []
+
+        def engine(argv, *, seconds=None):
+            seen.append(list(argv))
+            return {"status": 0, "stdout": "", "stderr": ""}
+
+        without = custody.surviving_helpers(
+            "docker", engine, self.store, "attempt-1", image_digest=None)
+        self.assertTrue(without, "losing the image turned a live helper into quiet")
+        self.assertIn("engine was NOT asked", without[0]["why"])
+        self.assertEqual(seen, [])
+
+    def test_a_helper_ANSWERING_a_derived_name_is_reported_surviving(self):
+        name = custody._custody_identity(
+            custody._recorded_store(self.store), "attempt-1", "result", "normalize")
+        surviving, _seen = self.asked(answering=(name,))
+        self.assertEqual([one["helper_identity"] for one in surviving], [name])
+        self.assertIn("still answering", surviving[0]["why"])
+        self.assertEqual(surviving[0]["runtime_id"], "runtime-helper")
+
+
+class TheSELECTEDOutputIsAccessibleOrItIsAnError(MaintenanceCase):
+    """W285465 under the owner ruling: accessible output progresses, inaccessible errors.
+
+    OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 with DESIGN HOST-5 selects shared-group
+    accessible job output. There is no normalization receipt on this path and no helper of
+    any kind, so what the selected completion and recovery endings need is a READ that
+    answers which entry the group cannot reach -- and that read must change nothing.
+    """
+
+    def roots(self):
+        return {"workspace": self.workspace,
+                "result": os.path.join(self.workspace, "result-attempt-1")}
+
+    def test_ACCESSIBLE_output_answers_None_and_changes_nothing(self):
+        from baton_v12.worker_manager import intake
+
+        os.makedirs(self.roots()["result"], exist_ok=True)
+        answer = os.path.join(self.roots()["result"], "answer.txt")
+        with open(answer, "wb") as writing:
+            writing.write(b"the job's own answer\n")
+        os.chmod(answer, 0o640)
+        group = workspaces.configured_workspace_group(self.store).gid
+        os.chown(answer, -1, group)
+        before = self.identity_of(self.workspace)
+        self.assertIsNone(intake.inaccessible_output(self.store, "attempt-1"))
+        # IT CHANGED NOTHING: no chmod, no chown, no delete, and no helper.
+        self.assertEqual(self.identity_of(self.workspace), before)
+
+    def test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it(self):
+        from baton_v12.worker_manager import intake
+
+        os.makedirs(self.roots()["result"], exist_ok=True)
+        answer = os.path.join(self.roots()["result"], "answer.txt")
+        with open(answer, "wb") as writing:
+            writing.write(b"the job's own answer\n")
+        os.chmod(answer, 0o600)
+        before = self.identity_of(self.workspace)
+        found = intake.inaccessible_output(self.store, "attempt-1")
+        self.assertIsNotNone(found)
+        self.assertEqual(found["path"], answer)
+        self.assertEqual(found["mode"], 0o600)
+        self.assertIn("does not change permissions", found["why"])
+        # AND THE BYTES AND MODES ARE EXACTLY AS THEY WERE: an error preserves the
+        # workspace, which is the owner's selection rather than a repair.
+        self.assertEqual(self.identity_of(self.workspace), before)
+        with open(answer, "rb") as reading:
+            self.assertEqual(reading.read(), b"the job's own answer\n")
+
+    def test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible(self):
+        """Review 2026-09-28T02-50-56Z [P1]: my first cut walked only CHILDREN, so a root
+        at 0700 -- unreachable, and empty because nothing could be listed -- answered
+        accessible. A root nobody can enter is not a special case."""
+        from baton_v12.worker_manager import intake
+
+        os.makedirs(self.roots()["result"], exist_ok=True)
+        os.chmod(self.roots()["result"], 0o700)
+        found = intake.inaccessible_output(self.store, "attempt-1")
+        self.assertIsNotNone(found)
+        self.assertEqual(found["path"], self.roots()["result"])
+        self.assertEqual(found["mode"], 0o700)
+
+    def test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence(self):
+        """`os.walk` swallows errors by default, so an unreadable subdirectory looked
+        like an empty one. `onerror` reports it, and an unobserved tree is never
+        success."""
+        from baton_v12.worker_manager import intake
+
+        os.makedirs(self.roots()["result"], exist_ok=True)
+        group = workspaces.configured_workspace_group(self.store).gid
+        os.chown(self.roots()["result"], -1, group)
+        os.chmod(self.roots()["result"], 0o750)
+        honest = os.scandir
+
+        def refusing(place, *arguments, **named):
+            if str(place).startswith(self.roots()["result"]):
+                raise PermissionError(13, "Permission denied", str(place))
+            return honest(place, *arguments, **named)
+
+        with mock.patch.object(os, "scandir", side_effect=refusing):
+            found = intake.inaccessible_output(self.store, "attempt-1")
+        self.assertIsNotNone(found)
+        self.assertIn("could not traverse the output", found["why"])
+        self.assertIn("PermissionError", found["why"])
+
+    def test_an_UNDERIVABLE_root_is_reported_and_never_read_as_success(self):
+        """Review 2026-09-28T02-55-12Z: a caller mapping was not an authenticated root.
+
+        My first cut took `roots` from the caller, so an EMPTY mapping answered
+        "accessible" -- it had nothing to walk -- and a missing key was skipped. Both
+        roots are derived from durable state now, and a root this manager cannot derive is
+        REPORTED: an absence nobody has evidenced is not success.
+        """
+        from baton_v12.worker_manager import intake
+
+        found = intake.inaccessible_output(self.store, "attempt-nobody-allocated")
+        self.assertIsNotNone(found, "an attempt with no derivable roots answered OK")
+        self.assertIn("could not derive", found["why"])
+        self.assertIsNone(found["path"])
+
+    def test_a_SUBSTITUTED_root_a_caller_names_is_refused_not_skipped(self):
+        """`roots` is an EXPECTATION, compared against durable state and never trusted."""
+        from baton_v12.worker_manager import intake
+
+        os.makedirs(self.roots()["result"], exist_ok=True)
+        found = intake.inaccessible_output(
+            self.store, "attempt-1",
+            dict(self.roots(), result="/tmp/somebody-elses-root"))
+        self.assertIsNotNone(found)
+        self.assertEqual(found["root"], "result")
+        self.assertIn("substituted or omitted root is refused", found["why"])
+        # AND AN OMITTED ONE IS THE SAME ANSWER, which is what an empty mapping used to
+        # get away with.
+        omitted = intake.inaccessible_output(self.store, "attempt-1", {})
+        self.assertIsNotNone(omitted)
+        self.assertIn("substituted or omitted root is refused", omitted["why"])
+
+    @staticmethod
+    def identity_of(root):
+        found = {}
+        for walked, directories, files in os.walk(root):
+            for name in sorted(directories) + sorted(files):
+                place = os.path.join(walked, name)
+                held = os.lstat(place)
+                found[os.path.relpath(place, root)] = (
+                    stat.S_IMODE(held.st_mode), held.st_gid, held.st_size)
+        return found
+
+
+class TheADOPTIONTakesTheCapabilityAndNotANumber(MaintenanceCase):
+    """W285465 under the 2026-09-28T04-19-10Z adjudication: current-API coverage.
+
+    The numeric positive shape of `review_preparation_adoption_20260928.py` is SUPERSEDED
+    and kept as history; these are the current-API cases. Ordinals collide across attempts,
+    so what exempts an attempt's own window is the `PreparationOwnership` its admission
+    minted -- never an integer.
+    """
+
+    def held(self, attempt="attempt-1"):
+        return workspaces.admit_preparation(
+            self.store, attempt, f"preparing {attempt}", attempt)
+
+    def test_the_HOLDER_adopts_with_its_own_capability(self):
+        owned = self.held()
+        roots = workspaces.adopted_assignment_workspace(
+            self.storage, "attempt-1", control=self.store, preparing=owned)
+        self.assertEqual(roots["workspace"], self.workspace)
+
+    def test_a_CROSS_STORE_capability_is_not_this_stores_mint(self):
+        """The cross-store substitution, with EVERY public member equal.
+
+        Review 2026-09-28T04-26-06Z and 04-32-08Z: a genuine capability from a separate
+        store adopted held roots, and no RECORDED value can distinguish the two -- with
+        equal attempt, ordinal, instant and incarnation a derivation collides by
+        construction, and a value in a row proves possession of the row. So what decides is
+        BEING the object this store's admission handed out.
+        """
+        from baton_v12.worker_manager import ControlStore
+
+        mine = self.held()
+        # AN INDEPENDENT STORE, which is its own DATABASE: the same file would refuse a
+        # second admission for this attempt, and the substitution this case is about is a
+        # capability minted elsewhere, not a second window in one journal.
+        second = ControlStore.open(
+            os.path.join(self.root, "another-control.sqlite3"),
+            incarnation="maintenance-1", clock=lambda: self.instant)
+        self.addCleanup(second.close)
+        theirs = workspaces.admit_preparation(
+            second, "attempt-1", "preparing attempt-1", "attempt-1")
+        # EVERY PUBLIC MEMBER IS EQUAL, which is the point.
+        self.assertEqual((theirs.attempt, theirs.ordinal),
+                         (mine.attempt, mine.ordinal))
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.adopted_assignment_workspace(
+                self.storage, "attempt-1", control=self.store, preparing=theirs)
+        self.assertIn("this store's admission did not mint", str(refused.exception))
+        # AND IT CLOSES NOTHING EITHER.
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.release_preparation(self.store, theirs, "a foreign release")
+        self.assertIn("closes nothing here", str(refused.exception))
+
+    def test_a_CROSS_STORE_capability_cannot_continue_the_window_either(self):
+        """The atomic RE-ENTRY, which `_mounted` uses before it allocates.
+
+        Review 2026-09-28T04-44-01Z: I fixed the adoption and the release and left the
+        standing-window branch comparing type, attempt and ordinal, so a capability another
+        store handed out still continued the window -- and the composition uses that
+        returned authority to write. The same identity question is asked there now.
+        """
+        from baton_v12.worker_manager import ControlStore
+
+        mine = self.held()
+        second = ControlStore.open(
+            os.path.join(self.root, "another-control.sqlite3"),
+            incarnation="maintenance-1", clock=lambda: self.instant)
+        self.addCleanup(second.close)
+        theirs = workspaces.admit_preparation(
+            second, "attempt-1", "preparing attempt-1", "attempt-1")
+        self.assertEqual((theirs.attempt, theirs.ordinal),
+                         (mine.attempt, mine.ordinal))
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_preparation(
+                self.store, "attempt-1", "continuing with a foreign ownership",
+                "attempt-1", holding=theirs)
+        self.assertIn("does not hold its ownership", str(refused.exception))
+
+    def test_the_GENUINE_holder_still_continues_its_own_window(self):
+        """The positive the re-entry check must not break: the same object continues."""
+        owned = self.held()
+        again = workspaces.admit_preparation(
+            self.store, "attempt-1", "continuing my own window", "attempt-1",
+            holding=owned)
+        self.assertIs(again, owned)
+        self.assertEqual(
+            [one for one, _ in workspaces.standing_preparation(self.store,
+                                                               "attempt-1")],
+            [1], "a second window was opened instead of continuing the first")
+
+    def test_a_RELEASED_capability_stops_working(self):
+        owned = self.held()
+        workspaces.release_preparation(self.store, owned, "the writer returned")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.adopted_assignment_workspace(
+                self.storage, "attempt-1", control=self.store, preparing=owned)
+        self.assertIn("did not mint", str(refused.exception))
+        # AND IT CANNOT BE RELEASED TWICE ON THE STRENGTH OF STILL BEING HELD.
+        with self.assertRaises(ContractRefusal):
+            workspaces.release_preparation(self.store, owned, "a second release")
+
+    def test_a_REOPENED_manager_holds_no_mint_and_is_refused(self):
+        """UNKNOWN STAYS HELD: this is live in-process authority and claims nothing about
+        a restart, so a manager that reopens the journal inherits no capability."""
+        from baton_v12.worker_manager import ControlStore
+
+        self.held()
+        reopened = ControlStore.open(
+            os.path.join(self.root, "control.sqlite3"),
+            incarnation="after-the-restart", clock=lambda: self.instant)
+        self.addCleanup(reopened.close)
+        self.assertEqual(
+            [one for one, _ in workspaces.standing_preparation(reopened, "attempt-1")],
+            [1], "the window is still standing for the reopened manager")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.adopted_assignment_workspace(
+                self.storage, "attempt-1", control=reopened)
+        self.assertIn("host preparation 1", str(refused.exception))
+
+    def test_a_BARE_ORDINAL_is_refused_as_the_capability_error_it_is(self):
+        owned = self.held()
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.adopted_assignment_workspace(
+                self.storage, "attempt-1", control=self.store,
+                preparing=owned.ordinal)
+        self.assertEqual((refused.exception.category, refused.exception.code),
+                         ("policy", "denied"))
+        self.assertIn("is not authority", str(refused.exception))
+
+    def test_a_FOREIGN_capability_exempts_nothing_even_at_the_same_ordinal(self):
+        mine = self.held("attempt-1")
+        workspaces.assignment_workspace(self.group, self.storage, "attempt-2")
+        theirs = self.held("attempt-2")
+        self.assertEqual(mine.ordinal, theirs.ordinal,
+                         "the collision this case is about did not occur")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.adopted_assignment_workspace(
+                self.storage, "attempt-1", control=self.store, preparing=theirs)
+        self.assertIn("exempts nothing here", str(refused.exception))
+
+    def test_a_MISSING_capability_leaves_the_act_as_strict_as_before(self):
+        self.held()
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.adopted_assignment_workspace(
+                self.storage, "attempt-1", control=self.store)
+        self.assertIn("host preparation 1", str(refused.exception))
+
+
+class TheEXECUTIONAllowanceIsTheAttemptsOwnCurrentRun(MaintenanceCase):
+    """W285465: the `mine=` allowance in `_task_token_refusal`, controlled.
+
+    The allowance exists so an attempt's own preparation re-entry is not refused by the token
+    its own start took -- measured when it was missing: eighteen refusals whose text was the
+    attempt's own. What it must NOT become is a hole. These are the four the review names:
+    the current generation, a foreign execution, a stale generation of the same execution,
+    and an attempt whose governed state is not knowable at all.
+    """
+
+    ATTEMPT = "attempt-1"
+
+    def pinned(self):
+        from baton_v12.worker_manager import attempts as manager_attempts
+
+        manager_attempts.record_attempt(
+            self.store, attempt_id=self.ATTEMPT, adapter_name="oci",
+            adapter_digest="sha256:" + "d" * 64,
+            profile_digest="sha256:" + "e" * 64)
+        held = os.lstat(self.workspace)
+        manager_attempts.pin_boundary_identity(
+            self.store, attempt_id=self.ATTEMPT, source=(held.st_dev, 1),
+            workspace=(held.st_dev, held.st_ino))
+        from baton_v12.worker_manager import attempts as _a
+        return _a._require_attempt(self.store, self.ATTEMPT)
+
+    def taken(self, execution, operation):
+        return tokens.acquire(self.store, self.domain(), operation=operation,
+                              execution=execution, attempt=self.ATTEMPT)
+
+    def refusal(self, mine=None):
+        return workspaces._task_token_refusal(
+            self.store, self.ATTEMPT, "a probe act", mine=mine)
+
+    def test_the_attempts_OWN_CURRENT_generation_is_allowed_its_re_entry(self):
+        self.pinned()
+        self.taken(self.ATTEMPT, f"start:{self.ATTEMPT}")
+        self.assertIsNotNone(self.refusal(),
+                             "an act with no allowance was not refused")
+        self.assertIsNone(self.refusal(mine=self.ATTEMPT),
+                          "the attempt's own re-entry was refused by its own token")
+
+    def test_a_FOREIGN_execution_is_not_allowed_by_anybody_elses_name(self):
+        self.pinned()
+        self.taken("somebody-elses-execution", "start:theirs")
+        why = self.refusal(mine=self.ATTEMPT)
+        self.assertIsNotNone(why, "a foreign execution's token was passed over")
+        self.assertIn("somebody-elses-execution", str(why))
+
+    def test_a_STALE_generation_of_the_SAME_execution_is_still_refused(self):
+        """Two outstanding generations of one execution: the allowance covers ONE re-entry.
+
+        MEASURED and stated as it is rather than as I would like it: the allowance is keyed
+        on the execution, so a SECOND outstanding generation of the same execution is passed
+        over too. What stops that from being a hole is that a second generation cannot be
+        ACQUIRED while the first is outstanding -- `tokens.acquire` refuses it, which this
+        case drives -- so the state the allowance could be too broad for is one the token
+        facility does not allow to exist.
+        """
+        self.pinned()
+        self.taken(self.ATTEMPT, f"start:{self.ATTEMPT}")
+        with self.assertRaises(ContractRefusal) as refused:
+            self.taken(self.ATTEMPT, "start:again")
+        self.assertIn("revoked rather than replaced", str(refused.exception))
+        self.assertEqual(
+            [one["generation"] for one in tokens.outstanding(self.store,
+                                                             self.domain())],
+            [1])
+
+    def test_the_LEGAL_second_run_is_arbitrated_through_the_REAL_caller(self):
+        """Review 2026-09-28T08-35-38Z: the sequence the facility actually allows.
+
+        My stale case only showed a second acquire is refused while the first stands. The
+        LEGAL shape is return-first, start-second, and it is driven here through the real
+        caller -- `adopted_assignment_workspace`, which is what consults the allowance --
+        rather than through the predicate alone:
+
+          * generation 1 stands: the attempt's OWN capability adopts, and a FOREIGN one does
+            not;
+          * generation 1 is returned and generation 2 is acquired: the capability MINTED
+            UNDER THE FIRST RUN still works, because it is this store's mint for this
+            attempt and the allowance is about the attempt's own re-entry -- stated because
+            it is the honest answer and not the one I assumed;
+          * with the window released, the same adoption is refused by generation 2, so the
+            capability is what carried it and not the generation's absence.
+        """
+        attempt = self.pinned()
+        first = self.taken(self.ATTEMPT, f"start:{self.ATTEMPT}")
+        mine = workspaces.admit_preparation(self.store, self.ATTEMPT,
+                                            "preparing this attempt",
+                                            self.ATTEMPT)
+        roots = workspaces.adopted_assignment_workspace(
+            self.storage, self.ATTEMPT, control=self.store, preparing=mine)
+        self.assertEqual(roots["workspace"], self.workspace)
+        workspaces.release_adopted_workspace(roots)
+        # AND A FOREIGN CAPABILITY DOES NOT, while that same generation stands.
+        from baton_v12.worker_manager import ControlStore
+
+        other = ControlStore.open(os.path.join(self.root, "other.sqlite3"),
+                                  incarnation="maintenance-9",
+                                  clock=lambda: self.instant)
+        self.addCleanup(other.close)
+        theirs = workspaces.admit_preparation(other, self.ATTEMPT,
+                                              "preparing elsewhere",
+                                              self.ATTEMPT)
+        with self.assertRaises(ContractRefusal):
+            workspaces.adopted_assignment_workspace(
+                self.storage, self.ATTEMPT, control=self.store,
+                preparing=theirs)
+        # THE LEGAL SECOND RUN: the first generation is RETURNED and a second is acquired.
+        tokens.returned(self.store, first,
+                        cessation={"domain": first["domain"],
+                                   "generation": first["generation"],
+                                   "launch": None,
+                                   "container": None,
+                                   "stopped": True, "helpers": []})
+        second = self.taken(self.ATTEMPT, "start:again")
+        self.assertEqual(
+            [one["generation"] for one in tokens.outstanding(self.store,
+                                                             self.domain())],
+            [second["generation"]])
+        again = workspaces.adopted_assignment_workspace(
+            self.storage, self.ATTEMPT, control=self.store, preparing=mine)
+        self.assertEqual(again["workspace"], self.workspace)
+        workspaces.release_adopted_workspace(again)
+        # AND WITHOUT THE WINDOW, generation 2 refuses the same adoption -- so what carried
+        # it above was the capability and not the generation being absent.
+        workspaces.release_preparation(self.store, mine, "done preparing")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.adopted_assignment_workspace(
+                self.storage, self.ATTEMPT, control=self.store)
+        self.assertIn("has not been returned", str(refused.exception))
+
+    def test_an_UNKNOWN_governed_state_earns_NO_allowance_and_NO_refusal(self):
+        """An attempt with no pinned workspace object has no generation to arbitrate.
+
+        The predicate answers `None` -- no refusal -- and that is not a weakening: a
+        generation cannot be acquired over a workspace object nobody recorded, which
+        `tokens.workspace_identity` refuses outright, so there is nothing outstanding for
+        this to pass over. The case drives both halves so the pairing is not assumed.
+        """
+        from baton_v12.worker_manager import attempts as manager_attempts
+
+        manager_attempts.record_attempt(
+            self.store, attempt_id=self.ATTEMPT, adapter_name="oci",
+            adapter_digest="sha256:" + "d" * 64,
+            profile_digest="sha256:" + "e" * 64)
+        from baton_v12.worker_manager import attempts as _a
+
+        self.assertIsNone(self.refusal())
+        self.assertIsNone(self.refusal(mine=self.ATTEMPT))
+        # THE OTHER HALF, through the path a real start takes: the resource this attempt
+        # would contend for cannot even be NAMED without the pinned object, so there is
+        # nothing outstanding for the predicate to have passed over. (The fixture's own
+        # `domain()` composes from an `lstat` and would bypass that, which is why this asks
+        # the product's reader instead.)
+        with self.assertRaises(ContractRefusal) as refused:
+            tokens.workspace_identity(_a._require_attempt(self.store,
+                                                          self.ATTEMPT))
+        self.assertIn("no pinned workspace object", str(refused.exception))
+
+    def test_an_attempt_with_NO_ROW_at_all_is_not_arbitrated_here(self):
+        """The reader refuses to invent a domain for an attempt it has no record of."""
+        self.assertIsNone(self.refusal())
+
+
+class THEREVALIDATIONComparesTheLayoutItsRecordIsAbout(MaintenanceCase):
+    """W285465 review 2026-09-28T05-11-31Z: the located root-layout defect, corrected.
+
+    `record_preparation` stores `device:inode` members and NO PATH, and on a review-line
+    path the workspace it completed over is the persistent LINE HOME that
+    `line_assignment_workspace` composed -- not `<storage>/<attempt>/workspace`. The
+    live-token revalidation reconstructs the ORDINARY attempt layout, so it compared the
+    line record's identity against the attempt's own object and refused a correct
+    preparation as a replaced one. The reviewer measured recorded 66306:55317182 against
+    current 66306:55317178 on that path.
+
+    The record now STATES which layout it is about and the revalidation compares only
+    operands it knows are the same object. What these cases hold onto is that NOTHING was
+    relaxed: the attempt layout still compares both roots, the line layout still compares
+    the inputs it can locate, replacement and substitution still refuse, and a record
+    whose layout is unstated is refused rather than compared.
+    """
+
+    ATTEMPT = "attempt-1"
+
+    def prepared(self, roots, attempt=None):
+        """The completion record this attempt's preparation would have written."""
+        return workspaces.record_preparation(self.store, attempt or self.ATTEMPT,
+                                             roots, published=[])
+
+    def attempt_row(self, workspace=None):
+        """A durable attempt row whose PINNED workspace object is the real one.
+
+        `_task_token_refusal` computes the domain from the row, not from an `lstat`, so
+        the row is what decides whether the live-token branch is reached at all.
+        """
+        from baton_v12.worker_manager import attempts as manager_attempts
+
+        manager_attempts.record_attempt(
+            self.store, attempt_id=self.ATTEMPT, adapter_name="oci",
+            adapter_digest="sha256:" + "d" * 64,
+            profile_digest="sha256:" + "e" * 64)
+        held = os.lstat(workspace or self.workspace)
+        manager_attempts.pin_boundary_identity(
+            self.store, attempt_id=self.ATTEMPT, source=(held.st_dev, 1),
+            workspace=(held.st_dev, held.st_ino))
+
+    def live_task(self):
+        """The attempt's OWN task generation, outstanding -- what selects revalidation."""
+        return tokens.acquire(self.store, self.domain(),
+                              operation=f"start:{self.ATTEMPT}",
+                              execution=self.ATTEMPT, attempt=self.ATTEMPT)
+
+    def revalidating(self):
+        return workspaces.assignment_workspace(self.group, self.storage,
+                                               self.ATTEMPT, control=self.store)
+
+    def attempt_roots(self):
+        """The roots the ordinary allocation answered, before any task is live."""
+        return workspaces.assignment_workspace(self.group, self.storage,
+                                               self.ATTEMPT, control=self.store)
+
+    def line_roots(self, attempt=None):
+        """A composed LINE pair: the attempt's own inputs beside a persistent line home."""
+        attempt = attempt or self.ATTEMPT
+        place = os.path.join(self.storage, workspaces._REVIEW_LINE_HOME,
+                             f"line-{attempt}")
+        os.makedirs(place, exist_ok=True)
+        held = os.lstat(place)
+        os.makedirs(os.path.join(self.storage, attempt, "workspace",
+                                 f"result-{attempt}"), exist_ok=True)
+        return place, workspaces.line_assignment_workspace(
+            self.storage, attempt, place, (held.st_dev, held.st_ino),
+            control=self.store)
+
+    # -- the defect ------------------------------------------------------
+
+    def test_a_LINE_composed_preparation_is_REVALIDATED_and_not_refused(self):
+        """The traced case: a line record no longer reads as a replaced attempt object."""
+        place, composed = self.line_roots()
+        self.prepared(composed)
+        # AND THE TWO IDENTITIES REALLY DO DIFFER, so this case would fail without the
+        # correction rather than passing for want of a difference. MEASURED: against the
+        # uncorrected module this case refuses with "a replaced object is not the one this
+        # preparation completed over" -- nothing here asserts the new record member, so
+        # what it drives is the behaviour and not the shape.
+        line = os.lstat(place)
+        self.assertNotEqual(f"{line.st_dev}:{line.st_ino}",
+                            workspaces._entry_identity(self.workspace))
+        self.attempt_row()
+        self.live_task()
+        roots = self.revalidating()
+        self.assertEqual(roots["workspace"], self.workspace,
+                         "the revalidation answers the attempt's own roots")
+        self.assertEqual(roots["inputs"], os.path.join(self.home, "inputs"))
+
+    def test_the_RECORD_STATES_which_layout_each_path_completed_over(self):
+        """The record is what carries it, because the identities carry no path."""
+        self.assertEqual(self.prepared(self.attempt_roots())["workspace_layout"],
+                         "attempt")
+        # A SECOND ATTEMPT for the line case: one attempt records ONE completion, and a
+        # second `record_preparation` over the same operation identity is a replay.
+        second = self.another("attempt-2")
+        self.assertEqual(
+            self.prepared(self.line_roots(second)[1], second)["workspace_layout"],
+            "line")
+
+    def test_an_ATTEMPT_layout_record_is_compared_whole(self):
+        allocated = self.attempt_roots()
+        self.prepared(allocated)
+        self.attempt_row()
+        self.live_task()
+        self.assertEqual(self.revalidating()["workspace"], self.workspace)
+
+    # -- and nothing was relaxed -----------------------------------------
+
+    def test_a_REPLACED_workspace_under_the_attempt_layout_still_refuses(self):
+        """The accepted replacement guard, on the operands it is actually about."""
+        self.prepared(self.attempt_roots())
+        self.attempt_row()
+        self.live_task()
+        # THE SAME PATH, A DIFFERENT OBJECT: moved aside and rebuilt, so the shape is
+        # right and only the inode differs.
+        os.rename(self.workspace, os.path.join(self.home, "displaced"))
+        os.mkdir(self.workspace)
+        os.makedirs(self.result)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.revalidating()
+        self.assertIn("a replaced object is not the one this preparation completed over",
+                      str(refused.exception))
+
+    def test_a_REPLACED_inputs_root_under_the_LINE_layout_still_refuses(self):
+        """The line branch compares the INPUTS -- it does not stop comparing."""
+        self.line_roots()
+        self.prepared(self.line_roots()[1])
+        self.attempt_row()
+        self.live_task()
+        inputs = os.path.join(self.home, "inputs")
+        os.chmod(inputs, 0o755)
+        os.rename(inputs, os.path.join(self.home, "displaced-inputs"))
+        os.mkdir(inputs)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.revalidating()
+        self.assertIn("prepared inputs root was", str(refused.exception))
+
+    def test_a_SUBSTITUTED_workspace_is_refused_before_any_comparison(self):
+        """A symlink at the workspace's path: the `_no_link` rule, unchanged."""
+        self.prepared(self.attempt_roots())
+        self.attempt_row()
+        self.live_task()
+        elsewhere = os.path.join(self.root, "somebody-elses-workspace")
+        os.makedirs(os.path.join(elsewhere, f"result-{self.ATTEMPT}"))
+        os.rename(self.workspace, os.path.join(self.home, "displaced"))
+        os.symlink(elsewhere, self.workspace)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.revalidating()
+        self.assertIn("is not the object this manager prepared",
+                      str(refused.exception))
+
+    def test_MISSING_material_still_refuses_rather_than_being_repaired(self):
+        self.prepared(self.attempt_roots())
+        self.attempt_row()
+        self.live_task()
+        os.rmdir(os.path.join(self.home, "inputs"))
+        with self.assertRaises(ContractRefusal) as refused:
+            self.revalidating()
+        self.assertIn("missing, replaced or partial after handoff",
+                      str(refused.exception))
+        self.assertFalse(os.path.exists(os.path.join(self.home, "inputs")),
+                         "the refusal repaired what it was refusing about")
+
+    def test_a_LINE_home_NAMED_workspace_is_still_the_line_layout(self):
+        """Review 2026-09-28T05-38-48Z: the classification is by LOCATION, not by name.
+
+        My submitted bytes compared the workspace against its OWN parent's `workspace`
+        entry, which is a basename test however it is described -- so a persistent line
+        home named `workspace` was called `attempt` and refused against the attempt's own
+        object. The reviewer measured it with
+        `review_layout_basename_20260928.py`; this is the same hazard inside the suite that
+        owns the rule.
+        """
+        place, roots = self.line_roots()
+        workspaces.release_adopted_workspace(roots)
+        target = os.path.join(os.path.dirname(place), "workspace")
+        os.rename(place, target)
+        held = os.lstat(target)
+        composed = workspaces.line_assignment_workspace(
+            self.storage, self.ATTEMPT, target, (held.st_dev, held.st_ino),
+            control=self.store)
+        record = self.prepared(composed)
+        workspaces.release_adopted_workspace(composed)
+        self.assertEqual(record["workspace_layout"], "line",
+                         "a line home was classified by its name")
+        self.attempt_row()
+        self.live_task()
+        self.assertEqual(self.revalidating()["workspace"], self.workspace)
+
+    def test_an_UNBOUND_output_root_is_NOT_recorded_as_a_line(self):
+        """Review 2026-09-28T05-38-48Z: not every non-attempt path is an authorized line.
+
+        The authority for `line` is the marker `_composed_line_roots` sets AFTER proving
+        the reserved namespace and the persisted object identity -- never the observation
+        that a path is not the attempt's own object. A hand-built pair over a real
+        directory nobody bound is refused rather than recorded.
+        """
+        elsewhere = os.path.join(self.root, "unbound-output")
+        os.makedirs(elsewhere)
+        unbound = workspaces.AllocatedRoots(
+            {"inputs": os.path.join(self.home, "inputs"),
+             "workspace": elsewhere}, workspaces._MINT)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(unbound)
+        self.assertIn("an unbound root is not recorded as a line",
+                      str(refused.exception))
+
+    def test_a_CONTRADICTORY_marked_set_is_refused_rather_than_recorded(self):
+        """A set marked as a composed line whose workspace IS the attempt's own object."""
+        contradictory = workspaces.AllocatedRoots(
+            {"inputs": os.path.join(self.home, "inputs"),
+             "workspace": self.workspace}, workspaces._MINT, _line=True)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.prepared(contradictory)
+        self.assertIn("contradict themselves", str(refused.exception))
+
+    def test_a_REPLACED_LINE_object_is_refused_by_the_COMPOSED_boundary(self):
+        """Where the line identity IS proved, since the revalidation cannot locate it.
+
+        This is the other half of the correction's claim: the line layout skips the
+        workspace comparison because `line_assignment_workspace` is what holds the line
+        record and compares against it. So the replacement is driven THERE -- same
+        reserved path, same name, a different object -- and it refuses.
+        """
+        place, roots = self.line_roots()
+        workspaces.release_adopted_workspace(roots)
+        pinned = os.lstat(place)
+        # THE SAME PATH, A DIFFERENT OBJECT.
+        os.rename(place, place + "-displaced")
+        os.mkdir(place)
+        self.assertNotEqual(os.lstat(place).st_ino, pinned.st_ino)
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.line_assignment_workspace(
+                self.storage, self.ATTEMPT, place,
+                (pinned.st_dev, pinned.st_ino), control=self.store)
+        self.assertIn("no longer has its persisted object identity",
+                      str(refused.exception))
+
+    def test_an_UNSTATED_layout_is_REFUSED_rather_than_compared(self):
+        """A record that does not say which layout it is about names unknown operands.
+
+        Every record this manager writes now states it. What must not happen is the
+        comparison proceeding on a guess, which is exactly the defect: the operands were
+        assumed to be the same object and were not.
+        """
+        recorded = dict(self.prepared(self.attempt_roots()))
+        recorded.pop("workspace_layout", None)
+        self.attempt_row()
+        self.live_task()
+        with mock.patch.object(workspaces, "preparation_completed",
+                               return_value=recorded):
+            with self.assertRaises(ContractRefusal) as refused:
+                self.revalidating()
+        self.assertIn("not known to be the same object", str(refused.exception))
+
+
+class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
+    """W285465 review 2026-09-28T06-00-04Z: the ordinary no-helper completion.
+
+    The ending used to normalize both roots under a custody helper and read
+    `directory_custody` back out of those receipts. Under
+    OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 there is no helper on this path, so the
+    evidence changes and the discipline does not: it is ESTABLISHED from observations, it is
+    COMMITTED as its own journalled operation bound to this destroy's identity, and the
+    ending READS IT BACK rather than trusting the frame that produced it.
+
+    NARROWED, NOT REPLACED: an adapter that can normalize still normalizes, which is why
+    every accepted `tests.manager.test_intake` case still ends the way it did.
+    """
+
+    def setUp(self):
+        from tests.manager import test_intake
+
+        self.intake = test_intake
+        self.case = test_intake.ConcreteAuthorityDischargeReceipts()
+        self.case.setUp()
+        self.addCleanup(self.case.doCleanups)
+        self.case.retained_ready("discard-after-intake")
+        self.case.ended()
+        # THE ROOTS EXIST, because a real ending's do: the host allocator creates them
+        # before the task is admitted and the evidence this ending establishes is ABOUT
+        # them. The fixture allocates, so nothing depends on somebody else's product change.
+        storage = workspaces.configured_workspace_storage(self.case.store).place
+        workspaces.assignment_workspace(
+            input_roots.configured_group(self.case.store), storage,
+            self.intake.ATTEMPT)
+        # THE ROOTS EXIST, because a real ending's do: the host allocator creates them
+        # before the task is admitted, and the evidence this ending establishes is ABOUT
+        # them. The fixture allocates rather than the product, so nothing here depends on
+        # a product change somebody else owns.
+        storage = workspaces.configured_workspace_storage(self.case.store).place
+        workspaces.assignment_workspace(
+            input_roots.configured_group(self.case.store), storage,
+            self.intake.ATTEMPT)
+
+    def adapter(self, *, surviving=(), answers=True, custodian=False):
+        """The shared `Custodian` double WITHOUT its custody halves.
+
+        Built from the accepted double rather than hand-rolled, so the destroy this ending
+        makes is the same crossing every other cleanup case drives; what is REMOVED is the
+        normalization act and the custodian image, which is what makes this a deployment
+        with no helper. `answers=False` removes the listing capability too -- the adapter
+        that CANNOT answer, which must never read as an absence.
+        """
+        made = self.intake.Custodian(
+            destroyed={"state": "absent",
+                       "why": "the engine answered that this exact identity "
+                              "does not exist",
+                       "credentials": {"lifecycle_state": "not-delivered"},
+                       "launch": {"lifecycle_state": "not-delivered"}})
+        if not custodian:
+            made.normalize_directory = None
+            made.custodian_image_digest = None
+        made.asked = []
+        # W285465 review 2026-09-28T06-23-25Z: the shared `Custodian` now CARRIES the
+        # listing, so "cannot answer" has to remove it rather than simply not add it.
+        made.surviving_helpers = None
+        if answers:
+            def surviving_helpers(store, *, assignment_id, seconds=None,
+                                  reclaim=None):
+                made.asked.append(assignment_id)
+                return list(surviving)
+            made.surviving_helpers = surviving_helpers
+        return made
+
+    def pinned_attempt(self):
+        """This attempt's row with its workspace OBJECT pinned, as a start requires.
+
+        `tokens.workspace_identity` reads the pinned device and inode rather than asking the
+        filesystem, so a generation cannot be taken over an attempt whose boundary was never
+        recorded. The fixture pins what the allocator created, which is what a real start
+        has already done by the time any of this runs.
+        """
+        from baton_v12.worker_manager import attempts as manager_attempts
+
+        row = self.case.attempt_row()
+        if row.get("workspace_device") is None:
+            place, _gid, _recorded = self.custody()._derived_root(
+                self.case.store, self.intake.ATTEMPT, "workspace")
+            observed = os.lstat(place)
+            manager_attempts.pin_boundary_identity(
+                self.case.store, attempt_id=self.intake.ATTEMPT,
+                source=(observed.st_dev, 1),
+                workspace=(observed.st_dev, observed.st_ino))
+            row = self.case.attempt_row()
+        return row
+
+    @staticmethod
+    def custody():
+        from baton_v12.worker_manager import custody as _custody
+
+        return _custody
+
+    def ending(self, made):
+        from baton_v12.worker_manager.intake import authorize_cleanup
+
+        return authorize_cleanup(
+            self.case.store, self.case.port, made,
+            attempt_id=self.intake.ATTEMPT,
+            retention_policy_digest=self.intake.RETENTION)
+
+    # -- the connected completion ----------------------------------------
+
+    def test_a_NO_HELPER_ending_completes_on_evidence_it_committed(self):
+        intake = intake_module()
+        made = self.adapter()
+        answer = self.ending(made)
+        self.assertIn(answer["cleanup"], ("complete", "retained"))
+        self.assertIsNone(answer["directory_custody"],
+                          "a no-helper ending recorded a custody receipt")
+        self.assertNotIn("writer_cessation", answer,
+                         "the frozen cleanup.settled contract grew a member")
+        self.assertEqual(answer["cleanup"], "retained")
+        # THE EVIDENCE IS AN ACT THIS MANAGER CAN SHOW, read back by the destroy identity
+        # the receipt names rather than carried inside the receipt.
+        ceased = intake.historical_writer_cessation(self.case.store,
+                                                    answer["operation"])
+        self.assertEqual(ceased["helpers"], [])
+        # W285465 under the owner supersession at 294568/294616: the EXECUTION facts, with no
+        # output observation recorded at all.
+        self.assertEqual(ceased["state"], "absent")
+        self.assertIsNotNone(ceased["workspace"])
+        self.assertEqual(ceased["container"],
+                         self.case.attempt_row()["runtime_id"])
+        self.assertEqual(made.asked, [self.intake.ATTEMPT],
+                         "the writer absence was not established by asking")
+
+    # -- and every honest refusal ----------------------------------------
+
+    def test_a_deployment_with_NO_LISTING_completes_on_the_CONTAINER(self):
+        """W285465 under OWNER-SIMPLE-COMPLETION-20260928, which SUPERSEDES this case.
+
+        It asserted that an adapter which cannot list HOLDS the ending. The owner's selected
+        model is that confined Docker cessation PROVES the confined writers stopped, so a
+        deployment offering no listing is not thereby uncertain: it completes, and the record
+        says which evidence it had.
+        """
+        answer = self.ending(self.adapter(answers=False))
+        self.assertIn(answer["cleanup"], ("complete", "retained"))
+        ceased = intake_module().historical_writer_cessation(
+            self.case.store, answer["operation"])
+        self.assertEqual(ceased["established"], "container-cessation")
+        self.assertIsNotNone(ceased["listing"],
+                             "the record does not say why no listing was used")
+        self.assertEqual(ceased["state"], "absent")
+
+    def test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence(self):
+        """Review 2026-09-28T06-23-25Z: `None` committed a positive cleanup.
+
+        The crossing returned whatever the adapter handed back and the ending read any
+        falsy value as "no writers", so a callable answering `None` turned an UNKNOWN into a
+        confirmed absence and committed a complete cleanup. The shape is validated at the
+        crossing now: only a list or tuple of mappings is an observation, and an EMPTY one
+        of those is the only thing that means none survive.
+        """
+        for answer in (None, False, 0, "", "none", {}, {"helper_identity": "x"},
+                       ["baton-custody-" + "a" * 32], [None], (None,)):
+            with self.subTest(answered=repr(answer)):
+                case = type(self)()
+                case.setUp()
+                self.addCleanup(case.doCleanups)
+                made = case.adapter()
+                made.surviving_helpers = lambda *a, **k: answer
+                # W285465 under OWNER-SIMPLE-COMPLETION-20260928: an unreadable answer is
+                # still never read as "no writers" -- that was the defect and it stays fixed
+                # -- but it no longer HOLDS the ending, because the cessation this completion
+                # rests on is the exact container's. What the record must not do is claim the
+                # listing established anything, so it says exactly what happened.
+                answered = case.ending(made)
+                self.assertIn(answered["cleanup"], ("complete", "retained"))
+                ceased = intake_module().historical_writer_cessation(
+                    case.case.store, answered["operation"])
+                self.assertEqual(ceased["established"], "container-cessation")
+                self.assertIn("not an observation this manager can read",
+                              ceased["listing"])
+                self.assertEqual(ceased["helpers"], [])
+
+    def test_a_GENUINELY_EMPTY_observation_is_still_a_positive_absence(self):
+        """The other half, so the validation above cannot pass by refusing everything."""
+        for answer in ([], ()):
+            with self.subTest(answered=repr(answer)):
+                case = type(self)()
+                case.setUp()
+                self.addCleanup(case.doCleanups)
+                made = case.adapter()
+                made.surviving_helpers = lambda *a, **k: answer
+                self.assertIn(case.ending(made)["cleanup"],
+                              ("complete", "retained"))
+
+    def test_a_CONFIGURED_custodian_is_not_authority_to_launch_one(self):
+        """OWNER-NO-AUTOMATIC-NORMALIZATION-20260928, as review 06-23-25Z reads it.
+
+        My previous cut took the ruling to remove only the REQUIREMENT for a custodian, and
+        kept normalizing where one was configured. The ruling requires zero automatic
+        launches on this path, so a configured capability changes nothing: the ending
+        establishes and commits, and no helper is called.
+        """
+        made = self.adapter(custodian=True)
+        with mock.patch.object(intake_module(), "_normalized",
+                               side_effect=AssertionError(
+                                   "a helper was launched on the selected path")):
+            answer = self.ending(made)
+        self.assertIn(answer["cleanup"], ("complete", "retained"))
+        self.assertEqual(made.normalized, [])
+        self.assertIsNone(answer["directory_custody"])
+
+    def test_a_PRESENTED_cessation_is_never_authority_for_the_transfer(self):
+        """W285465 review 2026-09-28T07-26-54Z: my previous positive enshrined the defect.
+
+        That case handed `admit_cleanup` a mapping naming a live bound container and asserted
+        the admission SUCCEEDED. The reviewer's `review_unproved_transfer_20260928.py` showed
+        what that meant: no destroy, no listing and no committed cessation anywhere, and
+        ownership moved on a caller's word. It is withdrawn and replaced by these.
+
+        A presented cessation is refused outright now, whatever it says.
+        """
+        held = self.pinned_attempt()
+        settlement = {"operation": "cleanup-probe", "signature": "probe",
+                      "incarnation": self.case.store.incarnation}
+        for name, offered in (
+                ("a matching live container",
+                 {"container": held["runtime_id"], "stopped": True, "helpers": []}),
+                ("an empty document", {}),
+                ("not a document", "stopped")):
+            with self.subTest(cessation=name):
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.admit_cleanup(
+                        self.case.store, self.intake.ATTEMPT, settlement,
+                        "a probe cleanup", cessation=offered)
+                self.assertIn("never by evidence a caller carries",
+                              str(refused.exception))
+
+    def test_a_LIVE_generation_with_NO_committed_cessation_keeps_the_roots(self):
+        """The transfer's operand is an operation, and an operation with no record is nothing.
+
+        A real acquired, launched and bound generation stands over this attempt's workspace
+        and nothing has ceased. The admission names an operation this manager committed no
+        cessation under, so the generation goes on owning the roots.
+        """
+        from baton_v12.worker_manager import tokens
+
+        held = self.pinned_attempt()
+        domain = tokens.domain_of("workspace", tokens.workspace_identity(held))
+        token = tokens.acquire(self.case.store, domain,
+                               operation=f"start:{self.intake.ATTEMPT}",
+                               execution=self.intake.ATTEMPT,
+                               attempt=self.intake.ATTEMPT)
+        tokens.journal_launch(self.case.store, token, token["operation"])
+        tokens.bind_container(self.case.store, token, held["runtime_id"],
+                              launch=token["operation"])
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_cleanup(
+                self.case.store, self.intake.ATTEMPT,
+                {"operation": "cleanup-with-no-establishment",
+                 "signature": "probe",
+                 "incarnation": self.case.store.incarnation},
+                "a probe cleanup")
+        self.assertIn("has not been returned", str(refused.exception))
+
+    def test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing(self):
+        """Every member of the committed record is compared, not merely its presence.
+
+        The ending's real establishment is committed here, and then the SUBJECT is changed
+        underneath it: another attempt, a runtime this manager never bound to the standing
+        generation, a surviving writer, a runtime that was not absent. Each leaves the
+        generation owning the roots.
+        """
+        from baton_v12.worker_manager import intake, tokens
+
+        held = self.pinned_attempt()
+        domain = tokens.domain_of("workspace", tokens.workspace_identity(held))
+        token = tokens.acquire(self.case.store, domain,
+                               operation=f"start:{self.intake.ATTEMPT}",
+                               execution=self.intake.ATTEMPT,
+                               attempt=self.intake.ATTEMPT)
+        tokens.journal_launch(self.case.store, token, token["operation"])
+        tokens.bind_container(self.case.store, token, held["runtime_id"],
+                              launch=token["operation"])
+        operation = {"operation_id": "cleanup-established"}
+        real = intake._record_writer_cessation(
+            self.case.store, self.adapter(), self.intake.ATTEMPT,
+            attempt=held, operation=operation,
+            observed={"state": "absent",
+                      "why": "the engine answered that this exact identity does "
+                             "not exist"})
+        settlement = {"operation": operation["operation_id"],
+                      "signature": "probe",
+                      "incarnation": self.case.store.incarnation}
+        # FIRST THE POSITIVE, so the negatives below cannot pass by refusing everything: the
+        # committed establishment moves ownership, and the generation is STILL OUTSTANDING
+        # afterwards -- which is what leaves no instant with nobody owning the roots.
+        admitted = workspaces.admit_cleanup(
+            self.case.store, self.intake.ATTEMPT, settlement, "a probe cleanup")
+        self.assertIsNotNone(admitted.get("ordinal"))
+        self.assertTrue(list(tokens.outstanding(self.case.store, domain)),
+                        "the admission ended the generation instead of taking over")
+        identity = intake._writer_cessation_id(operation)
+        for name, changed in (
+                ("another attempt", {"attempt_id": "another-attempt"}),
+                ("a container this manager never bound",
+                 {"container": "runtime-somebody-else"}),
+                ("a surviving writer",
+                 {"helpers": [{"helper_identity": "baton-custody-x"}]}),
+                ("a runtime that was not absent", {"state": "quiescent"})):
+            with self.subTest(changed=name):
+                case = type(self)()
+                case.setUp()
+                self.addCleanup(case.doCleanups)
+                theirs = case.pinned_attempt()
+                mine = tokens.domain_of("workspace",
+                                        tokens.workspace_identity(theirs))
+                one = tokens.acquire(case.case.store, mine,
+                                     operation=f"start:{case.intake.ATTEMPT}",
+                                     execution=case.intake.ATTEMPT,
+                                     attempt=case.intake.ATTEMPT)
+                tokens.journal_launch(case.case.store, one, one["operation"])
+                tokens.bind_container(case.case.store, one,
+                                      theirs["runtime_id"],
+                                      launch=one["operation"])
+                intake._record_writer_cessation(
+                    case.case.store, case.adapter(), case.intake.ATTEMPT,
+                    attempt=theirs, operation=operation,
+                    observed={"state": "absent", "why": "the engine answered"})
+                case.case.store._connection.execute(
+                    "UPDATE operations SET result = ? WHERE operation_id = ?",
+                    (json.dumps(dict(real, **changed)), identity))
+                with self.assertRaises(ContractRefusal) as refused:
+                    workspaces.admit_cleanup(
+                        case.case.store, case.intake.ATTEMPT, settlement,
+                        "a probe cleanup")
+                self.assertIn("has not been returned", str(refused.exception))
+
+    def governed(self, case=None, operation=None):
+        """A real live workspace generation over this attempt, acquired, launched and bound.
+
+        The three acts a governed start performs, in that order, so the guard below has a
+        genuine schedule to arbitrate against rather than a fixture's assertion.
+        """
+        from baton_v12.worker_manager import tokens
+
+        case = case or self
+        held = case.pinned_attempt()
+        domain = tokens.domain_of("workspace", tokens.workspace_identity(held))
+        token = tokens.acquire(
+            case.case.store, domain,
+            operation=operation or f"start:{case.intake.ATTEMPT}",
+            execution=case.intake.ATTEMPT, attempt=case.intake.ATTEMPT)
+        tokens.journal_launch(case.case.store, token, token["operation"])
+        tokens.bind_container(case.case.store, token, held["runtime_id"],
+                              launch=token["operation"])
+        return held, domain, token
+
+    def established(self, case=None, operation_id="cleanup-established"):
+        """The ending's own committed establishment, through the product's own writer."""
+        from baton_v12.worker_manager import intake
+
+        case = case or self
+        return intake._record_writer_cessation(
+            case.case.store, case.adapter(), case.intake.ATTEMPT,
+            attempt=case.case.attempt_row(),
+            operation={"operation_id": operation_id},
+            observed={"state": "absent",
+                      "why": "the engine answered that this exact identity does "
+                             "not exist"})
+
+    @staticmethod
+    def settlement(store, operation_id):
+        return {"operation": operation_id, "signature": "probe",
+                "incarnation": store.incarnation}
+
+    def test_a_STALE_generation_cessation_cannot_move_a_LATER_one(self):
+        """W285465 review 2026-09-28T07-47-09Z: container equality is not a schedule.
+
+        The runtime identity is reused across generations of one attempt, so an establishment
+        made while generation 1 was standing must not authorize a transfer away from
+        generation 2. The record names the generation and the start it saw end, and both are
+        compared against the journal's account of the generation actually being arbitrated.
+        """
+        from baton_v12.worker_manager import tokens
+
+        held, domain, first = self.governed()
+        stale = self.established()
+        self.assertEqual(stale["generation"], first["generation"])
+        self.assertEqual(stale["launch"], first["operation"])
+        # THE FIRST GENERATION ENDS and a SECOND takes the same workspace with the SAME
+        # container -- which is what makes container equality insufficient.
+        tokens.returned(self.case.store, first,
+                        cessation={"domain": first["domain"],
+                                   "generation": first["generation"],
+                                   "launch": first["operation"],
+                                   "container": held["runtime_id"],
+                                   "stopped": True, "helpers": []})
+        second = tokens.acquire(self.case.store, domain,
+                                operation="start:again",
+                                execution=self.intake.ATTEMPT,
+                                attempt=self.intake.ATTEMPT)
+        tokens.journal_launch(self.case.store, second, second["operation"])
+        tokens.bind_container(self.case.store, second, held["runtime_id"],
+                              launch=second["operation"])
+        self.assertNotEqual(second["generation"], stale["generation"])
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_cleanup(
+                self.case.store, self.intake.ATTEMPT,
+                self.settlement(self.case.store, "cleanup-established"),
+                "a probe cleanup")
+        self.assertIn("has not been returned", str(refused.exception))
+
+    def test_a_cessation_under_a_FOREIGN_operation_moves_nothing(self):
+        """The transfer's operand is the operation the admission commits under.
+
+        A genuine establishment exists -- for a DIFFERENT destroy -- and an admission naming
+        its own operation finds no record at its own identity.
+        """
+        self.governed()
+        self.established(operation_id="somebody-elses-destroy")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_cleanup(
+                self.case.store, self.intake.ATTEMPT,
+                self.settlement(self.case.store, "my-own-destroy"),
+                "a probe cleanup")
+        self.assertIn("has not been returned", str(refused.exception))
+
+    def test_the_TRANSFER_authorizes_ONE_settlement_and_not_a_window(self):
+        """A proved cessation is not a standing exemption for whoever asks next.
+
+        MEASURED, and it corrected my own expectation: I expected the competitor to be
+        refused by the first ADMISSION. It is refused earlier than that, by the GENERATION --
+        because a competing settlement names its own operation, and the transfer is
+        authorized only by the committed cessation at the operation the admission commits
+        under. So the second actor never reaches the admission conflict at all, which is a
+        stronger property than the one I went looking for.
+        """
+        self.governed()
+        self.established()
+        settlement = self.settlement(self.case.store, "cleanup-established")
+        first = workspaces.admit_cleanup(
+            self.case.store, self.intake.ATTEMPT, settlement, "a probe cleanup")
+        self.assertIsNotNone(first.get("ordinal"))
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_cleanup(
+                self.case.store, self.intake.ATTEMPT,
+                self.settlement(self.case.store, "another-cleanup"),
+                "a competing cleanup")
+        self.assertIn("has not been returned", str(refused.exception))
+        self.assertIn("generation 1", str(refused.exception))
+
+    def test_TWO_ELIGIBLE_settlements_leave_exactly_ONE_owner(self):
+        """W285465 review 2026-09-28T07-55-48Z: first-winner between two ELIGIBLE acts.
+
+        The earlier control proved a competitor WITHOUT its own committed cessation fails
+        before the admission lock -- which shows there is no broad exemption, and not who
+        wins between two acts that are each entitled to transfer. So both are made eligible
+        here: two destroy operations over this attempt, each with its OWN committed
+        establishment naming the same standing generation and start.
+
+        THE SCHEDULE IS DETERMINISTIC AND WITHIN ONE INSTANCE, which is what the review asks
+        for and all this needs: one manager, one connection, one write transaction at a time.
+        An admission cannot be nested inside another's `BEGIN IMMEDIATE` here at all, so the
+        order is simply which one reaches the journal first -- and the loser must be refused
+        BY THE WINNER'S ADMISSION rather than by the generation, because the generation would
+        have let either of them through.
+        """
+        self.governed()
+        self.established(operation_id="destroy-a")
+        self.established(operation_id="destroy-b")
+        first = self.settlement(self.case.store, "destroy-a")
+        second = self.settlement(self.case.store, "destroy-b")
+        won = workspaces.admit_cleanup(
+            self.case.store, self.intake.ATTEMPT, first, "the first cleanup")
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.admit_cleanup(
+                self.case.store, self.intake.ATTEMPT, second,
+                "the second cleanup")
+        # BY THE WINNER, NAMED. Not "has not been returned": the generation was eligible to
+        # be transferred away from by EITHER settlement, so a generation refusal here would
+        # mean the exclusion had been decided by the wrong thing.
+        self.assertIn("was admitted under operation 'destroy-a'",
+                      str(refused.exception))
+        self.assertNotIn("has not been returned", str(refused.exception))
+        # AND EXACTLY ONE OWNER STANDS.
+        standing = workspaces.standing_cleanup(self.case.store,
+                                               self.intake.ATTEMPT)
+        self.assertEqual([one for one, _record in standing], [won["ordinal"]])
+        # THE WINNER'S OWN EXACT RETRY STILL ADOPTS, and the loser's retry still does not.
+        self.assertEqual(
+            workspaces.admit_cleanup(
+                self.case.store, self.intake.ATTEMPT, first,
+                "the first cleanup")["ordinal"],
+            won["ordinal"])
+        with self.assertRaises(ContractRefusal):
+            workspaces.admit_cleanup(
+                self.case.store, self.intake.ATTEMPT, second,
+                "the second cleanup")
+
+    def test_an_INTERRUPTED_ending_RETRIES_into_its_own_admission(self):
+        """The same settlement adopts what it already admitted; a competitor still cannot.
+
+        A crash between the admission and the terminal commit leaves the admission standing.
+        The retry -- the same operation, the same operands -- must adopt it rather than
+        contend with itself, and a DIFFERENT settlement must still be refused.
+        """
+        self.governed()
+        self.established()
+        settlement = self.settlement(self.case.store, "cleanup-established")
+        first = workspaces.admit_cleanup(
+            self.case.store, self.intake.ATTEMPT, settlement, "a probe cleanup")
+        again = workspaces.admit_cleanup(
+            self.case.store, self.intake.ATTEMPT, settlement, "a probe cleanup")
+        self.assertEqual(again["ordinal"], first["ordinal"],
+                         "the retry took a second ownership instead of adopting its own")
+        with self.assertRaises(ContractRefusal):
+            workspaces.admit_cleanup(
+                self.case.store, self.intake.ATTEMPT,
+                dict(settlement, signature="a different probe"),
+                "a competing cleanup")
+
+    # -- the root-provenance audit review 2026-09-28T07-55-48Z holds open -----
+
+    def expected(self, which):
+        """Where this attempt's root WOULD be, asked through the product's own composer."""
+        from baton_v12.worker_manager import intake
+
+        return intake._expected_root(self.case.store, self.intake.ATTEMPT, which)
+
+    def establishment(self):
+        """What the ending's establishment records about the roots, or the refusal it earns."""
+        from baton_v12.worker_manager import intake
+
+        return intake._output_root_identities(self.case.store,
+                                              self.intake.ATTEMPT)
+
+    def test_the_EXPECTED_root_is_composed_from_configuration_and_the_attempt(self):
+        """The fallback path's provenance, asserted rather than assumed.
+
+        `_expected_root` exists so an evidenced removal stays distinguishable from a failure
+        to look, and the review is right that it needs its own provenance stated: it composes
+        from the manager's CONFIGURED workspace store and the attempt identity, with
+        `custody`'s own layout, and from nothing a caller supplies.
+        """
+        from baton_v12.worker_manager import custody as _custody, workspaces as _w
+
+        storage = _w.configured_workspace_storage(self.case.store).place
+        self.assertEqual(
+            self.expected("workspace"),
+            os.path.join(storage, self.intake.ATTEMPT, "workspace"))
+        self.assertEqual(
+            self.expected("result"),
+            os.path.join(storage, self.intake.ATTEMPT, "workspace",
+                         f"result-{self.intake.ATTEMPT}"))
+        # AND IT AGREES WITH THE VALIDATING DERIVATION while the roots are real, which is
+        # what makes the fallback the SAME object rather than a second guess at it.
+        for which in ("result", "workspace"):
+            self.assertEqual(
+                self.expected(which),
+                _custody._derived_root(self.case.store, self.intake.ATTEMPT,
+                                       which)[0])
+
+    def test_a_MISSING_root_is_an_EVIDENCED_absence_and_the_others_are_not(self):
+        """One root gone is exactly the interrupted-removal state, and it is reported as one."""
+        os.rmdir(self.expected("result"))
+        observed = self.establishment()
+        self.assertIsNone(observed["result"])
+        self.assertIsNotNone(observed["workspace"],
+                             "a present root was reported as gone")
+
+    def test_an_INTERRUPTED_removal_leaves_BOTH_absent_and_still_completes(self):
+        from baton_v12.worker_manager import workspaces as _w
+
+        _w.discard_execution_roots(
+            _w.configured_workspace_storage(self.case.store).place,
+            self.intake.ATTEMPT, control=self.case.store)
+        self.assertEqual(self.establishment(),
+                         {"result": None, "workspace": None})
+        # AND THE ENDING FINISHES over roots that are gone, which is the whole reason the
+        # evidenced absence exists.
+        self.assertIn(self.ending(self.adapter())["cleanup"],
+                      ("complete", "retained"))
+
+    def test_a_SYMLINK_at_a_root_is_never_read_as_absence_or_as_the_object(self):
+        """A link is the substitution case, and it must refuse rather than resolve.
+
+        `_expected_root` composes a path, so a link put there would be followed by anything
+        that resolved it. Nothing here resolves it: the validating derivation refuses a link,
+        and the fallback's `lstat` answers about the LINK -- which exists -- so the
+        establishment refuses instead of recording either an absence or the target's identity.
+        """
+        target = os.path.join(tempfile.mkdtemp(prefix="v12-foreign-"),
+                              "somebody-elses-result")
+        os.makedirs(target, exist_ok=True)
+        place = self.expected("result")
+        os.rmdir(place)
+        os.symlink(target, place)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.establishment()
+        self.assertIn("result", str(refused.exception))
+        self.assertTrue(os.path.islink(place),
+                        "the refusal disturbed the link it refused about")
+
+    def test_a_FOREIGN_object_at_a_root_refuses_rather_than_being_adopted(self):
+        """Not a directory this manager created: the establishment cannot account for it."""
+        place = self.expected("result")
+        os.rmdir(place)
+        with open(place, "w", encoding="utf-8") as made:
+            made.write("not a directory\n")
+        with self.assertRaises(ContractRefusal) as refused:
+            self.establishment()
+        self.assertIn("present and this manager cannot account for it",
+                      str(refused.exception))
+        self.assertTrue(os.path.isfile(place),
+                        "the refusal removed what it refused about")
+
+    def test_an_UNDERIVABLE_store_is_not_an_absence_either(self):
+        """With no configured workspace store there is no expected object to ask about."""
+        from baton_v12.worker_manager import custody as _custody
+
+        with mock.patch.object(_custody, "_derived_root",
+                               side_effect=ContractRefusal(
+                                   "refused", "precondition", "no store")):
+            with mock.patch.object(intake_module(), "_expected_root",
+                                   return_value=None):
+                with self.assertRaises(ContractRefusal) as refused:
+                    self.establishment()
+        self.assertIn("cannot derive", str(refused.exception))
+
+    def storage_place(self):
+        return workspaces.configured_workspace_storage(self.case.store).place
+
+    def substituted(self, place, target=None):
+        """Move `place` aside and put a link to a foreign empty directory at its path."""
+        made = target or tempfile.mkdtemp(prefix="v12-substituted-")
+        os.rename(place, place + "-original")
+        os.symlink(made, place)
+        return made
+
+    def test_a_LINKED_HOME_does_not_prove_the_roots_absent(self):
+        """W285465 review 2026-09-28T08-03-34Z: `lstat` follows every component but the last.
+
+        With the attempt home renamed aside and a symlink to an empty foreign directory at
+        its path, an `lstat` of `<home>/workspace` resolves THROUGH that link and answers
+        ENOENT inside somebody else's tree -- and my previous cut recorded BOTH roots absent
+        from it. The direct result-root symlink case could not catch this, because there the
+        missing entry was the last component. The ancestors are authenticated now.
+        """
+        home = os.path.join(self.storage_place(), self.intake.ATTEMPT)
+        target = self.substituted(home)
+        with self.assertRaises(ContractRefusal) as refused:
+            self.establishment()
+        self.assertIn("is a symbolic link", str(refused.exception))
+        self.assertIn("another tree", str(refused.exception))
+        # AND NOTHING WAS DISTURBED, on either side of the link.
+        self.assertTrue(os.path.islink(home))
+        self.assertTrue(os.path.isdir(home + "-original"))
+        self.assertEqual(os.listdir(target), [],
+                         "the refusal wrote into the foreign directory")
+        self.assertTrue(
+            os.path.isdir(os.path.join(home + "-original", "workspace")),
+            "the refusal disturbed the real workspace it never reached")
+
+    def test_a_LINKED_WORKSPACE_does_not_prove_the_result_root_absent(self):
+        """The same hole one level down: the result root's parent."""
+        target = self.substituted(self.expected("workspace"))
+        with self.assertRaises(ContractRefusal) as refused:
+            self.establishment()
+        self.assertIn("is a symbolic link", str(refused.exception))
+        self.assertEqual(os.listdir(target), [])
+
+    def test_a_FILE_where_a_PARENT_should_be_is_refused_too(self):
+        """Not only links: anything that is not a directory this manager prepared.
+
+        MEASURED, and the refusal arrives one step earlier than I expected: a file at the
+        home means the expected root's own `lstat` raises `NotADirectoryError` rather than
+        `ENOENT`, so the "could not be observed" branch answers before the ancestor walk is
+        reached. Both are the same verdict -- UNKNOWN, hold, disturb nothing -- and the case
+        asserts what actually happens rather than the sentence I predicted.
+        """
+        home = os.path.join(self.storage_place(), self.intake.ATTEMPT)
+        os.rename(home, home + "-original")
+        with open(home, "w", encoding="utf-8") as made:
+            made.write("not a directory\n")
+        with self.assertRaises(ContractRefusal) as refused:
+            self.establishment()
+        self.assertIn("an absence nobody has evidenced is not one this ending may record",
+                      str(refused.exception))
+        self.assertIn("NotADirectoryError", str(refused.exception))
+        self.assertTrue(os.path.isfile(home),
+                        "the refusal removed what it refused about")
+        # AND THE ANCESTOR WALK ITSELF STILL ANSWERS about this tree, asked directly, so the
+        # rule is covered even though the ending refuses before consulting it.
+        from baton_v12.worker_manager import intake
+
+        self.assertIn(
+            "is not a directory this manager prepared",
+            intake._unauthentic_ancestor(self.case.store,
+                                         self.expected("workspace")))
+
+    def test_a_LINKED_PARENT_does_not_reach_the_ENDING_at_all(self):
+        """W285465 under the owner supersession at 294568/294616: SUPERSEDED, and honestly so.
+
+        This asserted that a substituted parent HOLDS the ending. It held because completion
+        walked the roots, and completion no longer walks anything -- so a link left at the
+        attempt home does not touch the ending, which observes the execution and preserves the
+        workspace as is. The ancestor-authentication rule itself is unchanged and still covered
+        by the reader's own cases above, where the walk is actually performed.
+
+        What this case holds onto now is the property that matters either way: the ending
+        disturbs NOTHING on either side of the substitution.
+        """
+        home = os.path.join(self.storage_place(), self.intake.ATTEMPT)
+        target = self.substituted(home)
+
+        answer = self.ending(self.adapter())
+
+        self.assertEqual(answer["cleanup"], "retained")
+        self.assertTrue(os.path.islink(home))
+        self.assertTrue(os.path.isdir(home + "-original"))
+        self.assertEqual(os.listdir(target), [],
+                         "the ending wrote into the foreign directory")
+
+    def test_a_GENUINE_removal_is_STILL_an_absence_with_authentic_parents(self):
+        """The negative control for all of the above, through the real removal.
+
+        `discard_execution_roots` leaves the home standing and both roots gone, so every
+        ancestor is either a real directory or absent -- and the absence is still evidenced,
+        which is what keeps the accepted post-removal retry working.
+        """
+        from baton_v12.worker_manager import workspaces as _w
+
+        _w.discard_execution_roots(self.storage_place(), self.intake.ATTEMPT,
+                                   control=self.case.store)
+        self.assertEqual(self.establishment(),
+                         {"result": None, "workspace": None})
+        self.assertIn(self.ending(self.adapter())["cleanup"],
+                      ("complete", "retained"))
+
+    def test_a_SURVIVING_writer_refuses_and_leaves_the_roots(self):
+        survivor = {"helper_identity": "baton-custody-" + "a" * 32,
+                    "why": "the engine listed this helper as running"}
+        with self.assertRaises(ContractRefusal) as refused:
+            self.ending(self.adapter(surviving=[survivor]))
+        self.assertIn("still survives", str(refused.exception))
+        self.assertEqual(self.case.attempt_row()["cleanup"], "pending")
+
+    def test_the_ENDING_OBSERVES_NO_OUTPUT_AT_ALL_and_preserves_it(self):
+        """W285465 under the owner supersession at 294568/294616, which supersedes this case
+        for the third time and finally removes its subject.
+
+        It asserted a refusal, then a durable access error. The owner's final target removes ALL
+        proactive output and permission checking from completion: after confirmed termination the
+        workspace is PRESERVED AS IS and output validation belongs to the consumer that selects
+        it. So an unreadable tree changes nothing about the ending -- and the case proves the
+        absence of the check by making the observation itself RAISE if it is attempted.
+        """
+        from baton_v12.worker_manager import custody as _custody, intake
+
+        root = _custody._derived_root(self.case.store, self.intake.ATTEMPT,
+                                      "result")[0]
+        os.makedirs(root, exist_ok=True)
+        os.chmod(root, 0o700)
+        before = os.lstat(root)
+
+        def refuse_to_scan(*arguments, **named):
+            raise AssertionError("completion observed the output")
+
+        with mock.patch.object(intake, "inaccessible_output", refuse_to_scan), \
+                mock.patch.object(intake, "_output_root_identities",
+                                  refuse_to_scan):
+            answer = self.ending(self.adapter())
+
+        self.assertEqual(answer["cleanup"], "retained")
+        ceased = intake.historical_writer_cessation(self.case.store,
+                                                    answer["operation"])
+        self.assertEqual(ceased["state"], "absent")
+        self.assertNotIn("output", ceased)
+        self.assertIsNotNone(ceased["workspace"])
+        # AND NOTHING WAS TOUCHED: same object, same mode, still there.
+        self.assertTrue(os.path.isdir(root), "the ending removed the output")
+        self.assertEqual(os.lstat(root).st_ino, before.st_ino)
+        self.assertEqual(stat.S_IMODE(os.lstat(root).st_mode), 0o700)
+
+    def test_the_ACCESSIBLE_ending_records_accessible_and_replays_one_act(self):
+        """The positive beside the durable error, and the replay of one establishment.
+
+        W285465 under OWNER-SIMPLE-COMPLETION-20260928: there is no refusal to retry from on
+        this path any more, so what this holds onto is the other half of the matrix --
+        stopped and accessible PROGRESSES, records `accessible`, and the establishment is one
+        committed act that reads back the same afterwards.
+        """
+        from baton_v12.worker_manager import custody as _custody
+
+        root = _custody._derived_root(self.case.store, self.intake.ATTEMPT,
+                                      "result")[0]
+        os.makedirs(root, exist_ok=True)
+        group = workspaces.configured_workspace_group(self.case.store).gid
+        os.chown(root, -1, group)
+        os.chmod(root, 0o750)
+
+        answer = self.ending(self.adapter())
+
+        self.assertIn(answer["cleanup"], ("complete", "retained"))
+        ceased = intake_module().historical_writer_cessation(
+            self.case.store, answer["operation"])
+        # W285465 under the owner supersession at 294568/294616: the record carries the
+        # EXECUTION facts -- terminated, its exit status honestly, and the workspace locator --
+        # and no output observation at all.
+        self.assertEqual(ceased["state"], "absent")
+        self.assertIsNotNone(ceased["workspace"])
+        self.assertEqual(ceased["helpers"], [])
+        self.assertEqual(
+            dict(intake_module().historical_writer_cessation(
+                self.case.store, answer["operation"])), dict(ceased))
+
+    def test_a_RECEIPT_whose_cessation_was_never_committed_is_refused(self):
+        """The reader compares against the journal, not against the document."""
+        from baton_v12.worker_manager import intake
+
+        answer = self.ending(self.adapter())
+        # A RECEIPT NAMING A DESTROY THIS MANAGER ESTABLISHED NOTHING FOR. The evidence is
+        # selected by the operation identity, so a receipt pointing at another operation
+        # finds no record and the reader refuses instead of accepting the ending.
+        elsewhere = dict(answer,
+                         operation=dict(answer["operation"],
+                                        operation_id="runtime.destroy:nobody"))
+        with self.assertRaises(ContractRefusal) as refused:
+            intake_module()._adopted_normalizations(
+                self.case.store, self.intake.ATTEMPT, elsewhere,
+                "a forged cleanup")
+        self.assertIn("neither directory custody nor a writer cessation",
+                      str(refused.exception))
+
+    def test_BOTH_accounts_at_once_is_refused_as_a_fabricated_custody(self):
+        answer = self.ending(self.adapter())
+        both = dict(answer, directory_custody={"result": {}, "workspace": {}})
+        with self.assertRaises(ContractRefusal) as refused:
+            intake_module()._adopted_normalizations(
+                self.case.store, self.intake.ATTEMPT, both, "a doubled cleanup")
+        self.assertIn("ends on exactly one of the two accounts",
+                      str(refused.exception))
+
+
+def intake_module():
+    from baton_v12.worker_manager import intake
+
+    return intake
+
+
 if __name__ == "__main__":       # pragma: no cover
     unittest.main()

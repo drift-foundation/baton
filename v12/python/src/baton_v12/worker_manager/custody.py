@@ -1371,6 +1371,83 @@ def _hold_identity(kind, assignment_id, which, episode):
                                 "episode": episode})[len("sha256:"):]
 
 
+def surviving_helpers(engine, run, store, assignment_id, *, image_digest):
+    """WHICH custody helpers of this attempt are still answering, as a list.
+
+    W285465, TOK-12. Returning an old task generation needs `helpers` to be TRUE rather
+    than convenient: `tokens.returned` refuses a cessation that reports a surviving
+    writer, and `intake._resource_cessation` may answer `[]` only because committed
+    custody means the roots are held by this manager. The recovery transition returns the
+    old generation BEFORE any repair, so it has neither justification and must establish
+    the fact.
+
+    SO THIS ASKS BOTH HALVES, ROOT BY ROOT, AND NEITHER ALONE:
+
+      * THE JOURNAL, for every RECORDED episode. Review 2026-09-28T02-10-01Z corrected me
+        here: `_standing_overlap` answering `None` means no UNCLEARED episode, NOT that
+        none was ever claimed -- `custody_holds` carries the history. An uncleared episode
+        is an unresolved request that may still create its helper, so it is reported as
+        surviving whatever the engine says.
+      * THE ENGINE, for the derived name of each closed verb. A helper this manager
+        launched and never reclaimed answers to exactly one derivable name, which is why
+        the name is derived rather than chosen.
+
+    THE ANSWER CROSSES AN `EnginePort`, wrapped here exactly as `custody_act` wraps it.
+    MEASURED, and it is the defect I reported as an empty-listing blocker: I handed
+    `_reconciled` a RAW callable, and the reviewer's probe then proved empty stdout works
+    perfectly through the real port -- so the refusal I saw was about the port, not about
+    the listing, and I reverted working evidence instead of reading the traceback.
+    """
+    from .oci import EnginePort as _EnginePort
+
+    port = run if type(run) is _EnginePort else _EnginePort(run)
+    place = _recorded_store(store)
+    surviving = []
+    for which in CUSTODY_ROOTS:
+        for held in custody_holds(store, assignment_id, which):
+            if not held.get("cleared"):
+                surviving.append({"root": which, "episode": held.get("episode"),
+                                  "helper_identity": held.get("helper_identity"),
+                                  "why": "an uncleared uncertainty episode may still "
+                                         "create its helper"})
+        if image_digest is None:
+            # W285465 review 2026-09-28T03-50-12Z [P1]: NOT ASKED IS NOT ABSENT.
+            #
+            # My previous cut answered "none" here, reasoning that a deployment with no
+            # custodian image launches no helper. The reviewer's probe shows why that is
+            # wrong: the derived NAMES do not depend on the image at all, so a
+            # configuration that LOST its custodian still has names an earlier one could
+            # have launched under -- and the same store and engine that report a live
+            # helper with an image report nothing without one. A currently missing image
+            # is not durable proof that no helper was ever possible.
+            #
+            # SO THE UNKNOWN IS REPORTED, WHICH HOLDS. The journal half above has already
+            # run and still reports every uncleared episode; this adds the fact that the
+            # engine half could not be asked, so a caller cannot read silence as absence.
+            # Establishing fresh no-helper provenance, or reconciling the historical
+            # runtime and image, is what would replace this -- and neither is invented
+            # here.
+            surviving.append({"root": which, "episode": None,
+                              "helper_identity": None, "runtime_id": None,
+                              "why": "this deployment configures no custodian image, so "
+                                     "this manager cannot identify a helper an earlier "
+                                     "configuration may have launched under the same "
+                                     "derived names; the engine was NOT asked and helper "
+                                     "absence is not established"})
+            continue
+        for operation in CUSTODY_OPERATIONS:
+            name = _custody_identity(place, assignment_id, which, operation)
+            answering = _reconciled(engine, port, name=name,
+                                    image_digest=image_digest)
+            if answering is not None:
+                surviving.append({"root": which, "episode": None,
+                                  "helper_identity": name,
+                                  "runtime_id": answering,
+                                  "why": "a helper is still answering to this "
+                                         "attempt's derived custody name"})
+    return surviving
+
+
 def custody_holds(store, assignment_id, which):
     """Every uncertainty episode recorded for this root, oldest first.
 

@@ -64,6 +64,7 @@ class Adapter:
                             "mounts": None}
         self.observed = []
         self.normalized = []
+        self.listed = []
 
     def start(self, operands):
         self.started.append(operands)
@@ -87,6 +88,19 @@ class Adapter:
     # A fixture that lacked it would make each ending refuse for want of a
     # capability rather than for the reason a case is about.
     custodian_image_digest = "sha256:" + "c" * 64
+
+    def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                          reclaim=None):
+        """W285465: THE SEAM THE ENDINGS REQUIRE NOW, carried for the same reason.
+
+        OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removes automatic normalization from the
+        completion and abandonment paths, so what an ending proves at its entry and
+        establishes its roots' quiescence with is this observation. The double answers the
+        EMPTY OBSERVATION -- a list, which is the shape the crossing validates -- because
+        these cases are about endings and not about surviving helpers.
+        """
+        self.listed.append(assignment_id)
+        return []
 
     def normalize_directory(self, store, *, assignment_id, which):
         from baton_v12.worker_manager import custody
@@ -2002,6 +2016,14 @@ class EveryEndingNormalizesBothRootsAndReplays(AttemptCase):
             self.fail_on = fail_on
             self.abandoned = []
 
+        def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                              reclaim=None):
+            # W285465: the act this ending performs now, and the one that can die.
+            self.listed.append(assignment_id)
+            if self.fail_on == "listing":
+                raise RuntimeError("the engine died while listing writers")
+            return []
+
         def normalize_directory(self, store, *, assignment_id, which):
             from baton_v12.worker_manager import custody
 
@@ -2041,17 +2063,32 @@ class EveryEndingNormalizesBothRootsAndReplays(AttemptCase):
 
         answered = self.abandon(adapter)
 
-        self.assertEqual([one for _a, one in adapter.normalized],
-                         ["result", "workspace"])
-        bound = answered["cleanup"]["directory_custody"]
-        self.assertEqual(sorted(bound), ["result", "workspace"])
-        for which in ("result", "workspace"):
-            self.assertEqual(bound[which]["root"], which)
-            self.assertEqual(bound[which]["verb"], "normalize")
+        # W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928: NO HELPER RAN, and the
+        # ending is bound to the establishment it committed instead of to two receipts. The
+        # property this case is about -- an ending BINDS the account of its roots into its
+        # terminal claim and can show the act behind it -- is unchanged.
+        from baton_v12.worker_manager import intake
+
+        self.assertEqual(adapter.normalized, [],
+                         "the ending launched a normalization helper")
+        self.assertEqual(adapter.listed, [ATTEMPT],
+                         "the ending established nothing by asking")
+        self.assertIsNone(answered["cleanup"]["directory_custody"])
+        bound = intake.historical_writer_cessation(
+            self.store, answered["cleanup"]["operation"])
+        self.assertIsNotNone(bound, "the ending committed no establishment")
+        self.assertEqual(bound["attempt_id"], ATTEMPT)
+        self.assertEqual(bound["helpers"], [])
+        # W285465 under the owner supersession at 294568/294616: the record carries the
+        # EXECUTION facts and a workspace LOCATOR, and observes no roots at all.
+        self.assertEqual(bound["state"], "absent")
+        self.assertIsNotNone(bound["workspace"])
 
     def test_an_interrupted_normalization_leaves_no_ending_and_resumes(self):
         """Nothing terminal is committed, so the resumed call finishes it."""
-        dying = self.started(self.Custodian(fail_on="workspace"))
+        # W285465: the act that can die on this path is the WRITER LISTING; the ruling
+        # removed the normalization launches this used to interrupt.
+        dying = self.started(self.Custodian(fail_on="listing"))
         with self.assertRaises(RuntimeError):
             self.abandon(dying)
 
@@ -2071,9 +2108,16 @@ class EveryEndingNormalizesBothRootsAndReplays(AttemptCase):
         # THE SETTLED ROOT IS NOT NORMALIZED AGAIN. `result` appears once
         # from the interrupted run and is replayed from its receipt on the
         # resumed one, so only `workspace` is performed a second time.
-        self.assertEqual([one for _a, one in dying.normalized],
-                         ["result", "workspace", "workspace"],
-                         "the resumed ending renormalized a settled root")
+        # W285465: no helper is launched on this path, so there is nothing to renormalize.
+        # What the resumption must not do is establish twice without finishing: the listing
+        # was asked on the failed attempt and again on the resumed one, and exactly ONE
+        # establishment is committed.
+        from baton_v12.worker_manager import intake
+
+        self.assertEqual(dying.normalized, [])
+        self.assertEqual(dying.listed, [ATTEMPT, ATTEMPT])
+        self.assertIsNotNone(intake.historical_writer_cessation(
+            self.store, answered["cleanup"]["operation"]))
 
     def test_an_exact_replay_after_the_ending_normalizes_nothing(self):
         adapter = self.started(self.Custodian())
@@ -2095,7 +2139,11 @@ class EveryEndingNormalizesBothRootsAndReplays(AttemptCase):
             seam, which is a fixture that tests the order it happens to run in.
             """
 
-            normalize_directory = None
+            # W285465 under OWNER-SIMPLE-COMPLETION-20260928: an ABSENT listing no longer
+            # refuses -- confined container cessation proves the confined writers stopped. What
+            # is still proved before any destructive work is a capability the ending WILL USE
+            # and cannot: a listing that is offered and is not callable.
+            surviving_helpers = "not a callable"
 
             def __init__(self):
                 super().__init__()
@@ -3617,6 +3665,13 @@ class TheFailedStartReachesTheRuledEnding(
             def __init__(self):
                 self.commands = []
                 self.normalized = []
+                self.listed = []
+
+            def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                                  reclaim=None):
+                # W285465: the seam this narrow capability's ending requires now.
+                self.listed.append(assignment_id)
+                return []
 
             def normalize_directory(self, store, *, assignment_id, which):
                 from baton_v12.worker_manager import custody
@@ -4048,10 +4103,19 @@ class TheFailedStartEndingSurvivesInterruption(TheFailedStartReachesTheRuledEndi
     """
 
     def interrupted(self, fail_on=None):
+        """The adapter whose WRITER LISTING can die, which is the act this ending performs.
+
+        W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 and review
+        2026-09-28T09-15-42Z: the failed-start ending launches no custody helper now, so the
+        interruption these cases are about is the establishment's own read. The
+        normalization override is kept beside it, unused by this path, so the historical act
+        remains available to anything that still drives it directly.
+        """
         from baton_v12.worker_manager import custody
 
         adapter = self.custodian()
         adapter.normalized = []
+        adapter.listed = []
 
         def normalize_directory(store, *, assignment_id, which):
             adapter.normalized.append((assignment_id, which))
@@ -4060,61 +4124,108 @@ class TheFailedStartEndingSurvivesInterruption(TheFailedStartReachesTheRuledEndi
             return custody._answered(
                 "normalize", 0,
                 {"custody": "normalize", "submission": "0" * 32,
-             "entries": 0, "not_ours": 0,
+                 "entries": 0, "not_ours": 0,
                  "running_as": [0, 0]}, None)
 
+        def surviving_helpers(store, *, assignment_id, seconds=None,
+                              reclaim=None):
+            adapter.listed.append(assignment_id)
+            if fail_on == "listing":
+                raise RuntimeError("the engine died while listing writers")
+            return []
+
         adapter.normalize_directory = normalize_directory
+        adapter.surviving_helpers = surviving_helpers
         return adapter
 
-    def test_the_ending_binds_both_receipts_and_replays_them(self):
+    def committed(self, answered):
+        from baton_v12.worker_manager import intake
+
+        return intake.historical_writer_cessation(self.store,
+                                                  answered["operation"])
+
+    def test_the_ending_binds_its_ESTABLISHMENT_and_replays_it(self):
+        """The property is unchanged -- an ending binds the account of its roots and can show
+        the act behind it -- and the account is the committed establishment now."""
         self.failed()
         self.ended()
         adapter = self.interrupted()
 
         answered = self.settled(adapter)
 
-        self.assertEqual([one for _a, one in adapter.normalized],
-                         ["result", "workspace"])
-        self.assertEqual(sorted(answered["directory_custody"]),
-                         ["result", "workspace"])
+        self.assertEqual(adapter.normalized, [],
+                         "the ending launched a normalization helper")
+        self.assertEqual(adapter.listed, [ATTEMPT])
+        self.assertIsNone(answered["directory_custody"])
+        bound = self.committed(answered)
+        self.assertIsNotNone(bound, "the ending committed no establishment")
+        self.assertEqual(bound["helpers"], [])
         self.assertEqual(self.settled(adapter), answered,
                          "the settled ending did not replay")
-        self.assertEqual(len(adapter.normalized), 2,
-                         "a replayed ending normalized a root again")
 
-    def test_an_interrupted_normalization_commits_no_ending_and_resumes(self):
+    def test_an_interrupted_ESTABLISHMENT_commits_no_ending_and_resumes(self):
         self.failed()
         self.ended()
-        dying = self.interrupted(fail_on="workspace")
+        dying = self.interrupted(fail_on="listing")
 
         with self.assertRaises(RuntimeError):
             self.settled(dying)
         self.assertEqual(self.row()["cleanup"], "pending",
-                         "an ending was claimed on an unfinished custody")
+                         "an ending was claimed on an unfinished establishment")
 
         resumed = self.interrupted()
         answered = self.settled(resumed)
 
         self.assertEqual(answered["cleanup"], "retained")
-        self.assertEqual([one for _a, one in resumed.normalized],
-                         ["workspace"],
-                         "the resumed ending renormalized a settled root")
+        self.assertEqual(resumed.normalized, [],
+                         "the resumed ending launched a helper")
+        self.assertIsNotNone(self.committed(answered))
 
-    def test_a_changed_custodian_collides_rather_than_settling(self):
+    def test_a_SURVIVING_writer_refuses_this_ending_too(self):
+        """The zero-helper family's own positive-cessation control."""
         self.failed()
         self.ended()
-        dying = self.interrupted(fail_on="workspace")
-        with self.assertRaises(RuntimeError):
-            self.settled(dying)
-
-        other = self.interrupted()
-        other.custodian_image_digest = "sha256:" + "e" * 64
-
+        adapter = self.interrupted()
+        adapter.surviving_helpers = lambda store, *, assignment_id, \
+            seconds=None, reclaim=None: [
+                {"helper_identity": "baton-custody-" + "a" * 32,
+                 "why": "the engine listed this helper as running"}]
         with self.assertRaises(ContractRefusal) as caught:
-            self.settled(other)
-
-        self.assertEqual(caught.exception.code, "operation-collision")
+            self.settled(adapter)
+        self.assertIn("still survives", str(caught.exception))
         self.assertEqual(self.row()["cleanup"], "pending")
+
+    def test_an_UNREADABLE_listing_answer_is_RECORDED_and_does_not_hold(self):
+        # W285465 under OWNER-SIMPLE-COMPLETION-20260928: SUPERSEDED. Confined container
+        # cessation proves the confined writers stopped, so neither a missing listing nor an
+        # unreadable answer holds this ending; what the record must not do is claim the listing
+        # established anything.
+        self.failed()
+        self.ended()
+        adapter = self.interrupted()
+        adapter.surviving_helpers = lambda store, *, assignment_id, \
+            seconds=None, reclaim=None: None
+        answered = self.settled(adapter)
+        self.assertEqual(answered["cleanup"], "retained")
+        ceased = self.committed(answered)
+        self.assertEqual(ceased["established"], "container-cessation")
+        self.assertIn("not an observation this manager can read",
+                      ceased["listing"])
+        self.assertEqual(ceased["helpers"], [])
+
+    def test_a_deployment_that_CANNOT_LIST_still_reaches_its_ending(self):
+        # W285465 under OWNER-SIMPLE-COMPLETION-20260928: SUPERSEDED. Confined container
+        # cessation proves the confined writers stopped, so neither a missing listing nor an
+        # unreadable answer holds this ending; what the record must not do is claim the listing
+        # established anything.
+        adapter = self.interrupted()
+        adapter.surviving_helpers = None
+        self.failed()
+        self.ended()
+        answered = self.settled(adapter)
+        self.assertEqual(answered["cleanup"], "retained")
+        self.assertEqual(self.committed(answered)["established"],
+                         "container-cessation")
 
     def test_the_home_is_retained_rather_than_removed(self):
         """A recordless ending KEEPS what it retained: it commits both
@@ -4122,7 +4233,13 @@ class TheFailedStartEndingSurvivesInterruption(TheFailedStartReachesTheRuledEndi
         self.failed()
         self.ended()
         home = os.path.join(self.storage, ATTEMPT)
-        os.makedirs(os.path.join(home, "workspace"), exist_ok=True)
+        # W285465: BOTH GOVERNED ROOTS, because that is the state a real attempt is in -- the
+        # host allocator creates `workspace` and `workspace/result-<attempt>` before anything
+        # starts. This built only the outer one, and the ending now establishes that its
+        # output is readable, which it cannot do over a root that is not there. The case's
+        # own subject -- a recordless ending KEEPS what it retained -- is unchanged.
+        os.makedirs(os.path.join(home, "workspace", f"result-{ATTEMPT}"),
+                    exist_ok=True)
 
         self.settled(self.interrupted())
 

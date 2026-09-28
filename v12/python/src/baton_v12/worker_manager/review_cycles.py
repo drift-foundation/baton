@@ -2068,15 +2068,28 @@ def _cleaned_review(store, attachment, attempt, result, verdict):
     if not found or cleaned["attempt_id"] != attempt["runtime_attempt_id"] \
             or cleaned["cleanup"] != "retained" or cleaned["state"] != "absent" \
             or cleaned["operation"] != operation \
-            or cleaned["kept"] != sorted(one["artifact_id"] for one in retained) \
-            or cleaned["directory_custody"] is None:
+            or cleaned["kept"] != sorted(one["artifact_id"] for one in retained):
         raise ContractRefusal("refused", "precondition",
-                              "historical review cleanup does not prove positive absence and retained custody")
-    adopted = {which: custody.historical_directory_custody(store, attempt["runtime_attempt_id"], which)
-               for which in ("result", "workspace")}
-    if cleaned["directory_custody"] != adopted:
-        raise ContractRefusal("integrity", "schema",
-                              "historical review cleanup differs from its committed directory custody")
+                              "historical review cleanup does not prove positive absence and its retained material")
+    # W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928: EITHER ACCOUNT OF THE ROOTS,
+    # and each compared against the act this manager committed. An ending performed before
+    # the ruling carries two normalization receipts and is still proved against them --
+    # historical evidence is preserved, not reinterpreted. An ending performed after it
+    # carries none and rests on the committed writer cessation, which `intake` reads back by
+    # the destroy identity. What is NOT accepted is a cleanup that proves neither.
+    if cleaned["directory_custody"] is not None:
+        adopted = {which: custody.historical_directory_custody(store, attempt["runtime_attempt_id"], which)
+                   for which in ("result", "workspace")}
+        if cleaned["directory_custody"] != adopted:
+            raise ContractRefusal("integrity", "schema",
+                                  "historical review cleanup differs from its committed directory custody")
+    else:
+        # VALIDATED, not merely present: `intake` owns what an establishment must say, and a
+        # record edited to report a running runtime, a surviving helper or another attempt is
+        # refused there rather than accepted here by existence alone.
+        intake.proved_writer_cessation(store, attempt["runtime_attempt_id"],
+                                       cleaned["operation"],
+                                       "a historical review cleanup")
 
 
 def _completed_review(store, attachment, *, verdict=None):
@@ -3804,7 +3817,8 @@ def _writer_grant(store, writer_id, line_id, generation):
             and line["state"] == "writing")
 
 
-def _writer_access(store, writer_id, generation, roots, gid, labels):
+def _writer_access(store, writer_id, generation, roots, gid, labels,
+                   preparing=None):
     """Bind actual launch roots to the current durable writer and assignment."""
     writer = writer_of(store, writer_id)
     line = line_of(store, writer["line_id"])
@@ -3839,9 +3853,14 @@ def _writer_access(store, writer_id, generation, roots, gid, labels):
     # writer, label, gid and object check above is unchanged, and
     # `release_adopted_workspace` ends only the admission held on THIS temporary object --
     # so a foreign admission over the same roots keeps blocking exactly as before.
+    # W285465: THE ACCESS RE-PROOF ADOPTS TOO, and it reached the guard with nothing --
+    # measured, as 42 failures in `tests.tools.test_managed_preparation` once the reviewer
+    # gave me the PYTHONPATH that lets that suite import at all. Same operand, same rule at
+    # the adoption entry.
     expected = workspaces.line_assignment_workspace(
         _storage(store), writer["runtime_attempt_id"], line["line_path"],
-        (line["line_device"], line["line_inode"]), control=store)
+        (line["line_device"], line["line_inode"]), control=store,
+        preparing=preparing)
     try:
         if dict(roots) != dict(expected):
             raise ContractRefusal("runtime-observation", "identity-mismatch",
@@ -3940,7 +3959,7 @@ def consumption_subject(store, *, attempt_id, generation):
             "storage": _storage(store)}
 
 
-def writer_boundary(store, *, writer_id, generation):
+def writer_boundary(store, *, writer_id, generation, preparing=None):
     """Compose the direct writable line mount for the active writer attempt."""
     boundaries.generation(generation, "an assignment generation")
     writer = writer_of(store, writer_id)
@@ -3958,12 +3977,14 @@ def writer_boundary(store, *, writer_id, generation):
                               "the nominated source pathname now names another object")
     roots = workspaces.line_assignment_workspace(
         _storage(store), writer["runtime_attempt_id"], line["line_path"],
-        (line["line_device"], line["line_inode"]), control=store)
+        (line["line_device"], line["line_inode"]), control=store,
+        preparing=preparing)
     roots = workspaces._granted_roots(
         roots, lambda: _writer_grant(store, writer_id,
                                      line["line_id"], generation),
         line_proof=lambda actual, gid, labels: _writer_access(
-            store, writer_id, generation, actual, gid, labels))
+            store, writer_id, generation, actual, gid, labels,
+            preparing=preparing))
     return {"roots": roots,
             "boundary": source_boundary.compose_runtime_storage_boundary(
                 nominated, roots)}
@@ -3979,8 +4000,16 @@ def _review_grant(store, attachment_id, line_id, checkpoint_id):
             and line["current_checkpoint_id"] == checkpoint_id)
 
 
-def review_boundary(store, *, attachment_id, profile):
-    """Compose read-only current-checkpoint input and separate review output."""
+def review_boundary(store, *, attachment_id, profile, preparing=None):
+    """Compose read-only current-checkpoint input and separate review output.
+
+    W285465: `preparing` IS THE ACTING PREPARATION'S OWN CAPABILITY, forwarded to the
+    adoption below exactly as `writer_boundary` forwards it. The review stage prepares under
+    the same host preparation window the implementation stage does, so a reviewer composing
+    its mount while holding that window would otherwise be refused by its own ownership.
+    Validated at the adoption entry, which owns the rule -- this store's own mint, this
+    attempt -- and nothing here interprets it.
+    """
     profile_name = _profile(profile, ("validate",))
     attachment = _attachment(store, attachment_id)
     line = line_of(store, attachment["line_id"])
@@ -4003,7 +4032,8 @@ def review_boundary(store, *, attachment_id, profile):
                               "the review mount is not the line's current checkpoint")
     profile.validate(line["line_path"], checkpoint["evidence"], current=True)
     roots = workspaces.adopted_assignment_workspace(
-        _storage(store), attachment["runtime_attempt_id"], control=store)
+        _storage(store), attachment["runtime_attempt_id"], control=store,
+        preparing=preparing)
     # W270664 F2: THE ADOPTION'S WINDOW ENDS ON EVERY PATH OUT OF HERE.
     #
     # `adopted_assignment_workspace` opens an exclusion over these roots so nothing removes

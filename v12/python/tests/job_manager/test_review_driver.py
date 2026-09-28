@@ -2645,7 +2645,13 @@ class TheWorkerCompletionTraversesPublicCustody(ReviewResultCase):
         self.assertEqual(self.verdicts(held), 1)
         self.assertEqual(attempt_runtime_of(self.control, held["attempt_id"])["execution_runtime"], "destroyed")
         self.assertEqual(len(held["adapter"].destroyed_with), 1)
-        self.assertFalse(os.path.exists(self.review_output))
+        # W285465 under the owner supersession at 294568/294616: THE REVIEW OUTPUT IS
+        # PRESERVED. Completion removes nothing -- confirmed termination, durable execution
+        # status, workspace as is, execution gate released -- so this asserted a deletion the
+        # ruling forbids. What the case is about, custody ownership of the review's material,
+        # is unchanged; the material is simply still there.
+        self.assertTrue(os.path.exists(self.review_output),
+                        "the ending removed the review output it must preserve")
         self.assertEqual(self.worker_turns, 1)
         self.assert_historical_replay(held, ended)
 
@@ -2849,7 +2855,12 @@ class TheWorkerCompletionTraversesPublicCustody(ReviewResultCase):
         record = self.control.operation_record(operation_id)
         original = json.loads(record["result"])
         for changed in ({"state": "uncertain"}, {"state": "running"}, {"cleanup": "failed"},
-                        {"attempt_id": "foreign-review"}, {"kept": []}, {"directory_custody": None},
+                        # W285465: `directory_custody: None` is what a post-ruling ending
+                        # WRITES -- no helper ran, so there is no receipt -- and a
+                        # FABRICATED one is the damage. The missing-account case is the
+                        # journal damage in the case below.
+                        {"attempt_id": "foreign-review"}, {"kept": []},
+                        {"directory_custody": {"result": {}, "workspace": {}}},
                         {"operation": dict(original["operation"], signature_digest="sha256:foreign")}):
             with self.subTest(changed=changed):
                 self.control._connection.execute("SAVEPOINT damaged")
@@ -2866,66 +2877,76 @@ class TheWorkerCompletionTraversesPublicCustody(ReviewResultCase):
                     self.control._connection.execute("ROLLBACK TO damaged")
                     self.control._connection.execute("RELEASE damaged")
 
-    def test_historical_cleanup_requires_both_exact_nested_directory_receipts(self):
+    def test_historical_cleanup_requires_the_committed_writer_cessation(self):
+        """W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928.
+
+        REPLACES the two nested-receipt sweeps that stood here, and keeps their property:
+        the historical reader takes NO account of the roots on trust -- it selects what this
+        manager COMMITTED, and an account it cannot select refuses and leaves the line held.
+        What changed is the account. The ruling removes the normalization launches from this
+        path, so there are no `directory-custody.normalize` journals for this ending to have
+        and their absence cannot be the damage; the evidence is the committed
+        `cleanup.writer-cessation`, and damaging THAT is what this drives. The historical
+        comparison against normalization receipts is unchanged in `review_cycles` for
+        endings that DID normalize, which is what preserves pre-ruling evidence.
+        """
+        from baton_v12.worker_manager import custody, intake
+
         held = self.produced()
         ended = self.end(held)
-        operation_id = held["adapter"].destroyed_with[0]["operation"]["operation_id"]
-        original = json.loads(self.control.operation_record(operation_id)["result"])
-        nested = original["directory_custody"]
-        values = [None, {}, "not-a-receipt", [], dict(nested, extra=nested["result"])]
+        # FIRST, THAT NO HELPER RAN AT ALL, so this case cannot pass by damaging something
+        # the path no longer writes.
         for which in ("result", "workspace"):
-            values.append({key: value for key, value in nested.items() if key != which})
-            for wrong in (None, {}, "not-a-receipt", nested["workspace" if which == "result" else "result"]):
-                values.append(dict(nested, **{which: wrong}))
-            for member, wrong in (("attempt_id", "another-attempt"), ("root", "another-root"),
-                                  ("verb", "discard"), ("operation", "inspect"), ("account", "{}")):
-                values.append(dict(nested, **{which: dict(nested[which], **{member: wrong})}))
-        for value in values:
-            with self.subTest(directory_custody=value):
+            self.assertIsNone(
+                self.control.operation_record(
+                    custody._custody_operation_id(held["attempt_id"], which)),
+                f"a {which} normalization was launched on the selected path")
+        operation = held["adapter"].destroyed_with[0]["operation"]
+        cessation = intake._writer_cessation_id(operation)
+        original = json.loads(
+            self.control.operation_record(cessation)["result"])
+        damages = [
+            ("DELETE FROM operations WHERE operation_id = ?", (cessation,)),
+            # NOT COMMITTED, spelled the way the schema allows: the operations table's CHECK
+            # admits only committed-with-a-result or refused-with-a-refusal, so the whole
+            # row moves together.
+            ("UPDATE operations SET state = 'refused', result = NULL, "
+             "refusal = '{\"code\": \"damaged\"}' WHERE operation_id = ?",
+             (cessation,)),
+            ("UPDATE operations SET kind = 'runtime.destroy' WHERE operation_id = ?",
+             (cessation,)),
+            ("UPDATE operations SET result = 'null' WHERE operation_id = ?",
+             (cessation,)),
+            ("UPDATE operations SET result = ? WHERE operation_id = ?",
+             (json.dumps(dict(original, attempt_id="another-attempt")), cessation)),
+            ("UPDATE operations SET result = ? WHERE operation_id = ?",
+             (json.dumps(dict(original,
+                              helpers=[{"helper_identity": "baton-custody-x"}])),
+              cessation)),
+            ("UPDATE operations SET result = ? WHERE operation_id = ?",
+             (json.dumps(dict(original, state="running")), cessation)),
+            ("UPDATE operations SET result = ? WHERE operation_id = ?",
+             (json.dumps({key: value for key, value in original.items()
+                          if key != "helpers"}), cessation))]
+        for statement, operands in damages:
+            with self.subTest(damage=statement.split(" WHERE")[0],
+                              operand=str(operands)[:48]):
                 self.control._connection.execute("SAVEPOINT damaged")
                 try:
-                    self.control._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
-                        (json.dumps(dict(original, directory_custody=value)), operation_id))
-                    with self.no_more_external_acts(held), mock.patch.object(held["adapter"], "normalize_directory", side_effect=AssertionError("no repeated normalization")):
+                    self.control._connection.execute(statement, operands)
+                    with self.no_more_external_acts(held), mock.patch.object(
+                            held["adapter"], "normalize_directory",
+                            side_effect=AssertionError(
+                                "no normalization on this path")):
                         with self.assertRaises(ContractRefusal):
-                            review_driver.review_cycles.integration_checkpoint(self.control, ended["line_id"])
+                            review_driver.review_cycles.integration_checkpoint(
+                                self.control, ended["line_id"])
                         replay = self.end(held)
                         self.assertEqual(replay["outcome"], "held")
                         self.assertFalse(replay["cleaned_up"])
                 finally:
                     self.control._connection.execute("ROLLBACK TO damaged")
                     self.control._connection.execute("RELEASE damaged")
-        self.assert_historical_replay(held, ended)
-
-    def test_historical_cleanup_requires_the_underlying_directory_normalization_journals(self):
-        from baton_v12.worker_manager import custody
-        held = self.produced()
-        ended = self.end(held)
-        for which in ("result", "workspace"):
-            operation_id = custody._custody_operation_id(held["attempt_id"], which)
-            recorded = self.control.operation_record(operation_id)
-            signature = json.loads(recorded["signature"])
-            receipt = json.loads(recorded["result"])
-            changes = [("operation_id", "foreign-operation"), ("kind", "runtime.destroy"), ("result", "null"),
-                       ("result", json.dumps(dict(receipt, attempt_id="another-attempt"))),
-                       ("result", json.dumps(dict(receipt, account="{}")))]
-            for member, wrong in (("attempt_id", "foreign-attempt"), ("root", "another-root"),
-                                  ("workspace_store", "/a/foreign/store"), ("verb", "discard")):
-                changes.append(("signature", json.dumps(dict(signature, operands=dict(signature["operands"], **{member: wrong})), sort_keys=True, separators=(",", ":"))))
-            for column, value in changes:
-                with self.subTest(root=which, column=column, value=value):
-                    self.control._connection.execute("SAVEPOINT damaged")
-                    try:
-                        self.control._connection.execute(f"UPDATE operations SET {column} = ? WHERE operation_id = ?", (value, operation_id))
-                        with self.no_more_external_acts(held), mock.patch.object(held["adapter"], "normalize_directory", side_effect=AssertionError("no repeated normalization")):
-                            with self.assertRaises(ContractRefusal):
-                                review_driver.review_cycles.integration_checkpoint(self.control, ended["line_id"])
-                            replay = self.end(held)
-                            self.assertEqual(replay["outcome"], "held")
-                            self.assertFalse(replay["cleaned_up"])
-                    finally:
-                        self.control._connection.execute("ROLLBACK TO damaged")
-                        self.control._connection.execute("RELEASE damaged")
         self.assert_historical_replay(held, ended)
 
 

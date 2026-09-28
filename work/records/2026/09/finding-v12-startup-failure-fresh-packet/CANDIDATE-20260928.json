@@ -1,0 +1,44 @@
+{
+  "accepted_image": null,
+  "accepted_profile_digest": null,
+  "accepted_runtime": null,
+  "claim": 291715,
+  "freeze_requires": [
+    "accepted W285465 and parent G2 disposition",
+    "supported one-job fresh-context bounded composer/supervisor",
+    "current reached consumer evidence and graph disposition",
+    "full immutable host runtime/import/cache and image/profile evidence",
+    "literal packet rehearsal on deterministic boundaries",
+    "independent packet review"
+  ],
+  "historical_image_only": {
+    "adapter_sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+    "config_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "evidence": "baton:work/records/2026/09/finding-v12-single-implementation-proof/IMAGE-ARTIFACT-244216.json",
+    "qualification": "historical provenance only; no current image inspection or compatibility acceptance",
+    "reference": "baton-v12-claude-worker:w239528-244216"
+  },
+  "observed_at": "2026-09-28T03:29:05.160303+00:00",
+  "observed_source_sha256": {
+    "v12/DESIGN.md": "cf40d1faa412ccee7039c3e3240aef82cb9c1b96bcc85b24bfdd7f077f93b5fe",
+    "v12/STACK.md": "8f117f0f30b0b4d8c73f4dc7fd51f9109b68e5b9feefc71058896ecac88cf4e0",
+    "v12/python/DEPLOYMENT.md": "7be29ec9af74e621c79486804cec3ec05a306d119189518dfacfcf953530515f",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "53dc2770aa41cc015e73f62398ec410e53d124a8a6c73eb30ac616648b2cfb7a",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "ad9f8f55fcdcb3c1e08ab6070951810941e141d0171b54e35a7834fe4a2457ce",
+    "v12/python/tools/attempt_logs_command.py": "c360591014aeafc1f3fcd39253cba38de81e88d3e5691c842553faec694372f5",
+    "v12/python/tools/bootstrap.py": "c1afc351110d1d58724a1f7e31208679fa75b96a65d917937974f9d70dd03c03",
+    "v12/python/tools/instance.py": "1541bc46951aef07dfddae5584f20340088b9e626611d75858e2a66d6b2a7106",
+    "v12/python/tools/job_manager.py": "ab0a06e0e5325f125ad3465dcea8eca495ea7f2cce277a2476661dc0c548fe0a",
+    "v12/python/tools/single_worker.py": "772a67fd232362c61c7b22b371954105d61872dcbf28332641ef39e47c308926",
+    "v12/python/tools/stack_command.py": "26393cd3dd2c6c134d1706e520427291d04e46d7cfd094d18d95c58819fb8c43",
+    "v12/python/tools/stage_execution.py": "57dc1cf14455cbf0c09bfb498f4e7dce6863a0bb1448856d9cf93974cdffc000",
+    "v12/worker/claude_agent.py": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/prepare_two_jobs.py": "a3141d792aa3ef0aca4efe0a8e98b793195cb5f21b90eaa7dfaf18b36d51434f",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "22b2770d2ac01473991d73c18da9bb26322ecf0f0a83640f5c7d421419e5dae1",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "f27f3cd766f9271c4b3eddb6c657bca4770d18c11a74f377e717bef23df18fd5",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py": "d994cce02419fd82483560a541790f4b9d367f27d2b634a166bfbdb009ae2c5e",
+    "work/records/2026/09/finding-v12-single-implementation-proof/prepare_instance.py": "d08514cbca34d1fd6993ee8fe32fdf5e7865da8f2b83c04e03a2f680cfce3749"
+  },
+  "schema": "w257627.packet-candidate/1",
+  "status": "draft-not-frozen-not-launchable"
+}

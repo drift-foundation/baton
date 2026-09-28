@@ -1,3 +1,56 @@
+# Current scheduling — required provider W285465
+
+Claim292144; events292144/thread292130. Partial response292130 cleared M292090
+without connected acceptance. Explicitly supersede prior message-only/no-edge
+scheduling below: W285465 is required provider for B1 preparation and B2 no-helper
+completion/recovery. Install blocker W257627 on W285465; route tuner while blocked.
+Full satisfying provider acceptance resumes the existing continuation. Earlier bounded
+acceptance requires explicit recorded reclassification, not a progress-only reply.
+G2 latest review04-14-10: holder passes, foreign ordinal bypass fails, caller unwired.
+No test rerun or product changes this review. B1-CONTINUATION-292052.md remains
+next executable sequence after accepted dependency; owner291841 four-path authority
+persists. No new permission, product scope or live execution selected.
+
+# Scheduling checkpoint — waiting for reviewed G2 consumer correction
+
+Reviewer claim292081; author handoff292063; events292081/thread257627.
+B1-CONTINUATION-292052.md is the exact rehearsal continuation. Four selected
+hashes remain291959; no new independent run. G2 review04-07-04 and pass292076
+confirm the atomic adoption and connected caller correction is incomplete.
+Blocking directed request to baton.impl supplies the exact corrected candidate,
+full changed path/digests and independent review/consumer result. No Work edge
+or new product selection. Progress alone is not acceptance. On reply revalidate
+reviewed bytes, then pass existing four-path continuation to baton.tune.
+This scheduling checkpoint supersedes immediate unchanged redelivery below.
+
+# Current checkpoint — B1 partial; reviewed G2 dependency needed
+
+Owner291841 assigns tuner exclusively baseline.py, baseline_bindings.py,
+test_baseline.py, test_baseline_bindings.py under single-implementation-proof.
+Reviewer claim292014/handoff291999, events292014/thread257627.
+Latest review review-2026-09-28T04-03-57Z.md; author B1-CHECKPOINT-291959.md and
+B1-CANDIDATE-291959.json. Four selected files match. Shared workspaces.py drifted
+from67a695e59ba9 to732585260c84 during G2 work; other two dependency hashes match.
+AST selector preflight passes; no independent test rerun against changed dependency.
+Author reports32PASS0.405s; earlier independent29PASS0.329s and positive FAIL0.314s
+remain evidence, not current candidate acceptance.
+
+Fresh cooperative serving240 plus cleanup reserve60 within300 total supersedes
+fresh serving300 plus extra60. Active-runtime and blocking-call bounds unproved.
+Next consume independently reviewed G2 preparation correction T285465/291949,
+refresh bindings, run32 focused checks and retained connected positive, then prove
+literal OS start/status and active-runtime interruption/deadline/access preservation.
+Routine four-path continuation goes baton.tune without new owner permission.
+
+G2 owns single_worker/stage_execution/workspaces; no fifth-path tuner edits or
+fake preparation completion/guard bypass. Reviewer owns FINDING/PLAN/reviews;
+tuner owns implementation/PROGRESS. Preserve historical contextual evidence.
+B2–B5 pending, including no-helper endings, consumer/graph disposition, immutable
+runtime/image/profile/input freeze and final deterministic rehearsal. No graph change,
+live engine/provider/build/deployment/Git operation selected; packet not launch-ready.
+
+## Preserved earlier checkpoints
+
 # Current specification/policy alignment — 2026-09-27, W285642
 
 D1 and the bounded declaration correction remain accepted at their original

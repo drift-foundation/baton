@@ -906,6 +906,23 @@ class TheGitReaderRunsOnlyReadingVerbs(unittest.TestCase):
                          ["cat-file", "rev-list", "rev-parse"])
 
 
+class TheFreshModeEvidence(unittest.TestCase):
+    def evidence(self, binding=None, failure=None):
+        from baton_v12.worker_manager import provider_context
+        packet = {"schema": baseline.FRESH_PACKET_SCHEMA, "bounds": {"implementer_invocations": 1}}
+        with mock.patch.object(provider_context, "context_invocation_of", return_value=binding, side_effect=failure), mock.patch.object(baseline, "_context_evidence", side_effect=AssertionError("context qualification")), mock.patch.object(baseline, "_proposals", return_value={"proposals": [], "dispositions": []}), mock.patch.object(baseline, "_attributions", return_value=[]):
+            return baseline._workload_evidence(None, object(), packet, {"attempt": "implementation"}, {})
+
+    def test_fresh_absence_is_not_context_qualification(self):
+        self.assertEqual(self.evidence()["shortfalls"], [])
+
+    def test_unexpected_context_is_a_shortfall(self):
+        self.assertIn("unexpectedly used", self.evidence(binding={"use_id": "foreign"})["shortfalls"][0])
+
+    def test_unreadable_context_exclusion_is_not_success(self):
+        self.assertIn("unreadable", self.evidence(failure=RuntimeError("unavailable"))["shortfalls"][0])
+
+
 def load_tests(loader, tests, pattern):
     """THIS FILE'S OWN CHECKS, and not the ones it inherits.
 
@@ -924,7 +941,7 @@ def load_tests(loader, tests, pattern):
                  TheGateRefusesAnotherJobsWork,
                  TheAccountingDistinguishesAbsenceFromAnUnreadableState,
                  ThePacketIsProvedBeforeAnythingOpens,
-                 TheGitReaderRunsOnlyReadingVerbs):
+                 TheGitReaderRunsOnlyReadingVerbs, TheFreshModeEvidence):
         for name in sorted(one for one in vars(case)
                            if one.startswith("test")):
             suite.addTest(case(name))

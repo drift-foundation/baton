@@ -67,13 +67,14 @@ import sys
 import time
 from datetime import datetime, timezone
 
-__all__ = ["PACKET_SCHEMA", "OUTCOME_SCHEMA", "CANCEL_CAPABILITY",
+__all__ = ["PACKET_SCHEMA", "FRESH_PACKET_SCHEMA", "OUTCOME_SCHEMA", "CANCEL_CAPABILITY",
            "SupervisorRefusal", "SupervisorInterrupted",
            "AdmissionGate", "held_packet", "verify_imported_sources",
            "verify_worker_image", "survey", "prepare", "supervise",
            "line_attribution", "main"]
 
 PACKET_SCHEMA = "baton.single-implementation-packet/1"
+FRESH_PACKET_SCHEMA = "baton.single-implementation-packet/2"
 OUTCOME_SCHEMA = "baton.single-implementation-outcome/1"
 
 # The cleanup endings the manager's own axis calls POSITIVE. `failed` is a
@@ -316,8 +317,8 @@ def held_packet(path):
     with open(path, "rb") as handle:
         packet = json.loads(handle.read().decode("utf-8"))
     _document(packet, "the single-implementation packet", _PACKET)
-    if packet["schema"] != PACKET_SCHEMA:
-        _refuse(f"this supervisor reads {PACKET_SCHEMA!r}; the packet names "
+    if packet["schema"] not in (PACKET_SCHEMA, FRESH_PACKET_SCHEMA):
+        _refuse(f"this supervisor reads {PACKET_SCHEMA!r} or {FRESH_PACKET_SCHEMA!r}; the packet names "
                 f"{packet['schema']!r}")
 
     bounds = _document(packet["bounds"], "the packet's bounds", _BOUNDS)
@@ -345,16 +346,29 @@ def held_packet(path):
     _pin(deployment["config_path"], deployment["config_sha256"],
          "the deployment configuration")
 
-    context = _document(packet["context"], "the packet's context selection",
-                        _CONTEXT)
-    _pin(context["profile_path"], context["profile_sha256"],
-         "the context profile document")
-    if type(context["excluded_roots"]) is not list \
-            or not all(type(one) is str and os.path.isabs(one)
-                       for one in context["excluded_roots"]):
-        _refuse("the context storage's excluded roots are absolute paths")
-    if type(context["runtime_uid"]) is not int or context["runtime_uid"] < 0:
-        _refuse("the context storage names one runtime uid")
+    fresh = packet["schema"] == FRESH_PACKET_SCHEMA
+    if fresh:
+        context = _document(packet["context"], "fresh context selection", ("mode",))
+        if context["mode"] != "fresh":
+            _refuse("packet/2 requires explicit fresh context mode")
+        with open(deployment["config_path"], encoding="utf-8") as handle:
+            configured = json.load(handle)
+        workers = configured.get("workers", [])
+        if not workers or any(one.get("deployment", {}).get("schema") != "baton.v12.single-worker-deployment/4" or "provider_context" in one.get("deployment", {}) for one in workers):
+            _refuse("fresh packet requires plain workers without provider context")
+        if any(output.get("name") == "provider-context-receipt" for one in workers for output in one["deployment"].get("input_manifest", {}).get("outputs", [])):
+            _refuse("fresh packet cannot declare a provider context receipt")
+    else:
+        context = _document(packet["context"], "the packet's context selection",
+                            _CONTEXT)
+        _pin(context["profile_path"], context["profile_sha256"],
+             "the context profile document")
+        if type(context["excluded_roots"]) is not list \
+                or not all(type(one) is str and os.path.isabs(one)
+                           for one in context["excluded_roots"]):
+            _refuse("the context storage's excluded roots are absolute paths")
+        if type(context["runtime_uid"]) is not int or context["runtime_uid"] < 0:
+            _refuse("the context storage names one runtime uid")
 
     submission = _document(packet["submission"], "the packet's submission",
                            _SUBMISSION)
@@ -420,7 +434,7 @@ def held_packet(path):
     for what, place in (("the Job store", deployment["job_store"]),
                         ("the control store", deployment["control_store"]),
                         ("the deployment state root", deployment["state_root"]),
-                        ("the context storage", context["storage_path"]),
+                        *(() if fresh else (("the context storage", context["storage_path"]),)),
                         ("the retained outcome",
                          os.path.dirname(packet["outcome_path"]))):
         held = os.path.realpath(place)
@@ -430,9 +444,14 @@ def held_packet(path):
                     f"into the tree the code lives in, and composition would "
                     f"refuse this after the owner acts had already committed")
 
-    if context["job_id"] != submission["job_id"]:
+    if not fresh and context["job_id"] != submission["job_id"]:
         _refuse("the qualification grant and the submission name different "
                 "Jobs; one grant serves exactly one Job")
+    if fresh:
+        with open(submission["path"], encoding="utf-8") as handle:
+            jobs = json.load(handle).get("jobs", [])
+        if len(jobs) != 1 or jobs[0].get("job_id") != submission["job_id"] or [stage.get("kind") for stage in jobs[0].get("stages", [])] != ["implementation"]:
+            _refuse("fresh packet submits exactly one implementation Job")
     return packet
 
 
@@ -550,6 +569,12 @@ def prepare(control, packet):
     from baton_v12.worker_manager import context_delivery, provider_context
     from baton_v12.worker_manager import workspaces
 
+    if packet.get("schema") == FRESH_PACKET_SCHEMA:
+        if packet.get("context") != {"mode": "fresh"}:
+            _refuse("packet/2 requires explicit fresh context mode")
+        workspace = _workspace_root(packet)
+        workspaces.configure_workspace_storage(control, workspace)
+        return {"workspace_storage": workspace, "context_mode": "fresh"}
     selection = packet["context"]
     with open(selection["profile_path"], "rb") as handle:
         profile = json.loads(handle.read().decode("utf-8"))
@@ -968,6 +993,8 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     gate = AdmissionGate(operations, caps={
         "implementation": bounds["implementer_invocations"]}, job_id=job_id)
     started = monotonic()
+    fresh = packet["schema"] == FRESH_PACKET_SCHEMA
+    serving_seconds = bounds["total_seconds"] - (bounds["cleanup_seconds"] if fresh else 0)
     measured = {"submitted_at": clock(), "job_id": job_id}
     # EVERY READ THAT DID NOT ANSWER, NAMED. These become reasons to hold
     # rather than silence, and the list is reported whatever else happens.
@@ -1076,7 +1103,7 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
             # the same answer an hour later.
             held["stop"] = "invocation-cap-refused"
             return False
-        if monotonic() - started >= bounds["total_seconds"]:
+        if monotonic() - started >= serving_seconds:
             held["stop"] = "overall-bound-exceeded"
             return False
         return True
@@ -1173,7 +1200,10 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     # that appears anyway is a fault AND is accounted for.
     cleanup_started = monotonic()
     intruders, sweeps = [], 0
-    while monotonic() - cleanup_started < bounds["cleanup_seconds"]:
+    cleanup_deadline = cleanup_started + bounds["cleanup_seconds"]
+    if fresh:
+        cleanup_deadline = min(cleanup_deadline, started + bounds["total_seconds"])
+    while monotonic() < cleanup_deadline:
         if not _cleanups(control, packet, accountable)["outstanding"]:
             break
         try:
@@ -1670,7 +1700,17 @@ def _workload_evidence(job, control, packet, admitted, kinds, *, inspect=None):
                           f"this run also ran {', '.join(foreign)}; review and "
                           f"correction are separate Jobs")
 
-    evidence.update(_context_evidence(control, implementation, shortfalls))
+    if packet.get("schema") == FRESH_PACKET_SCHEMA:
+        from baton_v12.worker_manager import provider_context
+        for attempt in implementation:
+            try:
+                binding = provider_context.context_invocation_of(control, attempt)
+                if binding is not None:
+                    shortfalls.append(f"fresh attempt {attempt} unexpectedly used a provider context")
+            except Exception as failure:
+                shortfalls.append(f"fresh attempt {attempt} context exclusion is unreadable: {failure}")
+    else:
+        evidence.update(_context_evidence(control, implementation, shortfalls))
     retained = _proposals(control, implementation, packet, shortfalls)
     evidence["proposals"] = retained["proposals"]
     # WHAT EACH TURN ACTUALLY ENDED AS, reported whether or not it produced a

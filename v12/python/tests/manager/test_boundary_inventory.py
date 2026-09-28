@@ -179,6 +179,17 @@ class _Custodian:
             {"custody": "normalize", "entries": 0, "not_ours": 0,
              "running_as": [0, 0]}, None)
 
+    def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                          reclaim=None):
+        """W285465: the seam the ordinary ending requires NOW, carried for the same reason.
+
+        OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removes automatic normalization from the
+        completion path, so what the ending proves at its entry is the writer listing.
+        Carrying it here keeps each probe reaching the boundary it NAMES rather than the
+        capability check in front of it -- the rule this class already existed to respect.
+        """
+        return []
+
     def __init__(self, collected=None, destroyed=None):
         self._collected = collected
         self._destroyed = destroyed
@@ -5132,6 +5143,12 @@ class BoundaryCase(unittest.TestCase):
                     {"custody": "normalize", "entries": 0, "not_ours": 0,
                      "running_as": [0, 0]}, None)
 
+            def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                                  reclaim=None):
+                # W285465: the seam these endings prove at entry now, carried for the same
+                # reason this class already carries the custody one -- so each probe reaches
+                # the boundary it NAMES rather than the capability check in front of it.
+                return []
             def destroy_refused_session(self, command):
                 return answer or None
 
@@ -5169,6 +5186,12 @@ class BoundaryCase(unittest.TestCase):
                     {"custody": "normalize", "entries": 0, "not_ours": 0,
                      "running_as": [0, 0]}, None)
 
+            def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                                  reclaim=None):
+                # W285465: the seam these endings prove at entry now, carried for the same
+                # reason this class already carries the custody one -- so each probe reaches
+                # the boundary it NAMES rather than the capability check in front of it.
+                return []
             def destroy_failed_start(self, command):
                 return answer or None
 
@@ -5931,6 +5954,12 @@ class BoundaryCase(unittest.TestCase):
         # `destroy_operation` above, and probed as one rather than trusted
         # because it resembles them.
         class _FailedStartCustodian:
+            def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                                  reclaim=None):
+                # W285465: the seam these endings prove at entry now, carried for the same
+                # reason this class already carries the custody one -- so each probe reaches
+                # the boundary it NAMES rather than the capability check in front of it.
+                return []
             def destroy_failed_start(self, command):
                 return None
 
@@ -5984,6 +6013,12 @@ class BoundaryCase(unittest.TestCase):
         # reference is owned, then the policy digest, then the capability --
         # so these probes need a well-shaped reference and no world at all.
         class _RefusedSessionCustodian:
+            def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                                  reclaim=None):
+                # W285465: the seam these endings prove at entry now, carried for the same
+                # reason this class already carries the custody one -- so each probe reaches
+                # the boundary it NAMES rather than the capability check in front of it.
+                return []
             def destroy_refused_session(self, command):
                 return None
 

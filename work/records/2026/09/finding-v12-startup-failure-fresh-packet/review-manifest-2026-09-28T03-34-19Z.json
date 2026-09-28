@@ -1,0 +1,62 @@
+{
+  "work": "W257627",
+  "claim": 291770,
+  "verdict": "draft assessed; shared-path B1 authority decision and packet completion pending",
+  "files": [
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/B1-SCOPE-PROPOSAL-20260928.md",
+      "sha256": "cfae2eb4f6b98d526857d2295ac2599b88a077bdb1b7eb5cc5f2b93527ba153e",
+      "bytes": 3131
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/BLOCKERS-20260928.md",
+      "sha256": "cb8898d870e7e960334ff9aecaefd51b37ef853e25eb8f638f8cb936a9861a7b",
+      "bytes": 8024
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/CANDIDATE-20260928.json",
+      "sha256": "f9928b544d83f900083677b97bf7f4475370d7d058fa09eecf295a7fe9f93557",
+      "bytes": 3325
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/INPUTS-20260928.json",
+      "sha256": "dd95672bad3c217ce92f15e7602276511e3afe1584e600ecb37c6499b986a535",
+      "bytes": 2176
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/PACKET-VERIFICATION-20260928.md",
+      "sha256": "e49552e1534b8a3ba06b5358058d57a56e29c761cd8fed5e63c74d23fad7a1d8",
+      "bytes": 1248
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/SINGLE-JOB-PACKET-20260928.md",
+      "sha256": "f298253742349c031a6606842ed5609c8e6d26b476666acd1802a4ac7569979c",
+      "bytes": 10536
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/SOURCE-EXCERPTS-20260928.md",
+      "sha256": "b4e27d5e91334f505c5f952c85bada1e2420a92b6f320673af6f60b5a8d3737e",
+      "bytes": 10306
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/TASK-SINGLE-JOB-20260928.md",
+      "sha256": "6ece1c8f8cfe023f3ad36ea383c2b77581a8c13e01c2b3a4d92d4ffdb6332f6e",
+      "bytes": 1076
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/review-2026-09-28T03-34-19Z.md",
+      "sha256": "d77a5ed75f45c2445847063353e9c03a809169189c0d4a0d6436196ed9c571b5",
+      "bytes": 2713
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/FINDING.md",
+      "sha256": "90d8f9cb8258553dc4acfc8ba02421b85d142da46bf11fe59c8c435b4a7cf226",
+      "bytes": 16152
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/PLAN.md",
+      "sha256": "908f902df920f03814bdfd0b4ad836685629386b0661d74cca52e6b3ee673a95",
+      "bytes": 10137
+    }
+  ]
+}

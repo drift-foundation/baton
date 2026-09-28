@@ -3509,21 +3509,60 @@ class OciAdapter:
         # EACH VECTOR KEEPS ITS OWN MAXIMUM and an allowance can only lower
         # it, which is what makes ONE decreasing budget cover a sequence of
         # acts rather than restarting at each.
-        run = self.run
-        if seconds is not None:
-            def bounded(argv, *, seconds=None, _run=self.run, _work=seconds,
-                        _total=reclaim if reclaim is not None else seconds):
-                most = (_custody.CUSTODY_ACT_SECONDS if seconds is None
-                        else seconds)
-                acting = len(argv) > 1 and argv[1] == "run"
-                return _run(argv, seconds=_custody.allowed(
-                    _work if acting else _total, most))
-
-            run = bounded
         return _custody.custody_act(
-            self.engine, run, image_digest=self.custodian_image_digest,
+            self.engine, self._custody_runner(seconds, reclaim),
+            image_digest=self.custodian_image_digest,
             store=store, assignment_id=assignment_id,
             operation="normalize", which=which)
+
+    def _custody_runner(self, seconds, reclaim):
+        # IMPORTED HERE like every other custody-touching method in this class, which is
+        # this module's own convention for the pairing with `custody`.
+        """This adapter's runner for a custody act, bounded by the caller's allowance.
+
+        W285465 review 2026-09-28T06-52-46Z: THE ONE PLACE THIS ADAPTER'S `run` CROSSES
+        INTO A CUSTODY READ OR ACT. Both `normalize_directory` and `surviving_helpers` need
+        the same wrapper, and writing it twice gave `self.run` two owners -- measured, the
+        boundary inventory went from 26 pending entries to 49 failures with "a capability
+        with two crossings has two owners". So the wrapper lives here and both callers take
+        it from one place.
+        """
+        from . import custody as _custody
+
+        if seconds is None:
+            return self.run
+
+        def bounded(argv, *, seconds=None, _run=self.run, _work=seconds,
+                    _total=reclaim if reclaim is not None else seconds):
+            most = (_custody.CUSTODY_ACT_SECONDS if seconds is None
+                    else seconds)
+            acting = len(argv) > 1 and argv[1] == "run"
+            return _run(argv, seconds=_custody.allowed(
+                _work if acting else _total, most))
+
+        return bounded
+
+    def surviving_helpers(self, store, *, assignment_id, seconds=None,
+                          reclaim=None):
+        """WHICH custody writers of this attempt still answer -- starting nothing.
+
+        W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 and review
+        2026-09-28T06-52-46Z, which calls the missing surface a routine composition
+        correction. The ordinary ending establishes its roots' quiescence with THIS
+        observation now, so the execution adapter has to be able to answer it: a deployment
+        whose live adapter could not left the real ending deferring with "the runtime
+        adapter's writer-listing act ... is a capability this manager calls; this is none".
+
+        A READ AND NOT AN ACT. `custody.surviving_helpers` walks the journal's recorded
+        episodes -- an uncleared one SURVIVES whatever the engine says -- and asks the
+        engine about each derived name. No container is created, started or removed, which
+        is what makes it usable on a path where no helper may run.
+        """
+        from . import custody as _custody
+
+        return _custody.surviving_helpers(
+            self.engine, self._custody_runner(seconds, reclaim), store,
+            assignment_id, image_digest=self.custodian_image_digest)
 
     def destroy_abandoned(self, command, *, seconds=None):
         """W44716: remove the runtime an ABANDONED attempt leaves running.

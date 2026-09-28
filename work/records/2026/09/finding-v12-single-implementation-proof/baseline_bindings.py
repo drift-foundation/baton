@@ -247,7 +247,8 @@ def compose(*, instance, run_root, source_root, base, image_reference,
             image_digest, cli_build, manager_source, supervisor_path,
             vectors, participants, credential_sources, credential_profile,
             evidence_digest, provider_network, run_id, work, claim, note,
-            code_boundary=None, bounds=None, places=None, job_id=None):
+            code_boundary=None, bounds=None, places=None, job_id=None,
+            context_mode="contextual", task_instructions=None, verification=None):
     """Every document this packet needs, composed and internally consistent.
 
     Returns a mapping of filename to document. Nothing is written here and
@@ -259,6 +260,13 @@ def compose(*, instance, run_root, source_root, base, image_reference,
     from baton_v12.worker_manager import source_boundary
     from tools import single_worker, stage_execution
 
+    if context_mode not in ("contextual", "fresh"):
+        _refuse("context_mode must explicitly name contextual or fresh")
+    contextual = context_mode == "contextual"
+    if not contextual and (not isinstance(task_instructions, str) or not task_instructions.strip()):
+        _refuse("fresh mode requires explicit task_instructions")
+    if not contextual and (not isinstance(verification, list) or not verification or any(not isinstance(one, str) or not one for one in verification)):
+        _refuse("fresh mode requires an explicit verification argv")
     _base_object(base)
     _network(provider_network)
     _evidence(evidence_digest)
@@ -322,7 +330,7 @@ def compose(*, instance, run_root, source_root, base, image_reference,
     # -- the three identities this deployment is accountable for ------------
     runtime_profile = {
         "schema": "baton.single-implementation-runtime-profile/1",
-        "name": "claude-context-implementation",
+        "name": "claude-context-implementation" if contextual else "claude-fresh-implementation",
         "engine": "docker", "network": provider_network,
         "image_reference": image_reference, "image_digest": image_digest,
         "cli_build": cli_build, "model": "opus",
@@ -334,7 +342,7 @@ def compose(*, instance, run_root, source_root, base, image_reference,
     policy = {
         "schema": "baton.single-implementation-execution-policy/1",
         "provider_turn_seconds": bounds["turn_seconds"],
-        "verification_command_seconds": 900,
+        "verification_command_seconds": 900 if contextual else 30,
         "automatic_retry": False,
         "implementer_invocations": bounds["implementer_invocations"],
         "note": "the caps the admission gate enforces; W239528"}
@@ -352,11 +360,11 @@ def compose(*, instance, run_root, source_root, base, image_reference,
     # -- the frozen task the workload reads at /input/task.json -------------
     task = {"schema": "baton.dogfood-task/2",
             "task_id": run_id,
-            "instructions": TASK_INSTRUCTIONS,
+            "instructions": TASK_INSTRUCTIONS if contextual else task_instructions,
             "source_root": single_worker.SOURCE_DESTINATION,
             "source_profile": "git-line",
             "declared_base": base,
-            "verification": ["python3", "harness.py"]}
+            "verification": ["python3", "harness.py"] if contextual else verification}
     task_bytes = json.dumps(task, sort_keys=True).encode("utf-8")
 
     # -- the input manifest, from the published vector ----------------------
@@ -395,12 +403,13 @@ def compose(*, instance, run_root, source_root, base, image_reference,
                                 type="git-change-proposal", path="proposal",
                                 required=True)]
     # AND THE RESERVED RECEIPT DECLARATION the contextual worker answers.
-    manifest["outputs"].append({
-        "name": "provider-context-receipt", "type": "directory-result",
-        "path": "provider-context-receipt", "required": False,
-        "constraints": {"max_bytes": 16384, "max_entries": 1,
-                        "allowed_media_types": ["application/octet-stream"],
-                        "link_policy": "forbid", "validator_digest": None}})
+    if contextual:
+        manifest["outputs"].append({
+            "name": "provider-context-receipt", "type": "directory-result",
+            "path": "provider-context-receipt", "required": False,
+            "constraints": {"max_bytes": 16384, "max_entries": 1,
+                            "allowed_media_types": ["application/octet-stream"],
+                            "link_policy": "forbid", "validator_digest": None}})
     manifest.pop("manifest_digest", None)
     manifest["manifest_digest"] = digest(manifest)
 
@@ -492,7 +501,7 @@ def compose(*, instance, run_root, source_root, base, image_reference,
             worker("implementation",
                    participant=participants["implementation"],
                    principal=participants["implementation_principal"],
-                   review_route="rview", contextual=True),
+                   review_route="rview", contextual=contextual),
             worker("review", participant=participants["review"],
                    principal=participants["review_principal"],
                    review_route="integration", contextual=False)]}
@@ -509,7 +518,8 @@ def compose(*, instance, run_root, source_root, base, image_reference,
             # THE DECLARED PER-TURN CEILING LIVES HERE, which is the only
             # place it is a bound rather than a number in a manifest.
             "execution_limits": {
-                "provider_turn_seconds": bounds["turn_seconds"]},
+                "provider_turn_seconds": bounds["turn_seconds"],
+                **({} if contextual else {"verification_command_seconds": 30})},
             # ONE STAGE. No review stage and therefore no dependency: what
             # depends on this proposal is another Job's submission.
             "stages": [
@@ -518,7 +528,7 @@ def compose(*, instance, run_root, source_root, base, image_reference,
                  "profile_digest": profile_digest, "depends_on": []}]}]}
 
     packet = {
-        "schema": "baton.single-implementation-packet/1",
+        "schema": "baton.single-implementation-packet/1" if contextual else "baton.single-implementation-packet/2",
         "run_id": run_id, "work": work, "claim": claim, "note": note,
         "worker_image": {"reference": image_reference,
                          "config_digest": image_digest,
@@ -558,7 +568,9 @@ def compose(*, instance, run_root, source_root, base, image_reference,
         "bounds": bounds,
         "outcome_path": os.path.join(run_root, "outcome.json")}
 
-    return {"runtime-profile.json": runtime_profile,
+    if not contextual:
+        packet["context"] = {"mode": "fresh"}
+    documents = {"runtime-profile.json": runtime_profile,
             "policy.json": policy,
             "adapter.json": adapter,
             "task.json": task,
@@ -566,6 +578,9 @@ def compose(*, instance, run_root, source_root, base, image_reference,
             "deployment.json": deployment,
             "submission.json": submission,
             "PACKET.json": packet}
+    if not contextual:
+        del documents["context-profile.json"]
+    return documents
 
 
 def preflight(authority, documents, participants):
@@ -651,7 +666,10 @@ def write(run_root, documents, *, checkout=None):
     """
     from tools import stage_execution
 
-    os.makedirs(run_root, exist_ok=True)
+    try:
+        os.makedirs(run_root, exist_ok=documents["PACKET.json"]["schema"] != "baton.single-implementation-packet/2")
+    except FileExistsError:
+        _refuse("fresh packet destination already exists; preserve it and choose a new run identity")
     # THE OPERANDS THE VALIDATOR READS FROM DISK COME FIRST. `_task_bytes`
     # opens the configured task document and compares it with the manifest's
     # human contract, and the workspace/launch/credential roots are checked as
@@ -660,7 +678,8 @@ def write(run_root, documents, *, checkout=None):
     places = {}
     for name in ("runtime-profile.json", "policy.json", "adapter.json",
                  "context-profile.json"):
-        places[name] = _write(os.path.join(run_root, name), documents[name])
+        if name in documents:
+            places[name] = _write(os.path.join(run_root, name), documents[name])
     # THE TASK IS WRITTEN AS THE EXACT BYTES THE MANIFEST DECLARES. Its
     # `human_contract` carries their length and digest and `_task_bytes`
     # compares both, so a pretty-printed copy of the same object is a
@@ -674,8 +693,9 @@ def write(run_root, documents, *, checkout=None):
             os.makedirs(one["deployment"][member], mode=0o700, exist_ok=True)
     os.makedirs(documents["deployment.json"]["state_root"], mode=0o700,
                 exist_ok=True)
-    os.makedirs(documents["PACKET.json"]["context"]["storage_path"],
-                mode=0o700, exist_ok=True)
+    if "context-profile.json" in documents:
+        os.makedirs(documents["PACKET.json"]["context"]["storage_path"],
+                    mode=0o700, exist_ok=True)
 
     stage_execution.held_configuration(
         documents["deployment.json"],
@@ -688,11 +708,22 @@ def write(run_root, documents, *, checkout=None):
     # them earlier would have been hashing a document that did not exist yet.
     packet = documents["PACKET.json"]
     packet["deployment"]["config_sha256"] = _sha256(places["deployment.json"])
-    packet["context"]["profile_sha256"] = _sha256(
-        places["context-profile.json"])
+    if "context-profile.json" in documents:
+        packet["context"]["profile_sha256"] = _sha256(places["context-profile.json"])
     packet["submission"]["sha256"] = _sha256(places["submission.json"])
     places["PACKET.json"] = _write(os.path.join(run_root, "PACKET.json"),
                                    packet)
+    if packet["schema"] == "baton.single-implementation-packet/2":
+        deployment = packet["deployment"]
+        commands = {
+            "schema": "baton.single-implementation-commands/1",
+            "environment": {"PYTHONPATH": os.pathsep.join([os.path.join(packet["manager_source"]["path"], "src"), packet["manager_source"]["path"]]), "PYTHONDONTWRITEBYTECODE": "1", "BATON_V12_STAGE_EXECUTION_CONFIG": deployment["config_path"]},
+            "start": [sys.executable, "-B", packet["supervisor"]["path"], "--packet", places["PACKET.json"], "--incarnation", packet["run_id"]],
+            "status": [sys.executable, "-B", "-m", "tools.stack_command", "manager", "--store", deployment["job_store"], "--incarnation", packet["run_id"] + "-read", "--authority-uuid", deployment["authority_uuid"], "status", "--control", deployment["control_store"], "--observe", "tools.stage_execution:observing_factory"],
+            "outcome": packet["outcome_path"],
+            "submission_owner": "start; do not also submit manually",
+            "termination": "SIGINT/SIGTERM requests this supervisor's bounded cancellation/accounting; a held outcome is not cessation proof"}
+        places["commands.json"] = _write(os.path.join(run_root, "commands.json"), commands)
     return places
 
 

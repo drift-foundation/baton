@@ -31,6 +31,7 @@ import json
 import os
 from pathlib import Path
 import unittest
+from unittest import mock
 
 from baton_v12.contracts import digest
 from tests.job_manager import fixtures
@@ -164,8 +165,9 @@ class TheGeneratedPacketDrivesOneImplementation(BaselineCase):
             # input digest and against the worker's configured policy and
             # profile, so a submission composed from the accepted fixture's
             # manifest could be served by no worker this deployment configures.
-            self.context_profile = documents["context-profile.json"]
-            self.context_digest = digest(self.context_profile)
+            if "context-profile.json" in documents:
+                self.context_profile = documents["context-profile.json"]
+                self.context_digest = digest(self.context_profile)
             self.submission = documents["submission.json"]
             self.generated = (documents, places)
         return self.generated
@@ -206,12 +208,13 @@ class TheGeneratedPacketDrivesOneImplementation(BaselineCase):
         _documents, places = self.generate()
         packet = json.loads(Path(places["PACKET.json"]).read_text(
             encoding="utf-8"))
-        packet["context"].update(
-            profile_path=str(self.packet_root / "profile.json"),
-            profile_sha256=self.digest_of(str(self.packet_root
-                                              / "profile.json")),
-            profile_digest=self.context_digest,
-            storage_path=str(self.context_root))
+        if packet["schema"] == baseline.PACKET_SCHEMA:
+            packet["context"].update(
+                profile_path=str(self.packet_root / "profile.json"),
+                profile_sha256=self.digest_of(str(self.packet_root
+                                                  / "profile.json")),
+                profile_digest=self.context_digest,
+                storage_path=str(self.context_root))
         packet["submission"] = dict(
             packet["submission"],
             path=str(self.packet_root / "submission.json"),
@@ -472,6 +475,161 @@ class TheComposerRefusesWhatItCannotHold(unittest.TestCase):
         self.assertIn("would not protect the code the run imports", said)
 
 
+class TheFreshPacket(TheGeneratedPacketDrivesOneImplementation):
+    """Plain worker path; fixture engine/provider only, no context qualification."""
+
+    def selections(self):
+        selected = super().selections()
+        selected.update(context_mode="fresh", task_instructions="Change harness.py to print READY, produce a proposal; do not commit yourself.", verification=["python3", "harness.py"])
+        return selected
+
+    def provider(self, edits=None, status=0):
+        from tests.tools.test_stage_execution import ComposedOneJobCase
+        return ComposedOneJobCase.provider(self, edits=edits, status=status)
+
+    def test_fresh_documents_and_reader_have_no_context_contract(self):
+        docs, places = self.generate()
+        self.assertNotIn("context-profile.json", docs)
+        self.assertFalse(Path(self.run_root, "context-profile.json").exists())
+        held = baseline.held_packet(places["PACKET.json"])
+        self.assertEqual(held["schema"], baseline.FRESH_PACKET_SCHEMA)
+        self.assertEqual(held["context"], {"mode": "fresh"})
+        for worker in docs["deployment.json"]["workers"]:
+            self.assertEqual(worker["deployment"]["schema"], single_worker.CONFIG_SCHEMA)
+            self.assertNotIn("provider_context", worker["deployment"])
+            self.assertEqual([o["name"] for o in worker["deployment"]["input_manifest"]["outputs"]], ["proposal"])
+        self.assertEqual(docs["submission.json"]["jobs"][0]["execution_limits"], {"provider_turn_seconds": 180, "verification_command_seconds": 30})
+
+    def test_fresh_prepare_never_certifies_or_grants_context(self):
+        from baton_v12.worker_manager import provider_context, context_delivery
+        packet = self.packet_for()
+        _job, control = self.stores("fresh-prepare")
+        with mock.patch.object(provider_context, "certify_context_profile", side_effect=AssertionError("context certification")), mock.patch.object(provider_context, "authorize_qualification_run", side_effect=AssertionError("context grant")), mock.patch.object(context_delivery, "configure_context_storage", side_effect=AssertionError("context storage")):
+            answer = baseline.prepare(control, packet)
+        self.assertEqual(answer, {"workspace_storage": self.storage, "context_mode": "fresh"})
+
+    def test_fresh_packet_cannot_hide_contextual_worker(self):
+        docs, places = self.generate()
+        configured = docs["deployment.json"]
+        configured["workers"][0]["deployment"]["provider_context"] = {"mode": "required"}
+        Path(places["deployment.json"]).write_text(json.dumps(configured))
+        packet = json.loads(Path(places["PACKET.json"]).read_text())
+        packet["deployment"]["config_sha256"] = self.digest_of(places["deployment.json"])
+        Path(places["PACKET.json"]).write_text(json.dumps(packet))
+        with self.assertRaisesRegex(baseline.SupervisorRefusal, "plain workers"):
+            baseline.held_packet(places["PACKET.json"])
+
+    def test_literal_composer_command_emits_a_fresh_packet(self):
+        import io
+        selected = self.selections()
+        run = str(Path(self.root) / "literal-fresh")
+        selection_path = Path(self.root) / "fresh-selections.json"
+        selection_path.write_text(json.dumps({"compose": selected}))
+        argv = ["--selections", str(selection_path), "--base", self.base, "--run-root", run]
+        self.assertEqual(baseline_bindings.main(argv, stream=io.StringIO()), 0)
+        packet = baseline.held_packet(str(Path(run) / "PACKET.json"))
+        self.assertEqual(packet["context"], {"mode": "fresh"})
+
+    def test_generated_start_refuses_mixed_mode_before_store_or_engine(self):
+        import io
+        from baton_v12.job_manager import JobStore
+        docs, places = self.generate()
+        commands = json.loads(Path(places["commands.json"]).read_text())
+        self.assertEqual(commands["start"][:3], [baseline_bindings.sys.executable, "-B", str(HERE / "baseline.py")])
+        packet = json.loads(Path(places["PACKET.json"]).read_text())
+        packet["context"] = {"mode": "contextual"}
+        Path(places["PACKET.json"]).write_text(json.dumps(packet))
+        stream = io.StringIO()
+        with mock.patch.object(JobStore, "open", side_effect=AssertionError("store opened")):
+            answer = baseline.main(commands["start"][3:], stream=stream, image_inspect=lambda ref: self.fail("engine inspected"))
+        self.assertEqual(answer, 2)
+        self.assertIn("explicit fresh context mode", stream.getvalue())
+
+    def test_generated_start_refuses_changed_fixture_before_store_or_engine(self):
+        self._generated_start_refuses_drift(Path(self.source) / "harness.py")
+
+    def test_generated_start_refuses_changed_manager_source_before_store_or_engine(self):
+        self._generated_start_refuses_drift(Path(self.written_manager_source()) / "boundpkg" / "__init__.py")
+
+    def _generated_start_refuses_drift(self, changed):
+        import io
+        from baton_v12.job_manager import JobStore
+        from baton_v12.worker_manager import ControlStore
+        _docs, places = self.generate()
+        commands = json.loads(Path(places["commands.json"]).read_text())
+        changed.write_bytes(changed.read_bytes() + b"\n# changed after binding\n")
+        preserved = changed.read_bytes()
+        stream = io.StringIO()
+        with mock.patch.object(JobStore, "open", side_effect=AssertionError("Job store opened")), mock.patch.object(ControlStore, "open", side_effect=AssertionError("control store opened")):
+            answer = baseline.main(commands["start"][3:], stream=stream, image_inspect=lambda ref: self.fail("engine inspected"))
+        self.assertEqual(answer, 2)
+        self.assertIn("refused before anything opened", stream.getvalue())
+        self.assertIn(str(changed), stream.getvalue())
+        self.assertIn("this packet is bound to", stream.getvalue())
+        self.assertEqual(changed.read_bytes(), preserved)
+
+    def test_literal_failure_logs_report_inaccessibility_not_empty_capture(self):
+        import io
+        from tools import stack_command
+        stream = io.StringIO()
+        with mock.patch("sys.stdout", stream):
+            code = stack_command.main(["logs", "--logs", str(Path(self.root) / "never-created-logs"), "--attempt", "never-launched", "locators"])
+        self.assertEqual(code, 0)
+        observed = json.loads(stream.getvalue())
+        self.assertTrue(observed["streams"])
+        self.assertEqual({one["state"] for one in observed["streams"]}, {"inaccessible"})
+        self.assertTrue(all("FileNotFoundError" in one["why"] for one in observed["streams"]))
+
+    def test_fresh_submission_cannot_add_a_second_job(self):
+        docs, places = self.generate()
+        submission = docs["submission.json"]
+        submission["jobs"].append(dict(submission["jobs"][0], job_id="other"))
+        Path(places["submission.json"]).write_text(json.dumps(submission))
+        packet = json.loads(Path(places["PACKET.json"]).read_text())
+        packet["submission"]["sha256"] = self.digest_of(places["submission.json"])
+        Path(places["PACKET.json"]).write_text(json.dumps(packet))
+        with self.assertRaisesRegex(baseline.SupervisorRefusal, "exactly one implementation Job"):
+            baseline.held_packet(places["PACKET.json"])
+
+    def test_fresh_composer_preserves_an_existing_packet(self):
+        docs, places = self.generate()
+        before = {name: Path(path).read_bytes() for name, path in places.items()}
+        with self.assertRaisesRegex(baseline_bindings.BindingRefusal, "destination already exists"):
+            baseline_bindings.write(self.run_root, docs)
+        self.assertEqual({name: Path(path).read_bytes() for name, path in places.items()}, before)
+
+    def test_fresh_deadline_reserves_cleanup_before_any_admission(self):
+        from baton_v12 import job_manager
+        packet = self.packet_for()
+        job, control, composed = self.serving(packet=packet)
+        elapsed = [0.0]
+
+        def serving_ticks(_job, gate, **arguments):
+            elapsed[0] = packet["bounds"]["total_seconds"] - packet["bounds"]["cleanup_seconds"] - 1
+            self.assertTrue(arguments["should_continue"]())
+            elapsed[0] += 1
+            self.assertFalse(arguments["should_continue"]())
+            self.assertEqual(gate.admissions, {"implementation": 0})
+
+        with mock.patch.object(job_manager, "serve", side_effect=serving_ticks):
+            outcome = baseline.supervise(job, control, composed, packet, clock=lambda: fixtures.NOW, sleep=lambda seconds: self.fail("unexpected wait"), monotonic=lambda: elapsed[0])
+        self.assertEqual(outcome["stopped"], "overall-bound-exceeded")
+        self.assertEqual(outcome["served_seconds"], 240)
+        self.assertEqual(outcome["admissions"], {"implementation": 0})
+        self.assertIsNone(outcome["serving_failure"])
+        self.assertNotEqual(outcome["state"], "settled")
+
+    def test_fresh_positive_one_proposal_without_context(self):
+        packet = self.packet_for()
+        _composed, outcome, _job, _control = self.supervised(packet=packet)
+        self.assertEqual(outcome["state"], "settled", repr([(single_worker.attempt_preparation_failure_of(_control, a), single_worker.attempt_start_failure_of(_control, a)) for a in outcome["admitted_attempts"]]))
+        self.assertEqual(outcome["admissions"], {"implementation": 1})
+        self.assertEqual(len(outcome["workload"]["proposals"]), 1)
+        self.assertEqual(outcome["workload"]["modes"], [])
+        self.assertEqual(outcome["workload"]["shortfalls"], [])
+        self.assertEqual(outcome["outstanding_cleanup"], [])
+
+
 def load_tests(loader, tests, pattern):
     """THIS FILE'S OWN CHECKS, and not the ones it inherits.
 
@@ -483,7 +641,7 @@ def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()
     for case in (TheGeneratedPacketDrivesOneImplementation,
                  TheCompositionCarriesOnlyThisJobsWorkload,
-                 TheComposerRefusesWhatItCannotHold):
+                 TheComposerRefusesWhatItCannotHold, TheFreshPacket):
         for name in sorted(one for one in vars(case)
                            if one.startswith("test")):
             suite.addTest(case(name))

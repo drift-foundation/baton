@@ -183,13 +183,16 @@ class CapacityCase(fixtures.JobManagerCase):
     POLICY = "sha256:" + "2" * 64
     # THE CONFIGURED CHILD WORKER'S RECORDED IDENTITY, which is what the
     # runtime attempt is recorded under before it is activated. The child runs
-    # on the PUBLISHED bundle, so `prepare` overrides `input_digest` with the
-    # plan's own -- this document's is deliberately a different value so a
-    # composition that recorded the configured manifest instead would be seen.
+    # on the PUBLISHED bundle. W285465 review 2026-09-28T13-40-08Z: `prepare` no longer
+    # overrides this member with the plan's own -- that overwrite WAS the defect, since the
+    # record is about the RUNTIME -- so the configured identity carries the exact configured
+    # manifest, and it is supplied per case rather than pinned to a constant here. The
+    # distinctness this comment used to rely on is now provided by the JOB-facing projection
+    # being a different value from the runtime digest, which the admission derives and compares
+    # separately.
     IDENTITY = {"adapter_name": "acp",
                 "adapter_digest": "sha256:" + "3" * 64,
                 "profile_digest": PROFILE,
-                "input_digest": "sha256:" + "n" * 64,
                 "policy_digest": POLICY,
                 "image_digest": "sha256:" + "m" * 64,
                 "toolchain_digest": "sha256:" + "t" * 64}
@@ -224,11 +227,37 @@ class CapacityCase(fixtures.JobManagerCase):
         # can compare declared outputs against a document this manager
         # actually holds.
         self.declaration = self.published_declaration()
-        self.input_digest = retain_manifest(
+        # W285465 under W202663's projection rule and review 2026-09-28T13-09-26Z: TWO FACTS,
+        # NAMED APART. `runtime_input_digest` is the exact manifest this worker is configured
+        # with, which the ATTEMPT RECORD holds; `input_digest` is that manifest's Job-scoped
+        # projection, which the PLAN and the OFFER carry and the admission derives from the
+        # manifest itself. Sharing one attribute is exactly the conflation the admission now
+        # refuses.
+        from baton_v12.contracts import job_input_identity
+
+        self.runtime_input_digest = retain_manifest(
             control, self.declaration, "inputManifest")["digest"]
+        self.input_digest = job_input_identity(
+            dict(self.declaration,
+                 manifest_digest=self.runtime_input_digest),
+            what="this fixture's configured input")
         self.session = self.participant_session()
         self.port = self.worker_port()
         return control
+
+    def configured_manifest(self):
+        """The manifest the admission derives both input facts from."""
+        return dict(self.declaration,
+                    manifest_digest=self.runtime_input_digest)
+
+    def configured_identity(self):
+        """`IDENTITY` with the RUNTIME input this fixture actually configured.
+
+        W285465: the class constant no longer pins an `input_digest`, because the attempt record
+        names the exact manifest a worker was configured with and that value belongs to the
+        fixture instance, not to the class.
+        """
+        return dict(self.IDENTITY, input_digest=self.runtime_input_digest)
 
     def published_declaration(self):
         """The output declaration every result in this fixture answers.
@@ -315,7 +344,7 @@ class CapacityCase(fixtures.JobManagerCase):
         record_attempt(control, attempt_id=attempt_id, adapter_name="acp",
                        adapter_digest="sha256:" + "3" * 64,
                        profile_digest=self.PROFILE,
-                       input_digest=recorded_input or self.input_digest,
+                       input_digest=recorded_input or self.runtime_input_digest,
                        policy_digest=self.POLICY)
         submit_claim(control, self.port, offer_id=offer_id)
         # AND THE ASSIGNMENT IS ACTIVATED, because that is what FIXES it.
@@ -401,7 +430,9 @@ class CapacityCase(fixtures.JobManagerCase):
             "schema": "baton.worker-manifest/result",
             "result_id": "result-" + attempt_id,
             "assignment_ref": self.claim_of(attempt_id),
-            "input_manifest_digest": self.input_digest,
+            # W285465: the sealed result declares the RUNTIME manifest it ran over, which
+            # `output` compares against the attempt record -- both runtime facts.
+            "input_manifest_digest": self.runtime_input_digest,
             "policy_digest": self.POLICY,
             "disposition": disposition,
             "outputs": OutputCase.present() if outputs is None else outputs,
@@ -448,7 +479,8 @@ class CapacityCase(fixtures.JobManagerCase):
         return capacity.admit_integration_execution(
             store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
             execution_attempt_id=attempt_id,
-            assignment=self.claim_of(attempt_id))
+            assignment=self.claim_of(attempt_id),
+            input_manifest=self.configured_manifest())
 
     def prepared(self, store, *, outcome="succeeded", collect=True):
         """One preparation admitted, really collected, destroyed and ended.
@@ -507,6 +539,7 @@ class CapacityCase(fixtures.JobManagerCase):
         held = {"coordinator": coordinator, "authorization": self.authorization,
                 "grant": self.grant}
         held.update(changed)
+        held.setdefault("input_manifest", self.configured_manifest())
         return capacity.admit_integration_execution(
             store, self._control, orchestration_id=self.ORCHESTRATION,
             phase="apply", execution_attempt_id=stage["attempt_id"],
@@ -728,7 +761,8 @@ class ThePhasesAreSerial(CapacityCase):
                 orchestration_id=self.ORCHESTRATION, phase="prepare",
                 execution_attempt_id="prepare-attempt-1",
                 assignment=dict(self.claim_of("prepare-attempt-1"),
-                                participant="baton.somebody-else"))
+                                participant="baton.somebody-else"),
+                                    input_manifest=self.configured_manifest())
         # THE CLAIM CHECK FIRES FIRST, and that is the stronger refusal: an
         # assignment that disagrees with what the owner recorded is refused
         # before anything compares it to the plan.
@@ -753,7 +787,8 @@ class ThePhasesAreSerial(CapacityCase):
             capacity.admit_integration_execution(
                 store, control, orchestration_id=self.ORCHESTRATION,
                 phase="prepare", execution_attempt_id="prepare-attempt-1",
-                assignment=self.claim_of("prepare-attempt-1"))
+                assignment=self.claim_of("prepare-attempt-1"),
+                input_manifest=self.configured_manifest())
         self.assertIn("its claim settled", str(caught.exception))
 
     def test_a_plan_whose_digests_disagree_with_the_claim_is_refused(self):
@@ -777,7 +812,8 @@ class ThePhasesAreSerial(CapacityCase):
                         store, control,
                         orchestration_id=case.ORCHESTRATION, phase="prepare",
                         execution_attempt_id="prepare-attempt-1",
-                        assignment=case.claim_of("prepare-attempt-1"))
+                        assignment=case.claim_of("prepare-attempt-1"),
+                            input_manifest=case.configured_manifest())
                 self.assertIn(f"planned with {name}", str(caught.exception))
                 case.doCleanups()
 
@@ -788,7 +824,8 @@ class ThePhasesAreSerial(CapacityCase):
                 store, self.claimed("prepare-attempt-1", "prepare-offer-1"),
                 orchestration_id=self.ORCHESTRATION, phase="prepare",
                 execution_attempt_id="attempt-nobody-planned",
-                assignment=self.claim_of("prepare-attempt-1"))
+                assignment=self.claim_of("prepare-attempt-1"),
+                    input_manifest=self.configured_manifest())
         # AND THE WORKER MANAGER REFUSES FIRST for an attempt it never
         # recorded, which is the honest owner of that question.
         self.assertIn("no runtime attempt", str(caught.exception))
@@ -1268,7 +1305,8 @@ class ThePersistedEvidenceIsOwnedEndToEnd(CapacityCase):
         return capacity.admit_integration_execution(
             store, control, orchestration_id=self.ORCHESTRATION,
             phase="prepare", execution_attempt_id="prepare-attempt-1",
-            assignment=self.claim_of("prepare-attempt-1"))
+            assignment=self.claim_of("prepare-attempt-1"),
+                input_manifest=self.configured_manifest())
 
     def signed(self, kind, operands):
         return json.dumps({"kind": kind, "operands": operands},
@@ -1368,7 +1406,13 @@ class ThePersistedEvidenceIsOwnedEndToEnd(CapacityCase):
             authority_uuid=fixtures.UUID, plan=self.plan(stage))
         with self.assertRaises(ContractRefusal) as caught:
             self.admitting(store, control)
-        self.assertIn("was recorded with 'sha256:" + "e" * 20,
+        # W285465: the refusal is the CORRESPONDENCE one now -- the record names an exact
+        # runtime manifest and the configured manifest is another -- so it says "recorded with
+        # input_digest" before the digest. The property is unchanged: the third account
+        # disagreeing on its own is refused, and the refusal names the recorded value.
+        self.assertIn("was recorded with input_digest 'sha256:" + "e" * 20,
+                      str(caught.exception))
+        self.assertIn("the exact runtime manifest it was configured with",
                       str(caught.exception))
 
 
@@ -1394,7 +1438,8 @@ class TheOfferIdentityIsComplete(CapacityCase):
         return capacity.admit_integration_execution(
             store, control, orchestration_id=self.ORCHESTRATION,
             phase="prepare", execution_attempt_id="prepare-attempt-1",
-            assignment=self.claim_of("prepare-attempt-1"))
+            assignment=self.claim_of("prepare-attempt-1"),
+                input_manifest=self.configured_manifest())
 
     def test_an_offer_settled_for_another_participant_is_refused(self):
         store, _stage, _allocation, _answer = self.registered()
@@ -1687,7 +1732,8 @@ class TheRacesUnderOneReservation(CapacityCase):
         repeated = capacity.admit_integration_execution(
             store, self.control(), orchestration_id=self.ORCHESTRATION,
             phase="prepare", execution_attempt_id="prepare-attempt-1",
-            assignment=self.claim_of("prepare-attempt-1"))
+            assignment=self.claim_of("prepare-attempt-1"),
+                input_manifest=self.configured_manifest())
         self.assertEqual(repeated, first)
         self.destroyed("prepare-attempt-1")
         ended = capacity.end_integration_execution(
@@ -1758,7 +1804,8 @@ class TwoStoresContendForOneReservation(CapacityCase):
                 phase="apply", execution_attempt_id=stage["attempt_id"],
                 assignment=self.claim_of(stage["attempt_id"]),
                 coordinator=coordinator, authorization=self.authorization,
-                grant=self.grant)
+                grant=self.grant,
+                    input_manifest=self.configured_manifest())
         self.assertIn("ended successfully", str(caught.exception))
         held = self.members_of(second)
         self.assertEqual(held["prepare"]["state"], "admitted")
@@ -1776,7 +1823,8 @@ class TwoStoresContendForOneReservation(CapacityCase):
         again = capacity.admit_integration_execution(
             second, self._control, orchestration_id=self.ORCHESTRATION,
             phase="prepare", execution_attempt_id="prepare-attempt-1",
-            assignment=self.claim_of("prepare-attempt-1"))
+            assignment=self.claim_of("prepare-attempt-1"),
+                input_manifest=self.configured_manifest())
         self.assertEqual(again, first)
         self.assertEqual(
             store._connection.execute(
@@ -1795,7 +1843,8 @@ class TwoStoresContendForOneReservation(CapacityCase):
                 second, self.claimed("prepare-attempt-1", "prepare-offer-1"),
                 orchestration_id=self.ORCHESTRATION, phase="prepare",
                 execution_attempt_id="prepare-attempt-1",
-                assignment=self.claim_of("prepare-attempt-1"))
+                assignment=self.claim_of("prepare-attempt-1"),
+                    input_manifest=self.configured_manifest())
         self.assertIn("admission is closed", str(caught.exception))
         self.assertEqual(self.members_of(second)["prepare"]["state"],
                          "cancelled")
@@ -1862,13 +1911,23 @@ class TwoStoresContendForOneReservation(CapacityCase):
                     mine, control, orchestration_id=self.ORCHESTRATION,
                     phase="prepare",
                     execution_attempt_id="prepare-attempt-1",
-                    assignment=assignment))
+                    assignment=assignment,
+                    # W285465 review 2026-09-28T13-51-13Z: INSIDE THE ADMISSION'S OWN
+                    # PARENTHESES, and PRECOMPUTED. My previous insertion landed on
+                    # `done.append` -- the paren-matching in the pass I scripted attached it to
+                    # the wrong call -- and this thread must not derive the manifest while it
+                    # holds nothing: the document is composed on the main thread above and only
+                    # read here, so the lock assertions measure the admission and not fixture
+                    # work.
+                    input_manifest=manifest))
             except BaseException as raised:            # pragma: no cover
                 done.append(raised)
             finally:
                 mine.close()
                 control.close()
 
+        # THE OWNED MANIFEST, COMPOSED BEFORE THE CONTENDER STARTS.
+        manifest = self.configured_manifest()
         store._connection.execute("BEGIN IMMEDIATE")
         waiter = threading.Thread(target=admitting)
         waiter.start()
@@ -1947,7 +2006,8 @@ class TheApplyBringsItsGrantAndItsAuthorization(CapacityCase):
                 store, control, orchestration_id=self.ORCHESTRATION,
                 phase="prepare", execution_attempt_id="prepare-attempt-1",
                 assignment=self.claim_of("prepare-attempt-1"),
-                grant=self.grant)
+                grant=self.grant,
+                    input_manifest=self.configured_manifest())
         self.assertIn("writes no target", str(caught.exception))
 
     def test_an_unapproved_candidate_is_refused(self):
@@ -2402,7 +2462,8 @@ class TheStartIsBehindTheAdmission(ADecisionIsJournalledBeforeTheWorkExists):
         capacity.admit_integration_execution(
             store, self.control(), orchestration_id=self.ORCHESTRATION,
             phase="prepare", execution_attempt_id="prepare-attempt-1",
-            assignment=self.claim_of("prepare-attempt-1"))
+            assignment=self.claim_of("prepare-attempt-1"),
+                input_manifest=self.configured_manifest())
         self.assertEqual(
             execution.start(self.ORCHESTRATION, "prepare-attempt-1",
                             lambda: "started"), "started")
@@ -2422,7 +2483,8 @@ class TheStartIsBehindTheAdmission(ADecisionIsJournalledBeforeTheWorkExists):
         capacity.admit_integration_execution(
             store, self.control(), orchestration_id=self.ORCHESTRATION,
             phase="prepare", execution_attempt_id="prepare-attempt-1",
-            assignment=self.claim_of("prepare-attempt-1"))
+            assignment=self.claim_of("prepare-attempt-1"),
+                input_manifest=self.configured_manifest())
         # A DIFFERENT ATTEMPT IS NOT THIS ADMISSION.
         with self.assertRaises(ContractRefusal):
             execution.start(self.ORCHESTRATION, "some-other-attempt",
@@ -2444,7 +2506,8 @@ class TheStartIsBehindTheAdmission(ADecisionIsJournalledBeforeTheWorkExists):
         capacity.admit_integration_execution(
             store, self.control(), orchestration_id=self.ORCHESTRATION,
             phase="prepare", execution_attempt_id="prepare-attempt-1",
-            assignment=self.claim_of("prepare-attempt-1"))
+            assignment=self.claim_of("prepare-attempt-1"),
+                input_manifest=self.configured_manifest())
         held = capacity.integration_capacity_of(store, self.ORCHESTRATION)
         # THE ONE RESERVED ROOT, still the parent's own allocation.
         self.assertEqual(held["root"]["root_assignment_id"],
@@ -2640,8 +2703,12 @@ class ThePreparationIsCoordinatedEndToEnd(CapacityCase):
             execution_work_id=self.EXECUTION_WORK,
             execution_route=self.CHILD_ROUTE,
             policy_digest=self.POLICY, profile_name="reference",
-            accept=self.accepting(), identity=self.IDENTITY,
-        contract=self.CONTRACT)
+            accept=self.accepting(), identity=self.configured_identity(),
+            # W285465 review 2026-09-28T13-45-19Z, from the call map: this SHARED helper omitted
+            # the configured manifest, so every case reaching the admission through it arrived
+            # with none -- which is why fifteen errors were not fifteen unique calls.
+            input_manifest=self.configured_manifest(),
+            contract=self.CONTRACT)
         return store, stage, allocation, execution, held
 
     def accepting(self):
@@ -2685,11 +2752,14 @@ class ThePreparationIsCoordinatedEndToEnd(CapacityCase):
         standing in for work the composition never did -- and activation then
         refused "no runtime attempt" on the real traversal.
 
-        The input digest is the one case where the child's own configuration
-        is NOT the answer: it runs on the PUBLISHED bundle, so the attempt is
-        recorded under the digest its offer was issued with. `IDENTITY` carries
-        a deliberately different value so a composition that recorded the
-        configured manifest instead would fail here rather than at admission.
+        THE INPUT DIGEST, corrected by W285465 and review 2026-09-28T13-51-13Z. The old comment
+        said the attempt is recorded under the digest its OFFER was issued with, and `IDENTITY`
+        pinned a different value so a composition recording the configured manifest "would fail
+        here". That was written when `prepare` OVERWROTE the record's member with the plan's
+        value -- which was the defect this Work removed. The record is about the RUNTIME, so it
+        holds the EXACT configured manifest, and what the offer carries is that manifest's
+        Job-scoped PROJECTION: a different value, which is what makes the inequality below
+        meaningful rather than a constant nobody derives.
         """
         _store, _stage, _allocation, _execution, held = self.prepared()
         # THE WORKER MANAGER'S OWN STORE, which is where attempts live; the
@@ -2703,10 +2773,15 @@ class ThePreparationIsCoordinatedEndToEnd(CapacityCase):
         self.assertEqual(row["image_digest"], self.IDENTITY["image_digest"])
         self.assertEqual(row["toolchain_digest"],
                          self.IDENTITY["toolchain_digest"])
-        # THE PUBLISHED INPUT, not the configured one.
-        self.assertEqual(row["input_digest"], self.input_digest)
-        self.assertNotEqual(row["input_digest"],
-                            self.IDENTITY["input_digest"])
+        # THE EXACT RUNTIME MANIFEST, and NOT the Job-scoped projection the plan and the offer
+        # carry. Both halves matter: the equality says the record names what the worker was
+        # configured with, and the inequality says that value is genuinely distinct from the
+        # Job's identity -- derived from the same manifest rather than pinned by hand.
+        self.assertEqual(row["input_digest"], self.runtime_input_digest)
+        self.assertNotEqual(row["input_digest"], self.input_digest)
+        self.assertEqual(
+            self.configured_identity()["input_digest"],
+            self.runtime_input_digest)
 
     def test_the_whole_sequence_runs_against_real_owners(self):
         store, stage, allocation, execution, held = self.prepared()
@@ -2900,11 +2975,21 @@ class ThePreparationIsCoordinatedEndToEnd(CapacityCase):
             "task_digest": "sha256:" + "a" * 64,
             "apply_task_digest": "sha256:" + "d" * 64,
             "input_digest": request["input_digest"],
+            # AND THE JOB-FACING VALUE, named apart from the request's content digest the way
+            # production names it: the plan carries the projection this manifest derives.
+            "job_input_digest": self.input_digest,
             "profile_digest": self.PROFILE,
             "policy_digest": self.POLICY, "profile_name": "reference",
             "execution_route": self.CHILD_ROUTE, "contract": self.CONTRACT,
             "request": request, "accept": self.accepting(),
-            "identity": self.IDENTITY}
+            "identity": self.configured_identity(),
+            # W285465 review 2026-09-28T13-40-08Z: A GENUINE CONFIGURED MANIFEST, not an
+            # untyped fallback. These operands are a preparation's, carrying the request's own
+            # content digest, so the Job and runtime identities have to be derived from a real
+            # manifest exactly as `PreparationRuntime.configure` derives them -- otherwise the
+            # admission is being handed a shape nobody configured.
+            "runtime_configuration": {
+                "input_manifest": self.configured_manifest()}}
         preparation = ManagedPreparation(
             jobs=store, control=self._control, authority=self.authority(),
             port=self.port, mint_bearer=lambda: "bearer-" + operands[
@@ -3016,7 +3101,7 @@ class ThePreparationIsCoordinatedEndToEnd(CapacityCase):
             "profile_digest": self.PROFILE, "policy_digest": self.POLICY,
             "profile_name": "reference", "execution_route": self.CHILD_ROUTE,
             "contract": self.CONTRACT, "request": request,
-            "accept": self.accepting(), "identity": self.IDENTITY}
+            "accept": self.accepting(), "identity": self.configured_identity()}
         preparation = ManagedPreparation(
             jobs=store, control=self._control, authority=self.authority(),
             port=self.port, mint_bearer=lambda: "bearer-1",
@@ -3037,7 +3122,9 @@ class ThePreparationIsCoordinatedEndToEnd(CapacityCase):
                 execution_work_id=self.EXECUTION_WORK,
                 execution_route="integration-preparation",
                 policy_digest=self.POLICY, profile_name="reference",
-                accept=self.accepting(), identity=self.IDENTITY)
+                accept=self.accepting(),
+                identity=self.configured_identity(),
+                input_manifest=self.configured_manifest())
         self.assertIn("registers no prepare", str(caught.exception))
 
 
@@ -3122,7 +3209,7 @@ class ThePreparationIsAdmittedBeforeTheParentOffer(CapacityCase):
                 "execution_route": "baton.impl",
                 "request": request,
                 "accept": lambda offer_id: None,
-                "identity": self.IDENTITY}
+                "identity": self.configured_identity()}
         held.update(changed)
         return ManagedPreparation(
             jobs=store, control=self._control, authority=None,

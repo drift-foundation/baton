@@ -1,0 +1,57 @@
+{
+  "artifact_root": "/home/sl/baton-runs/single-job-257627-291715",
+  "context_reuse": false,
+  "credential_reference_only": {
+    "provider": "operator-file",
+    "reference": "w202663-development",
+    "registry": "/home/sl/.baton/credential-sources.json",
+    "status": "historical reference; not read or authenticated in this turn"
+  },
+  "files": {
+    "SOURCE-EXCERPTS-20260928.md": {
+      "bytes": 10306,
+      "sha256": "b4e27d5e91334f505c5f952c85bada1e2420a92b6f320673af6f60b5a8d3737e"
+    },
+    "TASK-SINGLE-JOB-20260928.md": {
+      "bytes": 1076,
+      "sha256": "6ece1c8f8cfe023f3ad36ea383c2b77581a8c13e01c2b3a4d92d4ffdb6332f6e"
+    }
+  },
+  "independent_review": "managed reviewer assesses exact retained proposal after run; no self-approval or automatic integration",
+  "instance_root": "/home/sl/baton-instances/single-job-257627-291715",
+  "job_count": 1,
+  "job_id": "job-single-job-257627-291715",
+  "limits": {
+    "cleanup_reserve_seconds": 60,
+    "implementer_invocations": 1,
+    "provider_turn_seconds": 180,
+    "retry": false,
+    "reviewer_provider_invocations": 0,
+    "total_seconds": 300,
+    "verification_command_seconds": 30,
+    "workspace_capacity_is_quota": false,
+    "workspace_capacity_min_bytes": 83886081
+  },
+  "proposed_profile": {
+    "checkpoint": "git",
+    "launch_contract": "v12-assignment-1",
+    "provider": "Claude",
+    "shared_gid": 1000,
+    "shared_uid": 1000,
+    "status": "must be resolved and certified against frozen image; IDs proposed from historical config, not current access proof"
+  },
+  "run_id": "single-job-257627-291715",
+  "schema": "w257627.packet-input-selection/1",
+  "stages": [
+    "implementation"
+  ],
+  "status": "draft-not-a-bootstrap-or-submission-document",
+  "submission_id": "submission-single-job-257627-291715",
+  "unresolved_derived_inputs": [
+    "fresh Authority UUID/Work/principals from supported bootstrap/preparation",
+    "immutable source revision, source object identity and target binding",
+    "validated launch/input manifest and profile certification",
+    "generated bootstrap/deployment/submission documents",
+    "accepted bounded start argv and outcome format"
+  ]
+}

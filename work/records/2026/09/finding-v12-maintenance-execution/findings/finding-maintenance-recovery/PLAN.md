@@ -1,44 +1,84 @@
-# W285465 current executable checkpoint
+# W285465 checkpoint — execution status and preservation only
 
-Aligned by baton.tuner under W286800 claim286803, owner286800; discussion read
-T286800/286800 and T285465/286802. W285465 remains unclaimed and blocked on W285464
-(edge285468, detail286805). Documentation preparation supplies no new gate and
-is not child execution. Original decisions remain in FINDING; the September27
-host-preparation ruling supersedes the former container-only initial preparation
-plan. See [current criteria](RECOVERY-HOST-PREP-20260927.md).
+Claim296359; handoff296357/events296361; T285465 through295703 unchanged.
+Review review-2026-09-28T14-07-35Z.md; candidate-2026-09-28T14-07-35Z.json. G2/parent NOT accepted.
+Current authority: owner294568/294616, DESIGN primary step4, HOST-1/5, ART-7 and
+normative FINDING “execution release does not require a result check”.
 
-1. After accepted W285464 delivery and this child's successful claim, read its
-   latest review, manifest and current handoff. Pin actual host preparation,
-   durable completion, writer reconciliation and task-admission interfaces and
-   exact owned paths. Do not implement against provisional APIs in older packets.
-2. Prove connected host recovery at HP1–HP8: partial allocation/staging/publication,
-   completed effects before durable receipt, durable completion before admission,
-   interrupted/late writers, fresh handles, changed identity, replay, and task
-   launch ambiguity. Assert each cut fired, writer cessation and exact launch
-   counts. No maintenance-container launch is required for ordinary initial prep.
-3. Retain scoped maintenance recovery MC1–MC3 for operations still container-bound:
-   exact runtime cessation before transfer, expiry/engine outage unknown holds,
-   correlated replay and late-launch exclusion. Reuse unchanged accepted G1/G2
-   evidence; fill only concrete remaining connected gaps.
-4. Assemble the finite integrated matrix in the criteria document: evidence per
-   row, exact selectors/candidate hashes, inherited versus newly proved facts,
-   meaningful positive and negative assertions, unknowns and residual scope.
-   Review the resulting preparation-to-task behavior independently. No all-consumer
-   migration or automatic hold clearing. W270664 remains the later removal consumer.
-5. Pass routine continuation/corrections directly to baton.impl; independently
-   accepted delivery to owner. Carry an exact checkpoint and human Git checkpoint
-   status, never mutate Git. Parent status is updated by its authorized handler.
+## Current target — explicit supersession
 
-## Ownership and execution limits
+Exclusive host prep -> one exact leased confined Docker -> confirmed termination
+with outstanding launch conclusively settled -> durable observed EXECUTION status,
+preserve workspace AS IS, release exact execution gate. Unknown exit status recorded
+honestly; it is not unknown termination. No proactive output/permission/manifest/digest
+scan before release. Later consumer/integrator inspects output; execution success is
+not result acceptance. No automatic helper/copy/freeze/delete/reset or writer inventory.
+Concrete unknown Docker/late launch still holds. Preserve material from writable reuse.
+This supersedes check-before-release requirements in OWNER-SIMPLE-COMPLETION and older
+PLAN/reviews, including09-47-09Z. Preserve historical evidence, not obsolete test gates.
 
-Existing product/test ownership is enumerated in FINDING.md; single_worker.py's
-selected recovery boundary now includes ordinary host-preparation resume. Concrete
-additional paths, if required by the accepted implementation, must be pinned before
-edit; this documentation task grants no broad expansion. No parallel writes with
-W285464. Author owns PROGRESS at implementation start; reviews are append-only.
+## Next executable milestone — shared connected correction
 
-Future verification uses focused deterministic fake/replay providers and controlled
-engine boundaries, real coordination and fresh handles over the same persisted
-state, sensible per-run timeouts and measured durations. No live engine/model,
-deployment, destructive cleanup, second Host manager on the same workspace/DB,
-Git mutation or specification change. No tests ran for W286800 alignment.
+Ordinary scan/removal mismatch verified resolved narrowly by review_execution_only_20260928.py:
+raising access/root/removal sentinels untouched, retained, actual lane released, exact replay,
+unknown exit recorded (PASS wall0.062s). Fresh diagnostic settled/no held, one proposal,
+no preparation/start failures, elapsed0.278s. No product-wide acceptance inferred.
+Intake/maintenance/review-driver correction verified:512PASS12.849s combined.
+Historical reader P1 RESOLVED NARROWLY: receipt-focused31PASS0.845s including positive
+historical-format fixture with actual committed normalization provenance and forged negatives.
+Not an archived production-store replay/deletion proof; no need to broaden absent new defect.
+No-custodian reclaim gate RESOLVED NARROWLY:1PASS0.024s, returned/revoked and actual
+tokens.outstanding empty through composed pass. Byte preservation/no-reuse and all restart
+branches remain separate. Six tool corrections verified:53PASS0.489s full test_tool.
+Return count limit resolved: focused1PASS0.027s counts one committed token return;
+allowance prose correctly states cleanup-only coverage. Preserve tool53PASS.
+CAPACITY MILESTONE VERIFIED:139PASS1.553s; preserve fixture/race/runtime-identity fixes.
+Apply Job producer/manifest forwarding observed in source, connected apply still owed.
+NEXT child exchange: review_poll_296359.py recorded ordinary test1FAIL/0E, wall6.568s;
+raw poll-296359.json first3 polls show runtime running, cleanup pending, exchange
+waiting with no receipt/state/terminal, no start/preparation failure. Keep exclusion.
+Strong source lead: fixture engine2304 spawns reconciliation subprocess only on run;
+current token runtime supports deferred create/start (oci1250/1262). Confirm exact
+engine commands/subprocess count, adapt deterministic fake to actual boundary preserving
+one launch, exact generation and unknown/delayed-start behavior. No live run needed.
+Then ordinary positive and restart/uncertain branches through consumer/adoption, preserving
+no-scan execution release. Reuse capacity139PASS and replay proof, no unchanged broad
+reruns. Profile negatives, finite matrix/catalogue delta/final audit remain.
+Reviewer owns diagnostic probe/log; author existing product/test paths remain authorized.
+Catalogue accounting supersession:252 unprobed/13 stale declarations are reported total debt,
+not automatic W285465 scope. Eight-entry shorthand is not total inventory. Compare exact
+failure identities/affected paths, fix introduced/current-scope deltas, record inherited debt
+and ownership before expansion. Do not infer inseparability from27-vs26 counts or rewrite252.
+Remove disabled if False block/stale comments in owned correction.
+Reuse shared machinery across ordinary/failed-start/refused-session/abandonment/deadline/
+reclaim and restart drivers; preserve each caller authority/identity/replay. Persist
+observed execution status/locator without claiming validated artifacts. Distinguish
+storage protection from actual execution/capacity release in concrete ledger evidence.
+Retain prior host-preparation, generation, launch and exact-cessation safety. No broad
+rollback/framework. Implementer owns existing pinned paths; no product edits by reviewer.
+
+## Finite closure checklist
+
+1. Connected execution release with known/unknown exit status after confirmed termination;
+   preserve workspace bytes/modes. No proactive scans (raising boundary sentinels), helper,
+   copy/freeze/deletion. Actual execution gate/token release; no writable reuse of storage.
+2. Unknown runtime/late launch holds, stale generation refuses, restart/replay no duplicate
+   execution/effects, external I/O outside transactions. Consumer acceptance remains separate.
+3. Classify/correct43 preparation failures (tool53PASS preserved) under current target, new27th boundary
+   failure and exact introduced/current-scope catalogue entries; separately classify inherited debt. Counts are not acceptance.
+4. Integrated focused matrix and final exact path/digest/changed-expectation audit.
+No one-caller handoff while known siblings remain; no new approval gate for continuation.
+Author prior passing tests/fresh settled diagnostic preserved as partial historical evidence.
+
+## Ownership and boundaries
+
+Reviewer: FINDING/PLAN, append-only reviews/manifests/new probes. Author: PROGRESS and pinned
+product/test paths. Product: worker_manager/workspaces,intake,maintenance,custody,oci,review_cycles,deadlines;
+job_manager/review_driver; tools/job_manager,single_worker,stage_execution (all .py).
+Tests: manager/test_maintenance,test_intake,test_boundary_inventory,test_dependencies,
+test_review_cycles,test_attempts,test_refused_session_cleanup,test_runtime_deadlines; job_manager/test_tool,test_review_driver; tools/test_single_worker,
+test_managed_preparation,test_stage_execution (all .py). Record any needed additional exact path before editing.
+Tuner four baseline consumer files under finding-v12-single-implementation-proof stay read-only.
+No live provider/engine selected, Git mutation, deployment/graph change or shared-tree inversion.
+Routine correction/continuation directly baton.impl; accepted delivery owner. W257627 required
+Work dependency292151 remains blocked on W285465, route baton.tune; no silent early satisfaction.

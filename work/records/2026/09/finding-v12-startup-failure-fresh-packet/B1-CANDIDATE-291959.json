@@ -1,0 +1,24 @@
+{
+  "claim": 291959,
+  "readonly_dependency_paths": [
+    "v12/python/tools/single_worker.py",
+    "v12/python/tools/stage_execution.py",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py"
+  ],
+  "selected_changed_paths": [
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline_bindings.py"
+  ],
+  "sha256": {
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "67a695e59ba91ecf36af4524bb9fe54f9fb535071ce2e7baf6bf38fe145b55dc",
+    "v12/python/tools/single_worker.py": "772a67fd232362c61c7b22b371954105d61872dcbf28332641ef39e47c308926",
+    "v12/python/tools/stage_execution.py": "57dc1cf14455cbf0c09bfb498f4e7dce6863a0bb1448856d9cf93974cdffc000",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py": "9eca44b81715b83a2771d9ef66934586778a6626055f78a1a2d2c6d6b79409e7",
+    "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline_bindings.py": "c00fecbe26411b2ca59a09fbd8619d53fd8f0967df461277fb5601133a369df0"
+  },
+  "status": "partial-awaiting-independent-review-connected-G2-proof-pending"
+}

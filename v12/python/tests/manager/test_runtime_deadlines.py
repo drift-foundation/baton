@@ -303,7 +303,12 @@ class Deadlines(AttemptCase):
             if corrupt == "provider":
                 bad["observed"]["launch"]["lifecycle_state"] = "unresolved"
             elif corrupt == "custody":
-                bad["cleanup"]["directory_custody"] = None
+                # W285465 under OWNER-NO-AUTOMATIC-NORMALIZATION-20260928: this path launches
+                # no helper, so `directory_custody: None` is what the ending WRITES and a
+                # FABRICATED custody document is the corruption. The missing-account case is
+                # the establishment deletion below.
+                bad["cleanup"]["directory_custody"] = {"result": {},
+                                                       "workspace": {}}
             else:
                 bad["command"]["runtime_id"] = "sibling"
             self.store._connection.execute("UPDATE operations SET result = ? WHERE operation_id = ?",
@@ -360,8 +365,18 @@ class Deadlines(AttemptCase):
     def test_missing_capabilities_refuse_before_cancellation_intent(self):
         self.started()
         self.reached()
+        # W285465 review 2026-09-28T09-38-34Z: the seam this path proves is the WRITER
+        # LISTING, since OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removed the normalization
+        # launches from every ending it reaches. The property -- every capability this act
+        # will use is refused BEFORE the cancellation intent, the stop and the destroy -- is
+        # unchanged, and `surviving_helpers` takes `normalize_directory`'s place in it.
+        # W285465 under OWNER-SIMPLE-COMPLETION-20260928: the LISTING left this list, because
+        # a deployment that offers none now completes on the container's own cessation. The
+        # property -- every capability this act WILL USE is refused before the cancellation
+        # intent, the stop and the destroy -- is unchanged for the three that remain, and the
+        # offered-but-unusable listing has its own case above.
         for owner, member in ((self.agent, "cancel"), (self.adapter, "stop"),
-                              (self.adapter, "destroy_deadline"), (self.adapter, "normalize_directory"),
+                              (self.adapter, "destroy_deadline"),
                               (self.port, "satisfy_gate")):
             with self.subTest(member=member), mock.patch.object(owner, member, None):
                 with self.assertRaises(ContractRefusal):
@@ -370,6 +385,88 @@ class Deadlines(AttemptCase):
                     attempts._require_attempt(self.store, ATTEMPT))))
         self.assertEqual(self.adapter.stopped, [])
         self.assertEqual(self.adapter.removed, [])
+
+    # -- W285465: this family's zero-helper controls ------------------------
+
+    def test_a_NO_CUSTODIAN_deployment_that_CAN_LIST_reaches_its_ending(self):
+        """Review 2026-09-28T09-38-34Z: the refusal this preflight used to earn.
+
+        The seam was still the custodian, so a deployment with no custody act was refused
+        even though it could answer exactly what these endings now need. It reaches its
+        ending, and no helper is launched.
+        """
+        self.started()
+        self.reached()
+        self.adapter.normalize_directory = None
+        self.adapter.custodian_image_digest = None
+
+        answered = self.advance()
+
+        self.assertIsNotNone(answered["discharge"])
+        self.assertEqual(self.adapter.normalized, [],
+                         "the ending launched a normalization helper")
+        self.assertIsNone(answered["cleanup"]["cleanup"]["directory_custody"])
+        self.assert_lane_released()
+
+    def test_an_OFFERED_but_UNUSABLE_listing_destroys_NOTHING(self):
+        """W285465 under OWNER-SIMPLE-COMPLETION-20260928, which supersedes this case's shape.
+
+        A deployment that offers NO listing now completes on the container's own cessation, so
+        the thing still refused before the cancellation intent, the stop and the destroy is a
+        capability this act WILL USE and cannot -- which is W43975's [P0] rule and the reason
+        the preflight exists at all.
+        """
+        self.started()
+        self.reached()
+        self.adapter.surviving_helpers = "not a callable"
+        with self.assertRaises(ContractRefusal) as refused:
+            self.advance()
+        self.assertIn("writer-listing act", str(refused.exception))
+        self.assertEqual(self.adapter.removed, [])
+        self.assertEqual(self.adapter.stopped, [])
+        self.assert_lane_held()
+
+    def test_a_deployment_with_NO_LISTING_reaches_its_ending(self):
+        """The other side of the supersession, over this family's own path."""
+        self.started()
+        self.reached()
+        self.adapter.surviving_helpers = None
+        self.assertIsNotNone(self.advance()["discharge"])
+        self.assert_lane_released()
+
+    def test_a_SURVIVING_writer_holds_this_family_too(self):
+        self.started()
+        self.reached()
+        self.adapter.surviving_helpers = lambda store, *, assignment_id, \
+            seconds=None, reclaim=None: [
+                {"helper_identity": "baton-custody-" + "a" * 32,
+                 "why": "the engine listed this helper as running"}]
+        with self.assertRaises(ContractRefusal) as refused:
+            self.advance()
+        self.assertIn("still survives", str(refused.exception))
+        self.assert_lane_held()
+
+    def test_an_UNREADABLE_listing_answer_is_RECORDED_and_does_not_hold(self):
+        """W285465 under OWNER-SIMPLE-COMPLETION-20260928: superseded from a hold to a record.
+
+        An unreadable answer is still never read as "no writers" -- that defect stays fixed --
+        but it does not hold this family either, because the cessation rests on the exact
+        container. The establishment says which evidence it had.
+        """
+        from baton_v12.worker_manager import intake
+
+        self.started()
+        self.reached()
+        self.adapter.surviving_helpers = lambda store, *, assignment_id, \
+            seconds=None, reclaim=None: "quiet"
+        answered = self.advance()
+        self.assertIsNotNone(answered["discharge"])
+        ceased = intake.historical_writer_cessation(
+            self.store, answered["cleanup"]["cleanup"]["operation"])
+        self.assertEqual(ceased["established"], "container-cessation")
+        self.assertIn("not an observation this manager can read",
+                      ceased["listing"])
+        self.assert_lane_released()
 
     def test_bad_destroy_answers_cannot_settle_or_discharge(self):
         self.started()
@@ -399,7 +496,10 @@ class Deadlines(AttemptCase):
         self.started()
         self.reached()
         from baton_v12.worker_manager import intake
-        with mock.patch.object(intake, "_normalized", side_effect=OSError("interrupted custody")):
+        # W285465: the act this ending performs before its terminal commit is the
+        # ESTABLISHMENT, not a normalization -- so that is what this crash interrupts.
+        with mock.patch.object(intake, "_record_writer_cessation",
+                               side_effect=OSError("interrupted establishment")):
             with self.assertRaises(OSError):
                 self.advance()
         first = self.adapter.removed[0]
@@ -813,7 +913,9 @@ class DeadlineReceiptedOutput(IntakeCase):
         adapter.destroy_deadline = mock.Mock(side_effect=AssertionError("receiptless destruction"))
         answer = advance_deadline(self.store, self.port, Agent(), adapter, attempt_id=ATTEMPT,
                                   retention_policy_digest=RETENTION)
-        self.assertEqual(answer["cleanup"]["cleanup"], "complete")
+        # W285465 under the owner supersession at 294568/294616: the ordinary receipt cleanup
+        # PRESERVES the workspace as is, so it settles `retained`.
+        self.assertEqual(answer["cleanup"]["cleanup"], "retained")
         self.assertEqual(len(adapter.destroyed_with), 1)
         adapter.destroy_deadline.assert_not_called()
         self.assertEqual(self.attempt_axis("worker_disposition"), "completed")

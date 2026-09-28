@@ -117,7 +117,15 @@ RUNTIME_ADAPTER = ("stop", "list", "observe", "seal", "collect", "retain",
                    # first completion read, so an adapter that cannot
                    # perform it must say so before the stop rather than
                    # after it.
-                   "prove_line_consumable")
+                   "prove_line_consumable",
+                   # W285465: the ordinary ending's writer listing. Under
+                   # OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 no helper is
+                   # launched on this path, so what an ending establishes its
+                   # roots' quiescence with is this observation -- and it is
+                   # typed with the rest for the original reason: an adapter
+                   # that cannot answer must say so BEFORE the stop rather
+                   # than after the runtime is gone.
+                   "surviving_helpers")
 
 # The one adapter member that is an IDENTITY rather than a verb. Retention and
 # cleanup bind the custodian that performed them, so an adapter that cannot say
@@ -554,7 +562,8 @@ def _collected(control, port, adapter, *, attempt_id, retention_disposition,
 
 
 def prepare_implementation(control, *, line_id, attempt_id, generation,
-                           worker_id, profile, based_checkpoint_id=None):
+                           worker_id, profile, based_checkpoint_id=None,
+                           preparing=None):
     """Grant this attempt the line's ONE writer and compose its mount.
 
     `based_checkpoint_id` is what makes a correction round the SAME line rather
@@ -573,15 +582,19 @@ def prepare_implementation(control, *, line_id, attempt_id, generation,
         control, line_id=line_id, attempt_id=attempt_id, generation=generation,
         worker_id=worker_id, profile=profile,
         based_checkpoint_id=based_checkpoint_id)
+    # W285465: the acting preparation's own capability travels to the writer boundary, so
+    # the writer holding the window is not refused by it at the line adoption. It is
+    # validated at the adoption entry, which owns that rule; nothing here interprets it.
     boundary = review_cycles.writer_boundary(
-        control, writer_id=granted["writer_id"], generation=generation)
+        control, writer_id=granted["writer_id"], generation=generation,
+        preparing=preparing)
     return {"writer_id": granted["writer_id"], "line_id": line_id,
             "generation": generation,
             "based_checkpoint_id": based_checkpoint_id, "boundary": boundary}
 
 
 def prepare_review(control, *, checkpoint_id, attempt_id, generation,
-                   reviewer_worker_id, profile):
+                   reviewer_worker_id, profile, preparing=None):
     """Attach the reviewer to the exact current checkpoint, BEFORE it starts.
 
     THE ATTACHMENT IS THE AUTHORIZATION AND IT COMES FIRST. `review_boundary`
@@ -601,8 +614,13 @@ def prepare_review(control, *, checkpoint_id, attempt_id, generation,
         control, checkpoint_id=checkpoint_id, attempt_id=attempt_id,
         generation=generation, reviewer_worker_id=reviewer_worker_id,
         profile=profile)
+    # W285465: THE ACTING PREPARATION'S CAPABILITY TRAVELS HERE TOO, for the same reason it
+    # travels through `prepare_implementation`: the review mount adopts the attempt's roots,
+    # and a preparation that holds the window would be refused by its own ownership without
+    # it. The adoption entry validates it; nothing here interprets it.
     boundary = review_cycles.review_boundary(
-        control, attachment_id=attached["attachment_id"], profile=profile)
+        control, attachment_id=attached["attachment_id"], profile=profile,
+        preparing=preparing)
     return {"attachment_id": attached["attachment_id"],
             "checkpoint_id": checkpoint_id, "generation": generation,
             "boundary": boundary}

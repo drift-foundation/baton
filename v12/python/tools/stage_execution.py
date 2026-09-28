@@ -1274,7 +1274,7 @@ class StageComposition:
 
     # -- before a runtime starts ---------------------------------------------
 
-    def mount(self, worker, stage, roots):
+    def mount(self, worker, stage, roots, preparing=None):
         """The two roots this role's container is started over.
 
         THE ACCEPTED BOUNDARY COMPOSES BOTH, and neither is this module's
@@ -1286,7 +1286,8 @@ class StageComposition:
         """
         del roots
         attempt_id = stage["attempt_id"]
-        held = self._prepared.get(attempt_id) or self._prepare(stage)
+        held = (self._prepared.get(attempt_id)
+                or self._prepare(stage, preparing=preparing))
         if held["boundary"] is None:
             # W122060: AND THAT IS A REFUSAL RATHER THAN A NULL HANDED ON.
             # A recovered ending whose writer is already revoked has no mount
@@ -1317,7 +1318,7 @@ class StageComposition:
         from baton_v12.worker_manager import provider_context
         return provider_context.revalidate_context_start(self.deployment.control, self.deployment.jobs, worker.port, attempt_id=stage["attempt_id"])
 
-    def _prepare(self, stage):
+    def _prepare(self, stage, preparing=None):
         """Grant this role's boundary, or recover the one already granted.
 
         W119114 FINDING, 2026-09-08: `mount` called this UNCONDITIONALLY, and
@@ -1357,7 +1358,8 @@ class StageComposition:
         deployment = self.deployment
         control = deployment.control
         generation = deployment.generation_of(attempt_id)
-        recovered = self._recovered(attempt_id, generation)
+        recovered = self._recovered(attempt_id, generation,
+                                    preparing=preparing)
         if recovered is not None:
             self._prepared[attempt_id] = recovered
             return recovered
@@ -1372,21 +1374,29 @@ class StageComposition:
             # states the line's own fact rather than deciding which round this
             # is -- and states it identically on the launch tick and the
             # ending tick, which is what makes the grant replay.
+            # W285465: THE FRESH IMPLEMENTATION CARRIES IT TOO, which is the hop the
+            # consumer's fresh positive reaches. Forwarded, never interpreted here.
             prepared = review_driver.prepare_implementation(
                 control, line_id=line["line_id"], attempt_id=attempt_id,
                 generation=generation, worker_id=self.worker_id,
                 profile=deployment.profile,
-                based_checkpoint_id=line["current_checkpoint_id"])
+                based_checkpoint_id=line["current_checkpoint_id"],
+                preparing=preparing)
         else:
+            # W285465: THE REVIEW STAGE FORWARDS THE CAPABILITY TOO. The implementation
+            # branch above has done so since the chain was threaded; this branch did not,
+            # so a review preparation composing its mount while holding its own host
+            # preparation window would be refused by that window.
             prepared = review_driver.prepare_review(
                 control, checkpoint_id=line["current_checkpoint_id"],
                 attempt_id=attempt_id, generation=generation,
-                reviewer_worker_id=self.worker_id, profile=deployment.profile)
+                reviewer_worker_id=self.worker_id, profile=deployment.profile,
+                preparing=preparing)
         held = dict(prepared, generation=generation)
         self._prepared[attempt_id] = held
         return held
 
-    def _recovered(self, attempt_id, generation):
+    def _recovered(self, attempt_id, generation, preparing=None):
         """This attempt's already-granted record, or absence before there is
         one.
 
@@ -1411,9 +1421,14 @@ class StageComposition:
                 return None
             boundary = None
             if writer["state"] == "active":
+                # W285465 review 2026-09-28T04-52-30Z: THIS IS NOT OBSERVATION-ONLY. I
+                # called every stage `writer_boundary` an observation; `_recovered` is
+                # reached through `mount` and `_prepare`, so the acting preparation's own
+                # capability travels here too. It is validated at the adoption entry, which
+                # owns that rule, and an absent one refuses exactly as before.
                 boundary = review_cycles.writer_boundary(
                     control, writer_id=writer["writer_id"],
-                    generation=generation)
+                    generation=generation, preparing=preparing)
             return {"writer_id": writer["writer_id"],
                     "line_id": writer["line_id"], "generation": generation,
                     "based_checkpoint_id": writer["based_checkpoint_id"],
@@ -1424,9 +1439,14 @@ class StageComposition:
             return None
         boundary = None
         if attachment["state"] == "active":
+            # W285465 review 2026-09-28T08-35-38Z: THE RECOVERED REVIEW LINE FORWARDS IT
+            # TOO. `_prepare` passes the capability into this recovery and the writer branch
+            # above uses it; this branch DROPPED it, so every tick after the first that
+            # recomposes an active review mount while the preparation window stands was
+            # refused by that window. Validated at the adoption entry, which owns the rule.
             boundary = review_cycles.review_boundary(
                 control, attachment_id=attachment["attachment_id"],
-                profile=self.deployment.profile)
+                profile=self.deployment.profile, preparing=preparing)
         return {"attachment_id": attachment["attachment_id"],
                 "checkpoint_id": attachment["checkpoint_id"],
                 "generation": generation, "boundary": boundary}
@@ -2854,9 +2874,15 @@ class Integration:
             self.finish_managed(stage, operations)
             return {"outcome": "integrated"}
         if planned["state"] == "planned":
+            # W285465 per tuner 295684: THE APPLY ADMISSION CARRIES ITS CONFIGURED MANIFEST TOO,
+            # and it is the ORDINARY worker's -- the phase this admission is about -- rather than
+            # the preparation's. The admission derives the Job identity from it and verifies the
+            # exact runtime digest against the attempt record, the same rule both phases keep.
             admit_integration_execution(deployment.jobs, deployment.control, orchestration_id=result_id, phase="apply",
                                         execution_attempt_id=attempt, assignment=fixed, coordinator=deployment.integration,
-                                        authorization=authorization, grant=grant)
+                                        authorization=authorization, grant=grant,
+                                        input_manifest=deployment.integration_served(
+                                            stage["job_id"])["input_manifest"])
         if attempt_runtime_of(deployment.control, attempt)["runtime_id"] is None:
             queue.live_grant(deployment.integration, **grant)
             authorization.authorized({"managed_result_id": result_id, "canonical_target_id": target_id,
@@ -5969,8 +5995,33 @@ class PreparationRuntime:
         manifest["manifest_digest"] = digest(manifest)
         given = dict(self.worker, input_manifest=manifest, task_bytes=body,
                      source_nomination=source_boundary.nominate_source(held["published_root"]))
+        # W285465 review 2026-09-28T11-36-45Z: THE JOB'S IDENTITY AND THE RUNTIME MANIFEST'S ARE
+        # DIFFERENT FACTS, and conflating them is the production mismatch the reviewer traced.
+        #
+        # `input_digest` below is the EXACT RUNTIME MANIFEST digest: the publication and the
+        # recovery branch above both mean that one, and the attempt identity is bound to it. What
+        # a JOB names is W202663's Job-scoped PROJECTION -- one value across workers that select
+        # different images -- and `single_worker._matches` requires precisely that. Passing the
+        # whole digest as the Job input made every admit refuse with "this Job names the whole
+        # runtime manifest digest", which is that rule working on the wrong operand.
+        #
+        # So the projection is derived HERE, from this worker's own manifest, and carried beside
+        # the runtime identity rather than replacing it. Nothing is rewritten: the retained
+        # submission, the publication and the attempt identity keep the values they had.
         return dict(held, input_digest=manifest["manifest_digest"],
-                    apply_input_digest=self.deployment.integration_served(held["request"]["job_id"])["input_manifest"]["manifest_digest"],
+                    job_input_digest=job_input_identity(
+                        manifest,
+                        what="this preparation worker's configured input"),
+                    # W285465 per tuner 295684 and review 2026-09-28T13-51-13Z: THE APPLY PHASE
+                    # IS JOB-FACING TOO. This named the ordinary worker manifest's whole digest,
+                    # which the apply plan member then carried -- the same conflation the
+                    # preparation phase had. The apply member names that manifest's Job-scoped
+                    # projection, and the runtime digest stays beside it for the record.
+                    apply_input_digest=job_input_identity(
+                        self.deployment.integration_served(
+                            held["request"]["job_id"])["input_manifest"],
+                        what="this Job's ordinary worker input"),
+                    apply_runtime_input_digest=self.deployment.integration_served(held["request"]["job_id"])["input_manifest"]["manifest_digest"],
                     retention_policy_digest=given["retention_policy_digest"],
                     identity=dict(held["identity"], input_digest=manifest["manifest_digest"]),
                     runtime_configuration=given)
@@ -6022,7 +6073,16 @@ class PreparationRuntime:
                 "job_id": held["request"]["job_id"]}
 
     def _inputs(self, held):
-        return {"input_digest": held["input_digest"], "policy_digest": held["policy_digest"]}
+        """The operands a JOB is admitted against: the Job-scoped projection, not the manifest.
+
+        W285465 review 2026-09-28T11-36-45Z. `held["input_digest"]` is the exact runtime
+        manifest's digest, which the publication and the attempt identity are bound to; a Job
+        names that manifest's projection. FAIL-CLOSED on absence: a `held` without the
+        projection has not been through `configure`, and admitting it against the runtime digest
+        is the mismatch this corrects rather than a fallback worth having.
+        """
+        return {"input_digest": held["job_input_digest"],
+                "policy_digest": held["policy_digest"]}
 
     def admit(self, held):
         return self._operations(held).admit(self._stage(held), self._inputs(held))

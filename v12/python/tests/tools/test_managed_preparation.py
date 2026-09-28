@@ -2299,9 +2299,30 @@ class OneManagedPreparationCompletes(unittest.TestCase):
                 handle.close()
         self.addCleanup(cleanup)
 
+        # W285465 review 2026-09-28T14-07-35Z: THE REAL BOUNDARY IS THE DEFERRED PAIR.
+        #
+        # This fake launched its reconciliation subprocess only on `run`, which is the
+        # ACTIVATE_IMMEDIATELY vector. The governed token runtime composes
+        # `ACTIVATE_DEFERRED` -- `create` first, journalled and inert, then `start` as a
+        # separate act (oci.py:1250 and the `activation_vector` at 1262) -- so on the current
+        # path no `run` ever arrives, the child never started, and the ordinary case sat with
+        # the child running-and-pending and the exchange waiting.
+        #
+        # So the composition is read off the CREATE, which is the vector carrying the mounts and
+        # the labels, and the subprocess is launched on the START that activates it. Exactly one
+        # launch per created container, keyed by the runtime id the create named, so a replayed
+        # start cannot double it and the generation is untouched.
+        created = {}
+
         def engine(argv, **options):
             answer = original_engine(argv, **options)
-            if argv[1] == "run" and "--entrypoint" not in argv:
+            if argv[1] == "create" and "--entrypoint" not in argv:
+                created[answer["stdout"].strip() or argv[-1]] = list(argv)
+            if argv[1] == "start" and argv[-1] in created:
+                argv = created.pop(argv[-1])
+            elif not (argv[1] == "run" and "--entrypoint" not in argv):
+                return answer
+            if True:
                 started = [live[0].started[-1]["execution_attempt_id"]]
                 admitted = integration_capacity_of(held.job, live[0].started[-1]["intent"]["orchestration_id"])
                 phases = {one["phase"]: one for one in admitted["members"]}

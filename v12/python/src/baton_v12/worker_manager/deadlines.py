@@ -364,7 +364,14 @@ def advance_deadline(store, port, agent, adapter, *, attempt_id, retention_polic
             (getattr(adapter, "destroy_deadline", None), "a deadline runtime destroy"),
             (getattr(port, "satisfy_gate", None), "a deadline Authority gate discharge")):
         boundaries.capability(capability, what)
-    intake._custody_capable(adapter)
+    # W285465 review 2026-09-28T09-38-34Z, and this preflight was the last place the old seam
+    # survived. OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removed the normalization launches
+    # from every ending this path reaches, so demanding a custodian here refused a deployment
+    # that could ACTUALLY answer what these endings need, and offered nothing for one that
+    # could not -- measured by the reviewer's probe as a destroy performed once before the
+    # refusal arrived. The seam these endings use is the writer listing, and typing it HERE is
+    # what keeps W43975's [P0] rule on this path: proved before the destroy, not after it.
+    intake._ending_capable(adapter, attempt_id)
     if row["cleanup"] not in ("pending", "blocked-on-intake"):
         # Ordinary receipt cleanup can already have committed before discharge.
         if intake.intake_receipt_of(store, attempt_id) is not None:

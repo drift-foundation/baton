@@ -31,7 +31,7 @@ says whether it is excluded -- two facts that must never be read off each other.
 """
 import json
 
-from ..contracts import ContractRefusal
+from ..contracts import ContractRefusal, job_input_identity
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from ..worker_manager.attempts import (assignment_of, attempt_runtime_of,
@@ -853,6 +853,7 @@ def _approved_candidate(authorization, grant, collected, orchestration_id):
 
 def admit_integration_execution(store, control, *, orchestration_id, phase,
                                 execution_attempt_id, assignment,
+                                input_manifest=None,
                                 coordinator=None, authorization=None,
                                 grant=None):
     """Admit ONE planned phase, with the claim that actually happened.
@@ -980,12 +981,29 @@ def admit_integration_execution(store, control, *, orchestration_id, phase,
                 f"no use for is capability nobody should hold")
     else:
         held_grant, approved = None, None
+    # W285465 review 2026-09-28T13-09-26Z [P1]: OWNED AND DERIVED BEFORE THE REPLAY DECIDES.
+    # `perform` does not run on a successful replay, so a manifest validated only in there was
+    # not validated on the path that matters most -- the retry. The document is owned here, the
+    # two facts are derived here, and both ride the signature below so the identity is BOUND to
+    # the configured input this admission was asked with.
+    held_manifest = boundaries.document(
+        input_manifest, f"execution {name_value(execution_attempt_id)}'s "
+                        f"configured input manifest")
+    projection = job_input_identity(
+        held_manifest,
+        what=f"execution {name_value(execution_attempt_id)}'s configured input")
+    exact = held_manifest["manifest_digest"]
     operation_id = "integration-capacity.admit:" + execution_attempt_id
     signature = job_signature(
         "integration-capacity.admit",
         {"orchestration_id": orchestration_id, "phase": phase,
          "execution_attempt_id": execution_attempt_id,
          "assignment": dict(held),
+         # AND THE CONFIGURED INPUT THIS ADMISSION WAS ASKED WITH, both facts of it. An
+         # operation identity that ignored them would replay one manifest's admission for
+         # another's retry, which is the defect the review caught in the validation's placement.
+         "job_input_digest": projection,
+         "runtime_input_digest": exact,
          # THE GRANT *AND* THE AUTHORIZED CANDIDATE RIDE THE SIGNATURE.
          # Review 2026-09-14T00:55:37Z: I claimed both and signed only the
          # grant, so an exact retry naming another approved candidate replayed
@@ -1097,14 +1115,47 @@ def admit_integration_execution(store, control, *, orchestration_id, phase,
         # this phase was meant to run; the offer says what was claimed; the
         # attempt record says what the manager configured. Two of three
         # agreeing is not agreement.
-        for name in ("profile_digest", "input_digest"):
-            planned, settled = member[name], offer[name]
-            written = recorded.get(name)
-            if not (planned == settled == written):
-                _refuse(f"execution {name_value(execution_attempt_id)} is "
-                        f"planned with {name} {name_value(planned)}, claimed "
-                        f"an offer carrying {name_value(settled)} and was "
-                        f"recorded with {name_value(written)}")
+        # W285465 review 2026-09-28T13-09-26Z [P1]: NOT A CHAINED COMPARISON. `A != B != C` is
+        # `A != B and B != C` in Python, which ADMITS A,A,B and B,A,A -- two of the three
+        # disagreements this rule exists to catch. Three-way equality is stated as one predicate.
+        if not (member["profile_digest"] == offer["profile_digest"]
+                == recorded.get("profile_digest")):
+            _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+                    f"with profile_digest {name_value(member['profile_digest'])}, "
+                    f"claimed an offer carrying "
+                    f"{name_value(offer['profile_digest'])} and was recorded "
+                    f"with {name_value(recorded.get('profile_digest'))}")
+        # AND THE INPUT IDENTITY, WHICH IS TWO FACTS ABOUT ONE MANIFEST.
+        #
+        # W285465 review 2026-09-28T12-37-18Z. W202663 separated what a JOB names -- one
+        # Job-scoped projection across workers that may select different images -- from the
+        # EXACT RUNTIME MANIFEST each worker is configured with. Three-way equality on a single
+        # `input_digest` could only hold while those were the same value, and demanding it made
+        # every admission refuse once the plan and the offer started naming the projection.
+        #
+        # SO THE MANIFEST ITSELF IS VALIDATED and both facts are derived from it: the projection
+        # is what the plan and the offer must carry, and the manifest's own digest is what the
+        # attempt record must hold. A second membership column with split comparisons would NOT
+        # have proved this -- the public plan accepts caller values, so two caller digests
+        # asserting their own correspondence assert nothing. One owned manifest cannot.
+        #
+        # THE DERIVATION HAPPENS OUTSIDE THIS ACTION, and review 2026-09-28T13-09-26Z [P1] is
+        # why: everything in here is SKIPPED on a successful replay, so a retry naming another
+        # manifest was never validated at all. `projection` and `exact` are derived before the
+        # transact and RIDE THE SIGNATURE, so a retry with a different configured input collides
+        # instead of replaying somebody else's answer.
+        if member["input_digest"] != projection \
+                or offer["input_digest"] != projection:
+            _refuse(f"execution {name_value(execution_attempt_id)} is planned with "
+                    f"input_digest {name_value(member['input_digest'])} and claimed an offer "
+                    f"carrying {name_value(offer['input_digest'])}; the configured manifest's "
+                    f"Job identity is {name_value(projection)}, and a Job is admitted against "
+                    f"the projection its own input derives")
+        if recorded.get("input_digest") != exact:
+            _refuse(f"execution {name_value(execution_attempt_id)} was recorded with "
+                    f"input_digest {name_value(recorded.get('input_digest'))} and its "
+                    f"configured manifest is {name_value(exact)}; the attempt record names the "
+                    f"exact runtime manifest it was configured with")
         # AND APPLY FOLLOWS A PREPARATION THAT SUCCEEDED. Review [P1]: the
         # first form let `apply` be the FIRST admission, and let it follow a
         # failed preparation -- neither of which has the prepared content an

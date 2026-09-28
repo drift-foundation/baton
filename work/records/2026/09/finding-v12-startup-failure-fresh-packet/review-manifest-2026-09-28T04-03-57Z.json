@@ -1,0 +1,67 @@
+{
+  "work": "W257627",
+  "claim": 292014,
+  "verdict": "partial-continue-dependency-drift-no-independent-rerun",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "732585260c848e1ff4a086bb26768b83d3cc4a5f66d634d5d19d649bc062e21a",
+      "bytes": 352163
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "772a67fd232362c61c7b22b371954105d61872dcbf28332641ef39e47c308926",
+      "bytes": 217261
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "57dc1cf14455cbf0c09bfb498f4e7dce6863a0bb1448856d9cf93974cdffc000",
+      "bytes": 384835
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+      "sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "bytes": 105968
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py",
+      "sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+      "bytes": 40689
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py",
+      "sha256": "9eca44b81715b83a2771d9ef66934586778a6626055f78a1a2d2c6d6b79409e7",
+      "bytes": 46592
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline_bindings.py",
+      "sha256": "c00fecbe26411b2ca59a09fbd8619d53fd8f0967df461277fb5601133a369df0",
+      "bytes": 34679
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/review-2026-09-28T04-03-57Z.md",
+      "sha256": "2b4c1d5416bd77326f81a2abd9ab64cab0802f77e9371e8f85a6ad274797c5ff",
+      "bytes": 2445
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/PLAN.md",
+      "sha256": "9d83eadcf36f8333ab50442a348b25ca6851bfae9390385a9f95966e698ad6d8",
+      "bytes": 10565
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/FINDING.md",
+      "sha256": "bc79a2222edb2dcc298c74792f7e71f2f4214ccf7a3f837528b2c6450b8d0193",
+      "bytes": 18505
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/B1-CHECKPOINT-291959.md",
+      "sha256": "37545faf656402b83408bf93e96a7525eb79173559313badbf3fcff34b1d36e2",
+      "bytes": 3250
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/B1-FOCUSED-291959.sh",
+      "sha256": "d3831b05be0bad2514d582f09cd14e434cf0c3b30b63947c6c9bbb00142dbd76",
+      "bytes": 2004
+    }
+  ]
+}

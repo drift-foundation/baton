@@ -1,0 +1,147 @@
+{
+  "failures": 1,
+  "errors": 0,
+  "polls": [
+    {
+      "answer": null,
+      "view": {
+        "claimed_by": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0-offer",
+        "runtime": {
+          "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "runtime_id": "runtime-single-3",
+          "execution_runtime": "running",
+          "cleanup": "pending",
+          "assignment": {
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            },
+            "participant": "baton.integrator",
+            "generation": 1
+          }
+        },
+        "activity": {
+          "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "bytes_observed": null,
+          "observed_at": null
+        },
+        "output": null,
+        "start_failure": null,
+        "preparation_failure": null,
+        "exchange": {
+          "transport": "baton.worker-exchange/1",
+          "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f",
+          "command": {
+            "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f",
+            "command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788",
+            "operations": [
+              "describe",
+              "work"
+            ]
+          },
+          "receipt": null,
+          "states": [],
+          "terminal": null,
+          "foreign": [],
+          "unreadable": null,
+          "state": "waiting"
+        },
+        "integration": null
+      }
+    },
+    {
+      "answer": null,
+      "view": {
+        "claimed_by": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0-offer",
+        "runtime": {
+          "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "runtime_id": "runtime-single-3",
+          "execution_runtime": "running",
+          "cleanup": "pending",
+          "assignment": {
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            },
+            "participant": "baton.integrator",
+            "generation": 1
+          }
+        },
+        "activity": {
+          "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "bytes_observed": null,
+          "observed_at": null
+        },
+        "output": null,
+        "start_failure": null,
+        "preparation_failure": null,
+        "exchange": {
+          "transport": "baton.worker-exchange/1",
+          "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f",
+          "command": {
+            "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f",
+            "command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788",
+            "operations": [
+              "describe",
+              "work"
+            ]
+          },
+          "receipt": null,
+          "states": [],
+          "terminal": null,
+          "foreign": [],
+          "unreadable": null,
+          "state": "waiting"
+        },
+        "integration": null
+      }
+    },
+    {
+      "answer": null,
+      "view": {
+        "claimed_by": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0-offer",
+        "runtime": {
+          "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "runtime_id": "runtime-single-3",
+          "execution_runtime": "running",
+          "cleanup": "pending",
+          "assignment": {
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W47984398722361"
+            },
+            "participant": "baton.integrator",
+            "generation": 1
+          }
+        },
+        "activity": {
+          "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0",
+          "bytes_observed": null,
+          "observed_at": null
+        },
+        "output": null,
+        "start_failure": null,
+        "preparation_failure": null,
+        "exchange": {
+          "transport": "baton.worker-exchange/1",
+          "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f",
+          "command": {
+            "sequence_id": "sequence-8e6390981511cb2d6ff48c3ca4bd9e0f",
+            "command_digest": "sha256:9c35200f2bacbac4d2bdf383cdb14e590b9de202cb659d578fb7cb4c2cc21788",
+            "operations": [
+              "describe",
+              "work"
+            ]
+          },
+          "receipt": null,
+          "states": [],
+          "terminal": null,
+          "foreign": [],
+          "unreadable": null,
+          "state": "waiting"
+        },
+        "integration": null
+      }
+    }
+  ]
+}

@@ -176,3 +176,18 @@ historical reviews and candidate195453 remain unchanged. Exact accepted digest,
 path set, test expectation assessment and production-evidence limits are pinned
 in review-2026-09-17T15-16-29Z.md. Source candidate accepted; owner approval and
 any later deployment remain separate. Pass the prepared change to baton.ops.
+
+## 2026-09-28 — operator control absent from running deployment
+
+**Observed by baton.prompt:** while owner requested interruption and revised-spec
+continuation of W285465, the running Claude bridge PID2083440 used release
+0650c61. That deployed bridge source lacks the repository OperatorControl and
+`--control` dispatch. Invoking its executable with the live configuration and
+`--control status` exited 2 at the existing-session refusal (`session.mode=new`,
+session 0500d459-8ece-443f-9b54-1d0097497b10). No cancellation occurred.
+Source acceptance above remains valid; it is not production availability.
+Do not switch the configuration to load merely to retry this command: that
+could launch a second readiness consumer. No process, claim or deployment was
+changed. Posting this observation to T195314 was refused because W195314 is
+closed; this append records follow-up evidence without changing its acceptance.
+Current implementation/reviewer steering was posted on W285465 as 294616.

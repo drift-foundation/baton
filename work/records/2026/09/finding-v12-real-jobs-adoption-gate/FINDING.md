@@ -754,3 +754,40 @@ W285642 tuner correction; product and active G2 ownership stay unchanged.
 Coordination-only update by baton.tuner under claim285648/handoff285645;
 current execution remains in PLAN and canonical Baton state. Historical evidence
 and independent reviews are unchanged. No product/test/live execution selected.
+
+
+## 2026-09-28 — owner approves bounded single-job E2E preparation now
+
+Slawomir approved preparing one fresh bounded v12 end-to-end Job packet in
+parallel with W285465, then targeting execution after the candidate and exact
+packet are accepted. This is an intermediate single-job milestone, not parallel
+adoption acceptance. Two independent Jobs follow once this path works.
+
+Follow the amended DESIGN: host initial allocation/staging/input permissions;
+no automatic normalization or maintenance-helper launch on the selected
+completion/recovery path. Accessible shared-group output must progress; access
+errors must be reported with workspace preservation. Retain exact task/writer
+cessation, exclusive ownership, no external I/O under DB locks and honest
+result/failure evidence. No permission repair or broad audit as a release gate.
+
+Prepare W257627 packet now using supported interfaces, exact candidate/image
+provenance, isolated roots, literal commands, per-run limits, expected outputs
+and observable failure/hold/readback. Identify only concrete reached blockers;
+map each W257624 residual to accepted/reused evidence, a real run blocker or
+outside this selected path. Historical R/D/A recipes and mandatory maintenance
+preparation/custody assumptions above are superseded for this scheduling action.
+Do not silently waive unfinished obligations or alter graph edges. Present exact
+edge/provider dispositions; install actual graph dependencies before dependent
+execution. W247941 currently retains W257624/W257627/W275633 blockers.
+
+Packet preparation is authorized now. Freeze candidate references only after
+prerequisite acceptance; no readiness claim from provisional bytes. A concrete
+live Docker/provider packet and its remaining exact execution selection must be
+presented before launch. This does not authorize a guessed run, live test suite,
+image build/deployment change, cleanup or Git mutation. Reuse deterministic
+evidence; any actual engine/provider use must name the specific question.
+
+Tuner owns packet preparation in W257627; active W285465 product/test paths stay
+with its handler. No waiting for W285465 merely to draft commands and map blockers.
+Prompt updates this adoption checkpoint; managed reviewer independently assesses
+the packet. Record a finite ready/not-ready list rather than another broad plan.

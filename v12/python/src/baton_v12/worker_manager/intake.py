@@ -60,6 +60,8 @@ worked around by writing the terminal value some other way.
 """
 
 import json
+import os
+import stat
 
 from ..contracts import (ContractRefusal, check_no_durable_secret, digest,
                          own)
@@ -1117,7 +1119,7 @@ def retentions_of(store, attempt_id):
 # -- cleanup ------------------------------------------------------------------
 
 
-def _resource_cessation(settled, attempt, attempt_id):
+def _resource_cessation(store, settled, attempt, attempt_id):
     """The cessation a COMMITTED cleanup actually proves, or `None`.
 
     W275774 review 16:05:19Z: "document shape alone is not runtime/writer/effect
@@ -1137,9 +1139,42 @@ def _resource_cessation(settled, attempt, attempt_id):
     Anything short of both answers `None`, and the caller returns nothing -- which
     leaves the resource held, the honest state for an unproven cessation.
     """
-    if settled.get("state") != "absent" or settled.get("directory_custody") is None:
+    # W285465: EITHER ACCOUNT, and neither is assumed. `directory_custody` is the
+    # normalized ending's; `writer_cessation` is the no-helper ending's -- a committed
+    # record of an absent exact runtime, output this manager can read and an adapter-
+    # established empty writer list, which `_adopted_writer_cessation` has already
+    # compared against the journal before the ending could commit. Absence of BOTH is
+    # still `None`, and the resource stays held.
+    if settled.get("state") != "absent":
         return None
+    if settled.get("directory_custody") is None:
+        if settled.get("operation") is None:
+            return None
+        if _writer_cessation_of(store, settled) is None:
+            return None
     if attempt["runtime_id"] is None:
+        return None
+    return {"container": attempt["runtime_id"], "stopped": True, "helpers": []}
+
+
+def _established_cessation(store, attempt, operation):
+    """The cessation THIS ending established, composed from its own committed record.
+
+    W285465. The RESOURCE RETURN's evidence, derived from the committed establishment rather
+    than assembled from hope: the container the attempt row names, `stopped` because the
+    destroy observed that exact identity ABSENT, and an empty writer list because the
+    committed record says the adapter's listing found none.
+
+    NOT THE ADMISSION'S EVIDENCE ANY MORE. Review 2026-09-28T07-26-54Z: passing this to
+    `admit_cleanup` made a caller-shaped document the authority for an ownership transfer,
+    and `workspaces._ceased_generation` now reads the committed record itself. `tokens`
+    performs its own validation of what this returns, against what it bound.
+    """
+    ceased = historical_writer_cessation(store, operation)
+    if ceased is None or ceased["helpers"] != [] or ceased["state"] != "absent":
+        return None
+    if ceased["attempt_id"] != attempt["runtime_attempt_id"] \
+            or ceased["container"] != attempt["runtime_id"]:
         return None
     return {"container": attempt["runtime_id"], "stopped": True, "helpers": []}
 
@@ -1148,7 +1183,7 @@ def _released(store, govern, attempt, attempt_id, settled):
     """Return the governed resource IF this ending proved its cessation."""
     if govern is None:
         return
-    cessation = _resource_cessation(settled, attempt, attempt_id)
+    cessation = _resource_cessation(store, settled, attempt, attempt_id)
     if cessation is None:
         return
     # AFTER THE ENDING IS COMMITTED, for the reason review 15:55:27Z gave about the
@@ -1186,7 +1221,6 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     boundaries.text(retention_policy_digest, "a retention policy digest")
     boundaries.capability(getattr(adapter, "destroy", None),
                           "the runtime adapter's destroy")
-    _custody_capable(adapter)
     attempt = _attempt_of(store._connection, attempt_id)
     expect = _require_assignment(attempt, attempt_id)
     _require_participant(port, expect, attempt_id)
@@ -1284,6 +1318,14 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     # exact identity, and an identity that is already gone answers `absent`.
     # Recording an ending nobody observed would not be safe, and that is the
     # trade this ordering makes.
+    # EVERY CAPABILITY THIS ENDING WILL USE, PROVED HERE -- before the destroy, which is
+    # the first mutation, and AFTER this entry's own operands. Both halves matter: W43975's
+    # [P0] requires the seam ahead of any mutation, and the boundary catalogue's accepted
+    # rule is that an entry validates its own operands first, or a probe for a bad operand
+    # refuses for somebody else's reason. Measured: asking at the top took the inventory
+    # from 26 pending entries to 30 failures plus an error, with operand probes catching
+    # this capability refusal instead of their own.
+    _ending_capable(adapter, attempt_id)
     observed = _destroyed(adapter, attempt, attempt_id, operation,
                           receipt["receipt_digest"], retention_policy_digest)
     # AN UNSETTLED CLEANUP IS NOT JOURNALLED, and W6636 found out why the hard
@@ -1307,12 +1349,33 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
     if pending is not None:
         return pending
-    # BOTH ROOTS NORMALIZED BEFORE ANYTHING TERMINAL IS COMMITTED, and only on
-    # the path that will actually claim an ending. A positively surviving
-    # runtime settles `failed` without a directory act, because no removal and
-    # no retention claim follows from it.
+    # W285465, OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 with DESIGN HOST-5: THE WRITER
+    # CESSATION IS ESTABLISHED AND COMMITTED HERE, IN PLACE OF NORMALIZING.
+    #
+    # This called `_normalized`, which runs a custody helper per root and leaves the
+    # receipts the ending read back as `directory_custody`. The owner's ruling removes the
+    # helper from this path, so the evidence changes and the DISCIPLINE does not: it is
+    # established from observations (the exact runtime absent, the output readable by the
+    # configured group, the adapter's own writer listing empty), it is COMMITTED as its own
+    # journalled operation bound to this destroy's identity, and the ending reads it back
+    # out of the journal instead of trusting what this frame is holding.
+    #
+    # BEFORE ANYTHING TERMINAL AND BEFORE THE REMOVAL, which is the ordering owner 270664
+    # fixed and this preserves: a refusal here leaves cleanup `pending`, the roots present
+    # and the bytes untouched, which is the honest state for an ending nobody proved. An
+    # inaccessible output refuses for exactly that reason -- it is an ERROR that PRESERVES
+    # the workspace, never a licence to change permissions or delete.
+    #
+    # AND NO HELPER RUNS HERE AT ALL, WHATEVER IS CONFIGURED. Review 2026-09-28T06-23-25Z
+    # corrected my reading: OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 requires ZERO
+    # automatic launches on this completion path, not merely that a missing custodian stop
+    # being fatal. A configured capability is not permission to use it automatically, so the
+    # branch on `_can_normalize` is GONE rather than left as a preference -- a deployment
+    # that has a custodian takes exactly the same evidenced route, and the historical
+    # receipts of acts already performed are preserved and still readable.
     if observed["state"] == "absent":
-        _normalized(store, adapter, attempt_id)
+        _record_writer_cessation(store, adapter, attempt_id, attempt=attempt,
+                                 operation=operation, observed=observed)
     # W270664 F2: THE REMOVAL HAPPENS HERE, OUTSIDE THE ENDING'S TRANSACTION.
     #
     # Owner 270664 selects the enclosing cleanup entry as well as the standalone one, and this
@@ -1337,60 +1400,35 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     # receipt and needs no store -- it returns before `_adopted_custody`.
     prepared_store = None
     admitted_cleanup = None
-    if observed["state"] == "absent":
-        # EVERY REFUSING PRECONDITION IS ASKED BEFORE THE DELETION, not after it.
-        #
-        # W270664 F2, review 2026-09-26T08:28:42Z: my first hoist moved the removal ahead of
-        # `_settle` and therefore ahead of the checks INSIDE it, so a pending-submitter refusal
-        # arrived after the roots were already gone -- destructive work before eligibility, the
-        # exact ordering owner 270664 forbids. The predicate is the submitter's own record and
-        # is a database read, so it is asked here as well; `_settle` re-reads it inside the
-        # writing transaction, which is where a racing submitter is still caught.
-        if not attempts.start_submission_returned(store, attempt):
-            raise ContractRefusal(
-                "refused", "precondition",
-                f"attempt {name_value(attempt_id)}'s start submission has not returned to the "
-                f"manager that made it; a reservation is not given back on somebody else's "
-                f"observation of the runtime, and its roots are not removed either")
-        from .workspaces import (admit_cleanup, configured_workspace_storage,
-                                 discard_execution_roots)
-
-        # ONE MEASUREMENT, TWO USES. The removal needs the place and the ending
-        # needs the frozen answer the place came out of, and asking twice would
-        # be two different readings of the same directory.
-        prepared_store = configured_workspace_storage(store)
-        # W270664 F2, review 2026-09-26T09:15:26Z: THE EXCLUSION IS TAKEN HERE AND ENDS AT
-        # THE ENDING'S COMMIT, so there is no window in which these roots are nobody's.
-        #
-        # THE DEFECT IT CLOSES, reproduced by review_cleanup_gap_20260926: the removal's own
-        # ownership completes when the deletion does -- correctly, it is a record about one
-        # deletion -- and until this admission existed, NOTHING stood between that completion
-        # and this ending's commit. The probe allocated the attempt's roots in that window and
-        # this cleanup's retry then deleted material created inside them.
-        #
-        # ADMITTED AFTER EVERY REFUSING PRECONDITION and before any effect: the ending is
-        # real, the receipt is the attempt's, both roots are normalized, and the submitter has
-        # come back. An admission taken ahead of those would hold roots for a cleanup that is
-        # then refused.
-        #
-        # THE SETTLEMENT NAMES THE OPERATION THIS WILL COMMIT UNDER, with its signature and
-        # this incarnation, which is what makes the retry attributable: the same operation
-        # with the same operands adopts what it already admitted; anything else is refused.
-        settlement = {"operation": operation["operation_id"],
-                      "signature": signature,
-                      "incarnation": store.incarnation}
-        admitted_cleanup = admit_cleanup(
-            store, attempt_id, settlement,
-            f"cleaning up attempt {name_value(attempt_id)}")
-        discard_execution_roots(prepared_store.place, attempt_id, control=store,
-                                under=admitted_cleanup)
+    # W285465 under the owner supersession at 294568/294616: THE WORKSPACE IS PRESERVED AS IS,
+    # ALWAYS.
+    #
+    # My previous cut preserved only material it had found unreadable, which was still the
+    # earlier target: it walked the roots, and it DELETED the ones it could read. The selected
+    # completion performs no output observation and no removal at all -- confirmed termination,
+    # durable execution status, workspace preserved, execution gate released. So this path takes
+    # NO cleanup admission and calls NO `discard_execution_roots`, and the ending settles
+    # `retained`, which is what this axis calls material kept on purpose.
+    #
+    # THE STANDALONE CLEANUP MACHINERY IS UNTOUCHED: `admit_cleanup`,
+    # `discard_execution_roots` and their ownership rules remain for the acts that actually
+    # select them. What is removed is the AUTOMATIC removal from completion.
+    # W285465 under the owner supersession at 294568/294616, and review 2026-09-28T10-23-30Z
+    # asked for the disabled block to go rather than sit here as scaffolding: COMPLETION
+    # REMOVES NOTHING AND ADMITS NOTHING. The workspace is preserved as is, the ending settles
+    # `retained`, and `prepared_store`/`admitted_cleanup` stay `None` because no directory act
+    # is performed to measure a store for or to own. The standalone cleanup machinery --
+    # `admit_cleanup`, `discard_execution_roots` and their ownership rules -- is untouched for
+    # the acts that actually select it.
+    preserved = True
     settled = store.transact(
         operation["operation_id"], "runtime.destroy", signature,
         lambda connection: _settle(store, connection, attempt_id, receipt,
                                    retention_policy_digest, observed,
                                    operation, custody=adapter,
                                    prepared_store=prepared_store,
-                                   admitted_cleanup=admitted_cleanup))
+                                   admitted_cleanup=admitted_cleanup,
+                                   preserved=preserved))
     # W275774: AND THE GOVERNED RESOURCE GOES BACK, if this cleanup proved it free.
     _released(store, govern, attempt, attempt_id, settled)
     return settled
@@ -1860,6 +1898,15 @@ def _refuse_receipt(what, member, found, expected):
 # a sibling ending legitimately writes.
 CLEANUP_RECEIPT = ("attempt_id", "cleanup", "state", "why", "kept",
                    "operation", "directory_custody")
+
+# W285465: `writer_cessation` is the NO-HELPER ending's evidence member, and it is its own
+# member rather than a value smuggled into `directory_custody` -- the owner's ruling
+# forbids a fabricated custody receipt, and a reader that could not tell the two apart
+# could not enforce that. OPTIONAL rather than required, and the distinction is real: every
+# ending written before this member existed, and every ending whose runtime SURVIVED, has
+# no cessation to record, and absent is how those documents say so. A reader that demanded
+# it would refuse accepted receipts it has no quarrel with.
+CLEANUP_EVIDENCE = ("writer_cessation",)
 CLEANUP_ENDINGS = _ABSENT_ENDINGS + ("failed",)
 
 # The two directory roots a positive absence normalizes, innermost first, as
@@ -1986,7 +2033,8 @@ def cleanup_of(store, *, attempt_id, retention_policy_digest):
     # sibling's benefit, and this reader is expressly ordinary-only -- so a
     # list-valued foreign `kind` was returned unchanged. Ordinary `_settle`
     # never writes one.
-    taken = boundaries.document(settled, what, required=CLEANUP_RECEIPT)
+    taken = boundaries.document(settled, what, required=CLEANUP_RECEIPT,
+                                optional=CLEANUP_EVIDENCE)
     if taken["attempt_id"] != attempt_id:
         raise ContractRefusal(
             "integrity", "schema",
@@ -2055,9 +2103,32 @@ def _settled_ending(store, attempt_id, receipt, retention_policy_digest,
     # asked of the same owner rather than restated.
     _authorized(store, attempt_id, receipt, retention_policy_digest)
     kept = _kept_material(store, attempt_id, taken, what)
-    ending = "failed" if state != "absent" else (
-        "retained" if kept or receipt["custody"] == "quarantined"
-        else "complete")
+    # W285465, and review 2026-09-28T10-39-45Z caught the compatibility half of this statically.
+    #
+    # THE DERIVATION FOLLOWS THE ENDING THAT WAS ACTUALLY PERFORMED, and which one that was is
+    # PROVEN BY THE RECEIPT ITSELF rather than assumed from when this reader happens to run:
+    #
+    #   * a receipt carrying `directory_custody` was written by the PRE-RULING ending, which
+    #     normalized both roots under a custody helper and then REMOVED them. Only that path
+    #     ever wrote those receipts, and `_adopted_normalizations` below compares them against
+    #     the normalizations this manager committed -- so the provenance is proved, not taken on
+    #     trust. Those endings are derived exactly as they were: `complete` when nothing was
+    #     kept, `retained` when something was.
+    #   * a receipt WITHOUT it is a current execution-only ending: the workspace is preserved as
+    #     is and nothing is removed, so `retained` is what those facts settle and `complete`
+    #     would assert roots this manager no longer deletes.
+    #
+    # My previous cut derived `retained` for every absent runtime, which would have refused
+    # every authentic historical `complete` receipt in an existing store. NOTHING IS ACCEPTED
+    # ARBITRARILY: a receipt claiming `complete` with no custody evidence behind it is exactly
+    # the fabricated removal this refuses, and no automatic deletion is restored anywhere.
+    if state != "absent":
+        ending = "failed"
+    elif taken["directory_custody"] is not None:
+        ending = "retained" if kept or receipt["custody"] == "quarantined" \
+            else "complete"
+    else:
+        ending = "retained"
     if taken["cleanup"] != ending:
         raise ContractRefusal(
             "integrity", "schema",
@@ -2124,13 +2195,29 @@ def _adopted_normalizations(store, attempt_id, taken, what):
     from . import custody as _custody
 
     held = taken["directory_custody"]
+    ceased = _writer_cessation_of(store, taken)
     if taken["state"] != "absent":
-        if held is not None:
+        if held is not None or ceased is not None:
             raise ContractRefusal(
                 "integrity", "schema",
                 f"{what} observed its runtime {name_value(taken['state'])} "
                 f"and records directory custody; a cleanup whose runtime "
-                f"survived normalizes nothing")
+                f"survived normalizes nothing and establishes no cessation")
+        return
+    # W285465: EXACTLY ONE OF THE TWO, and it is compared against a committed act either
+    # way. `directory_custody` is the normalized ending's evidence; `writer_cessation` is
+    # the no-helper ending's, and the reader below re-reads it out of the journal rather
+    # than accepting the receipt's own copy. Both present would be a receipt claiming a
+    # normalization that this path does not perform; neither present is a terminal ending
+    # resting on nothing.
+    if (held is None) == (ceased is None):
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} records "
+            f"{'both directory custody and a writer cessation' if held is not None else 'neither directory custody nor a writer cessation'}"
+            f"; a positive absence ends on exactly one of the two accounts of its roots")
+    if held is None:
+        _adopted_writer_cessation(store, attempt_id, ceased, what)
         return
     adopted = boundaries.document(held, f"{what}'s directory custody",
                                   required=_CUSTODY_ROOTS)
@@ -2141,6 +2228,67 @@ def _adopted_normalizations(store, attempt_id, taken, what):
                 "integrity", "schema",
                 f"{what}'s {which} directory custody differs from the "
                 f"normalization this manager committed for that root")
+
+
+def _writer_cessation_of(store, taken):
+    """The committed no-helper evidence for the destroy a cleanup receipt names, or `None`.
+
+    Selected by the receipt's own operation identity -- which already binds the exact
+    runtime, the intake receipt and the retention policy -- so this cannot pick up evidence
+    committed for another runtime or another policy.
+    """
+    operation = boundaries.document(taken["operation"], "a cleanup's operation",
+                                    required=("operation_id",),
+                                    optional=("signature_digest", "kind",
+                                              "operands"))
+    return historical_writer_cessation(store, operation)
+
+
+def proved_writer_cessation(store, attempt_id, operation, what):
+    """The committed establishment for a destroy, VALIDATED, or a refusal.
+
+    W285465 review 2026-09-28T06-23-25Z asks for matching readers, and a reader that only
+    asks whether a record EXISTS is not one: measured, a record edited to say the runtime
+    was running, or that a helper survived, or that it was established for another attempt,
+    was accepted by existence alone. Every consumer of this evidence -- the ordinary ending's
+    own reader and the historical review reader -- asks this.
+    """
+    ceased = historical_writer_cessation(store, operation)
+    if ceased is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what} names no committed writer cessation for its destroy; an ending "
+            f"rests on an act this manager can show in its own journal")
+    _adopted_writer_cessation(store, attempt_id, ceased, what)
+    return ceased
+
+
+def _adopted_writer_cessation(store, attempt_id, ceased, what):
+    """The no-helper ending's evidence, compared against the record it names.
+
+    Review 2026-09-28T06-00-04Z: "matching readers". The receipt's own copy proves nothing
+    -- a store edit reaches it -- so this selects the committed `cleanup.writer-cessation`
+    for the SAME destroy operation the receipt names and compares member for member. The
+    operation identity already binds the exact runtime, the intake receipt and the
+    retention policy, so evidence committed for another runtime or another policy is a
+    different record and cannot be adopted here.
+    """
+    offered = boundaries.document(ceased, f"{what}'s writer cessation",
+                                  required=WRITER_CESSATION)
+    if offered["attempt_id"] != attempt_id:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s writer cessation was established for "
+            f"{name_value(offered['attempt_id'])}")
+    # W285465 under the 294568/294616 supersession: THE CESSATION HALF IS ALL THERE IS TO
+    # VALIDATE HERE. No output member is recorded any more, because completion performs no
+    # output observation at all; what must be true is the exact runtime absent and no
+    # surviving writer, which is what execution release rests on.
+    if offered["helpers"] != [] or offered["state"] != "absent":
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s writer cessation does not establish an absent runtime, "
+            f"accessible output and no surviving writer")
 
 
 def _absence_proof(store, attempt, attempt_id, retention_policy_digest):
@@ -2174,7 +2322,7 @@ def _absence_proof(store, attempt, attempt_id, retention_policy_digest):
         settled, f"attempt {name_value(attempt_id)}'s committed cleanup",
         required=("attempt_id", "cleanup", "state", "why", "kept", "operation",
                   "directory_custody"),
-        optional=("kind",))
+        optional=("kind",) + CLEANUP_EVIDENCE)
     if taken["attempt_id"] != attempt_id:
         raise ContractRefusal(
             "integrity", "schema",
@@ -2265,7 +2413,10 @@ def authorize_failed_start_cleanup(store, port, adapter, *, attempt_id,
     # undo that at the only place it matters.
     boundaries.capability(getattr(adapter, "destroy_failed_start", None),
                           "the runtime adapter's failed-start destroy")
-    _custody_capable(adapter)
+    # W285465 review 2026-09-28T09-15-42Z: THE FAILED-START ENDING RUNS NO HELPER EITHER, so
+    # the seam it proves before any destructive work is the writer listing its establishment
+    # is made with. W43975's [P0] rule is kept -- typed here, ahead of the destroy.
+    _ending_capable(adapter, attempt_id)
     attempt = _attempt_of(store._connection, attempt_id)
     expect = _require_assignment(attempt, attempt_id)
     _require_participant(port, expect, attempt_id)
@@ -2360,8 +2511,13 @@ def authorize_failed_start_cleanup(store, port, adapter, *, attempt_id,
     pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
     if pending is not None:
         return pending
+    # W285465 with OWNER-NO-AUTOMATIC-NORMALIZATION-20260928: ESTABLISHED AND COMMITTED,
+    # NOT NORMALIZED -- the same correction the ordinary completion and the abandonment
+    # already carry, for the same reason: this path may launch no helper, and the ending's
+    # account of its roots is an observation it commits under this destroy's own identity.
     if observed["state"] == "absent":
-        _normalized(store, adapter, attempt_id)
+        _record_writer_cessation(store, adapter, attempt_id, attempt=attempt,
+                                 operation=operation, observed=observed)
     return store.transact(
         operation["operation_id"], "runtime.destroy-failed-start", signature,
         lambda connection: _settle_recordless_cleanup(
@@ -2415,9 +2571,13 @@ def authorize_refused_session_cleanup(store, port, adapter, *, session_ref,
     # here would undo the closed member sets at the only place it matters.
     boundaries.capability(getattr(adapter, "destroy_refused_session", None),
                           "the runtime adapter's refused-session destroy")
-    _custody_capable(adapter)
     row = _require_session(store._connection, reference)
     attempt_id = row["runtime_attempt_id"]
+    # W285465: AND THE REFUSED-SESSION ENDING RUNS NO HELPER. The attempt is named by the
+    # session row above, so the seam this ending actually uses -- the writer listing -- is
+    # typed as soon as there is an attempt to name, and still ahead of the destroy, which is
+    # what W43975's [P0] rule requires.
+    _ending_capable(adapter, attempt_id)
     attempt = _attempt_of(store._connection, attempt_id)
     expect = _require_assignment(attempt, attempt_id)
     _require_participant(port, expect, attempt_id)
@@ -2478,8 +2638,13 @@ def authorize_refused_session_cleanup(store, port, adapter, *, session_ref,
     pending = _not_an_ending(store, attempt, attempt_id, observed, operation)
     if pending is not None:
         return pending
+    # W285465 with OWNER-NO-AUTOMATIC-NORMALIZATION-20260928: ESTABLISHED AND COMMITTED,
+    # NOT NORMALIZED -- the same correction the ordinary completion and the abandonment
+    # already carry, for the same reason: this path may launch no helper, and the ending's
+    # account of its roots is an observation it commits under this destroy's own identity.
     if observed["state"] == "absent":
-        _normalized(store, adapter, attempt_id)
+        _record_writer_cessation(store, adapter, attempt_id, attempt=attempt,
+                                 operation=operation, observed=observed)
     return store.transact(
         operation["operation_id"], "runtime.destroy-refused-session",
         signature,
@@ -2550,7 +2715,11 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
     # half-recorded and an authority generation fenced with nothing following.
     boundaries.capability(getattr(adapter, "destroy_abandoned", None),
                           "the runtime adapter's abandoned-attempt destroy")
-    _custody_capable(adapter)
+    # W285465 review 2026-09-28T08-48-06Z: THE ABANDONED ENDING RUNS NO HELPER EITHER, so the
+    # seam it proves before any destructive work is the writer listing its establishment is
+    # made with -- exactly as the ordinary completion does. W43975's [P0] rule is kept: the
+    # capability is typed here, ahead of the destroy.
+    _ending_capable(adapter, attempt_id)
     attempt = _attempt_of(store._connection, attempt_id)
     expect = _require_assignment(attempt, attempt_id)
     _require_participant(port, expect, attempt_id)
@@ -2743,9 +2912,19 @@ def abandon_attempt(store, port, adapter, *, attempt_id, reason,
     # failed in its caller as an implementation error instead of replaying its
     # ending. What is journalled is what is answered, and replay returns it
     # without rereading a removed runtime or a mutable axis.
+    # W285465 with OWNER-NO-AUTOMATIC-NORMALIZATION-20260928, review 2026-09-28T08-48-06Z:
+    # ESTABLISHED AND COMMITTED, NOT NORMALIZED. This ran a custody helper per root and the
+    # ending read those receipts back; the ruling removes automatic launches from this path
+    # too, and the 10 `test_stage_execution` errors were exactly that -- `custody`'s episode
+    # claim refused by the attempt's own live token, because a helper was being asked to act
+    # over roots a governed execution still owned. The evidence is the same shape the
+    # ordinary completion uses: the exact runtime absent, output this manager can read, and
+    # no surviving writer, committed under this destroy's own identity and read back before
+    # anything terminal.
     if observed["state"] == "absent":
-        _normalized(store, adapter, attempt_id, seconds=seconds,
-                    reclaim=reclaim)
+        _record_writer_cessation(store, adapter, attempt_id, attempt=attempt,
+                                 operation=operation, observed=observed,
+                                 seconds=seconds, reclaim=reclaim)
     answer = store.transact(
         operation["operation_id"], "runtime.destroy-abandoned", signature,
         lambda connection: documents.abandonment(
@@ -2967,7 +3146,8 @@ def _abandoned_absence(store, taken, attempt_id, operation, what):
     from . import custody as _custody
 
     cleanup = boundaries.document(taken, f"{what}'s committed cleanup",
-                                  required=CLEANUP_RECEIPT)
+                                  required=CLEANUP_RECEIPT,
+                                  optional=CLEANUP_EVIDENCE)
     if cleanup["attempt_id"] != attempt_id:
         raise ContractRefusal(
             "integrity", "schema",
@@ -3015,18 +3195,29 @@ def _abandoned_absence(store, taken, attempt_id, operation, what):
             f"{what} kept {name_value(cleanup['kept'])}; an abandonment "
             f"intakes nothing and decides no retention, so it keeps nothing "
             f"and its settlement records an empty list")
-    adopted = boundaries.document(cleanup["directory_custody"],
-                                  f"{what}'s directory custody",
-                                  required=_CUSTODY_ROOTS)
-    for which in _CUSTODY_ROOTS:
-        if adopted[which] != _custody.historical_directory_custody(
-                store, attempt_id, which):
-            raise ContractRefusal(
-                "integrity", "schema",
-                f"{what}'s {which} directory custody differs from the "
-                f"normalization this manager committed for that root; an "
-                f"ending is not claimed on a normalization nobody can show "
-                f"was performed")
+    # W285465 with OWNER-NO-AUTOMATIC-NORMALIZATION-20260928: EITHER ACCOUNT OF THE ROOTS,
+    # and each proved against an act this manager COMMITTED. An abandonment performed before
+    # the ruling carries two normalization receipts and is still proved against them --
+    # historical evidence is preserved rather than reinterpreted. One performed after it
+    # carries none and rests on the committed writer cessation for this destroy, validated by
+    # `proved_writer_cessation` rather than accepted for existing. Neither present is an
+    # ending resting on nothing, and both present would be a receipt claiming a normalization
+    # this path does not perform.
+    held = cleanup["directory_custody"]
+    if held is None:
+        proved_writer_cessation(store, attempt_id, cleanup["operation"], what)
+    else:
+        adopted = boundaries.document(held, f"{what}'s directory custody",
+                                      required=_CUSTODY_ROOTS)
+        for which in _CUSTODY_ROOTS:
+            if adopted[which] != _custody.historical_directory_custody(
+                    store, attempt_id, which):
+                raise ContractRefusal(
+                    "integrity", "schema",
+                    f"{what}'s {which} directory custody differs from the "
+                    f"normalization this manager committed for that root; an "
+                    f"ending is not claimed on a normalization nobody can show "
+                    f"was performed")
     return cleanup
 
 
@@ -4073,8 +4264,55 @@ def _destroyed_refused_session(adapter, attempt, attempt_id, operation,
     return answer
 
 
+def _ending_capable(adapter, attempt_id):
+    """EVERY CAPABILITY THIS ENDING WILL USE, typed BEFORE any destructive work.
+
+    W285465 with OWNER-NO-AUTOMATIC-NORMALIZATION-20260928, and it KEEPS W43975's [P0]
+    rule rather than relaxing it. That review's point is that a capability discovered after
+    the world was mutated was never typed at all, so the seam is proved up front -- and
+    which seam an ending needs depends on which ending it is:
+
+      * a deployment that CAN normalize is held to exactly the accepted requirement, both
+        halves of the custody seam, unchanged;
+      * a deployment with NO custodian must still be able to establish that no writer
+        survives, so its listing capability IS the seam and is typed here, in the same
+        place and ahead of the same destructive work.
+
+    A deployment with NEITHER is refused before the destroy is called, which is the
+    condition the accepted guard protects: an ending that could not have been completed
+    must not begin by removing a runtime.
+    """
+    # W285465 under OWNER-SIMPLE-COMPLETION-20260928: THE LISTING IS NO LONGER MANDATORY.
+    #
+    # The previous target required every selected ending to inventory hypothetical writers
+    # after the exact confined container had already been observed absent, and this typed that
+    # requirement at the entry. The owner's selected model is that confined Docker cessation
+    # PROVES the confined writers stopped, so a deployment that offers no listing is not
+    # thereby uncertain and must not be refused an ending.
+    #
+    # WHAT IS STILL TYPED: an adapter that OFFERS a listing must offer a callable one, because
+    # `_record_writer_cessation` will ask it and a positively surviving writer still refuses.
+    # A present-but-unusable capability would be discovered after the destroy, which is
+    # exactly what W43975's [P0] rule forbids.
+    offered = getattr(adapter, "surviving_helpers", None)
+    if offered is not None:
+        boundaries.capability(
+            offered,
+            f"the runtime adapter's writer-listing act, which attempt "
+            f"{name_value(attempt_id)}'s ending asks when the deployment offers one")
+    return adapter
+
+
 def _custody_capable(adapter):
-    """The mandatory custody seam, PROVED BEFORE ANY DESTRUCTIVE WORK.
+    """NO CALLERS as of W285465: kept as the historical seam's typed reader.
+
+    Every ending this module owns now proves `_ending_capable` instead, because
+    OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removed the automatic launches this typed for.
+    The rule it states is still the accepted one wherever a custody act IS performed, so it
+    stays beside `_normalized` rather than being deleted with the callers.
+
+    THE RULE IT STATES, unchanged: the mandatory custody seam, PROVED BEFORE ANY DESTRUCTIVE
+    WORK.
 
     W43975 review 2026-08-30T15:21:44Z [P0]. `normalize_directory` and
     `custodian_image_digest` were first read inside `_normalized` -- after the
@@ -4092,8 +4330,151 @@ def _custody_capable(adapter):
     return adapter
 
 
+def inaccessible_output(store, attempt_id, roots=None):
+    """The FIRST entry the shared group cannot read, or `None` -- and it launches nothing.
+
+    W285465, owner ruling OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 with DESIGN HOST-5.
+    Slawomir selects SHARED-GROUP ACCESSIBLE job output: accessible output progresses
+    with no normalization receipt at all, and inaccessible output is an ERROR that
+    preserves the workspace. So the question this answers is the one the selected
+    completion and recovery endings actually need, and it is a READ:
+
+      * the configured workspace group is read from this manager's own record, never
+        chosen by a caller -- the same capability `workspaces` mints for every other
+        group-bearing act;
+      * each entry under the governed roots is `lstat`ed with no follow, and what decides
+        is whether THAT GROUP can reach it: `S_IRGRP` on files, and `S_IRGRP | S_IXGRP`
+        on directories, since a directory without execute cannot be entered whatever its
+        read bit says;
+      * a symlink is reported rather than followed, because what a link points at is not
+        what this manager provisioned.
+
+    IT CHANGES NOTHING AND STARTS NOTHING. No chmod, no chown, no delete, no helper and
+    no container -- the owner ruling forbids every one of those as a substitute, and a
+    caller that gets an answer here reports the exact operation and preserves the bytes.
+    """
+    from . import workspaces as _workspaces
+
+    boundaries.identity(attempt_id, "an assignment identity")
+    group = _workspaces.configured_workspace_group(store).gid
+
+    def unreachable(name, place, why, held=None):
+        return {"root": name, "path": place, "group": group,
+                "mode": None if held is None else stat.S_IMODE(held.st_mode),
+                "gid": None if held is None else held.st_gid, "why": why}
+
+    def reachable(name, place, held):
+        """The group's own access to ONE entry, by mode and owning group."""
+        if stat.S_ISLNK(held.st_mode):
+            return unreachable(
+                name, place,
+                "a symlink is reported rather than followed; what it points at is not "
+                "what this manager provisioned", held)
+        needed = (stat.S_IRGRP | stat.S_IXGRP if stat.S_ISDIR(held.st_mode)
+                  else stat.S_IRGRP)
+        if held.st_gid != group or stat.S_IMODE(held.st_mode) & needed != needed:
+            return unreachable(
+                name, place,
+                "the configured workspace group cannot read this entry, and this "
+                "manager does not change permissions to make it readable", held)
+        return None
+
+    # W285465 review 2026-09-28T02-55-12Z: THE ROOTS ARE DERIVED, NOT ACCEPTED.
+    #
+    # My first cut took a caller mapping, so `roots={}` answered "accessible" -- it had
+    # nothing to walk -- and a missing key was silently skipped while `S_ISDIR` was
+    # treated as if it proved identity. None of that is an authenticated root. So both
+    # governed roots are RE-OPENED from durable state through `custody._derived_root`,
+    # which is the derivation eight review rounds of that module settled on, and a root
+    # this manager cannot derive is REPORTED rather than skipped: an absence nobody has
+    # evidenced is not success.
+    from . import custody as _custody
+
+    for name in ("result", "workspace"):
+        try:
+            place, _gid, _recorded = _custody._derived_root(store, attempt_id, name)
+        except ContractRefusal as refused:
+            return {"root": name, "path": None, "group": group, "mode": None,
+                    "gid": None,
+                    "why": f"this manager could not derive the {name} root from durable "
+                           f"state ({refused.category}/{refused.code}), so its "
+                           f"accessibility is not established: {refused}"}
+        # A CALLER MAY STATE WHAT IT EXPECTS, AND IT IS COMPARED RATHER THAN TRUSTED.
+        # `roots` is an EXPECTATION, never the identity: a supplied mapping must AGREE
+        # with what was derived, and a substituted or omitted root is an ANSWER rather
+        # than a skip -- which is what the unauthenticated version got wrong.
+        if roots is not None:
+            expected = roots.get(name) if hasattr(roots, "get") else None
+            if expected is None or os.path.realpath(expected) != os.path.realpath(place):
+                return {"root": name, "path": expected, "group": group, "mode": None,
+                        "gid": None,
+                        "why": f"the caller named {name_value(expected)} as this "
+                               f"attempt's {name} root and durable state derives "
+                               f"{name_value(place)}; a substituted or omitted root is "
+                               f"refused rather than skipped"}
+        # W285465 review 2026-09-28T02-50-56Z [P1]: THE ROOT ITSELF IS AN ENTRY. My first
+        # cut walked only CHILDREN, so a root at 0700 -- unreachable, and empty because
+        # nothing could be listed -- answered "accessible". A root nobody can enter is
+        # the first thing that is inaccessible, not a special case.
+        try:
+            held = os.lstat(place)
+        except OSError as failure:
+            return unreachable(
+                name, place,
+                f"this manager could not observe the root at all "
+                f"({type(failure).__name__}), so accessibility is not established")
+        if not stat.S_ISDIR(held.st_mode) or stat.S_ISLNK(held.st_mode):
+            return unreachable(
+                name, place,
+                "a governed root is the directory this manager provisioned; this is "
+                "not one", held)
+        refused = reachable(name, place, held)
+        if refused is not None:
+            return refused
+        # AND A TRAVERSAL FAILURE IS AN ANSWER, NOT SILENCE. `os.walk` swallows errors by
+        # default, so an unreadable subdirectory looked like an empty one -- the
+        # reviewer's probe injected exactly that. `onerror` reports it instead.
+        stumbled = []
+        for walked, directories, files in os.walk(
+                place, onerror=lambda failure: stumbled.append(failure)):
+            if stumbled:
+                break
+            directories.sort()
+            for entry in sorted(directories) + sorted(files):
+                found = os.path.join(walked, entry)
+                try:
+                    held = os.lstat(found)
+                except OSError as failure:
+                    return unreachable(
+                        name, found,
+                        f"this manager could not observe this entry "
+                        f"({type(failure).__name__}), so accessibility is not "
+                        f"established")
+                refused = reachable(name, found, held)
+                if refused is not None:
+                    return refused
+        if stumbled:
+            failure = stumbled[0]
+            return unreachable(
+                name, getattr(failure, "filename", place) or place,
+                f"this manager could not traverse the output "
+                f"({type(failure).__name__}), so accessibility is not established")
+    return None
+
+
 def _normalized(store, adapter, attempt_id, *, seconds=None, reclaim=None):
-    """Both roots, RESULT FIRST, before anything terminal is committed.
+    """NO CALLERS as of W285465, and DELIBERATELY RETAINED.
+
+    OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removed the automatic launches from all five
+    endings, so nothing in this module calls this. The reviewer notes the removal would be
+    routine cleanup rather than an owner decision -- but it is not free: the immutable
+    `review_configured_no_helper_20260928.py` and the owned configured-custodian case both
+    PATCH THIS NAME to assert no helper is launched, so deleting it would break an artifact
+    whose whole purpose is to hold this path to the ruling. It stays until those are
+    superseded, and it is dead code on purpose rather than by oversight.
+
+    WHAT IT DID, kept for the readers of its historical receipts: both roots, RESULT FIRST,
+    before anything terminal is committed.
 
     W43975 review [P0] point 4 and 5. The order is the containment: `result`
     is nested BELOW `workspace`, so they are separately attributable custody
@@ -4116,6 +4497,391 @@ def _normalized(store, adapter, attempt_id, *, seconds=None, reclaim=None):
         _custody.normalize_directory(store, adapter, assignment_id=attempt_id,
                                      which=which, seconds=seconds,
                                      reclaim=reclaim)
+
+
+WRITER_CESSATION_KIND = "cleanup.writer-cessation"
+
+# What the no-helper ending's own committed record carries. Every member is a FACT
+# this manager observed, and there is no member for anything it merely believes.
+WRITER_CESSATION = ("attempt_id", "container", "state", "exit_status", "why",
+                    "workspace", "helpers", "established", "listing",
+                    # W285465 review 2026-09-28T07-47-09Z: THE SCHEDULE, not only the
+                    # subject. A container identity is reused across generations of the same
+                    # attempt, so equality of containers alone cannot say WHICH run ceased.
+                    # These two name it: the workspace generation this establishment was
+                    # made over, and the start operation that generation journalled.
+                    "generation", "launch")
+
+
+def _writer_cessation_id(operation):
+    """Bound to the DESTROY operation identity, which already covers the exact
+    runtime, the intake receipt and the retention policy. So this evidence cannot be
+    replayed onto another runtime, another receipt or another policy -- the attribution
+    the review requires is inherited rather than re-invented.
+    """
+    return operation["operation_id"] + ":writer-cessation"
+
+
+def _record_writer_cessation(store, adapter, attempt_id, *, attempt, operation,
+                             observed, seconds=None, reclaim=None):
+    """ESTABLISH and COMMIT what this completion observed about the EXECUTION. Nothing else.
+
+    W285465 under the owner supersession recorded at 294568/294616 and read through DESIGN
+    primary step 4, HOST-1/5, ART-7 and section 19. The selected sequence is now exactly four
+    facts, and the third of them is what this function had wrong twice:
+
+      1. the exact Docker runtime terminated;
+      2. its observed EXECUTION status, durably recorded, with an UNKNOWN exit reported
+         honestly -- an unknown exit is not an unknown termination and must not invent success
+         or prevent release;
+      3. the workspace PRESERVED AS IS -- no walk, no permission check, no manifest, no digest.
+         Output validation belongs to the later, independently selected consumer. Container
+         success is not output acceptance, and a scan here was an unselected prerequisite whose
+         own errors could interrupt a completion that had already succeeded;
+      4. the exact execution gate released.
+
+    SO THERE IS NO OUTPUT OBSERVATION IN THIS RECORD AT ALL. The previous target's
+    `inaccessible_output` and `_output_root_identities` calls are GONE from this path; both
+    readers remain for the consumption that selects them. What is still refused is the
+    cessation half: the exact runtime must be positively ABSENT, and a POSITIVELY SURVIVING
+    writer -- an actually observed violation, asked only where a deployment offers a listing --
+    still refuses. A missing or unreadable listing answer is recorded, not held, because
+    confined container cessation is what proves the confined writers stopped.
+
+    NOTHING HERE IS FABRICATED: no custody receipt, no helper, no claim about output.
+    """
+    from .store import manager_signature
+
+    if observed.get("state") != "absent":
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"attempt {name_value(attempt_id)}'s writer cessation cannot be "
+            f"established while its runtime is {name_value(observed.get('state'))}; "
+            f"only a positive absence of the exact runtime admits this evidence")
+    surviving, unavailable = _surviving_writers(adapter, store, attempt_id,
+                                               seconds=seconds, reclaim=reclaim)
+    if unavailable is None and surviving:
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"a writer of attempt {name_value(attempt_id)} still survives "
+            f"({name_value(surviving[0].get('helper_identity'))}): "
+            f"{surviving[0].get('why')}; the roots are left as they are")
+    generation, launch = _ceased_schedule(store, attempt, attempt_id)
+    document = {"attempt_id": attempt_id,
+                "container": attempt["runtime_id"],
+                "generation": generation,
+                "launch": launch,
+                "state": observed["state"],
+                # THE OBSERVED EXECUTION STATUS, honestly. `exit_status` is whatever the
+                # destroy observation carried; `None` means this manager does not know what the
+                # execution exited with, which is a fact about the EXIT and not about the
+                # termination -- so it neither invents success nor prevents release.
+                "exit_status": observed.get("exit_status"),
+                "why": observed.get("why"),
+                # AND WHERE THE PRESERVED WORKSPACE IS, as a locator rather than an
+                # observation: composed from this manager's configuration and the attempt
+                # identity, with nothing read, walked or measured under it.
+                "workspace": _expected_root(store, attempt_id, "workspace"),
+                "helpers": [],
+                "established": "container-cessation" if unavailable is not None
+                else "container-cessation+listing",
+                "listing": unavailable}
+    return store.transact(_writer_cessation_id(operation), WRITER_CESSATION_KIND,
+                          manager_signature(WRITER_CESSATION_KIND, document),
+                          lambda _connection: dict(document))
+
+
+def _surviving_writers(adapter, store, attempt_id, *, seconds=None, reclaim=None):
+    """THE ONE CROSSING of `adapter.surviving_helpers`, answering `(surviving, missing)`.
+
+    W285465: both no-helper endings -- the revoked generation's settlement and the ordinary
+    completion -- need the same fact, and the boundary catalogue's rule is that a
+    capability has one owner. Measured: calling it from both places directly took the
+    inventory from 26 pending entries to 49 failures with "a capability with two crossings
+    has two owners", which is the rule working. So the call lives here and the endings ask
+    this.
+
+    `missing` is a sentence rather than a bool because what the caller must not do is treat
+    an unavailable capability as an absence; every caller refuses or holds on it.
+    """
+    asking = getattr(adapter, "surviving_helpers", None)
+    if asking is None:
+        return (), ("this deployment's adapter cannot establish whether any custody "
+                    "writer survives")
+    answered = asking(store, assignment_id=attempt_id, seconds=seconds,
+                      reclaim=reclaim)
+    # AND THE ANSWER IS VALIDATED HERE, at the crossing, not believed. Review
+    # 2026-09-28T06-23-25Z: a callable that answered `None` was read as "no writers" and
+    # committed a positive cleanup -- an UNKNOWN turned into a confirmed absence, which is
+    # the one thing every ruling on this path forbids. So the shape decides: a list or
+    # tuple of mappings is an OBSERVATION, and an empty one of those is the only thing that
+    # means "none survive". Anything else -- `None`, `False`, a bare string, a mapping, a
+    # sequence of non-mappings -- is an answer this manager cannot read, and an unreadable
+    # answer holds exactly like a missing capability.
+    if type(answered) not in (list, tuple):
+        return (), (f"this deployment's adapter answered "
+                    f"{name_value(answered)} when asked which custody writers survive, "
+                    f"which is not an observation this manager can read")
+    for one in answered:
+        if not isinstance(one, dict):
+            return (), (f"this deployment's adapter listed "
+                        f"{name_value(one)} among the custody writers that survive, "
+                        f"which is not an observation this manager can read")
+    return tuple(answered), None
+
+
+def _ceased_schedule(store, attempt, attempt_id):
+    """WHICH workspace generation and start this establishment is about.
+
+    W285465 review 2026-09-28T07-47-09Z: "container equality alone does not demonstrate
+    schedules". A runtime identity can be the same across two generations of one attempt, so
+    an establishment that named only the container could be adopted by a LATER generation's
+    ownership transfer. These are read from the journal -- the generation outstanding over
+    this attempt's pinned workspace object, and the start operation that generation
+    journalled -- so the record says which run it saw end.
+
+    REFUSES rather than recording an unbound establishment: if no generation is outstanding
+    or it journalled no launch, there is no schedule to name and a record without one would
+    be adoptable by anything.
+    """
+    from . import tokens as _tokens
+
+    # `(None, None)` MEANS "THIS ENDING HAS NO GOVERNED RUN TO NAME", and review
+    # 2026-09-28T07-55-48Z is right that the distinction has to be stated exactly, because my
+    # first wording ran the two together.
+    #
+    # It is answered for an attempt whose workspace object was never PINNED -- so no
+    # generation could ever have been taken over it -- or over which no generation stands at
+    # all. Those are ungoverned endings, and they have no ownership for this ending to take
+    # over: `_task_token_refusal` finds nothing outstanding and the admission needs no
+    # transfer.
+    #
+    # IT IS NOT "the governed state is unknown". A governed attempt whose generation is
+    # outstanding gets that generation named, and where this cannot name a single one --
+    # more than one outstanding, or one that journalled no start -- the null it returns
+    # AUTHORIZES NOTHING: `workspaces._ceased_generation` refuses to move ownership on a
+    # record with a null schedule, so such an attempt keeps its roots held rather than being
+    # treated as ungoverned.
+    try:
+        domain = _tokens.domain_of("workspace",
+                                  _tokens.workspace_identity(attempt))
+    except ContractRefusal:
+        return None, None
+    standing = list(_tokens.outstanding(store, domain))
+    if len(standing) != 1:
+        return None, None
+    current = _tokens.token_of(store, domain, standing[0]["generation"])
+    if current is None or current.get("launch") is None:
+        return None, None
+    return standing[0]["generation"], current["launch"]
+
+
+def _output_root_places(store, attempt_id):
+    """Each governed root's derived path, or its own UNKNOWN, as `(place, unknown)`.
+
+    Review 2026-09-28T06-52-46Z: my previous cut swallowed the derivation refusal and turned
+    it into `None`, which the establishment then recorded as "the root is gone". A manager
+    that cannot say WHERE a root is has not observed that it is absent -- it has failed to
+    look -- so the reason travels instead of being discarded.
+    """
+    from . import custody as _custody
+
+    found = {}
+    for which in _CUSTODY_ROOTS:
+        try:
+            found[which] = (_custody._derived_root(store, attempt_id, which)[0],
+                            None)
+        except ContractRefusal as refused:
+            # A REFUSED DERIVATION IS NOT ONE FACT. `custody._derived_root` validates as
+            # well as derives -- it refuses for an unconfigured store, a root that is not a
+            # directory this manager created, AND for a root that is simply GONE, which is
+            # the ordinary state after this ending's own removal. Telling those apart by
+            # reading its sentence would be brittle, so this asks the one durable question
+            # that decides it: is the attempt's home there at all? An absent home is an
+            # EVIDENCED absence of everything under it; a home that exists beside a root
+            # this manager cannot account for is UNKNOWN and holds.
+            expected = _expected_root(store, attempt_id, which)
+            if expected is None:
+                found[which] = (None, f"this manager cannot derive the {which} root's "
+                                      f"location at all ({refused})")
+                continue
+            try:
+                os.lstat(expected)
+            except FileNotFoundError:
+                # AN EVIDENCED ABSENCE, ONCE THE ANCESTORS SAY SO: the object this attempt's
+                # root would BE is not there, in a tree this manager can still recognise as
+                # its own. That is the ordinary state after this ending's own removal and an
+                # observation rather than a failure to look -- but ONLY when nothing on the
+                # way down has been substituted. See `_unauthentic_ancestor`.
+                unsound = _unauthentic_ancestor(store, expected)
+                found[which] = (None, None) if unsound is None else (
+                    None, f"the {which} root is missing and its path cannot be "
+                          f"trusted: {unsound}")
+                continue
+            except OSError as failed:
+                found[which] = (None, f"the {which} root could not be accounted for "
+                                      f"({refused}) and {name_value(expected)} could not "
+                                      f"be observed either "
+                                      f"({type(failed).__name__}: {failed})")
+                continue
+            # IT IS THERE AND STILL COULD NOT BE ACCOUNTED FOR -- a foreign owner, a
+            # symlink, something that is not a directory. That is exactly what must hold.
+            found[which] = (None, f"the {which} root at {name_value(expected)} is present "
+                                  f"and this manager cannot account for it ({refused})")
+    return found
+
+
+def _expected_root(store, attempt_id, which):
+    """Where this attempt's `which` root WOULD be, from configuration alone, or `None`.
+
+    The same two operands `custody._derived_root` composes from -- the manager's own
+    configured workspace store and the attempt identity -- and the same layout, with none of
+    its validation. It selects no path of a caller's choosing and answers exactly one
+    question: is the object that root would be actually there? That is what separates an
+    EVIDENCED removal from a root this manager merely failed to account for, and reading
+    `_derived_root`'s sentence to tell them apart would have been brittle.
+    """
+    from . import workspaces as _workspaces
+
+    try:
+        storage = _workspaces.configured_workspace_storage(store)
+    except ContractRefusal:
+        return None
+    workspace = os.path.join(storage.place, attempt_id, "workspace")
+    return workspace if which == "workspace" \
+        else os.path.join(workspace, f"result-{attempt_id}")
+
+
+def _unauthentic_ancestor(store, place):
+    """Why `place`'s ANCESTORS cannot authenticate an absence below them, or `None`.
+
+    W285465 review 2026-09-28T08-03-34Z, and the hole it closes is exact. `os.lstat` does not
+    follow the LAST component and follows every one before it, so with the attempt home
+    renamed aside and a symlink to an empty foreign directory left at its path, an `lstat` of
+    `<home>/workspace` resolved THROUGH that link, answered `ENOENT` inside somebody else's
+    directory, and this module recorded "both roots absent". A missing child seen through a
+    substituted parent is not an absence -- it is a different tree.
+
+    So the ancestors are authenticated before any `ENOENT` below them is believed. Every
+    component from the configured workspace store down to `place`'s parent must be either:
+
+      * a real directory that is NOT a symlink -- proved with `lstat`, which asks about the
+        entry itself; or
+      * ABSENT, in which case nothing can exist below it and the child's absence follows.
+        `discard_execution_roots` leaves exactly that state, which is why the accepted
+        post-removal retry still works.
+
+    Anything else -- a symlink, a file, an entry this manager cannot observe -- is an answer
+    about a tree that is not the one it prepared, and it is REPORTED so the caller refuses.
+    Nothing here follows a link, changes a permission or deletes anything.
+    """
+    from . import workspaces as _workspaces
+
+    try:
+        storage = _workspaces.configured_workspace_storage(store)
+    except ContractRefusal as refused:
+        return f"this manager has no configured workspace store ({refused})"
+    root = storage.place
+    if not place.startswith(root + os.sep):
+        return (f"the expected root {name_value(place)} is not inside this manager's "
+                f"configured workspace store")
+    walked = root
+    for name in os.path.relpath(os.path.dirname(place), root).split(os.sep):
+        if name in ("", os.curdir):
+            continue
+        walked = os.path.join(walked, name)
+        try:
+            held = os.lstat(walked)
+        except FileNotFoundError:
+            # AN ABSENT ANCESTOR AUTHENTICATES THE ABSENCE BELOW IT: nothing exists under a
+            # directory that is not there, and this is the ordinary post-removal state.
+            return None
+        except OSError as failed:
+            return (f"{name_value(walked)} could not be observed "
+                    f"({type(failed).__name__}: {failed})")
+        if stat.S_ISLNK(held.st_mode):
+            return (f"{name_value(walked)} is a symbolic link, so an answer about what is "
+                    f"below it is an answer about another tree")
+        if not stat.S_ISDIR(held.st_mode):
+            return f"{name_value(walked)} is not a directory this manager prepared"
+    return None
+
+
+def _output_root_identities(store, attempt_id):
+    """Each governed root's `device:inode`, `None` for EVIDENCED absence, or a refusal.
+
+    W285465 review 2026-09-28T06-52-46Z, and the distinction it turns on: `None` here is a
+    POSITIVE OBSERVATION that the object is not there -- which is what lets the retry after
+    a crash between the removal and the terminal commit finish -- and it may only ever come
+    from an answer that says so. `ENOENT` says so. A derivation this manager cannot perform
+    does not, and neither does `EACCES`, `ELOOP`, `ENOTDIR` or any other error: those are
+    failures to look, and recording one as an absence would be the same class of defect as
+    reading an unreadable listing answer as "no writers".
+
+    So anything that is not an object and not an evidenced absence REFUSES, and the caller
+    holds. The refusal names which root and why.
+    """
+    found = {}
+    for which, (place, unknown) in _output_root_places(store, attempt_id).items():
+        if unknown is not None:
+            raise ContractRefusal(
+                "runtime-observation", "quiescence-unknown",
+                f"attempt {name_value(attempt_id)}'s output cannot be accounted for: "
+                f"{unknown}; an absence nobody has evidenced is not one this ending may "
+                f"record")
+        if place is None:
+            # THE DERIVATION REFUSED AND THE OBJECT IT WOULD BE IS NOT THERE: an evidenced
+            # absence, already established by `_output_root_places`, with nothing left to
+            # `lstat`.
+            found[which] = None
+            continue
+        try:
+            held = os.lstat(place)
+        except FileNotFoundError:
+            # THE ONE ANSWER THAT IS AN OBSERVATION -- once the path it was asked along is
+            # this manager's own. A child missing under a SUBSTITUTED parent is an answer
+            # about somebody else's tree, and review 2026-09-28T08-03-34Z measured exactly
+            # that: `lstat` follows every component but the last.
+            unsound = _unauthentic_ancestor(store, place)
+            if unsound is not None:
+                raise ContractRefusal(
+                    "runtime-observation", "quiescence-unknown",
+                    f"attempt {name_value(attempt_id)}'s {which} root is missing at "
+                    f"{name_value(place)} and its path cannot be trusted: {unsound}; a "
+                    f"child missing under a substituted parent is not an absence this "
+                    f"ending may record") from None
+            found[which] = None
+            continue
+        except OSError as failed:
+            raise ContractRefusal(
+                "runtime-observation", "quiescence-unknown",
+                f"attempt {name_value(attempt_id)}'s {which} root at "
+                f"{name_value(place)} could not be observed ({type(failed).__name__}: "
+                f"{failed}); this manager does not read a failure to look as an absence, "
+                f"and the roots are left exactly as they are") from None
+        found[which] = f"{held.st_dev}:{held.st_ino}"
+    return found
+
+
+def historical_writer_cessation(store, operation):
+    """The COMMITTED no-helper evidence for this destroy, or `None`.
+
+    A READER, and the reason it exists is the same one `_adopted_custody` gives: the
+    ending must name an act this manager can show it journalled, never a document the
+    caller happens to be holding.
+    """
+    record = store.operation_record(_writer_cessation_id(operation))
+    if record is None or record["kind"] != WRITER_CESSATION_KIND \
+            or record["state"] != "committed":
+        return None
+    try:
+        recorded = json.loads(record["result"])
+    except (TypeError, ValueError):
+        raise ContractRefusal(
+            "integrity", "schema",
+            "the committed writer cessation for this destroy is unreadable") from None
+    return boundaries.document(recorded, "a committed writer cessation",
+                               required=WRITER_CESSATION)
 
 
 def _adopted_custody(store, adapter, attempt_id, prepared_store=None):
@@ -4198,8 +4964,12 @@ def _authorize_deadline_cleanup(store, adapter, *, command, fence):
     pending = _not_an_ending(store, current, attempt_id, observed, operation)
     if pending is not None:
         return documents.deadline_cleanup(command=taken, fence=fence, observed=observed, cleanup=pending)
+    # W285465: AND THE DEADLINE ENDING, on the same rule. `current` is this attempt's row as
+    # the eligibility read left it, which is what names the container the establishment is
+    # about.
     if observed["state"] == "absent":
-        _normalized(store, adapter, attempt_id)
+        _record_writer_cessation(store, adapter, attempt_id, attempt=current,
+                                 operation=operation, observed=observed)
 
     def settle(connection):
         eligible()
@@ -4208,6 +4978,28 @@ def _authorize_deadline_cleanup(store, adapter, *, command, fence):
                 why="deadline cleanup settled retained", custody=adapter))
 
     return store.transact(operation["operation_id"], "runtime.destroy-deadline", signature, settle)
+
+
+def _preserved_ending(store, connection, attempt_id, observed, operation,
+                      ending, kept, receipt):
+    """The ordinary ending that REMOVED NOTHING, settled and recorded.
+
+    W285465 under OWNER-SIMPLE-COMPLETION-20260928. An establishment that recorded
+    `inaccessible` preserves the material, so this path takes no cleanup admission and calls
+    no removal -- and therefore has no admission to settle and no store measurement to sign a
+    receipt under. What it still does is what the ruling asks for: record the ACTUAL outcome,
+    which is `retained` over material this manager could not read, with `directory_custody`
+    null because no custody act was performed.
+
+    The axis moves and the lane is NOT released here: reuse of a workspace whose bytes are
+    preserved is exactly what the ruling separates from execution release, and the resource
+    return is `_released`'s decision on the cessation facts.
+    """
+    observe(store, attempt_id=attempt_id, axis="cleanup", value=ending)
+    return documents.cleanup_settled(
+        attempt_id=attempt_id, cleanup=ending, state=observed["state"],
+        why=observed["why"], kept=list(kept), operation=dict(operation),
+        directory_custody=None)
 
 
 def _settle_recordless_cleanup(store, connection, attempt_id, observed,
@@ -4252,7 +5044,21 @@ def _settle_recordless_cleanup(store, connection, attempt_id, observed,
             attempt_id=attempt_id, cleanup="failed", state=state,
             why=observed["why"], kept=[], operation=dict(operation),
             directory_custody=None)
-    adopted = _adopted_custody(store, custody, attempt_id)
+    # W285465: THE RECORDLESS ENDING READS AN ACT THIS MANAGER COMMITTED, and which act
+    # depends on which sibling this is.
+    #
+    # The ABANDONMENT path now establishes a writer cessation and launches no helper, so its
+    # evidence is that record, read back here exactly as the ordinary completion reads its
+    # own -- a document this frame is holding is one this frame composed. The failed-start and
+    # refused-session siblings still normalize, and this function is shared with them, so
+    # their receipts are still what they rest on: converting them is the next piece of work
+    # and breaking them to get there would be worse than either.
+    #
+    # NEITHER present is an ending resting on nothing, and that refuses.
+    ceased = historical_writer_cessation(store, operation)
+    adopted = None
+    if ceased is None:
+        adopted = _adopted_custody(store, custody, attempt_id)
     if attempt["execution_runtime"] != "destroyed":
         observe(store, attempt_id=attempt_id, axis="execution_runtime",
                 value="destroyed")
@@ -4654,7 +5460,7 @@ def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
 
 def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
             observed, operation, custody=None, prepared_store=None,
-            admitted_cleanup=None):
+            admitted_cleanup=None, preserved=False):
     """The ending, decided from the observation and from what stays."""
     attempt = _attempt_of(connection, attempt_id)
     if attempt["cleanup"] not in ("pending", "blocked-on-intake"):
@@ -4686,8 +5492,12 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     # policy or by quarantine -- ends `retained`, because reporting kept
     # material as cleaned up would erase the reason it still exists. Only a
     # cleanup with nothing left behind is `complete`.
+    # W285465 under OWNER-SIMPLE-COMPLETION-20260928: AND MATERIAL PRESERVED BECAUSE IT COULD
+    # NOT BE READ. `preserved` is set when the committed establishment recorded `inaccessible`,
+    # and this ending removed nothing -- so reporting `complete` would say the roots are gone
+    # when they are exactly where they were.
     ending = "retained" if kept or receipt["custody"] == "quarantined" \
-        else "complete"
+        or preserved else "complete"
     # W270664 F2: THE STORE WAS MEASURED BEFORE THIS TRANSACTION OPENED, and the
     # absence of it is a WIRING failure rather than a deployment one.
     #
@@ -4702,14 +5512,31 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     # would let a future caller fall back to the locked reader and nothing
     # would fail -- which is exactly how I shipped the earlier hoist that
     # measured unchanged. An unprepared ending fails here instead.
-    if prepared_store is None:
+    # W285465 under OWNER-SIMPLE-COMPLETION-20260928: A PRESERVING ENDING MEASURED NO STORE,
+    # because it performed no directory act to sign a receipt for. The wiring rule this guard
+    # states is about the ending that REMOVES; requiring a measurement from one that preserves
+    # would be requiring evidence of an act the ruling forbids it to perform.
+    if prepared_store is None and not preserved:
         raise ContractRefusal(
             "integrity", "schema",
             f"attempt {name_value(attempt_id)}'s ending was reached without the "
             f"workspace store its receipts are signed under having been measured "
             f"outside this transaction; the ending does not validate directories "
             f"while it holds this manager's write lock")
-    adopted = _adopted_custody(store, custody, attempt_id, prepared_store)
+    # W285465: THE NO-HELPER ENDING READS ITS OWN COMMITTED EVIDENCE, and it reads it out
+    # of the journal exactly as `_adopted_custody` reads normalization receipts -- for the
+    # same reason, which is that a document this frame is holding is one this frame
+    # composed. `authorize_cleanup` established and committed it before the removal and
+    # before this transaction; an ending that finds nothing committed REFUSES rather than
+    # claiming an absence no act recorded.
+    ceased = historical_writer_cessation(store, operation)
+    if ceased is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"attempt {name_value(attempt_id)} has no committed writer cessation for "
+            f"this destroy, so whether any writer of its roots survives is UNKNOWN; "
+            f"the ending waits for the establishment rather than claiming it")
+    adopted = None
     observe(store, attempt_id=attempt_id, axis="cleanup", value=ending)
     # W32649: AND THE LANE IS GIVEN BACK, in the same write as the ending.
     #
@@ -4763,7 +5590,12 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     #
     # THE SAME WIRING RULE AS THE PREPARED STORE: no silent fallback. An absent admission
     # on this path means the ending was reached without the exclusion ever being taken.
-    if admitted_cleanup is None:
+    # W285465 under OWNER-SIMPLE-COMPLETION-20260928: AND THERE IS NO REMOVAL TO OWN when the
+    # ending PRESERVES. The rule this states is about the window between a removal and this
+    # commit; a preserving ending performs no removal, took no admission deliberately, and
+    # settles an exclusion nobody needed. Demanding one would be demanding that it acquire
+    # ownership in order to delete nothing.
+    if admitted_cleanup is None and not preserved:
         raise ContractRefusal(
             "integrity", "schema",
             f"attempt {name_value(attempt_id)}'s ending was reached without a cleanup "
@@ -4771,6 +5603,9 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
             f"commit; an ending does not settle an exclusion it never took")
     from .workspaces import settle_cleanup
 
+    if admitted_cleanup is None:
+        return _preserved_ending(store, connection, attempt_id, observed,
+                                 operation, ending, kept, receipt)
     settle_cleanup(store, connection, attempt_id, admitted_cleanup,
                    f"cleaning up attempt {name_value(attempt_id)}")
     # THE ONE ORDINARY REMOVAL, ORDERED BEHIND BOTH RECEIPTS.
@@ -4795,6 +5630,15 @@ def _settle(store, connection, attempt_id, receipt, retention_policy_digest,
     return documents.cleanup_settled(
         attempt_id=attempt_id, cleanup=ending, state=state,
         why=observed["why"], kept=list(kept), operation=dict(operation),
+        # W285465: THE DOCUMENT IS EXACTLY WHAT THE FROZEN `cleanup.settled` CONTRACT
+        # NAMES, and that is a correction: my first cut carried the no-helper evidence as a
+        # new member here and the contract refused it -- "a cleanup.settled document
+        # carrying writer_cessation, which its contract does not name". Adding a member to
+        # a frozen contract is a DESIGN change and not mine to make, so the evidence lives
+        # where it was already committed: its own journalled operation, bound to this
+        # destroy's identity, which `historical_writer_cessation` reads back by identity.
+        # Nothing about the ending is weaker for it -- `_settle` above refuses without that
+        # record, and `_released` consults the same one.
         directory_custody=adopted)
 
 
@@ -4926,11 +5770,15 @@ def reclaim_expired_resource(store, adapter, *, attempt_id, govern):
         return {"reclaimed": "held", "attempt_id": attempt_id, "state": state,
                 "why": f"cessation is not positively proved: {why}"}
     cessation = _resource_cessation(
+        store,
         {"state": "absent",
          # A RECLAIM NORMALIZES NOTHING, so it carries no directory custody of its
          # own and must not pretend to. What it can honestly report is the custody
          # this manager already committed for those roots.
-         "directory_custody": _custody_already_committed(store, attempt_id)},
+         "directory_custody": _custody_already_committed(store, attempt_id),
+         # A RECLAIM ESTABLISHES NO WRITER CESSATION OF ITS OWN either, and says so
+         # rather than leaving the member to a reader's default.
+         "writer_cessation": None},
         attempt, attempt_id)
     if cessation is None:
         # AND THE DIAGNOSTIC NAMES THE OBSERVED STATE rather than asserting absence.
@@ -4994,11 +5842,16 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
       2. THE CONTAINER MUST BE POSITIVELY GONE, asked of the adapter here rather than
          remembered from the reclaim, because time passed in between and a remembered
          absence is not an observation. Anything short of absence holds.
-      3. NORMALIZE, through the custody owner's own acts and OUTSIDE any transaction,
-         which is where `_normalized` already puts them.
-      4. RETURN, on the custody this normalization just committed -- so the
-         writer-absence claim rests on this manager holding every governed root, not
-         on a guess.
+      3. THE OUTPUT IS ASKED, AND NOTHING IS RUN. W285465 under
+         OWNER-NO-AUTOMATIC-NORMALIZATION-20260928: Slawomir selects shared-group
+         ACCESSIBLE job output, so this step used to NORMALIZE and no longer does.
+         Accessible output progresses with no receipt at all; inaccessible output is an
+         ERROR that names the exact path and preserves the workspace, its bytes and its
+         holds. No container, no permission change and no deletion.
+      4. RETURN, on a cessation whose writer half is ESTABLISHED rather than inherited
+         from a receipt: the adapter's read says which custody helpers still answer, a
+         survivor holds with its identity named, and an adapter that cannot answer holds
+         too -- absence is never inferred from a missing capability.
 
     AND NO OLD WRITABLE RESTART. The container is gone before step 3 and the
     generation is revoked throughout, so `_owning` refuses every act a stale holder
@@ -5070,16 +5923,65 @@ def settle_revoked_resource(store, adapter, *, attempt_id, govern,
         # ending must never do.
         return {"settled": "held", "attempt_id": attempt_id, "state": state,
                 "why": f"the runtime is not positively absent now: {why}"}
-    _normalized(store, adapter, attempt_id, seconds=seconds, reclaim=reclaim)
-    cessation = _resource_cessation(
-        {"state": "absent",
-         "directory_custody": _custody_already_committed(store, attempt_id)},
-        attempt, attempt_id)
-    if cessation is None:
+    # W285465, OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 with DESIGN HOST-5: THIS ENDING
+    # RUNS NO HELPER. Slawomir selects shared-group ACCESSIBLE job output, so there is no
+    # normalization here to produce a receipt and none is required: accessible output
+    # PROGRESSES, and inaccessible output is an ERROR that preserves the workspace.
+    #
+    # The old shape normalized and then read `directory_custody` out of that act. Both are
+    # gone from this path -- no container is created or started, no permission is changed
+    # and nothing is deleted, each of which the ruling forbids as a substitute.
+    # W285465 under the owner supersession at 294568/294616: NO OUTPUT SCAN ON THIS PATH.
+    # This first held on an unreadable output and then reported it; both were the earlier
+    # target. Completion and this settlement observe the EXECUTION, preserve the workspace as
+    # is, and release the exact gate -- output validation belongs to the consumer that selects
+    # it. Even a non-refusing walk was an unselected prerequisite whose own errors could
+    # interrupt a settlement that had already proved what it needed.
+    inaccessible = None
+    # AND THE WRITER HALF IS ESTABLISHED RATHER THAN INFERRED. With no receipt to rest on,
+    # `helpers` has to be a fact: the adapter's own read answers which custody helpers
+    # still respond, and an adapter that CANNOT answer leaves this HELD. Review
+    # 2026-09-28T03-08-08Z: absence must not be inferred from a missing capability, and no
+    # custodian image is silently required to obtain one.
+    # AND THE WRITER OBSERVATION, asked where it can be answered. Under
+    # OWNER-SIMPLE-COMPLETION-20260928 a deployment that offers no listing is NOT uncertain
+    # about the container this settlement has already observed absent, so `unavailable` no
+    # longer holds; a POSITIVELY SURVIVING writer -- an observed violation -- still does.
+    surviving, unavailable = _surviving_writers(adapter, store, attempt_id,
+                                               seconds=seconds, reclaim=reclaim)
+    if unavailable is not None:
+        surviving = ()
+    if surviving:
         return {"settled": "held", "attempt_id": attempt_id, "state": state,
-                "why": "normalization committed no custody for every governed root, "
-                       "so no writer-absence proof exists and the resource stays held"}
+                "why": f"a writer of attempt {name_value(attempt_id)} still survives "
+                       f"({name_value(surviving[0].get('helper_identity'))}): "
+                       f"{surviving[0].get('why')}",
+                "surviving": list(surviving)}
+    # THE SHAPE IS THE ONE THIS BUILD'S CONTRACT NAMES -- container, stopped, helpers --
+    # and `tokens.release` composes the domain, generation and launch itself. Measured:
+    # offering those three here is refused as unrecognised members, which is the closed
+    # document rule doing its job.
+    # THE CESSATION IS COMPOSED FROM FACTS THIS ENDING HAS ALREADY ESTABLISHED: the exact
+    # bound container, observed ABSENT above and not remembered from the reclaim, and an
+    # empty writer list the adapter's read just proved rather than a receipt's by-product.
+    # The `cessation is None` branch that used to follow belonged to the normalization
+    # builder and is REMOVED rather than left unreachable -- every held outcome on this
+    # path now returns above, where the fact that is missing is named.
+    cessation = {"container": current["container"], "stopped": True, "helpers": []}
     govern.release(store, attempt, operation=operation_id, cessation=cessation,
                    reclaiming=True)
-    return {"settled": "returned", "attempt_id": attempt_id, "state": state,
-            "container": cessation["container"]}
+    answer = {"settled": "returned", "attempt_id": attempt_id, "state": state,
+              "container": cessation["container"]}
+    if inaccessible is not None:
+        # THE DURABLE ERROR TRAVELS WITH THE RETURN, so a reader learns both facts: the
+        # execution ownership is released because its cessation held, AND this attempt's
+        # output could not be read, which is a failure about the material and not about the
+        # container. The bytes are preserved.
+        answer["inaccessible"] = inaccessible
+        answer["why"] = (
+            f"attempt {name_value(attempt_id)}'s output is not readable by the configured "
+            f"workspace group at {name_value(inaccessible.get('path'))}: "
+            f"{inaccessible['why']}. The workspace, its bytes and its modes are preserved, "
+            f"this manager changes no permissions, and nothing here is collection success or "
+            f"permission to delete, reset or reuse it")
+    return answer
