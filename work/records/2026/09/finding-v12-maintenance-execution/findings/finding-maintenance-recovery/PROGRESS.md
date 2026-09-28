@@ -7308,3 +7308,203 @@ Predecessor b4b3fc8d inherited as a comparison baseline only; this child unaccep
     nothing, and I left it rather than guess at it.
 
 Commit identity unobserved; no staging, no commit, no other repository mutation by me.
+
+## 2026-09-28 claim 296448 — test_managed_preparation is OK: 100 tests, from 43 failures
+
+Read first: `detail` at 296438, `work-events after=296427`, review-2026-09-28T14-15-52Z.md, its candidate
+and PLAN.
+
+### The defect was mine and it was a dispatch bug, not a policy consequence
+
+The reviewer is exact: my `elif not (argv[1] == "run" ...): return answer` returned early for ALL `stop`
+and `rm`, which made the terminate/wait handler further down UNREACHABLE. The child was started and never
+reaped -- and I read that as the owner's no-deletion policy showing through, which was wrong and is
+withdrawn. Nothing about production cessation was involved.
+
+The dispatch is ONE decision now, with the `if True:` scaffold gone:
+
+    `create` (no `--entrypoint`) records the composition and starts NOTHING -- inert, as the vector is.
+    `start` of an exact created runtime POPS that composition and launches once, so a replayed start
+      finds nothing and launches nothing.
+    `run` keeps the immediate activation for the paths that still compose it.
+    everything else -- `stop`, `rm`, the reconciliation reads -- falls through to the handlers that were
+      already there, which is what reaps the child and what my early return had cut off.
+
+### The result
+
+    tests.tools.test_managed_preparation  Ran 100 tests, OK
+    the ordinary case's own proof line: `proof: ordinary-managed-preparation`, `cleanup: retained`,
+      `runtime: destroyed`, `worker_exit: 0`, `fixture_processes: 1`, `host_trap: proved-and-unreached`,
+      `apply: planned`, `root: open`, `parent: queued-unclaimed`
+
+That is the connected ordinary preparation reaching its ending through the real composition, with exactly
+one launch, the runtime destroyed, the worker exiting zero and the retained ending the owner's
+execution-only completion produces.
+
+### No regressions
+
+    tests.job_manager.test_managed_integration_capacity OK   tests.manager.test_intake OK
+    tests.manager.test_maintenance OK   tests.job_manager.test_tool OK
+    tests.tools.test_single_worker OK
+    review_fresh_diagnostic_20260928.py: state settled, held_because EMPTY
+
+### Digests after this claim
+
+    tests/tools/test_managed_preparation.py  323aadb18d10
+    every other owned path unchanged at the digests in the previous entries
+
+### Remaining scope
+
+    the failed-start, unknown-runtime and restart paths verified THROUGH TERMINATION as the review asks --
+      the suite passes, but I have not read each of those cases' engine command logs to confirm the
+      dispatch serves them the way the ordinary one is now confirmed to be served
+    the reached negatives for the profile predicate and the changed-runtime/forged/missing cases
+    the matrix as asserted properties: known/unknown exit status, late launch, generation, replay without
+      duplicate effects, no writable reuse, no I/O under transactions
+    the catalogue delta by exact failure identity; the integrated evidence matrix; the final audit
+    M292090 stays partial
+
+### Human milestone checkpoint
+
+Predecessor b4b3fc8d inherited as a comparison baseline only; this child unaccepted. Truthful WIP:
+
+    WIP v12 recovery: the connected ordinary preparation completes end to end
+
+    My early return for everything that was not a launch made the fake's own terminate-and-wait handler
+    unreachable, so the child started and was never reaped -- and I attributed that to the owner's
+    no-deletion policy, which was wrong and is withdrawn; it was a fixture dispatch defect. The dispatch is
+    one decision now: create records and starts nothing, start pops that composition and launches exactly
+    once so a replay launches nothing, run keeps the immediate path, and everything else falls through to
+    the handlers that reap. test_managed_preparation is 100 tests OK, from the forty-three that have been
+    open across this whole sequence, and the ordinary case's own proof line reads
+    ordinary-managed-preparation with the runtime destroyed, the worker exiting zero, one fixture process
+    and the retained ending the execution-only completion produces. Capacity, intake, maintenance, tool and
+    single-worker are all still OK and the fresh diagnostic still settles.
+
+Commit identity unobserved; no staging, no commit, no other repository mutation by me.
+
+## 2026-09-28 claim 296506 — the closure matrix, the missing profile negative, and the audit inventory
+
+Read first: `detail` at 296496, `work-events after=296472`, review-2026-09-28T14-23-20Z.md, its candidate,
+`preparation-296475.log` and PLAN. The review clears the manual-all-command-logs gate -- the failed-start
+tests assert real process cessation and the unknown branch asserts the live hold and the no-parent
+behaviour, so those paths are proved by assertions rather than by my reading logs -- and asks for finite
+closure. This entry is that closure.
+
+### The one MISSING assertion, added
+
+`test_the_RECORDED_PROFILE_alone_disagreeing_is_refused`. The existing digest-disagreement case changes
+the PLAN, so plan and offer disagree and even the BROKEN chained comparison caught it. This is the A,A,B
+shape the chained form ADMITTED: plan and offer agreeing exactly while the ATTEMPT RECORD alone carries
+another profile. `claimed(..., recorded_profile=)` exists for it. Suite OK.
+
+### PROPERTY-TO-EVIDENCE MATRIX
+
+    exact container termination required          intake `_record_writer_cessation`'s absent-state
+                                                  refusal; test_maintenance ordinary-ending class
+    positively surviving writer refuses           test_maintenance, test_attempts (failed start),
+                                                  test_refused_session_cleanup, test_runtime_deadlines
+    no listing offered still completes            the same four suites, one case each
+    unreadable listing answer recorded not held   the same four suites, one case each
+    offered-but-unusable listing refuses first    test_maintenance, test_attempts, test_runtime_deadlines
+    NO output scan on completion                  test_maintenance's raising-sentinel case over
+                                                  `inaccessible_output` and `_output_root_identities`
+    workspace preserved, bytes and modes          the same case asserts inode and mode unchanged
+    known exit status recorded                    reviewer's review_execution_only_20260928.py
+    UNKNOWN exit status recorded honestly         the same probe ("unknown exit recorded")
+    execution gate released, from the LEDGER      review_execution_only (lane holder None);
+                                                  test_tool `test_without_a_custodian_the_RECLAIM_STILL_
+                                                  SETTLES` (tokens.outstanding empty) and the
+                                                  committed-return COUNT in the failed-return case
+    no writable reuse of preserved storage        test_maintenance's preserved-ending cases; the lane is
+                                                  not released by `_preserved_ending`
+    exact replay, no duplicate launch             reviewer's review_replay_296102.py (changed-runtime/
+                                                  same-Job collision, forged and missing refusals);
+                                                  test_managed_preparation's one-launch dispatch;
+                                                  test_tool's idempotent-removal count
+    stale generation cannot transfer ownership    test_maintenance `test_a_STALE_generation_...`
+    foreign operation cannot transfer             test_maintenance `test_a_cessation_under_a_FOREIGN_...`
+    one owner between two eligible settlements    test_maintenance `test_TWO_ELIGIBLE_settlements_...`
+    presented cessation is never authority        reviewer's review_unproved_transfer_20260928.py plus the
+                                                  owned three-shape case
+    unobservable roots are not absent             reviewer's review_unobservable_roots_20260928.py plus
+                                                  the parent-link cases
+    parent-link substitution not an absence       reviewer's review_parent_link_absence_20260928.py
+    Job identity vs runtime manifest separated    test_managed_integration_capacity (admission
+                                                  correspondence, third-account negatives, the new
+                                                  profile negative)
+    late launch / no I/O under transactions       NOT SEPARATELY ASSERTED BY ME. The DB-1 rule is held by
+                                                  the accepted design and by `_normalized`'s removal from
+                                                  these paths; I have no case that asserts "no filesystem
+                                                  or engine call inside a transaction" as a property, and
+                                                  I am naming that rather than claiming the matrix closed.
+
+### CATALOGUE DELTA versus inherited debt
+
+`test_boundary_inventory` is 27F, composed of NINE tests: 13 `no_declared_owner_is_stale`, 5
+`every_declared_probe_reaches_its_named_boundary`, 3 `no_entry_is_owned_twice`, and one each of
+`every_boundary_call_belongs_to_an_entry_or_is_declared`, `every_owned_entry_has_exactly_one_probe`,
+`every_receiving_entry_has_an_owning_validator`, `private_lane_writer_provenance`,
+`public_start_and_cleanup_supply_owned_lane_values`, `the_missing_probe_check_can_actually_fail`.
+
+    INHERITED: all 13 stale declared owners are `review_cycles.py` `answer.*` members of `attach_review`,
+      `grant_writer` and `writer_boundary`. My only change to that module ADDS a `preparing` parameter; it
+      removes no answer read, so these predate this Work.
+    INHERITED: `every_owned_entry_has_exactly_one_probe` reports 252 owned-but-never-probed entries, the
+      backlog this suite has carried throughout.
+    NOT ATTRIBUTED: the +1 over the recorded 26. The 5 probe-reach failures name
+      `intake.py:_attempt_of`, `output.py:_attempt_of` and three `custody.py:custody_act` operands -- none
+      of which I edited -- and the interleaved subTest output defeated my attempts to read each one's own
+      assertion cleanly. I am recording that the delta is UNATTRIBUTED rather than asserting it inherited.
+
+### DEAD CODE AND COMMENTS, recorded
+
+    `intake._normalized` and `intake._custody_capable` have no callers and are RETAINED deliberately, each
+      with the reason in its own docstring; the immutable `review_configured_no_helper_20260928.py` patches
+      `_normalized` BY NAME, so deleting it would break a reviewer artefact.
+    obsolete comments corrected this Work: the overwrite comment in `test_managed_integration_capacity`'s
+      identity block, the two allowance docstrings in `test_tool`, the `_settled_ending` derivation note,
+      and the superseded normalization prose in the four converted ending families.
+
+### FINAL PATH / DIGEST INVENTORY
+
+    source   intake.py fe2c14b75f72, workspaces.py 10d4f9642efe, oci.py a56d76c4fc1e,
+             deadlines.py acf03f24df07, review_cycles.py 53fc7c381152, custody.py daa00f1ecc4a,
+             integration_capacity.py a3cd94bb9dfb, review_driver.py b148669c84af,
+             stage_execution.py 38c4cf74db02, integration_worker.py a70b6546b607,
+             single_worker.py 6677f026e32a, job_manager.py 83cbf5ee56b5
+    tests    test_intake.py 0ef804dc6d6a, test_maintenance.py 4e7f1c40ddc0, test_attempts.py 27492cf99f87,
+             test_refused_session_cleanup.py b9d6210c8768, test_runtime_deadlines.py ea64b3e8cf72,
+             test_boundary_inventory.py 3929186ac94e, test_review_driver.py e7c15fe743b5,
+             test_tool.py 84b01b4e4a03, test_managed_integration_capacity.py f2cf82b993dd,
+             test_managed_preparation.py 323aadb18d10, test_stage_execution.py 94b5d940d8ee,
+             test_single_worker.py 4c6ac99b1e13
+
+### Measured
+
+    tests.job_manager.test_managed_integration_capacity OK (with the new negative)
+    tests.manager.test_boundary_inventory 27F -- composition and attribution above
+
+### Remaining scope
+
+    the late-launch and no-I/O-under-transactions properties, as asserted cases rather than inherited
+    the catalogue's unattributed +1, and the 252-entry backlog as its own piece
+    M292090 stays partial
+
+### Human milestone checkpoint
+
+Predecessor b4b3fc8d inherited as a comparison baseline only; this child unaccepted. Truthful WIP:
+
+    WIP v12 recovery: the closure matrix, with two honest gaps left in it
+
+    The one missing focused assertion is added -- the third-account profile negative, the A,A,B shape the
+    chained comparison admitted and the existing case could not reach because it changed the plan. The
+    property-to-evidence matrix maps each required property to the suite or immutable probe that proves it,
+    including the reviewer's own replay, transfer, unobservable-root and parent-link probes rather than
+    recreating them. Two entries are gaps and are marked as gaps: late launch and no-I/O-under-transactions
+    are held by the design and by the removal of the helper paths, but I assert neither as a property. The
+    catalogue delta names all 13 stale owners as inherited review_cycles entries and the 252 unprobed
+    entries as the standing backlog, while the one failure above the recorded baseline stays UNATTRIBUTED
+    rather than being called inherited on no evidence.
+
+Commit identity unobserved; no staging, no commit, no other repository mutation by me.

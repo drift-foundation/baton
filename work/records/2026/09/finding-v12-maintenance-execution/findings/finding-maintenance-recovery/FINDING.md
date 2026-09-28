@@ -1105,3 +1105,147 @@ Use capacity139PASS and replay proof instead of rerunning unchanged sibling suit
 Reached profile negatives, full finite matrix, exact catalogue deltas and final audit
 remain. No live run, graph/schema change or Git mutation. Snapshot candidate-2026-09-28T14-07-35Z.json is byte binding,
 not whole-candidate acceptance.
+
+
+# W285465 review 2026-09-28T14-15-52Z
+
+Claim296431; handoff296427/events296433; T285465 through295703 unchanged.
+Changes required; G2/parent unaccepted. Capacity139PASS and prior replay proof preserved.
+
+## Confirmed fixture control-flow defect, not completion-policy ambiguity
+
+Independent ordinary managed-preparation selector fails1 in0.781s (wall0.866s),
+now at test_managed_preparation2601: processes[0].returncode None !=0. It passes the
+preceding adopted/one-process assertions. This verifies advancement beyond exchange
+waiting, not full subprocess termination/cleanup acceptance.
+
+New engine dispatch at2320-2326 returns early for ANY argv whose operation is neither
+matched start nor immediate run. For stop/rm: start condition false, elif not(run)
+true, return answer. Thus the existing stop/rm subprocess terminate/wait block below
+is UNREACHABLE. This is a direct source-proved regression introduced by the create/start
+adaptation. The claim that stop/rm did not reach the fake because execution-only ending
+removes nothing is not supported; this fake drops them itself before the handler.
+Do not change production cessation or workspace preservation to compensate.
+
+Restructure operation dispatch so create captures config and remains inert, start
+launches one subprocess for the exact created runtime, replayed start does not launch
+again, and stop/rm operate on and positively reap the matching subprocess. Do not treat
+all processes as one runtime when checking exact identity; retain uncertainty/failed
+start behavior and record actual engine command counts when claiming no stop/rm occurred.
+Bound waits and preserve cleanup's fallback termination. No deletion of retained workspace
+is required to terminate an execution. Distinguish stale Popen.returncode from actual
+live process by poll/wait, while not masking a missing teardown with a final assertion wait.
+Remove the temporary if True scaffold as part of this test correction.
+
+Run ordinary then selected failed-start/uncertain/restart cases through their intended
+termination assertions; retain raw failure IDs before classifying all35+6 as one cause.
+Author41 failures not independently rerun; source reachability and one ordinary failure
+are the independent evidence. Existing test ownership suffices. Continue connected
+milestone through newly reached mismatches before handing back. Finite matrix/profile
+negatives/catalogue delta/final audit remain. No new permission or cumulative-budget
+gate, no live Docker/provider, graph/schema change or Git mutation.
+Snapshot candidate-2026-09-28T14-15-52Z.json binds observed bytes, not whole-candidate acceptance.
+
+
+# W285465 review 2026-09-28T14-23-20Z
+
+Claim296475; handoff296472/events296477; T285465 through295703 unchanged.
+Verdict: managed-preparation milestone verified; whole G2 remains unaccepted pending
+finite integrated evidence/audit. Routine continuation to implementation.
+
+Independent tests.tools.test_managed_preparation100PASS74.168s, exit0, under90s
+per-run timeout. Raw output preparation-296475.log retained. No live Docker/provider. The dispatch
+no longer skips stop/rm; ordinary proof reaches one subprocess, worker_exit0,
+runtime destroyed, cleanup retained, same-adoption cache recovery and parent queued.
+Suite includes selected restart and uncertain/failed-start cases. Source assertions
+at ended_after_failed_start verify one process, matching failed-start/runtime identity,
+runtime destroyed, cleanup retained, process.poll non-None and delivery cleanup;
+unknown-runtime branch requires live process, uncertain runtime, held recovery-required
+capacity and no parent offer/adoption. These are actual asserted lifecycle properties,
+not a pass count alone. Preserve this proof with capacity139PASS and replay probe.
+
+Explicit clarification: manual reading of every engine-command log is NOT an additional
+acceptance gate where these existing assertions establish the required behavior.
+Use command traces only to settle a concrete unproved identity/ordering question.
+Current fake stop/rm loops over the fixture's processes; these one-child assertions
+prove this selected path, not arbitrary multi-container matching. Do not claim that
+broader property from this fixture; reuse the actual token-bound tests for exact
+container/generation and delayed-launch exclusion in the final matrix.
+
+## Finite next milestone: finish evidence, not re-open passing slices
+
+Produce a concise acceptance matrix identifying exact current test/probe and property
+for: known/unknown exit status versus known/unknown termination; durable exact-token
+return/execution gate release and retained storage protection; stale generation and
+late launch; restart/no duplicate effects; workspace bytes/modes preservation; external
+I/O outside DB transaction; separate consumer acceptance and apply identity. Reuse
+existing accepted evidence recorded in PLAN/FINDING; add only genuinely missing focused
+assertions, including reached profile disagreement cases if still absent. Existing
+review_replay_296102 already proves changed-runtime/same-Job, missing/forged retry and
+exact replay, so do not call these unproved merely because the reviewer wrote them.
+
+Classify actual current catalogue failures versus inherited debt by exact identity;
+no automatic252-entry rewrite. Remove already-recorded dead scaffolding/stale comments
+in owned correction, preserve tests' true negative intent. Supply final exact changed
+path/digest/expectation inventory, current evidence references and honest residual debt.
+Reviewer then performs final candidate audit. Parent/W257627 dependency remains unchanged.
+No new approval, cumulative budget or manual-log gate; no live run or graph/Git mutation.
+Snapshot candidate-2026-09-28T14-23-20Z.json binds observed bytes, not whole-candidate acceptance.
+
+
+# W285465 review 2026-09-28T14-34-52Z
+
+Claim296566; handoff296562/events296567; T285465 through295703 unchanged.
+Changes required: closure matrix accuracy and finite evidence gaps; G2/parent unaccepted.
+
+## Verified current checks; avoid duplicating existing evidence
+
+Independent5PASS0.052s (wall0.165s): new
+ tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_the_RECORDED_PROFILE_alone_disagreeing_is_refused;
+ tests.manager.test_maintenance.ALateCreatedRuntimeIsEndedOrRecordedAsUnknown (3 cases);
+ tests.manager.test_maintenance.TheLaunchIsTwoActsAndTheJournalDecidesBetweenThem.test_no_engine_call_is_made_while_a_write_lock_is_held.
+The first reaches the profile refusal with a valid configured manifest. Existing late
+create coverage expires between create/bind, requires no start and exact ending or
+unknown hold. Existing engine fixture records in_transaction and asserts every call
+False. Thus matrix blanket 'no case' claims for late launch/engine-under-transaction
+are superseded. Scope these accurately: late CREATE is not automatically every delayed
+START race; engine calls on this maintenance path are not proof of every filesystem
+call across all changed ending families. Reuse applicable accepted G1/G2 evidence and
+add only exact uncovered current-path assertions. Preserve100 preparation/139 capacity
+milestones and reviewer replay proof.
+
+## Matrix claims needing correction or evidence
+
+The no-scan sentinel test creates an empty root and checks inode/mode. It does NOT
+write/check file contents, so do not claim byte preservation from that test alone.
+Name the actual existing content-preservation test or add a bounded file-content
+assertion alongside root identity/mode. _preserved_ending's docstring saying it does
+not release the lane is NOT a no-writable-reuse regression: overall execution release
+happens elsewhere, correctly. Cite a composed attempt to reuse retained storage after
+execution release and its refusal/independent root, not a helper's lack of mutation.
+Likewise named suites or partial wildcard test names are insufficient precise evidence
+locators; use exact test/probe and asserted property. Earlier access/inspection/listing
+rules were superseded: do not silently reinstate them through old matrix rows.
+
+Catalogue27-v26 +1 remains unresolved. 'Function not edited' does not prove no changed
+caller/probe effect; nor does adding a preparing argument prove all stale entries predate
+this Work without the retained baseline failure identities. Get per-subTest outcomes
+with unittest TestResult.addSubTest or separate selectors, not interleaved console
+parsing. Compare exact retained baseline, classify introduced/current-scope versus
+separately owned inherited debt.252 total backlog is not an obligation to fix now.
+
+The claimed final inventory is incomplete: reviewer manifest includes changed
+worker_manager/maintenance.py, absent from the twelve-source handoff list. Use full
+repository-relative paths and full hashes, compare to the existing bound candidate
+set; identify introduced/removal paths explicitly, not ambiguous basenames/prefixes.
+Do not claim final candidate audit readiness with a partial inventory.
+
+Historical immutable probes do not require retaining dead production helpers solely
+so monkeypatch-by-name still works forever. Preserve the historical probe, add an
+updated reviewer probe if removal needs new verification; remove only already-selected
+obsolete paths with ownership/behavior checked. No new broad cleanup scope.
+
+Next: correct matrix and complete only concrete uncovered preservation/reuse/I/O or
+late-start assertions, attributable catalogue delta and complete candidate inventory.
+No new owner permission/test-budget gate; no live run/graph change/Git mutation.
+Snapshot candidate-2026-09-28T14-34-52Z.json records observed bytes, not whole-candidate acceptance.

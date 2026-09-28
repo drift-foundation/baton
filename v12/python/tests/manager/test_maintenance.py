@@ -14,6 +14,7 @@ including this engine's own absence sentence.
 
 import json
 import os
+import pathlib
 import stat
 import subprocess
 import sys
@@ -3356,6 +3357,10 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
         root = _custody._derived_root(self.case.store, self.intake.ATTEMPT,
                                       "result")[0]
         os.makedirs(root, exist_ok=True)
+        # A REAL BYTE THE ENDING MUST NOT TOUCH, written before the mode closes the directory.
+        kept = pathlib.Path(root) / "result.txt"
+        kept.write_bytes(b"the worker's own output\n")
+        written = kept.stat().st_mtime_ns
         os.chmod(root, 0o700)
         before = os.lstat(root)
 
@@ -3377,6 +3382,11 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
         self.assertTrue(os.path.isdir(root), "the ending removed the output")
         self.assertEqual(os.lstat(root).st_ino, before.st_ino)
         self.assertEqual(stat.S_IMODE(os.lstat(root).st_mode), 0o700)
+        # AND THE BYTES, which review 2026-09-28T14-34-52Z is right that an inode and a mode do
+        # not cover: an object can keep both while its content is rewritten. The file is written
+        # before the ending and read back after it.
+        self.assertEqual(kept.read_bytes(), b"the worker's own output\n")
+        self.assertEqual(kept.stat().st_mtime_ns, written)
 
     def test_the_ACCESSIBLE_ending_records_accessible_and_replays_one_act(self):
         """The positive beside the durable error, and the replay of one establishment.

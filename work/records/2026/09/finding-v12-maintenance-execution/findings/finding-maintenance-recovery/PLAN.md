@@ -1,7 +1,7 @@
 # W285465 checkpoint — execution status and preservation only
 
-Claim296359; handoff296357/events296361; T285465 through295703 unchanged.
-Review review-2026-09-28T14-07-35Z.md; candidate-2026-09-28T14-07-35Z.json. G2/parent NOT accepted.
+Claim296566; handoff296562/events296567; T285465 through295703 unchanged.
+Review review-2026-09-28T14-34-52Z.md; candidate-2026-09-28T14-34-52Z.json. G2/parent NOT accepted.
 Current authority: owner294568/294616, DESIGN primary step4, HOST-1/5, ART-7 and
 normative FINDING “execution release does not require a result check”.
 
@@ -32,19 +32,22 @@ tokens.outstanding empty through composed pass. Byte preservation/no-reuse and a
 branches remain separate. Six tool corrections verified:53PASS0.489s full test_tool.
 Return count limit resolved: focused1PASS0.027s counts one committed token return;
 allowance prose correctly states cleanup-only coverage. Preserve tool53PASS.
-CAPACITY MILESTONE VERIFIED:139PASS1.553s; preserve fixture/race/runtime-identity fixes.
-Apply Job producer/manifest forwarding observed in source, connected apply still owed.
-NEXT child exchange: review_poll_296359.py recorded ordinary test1FAIL/0E, wall6.568s;
-raw poll-296359.json first3 polls show runtime running, cleanup pending, exchange
-waiting with no receipt/state/terminal, no start/preparation failure. Keep exclusion.
-Strong source lead: fixture engine2304 spawns reconciliation subprocess only on run;
-current token runtime supports deferred create/start (oci1250/1262). Confirm exact
-engine commands/subprocess count, adapt deterministic fake to actual boundary preserving
-one launch, exact generation and unknown/delayed-start behavior. No live run needed.
-Then ordinary positive and restart/uncertain branches through consumer/adoption, preserving
-no-scan execution release. Reuse capacity139PASS and replay proof, no unchanged broad
-reruns. Profile negatives, finite matrix/catalogue delta/final audit remain.
-Reviewer owns diagnostic probe/log; author existing product/test paths remain authorized.
+PRESERVE preparation100PASS74.168s, capacity139PASS, reviewer replay proof.
+NEW5PASS0.052s: recorded-profile negative; ALateCreatedRuntimeIsEndedOrRecordedAsUnknown
+3 cases; maintenance engine-no-write-lock case. Blanket missing late-launch/engine-I/O
+claims superseded narrowly: late-create and this maintenance engine path are covered,
+not automatically every delayed-start/filesystem path. Reuse accepted G1/G2 exact evidence.
+NEXT correct closure matrix: exact test names/asserted properties; no-scan root inode/mode
+case does NOT assert file bytes; helper not releasing lane does NOT prove no writable
+reuse after overall execution release. Cite actual composed preservation/reuse cases or
+add only missing bounded assertions. Do not reinstate superseded output/access gates.
+Catalogue +1 unresolved: capture per-subTest results structurally, compare retained baseline
+identities, not counts/unchanged-function inference.252 backlog is not new scope.
+Complete path inventory: maintenance.py omitted from author twelve-source list; use full
+paths/full hashes against current bound manifest. Historical probes do not force dead
+product helper retention forever; preserve old probe and use new evidence if selected
+cleanup removes its target. No broad cleanup/new approval/budget gate.
+Finite matrix and final independent candidate audit remain, parent/dependency unchanged.
 Catalogue accounting supersession:252 unprobed/13 stale declarations are reported total debt,
 not automatic W285465 scope. Eight-entry shorthand is not total inventory. Compare exact
 failure identities/affected paths, fix introduced/current-scope deltas, record inherited debt

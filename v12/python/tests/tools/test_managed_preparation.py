@@ -2312,17 +2312,29 @@ class OneManagedPreparationCompletes(unittest.TestCase):
         # the labels, and the subprocess is launched on the START that activates it. Exactly one
         # launch per created container, keyed by the runtime id the create named, so a replayed
         # start cannot double it and the generation is untouched.
+        #
+        # AND THE DISPATCH IS ONE DECISION, corrected by review 2026-09-28T14-15-52Z. My first
+        # cut returned early for everything that was not a launch, which made the terminate/wait
+        # handler for `stop` and `rm` below UNREACHABLE -- so the child was started and never
+        # reaped, and I wrongly read that as the owner's no-deletion policy showing through. It
+        # is a fixture dispatch defect and nothing about production cessation.
         created = {}
 
         def engine(argv, **options):
             answer = original_engine(argv, **options)
+            launching = None
             if argv[1] == "create" and "--entrypoint" not in argv:
+                # INERT: recorded, nothing started.
                 created[answer["stdout"].strip() or argv[-1]] = list(argv)
-            if argv[1] == "start" and argv[-1] in created:
-                argv = created.pop(argv[-1])
-            elif not (argv[1] == "run" and "--entrypoint" not in argv):
-                return answer
-            if True:
+            elif argv[1] == "start" and argv[-1] in created:
+                # THE ACTIVATION of an exact created runtime, once: the composition is popped, so
+                # a replayed start finds nothing and launches nothing.
+                launching = created.pop(argv[-1])
+            elif argv[1] == "run" and "--entrypoint" not in argv:
+                # THE IMMEDIATE ACTIVATION, kept for the paths that still compose it.
+                launching = list(argv)
+            if launching is not None:
+                argv = launching
                 started = [live[0].started[-1]["execution_attempt_id"]]
                 admitted = integration_capacity_of(held.job, live[0].started[-1]["intent"]["orchestration_id"])
                 phases = {one["phase"]: one for one in admitted["members"]}

@@ -311,6 +311,7 @@ class CapacityCase(fixtures.JobManagerCase):
         return AuthorityPort(self.session, fixtures.fake_claim_signature)
 
     def claimed(self, attempt_id, offer_id, recorded_input=None,
+                recorded_profile=None,
                 work_id=None):
         """One REAL Worker Manager claim for a phase execution.
 
@@ -343,7 +344,10 @@ class CapacityCase(fixtures.JobManagerCase):
                                "work_id": work_id or self.EXECUTION_WORK})
         record_attempt(control, attempt_id=attempt_id, adapter_name="acp",
                        adapter_digest="sha256:" + "3" * 64,
-                       profile_digest=self.PROFILE,
+                       # W285465: `recorded_profile` exists for the THIRD-ACCOUNT profile
+                       # negative below, which needs the plan and the offer to agree while the
+                       # RECORD alone differs.
+                       profile_digest=recorded_profile or self.PROFILE,
                        input_digest=recorded_input or self.runtime_input_digest,
                        policy_digest=self.POLICY)
         submit_claim(control, self.port, offer_id=offer_id)
@@ -816,6 +820,32 @@ class ThePhasesAreSerial(CapacityCase):
                             input_manifest=case.configured_manifest())
                 self.assertIn(f"planned with {name}", str(caught.exception))
                 case.doCleanups()
+
+    def test_the_RECORDED_PROFILE_alone_disagreeing_is_refused(self):
+        """W285465 review 2026-09-28T13-09-26Z, the negative that predicate needed.
+
+        The case above changes the PLAN, so plan and offer disagree and even a BROKEN chained
+        comparison catches it -- `A != B != C` is `A != B and B != C`, which admits A,A,B and
+        B,A,A. This is the A,A,B shape: the plan and the offer agree exactly and the ATTEMPT
+        RECORD alone carries another profile. Three-way equality is what refuses it, and the
+        chained form did not.
+        """
+        store, stage, allocation = self.reserved()
+        control = self.claimed("prepare-attempt-1", "prepare-offer-1",
+                               recorded_profile="sha256:" + "f" * 64)
+        capacity.register_integration_capacity(
+            store, orchestration_id=self.ORCHESTRATION,
+            root_assignment_id=allocation["assignment_id"],
+            authority_uuid=fixtures.UUID, plan=self.plan(stage))
+        with self.assertRaises(ContractRefusal) as caught:
+            capacity.admit_integration_execution(
+                store, control, orchestration_id=self.ORCHESTRATION,
+                phase="prepare", execution_attempt_id="prepare-attempt-1",
+                assignment=self.claim_of("prepare-attempt-1"),
+                input_manifest=self.configured_manifest())
+        self.assertIn("planned with profile_digest", str(caught.exception))
+        self.assertIn("recorded with 'sha256:" + "f" * 20,
+                      str(caught.exception))
 
     def test_an_unplanned_execution_cannot_be_admitted(self):
         store, _stage, _allocation, _answer = self.registered()
