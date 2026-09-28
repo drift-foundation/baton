@@ -520,13 +520,35 @@ class ThePublicRetrySettlesAgainstARealEngine(W.Lifecycle):
         self.assertEqual(rerun.returncode, 0,
                          rerun.stderr.decode("utf-8", "replace"))
 
-    def test_an_explicit_discard_still_ends_complete_and_removes_the_tree(self):
-        """The control, and the regression this Work must not cause.
+    def test_an_explicit_discard_is_CHOSEN_and_still_ends_retained(self):
+        """The same control, under the ending the owner ruled.
 
-        A deployment that explicitly chooses a discard gets exactly what the
-        hard-coded literal used to give it -- `complete`, an absent tree --
-        and the difference is that it CHOSE it. Without this case the change
-        could have made every run retain and nobody would notice.
+        WHAT THIS CASE IS FOR HAS NOT CHANGED: a deployment that explicitly chooses a
+        discard must get the ending its own choice produces, so that a change which made
+        every run retain silently could not pass. What HAS changed is the ending. Owner
+        294568/294616 removed every proactive act from completion -- no output
+        observation, no normalization, and no removal -- so the workspace is preserved AS
+        IS and `complete`, which means the material is gone, is no longer reachable by any
+        path. The chosen disposition is still recorded and still read back; it no longer
+        decides whether the tree survives completion.
+
+        SO THE ASSERTION MOVES AND THE CHOICE STAYS ASSERTED: the committed disposition is
+        still this deployment's own, the ending is `retained` with the runtime positively
+        absent, and the material is STILL THERE -- which is what DESIGN ART-7 requires
+        while it is offered for inspection.
+
+        AND THE DISCARD IS STILL HONOURED WHERE IT APPLIES, which I had wrong until this
+        case was run: the CUSTODY-PUBLISHED copy under `<storage>/<attempt>/custody/` is
+        removed for a discard and kept for a retain -- the sibling case above proves the
+        keep on the same locator -- so the disposition still decides the artifact's fate.
+        What the owner ruling changed is the ending label and the attempt's own WORKSPACE --
+        AND THIS CASE DOES NOT ASSERT THE WORKSPACE, which review 16-40-29Z is right to
+        insist on. Nothing below opens that tree, so the claim belongs to the deterministic
+        case that does: `tests/manager/test_maintenance.py`
+        `TheORDINARYEndingCompletesWithNoHelperOrItHolds
+        .test_a_DISCARD_disposition_still_leaves_the_workspace_bytes`, which reads the
+        committed discard from the manager's own record and asserts the worker's bytes and
+        mtime survive the ending. This case is about the published copy and the ending label.
         """
         given = self.world(retention="discard-after-intake")
         status, written = self.commanded(given)
@@ -537,11 +559,15 @@ class ThePublicRetrySettlesAgainstARealEngine(W.Lifecycle):
         self.assertEqual(written["retention"]["disposition"],
                          "discard-after-intake")
         self.assertEqual(written["cleanup"],
-                         {"cleanup": "complete", "state": "absent"})
+                         {"cleanup": "retained", "state": "absent"})
+        # THE CUSTODY COPY IS GONE, and that is the choice being honoured rather than a
+        # contradiction of the preservation: this locator is the published proposal, not
+        # the attempt's workspace, and the retained sibling asserts the same path EXISTS
+        # for a keep. Measured both ways rather than reasoned about.
         locator = written["custody"][0]["custody_locator"]
         self.assertFalse(
             os.path.isdir(dogfood_operator._proposal_root(locator)),
-            "an explicit discard left the material behind")
+            "an explicit discard left its published copy behind")
 
 
 

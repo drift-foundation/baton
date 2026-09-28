@@ -2164,8 +2164,10 @@ def _standing_overlap(store, assignment_id, which):
 
     ASKING ABOUT ONE ROOT WAS THEREFORE NOT ASKING. `_claim_episode` consulted
     `_standing_hold` for its own `which` only, so with the workspace held the
-    ending's FIRST act -- `intake._normalized` visits the nested result root
-    first -- claimed, SUBMITTED and settled a result helper, and only then
+    ending's FIRST act -- the normalization intake then performed, visiting the
+    nested result root first; the helper itself was removed under W285465's owner
+    ruling and this history is why the containment argument stays -- claimed,
+    SUBMITTED and settled a result helper, and only then
     refused at the workspace. The reviewer's regression measures the forbidden
     second submission at the engine boundary, and a later refusal does not undo
     an effect that already crossed.

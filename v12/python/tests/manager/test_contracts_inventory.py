@@ -144,6 +144,10 @@ OWNERS = {
 	("check_content_manifest", "content"): "the frozen contentManifest "
 	                                       "fragment, then §12 rule 6",
 	("check_content_manifest", "what"): "label_of",
+	("job_input_identity", "input_manifest"): "the frozen inputManifest "
+	                                          "definition, through "
+	                                          "check_manifest_structure",
+	("job_input_identity", "what"): "label_of",
 	("check_input_pair", "input_manifest"): "the frozen inputManifest "
 	                                        "definition, then the pair binding",
 	("check_input_pair", "assignment_manifest"): "the frozen "
@@ -268,6 +272,10 @@ class EveryOwnerIsProvedByANonVacuousProbe(unittest.TestCase):
 				lambda: contracts.check_content_manifest({"entries": []}),
 			("check_content_manifest", "what"):
 				lambda: contracts.check_content_manifest([], what=SURROGATE),
+			("job_input_identity", "input_manifest"):
+				lambda: contracts.job_input_identity([]),
+			("job_input_identity", "what"):
+				lambda: contracts.job_input_identity([], what=SURROGATE),
 			("check_input_pair", "input_manifest"):
 				lambda: contracts.check_input_pair([], {}),
 			("check_input_pair", "assignment_manifest"):

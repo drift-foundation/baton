@@ -3627,6 +3627,16 @@ def admit_preparation(control, assignment_id, what, execution=None,
         refusal = _maintenance_refusal(control, assignment_id, what)
         if refusal is not None:
             raise refusal
+        # W285465, DESIGN ART-7: AND THE OFFERED MATERIAL, which is a state rather than
+        # an outstanding act. HERE AND NOT IN THE ALLOCATION, for the reason
+        # `_task_token_refusal` already states about itself: the ordinary path re-enters
+        # `assignment_workspace` to read and adopt the roots it is using, and the import
+        # and inspection paths re-derive the same pair to READ the preserved material. A
+        # refusal there would stop the inspection ART-7 exists to allow. What this guards
+        # is the act that means a writer is about to run inside them.
+        refusal = _offered_material_refusal(control, assignment_id, what)
+        if refusal is not None:
+            raise refusal
         refusal = _task_token_refusal(control, assignment_id, what,
                                       mine=execution)
         if refusal is not None:
@@ -4007,6 +4017,63 @@ def _journal_maintenance(control, assignment_id):
                 held = _json.loads(held)
             found.append((which, ordinal, held or {}))
     return found
+
+
+def _offered_material_refusal(control, assignment_id, what):
+    """The refusal a PRESERVED, OFFERED output earns a second writer, or `None`.
+
+    W285465 review 2026-09-28T16-06-20Z, DESIGN ART-7. The ending this Work rewrote
+    PRESERVES the worker's material and releases the execution, which are two different
+    facts -- and the review is right that releasing the resource left nothing standing
+    over the tree. Measured before it was written: after a retained ending
+    (`output = sealed`, `cleanup = retained`), `admit_preparation` ADMITTED a second
+    preparation of the same attempt. Nothing in this module refused, because every
+    exclusion here reads an act that is OUTSTANDING -- an allocation, a removal, a
+    cleanup admission, a custody episode, a maintenance window, a live task token -- and
+    a settled ending has none of those by construction. ART-7 protects material that is
+    being OFFERED, which is a state rather than an act, so it needs its own reading.
+
+    THE ONE STATE THAT OFFERS IT IS `sealed`, and the bound is MEASURED rather than
+    reasoned. My first cut also refused on `frozen`, which broke two connected cases in
+    `test_managed_preparation` by name -- `test_frozen_output_resumes_before_its_intake`
+    and `test_a_restart_before_intake_makes_one_intake`. They are right and the cut was
+    wrong: `frozen` is an INTERMEDIATE state of the live flow, reached before intake, and
+    a manager that restarts there legitimately re-admits a preparation to carry the same
+    attempt to its intake. `sealed` is the accepted offer -- `intake` writes it, and the
+    axis leads nowhere from it but `discarded` -- so that is where the offer, and this
+    refusal, begins. `open` is not one either, deliberately: it is the state every
+    ordinary preparation runs in. `invalid` is not covered, and that is a bound rather
+    than an oversight -- it is a disposition this Work was not given.
+
+    AND THE MATERIAL MUST STILL BE THERE. A `complete` cleanup removed the tree, so
+    there is nothing to protect and refusing would be a FALSE refusal -- the failure
+    mode `_journal_holds` already records for cleared episodes.
+
+    IT IS RESOLVED BY DISPOSING THE OUTPUT, not by waiting and not by force. `discarded`
+    is the one successor of `sealed`, so the refusal names it: an operator who is done
+    inspecting the evidence ends the offer, and the roots are writable again. This holds
+    no capacity, reads no directory, changes no mode and copies nothing -- it is one
+    journal read of the attempt's own axes.
+    """
+    from . import attempts as _attempts
+
+    try:
+        attempt = _attempts._require_attempt(control, assignment_id)
+    except ContractRefusal:
+        return None
+    offered = attempt.get("output")
+    if offered != "sealed":
+        return None
+    if attempt.get("cleanup") == "complete":
+        return None
+    return ContractRefusal(
+        "refused", "precondition",
+        f"{what} is refused: attempt {name_value(assignment_id)}'s output is "
+        f"{name_value(offered)} and its cleanup ended "
+        f"{name_value(attempt.get('cleanup'))}, so the worker's own material stands "
+        f"preserved and offered for inspection. A preparation is a WRITER inside these "
+        f"roots and the material is evidence while it is offered, so the offer is ENDED "
+        f"-- the output axis reaching 'discarded' -- rather than written beside")
 
 
 def _maintenance_refusal(control, assignment_id, what):

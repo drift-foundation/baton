@@ -2839,8 +2839,30 @@ def managed_apply_failure_evidence(store, control, managed_result_id, reported):
     if intake is None or intake["custody"] != "accepted" or intake["attempt_id"] != attempt or intake["assignment"] != task["assignment"] or any(intake[name] != collected[name] for name in ("result_id", "manifest_digest")):
         _refuse("the failed apply report has no matching accepted custody")
     retained, indexed, custody = _retained_outputs(control, dict(collected, artifacts=intake["artifacts"]), attempt)
-    if retained["assignment_ref"] != task["assignment"] or retained["input_manifest_digest"] != task["input_digest"]:
-        _refuse("the failed apply collection names another fixed assignment or input")
+    if retained["assignment_ref"] != task["assignment"]:
+        _refuse("the failed apply collection names another fixed assignment")
+    # W285465 review 2026-09-28T17-12-45Z: THE SAME TWO-IDENTITY CORRECTION AS THE SUCCESS
+    # PATH, and it is here because the failure path carries its own copy of the predicate.
+    # `input_manifest_digest` is the EXACT runtime manifest the worker mounted;
+    # `task["input_digest"]` became the JOB PROJECTION when this Work separated them
+    # (W202663). Comparing them refused every honest failed apply too -- 197 propagated
+    # refusals reading "the failed apply collection names another fixed assignment or
+    # input", which is why the settled-failure cases never reached `exceptional`.
+    #
+    # BOTH IDENTITIES STAY PROVED, exactly as on the success path: the exact one by loading
+    # the input manifest AT the digest the retained result manifest names -- a load that
+    # re-binds the document to its key and refuses another kind -- and the Job one by
+    # deriving the projection from that owned document and holding it against the task. A
+    # wrong input changes both, so the negative this exists for is unchanged.
+    from ..worker_manager.manifests import load_manifest
+    from ..contracts import job_input_identity
+
+    mounted = load_manifest(control, retained["input_manifest_digest"], "inputManifest")
+    if mounted is None:
+        _refuse("the failed apply names an input manifest this manager does not retain")
+    if job_input_identity(mounted) != task["input_digest"]:
+        _refuse("the failed apply collection names another Job input than the task it was "
+                "planned under")
     outputs = [one for one in retained["outputs"] if one["artifact"] is not None and any(entry["path"] == "managed-apply.json" for entry in one["content_manifest"]["entries"])]
     if len(outputs) != 1 or len(outputs[0]["content_manifest"]["entries"]) != 1:
         _refuse("the failed apply requires exactly one sealed report file")

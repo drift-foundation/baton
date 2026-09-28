@@ -1249,3 +1249,325 @@ Next: correct matrix and complete only concrete uncovered preservation/reuse/I/O
 late-start assertions, attributable catalogue delta and complete candidate inventory.
 No new owner permission/test-budget gate; no live run/graph change/Git mutation.
 Snapshot candidate-2026-09-28T14-34-52Z.json records observed bytes, not whole-candidate acceptance.
+
+
+# W285465 review 2026-09-28T14-45-46Z
+
+Claim296645; handoff296643/events296645; T285465 through295703 unchanged296646.
+Changes required; preservation evidence improved, G2/parent unaccepted.
+
+Independent byte-preservation sentinel test PASS1/0.030s. Current test writes result.txt,
+checks bytes/mtime plus root inode/mode, and raises on proactive output observations.
+This closes the narrow missing-file-content assertion. Preserve prior accepted milestones.
+
+Reviewer coordination dependency resolved: new review_configured_no_helper_296645.py
+supersedes the historical probe for CURRENT verification only, retaining original file
+unchanged. It patches _normalized with create=True and the same raising sentinel, so
+selected removal of the dead helper no longer prevents executing the check; attempted
+dynamic use still fails. Running the script collected the imported ordinary-ending
+class plus custom case:30PASS1.184s, not merely one case. Existing selected dead-helper
+cleanup may proceed after caller verification; no additional reviewer approval needed.
+No product implementation by reviewer.
+
+Correct exact matrix locator: engine-no-lock case belongs to
+TheLaunchIsTwoActsAndTheJournalDecidesBetweenThem, NOT TheHostSettlesOnEvidenceAndHoldsEverythingElse.
+ALateCreatedRuntimeIsEndedOrRecordedAsUnknown has THREE executed cases in prior5PASS
+run, not four. Preserve earlier narrow scope: engine calls on that path, not every
+filesystem path; late-create coverage is not automatically all delayed-start races.
+
+NEXT concrete acceptance: composed execution release followed by attempted writable
+reuse of retained root, proving refusal or safe distinct storage and original bytes
+unchanged. Do not use a private helper's non-release as a substitute; actual execution
+ownership must be released while material stays protected. Existing owned test scope
+and standing authority cover this. Add only missing current-path I/O/late-start assertions
+if existing accepted exact evidence cannot cover them.
+
+Catalogue historical26 count alone cannot reconstruct the missing +1 identity. Record
+that provenance limitation permanently; it is not solved by today's27 composition.
+Review present failures against actual changed callers/expectations to establish whether
+any current-scope regression remains. Unchanged callee text alone proves no exemption.
+Do not invent baseline evidence or expand to252 backlog. If exact history is unavailable,
+provide the current bounded defect classification and ownership, not another guessed
+count comparison. No automatic graph change or waiver.
+
+Inventory still uses basenames and12-character prefixes; reviewer candidate manifest
+already carries full paths/hashes. Reconcile intended authored scope to that manifest,
+identify any missing/extra path and changed expectations; no duplicate hand-written
+hash list is necessary. Final candidate audit remains after substantive gaps close.
+No new permission/budget gate, live run, graph/Git mutation. Snapshot candidate-2026-09-28T14-45-46Z.json is observed
+bytes, not whole-candidate acceptance.
+
+
+## 2026-09-28T16-06-20Z — release proved, storage exclusion and managed apply unresolved
+
+
+Claim297166; author handoff297163; events read through297166. Detail297178 confirms
+exclusive baton.rvpc claim. T285465 through295703, no newer messages at297179.
+G2 and parent remain unaccepted. No product/test implementation by reviewer.
+
+## P1 — preservation from writable reuse remains required
+
+Independently ran TheORDINARYEndingCompletesWithNoHelperOrItHolds.
+test_the_RELEASE_preserves_the_OUTPUT_and_the_lane_reopens: PASS. This is diagnostic
+coverage of an unsafe admission, not acceptance of storage protection. It releases
+the actual execution token, obtains the SAME writable root from assignment_workspace,
+and grants generation2 over that resource. Bytes/mtime survive these acts, which
+perform no subsequent worker write. It does not establish safety from that writer.
+DESIGN ART-7 explicitly requires preserving material from writable reuse while offered
+for inspection. Prior PLAN/review already pinned that boundary; it is not new scope.
+The test's contrary claim that such protection is new scope is superseded here.
+
+Next prove the supported writer/mount admission refuses mutation of this retained
+material, or use safe distinct storage. If an existing higher-level guard already
+provides that exclusion, exercise the real connected guard before changing product
+code; mere low-level reacquisition is not proof a second Docker writer can start.
+Do not fix this by holding execution capacity, scanning output, changing permissions,
+copying/freezing, or restoring cleanup helpers. Exact release and storage protection
+are separate obligations. Convert diagnostic expectations into the correct bounded
+regression once the enforcing boundary is identified.
+
+## P1 — managed apply happy path fails
+
+Independently ran AnOrdinaryManagedIntegration.
+test_preparation_judgments_apply_and_target_settle: FAIL at test_managed_apply.py:343,
+gate["open"] False versus True. Combined with the test above:2 tests,11.368s,1 failure.
+The mount(preparing=) correction removes an earlier TypeError, but does not close this
+flow. Author reports13 cases and published/awaiting-independent-receipts state; those
+counts and root cause remain author evidence, not independently established here.
+Diagnose receipt production/consumption and identity across the real connected flow;
+do not force the dependency open or waive independent receipts to make tests pass.
+Preserve earlier accepted preparation100, capacity139, replay, profile/late-create/
+no-lock5 and content/no-scan proofs; unchanged slices need not be rerun wholesale.
+
+## Bounded remaining audit and authority
+
+The automatic discard expectation in tools/dogfood_operator.py:2242-2243 conflicts
+with owner294568/294616 and DESIGN ART-7. Align this completion observer and its
+focused test with retained execution completion; no fresh owner choice is needed to
+undo automatic deletion at completion. Preserve historical policy evidence. This
+does not select a new later deletion workflow or waive later consumer validation.
+Coordinate these exact additional paths before editing: v12/python/tools/dogfood_operator.py
+and v12/python/tests/tools/test_dogfood_retry_engine.py. Existing author ownership of
+integration_worker and its focused tests covers the managed-apply correction.
+
+Catalogue26 missing identities are a permanent provenance limitation, not a task to
+reconstruct an unknowable +1. Current27 and broader suite results remain diagnostic.
+The author's live-engine exclusions, umask explanation, identical baseline failures
+and remaining caller classifications are author findings; baseline import failures
+prevent blanket inference of passing baseline. Bound follow-up to concrete changed
+callers: scheduler_trace, dogfood_operator, execution_limits, correction_restart.
+Do not expand252 backlog or require broad/live suites. Record exact IDs and disposition.
+
+Author also changed tests/manager/test_contracts_inventory.py for an admitted inherited
+gap. Preserve these bytes and attribute separately; no product scope expansion is
+approved by including them in the snapshot. Include its changed expectations in final
+review rather than silently treating a green inventory as this Work's implementation.
+Snapshot now includes missing tests/tools/test_managed_preparation.py and
+ tests/job_manager/test_review_driver.py plus test_contracts_inventory.py. Snapshot
+contains read context/evidence too; inclusion never means authored or accepted.
+Dead-helper removal and successor probe are retained as partial author evidence;
+historical probe remains immutable. No live execution, graph change or Git mutation.
+
+Next handoff: storage admission proof/correction, managed apply correction, obsolete
+discard observer correction, bounded remaining classification, then final exact
+path/hash/expectation audit. Routine continuation to baton.impl; no owner gate.
+
+
+## 2026-09-28T16-40-29Z — storage admission verified; apply stall and live-run deviation
+
+
+Claim297404; handoff297402; work-events through297404; T285465 through295703,
+no newer discussion at297410. Parent/G2 not accepted. No product edits by reviewer.
+
+## Accepted narrow storage-admission correction
+
+_offered_material_refusal reads sealed output inside admit_preparation's transaction;
+no filesystem observation or execution-capacity hold added. Independent focused cases:
+TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_the_RELEASE_preserves_the_OUTPUT_and_the_WRITER_is_refused
+and test_an_OFFER_THAT_ENDED_does_not_refuse_the_next_writer:2PASS0.066s.
+Actual release and refused preparation over sealed/retained output are now composed.
+OneManagedPreparationCompletes.test_frozen_output_resumes_before_its_intake and
+ test_a_restart_before_intake_makes_one_intake:2PASS1.938s. The sealed-only bound
+preserves these legitimate pre-intake recoveries. Preserve prior accepted slices.
+This is preparation-admission protection, not a universal claim about every writer.
+The discarded control uses observe directly; no user-facing disposal workflow exists.
+Keep that limitation explicit; no new disposal feature selected or implicit closure.
+
+## Managed apply remains a concrete blocker
+
+Independent reviewer trace review_apply_trace_297404.py runs the real deterministic
+happy-path test:1FAIL25.213s at test_managed_apply.py:343, gate closed. Trace records
+ContractRefusal exceptions in stage_execution/integration_worker, not constructed
+exception objects:7 preparation deferrals per propagation frame, then one frozen-judge
+report wait per propagation frame; no repeated refusal family in those files.
+Do not mistake propagation frames for independent acts. This corroborates a stall but
+is not a complete cause trace. Author now reports one poll returning None, result
+remaining authorized and stage integrating. Previous published/receipt-wait diagnosis
+is explicitly superseded; it belonged to a different passing case.
+Next inspect scheduler dispatch after apply_managed returns pending: active.poll is
+called at stage_execution.py:2892; establish why the next sweep does not return there.
+This is a proposed diagnostic boundary, not a proved fix. Preserve real independent
+receipt and exact runtime-ending requirements; do not force gate/completion states.
+
+## Discard observer and execution-boundary correction
+
+Code now expects retained unconditionally, consistent with completion policy. Changed
+engine test asserts disposition, retained/absent, and removal of a separate custody
+copy; it does NOT directly assert the attempt workspace remains. Do not claim that
+assertion from its prose. Add/reuse focused deterministic evidence for the actual
+workspace under discard, including bytes, if claiming this branch preserves it.
+Remove adjacent obsolete comment saying no disposition expects complete. This is
+routine scoped correction, not a fresh owner decision or new disposal workflow.
+
+OPERATIONAL FINDING: author handoff297402/PROGRESS reports running real DockerPublicRetry,
+4PASS91.4s. Prior PLAN and handoff expressly selected no live engine. Authority to edit
+that test/observer did not select live execution. Preserve the report honestly as author
+live evidence, not independently accepted or retroactively authorized. No reviewer live
+run performed. Next author checkpoint must name resources created and cleanup evidence
+from existing logs; unknown residual resources must remain explicit. No repeat engine
+run merely to validate the observer. Use fake/replay boundary by default. This incident
+does not create a new approval gate for ordinary deterministic continuation.
+
+## Finite remaining work
+
+Managed-apply progress/poll correction first, then affected restart/limits/scheduler
+cases and bounded dogfood classification. Author provides exact failure identities in
+PROGRESS; no broad-suite rerun required simply to repeat known counts. Establish changed
+caller relationship or separately owned inherited debt, not unexplained pass/fail totals.
+Historical26 composition permanently unknown; no252 backlog expansion. Final path/hash/
+expectation audit follows substantive correction. contracts_inventory inherited addition
+remains separately attributed. Snapshot is observed bytes, not acceptance. No graph or
+Git mutation; routine return baton.impl. W257627 dependency remains unchanged.
+
+
+## 2026-09-28T16-55-25Z — apply wrapper never launches apply body
+
+
+Claim297515; handoff297512; work-events through297515; T285465 through295703,
+no newer discussion297517. Changes required; G2/parent remain unaccepted.
+
+## P1 confirmed — apply body never starts in the failing fixture
+
+Independent probe review_apply_body_297515.py runs the real deterministic
+AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle
+without changing product or test behavior. It observes Popen body selection and
+calls to the apply-specific fake engine. Result:1FAIL19.732s at dependency gate;
+APPLY_WRAPPER_VERBS {'create':4,'start':4}; LAUNCHED_BODIES {'prepare_body':1}.
+No apply body launched. Counts are observed for this run, not author historical counts.
+
+Static cause: tests/tools/test_managed_apply.py adopted.engine returns for any verb
+other than run (or explicit entrypoint), before the mounts/managed-apply.json/body
+selection. Production now supplies create/start. The separate preparation fixture's
+support for create/start does not repair this wrapper. Author statement that fourteen
+launch verbs without --entrypoint exonerate the fixture is superseded: those predicates
+omit the wrapper's run-only condition. A stub runtime marked running and a published
+command do not prove an actual worker body exists to receive it.
+
+NEXT bounded author correction: adapt this fake engine to inert create plus exact
+single start, choosing the apply body from the captured mount composition. Preserve
+run compatibility, stop/rm cleanup and subprocess ownership; verify replay does not
+launch twice and apply waits for real command acceptance/terminal output. Reuse the
+already corrected fixture pattern carefully, not unconditional launch of the wrong
+body. Exact path tests/tools/test_managed_apply.py is included in this correction.
+First rerun happy path, then affected apply/restart cases. Only investigate further
+product dispatch changes if evidence after the correct body starts requires them.
+The reviewer made no product/test changes. Existing receipt/gate/ending obligations
+remain; do not force completion or weaken expectations.
+
+Prior suggested scheduler re-entry boundary was diagnostic, not a proven defect.
+Author's repeated-poll experiment showing no receipt does not exonerate the missing
+body. Preserve it as evidence; no need to keep polling a nonexistent worker.
+
+## Discard preservation closed narrowly
+
+Independent test_a_DISCARD_disposition_still_leaves_the_workspace_bytes:
+1PASS0.033s. Reads committed discard decision and checks workspace file bytes/mtime
+and root after ending with production governance. This closes the specific missing
+workspace assertion. Engine-test prose now assigns that proof correctly; obsolete
+complete expectation comment corrected. Preserve accepted storage/restart slices.
+
+## Live-run incident accounting and remaining boundaries
+
+Author now reports THREE live invocations rather than one; preserve this correction
+in history. Reported per-case absent assertions are evidence for the exact cases that
+reached them, not blanket proof all created resources were removed. Images, networks,
+volumes and any partial-case resources remain author-declared unknowns. Temporary
+path age/glob observations do not independently establish universal no-residue.
+Do not relabel those unknowns as cleanup success or repeat live tests.
+Clarification: read-only daemon inspection is not itself another live workload run;
+no such inspection or additional execution is required/selected by this review.
+The incident report is preserved without blocking authorized deterministic correction.
+
+Then bound remaining scheduler/limits/restart/dogfood failures against changed callers,
+separate inherited debt and finish exact path/hash/expectation audit. No252 expansion,
+no reconstruction of missing historical26 identities, no new disposal feature. Snapshot
+is observed bytes only. No graph/Git mutation; W257627 dependency unchanged. Routine
+handoff to baton.impl, not owner permission for continued scoped work.
+
+
+## 2026-09-28T17-12-45Z — answer observed; retained-report comparison blocks settlement
+
+
+Claim297610; handoff297608; events297611; T285465 through295703 unchanged297611.
+Changes required. G2/parent remain unaccepted. Reviewer changed only records/probe.
+
+## Confirmed fixture correction and superseded startup diagnosis
+
+Apply-specific create/start dispatch now launches the actual apply body once. Independent
+review_apply_mounts_297610.py observes the real deterministic happy path. At Popen ALL
+mount sources exist, including launch, credentials, command and event roots. Launch
+schema baton.worker-launch/3 selects baton.worker-exchange/1. Publication uses the SAME
+command root mounted into the child. Observed exchange progresses waiting -> working
+(receipt present) -> answered (receipt and terminal present). Child exits0.
+
+The directories disappear through authorize_cleanup -> _destroyed -> adapter.destroy ->
+_launch_ended -> launch.discard -> exchange.discard, after the answered state. Therefore
+handoff297608/PROGRESS inference that absent end-of-run paths prove missing startup
+composition is superseded by contemporaneous evidence. Do not chase startup ordering
+or invent/recreate exchange paths on that basis. Both command acceptance and answer now
+occur; missing re-entry is also no longer an accurate description of this candidate.
+This accepts the narrow fixture dispatch correction, not integrated completion.
+
+## P1 actual current blocker — collected report identity
+
+Final instrumented happy path:1FAIL28.870s, gate still closed at test_managed_apply.py:386.
+Raised-exception trace (not exception construction) records197 end/apply_managed
+propagations and196 subsequent poll propagations of:
+  the managed apply collection names another fixed assignment or input
+Origin: integration_worker.ManagedApplyRuntime.end line1242 calls
+integration_bundle.retained_apply_report. The composite condition at
+v12/python/tools/integration_bundle.py:816 compares intake/frozen result identity,
+manifest.assignment_ref against task.assignment, AND manifest.input_manifest_digest
+against task.input_digest. Do not count propagation frames as separate independent bugs.
+
+LIKELY cause requiring operand confirmation: stage_execution.apply_managed constructs
+the task with planned input_digest, now the Job projection, while a result manifest
+binds the exact runtime input manifest. That distinction was already selected and
+corrected for capacity admission. Trace proves the composite refusal, not which operand
+alone differs. Next compare each operand at this boundary, carry both exact runtime and
+Job projection identities through their correct owners, and retain refusal for genuinely
+wrong assignment/full manifest/projection. Do not remove the identity check or compare
+only a weaker digest. No new identity design or owner gate is needed.
+
+Pin additional exact correction path v12/python/tools/integration_bundle.py together
+with existing tools/stage_execution.py, tools/integration_worker.py and focused
+ tests/tools/test_managed_apply.py / tests/tools/test_integration_worker.py as needed;
+record actual touched paths and reasons. First happy path plus identity mismatch
+negatives; then affected apply/restart cases. Broader repeated failures are not proof
+of this correction until these consumers run successfully.
+
+## Evidence accounting and unchanged remaining scope
+
+Probe evolved in this claim: an initial argv-index bug yielded an invalid1.538s probe
+(no product inference); corrected observations took15.755s, transport15.765s,
+removal/receipt trace15.699s, final raised-exception trace28.870s. Final script preserved.
+These are deterministic local subprocess tests, no Docker/provider run. Earlier failed
+probe is explicitly not evidence of absent launch. No product/test edits by reviewer.
+
+Preserve accepted discard bytes, storage-admission, frozen/intake restart, generation,
+identity and prior preparation evidence. Live-run incident and residual resource unknowns
+remain unchanged. Remaining bounded scheduler/limits/restart/dogfood attribution and
+final path/hash/expectation audit follow substantive apply correction. No252 backlog,
+missing historical26 reconstruction, new disposal workflow, graph or Git mutation.
+Observed candidate snapshot is not acceptance. Routine continuation to baton.impl;
+W257627 required dependency and G2/parent remain unsatisfied.

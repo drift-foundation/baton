@@ -807,14 +807,44 @@ def retained_apply_report(manager, request):
     from baton_v12.worker_manager.intake import intake_receipt_of
     from baton_v12.worker_manager.manifests import load_manifest
     from baton_v12.integration import managed_execution
+    from baton_v12.contracts import job_input_identity
 
     attempt = request["task"]["execution_attempt_id"]
     frozen, intake = frozen_output_of(manager, attempt), intake_receipt_of(manager, attempt)
     if frozen is None or intake is None or intake["custody"] != "accepted":
         _gap("the managed apply has no accepted frozen report")
     manifest = load_manifest(manager, frozen["manifest_digest"], "resultManifest")
-    if any(intake[name] != frozen[name] for name in ("result_id", "manifest_digest")) or manifest["assignment_ref"] != request["task"]["assignment"] or manifest["input_manifest_digest"] != request["task"]["input_digest"]:
-        _drifted("the managed apply collection names another fixed assignment or input")
+    if any(intake[name] != frozen[name] for name in ("result_id", "manifest_digest")):
+        _drifted("the managed apply collection names another frozen result than the "
+                 "one custody accepted")
+    if manifest["assignment_ref"] != request["task"]["assignment"]:
+        _drifted("the managed apply collection names another fixed assignment")
+    # W285465 review 2026-09-28T17-12-45Z: THE TWO INPUT IDENTITIES ARE NOT ONE, and this
+    # comparison was written when they were. `input_manifest_digest` is the EXACT runtime
+    # manifest this worker mounted; `task["input_digest"]` became the JOB PROJECTION when
+    # this Work separated them (W202663), so comparing them made every honest managed apply
+    # drift -- 197 propagated refusals from `ManagedApplyRuntime.end` in the reviewer's
+    # trace, which is the whole stall.
+    #
+    # BOTH ARE STILL PROVED, and neither is weakened to make the other pass:
+    #
+    #   THE EXACT ONE, by loading the input manifest AT the digest the result manifest
+    #   names. `load_manifest` re-binds the document to its key and refuses a document of
+    #   another kind, so a successful load IS the proof that this exact manifest is the one
+    #   the frozen result was produced from. An absent one is a GAP rather than drift: there
+    #   is nothing to compare, and saying "another input" about a missing document would
+    #   name the wrong fault.
+    #
+    #   THE JOB ONE, by deriving the projection from that owned document with the shipped
+    #   rule and holding it against the task. A wrong input manifest changes both the digest
+    #   and the projection, so the negative this predicate exists for is unchanged; what is
+    #   gone is only the false positive between two different facts.
+    mounted = load_manifest(manager, manifest["input_manifest_digest"], "inputManifest")
+    if mounted is None:
+        _gap("the managed apply names an input manifest this manager does not retain")
+    if job_input_identity(mounted) != request["task"]["input_digest"]:
+        _drifted("the managed apply collection names another Job input than the task it "
+                 "was planned under")
     outputs = [one for one in manifest["outputs"] if one["name"] == request["output_name"] and one["artifact"] is not None]
     if len(outputs) != 1:
         _gap("the managed apply did not retain its declared report")

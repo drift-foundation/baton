@@ -2228,19 +2228,52 @@ def _ended_however(store, port, adapter, evidence, *, attempt_id, runtime_id,
             # every ending but `complete` as a failure, so an INTENDED keep
             # read as a broken cleanup.
             #
-            # SO THE EXPECTED ENDING IS DERIVED FROM THE COMMITTED DECISION.
-            # `evidence["retention"]` is written from `decide_retention`'s own
-            # answer on the ordinary path, and on the retry path `_committed`
-            # has already held it against `retentions_of` before this is
-            # reachable -- so an edited record cannot turn a discard into a
-            # keep, and a retry cannot reinterpret somebody else's ending. A
-            # retention that never committed leaves this `None`, which keeps
-            # material for nobody and expects `complete`, which is exactly
-            # what an attempt with no retention decision should expect.
+            # AND THE COMMITTED DECISION IS STILL READ, for what it still
+            # decides. `evidence["retention"]` is written from
+            # `decide_retention`'s own answer on the ordinary path, and on the
+            # retry path `_committed` has already held it against
+            # `retentions_of` before this is reachable -- so an edited record
+            # cannot turn a discard into a keep, and a retry cannot reinterpret
+            # somebody else's ending.
+            #
+            # W285465 review 2026-09-28T16-40-29Z: THE SENTENCE THAT USED TO
+            # FOLLOW HERE IS GONE, and removing it is the point. It said a
+            # retention that never committed "expects `complete`", which was
+            # true of the ending this deployment used to observe and is now
+            # false of every disposition, including no disposition at all:
+            # completion does not delete, so no attempt expects `complete`. A
+            # comment that still describes the superseded ending is a second,
+            # wrong account of the rule the next line states.
             committed = (evidence.get("retention") or {}).get(
                 "disposition")
             keeping = committed is not None and _keeps_material(committed)
-            expected = "retained" if keeping else "complete"
+            # W285465, owner 294568/294616 with DESIGN ART-7: THE ENDING IS
+            # `retained` WHATEVER THE DISPOSITION SAYS, because completion no
+            # longer deletes. The supersession removed every proactive act from
+            # the ending -- no output observation, no normalization, no removal
+            # -- so the workspace is preserved AS IS and `complete`, which means
+            # "the material is gone", is not an ending any path can now reach.
+            # This observer went on expecting it for a discard and reported the
+            # ruled ending as unresolved: "cleanup ended 'retained' ... and this
+            # attempt's committed retention 'discard-after-intake' ends
+            # 'complete'". The review at 16-06-20Z is right that correcting the
+            # observer needs no fresh owner choice -- it is reading the old
+            # behaviour, not disagreeing about the new one.
+            #
+            # THE DISPOSITION STILL DECIDES SOMETHING, and measuring it corrected
+            # me: the CUSTODY-PUBLISHED copy is removed for a discard and kept for
+            # a retain, which is what the two focused cases in
+            # `test_dogfood_retry_engine` now assert on the same locator. What the
+            # ruling changed is the attempt's own workspace -- preserved whatever
+            # the disposition says -- and this label. The remainder recorded in the
+            # dossier is narrower than I first wrote it: the workspace's offer has
+            # no product path that ENDS it (`output` never reaches `discarded`), and
+            # selecting that later workflow is not this correction.
+            # `keeping` STAYS, and only for the disk proof below: a disposition
+            # that was chosen to keep material still has its locator proved on
+            # the filesystem, which is the historical evidence this correction
+            # preserves rather than replaces.
+            expected = "retained"
             # POSITIVE ABSENCE IS STILL REQUIRED FOR BOTH, and that is the
             # ruled difference `retained` does NOT relax: the material staying
             # is a fact about custody, and the runtime being gone is a fact

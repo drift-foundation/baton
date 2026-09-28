@@ -1186,7 +1186,19 @@ class ManagedApplyRuntime:
     def close(self):
         self.operations.close()
 
-    def mount(self, worker, stage, roots):
+    def mount(self, worker, stage, roots, preparing=None):
+        """The apply runtime's boundary over the roots the caller allocated.
+
+        W285465, and the operand is TAKEN AND NOT USED, which is a statement rather than an
+        oversight: `single_worker` forwards the acting preparation window to every stage owner
+        because the line/checkpoint owner needs it to re-prepare under its own capability. This
+        owner prepares nothing -- it composes the source boundary over the pair it was handed,
+        which was already allocated under that very window -- so it neither adopts nor mints,
+        and a forwarded capability it ignored is exactly the right amount of authority for it
+        to hold. Before this signature took the operand the forward was a `TypeError` on every
+        managed apply, which is how the whole family read as broken.
+        """
+        del preparing
         return {"roots": roots, "boundary": source_boundary.compose_source_boundary(
             worker.given["source_nomination"], roots, worker.given["workspace_capacity"])}
 

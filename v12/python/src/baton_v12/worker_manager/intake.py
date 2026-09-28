@@ -1909,8 +1909,10 @@ CLEANUP_RECEIPT = ("attempt_id", "cleanup", "state", "why", "kept",
 CLEANUP_EVIDENCE = ("writer_cessation",)
 CLEANUP_ENDINGS = _ABSENT_ENDINGS + ("failed",)
 
-# The two directory roots a positive absence normalizes, innermost first, as
-# `_normalized` performs them.
+# The two directory roots an ending speaks about, innermost first. W285465, after the owner's
+# zero-helper selection and the review at 296645: the helper that USED to perform them in this
+# order is gone, and the order still matters to the readers that remain -- the HISTORICAL
+# receipt readers below, which walk a stored `directory_custody` root by root.
 _CUSTODY_ROOTS = ("result", "workspace")
 
 # ONE VOCABULARY, ASSERTED RATHER THAN COPIED. The cleanup axis is
@@ -4303,33 +4305,6 @@ def _ending_capable(adapter, attempt_id):
     return adapter
 
 
-def _custody_capable(adapter):
-    """NO CALLERS as of W285465: kept as the historical seam's typed reader.
-
-    Every ending this module owns now proves `_ending_capable` instead, because
-    OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removed the automatic launches this typed for.
-    The rule it states is still the accepted one wherever a custody act IS performed, so it
-    stays beside `_normalized` rather than being deleted with the callers.
-
-    THE RULE IT STATES, unchanged: the mandatory custody seam, PROVED BEFORE ANY DESTRUCTIVE
-    WORK.
-
-    W43975 review 2026-08-30T15:21:44Z [P0]. `normalize_directory` and
-    `custodian_image_digest` were first read inside `_normalized` -- after the
-    runtime had been removed and both providers settled -- so a deployment
-    missing the seam mutated the world and only then got a capability
-    refusal. A capability discovered once durable state depends on it was not
-    typed at all, which is the rule `AuthorityPort` states about its session
-    and the reason it checks at construction.
-    """
-    boundaries.capability(getattr(adapter, "normalize_directory", None),
-                          "the runtime adapter's directory-custody act")
-    boundaries.text(getattr(adapter, "custodian_image_digest", None),
-                    "the custodian image identity custody acts are signed "
-                    "with")
-    return adapter
-
-
 def inaccessible_output(store, attempt_id, roots=None):
     """The FIRST entry the shared group cannot read, or `None` -- and it launches nothing.
 
@@ -4460,43 +4435,6 @@ def inaccessible_output(store, attempt_id, roots=None):
                 f"this manager could not traverse the output "
                 f"({type(failure).__name__}), so accessibility is not established")
     return None
-
-
-def _normalized(store, adapter, attempt_id, *, seconds=None, reclaim=None):
-    """NO CALLERS as of W285465, and DELIBERATELY RETAINED.
-
-    OWNER-NO-AUTOMATIC-NORMALIZATION-20260928 removed the automatic launches from all five
-    endings, so nothing in this module calls this. The reviewer notes the removal would be
-    routine cleanup rather than an owner decision -- but it is not free: the immutable
-    `review_configured_no_helper_20260928.py` and the owned configured-custodian case both
-    PATCH THIS NAME to assert no helper is launched, so deleting it would break an artifact
-    whose whole purpose is to hold this path to the ruling. It stays until those are
-    superseded, and it is dead code on purpose rather than by oversight.
-
-    WHAT IT DID, kept for the readers of its historical receipts: both roots, RESULT FIRST,
-    before anything terminal is committed.
-
-    W43975 review [P0] point 4 and 5. The order is the containment: `result`
-    is nested BELOW `workspace`, so they are separately attributable custody
-    subjects rather than two independent deletion trees, and normalizing the
-    inner one first means the outer act never runs over a subject nobody has
-    accounted for yet.
-
-    OUTSIDE THE TRANSACTION, because each act runs a container. A helper
-    invocation inside a write transaction would hold the control store open
-    across an engine call, and the receipt each act commits is its own
-    journalled operation anyway -- which is the whole reason a crash between
-    the two loses nothing.
-    """
-    from . import custody as _custody
-
-    for which in ("result", "workspace"):
-        # ONE DECREASING ALLOWANCE ACROSS BOTH ROOTS. `seconds` is read at
-        # each boundary rather than divided in advance, so the second root
-        # gets what the first left rather than a fresh half.
-        _custody.normalize_directory(store, adapter, assignment_id=attempt_id,
-                                     which=which, seconds=seconds,
-                                     reclaim=reclaim)
 
 
 WRITER_CESSATION_KIND = "cleanup.writer-cessation"

@@ -1,9 +1,28 @@
-# W285465 checkpoint — execution status and preservation only
+# W285465 checkpoint — retained apply report identity correction
 
-Claim296566; handoff296562/events296567; T285465 through295703 unchanged.
-Review review-2026-09-28T14-34-52Z.md; candidate-2026-09-28T14-34-52Z.json. G2/parent NOT accepted.
-Current authority: owner294568/294616, DESIGN primary step4, HOST-1/5, ART-7 and
-normative FINDING “execution release does not require a result check”.
+Claim297610; handoff297608/events297611; T285465 through295703 unchanged297611.
+Review review-2026-09-28T17-12-45Z.md; candidate-2026-09-28T17-12-45Z.json observed snapshot. G2/parent NOT accepted.
+
+## Next executable milestone (supersedes startup/missing-poll diagnosis)
+
+Independent probe confirms one apply body, all mounts present at Popen, exchange
+transport, matching published root, receipt and answered terminal, exit0. Later removal
+is authorize_cleanup -> destroy -> launch.discard. End-of-run absence is NOT startup
+failure. Preserve narrow fixture correction; do not recreate delivery paths.
+Current blocker: retained_apply_report in tools/integration_bundle.py:816 raises
+another fixed assignment or input. Independent1FAIL28.870s; repeated polls DO occur.
+Compare operands separately: likely exact result input manifest versus Job-projection
+input_digest from planned apply task. Preserve exact runtime and Job identities and
+wrong-input/assignment refusal. Existing owner ruling applies, no new owner gate.
+Pin tools/integration_bundle.py additional correction path, existing stage_execution/
+integration_worker and focused test_managed_apply/test_integration_worker as needed;
+record touched paths. First happy path plus identity negatives, then apply/restart cases.
+Prior discard/storage/restart/identity evidence remains accepted narrowly. Incident
+unknowns unchanged. Then bounded scheduler/limits/restart/dogfood classification and
+final candidate audit. No252 expansion, disposal feature, graph/Git or live execution.
+Reviewer owns records/probes; author implementation/tests/PROGRESS.
+
+## Preserved authority and earlier evidence
 
 ## Current target — explicit supersession
 
@@ -32,22 +51,21 @@ tokens.outstanding empty through composed pass. Byte preservation/no-reuse and a
 branches remain separate. Six tool corrections verified:53PASS0.489s full test_tool.
 Return count limit resolved: focused1PASS0.027s counts one committed token return;
 allowance prose correctly states cleanup-only coverage. Preserve tool53PASS.
-PRESERVE preparation100PASS74.168s, capacity139PASS, reviewer replay proof.
-NEW5PASS0.052s: recorded-profile negative; ALateCreatedRuntimeIsEndedOrRecordedAsUnknown
-3 cases; maintenance engine-no-write-lock case. Blanket missing late-launch/engine-I/O
-claims superseded narrowly: late-create and this maintenance engine path are covered,
-not automatically every delayed-start/filesystem path. Reuse accepted G1/G2 exact evidence.
-NEXT correct closure matrix: exact test names/asserted properties; no-scan root inode/mode
-case does NOT assert file bytes; helper not releasing lane does NOT prove no writable
-reuse after overall execution release. Cite actual composed preservation/reuse cases or
-add only missing bounded assertions. Do not reinstate superseded output/access gates.
-Catalogue +1 unresolved: capture per-subTest results structurally, compare retained baseline
-identities, not counts/unchanged-function inference.252 backlog is not new scope.
-Complete path inventory: maintenance.py omitted from author twelve-source list; use full
-paths/full hashes against current bound manifest. Historical probes do not force dead
-product helper retention forever; preserve old probe and use new evidence if selected
-cleanup removes its target. No broad cleanup/new approval/budget gate.
-Finite matrix and final independent candidate audit remain, parent/dependency unchanged.
+PRESERVE preparation100PASS/capacity139PASS/replay proof/profile+late-create+engine5PASS.
+NEW byte-preservation sentinel1PASS0.030s closes missing content assertion.
+Current no-helper successor review_configured_no_helper_296645.py30PASS1.184s
+(imported ordinary-ending class included) uses create=True; original immutable probe
+preserved. Selected dead-helper cleanup can proceed after caller checks, no new gate.
+Correct matrix locators: no-lock test class TheLaunchIsTwoActsAndTheJournalDecidesBetweenThem;
+late-created-runtime class THREE cases, not four. Prior narrow scope remains.
+NEXT composed actual execution release then writable reuse attempt over preserved root:
+prove refusal/safe distinct storage and bytes unchanged, not helper non-release.
+Map remaining I/O/late-start requirements to exact existing evidence or bounded missing tests.
+Catalogue26 count lacks baseline identities; preserve that provenance limitation, assess
+current failures against changed callers/expectations; unchanged callee is not exemption.
+Do not invent +1 attribution or expand252 backlog. Reconcile intended authored scope to
+reviewer manifest full paths/hashes (no duplicate hash list needed), name changed expectations,
+then final independent audit. No new permission/budget/live/graph gate.
 Catalogue accounting supersession:252 unprobed/13 stale declarations are reported total debt,
 not automatic W285465 scope. Eight-entry shorthand is not total inventory. Compare exact
 failure identities/affected paths, fix introduced/current-scope deltas, record inherited debt

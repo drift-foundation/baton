@@ -2798,7 +2798,12 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
         establishes and commits, and no helper is called.
         """
         made = self.adapter(custodian=True)
-        with mock.patch.object(intake_module(), "_normalized",
+        # `create=True` SINCE 296667, when the dead helper was removed after the caller
+        # verification the review at 296645 asked for. The patch is kept rather than deleted
+        # for the reason the reviewer's successor probe keeps it: patching a name that no
+        # longer exists still proves that nothing on this path resolves it dynamically, and
+        # the day a normalization helper comes back under this name the case fires again.
+        with mock.patch.object(intake_module(), "_normalized", create=True,
                                side_effect=AssertionError(
                                    "a helper was launched on the selected path")):
             answer = self.ending(made)
@@ -3333,6 +3338,180 @@ class TheORDINARYEndingCompletesWithNoHelperOrItHolds(unittest.TestCase):
                          {"result": None, "workspace": None})
         self.assertIn(self.ending(self.adapter())["cleanup"],
                       ("complete", "retained"))
+
+    def test_the_RELEASE_preserves_the_OUTPUT_and_the_WRITER_is_refused(self):
+        """W285465 reviews 14-45-46Z and 16-06-20Z: the composed case, and the DEFECT it found.
+
+        My first version of this case ran the composition, saw a second writer admitted, and
+        concluded that protecting the retained bytes would be new scope. THE REVIEW SUPERSEDED
+        THAT and it was right to: DESIGN ART-7 requires material offered for inspection to be
+        preserved from writable reuse, which the PLAN already pinned. What the composition
+        found was not the absence of scope, it was the defect -- every exclusion in
+        `workspaces` reads an OUTSTANDING ACT, and a settled ending leaves none, so nothing
+        stood over the tree. `_offered_material_refusal` is the correction and this case is
+        now its regression.
+
+        THE TWO OBLIGATIONS ARE SEPARATE, which is the reviewer's phrasing and the right one:
+
+          * EXACT RELEASE. The ending returns the execution generation -- read from the
+            ledger -- so the resource is not held hostage by a finished attempt, and the
+            allocator still answers the same two roots, because the import and inspection
+            paths re-derive them to READ the preserved material.
+          * STORAGE PROTECTION. The act that means a writer is about to run inside those
+            roots, `admit_preparation`, REFUSES while the output stands offered, and the
+            refusal names the one thing that resolves it: ending the offer.
+
+        Both are asserted here, and the bytes and mtime are checked after every act, because
+        a refusal that arrived too late to matter would pass a test about refusals.
+        """
+        from baton_v12.worker_manager import attempts, intake, tokens
+
+        # THE GENERATION IS RESERVED UNDER THE OPERATION THE ENDING RESOLVES -- the attempt's
+        # one derived start identity, not a fixture label. A generation taken under any other
+        # operation is not the one a real start holds and the release refuses it; that is the
+        # behaviour, and getting it wrong is how I first wrote this case.
+        _held, domain, _token = self.governed(
+            operation=attempts._start_operation_id(self.pinned_attempt()))
+        root = self.custody()._derived_root(self.case.store,
+                                           self.intake.ATTEMPT, "result")[0]
+        os.makedirs(root, exist_ok=True)
+        kept = pathlib.Path(root) / "result.txt"
+        kept.write_bytes(b"the worker's own output\n")
+        written = kept.stat().st_mtime_ns
+
+        # THE ENDING UNDER ITS PRODUCTION GOVERNANCE. Every other case in this class passes no
+        # `govern`, so none of them reaches `_released` at all -- this is the suite's first
+        # coverage of the release itself.
+        answer = intake.authorize_cleanup(
+            self.case.store, self.case.port, self.adapter(),
+            attempt_id=self.intake.ATTEMPT,
+            retention_policy_digest=self.intake.RETENTION,
+            govern=tokens.workspace_governance())
+        self.assertEqual(answer["cleanup"], "retained")
+        self.assertEqual(tokens.outstanding(self.case.store, domain), [],
+                         "the ending did not release the execution it proved free")
+
+        # THE WRITABLE REUSE ATTEMPT, over the same storage and the same assignment.
+        storage = workspaces.configured_workspace_storage(self.case.store).place
+        reused = workspaces.assignment_workspace(
+            input_roots.configured_group(self.case.store), storage,
+            self.intake.ATTEMPT, control=self.case.store)
+        # THE SAME writable root the preserved output sits under, which is what makes this a
+        # reuse of that tree rather than a fresh allocation somewhere else.
+        self.assertEqual(reused["workspace"], os.path.dirname(root))
+
+        # A SECOND GENERATION IS GRANTABLE, which is the honest reading of a RELEASED
+        # resource -- and is exactly why it cannot be the protection. The guard is the one
+        # below; reacquiring a token proves the release happened, nothing more.
+        second = tokens.acquire(self.case.store, domain, operation="start:reuse",
+                                execution=self.intake.ATTEMPT,
+                                attempt=self.intake.ATTEMPT)
+        self.assertEqual(second["generation"], 2)
+
+        # AND THE WRITER ADMISSION REFUSES, naming the offered material and the resolution.
+        row = self.case.attempt_row()
+        self.assertEqual((row["output"], row["cleanup"]), ("sealed", "retained"))
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.admit_preparation(
+                self.case.store, self.intake.ATTEMPT,
+                "a second preparation of this attempt",
+                execution=self.intake.ATTEMPT)
+        spoken = caught.exception.message
+        self.assertIn("preserved and offered for inspection", spoken)
+        self.assertIn("'sealed'", spoken)
+        self.assertIn("discarded", spoken)
+
+        # THROUGH EVERY ACT THE MATERIAL IS UNTOUCHED -- bytes and mtime, from the file.
+        self.assertTrue(kept.exists(), "the reuse path removed retained material")
+        self.assertEqual(kept.read_bytes(), b"the worker's own output\n")
+        self.assertEqual(kept.stat().st_mtime_ns, written)
+
+    def test_a_DISCARD_disposition_still_leaves_the_workspace_bytes(self):
+        """W285465 review 2026-09-28T16-40-29Z, and the reviewer is right about the gap.
+
+        `tests/tools/test_dogfood_retry_engine.py` asserts a discard's PUBLISHED COPY is
+        removed; it says nothing about the attempt's own workspace, and its prose must not
+        borrow an assertion it does not make. Nor may that claim rest on a live engine, which
+        the recorded selection forbids. So the workspace claim gets its own DETERMINISTIC
+        case, here, where the fixture's committed disposition already IS a discard --
+        `retained_ready("discard-after-intake")` in this class's `setUp`.
+
+        THE THREE FACTS, each read from its own owner: the committed retention says discard,
+        the ending says `retained`, and the file the worker wrote has the SAME BYTES and the
+        same mtime afterwards. That is what "completion no longer deletes" means for the one
+        tree an operator would look in.
+        """
+        from baton_v12.worker_manager import attempts, intake, tokens
+
+        held, _domain, _token = self.governed(
+            operation=attempts._start_operation_id(self.pinned_attempt()))
+        del held
+        root = self.custody()._derived_root(self.case.store,
+                                           self.intake.ATTEMPT, "workspace")[0]
+        wrote = pathlib.Path(root) / "worker-wrote-this.txt"
+        wrote.write_bytes(b"bytes the discard does not take\n")
+        written = wrote.stat().st_mtime_ns
+
+        # THE COMMITTED DISPOSITION, from the manager's own record rather than the fixture's
+        # argument -- an edited record could otherwise make this case prove nothing.
+        decided = intake.retentions_of(self.case.store, self.intake.ATTEMPT)
+        self.assertTrue(decided, "the fixture committed no retention decision")
+        self.assertEqual({one["disposition"] for one in decided},
+                         {"discard-after-intake"})
+
+        answer = intake.authorize_cleanup(
+            self.case.store, self.case.port, self.adapter(),
+            attempt_id=self.intake.ATTEMPT,
+            retention_policy_digest=self.intake.RETENTION,
+            govern=tokens.workspace_governance())
+
+        self.assertEqual(answer["cleanup"], "retained")
+        self.assertTrue(wrote.exists(),
+                        "a discard disposition removed the attempt's workspace material")
+        self.assertEqual(wrote.read_bytes(), b"bytes the discard does not take\n")
+        self.assertEqual(wrote.stat().st_mtime_ns, written)
+        self.assertTrue(os.path.isdir(root), "the workspace root itself is gone")
+
+    def test_an_OFFER_THAT_ENDED_does_not_refuse_the_next_writer(self):
+        """The control, because a refusal that never lifts is a worse defect than the one
+        `_offered_material_refusal` corrects -- `_journal_holds` carries that exact scar for
+        cleared custody episodes.
+
+        The offer is ENDED the only way the axis allows, `sealed` -> `discarded`, through the
+        product's own transition rather than a written column, and the admission that was
+        refused a moment ago is then granted.
+        """
+        from baton_v12.worker_manager import attempts, intake, tokens
+
+        held, _domain, _token = self.governed(
+            operation=attempts._start_operation_id(self.pinned_attempt()))
+        del held
+        intake.authorize_cleanup(
+            self.case.store, self.case.port, self.adapter(),
+            attempt_id=self.intake.ATTEMPT,
+            retention_policy_digest=self.intake.RETENTION,
+            govern=tokens.workspace_governance())
+        with self.assertRaises(ContractRefusal):
+            workspaces.admit_preparation(self.case.store, self.intake.ATTEMPT,
+                                         "a writer while the offer stands")
+
+        # THE OFFER ENDS THROUGH THE AXIS'S OWN WRITER, `observe`, which is what
+        # `intake` and `output` use to move this axis. No new public operation is invented
+        # here: the review was explicit that correcting the observer does not select a later
+        # deletion workflow, and THAT IS A REAL LIMITATION recorded in the dossier -- today
+        # no product path reaches `discarded`, so the resolution this refusal names is one an
+        # operator cannot yet perform. The refusal is still right; the missing disposal is a
+        # separate obligation and not mine to invent.
+        from baton_v12.worker_manager import observe
+
+        observe(self.case.store, attempt_id=self.intake.ATTEMPT, axis="output",
+                value="discarded")
+
+        self.assertEqual(self.case.attempt_row()["output"], "discarded")
+        holding = workspaces.admit_preparation(
+            self.case.store, self.intake.ATTEMPT,
+            "a writer after the offer ended")
+        self.assertIsNotNone(holding)
 
     def test_a_SURVIVING_writer_refuses_and_leaves_the_roots(self):
         survivor = {"helper_identity": "baton-custody-" + "a" * 32,

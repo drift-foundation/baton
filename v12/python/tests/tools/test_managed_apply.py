@@ -143,13 +143,56 @@ class AnOrdinaryManagedIntegration(unittest.TestCase):
             original_engine = world.engine
             world.quiescing = lambda: original_engine
             starts = []
+            created = {}
             def engine(argv, **options):
+                """The apply body, launched by EITHER launch shape.
+
+                W285465 review 2026-09-28T16-55-25Z CONFIRMED the defect and located it here,
+                and its probe named the numbers: this wrapper saw create4/start4, launched the
+                preparation body once and THE APPLY BODY ZERO TIMES. The test it exonerates me
+                of is not the one I checked -- I measured the preparation wrapper in
+                `test_managed_preparation` and reported "no `--entrypoint`", which says nothing
+                about a wrapper that returns unless the verb is `run`. That exoneration is
+                withdrawn.
+
+                A GOVERNED START IS TWO ACTS (W275774): `create` composes the container so a
+                resource token can be bound to it, and `start` activates it. This wrapper only
+                ever looked at `run`, so a governed apply composed its container, was activated,
+                and no body ever ran inside it -- which is exactly the stall the last two claims
+                chased through the scheduler. The dispatch below is one decision:
+
+                  * `create` WITHOUT `--entrypoint` is INERT. It records the composed argv under
+                    the identity the engine minted and launches nothing, because a created
+                    container is not a running one.
+                  * `start` of a recorded identity launches THAT argv, and `pop` makes it exactly
+                    one launch per create -- a second activation of the same identity is not a
+                    second body.
+                  * `run` WITHOUT `--entrypoint` launches directly, unchanged, so the ungoverned
+                    shape and every replay through it behave exactly as they did.
+                  * `stop` and `rm` still reap the children before answering, so cleanup is
+                    unchanged.
+
+                THE MOUNTS COME FROM THE COMPOSED ARGV either way, which is what keeps the
+                apply-body SELECTION honest: `managed-apply.json` under `/input/source` is on the
+                `create` vector, never on the bare `start`, so the recorded argv is the only
+                thing that can answer "is this the apply".
+                """
                 answer = original_engine(argv, **options)
-                if argv[1] != "run" or "--entrypoint" in argv:
-                    if argv[1] in ("stop", "rm"):
-                        for process in processes:
-                            process.wait(timeout=5)
+                if argv[1] in ("stop", "rm"):
+                    for process in processes:
+                        process.wait(timeout=5)
                     return answer
+                if argv[1] == "create" and "--entrypoint" not in argv:
+                    created[(answer.get("stdout") or "").strip() or argv[-1]] = list(argv)
+                    return answer
+                if argv[1] == "start" and argv[-1] in created:
+                    launching = created.pop(argv[-1])
+                elif argv[1] == "run" and "--entrypoint" not in argv:
+                    launching = list(argv)
+                else:
+                    return answer
+                # FROM HERE THE COMPOSED VECTOR IS WHAT IS READ, not the activation.
+                argv = launching
                 mounts = {}
                 for index, arg in enumerate(argv[:-1]):
                     if arg == "--mount":
