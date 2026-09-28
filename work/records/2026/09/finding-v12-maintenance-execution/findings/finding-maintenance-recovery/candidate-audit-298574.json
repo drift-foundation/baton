@@ -1,0 +1,1270 @@
+{
+  "work": "W285465",
+  "claim": 298574,
+  "participant": "baton.tuner",
+  "status": "final integrated candidate offered for independent audit; not acceptance/import approval",
+  "comparison_base": "b4b3fc8d",
+  "comparison_limit": "Recorded closure-comparison base, not inferred authorship or historical failure identity. Earlier G2 baseline15 retained separately.",
+  "latest_review_snapshot": "candidate-2026-09-28T19-15-40Z.json",
+  "implementation_delta": [
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "5b6feb23b5991d31c564a81c6a476a2c62452708f17c5ac36650586402f2e58e",
+      "bytes": 213670,
+      "comparison_base_sha256": "158d255e9799794f7af127ff9d0837803e27489d4d8c80e4d38efe7610c3bd54",
+      "latest_review_sha256": "5b6feb23b5991d31c564a81c6a476a2c62452708f17c5ac36650586402f2e58e",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "a3cd94bb9dfb23b0c364c3cef29a8588e3d406adee9f4fcdd8b3dfad73610708",
+      "bytes": 96764,
+      "comparison_base_sha256": "87b92b347f0391b1c3487be9ef3176d64c9567f0b5bf3d3a91544c481963317b",
+      "latest_review_sha256": "a3cd94bb9dfb23b0c364c3cef29a8588e3d406adee9f4fcdd8b3dfad73610708",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "b148669c84af0dc87d248cee293ac48a03553f9963603161502574e201a04d47",
+      "bytes": 97373,
+      "comparison_base_sha256": "02bc903ef44253132dc0bd711a9e0beb04fe500c4cb91b6c24f9670c451e98ba",
+      "latest_review_sha256": "b148669c84af0dc87d248cee293ac48a03553f9963603161502574e201a04d47",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "sha256": "ac594cf099b4e4c65866b8c9004a598d55eaaecbc7b690c3bfeca8cc677939bf",
+      "bytes": 145407,
+      "comparison_base_sha256": "53edf82ecf691924efdc95c7342661f4896e8a03115abde9d32f7c043a635766",
+      "latest_review_sha256": "ac594cf099b4e4c65866b8c9004a598d55eaaecbc7b690c3bfeca8cc677939bf",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "53edf82ecf691924efdc95c7342661f4896e8a03115abde9d32f7c043a635766"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/deadlines.py",
+      "sha256": "acf03f24df07a1b7a6315ee0e49cd87e12f4a7c326baa798974a0f55dbe6299e",
+      "bytes": 24673,
+      "comparison_base_sha256": "536789e1a2947cf601ca191f675c24252078aa5ecddcf4243314c0d59d5855ae",
+      "latest_review_sha256": "acf03f24df07a1b7a6315ee0e49cd87e12f4a7c326baa798974a0f55dbe6299e",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "b79a307bfe41bd502c54adf6bd6792a431e408b88ea0479a7950d83d6346e63c",
+      "bytes": 332962,
+      "comparison_base_sha256": "0cf28ab80e1d0dfb8c3f05814aaab5a135f46a0a62c3b32c43bb107bbe73beb3",
+      "latest_review_sha256": "b79a307bfe41bd502c54adf6bd6792a431e408b88ea0479a7950d83d6346e63c",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "a56d76c4fc1e4a7427fab7b56f79ec33e29fd0e52b56a1a8eca9da92f2de4d36",
+      "bytes": 238028,
+      "comparison_base_sha256": "6810a8c4ccfabdab38ae31dbcb9937a941858e135faced7f78003a7ea68abf41",
+      "latest_review_sha256": "a56d76c4fc1e4a7427fab7b56f79ec33e29fd0e52b56a1a8eca9da92f2de4d36",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "6810a8c4ccfabdab38ae31dbcb9937a941858e135faced7f78003a7ea68abf41"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "53fc7c38115229e31014f94a287e1863700f211c16894ac8ee6d83d53d03acf7",
+      "bytes": 227394,
+      "comparison_base_sha256": "ad9f8f55fcdcb3c1e08ab6070951810941e141d0171b54e35a7834fe4a2457ce",
+      "latest_review_sha256": "53fc7c38115229e31014f94a287e1863700f211c16894ac8ee6d83d53d03acf7",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "654094848d3a2af9a5733389ae7f159ccad1ce33e5fdac3a0597c1a12643c3bf",
+      "bytes": 377967,
+      "comparison_base_sha256": "67a695e59ba91ecf36af4524bb9fe54f9fb535071ce2e7baf6bf38fe145b55dc",
+      "latest_review_sha256": "654094848d3a2af9a5733389ae7f159ccad1ce33e5fdac3a0597c1a12643c3bf",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "67a695e59ba91ecf36af4524bb9fe54f9fb535071ce2e7baf6bf38fe145b55dc"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "f2cf82b993dd6a64fee63614ac3f5060b3453bf618dd3811490e238a0471ba10",
+      "bytes": 176557,
+      "comparison_base_sha256": "3bdd3ffa1349c56a99d65c6eb3f1280752a5a55563deeff5ef729d4eb3edab86",
+      "latest_review_sha256": "f2cf82b993dd6a64fee63614ac3f5060b3453bf618dd3811490e238a0471ba10",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "ThePhasesAreSerial.test_the_RECORDED_PROFILE_alone_disagreeing_is_refused"
+        ],
+        "removed": [],
+        "modified": [
+          "TheApplyBringsItsGrantAndItsAuthorization.test_a_preparation_carrying_a_grant_is_refused",
+          "ThePersistedEvidenceIsOwnedEndToEnd.test_the_recorded_attempt_may_disagree_alone",
+          "ThePhasesAreSerial.test_a_plan_naming_an_offer_nobody_issued_is_refused",
+          "ThePhasesAreSerial.test_a_plan_whose_digests_disagree_with_the_claim_is_refused",
+          "ThePhasesAreSerial.test_an_admission_naming_another_participant_is_refused",
+          "ThePhasesAreSerial.test_an_unplanned_execution_cannot_be_admitted",
+          "ThePreparationIsCoordinatedEndToEnd.test_a_plan_without_a_preparation_phase_refuses",
+          "ThePreparationIsCoordinatedEndToEnd.test_the_runtime_attempt_is_recorded_by_the_composition",
+          "ThePreparationIsCoordinatedEndToEnd.test_the_wrapper_admits_preparation_and_defers_the_parent",
+          "TheRacesUnderOneReservation.test_an_exact_repeat_replays_and_changed_operands_collide",
+          "TheStartIsBehindTheAdmission.test_a_start_after_admission_proceeds",
+          "TheStartIsBehindTheAdmission.test_the_admitted_member_is_read_from_the_store_not_remembered",
+          "TheStartIsBehindTheAdmission.test_the_parent_offer_is_not_settled_by_preparing",
+          "TwoStoresContendForOneReservation.test_a_competing_admission_from_another_connection_is_refused",
+          "TwoStoresContendForOneReservation.test_a_second_connection_waits_for_the_write_lock",
+          "TwoStoresContendForOneReservation.test_an_admission_that_lost_to_an_ending_is_refused",
+          "TwoStoresContendForOneReservation.test_the_identical_admission_from_another_connection_replays"
+        ]
+      }
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_review_driver.py",
+      "sha256": "e7c15fe743b52d8b9b32354b60878301d7a344b4cf870a1324f562c768965c77",
+      "bytes": 241038,
+      "comparison_base_sha256": "d63b5d877bbd5425bbfed44d21246fe3c4afffe11a50c621e4f74405b68687fe",
+      "latest_review_sha256": "e7c15fe743b52d8b9b32354b60878301d7a344b4cf870a1324f562c768965c77",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "TheWorkerCompletionTraversesPublicCustody.test_historical_cleanup_requires_the_committed_writer_cessation"
+        ],
+        "removed": [
+          "TheWorkerCompletionTraversesPublicCustody.test_historical_cleanup_requires_both_exact_nested_directory_receipts",
+          "TheWorkerCompletionTraversesPublicCustody.test_historical_cleanup_requires_the_underlying_directory_normalization_journals"
+        ],
+        "modified": [
+          "TheWorkerCompletionTraversesPublicCustody.test_cleanup_journal_must_record_positive_absence_and_exact_retained_evidence"
+        ]
+      }
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "sha256": "84b01b4e4a03b5f4acb55cf9866d192998fbe2c0ef67792972a577976d1f84e5",
+      "bytes": 80995,
+      "comparison_base_sha256": "ad226d6f6d3e8c8277b9292e110ffdc63bb461ee71f683900bf0edb7e22351d9",
+      "latest_review_sha256": "84b01b4e4a03b5f4acb55cf9866d192998fbe2c0ef67792972a577976d1f84e5",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "ad226d6f6d3e8c8277b9292e110ffdc63bb461ee71f683900bf0edb7e22351d9",
+      "test_method_delta": {
+        "added": [
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_a_failed_TOKEN_RETURN_retries_without_repeating_its_EFFECT",
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_an_UNCONFIRMED_runtime_HOLDS_and_its_RETRY_confirms",
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_the_ADAPTER_answers_surviving_helpers_and_starts_nothing",
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_without_a_custodian_the_RECLAIM_STILL_SETTLES"
+        ],
+        "removed": [
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_a_failed_TOKEN_RETURN_retries_without_repeating_normalization",
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_a_failed_normalization_holds_AND_ITS_RETRY_IS_REFUSED",
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_without_a_custodian_the_roots_stay_unaccounted_for"
+        ],
+        "modified": [
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_AN_ALLOWANCE_CANNOT_RAISE_A_VECTORS_OWN_MAXIMUM",
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_the_allowance_wrapper_clamps_work_and_cleanup_separately",
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_the_chain_carries_its_bounded_budget_into_every_engine_call",
+          "TheStatusSurfaceMayReadIntegrationAndStillActOnNothing.test_the_composed_expiry_pass_stops_and_confirms_a_real_overdue_runtime"
+        ]
+      }
+    },
+    {
+      "path": "v12/python/tests/manager/test_attempts.py",
+      "sha256": "27492cf99f876ee4a636e16393182fe514d3ddb7619ac448799f30b984484591",
+      "bytes": 209263,
+      "comparison_base_sha256": "57a571f1bad9e5f0982b9c846615a4a9585a4e59e3c6c51c39220a38f656a6f0",
+      "latest_review_sha256": "27492cf99f876ee4a636e16393182fe514d3ddb7619ac448799f30b984484591",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "TheFailedStartEndingSurvivesInterruption.test_a_SURVIVING_writer_refuses_this_ending_too",
+          "TheFailedStartEndingSurvivesInterruption.test_a_deployment_that_CANNOT_LIST_still_reaches_its_ending",
+          "TheFailedStartEndingSurvivesInterruption.test_an_UNREADABLE_listing_answer_is_RECORDED_and_does_not_hold",
+          "TheFailedStartEndingSurvivesInterruption.test_an_interrupted_ESTABLISHMENT_commits_no_ending_and_resumes",
+          "TheFailedStartEndingSurvivesInterruption.test_the_ending_binds_its_ESTABLISHMENT_and_replays_it"
+        ],
+        "removed": [
+          "TheFailedStartEndingSurvivesInterruption.test_a_changed_custodian_collides_rather_than_settling",
+          "TheFailedStartEndingSurvivesInterruption.test_an_interrupted_normalization_commits_no_ending_and_resumes",
+          "TheFailedStartEndingSurvivesInterruption.test_the_ending_binds_both_receipts_and_replays_them"
+        ],
+        "modified": [
+          "EveryEndingNormalizesBothRootsAndReplays.test_a_deployment_without_the_seam_is_refused_before_anything",
+          "EveryEndingNormalizesBothRootsAndReplays.test_an_interrupted_normalization_leaves_no_ending_and_resumes",
+          "EveryEndingNormalizesBothRootsAndReplays.test_the_ending_normalizes_result_then_workspace_and_binds_both",
+          "TheFailedStartEndingSurvivesInterruption.test_the_home_is_retained_rather_than_removed"
+        ]
+      }
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "3929186ac94e0e0d1f6c8590c112121e2d09831dfa2697e120b6ff37068f20fb",
+      "bytes": 865866,
+      "comparison_base_sha256": "a3143e4efe6bb709792627b7c0579c8b23a26132f5525366ffc8da09d329ea59",
+      "latest_review_sha256": "3929186ac94e0e0d1f6c8590c112121e2d09831dfa2697e120b6ff37068f20fb",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "a3143e4efe6bb709792627b7c0579c8b23a26132f5525366ffc8da09d329ea59",
+      "test_method_delta": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/manager/test_intake.py",
+      "sha256": "0ef804dc6d6ab1ed763d5ab948b4dd21c7cac0c6ca8818ee33827b36d14ff4ca",
+      "bytes": 210295,
+      "comparison_base_sha256": "8808b1ce54a4c99f1c01a2a120bde404a4a658392285029b0a61188438812c98",
+      "latest_review_sha256": "0ef804dc6d6ab1ed763d5ab948b4dd21c7cac0c6ca8818ee33827b36d14ff4ca",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_settlement_claiming_an_ESTABLISHMENT_nobody_committed_is_refused",
+          "TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_settlement_naming_another_ESTABLISHMENT_is_refused",
+          "TheCommittedCleanupIsReadableWithoutActing.test_a_CURRENT_receipt_claiming_complete_with_no_custody_is_refused",
+          "TheCommittedCleanupIsReadableWithoutActing.test_a_CURRENT_receipt_claiming_custody_it_never_took_is_refused",
+          "TheCommittedCleanupIsReadableWithoutActing.test_a_HISTORICAL_complete_receipt_over_REAL_normalizations_reads",
+          "TheCommittedCleanupIsReadableWithoutActing.test_a_missing_ESTABLISHMENT_journal_refuses",
+          "TheCommittedCleanupIsReadableWithoutActing.test_the_nested_ACCOUNT_is_the_committed_establishment",
+          "TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_CHANGED_SUBJECT_collides_rather_than_settling"
+        ],
+        "removed": [
+          "TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_settlement_claiming_custody_nobody_performed_is_refused",
+          "TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_settlement_naming_another_normalization_is_refused",
+          "TheCommittedCleanupIsReadableWithoutActing.test_a_missing_normalization_journal_refuses",
+          "TheCommittedCleanupIsReadableWithoutActing.test_the_nested_directory_custody_is_the_committed_normalization",
+          "TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_changed_custodian_collides_rather_than_settling"
+        ],
+        "modified": [
+          "BlockedOnIntakeIsAStateAndNotARetry.test_blocked_cleanup_completes_once_intake_happens",
+          "PositiveAbsenceOrNoEnding.test_an_uncertain_destroy_can_actually_be_tried_again",
+          "RetainedAndCompleteAreDifferentEndings.test_nothing_left_behind_is_complete",
+          "TheCommittedCleanupIsReadableWithoutActing.test_a_discarded_ending_reads_back_exactly_as_it_settled",
+          "TheCommittedCleanupIsReadableWithoutActing.test_empty_or_foreign_nested_custody_refuses",
+          "TheCommittedCleanupIsReadableWithoutActing.test_the_ending_must_be_the_one_those_facts_settle",
+          "TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_a_pending_cleanup_re_enters_provider_teardown_every_time",
+          "TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_a_provider_that_never_delivered_is_not_a_reason_to_wait",
+          "TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_adapter_with_no_providers_still_settles",
+          "TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_omission_after_an_unresolved_ending_survives_a_restart",
+          "TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_unsettled_cleanup_can_be_retried_once_the_root_is_gone",
+          "TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_directory_custody_is_required_before_runtime_destruction",
+          "TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_the_real_adapter_s_answer_is_admitted_at_all",
+          "TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_crash_between_the_removal_and_the_commit_retries_clean",
+          "TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_deployment_without_the_seam_destroys_nothing",
+          "TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_an_interrupted_normalization_commits_no_ending_and_resumes",
+          "TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_retry_after_removal_replays_receipts_without_absent_root_access",
+          "TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_the_ending_binds_both_receipts_and_replays_them",
+          "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_settled_cleanup_discharges_the_gate_and_frees_the_work",
+          "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_ordinary_cleanup_keeps_its_own_api_and_authority_effect",
+          "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_outstanding_obligation_is_discoverable_after_cleanup"
+        ]
+      }
+    },
+    {
+      "path": "v12/python/tests/manager/test_maintenance.py",
+      "sha256": "648a6724fd3311a2f6908e1ee7ffba310b5bd23062365902d2cc478d167bdb7b",
+      "bytes": 189296,
+      "comparison_base_sha256": "126e25ddfb8faac3064c735adffafbdd69104a970ad08c6300e1f2d65b9b1f4f",
+      "latest_review_sha256": "648a6724fd3311a2f6908e1ee7ffba310b5bd23062365902d2cc478d167bdb7b",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "126e25ddfb8faac3064c735adffafbdd69104a970ad08c6300e1f2d65b9b1f4f",
+      "test_method_delta": {
+        "added": [
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_MISSING_material_still_refuses_rather_than_being_repaired",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_CONTRADICTORY_marked_set_is_refused_rather_than_recorded",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_LINE_composed_preparation_is_REVALIDATED_and_not_refused",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_LINE_home_NAMED_workspace_is_still_the_line_layout",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_REPLACED_LINE_object_is_refused_by_the_COMPOSED_boundary",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_REPLACED_inputs_root_under_the_LINE_layout_still_refuses",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_REPLACED_workspace_under_the_attempt_layout_still_refuses",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_a_SUBSTITUTED_workspace_is_refused_before_any_comparison",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_an_ATTEMPT_layout_record_is_compared_whole",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_an_UNBOUND_output_root_is_NOT_recorded_as_a_line",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_an_UNSTATED_layout_is_REFUSED_rather_than_compared",
+          "THEREVALIDATIONComparesTheLayoutItsRecordIsAbout.test_the_RECORD_STATES_which_layout_each_path_completed_over",
+          "TheADOPTIONTakesTheCapabilityAndNotANumber.test_a_BARE_ORDINAL_is_refused_as_the_capability_error_it_is",
+          "TheADOPTIONTakesTheCapabilityAndNotANumber.test_a_CROSS_STORE_capability_cannot_continue_the_window_either",
+          "TheADOPTIONTakesTheCapabilityAndNotANumber.test_a_CROSS_STORE_capability_is_not_this_stores_mint",
+          "TheADOPTIONTakesTheCapabilityAndNotANumber.test_a_FOREIGN_capability_exempts_nothing_even_at_the_same_ordinal",
+          "TheADOPTIONTakesTheCapabilityAndNotANumber.test_a_MISSING_capability_leaves_the_act_as_strict_as_before",
+          "TheADOPTIONTakesTheCapabilityAndNotANumber.test_a_RELEASED_capability_stops_working",
+          "TheADOPTIONTakesTheCapabilityAndNotANumber.test_a_REOPENED_manager_holds_no_mint_and_is_refused",
+          "TheADOPTIONTakesTheCapabilityAndNotANumber.test_the_GENUINE_holder_still_continues_its_own_window",
+          "TheADOPTIONTakesTheCapabilityAndNotANumber.test_the_HOLDER_adopts_with_its_own_capability",
+          "TheEXECUTIONAllowanceIsTheAttemptsOwnCurrentRun.test_a_FOREIGN_execution_is_not_allowed_by_anybody_elses_name",
+          "TheEXECUTIONAllowanceIsTheAttemptsOwnCurrentRun.test_a_STALE_generation_of_the_SAME_execution_is_still_refused",
+          "TheEXECUTIONAllowanceIsTheAttemptsOwnCurrentRun.test_an_UNKNOWN_governed_state_earns_NO_allowance_and_NO_refusal",
+          "TheEXECUTIONAllowanceIsTheAttemptsOwnCurrentRun.test_an_attempt_with_NO_ROW_at_all_is_not_arbitrated_here",
+          "TheEXECUTIONAllowanceIsTheAttemptsOwnCurrentRun.test_the_LEGAL_second_run_is_arbitrated_through_the_REAL_caller",
+          "TheEXECUTIONAllowanceIsTheAttemptsOwnCurrentRun.test_the_attempts_OWN_CURRENT_generation_is_allowed_its_re_entry",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_BOTH_accounts_at_once_is_refused_as_a_fabricated_custody",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_TWO_ELIGIBLE_settlements_leave_exactly_ONE_owner",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_COMMITTED_cessation_for_ANOTHER_subject_moves_nothing",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_CONFIGURED_custodian_is_not_authority_to_launch_one",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_DISCARD_disposition_still_leaves_the_workspace_bytes",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_FILE_where_a_PARENT_should_be_is_refused_too",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_FOREIGN_object_at_a_root_refuses_rather_than_being_adopted",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_GENUINELY_EMPTY_observation_is_still_a_positive_absence",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_GENUINE_removal_is_STILL_an_absence_with_authentic_parents",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_LINKED_HOME_does_not_prove_the_roots_absent",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_LINKED_PARENT_does_not_reach_the_ENDING_at_all",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_LINKED_WORKSPACE_does_not_prove_the_result_root_absent",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_LIVE_generation_with_NO_committed_cessation_keeps_the_roots",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_MISSING_root_is_an_EVIDENCED_absence_and_the_others_are_not",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_NO_HELPER_ending_completes_on_evidence_it_committed",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_PRESENTED_cessation_is_never_authority_for_the_transfer",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_RECEIPT_whose_cessation_was_never_committed_is_refused",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_STALE_generation_cessation_cannot_move_a_LATER_one",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_SURVIVING_writer_refuses_and_leaves_the_roots",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_SYMLINK_at_a_root_is_never_read_as_absence_or_as_the_object",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_cessation_under_a_FOREIGN_operation_moves_nothing",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_a_deployment_with_NO_LISTING_completes_on_the_CONTAINER",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_INTERRUPTED_ending_RETRIES_into_its_own_admission",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_INTERRUPTED_removal_leaves_BOTH_absent_and_still_completes",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_OFFER_THAT_ENDED_does_not_refuse_the_next_writer",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNDERIVABLE_store_is_not_an_absence_either",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_an_UNREADABLE_listing_ANSWER_is_not_a_confirmed_absence",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_the_ACCESSIBLE_ending_records_accessible_and_replays_one_act",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_the_ENDING_OBSERVES_NO_OUTPUT_AT_ALL_and_preserves_it",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_the_EXPECTED_root_is_composed_from_configuration_and_the_attempt",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_the_RELEASE_preserves_the_OUTPUT_and_the_WRITER_is_refused",
+          "TheORDINARYEndingCompletesWithNoHelperOrItHolds.test_the_TRANSFER_authorizes_ONE_settlement_and_not_a_window",
+          "TheSELECTEDOutputIsAccessibleOrItIsAnError.test_ACCESSIBLE_output_answers_None_and_changes_nothing",
+          "TheSELECTEDOutputIsAccessibleOrItIsAnError.test_INACCESSIBLE_output_names_the_exact_entry_and_preserves_it",
+          "TheSELECTEDOutputIsAccessibleOrItIsAnError.test_a_SUBSTITUTED_root_a_caller_names_is_refused_not_skipped",
+          "TheSELECTEDOutputIsAccessibleOrItIsAnError.test_a_TRAVERSAL_FAILURE_is_an_answer_and_not_silence",
+          "TheSELECTEDOutputIsAccessibleOrItIsAnError.test_an_UNDERIVABLE_root_is_reported_and_never_read_as_success",
+          "TheSELECTEDOutputIsAccessibleOrItIsAnError.test_an_UNREACHABLE_ROOT_is_the_first_thing_that_is_inaccessible",
+          "TheSURVIVINGHelpersAreEstablishedAndNotAssumed.test_a_CONFIG_LOSS_still_reports_the_helper_names_it_cannot_identify",
+          "TheSURVIVINGHelpersAreEstablishedAndNotAssumed.test_a_NO_CUSTODIAN_deployment_reports_the_UNKNOWN_it_cannot_ask",
+          "TheSURVIVINGHelpersAreEstablishedAndNotAssumed.test_a_QUIET_attempt_answers_no_surviving_writer",
+          "TheSURVIVINGHelpersAreEstablishedAndNotAssumed.test_a_helper_ANSWERING_a_derived_name_is_reported_surviving"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/manager/test_refused_session_cleanup.py",
+      "sha256": "b9d6210c8768c615c1e79495061a6f07a8a8442e3295bfd97682dac61aa6f3c2",
+      "bytes": 39102,
+      "comparison_base_sha256": "fbdae84338adbf5fafafe25c64f043af61ab44546d16e856c5b61428e3fa8e06",
+      "latest_review_sha256": "b9d6210c8768c615c1e79495061a6f07a8a8442e3295bfd97682dac61aa6f3c2",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "TheRefusedSessionEndingSurvivesInterruption.test_a_SURVIVING_writer_refuses_this_ending_too",
+          "TheRefusedSessionEndingSurvivesInterruption.test_a_deployment_that_CANNOT_LIST_is_refused_before_the_destroy",
+          "TheRefusedSessionEndingSurvivesInterruption.test_an_UNREADABLE_listing_answer_is_RECORDED_and_does_not_hold",
+          "TheRefusedSessionEndingSurvivesInterruption.test_an_interrupted_ESTABLISHMENT_commits_no_ending_and_resumes"
+        ],
+        "removed": [
+          "TheRefusedSessionEndingSurvivesInterruption.test_a_changed_custodian_collides_rather_than_settling",
+          "TheRefusedSessionEndingSurvivesInterruption.test_an_interrupted_normalization_commits_no_ending_and_resumes"
+        ],
+        "modified": [
+          "TheRefusedSessionEndingSurvivesInterruption.test_the_ending_binds_both_receipts_and_replays_them",
+          "TheRefusedSessionEndingSurvivesInterruption.test_the_home_is_retained_rather_than_removed"
+        ]
+      }
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadlines.py",
+      "sha256": "ea64b3e8cf7280174b3720070cf7cf0c2d1db684ccddd23c34bd9d4c8063cdf8",
+      "bytes": 46793,
+      "comparison_base_sha256": "0caf835093a0fd14663d99ca2a73e27767da259c2ac513c549005c6fe97389d1",
+      "latest_review_sha256": "ea64b3e8cf7280174b3720070cf7cf0c2d1db684ccddd23c34bd9d4c8063cdf8",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "Deadlines.test_a_NO_CUSTODIAN_deployment_that_CAN_LIST_reaches_its_ending",
+          "Deadlines.test_a_SURVIVING_writer_holds_this_family_too",
+          "Deadlines.test_a_deployment_with_NO_LISTING_reaches_its_ending",
+          "Deadlines.test_an_OFFERED_but_UNUSABLE_listing_destroys_NOTHING",
+          "Deadlines.test_an_UNREADABLE_listing_answer_is_RECORDED_and_does_not_hold"
+        ],
+        "removed": [],
+        "modified": [
+          "DeadlineReceiptedOutput.test_output_after_interrupted_cancel_intent_uses_ordinary_receipt_cleanup",
+          "Deadlines.test_corrupt_provider_or_custody_proof_cannot_discharge",
+          "Deadlines.test_crash_after_removal_before_commit_reuses_exact_command",
+          "Deadlines.test_missing_capabilities_refuse_before_cancellation_intent"
+        ]
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "e517f32f523164a6be04f1f9d1e199b4c0f0116bea390766960d9e54cef4f000",
+      "bytes": 49638,
+      "comparison_base_sha256": "c7d2ce26c2e9a75322b27e21ecbd97bda818a058da87ce8cddbba21685a172e7",
+      "latest_review_sha256": "e517f32f523164a6be04f1f9d1e199b4c0f0116bea390766960d9e54cef4f000",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "8ca8c2d25122e9e4933c4805cbab96a8c21939af7c132ae500c7d86ba6a0b933",
+      "bytes": 10407,
+      "comparison_base_sha256": "1d469101ee4a802fa38e96932d633e189a4f560d7b15fba1852bd7f7e3b7ef5e",
+      "latest_review_sha256": "8ca8c2d25122e9e4933c4805cbab96a8c21939af7c132ae500c7d86ba6a0b933",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "UsefulCorrection.test_preparation_fault_reports_terminal_before_fixture_cleanup"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/test_dogfood_operator.py",
+      "sha256": "ebeb4ea4af7a6987a818e851217e5568a3746f1d88c8b7463087988fbd066e67",
+      "bytes": 390587,
+      "comparison_base_sha256": "a7d2956171d78bc09acd8c315c00286eff7ae7b43b8a57345343f67e111c2080",
+      "latest_review_sha256": "ebeb4ea4af7a6987a818e851217e5568a3746f1d88c8b7463087988fbd066e67",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "RetentionIsAnOperatorDecision.test_a_complete_execution_ending_is_unresolved_for_every_policy",
+          "RetentionIsAnOperatorDecision.test_a_discard_policy_still_preserves_the_execution_workspace"
+        ],
+        "removed": [
+          "RetentionIsAnOperatorDecision.test_an_ending_that_does_not_match_the_committed_decision_is_not",
+          "RetentionIsAnOperatorDecision.test_an_explicit_discard_ending_complete_is_still_resolved"
+        ],
+        "modified": [
+          "EveryPostStartBranchEntersTheEnding.test_the_narrow_retry_converges_after_the_handoff_succeeds",
+          "TheCredentialIsMaterializedAfterActivationAndNotBefore.test_the_factory_materializes_exactly_once_through_the_owned_home",
+          "TheDocumentedRecoveryEndsRealAttachedState.test_a_terminal_refusal_still_reports_what_already_happened",
+          "TheRecoveryMatrixOverDurableAttachedState.test_a_restart_after_a_fault_at_any_boundary_converges",
+          "TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_fresh_incarnation_ends_the_exactly_identified_old_runtime"
+        ]
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/test_dogfood_retry_engine.py",
+      "sha256": "701f1a3852b1e8ce29a2a0365523ec7f7d30533445d092f19cef1ec5f88ca65d",
+      "bytes": 30203,
+      "comparison_base_sha256": "711a389ae9fcb0cbec662606d2c05df079e8e13500450e04c5a7a1a3054176db",
+      "latest_review_sha256": "701f1a3852b1e8ce29a2a0365523ec7f7d30533445d092f19cef1ec5f88ca65d",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "ThePublicRetrySettlesAgainstARealEngine.test_an_explicit_discard_is_CHOSEN_and_still_ends_retained"
+        ],
+        "removed": [
+          "ThePublicRetrySettlesAgainstARealEngine.test_an_explicit_discard_still_ends_complete_and_removes_the_tree"
+        ],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/test_execution_limits.py",
+      "sha256": "ffe062b4cfec6c784cfc25023fcd0fac8ed0dd027d2bf4cbc01f1c3ec2274a05",
+      "bytes": 226634,
+      "comparison_base_sha256": "2a8f724cd636b7579a854b2a0b403a708765a658f88af409db92d0852511c27c",
+      "latest_review_sha256": "ffe062b4cfec6c784cfc25023fcd0fac8ed0dd027d2bf4cbc01f1c3ec2274a05",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "TheDirectIntegrationCarriesItsJobsOwnCeiling.test_provider_timeout_uses_the_job_bound_and_replay_starts_nothing"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "3125867e141d8216e6222cdc3f9b859d70c2be70fbcdb63cb649a632a2f2bea3",
+      "bytes": 50909,
+      "comparison_base_sha256": "6af27ca099f480a6a4552c8e834c6a6e58c8ffa52d502f1770f9a3963e515c51",
+      "latest_review_sha256": "3125867e141d8216e6222cdc3f9b859d70c2be70fbcdb63cb649a632a2f2bea3",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "323aadb18d101b8df144de7cc897e6c941968ea9b105fa356f19a376733e5804",
+      "bytes": 142666,
+      "comparison_base_sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "latest_review_sha256": "323aadb18d101b8df144de7cc897e6c941968ea9b105fa356f19a376733e5804",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/test_scheduler_trace.py",
+      "sha256": "d8bbe458bbb17ca624a1d759523a3f280a1f00565414bed46f44739fb76907ae",
+      "bytes": 313976,
+      "comparison_base_sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+      "latest_review_sha256": "d8bbe458bbb17ca624a1d759523a3f280a1f00565414bed46f44739fb76907ae",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "06ee59fdae04f50fe298bd12ecc386e2267d36bd0b5af5096b6728ae84ebdd31",
+      "bytes": 380019,
+      "comparison_base_sha256": "89475e50e641b5d8bff5507920230f6a213b66842d6db359cdeab498436e1f93",
+      "latest_review_sha256": "06ee59fdae04f50fe298bd12ecc386e2267d36bd0b5af5096b6728ae84ebdd31",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "89475e50e641b5d8bff5507920230f6a213b66842d6db359cdeab498436e1f93",
+      "test_method_delta": {
+        "added": [
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP1_a_death_AFTER_the_ALLOCATION_holds_and_launches_nothing",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP1_a_death_after_PUBLICATION_and_PERMISSIONS_holds_and_launches",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP1_a_death_after_the_SOURCE_MOUNTPOINT_holds_and_launches_nothing",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP1_interior_allocation_keeps_the_unfinished_window",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP1_interior_mountpoint_precedes_boundary_publication",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP1_interior_permissions_leaves_a_partly_frozen_input",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP1_interior_publication_leaves_only_unproved_partial_bytes",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP2_a_COMPLETE_FILESYSTEM_without_the_record_proves_nothing",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP3_a_death_AFTER_the_record_resumes_to_EXACTLY_ONE_task",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP4_a_writer_that_can_still_FINISH_blocks_the_launch_then_finishes",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP6_a_REPLACED_root_after_the_record_refuses_and_repins_nothing",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP6_claim_eligibility_lost_after_completion_refuses_on_restart",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP6_competing_token_after_completion_refuses_on_restart",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP6_completion_consumer_rejects_another_input_object",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP6_source_replaced_after_completion_refuses_on_restart",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP7_actual_completion_replay_rejects_another_attempt",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP7_actual_completion_replay_rejects_another_operation",
+          "EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.test_HP7_actual_completion_replay_rejects_another_resource",
+          "LostTaskRepliesKeepTheExternalExecution.test_lost_create_reply_holds_through_outage_then_identifies_exact_runtime",
+          "LostTaskRepliesKeepTheExternalExecution.test_lost_create_reply_without_outage_identifies_and_holds",
+          "LostTaskRepliesKeepTheExternalExecution.test_lost_start_reply_holds_through_outage_then_identifies_exact_runtime",
+          "LostTaskRepliesKeepTheExternalExecution.test_lost_start_reply_without_outage_continues_once"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "f749f842f2e5888b16be4fac9ade4e1c80bf2cbeb8af27a7a9357703980d9078",
+      "bytes": 620098,
+      "comparison_base_sha256": "24d386377924680f6ef911fdde3207891f485a363e7caba8e47a9f4b83c8deaf",
+      "latest_review_sha256": "f749f842f2e5888b16be4fac9ade4e1c80bf2cbeb8af27a7a9357703980d9078",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [
+          "CheckpointIdentityAtHostAdmission.test_changed_checkpoint_refuses_after_host_completion",
+          "CheckpointIdentityAtHostAdmission.test_changed_checkpoint_refuses_with_fresh_handles",
+          "CheckpointIdentityAtHostAdmission.test_unchanged_checkpoint_continues_once_after_host_completion",
+          "CheckpointIdentityAtHostAdmission.test_unchanged_checkpoint_reopens_and_continues_once",
+          "TheRECOVEREDReviewLineCarriesItsOwnCapability.test_an_INACTIVE_review_attachment_composes_no_boundary_at_all",
+          "TheRECOVEREDReviewLineCarriesItsOwnCapability.test_the_IMPLEMENTATION_branch_still_forwards_its_own",
+          "TheRECOVEREDReviewLineCarriesItsOwnCapability.test_the_REVIEW_branch_forwards_what_it_was_given"
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    {
+      "path": "v12/python/tools/dogfood_operator.py",
+      "sha256": "a3722e436cf559d8b602259baed9ed8413b8945f4a168485b6efa184740548b1",
+      "bytes": 257782,
+      "comparison_base_sha256": "155751864bae8f70b73deb7cfb6e2d2b8c2b43ba8b76af981da2707075ef25e9",
+      "latest_review_sha256": "a3722e436cf559d8b602259baed9ed8413b8945f4a168485b6efa184740548b1",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/tools/integration_bundle.py",
+      "sha256": "1d17935c65ae5d23b9d92d132a06868d8baa18651c5c70a894f70dcd47e99bc3",
+      "bytes": 84509,
+      "comparison_base_sha256": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942",
+      "latest_review_sha256": "1d17935c65ae5d23b9d92d132a06868d8baa18651c5c70a894f70dcd47e99bc3",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/tools/integration_worker.py",
+      "sha256": "b2e9a7712a9bb83b8f4996636f094a6752bfed5978359d76f6fb1fda97aa2b14",
+      "bytes": 110343,
+      "comparison_base_sha256": "2fe76775747152737d6bcc30f6f5463499b3c16c14b25e3648de7b259dffbc21",
+      "latest_review_sha256": "b2e9a7712a9bb83b8f4996636f094a6752bfed5978359d76f6fb1fda97aa2b14",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "83cbf5ee56b52e2696644046c7aa28c2211e9cd7db8b8c521f416f8abf3ae1ed",
+      "bytes": 60495,
+      "comparison_base_sha256": "d272bd9242c283cd492516ce57182f864959c4f03c220d5069cc438344e8f530",
+      "latest_review_sha256": "83cbf5ee56b52e2696644046c7aa28c2211e9cd7db8b8c521f416f8abf3ae1ed",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "d272bd9242c283cd492516ce57182f864959c4f03c220d5069cc438344e8f530"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "12a9e6a54b25f69ef1c2970affc11c458990cd633fbec1e927514e07decff289",
+      "bytes": 218835,
+      "comparison_base_sha256": "772a67fd232362c61c7b22b371954105d61872dcbf28332641ef39e47c308926",
+      "latest_review_sha256": "12a9e6a54b25f69ef1c2970affc11c458990cd633fbec1e927514e07decff289",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "772a67fd232362c61c7b22b371954105d61872dcbf28332641ef39e47c308926"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "38c4cf74db023733603ea88f02b0246c0b16a62afecb743b77cf502ffc5e19e6",
+      "bytes": 389557,
+      "comparison_base_sha256": "57dc1cf14455cbf0c09bfb498f4e7dce6863a0bb1448856d9cf93974cdffc000",
+      "latest_review_sha256": "38c4cf74db023733603ea88f02b0246c0b16a62afecb743b77cf502ffc5e19e6",
+      "matches_latest_review": true
+    }
+  ],
+  "separately_attributed_addition": [
+    {
+      "path": "v12/python/tests/manager/test_contracts_inventory.py",
+      "sha256": "1b9e89409d5b6c9c1200993042133e15c0c6242a91d9a63cf584503783acf7f0",
+      "bytes": 21961,
+      "comparison_base_sha256": "3aaaacadb282692f6fe613d4b156a44e9d1cec3516128e24ad7bb9c25daa6f7e",
+      "latest_review_sha256": "1b9e89409d5b6c9c1200993042133e15c0c6242a91d9a63cf584503783acf7f0",
+      "matches_latest_review": true,
+      "test_method_delta": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      },
+      "canonical_owner": "W6782; closed historical inventory owner, no new assignment inferred",
+      "reason": "Inherited job_input_identity owner/probe gap corrected by Claude during W285465; not a G2 product change"
+    }
+  ],
+  "governing_specification": [
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "ea224a281d320077e0cc906ba91672930c8975660a453c49804dea888b92cbff",
+      "bytes": 66490,
+      "comparison_base_sha256": "cfbfbb3b320d3b74c09a44b2e3709741c7bc06fba02a618d8ca93b7779096ad4",
+      "latest_review_sha256": "ea224a281d320077e0cc906ba91672930c8975660a453c49804dea888b92cbff",
+      "matches_latest_review": true,
+      "original_g2_baseline_sha256": "cfbfbb3b320d3b74c09a44b2e3709741c7bc06fba02a618d8ca93b7779096ad4"
+    }
+  ],
+  "unchanged_v12_context": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+      "sha256": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce",
+      "bytes": 83571,
+      "current_sha256": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce",
+      "latest_review_sha256": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+      "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "bytes": 51321,
+      "current_sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "latest_review_sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "995a6afa4d2d3c147a21c17642ef8091862c755598c2ebaaf634f691c40a5f2f",
+      "bytes": 62502,
+      "current_sha256": "995a6afa4d2d3c147a21c17642ef8091862c755598c2ebaaf634f691c40a5f2f",
+      "latest_review_sha256": "995a6afa4d2d3c147a21c17642ef8091862c755598c2ebaaf634f691c40a5f2f",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/offers.py",
+      "sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+      "bytes": 53060,
+      "current_sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+      "latest_review_sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_offers.py",
+      "sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+      "bytes": 67617,
+      "current_sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+      "latest_review_sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "bytes": 95670,
+      "current_sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "latest_review_sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_custody.py",
+      "sha256": "c5c91058f198cac6f3287c57c416b92021383a288216c66efb501318e599d5c9",
+      "bytes": 132081,
+      "current_sha256": "c5c91058f198cac6f3287c57c416b92021383a288216c66efb501318e599d5c9",
+      "latest_review_sha256": "c5c91058f198cac6f3287c57c416b92021383a288216c66efb501318e599d5c9",
+      "matches_latest_review": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/output.py",
+      "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "bytes": 31447,
+      "current_sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "latest_review_sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "matches_latest_review": true
+    }
+  ],
+  "added_deleted_paths_in_v12_delta": [],
+  "record_and_probe_context": [
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/FINDING.md",
+      "sha256": "eeb7b4be9db3a8e502e43e2c5f54fb1c0d6ac8fa19b446eaf24f36b436fa5cc7",
+      "bytes": 185627,
+      "current_sha256": "eeb7b4be9db3a8e502e43e2c5f54fb1c0d6ac8fa19b446eaf24f36b436fa5cc7",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/PLAN.md",
+      "sha256": "4ac959ab94f63d2c7314863f70a9df0bf00d21270ab86b7db0716721b8ace2bc",
+      "bytes": 7321,
+      "current_sha256": "4ac959ab94f63d2c7314863f70a9df0bf00d21270ab86b7db0716721b8ace2bc",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/PROGRESS.md",
+      "sha256": "0d35cc29816f1573047b8a90a3bf240d7ad50472f62d0b11662897f045b5cec5",
+      "bytes": 543588,
+      "current_sha256": "bdf0eb3f8b362de5fe23a3ae7e68b68e448a6dc4b5c522b22a601f0d14eeae85",
+      "matches_latest_review": false
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_recovery_clearance_20260928.py",
+      "sha256": "b60d2e447c23640979f6031c483651878194e17955ddce5d9bd8c012db5d729b",
+      "bytes": 2247,
+      "current_sha256": "b60d2e447c23640979f6031c483651878194e17955ddce5d9bd8c012db5d729b",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_inert_recovery_20260928.py",
+      "sha256": "f3b1ac0fad6ef8c790d3ddbea4898f0882c5cb57b89f2b2525cf30f2d3dcc507",
+      "bytes": 1727,
+      "current_sha256": "f3b1ac0fad6ef8c790d3ddbea4898f0882c5cb57b89f2b2525cf30f2d3dcc507",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_recovery_gap_20260928.py",
+      "sha256": "8d7d0fbc7cd19217b5888f795dfda317753d0e78a43504a0e3c59eb1223febe2",
+      "bytes": 1337,
+      "current_sha256": "8d7d0fbc7cd19217b5888f795dfda317753d0e78a43504a0e3c59eb1223febe2",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_budget_boundary_20260928.py",
+      "sha256": "074a9550e19bc8ec3c5721cb57a4c9bb5bb00d693373d0841614dce9ef94431c",
+      "bytes": 1548,
+      "current_sha256": "074a9550e19bc8ec3c5721cb57a4c9bb5bb00d693373d0841614dce9ef94431c",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_governed_start_20260928.py",
+      "sha256": "3e1b41f4a584b4b7e9f50aa92b114bfbd20bd64e5c5b2d7dd17279f859543bd8",
+      "bytes": 601,
+      "current_sha256": "3e1b41f4a584b4b7e9f50aa92b114bfbd20bd64e5c5b2d7dd17279f859543bd8",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_empty_listing_20260928.py",
+      "sha256": "ce050c9067147ea25c6b009724198b793a951482ac34c2ad7d7fb5a4bd49f59a",
+      "bytes": 774,
+      "current_sha256": "ce050c9067147ea25c6b009724198b793a951482ac34c2ad7d7fb5a4bd49f59a",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/classification-2026-09-28T02-26-11Z.md",
+      "sha256": "13e925f68f9bbe9013a4508cc210633c2be71d5303c1b0d27b3d0550fcf62084",
+      "bytes": 11730,
+      "current_sha256": "13e925f68f9bbe9013a4508cc210633c2be71d5303c1b0d27b3d0550fcf62084",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/pre-narrowing-2026-09-28T02-26-11Z.patch",
+      "sha256": "d4880807e754a16977b3be88b33b00dcd4f83f52cb784bfdd04b3d61ee4d72a6",
+      "bytes": 194625,
+      "current_sha256": "d4880807e754a16977b3be88b33b00dcd4f83f52cb784bfdd04b3d61ee4d72a6",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/OWNER-NO-AUTOMATIC-NORMALIZATION-20260928.md",
+      "sha256": "33407739c59a87d72409d9e0110387d3405ccce08ba25fca6516f2a4fc8b0b70",
+      "bytes": 2497,
+      "current_sha256": "33407739c59a87d72409d9e0110387d3405ccce08ba25fca6516f2a4fc8b0b70",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_output_access_20260928.py",
+      "sha256": "d56256290cc74995bc43a85e704ae0a6c19d7fef073441da8b5647293a0aabd9",
+      "bytes": 880,
+      "current_sha256": "d56256290cc74995bc43a85e704ae0a6c19d7fef073441da8b5647293a0aabd9",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_revoked_budget_20260928.py",
+      "sha256": "ac0393b089e3acc072f2f6b98e650db3fa836bbcac774dade61fa943372599ef",
+      "bytes": 1534,
+      "current_sha256": "ac0393b089e3acc072f2f6b98e650db3fa836bbcac774dade61fa943372599ef",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_helper_exhaustion_20260928.py",
+      "sha256": "3f0976edd4d44eadf84547dca00ea27e67054ea7b986726f7d8b913cd5e200c7",
+      "bytes": 880,
+      "current_sha256": "3f0976edd4d44eadf84547dca00ea27e67054ea7b986726f7d8b913cd5e200c7",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_helper_declining_20260928.py",
+      "sha256": "ed3d18b572d1e254ebe3f0700ea072ae410a7739b4faa7f41b3e0be67a97784c",
+      "bytes": 1102,
+      "current_sha256": "ed3d18b572d1e254ebe3f0700ea072ae410a7739b4faa7f41b3e0be67a97784c",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_missing_custodian_20260928.py",
+      "sha256": "e996535908fcb4375003e22f6c0e1897e6672be92f3ee5512eb415e829d96553",
+      "bytes": 1232,
+      "current_sha256": "e996535908fcb4375003e22f6c0e1897e6672be92f3ee5512eb415e829d96553",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_preparation_adoption_20260928.py",
+      "sha256": "faffc38696a027cf172a46c29f6a922d8c427ad7b0d3c481fed9957bf28a6848",
+      "bytes": 996,
+      "current_sha256": "faffc38696a027cf172a46c29f6a922d8c427ad7b0d3c481fed9957bf28a6848",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_foreign_preparation_20260928.py",
+      "sha256": "c6dc0a1c37e990811f2747c71a9e569ad1892409987c5e43420f2e350f4d2a1a",
+      "bytes": 1363,
+      "current_sha256": "c6dc0a1c37e990811f2747c71a9e569ad1892409987c5e43420f2e350f4d2a1a",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_cross_store_preparation_20260928.py",
+      "sha256": "b9754321350e99489df2031416216412450dda359c6b1914972cff991b345e91",
+      "bytes": 1731,
+      "current_sha256": "b9754321350e99489df2031416216412450dda359c6b1914972cff991b345e91",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_cross_store_reentry_20260928.py",
+      "sha256": "a70c753032df01df68ffcd0fe9ec3bc6e00dcb4b0766a4be2a5e6923acf07394",
+      "bytes": 1649,
+      "current_sha256": "a70c753032df01df68ffcd0fe9ec3bc6e00dcb4b0766a4be2a5e6923acf07394",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+      "sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "bytes": 105968,
+      "current_sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py",
+      "sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+      "bytes": 40689,
+      "current_sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline.py",
+      "sha256": "9eca44b81715b83a2771d9ef66934586778a6626055f78a1a2d2c6d6b79409e7",
+      "bytes": 46592,
+      "current_sha256": "9eca44b81715b83a2771d9ef66934586778a6626055f78a1a2d2c6d6b79409e7",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-single-implementation-proof/test_baseline_bindings.py",
+      "sha256": "c00fecbe26411b2ca59a09fbd8619d53fd8f0967df461277fb5601133a369df0",
+      "bytes": 34679,
+      "current_sha256": "c00fecbe26411b2ca59a09fbd8619d53fd8f0967df461277fb5601133a369df0",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_layout_basename_20260928.py",
+      "sha256": "f8cdb8fb048b18de92dbff54591abdedd8324f9d2eb0611c5a0d202612f4f489",
+      "bytes": 1071,
+      "current_sha256": "f8cdb8fb048b18de92dbff54591abdedd8324f9d2eb0611c5a0d202612f4f489",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_configured_no_helper_20260928.py",
+      "sha256": "44417badba2ec701468880ea3ff67c97da75d4c1eca9f1088dd0551113516d86",
+      "bytes": 766,
+      "current_sha256": "44417badba2ec701468880ea3ff67c97da75d4c1eca9f1088dd0551113516d86",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_unknown_writer_answer_20260928.py",
+      "sha256": "2221ce23a8256800641e8ab21c05ee3fdcc9b9d1b259f00965cdefd29451adc6",
+      "bytes": 664,
+      "current_sha256": "2221ce23a8256800641e8ab21c05ee3fdcc9b9d1b259f00965cdefd29451adc6",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_fresh_diagnostic_20260928.py",
+      "sha256": "9757b578d30bc2fbfbc22b8a301e8f611151f8108b64d631940160d1e7ba7780",
+      "bytes": 781,
+      "current_sha256": "9757b578d30bc2fbfbc22b8a301e8f611151f8108b64d631940160d1e7ba7780",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_unobservable_roots_20260928.py",
+      "sha256": "69d7e7bc745903c037ba454db6fccf16c0b2d1a8a156bd19bb06f81ab00f72c1",
+      "bytes": 1625,
+      "current_sha256": "69d7e7bc745903c037ba454db6fccf16c0b2d1a8a156bd19bb06f81ab00f72c1",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_cleanup_trace_20260928.py",
+      "sha256": "0ebe0d45e49d1beb15c61ca9014dbec806c02e47b9d008957874a7b1854b05bc",
+      "bytes": 654,
+      "current_sha256": "0ebe0d45e49d1beb15c61ca9014dbec806c02e47b9d008957874a7b1854b05bc",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_unproved_transfer_20260928.py",
+      "sha256": "8259ad54dc94e27c24da493004b9595d99334bd8b11781ec93cc02674bd221a9",
+      "bytes": 1443,
+      "current_sha256": "8259ad54dc94e27c24da493004b9595d99334bd8b11781ec93cc02674bd221a9",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_parent_link_absence_20260928.py",
+      "sha256": "2bd736b75ecf433172b5606a61976d3da98701f3decf6d3acf52bc1a46014125",
+      "bytes": 1054,
+      "current_sha256": "2bd736b75ecf433172b5606a61976d3da98701f3decf6d3acf52bc1a46014125",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/stage-suite-2026-09-28T08-35-38Z.log",
+      "sha256": "574916f739b84d4a26fb779d59be3df74eaa7244126306f9d01b9f04fa8adfc7",
+      "bytes": 13023,
+      "current_sha256": "574916f739b84d4a26fb779d59be3df74eaa7244126306f9d01b9f04fa8adfc7",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_deadline_seam_20260928.py",
+      "sha256": "bf7467d6c5021a626297aeb864433f85957b71101f0964a14a1cbe0225275ad3",
+      "bytes": 1151,
+      "current_sha256": "bf7467d6c5021a626297aeb864433f85957b71101f0964a14a1cbe0225275ad3",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/OWNER-SIMPLE-COMPLETION-20260928.md",
+      "sha256": "a3fc4f3f72e7c08b9a0ab82ea20d35b0cc3c939e4bf560643aa9e46725052873",
+      "bytes": 2319,
+      "current_sha256": "a3fc4f3f72e7c08b9a0ab82ea20d35b0cc3c939e4bf560643aa9e46725052873",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_execution_only_20260928.py",
+      "sha256": "b22b06071259e038b36376380c2b5bafc516be4bdc9c234590d3d1e066ba08fd",
+      "bytes": 1529,
+      "current_sha256": "b22b06071259e038b36376380c2b5bafc516be4bdc9c234590d3d1e066ba08fd",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/DIAGNOSIS-W295660-295663.md",
+      "sha256": "49da17f926db7ae529a3770c7bc2cc855e1233b43935e845e5643cb35f71ae80",
+      "bytes": 14642,
+      "current_sha256": "49da17f926db7ae529a3770c7bc2cc855e1233b43935e845e5643cb35f71ae80",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/capacity-296102.log",
+      "sha256": "d3deda1084f95d2cf367ad4371e93267f0d3cd19ae38f84fc00a0c04aecb31ee",
+      "bytes": 46039,
+      "current_sha256": "d3deda1084f95d2cf367ad4371e93267f0d3cd19ae38f84fc00a0c04aecb31ee",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_replay_296102.py",
+      "sha256": "0acc7bdde752554121b2eb1c4298bb169f88307776a64914654358a07e2bb80f",
+      "bytes": 1754,
+      "current_sha256": "0acc7bdde752554121b2eb1c4298bb169f88307776a64914654358a07e2bb80f",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/admission-call-map-296200.md",
+      "sha256": "0db7bf73f67d8b62f540011b0dc64d78df9a990fb55cd2ac437b826ef584c4d6",
+      "bytes": 6575,
+      "current_sha256": "0db7bf73f67d8b62f540011b0dc64d78df9a990fb55cd2ac437b826ef584c4d6",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/capacity-296251.log",
+      "sha256": "5f65065f826554d78758f1dac17d758bbd26016b6b167b240634e0eececa1925",
+      "bytes": 1827,
+      "current_sha256": "5f65065f826554d78758f1dac17d758bbd26016b6b167b240634e0eececa1925",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/poll-296359.json",
+      "sha256": "12f95bf9f455ceea960246ddd826cf511304c289b796071da757057672246621",
+      "bytes": 4918,
+      "current_sha256": "12f95bf9f455ceea960246ddd826cf511304c289b796071da757057672246621",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_poll_296359.py",
+      "sha256": "80e2c288ac591f5d638af495ed007c3c97f70f33b92c09671c443c33cac16614",
+      "bytes": 897,
+      "current_sha256": "80e2c288ac591f5d638af495ed007c3c97f70f33b92c09671c443c33cac16614",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/preparation-296475.log",
+      "sha256": "30c6afe41e363f21db23d244258292c424d1c646fc9633970fe69f2359048a21",
+      "bytes": 25196,
+      "current_sha256": "30c6afe41e363f21db23d244258292c424d1c646fc9633970fe69f2359048a21",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_configured_no_helper_296645.py",
+      "sha256": "d633f097ff21eb286f33ce0279f0c3828a154cb51a2d773ecf914b18548bf58d",
+      "bytes": 947,
+      "current_sha256": "d633f097ff21eb286f33ce0279f0c3828a154cb51a2d773ecf914b18548bf58d",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_apply_trace_297404.py",
+      "sha256": "cb53c1ca31bd4a1618ea171d375a68f133dc8247ff738edc4af26475be869e3c",
+      "bytes": 738,
+      "current_sha256": "cb53c1ca31bd4a1618ea171d375a68f133dc8247ff738edc4af26475be869e3c",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_apply_body_297515.py",
+      "sha256": "bd44ed891cddf3fedd0dcd58fae92a4290c936dacc8d35883f9ac1c1f18d6c86",
+      "bytes": 1198,
+      "current_sha256": "bd44ed891cddf3fedd0dcd58fae92a4290c936dacc8d35883f9ac1c1f18d6c86",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_apply_mounts_297610.py",
+      "sha256": "04883a8de5ac6e3982145680fac0feb80fe68993172839159430ed73742592a0",
+      "bytes": 3378,
+      "current_sha256": "04883a8de5ac6e3982145680fac0feb80fe68993172839159430ed73742592a0",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_missing_input_297784.py",
+      "sha256": "3e8231b20b5c16ffb06b166b5c1d858b2de4ab087f54918ede43a18081710ca0",
+      "bytes": 1641,
+      "current_sha256": "3e8231b20b5c16ffb06b166b5c1d858b2de4ab087f54918ede43a18081710ca0",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/DIAGNOSIS-W297718-297722.md",
+      "sha256": "e7a4b8fbc7f416f536a1f562c5c51adf950f14cce4ff5a9aa5d63a3b43094d93",
+      "bytes": 11862,
+      "current_sha256": "e7a4b8fbc7f416f536a1f562c5c51adf950f14cce4ff5a9aa5d63a3b43094d93",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/scratch/w297718-297722/probe.py",
+      "sha256": "f22c90ec3f69ca4251104db6bc0c93310ed5828b9c1fc2bd76d016bec01b3bcc",
+      "bytes": 1243,
+      "current_sha256": "f22c90ec3f69ca4251104db6bc0c93310ed5828b9c1fc2bd76d016bec01b3bcc",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_restart_297917.py",
+      "sha256": "822764801c4851803ba6298f325d15af7cb8dc4449ed8ede18a546aacc0c8433",
+      "bytes": 814,
+      "current_sha256": "822764801c4851803ba6298f325d15af7cb8dc4449ed8ede18a546aacc0c8433",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_activation_298015.py",
+      "sha256": "0272b04255cf605e2038d0289acdd252e0c685018ea134a22b9d9722929d6d32",
+      "bytes": 843,
+      "current_sha256": "0272b04255cf605e2038d0289acdd252e0c685018ea134a22b9d9722929d6d32",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298033.md",
+      "sha256": "0e890d56c93a1719b55573680b9ac88275335b278ddba80aabcc669c2f30b34e",
+      "bytes": 3541,
+      "current_sha256": "0e890d56c93a1719b55573680b9ac88275335b278ddba80aabcc669c2f30b34e",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-298033.json",
+      "sha256": "b8f9455dd2c5ea5d5546e4b7ea45b44d3892d9c7f879989f40467253a3a61adf",
+      "bytes": 510,
+      "current_sha256": "b8f9455dd2c5ea5d5546e4b7ea45b44d3892d9c7f879989f40467253a3a61adf",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298106.md",
+      "sha256": "8f10931eee690bd0d8715da469bad8712fcc5e33ecbbd927a8b8f71c1c063333",
+      "bytes": 4363,
+      "current_sha256": "8f10931eee690bd0d8715da469bad8712fcc5e33ecbbd927a8b8f71c1c063333",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-298106.json",
+      "sha256": "db9a20557141e67836b956076eb3dd7791c3bd0b07d3f5fa38cac0b8c1c8b8e3",
+      "bytes": 380,
+      "current_sha256": "db9a20557141e67836b956076eb3dd7791c3bd0b07d3f5fa38cac0b8c1c8b8e3",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298185.md",
+      "sha256": "04a51724e62810633e80671373bf317136a186edb4142f795bee1519ade227d2",
+      "bytes": 3724,
+      "current_sha256": "04a51724e62810633e80671373bf317136a186edb4142f795bee1519ade227d2",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-298185.json",
+      "sha256": "01a7c3d4089cfb0697089d43444909828a351c2576ee53b1de96ee7bef2867cf",
+      "bytes": 381,
+      "current_sha256": "01a7c3d4089cfb0697089d43444909828a351c2576ee53b1de96ee7bef2867cf",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298223.md",
+      "sha256": "7454192bf31f5ec1f803d986e5faa08767f109ce6e2975ab9acf1fb780309e66",
+      "bytes": 5799,
+      "current_sha256": "7454192bf31f5ec1f803d986e5faa08767f109ce6e2975ab9acf1fb780309e66",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-298223.json",
+      "sha256": "63b6a8a22e0c77a1dad351c56b6d08ef19eef9f58e6cc0158dc6242f255d290d",
+      "bytes": 402,
+      "current_sha256": "63b6a8a22e0c77a1dad351c56b6d08ef19eef9f58e6cc0158dc6242f255d290d",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/AUDIT-298274.md",
+      "sha256": "d04364728d8c10c707ef473a63756d6f1305b4ad3b5a3d907c073b7f53bf5302",
+      "bytes": 14177,
+      "current_sha256": "d04364728d8c10c707ef473a63756d6f1305b4ad3b5a3d907c073b7f53bf5302",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/EXPECTATIONS-298274.md",
+      "sha256": "d88e8286f23881fa45cd54f01400fbfbb5246dd9cca832c58c5c45b034398382",
+      "bytes": 8579,
+      "current_sha256": "d88e8286f23881fa45cd54f01400fbfbb5246dd9cca832c58c5c45b034398382",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-audit-298274.json",
+      "sha256": "ecb9d1d10ea300650254bb7dafe88251176ee299b7e4f37005453cf90aae287a",
+      "bytes": 59261,
+      "current_sha256": "ecb9d1d10ea300650254bb7dafe88251176ee299b7e4f37005453cf90aae287a",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298334.md",
+      "sha256": "982a6bd7901a92ce02f91001a778fd15d88340d56cd4a10de7b8a180b365e81b",
+      "bytes": 4677,
+      "current_sha256": "982a6bd7901a92ce02f91001a778fd15d88340d56cd4a10de7b8a180b365e81b",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-298334.json",
+      "sha256": "9f2e52d8ac2aebc6d39e9d177a9ea728d8f974cfbaafada36c455d2923f269c4",
+      "bytes": 602,
+      "current_sha256": "9f2e52d8ac2aebc6d39e9d177a9ea728d8f974cfbaafada36c455d2923f269c4",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298388.md",
+      "sha256": "f1b05a3d0c9df7cfae7fc3a6bf36764f1a7ac24d05e45ef220d352786430cf96",
+      "bytes": 6337,
+      "current_sha256": "f1b05a3d0c9df7cfae7fc3a6bf36764f1a7ac24d05e45ef220d352786430cf96",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-298388.json",
+      "sha256": "050144cdcd3a20b151aa8ad20ab2c51fa877923167ce18b706942cc672ff9697",
+      "bytes": 551,
+      "current_sha256": "050144cdcd3a20b151aa8ad20ab2c51fa877923167ce18b706942cc672ff9697",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298441.md",
+      "sha256": "650a8b214c196dd957b46898def5bf9a273ba4a4d09f1b5f0c3e3f92ab6fb943",
+      "bytes": 5270,
+      "current_sha256": "650a8b214c196dd957b46898def5bf9a273ba4a4d09f1b5f0c3e3f92ab6fb943",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-298441.json",
+      "sha256": "1b0d5d0590b0ce41b35547384f4edd5b9fac7b6870bc63a6ebb85643110163b3",
+      "bytes": 553,
+      "current_sha256": "1b0d5d0590b0ce41b35547384f4edd5b9fac7b6870bc63a6ebb85643110163b3",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review-2026-09-28T19-15-40Z.md",
+      "sha256": "a15c7b443179b67026d3b4f587de4961b85e8384885f1c2d29e17283b527ce23",
+      "bytes": 3693,
+      "current_sha256": "a15c7b443179b67026d3b4f587de4961b85e8384885f1c2d29e17283b527ce23",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/review_normal_reconcile_298556.py",
+      "sha256": "aa29108bac10e43da404bf74b35c7e9f6485f7e15060151f4fc2743a95c990a1",
+      "bytes": 768,
+      "current_sha256": "aa29108bac10e43da404bf74b35c7e9f6485f7e15060151f4fc2743a95c990a1",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298497.md",
+      "sha256": "4a68f1dab900f156fb0cea04a9e76e6ecf2e3fd1b85f8a822728bbf0b0219ba2",
+      "bytes": 5104,
+      "current_sha256": "4a68f1dab900f156fb0cea04a9e76e6ecf2e3fd1b85f8a822728bbf0b0219ba2",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-298497.json",
+      "sha256": "4f1ff511fbb7afb4a7dd70b37c4f102dcd476ed045140208c87661c103e48bdc",
+      "bytes": 1040,
+      "current_sha256": "4f1ff511fbb7afb4a7dd70b37c4f102dcd476ed045140208c87661c103e48bdc",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/MC-MAPPING-298497.md",
+      "sha256": "279d596d2680569d47f51b6f5b1a85838427c46213bce603681d40eaebf768f9",
+      "bytes": 7178,
+      "current_sha256": "279d596d2680569d47f51b6f5b1a85838427c46213bce603681d40eaebf768f9",
+      "matches_latest_review": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/continuity-298497.json",
+      "sha256": "6727b49aedcae2fe3d9a30b393936268dc14074860937d329f1c6815dc6edb51",
+      "bytes": 3517,
+      "current_sha256": "6727b49aedcae2fe3d9a30b393936268dc14074860937d329f1c6815dc6edb51",
+      "matches_latest_review": true
+    }
+  ],
+  "snapshot_continuity": {
+    "checked": 121,
+    "mismatches_before_audit_progress_append": [],
+    "delta_paths_absent_from_snapshot": [],
+    "unclassified_delta_paths": [],
+    "enumerated_not_in_delta": [],
+    "mismatches_after_audit_progress_append": [
+      "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/PROGRESS.md"
+    ]
+  },
+  "untracked_v12_paths": []
+}

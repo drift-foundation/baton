@@ -2849,11 +2849,21 @@ def managed_apply_failure_evidence(store, control, managed_result_id, reported):
     # refusals reading "the failed apply collection names another fixed assignment or
     # input", which is why the settled-failure cases never reached `exceptional`.
     #
-    # BOTH IDENTITIES STAY PROVED, exactly as on the success path: the exact one by loading
-    # the input manifest AT the digest the retained result manifest names -- a load that
-    # re-binds the document to its key and refuses another kind -- and the Job one by
-    # deriving the projection from that owned document and holding it against the task. A
-    # wrong input changes both, so the negative this exists for is unchanged.
+    # WHICH OWNER PROVES WHAT, corrected by the same review because my first wording
+    # claimed too much for this reader:
+    #
+    #   THE EXACT RUNTIME BINDING (R) IS THE OUTPUT OWNER'S, not this one's.
+    #   `output.record` compares the frozen result's runtime digest against the
+    #   attempt's own immutable one, and that comparison -- not anything here -- is
+    #   what binds this report to the runtime that produced it.
+    #   `load_manifest` VALIDATES A DOCUMENT AGAINST ITS CONTENT KEY and refuses a
+    #   document of another kind. That is content integrity; a load that succeeds does
+    #   NOT by itself establish that this digest is the intended runtime manifest.
+    #   THIS READER'S OWN FACT IS THE JOB CORRESPONDENCE (J): the projection derived
+    #   from the owned document must equal the task's. AND J IS DELIBERATELY COARSER
+    #   THAN R -- a runtime-only change can leave J identical, which the tuner's
+    #   same-Job/wrong-runtime probe demonstrates -- so this is the Job-level negative
+    #   and the runtime-level one belongs to the owner named above.
     from ..worker_manager.manifests import load_manifest
     from ..contracts import job_input_identity
 
@@ -2963,11 +2973,16 @@ def _requested_task(task, owned_request, member, attempt_id):
     # capacity` wrote it from the registered plan and `admit_integration_
     # execution` is what made that member live.
     #
-    # `input_digest` IS DELIBERATELY NOT COMPARED HERE. The member's is the
-    # original Job input the plan registered and the task's is the runtime
-    # manifest the attempt actually ran under; they are two meanings and the
-    # request above is what owns the task's. Collapsing them would repair a
-    # composition mismatch by weakening what one of them means.
+    # `input_digest` IS DELIBERATELY NOT COMPARED HERE, and THE TWO MEANINGS ARE
+    # NOT THE ONES THIS COMMENT USED TO NAME. W285465 review 2026-09-28T17-33-13Z
+    # with the owner-dispatched tuner note DIAGNOSIS-W297718-297722: the member's
+    # `input_digest` is the Job input the plan registered (J), and a PREPARATION
+    # task's is neither J nor the runtime manifest -- the current producer supplies
+    # the published preparation source/bundle digest (P), which the request above
+    # owns and is compared against. Three meanings share one field name, so the
+    # comparison stays exactly as it is and this prose names which is which
+    # instead of guessing. Collapsing any two of them would repair a composition
+    # mismatch by weakening what one of them means.
     if owned["task_digest"] != member["task_digest"]:
         _refuse(f"this task is {name_value(owned['task_digest'])} and the "
                 f"membership admitted for it registered "

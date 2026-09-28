@@ -2383,15 +2383,20 @@ class EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld(SingleWorkerCase):
     opened afterwards over the same persisted state. An empty map is never read as "no
     writer" -- what answers is the journal.
 
-    WHAT THESE CUTS ARE NOT, corrected by review 2026-09-27T23-45-11Z and stated here
+    HISTORICAL BOUNDARY-CUT LIMIT, corrected by review 2026-09-27T23-45-11Z and stated here
     rather than left to be inferred from a test name: every cut lands on a PHASE
     BOUNDARY -- the instant after a phase's writes returned -- so they prove that a
     COMPLETED phase authorizes nothing further. They are NOT interior partial writes: a
     half-created directory tree, a mid-publication document or a partly applied
-    permission set is a different cut, and the interior ones remain unproved here. The
+    permission set is a different cut. Those interior cuts were unproved then. The
     one interior effect this suite does reach is the publication's own failure path,
     `TheConnectedHANDOFFIsProvedEndToEnd.test_H7_a_FAILED_publication_removes_the_name_
     it_created`, which stalls the write itself.
+
+    Claim298334 adds four interior cuts at actual filesystem calls: unfinished
+    allocation, unpublished source boundary, partial task write, and partial input
+    permission freeze. Each asserts distinct residue after the same durable hold
+    and restart checks. The original completed-phase cuts remain below.
 
     DETERMINISTIC AND OFFLINE, as the predecessor was: the same fake engine, the same
     disposable stores, one Host manager, no live engine or provider, and the child's
@@ -2448,14 +2453,23 @@ class EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld(SingleWorkerCase):
                 os.close(read)
                 job, control = self.stores("hp-child")
                 engine = Engine()
+                signal = os.write
+
+                def die():
+                    self.assertEqual(engine.vectors, [],
+                                     "host preparation reached the engine")
+                    signal(write, b"reached")
+                    os._exit(9)
+
+                if point.startswith("inside-"):
+                    self.interrupt_inside(point, die)
 
                 def checkpoint(name):
                     if name == point:
-                        os.write(write, b"reached")
                         # NO UNWINDING AT ALL: not an exception, not `sys.exit`, so
                         # no `finally` releases the window and no cleanup repairs
                         # anything. This is the fact a RuntimeError cannot model.
-                        os._exit(9)
+                        die()
 
                 operations = single_worker.operations_from(
                     self.config, job, control, engine_run=engine,
@@ -2484,6 +2498,76 @@ class EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld(SingleWorkerCase):
                          f"the child did not allocate exactly one home: {attempts}")
         return job, control, attempts[0]
 
+    def interrupt_inside(self, point, die):
+        """Child-only interception after a real partial filesystem effect."""
+        mkdir, write, chmod = os.mkdir, os.write, os.chmod
+
+        def own(place, suffix):
+            return isinstance(place, str) and place.startswith(
+                self.storage + os.sep + "attempt-") and place.endswith(suffix)
+
+        def making(place, *args, **named):
+            answer = mkdir(place, *args, **named)
+            if point == "inside-allocation" and own(place, "/workspace"):
+                die()
+            if point == "inside-mountpoint" and own(place, "/inputs/source"):
+                die()
+            return answer
+
+        def publishing(handle, data):
+            if point == "inside-publication" and data == self.task_bytes:
+                self.assertEqual(write(handle, data[:len(data) // 2]), len(data) // 2)
+                die()
+            return write(handle, data)
+
+        def freezing(place, mode, *args, **named):
+            answer = chmod(place, mode, *args, **named)
+            if point == "inside-permissions" and mode == 0o555 and own(
+                    place, "/inputs/source"):
+                die()
+            return answer
+
+        # These replacements exist only in the forked child, which exits without
+        # finally/unwind. Parent and reopened composition use the real calls.
+        os.mkdir, os.write, os.chmod = making, publishing, freezing
+
+    def test_HP1_interior_allocation_keeps_the_unfinished_window(self):
+        from baton_v12.worker_manager import workspaces
+
+        control, attempt_id = self.held_after("inside-allocation", self.sibling())
+        self.assertEqual([ordinal for ordinal, _ in workspaces.standing_allocation(
+            control, attempt_id)], [1])
+        workspace = os.path.join(self.storage, attempt_id, "workspace")
+        self.assertEqual(os.listdir(workspace), [],
+                         "allocation created its result child before the cut")
+        self.assertFalse(os.path.exists(os.path.join(
+            self.storage, attempt_id, "inputs", "source")))
+
+    def test_HP1_interior_mountpoint_precedes_boundary_publication(self):
+        control, attempt_id = self.held_after("inside-mountpoint", self.sibling())
+        inputs = os.path.join(self.storage, attempt_id, "inputs")
+        self.assertEqual(os.listdir(inputs), ["source"])
+        self.assertEqual(os.listdir(os.path.join(inputs, "source")), [])
+        self.assertIsNone(single_worker.boundary_identity_of(control, attempt_id))
+
+    def test_HP1_interior_publication_leaves_only_unproved_partial_bytes(self):
+        control, attempt_id = self.held_after("inside-publication", self.sibling())
+        inputs = os.path.join(self.storage, attempt_id, "inputs")
+        task = os.stat(os.path.join(inputs, single_worker.TASK_DOCUMENT))
+        self.assertEqual(task.st_size, len(self.task_bytes) // 2)
+        self.assertEqual(stat.S_IMODE(task.st_mode), 0)
+        self.assertEqual(sorted(os.listdir(inputs)), ["source", "task.json"])
+
+    def test_HP1_interior_permissions_leaves_a_partly_frozen_input(self):
+        control, attempt_id = self.held_after("inside-permissions", self.sibling())
+        inputs = os.path.join(self.storage, attempt_id, "inputs")
+        self.assertEqual(stat.S_IMODE(os.stat(os.path.join(inputs, "source")).st_mode), 0o555)
+        self.assertNotEqual(stat.S_IMODE(os.stat(inputs).st_mode), 0o555)
+        with open(os.path.join(inputs, single_worker.TASK_DOCUMENT), "rb") as reading:
+            self.assertEqual(reading.read(), self.task_bytes)
+        self.assertTrue(os.path.isfile(os.path.join(inputs, "input.json")))
+        self.assertTrue(os.path.isfile(os.path.join(inputs, "assignment.json")))
+
     def held_after(self, point, sibling):
         """The whole HELD outcome for a cut before the completion is written."""
         from baton_v12.worker_manager import tokens, workspaces
@@ -2508,7 +2592,8 @@ class EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld(SingleWorkerCase):
         with self.assertRaises(ContractRefusal) as refused:
             workspaces.require_prepared(control, attempt_id, roots,
                                         "starting this attempt")
-        self.assertIn("host preparation 1", str(refused.exception))
+        self.assertIn("allocation 1" if point == "inside-allocation" else
+                      "host preparation 1", str(refused.exception))
         for act, what in (
                 (lambda: workspaces._admitted_removal(
                     control, attempt_id, "a later removal"), "removal"),
@@ -2706,6 +2791,162 @@ class EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld(SingleWorkerCase):
             self.identity_of(os.path.join(self.storage, self.SIBLING)), sibling)
 
 
+    def mismatched_completion(self, operand):
+        """Replay an actual completed operation through fresh durable handles."""
+        from baton_v12.worker_manager import tokens, workspaces
+        from baton_v12.worker_manager.store import manager_signature
+
+        sibling = self.sibling()
+        job, control, attempt_id = self.killed_at("prepared")
+        identity = workspaces._prepared_id(attempt_id)
+        original = control.operation_record(identity)
+        account = workspaces.preparation_completed(control, attempt_id)
+        self.assertIsNotNone(account)
+        document = dict(account)
+        kind = workspaces.PREPARED_KIND
+        if operand == "operation":
+            kind += "-other"
+        elif operand == "attempt":
+            document["attempt_id"] = self.SIBLING
+        else:
+            document["workspace"] = workspaces._entry_identity(
+                os.path.join(self.storage, self.SIBLING, "workspace"))
+        effects = []
+        for incarnation in ("mismatch-first", "mismatch-replay"):
+            job.close()
+            control.close()
+            job, control = self.stores(incarnation)
+            with self.assertRaises(ContractRefusal) as refused:
+                control.transact(identity, kind, manager_signature(kind, document),
+                                 lambda connection: effects.append("wrong effect"))
+            self.assertEqual((refused.exception.category, refused.exception.code),
+                             ("refused", "operation-collision"))
+            self.assertEqual(control.operation_record(identity), original)
+        self.assertEqual(effects, [])
+        self.assertIsNone(workspaces.preparation_completed(control, self.SIBLING))
+        domain = tokens.domain_of("workspace", account["workspace"])
+        self.assertEqual(tokens.outstanding(control, domain), [])
+        self.assertEqual(self.identity_of(os.path.join(self.storage, self.SIBLING)), sibling)
+
+        # A refused replay must not poison the honest continuation. Count distinct
+        # boundaries; operation replay is not a second durable completion or write.
+        counts = {name: 0 for name in ("write", "completion", "preparation", "task")}
+        def count(name, function):
+            def called(*args, **kwargs):
+                counts[name] += 1
+                return function(*args, **kwargs)
+            return called
+        honest_open = os.open
+        def opening(place, flags, *args, **kwargs):
+            if isinstance(place, str) and place.endswith(single_worker.TASK_DOCUMENT) and flags & os.O_EXCL:
+                counts["write"] += 1
+            return honest_open(place, flags, *args, **kwargs)
+        engine = Engine()
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        with mock.patch.object(os, "open", side_effect=opening), \
+                mock.patch.object(workspaces, "record_preparation", side_effect=count("completion", workspaces.record_preparation)), \
+                mock.patch.object(workspaces, "admit_preparation", side_effect=count("preparation", workspaces.admit_preparation)), \
+                mock.patch.object(tokens, "acquire", side_effect=count("task", tokens.acquire)):
+            self.assertIsNotNone(self.commanded(job, operations))
+            for _ in range(6):
+                reconcile(job, operations, now=fixtures.NOW)
+        self.assertEqual(counts, {"write": 0, "completion": 1, "preparation": 1, "task": 1})
+        self.assertEqual(control.operation_record(identity), original)
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(len([one for one in engine.vectors if activating(one)]), 1)
+        self.assertEqual([one["execution"] for one in tokens.outstanding(control, domain)], [attempt_id])
+        self.assertEqual(self.identity_of(os.path.join(self.storage, self.SIBLING)), sibling)
+
+    def test_HP7_actual_completion_replay_rejects_another_attempt(self):
+        self.mismatched_completion("attempt")
+
+    def test_HP7_actual_completion_replay_rejects_another_resource(self):
+        self.mismatched_completion("resource")
+
+    def test_HP7_actual_completion_replay_rejects_another_operation(self):
+        self.mismatched_completion("operation")
+
+    def test_HP6_completion_consumer_rejects_another_input_object(self):
+        from baton_v12.worker_manager import tokens, workspaces
+
+        sibling = self.sibling()
+        job, control, attempt_id = self.killed_at("prepared")
+        account = workspaces.preparation_completed(control, attempt_id)
+        roots = {name: os.path.join(self.storage, attempt_id, name)
+                 for name in ("inputs", "workspace")}
+        self.assertEqual(workspaces.require_prepared(control, attempt_id, roots,
+                                                     "reopened admission"), account)
+        substituted = dict(roots, inputs=os.path.join(self.storage, self.SIBLING, "inputs"))
+        with self.assertRaises(ContractRefusal) as refused:
+            workspaces.require_prepared(control, attempt_id, substituted, "reopened admission")
+        self.assertEqual((refused.exception.category, refused.exception.code),
+                         ("runtime-observation", "identity-mismatch"))
+        self.assertIn("inputs root", str(refused.exception))
+        self.assertEqual(workspaces.preparation_completed(control, attempt_id), account)
+        self.assertEqual(tokens.outstanding(control, tokens.domain_of("workspace", account["workspace"])), [])
+        self.assertEqual(self.identity_of(os.path.join(self.storage, self.SIBLING)), sibling)
+
+    def post_completion_change(self, change):
+        from baton_v12.worker_manager import tokens, workspaces
+
+        sibling = self.sibling()
+        job, control, attempt_id = self.killed_at("prepared")
+        account = workspaces.preparation_completed(control, attempt_id)
+        pinned = single_worker.boundary_identity_of(control, attempt_id)
+        domain = tokens.domain_of("workspace", account["workspace"])
+        if change == "source":
+            os.rename(self.source, self.source + "-old")
+            os.mkdir(self.source)
+            target, method = single_worker, "pin_boundary_identity"
+            expected = "refused rather than re-pinned"
+        elif change == "claim":
+            rows = claimed_offers_for(control, attempt_id)
+            self.assertEqual(len(rows), 1)
+            patcher = mock.patch.object(single_worker, "claimed_offers_for", return_value=[])
+            patcher.start()
+            self.addCleanup(patcher.stop)
+            target, method = single_worker, "_refuse"
+            expected = "has 0 claimed offers"
+        else:
+            tokens.acquire(control, domain, operation="competing-after-completion",
+                           execution="other-execution")
+            target, method = workspaces, "admit_preparation"
+            expected = "token"
+        before = tokens.outstanding(control, domain)
+        observed = []
+        honest = getattr(target, method)
+        def watching(*args, **kwargs):
+            try:
+                return honest(*args, **kwargs)
+            except ContractRefusal as refusal:
+                observed.append(str(refusal))
+                raise
+        engine = Engine()
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        with mock.patch.object(target, method, side_effect=watching):
+            for _ in range(6):
+                try:
+                    reconcile(job, operations, now=fixtures.NOW)
+                except ContractRefusal:
+                    pass
+        self.assertTrue(any(expected in one for one in observed), observed)
+        self.assertEqual(engine.vectors, [])
+        self.assertEqual(tokens.outstanding(control, domain), before)
+        self.assertEqual(workspaces.preparation_completed(control, attempt_id), account)
+        self.assertEqual(single_worker.boundary_identity_of(control, attempt_id), pinned)
+        self.assertEqual(self.identity_of(os.path.join(self.storage, self.SIBLING)), sibling)
+
+    def test_HP6_source_replaced_after_completion_refuses_on_restart(self):
+        self.post_completion_change("source")
+
+    def test_HP6_claim_eligibility_lost_after_completion_refuses_on_restart(self):
+        self.post_completion_change("claim")
+
+    def test_HP6_competing_token_after_completion_refuses_on_restart(self):
+        self.post_completion_change("exclusivity")
+
     def test_HP6_a_REPLACED_root_after_the_record_refuses_and_repins_nothing(self):
         """HP6/HP7's mismatch half, through the RECOVERY rather than in-process.
 
@@ -2879,6 +3120,99 @@ class EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld(SingleWorkerCase):
         self.assertEqual(workspaces.standing_preparation(control, other), [])
         self.assertEqual(
             tokens.outstanding(control, tokens.domain_of("workspace", "0:0")), [])
+
+
+class LostTaskRepliesKeepTheExternalExecution(SingleWorkerCase):
+    """HP8: engine effects outlive the manager's reply and local tracking."""
+
+    def lost_reply(self, verb, outage=True):
+        from baton_v12.worker_manager import tokens, workspaces
+        class Interrupted(Engine):
+            def __init__(self):
+                super().__init__()
+                self.lost = False
+                self.outage = False
+            def __call__(self, argv, *, seconds=None):
+                if self.outage and argv[1] in ("ps", "inspect"):
+                    self.vectors.append(list(argv))
+                    return self.answer(status=1, stderr="fixture engine unavailable")
+                answer = super().__call__(argv, seconds=seconds)
+                if argv[1] == verb and not self.lost:
+                    self.lost = True
+                    raise KeyboardInterrupt("HP8 reply lost after engine effect")
+                return answer
+        engine = Interrupted()
+        job, control = self.stores("hp8-before")
+        submit(job, self.submission)
+        operations = self.operations(job, control, engine)
+        with self.assertRaisesRegex(KeyboardInterrupt, "HP8 reply lost"):
+            for _ in range(6):
+                reconcile(job, operations, now=fixtures.NOW)
+        self.assertTrue(engine.lost)
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(engine.running, verb == "start")
+        attempt = status(job, operations, observed_at=fixtures.NOW)["jobs"][0]["stages"][0]["attempt_id"]
+        account = workspaces.preparation_completed(control, attempt)
+        self.assertIsNotNone(account)
+        domain = tokens.domain_of("workspace", account["workspace"])
+        self.assertEqual(len(tokens.outstanding(control, domain)), 1)
+        home = os.path.join(self.storage, attempt)
+        identity_of = EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.identity_of
+        material = {name: identity_of(os.path.join(home, name)) for name in ("inputs", "workspace")}
+        runtime = engine.runtime_id
+        operations.close()
+        job.close()
+        control.close()
+        engine.outage = outage
+        job, control = self.stores("hp8-reopened")
+        operations = self.operations(job, control, engine)
+        self.addCleanup(operations.close)
+        reports = []
+        for _ in range(3 if outage else 0):
+            reports.append(reconcile(job, operations, now=fixtures.NOW))
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(len(engine.activations), int(verb == "start"))
+        self.assertEqual(len(tokens.outstanding(control, domain)), 1)
+        with self.assertRaises(ContractRefusal):
+            workspaces.admit_preparation(control, attempt, "competing after handoff", "other-execution")
+        self.assertEqual({name: identity_of(os.path.join(home, name)) for name in material}, material)
+        engine.outage = False
+        if outage:
+            self.assertIsNotNone(attempt_preparation_failure_of(control, attempt))
+            with mock.patch.object(workspaces, "assignment_workspace", side_effect=AssertionError("identification reopened allocation")):
+                operations._worker.refresh_runtime({"attempt_id": attempt})
+            self.assertEqual(attempt_runtime_of(control, attempt)["runtime_id"], runtime)
+        for _ in range(6):
+            reconcile(job, operations, now=fixtures.NOW)
+        projected = status(job, operations, observed_at=fixtures.NOW)
+        self.assertEqual(projected["jobs"][0]["stages"][0]["state"],
+                         "waiting" if not outage and verb == "start" else "exceptional", reports)
+        self.assertEqual(attempt_runtime_of(control, attempt)["runtime_id"], runtime)
+        self.assertIsNotNone(projected)
+        for _ in range(3):
+            reconcile(job, operations, now=fixtures.NOW)
+        self.assertEqual(projected["jobs"][0]["stages"][0]["attempt_id"], attempt)
+        self.assertEqual(len(engine.starts), 1)
+        self.assertEqual(len(engine.activations), int(verb == "start"))
+        [outstanding] = tokens.outstanding(control, domain)
+        self.assertEqual(outstanding["execution"], attempt)
+        self.assertEqual(tokens.token_of(control, domain, outstanding["generation"])["container"],
+                         None if verb == "create" else runtime)
+        self.assertEqual(workspaces.preparation_completed(control, attempt), account)
+        self.assertEqual({name: identity_of(os.path.join(home, name)) for name in material}, material)
+
+    def test_lost_create_reply_holds_through_outage_then_identifies_exact_runtime(self):
+        self.lost_reply("create")
+
+    def test_lost_start_reply_holds_through_outage_then_identifies_exact_runtime(self):
+        self.lost_reply("start")
+
+
+    def test_lost_create_reply_without_outage_identifies_and_holds(self):
+        self.lost_reply("create", outage=False)
+
+    def test_lost_start_reply_without_outage_continues_once(self):
+        self.lost_reply("start", outage=False)
 
 
 class TheProductionCompositionIsRestartSafe(SingleWorkerCase):

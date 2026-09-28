@@ -1,0 +1,12 @@
+{
+  "work": "W285465",
+  "claim": 298497,
+  "files": {
+    "v12/python/tools/single_worker.py": "12a9e6a54b25f69ef1c2970affc11c458990cd633fbec1e927514e07decff289",
+    "v12/python/tests/tools/test_single_worker.py": "06ee59fdae04f50fe298bd12ecc386e2267d36bd0b5af5096b6728ae84ebdd31",
+    "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298497.md": "4a68f1dab900f156fb0cea04a9e76e6ecf2e3fd1b85f8a822728bbf0b0219ba2",
+    "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/MC-MAPPING-298497.md": "279d596d2680569d47f51b6f5b1a85838427c46213bce603681d40eaebf768f9",
+    "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/continuity-298497.json": "6727b49aedcae2fe3d9a30b393936268dc14074860937d329f1c6815dc6edb51",
+    "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/PROGRESS.md": "0d35cc29816f1573047b8a90a3bf240d7ad50472f62d0b11662897f045b5cec5"
+  }
+}

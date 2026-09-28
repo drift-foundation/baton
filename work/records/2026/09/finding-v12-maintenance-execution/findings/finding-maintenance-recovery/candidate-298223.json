@@ -1,0 +1,13 @@
+{
+  "work": "W285465",
+  "claim": 298223,
+  "participant": "baton.tuner",
+  "scope": "dogfood operator expectations and recovery fault coverage; not whole-G2 acceptance",
+  "prior_review": "review-2026-09-28T18-28-24Z.md",
+  "files": [
+    {
+      "path": "v12/python/tests/tools/test_dogfood_operator.py",
+      "sha256": "ebeb4ea4af7a6987a818e851217e5568a3746f1d88c8b7463087988fbd066e67"
+    }
+  ]
+}

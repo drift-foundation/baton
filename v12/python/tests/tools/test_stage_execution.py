@@ -4306,6 +4306,130 @@ class ComposedOneJobCase(ServingCase):
                                attempt_id=attempt_id, roots=roots)
 
 
+class CheckpointIdentityAtHostAdmission(ComposedOneJobCase):
+    """HP6: current checkpoint eligibility is re-read after host completion."""
+
+    def checkpoint_admission(self, changed, restarted=False):
+        from baton_v12.job_manager import sweep
+        from baton_v12.worker_manager import review_cycles, tokens, workspaces
+        from .test_single_worker import activating, EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld
+
+        held = self.implemented()
+        worker = self.worker_of(held.composed, "review")
+        deployment = worker.stage.deployment
+        line = deployment.line_for("job-a")
+        checkpoint = review_cycles.checkpoint_of(held.control, line["current_checkpoint_id"])
+        identity_of = EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld.identity_of
+        def material(place):
+            return {name: (mode, content) for name, (mode, device, inode, content)
+                    in identity_of(place).items()}
+        candidate = material(line["line_path"])
+        sibling = os.path.join(self.root, "hp6-sibling")
+        os.mkdir(sibling)
+        self.write(os.path.join(sibling, "sentinel"), "unrelated bytes")
+        sibling_before = identity_of(sibling)
+        starts = len(self.engine.starts)
+        activations = len([one for one in self.engine.vectors if activating(one)])
+        counts = {name: 0 for name in ("completion", "preparation", "task", "write")}
+        completed, grants, mount_refusals = [], [], []
+        honest_line = review_cycles.line_of
+        honest_grant = review_cycles._review_grant
+        honest_boundary = review_cycles.review_boundary
+        def boundary(*args, **kwargs):
+            try:
+                return honest_boundary(*args, **kwargs)
+            except ContractRefusal as refusal:
+                mount_refusals.append((refusal.category, refusal.code, str(refusal)))
+                raise
+        def reading(store, line_id):
+            answer = honest_line(store, line_id)
+            if completed and changed and line_id == line["line_id"]:
+                return dict(answer, current_checkpoint_id="checkpoint-other")
+            return answer
+        def granted(*args, **kwargs):
+            answer = honest_grant(*args, **kwargs)
+            if completed:
+                grants.append(answer)
+            return answer
+        def count(name, function):
+            def called(*args, **kwargs):
+                counts[name] += 1
+                return function(*args, **kwargs)
+            return called
+        honest_open = os.open
+        def opening(place, flags, *args, **kwargs):
+            if isinstance(place, str) and place.endswith(single_worker.TASK_DOCUMENT) and flags & os.O_EXCL:
+                counts["write"] += 1
+            return honest_open(place, flags, *args, **kwargs)
+        def checkpointed(point):
+            if point == "prepared":
+                attempt = self.only_attempt(held.composed, "review")
+                account = workspaces.preparation_completed(held.control, attempt)
+                self.assertIsNotNone(account)
+                self.assertEqual(len(self.engine.starts), starts)
+                completed.append((attempt, account, single_worker.boundary_identity_of(held.control, attempt)))
+                if restarted:
+                    raise RuntimeError("HP6 stop after completed host preparation")
+        worker.checkpoint = checkpointed
+        with mock.patch.object(review_cycles, "line_of", side_effect=reading), \
+                mock.patch.object(review_cycles, "review_boundary", side_effect=boundary), \
+                mock.patch.object(review_cycles, "_review_grant", side_effect=granted), \
+                mock.patch.object(workspaces, "record_preparation", side_effect=count("completion", workspaces.record_preparation)), \
+                mock.patch.object(workspaces, "admit_preparation", side_effect=count("preparation", workspaces.admit_preparation)), \
+                mock.patch.object(tokens, "acquire", side_effect=count("task", tokens.acquire)), \
+                mock.patch.object(os, "open", side_effect=opening):
+            if restarted:
+                with self.assertRaisesRegex(RuntimeError, "HP6 stop after completed"):
+                    for _ in range(6):
+                        sweep(held.job, held.composed, now=NOW)
+                held.composed.close()
+                held.job.close()
+                held.control.close()
+                held.job, held.control = self.stores("hp6-checkpoint-reopened")
+                held.composed = stage_execution.operations_from(
+                    self.composed_document(line_declared_base=self.base),
+                    held.job, held.control, engine_run=self.engine,
+                    credential_provider=lambda provider, reference: self.secret,
+                    clock=lambda: NOW, checkout=self.checkout)
+                self.addCleanup(held.composed.close)
+                self.assertEqual(self.worker_of(held.composed, "review").stage._prepared, {})
+            for _ in range(6):
+                sweep(held.job, held.composed, now=NOW)
+        self.assertEqual(len(completed), 1)
+        attempt, account, pin = completed[0]
+        if restarted and changed:
+            self.assertEqual(len(mount_refusals), 1)
+            self.assertEqual(mount_refusals[0][:2], ("integrity", "schema"))
+            self.assertIn("not the line's current checkpoint", mount_refusals[0][2])
+            self.assertEqual(grants, [])
+        else:
+            self.assertEqual(mount_refusals, [])
+            self.assertTrue(grants, "the live checkpoint grant was never re-read after completion")
+            self.assertEqual(grants, [not changed] * len(grants))
+        self.assertEqual(counts, {"completion": 1 + int(restarted and not changed),
+                                  "preparation": 1 + int(restarted),
+                                  "task": int(not changed), "write": 1})
+        self.assertEqual(len(self.engine.starts) - starts, int(not changed))
+        self.assertEqual(len([one for one in self.engine.vectors if activating(one)]) - activations, int(not changed))
+        self.assertEqual(workspaces.preparation_completed(held.control, attempt), account)
+        self.assertEqual(single_worker.boundary_identity_of(held.control, attempt), pin)
+        self.assertEqual(review_cycles.checkpoint_of(held.control, checkpoint["checkpoint_id"]), checkpoint)
+        self.assertEqual(material(line["line_path"]), candidate)
+        self.assertEqual(identity_of(sibling), sibling_before)
+
+    def test_unchanged_checkpoint_continues_once_after_host_completion(self):
+        self.checkpoint_admission(False)
+
+    def test_changed_checkpoint_refuses_after_host_completion(self):
+        self.checkpoint_admission(True)
+
+    def test_unchanged_checkpoint_reopens_and_continues_once(self):
+        self.checkpoint_admission(False, restarted=True)
+
+    def test_changed_checkpoint_refuses_with_fresh_handles(self):
+        self.checkpoint_admission(True, restarted=True)
+
+
 class TheComposedImplementationHalfRunsOnOrdinaryTicks(ComposedOneJobCase):
     """W119114 item 3, for the half the undischarged gate leaves reachable.
 

@@ -1,0 +1,83 @@
+{
+  "current": {
+    "v12/python/src/baton_v12/worker_manager/maintenance.py": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce",
+    "v12/python/tests/manager/test_maintenance.py": "648a6724fd3311a2f6908e1ee7ffba310b5bd23062365902d2cc478d167bdb7b",
+    "v12/python/tests/job_manager/test_tool.py": "84b01b4e4a03b5f4acb55cf9866d192998fbe2c0ef67792972a577976d1f84e5",
+    "v12/python/tools/job_manager.py": "83cbf5ee56b52e2696644046c7aa28c2211e9cd7db8b8c521f416f8abf3ae1ed"
+  },
+  "facility_class_ast_continuity": {
+    "TheLaunchIsTwoActsAndTheJournalDecidesBetweenThem": true,
+    "TheHostSettlesOnEvidenceAndHoldsEverythingElse": true,
+    "ARepeatedPreparationDecidesAtTheJournalBeforeTheEngine": true,
+    "ALateCreatedRuntimeIsEndedOrRecordedAsUnknown": true,
+    "TheHostsOwnSettlementIsDurable": true
+  },
+  "snapshots": {
+    "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-facility/candidate-2026-09-27T14-48-27Z.json": [
+      {
+        "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+        "sha256": "2c141d062c884618e0eb313954c7caaca3effb54efb6e6247884f77ce6815cfc",
+        "bytes": 83462,
+        "matches_current": false
+      },
+      {
+        "path": "v12/python/tests/manager/test_maintenance.py",
+        "sha256": "126e25ddfb8faac3064c735adffafbdd69104a970ad08c6300e1f2d65b9b1f4f",
+        "bytes": 88396,
+        "matches_current": false
+      }
+    ],
+    "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-2026-09-28T11-36-45Z.json": [
+      {
+        "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+        "sha256": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce",
+        "bytes": 83571,
+        "matches_current": true
+      },
+      {
+        "path": "v12/python/tests/manager/test_maintenance.py",
+        "sha256": "4e7f1c40ddc0e3d56009ca1c63fd61019e62de74fe32b3d57323f76283d31188",
+        "bytes": 177951,
+        "matches_current": false
+      },
+      {
+        "path": "v12/python/tools/job_manager.py",
+        "sha256": "83cbf5ee56b52e2696644046c7aa28c2211e9cd7db8b8c521f416f8abf3ae1ed",
+        "bytes": 60495,
+        "matches_current": true
+      },
+      {
+        "path": "v12/python/tests/job_manager/test_tool.py",
+        "sha256": "84b01b4e4a03b5f4acb55cf9866d192998fbe2c0ef67792972a577976d1f84e5",
+        "bytes": 80995,
+        "matches_current": true
+      }
+    ],
+    "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/candidate-2026-09-28T19-04-29Z.json": [
+      {
+        "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+        "sha256": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce",
+        "bytes": 83571,
+        "matches_current": true
+      },
+      {
+        "path": "v12/python/tests/manager/test_maintenance.py",
+        "sha256": "648a6724fd3311a2f6908e1ee7ffba310b5bd23062365902d2cc478d167bdb7b",
+        "bytes": 189296,
+        "matches_current": true
+      },
+      {
+        "path": "v12/python/tools/job_manager.py",
+        "sha256": "83cbf5ee56b52e2696644046c7aa28c2211e9cd7db8b8c521f416f8abf3ae1ed",
+        "bytes": 60495,
+        "matches_current": true
+      },
+      {
+        "path": "v12/python/tests/job_manager/test_tool.py",
+        "sha256": "84b01b4e4a03b5f4acb55cf9866d192998fbe2c0ef67792972a577976d1f84e5",
+        "bytes": 80995,
+        "matches_current": true
+      }
+    ]
+  }
+}

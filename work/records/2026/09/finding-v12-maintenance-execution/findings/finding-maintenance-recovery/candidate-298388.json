@@ -1,0 +1,9 @@
+{
+  "work": "W285465",
+  "claim": 298388,
+  "files": {
+    "v12/python/tests/tools/test_single_worker.py": "13a371eee48b68edee5344a2738626188e316cd79c7c85b537bdf7d08d1b1c87",
+    "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/CONTINUATION-298388.md": "f1b05a3d0c9df7cfae7fc3a6bf36764f1a7ac24d05e45ef220d352786430cf96",
+    "work/records/2026/09/finding-v12-maintenance-execution/findings/finding-maintenance-recovery/PROGRESS.md": "3d3bd2c11ab81290f3ae309c34d543b2aa0e42bc617151fc8c8eee2cec4b8d68"
+  }
+}

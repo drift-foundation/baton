@@ -8071,3 +8071,303 @@ then the final path/hash/expectation audit. No product change made this claim. N
 change, no Git mutation, no 252 expansion, no owner gate.
 
 Commit identity unobserved; no staging, no commit, no other repository mutation by me.
+
+## Claim 297657 -- the managed apply PASSES: two identities, two predicates, one correction each
+
+READ: `detail work=W285465`, `claim` (297657), `work-events after=297608` (claim 297610, pass 297648),
+`review-2026-09-28T17-12-45Z.md`, `review_apply_mounts_297610.py`, PLAN and FINDING.
+
+### My startup-missing-path diagnosis is withdrawn; the review's trace is right
+
+The reviewer's probe read the mounts AT `Popen` and found them ALL PRESENT -- exchange transport,
+published root matching, receipt then answered terminal, exit 0. What I measured was the state AFTER the
+run, so the absences I reported were `authorize_cleanup`/destroy/`launch.discard` doing their job. Reading
+a torn-down tree and calling it a startup condition is the mistake, and it is the second time this Work I
+have drawn a conclusion from the wrong moment.
+
+### THE ACTUAL BLOCKER, corrected in both places it lives
+
+The review located it exactly: 197 propagated refusals from `ManagedApplyRuntime.end` into
+`integration_bundle.retained_apply_report`, "another fixed assignment or input". The composite compared
+the result manifest's `input_manifest_digest` -- the EXACT runtime manifest this worker mounted -- against
+`task["input_digest"]`, which THIS WORK turned into the Job projection (W202663). Two different facts,
+compared for equality, so every honest managed apply drifted.
+
+    `tools/integration_bundle.py` (de667eec8cf2), success path: the composite is split so each operand
+    answers for itself, and the input identity is proved as TWO facts instead of one confusion. The exact
+    one comes from loading the input manifest AT the digest the result manifest names -- `load_manifest`
+    re-binds the document to its key and refuses another kind, so a successful load IS that proof, and an
+    absent document is a GAP rather than drift because "another input" would name the wrong fault. The
+    Job one comes from deriving `job_input_identity` over that owned document and holding it against the
+    task. Neither identity is weakened.
+    `src/baton_v12/integration/reconciliation.py` (3ff08754dabc), FAILURE path: the same predicate has a
+    TWIN in `managed_apply_failure_evidence`, with its own 197 refusals ("the failed apply collection
+    names another fixed assignment or input"), which is why the settled-failure cases never reached
+    `exceptional`. Corrected identically.
+
+### The negatives that stop this from being a weakening
+
+`tests/tools/test_managed_apply.py` (c452f446c6fa), driven through the REAL request each ordinary run
+composes rather than a hand-built one: the positive first (the report's `request_digest` is this request's
+and the frozen `result_id` is the collected one), then a forged `task["assignment"]` refusing with
+"another fixed assignment" and a forged `task["input_digest"]` refusing with "another Job input". Printed
+in the ordinary proof line as `identity_negatives: 2`, and asserted in 4 of the module's cases.
+
+    AND THE SKIP IS BOUNDED. A REOPENED integrator has no `managed_runtimes` -- it lives in the
+    instance's `__dict__`, which is why the diagnostics beside it already use `getattr` -- so a cut case
+    cannot reach the live request. Measured, by
+    `test_reopen_after_target_effect_before_coordinator_settlement` erroring on exactly that. The skip
+    asserts `cut is not None`, so it can never quietly cover the ordinary path.
+
+### The same fixture defect in the restart family, corrected
+
+`tests/tools/correction_restart_trace.py` (d52bc8b1c7de) `ProcessEngine.__call__` had the identical
+run-only dispatch: `create` is now inert and keeps its composed vector, `start` launches exactly that
+vector once, `run` is unchanged, and `stop`/`rm` still reap. The event's `--name` operand and the mount
+scan read the COMPOSED vector, because a bare `start` carries neither. The bodies now launch, and the
+family's two distinct symptoms collapsed into one: all four cases now fail with `'queued' != 'completed'`
+where two previously failed with `[] is not true`. Still failing, and NOT further diagnosed this claim.
+
+### Measurements this claim
+
+    tests/tools/test_managed_apply.py    32 OK, 41.1s   (13F -> 7F after the success-path
+                                                        correction -> OK after the failure-path twin;
+                                                        the module also dropped from 220s to 41s once
+                                                        the refusal churn stopped)
+    tests/manager/test_maintenance.py   148 OK, 2.6s    (no regression)
+    discover -s tests/job_manager       915 OK, 11.2s   (no regression)
+    tests/tools/test_correction_restart   4 tests, 2F+2E, uniform symptom now
+    tests/tools/test_execution_limits   141 tests, 4F   (unchanged by this correction)
+
+Still owed: the restart family's remaining `queued` symptom; `test_execution_limits` 4 and
+`test_scheduler_trace` 9 against changed callers; `test_dogfood_operator`'s 10; then the final
+path/hash/expectation audit. No live run, no forced gate, no identity weakened, no graph or Git mutation,
+no 252 expansion, no owner gate.
+
+Commit identity unobserved; no staging, no commit, no other repository mutation by me.
+
+## Claim 297811 -- the three prose overclaims corrected, and the restart remainder is a BLOCK
+
+READ: `detail work=W285465`, `claim` (297811), `work-events after=297782` (claim 297784, pass 297807),
+`review-2026-09-28T17-33-13Z.md`, `DIAGNOSIS-W297718-297722.md` (the owner-dispatched tuner note),
+`review_missing_input_297784.py`, PLAN and FINDING.
+
+### J, R and P: three meanings, one field name, and my prose had them wrong
+
+The review and the tuner note both corrected the same overclaim, and they are right. What I wrote said
+this reader establishes the exact runtime binding; it does not.
+
+    `tools/integration_bundle.py` (1d17935c65ae) and
+    `src/baton_v12/integration/reconciliation.py` (5b6feb23b599): the comments now attribute each fact
+    to its actual owner. THE EXACT RUNTIME BINDING (R) IS THE OUTPUT OWNER'S -- `output.record` compares
+    the frozen result's runtime digest against the attempt's own immutable one, and that comparison, not
+    anything in these readers, is what binds a report to the runtime that produced it. `load_manifest`
+    VALIDATES A DOCUMENT AGAINST ITS CONTENT KEY and refuses another kind; a load that succeeds does NOT
+    by itself establish that the digest is the intended runtime manifest. What these readers own is the
+    JOB CORRESPONDENCE (J), and J IS DELIBERATELY COARSER THAN R: a runtime-only change can leave J
+    identical, which the tuner's same-Job/wrong-runtime probe demonstrates. My "a wrong input changes
+    both" is therefore withdrawn -- it would have justified dropping the runtime-level check, which is
+    exactly the weakening the review forbids.
+    `_requested_task` (same file): the comment called a preparation task's `input_digest` "the runtime
+    manifest". Per the tuner note it is neither J nor R but the published preparation source/bundle
+    digest P, which the request owns and is compared against. Three meanings share one field name, so
+    the prose now names which is which and NO comparison changed.
+    `tests/tools/test_managed_apply.py` (3125867e141d): the comment claimed three negatives while the
+    loop asserts TWO. Corrected to two, with the missing-manifest boundary credited to the reviewer's
+    `review_missing_input_297784.py` (2PASS) rather than reimplemented so that an author's file contains
+    it. 32 OK, 40.4s, unchanged behaviour.
+
+### The correction-restart remainder is a BLOCK, not a tick budget
+
+The review asked for the exact boundary rather than an inference from counts, so I measured the
+projection at every tick instead of reading the end state:
+
+    13 distinct projections across the run. The last transition is
+    `{implementation: completed, review: completed, integration: queued}` -- reached from
+    `integration: blocked` once the review completed -- and it never changes again.
+    THE BUDGET IS NOT THE CAUSE, tested rather than assumed. A probe that keeps the tick counter alive
+    indefinitely (resetting it below the bound each tick) leaves the integration stage `queued` FOREVER:
+    the probe ran to a ten-minute timeout with no further projection change. So the scenario is not
+    running out of ticks at 100; the stage is never claimed at all.
+    WHAT THIS IS NOT: not the apply readers (corrected and passing), not the ProcessEngine dispatch
+    (bodies now launch), and not an ending -- the stage has no episode to conclude because nothing
+    claimed it.
+    A LEAD, NAMED AS A LEAD: `test_scheduler_trace`'s 9 failures show empty eligible-slot lists and "no
+    configured worker prepared attempt", which is the same shape as an integration stage that is
+    `queued` and never claimed. If they share a cause it is in slot eligibility rather than in either
+    fixture, and the next claim should probe eligibility for this exact stage before touching anything.
+    I have not established that, and I am not asserting it.
+
+### Measurements this claim
+
+    tests/tools/test_managed_apply.py    32 OK, 40.4s   (prose only; behaviour unchanged)
+    the restart boundary                 13 projections traced; block proved by a 10-minute
+                                         unbounded-tick probe, not by a count
+    NO live run, no broad-suite rerun for counts
+
+Still owed: the integration-stage eligibility boundary above (shared with `test_scheduler_trace`'s 9);
+`test_execution_limits` 4; `test_dogfood_operator`'s 10; then the final path/hash/expectation audit with
+the integrated matrix. No product comparison changed this claim. No live run, no graph change, no Git
+mutation, no 252 expansion, no owner gate.
+
+Commit identity unobserved; no staging, no commit, no other repository mutation by me.
+
+## Claim 297949 -- the emitter/validator pair corrected; my "permanent" stall claim withdrawn
+
+READ: `detail work=W285465`, `claim` (297949), `work-events after=297914` (claim 297917, pass 297947),
+`review-2026-09-28T17-51-56Z.md`, `review_restart_297917.py`, PLAN and FINDING.
+
+### MY "QUEUED FOREVER" CLAIM IS WITHDRAWN
+
+The review traced `UsefulCorrection` PASSING in 6.101s on these same bytes, and an uninstrumented
+`test_correction_restart` at 9 tests / 13.060s with 1F+1E -- both counted `C2-engine-input`, which is a
+VALIDATOR failure on a scenario that reached validation. My ten-minute unbounded-tick probe is a
+historical sample of one environment and proves nothing permanent; I said "forever" and that was not mine
+to say. I also note the concrete discrepancy rather than papering over it: on this machine the same test
+fails DETERMINISTICALLY in 8.5s twice over, at `integration: queued`. Two runs of the same bytes
+disagreeing is a fact for the next claim, not a conclusion for this one, and I am treating neither run as
+proof of the other.
+
+### The exact defect the review named, corrected as an EMITTER AND VALIDATOR PAIR
+
+`tests/tools/correction_restart_trace.py` (3ca305229e21). The review is exact: my dispatch fix made the
+emitter record the composed `create` vector, and `validate` at the `C2-engine-input` line still demanded
+`argv[1] == "run"`, so every governed launch was counted a defect.
+
+    THE EMITTER now records the ACTIVATION beside the composed vector: `["run"]` for the one-act shape,
+    `["start", <named identity>, <identity the engine minted for THIS create>]` for the two-act one.
+    THE VALIDATOR accepts `run` or `create` for the vector and REQUIRES that activation to match the
+    shape -- so an inert create is not equated with a launch by widening the verb set. The emitter still
+    emits only when something actually activates, so a composed container nobody started cannot appear in
+    a stream at all, and a create-shaped event must name the identity that was activated.
+    EVERYTHING ELSE IS UNTOUCHED: the digest-over-argv, label-to-attempt attribution, the
+    `C2-engine-duplicate` count over operation operands, the `baton-runtime.start-` operation check, the
+    provider attribution/process/operand checks and the predecessor artifact case.
+    NOT VERIFIED HERE, and I will not claim otherwise: the scenario does not reach validation on this
+    machine, so the corrected `C2-engine-input`/`C2-engine-activation` pair is reviewed-not-measured by
+    me. The review's own run is what reaches that boundary.
+
+### The boundary, traced with the reviewer's probe ON THIS MACHINE
+
+Running `review_restart_297917.py` unchanged here gives a single dominant family, and it is not the
+scheduler:
+
+    85x  "the managed preparation did not answer its command" -- raised at
+         `stage_execution.py:410` from `poll` at `stage_execution.py:6142`, propagating through
+         `integration_worker.admit` (1398, 1135), `scheduler.admit:871`, `stage_execution.admit:4852`,
+         `manager._perform:964` and `manager._delegate:899`. One act, eight propagation frames, which is
+         the distinction the review taught me last claim.
+     5x  "the input root carries no readable 'input.json'" at `single_worker.py:1456` in `_input` -- the
+         MANAGER's own read, not the child's.
+     2x  the parent-offer deferral while the preparation is held (the expected one).
+    SO THE PREPARATION CHILD LAUNCHES AND NEVER ANSWERS ITS COMMAND, and the manager's input-root read
+    fails five times beside it. Whether the child exits before the command is published (the ordering
+    that made the apply body exit 0 earlier) or the input root is composed after the activation is NOT
+    established, and I am not guessing between them.
+
+### The limits representative traced; still no shared cause
+
+`test_the_provider_turn_is_given_the_jobs_own_bound` captures `[]` where `[60]` is expected. Traced with
+the same technique: the only refusals raised anywhere in the run are two pairs about `public-writer` and
+`public-review` having "no pinned workspace object", handled internally by `intake._ceased_schedule`, and
+NOTHING refuses on the provider path. The turn is not reached by a branch rather than stopped by a guard
+-- the same negative I recorded for the no-Job control. So the review is right that no shared cause with
+the scheduler family is proved, and I have added a second disproof rather than a new hypothesis.
+
+### Measurements this claim
+
+    tests/tools/test_correction_restart.py   4 tests, 2F+2E here (unchanged symptom), 8.5s per case
+    review_restart_297917.py                 run unchanged on this machine; 85/5/2 refusal families above
+    tests/tools/test_execution_limits.py     one representative traced; zero refusals on the provider path
+    NO live run, no rerun of the accepted apply 32 for comment-only changes
+
+Still owed: the preparation child's command-answering boundary (and the run-to-run discrepancy above);
+`test_execution_limits` 4 and `test_scheduler_trace` 9 as separate causes until proved otherwise;
+`test_dogfood_operator`'s 10; then the final path/hash/expectation audit. No product change this claim.
+No live run, no graph change, no Git mutation, no 252 expansion, no owner gate.
+
+Commit identity unobserved; no staging, no commit, no other repository mutation by me.
+
+## 2026-09-28 — baton.tuner implementation claim298033
+
+- Outcome: restart positive passes in three concrete contexts; fixture now preserves
+  validated preparation terminal before ordinary delivery cleanup. Connected full
+  restart16PASS15.024s plus exact faulted-ending assertion1PASS1.827s. New controlled
+  child work fault produces receipt/faulted terminal and prompt bounded diagnosis.
+- Blocker: original author-only sample remains unexplained; exact command/root/
+  terminal absent. Requested T285465298051. Do not infer historical setup error from
+  current passes. No scheduler or preparation product fault established this claim.
+- Change: correction_restart_trace.py adds observation retention and child diagnostics;
+  test_correction_restart.py adds real child-fault regression. No existing expectations
+  weakened; prior activation/identity/duplicate-effect assertions remain.
+- Verification: all iterations68.600s unittest time, including failed diagnostic
+  prototypes; exact breakdown CONTINUATION-298033.md. Candidate hashes candidate-298033.json.
+  Git diff --check passed. No live run/Git/graph change or concurrent implementation.
+- Handoff: bounded diagnostic/connected-restart milestone for independent review;
+  original setup reproduction remains owed, later families in PLAN. Whole G2 not done.
+
+## 2026-09-28 — baton.tuner implementation claim298106
+
+- Outcome: execution limits142PASS69.710s; four historical failures corrected in fixture setup/measurement. Direct runner observes configured60/default3600, successful import required. Three-Job composed expectations pass unchanged, including held integrator, durable timeout77 and no duplicate host run.
+- Cause: obsolete _ran_provider watcher omitted scratch/umask and failed argument binding before capture; Job C submitted runtime R instead of Job input J. This supersedes the earlier branch-not-reached inference; no product timeout defect established.
+- Change: tests/tools/test_execution_limits.py only. Measure actual injected run timeout and forward it to fake provider; require integrated result. Added configured provider-timeout/no-import/exact-replay/no-second-turn regression. Correct third Job input projection. No genuine coverage waived or existing assertions weakened.
+- Evidence: CONTINUATION-298106.md and candidate-298106.json; all claim unittest measurements87.809s including failed baselines. Whole-tree git diff --check passes. No product/live/Git/graph change, earlier edits preserved.
+- Handoff: awaiting independent limits review at baton.bug. Historical restart discrepancy, scheduler/dogfood and whole-G2 audit remain open per current PLAN. Not final G2 acceptance.
+
+## 2026-09-28 — baton.tuner implementation claim298185
+
+- Outcome: composed scheduler41PASS40.862s; all nine historical failures corrected without changing assertions. Distinct authorized producers, Work bindings, two repositories, dependency ordering, integrator capacity, alternate schedules and trace negatives preserved.
+- Cause/change: four-Job test submitted full runtime R for Jobs A/B/C/D; admission expects J. tests/tools/test_scheduler_trace.py now derives J at its two submission sites. Full configured runtime manifests preserved. No product defect or broader source-binding-gap resolution claimed.
+- Evidence: CONTINUATION-298185.md, candidate-298185.json. Baseline41 tests9F16.931s; corrected41PASS40.862s; all claim verification57.793s. Full git diff --check passes. No other test edits or weakened expectations.
+- Handoff: awaiting independent scheduler review at baton.bug. Dogfood ten, final G2 audit and historical restart uncertainty remain open. Accepted limits/restart/apply evidence preserved; no live engine/provider, Git or dependency mutation.
+
+## 2026-09-28 — baton.tuner implementation claim298223
+
+- Outcome: dogfood_operator359PASS7.906s. Baseline359 had13F+2E7.805s; named identities retained in baseline log, not claimed to reconstruct historical ten.
+- Causes/change: tests/tools/test_dogfood_operator.py held obsolete complete/discard and normalization expectations plus nonexistent built.store key. Align execution ending to retained for every policy; keep complete as negative. Move terminal failure/restart injection to actual recordless settlement, preserve fence/removal/refusal/no-duplicate checks, assert injection reached. Old-incarnation output retains bytes and now mode0400 without custody act. Factory uses actual open_store capability. No product behavior change.
+- Changed expectations and exact evidence: CONTINUATION-298223.md; candidate-298223.json. First attempted injection at ordinary _settle missed abandonment and failed9 cases; corrected to _settle_recordless_cleanup, focused2PASS0.209s, final full359PASS. All claim measured verification23.710s; whole-tree diff check passes.
+- Handoff: awaiting independent dogfood review at baton.bug. Final integrated/path/hash/expectation audit and separately attributed historical uncertainties remain. No live/Git/graph change; G2 and W257627 dependency not accepted.
+
+## 2026-09-28 — baton.tuner audit claim298274
+
+- Outcome: candidate-audit-298274.json reconciles36 changed v12 paths against recorded comparison base b4b3fc8d:34 implementation product/tests, one separately attributed inherited contracts-inventory addition, one governing specification. Eight unchanged v12 context paths and63 record/probe paths separated. All107 prior snapshot entries matched at audit time; no missing delta path. No product/test change this claim.
+- Evidence: AUDIT-298274.md maps current accepted lifecycle/consumer proofs and exact HP requirements; EXPECTATIONS-298274.md maps every changed test path and product responsibility. JSON includes full current/base/review hashes plus added/removed/modified test methods. Original15-path baseline remains explicitly partial; maintenance.py matches it and is context, not newly authored.
+- Concrete closure gap: current host phase class explicitly leaves interior abrupt-death cuts unproved; actual wrong-attempt/wrong-operation completion replay still lacks the required proof. Old independent reviews already named these HP1/HP6/HP7 gaps. Later completion supersessions remove normalization/scan gates, not initial host-recovery requirements. HP8/retained MC mapping must use exact inherited reached evidence rather than class-name inference. No product fault inferred; whole G2 not ready to close.
+- Separate ownership: canonical W103525 detail298277 confirms parked/owner-routed, its PLAN defers remaining broad certification to v13; W6782 closed historical contracts-inventory owner, no automatic reopening or scope transfer. Historical26, three live-run residual uncertainties and restart setup T298051 preserved without generic waiting gates.
+- Verification: zero new test execution. Bounded Git reads, SHA256/AST comparison, full diff check passed; no live/Git/graph mutation. Return candidate and exact in-scope gap to baton.bug for independent audit and next bounded host-proof milestone. Parent and W257627 dependency292151 remain unaccepted.
+
+## 2026-09-28 — baton.tuner implementation claim298334
+
+- Outcome: four HP1 interior abrupt-death cases added in tests/tools/test_single_worker.py; final focused class11PASS0.805s, including prior valid-completion replay. Actual unfinished allocation, unpublished source boundary, partial task bytes and partial permission freeze remain held after fresh-handle restart; no task token/engine call and unchanged sibling identity/bytes.
+- Cause/scope: evidence gap, no product defect exposed. Shared refusal assertion recognizes allocation1 at the earlier allocation cut; later cuts retain host preparation1. Historical phase-boundary coverage and assertions preserved. No reset/delete/normalization gate.
+- Evidence: CONTINUATION-298334.md, candidate-298334.json. All claim unittest time2.379s including initial wrong expected-refusal failure. Full diff check passed; no live/Git/graph change.
+- Handoff: awaiting independent HP1 review through baton.bug. HP6/HP7 actual mismatch, HP8/MC mapping and refreshed final audit remain under current PLAN; whole G2/parent/W257627 dependency not accepted.
+
+## 2026-09-28 — baton.tuner implementation claim298388
+
+- Outcome: seven additive recovery tests, final focused class18PASS1.446s. Actual persisted completion rejects mismatched attempt/resource/operation replay through two fresh store handles without callback effects; honest continuation has writes0/completion replay1/preparation admission1/task admission1/create1/start1 and no duplicate dispatch. HP6 actual completion input mismatch plus post-completion source replacement, claim-reader loss and competing token refuse at named owners with no launch and unchanged account/pin/sibling.
+- Scope/limits: tests/tools/test_single_worker.py only; no product defect/change or weakened existing assertion. Claim loss is reader injection, source/competing token are real fixture effects, input mismatch is direct completion-consumer proof. Checkpoint-specific changed evidence at task admission is still unproved; matching checkpoint and restore tests are not substituted as that proof.
+- Evidence: CONTINUATION-298388.md exact seams/counts/mapping; candidate-298388.json. All claim measured unittest2.633s; full diff check passed. No live/Git/graph mutation.
+- Handoff: independent review through baton.bug; retain checkpoint-specific HP6 row, later HP8/MC/final audit and historical uncertainties. Whole G2/parent/W257627 dependency remain unaccepted.
+
+## 2026-09-28 — baton.tuner implementation claim298441
+
+- Outcome: four new CheckpointIdentityAtHostAdmission cases in tests/tools/test_stage_execution.py, final4PASS1.486s. Real composed review reaches completed host preparation; changed checkpoint reader identity refuses at live grant or fresh-handle mount reconstruction; unchanged controls start once. Counts separate publication/completion replay/preparation/task acquisition/create/start. Original completion/pin/checkpoint and candidate bytes/modes/sibling identity unchanged.
+- Limits: checkpoint identity race is owner-reader injection, not a committed competing lifecycle. Recovery is controlled close/reopen after durable completion, not abrupt death; accepted HP1/5 retains that proof. Real Git validation replaces index inode; candidate assertion preserves entries/modes/bytes, sibling also inode. No product defect/change or existing assertions changed.
+- Evidence: CONTINUATION-298441.md and candidate-298441.json. All claim unittest4.378s including initial overly strict inode assertion and wrong expected recovery seam. Full diff check passed. No live/Git/graph mutation.
+- Handoff: bounded checkpoint slice ready for independent review through baton.bug. HP8/MC/final audit and recorded uncertainties remain; whole G2/parent/W257627 dependency unaccepted.
+
+## 2026-09-28 — baton.tuner implementation claim298497
+
+- Finding/fix: lost launch reply plus engine outage commits preparation failure while runtime_id remains unknown; refresh skipped it forever. single_worker.refresh_runtime now uses naming-only reconciliation for that exact failed start-requested state. Failure and token hold remain; no allocation/republication/activation or silent retry.
+- Proof: four HP8 fake-engine effect-before-lost-reply schedules across fresh handles. Availability restores exact identity; no duplicate create/start, unchanged handed-off roots/completion, competitor refused. No-outage start continues once; create remains inert/actionably held. Final4PASS0.451s; related41PASS4.583s. All claim unittest6.501s including diagnostic/overstrong-expectation failures. No existing assertion weakening.
+- Evidence: CONTINUATION-298497.md; MC-MAPPING-298497.md exact accepted retained-facility/reclaim/return selectors and limits; continuity-298497.json confirms relevant current hashes and selected facility AST continuity. No unchanged-suite prose rerun. Full diff check passed.
+- Handoff: independent review of bounded HP8 fix/MC applicability through baton.bug; final refreshed audit remains. No live/shared-Git/graph/lifecycle mutation, historical uncertainties preserved, G2/parent/W257627 dependency unaccepted.
+
+## 2026-09-28 — baton.tuner final audit claim298574
+
+- Outcome: final HP1–HP8/MC1–MC3 matrix in FINAL-AUDIT-298574.md incorporates independently accepted interior cuts, actual completion mismatch/replay, checkpoint admission and HP8 observation correction/MC mapping. No new concrete selected functional gap identified; offered for independent final audit, not self-acceptance.
+- Inventory:121/121 latest review snapshot bytes matched before this PROGRESS append; all36 v12 delta paths accounted for against recorded b4b3fc8d, no untracked/add/delete v12 path.34 implementation paths,1 separate inherited contracts inventory,1 governing DESIGN,8 unchanged v12 context,77 review-record/probe context. Only test_single_worker.py/test_stage_execution.py/tools/single_worker.py differ from audit298274, all independently reviewed.
+- Evidence: candidate-audit-298574.json full hashes/base/partial-baseline/test AST delta; EXPECTATIONS-298574.md complete per-path attribution and assertion rationale; candidate-final-298574.json binds final records including this appended PROGRESS. Earlier missing-proof classifications explicitly superseded for selected accepted schedules without rewriting history.
+- Limits retained: safe inert/exceptional holds, reader-injected identity races, controlled versus abrupt restart, execution versus acceptance, inherited inventory/scheduling debt and original restart/live-resource uncertainties. No blanket live/protocol/backlog acceptance.
+- Verification: read/hash/AST/diff audit only, zero new test execution. Full git diff --check passes. No product/test edits, live execution, Git or graph mutation. Return final candidate to baton.bug; G2/parent/W257627 dependency292151 remain unchanged pending independent review.

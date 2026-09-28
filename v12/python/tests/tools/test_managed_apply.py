@@ -462,7 +462,59 @@ sys.exit(integration_entry.main(launch_place=launch, command_root=command, event
             self.assertEqual(actual["returncode"], 0)
             self.assertEqual(actual["stdout"], "print('the corrected harness')\n")
             self.assertEqual(integration_capacity_of(held.job, result["managed_result_id"])["root"]["lifecycle"], "ended")
+            # -- and the identity negatives the corrected predicate must still keep ------
+            #
+            # W285465 review 2026-09-28T17-12-45Z. `retained_apply_report` compared the
+            # result manifest's EXACT `input_manifest_digest` against the task's
+            # `input_digest`, which this Work turned into the Job PROJECTION (W202663), so
+            # every honest apply drifted. The correction derives the projection from the
+            # exact manifest the result names, and THE TWO CASES BELOW are what stop that
+            # from being a weakening: a wrong assignment and a wrong Job input each still
+            # refuse, driven through the REAL request this run composed rather than a
+            # hand-built one. TWO, NOT THREE -- review 2026-09-28T17-33-13Z caught this
+            # comment claiming a missing-manifest case the loop never asserted. That
+            # boundary is proved by the reviewer's own `review_missing_input_297784.py`
+            # (2PASS), which faults the lookup at each reader and sees the precise
+            # missing-manifest refusal; it is real evidence and is not reimplemented here
+            # merely so an author's file contains it.
+            from baton_v12.contracts import ContractRefusal as _Refusal, digest
+            from tools import integration_bundle as _bundle
+            # THE REQUEST COMES FROM THIS INSTANCE'S OWN RUNTIME, and a REOPENED integrator
+            # has none: `managed_runtimes` lives in the object's `__dict__`, so a cut that
+            # replaced the composition legitimately leaves it absent -- the diagnostics above
+            # already read it with the same `getattr` for that reason. Measured, by
+            # `test_reopen_after_target_effect_before_coordinator_settlement` erroring here.
+            # THE SKIP IS BOUNDED BY AN ASSERTION so it can never quietly cover the ordinary
+            # path: no cut means the runtime is there and the negatives run.
+            live = getattr(held.composed.integrator, "managed_runtimes", {})
+            if not live:
+                self.assertIsNotNone(cut, "the ordinary path composed no apply runtime")
+                print(json.dumps({"proof": "ordinary-managed-integration", "judgments": len(judged),
+                                  "apply_starts": len(starts), "identity_negatives": "reopened",
+                                  "result": result["managed_result_id"], "state": result["state"]},
+                                 sort_keys=True))
+                return
+            composed = next(one.request for one in live.values())
+            # THE POSITIVE FIRST, so the two refusals below are known to be about the
+            # forgery rather than about a predicate that refuses everything. It answers
+            # `(report, frozen facts)`, and the report is the worker's own measured one.
+            proved, facts = _bundle.retained_apply_report(deployment.control, composed)
+            self.assertEqual(proved["request_digest"], digest(composed))
+            self.assertEqual(facts["result_id"], result["phases"]["apply"]["result"]["collected"]["result_id"])
+            for member, forged, expected in (
+                    ("assignment", dict(composed["task"]["assignment"],
+                                        participant="somebody-else"),
+                     "another fixed assignment"),
+                    ("input_digest", "sha256:" + "0" * 64,
+                     "another Job input")):
+                with self.assertRaises(_Refusal) as caught:
+                    _bundle.retained_apply_report(
+                        deployment.control,
+                        dict(composed, task=dict(composed["task"],
+                                                 **{member: forged})))
+                self.assertIn(expected, caught.exception.message)
             print(json.dumps({"proof": "ordinary-managed-integration", "judgments": len(judged), "apply_starts": len(starts),
+                              "identity_negatives": 2,
                               "result": result["managed_result_id"], "state": result["state"]}, sort_keys=True))
 
         body = "import pathlib, sys\nsys.exit(7 if 'apply-scratch' in str(pathlib.Path.cwd()) else 0)\n" if failed else None

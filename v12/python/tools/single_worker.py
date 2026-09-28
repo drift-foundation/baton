@@ -2340,9 +2340,10 @@ class _SingleWorker:
         and no workspace material is written.
 
         NOTHING TO REFRESH IS AN ANSWER, not a refusal. An attempt that never
-        attached a runtime has nothing for an engine to be asked about, and
-        asking would be this deployment inventing a question about a container
-        that does not exist. `None` is what the sweep reports as `not-asked`.
+        requested a runtime has nothing for an engine to be asked about.
+        A failed preparation with a start already requested is different: a
+        lost reply can leave a real runtime unidentified, so that failure still
+        owes read-only identification. `None` reports genuinely unasked cases.
 
         AND IT NEVER MANUFACTURES QUIESCENCE. What comes back is whatever the
         reconciliation recorded. A stopped container is `quiescent` on the
@@ -2351,7 +2352,12 @@ class _SingleWorker:
         """
         attempt_id = stage["attempt_id"]
         state = attempt_runtime_of(self.control, attempt_id)
-        if state is None or state["runtime_id"] is None:
+        if state is None:
+            return None
+        unidentified_failure = (state["runtime_id"] is None
+                                and state["execution_runtime"] == "start-requested"
+                                and attempt_preparation_failure_of(self.control, attempt_id) is not None)
+        if state["runtime_id"] is None and not unidentified_failure:
             return None
         # A RUNTIME ALREADY AT THE END OF ITS AXIS IS NOT ASKED ABOUT AGAIN.
         # The transition table names nothing after `destroyed`, so an engine
@@ -2366,13 +2372,19 @@ class _SingleWorker:
         # is an assignment into a single slot -- no file is read, no store is
         # written, no launch is adopted, and nothing below can block.
         self._enqueue_activity(attempt_id)
-        roots = workspaces.assignment_workspace(
-            self.group, self.given["workspace_storage"], attempt_id,
-            control=self.control)
-        # NO CREDENTIAL, NO LAUNCH DELIVERY, NO ORPHAN. All three are absent on
-        # purpose: this call identifies and observes, and every one of those
-        # operands exists for a START.
-        adapter = self._adapter(roots, None, None, None)
+        if unidentified_failure:
+            # A lost launch reply plus failed identification still owes observation.
+            # The exceptional stage will not launch again; name its exact runtime
+            # without reopening host preparation or clearing the recorded failure.
+            adapter = self._naming(attempt_id)
+            if adapter is None:
+                return None
+        else:
+            roots = workspaces.assignment_workspace(
+                self.group, self.given["workspace_storage"], attempt_id,
+                control=self.control)
+            # Observation carries no credential or launch delivery.
+            adapter = self._adapter(roots, None, None, None)
         # THE ENGINE'S OWN FAILURES, NAMED BY THE DEPLOYMENT THAT OWNS THEM.
         # Review 2026-09-04T19:08:40Z [P1]: the manager caught `OSError` and
         # then caught `Exception`, so it was deciding what an engine failure

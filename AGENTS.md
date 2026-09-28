@@ -455,8 +455,31 @@ Review of partial progress must not turn ordinary continuation into an owner gat
 This supersedes older owner-return defaults for routine corrections, including
 W239533 handoffs. It does not bypass independent acceptance or live-run selection.
 
+Owner clarification 2026-09-28: review-to-implementation handoffs use short labelled
+bullets in this order: outcome this turn; confirmed blocker and exact code location;
+required change (distinguished from suggestions); verification behaviors and relevant
+failure cases; handoff condition.
+Verification is outcome-based: the implementer chooses appropriate tests and
+commands, and the reviewer judges whether the evidence establishes the required
+behavior. Suggested commands are optional examples, not the only permitted
+verification. This supersedes the earlier exact-command handoff requirement;
+explicit execution boundaries, such as restrictions on live providers, still apply.
+Owner clarification later on 2026-09-28: do not prescribe a files-to-edit list
+as an implementation restriction. The accepted outcome and scope bound the work;
+the implementer chooses the necessary files without another permission gate solely
+because a file was not listed. Code locations identify evidence, not an exclusive
+edit list. Coordinate actual overlapping edits when participants work in parallel;
+retain explicit role boundaries such as diagnostic-only assignments.
+Name one bounded working milestone. Link to the current PLAN for later work instead
+of repeating the historical narrative and whole backlog. Include a new ruling or
+concrete restriction when it changes that milestone. Continue the authorized
+correction through its focused verification rather than routinely handing back
+partial edits. If execution is interrupted, identify the actual cause and exact
+continuation checkpoint; an unspecified exhausted budget is not evidence of a
+runner/provider limit. Independent review and claim-release requirements still apply.
+
 Keep the current PLAN/checkpoint concise: accepted facts, next executable
-milestone, exact owned paths, latest review/evidence references and concrete
+milestone, relevant parallel-edit coordination, latest review/evidence references and concrete
 blockers. Preserve FINDING history and append-only reviews. On assignment or
 resume, read current canonical detail, complete current handoff, current scope,
 ownership, checkpoint, latest review and new discussion since the recorded

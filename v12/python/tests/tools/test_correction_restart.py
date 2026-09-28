@@ -29,6 +29,24 @@ class UsefulCorrection(unittest.TestCase):
         export(observed)
         self.assertEqual(proof.validate(observed), [])
 
+    def test_preparation_fault_reports_terminal_before_fixture_cleanup(self):
+        from unittest import mock
+        injected = proof.MANAGED_CHILD.replace("reconciliation_entry.PreparationAgent=functools.partial(",
+            "def fail_work(self, seen, declared): raise RuntimeError('selected preparation fault')\n    reconciliation_entry.PreparationAgent.work=fail_work\n    reconciliation_entry.PreparationAgent=functools.partial(")
+        self.assertNotEqual(injected, proof.MANAGED_CHILD)
+        with mock.patch.object(proof, "MANAGED_CHILD", injected):
+            with self.assertRaises(AssertionError) as caught:
+                artifact()
+        self.assertTrue(str(caught.exception).startswith("{"), str(caught.exception))
+        observed = json.loads(str(caught.exception))
+        self.assertEqual(observed["failure"], "preparation did not answer")
+        self.assertLess(observed["tick"], 100)
+        self.assertEqual(len(observed["preparation"]), 1)
+        exchange = next(iter(observed["preparation"].values()))
+        self.assertIsNotNone(exchange["receipt"])
+        self.assertEqual(exchange["terminal"]["ending"], "faulted")
+        self.assertTrue(observed["children"])
+
     def test_unchanged_predecessor_artifacts_still_validate_without_execution(self):
         root = Path(__file__).resolve().parents[4]
         predecessor = root / "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json"

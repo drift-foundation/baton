@@ -826,19 +826,27 @@ def retained_apply_report(manager, request):
     # drift -- 197 propagated refusals from `ManagedApplyRuntime.end` in the reviewer's
     # trace, which is the whole stall.
     #
-    # BOTH ARE STILL PROVED, and neither is weakened to make the other pass:
+    # WHICH OWNER PROVES WHAT, corrected at review 2026-09-28T17-33-13Z because my first
+    # wording claimed the runtime binding for this reader and it does not have it:
     #
-    #   THE EXACT ONE, by loading the input manifest AT the digest the result manifest
-    #   names. `load_manifest` re-binds the document to its key and refuses a document of
-    #   another kind, so a successful load IS the proof that this exact manifest is the one
-    #   the frozen result was produced from. An absent one is a GAP rather than drift: there
-    #   is nothing to compare, and saying "another input" about a missing document would
-    #   name the wrong fault.
+    #   THE EXACT RUNTIME BINDING (R) IS THE OUTPUT OWNER'S. `output.record` compares the
+    #   frozen result's runtime digest against the attempt's own immutable one, and THAT
+    #   comparison is what binds this report to the runtime that produced it. This reader
+    #   inherits that chain; it does not re-establish it.
     #
-    #   THE JOB ONE, by deriving the projection from that owned document with the shipped
-    #   rule and holding it against the task. A wrong input manifest changes both the digest
-    #   and the projection, so the negative this predicate exists for is unchanged; what is
-    #   gone is only the false positive between two different facts.
+    #   `load_manifest` VALIDATES A DOCUMENT AGAINST ITS CONTENT KEY and refuses a document
+    #   of another kind. That is content integrity, and a load that succeeds does NOT by
+    #   itself establish that this digest is the INTENDED runtime manifest. An absent
+    #   document is still a GAP rather than drift, for the same reason as before: there is
+    #   nothing to compare, and saying "another input" about a missing document would name
+    #   the wrong fault.
+    #
+    #   THIS READER'S OWN FACT IS THE JOB CORRESPONDENCE (J), derived from the owned
+    #   document with the shipped rule and held against the task. J IS DELIBERATELY COARSER
+    #   THAN R: a runtime-only change can leave J identical, which the tuner's
+    #   same-Job/wrong-runtime probe demonstrates, so the Job-level negative is what this
+    #   predicate keeps and the runtime-level one stays with its own owner. What is gone is
+    #   only the false positive between two different facts.
     mounted = load_manifest(manager, manifest["input_manifest_digest"], "inputManifest")
     if mounted is None:
         _gap("the managed apply names an input manifest this manager does not retain")

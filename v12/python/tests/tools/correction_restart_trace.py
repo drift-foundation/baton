@@ -96,6 +96,9 @@ class ProcessEngine(stage_fixture._ConcurrentEngine):
         self.processes = {}
         self.events = []
         self.launches = {}
+        # W285465 review 2026-09-28T17-12-45Z: the composed vector of each INERT `create`,
+        # kept until its own `start` activates it. See `__call__`.
+        self.created = {}
 
     def __call__(self, argv, **options):
         if argv[1] in ("stop", "rm") and argv[-1] in self.processes:
@@ -103,21 +106,47 @@ class ProcessEngine(stage_fixture._ConcurrentEngine):
             if argv[1] == "rm" and process.poll() is None:
                 process.terminate()
             process.wait(timeout=5)
-        if argv[1] != "run" or "--entrypoint" in argv:
+        # THE TWO-ACT LAUNCH, modelled here as well (W275774). This wrapper answered only
+        # `run`, so a GOVERNED start -- `create` to compose the container, `start` to
+        # activate it -- ran no body at all: the same defect the review confirmed in
+        # `test_managed_apply`, and the reason these restart cases end with a Work still
+        # `queued`. `create` is INERT and keeps its composed vector; `start` launches
+        # exactly that vector once; `run` is unchanged; `stop`/`rm` above still reap.
+        if argv[1] == "create" and "--entrypoint" not in argv:
+            answer = super().__call__(argv, **options)
+            minted = (answer["stdout"] or "").strip() or argv[-1]
+            self.created[minted] = (minted, list(argv))
+            return answer
+        if argv[1] == "start" and argv[-1] in self.created:
+            minted, composed = self.created.pop(argv[-1])
+            # W285465 review 2026-09-28T17-51-56Z: THE ACTIVATION IS RECORDED, not implied.
+            # My first cut emitted the composed `create` vector and said nothing about the
+            # act that started it, so the validator -- which still demanded `run` -- counted
+            # the event as a defect. An INERT CREATE IS STILL NOT A LAUNCH here: an event is
+            # emitted only when something activates, and the activation carries the exact
+            # identity the engine minted for THIS create, so a stream cannot contain a
+            # composed container nobody started.
+            activation = ["start", argv[-1], minted]
+        elif argv[1] == "run" and "--entrypoint" not in argv:
+            composed, activation = list(argv), ["run"]
+        else:
             return super().__call__(argv, **options)
         labels, mounts = {}, {}
-        for index, arg in enumerate(argv[:-1]):
+        for index, arg in enumerate(composed[:-1]):
             if arg == "--label":
-                key, value = argv[index + 1].split("=", 1)
+                key, value = composed[index + 1].split("=", 1)
                 labels[key] = value
             if arg == "--mount":
-                parts = dict(part.split("=", 1) for part in argv[index + 1].split(",") if "=" in part)
+                parts = dict(part.split("=", 1) for part in composed[index + 1].split(",") if "=" in part)
                 mounts[parts["target"]] = parts["source"]
         attempt = labels["baton.v12.runtime_attempt_id"]
         self.launches[attempt] = json.loads(Path(next(source for target, source in mounts.items() if target.endswith("launch.json"))).read_text())
         # There is no start-operation label. The engine receives the rendered
         # operation identity as --name; count calls, including repeated inputs.
-        self.events.append({"attempt_id": attempt, "operation_operand": argv[argv.index("--name") + 1], "argv": list(argv), "argv_digest": digest(list(argv)), "labels": labels})
+        # THE COMPOSED VECTOR IS WHAT THE EVENT IS ABOUT -- `--name` carries the rendered
+        # operation identity and a bare `start` has none, so counting the activation would
+        # lose the operand these cases measure.
+        self.events.append({"attempt_id": attempt, "operation_operand": composed[composed.index("--name") + 1], "argv": list(composed), "argv_digest": digest(list(composed)), "labels": labels, "activation": activation})
         answer = super().__call__(argv, **options)
         source = Path(mounts.get("/input/source", "/nonexistent"))
         kind = "apply" if (source / "managed-apply.json").is_file() else "prepare" if attempt.startswith("prepare-") else None
@@ -125,7 +154,8 @@ class ProcessEngine(stage_fixture._ConcurrentEngine):
             log = (Path(self.world.root) / (kind + "-" + str(len(self.events)) + ".log")).open("w+")
             worker = Path(__file__).resolve().parents[3] / "worker"
             process = subprocess.Popen([sys.executable, "-B", "-c", MANAGED_CHILD, str(worker), json.dumps(mounts), kind, os.path.join(self.world.root, kind + "-scratch")], stdout=log, stderr=log)
-            self.processes[answer["stdout"].strip()] = (process, log)
+            # A `run` answers the minted identity; a `start` answers nothing and NAMES it.
+            self.processes[(answer["stdout"] or "").strip() or argv[-1]] = (process, log)
         return answer
 
     def close(self):
@@ -147,6 +177,7 @@ class World(ServingContextCase):
         super().setUp()
         self.tick_count = 0
         self.reports = []
+        self.preparation_terminals = {}
         self.provider_log = Path(self.root) / "provider-counter.jsonl"
         self.verifications = []
         self.review_evidence = []
@@ -205,7 +236,18 @@ class World(ServingContextCase):
     def tick(self, held):
         self.tick_count += 1
         self.assertLessEqual(self.tick_count, 100)
-        report = sweep(held.job, held.composed, now=fixtures.NOW)
+        from unittest import mock
+        from baton_v12.worker_manager import exchange
+        observe = exchange.observation
+        def remember(delivery):
+            answer = observe(delivery)
+            terminal = answer.get("terminal")
+            if terminal and delivery.attempt_id.startswith("prepare-"):
+                self.preparation_terminals[delivery.attempt_id] = copy.deepcopy(answer)
+            return answer
+        # Keep the validated observation before ordinary cleanup discards delivery files.
+        with mock.patch.object(exchange, "observation", side_effect=remember):
+            report = sweep(held.job, held.composed, now=fixtures.NOW)
         self.reports.append(report)
         self.trace.record(self.tick_count, "observe", outcome="observed", evidence=digest_of_bytes(json.dumps(report, sort_keys=True).encode()))
         return report
@@ -309,6 +351,29 @@ class World(ServingContextCase):
         observed = {"provider": self.provider_events(), "engine": copy.deepcopy(self.engine.events)}
         return held, {"kind": "manager recomposition in one process", "performed": True, "old_handles_closed": True, "fresh_handles": True, "incarnations": [incarnation, held.control.incarnation], "before_tick": before_tick, "after_tick": self.tick_count, "before_paths": paths, "after_paths": {"job": self.job_path, "control": self.control_path, "context": str(self.context_root)}, "configuration_before": configuration_digest, "configuration_after": digest_of_bytes(json.dumps(self.configuration, sort_keys=True).encode()), "before": before, "after": after, "observed": observed, "durable_before": initial, "durable_after": reopened, "runtime_before": runtime, "runtime_after": attempt_runtime_of(held.control, first)}
 
+    def preparation_observations(self, held):
+        parent = held.composed.deployment._integration_operations
+        if isinstance(parent, stage_execution._PerJobIntegration):
+            parent = parent.held.get("job-a")
+        preparation = getattr(parent, "_preparation", None)
+        runtime = getattr(preparation, "_runtime", None)
+        observed = {attempt: operations._worker.observed_exchange({"attempt_id": attempt})
+                    for attempt, operations in getattr(runtime, "operations", {}).items()}
+        observed.update(self.preparation_terminals)
+        return observed
+
+    def child_diagnostics(self):
+        children = []
+        for runtime, (process, log) in self.engine.processes.items():
+            log.flush()
+            position = log.tell()
+            log.seek(0)
+            output = log.read()
+            log.seek(position)
+            children.append({"runtime_id": runtime, "pid": process.pid,
+                             "exit_status": process.poll(), "log": output})
+        return children
+
     def run_scenario(self, *, counted_reopen=False):
         if counted_reopen:
             self.trace.scenario.name = "counted-reopen"
@@ -344,6 +409,13 @@ class World(ServingContextCase):
                     self.judgment_turn(held, execution)
                     judged.add(key)
             state = self.states(held.job, held.composed)["integration"]
+            preparation = self.preparation_observations(held)
+            refused = {attempt: observed for attempt, observed in preparation.items()
+                       if observed and observed.get("terminal") is not None
+                       and observed["terminal"]["ending"] != "answered"}
+            if refused:
+                self.fail(json.dumps({"failure": "preparation did not answer", "tick": self.tick_count,
+                                      "preparation": refused, "children": self.child_diagnostics()}, sort_keys=True))
             if state == "exceptional":
                 break
             if state == "completed":
@@ -364,7 +436,8 @@ class World(ServingContextCase):
             from baton_v12.worker_manager import attempt_start_failure_of
             record = {"ending": ending.ending_of(held.job, stage["stage_id"], episode["episode"]), "failure": attempt_start_failure_of(held.control, episode["attempt_id"]), "projection": stage_states(held.job, held.composed), "apply": [(one.request, one.operations._worker.observed_exchange({"attempt_id": attempt})) for attempt, one in getattr(held.composed.integrator, "managed_runtimes", {}).items()]}
             self.fail(json.dumps({"reports": meaningful[-1:], "logs": logs, "retained": retained, "integration_attempt": record}, indent=2))
-        self.assertEqual(self.states(held.job, held.composed)["integration"], "completed")
+        self.assertEqual(self.states(held.job, held.composed)["integration"], "completed",
+                         {"preparation": self.preparation_observations(held), "children": self.child_diagnostics()})
         deployment = held.composed.deployment
         parent = deployment._integration_operations
         if isinstance(parent, stage_execution._PerJobIntegration):
@@ -554,7 +627,15 @@ def validate_reopen(artifact):
             for one in stream["engine"]:
                 argv = one["argv"]
                 labels = dict(argv[index + 1].split("=", 1) for index, arg in enumerate(argv[:-1]) if arg == "--label")
-                require(argv[1] == "run" and digest(argv) == one["argv_digest"] and labels == one["labels"] and labels["baton.v12.runtime_attempt_id"] == one["attempt_id"], "C2-engine-input")
+                # BOTH LAUNCH SHAPES, and W285465 review 2026-09-28T17-51-56Z is the reason
+                # this reads two verbs rather than one: a governed start composes `create`
+                # and activates `start`, so demanding `run` called every governed launch a
+                # defect. THE INERT CREATE IS NOT ADMITTED BY WIDENING THIS: the activation
+                # below is what each event has to carry, and the emitter records one only
+                # when something actually started the container it composed.
+                require(argv[1] in ("run", "create") and digest(argv) == one["argv_digest"] and labels == one["labels"] and labels["baton.v12.runtime_attempt_id"] == one["attempt_id"], "C2-engine-input")
+                activation = one["activation"]
+                require(activation == ["run"] if argv[1] == "run" else (activation[0] == "start" and activation[1] == activation[2] and len(activation) == 3), "C2-engine-activation")
                 require(one["operation_operand"] == argv[argv.index("--name") + 1] and one["operation_operand"].startswith("baton-runtime.start-"), "C2-engine-operation")
             for binding in (first, second):
                 for one in events(stream, "provider", binding["attempt_id"]):

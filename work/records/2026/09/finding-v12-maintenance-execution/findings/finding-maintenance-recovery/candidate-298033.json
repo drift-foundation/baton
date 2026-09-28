@@ -1,0 +1,15 @@
+{
+  "claim": 298033,
+  "status": "diagnostic-milestone-awaiting-review-original-discrepancy-unresolved",
+  "prior_candidate": "candidate-2026-09-28T18-02-23Z.json",
+  "files": [
+    {
+      "path": "v12/python/tests/tools/correction_restart_trace.py",
+      "sha256": "e517f32f523164a6be04f1f9d1e199b4c0f0116bea390766960d9e54cef4f000"
+    },
+    {
+      "path": "v12/python/tests/tools/test_correction_restart.py",
+      "sha256": "8ca8c2d25122e9e4933c4805cbab96a8c21939af7c132ae500c7d86ba6a0b933"
+    }
+  ]
+}

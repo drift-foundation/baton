@@ -23,7 +23,7 @@ from types import SimpleNamespace
 
 from baton_v12.job_manager import allocation_of, submit
 from baton_v12.job_manager.scheduler import reserve
-from baton_v12.contracts import ContractRefusal
+from baton_v12.contracts import ContractRefusal, job_input_identity
 from baton_v12.worker_manager import agent_sessions_of
 from baton_v12.worker_manager.offers import claimed_offers_for
 
@@ -1977,8 +1977,8 @@ class TheComposedOwnersSupplyAuthorizedTransitions(unittest.TestCase):
     def regression_digest(self, job_id):
         """The submitted input digest for this Job, over that same task."""
         payload, _ = self.regression_task(job_id)
-        return self.case.manifest_over(
-            self.ordinary_work(job_id), payload)["manifest_digest"]
+        return job_input_identity(self.case.manifest_over(
+            self.ordinary_work(job_id), payload))
 
     def regression_worker(self, worker, job_id):
         """Bind one configured worker -- producer OR reviewer -- to the task.
@@ -2233,9 +2233,9 @@ class TheComposedOwnersSupplyAuthorizedTransitions(unittest.TestCase):
             first,
             fixtures.job(
                 "job-b",
-                input_digest=self.case.manifest_over(
+                input_digest=job_input_identity(self.case.manifest_over(
                     composed_fixture.SECOND_WORK,
-                    self.case.shared_task_bytes)["manifest_digest"],
+                    self.case.shared_task_bytes)),
                 policy_digest=fixtures.POLICY_DIGEST,
                 stages=[
                     fixtures.stage("implementation",

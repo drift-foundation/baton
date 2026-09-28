@@ -2684,7 +2684,7 @@ class EveryPostStartBranchEntersTheEnding(OperatorCase):
                 side_effect=lambda *a, **k: (
                     session.order.append("cleanup"),
                     cleanup if cleanup is not None
-                    else {"cleanup": "complete", "state": "absent"})[-1]))
+                    else {"cleanup": "retained", "state": "absent"})[-1]))
             answered = dogfood_operator._after_start(
                 object(), object(), session, adapter, evidence,
                 engine="docker", open_channel=lambda _argv: None,
@@ -3019,7 +3019,7 @@ class EveryPostStartBranchEntersTheEnding(OperatorCase):
 
         The retained record necessarily names why the first pass/settlement
         was unresolved.  When the exact retry commits the pass and proves
-        cleanup complete with the runtime absent, the command must converge
+        workspace retention with the runtime absent, the command must converge
         to resolved rather than preserve those stale reasons as an eternal
         nonzero exit.
         """
@@ -3035,7 +3035,7 @@ class EveryPostStartBranchEntersTheEnding(OperatorCase):
             self.committed(patches)
             patches.enter_context(mock.patch.object(
                 manager, "authorize_cleanup",
-                return_value={"cleanup": "complete", "state": "absent"}))
+                return_value={"cleanup": "retained", "state": "absent"}))
             answered = dogfood_operator.retry_handoff(
                 object(), object(), PassingSession(), self.Adapter(), evidence,
                 expect=dict(EXPECT), review_route="rview",
@@ -3911,24 +3911,19 @@ class RetentionIsAnOperatorDecision(OperatorCase):
                 self.assertEqual(answered["cleanup"],
                                  {"cleanup": "retained", "state": "absent"})
 
-    def test_an_explicit_discard_ending_complete_is_still_resolved(self):
-        """The semantics that must not regress."""
+    def test_a_discard_policy_still_preserves_the_execution_workspace(self):
+        """Execution ending preserves workspace for every retention policy."""
         answered = self.kept("discard-after-intake",
-                             {"cleanup": "complete", "state": "absent"})
+                             {"cleanup": "retained", "state": "absent"})
         self.assertEqual(answered["unresolved"], [])
         self.assertTrue(answered["resolved"])
 
-    def test_an_ending_that_does_not_match_the_committed_decision_is_not(self):
-        """Both directions, because each is a different lie.
-
-        A keep that ended `complete` says material was cleaned up that policy
-        said to keep. A discard that ended `retained` says material survived
-        that policy said to remove. Neither is resolved, and the refusal names
-        the committed decision so an operator can tell which happened.
-        """
+    def test_a_complete_execution_ending_is_unresolved_for_every_policy(self):
+        """No disposition authorizes automatic workspace removal at ending."""
         for disposition, cleanup, expected in (
                 ("retain", "complete", "'retained'"),
-                ("discard-after-intake", "retained", "'complete'")):
+                ("quarantine", "complete", "'retained'"),
+                ("discard-after-intake", "complete", "'retained'")):
             with self.subTest(disposition=disposition, cleanup=cleanup):
                 with mock.patch.object(dogfood_operator, "_kept",
                                        lambda _e: None):
@@ -5516,7 +5511,7 @@ class TheCredentialIsMaterializedAfterActivationAndNotBefore(
         home = credentials.CredentialHome(given["credential_home"])
         roots = adopted_assignment_workspace(given["storage"],
                                              given["attempt_id"],
-                                             control=built["store"])
+                                             control=built["open_store"](given["control_store"]))
         made = launch.materialize(
             given["launch_home"],
             **dogfood_operator._launch_operands(
@@ -6013,30 +6008,22 @@ class TheDocumentedRecoveryEndsRealAttachedState(
         operator could not tell whether the container was gone, whether the
         fence landed, or which step refused.
 
-        The custody act is made to refuse HERE, which is the shape that
-        produces the partial ending in the first place.
+        The terminal commit refuses after removal; execution ending no longer
+        calls a custody helper. The partial-account guarantee still applies.
         """
+        from baton_v12.worker_manager import intake
+
         given, grants_path, _made = self.interrupted_attached()
         out = os.path.join(self._root.name, "recovery.json")
+        with mock.patch.object(intake, "_settle_recordless_cleanup", side_effect=ContractRefusal(
+                "refused", "precondition", "terminal settlement refused")) as refused:
+            status = dogfood_operator.main(
+                ["--grants", grants_path, "--evidence", out, "--abandon",
+                 "--abandon-reason", "the supervising turn was torn down"],
+                capabilities=lambda _g: self.fail("built"),
+                abandon_capabilities=self.recovery_capabilities)
 
-        def refusing(operands):
-            built = self.recovery_capabilities(operands)
-
-            def normalize_directory(store, *, assignment_id, which):
-                del store, assignment_id, which
-                raise ContractRefusal(
-                    "runtime-observation", "quiescence-unknown",
-                    "the custody helper did not answer")
-
-            built["adapter"].normalize_directory = normalize_directory
-            return built
-
-        status = dogfood_operator.main(
-            ["--grants", grants_path, "--evidence", out, "--abandon",
-             "--abandon-reason", "the supervising turn was torn down"],
-            capabilities=lambda _g: self.fail("built"),
-            abandon_capabilities=refusing)
-
+        refused.assert_called_once()
         self.assertEqual(status, 1)
         with open(out, encoding="utf-8") as reading:
             written = json.load(reading)
@@ -6371,13 +6358,7 @@ class TheRecoveryMatrixOverDurableAttachedState(
                     raise RuntimeError("the engine went away mid-removal")
 
                 adapter.destroy_abandoned = destroy_abandoned
-            elif where == "custody":
-                def normalize_directory(store, *, assignment_id, which):
-                    del store, assignment_id, which
-                    raise RuntimeError("the custody helper went away")
-
-                adapter.normalize_directory = normalize_directory
-            else:
+            elif where != "settlement":
                 raise AssertionError(f"unknown boundary {where}")
             return built
 
@@ -6392,18 +6373,25 @@ class TheRecoveryMatrixOverDurableAttachedState(
         already holds for a post-start fault, and the SECOND run converges to
         the same terminal ending with the host clean.
         """
-        for where in ("fence", "removal", "custody"):
+        for where in ("fence", "removal", "settlement"):
             with self.subTest(boundary=where):
                 self.setUp()
                 given, grants_path, _made = self.interrupted_attached()
                 place = os.path.join(self._root.name, f"{where}.json")
-                with self.assertRaises(RuntimeError):
+                with ExitStack() as patches, self.assertRaises(RuntimeError):
+                    if where == "settlement":
+                        from baton_v12.worker_manager import intake
+                        settlement = patches.enter_context(mock.patch.object(
+                            intake, "_settle_recordless_cleanup", side_effect=RuntimeError(
+                                "terminal settlement interrupted")))
                     dogfood_operator.main(
                         ["--grants", grants_path, "--evidence", place,
                          "--abandon", "--abandon-reason",
                          "the supervising turn was torn down"],
                         capabilities=lambda _g: self.fail("built"),
                         abandon_capabilities=self.faulting(where))
+                if where == "settlement":
+                    settlement.assert_called_once()
                 # THE FAULT LEFT AN ACCOUNT.
                 self.assertTrue(os.path.exists(place),
                                 f"a fault at {where} wrote no record")
@@ -6764,6 +6752,9 @@ class TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime(
         with open(marker, "wb") as writing:
             writing.write(body)
 
+        os.chmod(marker, 0o400)
+        marker_mode = os.stat(marker).st_mode
+
         status, written = self.abandoned(fresh, self.recovery_capabilities)
 
         self.assertEqual(status, 0, written["unresolved"])
@@ -6793,11 +6784,10 @@ class TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime(
                           "a recovery froze the worker's output")
         self.assertIsNone(intake_receipt_of(self.store, given["attempt_id"]),
                           "a recovery took the worker's output into custody")
-        self.assertEqual(
-            sorted({one["verb"] for one in written["custody"].values()}),
-            ["normalize"],
-            "the only custody act an ending performs is normalization; a "
-            "promotion verb here would be a proposal this recovery trusted")
+        self.assertIsNone(written["custody"],
+                          "execution ending must perform no custody act")
+        self.assertEqual(os.stat(marker).st_mode, marker_mode,
+                         "recovery changed the worker output permissions")
 
     def test_an_unidentifiable_runtime_is_reported_and_left_alone(self):
         """The other half. An engine answering about another id cannot

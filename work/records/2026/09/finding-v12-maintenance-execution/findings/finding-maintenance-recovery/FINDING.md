@@ -1571,3 +1571,335 @@ final path/hash/expectation audit follow substantive apply correction. No252 bac
 missing historical26 reconstruction, new disposal workflow, graph or Git mutation.
 Observed candidate snapshot is not acceptance. Routine continuation to baton.impl;
 W257627 required dependency and G2/parent remain unsatisfied.
+
+
+## 2026-09-28T17-33-13Z — managed apply32 accepted with exact-runtime owner proof
+
+
+Claim297784; handoff297782/events297785; T285465 read through297757, including
+owner-dispatched tuner W297718 and DIAGNOSIS-W297718-297722.md. All ten final
+source/probe hashes listed in that note MATCH current files. No claim/graph change.
+
+## Independent accepted evidence
+
+- tests.tools.test_managed_apply:32PASS41.526s. Includes successful apply, failure,
+  independent-judgment denial, target effects and selected reopen cuts. Earlier13
+  apply failures are resolved on these bytes. Preserve this slice, not whole G2 signoff.
+- Tuner same-Job/wrong-runtime and frozen replay/collision probe independently rerun:
+  3PASS0.033s. Real output owner refuses a different full runtime digest with unchanged
+  Job projection; exact result replay succeeds and changed-result replay refuses.
+- New reviewer review_missing_input_297784.py:2PASS3.579s. Runs actual positive success
+  and failed apply flows, then at each successfully reached reader simulates only
+  inputManifest lookup returning None. Both refuse with the precise missing-manifest
+  message; normal paths still pass. This is a mocked storage-read fault, not evidence
+  of actual historical row loss. No forged accepted receipts or raw store mutation.
+
+The success/failure reader correction is accepted narrowly with the existing frozen
+owner chain: output.record compares result runtime digest R to immutable attempt R;
+load_manifest verifies document kind/content key; reader derives Job projection J and
+compares task J. Preparation task input remains source/bundle P, not J/R. Tuner's map
+is current and useful; no global replacement or new identity framework is selected.
+
+## Required prose correction, no new product identity blocker
+
+Both corrected readers inaccurately claim load-by-key alone binds the intended runtime,
+and that a wrong runtime changes the Job projection. Runtime image changes can preserve
+J, as the independent probe proves. Attribute exact runtime binding to the output owner's
+attempt comparison, then document content-key validation and Job correspondence separately.
+The apply test comment says three negatives including missing input but its loop asserts
+TWO. Correct the claim; reviewer missing-input evidence now supplies that additional
+boundary proof and need not be reimplemented just for authorship. Clarify _requested_task
+prose about preparation P per tuner note. Preserve the actual comparisons.
+
+## Remaining finite closure work
+
+1. Correction-restart family after ProcessEngine create/start fix: author reports all
+   four fail queued/completed. Identify exact pending operation/observed refusal at the
+   current boundary; do not infer causes from counts or end-of-run paths. Current
+   tests/tools/correction_restart_trace.py edit is included in snapshot but not accepted
+   as proof of connected restart. Preserve exact runtime process ownership/replay.
+2. Existing execution_limits4, scheduler_trace9 and dogfood_operator10 failures: bounded
+   attribution against changed callers/fixture dispatch/identity, correct introduced
+   or current-scope defects, separately record inherited debt and its owner. Do not
+   treat every failure as another identity mismatch. No broad suite needed merely to
+   reconfirm counts; focus on one representative per actual cause then affected cases.
+3. Final exact path/hash/changed-expectation audit and integrated evidence matrix after
+   these concrete families are settled. Contracts-inventory inherited addition remains
+   separately attributed. Snapshot membership is not approval/authorship.
+
+Current reviewer scope remains records/evidence only. Author owns product/existing tests
+including sibling reconciliation correction and restart helper; tuner note/probe remain
+read-only. All prior accepted lifecycle/storage/discard/identity/preparation evidence
+preserved. Historical26 composition permanently unknown, no252 backlog expansion or new
+disposal flow. Three live-run incident entries and resource unknowns unchanged; no live
+run in this review. G2/parent and W257627 dependency remain unsatisfied. Direct routine
+continuation baton.impl, no owner permission gate, graph or Git mutation.
+
+## 2026-09-28 — owner selects concise milestone handoffs
+
+Owner agrees that dense handoffs mixing immediate fixes, historical corrections,
+restrictions and the entire backlog impede execution. Use short labelled bullets:
+outcome this turn; confirmed blocker and exact location; required change separated
+from suggestions; focused verification commands and expected results; file ownership
+and existing authority; handoff condition. Link to PLAN for later work instead of
+repeating the backlog. Finish the bounded milestone and tests within available
+execution; if interrupted, record the exact cause and continuation checkpoint.
+Do not use an unspecified exhausted budget as a routine reason for another review
+cycle. An actual runner/provider limit requires observed evidence, as existing
+AGENTS.md policy already requires. This communication change neither weakens review
+nor adds an approval gate. Durable team guidance is recorded in AGENTS.md.
+
+## 2026-09-28 — owner removes restrictive files-to-edit requirement
+
+Owner explicitly rejects the files-to-edit component as too restrictive. This
+supersedes the mandatory file-ownership item in the preceding handoff format and
+any interpretation of current implementation path lists as requiring renewed
+permission solely to edit another file necessary for the accepted outcome.
+The implementer chooses files within the agreed product scope. Exact code locations
+remain useful evidence, not an exclusive edit list. Coordinate actual overlapping
+parallel edits and preserve explicit diagnostic-only role boundaries. AGENTS.md
+and the next handoff format reflect this clarification; no product scope expansion.
+
+## 2026-09-28 — owner selects outcome-based verification guidance
+
+Owner agrees that mandatory exact verification commands are too restrictive.
+This supersedes that component of the earlier concise-handoff ruling: state the
+behavior to prove and relevant failure cases; the implementer selects appropriate
+tests and commands, and the reviewer assesses evidence sufficiency. Suggested
+commands are optional examples, not an exclusive verification path. Existing
+explicit execution boundaries, including live-provider restrictions, remain.
+AGENTS.md is updated accordingly. This changes guidance, not required behavior
+or independent acceptance.
+
+
+## 2026-09-28T17-51-56Z — restart passes to counted-evidence validator
+
+
+Claim297917; handoff297914/events297919; T285465 through297757 unchanged297920.
+Changes required; G2/parent unaccepted. Reviewer only records/probe edits.
+
+## Current observations supersede claimed permanent queued block
+
+Independent review_restart_297917.py runs UsefulCorrection.
+test_useful_correction_reaches_managed_target under exception tracing:1PASS6.101s.
+Uninstrumented full tests.tools.test_correction_restart:9 tests13.060s,1F+1E.
+UsefulCorrection positive and its invalid-evidence checks pass. Both counted-reopen
+artifacts reach validation; remaining fail/error are twelve C2-engine-input entries
+in each validation, not queued/completed. Thus the author ten-minute stalled sample
+is preserved as a sample, NOT proof the stage remains queued forever or universally
+fails eligibility. Source fingerprint comparison with prior snapshot found only the
+three reported prose files changed. Different timing/environment may matter but is
+not established; do not change scheduler eligibility based on the stale inference.
+
+## P1 confirmed evidence validator mismatch
+
+correction_restart_trace.ProcessEngine now records the composed CREATE argv when
+its START arrives. validate at line578 still requires argv[1] == "run" alongside
+hash/labels/attempt checks. Those real create records necessarily fail C2-engine-input.
+Correct emitter/validator together for the selected two-act lifecycle while preserving
+actual activation evidence, exact runtime association, operation/attempt attribution,
+operand digest and duplicate-start detection. Simply treating an inert create record
+as proof of start would be false success. Exercise activated create/start, legacy run,
+replayed start/no extra body, and synthetic inert/unmatched/duplicate activation as
+needed at this bounded evidence boundary. Preserve unchanged predecessor artifacts.
+Current tests/tools/correction_restart_trace.py and test_correction_restart.py are the
+exact correction paths. Do not expand into scheduler redesign for this mismatch.
+
+## Separate reproduced remaining failures
+
+Focused three tests0.824s,3FAIL:
+- execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.
+  test_the_provider_turn_is_given_the_jobs_own_bound: captured[] vs[60].
+- same class.test_the_same_turn_with_no_job_gives_the_provider_its_default:
+  captured[] vs[3600].
+- scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.
+  test_a_producer_bound_to_another_work_is_not_an_eligible_slot: producer None
+  vs implementation-worker.
+No common cause proved. Scheduler producers_of reads actual allocations; this result
+alone is not a measurement of its eligible-worker list. Trace the configured serving/
+admission cause. Provider tests hook _ran_provider through _provider_seconds/_turn;
+observe actual entry outcome before concluding the provider timeout was ignored.
+The other two composed limits cases, remaining scheduler family and dogfood10 still
+need bounded current-scope attribution/correction. No broad repeat merely for counts.
+
+## Accepted and preserved
+
+Identity prose now names output-owner R binding, content-key verification, coarser J
+correspondence and preparation bundle P correctly. Test comment now claims two request
+negatives and credits reviewer missing-input coverage. Accepted as prose correction;
+no reason to rerun unchanged managed_apply32 solely for comments. Preserve its independent
+32PASS41.526s and prior five identity/missing-row checks plus storage/restart slices.
+The broad correction-restart family is NOT accepted until counted evidence validates.
+Current trace has ordinary swallowed/deferred refusals even on PASS; counting exceptions
+is not itself a new product defect. No new interpretation of old unknown evidence.
+
+Next complete this finite evidence correction, remaining limits/scheduler/observer
+families and final exact candidate audit. Historical26 unknown, no252 backlog, no new
+disposal or live execution. Three live-incident records/residual unknowns unchanged.
+No graph/Git mutation; W257627 remains blocked. Routine continuation baton.impl.
+
+## 2026-09-28 — owner confirms delivery discipline after churn assessment
+
+Owner agrees to keep the current bounded milestone stable, diagnose from the
+actual failing boundary and finish its connected verification before another
+routine handoff. Use the existing Tuner identity maps to address related mistakes
+coherently. Preserve accepted evidence unless changed behavior or a concrete
+defect justifies reopening it; do not repeat tests merely for prose changes.
+At this checkpoint reviewer297947 selects the correction-restart event/validator
+mismatch, preserving actual activation, identity and duplicate-effect checks.
+Remaining already-selected caller work stays in PLAN rather than enlarging this
+milestone. New concrete blockers must be distinguished from optional improvements.
+This does not waive independent acceptance, require fixed edit paths/commands,
+or prevent safe claim release on a real interruption.
+
+Prompt measured 10:39:01–17:52:09 UTC from canonical claim intervals: 24 completed
+implementation claims total21563s, 25 review claims3301s, gaps1124s. These are
+occupancy durations, not inference/tool/test timing or a causal attribution of
+every minute. Repeated partial repairs, incorrect diagnoses, dense instructions
+and changing requirements contributed; Claude feedback requested in297962 remains
+pending. Prompt will not describe final-audit proximity without connected evidence.
+
+## 2026-09-28 — owner conditionally selects Tuner after next Claude handoff
+
+Owner authorizes moving W285465 implementation to Tuner if the next Claude handoff
+is not final or genuinely near final. This applies to the next handoff after
+Claude claim297949, not an interruption or reassignment of that active claim.
+Reviewer assesses the candidate against remaining Work, not merely completion of
+one small slice. Near-final means evidence supports the connected outcome and
+remaining work is a small, concrete closure correction; unresolved functional
+families or another diagnostic partial handoff do not qualify.
+If that condition is unmet, reviewer passes W285465 directly to baton.tune for
+implementation, with current changes/evidence and a precise continuation checkpoint.
+This supersedes the default baton.impl correction destination for this Work when
+the condition applies. Tuner then owns implementation under its own successful
+claim and returns to baton.bug for independent review. Preserve Work identity,
+specification, acceptance criteria, history and dependency edges. No concurrent
+implementation, blanket rollback, restart or additional owner approval is needed.
+If final, follow normal independent acceptance and owner delivery. If genuinely
+near final, record the concrete basis before continuing with Claude.
+
+
+## 2026-09-28T18-02-23Z — restart15 passes; conditional Tuner reassignment selected
+
+
+Claim298015; handoff298013/events298015; T285465 through297991 at298016.
+Read pinned owner conditional reassignment and delivery discipline in FINDING.
+
+- Outcome: independent tests.tools.test_correction_restart15PASS13.355s. New
+  review_activation_298015.py obtains a real counted-reopen artifact, validates it,
+  then rejects synthetic missing activation, mismatched runtime and duplicate activation
+  records with C2-incomplete-evidence/C2-engine-activation/C2-engine-duplicate. This
+  accepts the current emitter/validator correction narrowly; predecessor and existing
+  provider/engine invalid-evidence tests pass in the full suite. No product edits here.
+- Confirmed blocker: W285465 as a whole is NOT near final. Author still reports a
+  preparation-answer failure in its environment, and limits4/scheduler9/dogfood10
+  functional families plus final integrated audit remain unresolved. Current reviewer
+  pass does not erase the conflicting observation or establish its cause.
+- Required change: continue the accepted scope under Tuner implementation ownership
+  per owner297991; preserve candidate/history/spec/dependencies and accepted slices.
+  Resolve the concrete environment/procedure discrepancy at the preparation boundary
+  without another indefinite-tick experiment. No hypothesis about filesystem ordering
+  becomes fact without observations at the actual failure time. Then complete the
+  remaining already-selected caller corrections and final audit in PLAN.
+- Verification: demonstrate connected restart without duplicate execution/effects in
+  the relevant failing setup or establish the precise reproducible setup error. Keep
+  honest positive/negative evidence and independent acceptance. Tests/commands and
+  necessary files are implementer choices within accepted scope, not extra gates.
+- Handoff condition: one bounded connected milestone with evidence and concise outcome;
+  return baton.bug for independent review. Later work stays in PLAN.
+
+Basis for reassignment: this is the handoff following Claude claim297949, the exact
+trigger named by owner. Unresolved functional families and diagnostic-only continuation
+fail the owner's near-final definition even though the reviewer now observes restart15
+passing. Pass baton.tune, not baton.impl; no further owner approval is necessary.
+Tuner becomes implementation author only after successful exclusive claim. Reviewer
+remains independent. No rollback, new Work, dependency change or concurrent editing.
+
+Reviewer execution context for discrepancy comparison: cwd /home/sl/src/baton;
+/home/sl/.local/state/baton-v12-venv/bin/python -B; PYTHONDONTWRITEBYTECODE=1;
+PYTHONPATH includes v12/python/src, v12/python, v12/python/tools; local deterministic
+subprocesses and simulated engine, not live Docker/provider. No claim that only these
+commands are permitted. Author should record actual differing context and child terminal
+status/error at the failure boundary, not infer failure from a later queued projection.
+
+Preserve managed_apply32PASS41.526s, identity/replay3PASS0.033s, missing-input2PASS3.579s
+and earlier accepted lifecycle/preparation/storage/discard slices. Three author live
+invocations/residual resource unknowns remain historical and unchanged. No live run,
+Git mutation or graph change this review. G2/parent NOT accepted; W257627 dependency
+remains required. Candidate snapshot records observed bytes, not full acceptance.
+
+
+## 2026-09-28T18-12-21Z — restart diagnostic accepted; proceed to limits
+
+
+Claim298090; handoff298087/events298091; T285465 through298051 at298091.
+CONTINUATION-298033.md, candidate-298033.json and attributable PROGRESS read;
+both candidate file hashes match. Tuner remains implementation owner under297991.
+
+- Outcome: independent correction_restart16PASS15.146s, including the strengthened
+  real-child fault test. Validated observation captured during sweep is preserved by
+  delivery attempt identity before cleanup; original observation is returned unchanged.
+  Diagnostic fault requires a real receipt and faulted terminal, one preparation and
+  prompt assertion before100 ticks. Existing positive/activation/identity/duplicate and
+  predecessor checks remain. No product change or acceptance weakening found.
+- Confirmed blocker: the original author-only setup has not been supplied or reproduced.
+  It remains an unresolved observation, not a diagnosed product defect or proof of a
+  setup mistake. Three tuner contexts and current independent suite pass. Preserve
+  T298051 request and new failure-time diagnostics; do not wait idly or add another
+  indefinite reproduction loop without the missing operands.
+- Required next change: advance the next already-selected bounded milestone, execution
+  limits. Diagnose why both direct provider-turn measurements return an empty capture
+  and settle the two related composed-limit failures. Separate fixture/measurement
+  defects from product timeout propagation; retain actual provider-boundary measurement.
+  Scheduler/dogfood and final audit remain later PLAN items, not this immediate handoff.
+- Verification: configured Job limit and no-Job default reach the intended provider
+  boundary; composed Job-specific ceilings and blocked-integrator behavior remain correct.
+  Preserve genuine timeout/failure and no-duplicate coverage. Tuner chooses appropriate
+  tests/commands/files within scope; deterministic fake providers, no live execution.
+- Handoff condition: connected limits milestone with truthful positive/negative evidence
+  and cause attribution, return baton.bug. Historical setup evidence may arrive in parallel;
+  investigate it when actionable without retracting accepted evidence without cause.
+
+This advances authorized work while preserving uncertainty; it neither waives a known
+execution defect nor claims the historical failing sample fixed. Final whole-G2 review
+must still account for that observation and all concrete functional families. Prior
+accepted managed_apply32, identity/provenance/missing-input probes and lifecycle/storage
+slices remain. No new scope, disposal feature,252 expansion, owner gate, Git/graph changes.
+Three earlier live-run incidents/residual unknowns remain as recorded. G2/parent and
+W257627 dependency not accepted. Snapshot observed bytes only; reviewer edits records only.
+
+## 2026-09-28T18-22-40Z — baton.rvpc limits milestone accepted
+
+Claim298152 independently verified142PASS68.403s. review-2026-09-28T18-22-40Z.md records the stale watcher signature and third-Job J/R fixture corrections. Earlier branch-not-reached inference is explicitly superseded; no product timeout defect established. Existing failure/replay/blocked-capacity assertions preserved. Scheduler milestone next, later dogfood/final audit remain; historical restart uncertainty is not resolved or a waiting gate. Whole G2 remains unaccepted.
+
+## 2026-09-28T18-28-24Z — baton.rvpc scheduler fixture milestone accepted
+
+Claim298203 independent41PASS41.184s. review-2026-09-28T18-28-24Z.md confirms two Job-J submission corrections with no assertion changes, preserving runtime manifests. No product scheduling defect or broader source-binding-gap resolution claimed. Dogfood milestone next; final audit and historical restart uncertainty remain. Whole G2 unaccepted.
+
+## 2026-09-28T18-34-55Z — baton.rvpc dogfood milestone accepted
+
+Claim298258 independent359PASS4.917s. review-2026-09-28T18-34-55Z.md assesses retained workspace/no-custody expectations against ART-7 and relocated terminal-settlement fault coverage. Current13F+2E baseline supersedes count-ten as current diagnosis, without reconstructing historical identities. Final candidate inventory/evidence matrix next; no whole-G2 acceptance or silent resolution of residual debt.
+
+## 2026-09-28T18-43-21Z — baton.rvpc audit confirms remaining initial-host recovery proof
+
+Claim298319: review-2026-09-28T18-43-21Z.md verifies36/36 delta paths and44/44 v12 hashes. PROGRESS alone changed after audit capture. HP1 interior cuts and HP6/HP7 actual completion mismatches remain selected/unproved; phase-boundary acceptance does not cover them. No-normalization ruling does not supersede initial-host recovery. Next bounded milestone HP1 interior interruption; later exact completion replay and HP8/MC evidence mapping remain. Accepted slices preserved; no whole-G2 acceptance.
+
+## 2026-09-28T18-50-45Z — baton.rvpc HP1 interior cuts accepted
+
+Claim298374 independently11PASS0.806s; review-2026-09-28T18-50-45Z.md verifies four visibly reached partial-effect cuts and fresh-handle durable holds/sibling isolation. Explicitly supersedes the unproved classification for these four selected interior cuts; no automatic repair or universal crash coverage claimed. Next HP6/HP7 completion identity and actual mismatch replay; later HP8/MC mapping/final audit unchanged.
+
+## 2026-09-28T18-57-45Z — baton.rvpc completion identity slice accepted
+
+Claim298426 independent18PASS1.417s; review-2026-09-28T18-57-45Z.md accepts actual persisted-operation mismatch replay plus honest one-task continuation and narrow HP6 resource/source/claim-reader/exclusivity controls. Supersedes missing HP7 collision proof for these operands, not checkpoint-specific task-admission proof. Next checkpoint seam, later HP8/MC/final audit; whole G2 unaccepted.
+
+## 2026-09-28T19-04-29Z — baton.rvpc checkpoint admission accepted
+
+Claim298477 independent4PASS1.463s; review-2026-09-28T19-04-29Z.md accepts same-process and reopened-store checkpoint reader races with positive controls, exact counts and material preservation. Supersedes missing HP6 checkpoint proof for this schedule; not committed competing lifecycle or abrupt-death evidence. Next exact HP8/MC mapping and focused missing proof, then final audit.
+
+## 2026-09-28T19-15-40Z — baton.rvpc HP8 correction and MC mapping accepted
+
+Claim298556 independent41PASS4.564s plus ordinary-reconcile probe4PASS0.478s. review-2026-09-28T19-15-40Z.md accepts naming-only identification of failed unresolved starts without failure clearing/relaunch; exact lost-reply/hold outcomes preserved. MC mapping verified with its explicit inherited limits. Final refreshed audit next; no whole-G2 acceptance yet.
+
+## 2026-09-28T19-22-19Z — baton.rvpc final independent acceptance
+
+Claim298606 ACCEPTS W285465 bounded integrated recovery candidate; review-2026-09-28T19-22-19Z.md binds candidate-final-298574.json SHA256844d747e000925fdcbe92f9d0d0ebaa5dfb5889ce2029d75fd291bfd74d9ac09. All48 final hashes/44 v12 hashes and36 delta paths checked. Selected HP/MC requirements discharged by mapped independent slices; no new test run. Stale remaining-MC-mapping paragraph in FINAL-AUDIT is explicitly superseded by its later accepted mapping/review19:15:40. Prior whole-G2-unaccepted checkpoint is superseded for W285465 selected outcome only; parent/dependencies/other Work unchanged. Historical/inherited limits retained; pass owner for disposition.

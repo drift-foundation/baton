@@ -756,7 +756,8 @@ class TheDirectIntegrationCarriesItsJobsOwnCeiling(unittest.TestCase):
 
     # -- what the container does with the number, at the run seam ------------
 
-    def _turn(self, document, *, run=None, behaviour="import", agent=None):
+    def _turn(self, document, *, run=None, behaviour="import", agent=None,
+              provider_seconds=None, provider_timeout=False):
         """The fixture's own real worker turn, over the PORT'S document.
 
         `TheWholeIntegrationRunsThroughThisPort.worker_turn` authors a launch of
@@ -777,10 +778,14 @@ class TheDirectIntegrationCarriesItsJobsOwnCeiling(unittest.TestCase):
             handle.write(workload_fixture.PROVIDER_SOURCE)
 
         def runner(argv, **options):
+            if provider_seconds is not None:
+                provider_seconds.append(options["timeout"])
+            if provider_timeout:
+                raise subprocess.TimeoutExpired(argv, options["timeout"])
             return subprocess.run(
                 [sys.executable, script, behaviour, argv[-1]],
                 capture_output=True, text=True, cwd=options.get("cwd"),
-                timeout=300)
+                timeout=options["timeout"])
 
         place = os.path.join(self.fixture.place("worker"), "launch.json")
         if os.path.exists(place):
@@ -963,21 +968,29 @@ class TheDirectIntegrationCarriesItsJobsOwnCeiling(unittest.TestCase):
             return handle.read()
 
     def _provider_seconds(self, document):
-        """What the PROVIDER child is actually given, at the adapter's seam."""
-        import claude_agent as agent_module
-
+        """Measure the injected subprocess boundary, then require real import."""
         captured = []
-        original = agent_module.ClaudeAgent._ran_provider
-
-        def watching(self, argv, *, cwd, seconds, env):
-            captured.append(seconds)
-            return original(self, argv, cwd=cwd, seconds=seconds, env=env)
-
-        agent_module.ClaudeAgent._ran_provider = watching
-        self.addCleanup(setattr, agent_module.ClaudeAgent, "_ran_provider",
-                        original)
-        self._turn(document)
+        self.assertEqual(self._turn(document, provider_seconds=captured), 0)
+        self.assertEqual(self._result()["outcome"], "integrated")
         return captured
+
+    def test_provider_timeout_uses_the_job_bound_and_replay_starts_nothing(self):
+        self._started()
+        document = self._materialized()
+        captured = []
+        self.assertEqual(self._turn(document, provider_seconds=captured,
+                                    provider_timeout=True), 0)
+        self.assertEqual(captured, [self.PROVIDER_CEILING])
+        answer = self._result()
+        self.assertEqual(answer["outcome"], "held")
+        self.assertEqual(answer["detail"]["reason"], "provider-failed")
+        self.assertFalse(os.path.exists(os.path.join(
+            self.fixture.target_place, self.fixture.reviewed)))
+        retained = self._result_bytes()
+        replayed = []
+        self.assertEqual(self._turn(document, provider_seconds=replayed), 0)
+        self.assertEqual(replayed, [])
+        self.assertEqual(self._result_bytes(), retained)
 
 
 class TheDerivedJudgmentCarriesItsOwningResultsJob(unittest.TestCase):
@@ -2594,13 +2607,14 @@ class TheComposedHostVerificationUsesTheJobsCeiling(unittest.TestCase):
         import copy
 
         from baton_v12.job_manager import documents
+        from baton_v12.contracts import job_input_identity
         from tests.job_manager import fixtures
 
         held = json.loads(json.dumps(self.case.both_jobs()))
         held["schema"] = documents.SUBMISSION_SCHEMA
         third = fixtures.job(
             "job-c",
-            input_digest=self._third_manifest()["manifest_digest"],
+            input_digest=job_input_identity(self._third_manifest()),
             policy_digest=fixtures.POLICY_DIGEST,
             stages=[
                 fixtures.stage("implementation", self.THIRD_WORK),
