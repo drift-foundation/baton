@@ -289,3 +289,18 @@ Claim292081/handoff292063. Four selected hashes unchanged. G2 independent review
 ## 2026-09-28T04-15-33Z — required provider classification W285465
 
 Claim292144, response292130/events292144. review-2026-09-28T04-15-33Z.md explicitly supersedes message-only/no-edge scheduling: W285465 provides unresolved connected preparation and no-helper ending acceptance required by B1/B2/final packet. Install required blocker W257627 on W285465, pass tuner blocked. Partial response cleared M292090 but supplies no acceptance. Earlier accepted bounded slice requires explicit future reclassification; no silent bypass. Product scope and existing four-path authority unchanged.
+
+
+## 2026-09-28T21-55-22Z — provider wait satisfied; bounded subprocess evidence accepted
+
+Reviewer claim299646/handoff299633; events299646/T257627 through292130. W285465 satisfying close explicitly supersedes prior provider-wait checkpoint. All112 current candidate hashes match; bindings36PASS2.983s independently, including fresh positive and three OS preflight/readback cases. These do not prove full OS execution or active-runtime recovery. Continue selected tuner scope291841 via B1-CHECKPOINT-299571.md; no new owner gate. Full verdict, finite remaining B1–B5 and limitations: review-2026-09-28T21-55-22Z.md. W270664 current non-reach evidence supersedes its conditional automatic-cleanup concern only; no graph mutation or blanket residual acceptance.
+
+
+## 2026-09-28T22-10-36Z — bounded literal execution rehearsal accepted
+
+Reviewer299746/handoff299742, events299746/T257627 through292130. Independent four schedules4PASS40.413s and all134 candidate hashes match. Explicitly supersedes prior missing full-OS/active-runtime rehearsal milestone for candidate299662. Positive one-proposal, interrupt/deadline exact cessation plus honest holds, inaccessible output retention/status diagnostics accepted within fake-engine/local-worker limits. Full useful-task packet B2–B5 remains; continuation baton.tune without renewed owner gate. Review review-2026-09-28T22-10-36Z.md and evidence/review299746 preserve exact boundaries and changed-expectation assessment. No product/graph/Git mutation or live execution.
+
+
+## 2026-09-28T22-22-49Z — useful packet proof and confirmed reached create_line DB-1 blocker
+
+Reviewer299834/handoff299832, events299834/T257627 through292130. All201 hashes match; useful task1PASS5.730s. Independent required regression1FAIL0.238s,46lstat+1fchmod inside create_line completion transaction while connected Job succeeds. Counts differ from author62+1 but forbidden I/O is confirmed. Final qualification is blocked; concrete provider correction is outside tuner291841 scope and belongs to existing W257624 residual. Return owner for exact bounded assignment and graph disposition, preserving accepted slices and all unrelated debt. No new dependency silently installed or final acceptance claimed. Current intake prepared_store-required prose is explicitly superseded for preserved ordinary ending. Full findings, scope, next operation and evidence: review-2026-09-28T22-22-49Z.md.

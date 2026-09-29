@@ -630,6 +630,426 @@ class TheFreshPacket(TheGeneratedPacketDrivesOneImplementation):
         self.assertEqual(outcome["outstanding_cleanup"], [])
 
 
+class TheFreshCommandsInSubprocesses(TheFreshPacket):
+    """Literal generated argv/environment; fake Docker executable, no daemon.
+
+    These are preflight proofs, not a completed Job or runtime cessation proof.
+    The engine executable fails closed and cannot dispatch a real workload.
+    """
+
+    def written_manager_source(self):
+        import shutil
+        # The unfrozen observer derives its checkout from tools/../../..;
+        # preserve the source distribution's v12/python directory layout.
+        place = self.packet_root / "complete-manager-source/v12/python"
+        if not place.exists():
+            for relative in ("src/baton_v12", "tools"):
+                shutil.copytree(PYTHON / relative, place / relative, ignore=shutil.ignore_patterns("__pycache__"))
+        return str(place)
+
+    def run_generated_start(self, *, drift=False):
+        import subprocess
+        import sys
+        _docs, places = self.generate()
+        commands = json.loads(Path(places["commands.json"]).read_text())
+        packet = json.loads(Path(places["PACKET.json"]).read_text())
+        fake_bin = Path(self.root) / "fake-engine-bin"
+        fake_bin.mkdir()
+        calls = Path(self.root) / "engine-calls.json"
+        executable = fake_bin / "docker"
+        executable.write_text("#!" + sys.executable + "\nimport json,sys\nfrom pathlib import Path\nPath(" + repr(str(calls)) + ").write_text(json.dumps(sys.argv[1:]))\nraise SystemExit(1)\n")
+        executable.chmod(0o700)
+        environment = dict(os.environ, **commands["environment"])
+        # No real executable fallback; all engine invocations hit this boundary.
+        environment["PATH"] = str(fake_bin)
+        if drift:
+            changed = Path(packet["manager_source"]["path"]) / "tools/__init__.py"
+            changed.write_bytes(changed.read_bytes() + b"\n# post-binding drift\n")
+        stores = [Path(packet["deployment"][name]) for name in ("job_store", "control_store")]
+        before = {str(p): p.read_bytes() if p.exists() else None for p in stores}
+        answer = subprocess.run(commands["start"], env=environment, cwd=self.root, capture_output=True, text=True, timeout=20)
+        self.assertEqual(answer.returncode, 2, answer.stderr)
+        self.assertIn("refused before anything opened", answer.stderr)
+        self.assertNotIn("Traceback", answer.stderr)
+        self.assertEqual({str(p): p.read_bytes() if p.exists() else None for p in stores}, before)
+        if drift:
+            self.assertFalse(calls.exists())
+            self.assertIn("this packet is bound to", answer.stderr)
+        else:
+            # Reaching the engine proves held bytes and imported package origins
+            # passed in the child, using only the emitted PYTHONPATH.
+            self.assertEqual(json.loads(calls.read_text()), ["image", "inspect", packet["worker_image"]["reference"]])
+            self.assertIn("engine answered no document", answer.stderr)
+
+    def test_literal_start_imports_bound_runtime_before_engine_refusal(self):
+        self.run_generated_start()
+
+    def test_literal_start_refuses_source_drift_without_engine_or_store_effects(self):
+        self.run_generated_start(drift=True)
+
+    def test_literal_status_reads_the_retained_fresh_job(self):
+        import subprocess
+        packet = self.packet_for()
+        _composed, outcome, _job, _control = self.supervised(packet=packet)
+        self.assertEqual(outcome["state"], "settled")
+        _docs, places = self.generate()
+        commands = json.loads(Path(places["commands.json"]).read_text())
+        environment = dict(os.environ, **commands["environment"])
+        empty_bin = Path(self.root) / "no-external-executables"
+        empty_bin.mkdir()
+        environment["PATH"] = str(empty_bin)
+        answer = subprocess.run(commands["status"], env=environment, cwd=self.root, capture_output=True, text=True, timeout=20)
+        self.assertEqual(answer.returncode, 0, answer.stderr)
+        observed = json.loads(answer.stdout)
+        self.assertEqual([job["job_id"] for job in observed["jobs"]], [packet["submission"]["job_id"]])
+        self.assertEqual(len(observed["jobs"][0]["stages"]), 1)
+        self.assertNotIn("Traceback", answer.stderr)
+
+
+# This executable is a deterministic external engine, not an alternate supervisor.
+# Unknown commands fail closed; there is no invocation of a real Docker binary.
+OS_ENGINE_FIXTURE = r'''
+import json, os, signal, subprocess, sys, time, traceback
+from pathlib import Path
+root = Path(os.environ["BATON_TEST_ENGINE_ROOT"])
+state_path = root / "state.json"
+done = root / "worker-done.json"
+args = sys.argv[1:]
+if args == ["fixture-worker"]:
+    state = json.loads(state_path.read_text())
+    mounts = {one["Destination"]: one["Source"] for one in state["Mounts"]}
+    sys.path.insert(0, os.environ["BATON_TEST_WORKER_SOURCE"])
+    sys.path.insert(0, os.environ["BATON_TEST_PROFILE_SOURCE"])
+    import baton_worker, claude_agent
+    baton_worker.INPUT_ROOT = claude_agent.INPUT_ROOT = mounts["/input"]
+    baton_worker.OUTPUT_ROOT = claude_agent.OUTPUT_ROOT = mounts["/output"]
+    credentials = root / "worker-credentials"
+    credentials.mkdir()
+    for target, source in mounts.items():
+        if target.startswith("/run/baton/credentials/"):
+            (credentials / target.rsplit("/", 1)[1]).symlink_to(source)
+    claude_agent.CREDENTIAL_ROOT = str(credentials)
+    (root / "worker-home").mkdir()
+    calls = []
+    def provider(argv, **options):
+        if argv[0] == claude_agent.PROVIDER_PROGRAM:
+            calls.append(list(argv))
+            (root / "worker-active.json").write_text(json.dumps({"pid": os.getpid()}))
+            if os.environ.get("BATON_TEST_MODE") in ("interrupt", "deadline"):
+                while True:
+                    time.sleep(0.02)
+            selected = os.environ.get("BATON_TEST_PROVIDER_EDITS")
+            edits = json.loads(Path(selected).read_text()) if selected else {"harness.py": "print('READY')\n"}
+            for name, body in edits.items():
+                target = Path(options["cwd"]) / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(body)
+            return subprocess.CompletedProcess(argv, 0, None, None)
+        return subprocess.run(argv, **options)
+    code = 1
+    try:
+        seen = baton_worker.launched(baton_worker.read_launch(mounts["/run/baton/launch.json"]))
+        code = baton_worker.serve_exchange(claude_agent.ClaudeAgent(run=provider, home=str(root / "worker-home")), seen, seen["session"], mounts["/run/baton/exchange/command"], mounts["/run/baton/exchange/events"])
+    except BaseException:
+        traceback.print_exc()
+    finally:
+        if os.environ.get("BATON_TEST_MODE") == "inaccessible" and code == 0:
+            Path(mounts["/output"]).chmod(0)
+        done.write_text(json.dumps({"exit_code": code, "provider_calls": len(calls)}))
+    raise SystemExit(code)
+with (root / "calls.jsonl").open("a") as out:
+    out.write(json.dumps(args) + "\n")
+if args[:2] == ["image", "inspect"]:
+    print(json.dumps([{"Id": os.environ["BATON_TEST_IMAGE"]}]))
+    raise SystemExit(0)
+state = json.loads(state_path.read_text()) if state_path.exists() else None
+def exited():
+    if not state or not state.get("pid"):
+        return False
+    stat = Path("/proc") / str(state["pid"]) / "stat"
+    return not stat.exists() or stat.read_text().split(")", 1)[1].split()[0] == "Z"
+if args[0] == "create":
+    assert state is None, "second container creation forbidden"
+    labels, mounts = {}, []
+    for i, value in enumerate(args[:-1]):
+        if value == "--label":
+            key, item = args[i + 1].split("=", 1)
+            labels[key] = item
+        if value == "--mount":
+            parts = dict(p.split("=", 1) for p in args[i + 1].split(",") if "=" in p)
+            mounts.append({"Source": parts["source"], "Destination": parts["target"], "RW": parts["readonly"] == "false"})
+    state = {"Id": "runtime-os-fixture-1", "Image": args[-1], "Labels": labels, "Mounts": mounts, "State": {"Running": False}, "started": False}
+    state_path.write_text(json.dumps(state))
+    print(state["Id"])
+elif args[0] == "start":
+    assert state and args[-1] == state["Id"] and not state["started"]
+    state["started"] = True
+    state["State"]["Running"] = True
+    state_path.write_text(json.dumps(state))
+    with (root / "worker.log").open("wb") as log:
+        child = subprocess.Popen([sys.executable, "-B", __file__, "fixture-worker"], stdin=subprocess.DEVNULL, stdout=log, stderr=log, start_new_session=True)
+    state["pid"] = child.pid
+    state_path.write_text(json.dumps(state))
+elif args[0] == "ps":
+    if state:
+        print(json.dumps({"ID": state["Id"], "Image": state["Image"], "Labels": state["Labels"]}))
+elif args[0] == "inspect":
+    if not state or args[-1] != state["Id"]:
+        print("Error response from daemon: No such container: " + args[-1], file=sys.stderr)
+        raise SystemExit(1)
+    if exited():
+        state["State"] = {"Running": False}
+        if done.exists():
+            state["State"]["ExitCode"] = json.loads(done.read_text())["exit_code"]
+    print(json.dumps(state))
+elif args[0] == "stop":
+    assert state and args[-1] == state["Id"]
+    if not exited():
+        os.killpg(state["pid"], signal.SIGTERM)
+        deadline = time.monotonic() + 3
+        while not exited() and time.monotonic() < deadline:
+            time.sleep(0.01)
+    assert exited(), "worker did not exit after stop"
+    (root / "cessation.json").write_text(json.dumps({"pid": state["pid"], "observed": "process-exited"}))
+elif args[0] == "rm":
+    assert exited(), "fixture refuses removal before worker completion"
+    state_path.unlink()
+else:
+    raise RuntimeError("unimplemented engine command: " + repr(args))
+'''
+
+
+class TheFreshLiteralJob(TheFreshCommandsInSubprocesses):
+    def setUp(self):
+        self.RUN = "fresh-os-" + self._testMethodName.removeprefix("test_literal_")
+        super().setUp()
+
+    def selections(self):
+        selected = super().selections()
+        secret = Path(self.root) / "fake-bearer"
+        registry = Path(self.root) / "fake-credential-sources.json"
+        secret.write_text("not-a-real-credential\n")
+        registry.write_text(json.dumps({"schema": "baton.user-credential-sources/1", "sources": [{"provider": "fixture", "reference": "fixture/one", "path": str(secret)}]}))
+        secret.chmod(0o600)
+        registry.chmod(0o600)
+        selected["credential_sources"] = str(registry)
+        selected["credential_profile"] = {"claude": {"provider": "fixture", "reference": "fixture/one"}}
+        return selected
+
+    def run_literal_job(self, mode="positive"):
+        import signal
+        import time
+        import subprocess
+        import sys
+        _docs, places = self.generate()
+        commands = json.loads(Path(places["commands.json"]).read_text())
+        packet = json.loads(Path(places["PACKET.json"]).read_text())
+        if mode != "positive":
+            packet["bounds"].update(total_seconds=12, cleanup_seconds=5)
+            Path(places["PACKET.json"]).write_text(json.dumps(packet))
+        root = Path(self.root) / "external-engine"
+        root.mkdir()
+        bindir = root / "bin"
+        bindir.mkdir()
+        executable = bindir / "docker"
+        executable.write_text("#!" + sys.executable + "\n" + OS_ENGINE_FIXTURE)
+        executable.chmod(0o700)
+        (bindir / "git").symlink_to("/usr/bin/git")
+        (bindir / "python3").symlink_to(sys.executable)
+        environment = dict(os.environ, **commands["environment"])
+        environment.update(PATH=str(bindir), BATON_TEST_MODE=mode, BATON_TEST_ENGINE_ROOT=str(root), BATON_TEST_WORKER_SOURCE=str(Path(CHECKOUT) / "v12/worker"), BATON_TEST_IMAGE=packet["worker_image"]["config_digest"], BATON_TEST_PROFILE_SOURCE=str(Path(packet["manager_source"]["path"]) / "src/baton_v12"))
+        if hasattr(self, "provider_edits"):
+            edit_path = root / "provider-edits.json"
+            edit_path.write_text(json.dumps(self.provider_edits))
+            environment["BATON_TEST_PROVIDER_EDITS"] = str(edit_path)
+        try:
+            with subprocess.Popen(commands["start"], env=environment, cwd=self.root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) as supervisor:
+                try:
+                    if mode == "interrupt":
+                        limit = time.monotonic() + 10
+                        while not (root / "worker-active.json").exists() and supervisor.poll() is None and time.monotonic() < limit:
+                            time.sleep(0.02)
+                        self.assertTrue((root / "worker-active.json").exists(), "worker never reached provider")
+                        supervisor.send_signal(signal.SIGINT)
+                    stdout, stderr = supervisor.communicate(timeout=25)
+                    answer = subprocess.CompletedProcess(commands["start"], supervisor.returncode, stdout, stderr)
+                finally:
+                    if supervisor.poll() is None:
+                        supervisor.kill()
+                        supervisor.communicate()
+        finally:
+            # This fixture owns this exact worker process group; never leave a
+            # provider behind when the supervisor or an assertion fails.
+            state_path = root / "state.json"
+            if state_path.exists():
+                state = json.loads(state_path.read_text())
+                if state.get("pid"):
+                    import signal
+                    proc = Path("/proc") / str(state["pid"])
+                    if proc.exists() and proc.joinpath("stat").read_text().split(")", 1)[1].split()[0] != "Z":
+                        self.assertIn(str(executable).encode(), proc.joinpath("cmdline").read_bytes())
+                        try:
+                            os.killpg(state["pid"], signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+        diagnostic = answer.stderr + (root / "worker.log").read_text() if (root / "worker.log").exists() else answer.stderr
+        self.assertEqual(answer.returncode, 130 if mode == "interrupt" else 0 if mode == "positive" else 1, diagnostic)
+        outcome = json.loads(Path(commands["outcome"]).read_text())
+        self.assertEqual(outcome["job_id"], packet["submission"]["job_id"])
+        self.assertEqual(outcome["admitted_attempts"], outcome["workload"]["implementation_attempts"])
+        self.assertEqual(len(outcome["admitted_attempts"]), 1)
+        calls = [json.loads(line) for line in (root / "calls.jsonl").read_text().splitlines()]
+        self.assertEqual(sum(call[0] == "create" for call in calls), 1)
+        self.assertEqual(sum(call[0] == "start" for call in calls), 1)
+        self.assertFalse(any(call[0] == "run" or "--entrypoint" in call for call in calls))
+        observed = subprocess.run(commands["status"], env=environment, cwd=self.root, capture_output=True, text=True, timeout=20)
+        self.assertEqual(observed.returncode, 0, observed.stderr)
+        status = json.loads(observed.stdout)
+        self.assertEqual([job["job_id"] for job in status["jobs"]], [packet["submission"]["job_id"]])
+        self.assertEqual(len(status["jobs"][0]["stages"]), 1)
+        self.assertEqual(status["jobs"][0]["stages"][0]["attempt_id"], outcome["admitted_attempts"][0])
+        self.assertEqual(len(status["jobs"][0]["stages"][0]["episodes"]), 1)
+        from baton_v12.worker_manager import ControlStore, provider_context
+        with ControlStore.open(packet["deployment"]["control_store"], incarnation=self.RUN + "-context-read", clock=lambda: fixtures.NOW) as control:
+            self.assertIsNone(provider_context.context_invocation_of(control, outcome["admitted_attempts"][0]))
+        retained = os.environ.get("BATON_TEST_EVIDENCE_ROOT")
+        if retained:
+            destination = Path(retained) / (getattr(self, "evidence_prefix", "") + mode + ".json")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            self.assertFalse(destination.exists(), "never overwrite a retained rehearsal")
+            state_path = root / "state.json"
+            state = json.loads(state_path.read_text()) if state_path.exists() else None
+            output = next((m["Source"] for m in state["Mounts"] if m["Destination"] == "/output"), None) if state else None
+            destination.write_text(json.dumps({"mode": mode, "packet": packet, "commands": commands, "outcome": outcome, "status": status, "engine_calls": calls, "supervisor_exit": answer.returncode, "supervisor_stderr": answer.stderr, "worker_log": (root / "worker.log").read_text(), "worker_done": json.loads((root / "worker-done.json").read_text()) if (root / "worker-done.json").exists() else None, "cessation": json.loads((root / "cessation.json").read_text()) if (root / "cessation.json").exists() else None, "output_path": output, "output_mode_before_fixture_teardown": oct(Path(output).stat().st_mode & 0o777) if output else None}, indent=2) + "\n")
+        if mode != "positive":
+            self.assertEqual(outcome["admissions"], {"implementation": 1})
+            self.assertNotEqual(outcome["state"], "settled")
+            self.assertEqual(len(outcome["admitted_attempts"]), 1)
+            self.assertEqual(outcome["workload"]["modes"], [])
+            if mode in ("interrupt", "deadline"):
+                self.assertTrue((root / "worker-active.json").exists())
+                self.assertTrue((root / "cessation.json").exists(), diagnostic)
+                # Cessation is proved independently, but a killed provider has
+                # no retained result/committed cleanup. The supervisor must
+                # preserve that exact unresolved hold rather than call it clean.
+                self.assertEqual(outcome["outstanding_cleanup"], outcome["admitted_attempts"], diagnostic)
+                self.assertIn("no committed cleanup", json.dumps(outcome["cleanup"]))
+                self.assertIn("quiescent", json.dumps(outcome["cancellation"]))
+                if mode == "deadline":
+                    self.assertEqual(outcome["stopped"], "overall-bound-exceeded")
+                else:
+                    self.assertTrue(outcome["interruptions"])
+            else:
+                state = json.loads((root / "state.json").read_text())
+                output = Path(next(m["Source"] for m in state["Mounts"] if m["Destination"] == "/output"))
+                self.assertTrue(output.exists())
+                self.assertEqual(output.stat().st_mode & 0o777, 0)
+                try:
+                    self.assertIn("Permission", observed.stdout, observed.stdout)
+                finally:
+                    output.chmod(0o700)  # fixture-owned teardown only, after preservation evidence
+            return outcome
+
+        self.assertEqual(outcome["state"], "settled")
+        self.assertEqual(outcome["admissions"], {"implementation": 1})
+        self.assertEqual([proposal["attempt_id"] for proposal in outcome["workload"]["proposals"]], outcome["admitted_attempts"])
+        self.assertEqual(outcome["workload"]["modes"], [])
+        self.assertEqual(outcome["workload"]["shortfalls"], [])
+        self.assertEqual(outcome["outstanding_cleanup"], [])
+        calls = [json.loads(line) for line in (root / "calls.jsonl").read_text().splitlines()]
+        self.assertEqual(sum(call[0] == "create" for call in calls), 1)
+        self.assertEqual(sum(call[0] == "start" for call in calls), 1)
+        self.assertFalse(any(call[0] == "run" or "--entrypoint" in call for call in calls))
+        self.assertEqual(json.loads((root / "worker-done.json").read_text()), {"exit_code": 0, "provider_calls": 1})
+        observed = subprocess.run(commands["status"], env=environment, cwd=self.root, capture_output=True, text=True, timeout=20)
+        self.assertEqual(observed.returncode, 0, observed.stderr)
+        self.assertEqual([job["job_id"] for job in json.loads(observed.stdout)["jobs"]], [packet["submission"]["job_id"]])
+
+        return {"outcome": outcome, "status": status, "documents": _docs, "places": places}
+
+    def test_literal_start_produces_one_fresh_proposal(self):
+        self.run_literal_job()
+
+    def test_literal_interrupt_stops_an_active_worker(self):
+        self.run_literal_job("interrupt")
+
+    def test_literal_deadline_stops_an_active_worker(self):
+        self.run_literal_job("deadline")
+
+    def test_literal_inaccessible_output_is_preserved(self):
+        self.run_literal_job("inaccessible")
+
+
+class TheUsefulDocumentationPacket(TheFreshLiteralJob):
+    evidence_prefix = "useful-"
+    DOSSIER = Path(CHECKOUT) / "work/records/2026/09/finding-v12-startup-failure-fresh-packet"
+    INPUT_NAMES = ("TASK-SINGLE-JOB-20260928.md", "SOURCE-EXCERPTS-20260928.md")
+
+    def generate(self):
+        if not getattr(self, "documentation_source_ready", False):
+            from baton_v12.authority import Authority
+            inputs = json.loads((self.DOSSIER / "INPUTS-20260928.json").read_text())
+            for name in self.INPUT_NAMES:
+                source = self.DOSSIER / name
+                self.assertEqual(self.digest_of(source), inputs["files"][name]["sha256"])
+                Path(self.source, name).write_bytes(source.read_bytes())
+            # Only the existing disposable fixture repository is committed.
+            self.vcs("add", "--", *self.INPUT_NAMES)
+            self.vcs("commit", "-q", "--message", "immutable documentation task inputs")
+            self.base = self.vcs("rev-parse", "HEAD").strip()
+            with Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"]) as authority:
+                authority.set_policy("canonical_target", self.base)
+            self.provider_edits = {"docs/v12-first-job-inspection.md": (self.DOSSIER / "REPLAY-NOTE-299768.md").read_text()}
+            self.documentation_source_ready = True
+        return super().generate()
+
+    def selections(self):
+        selected = super().selections()
+        image_record = json.loads((HERE / "IMAGE-ARTIFACT-244216.json").read_text())
+        # Bind the documented historical image operand; the fake engine still
+        # cannot establish availability, OCI access or provider behavior.
+        selected["image_reference"] = image_record["reference"]
+        selected["image_digest"] = image_record["image_config_digest"]
+        selected["participants"]["worker_files"] = image_record["all_worker_files"]
+        selected["task_instructions"] = (self.DOSSIER / self.INPUT_NAMES[0]).read_text()
+        selected["verification"] = ["python3", "-c", "from pathlib import Path; p=Path('docs/v12-first-job-inspection.md'); assert p.is_file(); assert len(p.read_text().splitlines()) < 100"]
+        selected["participants"]["fixture_files"] = {name: self.digest_of(Path(self.source) / name) for name in (*self.INPUT_NAMES, "harness.py")}
+        return selected
+
+    def test_literal_useful_documentation_packet(self):
+        from urllib.parse import urlparse, unquote
+        answer = self.run_literal_job()
+        documents = answer["documents"]
+        self.assertEqual(documents["task.json"]["instructions"], (self.DOSSIER / self.INPUT_NAMES[0]).read_text())
+        stage = answer["status"]["jobs"][0]["stages"][0]
+        self.assertEqual([a["output_name"] for a in stage["artifacts"]], ["proposal"])
+        proposal = Path(unquote(urlparse(stage["artifacts"][0]["locator"]).path))
+        change = answer["outcome"]["workload"]["proposals"][0]
+        # Read the actual worker-produced bundle in a disposable inspection repo.
+        inspection = Path(self.root) / "proposal-inspection"
+        inspection.mkdir()
+        self.vcs_at(str(inspection), "init", "-q")
+        self.vcs_at(str(inspection), "fetch", "-q", self.source, change["base"])
+        self.vcs_at(str(inspection), "fetch", "-q", str(proposal / "objects.bundle"), change["head"])
+        changed = self.vcs_at(str(inspection), "diff", "--name-only", change["base"], change["head"]).splitlines()
+        self.assertEqual(changed, ["docs/v12-first-job-inspection.md"])
+        note = self.vcs_at(str(inspection), "show", change["head"] + ":docs/v12-first-job-inspection.md")
+        self.assertEqual(note, self.provider_edits["docs/v12-first-job-inspection.md"])
+        self.assertLess(len(note.splitlines()), 100)
+        retained = os.environ.get("BATON_TEST_EVIDENCE_ROOT")
+        if retained:
+            import shutil
+            destination = Path(retained) / "useful-task"
+            destination.mkdir()
+            for name, path in answer["places"].items():
+                shutil.copyfile(path, destination / name)
+            shutil.copytree(proposal, destination / "proposal")
+            self.vcs("bundle", "create", str(destination / "source-base.bundle"), "HEAD")
+            for name in self.INPUT_NAMES:
+                shutil.copyfile(self.DOSSIER / name, destination / name)
+            (destination / "verification.json").write_text(json.dumps({"base": change["base"], "head": change["head"], "changed_paths": changed, "proposal_attempt": change["attempt_id"], "job_id": answer["outcome"]["job_id"], "note_lines": len(note.splitlines()), "provider": "deterministic replay; not independent model output or acceptance"}, indent=2) + "\n")
+
+
 def load_tests(loader, tests, pattern):
     """THIS FILE'S OWN CHECKS, and not the ones it inherits.
 
@@ -641,7 +1061,9 @@ def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()
     for case in (TheGeneratedPacketDrivesOneImplementation,
                  TheCompositionCarriesOnlyThisJobsWorkload,
-                 TheComposerRefusesWhatItCannotHold, TheFreshPacket):
+                 TheComposerRefusesWhatItCannotHold, TheFreshPacket,
+                 TheFreshCommandsInSubprocesses, TheFreshLiteralJob,
+                 TheUsefulDocumentationPacket):
         for name in sorted(one for one in vars(case)
                            if one.startswith("test")):
             suite.addTest(case(name))

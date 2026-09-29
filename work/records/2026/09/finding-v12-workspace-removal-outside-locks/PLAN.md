@@ -1,3 +1,15 @@
+# Current checkpoint — owner disposition: explicit deferral recommended
+
+2026-09-28T21-53-13Z, baton.rvpc claim299597; owner299593; detail299621; events through299597; T270664 through274873. Latest independent review: review-2026-09-28T21-53-13Z.md.
+
+Current DESIGN and owner299593 supersede the September27 instruction below to restore removal through G2 at completion. Ordinary initial Job completion preserves workspace and performs no deletion; W275633 is closed satisfying, and accepted W285465 evidence is preserved. No product edits or new adoption dependency selected.
+
+Confirmed: both standalone entries reject nested transactions before filesystem calls and perform deletion outside locks; no direct product callers remain. Three private-token defects still reproduce. Full historical removal candidate is NOT accepted. Recommendation: owner explicitly defer remaining standalone safety/modernization under this same Work identity. Owner decision, not implementation, is the next step; route baton.decide. Do not restore automatic helpers/removal or silently close this Work.
+
+Evidence: focused3PASS plus token3FAIL,0.045s; both-entry four subcases PASS, with accidental imported-class discovery total37PASS0.294s. Current intake/workspaces/test_maintenance/DESIGN match W285465 accepted manifest. Review records limitations and exact remaining scope. Reviewer owns only this checkpoint, FINDING append and new review/evidence; PROGRESS/product files untouched. Preserve all older records below as history, explicitly superseded where contradictory.
+
+---
+
 # Current specification/policy alignment — 2026-09-27, W285642
 
 v12/DESIGN.md now exists and is normative; the earlier absent-spec/awaiting-design

@@ -1,0 +1,45 @@
+{
+  "claim": 299746,
+  "candidate_sha256": "4ad088ab3590cf15ddd0f615615f9851e6b2120b3828765915eba78df8239994",
+  "candidate_files_matched_before_and_after": 134,
+  "independent_evidence": [
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/review299746/deadline.json",
+      "sha256": "b1312fe0455eb81933b9d8de151703419010e92117e7a06f40fb2e10740ac487",
+      "mode": "deadline",
+      "exit": 1,
+      "state": "held",
+      "holds": [
+        "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+      ]
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/review299746/inaccessible.json",
+      "sha256": "8ff116b2c45d9796190b0b4242b65c32a6562082dea71bae3a6962cff5601da5",
+      "mode": "inaccessible",
+      "exit": 1,
+      "state": "held",
+      "holds": [
+        "attempt-26d8b86ed130b0f9b42b4a33e09c3b24dd593c31da8016d2c59334516615e5b8"
+      ]
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/review299746/interrupt.json",
+      "sha256": "a00b384142befd1462b1baf21ed280981066e8a278622e4c531e805fda4700a7",
+      "mode": "interrupt",
+      "exit": 130,
+      "state": "held",
+      "holds": [
+        "attempt-c8da930e557302b0fe96d54374d6f96911ce183ee1d530b21bfb727fa17b4c4e"
+      ]
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/review299746/positive.json",
+      "sha256": "095a12d89e494559136b0145f8c69bf203d758411b1636b3f2ca8b51ede10ed6",
+      "mode": "positive",
+      "exit": 0,
+      "state": "settled",
+      "holds": []
+    }
+  ]
+}

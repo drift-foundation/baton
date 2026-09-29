@@ -1,0 +1,57 @@
+{
+  "historical_image_record": "work/records/2026/09/finding-v12-single-implementation-proof/IMAGE-ARTIFACT-244216.json",
+  "record_sha256": "8cf90edcabc39150b47f3e59a5a2378941d237c0a86ad1b99dffc079f3c2e374",
+  "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "qualification": "File-only historical image/source comparison; no OCI inspection, current artifact availability, provider behavior or live access proof",
+  "files": [
+    {
+      "image_path": "opt/baton/attempt_log_format.py",
+      "source_path": "v12/python/src/baton_v12/attempt_log_format.py",
+      "historical_sha256": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+      "current_sha256": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+      "matches": true
+    },
+    {
+      "image_path": "opt/baton/baton_worker.py",
+      "source_path": "v12/worker/baton_worker.py",
+      "historical_sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+      "current_sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+      "matches": true
+    },
+    {
+      "image_path": "opt/baton/claude_agent.py",
+      "source_path": "v12/worker/claude_agent.py",
+      "historical_sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "current_sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "matches": true
+    },
+    {
+      "image_path": "opt/baton/dogfood_entry.py",
+      "source_path": "v12/worker/dogfood_entry.py",
+      "historical_sha256": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2",
+      "current_sha256": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2",
+      "matches": true
+    },
+    {
+      "image_path": "opt/baton/source_profiles/__init__.py",
+      "source_path": "v12/python/src/baton_v12/source_profiles/__init__.py",
+      "historical_sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "current_sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "matches": true
+    },
+    {
+      "image_path": "opt/baton/source_profiles/checkout.py",
+      "source_path": "v12/python/src/baton_v12/source_profiles/checkout.py",
+      "historical_sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "current_sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "matches": true
+    },
+    {
+      "image_path": "opt/baton/worker-control-1.0.schema.json",
+      "source_path": "v12/worker/worker-control-1.0.schema.json",
+      "historical_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "current_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "matches": true
+    }
+  ]
+}

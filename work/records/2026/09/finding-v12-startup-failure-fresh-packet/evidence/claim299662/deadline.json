@@ -1,0 +1,887 @@
+{
+  "mode": "deadline",
+  "packet": {
+    "bounds": {
+      "cleanup_seconds": 5,
+      "implementer_invocations": 1,
+      "retry": false,
+      "total_seconds": 12,
+      "turn_seconds": 180
+    },
+    "claim": 239653,
+    "code_boundary": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/packet/complete-manager-source/v12/python",
+    "context": {
+      "mode": "fresh"
+    },
+    "deployment": {
+      "authority_store": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/authority.sqlite3",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "config_path": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/deployment.json",
+      "config_sha256": "b72568dee685bdae4b2a737b492ec788ddb64893b54964e019f4d4a1a316426b",
+      "control_store": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/control.sqlite3",
+      "job_store": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/jobs.sqlite3",
+      "state_root": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/deployment-state"
+    },
+    "fixture": {
+      "files": {
+        "harness.py": "9a5aba184b2d042cd0d21adb5bb87539dc06239ebd0a5a1e79499f41bb0364b4"
+      },
+      "source_root": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/source"
+    },
+    "manager_runtime": {
+      "build_commit": "c97fe766000000000000000000000000000000ab",
+      "executable_sha256": "306c6ca7407560340797866e077e053627ad409277d1b9da58106fce4cf717cb",
+      "path": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/packet/runtime"
+    },
+    "manager_source": {
+      "file_count": 108,
+      "files": {
+        "src/baton_v12/__init__.py": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0",
+        "src/baton_v12/attempt_log_format.py": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+        "src/baton_v12/authority/__init__.py": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066",
+        "src/baton_v12/authority/api.py": "fbc6684f9538f0f20177add42677792fe554e709dd15d4c15156bb19d3bfdaef",
+        "src/baton_v12/authority/core.py": "74aa1acb0537ff68dbfc087ae124864f1189e725051998e778a44c21a1f06991",
+        "src/baton_v12/authority/errors.py": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce",
+        "src/baton_v12/authority/identity.py": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+        "src/baton_v12/authority/labels.py": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec",
+        "src/baton_v12/authority/principals.py": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30",
+        "src/baton_v12/authority/schema.py": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb",
+        "src/baton_v12/authority/session.py": "9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2",
+        "src/baton_v12/authority/store.py": "4d651a2a985f38c118d60be466e0c6f6e3012eea0efaa87ae80cec3a4ba0e726",
+        "src/baton_v12/checkpoint_profiles.py": "bcd539447066fa5e05fcf5340ec3c1b675920ccd9d859ec81d18889f2d3d4f04",
+        "src/baton_v12/contracts/__init__.py": "e9656898d35869eebe3f906de5ee1722339e3e22c2088f8f48cbda26452ffeb7",
+        "src/baton_v12/contracts/canonical.py": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8",
+        "src/baton_v12/contracts/errors.py": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50",
+        "src/baton_v12/contracts/frozen.py": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+        "src/baton_v12/contracts/manifest.py": "77cc26266af73d490db8b3bd2514ab62a3d5a563858339d02783e661217fff8b",
+        "src/baton_v12/contracts/pod.py": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99",
+        "src/baton_v12/contracts/schema/agent-session-1.0.schema.json": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+        "src/baton_v12/contracts/schema/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+        "src/baton_v12/contracts/secrets.py": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b",
+        "src/baton_v12/contracts/validate.py": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+        "src/baton_v12/eventing.py": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486",
+        "src/baton_v12/integration/__init__.py": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+        "src/baton_v12/integration/admission.py": "9bf4cab3831255e341c01c2d06dc3f5ac07a817e5bb3ece197b4e365c97ea131",
+        "src/baton_v12/integration/driver.py": "6b3e0ab90b0c840151df72462dbf593b03a327ffe62d5ee6935a41246b97fb19",
+        "src/baton_v12/integration/execution.py": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e",
+        "src/baton_v12/integration/git_profile.py": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+        "src/baton_v12/integration/managed_execution.py": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+        "src/baton_v12/integration/oci_delivery.py": "5c48fcfe48c0ff845a8c11413837c0efc1c2fb29c419f18ab7d3c23cc2e3adca",
+        "src/baton_v12/integration/queue.py": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+        "src/baton_v12/integration/reconciliation.py": "5b6feb23b5991d31c564a81c6a476a2c62452708f17c5ac36650586402f2e58e",
+        "src/baton_v12/integration/recovery.py": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+        "src/baton_v12/integration/runtime.py": "ff027505380edd64b428c571fbd488ee950f3409efc0fd9af20acec94683d813",
+        "src/baton_v12/integration/schema.py": "2ff94a4d7509545c326e94b20020f23670482d6438e064653891072fd0a41e7a",
+        "src/baton_v12/integration/store.py": "06936f989e13f55509b97559c7086b1019b349ab637af35de3b5979ba3bb4eec",
+        "src/baton_v12/job_manager/__init__.py": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6",
+        "src/baton_v12/job_manager/delegation.py": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+        "src/baton_v12/job_manager/documents.py": "5fcd58b57c4b89c79bea0f72ce41df3da9b2aab4926d77ee22fd65ad7d3956d1",
+        "src/baton_v12/job_manager/ending.py": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99",
+        "src/baton_v12/job_manager/episodes.py": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865",
+        "src/baton_v12/job_manager/execution_limits.py": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442",
+        "src/baton_v12/job_manager/integration_capacity.py": "a3cd94bb9dfb23b0c364c3cef29a8588e3d406adee9f4fcdd8b3dfad73610708",
+        "src/baton_v12/job_manager/manager.py": "cd476d66063fd1a7324408f1cba3f4168f05446e5142771cc53579961bceddbe",
+        "src/baton_v12/job_manager/projection.py": "595008b9ddb06d947c3720eb5bd8928a53b65f2e7458bbd151f4a77d52fc6742",
+        "src/baton_v12/job_manager/review_driver.py": "b148669c84af0dc87d248cee293ac48a03553f9963603161502574e201a04d47",
+        "src/baton_v12/job_manager/scheduler.py": "4849facf1fc92be574eff4224537c6bc8e6f053a4e99dfba98beab7daa7b41e1",
+        "src/baton_v12/job_manager/schema.py": "0f8601611257c78d4b7102938980977b5e256fa772729e70f3104ece6edd8704",
+        "src/baton_v12/job_manager/store.py": "84141e0aab2ee45a58d7e51420c3c991802f037eeac7a51b3f4f3e686fa35c6d",
+        "src/baton_v12/job_manager/submission.py": "204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1",
+        "src/baton_v12/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+        "src/baton_v12/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+        "src/baton_v12/version.py": "8f854cd7b3e8ee5ae7216f226ce484f1a3e112c453e27e1e116fe3fb8e4ffd69",
+        "src/baton_v12/worker_manager/__init__.py": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099",
+        "src/baton_v12/worker_manager/attempt_logs.py": "482631fcd56b1f1504b87d92c14a1f122451017f7337dbf2ffab63c887513062",
+        "src/baton_v12/worker_manager/attempts.py": "b55045ebf7a617af662da191306f4ebc06711fe27a70b69a5a256cba11bd6bc4",
+        "src/baton_v12/worker_manager/authority_port.py": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6",
+        "src/baton_v12/worker_manager/boundaries.py": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+        "src/baton_v12/worker_manager/context_delivery.py": "f17ce3c53e52e152e18da8c2900f9697bd3df67d3b9363d999c9a4215518def4",
+        "src/baton_v12/worker_manager/credentials.py": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df",
+        "src/baton_v12/worker_manager/custody.py": "ac594cf099b4e4c65866b8c9004a598d55eaaecbc7b690c3bfeca8cc677939bf",
+        "src/baton_v12/worker_manager/deadlines.py": "acf03f24df07a1b7a6315ee0e49cd87e12f4a7c326baa798974a0f55dbe6299e",
+        "src/baton_v12/worker_manager/documents.py": "898b8a65e99f8a289d5a460b74fca080d7cc6ede35c2bd48fe76e8d49e7a9fde",
+        "src/baton_v12/worker_manager/events.py": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5",
+        "src/baton_v12/worker_manager/exchange.py": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8",
+        "src/baton_v12/worker_manager/handshake.py": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e",
+        "src/baton_v12/worker_manager/intake.py": "b79a307bfe41bd502c54adf6bd6792a431e408b88ea0479a7950d83d6346e63c",
+        "src/baton_v12/worker_manager/interrogation.py": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+        "src/baton_v12/worker_manager/lanes.py": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c",
+        "src/baton_v12/worker_manager/launch.py": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc",
+        "src/baton_v12/worker_manager/maintenance.py": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce",
+        "src/baton_v12/worker_manager/manifests.py": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866",
+        "src/baton_v12/worker_manager/oci.py": "a56d76c4fc1e4a7427fab7b56f79ec33e29fd0e52b56a1a8eca9da92f2de4d36",
+        "src/baton_v12/worker_manager/offers.py": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065",
+        "src/baton_v12/worker_manager/output.py": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+        "src/baton_v12/worker_manager/posture_slots.py": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+        "src/baton_v12/worker_manager/provider_context.py": "f7df4ff84813f6c007005cfdb509f8d667b598cfa456f67b4ef63aaebd659ee0",
+        "src/baton_v12/worker_manager/review_cycles.py": "53fc7c38115229e31014f94a287e1863700f211c16894ac8ee6d83d53d03acf7",
+        "src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+        "src/baton_v12/worker_manager/sealing.py": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+        "src/baton_v12/worker_manager/sessions.py": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+        "src/baton_v12/worker_manager/source_boundary.py": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+        "src/baton_v12/worker_manager/store.py": "3d44991274f75e2260dc12a5b8012650256b8400a771e93dc8e4d50c5b48dbc6",
+        "src/baton_v12/worker_manager/tokens.py": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4",
+        "src/baton_v12/worker_manager/worker_entry.py": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba",
+        "src/baton_v12/worker_manager/workspaces.py": "654094848d3a2af9a5733389ae7f159ccad1ce33e5fdac3a0597c1a12643c3bf",
+        "tools/__init__.py": "26c21454b5f7cfde863e5f615ee1cb5a33564a7026147c4ae6c8cf5446c60bf7",
+        "tools/accepted_base.py": "4aad8afd093f522bbc931415cd769fbb1fe304446d4ec80e73cf0b7790583d7e",
+        "tools/attempt_logs_command.py": "c360591014aeafc1f3fcd39253cba38de81e88d3e5691c842553faec694372f5",
+        "tools/bootstrap.py": "c1afc351110d1d58724a1f7e31208679fa75b96a65d917937974f9d70dd03c03",
+        "tools/build_stamp.py": "6b4fed17742702e9dc3577d8f4a54a9bf01d7ca947c1eacf739b18cad7c91218",
+        "tools/dogfood_operator.py": "a3722e436cf559d8b602259baed9ed8413b8945f4a168485b6efa184740548b1",
+        "tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+        "tools/instance.py": "1541bc46951aef07dfddae5584f20340088b9e626611d75858e2a66d6b2a7106",
+        "tools/integration_bundle.py": "1d17935c65ae5d23b9d92d132a06868d8baa18651c5c70a894f70dcd47e99bc3",
+        "tools/integration_placement.py": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161",
+        "tools/integration_worker.py": "b2e9a7712a9bb83b8f4996636f094a6752bfed5978359d76f6fb1fda97aa2b14",
+        "tools/job_manager.py": "83cbf5ee56b52e2696644046c7aa28c2211e9cd7db8b8c521f416f8abf3ae1ed",
+        "tools/job_viewer.py": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+        "tools/parallel_test.py": "ea1ef7b298f33c856b90cb73dd205d2c6cd1ee3b758bc3add063944596831085",
+        "tools/pool.py": "efd71561121529c615dac8847a1bd15df48dc8bba81675b0411add606832de82",
+        "tools/single_worker.py": "12a9e6a54b25f69ef1c2970affc11c458990cd633fbec1e927514e07decff289",
+        "tools/stack.py": "32c92bb1b077c7858164ae2ab5bcc74e395aac0e3ee65ad81ca5651c8db5b8fe",
+        "tools/stack_command.py": "26393cd3dd2c6c134d1706e520427291d04e46d7cfd094d18d95c58819fb8c43",
+        "tools/stage_execution.py": "38c4cf74db023733603ea88f02b0246c0b16a62afecb743b77cf502ffc5e19e6",
+        "tools/user_credentials.py": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b",
+        "tools/worker_image.py": "6bc3f08363a13f70724001638340f21eeed21eb62ea5de9ff359fb0dcc22eeb1"
+      },
+      "packages": [
+        "baton_v12",
+        "tools"
+      ],
+      "path": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/packet/complete-manager-source/v12/python"
+    },
+    "note": "the generated baseline packet, driven deterministically",
+    "outcome_path": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/outcome.json",
+    "run_id": "fresh-os-deadline_stops_an_active_worker",
+    "schema": "baton.single-implementation-packet/2",
+    "submission": {
+      "job_id": "job-fresh-os-deadline_stops_an_active_worker",
+      "path": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/submission.json",
+      "sha256": "686cfbed3d8eadf9ac3db3f29911f7a8b790bfa19bcf000fa203cb01c11e909b"
+    },
+    "supervisor": {
+      "path": "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+      "sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771"
+    },
+    "work": "W239528",
+    "worker_image": {
+      "config_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "reference": "baton-v12-claude-worker:deterministic",
+      "worker_files": {
+        "opt/baton/claude_agent.py": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  },
+  "commands": {
+    "environment": {
+      "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/deployment.json",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/packet/complete-manager-source/v12/python/src:/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/packet/complete-manager-source/v12/python"
+    },
+    "outcome": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/outcome.json",
+    "schema": "baton.single-implementation-commands/1",
+    "start": [
+      "/home/sl/.local/state/baton-v12-venv/bin/python",
+      "-B",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+      "--packet",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/PACKET.json",
+      "--incarnation",
+      "fresh-os-deadline_stops_an_active_worker"
+    ],
+    "status": [
+      "/home/sl/.local/state/baton-v12-venv/bin/python",
+      "-B",
+      "-m",
+      "tools.stack_command",
+      "manager",
+      "--store",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/jobs.sqlite3",
+      "--incarnation",
+      "fresh-os-deadline_stops_an_active_worker-read",
+      "--authority-uuid",
+      "0000000a000000000000000000000000",
+      "status",
+      "--control",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/control.sqlite3",
+      "--observe",
+      "tools.stage_execution:observing_factory"
+    ],
+    "submission_owner": "start; do not also submit manually",
+    "termination": "SIGINT/SIGTERM requests this supervisor's bounded cancellation/accounting; a held outcome is not cessation proof"
+  },
+  "outcome": {
+    "accounting_scope": "this run accounts for Job 'job-fresh-os-deadline_stops_an_active_worker' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+    "admissions": {
+      "implementation": 1
+    },
+    "admitted_attempts": [
+      "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    "attempt_origins": {
+      "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c": "started"
+    },
+    "cancellation": {
+      "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c": {
+        "answer": {
+          "fenced": {
+            "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.claude', 'generation': 1}",
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": "{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.claude', 'generation': 1}",
+            "attempt_id": "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+            "authority_operation_id": "authority.attempt.cancel:0b7cefd914384671f64d47733b3141a59a7daa58d1a8d32b245b7cccf63cfa26",
+            "reason": "overall-bound-exceeded"
+          },
+          "quiescence": {
+            "agent_settlement": "{'cooperative': False, 'participant': 'baton.claude', 'attempt_id': 'attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c', 'operation_id': 'attempt.cancel:0b7cefd914384671f64d47733b3141a59a7daa58d1a8d32b245b7cccf63cfa26', 'why': \"this deployment's worker is driven through a durable file exchange and carries no cooperative cancellation channel; the runtime stop below is the whole of the order this attempt receives\"}",
+            "ordered": true,
+            "runtime_id": "runtime-os-fixture-1",
+            "runtime_settlement": "{'runtime_id': 'runtime-os-fixture-1', 'ordered': True, 'state': 'quiescent', 'why': 'the engine reports it not running'}"
+          },
+          "session_quiescence": {
+            "agent_session_ref": null,
+            "requested": false,
+            "state": null,
+            "why": "no execution session holds the posture of attempt 'attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a\u2026; there is no conversation to interrupt"
+          }
+        },
+        "execution_runtime": "running",
+        "requested": true,
+        "runtime_id": "runtime-os-fixture-1",
+        "stage_state": "running"
+      }
+    },
+    "claim": 239653,
+    "cleanup": {
+      "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c": {
+        "cleanup": null,
+        "why": "no committed cleanup"
+      }
+    },
+    "cleanup_sweeps": 5,
+    "final_canonical_read": true,
+    "finished_at": "2026-09-28T22:03:43.152Z",
+    "foreign_admissions": [],
+    "gate_refusals": [],
+    "held_because": [
+      "this manager cannot prove positive cleanup for attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+      "the run stopped 'overall-bound-exceeded' rather than completing its stages",
+      "attempt attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c froze no result at all, so its turn ended before it could answer. The adapter refuses a turn it cannot give an account of; the attempt's retained events carry the refusal.",
+      "this run retained no proposal at all, so it established nothing about the implementation path"
+    ],
+    "interrupted": null,
+    "interruptions": [],
+    "job_id": "job-fresh-os-deadline_stops_an_active_worker",
+    "observed_attempts": [
+      "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    "outstanding_cleanup": [
+      "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    "preexisting_jobs": [],
+    "preexisting_stages": {},
+    "provider_turn": {
+      "default_seconds": 3600,
+      "origin": "job",
+      "seconds": 180,
+      "setting": "provider_turn_seconds"
+    },
+    "retry": false,
+    "run_id": "fresh-os-deadline_stops_an_active_worker",
+    "schema": "baton.single-implementation-outcome/1",
+    "served_seconds": 7.371527513023466,
+    "serving_failure": null,
+    "stage_states": {
+      "implementation": "exceptional"
+    },
+    "stalled_after": 6,
+    "stalled_ticks": 0,
+    "started_order": [
+      "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    "state": "held",
+    "stopped": "overall-bound-exceeded",
+    "submission_id": "fresh-os-deadline_stops_an_active_worker-submission",
+    "submitted_at": "2026-09-28T22:03:30.530Z",
+    "unallocated_attempts": [],
+    "uncertainty": [],
+    "unexpected_attempts": [],
+    "work": "W239528",
+    "workload": {
+      "attribution": [],
+      "conversations": [],
+      "dispositions": [
+        {
+          "attempt_id": "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+          "disposition": null
+        }
+      ],
+      "generations": [],
+      "implementation_attempts": [
+        "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+      ],
+      "modes": [],
+      "proposals": [],
+      "shortfalls": [
+        "attempt attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c froze no result at all, so its turn ended before it could answer. The adapter refuses a turn it cannot give an account of; the attempt's retained events carry the refusal.",
+        "this run retained no proposal at all, so it established nothing about the implementation path"
+      ]
+    }
+  },
+  "status": {
+    "schema": "baton.v12.job-status/6",
+    "observed_at": "2026-09-28T22:03:43.512Z",
+    "incarnation": "fresh-os-deadline_stops_an_active_worker-read",
+    "canonical": true,
+    "jobs": [
+      {
+        "job_id": "job-fresh-os-deadline_stops_an_active_worker",
+        "submission_id": "fresh-os-deadline_stops_an_active_worker-submission",
+        "input_digest": "sha256:75a2d6b6aaaa4e9056714f3de7240d2e79694059c4c1d4cfc65e96171e35475a",
+        "policy_digest": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+        "test_scope": [],
+        "terminal_policy": "report-and-hold",
+        "execution_limits": {
+          "units": "seconds",
+          "scope": "per-invocation",
+          "compatibility_generation": 1,
+          "requested": {
+            "provider_turn_seconds": 180,
+            "verification_command_seconds": 30
+          },
+          "boundaries": {
+            "host_verification": {
+              "seconds": 30,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 300
+            },
+            "integration_verification": {
+              "seconds": 30,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 1800
+            },
+            "ordinary_verification": {
+              "seconds": 30,
+              "origin": "job",
+              "setting": "verification_command_seconds",
+              "default_seconds": 900
+            },
+            "provider_turn": {
+              "seconds": 180,
+              "origin": "job",
+              "setting": "provider_turn_seconds",
+              "default_seconds": 3600
+            }
+          }
+        },
+        "stages": [
+          {
+            "stage_id": "job-fresh-os-deadline_stops_an_active_worker/implementation",
+            "job_id": "job-fresh-os-deadline_stops_an_active_worker",
+            "kind": "implementation",
+            "state": "exceptional",
+            "work_id": "0000000a-W1",
+            "profile_name": "claude-fresh-implementation",
+            "profile_digest": "sha256:866e7169c3ebee61bf30e56c3b3a64e726fecd4c222f8903bcb70f8094ce7420",
+            "episode": 1,
+            "offer_id": "offer-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+            "attempt_id": "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+            "episodes": [
+              {
+                "stage_id": "job-fresh-os-deadline_stops_an_active_worker/implementation",
+                "episode": 1,
+                "offer_id": "offer-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+                "attempt_id": "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+                "opened_at": "2026-09-28T22:03:30.530Z",
+                "incarnation": "fresh-os-deadline_stops_an_active_worker",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 0,
+            "allocation": {
+              "assignment_id": "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+              "stage_id": "job-fresh-os-deadline_stops_an_active_worker/implementation",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "implementation-worker",
+              "lane": "implementation",
+              "participant": "baton.claude",
+              "canonical_principal": "principal:baton.claude",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "reserved",
+              "reserved_at": "2026-09-28T22:03:30.537Z",
+              "recovery_required_at": null,
+              "released_at": null,
+              "release_reason": null,
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:183183d1da074a08cdca0571e3b97e476e0e83f126d6ae3df5c0279721b2cb27",
+              "worker_profile_name": "claude-fresh-implementation",
+              "worker_profile_digest": "sha256:866e7169c3ebee61bf30e56c3b3a64e726fecd4c222f8903bcb70f8094ce7420"
+            },
+            "allocations": [
+              {
+                "assignment_id": "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+                "stage_id": "job-fresh-os-deadline_stops_an_active_worker/implementation",
+                "episode": 1,
+                "generation": 1,
+                "worker_id": "implementation-worker",
+                "lane": "implementation",
+                "participant": "baton.claude",
+                "canonical_principal": "principal:baton.claude",
+                "preferred_worker_id": null,
+                "selection_outcome": "initial",
+                "allocation_state": "reserved",
+                "reserved_at": "2026-09-28T22:03:30.537Z",
+                "recovery_required_at": null,
+                "released_at": null,
+                "release_reason": null,
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:183183d1da074a08cdca0571e3b97e476e0e83f126d6ae3df5c0279721b2cb27",
+                "worker_profile_name": "claude-fresh-implementation",
+                "worker_profile_digest": "sha256:866e7169c3ebee61bf30e56c3b3a64e726fecd4c222f8903bcb70f8094ce7420"
+              }
+            ],
+            "gates": [],
+            "receipts": [
+              {
+                "stage_id": "job-fresh-os-deadline_stops_an_active_worker/implementation",
+                "episode": 1,
+                "act": "admit",
+                "operation_id": "offer.issue:offer-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+                "state": "performed",
+                "recorded_at": "2026-09-28T22:03:30.541Z",
+                "detail": {
+                  "canonical_state": "committed",
+                  "refusal": null,
+                  "result": {
+                    "expires_at": "2026-09-28T22:05:30.539Z",
+                    "issued_at": "2026-09-28T22:03:30.539Z",
+                    "offer_id": "offer-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+                    "participant": "baton.claude",
+                    "runtime_attempt_id": "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+                    "verifier": "sha256:b6309a9c7b5bb1d07e9647be79cf460f604e50850e943850b25d82a2448d853f",
+                    "work_id": "0000000a-W1"
+                  },
+                  "settled_at": "2026-09-28T22:03:30.540Z"
+                }
+              },
+              {
+                "stage_id": "job-fresh-os-deadline_stops_an_active_worker/implementation",
+                "episode": 1,
+                "act": "claim",
+                "operation_id": "offer.settle:offer-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+                "state": "performed",
+                "recorded_at": "2026-09-28T22:03:31.549Z",
+                "detail": {
+                  "canonical_state": "committed",
+                  "refusal": null,
+                  "result": {
+                    "assignment": {
+                      "generation": 1,
+                      "participant": "baton.claude",
+                      "work_ref": {
+                        "authority_uuid": "0000000a000000000000000000000000",
+                        "work_id": "0000000a-W1"
+                      }
+                    },
+                    "claim_event": 1,
+                    "decision": {
+                      "effective_scope": "scope:deployment",
+                      "endpoint": "baton.claude",
+                      "grant": "direct",
+                      "policy_generation": 9,
+                      "principal": "principal:baton.claude",
+                      "role": "baton.impl"
+                    },
+                    "offer_id": "offer-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+                    "state": "claimed"
+                  },
+                  "settled_at": "2026-09-28T22:03:31.549Z"
+                }
+              }
+            ],
+            "deferral": null,
+            "runtime": {
+              "runtime_id": "runtime-os-fixture-1",
+              "execution_runtime": "quiescent",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              },
+              "activity": {
+                "attempt_id": "attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+                "bytes_observed": null,
+                "observed_at": null
+              }
+            },
+            "exchange": {
+              "transport": "baton.worker-exchange/1",
+              "sequence_id": "sequence-e1e0e8f571fddd875073a29a3fa1db58",
+              "command": {
+                "sequence_id": "sequence-e1e0e8f571fddd875073a29a3fa1db58",
+                "command_digest": "sha256:872116be09c23425d256e7137ff0e21a1b7b06750d32d631f211b81c4704cada",
+                "operations": [
+                  "describe",
+                  "work"
+                ]
+              },
+              "receipt": {
+                "accepted_at": "2026-09-28T22:03:33.000Z"
+              },
+              "states": [
+                {
+                  "operation": "describe",
+                  "state": "answered"
+                },
+                {
+                  "operation": "work",
+                  "state": "dispatched"
+                }
+              ],
+              "terminal": null,
+              "foreign": [],
+              "unreadable": null,
+              "state": "working"
+            },
+            "artifacts": null
+          }
+        ]
+      }
+    ]
+  },
+  "engine_calls": [
+    [
+      "image",
+      "inspect",
+      "baton-v12-claude-worker:deterministic"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "create",
+      "--name",
+      "baton-runtime.start-4962adc5e496eb4c02bfc4bdbb552b8c9640b045deddaa5c2ce790be341034fc",
+      "--interactive",
+      "--cap-drop",
+      "ALL",
+      "--security-opt",
+      "no-new-privileges",
+      "--security-opt",
+      "label=disable",
+      "--user",
+      "1000:1000",
+      "--read-only",
+      "--network",
+      "baton-provider-egress",
+      "--pids-limit",
+      "512",
+      "--memory",
+      "2g",
+      "--cpus",
+      "2",
+      "--tmpfs",
+      "/tmp:rw,noexec,nosuid,nodev,size=64m",
+      "--tmpfs",
+      "/dev/shm:rw,noexec,nosuid,nodev,size=16m",
+      "--tmpfs",
+      "/run/baton/logs:rw,noexec,nosuid,nodev,size=16m",
+      "--group-add",
+      "1000",
+      "--label",
+      "baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c",
+      "--label",
+      "baton.v12.authority_uuid=0000000a000000000000000000000000",
+      "--label",
+      "baton.v12.work_id=0000000a-W1",
+      "--label",
+      "baton.v12.participant=baton.claude",
+      "--label",
+      "baton.v12.generation=1",
+      "--label",
+      "baton.v12.principal=principal:baton.claude",
+      "--label",
+      "baton.v12.effective_scope=scope:deployment",
+      "--label",
+      "baton.v12.profile_digest=sha256:866e7169c3ebee61bf30e56c3b3a64e726fecd4c222f8903bcb70f8094ce7420",
+      "--label",
+      "baton.v12.policy_digest=sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+      "--label",
+      "baton.v12.adapter_digest=sha256:707e6ec1154526d1bad316b5f61749891219e5f8b1be95ca7b8cc970d545aa4a",
+      "--mount",
+      "type=bind,source=/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/storage/attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c/inputs,target=/input,readonly=true",
+      "--mount",
+      "type=bind,source=/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout,target=/output,readonly=false",
+      "--mount",
+      "type=bind,source=/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/credentials/implementation/credentials/attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c/claude,target=/run/baton/credentials/claude,readonly=true",
+      "--mount",
+      "type=bind,source=/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/launch/implementation/attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c/launch.json,target=/run/baton/launch.json,readonly=true",
+      "--mount",
+      "type=bind,source=/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/launch/implementation/attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c/command,target=/run/baton/exchange/command,readonly=true",
+      "--mount",
+      "type=bind,source=/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/launch/implementation/attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c/events,target=/run/baton/exchange/events,readonly=false",
+      "--mount",
+      "type=bind,source=/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/launch/implementation/logs/attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c,target=/run/baton/attempt-logs,readonly=false",
+      "--mount",
+      "type=bind,source=/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/storage/attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c/scratch,target=/scratch,readonly=false",
+      "--mount",
+      "type=bind,source=/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/source,target=/input/source,readonly=true",
+      "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    ],
+    [
+      "start",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "stop",
+      "--time",
+      "30",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ],
+    [
+      "ps",
+      "--all",
+      "--no-trunc",
+      "--format",
+      "{{json .}}",
+      "--filter",
+      "label=baton.v12.runtime_attempt_id=attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c"
+    ],
+    [
+      "inspect",
+      "--type",
+      "container",
+      "--format",
+      "{{json .}}",
+      "runtime-os-fixture-1"
+    ]
+  ],
+  "supervisor_exit": 1,
+  "supervisor_stderr": "composing the reviewed deployment under code boundary /home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/packet/complete-manager-source/v12/python\n{\n  \"accounting_scope\": \"this run accounts for Job 'job-fresh-os-deadline_stops_an_active_worker' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.\",\n  \"admissions\": {\n    \"implementation\": 1\n  },\n  \"admitted_attempts\": [\n    \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\"\n  ],\n  \"attempt_origins\": {\n    \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\": \"started\"\n  },\n  \"cancellation\": {\n    \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\": {\n      \"answer\": {\n        \"fenced\": {\n          \"assignment\": \"{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.claude', 'generation': 1}\",\n          \"cause\": \"cancelled\",\n          \"fenced\": true,\n          \"gate\": \"runtime-quiescence:1\",\n          \"phase\": \"block\"\n        },\n        \"intent\": {\n          \"assignment\": \"{'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.claude', 'generation': 1}\",\n          \"attempt_id\": \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\",\n          \"authority_operation_id\": \"authority.attempt.cancel:0b7cefd914384671f64d47733b3141a59a7daa58d1a8d32b245b7cccf63cfa26\",\n          \"reason\": \"overall-bound-exceeded\"\n        },\n        \"quiescence\": {\n          \"agent_settlement\": \"{'cooperative': False, 'participant': 'baton.claude', 'attempt_id': 'attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c', 'operation_id': 'attempt.cancel:0b7cefd914384671f64d47733b3141a59a7daa58d1a8d32b245b7cccf63cfa26', 'why': \\\"this deployment's worker is driven through a durable file exchange and carries no cooperative cancellation channel; the runtime stop below is the whole of the order this attempt receives\\\"}\",\n          \"ordered\": true,\n          \"runtime_id\": \"runtime-os-fixture-1\",\n          \"runtime_settlement\": \"{'runtime_id': 'runtime-os-fixture-1', 'ordered': True, 'state': 'quiescent', 'why': 'the engine reports it not running'}\"\n        },\n        \"session_quiescence\": {\n          \"agent_session_ref\": null,\n          \"requested\": false,\n          \"state\": null,\n          \"why\": \"no execution session holds the posture of attempt 'attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a\\u2026; there is no conversation to interrupt\"\n        }\n      },\n      \"execution_runtime\": \"running\",\n      \"requested\": true,\n      \"runtime_id\": \"runtime-os-fixture-1\",\n      \"stage_state\": \"running\"\n    }\n  },\n  \"claim\": 239653,\n  \"cleanup\": {\n    \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\": {\n      \"cleanup\": null,\n      \"why\": \"no committed cleanup\"\n    }\n  },\n  \"cleanup_sweeps\": 5,\n  \"final_canonical_read\": true,\n  \"finished_at\": \"2026-09-28T22:03:43.152Z\",\n  \"foreign_admissions\": [],\n  \"gate_refusals\": [],\n  \"held_because\": [\n    \"this manager cannot prove positive cleanup for attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\",\n    \"the run stopped 'overall-bound-exceeded' rather than completing its stages\",\n    \"attempt attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c froze no result at all, so its turn ended before it could answer. The adapter refuses a turn it cannot give an account of; the attempt's retained events carry the refusal.\",\n    \"this run retained no proposal at all, so it established nothing about the implementation path\"\n  ],\n  \"interrupted\": null,\n  \"interruptions\": [],\n  \"job_id\": \"job-fresh-os-deadline_stops_an_active_worker\",\n  \"observed_attempts\": [\n    \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\"\n  ],\n  \"outstanding_cleanup\": [\n    \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\"\n  ],\n  \"preexisting_jobs\": [],\n  \"preexisting_stages\": {},\n  \"provider_turn\": {\n    \"default_seconds\": 3600,\n    \"origin\": \"job\",\n    \"seconds\": 180,\n    \"setting\": \"provider_turn_seconds\"\n  },\n  \"retry\": false,\n  \"run_id\": \"fresh-os-deadline_stops_an_active_worker\",\n  \"schema\": \"baton.single-implementation-outcome/1\",\n  \"served_seconds\": 7.371527513023466,\n  \"serving_failure\": null,\n  \"stage_states\": {\n    \"implementation\": \"exceptional\"\n  },\n  \"stalled_after\": 6,\n  \"stalled_ticks\": 0,\n  \"started_order\": [\n    \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\"\n  ],\n  \"state\": \"held\",\n  \"stopped\": \"overall-bound-exceeded\",\n  \"submission_id\": \"fresh-os-deadline_stops_an_active_worker-submission\",\n  \"submitted_at\": \"2026-09-28T22:03:30.530Z\",\n  \"unallocated_attempts\": [],\n  \"uncertainty\": [],\n  \"unexpected_attempts\": [],\n  \"work\": \"W239528\",\n  \"workload\": {\n    \"attribution\": [],\n    \"conversations\": [],\n    \"dispositions\": [\n      {\n        \"attempt_id\": \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\",\n        \"disposition\": null\n      }\n    ],\n    \"generations\": [],\n    \"implementation_attempts\": [\n      \"attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c\"\n    ],\n    \"modes\": [],\n    \"proposals\": [],\n    \"shortfalls\": [\n      \"attempt attempt-9689856d3ac2d300c8c2c7c932fecb7395c6d7cec19db817f4a82ddd161aa57c froze no result at all, so its turn ended before it could answer. The adapter refuses a turn it cannot give an account of; the attempt's retained events carry the refusal.\",\n      \"this run retained no proposal at all, so it established nothing about the implementation path\"\n    ]\n  }\n}\nheld: the outcome is retained at /home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/generated-run/outcome.json\n",
+  "worker_log": "",
+  "worker_done": null,
+  "cessation": {
+    "pid": 168,
+    "observed": "process-exited"
+  },
+  "output_path": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-1_kjasfi/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+  "output_mode_before_fixture_teardown": "0o775"
+}

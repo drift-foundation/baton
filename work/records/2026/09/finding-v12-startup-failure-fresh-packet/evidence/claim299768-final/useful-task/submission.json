@@ -1,0 +1,26 @@
+{
+  "jobs": [
+    {
+      "execution_limits": {
+        "provider_turn_seconds": 180,
+        "verification_command_seconds": 30
+      },
+      "input_digest": "sha256:e33b2ad2d470f701358f21e6252b02637c9f8312d5c2b3f4c4d166d93289a90c",
+      "job_id": "job-fresh-os-useful_documentation_packet",
+      "policy_digest": "sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795",
+      "stages": [
+        {
+          "depends_on": [],
+          "kind": "implementation",
+          "profile_digest": "sha256:866e7169c3ebee61bf30e56c3b3a64e726fecd4c222f8903bcb70f8094ce7420",
+          "profile_name": "claude-fresh-implementation",
+          "work_id": "0000000a-W1"
+        }
+      ],
+      "terminal_policy": "report-and-hold",
+      "test_scope": []
+    }
+  ],
+  "schema": "baton.v12.job-submission/2",
+  "submission_id": "fresh-os-useful_documentation_packet-submission"
+}

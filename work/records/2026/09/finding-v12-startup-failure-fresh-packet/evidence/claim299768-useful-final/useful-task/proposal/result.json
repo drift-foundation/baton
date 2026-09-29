@@ -1,0 +1,26 @@
+{
+ "base": "fe9a0670c81e6a9eefa7452da0379d79cbea6920",
+ "changed_paths": [
+  "docs/v12-first-job-inspection.md"
+ ],
+ "collection": null,
+ "disposition": "candidate",
+ "entry_head": "fe9a0670c81e6a9eefa7452da0379d79cbea6920",
+ "head": "242342f312c98342ff35a6bc848745421971636d",
+ "provider": {
+  "failure_reason": null,
+  "seconds_bound": 3600,
+  "status": 0
+ },
+ "schema": "baton.dogfood-proposal/2",
+ "task_id": "fresh-os-useful_documentation_packet",
+ "verification": {
+  "argv": [
+   "python3",
+   "-c",
+   "from pathlib import Path; p=Path('docs/v12-first-job-inspection.md'); assert p.is_file(); assert len(p.read_text().splitlines()) < 100"
+  ],
+  "status": 0
+ },
+ "why": "the candidate changed the source and its own verification passed"
+}

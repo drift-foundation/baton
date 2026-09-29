@@ -1,3 +1,41 @@
+# Current checkpoint — reached create_line DB-1 blocks final qualification
+
+2026-09-28T22-22-49Z, reviewer299834; handoff299832; events299834/T257627 through292130. Latest review review-2026-09-28T22-22-49Z.md. Candidate299768 all201 hashes match. Independent useful task1PASS5.730s; required DB-1 probe1FAIL0.238s (46lstat+1fchmod inside transaction). Evidence useful-review299834 and db1-review299834.json.
+
+Accept bounded useful-task transport/collection rehearsal, preserve accepted B1/failure/provider proofs. Final packet remains unqualified. Exact blocker review_cycles.create_line completion performs filesystem identity/integrity/access effects inside ControlStore.transact. W257624 already owns this residual but is at owner disposition; tuner291841 has no runtime fifth-path authority.
+
+NEXT baton.decide: select exact bounded create_line correction/serial ownership under W257624 or a bound provider; install its actual required consumer dependency before freeze. No blanket old-R3 resumption or unchanged tuner redelivery. Existing graph unchanged; broad W257624 closure is not silently made the new packet gate. Reviewer recommendation/details and focused safety obligations in latest review. No product change by reviewer.
+
+After independent provider acceptance: tuner refreshes runtime hashes, reruns DB-1 plus useful packet, reuses unaffected schedules, resolves operational runtime/image/profile/fresh-identity operands and finishes freeze. Captures use fake credentials/disposable roots/runtime sentinel, not launch instructions. No live/build/deployment selected; no renewed gate for ordinary authorized packet work.
+
+Explicit clarification: ordinary intake preservation uses prepared_store=None; older PROVIDER-MAP sentence requiring it is superseded. W270664 standalone debt remains out of ordinary completion. Preserve W257624 restoration acceptance/other residuals and W247941 edges. Reviewer FINDING/PLAN/reviews; tuner four-path/PROGRESS/evidence ownership unchanged. Earlier checkpoints below are history where superseded.
+
+---
+
+# Current checkpoint — B1 literal rehearsal accepted; finish B2–B5
+
+2026-09-28T22-10-36Z, reviewer299746; handoff299742; events299746, T257627 through292130 unchanged. Latest review review-2026-09-28T22-10-36Z.md; candidate299662 all134 hashes match before/after; independent four literal schedules4PASS40.413s. Evidence evidence/review299746 and review-manifest-2026-09-28T22-10-36Z.json.
+
+Supersedes prior missing OS/active-runtime milestone below: bounded fake-engine positive, active interrupt/deadline and inaccessible-output schedules are now independently accepted. Preserve exact holds and simulated/live distinction. Whole useful-task packet remains unfinished and not launch-ready. W285465 provider wait remains satisfied.
+
+Next executable milestone: B1-CHECKPOINT-299662.md B2–B5. Map accepted provider/reached consumer evidence and residual ownership, bind immutable useful-doc-task/runtime/image/profile/input operands, then final packet rehearsal. No broad reopened audit, new automatic cleanup, graph change or live execution. Preserve W257624 adoption edge and separately owned residuals. Historical image-source match is not current OCI/access proof.
+
+Route baton.tune under existing owner291841 four-path/dossier authority, without renewed permission. Tuner owns implementation/PROGRESS/evidence; reviewer FINDING/PLAN/reviews. Prior accepted proofs and failed iterations remain history below.
+
+---
+
+# Current checkpoint — B1 partial proofs accepted; continue tuner
+
+2026-09-28T21-55-22Z, reviewer claim299646, handoff299633; events299646/T257627 through292130. Latest review review-2026-09-28T21-55-22Z.md. B1-CANDIDATE-299571.json all112 hashes match; independent bindings36PASS2.983s. W285465 closed satisfying: prior waiting checkpoint below is explicitly superseded. Ordinary continuation to baton.tune under owner291841; no renewed owner permission.
+
+Accepted this pass: connected fresh positive, literal OS start preflight/refusal and OS status readback. Not accepted yet: full literal subprocess start-to-outcome, active-runtime interruption/deadline/access preservation and final packet. Next executable milestone is B1-CHECKPOINT-299571.md full OS rehearsal with fail-closed deterministic engine/provider boundaries, sole submission owner, exact correlation and no context/helper starts. Preserve repo-shaped copied source and historical flat-layout refusal.
+
+Then B2–B5: consume accepted no-helper evidence, record reached residual/provider disposition, immutable runtime/image/profile/input compatibility, final rehearsal/freeze. No live run/build selected. W270664 latest review proves ordinary workspace deletion non-reach; its standalone residual remains owner disposition, not automatic packet work. Existing graph unchanged; no silent disposal of W257624 debt.
+
+Tuner retains four selected B1 paths per owner291841 and PROGRESS/evidence. Reviewer owns FINDING/PLAN/reviews. Existing B1-CONTINUATION-292052.md sequence remains applicable except its provider-wait prerequisite is satisfied. Full packet is not launch-ready. Earlier checkpoints below are historical where contradicted here.
+
+---
+
 # Current scheduling — required provider W285465
 
 Claim292144; events292144/thread292130. Partial response292130 cleared M292090

@@ -1,0 +1,8 @@
+{
+  "automatic_retry": false,
+  "implementer_invocations": 1,
+  "note": "the caps the admission gate enforces; W239528",
+  "provider_turn_seconds": 180,
+  "schema": "baton.single-implementation-execution-policy/1",
+  "verification_command_seconds": 30
+}

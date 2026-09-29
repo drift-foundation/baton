@@ -1,0 +1,38 @@
+{
+  "environment": {
+    "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-dtx2sncl/generated-run/deployment.json",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-dtx2sncl/packet/complete-manager-source/v12/python/src:/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-dtx2sncl/packet/complete-manager-source/v12/python"
+  },
+  "outcome": "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-dtx2sncl/generated-run/outcome.json",
+  "schema": "baton.single-implementation-commands/1",
+  "start": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+    "--packet",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-dtx2sncl/generated-run/PACKET.json",
+    "--incarnation",
+    "fresh-os-useful_documentation_packet"
+  ],
+  "status": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-B",
+    "-m",
+    "tools.stack_command",
+    "manager",
+    "--store",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-dtx2sncl/jobs.sqlite3",
+    "--incarnation",
+    "fresh-os-useful_documentation_packet-read",
+    "--authority-uuid",
+    "0000000a000000000000000000000000",
+    "status",
+    "--control",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/scratch/v12-w71917-dtx2sncl/control.sqlite3",
+    "--observe",
+    "tools.stage_execution:observing_factory"
+  ],
+  "submission_owner": "start; do not also submit manually",
+  "termination": "SIGINT/SIGTERM requests this supervisor's bounded cancellation/accounting; a held outcome is not cessation proof"
+}

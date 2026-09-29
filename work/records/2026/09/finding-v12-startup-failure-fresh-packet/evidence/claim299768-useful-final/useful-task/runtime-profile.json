@@ -1,0 +1,17 @@
+{
+  "cli_build": "2.1.247",
+  "engine": "docker",
+  "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+  "image_reference": "baton-v12-claude-worker:w239528-244216",
+  "model": "opus",
+  "name": "claude-fresh-implementation",
+  "network": "baton-provider-egress",
+  "note": "one bounded managed implementation; W239528",
+  "runtime_uid": 1000,
+  "schema": "baton.single-implementation-runtime-profile/1",
+  "scratch": {
+    "shm_bytes": 16777216,
+    "tmp_bytes": 67108864
+  },
+  "workspace_min_bytes": 83886081
+}

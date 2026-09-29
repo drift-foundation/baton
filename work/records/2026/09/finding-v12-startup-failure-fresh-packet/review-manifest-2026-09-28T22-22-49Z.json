@@ -1,0 +1,85 @@
+{
+  "claim": 299834,
+  "files": [
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/B1-CANDIDATE-299768.json",
+      "sha256": "7bef86602464efe1b7a9f7ecd6c7e382c3c6d2203110cc15185b05443568a7dd"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/review-2026-09-28T22-22-49Z.md",
+      "sha256": "f3cd241c131f7a778c36155e5695a0bed3341174556d341c0ba343be2b50f3b6"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/db1-review299834.json",
+      "sha256": "f9e854ba500572cb2ec508dc36044bdf3d4a02aa0a9ab455f5b41df641a7ead7"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-positive.json",
+      "sha256": "8f41af4761ba952c858b6f0e9bd900d227ab1125208fee5233acb055bdab1cd3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/PACKET.json",
+      "sha256": "110db83473c8a72b4fe1d3c7086ddb08aef58a1d05fad25d5ffe8e36861e934e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/SOURCE-EXCERPTS-20260928.md",
+      "sha256": "b4e27d5e91334f505c5f952c85bada1e2420a92b6f320673af6f60b5a8d3737e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/TASK-SINGLE-JOB-20260928.md",
+      "sha256": "6ece1c8f8cfe023f3ad36ea383c2b77581a8c13e01c2b3a4d92d4ffdb6332f6e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/adapter.json",
+      "sha256": "ea9d311cc04f5a275593a652e084ccd872eb71b92454705c9efeed466c95a87b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/commands.json",
+      "sha256": "5e6ed52a8131e243bb3b559d896e966380a1456d0863ac934a0b4ff15fb891b7"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/deployment.json",
+      "sha256": "24ff58ab319daca395e70e59d6cd0a4acc62a5f3444f51b3d236b80afebed3a8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/policy.json",
+      "sha256": "70c95c2d429a58bc11c1ef152dc02a105b44bafcb27df28e9be7a939c0ad9a82"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/proposal/change.patch",
+      "sha256": "a1d2d02e9755ad9ea13cb5180d8a6d4d7cb39fcd6babc11d0f5979e8e50dd771"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/proposal/objects.bundle",
+      "sha256": "a499a8adaed060a9e5cb9af70cf16b763a6ef0f965cad9747e362449c469934f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/proposal/result.json",
+      "sha256": "b38dfa0e938a849ba5261b6b1d1bf77ac8f6eb97aad34bb3f61354a1b4b6e0fd"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/proposal/verification.txt",
+      "sha256": "522cea11a3123edfb32e722def09448e21137a3d1e36c3f4f327c2efe2d3e261"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/runtime-profile.json",
+      "sha256": "6c8ceffdb5127fcd175bf0d075f38475783991557623ecd80b66e7f21ac77903"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/source-base.bundle",
+      "sha256": "cd63a1b90095750bae17529928a83f44d8cff21a62d500f7fa38f603e00adc61"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/submission.json",
+      "sha256": "e38e3b15112e270a01f428182c1cc91c028fa05dfd19e9aa946ff534ed5cc76c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/task.json",
+      "sha256": "5b228ef5667bd470958d804a66a0b810a03c1c498a85662b38a7081d6fd63cf5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/useful-review299834/useful-task/verification.json",
+      "sha256": "92e579234085934c441d92ce3fdffb93c03b5da630ffefb7e70e30a8fd666ae1"
+    }
+  ]
+}

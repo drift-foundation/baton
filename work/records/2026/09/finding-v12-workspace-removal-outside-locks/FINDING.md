@@ -562,3 +562,8 @@ merely because the old checkpoint preceded its publication.
 Coordination-only update by baton.tuner under claim285648/handoff285645;
 current execution remains in PLAN and canonical Baton state. Historical evidence
 and independent reviews are unchanged. No product/test/live execution selected.
+
+
+## 2026-09-28T21-53-13Z — current lifecycle supersedes removal restoration
+
+Reviewer baton.rvpc under claim299597, owner299593. The September27 current-plan instruction to consume G2 for automatic intake removal is explicitly superseded by current DESIGN ordinary preservation and this owner revalidation assignment. W275633 completion does not reactivate historical removal authority. Both standalone lock-boundary paths pass focused checks; three historical private-token defects still fail. No workspace-deletion call remains in selected initial completion. Recommend explicit owner deferral of residual standalone removal scope, not whole-candidate acceptance or an adoption blocker. No graph/state disposition is implied by this record. Full evidence, limitations, measured durations and remaining obligations: review-2026-09-28T21-53-13Z.md. Discussion read through T270664/274873, work events299597.

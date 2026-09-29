@@ -503,3 +503,58 @@ author4.114s/reviewer0.643s historical unchanged. Recorded exact dependency resu
 condition and OS/environment rehearsal sequence in B1-CONTINUATION-292052.md.
 Return for dependency scheduling with existing four-path authority preserved;
 no new permission request, fifth-path edit, graph change or packet acceptance.
+
+### 2026-09-28 — baton.tuner claim299571, provider close299567
+
+Consumed final independently accepted G2 candidate:48/48 hashes match. Rebound
+complete runtime source in B1-CANDIDATE-299571.json. Prior32 focused PASS0.411s
+and previously failing connected fresh positive PASS0.244s. Added three literal
+OS subprocess preflight/status cases in selected test_baseline_bindings.py;
+final full bindings module36PASS2.999s. Flat source layout first refused status;
+standard source-distribution layout passes without guard bypass. Exact failure,
+limits and measurements OS-PREFLIGHT-299571.md. Episode5.132s tests, cumulative
+author9.246s, historical reviewer0.643s separate. No product or Git mutation.
+
+Partial B1 progress only: full subprocess positive, active-runtime interruption/
+deadline/access proofs and B2–B5 remain. B1-CHECKPOINT-299571.md is exact routine
+continuation under existing four-path authority, not renewed owner approval.
+Return independent review/continuation through baton.bug; packet not launch-ready.
+
+### 2026-09-28 — baton.tuner claim299662, reviewer handoff299659
+
+Added full literal OS start/status rehearsal at normal external engine/provider
+boundaries in selected test_baseline_bindings.py. Four fresh identities prove one
+proposal positive, active-worker SIGINT, cooperative deadline, and inaccessible
+output preservation/actionable status. Failures keep exact unresolved holds; no
+fake cleanup success. Final entire bindings40PASS43.391s. Detailed failed iterations,
+changed new assertions, simulation limits and exact durable captures are in
+OS-REHEARSAL-299662.md and evidence/claim299662-final. Only fixture test changed;
+no product/live/build/deployment/Git mutation. Episode175.719s measured tests,
+author cumulative184.965s; reviewer historical3.626s separate.
+
+B1-CHECKPOINT-299662.md carries finite B2–B5 continuation and provider dispositions;
+no old provider wait or new owner gate. All seven historical worker image source
+hashes match current tree in IMAGE-COMPATIBILITY-299662.json; this is provenance,
+not real image/access acceptance. W270664 non-reach accepted, residual remains
+open; W257624 remains separate adoption dependency. Final useful task packet is
+not frozen or launch-ready. Return this bounded candidate for independent review.
+
+### 2026-09-28 — baton.tuner claim299768, reviewer handoff299765
+
+Completed next bounded useful-task rehearsal: pinned task/excerpts, historical
+image operand/all7 source hashes, literal start/status, actual local worker and
+retained one-file docs proposal (47 lines). Real proposal and prerequisite base
+bundles captured in evidence/claim299768-useful-final/useful-task for independent
+inspection. Full bindings41PASS49.100s; after final useful-only image binding,
+focused1PASS5.729s. Failed fixture-inspection/evidence-name iterations preserved
+in USEFUL-PACKET-299768.md. No runtime product or shared Git changes.
+
+Found concrete B3 blocker: create_line completion performs62 lstat+1 fchmod under
+transaction during a successful connected Job. Required regression1FAIL0.243s
+retained, not waived. REACHED-DB1-299768.md identifies existing W257624 residual and
+exact correction boundary outside four-path tuner scope. PROVIDER-MAP-299768.md
+maps accepted no-helper/identity/readback behavior without silently changing graph
+or residual ownership. B1-CHECKPOINT-299768.md requires independent provider
+correction before final qualification; no unchanged partial-success redelivery.
+Episode70.957s measured tests; author255.922s total, reviewer historical44.039s
+separate. No live engine/provider/build/deployment/graph change. Packet not launch-ready.

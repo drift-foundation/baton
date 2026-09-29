@@ -1,0 +1,7 @@
+ea224a281d320077e0cc906ba91672930c8975660a453c49804dea888b92cbff  v12/DESIGN.md
+b79a307bfe41bd502c54adf6bd6792a431e408b88ea0479a7950d83d6346e63c  v12/python/src/baton_v12/worker_manager/intake.py
+654094848d3a2af9a5733389ae7f159ccad1ce33e5fdac3a0597c1a12643c3bf  v12/python/src/baton_v12/worker_manager/workspaces.py
+648a6724fd3311a2f6908e1ee7ffba310b5bd23062365902d2cc478d167bdb7b  v12/python/tests/manager/test_maintenance.py
+6cac12a1f2edf07542ccce5fd6ae518c2fa27441dd479cd90f325eac0080fc86  work/records/2026/09/finding-v12-workspace-removal-outside-locks/review_token_generations_20260926.py
+32ff6457af7608661f64df4edd5e9d4ff0a565deaea663a9b1192b3e4e9ef917  work/records/2026/09/finding-v12-workspace-removal-outside-locks/test_removal_outside_the_lock.py
+288744019c1b79c0b30736a4967e5ab7887602b9cc469a92d3e4c418b3bb3e3a  work/records/2026/09/finding-v12-workspace-removal-outside-locks/review-2026-09-28T21-53-13Z.md

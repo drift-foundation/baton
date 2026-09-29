@@ -1,0 +1,11 @@
+{
+  "base": "fe9a0670c81e6a9eefa7452da0379d79cbea6920",
+  "head": "242342f312c98342ff35a6bc848745421971636d",
+  "changed_paths": [
+    "docs/v12-first-job-inspection.md"
+  ],
+  "proposal_attempt": "attempt-1432c633cda1e3972a62e7ec534b4e0fd81749a7cfd54c59d3f360a4c3842ce3",
+  "job_id": "job-fresh-os-useful_documentation_packet",
+  "note_lines": 47,
+  "provider": "deterministic replay; not independent model output or acceptance"
+}
