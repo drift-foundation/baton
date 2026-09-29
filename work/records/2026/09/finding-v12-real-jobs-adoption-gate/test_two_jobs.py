@@ -40,12 +40,31 @@ if HERE not in sys.path:                                     # pragma: no cover
 
 # THE PINNED SNAPSHOT, for the subprocess checks that ask a command what
 # operands it accepts. They must ask the selected product, not the checkout.
-SNAPSHOT = "/home/sl/baton-runs/independent-review-247947/manager-source"
+# REBOUND AT claim 305097 to the snapshot `prepare_two_jobs` now selects, rather than a
+# second copy of the same path that can drift from it. W247941 review 2026-09-29T11-18-17Z
+# R2: the supervisor pin was advanced while this and the preparation still named the
+# CONSUMED `independent-review-247947` root, so the subprocess checks asked a command to
+# derive digests against contracts nobody accepted. Reading the operand from the module
+# under test is what keeps the two from disagreeing again. The old literal is preserved for
+# attribution of earlier results.
+SNAPSHOT_BEFORE_302142 = "/home/sl/baton-runs/independent-review-247947/manager-source"
 
 from tests.tools.test_stage_execution import (                # noqa: E402
     SECOND_WORK, TwoBoundJobsTraverseServingAndCorrection)
 
+import prepare_two_jobs                                       # noqa: E402
 import two_jobs                                               # noqa: E402
+
+# THE SNAPSHOT ROOT and the IMPORT ROOTS are TWO OPERANDS, and conflating them is a mistake
+# I made and measured. W247941 review 2026-09-29T11-27-34Z is right that a PYTHONPATH of the
+# tree root cannot import `baton_v12` or `tools`; I then substituted the import roots for
+# every `SNAPSHOT` use here, and the CLI family went from passing to 13 failures, because
+# several of those sites need the ROOT (they join it, or compare it to a composed path) and
+# only some are composing a PYTHONPATH. Both are exposed; each of the eight call sites has
+# to be read and changed individually, which is the remaining mechanical step recorded in
+# the packet rather than guessed at here.
+SNAPSHOT = prepare_two_jobs.SNAPSHOT
+IMPORT_PATH = prepare_two_jobs.IMPORT_PATH
 
 
 class ArrangedCase(TwoBoundJobsTraverseServingAndCorrection):
@@ -510,9 +529,13 @@ class TheSHIPPEDTemplateComposesThroughTheACTUALCLI(ArrangedCase):
         refuses that, and this is the environment that satisfies it.
         """
         import verify_247941
+        # THE IMPORT ROOTS, not the tree root. W247941 review 2026-09-29T11-35-05Z: this still
+        # composed `str(SNAPSHOT)`, which cannot import `baton_v12` or `tools`, so the subprocess
+        # this method exists to bind correctly could not import the pinned source at all.
+        # `verify_247941.import_path()` is the one shared construction.
         return dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
                     PYTHONPATH=os.pathsep.join(
-                        [str(verify_247941.SNAPSHOT), HERE]))
+                        [verify_247941.import_path(), HERE]))
 
     def composing(self, selections, into):
         import subprocess
@@ -1921,7 +1944,7 @@ class TheOPERATORRecipePrintsOperandsThatAGREE(unittest.TestCase):
              os.path.join(HERE, "two_job_supervisor.py"), "--help"],
             capture_output=True, text=True, timeout=120, cwd=os.sep,
             env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
-                     PYTHONPATH=os.pathsep.join([SNAPSHOT, HERE])))
+                     PYTHONPATH=os.pathsep.join([IMPORT_PATH, HERE])))
         self.assertEqual(answer.returncode, 0, answer.stderr)
         page = self.page()
         start = page.index("## Step 4 — serve the bounded run")
@@ -1946,7 +1969,7 @@ class TheOPERATORRecipePrintsOperandsThatAGREE(unittest.TestCase):
              "status", "--help"],
             capture_output=True, text=True, timeout=120, cwd=os.sep,
             env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
-                     PYTHONPATH=SNAPSHOT))
+                     PYTHONPATH=IMPORT_PATH))
         self.assertEqual(answer.returncode, 0, answer.stderr)
         page = self.page()
         start = page.index("## Step 6 — watch, read-only")
@@ -1960,7 +1983,7 @@ class TheOPERATORRecipePrintsOperandsThatAGREE(unittest.TestCase):
             [sys.executable, "-B", "-m", "tools.job_manager", "--help"],
             capture_output=True, text=True, timeout=120, cwd=os.sep,
             env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
-                     PYTHONPATH=SNAPSHOT))
+                     PYTHONPATH=IMPORT_PATH))
         self.assertEqual(outer.returncode, 0, outer.stderr)
         for flag in printed:
             with self.subTest(flag=flag):
@@ -2028,18 +2051,52 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
                        "authority_uuid": uuid, "bindings": {}}, handle)
         return root, uuid
 
-    def commanded(self, root, *, base=None, source=None):
-        """The documented preparation command, invoked."""
+    def commanded(self, root, *, base=None, source=None, tasks=None):
+        """The documented preparation command, invoked.
+
+        `tasks` IS THE SELECTION and nothing else changes. W247941 review 2026-09-29T13-08-19Z:
+        "reuse setup/helpers or add focused cases beside the existing fixture if simpler". It is,
+        and my previous attempt at a separate bootstrapping class was both unnecessary and broken.
+        """
         import io
         import prepare_two_jobs
         held = io.StringIO()
-        status = prepare_two_jobs.main(
-            ["--run-root", root,
-             "--source", source or self.config["nominated_source"],
-             "--base", base or self.base], stream=held)
+        operands = ["--run-root", root,
+                    "--source", source or self.config["nominated_source"],
+                    "--base", base or self.base]
+        if tasks is not None:
+            operands += ["--tasks", tasks]
+        status = prepare_two_jobs.main(operands, stream=held)
         text = held.getvalue()
         start = text.index('{\n  "authority_uuid"')
         return status, json.loads(text[start:]), text
+
+    def bytes_of(self, places, *names):
+        """The exact bytes of some emitted documents, with every handle CLOSED.
+
+        W247941 review 2026-09-29T13-32-53Z ran the focused suite under `-W error::ResourceWarning`
+        and printed six unraisable warnings from `open(...).read()` in these cases -- the reads
+        leaked file objects for the interpreter to close later, so an OK run was not a clean one.
+        This is that idiom in one place, with a `with`.
+        """
+        held = {}
+        for name in names:
+            with open(places[name], "rb") as handle:
+                held[name] = handle.read()
+        return held
+
+    def seeded_source(self, name):
+        """A nominated source carrying this packet's frozen context, as the operator seeds it.
+
+        `useful_tasks.deliver` is the operator's seeding step; here it runs against a plain
+        directory. `main` asks only that the source be a directory, so no repository is created and
+        no Git operation is performed -- the committing that makes these bytes reachable at a base is
+        the operator's own step and is not exercised here.
+        """
+        import useful_tasks
+        held = os.path.join(self.root, name)
+        os.makedirs(held, exist_ok=True)
+        return held, useful_tasks.deliver(held)
 
     def test_the_REAL_BOOTSTRAP_leads_into_this_preparation(self):
         """The printed step 2, run, and then step 3 on what it left.
@@ -2084,7 +2141,7 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
              "--distro", prepare_two_jobs.ACCEPTED["runtime_path"]],
             capture_output=True, text=True, timeout=900, cwd=os.sep,
             env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
-                     PYTHONPATH=SNAPSHOT))
+                     PYTHONPATH=IMPORT_PATH))
         self.assertEqual(answer.returncode, 0, answer.stdout + answer.stderr)
         # THE TOOL'S OWN WORDS about what it created, which is the
         # reconciliation the review asked for rather than an inference.
@@ -2133,7 +2190,7 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
              "--selections", staged, "--check"],
             capture_output=True, text=True, timeout=600, cwd=os.sep,
             env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
-                     PYTHONPATH=os.pathsep.join([SNAPSHOT, HERE])))
+                     PYTHONPATH=os.pathsep.join([IMPORT_PATH, HERE])))
         self.assertEqual(answer.returncode, 0, answer.stderr)
         reported = json.loads(answer.stdout)
         self.assertEqual(reported["_written"], [])
@@ -2169,9 +2226,21 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
             place = os.path.join(shadow, "verify_247941.py")
             with open(place, encoding="utf-8") as handle:
                 body = handle.read()
-            drifted = body.replace(
-                '"6a212c3a2edc5ddb7059e86350d95924aca4b059c059855939e4fd9771'
-                'ab5801"', '"' + "0" * 64 + '"', 1)
+            # THE ACTIVE PIN, READ FROM THE MODULE rather than spelled here. W247941 claim
+            # 305269: this named the old `6a212c3a…` literal, which after the rebinding lives
+            # only in `HISTORY` -- so drifting it changed nothing the preflight compares and the
+            # negative passed where it must refuse ("0 == 0"). Reading the value under test is
+            # what keeps this case about the pin gate instead of about a literal that moved.
+            import verify_247941 as _pins
+            active = _pins.PINNED["stage_execution_sha256"]
+            self.assertNotIn(active, _pins.HISTORY.values(),
+                             "the active pin is a history value")
+            drifted = body.replace(f'"{active}"', '"' + "0" * 64 + '"', 1)
+            if drifted == body:
+                # The literal may be wrapped across lines in the source; drift the halves.
+                head, tail = active[:32], active[32:]
+                drifted = body.replace(f'"{head}"\n' , '"' + "0" * 32 + '"\n', 1)
+                drifted = drifted.replace(f'"{tail}"', '"' + "0" * 32 + '"', 1)
             self.assertNotEqual(drifted, body, "the pinned digest moved")
             # THE COPY IS NOT AT THE DOSSIER'S DEPTH, so its own derived
             # checkout would resolve to `/`. Pinning it keeps this case about
@@ -2187,7 +2256,7 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
                  "--selections", staged, "--check"],
                 capture_output=True, text=True, timeout=600, cwd=os.sep,
                 env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
-                         PYTHONPATH=os.pathsep.join([SNAPSHOT, shadow])))
+                         PYTHONPATH=os.pathsep.join([IMPORT_PATH, shadow])))
         finally:
             shutil.rmtree(shadow, ignore_errors=True)
         self.assertNotEqual(answer.returncode, 0)
@@ -2200,7 +2269,7 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
              "--selections", staged, "--check"],
             capture_output=True, text=True, timeout=600, cwd=os.sep,
             env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
-                     PYTHONPATH=os.pathsep.join([SNAPSHOT, HERE])))
+                     PYTHONPATH=os.pathsep.join([IMPORT_PATH, HERE])))
         self.assertEqual(answer.returncode, 0, answer.stderr)
 
     def test_a_REFUSED_PREFLIGHT_leaves_no_selections_and_no_Authority_act(
@@ -2390,14 +2459,13 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
         root, _uuid = self.bootstrapped()
         _status, _receipt, _text = self.commanded(root)
         places = prepare_two_jobs.layout(os.path.realpath(root))
-        before = {name: open(places[name], "rb").read()
-                  for name in ("selections", "deployment", "submission")}
+        before = self.bytes_of(places, "selections", "deployment", "submission")
         with self.assertRaises(prepare_two_jobs.PreparationRefusal) as caught:
             self.commanded(root)
         self.assertIn("create-only", str(caught.exception))
         for name, raw in sorted(before.items()):
             with self.subTest(unchanged=name):
-                self.assertEqual(open(places[name], "rb").read(), raw)
+                self.assertEqual(self.bytes_of(places, name)[name], raw)
 
     def test_a_CHANGED_operand_is_refused_with_the_old_bytes_intact(self):
         """A different base is a different packet, not an update."""
@@ -2405,14 +2473,13 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
         root, _uuid = self.bootstrapped()
         self.commanded(root)
         places = prepare_two_jobs.layout(os.path.realpath(root))
-        before = {name: open(places[name], "rb").read()
-                  for name in ("selections", "deployment", "submission")}
+        before = self.bytes_of(places, "selections", "deployment", "submission")
         with self.assertRaises(prepare_two_jobs.PreparationRefusal) as caught:
             self.commanded(root, base="b" * 40)
         self.assertIn("would change them", str(caught.exception))
         for name, raw in sorted(before.items()):
             with self.subTest(unchanged=name):
-                self.assertEqual(open(places[name], "rb").read(), raw)
+                self.assertEqual(self.bytes_of(places, name)[name], raw)
 
     def test_a_root_INSIDE_the_checkout_boundary_is_refused_first(self):
         """The refusal review 2026-09-23T20:34:15Z reproduced, moved forward.
@@ -2682,6 +2749,385 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
         for forbidden in ("token", "secret", "api_key", "apiKey", "password"):
             with self.subTest(absent=forbidden):
                 self.assertNotIn(forbidden, json.dumps(document))
+
+
+    # ---- THE RUN ROOT THE SETUP MAY PROPOSE -----------------------------
+    #
+    # W247941 owner reroute 306323, which is a REAL OPERATOR FAILURE rather than a tidy-up: the
+    # setup script built `/home/sl/baton-runs/<run id>` from a literal of its own while this module
+    # refuses that directory, so the owner's setup failed before the run root was created. Two
+    # places held one decision and disagreed. These hold the correction.
+
+    SETUP = os.path.join(HERE, "setup-two-jobs-305532.sh")
+
+    def test_supported_root_ANSWERS_a_root_the_preparation_accepts(self):
+        import prepare_two_jobs
+        held = prepare_two_jobs.supported_root("two-jobs-witness-root")
+        self.assertTrue(held.startswith(prepare_two_jobs.SUGGESTED_ROOT + os.sep),
+                        held)
+        self.assertTrue(held.endswith("two-jobs-witness-root"), held)
+        # AND IT IS THE SAME ANSWER `fresh` GIVES, because it IS `fresh`.
+        self.assertEqual(held, prepare_two_jobs.fresh(held,
+                                                      "two-jobs-witness-root"))
+
+    def test_supported_root_REFUSES_the_directory_the_owners_setup_named(self):
+        """The exact failure, reproduced as a refusal with its reason.
+
+        THE IDENTITY HERE IS NOT `two-jobs-247941-01`, and that is deliberate: once owner reroute
+        306626 made that root consumed, naming it refused for the CONSUMED reason and this case
+        stopped being about the boundary at all. It failed for exactly that, and an unconsumed
+        identity keeps it about the directory.
+        """
+        import prepare_two_jobs
+        self.assertNotIn("two-jobs-247941-99", prepare_two_jobs.CONSUMED)
+        with self.assertRaises(prepare_two_jobs.PreparationRefusal) as caught:
+            prepare_two_jobs.supported_root("two-jobs-247941-99",
+                                            under="/home/sl/baton-runs")
+        self.assertIn("/home/sl/baton-runs", str(caught.exception))
+        self.assertIn("mutable deployment state belongs outside",
+                      str(caught.exception))
+
+    def test_the_BOUNDARY_follows_the_PRODUCTs_own_answer(self):
+        """A literal goes stale when the snapshot moves; the product's answer does not.
+
+        `stage_execution._checkout()` walks three parents up from its own file, so the boundary
+        MOVES with the selected snapshot -- and it has moved twice in this Work. This drives the
+        wiring with a stand-in checkout so the case is about the rule rather than about where the
+        snapshot happens to live today.
+        """
+        import prepare_two_jobs
+        measured = prepare_two_jobs.product_checkout()
+        self.assertTrue(measured and os.path.isdir(measured), measured)
+        stand_in = os.path.join(self.root, "stand-in-checkout")
+        os.makedirs(stand_in, exist_ok=True)
+        original = prepare_two_jobs.product_checkout
+        prepare_two_jobs.product_checkout = lambda: stand_in
+        try:
+            inside = os.path.join(stand_in, "two-jobs-inside")
+            with self.assertRaises(
+                    prepare_two_jobs.PreparationRefusal) as caught:
+                prepare_two_jobs.fresh(inside, "two-jobs-inside")
+            self.assertIn(stand_in, str(caught.exception))
+            # AND A SIBLING IS FINE, so the refusal was the boundary and not the name.
+            beside = os.path.join(self.root, "two-jobs-beside")
+            self.assertEqual(prepare_two_jobs.fresh(beside, "two-jobs-beside"),
+                             os.path.realpath(beside))
+        finally:
+            prepare_two_jobs.product_checkout = original
+
+    def test_the_SPENT_parallel_run_is_refused_as_an_identity(self):
+        """Owner reroute 306626: preserve `two-jobs-247941-01` and its outcome.
+
+        That root holds a real execution -- two implementation admissions, both providers reached and
+        both answering that the OAuth session had expired, then one Ctrl-C and `state: held`. It is
+        evidence about the accepted path, so a successor takes a new identity and nothing may be
+        written into it. The SUCCESSOR must still be constructible, or this refusal would have
+        replaced one defect with another.
+        """
+        import prepare_two_jobs
+        self.assertIn("two-jobs-247941-01", prepare_two_jobs.CONSUMED)
+        with self.assertRaises(prepare_two_jobs.PreparationRefusal) as caught:
+            prepare_two_jobs.supported_root("two-jobs-247941-01")
+        self.assertIn("CONSUMED", str(caught.exception))
+        held = prepare_two_jobs.supported_root("two-jobs-247941-02")
+        self.assertTrue(held.endswith("two-jobs-247941-02"), held)
+
+    def test_the_SETUP_SCRIPT_holds_no_run_root_literal_of_its_own(self):
+        """The drift guard the owner's failure argues for.
+
+        A second copy of this decision is what failed. The script must ASK, and a future edit that
+        reintroduces a literal run root fails here rather than in an operator's terminal.
+        """
+        import prepare_two_jobs
+        with open(self.SETUP, encoding="utf-8") as handle:
+            body = handle.read()
+        self.assertIn("prepare_two_jobs.supported_root", body)
+        self.assertNotIn('RUN_ROOT="/home/sl/', body)
+        for boundary in prepare_two_jobs.BOUNDARIES:
+            with self.subTest(boundary=boundary):
+                self.assertNotIn(f'"{boundary}/${{RUN_ID}}"', body)
+
+    # ---- THE SELECTED TASK SET, through the same command ----------------
+    #
+    # W247941 owner ruling 2026-09-29 (OWNER-SIMPLIFY-PARALLEL-PROOF-20260929.md) and review
+    # 2026-09-29T13-08-19Z: the fifteen checks in `test_useful_tasks.py` drive the builder, the
+    # seeding and the checker DIRECTLY, which is component evidence. These four drive `main` with
+    # `--tasks useful` -- the command the setup script runs -- so the selection, the frozen-context
+    # proof, the emitted submission and the no-effects refusals are exercised connected.
+
+    def test_MAIN_prepares_the_SELECTED_tasks_from_a_seeded_source(self):
+        """The selected documentation pair, emitted and attributed.
+
+        THE RECEIPT'S OWN KEYS. My reverted attempt asserted a top-level `jobs`, which this receipt
+        has never had; the Jobs are under `prepared`, and `tasks_touch` is the resolved scope.
+        """
+        import prepare_two_jobs
+        import useful_tasks
+        root, uuid = self.bootstrapped("two-jobs-useful")
+        source, seeded = self.seeded_source("useful-source")
+
+        status, receipt, _text = self.commanded(root, source=source, tasks="useful")
+
+        self.assertEqual(status, 0)
+        self.assertEqual(receipt["authority_uuid"], uuid)
+        self.assertEqual(receipt["task_set"], "useful")
+        # THE TWO DOCUMENTATION PATHS, not the greeting fixture's two scripts.
+        self.assertEqual(receipt["tasks_touch"],
+                         {job_id: [held["path"]]
+                          for job_id, held in sorted(useful_tasks.TASKS.items())})
+        self.assertEqual([one["job_id"] for one in receipt["prepared"]["jobs"]],
+                         ["job-a", "job-b"])
+        # AND THE FROZEN CONTEXT IS PROVED WHERE THE JOBS WILL READ IT: inside the nominated
+        # source, at the pinned digests, with the same members the seeding wrote.
+        proven = receipt["source_inputs"]
+        self.assertEqual(sorted(proven), sorted(seeded))
+        for name, held in sorted(proven.items()):
+            with self.subTest(input=name):
+                self.assertEqual(held["sha256"], seeded[name]["sha256"])
+                self.assertTrue(os.path.isfile(
+                    os.path.join(source, held["relative"])))
+        # THE EMITTED TASK DOCUMENTS ARE THE SELECTED ONES, and their verification names the
+        # checker in the checkout rather than a mount nothing arranged.
+        places = prepare_two_jobs.layout(os.path.realpath(root))
+        for job_id, held in sorted(useful_tasks.TASKS.items()):
+            with self.subTest(task=job_id):
+                with open(os.path.join(places["tasks"], f"{job_id}.json"),
+                          encoding="utf-8") as handle:
+                    document = json.load(handle)
+                self.assertIn(held["path"], document["instructions"])
+                self.assertNotIn("/input/", document["instructions"])
+                self.assertEqual(document["verification"],
+                                 useful_tasks.verification(job_id))
+                self.assertNotIn("greet_a.py", document["instructions"])
+                self.assertNotIn("greet_b.py", document["instructions"])
+
+    def test_MAIN_REFUSES_an_UNSEEDED_source_and_writes_NOTHING(self):
+        """The frozen-context gate, and it is a NO-EFFECTS gate.
+
+        W247941 owner ruling: fix the writes-before-refusal defect. The delivery that used to sit
+        inside this function is gone -- the context travels in the nominated source and this step
+        only reads it -- so the refusal for a source that lacks it cannot have written anything.
+        """
+        import prepare_two_jobs
+        root, _uuid = self.bootstrapped("two-jobs-useful-unseeded")
+        bare = os.path.join(self.root, "unseeded-source")
+        os.makedirs(bare, exist_ok=True)
+
+        with self.assertRaises(prepare_two_jobs.PreparationRefusal) as caught:
+            self.commanded(root, source=bare, tasks="useful")
+
+        self.assertIn("does not carry", str(caught.exception))
+        places = prepare_two_jobs.layout(os.path.realpath(root))
+        for absent in ("tasks", "run"):
+            with self.subTest(absent=absent):
+                self.assertFalse(os.path.exists(places[absent]), places[absent])
+        self.assertFalse(os.path.exists(places["selections"]))
+
+    def test_MAIN_REFUSES_a_TAMPERED_source_input_and_writes_NOTHING(self):
+        """A member whose bytes moved is refused by name, before any effect."""
+        import prepare_two_jobs
+        root, _uuid = self.bootstrapped("two-jobs-useful-tampered")
+        source, seeded = self.seeded_source("tampered-source")
+        with open(seeded["E1-DESIGN.md"]["place"], "wb") as handle:
+            handle.write(b"these are not the frozen bytes\n")
+
+        with self.assertRaises(prepare_two_jobs.PreparationRefusal) as caught:
+            self.commanded(root, source=source, tasks="useful")
+
+        self.assertIn("the Jobs would read bytes no digest here names",
+                      str(caught.exception))
+        places = prepare_two_jobs.layout(os.path.realpath(root))
+        self.assertFalse(os.path.exists(places["tasks"]))
+        self.assertFalse(os.path.exists(places["run"]))
+
+    def test_the_SELECTED_repeat_REPLAYS_and_a_CHANGED_operand_keeps_the_old_bytes(self):
+        """Both of this command's original no-effects refusals, on the selected path.
+
+        The existing cases hold them for the greeting fixture; review 2026-09-29T13-01-31Z asked for
+        them under `--tasks useful`, where the emitted documents are different bytes.
+        """
+        import prepare_two_jobs
+        root, _uuid = self.bootstrapped("two-jobs-useful-again")
+        source, _seeded = self.seeded_source("again-source")
+        self.commanded(root, source=source, tasks="useful")
+        places = prepare_two_jobs.layout(os.path.realpath(root))
+        before = self.bytes_of(places, "selections", "deployment", "submission")
+
+        # THE COMPOSER IS CREATE-ONLY about `run/`, so the same operands refuse there.
+        with self.assertRaises(prepare_two_jobs.PreparationRefusal) as caught:
+            self.commanded(root, source=source, tasks="useful")
+        self.assertIn("create-only", str(caught.exception))
+        # AND A DIFFERENT BASE IS A DIFFERENT PACKET, refused before the first byte.
+        with self.assertRaises(prepare_two_jobs.PreparationRefusal) as second:
+            self.commanded(root, source=source, base="b" * 40, tasks="useful")
+        self.assertIn("would change them", str(second.exception))
+        for name, raw in sorted(before.items()):
+            with self.subTest(unchanged=name):
+                self.assertEqual(self.bytes_of(places, name)[name], raw)
+
+
+class TheACCEPTEDOperandsAreTheACCEPTEDRUNsOwnFACTS(ArrangedCase):
+    """O1, closed and held. W247941 review 2026-09-29T13-32-53Z.
+
+    The remaining `ACCEPTED` operands carried DECISIONS for provenance -- "W239528 claim 244216",
+    "accepted by W239533" -- and two of those labels named a deployment from a superseded campaign.
+    These cases hold every one of them against the accepted single Job's OWN records, measured by
+    `verify_247941.accepted()`, so a label cannot drift from the bytes it claims again.
+
+    READS TWO DOCUMENTS AND TWO FILES. No store, no engine, no provider, no network, no Git.
+    """
+
+    def measured(self):
+        import verify_247941
+        return verify_247941, verify_247941.accepted()
+
+    def test_the_accepted_records_are_PRESENT_and_every_pin_AGREES(self):
+        """It fails closed: an absent record answers None and does not pass quietly."""
+        module, held = self.measured()
+        for name, place in sorted(held["sources"].items()):
+            with self.subTest(source=name):
+                self.assertTrue(os.path.isfile(place),
+                                f"{name} is absent at {place}")
+        for name, value in sorted(held["pinned"].items()):
+            with self.subTest(pin=name):
+                self.assertEqual(held["found"].get(name), value)
+        self.assertIs(held["agree"], True, held["found"])
+        del module
+
+    def test_the_PREPARATION_uses_those_measured_values_and_no_others(self):
+        """The rebinding is the point: `ACCEPTED` reads the pins rather than restating them."""
+        import prepare_two_jobs
+        module, held = self.measured()
+        del module
+        for name, value in sorted(held["pinned"].items()):
+            if name in prepare_two_jobs.ACCEPTED:
+                with self.subTest(operand=name):
+                    self.assertEqual(prepare_two_jobs.ACCEPTED[name], value)
+
+    def test_the_PROFILE_NAME_comes_from_the_SAME_record_as_its_digest(self):
+        """The concrete pairing O1 caught.
+
+        This packet carried `claude-context-review` beside the accepted run's profile digest, and
+        BOTH accepted workers are configured `claude-fresh-implementation`. A name from one campaign
+        beside a digest from another is not a reconciliation.
+        """
+        import prepare_two_jobs
+        _module, held = self.measured()
+        self.assertEqual(prepare_two_jobs.ACCEPTED["profile_name"],
+                         held["found"]["profile_name"])
+        self.assertEqual(prepare_two_jobs.ACCEPTED["profile_digest"],
+                         held["found"]["profile_digest"])
+        self.assertNotEqual(prepare_two_jobs.ACCEPTED["profile_name"],
+                            "claude-context-review")
+
+    def test_the_DISTRO_and_the_EXECUTED_runtime_carry_the_SAME_bytes(self):
+        """Two paths, one digest -- which is why the digest is the pin and the path is a locator.
+
+        `runtime_path` is the bootstrap input `tools.bootstrap --distro` takes; the accepted packet's
+        `manager_runtime.path` is the installed copy that ran. The build stamp of that copy records
+        `dirty: true`, so the commit alone does not identify the bytes and the executable digest has
+        to.
+        """
+        import prepare_two_jobs
+        module, held = self.measured()
+        self.assertIs(held["runtime_executables_agree"], True,
+                      held["runtime_executables"])
+        self.assertEqual(prepare_two_jobs.ACCEPTED["runtime_path"],
+                         str(module.RUNTIME))
+        self.assertEqual(prepare_two_jobs.ACCEPTED["runtime_executed_path"],
+                         held["found"]["runtime_executed_path"])
+        self.assertNotEqual(prepare_two_jobs.ACCEPTED["runtime_path"],
+                            prepare_two_jobs.ACCEPTED["runtime_executed_path"])
+
+    def test_the_DESCRIPTORS_are_the_INSTANCEs_rather_than_one_workers(self):
+        """Both configured workers, compared. `accepted()` answers a LIST when they differ."""
+        _module, held = self.measured()
+        for name in ("adapter_name", "adapter_digest", "policy_digest",
+                     "profile_digest", "profile_name",
+                     "retention_policy_digest"):
+            with self.subTest(descriptor=name):
+                self.assertIsInstance(
+                    held["found"][name], str,
+                    f"the two accepted workers disagree about {name}")
+
+    def test_the_EMITTED_selections_carry_both_runtime_facts(self):
+        """A reader of the packet can tell the executed runtime from the bootstrap input."""
+        import prepare_two_jobs
+        _module, held = self.measured()
+        # THE DOCUMENT THIS PREPARATION RESOLVES, built here rather than through the preparation
+        # fixture's `derived` helper -- that helper belongs to the class below and this class is not
+        # it. My first version called it and got `AttributeError: no attribute 'derived'`.
+        tasks = {job_id: {"path": os.path.join(self.root, f"{job_id}.json"),
+                          "raw": b"{}"}
+                 for job_id in sorted(prepare_two_jobs.TASKS)}
+        document = prepare_two_jobs.resolved(
+            run_root=os.path.join(self.root, "runtime-facts"),
+            run_id="runtime-facts",
+            source=self.config["nominated_source"], base=self.base,
+            authority_uuid=self.config["authority_uuid"],
+            work_ids={"job-a": self.work, "job-b": SECOND_WORK}, tasks=tasks)
+        arrangement = document["arrangement"]
+        self.assertEqual(arrangement["runtime_executed_path"],
+                         held["found"]["runtime_executed_path"])
+        self.assertEqual(arrangement["runtime_executable_sha256"],
+                         held["found"]["runtime_executable_sha256"])
+        self.assertEqual(arrangement["adapter_sha256"],
+                         held["found"]["adapter_sha256"])
+
+    def test_the_PINS_command_fails_CLOSED_on_the_accepted_operands(self):
+        """`--pins` now reports both pin sets under one `agree`, and exits non-zero on either.
+
+        Driven against a COPY whose accepted-run pin has been drifted, so no pinned artifact is
+        touched and the copy is removed.
+        """
+        import shutil
+        import subprocess
+        import tempfile
+        module, _held = self.measured()
+        shadow = tempfile.mkdtemp(prefix="accepted-negative-", dir=self.root)
+        try:
+            for one in sorted(os.listdir(HERE)):
+                if one.endswith(".py"):
+                    shutil.copy(os.path.join(HERE, one),
+                                os.path.join(shadow, one))
+            place = os.path.join(shadow, "verify_247941.py")
+            with open(place, encoding="utf-8") as handle:
+                body = handle.read()
+            active = module.ACCEPTED_PINS["adapter_sha256"]
+            drifted = body.replace(f'"{active}"', '"' + "0" * 64 + '"', 1)
+            self.assertNotEqual(drifted, body, "the accepted pin moved")
+            # THE COPY IS NOT AT THE DOSSIER'S DEPTH, so `HERE.parents[4]` resolves to a path that
+            # does not hold the checkout and `pins()` raises before it can report. The existing
+            # pin-negative case patches this for the same reason; my first version did not, and the
+            # subprocess printed nothing to parse.
+            patched = drifted.replace("CHECKOUT = HERE.parents[4]",
+                                      f"CHECKOUT = pathlib.Path({CHECKOUT!r})", 1)
+            self.assertNotEqual(patched, drifted, "the checkout line moved")
+            drifted = patched
+            with open(place, "w", encoding="utf-8") as handle:
+                handle.write(drifted)
+            answer = subprocess.run(
+                [sys.executable, "-B", os.path.join(shadow, "verify_247941.py"),
+                 "--pins"],
+                capture_output=True, text=True, timeout=600, cwd=os.sep,
+                env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
+                         PYTHONPATH=os.pathsep.join([IMPORT_PATH, shadow])))
+            self.assertNotEqual(answer.returncode, 0, answer.stdout)
+            self.assertTrue(answer.stdout,
+                            "the command printed nothing: " + answer.stderr)
+            reported = json.loads(answer.stdout)
+            self.assertIs(reported["agree"], False)
+            self.assertIs(reported["accepted_run"]["agree"], False)
+        finally:
+            shutil.rmtree(shadow, ignore_errors=True)
+        # AND THE UNDRIFTED MODULE PASSES, so the refusal was the pin.
+        answer = subprocess.run(
+            [sys.executable, "-B", os.path.join(HERE, "verify_247941.py"),
+             "--pins"],
+            capture_output=True, text=True, timeout=600, cwd=os.sep,
+            env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
+                     PYTHONPATH=os.pathsep.join([IMPORT_PATH, HERE])))
+        self.assertEqual(answer.returncode, 0, answer.stdout + answer.stderr)
 
 
 def baseline_interrupted():

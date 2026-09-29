@@ -17,7 +17,7 @@ capability.
     `baton.v12.stage-execution-deployment/2` document with four stage workers
     and two `job_bindings`. `two_jobs.py` composes it and holds it against the
     product's own `stage_execution.held_configuration`.
-  * The deterministic witness (`test_two_jobs.py`, 85 checks) drives **that
+  * The deterministic witness (`test_two_jobs.py`, 101 checks) drives **that
     composed document** through W130224's independently accepted two-Job
     fixture and observes both Jobs' implementations `waiting` at one instant,
     on their own allocated producers, writing their own lines, mounting their
@@ -438,7 +438,7 @@ turn answers, every stage `completed` at the last tick.
 
 ## What is deterministically witnessed, and what is not
 
-`test_two_jobs.py`, **85 checks**, over W130224's accepted two-Job fixture with
+`test_two_jobs.py`, **101 checks**, over W130224's accepted two-Job fixture with
 this arrangement's document substituted. A guard case asserts the served
 document is THIS arrangement's rather than the fixture's own, so these are not
 W130224's evidence re-presented as this Job's.

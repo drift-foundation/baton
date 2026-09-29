@@ -1,0 +1,10 @@
+{
+  "claim": 305517,
+  "review": "review-2026-09-29T12-16-17Z.md",
+  "files": {
+    "USEFUL-TASKS-305440.md": "1ff5d8de904d788936cfcc5804267b1eb9cc7fc67393e00485fce20bd806f94b",
+    "SETUP-RECIPE-305440.md": "3958ddfda5e2b49fc2fa784b0e2d8fa7c72100c326dfa1b452eb60544565df69",
+    "check_useful_tasks.py": "f6dcadba50a361ff8f3f3ccfa887ea2ef00d8952b9438fff1288fd91a7edee4f",
+    "prepare_two_jobs.py": "359689972a44b47618a939022c736408d2710413824ca888e98ca71086bd45f1"
+  }
+}

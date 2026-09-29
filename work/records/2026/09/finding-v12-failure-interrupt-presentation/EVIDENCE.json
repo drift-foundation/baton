@@ -1,0 +1,137 @@
+{
+  "outcome": {
+    "abandoned_cleanup": [],
+    "abandonment": {},
+    "admission_closed_before_cancellation": true,
+    "admissions": {
+      "implementation": 2,
+      "review": 0
+    },
+    "admitted_attempts": [
+      "attempt-5ab0311d43fa91d16f43b37fa238c6d76237e86762df6532870ae2d5da57b3fd",
+      "attempt-da5764941c54bc3d34d89487ef81947dadf1c8028c690776f1b5bcfa00c52ea7"
+    ],
+    "bounds": {
+      "cleanup_seconds": 60,
+      "total_seconds": 600
+    },
+    "cancellation": {
+      "attempt-5ab0311d43fa91d16f43b37fa238c6d76237e86762df6532870ae2d5da57b3fd": {
+        "execution_runtime": "destroyed",
+        "requested": true,
+        "runtime_id": "da5e25daca8e9388361208d5a72b819e37c4c491befd57e69158b5f4569cd4c9",
+        "why": "this manager observed the runtime destroyed"
+      },
+      "attempt-da5764941c54bc3d34d89487ef81947dadf1c8028c690776f1b5bcfa00c52ea7": {
+        "execution_runtime": "destroyed",
+        "requested": true,
+        "runtime_id": "edd9bba14b78b45bd4e12c015bc1ccdfecae1f11b2d198fb4ee187ad178b6b0d",
+        "why": "this manager observed the runtime destroyed"
+      }
+    },
+    "caps": {
+      "implementation": 2,
+      "review": 2
+    },
+    "cleanup": {
+      "attempt-5ab0311d43fa91d16f43b37fa238c6d76237e86762df6532870ae2d5da57b3fd": {
+        "cleanup": "retained",
+        "state": "absent",
+        "why": "the engine answered that this exact identity does not exist"
+      },
+      "attempt-da5764941c54bc3d34d89487ef81947dadf1c8028c690776f1b5bcfa00c52ea7": {
+        "cleanup": "retained",
+        "state": "absent",
+        "why": "the engine answered that this exact identity does not exist"
+      }
+    },
+    "cleanup_sweeps": 0,
+    "cleanup_window_seconds": 160.28997237305157,
+    "finalization_failure": null,
+    "finished_at": "2026-09-29T14:40:24.322Z",
+    "foreign_admissions": [],
+    "gate_refusals": [],
+    "generations": {
+      "attempt-5ab0311d43fa91d16f43b37fa238c6d76237e86762df6532870ae2d5da57b3fd": 1,
+      "attempt-da5764941c54bc3d34d89487ef81947dadf1c8028c690776f1b5bcfa00c52ea7": 1
+    },
+    "held_because": [
+      "Job job-a produced no attributed verdict; a two-Job review run that collected fewer than two has not done its work",
+      "Job job-b produced no attributed verdict; a two-Job review run that collected fewer than two has not done its work"
+    ],
+    "interruptions": [
+      "KeyboardInterrupt: signal 2"
+    ],
+    "job_ids": [
+      "job-a",
+      "job-b"
+    ],
+    "outstanding_cleanup": [],
+    "schema": "baton.v12.two-job-outcome/1",
+    "serving_bound_seconds": 540,
+    "serving_failure": null,
+    "state": "held",
+    "stopped": "interrupted",
+    "submitted_at": "2026-09-29T14:33:04.609Z",
+    "uncertainty": [],
+    "undeclared_cleanup": [],
+    "unresolved_cleanup": [],
+    "verdicts": {}
+  },
+  "provider_results": [
+    {
+      "attempt_id": "attempt-5ab0311d43fa91d16f43b37fa238c6d76237e86762df6532870ae2d5da57b3fd",
+      "is_error": true,
+      "terminal_reason": "api_error",
+      "duration_ms": 37,
+      "recognized_explanation": true
+    },
+    {
+      "attempt_id": "attempt-da5764941c54bc3d34d89487ef81947dadf1c8028c690776f1b5bcfa00c52ea7",
+      "is_error": true,
+      "terminal_reason": "api_error",
+      "duration_ms": 70,
+      "recognized_explanation": true
+    }
+  ],
+  "files": {
+    "/home/sl/baton-instances/two-jobs-247941-01/run/outcome.json": {
+      "sha256": "7ffe773989b5a4282a75af7850d156dd1b7a5b2e49b040728527c9c7bcb97f62",
+      "bytes": 2642
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": {
+      "sha256": "5b3045e66bd46a1c2ed314c6f73d2f7425ccd7b0576b692f7d8a446fc658ee36",
+      "bytes": 52718
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": {
+      "sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "bytes": 105968
+    },
+    "v12/python/src/baton_v12/job_manager/manager.py": {
+      "sha256": "cd476d66063fd1a7324408f1cba3f4168f05446e5142771cc53579961bceddbe",
+      "bytes": 58227
+    },
+    "v12/testing/standalone_ab/failure_observation.py": {
+      "sha256": "004f5fe4756c70eaf945b2ce64bcebc1b5de42b85e3da5d3963e40913755894f",
+      "bytes": 12777
+    },
+    "/home/sl/baton-instances/two-jobs-247941-01/run/launch/logs/attempt-5ab0311d43fa91d16f43b37fa238c6d76237e86762df6532870ae2d5da57b3fd/provider.stdout.log": {
+      "sha256": "d97cacb82147291fcc8e2a0e45fa016c3671f189f9aa9ba3e32075cfbfdb5881",
+      "bytes": 1194
+    },
+    "/home/sl/baton-instances/two-jobs-247941-01/run/launch/logs/attempt-da5764941c54bc3d34d89487ef81947dadf1c8028c690776f1b5bcfa00c52ea7/provider.stdout.log": {
+      "sha256": "c70d5d73993939966241670b391cb2d36caabea8c6b200d44a14bcf392e41915",
+      "bytes": 1194
+    }
+  },
+  "elapsed_submit_to_finish_seconds": 439.713,
+  "supervisor_matches_actual_packet": null,
+  "test_result": {
+    "tests": 2,
+    "passed": 2,
+    "seconds": 0.002,
+    "scope": "real supervisor/serve callback with mocked sweep/lifecycle and simulated clock; actual main with mocked handles and retained exception; no deployed store/engine/provider"
+  },
+  "actual_packet_note": "ACTUAL-PACKET-306505 lists operational files, not supervisor bytes; no mismatch inferred from absent entry.",
+  "supervisor_matches_review306393": true
+}

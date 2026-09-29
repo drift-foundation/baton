@@ -1,0 +1,60 @@
+{
+  "claim": 305959,
+  "work": "W247941",
+  "governed_by": {
+    "owner_ruling": "OWNER-SIMPLIFY-PARALLEL-PROOF-20260929.md",
+    "thread_message": "T247941/305879",
+    "review": "review-2026-09-29T13-08-19Z.md"
+  },
+  "what_changed": {
+    "useful_tasks.py": {
+      "sha256_12": "e59e4789de25",
+      "change": "the frozen context now travels in the NOMINATED SOURCE under context/w247941, which is the accepted single-Job mechanism; deliver() seeds a repository worktree as the operator's step and present() is the preparation's read-only proof"
+    },
+    "prepare_two_jobs.py": {
+      "sha256_12": "6fd83e540801",
+      "change": "the deliver() call is removed entirely; --tasks useful calls present() among the refusals; receipt key delivered_inputs becomes source_inputs; work_ids enumerates the SELECTED table"
+    },
+    "test_two_jobs.py": {
+      "sha256_12": "512c21fa49d8",
+      "change": "four CONNECTED cases beside the existing preparation fixture, driving main --tasks useful; commanded() gained tasks=, plus a seeded_source helper"
+    },
+    "test_useful_tasks.py": {"sha256_12": "35cfbde18928", "change": "the relocated target, the brief/verification path case, and three present() cases"},
+    "setup-two-jobs-305532.sh": {"sha256_12": "880bf3c263dc", "change": "validation proves the context is committed in SOURCE; the plan names the seeding as step 0"},
+    "USEFUL-TASKS-305440.md": {"sha256_12": "9751647d1708", "change": "the delivery paragraph corrected: it described a mount this packet never arranged"},
+    "SETUP-RECIPE-305440.md": {"sha256_12": "edc704728fe6", "change": "section 5 described the superseded two-clone script; it now describes the current one"},
+    "PARALLEL-PACKET-305010.md": {"sha256_12": "719a79e0d182", "change": "section 9: the applied ruling, the exact commands, this claim's evidence, what remains"},
+    "ADOPTION-247941.md": {"sha256_12": "a08c04bab5ed", "change": "85 checks to 89, caught by its own case"},
+    "check_useful_tasks.py": {"sha256_12": "f6dcadba50a3", "change": "UNCHANGED"}
+  },
+  "defects_fixed": [
+    "writes-before-refusal: the preparation no longer writes the context at all, so no refusal can leave copies behind",
+    "the frozen context reached no worker: /input/excerpts and /input/checker named a mount nothing in this packet arranged; both are now repo-relative paths in the Job's own checkout",
+    "work_ids enumerated the greeting table under --tasks useful and produced the right answer only because both tables name job-a/job-b"
+  ],
+  "not_built_by_design": {
+    "second_diff_validator": "the product already compares the proposal patch to the repository diff (patch_matches_git_diff, E3 of this packet's contract); the checker's --changed holds the DECLARED set and is not claimed to prove attribution",
+    "extra_mount_plumbing": "the accepted sources mount of source carries the context; no new mount was written"
+  },
+  "verification": {
+    "test_two_jobs.py": {"checks": 89, "failures": 0, "seconds": 76.673},
+    "test_useful_tasks.py": {"checks": 19, "failures": 0, "seconds": 0.075},
+    "ordering": "frozen snapshot v12/python/src and v12/python first, then the checkout's v12/python, then the dossier; BATON_V12_DISK_ROOT=/var/tmp/baton-w257624; PYTHONDONTWRITEBYTECODE=1; cwd /tmp",
+    "useful_tasks_cli": "--seed wrote six members each equal to its pin; --prove exited 0 on that tree and refused by path with status 2 on an empty one",
+    "setup_script": "the embedded validation program compiles and names the new proof; plan mode refuses a non-repository with status 2. NOT run with --commit",
+    "failure_found_and_fixed_here": "the first full run was 89 with 1 failure, test_the_check_count_the_page_states_is_the_ACTUAL_count, because ADOPTION-247941.md still said 85"
+  },
+  "still_owed": [
+    "the LIVE run: execution overlap, isolation, per-Job proposal/result attribution, completion and exact producer cessation. Owner's selection; no deterministic evidence substitutes for it",
+    "independent SEMANTIC acceptance of both useful proposals; a structural pass or a provider exit is not acceptance",
+    "O1: the remaining ACCEPTED operands re-derived from named accepted records"
+  ],
+  "not_done": [
+    "no setup with --commit, no deployment, no build",
+    "no live engine, provider, container, credential or network",
+    "no store opened beyond the disposable Authority the existing fixture creates",
+    "no retry, reuse or automatic integration",
+    "no graph mutation and no Git mutation of this checkout"
+  ],
+  "ready": false
+}

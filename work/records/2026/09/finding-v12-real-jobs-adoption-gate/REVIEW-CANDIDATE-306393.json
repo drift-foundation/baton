@@ -1,0 +1,83 @@
+{
+  "work": "W247941",
+  "claim": 306393,
+  "author_pass": 306390,
+  "files": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/verify_247941.py": {
+      "sha256": "f24ca0e7d69d28572a86e6ebefc2f3fb8356ef40d8c1637ac7ec1dee86329757",
+      "bytes": 22981
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/prepare_two_jobs.py": {
+      "sha256": "12fbe135ea0ba361c82f1f33b39388bbf7e7925b36da859ea8356369dc247b76",
+      "bytes": 59675
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py": {
+      "sha256": "83e44b9b502cefbc3897dbddea4e5fc5b0a2445caeb5409c9b21a6a7820ab937",
+      "bytes": 27161
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": {
+      "sha256": "5b3045e66bd46a1c2ed314c6f73d2f7425ccd7b0576b692f7d8a446fc658ee36",
+      "bytes": 52718
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/useful_tasks.py": {
+      "sha256": "e59e4789de25b8b623a884c784ac0e94efa507a52aa0ed37b008a5b3ea2ad8f2",
+      "bytes": 17446
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/check_useful_tasks.py": {
+      "sha256": "f6dcadba50a361ff8f3f3ccfa887ea2ef00d8952b9438fff1288fd91a7edee4f",
+      "bytes": 5159
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": {
+      "sha256": "4e4f5aed0221552ef08a813f8bb1d1388bc530bf011a0a9e68ff3399a27a27c9",
+      "bytes": 161164
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_useful_tasks.py": {
+      "sha256": "35cfbde1892818a8ff1a2b5651510bee538697074e6a17fd261f42090e1c1f4a",
+      "bytes": 14011
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/setup-two-jobs-305532.sh": {
+      "sha256": "3b980919b84bd735b0e0ed96b4134a014e79bdc95cb287bb5db5f5e982bfc976",
+      "bytes": 10892
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/SETUP-RECIPE-305440.md": {
+      "sha256": "3133f16bba4021d86043bed7e283e6e90f48a8057f25cc62f110c7366fe3a890",
+      "bytes": 10116
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/PARALLEL-PACKET-305010.md": {
+      "sha256": "4ae22bcddca1b83ccf018de683945a648ec750956122848d1e1ecc5fe56060c0",
+      "bytes": 31813
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/USEFUL-TASKS-305440.md": {
+      "sha256": "9751647d17084e250c1e1f4d6afcd147347ade216df276ea79b50fe621dd83f0",
+      "bytes": 10874
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/ADOPTION-247941.md": {
+      "sha256": "5104be90163a0a0bebf110eb16039a97aa66ea79e9e07e7b880d09c6d2c9509a",
+      "bytes": 26275
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/REVIEW-CANDIDATE-306116.json": {
+      "sha256": "bd53f36808e2299aa3a3db19fc9d2c0be70248697a15f3bcb4615a768cce0bb9",
+      "bytes": 5948
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": {
+      "sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "bytes": 105968
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/REVIEW-CANDIDATE-306333.json": {
+      "sha256": "ccd9c81dff2bc2973c066b571ca87a8293de2e289e14a38873a0789c816665d4",
+      "bytes": 4738
+    }
+  },
+  "independent_tests": {
+    "count": 4,
+    "seconds": 0.145,
+    "result": "PASS",
+    "warnings": 0
+  },
+  "operator_plan": {
+    "exit": 0,
+    "wall_seconds": 0.239269716,
+    "run_root": "/home/sl/baton-instances/two-jobs-247941-01"
+  },
+  "setup_executed": false
+}

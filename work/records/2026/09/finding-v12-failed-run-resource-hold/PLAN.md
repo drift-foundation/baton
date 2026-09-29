@@ -1,3 +1,13 @@
+# Current checkpoint — residual recovery retained; fresh parallel gate removal recommended
+
+Reviewer304829; owner304826; events304829/T257624270917 unchanged. Latest review-2026-09-29T10-43-36Z.md and RESIDUAL-CLASSIFICATION-304829.md enumerate all residuals. W301404 closed satisfying; selected W257627 real single-Job execution and proposal accepted. Prior open-child wait and blanket-maintenance next-step language superseded by current DESIGN primary preserved-storage lifecycle.
+
+RECOMMENDED owner action: park W257624 OPEN for unresolved legacy/helper recovery, R4/R5 old-attempt packet, broad standalone alias/mutation and provenance/residue history; explicitly remove only W247941 -> W257624 prerequisite for the fresh two-isolated-Job path. Do not close this parent satisfying or imply all recovery works. No graph changed here. Next W247941 bounded packet preparation with one manager per instance, distinct tasks/roots/identities, overlapping execution and independent proposal/cessation evidence; no live run selected by this classification. Any reached isolation/loss/false-success/DB-I/O defect remains blocking.
+
+Reviewer owns current records/classification/new review only; R5 draft and PROGRESS untouched. No tests or broad audit; historical425.935s plus separately recorded unknowns/ranges preserved. Exact row evidence, graph rationale and limits in classification.
+
+---
+
 # Current checkpoint — bounded child W301404; parent returns owner
 
 2026-09-29T02-18-18Z, parent claim301403, owner301398 (scope301348), events301403/T257624 through270917. Child W301404 created301404 at findings/finding-create-line-completion-outside-transactions. This explicitly selects only the reached create_line completion DB-1 residual; broader older continuation prose is not an implementation assignment.

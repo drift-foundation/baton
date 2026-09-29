@@ -1,0 +1,10 @@
+{
+  "claim": 305385,
+  "review": "review-2026-09-29T11-58-42Z.md",
+  "files": {
+    "prepare_two_jobs.py": "8d750c39c07970bf2f71da766f447b200aff0eb3b314ba787db0f42d3c5b6357",
+    "PARALLEL-PACKET-305010.md": "31fd04063d3b5581c1241f2e1ede607c71b261e46dc1aba394b22f3e15cc2d3d",
+    "verify_247941.py": "b5039e649f94be9d76f3773ad88eecda986e43155f6d368dd18d51bc6f77b3ad",
+    "test_two_jobs.py": "8959e6e7a644113cb3e78d9466177a1029977d63ad74e6412069d669895ff567"
+  }
+}

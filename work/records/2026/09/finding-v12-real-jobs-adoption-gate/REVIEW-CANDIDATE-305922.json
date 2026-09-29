@@ -1,0 +1,9 @@
+{
+  "claim": 305922,
+  "review": "review-2026-09-29T13-08-19Z.md",
+  "files": {
+    "OWNER-SIMPLIFY-PARALLEL-PROOF-20260929.md": "106442f1e366bd495c64e602673c124d813d7e095d50af74cc17874e2d6a1e25",
+    "prepare_two_jobs.py": "edf9404dabebacd114bdd861cfa666090af6c53468eb5e19b538be35053986f6",
+    "test_useful_tasks.py": "5d3cd02645f28d23f5e962727afebdc0255c577216f0ed571fc9f794c262a66b"
+  }
+}

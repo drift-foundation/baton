@@ -1,0 +1,30 @@
+{
+  "claim": 305151,
+  "files": [
+    {
+      "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate/prepare_two_jobs.py",
+      "sha256": "5f78fac2bcf9073203aed2b3c67a8b8ebe2009d553100b02df7111e27059c0f5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py",
+      "sha256": "a51bfbd29d46397d273410ae18d672fa493c5e284164b8661af6c0a6466c1851"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py",
+      "sha256": "5b3045e66bd46a1c2ed314c6f73d2f7425ccd7b0576b692f7d8a446fc658ee36"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate/verify_247941.py",
+      "sha256": "d91482147834752c01c06f45ebc7b7bd6261e6b73bed10b196749fe101b8a0ee"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py",
+      "sha256": "09f2f7ef444cb47d469569b13ff8ac2ced3a290706d8b4c9b1bf15289738848b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-real-jobs-adoption-gate/PARALLEL-PACKET-305010.md",
+      "sha256": "bc14c503bf93b391d6b37d158879f5aea8dc1d05a266858ab2557029eecd0feb"
+    }
+  ],
+  "import_reproduction": "ModuleNotFoundError baton_v12; configured full-snapshot root is not Python package root"
+}

@@ -791,3 +791,259 @@ Tuner owns packet preparation in W257627; active W285465 product/test paths stay
 with its handler. No waiting for W285465 merely to draft commands and map blockers.
 Prompt updates this adoption checkpoint; managed reviewer independently assesses
 the packet. Record a finite ready/not-ready list rather than another broad plan.
+
+
+## 2026-09-29 — owner selects the bounded two-Job parallel proof; packet prepared
+
+Owner acts 304998/304999/305000 removed the whole-Work W257624 wait (per the bounded classification
+in `RESIDUAL-CLASSIFICATION-304829.md`, with W301404 closed satisfying and W257627 accepted) and
+routed this Work to baton.impl to PREPARE the parallel packet. The selection, pinned here:
+
+One Host manager for the instance. Two useful independent tasks with disjoint changed paths. Two
+Jobs with distinct Job/attempt identities, isolated workspaces and disjoint proposal paths. Four
+admissions — two implementations, two reviews — and no fifth. Required evidence: actual execution
+overlap at an observed instant, correct per-Job attribution, two independently reviewed proposals
+and exact producer cessation. Reuse accepted evidence; add only focused parallel-specific checks.
+
+The packet is `PARALLEL-PACKET-305010.md`. It reuses the accepted single-Job machinery
+(`finding-v12-single-implementation-proof/baseline.py` as recorded in `FINAL-PACKET-302142.json`,
+whose execution `EXECUTION-REVIEW-304782.json` accepted) through this dossier's existing two-Job
+specialization, and it names five concrete missing operational requirements rather than implying
+readiness. Preparation only: no live run, build, deployment, retry/reuse, automatic integration,
+graph mutation or Git operation is selected or performed.
+
+
+## 2026-09-29T11-18-17Z — partial parallel packet, executable continuation
+
+
+NOT READY; direct authorized implementation continuation. Owner305000 selects bounded two-Job preparation. Graph change304998 removed W257624 prerequisite; accepted providers remain. Read full handoff305069/events305072 and all six T247941 messages through291714. Historical stop-for-decomposition instruction was fulfilled in that earlier episode; it does not cancel current305000 preparation. No new owner decision prevents the deterministic corrections below.
+
+## Confirmed progress
+
+The baseline pin248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771 matches the accepted single-Job supervisor. Reusing AdmissionGate with a two-Job identity predicate is a reasonable bounded continuation. Symbol existence alone is not full compatibility proof. Author144/142 passing suites and85-case73pass/12failure report remain author evidence; reviewer did not repeat broad suites.
+
+## R1 — M1 is resolved by the supported fixture operand
+
+The statement that BATON_V12_DISK_ROOT belongs to another harness is incorrect. tests/manager/disk_roots.py explicitly consumes it, refuses explicit memory-backed/unwritable roots and otherwise defaults through candidates including the checkout. /tmp is not a substitute for disk-backed storage here. Already-authorized external root /var/tmp/baton-w257624 works.
+
+Independent exact test PASS6.424s:
+
+    env BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python:/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate timeout --signal=TERM --kill-after=5s 45s /home/sl/.local/state/baton-v12-venv/bin/python -B -W error::ResourceWarning -m unittest test_two_jobs.TheSHIPPEDTemplateComposesThroughTheACTUALCLI.test_the_DOCUMENTED_COMMAND_reaches_four_attempts_and_two_verdicts
+
+It asserts four admissions, two own frozen accepted verdicts, no uncertainty/held/outstanding cleanup, settled and exit0. It deliberately ends stopped=serving-bound-exceeded; do not call that normal immediate-completion proof. Fake execution boundary only, no live engine/provider. Do not weaken external-state validation or need new filesystem permission. Correct M1 prose and run the remaining affected preparation/supervisor selectors with this operand, retaining exact failures rather than assuming all twelve pass from this one.
+
+## R2 — bind the whole actual runtime, not just the baseline symbol surface
+
+prepare_two_jobs.py still sets SNAPSHOT=/home/sl/baton-runs/independent-review-247947/manager-source and ACCEPTED.manager_source_files=106 with old stage_execution digest. _composer explicitly uses that old snapshot in PYTHONPATH; test_two_jobs also retains it. Advancing only two_job_supervisor.BASELINE_SHA256 does not bind preparation, launch or status to the current accepted109-file manager source. This is a concrete remaining rebinding task under305000, not permission to launch old source or overwrite consumed snapshots. Parameterize/freeze the selected complete source and exact imported origins using accepted single-Job provenance. Independently revalidate emitted command and affected stop/attribution behavior on those actual bytes. Preserve historical pin values/evidence.
+
+## R3 — finish concrete preparation, distinguish execution questions
+
+M2 is a real boundary: no deployment/setup selected by305000. Finish all repository-side task documents, immutable excerpt inputs, exact limits, paths, candidate manifests and reviewed owner preparation recipe before asking for setup selection. Proposed task names are not immutable tasks yet. Keep useful tasks disjoint and inputs finite; do not hand the worker a full changing FINDING as a claimed pinned input. Exact launch/status commands must be emitted by the two-Job composer; replacing a filename in the single-Job sheet is only a sketch.
+
+M3 concurrent credential/provider reach is the stated question for a future selected real run, not a prerequisite that must already be proved before packet preparation can finish. Use deterministic parallel tests now and record the unproved live question honestly.
+
+M5 incorrectly elevates the deferred old R4 recovery matrix into a requirement to close for this fresh packet. RESIDUAL-CLASSIFICATION-304829 preserves it outside selected legacy/helper recovery and owner304998 removed the broad gate. Explicitly supersede that M5 interpretation. Selected two-Job stop/cancellation/uncertainty/per-Job accounting IS required: run focused applicable current supervisor cases and report any concrete reached defect. Do not revive historical old-attempt recovery or infer two-Job cancellation correctness solely from single-Job success.
+
+Four admissions/two implementation plus two managed reviews follows the reused candidate design, not an explicit four-live-invocation grant in305000. State that cost/bound in the concrete owner execution packet; independent reviewer acceptance of both proposals still required. No live execution is authorized by this review.
+
+## Continuation / ownership
+
+Continue baton.impl directly: correct M1/M5 checkpoint, rebind full runtime and task/input documents, complete focused current-byte verification and frozen recipe/command packet. Claude owns existing preparation/composer/supervisor/test paths, new bounded packet assets and PROGRESS; reviewer owns FINDING/PLAN/new review. Necessary bounded test edits allowed by standing policy, preserve real safety assertions. No source-wide cleanup, deployment/build, live model/engine, retry/reuse, integration, graph or Git mutation. Once preparation is concrete, return for independent review then owner selection of exact remaining setup/run. Do not bounce ordinary unfinished preparation to owner.
+
+Reviewer focused verification6.424s; author costs39.5+66.6+68.1+0.210+0.898+0.376s and reported earlier diagnostic retained without inventing a complete cumulative total. No new product defect established by fixture placement itself.
+
+
+## 2026-09-29T11-27-34Z — exact runtime-root correction, continue preparation
+
+
+NOT READY. Continue authorized implementation directly, without a new owner decision or another partial-progress approval gate. Author305097/handoff305142 is candid that O1–O5 remain unfinished. Events through305151, T247941 unchanged291714. M1/M3/M5 corrections accepted as scope clarification; no broad R4 recovery revival.
+
+## Concrete rebinding defect and count clarification
+
+Both counts are correct for DIFFERENT scopes. Actual accepted PACKET.json manager_source.path is /home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python, with file_count109 and109 enumerated members. The enclosing manager-source contains126 files, including dossier helpers and task assets. Thus O2 needs labelled manifest scopes, not an owner choice or choosing whichever count is larger. My previous109 wording referred to the packet manager source, not the full frozen tree; this clarification explicitly resolves the ambiguity.
+
+The current SNAPSHOT default is the enclosing manager-source. _composer places only that plus the dossier on PYTHONPATH. Neither manager-source/baton_v12 nor manager-source/tools exists. Independent read-only subprocess from /tmp with that exact PYTHONPATH fails ModuleNotFoundError: No module named baton_v12, before any store/effect. The actual imports require manager-source/v12/python/src and manager-source/v12/python, as the accepted single-Job commands.json already records. Merely changing SNAPSHOT to v12/python is also insufficient for baton_v12 without its src root. Separate full snapshot boundary, package roots and manifest scope explicitly; keep origin/digest guards fail-closed.
+
+In addition verify_247941.py still independently pins old independent-review-247947 SNAPSHOT, old106 count and old stage_execution hash. two_jobs.main calls that pins() and imported_from(verify_247941.SNAPSHOT). Updating prepare_two_jobs alone cannot make the actual composer use one accepted source. Complete the full call chain: preparation, verifier, composer, emitted launch/status and tests must consume one selected provenance with explicit import roots. verify_247941.py is already in its OWNED packet path list; this bounded rebinding is within owner305000 preparation, not new product scope. Do not disable pins, auto-trust current checkout hashes or mutate old frozen evidence.
+
+## Remaining deliverable
+
+Finish O1 actual adapter/profile/policy/runtime bindings from accepted records; O2 scope-labelled manifests/import roots as above; O3 focused preparation/command/stop/attribution verification on those exact bytes; O4 emitted launch/status/stop and repository-side owner setup recipe; O5 immutable useful task documents and finite excerpts. These remain the same authorized outcome from the previous review. Complete them within the next implementation claim while possible; partial progress does not need another review checkpoint before continuing. Return an independently reviewable candidate or a concrete external blocker, with exact continuation if unavoidable.
+
+Use BATON_V12_DISK_ROOT=/var/tmp/baton-w257624. Prefer exact affected own-method selectors before another inherited85-case suite; fix observed root/provenance failures before repeating unchanged broad tests. Preserve real rejection tests. Existing selected parallel stop/hold accounting remains required; deferred legacy recovery is not reintroduced. Four live admissions and bounds must be explicit in the eventual owner execution selection, not silently inferred from deterministic fixtures.
+
+No implementation by reviewer. This review performed source/manifest reads and one import-only reproduction (exit1, unmeasured duration); no suite rerun, stores, live engine/provider, deployment, Git or graph effects. Preserve author68.6+67.4+68.8s plus four focused selectors as reported and previous costs; do not claim all O3 checks passed. Reviewer only new review, FINDING/PLAN and digest evidence. Author retains bounded packet code/test/assets/PROGRESS ownership.
+
+
+## 2026-09-29T11-35-05Z — verifier bookkeeping blockers reproduced
+
+
+NOT READY; continue baton.impl under owner305000. Read handoff305202/events305204, T247941 unchanged291714. Shared IMPORT_ROOTS/import_path helper is present; full-snapshot126 and manager-subtree109 distinction is settled. No fresh approval needed to finish existing preparation. Author reports85 tests62pass/23failures; this review identifies deterministic causes without repeating that suite.
+
+## Confirmed blockers in current verifier
+
+Independent direct pins() call with BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 reports agree=false. Five mismatches:
+
+- stage_execution_sha256 found=None: pins() still reads SNAPSHOT/tools/stage_execution.py. Current accepted file is SNAPSHOT/v12/python/tools/stage_execution.py.
+- manager_source_files_before_302142, manager_source_manifest_sha256_before_302142 and stage_execution_sha256_before_302142 are history metadata inserted into PINNED, but pins() requires every PINNED member to equal found[name] and never measures these history fields.
+- packet_manager_source_members=109 is also included in that comparison without a corresponding measurement.
+
+Thus several disagreements are caused by verifier bookkeeping, not disagreement between accepted snapshot bytes. Whole-tree count/manifest and runtime executable checks currently match. Preserve historical values outside the active-equality map; independently measure any new active subtree-count assertion against its explicitly named member set. Do not weaken actual current hash, missing-file or imported-origin rejection to make agreement pass.
+
+## Remaining import sites
+
+TheSHIPPEDTemplateComposesThroughTheACTUALCLI.bound_environment still sets PYTHONPATH to the full snapshot root; the same unresolved pattern remains at explicit PYTHONPATH assignments around test_two_jobs.py1943,1968,1982,2106,2155,2209. These are environment construction sites, not path-containment checks. Use shared import_path() for actual Python import search paths and preserve root operands for joins/boundary checks. Prior wholesale substitution was not valid; neither is leaving these known environment sites untouched. Revalidate each actual subprocess argv/environment.
+
+Finish O1/O3/O4/O5 already requested: actual accepted runtime/adapter/profile provenance; focused preparation/composer/operator/parallel stop checks; emitted commands and concrete owner setup recipe; immutable tasks/excerpts/limits. Preserve O2 resolution and accepted M1/M3/M5 clarification. No new scope or external blocker was established. Partial runtime rebind is still not a completed packet. Continue authorized implementation in the live claim until a coherent deliverable is ready or a real external blocker stops it; no further partial-review milestone is required.
+
+Verification: one read-only pins() diagnostic, no suite rerun and no operational stores or engine. Author reports68.8+33.0+31.7+39.0s this episode, retained without reconstruction; reviewer diagnostic unmeasured. No implementation, tests, deployment/build/live, Git or graph changes by reviewer. FINDING/PLAN/new review only; author existing bounded packet/test/assets/PROGRESS ownership remains.
+
+
+## 2026-09-29T11-42-13Z — preparation passes with actual bound runtime
+
+
+NOT READY as a whole packet; continue existing O1/O3/O4/O5 directly. Author305218/handoff305252, events305254, thread unchanged291714. Previous verifier locator/history corrections are present. No external decision or renewed scope grant is needed.
+
+## Exact passing preparation command
+
+Independent preparation end-to-end selector with checkout runtime imports:1ERROR0.041s, correctly refuses imported baton_v12 from checkout. The SAME selector with accepted frozen runtime first:1PASS0.716s. Therefore do not treat this refusal as evidence that accepted digests disagree or weaken provenance protection. The test calls prepare_two_jobs.main in-process, so fixing only child subprocess environments cannot fix the test runner's already-loaded packages.
+
+Use this exact runner environment from /tmp:
+
+    env BATON_V12_DISK_ROOT=/var/tmp/baton-w257624 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src:/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python:/home/sl/src/baton/v12/python:/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate timeout --signal=TERM --kill-after=5s 40s /home/sl/.local/state/baton-v12-venv/bin/python -B -W error::ResourceWarning -m unittest test_two_jobs.ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor.test_the_PREPARATION_COMMAND_runs_end_to_end
+
+The checkout v12/python entry supplies test code after the frozen product roots. This is deterministic fixture preparation, not operational deployment or live execution. Remaining affected selectors still need their own outcomes; one pass does not establish all ten.
+
+## Stop re-litigating different file scopes
+
+Exact selector supplied again, now with both document names: json.load(open('/home/sl/baton-runs/single-job-257627-291715/PACKET.json'))['manager_source']['file_count'] ==109, and len(the_same_document['manager_source']['files']) ==109. That manager_source.path ends /manager-source/v12/python. This is the actual operational PACKET.json already quoted in review11:27:34.
+
+Your _packet_members instead reads dossier FINAL-PACKET-302142.json and counts all file paths containing /manager-source/:126 including helpers/tasks outside v12/python. It is a valid whole-snapshot-manifest measurement, not a contradictory measurement of PACKET.json.manager_source.files. Keep126 for that explicit scope; label it unambiguously. Correct HISTORY/prose claiming109 has unidentified provenance or cannot be reproduced. No count change, new approval or test weakening is required. The repeated ambiguity must not block concrete tasks/commands.
+
+## Finish the deliverable
+
+Complete immutable useful task/excerpt assets and actual emitted setup/launch/status/stop recipe with limits and accepted bindings. O1/O3 remain scoped revalidation, not a reason to withhold O4/O5 repository work. Use focused failures with the correct runtime environment; do not rerun the85-case suite between each known environment correction. Return a coherent reviewable packet or a concrete external blocker. No intermediate per-edit review gate requested. Owner305000 still excludes actual setup/build/live/provider/retry/reuse/integration; no such act performed here.
+
+Reviewer changed only new review/FINDING/PLAN. Tests/assertions/product/PROGRESS untouched. Independent verification0.757s total (0.041+0.716); author69.3s plus grouped rerun remains as reported and prior costs preserved. No stores opened outside deterministic fixtures, no Git or graph mutation. Accepted broader evidence remains unchanged.
+
+## 2026-09-29T11-52-45Z — preparation checks accepted; concrete packet unfinished
+
+Reviewer claim305323, author handoff305321. Independent8 PASS2.019s; active-pin refusal/unchanged-pin acceptance retained. Author full85 PASS75.3s recorded separately. O2 resolved/O3 current checks green; O1 accepted-input provenance and O4/O5 recipe/tasks still outstanding. Direct implementation continuation under305000, no intermediate approval gate. Actual setup/run unselected. See review-2026-09-29T11-52-45Z.md and REVIEW-CANDIDATE-305323.json. Last discussion291714/events305323; all earlier evidence preserved.
+
+## 2026-09-29T11:58:42Z — useful task interpretation; concrete provenance mismatch
+
+Reviewer305385 applies owner305000 useful-work requirement: greet fixtures do not satisfy selected live payload; proceed with already proposed disjoint documentation tasks, structural deterministic checks and independent semantic review. No new owner choice required. This explicitly supersedes packet section8 claim that useful-vs-greeting choice awaits owner selection. Exact task brief and accepted deployment digest mismatch recorded in review-2026-09-29T11-58-42Z.md; O1/O4/O5 remain unfinished. Read events305385/T247941291714. Two spent-root refusals independently confirmed; author85 PASS75.7s retained separately. No setup/live execution selected.
+
+## 2026-09-29T12:03:33Z — reference digests match; authoring still unstarted
+
+Reviewer305418 independently matched three deployment digests and actual frozen adapter source SHA. Reference facts accepted; final pair descriptor derivation still binds its own inputs. O4/O5 unstarted and authorized, no scope decision. Self-imposed micro-turn budget is not a gate. See review-2026-09-29T12-03-33Z.md, including concrete stale provenance/runtime locator distinctions and fixture placeholder identities to resolve in final real input manifests. Read events305418/T247941291714; no live/setup performed.
+
+## 2026-09-29T12:11:11Z — documents exist but selected preparation is disconnected
+
+Reviewer305478 explicitly rejects handoff305476 claim that only owner setup remains. Actual task generator emits greet scripts; recipe uses unsupported --selections and120 reserve versus emitter60; excerpt identities incomplete/unmaterialized; checker accepts100 despite under100 contract. See review-2026-09-29T12-11-11Z.md for bounded R1-R4 and independent probes. Continue repository O1/O4/O5, no setup selection yet. Prior accepted evidence preserved. Read events305478/T247941291714.
+
+## 2026-09-29T12:16:17Z — R4 accepted; R2/R3 only partial
+
+Reviewer305517 independently verified99pass/100refuse for both tasks and all four full source hashes/sizes. R4 closed; R2 recipe still omits db/ path components and required setup operands, R3 source identities do not deliver frozen input bytes/evidence. R1 connected generator unstarted. See review-2026-09-29T12-16-17Z.md; explicitly supersedes handoff305514 assertion R2/R3 fully corrected. No new owner gate; events305517/T247941291714.
+
+## 2026-09-29T12:20:42Z — R2 setup preflight fails, sequence incomplete
+
+Reviewer305555 independently confirms missing run_id operand to fresh() in new setup script; bootstrap/preparation still not fully wired. R2 closure claim305552 superseded by concrete findings in review-2026-09-29T12-20-42Z.md. R1 generator unimplemented and R3 delivery depends on it. No external blocker or new owner question; finish connected repository preparation. Events305555/T247941291714.
+
+## 2026-09-29T12:26:38Z — setup runtime and state-root mismatch
+
+Reviewer305595 confirms fresh argv correction; rejects complete setup claim because bootstrap destination needs --distro and writes INSTANCE receipt/stores while preparation reads RUN_ROOT receipt/stores. Exact frozen-code findings in review-2026-09-29T12-26-38Z.md; source/base preflight and connected R1/R3 still owed. No operational setup attempted. Events305595/T247941291714.
+
+## 2026-09-29T12:30:40Z — runtime/root corrections present; R1/R3 next
+
+Reviewer305633 confirms same-root topology and explicit distro operand; bash syntax passes. Specific prior defects closed, full connected setup unproved. Useful-task generation/delivery remains unimplemented. Next milestone is that substantive path and focused connected evidence, no per-edit review gate. Final source/base/runtime preflight requirements retained. See review-2026-09-29T12-30-40Z.md; events305633/T247941291714.
+
+## 2026-09-29T12:34:10Z — source preflight correction accepted, generator unstarted
+
+Reviewer305661 confirms read-only Git HEAD/cleanliness checks and passing shell syntax. No connected R1/R3 progress supplied. Explicit narrow option preserves greeting fixture builder and adds selected useful-doc input path; no requirement to keep intermediate edits green or seek per-edit review. See review-2026-09-29T12-34-10Z.md. Events305661/T247941291714; prior evidence preserved.
+
+## 2026-09-29T12:42:29Z — useful components pass; connected path gaps
+
+Reviewer305721 independent12 PASS0.068s. Separate useful builder/delivery accepted as progress, not R1/R3 closure. Setup still greeting, submission test_scope global greeting, contract content undelivered, mounts/actual diff absent, deliver writes before refusal gates. Exact finite closure list in review-2026-09-29T12-42-29Z.md; no owner decision required. Events305721/T247941291714; earlier accepted evidence preserved.
+
+## 2026-09-29T12:50:22Z — selected setup and component delivery accepted
+
+Reviewer305779 independent15 PASS0.071s. Setup selects useful; contract copied; whole-delivery hash/conflict gates improved. Main still delivers before later refusal gates; actual scope/mount/diff/main integration unfinished. See review-2026-09-29T12-50-22Z.md; tasks is a resolved parameter, not absent scope. Events305779/T247941291714. Prior evidence preserved; no setup/live.
+
+## 2026-09-29T12:57:17Z — scope and no-write replay accepted
+
+Reviewer305833 confirms selected touches/legacy fallback and independent6-file replay preserves mtimes (0.000858977s). Delivery still precedes existing-run and runtime-provenance refusal gates; partial move not closure. Complete mounts/manifests/diff and selected-main proof under existing scope. See review-2026-09-29T12-57-17Z.md; events305833/T247941291714.
+
+## 2026-09-29T13:01:31Z — all three early gates now precede delivery
+
+Reviewer305872 accepts source ordering correction. Direct deliver tree-comparison improved but does not test main. Connected mounts/manifests/diff/provenance and deterministic main/setup/worker evidence still owed. See review-2026-09-29T13-01-31Z.md; events305872/T247941291714. Prior acceptances preserved.
+
+## 2026-09-29T13:08:19Z — owner simplification supersedes prescribed extra layers
+
+Confirmed owner ruling: OWNER-SIMPLIFY-PARALLEL-PROOF-20260929.md, discussed T247941/305879; read by reviewer305922. Reuse accepted single-Job preparation and evidence for two useful tasks under one Host manager. Additional proof is overlap, isolation, attribution, completion and independent review. This explicitly supersedes earlier review/PLAN interpretations requiring bespoke contracts, checkers, mounts or validators as mandatory layers. Existing safety findings and evidence preserved; known writes-before-refusal and reached correctness defects remain required fixes. No broad rollback, rewrite or new live/deployment/Git authority. Claude chooses smallest adequate reuse/adaptation and explains unavoidable parallel-specific additions. Full next handoff criteria in review-2026-09-29T13-08-19Z.md. Checkpoint events305922/T247941305879.
+
+## 2026-09-29T13:32:53Z — connected preparation accepted; owner requires complete continuation
+
+Reviewer306099 independent23 PASS1.585s with six unclosed-file ResourceWarnings recorded; simplified source-context mechanism and selected-main success/refusals accepted within scope. Final O1/command/candidate binding still author-declared unfinished. Owner T247941305971 and OWNER-CONTINUE-UNTIL-RESOLVED-20260929.md now explicitly pinned: continue through routine fields/fixture/import/wiring failures until complete and focused verification passes; no partial-correction ping-pong. Earlier handoffs interpreted as per-edit permission gates are superseded. Early return only for concrete evidenced external/system/authority decision or verified runner constraint with checkpoint and safe release. Owner simplification retained; no new layers or live/Git/deployment authority. See review-2026-09-29T13-32-53Z.md. Events306099/T247941305971.
+
+
+## 2026-09-29T13:51:50Z — preparation accepted; owner setup decision next
+
+Work W247941; reviewer baton.rvpc; claim306224; author claim306116/pass306216. Canonical events read through306224; T247941 through305971; detail306250 confirms unchanged claim and discussion. Governed by OWNER-SIMPLIFY-PARALLEL-PROOF-20260929.md and OWNER-CONTINUE-UNTIL-RESOLVED-20260929.md.
+
+Verdict: repository preparation candidate ACCEPTED for owner consideration of the seed/source-commit/setup step. Overall adoption gate remains NOT READY. This review selects neither external setup nor live execution and does not accept nonexistent proposals. Full current repository file hashes are in REVIEW-CANDIDATE-306224.json, supplementing author REVIEW-CANDIDATE-306116.json.
+
+O1 is closed for this preparation candidate: accepted-run PACKET/deployment operands are measured, both worker descriptors agree, the actual profile name is claude-fresh-implementation, and bootstrap distro versus executed installed runtime paths are separately recorded with the same executable digest. Runtime dirty build identity is bound by executable bytes, not commit alone. Drift fails the existing pins check. Source context uses the accepted committed-source mechanism; no new mounts or custom diff framework are required. Prior connected useful preparation and no-write refusal evidence remains accepted. Existing proposal custody/diff review must establish actual changed paths; the checker's declared --changed argument alone is not that proof. Recipe environment exports now survive both plan and commit invocations; unclosed test reads are fixed.
+
+Independent verification: seven exact O1 cases plus two selected useful main preparation/replay cases PASS9 in1.750s, zero warnings under -B -W error::ResourceWarning. Earlier class-level selection mistakenly bypassed module load_tests filtering and collected inherited scenarios:66 tests39.397s,24 failures4 errors, exit1. These include integration-stage expectations incompatible with this packet's disabled integration and inherited fixture assumptions. That run is preserved as failed; it does not establish regression in the selected preparation path. Reviewer increment41.147s; prior costs remain. Author reports the properly selected module96 PASS77.484s and useful components19 PASS0.075s; these are author evidence, not independent reruns. Author also preserves broad-discovery abandonment failures outside this selected fresh path. No acceptance of that residual debt is implied.
+
+Next finite sequence: owner considers SETUP-RECIPE-305440.md and chooses fresh run/source operands; owner alone commits seeded source. If selected, execute bounded setup and inspect its generated packet, exact provenance and commands before separate live selection. Then demonstrate two useful Jobs under one Host manager with actual overlap, isolated workspaces, per-Job attribution, completion/exact producer cessation, and independent semantic acceptance of both proposals. No retry, context reuse, automatic integration, additional validator framework or broad hardening is added. Retain accepted single-Job, lifecycle/maintenance and residual-classification evidence. Live proof and both semantic acceptances remain open.
+
+Ownership: reviewer changed only FINDING/PLAN and this review/evidence. Product, tests, setup assets, author PROGRESS and prompt ruling files untouched. Route to baton.decide for the concrete setup decision, not another routine implementation correction.
+
+
+## 2026-09-29T14-14-38Z — operator root disagreement corrected
+
+# Independent review — root correction
+
+Reviewer baton.rvpc, claim306393; owner reroute306323; author claim306333/pass306390. Events through306393 and thread through305971 read; no new discussion. Full candidate digests: REVIEW-CANDIDATE-306393.json.
+
+ACCEPT the bounded setup-root correction for owner setup. Previous review-2026-09-29T13-51-50Z.md accepted the preparation candidate but missed the script/module root disagreement. The owner's actual setup failed before root creation. This explicitly supersedes that review's no-remaining-preparation-blocker conclusion for the prior bytes; its other accepted evidence remains. The failure was concrete and the previous review did not prove the full setup path.
+
+Confirmed by inspection: the script now asks supported_root; that function calls fresh under SUGGESTED_ROOT, and fresh preserves the historical exclusions and adds the selected product's actual checkout boundary. The pinned stage_execution._checkout explicitly distinguishes source checkout from frozen bundle. The proposed root is outside the source boundary; installed runtime and stores use sibling paths, as in the accepted single Job. This is source-rule and historical topology evidence, not execution of a new instance.
+
+Independent exact operator PLAN invocation with RUN_ID=two-jobs-247941-01, SOURCE=/home/sl/baton-runs/two-jobs-247941-01-inputs, BASE=346a809bf0e4c47e52d881bd46d6d62a611c9816 exited0 (wall0.239269716s). It checked existing clean source HEAD and six pinned input members and emitted the consistent root /home/sl/baton-instances/two-jobs-247941-01. Independent four exact root cases PASS0.145s, zero warnings, frozen import roots first and -B -W error::ResourceWarning. Author100 PASS76.906s plus19 PASS0.076s remain author evidence. No full setup, live provider or engine operation was performed; no source reseed or Git mutation. Prior verification costs retained.
+
+One corrected setup command, using existing owner inputs (for owner execution):
+
+```sh
+env RUN_ID=two-jobs-247941-01 SOURCE=/home/sl/baton-runs/two-jobs-247941-01-inputs BASE=346a809bf0e4c47e52d881bd46d6d62a611c9816 bash /home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate/setup-two-jobs-305532.sh --commit
+```
+
+No reseeding or new source commit is needed. Omitting --commit prints the checked plan. Existing root refusal remains in the executing path. After setup, inspect generated packet/provenance and commands before separate live selection. Overall adoption remains NOT READY: actual overlap, isolation, attribution, completion/exact cessation and independent semantic acceptance of both useful proposals are still owed. No broad redesign, validator weakening, new gate or graph change. Reviewer writes only FINDING/PLAN/review/evidence; author and prompt ownership preserved. Return baton.decide with this corrected command.
+
+
+# Generated packet review — 2026-09-29T14-31-32Z
+
+Reviewer baton.rvpc claim306505, owner306501; events through306505/thread305971 (no new discussion). ACCEPT generated packet for the owner's agreed two-Job/four-stage execution; no concrete launch blocker found. This is launch readiness, not completed execution/adoption acceptance.
+
+Read actual bootstrap, selections, instance, deployment, submission and both task documents. Authority877cc2f8238940629a5a0c7636bfca53 and Work bindings W1/W2 agree; four distinct workers, two independent implementation stages, each review depends only on its own implementation. Useful scopes/committed inputs and declared base346a809bf0e4c47e52d881bd46d6d62a611c9816 agree. Source clone clean. Contract bytes match both manifests. Existing six-input proof and accepted pins pass; repository candidate has no digest drift. Read-only inspection0.39023256s; no test suite rerun needed for unchanged candidate. Full actual file hashes in ACTUAL-PACKET-306505.json.
+
+Clarification of prior topology prose: actual bootstrap installed historical runtime in distro/, not installation-runtime/; its executable hash matches. Launch uses frozen Python manager-source plus reviewed two-Job supervisor, as accepted, not the historical binary. Actual pair verifier limit is180 (provider180); earlier single-Job30 is historical. Total600 includes cleanup60. Prior cooperative-bound limitation retained.
+
+OPERATOR-306505.md gives exact foreground launch/status and single Ctrl-C stop procedure, with outcome inspection and remaining proof. No setup repetition, store access, live execution, Git mutation or product edit. Placeholder descriptor fields inherited from accepted machinery are not newly asserted content evidence; real task/source hashes and actual proposal review remain decisive, without adding a validator campaign. Preserve all accepted and residual evidence. Return owner for execution and subsequent independent result review.
+
+
+# Independent successor preparation review — 2026-09-29T14-54-05Z
+
+Reviewer baton.rvpc claim306685; owner306626; author306628/pass306683. Events306685/thread305971 read, no new discussion. ACCEPT fresh successor preparation under owner306626, with the evidence qualifications below. Full candidate hashes: REVIEW-CANDIDATE-306685.json. OPERATOR-306628.md supplies setup/foreground launch/status/stop for two-jobs-247941-02; actual generated successor packet does not yet exist and is not claimed inspected.
+
+Independent exact setup PLAN exited0, wall0.247569975s. Proposed /home/sl/baton-instances/two-jobs-247941-02 is absent. Existing source /home/sl/baton-runs/two-jobs-247941-01-inputs is clean at346a809bf0e4c47e52d881bd46d6d62a611c9816 and carries the accepted inputs. No reseed/new commit needed. Two exact regressions PASS0.059s without warnings: spent01 refusal/successor02 eligibility and original directory exclusion. Import ordering uses accepted frozen source. Author101+19 passing tests remain author evidence; not rerun independently. Supervisor/baseline/setup machinery unchanged; current changed paths against306393 are the declared preparation exclusion, tests and packet/adoption prose.
+
+Evidence qualification, explicitly superseding overbroad prose in OPERATOR-306628 section1 and handoff306683: authentication failure is not evidence of a manager execution defect, but 'not a manager defect' does not exonerate failure reporting or interruption presentation. W306614 independently confirms those separate defects. Owner306626 keeps their repair outside this continuation and not a prerequisite. Two admissions alone also do not prove temporal overlap of model work. Retained01 has no attributed verdicts; outcome439.713s interrupted/held and exact destroyed/absent runtime evidence remain preserved, with no accepted parallel useful work.
+
+Owner reports all-account provider-check passed14:43:10Z. Author registry/mtime inspection is supplementary evidence; mtime or empty credential directories alone does not guarantee future authentication. Reuse the existing current-credential mechanism unchanged; no credential content or new provider check was read/run by reviewer. Future provider success remains to be observed.
+
+Setup/launch parameters retain one manager, two implementations/two reviews, provider180/verifier180, total600 including60 cleanup. No extra execution selected. Status sheet's angle-bracket UUID is an operand placeholder, NOT a literal shell command: after setup, use the authority_uuid from bootstrap.json/step7 in its place. Actual generated identity and packet must be inspected before launch as in the accepted sequence. Ctrl-C still has the known expected-interrupt traceback issue; retained outcome and exact cleanup evidence, not terminal cosmetics, determine cessation. No supervisor repair implied.
+
+NEXT owner setup for02 using OPERATOR-306628, then generated packet inspection and agreed foreground execution. No repeated setup/launch on spent01. Overall adoption remains NOT READY until actual overlap, isolation, attribution, completion/exact cessation and independent semantic acceptance of both proposals. No graph change, live action, setup execution, product/test/PROGRESS edits or consumed-instance mutation by reviewer. Return baton.decide.

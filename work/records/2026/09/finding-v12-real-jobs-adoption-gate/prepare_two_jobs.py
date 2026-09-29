@@ -47,11 +47,42 @@ import subprocess
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
+if str(HERE) not in sys.path:                                # pragma: no cover
+    sys.path.insert(0, str(HERE))
+
+import verify_247941                                         # noqa: E402
 
 # THE PINNED SNAPSHOT. Every module this preparation imports, and the one the
 # composer subprocess imports, is the selected product rather than the
 # checkout -- the distinction W247941's review made a standing requirement.
-SNAPSHOT = "/home/sl/baton-runs/independent-review-247947/manager-source"
+#
+# REBOUND AT claim 305097, W247941 review 2026-09-29T11-18-17Z R2. Advancing only
+# `two_job_supervisor.BASELINE_SHA256` bound the supervisor and left THIS preparation
+# importing `independent-review-247947`, a CONSUMED root from a campaign two accepted
+# generations back. The seven preparation cases refused with the right sentence -- "this
+# preparation derives digests with contracts that are not the pinned ones" -- because the
+# pin no longer named the product anybody accepted.
+#
+# THE SELECTED SNAPSHOT IS NOW THE ACCEPTED SINGLE-JOB ONE: the manager source of the
+# instance whose execution `EXECUTION-REVIEW-304782.json` accepted, enumerated in
+# `FINAL-PACKET-302142.json`. It is an OPERAND rather than a literal, so a later selection
+# does not need this file edited again, and the default is the accepted provenance rather
+# than the checkout -- pointing it at the checkout is exactly what the standing requirement
+# forbids.
+#
+# THE OLD VALUE IS PRESERVED, not replaced: earlier results in this dossier were measured
+# against `SNAPSHOT_BEFORE_302142` and stay attributable to it.
+# DERIVED FROM THE ONE OWNER, not copied. W247941 review 2026-09-29T11-27-34Z: updating this
+# module alone left `verify_247941` and `two_jobs.main` pinning the consumed root, so the
+# chain disagreed with itself. `verify_247941` now owns the snapshot, its two IMPORT ROOTS
+# and its derived pins; this reads them.
+#
+# AND THE PYTHONPATH IS THE IMPORT ROOTS, not the tree root: a PYTHONPATH of
+# `<snapshot>` cannot import `baton_v12` or `tools`, which the review reproduced as a
+# `ModuleNotFoundError` before any effect. That was my defect, not the snapshot's.
+SNAPSHOT_BEFORE_302142 = str(verify_247941.SNAPSHOT_BEFORE_302142)
+SNAPSHOT = str(verify_247941.SNAPSHOT)
+IMPORT_PATH = verify_247941.import_path()
 
 # EVERY RUN ROOT THIS CAMPAIGN HAS CONSUMED. Each holds other work and is
 # preserved evidence; a successor takes a new identity and none of these.
@@ -63,6 +94,19 @@ CONSUMED = (
     "single-implementation-244216",
     "independent-review-247947",
     "independent-review-248377",
+    # SPENT BY THE ACCEPTED SINGLE JOB, added at claim 305353 on the review's instruction to
+    # revalidate this exclusion. `/home/sl/baton-runs/single-job-257627-291715` holds that run's
+    # outcome, workspaces and custody -- `EXECUTION-REVIEW-304782.json` hashes files inside it --
+    # so a successor must not take that identity or write into it. Listing every root actually
+    # present under `/home/sl/baton-runs` found this one missing and `w247941-witness` too.
+    "single-job-257627-291715",
+    "w247941-witness",
+    # SPENT BY THE FIRST PARALLEL RUN. Owner reroute 306626: preserve `two-jobs-247941-01` and its
+    # outcome. It holds a real execution -- two implementation admissions, both runtimes started,
+    # both providers reached and both answering "Failed to authenticate: OAuth session expired and
+    # could not be refreshed", then one Ctrl-C, `state: held`, no verdicts. That is evidence about
+    # the accepted path, so a successor takes a NEW identity and writes nothing into this one.
+    "two-jobs-247941-01",
 )
 
 # THE ACCEPTED CONFIGURATION, and where each value comes from. These are the
@@ -70,32 +114,88 @@ CONSUMED = (
 # read from a run that was independently accepted, and `verify_247941.py
 # --pins` re-checks the artifact digests among them before use.
 ACCEPTED = {
+    # EVERY LABEL NAMES THE RECORD THE VALUE WAS MEASURED FROM. W247941 review
+    # 2026-09-29T13-32-53Z closed O1 by asking for exactly this: which operands are already
+    # verified against an accepted record, and which were only labelled. These three labels were
+    # the latter -- "W239528 claim 244216" and "accepted by W239533" name DECISIONS, not bytes, and
+    # two of them named a deployment from a superseded campaign. `verify_247941.accepted()` now
+    # measures each operand from the accepted single Job's OWN records and `--pins` fails closed on
+    # a disagreement, so these labels state where the measurement reads from.
     "_provenance": {
-        "image_and_adapter": "W239528 claim 244216, accepted by "
-                             "review-2026-09-23T03-19-21Z.md",
-        "worker_and_policy_digests": "the executed review deployment at "
-                                     "/home/sl/baton-runs/"
-                                     "independent-review-248377/run/"
-                                     "deployment.json, accepted by W239533",
-        "manager_source": "ASSESSMENT-249338.md's pinned snapshot",
+        "image_and_adapter":
+            "MEASURED from /home/sl/baton-runs/single-job-257627-291715/PACKET.json: "
+            "worker_image.reference, worker_image.config_digest and "
+            "worker_image.worker_files['opt/baton/claude_agent.py'] -- the image and the "
+            "adapter source the accepted single Job actually executed. Originally selected at "
+            "W239528 claim 244216 and accepted by review-2026-09-23T03-19-21Z.md",
+        "worker_and_policy_digests":
+            "MEASURED from /home/sl/baton-runs/single-job-257627-291715/deployment.json, and "
+            "from BOTH configured workers rather than one: adapter_name, adapter_digest, "
+            "policy_digest, profile_digest, profile_name and retention_policy_digest are "
+            "identical across the implementation and review workers, which is what makes them "
+            "the instance's descriptors. The earlier label named "
+            "/home/sl/baton-runs/independent-review-248377/run/deployment.json, a superseded "
+            "campaign's deployment",
+        "manager_source":
+            "the snapshot ASSESSMENT-249338.md selected, which is also the accepted packet's "
+            "own code_boundary -- measured equal by verify_247941.accepted()",
+        "runtime":
+            "MEASURED from PACKET.json manager_runtime: build_commit and executable_sha256. The "
+            "runtime_path below is the DISTRO, the bootstrap input tools.bootstrap --distro "
+            "takes; runtime_executed_path is the installed copy the accepted run executed. The "
+            "executable at both hashes to the same value, which is why the pin is the digest and "
+            "not either path -- the installed runtime's build stamp records dirty: true, so the "
+            "commit alone does not identify the bytes",
     },
     "manager_source": SNAPSHOT,
-    "manager_source_files": 106,
-    "runtime_path": "/home/sl/baton-runs/managed-correction-236087"
-                    "/build/stack/out/distro",
-    "runtime_build": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3",
+    # FROM THE ONE OWNER'S DERIVED PINS. 126 is the whole snapshot with caches excluded;
+    # 109 is the count of `manager-source/` MEMBERS in `FINAL-PACKET-302142.json`. The
+    # review resolved those as two different member sets rather than a conflict, and
+    # `verify_247941.PINNED` records both.
+    "manager_source_files": verify_247941.PINNED["manager_source_files"],
+    # FROM `HISTORY`, not from `PINNED`: review 2026-09-29T11-35-05Z separated the superseded
+    # values out of the active measured pins, and reading them from the wrong map is how this
+    # module discovered that separation.
+    "manager_source_files_before_302142":
+        verify_247941.HISTORY["manager_source_files_before_302142"],
+    # THE DISTRO, which is the operand `tools.bootstrap --distro` takes, and the INSTALLED copy
+    # the accepted run executed. Both carry the same executable bytes; the digest is the pin.
+    "runtime_path": str(verify_247941.RUNTIME),
+    "runtime_executed_path":
+        verify_247941.ACCEPTED_PINS["runtime_executed_path"],
+    "runtime_build": verify_247941.ACCEPTED_PINS["runtime_build"],
     "runtime_executable_sha256":
-        "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
-    "image_reference": "baton-v12-claude-worker:w239528-244216",
-    "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f"
-                    "6bd8173ed9c9878a8ad9d6cad334ca2",
-    "adapter_sha256":
-        "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
-    "stage_execution_sha256": "6a212c3a2edc5ddb7059e86350d95924"
-                              "aca4b059c059855939e4fd9771ab5801",
-    "adapter_name": "docker-single-worker",
-    "adapter_digest": "sha256:1390f120f21a84a53ef0b0940b2ca199"
-                      "228adc3a5211d5bdc76838a444a0c9ce",
+        verify_247941.PINNED["runtime_executable_sha256"],
+    "image_reference": verify_247941.ACCEPTED_PINS["image_reference"],
+    "image_digest": verify_247941.ACCEPTED_PINS["image_digest"],
+    # THE ADAPTER SOURCE THE IMAGE RAN, `opt/baton/claude_agent.py` in the accepted packet's
+    # `worker_image.worker_files`. It was a bare literal with a decision for provenance.
+    "adapter_sha256": verify_247941.ACCEPTED_PINS["adapter_sha256"],
+    # FROM THE ONE OWNER, which derived it from the accepted snapshot rather than the
+    # checkout. The superseded value is recorded there too.
+    "stage_execution_sha256": verify_247941.PINNED["stage_execution_sha256"],
+    "stage_execution_sha256_before_302142":
+        verify_247941.HISTORY["stage_execution_sha256_before_302142"],
+    "adapter_name": verify_247941.ACCEPTED_PINS["adapter_name"],
+    # THE THREE DERIVED DESCRIPTOR DIGESTS, RECONCILED AT claim 305403 against the deployment
+    # the accepted single Job actually ran under. W247941 review 2026-09-29T11-58-42Z found the
+    # concrete mismatch; I read the source myself rather than copying the review's numbers:
+    #
+    #   SELECTOR  /home/sl/baton-runs/single-job-257627-291715/deployment.json,
+    #             `workers[0].deployment` and `workers[1].deployment` -- IDENTICAL in both, which
+    #             is what makes them the instance's descriptors rather than one worker's.
+    #   PROVENANCE  that deployment is the one `EXECUTION-REVIEW-304782.json` accepted the
+    #             execution of, with `adapter_name` `docker-single-worker` and `engine` `docker`
+    #             matching what this configuration already selects.
+    #
+    # THEY ARE DERIVED VALUES, NOT FREE CONSTANTS: the adapter, policy and profile descriptors
+    # hash to these under the accepted selection, and a later change to a descriptor's own bytes
+    # legitimately moves them. So the superseded values are kept below rather than deleted --
+    # they are what the earlier campaign's descriptors hashed to, not errors -- and this pair of
+    # facts is what a reviewer needs to tell a reconciliation from a substitution.
+    "adapter_digest": verify_247941.ACCEPTED_PINS["adapter_digest"],
+    "adapter_digest_before_302142": "sha256:1390f120f21a84a53ef0b0940b2ca199"
+                                    "228adc3a5211d5bdc76838a444a0c9ce",
     "engine": "docker",
     "provider_network": "bridge",
     "credential_sources": "/home/sl/.baton/credential-sources.json",
@@ -105,11 +205,12 @@ ACCEPTED = {
     # credential bytes.
     "credential_profile": {"claude": {"provider": "operator-file",
                                       "reference": "w202663-development"}},
-    "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342"
-                               "efb3a7a0d831e241c429601aa2eae45a",
+    "retention_policy_digest":
+        verify_247941.ACCEPTED_PINS["retention_policy_digest"],
     "retention_disposition": "retain",
-    "policy_digest": "sha256:82f94ecee8cc3959e4381a9573db8530"
-                     "f86f4b5fd801619f030931795403e62b",
+    "policy_digest": verify_247941.ACCEPTED_PINS["policy_digest"],
+    "policy_digest_before_302142": "sha256:82f94ecee8cc3959e4381a9573db8530"
+                                   "f86f4b5fd801619f030931795403e62b",
     "checkpoint_profile": "git",
     "launch_contract": "v12-assignment-1",
     "review_route": "rview",
@@ -119,9 +220,15 @@ ACCEPTED = {
     "policy_generation": 1,
     "pool_generation": 1,
     "correction_policy": "decline",
-    "profile_name": "claude-context-review",
-    "profile_digest": "sha256:432b508360842aa830239df6081923be"
-                      "e2f48dd2b5da5754ee10eefce3f85d25",
+    # THE NAME FROM THE SAME RECORD AS THE DIGEST. This said `claude-context-review` beside the
+    # accepted run's digest `93fdea4a…`, and BOTH accepted workers -- implementation and review --
+    # are configured `claude-fresh-implementation`. A name from one campaign beside a digest from
+    # another is the pairing O1 exists to catch, and the product does compare a line's profile name
+    # to the profile it is handed (`review_driver._profile_of`).
+    "profile_name": verify_247941.ACCEPTED_PINS["profile_name"],
+    "profile_digest": verify_247941.ACCEPTED_PINS["profile_digest"],
+    "profile_digest_before_302142": "sha256:432b508360842aa830239df6081923be"
+                                    "e2f48dd2b5da5754ee10eefce3f85d25",
     "integration_profile": {
         "instructions_digest": "sha256:fafc35958002db5284b54f4d22cf59a7"
                                "dccfb5ac05e15baa69db73fcff06d6f2",
@@ -210,6 +317,35 @@ BOUNDARIES = ("/home/sl/baton-runs", "/home/sl/src/baton")
 
 # THE SUPPORTED DEFAULT, outside both boundaries and on real disk.
 SUGGESTED_ROOT = "/home/sl/baton-instances"
+
+
+def product_checkout():
+    """What the PINNED product's OWN rule answers as "the checkout" in this process.
+
+    THE LITERALS ABOVE GO STALE, and that is not hypothetical. `stage_execution._checkout()` walks
+    three parents up from its own file, so the boundary MOVES when the selected snapshot moves --
+    and it has moved twice in this Work. Asking the product is the only reading that cannot drift
+    away from the rule it is quoting.
+
+    An import failure answers `None` rather than inventing a boundary: the literals still apply, and
+    a preparation that cannot import the pinned product is refused by the provenance gate anyway.
+    """
+    try:
+        from tools import stage_execution
+    except Exception:                                        # pragma: no cover
+        return None
+    return os.path.realpath(stage_execution._checkout())
+
+
+def supported_root(run_id, *, under=None):
+    """THE ONE PLACE A RUN ROOT IS CONSTRUCTED, validated before it is answered.
+
+    W247941 owner reroute 306323, and it is a concrete operator failure rather than a tidy-up:
+    `setup-two-jobs-305532.sh` built `/home/sl/baton-runs/<run id>` from a literal of its own while
+    this module refuses that directory, so the owner's setup could only fail -- before the run root
+    was even created. The script now asks here, so the two cannot disagree again.
+    """
+    return fresh(os.path.join(under or SUGGESTED_ROOT, run_id), run_id)
 
 
 def _components(place):
@@ -342,7 +478,11 @@ def fresh(run_root, run_id):
         if older in parts:
             _refuse(f"run root {whole!r} resolves under {older!r}, which "
                     f"holds other work and is preserved evidence")
-    for boundary in BOUNDARIES:
+    # THE LITERALS AND THE PRODUCT'S OWN ANSWER. The literals are the campaign's history -- roots
+    # that WERE the checkout under earlier selections and are kept excluded -- and
+    # `product_checkout()` is what the selected product says NOW.
+    for boundary in [one for one in
+                     (tuple(BOUNDARIES) + (product_checkout(),)) if one]:
         held, _ = _components(boundary)
         if whole == held or whole.startswith(held + os.sep):
             _refuse(
@@ -421,9 +561,14 @@ def task_document(job_id, *, run_id, base):
     }
 
 
-def disjoint(documents):
-    """The two tasks touch no common path, or this refuses by name."""
-    touched = {job_id: {TASKS[job_id]["path"]} for job_id in documents}
+def disjoint(documents, *, table=None):
+    """The two tasks touch no common path, or this refuses by name.
+
+    `table` names WHICH task set is being checked -- the greeting fixture or the selected useful
+    pair. It defaults to the fixture, so every existing caller is unchanged.
+    """
+    table = TASKS if table is None else table
+    touched = {job_id: {table[job_id]["path"]} for job_id in documents}
     shared = set.intersection(*touched.values())
     if shared:
         _refuse(f"both Jobs' tasks touch {sorted(shared)}; two Jobs writing "
@@ -597,7 +742,16 @@ def resolved(*, run_root, run_id, source, base, authority_uuid, work_ids,
             "implementation_input_manifest": manifest,
             "review_input_manifest": manifest,
             "input_digest": job_input_identity(manifest),
-            "test_scope": [TASKS[job_id]["path"]],
+            # THE SELECTED TASK'S PATH, and my previous note about it was wrong twice over.
+            # W247941 review 2026-09-29T12-50-22Z: `tasks` IS a parameter here -- the line above
+            # already reads `tasks[job_id]["path"]` -- so "not in scope" was never the reason my
+            # first correction broke thirteen cases. THE FIXTURE SHAPE IS the reason: the suite
+            # builds `tasks` entries carrying `path` and `raw` only, while `main` also sets
+            # `touches`. So this reads `touches` WHEN THE CALLER SUPPLIED IT and falls back to the
+            # greet table otherwise, which is the only shape a fixture presents. `main` always
+            # supplies it, so a `--tasks useful` preparation now resolves a scope naming the
+            # document the Job was actually asked to write.
+            "test_scope": [tasks[job_id].get("touches", TASKS[job_id]["path"])],
         })
         jobs.append(held)
 
@@ -610,6 +764,11 @@ def resolved(*, run_root, run_id, source, base, authority_uuid, work_ids,
         "arrangement": dict(
             {name: ACCEPTED[name] for name in (
                 "manager_source", "manager_source_files", "runtime_path",
+                # THE RUNTIME THE ACCEPTED RUN EXECUTED, beside the distro it was installed from.
+                # W247941 review 2026-09-29T13-32-53Z asked for the actually-executed runtime to be
+                # distinguished from the historical bootstrap input, and a packet that names only
+                # the distro cannot make that distinction for its reader.
+                "runtime_executed_path",
                 "runtime_build", "runtime_executable_sha256",
                 "image_reference", "image_digest", "adapter_sha256",
                 "stage_execution_sha256")},
@@ -671,7 +830,7 @@ def _composer(arguments):
         [sys.executable, "-B", str(HERE / "two_jobs.py"), *arguments],
         capture_output=True, text=True, timeout=600, cwd=os.sep,
         env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
-                 PYTHONPATH=os.pathsep.join([SNAPSHOT, str(HERE)])))
+                 PYTHONPATH=os.pathsep.join([IMPORT_PATH, str(HERE)])))
 
 
 def compose(document_path, into, *, stream):
@@ -717,6 +876,16 @@ def main(argv=None, *, stream=None, authority_opener=None):
                         help="defaults to the run root's own name")
     parser.add_argument("--operation-prefix", default=None,
                         help="defaults to w247941-<run id>")
+    parser.add_argument("--tasks", default="greeting",
+                        choices=("greeting", "useful"),
+                        help="which task set to emit. `greeting` is the machinery "
+                             "fixture this preparation has always used; `useful` is "
+                             "the SELECTED documentation pair of "
+                             "USEFUL-TASKS-305440.md, whose frozen excerpts, contract "
+                             "and checker must already be committed in the nominated "
+                             "source -- this refuses before any effect if they are not. "
+                             "W247941 review 2026-09-29T12-34-10Z: the owner's setup "
+                             "selects it, and the fixture builder stays where it is")
     parser.add_argument("--emit-bootstrap-inputs", action="store_true",
                         help="derive and print the `tools.bootstrap --inputs` "
                              "document for this run root, and do nothing "
@@ -752,17 +921,45 @@ def main(argv=None, *, stream=None, authority_opener=None):
                 f"performs no Git operation")
     authority_uuid = receipt_of(places, expected=taken.authority_uuid)
 
+    # THE SELECTED SET. `greeting` keeps every existing behaviour; `useful` swaps the table and the
+    # builder and PROVES the frozen context is already committed in the nominated source.
+    # `build`, NOT `compose`: this function already has a `compose` parameter -- the injected
+    # composer the tests supply -- and my first name for the task builder shadowed it, so the
+    # injected composer was called with the builder's signature and answered
+    # `task_document() got an unexpected keyword argument 'stream'`. Measured, by six cases.
+    #
+    # THIS PREPARATION NOW WRITES NONE OF THE CONTEXT, and that is the owner simplification of
+    # 2026-09-29 rather than a shortcut. Two claims running I moved a `deliver` call down the
+    # function twice, because whatever refusal followed it left copied bytes behind; and the copies
+    # went to `<run root>/tasks/excerpts`, which nothing mounted, so no Job could read them. The
+    # ACCEPTED single-Job packet put its frozen excerpt IN THE NOMINATED REPOSITORY and named it
+    # repo-relative in the brief. Doing the same here deletes the whole problem: `present` is a READ,
+    # so it belongs with the refusals, and the bytes reach both workers through the `source` mount
+    # that is already part of every manifest.
+    source_inputs = None
+    if taken.tasks == "useful":
+        import useful_tasks
+        chosen, build = useful_tasks.TASKS, useful_tasks.task_document
+        try:
+            source_inputs = useful_tasks.present(source)
+        except (FileNotFoundError, ValueError) as missing:
+            _refuse(str(missing))
+    else:
+        chosen, build = TASKS, task_document
+
     tasks = {}
-    for job_id in sorted(TASKS):
-        document = task_document(job_id, run_id=run_id, base=taken.base)
+    for job_id in sorted(chosen):
+        document = build(job_id, run_id=run_id, base=taken.base)
         raw = json.dumps(document, sort_keys=True).encode("utf-8")
         tasks[job_id] = {"path": os.path.join(places["tasks"],
                                               f"{job_id}.json"),
-                         "raw": raw, "touches": TASKS[job_id]["path"]}
-    touched = disjoint(tasks)
+                         "raw": raw, "touches": chosen[job_id]["path"]}
+    touched = disjoint(tasks, table=chosen)
 
+    # THE SELECTED TABLE, not the greeting one. Both tables happen to name `job-a` and `job-b`, so
+    # this read the wrong dict and still produced the right answer -- a coincidence, not a design.
     work_ids = {job_id: f"{authority_uuid[:8]}-W{number}"
-                for number, job_id in enumerate(sorted(TASKS), start=1)}
+                for number, job_id in enumerate(sorted(chosen), start=1)}
     document = resolved(run_root=run_root, run_id=run_id, source=source,
                         base=taken.base, authority_uuid=authority_uuid,
                         work_ids=work_ids, tasks=tasks)
@@ -775,12 +972,14 @@ def main(argv=None, *, stream=None, authority_opener=None):
                 if not unchanged(one["path"], one["raw"])]
     if not unchanged(places["selections"], raw_selections):
         changing.append(places["selections"])
+    # THE DELIVERY HAPPENS AFTER THE REFUSAL ABOVE, not before it.
     if changing:
         _refuse(f"these inputs already exist with DIFFERENT bytes and this "
                 f"run would change them: {', '.join(sorted(changing))}. "
                 f"A preparation that rewrites an earlier run's inputs is not "
                 f"a replay. Select a fresh run root, or pass the same "
                 f"operands.")
+
     # THE COMPOSER'S ACTUAL RULE, not a weaker reading of it. Review
     # 2026-09-23T20:52:13Z: this refused only when `deployment.json` or
     # `submission.json` was already there, so an EMPTY target passed the
@@ -803,9 +1002,11 @@ def main(argv=None, *, stream=None, authority_opener=None):
     strayed = two_jobs.imported_from(SNAPSHOT)
     building = [one for one in strayed if one.startswith("baton_v12 ")]
     if building:
+        # THE SENTENCE NAMES THE IMPORT ROOTS, because binding the tree root is exactly the
+        # mistake this refusal used to advise. Review 2026-09-29T11-35-05Z.
         _refuse(f"this preparation derives digests with contracts that are "
                 f"not the pinned ones: {'; '.join(building)}. Bind PYTHONPATH "
-                f"to {SNAPSHOT}.")
+                f"to {IMPORT_PATH}.")
 
     # ---- THE ONE EFFECT VALIDATION REQUIRES ------------------------------
     # The validator OPENS the task document -- `held_configuration` reads the
@@ -813,8 +1014,15 @@ def main(argv=None, *, stream=None, authority_opener=None):
     # to exist before the packet can be checked. They are the only thing
     # written before validation, they are never written over differing bytes
     # (the refusal above), and a validation failure leaves exactly these two
-    # files in a run root that was this run's own. Nothing else is touched:
-    # no selections, no Authority act, no composed document.
+    # files in a run root that was this run's own. Nothing else is touched: no
+    # selections, no Authority act, no composed document.
+    #
+    # AND THE COUNT IS TWO AGAIN UNDER EITHER TASK SET. W247941 review
+    # 2026-09-29T13-01-31Z was right that the `--tasks useful` delivery made it
+    # more than two; the delivery is gone from this function entirely, because
+    # the frozen context now travels in the nominated source and this step only
+    # reads it. One sentence describes both selections, which is the state this
+    # comment kept failing to reach by being amended.
     os.makedirs(places["tasks"], exist_ok=True)
     for one in tasks.values():
         with open(one["path"], "wb") as handle:
@@ -879,6 +1087,11 @@ def main(argv=None, *, stream=None, authority_opener=None):
                     "to the pinned source and runs this check itself; these "
                     "are this process's own imports, which validate the "
                     "packet but do not compose it"},
+        "task_set": taken.tasks,
+        # WHAT THE JOBS WILL READ AND WHERE, proved present in the nominated source at the pinned
+        # digests before this run wrote anything. `null` under `--tasks greeting`, whose fixture
+        # tasks need no frozen context.
+        "source_inputs": source_inputs,
         "prepared": prepared, "composed": composed,
         "serve_command": [
             "--deployment", places["deployment"],

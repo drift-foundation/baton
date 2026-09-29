@@ -1,0 +1,11 @@
+{
+  "claim": 305721,
+  "review": "review-2026-09-29T12-42-29Z.md",
+  "files": {
+    "useful_tasks.py": "886866bdda7474031e115b4a3cb5a89832f554d2b4cb0d59272dc7d7e315bd36",
+    "test_useful_tasks.py": "bc8d9a362dbb659a3d6c7ff15ffcbe6fcc8fe0e76669e0f20a42b5fb8a3ef382",
+    "prepare_two_jobs.py": "a0d8424f394a3e6847cc78995f21483791203ce0d42f42f26dc2fff03cdfe4d0",
+    "check_useful_tasks.py": "f6dcadba50a361ff8f3f3ccfa887ea2ef00d8952b9438fff1288fd91a7edee4f",
+    "setup-two-jobs-305532.sh": "a0272e45ead5250436e92788e6204342829d055cef6d32d4b72a65ebac19d756"
+  }
+}

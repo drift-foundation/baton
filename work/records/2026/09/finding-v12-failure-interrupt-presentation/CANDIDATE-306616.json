@@ -1,0 +1,30 @@
+{
+  "work": "W306614",
+  "claim": 306616,
+  "files": [
+    {
+      "path": "work/records/2026/09/finding-v12-failure-interrupt-presentation/FINDING.md",
+      "sha256": "e2fdf5c16d074a93871d74f93f13e8ac409fe12b444c1346984a66a7df71d94f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-failure-interrupt-presentation/PLAN.md",
+      "sha256": "4c0f22359d5ae5f8c8b909016e09ac87bff809cfc9a916388c722ebf1ceedde9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-failure-interrupt-presentation/PROGRESS.md",
+      "sha256": "3a4f7372b51f9fc57d8c74b8f12005b217f5c97cfb95781ef57fe2f2f6f366d7"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-failure-interrupt-presentation/PROPOSAL.md",
+      "sha256": "cb78daeab2d763080c1b65b3c82af7f41c3a81c2d2bd91397fc0bb91180d5aa9"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-failure-interrupt-presentation/EVIDENCE.json",
+      "sha256": "745985898e69a6eec3f9ce83b9ca8ab123a50743ec8e8fba87bb9b8dc82d84dc"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_diagnosis.py",
+      "sha256": "e72f5a8a05b85e476cb8d0e3548703b46f24d26a780c0162ccdf905680c53134"
+    }
+  ]
+}

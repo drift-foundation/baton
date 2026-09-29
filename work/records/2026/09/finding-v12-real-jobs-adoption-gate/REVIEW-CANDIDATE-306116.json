@@ -1,0 +1,87 @@
+{
+  "claim": 306116,
+  "work": "W247941",
+  "governed_by": {
+    "owner_rulings": ["OWNER-SIMPLIFY-PARALLEL-PROOF-20260929.md",
+                      "OWNER-CONTINUE-UNTIL-RESOLVED-20260929.md"],
+    "thread_messages": ["T247941/305879", "T247941/305971"],
+    "review": "review-2026-09-29T13-32-53Z.md"
+  },
+  "o1_closed": {
+    "how": "verify_247941.accepted() MEASURES every remaining ACCEPTED operand from the accepted single Job's own records; verify_247941.py --pins reports it under the same agree and fails closed on either pin set; prepare_two_jobs.ACCEPTED reads the pins rather than restating them",
+    "records_read": [
+      "/home/sl/baton-runs/single-job-257627-291715/PACKET.json",
+      "/home/sl/baton-runs/single-job-257627-291715/deployment.json",
+      "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro/baton-v12-stack",
+      "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/baton-v12-stack"
+    ],
+    "already_verified_now_bound_to_a_record": {
+      "adapter_sha256": "worker_image.worker_files['opt/baton/claude_agent.py'] - the adapter source the executed image ran",
+      "image_reference_and_digest": "worker_image.reference and worker_image.config_digest",
+      "runtime_build_and_executable": "manager_runtime.build_commit and manager_runtime.executable_sha256",
+      "stage_execution_sha256": "manager_source.files['tools/stage_execution.py'] - the helper bytes actually executed",
+      "supervisor_sha256": "supervisor.sha256",
+      "code_boundary": "packet.code_boundary, equal to the selected snapshot",
+      "three_descriptor_digests": "deployment.json, required identical across BOTH configured workers"
+    },
+    "actual_mismatch_found_and_fixed": {
+      "operand": "profile_name",
+      "was": "claude-context-review",
+      "is": "claude-fresh-implementation",
+      "why": "both accepted workers are configured claude-fresh-implementation and the packet paired that campaign's name with the accepted run's profile digest 93fdea4a; the product compares a line's profile name to the profile an ending is handed"
+    },
+    "runtime_paths_reconciled": {
+      "runtime_path": "the DISTRO, the operand tools.bootstrap --distro takes",
+      "runtime_executed_path": "manager_runtime.path, the installed copy the accepted run executed",
+      "both_executables_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+      "why_the_digest_is_the_pin": "the installed runtime's build stamp records dirty: true, so the build commit alone does not identify the bytes",
+      "emitted": "the arrangement now carries runtime_executed_path beside runtime_path"
+    }
+  },
+  "review_items_closed": {
+    "unclosed_test_reads": "the six unraisable ResourceWarnings at test_two_jobs 2846/2859 are gone; the open(...).read() idiom appeared in three cases and all three now use one bytes_of helper with a with. The full suite under -W error::ResourceWarning prints zero warnings, counted",
+    "setup_command_env_assignments": "a NAME=value command assignment lasts for that command only; the recipe and the packet now export DOSSIER/RUN_ID/SOURCE/BASE once and show seed, prove, plan and commit as four invocations that all see them"
+  },
+  "routine_failures_fixed_inside_the_claim": [
+    "a typed supervisor_sha256 was 63 characters; the measurement reported agree: False with one DIFF row and it was corrected",
+    "two new cases errored on first run: one called self.derived(), which belongs to the preparation fixture and not that class; the other drove --pins against a copy without patching CHECKOUT = HERE.parents[4], so the subprocess printed nothing to parse"
+  ],
+  "verification": {
+    "test_two_jobs.py": {"checks": 96, "failures": 0, "seconds": 77.484,
+                         "flags": "-B -W error::ResourceWarning", "warnings_printed": 0},
+    "test_useful_tasks.py": {"checks": 19, "failures": 0, "seconds": 0.075,
+                             "flags": "-B -W error::ResourceWarning", "warnings_printed": 0},
+    "verify_247941.py --pins": {"exit": 0, "agree": true, "accepted_run.agree": true},
+    "pins_fail_closed": "against a copy whose accepted adapter pin is drifted: non-zero exit, agree false and accepted_run.agree false",
+    "page_count": "test_the_check_count_the_page_states_is_the_ACTUAL_count failed once at 89-vs-96; ADOPTION-247941.md now says 96",
+    "ordering": "frozen snapshot v12/python/src and v12/python first, then the checkout's v12/python, then the dossier; BATON_V12_DISK_ROOT=/var/tmp/baton-w257624; PYTHONDONTWRITEBYTECODE=1; cwd /tmp"
+  },
+  "not_this_works_tests": {
+    "files": ["test_abandonment.py", "test_routed_abandonment.py"],
+    "observed": "13 failures, 18 errors when a whole-dossier test_*.py discovery collects them",
+    "action": "reported, not touched; they belong to other Works and their failures are not new"
+  },
+  "files": {
+    "verify_247941.py": "f24ca0e7d69d",
+    "prepare_two_jobs.py": "b90cd699dca4",
+    "test_two_jobs.py": "b9385ae34580",
+    "SETUP-RECIPE-305440.md": "3133f16bba40",
+    "PARALLEL-PACKET-305010.md": "f8314d3b2133",
+    "ADOPTION-247941.md": "f286bbfba29e",
+    "useful_tasks.py": "e59e4789de25 (unchanged this claim)",
+    "check_useful_tasks.py": "f6dcadba50a3 (unchanged this claim)",
+    "test_useful_tasks.py": "35cfbde18928 (unchanged this claim)"
+  },
+  "still_owed": [
+    "the LIVE run: execution overlap, isolation, per-Job proposal/result attribution, completion and exact producer cessation. Owner's selection",
+    "independent SEMANTIC acceptance of both useful proposals"
+  ],
+  "not_done": [
+    "no setup with --commit, no deployment, no build",
+    "no live engine, provider, container, credential or network",
+    "no store opened beyond the disposable Authority the existing fixture creates",
+    "no retry, reuse or automatic integration",
+    "no graph mutation and no Git mutation of this checkout"
+  ],
+  "ready": false
+}

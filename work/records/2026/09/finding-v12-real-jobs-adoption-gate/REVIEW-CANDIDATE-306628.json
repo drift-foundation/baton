@@ -1,0 +1,66 @@
+{
+  "claim": 306628,
+  "work": "W247941",
+  "answering": "owner reroute 306626 (baton.slaw) - fresh successor to the authentication-failed parallel run",
+  "run_01_evidence": {
+    "root": "/home/sl/baton-instances/two-jobs-247941-01",
+    "read": ["run/outcome.json", "run/launch/logs/attempt-*/provider.stdout.log",
+             "run/launch/logs/attempt-*/provider.stderr.log", "run/credentials/"],
+    "admissions": {"implementation": 2, "review": 0},
+    "both_runtimes": "started, then execution_runtime: destroyed; cleanup retained, state absent for each; outstanding_cleanup and uncertainty empty",
+    "provider_result": "Failed to authenticate: OAuth session expired and could not be refreshed; terminal_reason api_error; zero input and output tokens",
+    "stopped": "KeyboardInterrupt signal 2; state held; held_because names both Jobs as producing no attributed verdict",
+    "verdicts": 0,
+    "what_it_establishes": "the manager reached the provider twice, concurrently, through the accepted path, and cleaned up both runtimes with no residue or uncertainty",
+    "what_it_does_not_establish": "nothing about overlap of actual model work, attribution of produced content, completion or semantic acceptance, because no turn produced any"
+  },
+  "credential_mechanism_checked": {
+    "registry": "/home/sl/.baton/credential-sources.json, schema baton.user-credential-sources/1",
+    "mapping": "reference w202663-development -> /home/sl/.claude/.credentials.json",
+    "nothing_copied": "run/credentials/credentials and run/credentials/credential-state are both EMPTY, so a run resolves the source at launch rather than reusing a setup-time snapshot",
+    "timing": "run 01 submitted 14:33:04Z, finished 14:40:24Z; the credential file mtime is 14:42:45Z and the owner's provider-check completed 14:43:10Z",
+    "conclusion": "fresh attempts consume current credentials through the mechanism that already exists; nothing about it was changed",
+    "handling": "only the registry structure and the file mtime were read; no credential bytes were read, printed or carried"
+  },
+  "spent_root_preserved": {
+    "how": "two-jobs-247941-01 added to prepare_two_jobs.CONSUMED with its outcome summarised in the comment",
+    "effect": "the identity is refused and nothing can be written into that root",
+    "held_by": "a case that asserts both the refusal AND that the successor two-jobs-247941-02 is still constructible"
+  },
+  "fresh_run_prepared": {
+    "sheet": "OPERATOR-306628.md (new); OPERATOR-306505.md left as run 01's record",
+    "root": "/home/sl/baton-instances/two-jobs-247941-02, derived by supported_root, does not exist yet",
+    "source": "/home/sl/baton-runs/two-jobs-247941-01-inputs at 346a809bf0e4c47e52d881bd46d6d62a611c9816, clean, useful_tasks --prove exit 0",
+    "no_reseed": "no reseeding and no new source commit; the source is the accepted INPUT repository, not a run root",
+    "limits_unchanged": {"total_seconds": 600, "cleanup_seconds": 60, "serving_bound": 540,
+                         "max_provider_admissions": 4, "provider_turn_seconds": 180,
+                         "verification_command_seconds": 180},
+    "incarnations": ["two-jobs-two-jobs-247941-02", "inspect-two-jobs-247941-02"],
+    "authority_uuid": "minted by the bootstrap at step 6 and printed by step 7; the sheet directs the operator there rather than to a transcribed value",
+    "plan_form_run": "with the exact operands; every gate passed and it exited 0 having performed nothing"
+  },
+  "routine_failure_fixed_here": "consuming two-jobs-247941-01 broke test_supported_root_REFUSES_the_directory_the_owners_setup_named, which named that identity and so began refusing for the CONSUMED reason instead of the boundary; it now uses an unconsumed identity and asserts that it is unconsumed",
+  "verification": {
+    "test_two_jobs.py": {"checks": 101, "failures": 0, "seconds": 77.613, "warnings_printed": 0},
+    "test_useful_tasks.py": {"checks": 19, "failures": 0, "seconds": 0.074, "warnings_printed": 0},
+    "flags": "-B -W error::ResourceWarning",
+    "ordering": "frozen snapshot v12/python/src and v12/python first, then the checkout's v12/python, then the dossier; BATON_V12_DISK_ROOT=/var/tmp/baton-w257624; cwd /tmp"
+  },
+  "files": {
+    "prepare_two_jobs.py": "f8bb627d590f",
+    "test_two_jobs.py": "586d478d94f4",
+    "OPERATOR-306628.md": "17816082a211",
+    "ADOPTION-247941.md": "032af1dfd154"
+  },
+  "still_owed": [
+    "the LIVE successor run, and from it actual execution overlap, workspace isolation, per-Job proposal/result attribution, completion with exact producer cessation",
+    "independent SEMANTIC acceptance of both useful proposals"
+  ],
+  "not_done": [
+    "no live execution, no setup, no setup repetition against the spent root, no reseeding",
+    "no supervisor repair and no new validator campaign",
+    "no deployment, build, retry, reuse or automatic integration",
+    "no graph mutation and no Git mutation of any repository"
+  ],
+  "ready": false
+}

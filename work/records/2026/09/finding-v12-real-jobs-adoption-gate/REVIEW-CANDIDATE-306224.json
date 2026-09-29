@@ -1,0 +1,89 @@
+{
+  "work": "W247941",
+  "reviewer": "baton.rvpc",
+  "claim": 306224,
+  "author_handoff": 306216,
+  "disposition": "repository preparation accepted for owner seed/setup consideration; no live-run approval or adoption closure",
+  "files": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/verify_247941.py": {
+      "sha256": "f24ca0e7d69d28572a86e6ebefc2f3fb8356ef40d8c1637ac7ec1dee86329757",
+      "bytes": 22981
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/prepare_two_jobs.py": {
+      "sha256": "b90cd699dca457764631420ff90679561ed346d27fea291d247df087e0b5e022",
+      "bytes": 57905
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py": {
+      "sha256": "83e44b9b502cefbc3897dbddea4e5fc5b0a2445caeb5409c9b21a6a7820ab937",
+      "bytes": 27161
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": {
+      "sha256": "5b3045e66bd46a1c2ed314c6f73d2f7425ccd7b0576b692f7d8a446fc658ee36",
+      "bytes": 52718
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/useful_tasks.py": {
+      "sha256": "e59e4789de25b8b623a884c784ac0e94efa507a52aa0ed37b008a5b3ea2ad8f2",
+      "bytes": 17446
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/check_useful_tasks.py": {
+      "sha256": "f6dcadba50a361ff8f3f3ccfa887ea2ef00d8952b9438fff1288fd91a7edee4f",
+      "bytes": 5159
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": {
+      "sha256": "b9385ae345802340584130df6eef3b5a29fa2fc236a25d3cc845903253fbf759",
+      "bytes": 157204
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_useful_tasks.py": {
+      "sha256": "35cfbde1892818a8ff1a2b5651510bee538697074e6a17fd261f42090e1c1f4a",
+      "bytes": 14011
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/setup-two-jobs-305532.sh": {
+      "sha256": "880bf3c263dc779ef79ee9139b9dcf48b2ef9c50bc61b3cde2f90866eccf5330",
+      "bytes": 9324
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/SETUP-RECIPE-305440.md": {
+      "sha256": "3133f16bba4021d86043bed7e283e6e90f48a8057f25cc62f110c7366fe3a890",
+      "bytes": 10116
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/PARALLEL-PACKET-305010.md": {
+      "sha256": "f8314d3b21333d93b994f129e80198981d01d7051929894f973edb5705201a51",
+      "bytes": 27809
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/USEFUL-TASKS-305440.md": {
+      "sha256": "9751647d17084e250c1e1f4d6afcd147347ade216df276ea79b50fe621dd83f0",
+      "bytes": 10874
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/ADOPTION-247941.md": {
+      "sha256": "f286bbfba29ee227c6f13110fa7a0134da038ed8378dd2922c2ca5500649a916",
+      "bytes": 26273
+    },
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/REVIEW-CANDIDATE-306116.json": {
+      "sha256": "bd53f36808e2299aa3a3db19fc9d2c0be70248697a15f3bcb4615a768cce0bb9",
+      "bytes": 5948
+    },
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": {
+      "sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+      "bytes": 105968
+    }
+  },
+  "independent_verification": {
+    "incorrect_class_selection": {
+      "tests": 66,
+      "failures": 24,
+      "errors": 4,
+      "seconds": 39.397,
+      "exit": 1,
+      "interpretation": "Inherited scenarios collected by class selector bypassing module load_tests; includes integration-disabled scenarios. Retained failure, not a pass or established candidate regression."
+    },
+    "exact_selected_cases": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 1.75,
+      "exit": 0,
+      "warnings": 0
+    },
+    "increment_seconds": 41.147
+  },
+  "external_provenance": "Accepted single-job PACKET/deployment plus verify_247941 pins; prior FINAL-PACKET-302142.json preserved; no external bytes changed."
+}

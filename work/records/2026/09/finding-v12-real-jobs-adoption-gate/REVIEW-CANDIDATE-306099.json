@@ -1,0 +1,13 @@
+{
+  "claim": 306099,
+  "review": "review-2026-09-29T13-32-53Z.md",
+  "files": {
+    "OWNER-CONTINUE-UNTIL-RESOLVED-20260929.md": "97d2dac124ab971ca7ef0dca97bc164fdf37bb730543681ead52fb757d6e1fca",
+    "useful_tasks.py": "e59e4789de25b8b623a884c784ac0e94efa507a52aa0ed37b008a5b3ea2ad8f2",
+    "prepare_two_jobs.py": "6fd83e5408017fa24267a2d0ceb296d9b455cfbab96b54ed3ac53504caa8effa",
+    "test_two_jobs.py": "512c21fa49d8729bb4cdd370eefb2cc46af3d6f404e6e0e90752e745c5821138",
+    "test_useful_tasks.py": "35cfbde1892818a8ff1a2b5651510bee538697074e6a17fd261f42090e1c1f4a",
+    "setup-two-jobs-305532.sh": "880bf3c263dc779ef79ee9139b9dcf48b2ef9c50bc61b3cde2f90866eccf5330",
+    "PARALLEL-PACKET-305010.md": "719a79e0d182a42148d97556ecc4c5962a1736bdfdf40711ef96237c1dc8ef6a"
+  }
+}

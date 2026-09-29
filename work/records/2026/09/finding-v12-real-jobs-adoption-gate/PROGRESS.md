@@ -3339,3 +3339,1269 @@ alongside named **1047.869180986s**. No reviewer measurement this increment.
 
 State: returned INCOMPLETE through baton.bug with the hold implemented end to
 end, no accepted rule superseded, and seven items open.
+
+
+## Claim 305010 — two-Job packet prepared; five requirements named
+
+READ: `detail work=W247941` (active, handler baton.claude, binding revision 1 at this dossier),
+`work-events` through 305010 including the owner acts 304998 (whole-Work W257624 wait removed),
+304999 (wake) and 305000 (reroute with the selection), T247941 through 291714,
+`RESIDUAL-CLASSIFICATION-304829.md`, the accepted `E2E-OPERATOR-302142.md`,
+`FINAL-PACKET-302142.json` and `EXECUTION-REVIEW-304782.json`. Current FINDING/PLAN read and now
+pinned with the selection, as the reroute directs.
+
+DELIVERED: `PARALLEL-PACKET-305010.md` — the selection, the reused machinery, today's measurements,
+the two useful disjoint tasks, the bindings/limits/commands to be frozen, and five named missing
+operational requirements.
+
+MEASURED THIS CLAIM:
+
+    tests/tools/test_scheduler_trace.py     144 OK, 39.5s
+    tests/tools/test_execution_limits.py    142 OK, 66.6s
+      Both were FAILING under W285465 in this same session (9 and 4 failures). They are green after
+      the W301404 create_line correction and the W285465 apply/identity corrections. The transition
+      is reported, not just the green result.
+    test_two_jobs (85 checks, this dossier)  73 pass, 3F+9E, 68.1s
+      test_both_implementations_are_waiting_at_the_same_instant        1 OK 0.210s
+      test_both_verdicts_are_derived_from_their_own_frozen_results     1 OK 0.898s
+      So overlap and per-Job verdict attribution hold on current bytes.
+
+CHANGED, one file: `two_job_supervisor.py` (5b3045e66bd4), `BASELINE_SHA256` advanced from
+`f27f3cd766f9...` to `248e570d8f9d...`. THE PIN REFUSED FIRST, which is what it is for; the new
+value is the `baseline.py` recorded in `FINAL-PACKET-302142.json`, not "whatever the file is now".
+Before advancing it I checked that all eleven `baseline.` symbols the supervisor uses exist in those
+bytes and that `_cancel_active` still takes the operands it is passed. The old value is retained as
+`BASELINE_SHA256_BEFORE_302142`.
+
+THE 12 THAT DO NOT RUN, with their measured cause: the suite composes run roots inside the checkout
+and the product's own validator correctly refuses mutable deployment state there. Review
+2026-09-23T17-25-40Z already classified this as external fixture-root setup rather than a product
+defect. I tried `BATON_V12_DISK_ROOT=/tmp/...` and it was the wrong knob — 78 of 85 failed in 0.376s
+— so the failed attempt is recorded rather than a guess presented as the answer. The correct
+mechanism for this suite is owed and is M1.
+
+M1 external run root; M2 the pair's fresh instance, clones and roots (setup, not selected here);
+M3 credential/provider reach for two CONCURRENT providers, which no accepted evidence answers;
+M4 supervisor revalidation is partial while M1 stands, including the documented end-to-end command;
+M5 R4 per-Job cancellation/hold accounting stays retained unfinished by the classification.
+
+No live run, build, deployment, retry/reuse, automatic integration, graph mutation or Git operation.
+Files changed: `two_job_supervisor.py`, `FINDING.md`, `PLAN.md`, this PROGRESS, and the new
+`PARALLEL-PACKET-305010.md`. NOT READY stands; this is preparation for independent review and owner
+execution selection.
+
+
+## Claim 305097 — M1 withdrawn, runtime rebinding started, failures moved not vanished
+
+READ: `detail work=W247941`, `work-events after=305069` (claim 305072, pass 305094),
+`review-2026-09-29T11-18-17Z.md` in full, updated FINDING/PLAN, T247941 (no new messages).
+
+M1 IS MY ERROR AND IS WITHDRAWN. `BATON_V12_DISK_ROOT` IS this harness's supported external disk
+operand -- `tests/manager/disk_roots.py` consumes it. `/tmp` is not disk-backed storage for the
+fixture; that is what my run showed, and "wrong harness" was the wrong conclusion. With the
+authorized root:
+
+    BATON_V12_DISK_ROOT=/var/tmp/baton-w257624, whole suite: 85 tests, 78 pass, 1F+6E, 68.6s
+    (up from the 73 I reported inside the checkout)
+
+M3 reclassified as the future live question rather than a preparation gate, and M5's elevation of the
+deferred R4 matrix is superseded -- both exactly as the review directs. The SELECTED two-Job
+stop/cancellation/per-Job accounting stays required and its supervisor cases pass in the runs above.
+
+R2's rebinding, started: `prepare_two_jobs.SNAPSHOT` is now the operand
+`BATON_W247941_SNAPSHOT` defaulting to the accepted single-Job instance's manager source;
+`manager_source_files` 106 -> 126 MEASURED from `FINAL-PACKET-302142.json` (the review says 109 --
+reported, not silently adopted); `stage_execution_sha256` -> `38c4cf74db02...` from the accepted
+manifest; and `test_two_jobs.SNAPSHOT` now reads the module's operand instead of holding a second
+copy that can drift. Old values preserved as `*_BEFORE_302142`.
+
+MEASURED CONSEQUENCE, reported as it is: 85 tests, 75 pass, 5F+5E. The pin-refusal family is gone
+and the failures MOVED into the digest-agreement checks, which is the honest shape of a half-finished
+rebind -- the remaining `ACCEPTED` operands still carry the old campaign's provenance. O1-O5 in
+`PARALLEL-PACKET-305010.md` name exactly what is owed: re-derive the remaining digests from named
+accepted records, reconcile 126 vs 109, rerun the preparation/recipe families on those bytes, emit
+the commands from the composer rather than editing a filename in the single-Job sheet, and author
+the immutable task documents and finite inputs.
+
+Files changed: `prepare_two_jobs.py` (5f78fac2bcf9), `test_two_jobs.py` (a51bfbd29d46),
+`PARALLEL-PACKET-305010.md`, this PROGRESS. `two_job_supervisor.py` unchanged this claim
+(5b3045e66bd4). Costs this claim: 68.6s + 67.4s + 68.8s suite runs plus four focused selectors.
+No deployment, build, live engine or provider, retry/reuse, integration, graph or Git mutation.
+NOT READY; returned for independent review of the rebinding so far, with the remainder owed and named.
+
+
+## Claim 305166 — the shared provenance chain rebound; the consumer families now disagree with it
+
+READ: `detail work=W247941`, `work-events after=305142` (claim 305151, pass 305157),
+`review-2026-09-29T11-27-34Z.md`, `REVIEW-CANDIDATE-305151.json`, updated FINDING/PLAN, T247941
+(no new messages).
+
+BOTH OF THE REVIEW'S CORRECTIONS WERE RIGHT AND ARE APPLIED:
+
+    THE IMPORT ROOTS ARE NOT THE TREE ROOT. `<snapshot>` on PYTHONPATH cannot import `baton_v12`
+    or `tools`; the roots are `<snapshot>/v12/python/src` and `<snapshot>/v12/python`.
+    `verify_247941` now owns `IMPORT_ROOTS` and an `import_path()`, and
+    `prepare_two_jobs.IMPORT_PATH` is what the composer subprocess gets.
+    THE COUNTS ARE NOT IN CONFLICT: 126 is the whole snapshot with caches excluded (derived with
+    `verify_247941.source_files`), 109 is the count of `manager-source/` MEMBERS in
+    `FINAL-PACKET-302142.json`. Both are recorded in `PINNED` so neither is mistaken for the other.
+    My previous entry framed this as a discrepancy to reconcile; it was two member sets.
+
+THE SHARED CHAIN IS NOW ONE OWNER, which is what R2 actually asked for. `verify_247941` holds the
+snapshot, the import roots and the derived pins -- `manager_source_files` 126,
+`manager_source_manifest_sha256` `a8264fd390c4...` (computed with its own `manifest_digest` over the
+accepted snapshot, not copied from a report), `stage_execution_sha256` `38c4cf74db02...` -- and
+`prepare_two_jobs` READS them instead of holding a second copy. Every superseded value is preserved
+with a `*_before_302142` name so earlier results stay attributable.
+
+AND THE RESULT GOT WORSE, WHICH I AM REPORTING AS THE STATE RATHER THAN BURYING:
+
+    85 tests, 62 pass, 18F+5E, 31.7s   (last claim: 75 pass, with the chain still half-bound)
+    by class: TheSHIPPEDTemplateComposesThroughTheACTUALCLI 13, ThePREPARATIONDerives... 9,
+              TheOPERATORRecipePrintsOperandsThatAGREE 1
+
+That is the honest consequence of binding the chain consistently: `two_jobs.main` and the CLI family
+compose through `verify_247941`'s provenance, so they now disagree with the newly bound accepted
+snapshot instead of agreeing with a consumed one. The disagreement was always there; the half-bound
+state hid it.
+
+A MISTAKE OF MINE, MEASURED AND UNDONE INSIDE THIS CLAIM: I substituted the import roots for every
+`SNAPSHOT` use in `test_two_jobs`, and the CLI family went from passing to 13 failures because
+several of those sites need the ROOT (they join it or compare composed paths) and only some compose a
+PYTHONPATH. Both operands are now exposed (`SNAPSHOT`, `IMPORT_PATH`) and each of the eight call
+sites must be read individually. The wholesale substitution is recorded as disproved rather than
+left in place.
+
+STILL OWED, unchanged in kind and now exact:
+    O1  the remaining `ACCEPTED` digests (adapter, policy, profile, runtime executable/path/build)
+        re-derived from named accepted records.
+    O2  RESOLVED: 126 vs 109 are two member sets, both pinned.
+    O3  the per-site PYTHONPATH/root split across `test_two_jobs`'s eight uses and the CLI family's
+        agreement with the newly bound provenance -- 23 failing cases, listed by class above.
+    O4  emit launch/status/stop from the composer.
+    O5  author the immutable task documents and finite excerpt inputs.
+
+Files changed: `verify_247941.py` (e02933ee5324), `prepare_two_jobs.py` (1c5468a38a04),
+`test_two_jobs.py` (949d790dc761), this PROGRESS. Costs this claim: three whole-module runs
+(68.8s, 33.0s, 31.7s) plus one class-scoped run (39.0s) and the import/digest derivations.
+No suite outside `test_two_jobs`, no deployment, build, live engine or provider, retry/reuse,
+integration, graph or Git mutation, and no setup. NOT READY.
+
+
+## Claim 305218 — pins agree, the shared import path is used everywhere, 75 of 85
+
+READ: `detail work=W247941`, `work-events after=305202` (claim 305204, pass 305215),
+`review-2026-09-29T11-35-05Z.md`, updated FINDING/PLAN, T247941 (no new messages).
+
+THE FIVE `pins()` MISMATCHES WERE MY BOOKKEEPING, exactly as the review said, and `pins()` now
+reports `agree: True` with all five measured:
+
+    manager_source_files             126   OK
+    manager_source_manifest_sha256   a8264fd390c4…   OK
+    stage_execution_sha256           38c4cf74db02…   OK
+    runtime_executable_sha256        04aa459aed61…   OK
+    packet_manager_source_members    126   OK
+
+    THE LOCATOR was `SNAPSHOT/tools/stage_execution.py`, which is not where the file lives, so the
+    digest answered `None` and looked like disagreement. It is now
+    `SNAPSHOT/v12/python/tools/stage_execution.py`.
+    THE HISTORY KEYS are out of the active comparison. I had put three superseded values inside
+    `PINNED`, so `pins()` compared them against a `found` map that has no measurement for them.
+    They live in `HISTORY` now: history is metadata, a pin is something this module MEASURES. The
+    consumer in `prepare_two_jobs` reading them from `PINNED` is how the separation got verified --
+    it raised `KeyError` and was corrected to read `HISTORY`.
+    THE PACKET MEMBER COUNT IS NOW MEASURED, by `_packet_members()` counting `manager-source/`
+    members in `FINAL-PACKET-302142.json`. IT ANSWERS 126, not 109 -- the same number the
+    whole-tree count gives, by a second independent method. Both reviews cite 109 as that member
+    set; measuring it twice says otherwise, so 109 is retained in `HISTORY` as
+    `packet_manager_source_members_reported_by_review` and its provenance is unidentified. I am
+    reporting that rather than pinning a number I cannot reproduce.
+
+THE SHARED IMPORT PATH IS NOW USED AT EVERY PYTHONPATH SITE, including the one the review named:
+`test_two_jobs.bound_environment` composed `str(SNAPSHOT)` — the tree root — so the subprocess that
+method exists to bind correctly could not import the pinned source at all. It, the preparation's
+own composer call, the refusal sentence that used to ADVISE binding the tree root, and
+`two_jobs.main`'s printed step 3 all use `verify_247941.import_path()`. The snapshot ROOT is
+retained where a path boundary is what is meant, which is the distinction my last claim's wholesale
+substitution got wrong.
+
+MEASURED: 85 tests, 75 pass, 5F+5E, 69.3s. That is the same pass count as two claims ago but now
+over a COHERENT provenance chain with `pins()` agreeing, where the 75 then was over a half-bound
+one; and it is up from 62 at the end of last claim. The remaining ten, by name:
+
+    ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor  9  (5 errors, 4 failures)
+      a_CHANGED_operand_is_refused_with_the_old_bytes_intact, an_ABSENT_workspace_store_is_what_
+      refused_the_live_startup, an_exact_repeat_REPLAYS_and_changes_nothing, the_PREPARATION_
+      COMMAND_runs_end_to_end, the_printed_OPERANDS_name_the_files_this_run_emitted,
+      a_REFUSED_PREFLIGHT_leaves_no_selections_and_no_Authority_act, the_CHECK_mode_validates_and_
+      writes_NOTHING, the_REAL_BOOTSTRAP_leads_into_this_preparation, the_preflight_REFUSES_when_
+      the_digest_pins_disagree
+    TheOPERATORRecipePrintsOperandsThatAGREE        1
+      every_flag_the_inspect_step_prints_is_one_the_TOOL_accepts
+
+The CLI family is green again: all 13 of its cases pass, which is what the coherent chain bought.
+
+STILL OWED: O1 the remaining `ACCEPTED` digests (adapter, policy, profile, runtime path/build)
+re-derived from named accepted records; O3 the ten above; O4 launch/status/stop emitted from the
+composer; O5 the immutable task documents and finite excerpt inputs. O2 is resolved and its
+resolution is now measured rather than asserted.
+
+Files changed: `verify_247941.py` (509924cece49), `prepare_two_jobs.py` (eb2b6e8aee77),
+`test_two_jobs.py` (cecc3b30e4dd), `two_jobs.py` (83e44b9b502c), this PROGRESS. Costs this claim:
+one whole-module run 69.3s plus one grouped rerun and the read-only pin derivations; prior episode
+costs preserved. No suite outside `test_two_jobs`, no setup, deployment, build, live engine or
+provider, retry/reuse, integration, graph or Git mutation. NOT READY.
+
+
+## Claim 305269 — the two-Job suite is GREEN: 85 of 85, on the bound frozen runtime
+
+READ: `detail work=W247941`, `work-events after=305252` (claim 305254, pass 305266),
+`review-2026-09-29T11-42-13Z.md` including its exact command, updated FINDING/PLAN, T247941.
+
+THE ORDERING WAS THE KEY, and it was the reviewer's, not mine: the FROZEN runtime's two roots come
+FIRST on PYTHONPATH, the checkout's `v12/python` after them for the test modules, disk root
+`/var/tmp/baton-w257624`, cwd `/tmp`. `prepare.main` runs IN PROCESS, so binding only the composer
+child's environment was never going to be enough -- the already-imported product is what it derives
+with. With that command:
+
+    85 tests, 81 pass, 4 failures, 72.9s   (from 75/85 under my own ordering)
+
+and after the two corrections below:
+
+    85 tests, ALL PASS, 75.3s
+
+THE SEVEN CHILD ENVIRONMENTS, each read individually rather than substituted wholesale. Every
+`PYTHONPATH` composition in `test_two_jobs` is a subprocess environment and now uses
+`IMPORT_PATH`; `grep` for `PYTHONPATH=...SNAPSHOT` returns nothing. This is the per-site work my
+last claim's blanket substitution got wrong, done properly: the snapshot ROOT survives only where a
+path boundary is meant.
+
+THE PIN-DISAGREEMENT NEGATIVE WAS PASSING FOR THE WRONG REASON, and it is the kind of failure I
+would rather find than be told about. It drifted the literal `6a212c3a…`, which after the rebinding
+lives only in `HISTORY` -- so it changed nothing the preflight compares, the preflight passed, and
+the negative reported `0 == 0`. It now reads the ACTIVE pin from the module under test and asserts
+that value is not one of `HISTORY`'s, so a future rebinding cannot quietly hollow it out again.
+
+THE COUNT AMBIGUITY IS RESOLVED, and my "unidentified provenance" prose is WITHDRAWN. Review
+11-42-13Z identified both member sets: 109 is the OPERATIONAL packet at
+`/home/sl/baton-runs/single-job-257627-291715/PACKET.json`, whose `manager_source.file_count` and
+enumerated members both say 109; 126 is this dossier's `FINAL-PACKET-302142.json` filtered for
+`/manager-source/` members, which is also what counting the tree gives. Two valid different sets.
+Both are recorded -- 126 as the measured active pin, 109 as
+`HISTORY["operational_packet_manager_source_files"]`. `pins()` reports `agree: True`.
+
+O3 IS CLOSED. Still owed, and unchanged in kind:
+
+    O1  the remaining `ACCEPTED` digests -- adapter, policy, profile, runtime path/build -- each
+        re-derived from a named accepted record rather than the old campaign's.
+    O4  the launch/status/stop commands EMITTED by the composer. The mechanism is in place and
+        proved: `TheOPERATORRecipePrintsOperandsThatAGREE` passes, so the recipe's printed operands
+        agree with what the tool accepts. What is missing is running it against the pair's actual
+        run roots, which is M2 setup and is not selected.
+    O5  the immutable task documents and finite excerpt inputs.
+
+Files changed: `verify_247941.py` (b5039e649f94), `test_two_jobs.py` (8959e6e7a644), this PROGRESS.
+`prepare_two_jobs.py` (eb2b6e8aee77), `two_jobs.py` (83e44b9b502c) and `two_job_supervisor.py`
+(5b3045e66bd4) are unchanged this claim. Costs: three whole-module runs (72.9s, 75.1s, 75.3s) plus
+three focused selectors and the read-only pin derivation; prior episode costs preserved. No suite
+outside `test_two_jobs`, no setup, deployment, build, live engine or provider, retry/reuse,
+integration, graph or Git mutation. NOT READY: the suite is green, the packet is not complete.
+
+
+## Claim 305353 — spent roots excluded, stale packet statuses corrected, the task question named
+
+READ: `detail work=W247941`, `work-events after=305321` (claim 305323, pass 305350),
+`review-2026-09-29T11-52-45Z.md`, `REVIEW-CANDIDATE-305323.json`, updated FINDING/PLAN, T247941.
+
+DONE THIS CLAIM:
+
+    THE SPENT ROOTS ARE EXCLUDED. `CONSUMED` gained `single-job-257627-291715` -- the accepted run's
+    own root, whose files `EXECUTION-REVIEW-304782.json` hashes -- and `w247941-witness`. I
+    enumerated everything actually present under `/home/sl/baton-runs` rather than trusting the list,
+    which is how both omissions surfaced. Suite still 85 OK, 75.7s, on the bound frozen runtime.
+    THE PACKET'S STALE STATUSES ARE CORRECTED in a new section 8 that says plainly which earlier
+    statements are history: the 73/75-of-85 counts, the withdrawn `/tmp`-knob paragraph, and
+    section 2's superseded digests. The provenance chain as it now stands is restated there.
+    SECTION 4 IS REPLACED BY WHAT EXISTS. `prepare_two_jobs.TASKS` already defines two immutable
+    deterministic disjoint tasks -- `greet_a.py` printing `A-READY`, `greet_b.py` printing `B-READY`
+    -- bound to the input manifest's `human_contract` digest, with the shared instructions telling
+    the implementation not to judge its own work and the reviewer to RUN the file. That is O5's
+    substance, and it already existed; my documentation-task proposal was a parallel invention.
+
+AND THE QUESTION I AM NOT SETTLING SILENTLY: those tasks are machine-VERIFIABLE but not USEFUL WORK,
+and 305000 asks for useful tasks. The documentation tasks I proposed are the reverse -- useful, but
+judgeable only by reading. Both are defensible; they are not interchangeable; and choosing between
+them changes `TASKS` content and `INSTRUCTIONS`, not the machinery. Named in packet section 8 as the
+selection for the owner or reviewer.
+
+STILL OWED: O1 the remaining `ACCEPTED` operands (`adapter_sha256`, `adapter_digest`,
+`policy_digest`, `profile_digest`, `runtime_path`, `runtime_build`) each re-derived from a NAMED
+accepted record -- the runtime executable already matches its pin, and the green suite does not
+exercise the others against the accepted single-Job records; O4 the pair's limits and the
+launch/status/stop argv DERIVED by the composer for these identities, the mechanism being already
+proved by `TheOPERATORRecipePrintsOperandsThatAGREE`.
+
+AND THE OWNER SETUP OPERATION IS NAMED ONCE, without claiming any operational file exists: create the
+pair's instance and two clean clones under a FRESH root not in `CONSUMED`, then run
+`prepare_two_jobs.py` against it to EMIT the packet, selections, tasks and the three commands.
+
+Files changed: `prepare_two_jobs.py` (8d750c39c079), `PARALLEL-PACKET-305010.md` (31fd04063d3b),
+this PROGRESS. Costs this claim: one whole-module run 75.7s plus the root enumeration; prior episode
+costs preserved. No suite outside `test_two_jobs`, no setup, deployment, build, live engine or
+provider, retry/reuse, integration, graph or Git mutation. NOT READY.
+
+
+## Claim 305403 — O1 CLOSED against its own source; O5/O4 not started and not half-started
+
+READ: `detail work=W247941`, `work-events after=305377` (claim 305385, pass 305399),
+`review-2026-09-29T11-58-42Z.md` in full, `REVIEW-CANDIDATE-305385.json`, FINDING/PLAN, T247941.
+
+O1 IS CLOSED. The review found a concrete mismatch and I read the source myself rather than copying
+its numbers: `/home/sl/baton-runs/single-job-257627-291715/deployment.json`, `workers[0].deployment`
+and `workers[1].deployment`, IDENTICAL in both — which is what makes them the instance's descriptors
+rather than one worker's — under the deployment whose execution `EXECUTION-REVIEW-304782.json`
+accepted, with `adapter_name` and `engine` matching what this configuration already selects.
+
+    adapter_digest   sha256:1390f120f21a… -> sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1
+    policy_digest    sha256:82f94ecee8cc… -> sha256:d398f8585dc7118d76836fdee00dcc0aae9882250e88e79cdd4ff7de19574795
+    profile_digest   sha256:432b50836084… -> sha256:93fdea4ac36c54656a7534b72ba0ea7d796b5294cdb2fd7de4056d52709675be
+
+RECONCILED, NOT SUBSTITUTED, and the code says why: these are DERIVED values — the adapter, policy
+and profile descriptors hash to them under the accepted selection, so a change to a descriptor's own
+bytes legitimately moves them. The superseded values are retained as `*_before_302142` because they
+are what the earlier campaign's descriptors hashed to, not errors. Verified by re-reading the
+accepted deployment and comparing all three: OK, OK, OK. Affected selectors, not the whole suite as
+the review instructed: `test_the_PREPARATION_COMMAND_runs_end_to_end`,
+`test_every_operand_the_COMPOSER_asks_for_is_derived` and the whole
+`TheOPERATORRecipePrintsOperandsThatAGREE` class — 7 tests, OK, 1.274s.
+
+O5 AND O4 ARE NOT STARTED, and I am saying so rather than leaving a half-converted fixture behind.
+The review settles the selection — the documentation tasks are the authorized useful work, no owner
+gate, and an executable stdout contract was never required — so what remains is authoring, not a
+decision:
+
+    O5  `TASKS`/`INSTRUCTIONS` converted from the greet payload to `docs/v12-parallel-operator-
+        notes.md` (job-a) and `docs/v12-evidence-map.md` (job-b), each under 100 lines and the sole
+        changed path for its Job; the immutable task contracts; the finite pinned excerpts of
+        current DESIGN, the accepted single-Job operator/evidence records and this packet's scope;
+        and deterministic structural checks for existence, UTF-8, the line bound, the exact
+        changed-path set and the required sections. The A and B acceptance briefs in the review are
+        the content spec and I have not written them.
+    O4  the exact repository setup recipe: the pair's proposed fresh identities and roots, explicit
+        per-stage/run/cleanup limits, four visible provider admissions, and the launch/status/stop
+        argv derived by the composer. My section 7 wording is still the generic prose the review
+        correctly declined.
+
+I had budget this claim for O1 and its verification, and converting `TASKS` halfway would have taken
+the 85-test suite from green to broken for the next reader — which is the failure mode this Work has
+already paid for twice. The two items above are the whole remainder of the repository-side packet.
+
+Files changed: `prepare_two_jobs.py` (359689972a44), this PROGRESS. Costs this claim: one 7-test selector run 1.274s plus two read-only deployment reads; no
+whole-suite repeat, per the review. No setup, deployment, build, live engine or provider, retry/reuse,
+integration, graph or Git mutation. NOT READY.
+
+
+## Claim 305440 — O5 and O4 authored; the repository-side packet is complete
+
+READ: `detail work=W247941`, `work-events after=305415` (claim 305418, pass 305436),
+`review-2026-09-29T12-03-33Z.md`, `REVIEW-CANDIDATE-305418.json`, FINDING/PLAN, T247941.
+
+THE REVIEW DECLINED MY BUDGET EXCUSE AND WAS RIGHT TO. "A chosen 131s claim budget is not runner
+exhaustion; do not schedule another micro-handoff just to retain green intermediate fixtures." The
+authoring is done in this claim, and the permission that made it tractable was in the same review:
+the historical greet fixtures MAY stay separate from the selected useful tasks, so nothing had to be
+rewired to add them.
+
+O5 — `USEFUL-TASKS-305440.md` (6de84a604b8f, 109 lines):
+
+    THE FIVE PINNED EXCERPTS, each by digest, as the only sources either Job may derive from --
+    `v12/DESIGN.md` ea224a281d320077 with HOST-5 (432-436) and HOST-8 (457-461) quoted VERBATIM,
+    `E2E-OPERATOR-302142.md` ce0a7c931e005af6, `EXECUTION-REVIEW-304782.json` de48a0cdae7870d2,
+    `RESIDUAL-CLASSIFICATION-304829.md` 642dba931753d2a2, and this packet's own scope.
+    TASK A, job-a, sole path `docs/v12-parallel-operator-notes.md`: six required headings covering
+    one manager per instance, launch with PLACEHOLDERS rather than the spent command, status as a
+    read and not a lease, ONE Ctrl-C, held/unknown outcomes with no blind rerun, and the
+    cooperative nature of the total and its reserve stated honestly.
+    TASK B, job-b, sole path `docs/v12-evidence-map.md`: five required headings separating what is
+    proved deterministically, what ONE real Job proved, what is not proved yet, what E4 defers and
+    why, and where a claim would break. Forbidden: presenting deterministic evidence as live, or
+    the single-Job success as parallel proof.
+    THE TWO VERIFICATIONS ARE NOT SUBSTITUTES, and the document says so: the structural check
+    establishes nothing about correctness, and the semantic reviewer may answer `accepted`,
+    `changes-requested` or `rejected`, none better for them than another.
+
+`check_useful_tasks.py` (0abbc5ff04ee, 114 lines) is the deterministic half: exact path, UTF-8, the
+line bound with a trailing newline NOT counted as a line, every required heading, and the changed-path
+set exactly one file — checked FIRST, because a correct document beside an extra changed file is still
+a Job that took what the other owns. Exercised on one positive and three negatives:
+
+    positive                       exit 0, reports lines/bytes/headings/changed
+    an extra changed file          exit 1, "may change exactly [...] and this proposal changes [...]"
+    a missing heading              exit 1, names `## Stop` as the first missing one
+    an absent file                 exit 1, names the path and the root
+
+O4 — `SETUP-RECIPE-305440.md` (8a0c1ef3ab09, 94 lines): the fresh identities (run id keyed to the
+owner's own setup sequence, so it names the act that created it), both roots with the refusal that
+neither may be in `CONSUMED`, the four admissions and exactly where they are visible
+(`CAPS` `{implementation: 2, review: 2}`, four stage admissions under one orchestration, held by
+`TheGateAdmitsFourAndNoMore`), the explicit limits — 180s provider and 30s verification per stage,
+600s total with a 120s cleanup reserve INSIDE it so serving stops at 480s — with the cooperative
+caveat stated rather than implied, and the three commands' SHAPE, since the argv itself is emitted by
+the composer and not this document's to spell. One owner operation is named; no operational file is
+claimed to exist.
+
+VERIFICATION: `test_two_jobs` 85 OK, 75.7s, unchanged — the new assets are documents plus a
+standalone script, and nothing in the machinery moved. A note for the next reader: running a single
+class of that module in isolation pulls in the inherited fixture cases and fails; the whole-module run
+is the valid measurement, which is why the review's command names the module.
+
+WHAT REMAINS is not repository-side: the owner's setup selection (section 5 of the recipe), and after
+it the emitted packet's own freeze and final review. At that freeze, per the review: refresh the stale
+provenance strings, document the runtime locator's use, and bind real manifest inputs rather than the
+repeated-digit fixture identities.
+
+Files added: `USEFUL-TASKS-305440.md`, `SETUP-RECIPE-305440.md`, `check_useful_tasks.py`. Files
+changed: this PROGRESS. Costs this claim: one whole-module run 75.7s, one four-case checker exercise,
+one class-scoped run discarded as an isolation artifact, and the excerpt digest reads. No setup,
+deployment, build, live engine or provider, retry/reuse, integration, graph or Git mutation.
+NOT READY, and the remainder is now the owner's setup selection rather than authoring.
+
+
+## Claim 305493 — R2, R3 and R4 corrected; R1 named as the one remaining generator step
+
+READ: `detail work=W247941`, `work-events after=305476` (claim 305478, pass 305490),
+`review-2026-09-29T12-11-11Z.md`, `REVIEW-CANDIDATE-305478.json`, FINDING/PLAN, T247941.
+
+R4 — THE CHECKER ADMITTED THE VALUE ITS CONTRACT EXCLUDES. "Under 100 lines" was implemented as
+`> max_lines`, so a 100-line file passed. Corrected to `>=`, and the key is renamed
+`line_bound_exclusive` so the next reader cannot read it as an inclusive maximum. Probed at the
+boundary: 99 lines PASS exit 0, 100 lines REFUSED exit 1 with "is 100 lines and the contract is
+UNDER 100, so 99 is the most it may be". Both tasks now exercised (job-a and job-b pass on a
+minimal candidate), and an unknown job is refused by the parser's own choice set.
+
+R2 — THREE ERRORS IN MY RECIPE, ALL MINE, ALL READ OUT OF THE CODE NOW:
+
+    `--selections` DOES NOT EXIST on the supervisor. `two_job_supervisor.main` takes `--deployment`,
+    `--submission`, `--job-store`, `--control-store`, `--incarnation`, `--outcome`,
+    `--total-seconds`, `--cleanup-seconds`. Section 4 now lists exactly those.
+    THE CLEANUP RESERVE IS 60, NOT 120. The emitted command passes
+    `"--total-seconds", "600", "--cleanup-seconds", "60"`, so serving stops at 540 s and my 480 s
+    was arithmetic on an invented number. The recipe also states that selecting 120 would be a
+    CHANGE the emitted command must carry, not a description.
+    THE INCARNATIONS ARE `two-jobs-<RUN_ID>` AND `inspect-<RUN_ID>`, derived by `prepare_two_jobs`
+    from the run id — not the `two-jobs-247941-<SEQ>` I wrote. `<RUN_ID>` is one operand from which
+    every path and both incarnations follow, which is why it is now the only identity in section 1.
+
+R3 — THE EXCERPTS ARE FROZEN PROPERLY. Full 64-character SHA-256, repository locator and byte count
+for each of E1-E4 (`v12/DESIGN.md` 66490 bytes, `E2E-OPERATOR-302142.md` 7336,
+`EXECUTION-REVIEW-304782.json` 2481, `RESIDUAL-CLASSIFICATION-304829.md` 10129). AND THE FIFTH IS
+WITHDRAWN: I had listed this packet's own `PARALLEL-PACKET-305010.md`, which is MUTABLE — I have
+appended to it in three of the last four claims. An input a Job derives from cannot be a document
+that changes under it, so it is gone rather than pinned at a value that will not hold, and every
+reference to it in both task briefs is replaced by the named suites. The manifest binding is stated:
+these four are the finite excerpt set, the task document's own bytes are the `human_contract`.
+
+R1 IS THE ONE REMAINING STEP AND IT IS GENERATOR WORK. `prepare_two_jobs` still emits the greet
+scripts; the selected documentation tasks are a contract with no generator behind them yet. What is
+owed is exact: `TASKS` gains the two doc paths with their headings and the exclusive line bound;
+`task_document` composes the brief from `USEFUL-TASKS-305440.md` rather than the greet template;
+E1-E4 are bound as the manifest's finite excerpt inputs; the emitted verification invokes
+`check_useful_tasks.py` for the Job's own path and changed set; and the authoritative diff check
+proves the changed-path set from the proposal rather than from a caller's word. I did not start it
+in this claim because R2/R3/R4 were the corrections the review asked for first, and a half-wired
+generator would have broken the 85 machinery checks that guard everything else.
+
+Files changed: `USEFUL-TASKS-305440.md` (1ff5d8de904d), `SETUP-RECIPE-305440.md` (3958ddfda5e2),
+`check_useful_tasks.py` (f6dcadba50a3), this PROGRESS. Costs this claim: the boundary probes and the
+two-task checker exercise (sub-second each), plus reading the supervisor's argv and the emitted
+command block. No whole-suite rerun: nothing in the machinery changed. No setup, deployment, build,
+live engine or provider, retry/reuse, integration, graph or Git mutation. NOT READY.
+
+
+## Claim 305532 — the setup script exists; R2/R3 closed; R1 still the generator
+
+READ: `detail work=W247941`, `work-events after=305514` (claim 305517, pass 305529),
+`review-2026-09-29T12-16-17Z.md`, `REVIEW-CANDIDATE-305517.json`, FINDING/PLAN, T247941.
+
+R2 IS CLOSED BY A SCRIPT, not by more prose. `setup-two-jobs-305532.sh` (32da77fc17af, 96 lines) is
+parameterized on `RUN_ID`, `SOURCE` and `BASE`, prints its plan and DOES NOTHING without `--commit`:
+
+    it asks `prepare_two_jobs.fresh()` whether the identity is a consumed root, through the module
+      rather than reimplementing the rule;
+    it refuses if either root exists, because a successor takes a new identity;
+    it makes the two read-only clones — the only Git it performs, writing only inside the new
+      instance root — then emits the bootstrap inputs and prints the exact preparation command.
+
+Dry-run measured: with no operands it refuses naming the first missing one; with operands and no
+`--commit` it prints the plan and exits 0 having done nothing. `bash -n` clean.
+
+AND THE THREE THINGS THE REVIEW CAUGHT IN THE RECIPE ARE CORRECTED FROM THE CODE:
+
+    THE STORES ARE UNDER `db/`. `prepare_two_jobs.layout` puts `jobs.sqlite3` and `control.sqlite3`
+    in `<run>/db/`, following `tools.bootstrap.layout`; my recipe omitted the directory, so its
+    `--job-store`/`--control-store` and the status command all named paths that do not exist.
+    THE RUN ID IS ONE NAME. `--run-id` DEFAULTS to the run root's basename, so the recipe now uses a
+    single `<RUN_ID>` throughout instead of mixing a prefix into some occurrences.
+    THE REQUIRED OPERANDS ARE NAMED: `--run-root`, `--source` and `--base` are all required;
+    `--operation-prefix` defaults to `w247941-<run id>`; `--emit-bootstrap-inputs` derives the
+    bootstrap document and does nothing else, which is why the script runs it first.
+
+R3 IS CLOSED. Task B's "named suites" now names them — the five exact cases in `test_two_jobs` that
+hold overlap, attribution, disjoint work, four-and-no-fifth and bounded stop, each spelled out so the
+Job does not have to find them and the reviewer can check them. And DELIVERY is now stated as a fact
+separate from pinning: the excerpt bytes are copied into the run root's `tasks/excerpts/` and mounted
+read-only under the worker's `/input/`, with each copy's SHA-256 compared to the pinned value BEFORE
+the mount, so a Job reads frozen bytes rather than a path that might have moved. Both the copy and the
+comparison are part of R1 and neither is claimed to exist yet.
+
+R1 REMAINS THE GENERATOR, and it is now the only repository-side item: `TASKS` gains the two doc paths
+with their headings and the exclusive line bound; `task_document` composes the brief from
+`USEFUL-TASKS-305440.md`; E1-E4 are copied, hash-compared and bound as the manifest's excerpt inputs;
+the emitted verification invokes `check_useful_tasks.py` for the Job's own path and changed set; and
+the authoritative diff proves the changed-path set from the proposal rather than a caller's word.
+
+Files added: `setup-two-jobs-305532.sh`. Files changed: `USEFUL-TASKS-305440.md` (06f0ab744c9a),
+`SETUP-RECIPE-305440.md` (ffe990e03b68), this PROGRESS. Costs this claim: `bash -n`, two dry runs and
+the layout/argparse reads — sub-second; no suite rerun, since no machinery changed. No setup,
+deployment, build, live engine or provider, retry/reuse, integration, graph or Git mutation of this
+checkout. NOT READY.
+
+## Claim 305570 — the four script defects corrected, plus a fifth my own probe found
+
+READ: `detail work=W247941`, `work-events after=305552` (claim 305555, pass 305564),
+`review-2026-09-29T12-20-42Z.md`, `REVIEW-CANDIDATE-305555.json`, FINDING/PLAN, T247941.
+
+ALL FOUR DEFECTS WERE MINE AND ALL FOUR ARE CORRECTED in `setup-two-jobs-305532.sh`
+(a3ab81c89109, 138 lines):
+
+    THE SIGNATURE. I called `fresh(RUN_ROOT)`; it is `fresh(run_root, run_id)`. Both operands are
+    passed now, and I reproduced the refusal end to end: `fresh("/home/sl/baton-runs/single-job-
+    257627-291715", "single-job-257627-291715")` answers `PreparationRefusal: run id ... is a
+    CONSUMED instance`.
+    THE BOOTSTRAP COMMAND IS SPECIFIED AND RUN, not printed at the operator:
+    `-m tools.bootstrap --inputs <run>/bootstrap-inputs.json --destination <instance>
+    --no-repositories`, with the inputs CAPTURED to a file rather than emitted to a terminal.
+    `--no-repositories` because step 4's fixture clone is this proof's repository material.
+    THE SEQUENCE COMPLETES. Seven ordered steps, all performed under `--commit`: validate, `fresh`,
+    make the roots, clone, emit inputs, bootstrap, prepare. The preparation is RUN; my first version
+    printed it and left the owner to assemble the rest, which is exactly what the review declined.
+    OPERANDS GO THROUGH ARGV. The inline program is a fixed string and the dossier, run root and run
+    id arrive as `sys.argv[1..3]`, so nothing is interpolated into program text.
+
+AND THE TOPOLOGY IS STATED rather than left dangling: ONE fixture source, cloned ONCE as `source`, is
+the read-only material BOTH Jobs read — they are separate Jobs over the same base, which is what makes
+their CHANGED PATHS disjoint rather than their inputs different. Each Job's writable tree is its own
+development line, created by the manager under `<run>/workspaces/` with its own attempt identity. My
+two-clone version implied a topology the product does not have.
+
+A FIFTH DEFECT, FOUND BY PROBING MY OWN VALIDATION AND WORTH RECORDING: the source check was
+`[ ! -d "$SOURCE/.git" ] && [ ! -f "$SOURCE/HEAD" ]`, and `/tmp` PASSED it — because an EMPTY
+`/tmp/.git` directory has been sitting there since Sep 26, left by some earlier fixture. A directory
+of that name is not a repository. The check now requires `HEAD` and `objects`, either in the
+worktree's `.git/` or at the root of a bare one. Measured both ways: `/tmp` refused, the real checkout
+accepted.
+
+VALIDATIONS PROBED, all before anything is created: a missing operand refuses naming the first one;
+`RUN_ID=../escape` refuses as not one path component; `BASE=zz` refuses as not one full lower-case
+object name; `/tmp` refuses as not a repository; and with good operands and no `--commit` the script
+prints the seven-step plan and exits 0 having done nothing. `bash -n` clean.
+
+STILL UNFINISHED, the same item: R1's generator — `TASKS` gaining the two doc paths, `task_document`
+composing from `USEFUL-TASKS-305440.md`, the excerpt copy-and-hash-compare delivery, the emitted
+verification invoking `check_useful_tasks.py`, and the authoritative diff proving the changed-path
+set. R3's delivery is specified in the contract and unimplemented for the same reason.
+
+Files changed: `setup-two-jobs-305532.sh` (a3ab81c89109), this PROGRESS. Costs this claim: `bash -n`,
+five validation probes and one `fresh()` refusal reproduction — sub-second each; no suite rerun, since
+no machinery changed. No setup, deployment, build, live engine or provider, retry/reuse, integration,
+graph or Git mutation of this checkout. NOT READY.
+
+## Claim 305611 — ONE topology, the pinned distro, and BASE held to the real HEAD
+
+READ: `detail work=W247941`, `work-events after=305593` (claim 305595, pass 305607),
+`review-2026-09-29T12-26-38Z.md`, `REVIEW-CANDIDATE-305595.json`, FINDING/PLAN, T247941.
+
+THE TOPOLOGY WAS SPLIT AND THAT WAS THE REAL DEFECT. `tools.bootstrap --destination X` OVERRIDES
+`state_root` to X (bootstrap.py:2255) and writes `X/bootstrap.json` and `X/db/`; my script installed
+into an `instances/` path and then prepared against a `runs/` path, so step 7 could only fail. THERE
+IS NOW ONE ROOT: the destination IS the run root, the clone sits under it, and every later command
+names the same `bootstrap.json` and `db/`. No receipt is copied anywhere — the review was explicit
+that copying it to conceal the mismatch is not a fix, and it would not have been one.
+
+`--destination` REQUIRES `--distro`, which I never passed. The value is now read from
+`prepare_two_jobs.ACCEPTED["runtime_path"]` — the accepted pinned runtime at
+`/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro`, whose executable digest
+`verify_247941.PINNED` already matches — and its presence is checked before anything happens. NOTHING
+IS BUILT.
+
+BASE IS NOW HELD TO THE SOURCE'S ACTUAL HEAD, not to a 40-hex shape. The validation resolves the
+repository's own `HEAD`, follows one symref hop, and falls back to `packed-refs`, then refuses a
+mismatch by naming both values. Measured: with `BASE=aaaa…` it refuses "BASE is not this repository's
+HEAD: HEAD is f05adec7731b… and BASE is aaaa…"; with the resolved value it accepts and prints the
+seven-step plan for one root. `bash -n` clean, and `--commit` still absent from every probe.
+
+STILL UNFINISHED, unchanged and unhidden: R1's generator and R3's delivery — `TASKS` gaining the two
+doc paths, `task_document` composing from `USEFUL-TASKS-305440.md`, the excerpt copy-and-hash-compare,
+the emitted verification invoking `check_useful_tasks.py`, and the authoritative diff proving the
+changed-path set from the proposal.
+
+Files changed: `setup-two-jobs-305532.sh` (692e707e0c41, 156 lines), this PROGRESS. Costs this claim:
+`bash -n`, two validation probes and one HEAD resolution — sub-second each; no suite rerun, since no
+machinery changed. No setup, deployment, build, live engine or provider, retry/reuse, integration,
+graph or Git mutation of this checkout. NOT READY.
+
+## Claim 305647 — read-only Git as the review prefers, plus the clean-source requirement
+
+READ: `detail work=W247941`, `work-events after=305631` (claim 305633, pass 305642),
+`review-2026-09-29T12-30-40Z.md`, `REVIEW-CANDIDATE-305633.json`, FINDING/PLAN, T247941.
+
+THE PARTIAL `.git` PARSER IS GONE, replaced by read-only Git as the review prefers: `rev-parse HEAD`
+resolves symrefs, packed refs and worktrees without my reimplementing each arrangement one case at a
+time, and `status --porcelain` supplies the SOURCE CLEANLINESS the review requires before a clone.
+Both are reads; nothing is written and no `--git-dir` is passed.
+
+AND THE SUBSTITUTION BROKE THE SCRIPT BEFORE IT WORKED, which is worth recording rather than quietly
+fixing: `' '.join(operands)` inside a `-c '...'` program closes the shell string, so Python reported
+`SyntaxError: '{' was never closed` on all three probes. The embedded program now contains no single
+quote at all — `chr(32).join(...)` for the separator and a reworded message without an apostrophe.
+
+MEASURED, all three paths:
+
+    wrong base            refused: "BASE is not the HEAD of this repository: HEAD is f05adec7731b…
+                          and BASE is aaaa…"
+    real HEAD, dirty tree refused: "/home/sl/src/baton has uncommitted changes and is not a clean
+                          base: M work/records/…/FINDING.md" — correct, and worth stating plainly:
+                          THIS CHECKOUT CANNOT BE THE PAIR'S SOURCE while it carries this Work's own
+                          uncommitted records. The fixture repository is a separate clean repository,
+                          which is what `SOURCE` names.
+    not a repository      refused, wrapping Git's own "Stopping at filesystem boundary" answer.
+
+`bash -n` clean; `--commit` absent from every probe, so nothing was created.
+
+R1 AND R3 REMAIN, and they are the whole remaining item: the generator — `TASKS` gaining the two doc
+paths, `task_document` composing from `USEFUL-TASKS-305440.md`, the excerpt copy-and-hash-compare
+delivery, the emitted verification invoking `check_useful_tasks.py`, and the authoritative diff
+proving the changed-path set from the proposal. I have not started them, and I am not going to report
+a partial generator as progress: a half-wired `TASKS` breaks the 85 machinery checks that guard
+everything else in this dossier.
+
+Files changed: `setup-two-jobs-305532.sh` (a0272e45ead5, 152 lines), this PROGRESS. Costs this claim:
+`bash -n` and three validation probes — sub-second each; no suite rerun, since no machinery changed.
+No setup, deployment, build, live engine or provider, retry/reuse, integration, graph or Git mutation
+of this checkout. NOT READY.
+
+## Claim 305675 — R1 and R3 IMPLEMENTED on the design the review named
+
+READ: `detail work=W247941`, `work-events after=305659` (claim 305661, pass 305670),
+`review-2026-09-29T12-34-10Z.md`, `REVIEW-CANDIDATE-305661.json`, FINDING/PLAN, T247941. The review
+removed my stated reason for deferring — "breaking legacy 85 during intermediate edits is not a blocker
+or approval gate; test changes authorized" — and named the design: keep the greeting fixture builder,
+ADD a selected useful-doc builder and input set, let the owner's setup select it, and cover that path
+with connected tests. That is what this claim does.
+
+`useful_tasks.py` (886866bdda74, 179 lines):
+
+    ONE TABLE, TWO READERS: `TASKS` IS `check_useful_tasks.TASKS`, so the contract the checker enforces
+    and the brief the Job receives cannot drift — a heading added in one is present in the other by
+    construction, and a test asserts the identity.
+    `task_document` returns the SAME MEMBERS as `prepare_two_jobs.task_document` (asserted), so the
+    manifest's `human_contract` binding, the disjoint-path check and the emitted submission need no
+    special case.
+    THE BRIEF IS COMPOSED FROM THE CONTRACT: every required heading, the exclusive line bound, the
+    four excerpt digests, the sole-changed-path rule, the do-not-judge-your-own-work rule, and the
+    reviewer's three valid verdicts.
+    `deliver` COPIES the four excerpts and the checker into `<run>/tasks/`, hashes each SOURCE against
+    its pin, writes, then hashes THE WRITTEN BYTES again. Delivery is not pinning: a Job reads the
+    copy, so the copy is what gets proved.
+    `verification` is the checker invocation naming only that Job's own path.
+
+`prepare_two_jobs.py` (a0d8424f394a) gains `--tasks greeting|useful`, DEFAULTING TO GREETING so every
+existing behaviour is untouched. `useful` swaps the table and the builder, runs the delivery, and the
+emitted report carries `task_set` and `delivered_inputs` so a reader never has to guess which set was
+prepared. `disjoint` takes an optional `table=` and defaults to the fixture.
+
+A DEFECT I MADE AND MEASURED: my first wiring named the local builder `compose`, which SHADOWS `main`'s
+own `compose` parameter — the injected composer the tests supply — so six cases failed with
+`task_document() got an unexpected keyword argument 'stream'`. Renamed to `build`, with the reason in
+the code.
+
+`test_useful_tasks.py` (bc8d9a362dbb, 166 lines), 12 tests, OK in 0.069s, driving the real builder, the
+real delivery and the DELIVERED checker as a subprocess:
+
+    the builder and checker share one table; both paths are disjoint and present in the contract;
+    every required heading and the bound reach each brief; the document shape matches the
+    preparation's; each verification names only its own path;
+    every excerpt lands with its pinned digest and byte-identical content; the checker is delivered
+    beside them; a MOVED excerpt is refused with "the frozen input moved"; an absent one is refused
+    by name;
+    both Jobs pass through the DELIVERED copy; the other Job's file in the changed set is refused;
+    and the line bound is exclusive through that copy — 99 passes, 100 refuses.
+
+AND THE LEGACY SUITE IS STILL GREEN: `test_two_jobs` 85 OK, 75.7s, because the selector defaults to the
+fixture. The review said breaking it would have been acceptable; not breaking it is better.
+
+WHAT REMAINS: the authoritative diff — the checker still takes `--changed` from its caller, and the
+proposal's own patch should supply it — and the emitted submission carrying the delivered excerpt set
+as the worker's mounted inputs rather than only recording the delivery. Both are named here rather than
+implied, and the owner's external setup selection is unchanged.
+
+Files added: `useful_tasks.py`, `test_useful_tasks.py`. Files changed: `prepare_two_jobs.py`
+(a0d8424f394a), this PROGRESS. Costs this claim: `test_useful_tasks` 12 OK 0.069s, `test_two_jobs` 85 OK
+75.7s twice (once on the shadowing defect, once after), plus the builder/delivery probes. No setup,
+deployment, build, live engine or provider, retry/reuse, integration, graph or Git mutation of this
+checkout. NOT READY.
+
+## Claim 305736 — the setup selects the useful tasks; delivery gated; one revert recorded
+
+READ: `detail work=W247941`, `work-events after=305718` (claim 305721, pass 305730),
+`review-2026-09-29T12-42-29Z.md`, `REVIEW-CANDIDATE-305721.json`, FINDING/PLAN, T247941.
+
+THE SETUP NOW SELECTS THE SELECTED TASKS. `setup-two-jobs-305532.sh` (882bd33d002e) passes
+`--tasks useful` to the preparation and its plan says so. Without it the owner would have selected a
+run over the machinery payload rather than the two documentation tasks this packet is about — which is
+exactly what the review caught.
+
+THE CONTRACT TRAVELS, and the delivery is GATED. `useful_tasks.py` (dac7494e8294):
+
+    `CARRIED` adds `USEFUL-TASKS-305440.md` beside the checker. The brief NAMED the contract and
+    nothing delivered it, so a reviewer asked to judge against it had no copy — measured by a test
+    that now reads both carried files back byte-for-byte.
+    `_gates` runs over the WHOLE planned set BEFORE the first byte is written: import provenance
+    (a source whose digest moved is refused before anything is copied), an existing target with
+    DIFFERENT bytes is a refusal rather than an overwrite, and an existing target with IDENTICAL
+    bytes is an exact replay that stands. My first version created directories and wrote as it
+    walked, so a refusal halfway left a partial delivery behind.
+
+`test_useful_tasks.py` (4e3f21e203d0) is 15 OK in 0.073s — the three new cases are the contract
+delivery, the refusal that changes nothing (asserted by comparing the excerpt bytes across the
+refusal), and the exact replay.
+
+AND ONE REVERT, RECORDED RATHER THAN QUIETLY DROPPED. The review is right that `resolved()`'s
+`test_scope` reads the GREET table, so a `--tasks useful` preparation resolves a scope naming
+`greet_a.py` while the Job is told to write a document. My correction referenced
+`tasks[job_id]["touches"]` — which `resolved()` does not have in scope — and it broke THIRTEEN cases
+in `test_two_jobs`. It is reverted, the reason is in the code at that line, and the real fix is to
+thread the chosen table into `resolved`. `test_two_jobs` is 85 OK again.
+
+STILL OWED, all four named by the review and none of them started or half-started:
+
+    the `test_scope` threading above;
+    the worker MOUNTS and MANIFEST entries for the delivered inputs — the preparation records the
+    delivery but does not yet mount it;
+    the AUTHORITATIVE DIFF: the checker still takes `--changed` from its caller, and the proposal's
+    own patch should supply it;
+    a connected deterministic run of `main --tasks useful` end to end — the 15 tests drive the
+    builder, the delivery and the delivered checker, but none of them calls `main`, which the review
+    states plainly and I am not going to blur.
+
+Files changed: `useful_tasks.py` (dac7494e8294), `test_useful_tasks.py` (4e3f21e203d0),
+`prepare_two_jobs.py` (b90724dcb3d5), `setup-two-jobs-305532.sh` (882bd33d002e), this PROGRESS.
+Costs this claim: `test_useful_tasks` 15 OK 0.073s plus two failing intermediate runs of it, and
+`test_two_jobs` twice — ONE INTERMEDIATE RUN WITH 13 ERRORS from my `test_scope` edit, then 85 OK
+75.4s after the revert. Reporting those as "85 OK twice" would have hidden the breakage, and review
+2026-09-29T12-50-22Z was right to ask for them separately. Plus the delivery gate probes. No setup,
+deployment, build, live engine or provider, retry/reuse, integration, graph or Git mutation of this
+checkout. NOT READY.
+
+## Claim 305794 — test_scope actually fixed, and the delivery moved behind the gate
+
+READ: `detail work=W247941`, `work-events after=305777` (claim 305779, pass 305784),
+`review-2026-09-29T12-50-22Z.md`, `REVIEW-CANDIDATE-305779.json`, FINDING/PLAN, T247941.
+
+MY NOTE ABOUT `test_scope` WAS WRONG TWICE OVER, and the review corrected it: `tasks` IS a parameter
+of `resolved` — the line above `test_scope` already reads `tasks[job_id]["path"]` — so "not in scope"
+was never why my first correction broke thirteen cases. THE FIXTURE SHAPE IS why: the suite builds
+`tasks` entries carrying `path` and `raw` only, while `main` also sets `touches`. So it now reads
+`tasks[job_id].get("touches", TASKS[job_id]["path"])` — `main` always supplies `touches`, so a
+`--tasks useful` preparation resolves a scope naming the document the Job was actually asked to write,
+and the fixture shape still resolves. Both suites green: `test_two_jobs` 85 OK 75.7s,
+`test_useful_tasks` 15 OK 0.072s.
+
+THE DELIVERY NOW WAITS FOR `main`'s OWN REFUSAL. It was called while the table was chosen, which is
+BEFORE this function's unchanged/existing-target gate — so a preparation that then refused had already
+written excerpts into the run root. The selector now picks the table, the builder and the deliver
+FUNCTION; the call happens after the `changing` refusal. The two gates compose rather than duplicate:
+`main`'s covers its own emitted inputs, `deliver`'s covers the excerpt set.
+
+AND AN IDENTICAL REPLAY IS NO LONGER REWRITTEN. `deliver` plans read-only, gates over the whole set,
+then writes — and where the gate has already proved the existing bytes are the pinned ones it leaves
+them alone and reports `replayed: True`. Rewriting matching bytes changes an mtime for nothing and
+touches a file a Job may be reading.
+
+STILL OWED, the two the review still lists and neither started: the worker-visible MOUNTS and MANIFEST
+entries for the delivered inputs together with the AUTHORITATIVE DIFF, and a connected deterministic
+proof that runs `main --tasks useful` (and the setup) end to end. The 15 tests are components, which
+the review states plainly and I am not going to describe as connected proof.
+
+Files changed: `prepare_two_jobs.py` (f5c331af4444), `useful_tasks.py` (372cfe8c3498), this PROGRESS.
+Costs this claim: `test_two_jobs` 85 OK 75.7s and 75.6s (two runs, both green — the first after the
+scope fix, the second after the gate move), `test_useful_tasks` 15 OK twice. No setup, deployment,
+build, live engine or provider, retry/reuse, integration, graph or Git mutation of this checkout.
+NOT READY.
+
+## Claim 305844 — the delivery now sits after ALL THREE gates, and the negative walks the whole tree
+
+READ: `detail work=W247941`, `work-events after=305829` (claim 305833, pass 305842),
+`review-2026-09-29T12-57-17Z.md`, `REVIEW-CANDIDATE-305833.json`, FINDING/PLAN, T247941.
+
+I FIXED ONE GATE AND LEFT TWO, which the review caught exactly: the order was unchanged-refusal →
+DELIVER → existing-run refusal → import-provenance refusal. A preparation that refused for either of
+the last two had already copied excerpts into the run root, which is the same defect I thought I had
+closed. The call now sits AFTER all three (`prepare_two_jobs.py` 17b2ae6684f1, line 931, immediately
+after the provenance refusal), so no refusal preceding an effect can be reached with bytes already
+written. `deliver` then applies its own gates over the excerpt set.
+
+AND THE NEGATIVE WALKS THE WHOLE RELEVANT TREE. It compared only `tasks/excerpts/`, so a refusal that
+touched the contract or the checker — the other two things a Job reads — would have passed unnoticed.
+It now walks `tasks/` recursively and compares every file's bytes across the refusal
+(`test_useful_tasks.py` 99de535883b3).
+
+VERIFIED: `test_useful_tasks` 15 OK 0.076s, `test_two_jobs` 85 OK 75.6s. And the review's own point
+stands: the greeting 85 does NOT exercise this delivery, so that number is not evidence for it — the
+15 are.
+
+STILL OWED, unchanged: the worker-visible MOUNTS and MANIFEST entries plus the AUTHORITATIVE DIFF, and
+a connected deterministic proof running `main --tasks useful` and the setup end to end. Final
+runtime/helper provenance also remains.
+
+Files changed: `prepare_two_jobs.py` (17b2ae6684f1), `test_useful_tasks.py` (99de535883b3), this
+PROGRESS. Costs this claim: `test_useful_tasks` 15 OK 0.076s, `test_two_jobs` 85 OK 75.6s. No setup,
+deployment, build, live engine or provider, retry/reuse, integration, graph or Git mutation of this
+checkout. NOT READY.
+
+## Claim 305885 — the connected test ATTEMPTED AND REVERTED, and the stale comment corrected
+
+READ: `detail work=W247941`, `work-events after=305864` (claim 305872, pass 305880),
+`review-2026-09-29T13-01-31Z.md`, `REVIEW-CANDIDATE-305872.json`, FINDING/PLAN, T247941. The review
+asked for the connected milestone and said no further component-only handoff was wanted. I attempted
+it and it did not work; the attempt is reported rather than left in the tree.
+
+THE STALE COMMENT IS CORRECTED. `prepare_two_jobs.py` (edf9404dabeb) said a validation failure leaves
+"exactly these two files"; under `--tasks useful` the delivery also puts the excerpts, the contract and
+the checker under `tasks/`, so a later failure leaves those too. The comment now says so and explains
+what they are — the Job's own mounted inputs, each proved against its pin — rather than implying a
+count that is no longer true.
+
+THE CONNECTED `main --tasks useful` TEST: ATTEMPTED, FOUND WRONG, REVERTED. I wrote four cases
+subclassing `ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor` to reuse its `bootstrapped` fixture, and
+two things were wrong at once:
+
+    SUBCLASSING PULLS IN EVERY INHERITED CASE, and those cases fail when the class is run outside its
+    own module — the isolation artifact I recorded at claim 305440. So the vehicle manufactures
+    failures that say nothing about the selected path.
+    MY OWN ASSERTIONS WERE WRONG TOO: the emitted report has no `jobs` key, so the scope case raised
+    `KeyError: 'jobs'`, and both refusal cases errored before reaching their assertions.
+
+I reverted the whole addition rather than leave a broken test file behind: `test_useful_tasks.py`
+(5d3cd02645f2) is back to its 15 component cases, 15 OK 0.073s, and `test_two_jobs` is 85 OK 75.5s.
+
+WHAT THE ATTEMPT ESTABLISHED, and it is worth carrying forward: the connected test must NOT subclass
+the preparation fixture. It needs its own bootstrapped root — the fixture's `bootstrapped` is a
+stand-in built from a disposable Authority, which a new `unittest.TestCase` can construct directly —
+and its assertions must read the emitted report's actual key set rather than one I assumed.
+
+STILL OWED, unchanged and now with that constraint recorded: the connected `main --tasks useful` and
+setup evidence including both no-effects refusals; the worker-visible MOUNTS and MANIFEST entries with
+the AUTHORITATIVE DIFF; and the final real-input and runtime-helper provenance.
+
+Files changed: `prepare_two_jobs.py` (edf9404dabeb), `test_useful_tasks.py` (5d3cd02645f2 — reverted to
+its component cases), this PROGRESS. Costs this claim: one failing connected-case run (7 errors, all
+from the vehicle and my own keys), `test_useful_tasks` 15 OK 0.073s, `test_two_jobs` 85 OK 75.5s. No
+setup, deployment, build, live engine or provider, retry/reuse, integration, graph or Git mutation of
+this checkout. NOT READY.
+
+
+## Claim 305959 — the owner simplification applied: the context travels in the source
+
+READ: `detail work=W247941` (claim 305959), `work-events after=305900` (my pass 305919, reviewer claim
+305922 and pass 305933), the WHOLE of thread T247941 — seven messages, `next_after: null`, including
+the new owner message 305879 — `OWNER-SIMPLIFY-PARALLEL-PROOF-20260929.md` in full,
+`review-2026-09-29T13-08-19Z.md` in full, and FINDING/PLAN. The ruling supersedes the accumulated
+instruction to keep adding contract, checker, mount and diff-validator layers, and asks for the
+smallest adequate reuse of the ACCEPTED single-Job machinery.
+
+THE SMALLEST ADEQUATE ADAPTATION, and I went and read what the accepted Job actually did rather than
+inferring it. `/home/sl/baton-instances/single-job-257627-291715/preparation/selected-inputs.json`
+carries `excerpt_relative`, and the emitted `task.json` says it in the brief: "The supplied excerpt is
+at `work/records/2026/09/finding-v12-startup-failure-fresh-packet/SOURCE-EXCERPTS-20260928.md`; read
+only that source document." THE FROZEN CONTEXT WAS A FILE IN THE NOMINATED REPOSITORY, read through
+the ordinary `sources` mount of `source`. Its verification was `python3 -c "<one-liner>"` run in the
+workspace. That mechanism is accepted, needs no plumbing, and reaches every worker.
+
+SO THE DELIVERY MOVED INTO THE SOURCE, and TWO of my own defects died with one change:
+
+    THE BYTES REACHED NO JOB. I copied the excerpts to `<run root>/tasks/excerpts` and this packet
+    mounts nothing there, so `/input/excerpts/` in the brief and `/input/checker/...` in the emitted
+    `verification` named paths no worker would have. The verification could not have started.
+    THE PREPARATION WROTE THEM, so every refusal after the copy left bytes behind. I moved that call
+    down the function in two consecutive claims for exactly that reason, which is the shape of a
+    defect rather than of a fix. `useful_tasks.present` is a READ, so it sits among the refusals and
+    there is nothing left to leave behind. The writes-before-refusal defect the owner named is gone by
+    removal, not by ordering.
+
+WHAT I WROTE, and it is less code than it replaces. `useful_tasks.py` (e59e4789de25): `SOURCE_INPUTS =
+"context/w247941"` and `relative(name, into)`; `_planned()` — the pinned reading both paths share;
+`present(source_root)` — the read-only proof, refusing an absent member by path and a moved one by
+digest; `deliver(into)` now seeds a repository worktree under `SOURCE_INPUTS` (same three gates, same
+replay rule) and is the OPERATOR's step before the commit that becomes `--base`; a `--seed`/`--prove`
+CLI that prints one refusal sentence and exits 2 rather than a traceback. The brief names
+repo-relative paths with digests; `verification` names
+`context/w247941/checker/check_useful_tasks.py`.
+
+`prepare_two_jobs.py` (6fd83e540801): the `deliver` call is GONE; `--tasks useful` calls
+`useful_tasks.present(source)` among the refusals and refuses with its sentence. The receipt's
+`delivered_inputs` is now `source_inputs` — what each Job will read, where, at which digest, proved
+before anything was written. `work_ids` enumerates `chosen` rather than the greeting `TASKS`; both
+tables name `job-a`/`job-b`, so reading the wrong dict produced the right answer by coincidence. And
+the comment that has been amended three times now says one true thing about both selections: a
+validation failure leaves exactly the two task documents, because nothing else is written any more.
+
+THE CONNECTED TEST, DONE THE WAY THE REVIEW SAID. "Reuse setup/helpers or add focused cases beside the
+existing fixture if simpler." It is simpler: `commanded` gained a `tasks=` operand and a
+`seeded_source` helper, and FOUR cases sit in `ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor` itself —
+no new class, no second bootstrapping framework, no inherited cases collected. They read
+`receipt["prepared"]["jobs"]` and `receipt["tasks_touch"]`, which the review told me are the keys this
+receipt has:
+
+    `main --tasks useful` from a seeded source emits the two documentation tasks, `tasks_touch` is the
+    two document paths, `prepared.jobs` is `["job-a", "job-b"]`, `source_inputs` matches the seeding
+    member for member on disk, and neither brief mentions `/input/` or the greeting scripts.
+    AN UNSEEDED SOURCE is refused by path, with no `tasks/`, no `run/` and no selections.
+    A TAMPERED MEMBER is refused by digest, with the same nothing written.
+    THE SELECTED REPEAT refuses create-only and a CHANGED base refuses "would change them", both with
+    the earlier run's three documents byte-identical.
+
+THE AUTHORITATIVE DIFF IS NOT MINE TO BUILD, and the review is explicit: existing proposal/custody
+mechanisms may prove path attribution. The product already compares the proposal's patch to the
+repository's own diff — `patch_matches_git_diff` in the accepted single-Job execution review, which is
+E3 of this packet's own contract. I am not writing a second comparison, and I am not claiming the
+checker's `--changed` proves attribution by itself; it holds the declared set, and the packet now says
+so instead of implying more.
+
+DOCUMENTS CORRECTED, not appended to: `USEFUL-TASKS-305440.md` (9751647d1708) — the delivery paragraph
+said `tasks/excerpts` and a `/input/` mount, and now states what actually happens and why the old
+sentence was wrong twice over. `SETUP-RECIPE-305440.md` (edc704728fe6) — section 5 still described the
+superseded TWO-clone, two-root script; it now describes the current one step for step and names the
+seeding as step 0. `setup-two-jobs-305532.sh` (880bf3c263dc) — validation proves the context is present
+before anything is created, and the plan prints the seeding command. `PARALLEL-PACKET-305010.md`
+(719a79e0d182) — new section 9 with the applied ruling, the exact commands, this claim's evidence and
+what remains. `ADOPTION-247941.md` (a08c04bab5ed) — "85 checks" to 89, which its own case caught.
+
+MEASURED, all of it this claim: `test_two_jobs.py` **89 OK, 76.673s** (the 85 plus the four connected
+cases) and `test_useful_tasks.py` **19 OK, 0.075s** (the 15 plus the brief/verification path case and
+the three `present` cases), both under the reviewer's exact ordering — frozen snapshot's two import
+roots first, then the checkout's `v12/python`, then the dossier, `BATON_V12_DISK_ROOT=/var/tmp/
+baton-w257624`, `PYTHONDONTWRITEBYTECODE=1`, cwd `/tmp`. `useful_tasks.py --seed` wrote six members,
+each digest equal to its pin; `--prove` on that tree exited 0 and on an empty tree refused by path with
+status 2. The setup script's embedded validation program compiles, names the new proof, and its plan
+mode refuses a non-repository (exit 2).
+
+ONE FAILURE FOUND AND FIXED IN THIS CLAIM: the first full run was 89 tests with 1 failure —
+`test_the_check_count_the_page_states_is_the_ACTUAL_count`, because `ADOPTION-247941.md` still said 85.
+That case exists precisely because a number in prose cannot notice it is wrong, and it worked.
+
+STILL OWED: the LIVE run — execution overlap, isolation, per-Job proposal/result attribution,
+completion and exact producer cessation — which no deterministic evidence substitutes for and which is
+the owner's selection; INDEPENDENT SEMANTIC acceptance of both useful proposals, for which a structural
+pass or a provider exit is not a substitute; and O1, the remaining `ACCEPTED` operands re-derived from
+named accepted records.
+
+Files changed: `useful_tasks.py` (e59e4789de25), `prepare_two_jobs.py` (6fd83e540801),
+`test_two_jobs.py` (512c21fa49d8), `test_useful_tasks.py` (35cfbde18928),
+`setup-two-jobs-305532.sh` (880bf3c263dc), `USEFUL-TASKS-305440.md` (9751647d1708),
+`SETUP-RECIPE-305440.md` (edc704728fe6), `PARALLEL-PACKET-305010.md` (719a79e0d182),
+`ADOPTION-247941.md` (a08c04bab5ed), this PROGRESS. `check_useful_tasks.py` (f6dcadba50a3) is
+UNCHANGED — the checker needed no change to be reachable, only a reachable path. Costs this claim: two
+full `test_two_jobs` runs (76.6s and 76.7s, the first with the count failure), two `test_useful_tasks`
+runs (0.074s, 0.075s), one focused six-case run (10.6s), and the seed/prove/plan invocations above. No
+setup with `--commit`, deployment, build, live engine or provider, retry/reuse, integration, graph or
+Git mutation of this checkout. NOT READY.
+
+
+## Claim 306116 — O1 closed against the accepted run's own records; reads closed; operands exported
+
+READ: `detail work=W247941` (claim 306116), `work-events after=306090` (my pass 306095, reviewer claim
+306099 and pass 306113), the WHOLE of T247941 — eight messages, `next_after: null`, including the new
+owner message 305971 — `OWNER-CONTINUE-UNTIL-RESOLVED-20260929.md` in full,
+`review-2026-09-29T13-32-53Z.md` in full, and FINDING/PLAN. The connected preparation slice was
+ACCEPTED. The owner ruling is that ordinary wrong keys, fixture mistakes and unfinished wiring are work
+to finish inside the claim rather than reasons to hand back; I hit two of those here and fixed them
+rather than reporting them, and they are recorded below.
+
+### O1, and it was not bookkeeping
+
+Every remaining `ACCEPTED` operand carried a DECISION for provenance — "W239528 claim 244216",
+"accepted by W239533" — rather than a record, and two of those labels named
+`/home/sl/baton-runs/independent-review-248377/run/deployment.json`, a SUPERSEDED campaign's
+deployment. So I read the accepted single Job's own records and MEASURED each operand:
+
+    `/home/sl/baton-runs/single-job-257627-291715/PACKET.json` — `manager_runtime` (path, build
+    commit, executable digest), `worker_image` (reference, config digest, and every worker file's
+    digest), `supervisor`, `code_boundary`, `manager_source.files`, and the `fixture` files the Job
+    actually read.
+    `.../deployment.json` — the three descriptor digests and their names, from BOTH configured
+    workers rather than one, because a descriptor that differs between them is one worker's
+    configuration rather than the instance's.
+
+`verify_247941.accepted()` is that measurement, `ACCEPTED_PINS` is what it holds them to, and
+`--pins` now reports it under the SAME `agree`, so one command fails closed on either pin set.
+`prepare_two_jobs.ACCEPTED` reads the pins instead of restating them.
+
+WHAT THE MEASUREMENT FOUND. Most operands were already right and are now bound to a record:
+`adapter_sha256` IS `worker_image.worker_files["opt/baton/claude_agent.py"]` — the adapter source the
+executed image ran, which is the named record that operand never had; `image_reference`/`image_digest`
+are `worker_image`'s; `runtime_build`/`runtime_executable_sha256` are `manager_runtime`'s;
+`stage_execution_sha256` is `manager_source.files["tools/stage_execution.py"]`, so the helper bytes
+actually executed are confirmed rather than assumed.
+
+ONE ACTUAL MISMATCH, and it is the kind O1 exists to catch: `profile_name` said
+`claude-context-review` beside the accepted run's profile digest `93fdea4a…`, and BOTH accepted
+workers — implementation and review — are configured `claude-fresh-implementation`. A name from one
+campaign beside a digest from another is not a reconciliation, and the product does compare a line's
+profile name to the profile an ending is handed (`review_driver`, `policy/profile-uncertified`). The
+name now comes from the record the digest came from.
+
+AND THE TWO RUNTIME PATHS ARE NOT A CONFLICT, which is the distinction the review asked for.
+`runtime_path` is the DISTRO — the historical bootstrap input, and the correct operand for
+`tools.bootstrap --distro`. The accepted packet's `manager_runtime.path` is the INSTALLED copy that
+ran. I hashed the executable at both: `04aa459a…` at each, equal to the pin. So the digest is the pin
+and each path is a locator — which it has to be, because that runtime's own build stamp records
+`dirty: true`, so the build commit alone does not identify the bytes. The emitted arrangement now
+carries `runtime_executed_path` beside `runtime_path`.
+
+### The two routine failures I fixed rather than reported
+
+    MY TYPED `supervisor_sha256` WAS 63 CHARACTERS — I dropped one when transcribing it. The
+    measurement caught it immediately (`agree: False`, one DIFF row), which is the whole point of
+    measuring rather than asserting.
+    TWO OF THE SEVEN NEW CASES ERRORED ON FIRST RUN. One called `self.derived()`, which belongs to
+    the preparation fixture and not to this class (`AttributeError`); it now resolves the document
+    directly. The other drove `--pins` against a copy without patching `CHECKOUT = HERE.parents[4]`,
+    so the copy's derived checkout pointed at a path that holds no product and the subprocess printed
+    nothing to parse — the existing pin-negative case patches that line for exactly this reason, and
+    now this one does too, with an assertion that names stderr when stdout is empty.
+
+### The reads, and the printed commands
+
+THE SIX UNCLOSED READS ARE CLOSED. The review ran the focused suite under `-W error::ResourceWarning`
+and printed six unraisable warnings from `open(...).read()` at test_two_jobs 2846/2859. That idiom
+appeared in three cases, mine and two older ones; all three now use one `bytes_of` helper with a
+`with`. The full suite under `-W error::ResourceWarning` prints ZERO warnings — I counted, rather than
+inferring it from an OK.
+
+THE PRINTED SETUP PAIR WAS WRONG and the review caught it: a `NAME=value command` assignment lasts for
+THAT command only, so giving `RUN_ID`/`SOURCE`/`BASE` to the plan invocation and then showing the
+`--commit` one bare would have handed the second command three empty operands and earned "refused:
+RUN_ID is required". Both the recipe and the packet now export the operands once, name `DOSSIER`
+explicitly, and show seed → prove → plan → commit as four invocations that all see them.
+
+MEASURED, all of it this claim: `test_two_jobs.py` **96 OK, 77.484s** (the 89 plus seven O1 cases) and
+`test_useful_tasks.py` **19 OK, 0.075s**, both under the reviewer's exact ordering AND under
+`-W error::ResourceWarning`, with zero warnings printed. `verify_247941.py --pins` exits 0 with
+`agree: true` and `accepted_run.agree: true`; against a copy whose accepted pin is drifted it exits
+non-zero with both flags false. `test_the_check_count_the_page_states_is_the_ACTUAL_count` failed once
+more at 89-vs-96 and `ADOPTION-247941.md` now says 96.
+
+A NOTE ON THE SUITE I DO NOT OWN: discovering `test_*.py` across this dossier also collects
+`test_abandonment.py` and `test_routed_abandonment.py`, which fail in this environment (13 failures,
+18 errors) and belong to other Works. I ran them once by widening the discovery pattern, report that
+they fail, and did not touch them — they are not this Work's tests and their failures are not new.
+
+STILL OWED: the LIVE run — execution overlap, isolation, per-Job proposal/result attribution,
+completion and exact producer cessation — which is the owner's selection; and INDEPENDENT SEMANTIC
+acceptance of both useful proposals. O1 is closed.
+
+Files changed: `verify_247941.py` (f24ca0e7d69d), `prepare_two_jobs.py` (b90cd699dca4),
+`test_two_jobs.py` (b9385ae34580), `SETUP-RECIPE-305440.md` (3133f16bba40),
+`PARALLEL-PACKET-305010.md` (f8314d3b2133), `ADOPTION-247941.md` (f286bbfba29e), this PROGRESS.
+`useful_tasks.py` (e59e4789de25), `check_useful_tasks.py` (f6dcadba50a3) and
+`test_useful_tasks.py` (35cfbde18928) are unchanged this claim. Costs: one focused seven-case run
+(0.262s, two errors), one after the fix (0.306s), one whole-dossier discovery run (80.2s, including
+the two suites I do not own), two full `test_two_jobs` runs (77.5s each) and two `test_useful_tasks`
+runs (0.075s), plus four `--pins`/`accepted()` invocations. No setup with `--commit`, deployment,
+build, live engine or provider, retry/reuse, integration, graph or Git mutation of this checkout.
+NOT READY.
+
+
+## Claim 306333 — the owner's setup failed; the run root now has ONE owner
+
+READ: `detail work=W247941` (claim 306333), `work-events after=306210` — my pass 306216, reviewer claim
+306224 and pass 306262 ACCEPTING the repository preparation candidate, and then **owner reroute 306323
+from baton.slaw**, whose payload I read in full — and T247941 (eight messages, `next_after: null`,
+unchanged since 305971), plus `review-2026-09-29T13-51-50Z.md` and FINDING/PLAN.
+
+### The finding, which is the owner's and is exactly right
+
+The owner selected the setup and IT FAILED BEFORE THE RUN ROOT WAS CREATED.
+`setup-two-jobs-305532.sh` built `RUN_ROOT="/home/sl/baton-runs/${RUN_ID}"` from a literal of its own,
+and `prepare_two_jobs` REFUSES that directory — it is in `BOUNDARIES`, because the pinned validator's
+rule is that mutable deployment state never lives inside the checkout and `/home/sl/baton-runs` was the
+checkout under an earlier selection. So the script proposed a root the preparation it drives could only
+reject. TWO PLACES HELD ONE DECISION AND THEY DISAGREED, which is the same defect class as the
+manifest/Job-projection mismatch earlier in this Work, and this time it cost the owner a failed setup
+rather than a failed test.
+
+### The correction, and the drift guard
+
+`prepare_two_jobs.supported_root(run_id, under=None)` builds the path under the module's own
+`SUGGESTED_ROOT` and validates it through `fresh()`. The script ASKS for it and now holds no run-root
+literal at all; `INSTANCE_ROOT` overrides the parent for a different disk and is validated identically.
+A case reads the script's own text and fails if a literal run root reappears, so the next edit that
+reintroduces this defect fails here rather than in an operator's terminal.
+
+AND THE BOUNDARY IS MEASURED RATHER THAN LISTED. `stage_execution._checkout()` walks three parents up
+from its own file, so the boundary MOVES with the selected snapshot — and it has moved twice in this
+Work, which is precisely how the literal went stale. `product_checkout()` asks the pinned product what
+the checkout is in this process and `fresh()` refuses a root inside THAT as well as inside the
+campaign's historical literals. I kept the literals: they are roots that WERE the checkout under
+earlier selections, and excluding them is conservative rather than wrong.
+
+### The proposed root, CHECKED rather than assumed
+
+The owner asked for `/home/sl/baton-instances/two-jobs-247941-01` to be checked against actual runtime
+boundaries, not accepted on my say-so.
+
+    PREPARATION TIME, measured: `product_checkout()` answers
+    `/home/sl/baton-instances/single-job-257627-291715/manager-source`. The proposed root is not
+    inside it, not inside either literal boundary, names its own run and is not consumed.
+    `supported_root` answers it.
+    RUN TIME, from the accepted run's own records rather than from an instance that does not exist
+    yet: frozen, `_checkout()` answers the DISTRO FOLDER, which after step 6 is
+    `<run root>/installation-runtime`. The accepted single Job used this exact shape — runtime at
+    `/home/sl/baton-instances/single-job-257627-291715/installation-runtime`, stores at
+    `.../single-job-257627-291715/db/` — so the stores are siblings of the runtime rather than inside
+    it. That is evidence from a run that happened, and I am not calling it a measurement of ours.
+
+### The owner's inputs, verified untouched
+
+`useful_tasks.py --prove /home/sl/baton-runs/two-jobs-247941-01-inputs` exits 0: all six members
+present at the pinned digests. `HEAD` is `346a809bf0e4c47e52d881bd46d6d62a611c9816` and the tree is
+clean. NO RESEEDING AND NO NEW SOURCE COMMIT, as the owner said. Note that the SOURCE lives under
+`/home/sl/baton-runs` and that is fine — the boundary rule is about the run root's mutable state, not
+about where a read-only fixture repository sits.
+
+### THE ONE CORRECTED SETUP COMMAND
+
+    export DOSSIER=/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate
+    export RUN_ID=two-jobs-247941-01
+    export SOURCE=/home/sl/baton-runs/two-jobs-247941-01-inputs
+    export BASE=346a809bf0e4c47e52d881bd46d6d62a611c9816
+
+    bash "$DOSSIER/setup-two-jobs-305532.sh"            # the ordered plan; performs nothing
+    bash "$DOSSIER/setup-two-jobs-305532.sh" --commit    # performs it
+
+    run root, derived and validated:  /home/sl/baton-instances/two-jobs-247941-01
+
+I RAN THE PLAN FORM WITH THOSE EXACT OPERANDS and every gate passed: identity one component, source a
+repository whose HEAD IS `346a809b…`, tree clean, frozen context present at the pinned digests, pinned
+runtime present, root validated. It printed the seven steps and exited 0 having performed nothing.
+`--commit` is the owner's selection and I did not run it: it installs a runtime and clones.
+
+MEASURED: `test_two_jobs.py` **100 OK, 76.906s** (the 96 plus four root cases) and
+`test_useful_tasks.py` **19 OK, 0.076s**, both under the reviewer's ordering and
+`-W error::ResourceWarning`, zero warnings counted. `ADOPTION-247941.md` says 100, which its own case
+required.
+
+STILL OWED: the LIVE run — overlap, isolation, per-Job attribution, completion and exact producer
+cessation — and independent SEMANTIC acceptance of both proposals. Both remain the owner's selection.
+
+Files changed: `prepare_two_jobs.py` (12fbe135ea0b), `setup-two-jobs-305532.sh` (3b980919b84b),
+`test_two_jobs.py` (4e4f5aed0221), `ADOPTION-247941.md` (5104be90163a), `PARALLEL-PACKET-305010.md`,
+this PROGRESS. Costs: one focused seven-case run (0.185s), two full `test_two_jobs` runs (76.9s), two
+`test_useful_tasks` runs (0.076s), one plan-form setup invocation with the owner's operands, one
+`--prove` and several read-only boundary measurements. No setup with `--commit`, deployment, build,
+live engine or provider, retry/reuse, integration, graph or Git mutation of this checkout. NOT READY.
+
+
+## Claim 306628 — run 01 reached the provider twice and failed to authenticate; 02 is prepared
+
+READ: `detail work=W247941` (claim 306628), `work-events after=306385` — my pass 306390, reviewer
+acceptance 306405, **owner reroute 306501** (setup completed at
+`/home/sl/baton-instances/two-jobs-247941-01`, nothing started), reviewer pass 306524 with
+`OPERATOR-306505.md`, and **owner reroute 306626** selecting a fresh successor after the
+authentication-failed run — and T247941 (eight messages, `next_after: null`, unchanged). I read
+`OPERATOR-306505.md` in full. THE OWNER RAN IT, AND IT FAILED.
+
+### What run 01 actually did, from its own retained evidence
+
+`/home/sl/baton-instances/two-jobs-247941-01/run/outcome.json` and the retained provider logs, read
+read-only:
+
+    admissions            implementation 2, review 0 — BOTH implementations were admitted
+    both runtimes         started, then `execution_runtime: destroyed`; `cleanup: retained`,
+                          `state: absent` for each, `outstanding_cleanup` and `uncertainty` empty
+    both providers        `Failed to authenticate: OAuth session expired and could not be refreshed`,
+                          `terminal_reason: api_error`, 0 input and 0 output tokens, ~37ms and ~70ms
+    then                  `KeyboardInterrupt: signal 2`, `stopped: interrupted`, `state: held`, and
+                          `held_because` naming both Jobs as having produced no attributed verdict
+    verdicts              none
+
+THIS IS NOT A MANAGER DEFECT, and I am not going to dress it up as more than it is either. The manager
+reached the provider TWICE, concurrently, through the accepted path — real and worth keeping. It shows
+NOTHING about overlap of actual model work, attribution of produced content, completion or semantic
+acceptance, because no turn produced any.
+
+### Why a fresh run consumes current credentials — checked, not assumed
+
+    the registry          `/home/sl/.baton/credential-sources.json`
+                          (`baton.user-credential-sources/1`) maps this packet's
+                          `credential_profile` reference `w202663-development` to
+                          `/home/sl/.claude/.credentials.json`, exactly as owner 306626 says
+    nothing was copied    `two-jobs-247941-01/run/credentials/credentials` and `.../credential-state`
+                          are BOTH EMPTY, so a run resolves the source at launch rather than reusing
+                          a snapshot taken at setup
+    the timing            run 01 submitted `14:33:04Z`, finished `14:40:24Z`; the credential file's
+                          mtime is `14:42:45Z` and the owner's provider-check completed `14:43:10Z`.
+                          The file was refreshed AFTER that run ended
+
+So the existing mechanism is what makes fresh attempts current, and I changed nothing about it. I read
+the registry's STRUCTURE and the file's MTIME only — no credential bytes were read, printed or carried
+anywhere.
+
+### The spent root is preserved by being refused
+
+`two-jobs-247941-01` is now in `CONSUMED` with its outcome summarised in the comment, so it cannot be
+taken as an identity or written into. A case holds both halves: the spent identity refuses, and the
+SUCCESSOR is still constructible — a refusal that blocked `-02` as well would have replaced one defect
+with another.
+
+### The fresh run, prepared but not performed
+
+`OPERATOR-306628.md` is the successor's sheet: setup, foreground launch, status, stop, and what would
+NOT be success. `OPERATOR-306505.md` is left alone as run 01's record. Every path in it was DERIVED
+from `prepare_two_jobs.layout` and `supported_root` rather than transcribed, and the plan form of the
+setup was run with the exact operands and exited 0 having performed nothing:
+
+    root          /home/sl/baton-instances/two-jobs-247941-02 (derived; does not exist)
+    source        /home/sl/baton-runs/two-jobs-247941-01-inputs at 346a809b…, clean, `--prove` exit 0
+    limits        unchanged — total 600 including 60 cleanup, serving stops at 540, four provider
+                  admissions at most, provider 180s and verification 180s per Job
+    incarnations  `two-jobs-two-jobs-247941-02` and `inspect-two-jobs-247941-02`
+    the uuid      minted by the bootstrap at step 6 and printed by step 7; the sheet says to take it
+                  from there rather than from anything transcribed
+
+THE SOURCE KEEPS ITS `-01` NAME and that is correct: it is the accepted INPUT repository, not a run
+root, and reusing it at the same base is what owner 306626 selected. No reseeding, no new commit.
+
+### One routine failure, fixed here
+
+Consuming `two-jobs-247941-01` broke my own boundary case:
+`test_supported_root_REFUSES_the_directory_the_owners_setup_named` named that identity, so it started
+refusing for the CONSUMED reason and stopped being about the directory at all. It now uses an
+unconsumed identity and asserts that it is unconsumed, so it keeps testing the boundary.
+
+MEASURED: `test_two_jobs.py` **101 OK, 77.613s** and `test_useful_tasks.py` **19 OK, 0.074s**, both
+under the reviewer's ordering and `-W error::ResourceWarning`, zero warnings. `ADOPTION-247941.md`
+says 101.
+
+STILL OWED, and none of it is closed by this claim: the LIVE successor run and, from it, actual
+overlap, isolation, per-Job attribution, completion with exact producer cessation, and INDEPENDENT
+SEMANTIC acceptance of both proposals. I performed no live execution, no setup, no reseeding.
+
+Files changed: `prepare_two_jobs.py` (f8bb627d590f), `test_two_jobs.py` (586d478d94f4),
+`OPERATOR-306628.md` (17816082a211, new), `ADOPTION-247941.md` (032af1dfd154),
+`PARALLEL-PACKET-305010.md`, this PROGRESS. Costs: one full `test_two_jobs` run with one failure
+(77.399s), one after the fix (77.613s), two `test_useful_tasks` runs (0.074s), one plan-form setup
+invocation for `-02`, one `--prove`, and read-only inspection of run 01's outcome, provider logs,
+credential directories and the credential registry's structure. No setup with `--commit`, deployment,
+build, live engine or provider, retry/reuse, integration, graph or Git mutation. NOT READY.

@@ -508,7 +508,7 @@ def main(argv=None):
         _refuse("this composition is bound to the pinned manager source, and "
                 "these packages resolved elsewhere:\n  - "
                 + "\n  - ".join(imported)
-                + f"\nBind PYTHONPATH to {verify_247941.SNAPSHOT} as step 3 "
+                + f"\nBind PYTHONPATH to {verify_247941.import_path()} as step 3 "
                   f"of ADOPTION-247941.md prints it.")
     documents = composed(selections)
     if chosen.check:

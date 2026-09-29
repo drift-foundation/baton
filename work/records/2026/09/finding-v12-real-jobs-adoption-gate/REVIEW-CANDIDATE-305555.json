@@ -1,0 +1,10 @@
+{
+  "claim": 305555,
+  "review": "review-2026-09-29T12-20-42Z.md",
+  "files": {
+    "setup-two-jobs-305532.sh": "32da77fc17af83bb7bed02a49959d07d90e8b5f4000fbba39e06f57968de4dfb",
+    "USEFUL-TASKS-305440.md": "06f0ab744c9a9acc0b6c787ce18541422bc829dd4832e6fadb99122445a7a591",
+    "SETUP-RECIPE-305440.md": "ffe990e03b6890fc6a0013c0b1e4f055cc4821f18717eeae0ad306cea00aff45",
+    "prepare_two_jobs.py": "359689972a44b47618a939022c736408d2710413824ca888e98ca71086bd45f1"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "claim": 306505,
+  "authority_uuid": "877cc2f8238940629a5a0c7636bfca53",
+  "files": {
+    "/home/sl/baton-instances/two-jobs-247941-01/bootstrap.json": {
+      "sha256": "2648d224b5259f48c2406646a4a868a0493a0f1a3b73a15fdac7e3a251dccca8",
+      "bytes": 127
+    },
+    "/home/sl/baton-instances/two-jobs-247941-01/instance.json": {
+      "sha256": "40b1ec45959060d9f5b1b2f0fbd5fd2f17e96d07147a101751c8c243b2013d19",
+      "bytes": 1838
+    },
+    "/home/sl/baton-instances/two-jobs-247941-01/selections-resolved.json": {
+      "sha256": "fd69a08907b39f7632b6539e1b67323f7594cb491d5a29a9daba4b367a80ab06",
+      "bytes": 26700
+    },
+    "/home/sl/baton-instances/two-jobs-247941-01/run/deployment.json": {
+      "sha256": "e4f0d16e73c65eab7947e597823a6086ca96f97bf7df483f573a9d19d93e8edd",
+      "bytes": 29248
+    },
+    "/home/sl/baton-instances/two-jobs-247941-01/run/submission.json": {
+      "sha256": "10266885dff4ea2023d104118612e998c6d76d9f46d075e85af7f994fd3c7b57",
+      "bytes": 2424
+    },
+    "/home/sl/baton-instances/two-jobs-247941-01/tasks/job-a.json": {
+      "sha256": "f0aaeddda4a06b38e7420ae05515b50db5db5310c43af300f7cc22d4c548a73e",
+      "bytes": 2786
+    },
+    "/home/sl/baton-instances/two-jobs-247941-01/tasks/job-b.json": {
+      "sha256": "67369840a3a4041fec59577501ccabae46bfb3366e7df4477c9facd87c9a318e",
+      "bytes": 2790
+    },
+    "/home/sl/baton-instances/two-jobs-247941-01/distro/baton-v12-stack": {
+      "sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+      "bytes": 5832952
+    }
+  },
+  "candidate_drift": [],
+  "source_inputs": {
+    "E1-DESIGN.md": {
+      "relative": "context/w247941/excerpts/E1-DESIGN.md",
+      "sha256": "ea224a281d320077e0cc906ba91672930c8975660a453c49804dea888b92cbff",
+      "bytes": 66490,
+      "source": "v12/DESIGN.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-01/source/context/w247941/excerpts/E1-DESIGN.md"
+    },
+    "E2-E2E-OPERATOR-302142.md": {
+      "relative": "context/w247941/excerpts/E2-E2E-OPERATOR-302142.md",
+      "sha256": "ce0a7c931e005af6c039978346aff5ae30044efebcf08322d9e031912385f357",
+      "bytes": 7336,
+      "source": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/E2E-OPERATOR-302142.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-01/source/context/w247941/excerpts/E2-E2E-OPERATOR-302142.md"
+    },
+    "E3-EXECUTION-REVIEW-304782.json": {
+      "relative": "context/w247941/excerpts/E3-EXECUTION-REVIEW-304782.json",
+      "sha256": "de48a0cdae7870d2f640377e53f4c1e1b48d5fe932af27df5efc8261ae3ed895",
+      "bytes": 2481,
+      "source": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/EXECUTION-REVIEW-304782.json",
+      "place": "/home/sl/baton-instances/two-jobs-247941-01/source/context/w247941/excerpts/E3-EXECUTION-REVIEW-304782.json"
+    },
+    "E4-RESIDUAL-CLASSIFICATION-304829.md": {
+      "relative": "context/w247941/excerpts/E4-RESIDUAL-CLASSIFICATION-304829.md",
+      "sha256": "642dba931753d2a291965fd399b468a671b60b5b5f3d8cc96e5f583ff934531a",
+      "bytes": 10129,
+      "source": "work/records/2026/09/finding-v12-failed-run-resource-hold/RESIDUAL-CLASSIFICATION-304829.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-01/source/context/w247941/excerpts/E4-RESIDUAL-CLASSIFICATION-304829.md"
+    },
+    "USEFUL-TASKS-305440.md": {
+      "relative": "context/w247941/contract/USEFUL-TASKS-305440.md",
+      "sha256": "9751647d17084e250c1e1f4d6afcd147347ade216df276ea79b50fe621dd83f0",
+      "bytes": 10874,
+      "source": "USEFUL-TASKS-305440.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-01/source/context/w247941/contract/USEFUL-TASKS-305440.md"
+    },
+    "check_useful_tasks.py": {
+      "relative": "context/w247941/checker/check_useful_tasks.py",
+      "sha256": "f6dcadba50a361ff8f3f3ccfa887ea2ef00d8952b9438fff1288fd91a7edee4f",
+      "bytes": 5159,
+      "source": "check_useful_tasks.py",
+      "place": "/home/sl/baton-instances/two-jobs-247941-01/source/context/w247941/checker/check_useful_tasks.py"
+    }
+  }
+}

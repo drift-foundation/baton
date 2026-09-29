@@ -45,7 +45,20 @@ import baseline                                              # noqa: E402
 # W239533's supervisor binds them: a machinery change underneath a
 # specialization is a different proof, and it should be visible as a refusal
 # rather than as a passing run over bytes nobody accepted.
+#
+# ADVANCED AT W247941 claim 305010, and the pin did its job first: it REFUSED,
+# because the machinery underneath had moved on to the bytes the accepted
+# single-Job run actually used. The new value is not "current file" -- it is
+# `work/records/.../finding-v12-single-implementation-proof/baseline.py` as
+# recorded in FINAL-PACKET-302142.json, the candidate whose execution
+# EXECUTION-REVIEW-304782.json accepted. Before advancing it I checked the
+# dependency surface rather than assuming it: all eleven `baseline.` symbols
+# this module uses are present in those bytes, and `_cancel_active` still takes
+# the operands the call below passes. The previous value is kept beside it so a
+# reader can see which generation each earlier result was measured against.
 BASELINE_SHA256 = \
+    "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771"
+BASELINE_SHA256_BEFORE_302142 = \
     "f27f3cd766f9271c4b3eddb6c657bca4770d18c11a74f377e717bef23df18fd5"
 
 # THE FOUR ADMISSIONS THIS GATE ALLOWS, and no fifth of any kind.

@@ -1,0 +1,12 @@
+{
+  "claim": 305323,
+  "review": "review-2026-09-29T11-52-45Z.md",
+  "files": {
+    "verify_247941.py": "b5039e649f94be9d76f3773ad88eecda986e43155f6d368dd18d51bc6f77b3ad",
+    "test_two_jobs.py": "8959e6e7a644113cb3e78d9466177a1029977d63ad74e6412069d669895ff567",
+    "prepare_two_jobs.py": "eb2b6e8aee77f5af958143e3ed67bde95982ceba7a0c4f176168f8245f8f4177",
+    "two_jobs.py": "83e44b9b502cefbc3897dbddea4e5fc5b0a2445caeb5409c9b21a6a7820ab937",
+    "two_job_supervisor.py": "5b3045e66bd46a1c2ed314c6f73d2f7425ccd7b0576b692f7d8a446fc658ee36",
+    "PARALLEL-PACKET-305010.md": "bc14c503bf93b391d6b37d158879f5aea8dc1d05a266858ab2557029eecd0feb"
+  }
+}

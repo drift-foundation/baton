@@ -1,0 +1,75 @@
+{
+  "claim": 306333,
+  "work": "W247941",
+  "answering": "owner reroute 306323 (baton.slaw)",
+  "finding": {
+    "what_failed": "the owner's setup failed before the run root was created",
+    "cause": "setup-two-jobs-305532.sh built RUN_ROOT=/home/sl/baton-runs/<run id> from a literal of its own, and prepare_two_jobs.fresh refuses that directory because the pinned validator treats it as a checkout and mutable deployment state belongs outside one",
+    "class": "two places held one decision and disagreed; the same defect class as the manifest/Job-projection mismatch earlier in this Work"
+  },
+  "correction": {
+    "one_owner": "prepare_two_jobs.supported_root(run_id, under=None) builds the path under the module's own SUGGESTED_ROOT and validates it through fresh(); the script asks for it and holds no run-root literal",
+    "override": "INSTANCE_ROOT overrides the parent directory and is validated identically",
+    "measured_boundary": "prepare_two_jobs.product_checkout() asks the pinned product what stage_execution._checkout() answers in this process; fresh() refuses a root inside that as well as inside the campaign's historical literals, which are kept",
+    "drift_guard": "a case reads the setup script's own text and fails if a literal run root reappears"
+  },
+  "proposed_root_checked": {
+    "root": "/home/sl/baton-instances/two-jobs-247941-01",
+    "preparation_time": {
+      "measured_product_checkout": "/home/sl/baton-instances/single-job-257627-291715/manager-source",
+      "verdict": "outside it, outside both literal boundaries, names its own run, not consumed; supported_root answers it"
+    },
+    "run_time": {
+      "rule": "frozen, _checkout() answers the distro folder, which after step 6 is <run root>/installation-runtime",
+      "evidence": "the accepted single Job used this exact shape - runtime at /home/sl/baton-instances/single-job-257627-291715/installation-runtime, stores at .../single-job-257627-291715/db/ - so the stores are siblings of the runtime rather than inside it",
+      "honesty": "that is evidence from a run that happened, not a measurement of an instance that does not exist yet"
+    }
+  },
+  "owner_inputs_verified_untouched": {
+    "source": "/home/sl/baton-runs/two-jobs-247941-01-inputs",
+    "head": "346a809bf0e4c47e52d881bd46d6d62a611c9816",
+    "clean": true,
+    "prove_exit": 0,
+    "members": 6,
+    "reseeding_needed": false,
+    "note": "the source living under /home/sl/baton-runs is fine: the boundary rule is about the run root's mutable state, not about where a read-only fixture repository sits"
+  },
+  "corrected_setup_command": [
+    "export DOSSIER=/home/sl/src/baton/work/records/2026/09/finding-v12-real-jobs-adoption-gate",
+    "export RUN_ID=two-jobs-247941-01",
+    "export SOURCE=/home/sl/baton-runs/two-jobs-247941-01-inputs",
+    "export BASE=346a809bf0e4c47e52d881bd46d6d62a611c9816",
+    "bash \"$DOSSIER/setup-two-jobs-305532.sh\"            # the ordered plan; performs nothing",
+    "bash \"$DOSSIER/setup-two-jobs-305532.sh\" --commit    # performs it"
+  ],
+  "operator_path_verified": {
+    "how": "the plan form was run with those exact operands",
+    "gates_passed": ["identity is one path component", "SOURCE is a repository whose HEAD is 346a809b", "its tree is clean", "it carries the frozen context at the pinned digests", "the pinned runtime is present", "the run root validated"],
+    "printed": "the seven ordered steps, run root /home/sl/baton-instances/two-jobs-247941-01",
+    "exit": 0,
+    "performed": "nothing; --commit is the owner's selection and was not run"
+  },
+  "verification": {
+    "test_two_jobs.py": {"checks": 100, "failures": 0, "seconds": 76.906, "warnings_printed": 0},
+    "test_useful_tasks.py": {"checks": 19, "failures": 0, "seconds": 0.076, "warnings_printed": 0},
+    "flags": "-B -W error::ResourceWarning",
+    "ordering": "frozen snapshot v12/python/src and v12/python first, then the checkout's v12/python, then the dossier; BATON_V12_DISK_ROOT=/var/tmp/baton-w257624; cwd /tmp"
+  },
+  "files": {
+    "prepare_two_jobs.py": "12fbe135ea0b",
+    "setup-two-jobs-305532.sh": "3b980919b84b",
+    "test_two_jobs.py": "4e4f5aed0221",
+    "ADOPTION-247941.md": "5104be90163a"
+  },
+  "still_owed": [
+    "the LIVE run: execution overlap, isolation, per-Job proposal/result attribution, completion and exact producer cessation",
+    "independent SEMANTIC acceptance of both useful proposals"
+  ],
+  "not_done": [
+    "no setup with --commit, no deployment, no build",
+    "no live engine, provider, container, credential or network",
+    "no validator weakened: the boundary gained a measured source and lost nothing",
+    "no graph mutation and no Git mutation of any repository"
+  ],
+  "ready": false
+}
