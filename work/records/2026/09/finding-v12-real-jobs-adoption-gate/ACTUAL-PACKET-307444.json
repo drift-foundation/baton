@@ -1,0 +1,65 @@
+{
+  "claim": 307444,
+  "authority_uuid": "3818fb6090eb493e939a419a884756c5",
+  "files": {
+    "/home/sl/baton-instances/two-jobs-247941-03/bootstrap.json": "95e45d548bf890f6c6c61471f22667b4d4bcc9d465b938cf3a0b52befd268558",
+    "/home/sl/baton-instances/two-jobs-247941-03/instance.json": "3c2adf433a8a69b5be568a4854c23aa532e4b319032ff03c708971f5f6786ddf",
+    "/home/sl/baton-instances/two-jobs-247941-03/selections-resolved.json": "c5b71226734e331dec9333e703eb9fbe8acf23c0b2826243b2df34ea55f57336",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/deployment.json": "f5a90972b8a0d38f8ffc3576ff6ddbfe32596f9525ba3eb70c2589c60ae353ce",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/submission.json": "805582bc5af042f2b8b445860baf2b0c8cd14244912e4e59dc6ac144a14b2a99",
+    "/home/sl/baton-instances/two-jobs-247941-03/tasks/job-a.json": "61bb4e2fefa61b1ce609144bc97c4ec987f4243dc51d83075dbfc9f9e84aecf0",
+    "/home/sl/baton-instances/two-jobs-247941-03/tasks/job-b.json": "acbf720a5902f87ffd2387019678bb2bf2f3330aef4f2917c75764e1822fccda",
+    "/home/sl/baton-instances/two-jobs-247941-03/distro/baton-v12-stack": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a"
+  },
+  "source_inputs": {
+    "E1-DESIGN.md": {
+      "relative": "context/w247941/excerpts/E1-DESIGN.md",
+      "sha256": "ea224a281d320077e0cc906ba91672930c8975660a453c49804dea888b92cbff",
+      "bytes": 66490,
+      "source": "v12/DESIGN.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-03/source/context/w247941/excerpts/E1-DESIGN.md"
+    },
+    "E2-E2E-OPERATOR-302142.md": {
+      "relative": "context/w247941/excerpts/E2-E2E-OPERATOR-302142.md",
+      "sha256": "ce0a7c931e005af6c039978346aff5ae30044efebcf08322d9e031912385f357",
+      "bytes": 7336,
+      "source": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/E2E-OPERATOR-302142.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-03/source/context/w247941/excerpts/E2-E2E-OPERATOR-302142.md"
+    },
+    "E3-EXECUTION-REVIEW-304782.json": {
+      "relative": "context/w247941/excerpts/E3-EXECUTION-REVIEW-304782.json",
+      "sha256": "de48a0cdae7870d2f640377e53f4c1e1b48d5fe932af27df5efc8261ae3ed895",
+      "bytes": 2481,
+      "source": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/EXECUTION-REVIEW-304782.json",
+      "place": "/home/sl/baton-instances/two-jobs-247941-03/source/context/w247941/excerpts/E3-EXECUTION-REVIEW-304782.json"
+    },
+    "E4-RESIDUAL-CLASSIFICATION-304829.md": {
+      "relative": "context/w247941/excerpts/E4-RESIDUAL-CLASSIFICATION-304829.md",
+      "sha256": "642dba931753d2a291965fd399b468a671b60b5b5f3d8cc96e5f583ff934531a",
+      "bytes": 10129,
+      "source": "work/records/2026/09/finding-v12-failed-run-resource-hold/RESIDUAL-CLASSIFICATION-304829.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-03/source/context/w247941/excerpts/E4-RESIDUAL-CLASSIFICATION-304829.md"
+    },
+    "USEFUL-TASKS-305440.md": {
+      "relative": "context/w247941/contract/USEFUL-TASKS-305440.md",
+      "sha256": "9751647d17084e250c1e1f4d6afcd147347ade216df276ea79b50fe621dd83f0",
+      "bytes": 10874,
+      "source": "USEFUL-TASKS-305440.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-03/source/context/w247941/contract/USEFUL-TASKS-305440.md"
+    },
+    "check_useful_tasks.py": {
+      "relative": "context/w247941/checker/check_useful_tasks.py",
+      "sha256": "f6dcadba50a361ff8f3f3ccfa887ea2ef00d8952b9438fff1288fd91a7edee4f",
+      "bytes": 5159,
+      "source": "check_useful_tasks.py",
+      "place": "/home/sl/baton-instances/two-jobs-247941-03/source/context/w247941/checker/check_useful_tasks.py"
+    }
+  },
+  "absent": {
+    "db/jobs.sqlite3": true,
+    "db/control.sqlite3": true,
+    "run/outcome.json": true
+  },
+  "task_documents_equal_accepted_builder": true,
+  "candidate_unchanged": true
+}

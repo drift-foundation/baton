@@ -107,6 +107,11 @@ CONSUMED = (
     # could not be refreshed", then one Ctrl-C, `state: held`, no verdicts. That is evidence about
     # the accepted path, so a successor takes a NEW identity and writes nothing into this one.
     "two-jobs-247941-01",
+    # SPENT BY THE SECOND. Owner reroute 306809: run 02 ended `held`/`interrupted` after both
+    # implementations exceeded the 180s provider bound. It holds MORE evidence than run 01 -- both
+    # Jobs committed exactly their own path, and job-b's document passes the structural check in the
+    # retained checkout today -- so it is preserved for the same reason and a successor is `-03`.
+    "two-jobs-247941-02",
 )
 
 # THE ACCEPTED CONFIGURATION, and where each value comes from. These are the

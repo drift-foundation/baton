@@ -1,0 +1,60 @@
+{
+  "claim": 307388,
+  "work": "W247941",
+  "answering": "owner reroute 307380 (baton.slaw) - select and prepare fresh successor two-jobs-247941-03",
+  "operator_sheet": "OPERATOR-307388.md",
+  "supersedes": ["OPERATOR-306628.md", "OPERATOR-306505.md"],
+  "qualifications_accepted_and_carried_into_my_own_record": {
+    "where": "RUN-02-DIAGNOSIS-306811.md now states these in its own text, not only in the review",
+    "items": [
+      "110-130 seconds of re-emission is an INFERENCE: the transcript gives wall time between a tool result and the next tool use, covering model output plus harness overhead. What is measured is that three or four whole-file rewrites happened per turn, at which timestamps, and that both turns reached the 180s bound",
+      "the brief is what taught it is an INFERENCE: the brief forbade nothing and named no counting tool, and both Jobs independently chose write-then-count-then-rewrite; consistent with, not proof of, cause",
+      "finished and correct means STRUCTURALLY correct and nothing more - no review has ever run on job-b's document",
+      "budget adequacy is UNPROVED; recommending that 180 be kept is not a claim that it suffices"
+    ]
+  },
+  "successor_prepared": {
+    "root": "/home/sl/baton-instances/two-jobs-247941-03, derived by supported_root, does not exist",
+    "spent_roots_refused": ["two-jobs-247941-01", "two-jobs-247941-02"],
+    "source": "/home/sl/baton-runs/two-jobs-247941-01-inputs at 346a809bf0e4c47e52d881bd46d6d62a611c9816",
+    "prove_exit": 0,
+    "reseeding": "none; the source is the accepted INPUT repository, not a run root",
+    "limits": {"total_seconds": 600, "cleanup_seconds": 60, "serving_bound": 540,
+               "max_provider_admissions": 4, "provider_turn_seconds": 180,
+               "verification_command_seconds": 180},
+    "incarnations": ["two-jobs-two-jobs-247941-03", "inspect-two-jobs-247941-03"],
+    "authority_uuid": "minted at step 6 and printed by step 7; the sheet directs the operator there",
+    "the_only_difference_from_run_02": "the emitted BRIEF, independently accepted at 306893. Not the source, excerpts, contract, checker, pins, supervisor, manager count, stage count or limits",
+    "plan_form_run": "with the exact operands; every gate passed, the seven steps printed, exit 0, nothing performed"
+  },
+  "sheet_contents": {
+    "setup": "one command with exported operands; --commit is the owner's",
+    "launch": "foreground, one terminal, once; the supervisor is the only Host manager",
+    "status": "supported read-only stack_command manager status with --observe; not a second manager",
+    "stop": "one Ctrl-C; the known Ctrl-C traceback is named as W306614's and the operator is told to read the retained outcome anyway rather than treat a traceback as the result",
+    "what_would_not_be_success": "written from what the two spent runs actually did: run 01's OAuth expiry with no content or verdicts, and run 02's double timeout where both Jobs committed their own path, job-b's 99-line document passes the STRUCTURAL check and job-a's 103-line one does not, and neither has been semantically judged"
+  },
+  "verification": {
+    "test_two_jobs.py": {"checks": 101, "failures": 0, "seconds": 77.412, "warnings_printed": 0},
+    "test_useful_tasks.py": {"checks": 20, "failures": 0, "seconds": 0.078, "warnings_printed": 0},
+    "flags": "-B -W error::ResourceWarning",
+    "note": "no product or test file changed this claim; the suites were run to report the current tree"
+  },
+  "files": {
+    "OPERATOR-307388.md": "b4537c86387b",
+    "RUN-02-DIAGNOSIS-306811.md": "da8902497606",
+    "prepare_two_jobs.py": "2c54a5d85e1d (unchanged this claim)",
+    "useful_tasks.py": "7345a95d7414 (unchanged this claim)"
+  },
+  "still_owed": [
+    "the run itself, and from it overlap, isolation, per-Job attribution, completion with exact producer cessation",
+    "independent SEMANTIC acceptance of both useful proposals; no review has ever run"
+  ],
+  "not_done": [
+    "no live execution, no setup with --commit, no reseeding",
+    "no supervisor repair and no broad validation campaign; W306614 remains separate",
+    "no deployment, build, retry, reuse or automatic integration",
+    "no graph mutation and no Git mutation of any repository; the spent roots were read only"
+  ],
+  "ready": false
+}

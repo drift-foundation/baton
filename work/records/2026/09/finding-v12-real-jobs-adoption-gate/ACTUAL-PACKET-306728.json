@@ -1,0 +1,190 @@
+{
+  "claim": 306728,
+  "authority_uuid": "417577b218ef43d685e9ae73c04712ac",
+  "files": {
+    "/home/sl/baton-instances/two-jobs-247941-02/bootstrap.json": {
+      "sha256": "187e14536c5c68687402bbbf58f2385063d5a072398f19d3af518a0a45a9fe88",
+      "bytes": 127
+    },
+    "/home/sl/baton-instances/two-jobs-247941-02/instance.json": {
+      "sha256": "6e38a3025574045c9d981bf4277f4acfcc4e1f19658cf079ff67222664dc8ce2",
+      "bytes": 1838
+    },
+    "/home/sl/baton-instances/two-jobs-247941-02/selections-resolved.json": {
+      "sha256": "a5cc31a341f7eb5b6a715cecc07c527feeaa8d01d6c4dfbd9c3093ba6953f58d",
+      "bytes": 26700
+    },
+    "/home/sl/baton-instances/two-jobs-247941-02/run/deployment.json": {
+      "sha256": "c6f28d0c3c2ab4e4238555b96ee7dd5a63b4c4853461d9a1fc1bd262faa67544",
+      "bytes": 29248
+    },
+    "/home/sl/baton-instances/two-jobs-247941-02/run/submission.json": {
+      "sha256": "1c6c295d733b440c17973dd1fb70ec93ddfee9e199bf054b9944bbe3006b8763",
+      "bytes": 2424
+    },
+    "/home/sl/baton-instances/two-jobs-247941-02/tasks/job-a.json": {
+      "sha256": "408bb3fe1219a0c97769d07c45dc4e2624ae3df2c209ebc5d1bd85c7d296cb5a",
+      "bytes": 2786
+    },
+    "/home/sl/baton-instances/two-jobs-247941-02/tasks/job-b.json": {
+      "sha256": "1053f62a0c12d7bcac0b0c1b99ec33e5fef763c3799724602ee9506f4b84642e",
+      "bytes": 2790
+    },
+    "/home/sl/baton-instances/two-jobs-247941-02/distro/baton-v12-stack": {
+      "sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+      "bytes": 5832952
+    }
+  },
+  "source_inputs": {
+    "E1-DESIGN.md": {
+      "relative": "context/w247941/excerpts/E1-DESIGN.md",
+      "sha256": "ea224a281d320077e0cc906ba91672930c8975660a453c49804dea888b92cbff",
+      "bytes": 66490,
+      "source": "v12/DESIGN.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-02/source/context/w247941/excerpts/E1-DESIGN.md"
+    },
+    "E2-E2E-OPERATOR-302142.md": {
+      "relative": "context/w247941/excerpts/E2-E2E-OPERATOR-302142.md",
+      "sha256": "ce0a7c931e005af6c039978346aff5ae30044efebcf08322d9e031912385f357",
+      "bytes": 7336,
+      "source": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/E2E-OPERATOR-302142.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-02/source/context/w247941/excerpts/E2-E2E-OPERATOR-302142.md"
+    },
+    "E3-EXECUTION-REVIEW-304782.json": {
+      "relative": "context/w247941/excerpts/E3-EXECUTION-REVIEW-304782.json",
+      "sha256": "de48a0cdae7870d2f640377e53f4c1e1b48d5fe932af27df5efc8261ae3ed895",
+      "bytes": 2481,
+      "source": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/EXECUTION-REVIEW-304782.json",
+      "place": "/home/sl/baton-instances/two-jobs-247941-02/source/context/w247941/excerpts/E3-EXECUTION-REVIEW-304782.json"
+    },
+    "E4-RESIDUAL-CLASSIFICATION-304829.md": {
+      "relative": "context/w247941/excerpts/E4-RESIDUAL-CLASSIFICATION-304829.md",
+      "sha256": "642dba931753d2a291965fd399b468a671b60b5b5f3d8cc96e5f583ff934531a",
+      "bytes": 10129,
+      "source": "work/records/2026/09/finding-v12-failed-run-resource-hold/RESIDUAL-CLASSIFICATION-304829.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-02/source/context/w247941/excerpts/E4-RESIDUAL-CLASSIFICATION-304829.md"
+    },
+    "USEFUL-TASKS-305440.md": {
+      "relative": "context/w247941/contract/USEFUL-TASKS-305440.md",
+      "sha256": "9751647d17084e250c1e1f4d6afcd147347ade216df276ea79b50fe621dd83f0",
+      "bytes": 10874,
+      "source": "USEFUL-TASKS-305440.md",
+      "place": "/home/sl/baton-instances/two-jobs-247941-02/source/context/w247941/contract/USEFUL-TASKS-305440.md"
+    },
+    "check_useful_tasks.py": {
+      "relative": "context/w247941/checker/check_useful_tasks.py",
+      "sha256": "f6dcadba50a361ff8f3f3ccfa887ea2ef00d8952b9438fff1288fd91a7edee4f",
+      "bytes": 5159,
+      "source": "check_useful_tasks.py",
+      "place": "/home/sl/baton-instances/two-jobs-247941-02/source/context/w247941/checker/check_useful_tasks.py"
+    }
+  },
+  "normalized_deltas": [
+    {
+      "path": "selections-resolved.json/arrangement/jobs/0/review_input_manifest/manifest_digest",
+      "old": "sha256:f19a04ab2df4187caf477ae992dc7051f378daf022ea080cd0021b07ffe74b19",
+      "new": "sha256:7722f8f3a15d99d337ef3cd2592c12a846afb25fda25760030101d541d0d97f8"
+    },
+    {
+      "path": "selections-resolved.json/arrangement/jobs/0/review_input_manifest/human_contract/content_digest",
+      "old": "sha256:f0aaeddda4a06b38e7420ae05515b50db5db5310c43af300f7cc22d4c548a73e",
+      "new": "sha256:408bb3fe1219a0c97769d07c45dc4e2624ae3df2c209ebc5d1bd85c7d296cb5a"
+    },
+    {
+      "path": "selections-resolved.json/arrangement/jobs/0/input_digest",
+      "old": "sha256:cdc91522b78674a2ed11057dc6756beb9bc8d0311077610fa7e7eccdea726b4c",
+      "new": "sha256:e6db74ced3a55c027afb8a462c3187cb9ce89f97d05f1628384b053621eb836d"
+    },
+    {
+      "path": "selections-resolved.json/arrangement/jobs/0/implementation_input_manifest/manifest_digest",
+      "old": "sha256:f19a04ab2df4187caf477ae992dc7051f378daf022ea080cd0021b07ffe74b19",
+      "new": "sha256:7722f8f3a15d99d337ef3cd2592c12a846afb25fda25760030101d541d0d97f8"
+    },
+    {
+      "path": "selections-resolved.json/arrangement/jobs/0/implementation_input_manifest/human_contract/content_digest",
+      "old": "sha256:f0aaeddda4a06b38e7420ae05515b50db5db5310c43af300f7cc22d4c548a73e",
+      "new": "sha256:408bb3fe1219a0c97769d07c45dc4e2624ae3df2c209ebc5d1bd85c7d296cb5a"
+    },
+    {
+      "path": "selections-resolved.json/arrangement/jobs/1/review_input_manifest/manifest_digest",
+      "old": "sha256:4ae0e430e7e91170f8bd791003bfcb3dd39b94792ad67b246274faf73b7d3738",
+      "new": "sha256:2093a5143f60a7d40c9d3320714293a9726116aff719042971821df80d863f0b"
+    },
+    {
+      "path": "selections-resolved.json/arrangement/jobs/1/review_input_manifest/human_contract/content_digest",
+      "old": "sha256:67369840a3a4041fec59577501ccabae46bfb3366e7df4477c9facd87c9a318e",
+      "new": "sha256:1053f62a0c12d7bcac0b0c1b99ec33e5fef763c3799724602ee9506f4b84642e"
+    },
+    {
+      "path": "selections-resolved.json/arrangement/jobs/1/input_digest",
+      "old": "sha256:4f407e9506b88b2d1c1283c9b0bbfc1ad69976d0fa8c6a5ab2a604cc4c0c0fe1",
+      "new": "sha256:66a89ff443a679e9edfecb321eb1f6b52f0a093428fdafaac36f9cbbfe6f3904"
+    },
+    {
+      "path": "selections-resolved.json/arrangement/jobs/1/implementation_input_manifest/manifest_digest",
+      "old": "sha256:4ae0e430e7e91170f8bd791003bfcb3dd39b94792ad67b246274faf73b7d3738",
+      "new": "sha256:2093a5143f60a7d40c9d3320714293a9726116aff719042971821df80d863f0b"
+    },
+    {
+      "path": "selections-resolved.json/arrangement/jobs/1/implementation_input_manifest/human_contract/content_digest",
+      "old": "sha256:67369840a3a4041fec59577501ccabae46bfb3366e7df4477c9facd87c9a318e",
+      "new": "sha256:1053f62a0c12d7bcac0b0c1b99ec33e5fef763c3799724602ee9506f4b84642e"
+    },
+    {
+      "path": "run/deployment.json/workers/0/deployment/input_manifest/manifest_digest",
+      "old": "sha256:f19a04ab2df4187caf477ae992dc7051f378daf022ea080cd0021b07ffe74b19",
+      "new": "sha256:7722f8f3a15d99d337ef3cd2592c12a846afb25fda25760030101d541d0d97f8"
+    },
+    {
+      "path": "run/deployment.json/workers/0/deployment/input_manifest/human_contract/content_digest",
+      "old": "sha256:f0aaeddda4a06b38e7420ae05515b50db5db5310c43af300f7cc22d4c548a73e",
+      "new": "sha256:408bb3fe1219a0c97769d07c45dc4e2624ae3df2c209ebc5d1bd85c7d296cb5a"
+    },
+    {
+      "path": "run/deployment.json/workers/1/deployment/input_manifest/manifest_digest",
+      "old": "sha256:f19a04ab2df4187caf477ae992dc7051f378daf022ea080cd0021b07ffe74b19",
+      "new": "sha256:7722f8f3a15d99d337ef3cd2592c12a846afb25fda25760030101d541d0d97f8"
+    },
+    {
+      "path": "run/deployment.json/workers/1/deployment/input_manifest/human_contract/content_digest",
+      "old": "sha256:f0aaeddda4a06b38e7420ae05515b50db5db5310c43af300f7cc22d4c548a73e",
+      "new": "sha256:408bb3fe1219a0c97769d07c45dc4e2624ae3df2c209ebc5d1bd85c7d296cb5a"
+    },
+    {
+      "path": "run/deployment.json/workers/2/deployment/input_manifest/manifest_digest",
+      "old": "sha256:4ae0e430e7e91170f8bd791003bfcb3dd39b94792ad67b246274faf73b7d3738",
+      "new": "sha256:2093a5143f60a7d40c9d3320714293a9726116aff719042971821df80d863f0b"
+    },
+    {
+      "path": "run/deployment.json/workers/2/deployment/input_manifest/human_contract/content_digest",
+      "old": "sha256:67369840a3a4041fec59577501ccabae46bfb3366e7df4477c9facd87c9a318e",
+      "new": "sha256:1053f62a0c12d7bcac0b0c1b99ec33e5fef763c3799724602ee9506f4b84642e"
+    },
+    {
+      "path": "run/deployment.json/workers/3/deployment/input_manifest/manifest_digest",
+      "old": "sha256:4ae0e430e7e91170f8bd791003bfcb3dd39b94792ad67b246274faf73b7d3738",
+      "new": "sha256:2093a5143f60a7d40c9d3320714293a9726116aff719042971821df80d863f0b"
+    },
+    {
+      "path": "run/deployment.json/workers/3/deployment/input_manifest/human_contract/content_digest",
+      "old": "sha256:67369840a3a4041fec59577501ccabae46bfb3366e7df4477c9facd87c9a318e",
+      "new": "sha256:1053f62a0c12d7bcac0b0c1b99ec33e5fef763c3799724602ee9506f4b84642e"
+    },
+    {
+      "path": "run/submission.json/jobs/0/input_digest",
+      "old": "sha256:cdc91522b78674a2ed11057dc6756beb9bc8d0311077610fa7e7eccdea726b4c",
+      "new": "sha256:e6db74ced3a55c027afb8a462c3187cb9ce89f97d05f1628384b053621eb836d"
+    },
+    {
+      "path": "run/submission.json/jobs/1/input_digest",
+      "old": "sha256:4f407e9506b88b2d1c1283c9b0bbfc1ad69976d0fa8c6a5ab2a604cc4c0c0fe1",
+      "new": "sha256:66a89ff443a679e9edfecb321eb1f6b52f0a093428fdafaac36f9cbbfe6f3904"
+    }
+  ],
+  "absent": {
+    "db/jobs.sqlite3": true,
+    "db/control.sqlite3": true,
+    "run/outcome.json": true
+  },
+  "candidate_drift": false
+}

@@ -776,7 +776,7 @@ class TheSHIPPEDTemplateComposesThroughTheACTUALCLI(ArrangedCase):
                         published["held_because"])
         self.assertTrue(held.get("gate"), "the turn was never invoked")
 
-    def commanded(self, *, total=600, cleanup=60, wrap=None):
+    def commanded(self, *, total=600, cleanup=60, wrap=None, turn_factory=None):
         """One whole run of the DOCUMENTED command, and what it read.
 
         THE CLOCK IS CONTROLLED. `main` serves on the real wall clock by
@@ -796,7 +796,7 @@ class TheSHIPPEDTemplateComposesThroughTheACTUALCLI(ArrangedCase):
         from baton_v12.job_manager.projection import status as projected
         from tests.job_manager import fixtures
         argv, outcome, into = self.entrypoint(total=total, cleanup=cleanup)
-        inner = self.answering()
+        inner = (turn_factory or self.answering)()
         captured = []
 
         def turns(gate, context):
@@ -851,7 +851,18 @@ class TheSHIPPEDTemplateComposesThroughTheACTUALCLI(ArrangedCase):
         self.assertEqual(published["state"], "settled",
                          published["held_because"])
         self.assertEqual(published["held_because"], [])
-        self.assertEqual(published["stopped"], "serving-bound-exceeded")
+        # W306614: A RUN THAT FINISHED STOPS BECAUSE IT FINISHED. This asserted
+        # `serving-bound-exceeded` -- a successful four-attempt run sat in the
+        # predicate loop until its bound, because nothing looked at whether the
+        # selected Jobs had anything left to do. Both pipelines now reach
+        # `completed`, and the run ends there. The deadline remains the backstop
+        # and `test_the_run_stops_at_total_minus_cleanup_and_publishes` still
+        # holds it for a run with no work to finish.
+        self.assertEqual(published["stopped"], "pipelines-terminal")
+        self.assertEqual(
+            {one: what["reached"]
+             for one, what in sorted(published["pipelines"].items())},
+            {"job-a": "completed", "job-b": "completed"})
         # AND THE COMMAND'S OWN EXIT STATUS SAYS SO. An operator reads that
         # before reading any document.
         self.assertEqual(status, 0)
@@ -993,21 +1004,43 @@ class TheSHIPPEDTemplateComposesThroughTheACTUALCLI(ArrangedCase):
                 self.assertNotIn(published["generations"][attempt_id],
                                  allocations)
 
-    def test_an_INTERRUPTION_through_the_command_publishes_and_still_raises(
+    def test_an_INTERRUPTION_through_the_command_publishes_and_REPORTS_it(
             self):
         """The whole lifecycle is protected, not just the serving loop.
 
         A SIGTERM arriving mid-run is owed an outcome: the operator who sent
         it has to be able to read what the run left behind. This raises from
         inside the turn, where a container would be, and asserts that the
-        command still wrote the document and still let the interruption
-        through rather than swallowing it into a tidy exit status.
+        command still wrote the document.
+
+        W306614 CHANGED WHAT THE COMMAND DOES WITH THE EXCEPTION, and this case
+        is renamed for it. It used to assert `assertRaises` out of `main` --
+        "still let the interruption through rather than swallowing it into a
+        tidy exit status" -- and the operator consequence of that was a
+        traceback where the retained outcome's location should have been.
+        `main` now catches the EXPECTED published interruption, prints where the
+        outcome is and returns 130. The interrupt is still not swallowed: 130 is
+        the interrupted status, not a success.
+
+        THE LOWER-LEVEL CONTRACT IS UNTOUCHED and is asserted by
+        `test_an_interruption_publishes_the_outcome_and_still_raises`, which
+        drives `supervise` directly. That one must keep raising.
         """
         def interrupting(_gate, _context):
             raise KeyboardInterrupt("the operator stopped this run")
 
-        with self.assertRaises(baseline_interrupted()):
-            self.commanded(wrap=interrupting)
+        import contextlib
+
+        # `main` PRINTS TO STDOUT here: the fixture's own `commanded` passes no
+        # stream, which is exactly what an operator's terminal is.
+        heard = io.StringIO()
+        with contextlib.redirect_stdout(heard):
+            status, _published, _captured, _into = self.commanded(
+                wrap=interrupting)
+        said = heard.getvalue()
+        self.assertEqual(status, 130)
+        self.assertIn("interrupted: KeyboardInterrupt", said)
+        self.assertIn("the outcome WAS retained at", said)
         # THE DOCUMENT IS ON DISK EVEN THOUGH THE COMMAND RAISED.
         outcome = os.path.join(self.packet_root(), "run", "outcome.json")
         self.assertTrue(os.path.exists(outcome))
@@ -1070,6 +1103,122 @@ class TheSHIPPEDTemplateComposesThroughTheACTUALCLI(ArrangedCase):
                 answered.add(attempt_id)
 
         return turns
+
+    def failing(self, *, jobs):
+        """`answering`, with the named Jobs' IMPLEMENTATION provider exiting nonzero.
+
+        W306614 review R3 asks for the connected failure evidence rather than more mocks.
+        The fixture's own provider seam takes a `status`, so the provider really runs and
+        really fails; everything else -- the adapter, the ending, custody, the projection
+        -- is the real path. Named reviews still answer, which is what makes the
+        A-failed/B-progresses row a real row rather than a described one.
+        """
+        answered = set()
+
+        def turns(gate, context):
+            self._composed = context["operations"]
+            for attempt_id, kind in sorted(gate.launched.items()):
+                if attempt_id in answered:
+                    continue
+                mounted = self.mounted_at(context["operations"], attempt_id)
+                if not mounted:
+                    continue
+                job_id = gate.job_of(attempt_id)
+                if kind == "implementation" and job_id in jobs:
+                    # NO EDITS AND A NONZERO EXIT: the provider ran and failed.
+                    self.turn(context["control"], kind, attempt_id, mounted,
+                              status=1)
+                elif kind == "implementation":
+                    edits = {"harness.py": "print('answered')\n"}
+                    if job_id == "job-b":
+                        edits = {"feature.py": self.B_FEATURE,
+                                 "feature_check.py": self.B_CHECK}
+                    self.turn(context["control"], kind, attempt_id, mounted,
+                              edits=edits)
+                else:
+                    report = copy.deepcopy(self.REPORT)
+                    report["verdict"] = "accepted"
+                    self.turn(context["control"], kind, attempt_id, mounted,
+                              edits={"review-report.json": json.dumps(report)})
+                answered.add(attempt_id)
+
+        return turns
+
+    def test_BOTH_implementations_FAILING_reports_each_and_stops(self):
+        """W306614 R3, connected: the shape run 01 and run 02 actually had.
+
+        Both implementations fail through the real provider seam, so both reviews are
+        blocked behind them and nothing further can progress. The run must report each
+        failure and stop, and the outcome must carry the attributed facts rather than
+        only "no attributed verdict".
+        """
+        import contextlib
+
+        heard = io.StringIO()
+        with contextlib.redirect_stdout(heard):
+            status, published, _captured, _into = self.commanded(
+                turn_factory=lambda: self.failing(jobs={"job-a", "job-b"}))
+        said = heard.getvalue()
+
+        self.assertEqual(status, 1)
+        self.assertEqual(published["stopped"], "pipelines-terminal")
+        self.assertEqual(published["state"], "held")
+        self.assertEqual(sorted(published["failures"]), ["job-a", "job-b"])
+        for job_id in ("job-a", "job-b"):
+            with self.subTest(job=job_id):
+                facts = published["failures"][job_id]
+                self.assertEqual(facts["kind"], "implementation")
+                self.assertEqual(facts["state"], "exceptional")
+                self.assertTrue(facts["attempt_id"], facts)
+                self.assertTrue(facts["work_id"], facts)
+                # THE RETAINED ADAPTER REPORT WAS ACTUALLY READ, through the real
+                # custody layout, the real locator and this deployment's own task
+                # binding. W306614 review 2026-09-29T17-33-48Z: a diagnostic branch
+                # nothing can reach is not evidence, so this asserts the reader
+                # REACHED the report rather than only that the answer was unknown.
+                self.assertEqual(facts["adapter_report"]["availability"],
+                                 "available", facts["adapter_report"])
+                self.assertTrue(facts["adapter_report"]["locator"])
+                # AND THE CAUSE IS AN HONEST UNKNOWN HERE, because this fixture's
+                # deterministic provider publishes no structured diagnostic. That is
+                # a fact about the fixture, not a limit of the path.
+                self.assertEqual(facts["provider_cause"], "unknown")
+                self.assertIn("no validated provider diagnostic",
+                              facts["adapter_report"]["why"])
+                self.assertIn(f"Job {job_id} FAILED", said)
+                self.assertTrue(any(f"Job {job_id} ended exceptionally" in why
+                                    for why in published["held_because"]),
+                                published["held_because"])
+        # AND NO REVIEW RAN, because both were blocked behind their own Job.
+        self.assertEqual(published["admissions"]["review"], 0)
+        self.assertEqual(published["verdicts"], {})
+
+    def test_ONE_failing_Job_lets_the_OTHER_reach_its_own_verdict(self):
+        """W306614 R3, connected: a failure must not cancel unrelated useful work.
+
+        job-a's implementation fails; job-b implements, is reviewed and produces its own
+        attributed verdict. This is the property a flattened `_terminal` would destroy.
+        """
+        import contextlib
+
+        heard = io.StringIO()
+        with contextlib.redirect_stdout(heard):
+            status, published, _captured, _into = self.commanded(
+                turn_factory=lambda: self.failing(jobs={"job-a"}))
+        said = heard.getvalue()
+
+        self.assertEqual(sorted(published["failures"]), ["job-a"])
+        self.assertIn("Job job-a FAILED", said)
+        self.assertNotIn("Job job-b FAILED", said)
+        # job-b WENT ALL THE WAY: its review was admitted and its verdict is its own.
+        self.assertEqual(published["admissions"]["review"], 1)
+        self.assertEqual(sorted(published["verdicts"]), ["job-b"])
+        self.assertEqual(published["pipelines"]["job-b"]["reached"], "completed")
+        self.assertEqual(published["pipelines"]["job-a"]["reached"], "exceptional")
+        self.assertEqual(published["stopped"], "pipelines-terminal")
+        # AND THE RUN IS STILL HELD, because job-a produced no verdict.
+        self.assertEqual(status, 1)
+        self.assertEqual(published["state"], "held")
 
     def test_an_unresolved_template_is_refused_by_name(self):
         into = os.path.join(self.packet_root(), "refused")
@@ -2825,12 +2974,15 @@ class ThePREPARATIONDerivesWhatItUsedToAskAnOwnerFor(ArrangedCase):
         replaced one defect with another.
         """
         import prepare_two_jobs
-        self.assertIn("two-jobs-247941-01", prepare_two_jobs.CONSUMED)
-        with self.assertRaises(prepare_two_jobs.PreparationRefusal) as caught:
-            prepare_two_jobs.supported_root("two-jobs-247941-01")
-        self.assertIn("CONSUMED", str(caught.exception))
-        held = prepare_two_jobs.supported_root("two-jobs-247941-02")
-        self.assertTrue(held.endswith("two-jobs-247941-02"), held)
+        for spent in ("two-jobs-247941-01", "two-jobs-247941-02"):
+            with self.subTest(spent=spent):
+                self.assertIn(spent, prepare_two_jobs.CONSUMED)
+                with self.assertRaises(
+                        prepare_two_jobs.PreparationRefusal) as caught:
+                    prepare_two_jobs.supported_root(spent)
+                self.assertIn("CONSUMED", str(caught.exception))
+        held = prepare_two_jobs.supported_root("two-jobs-247941-03")
+        self.assertTrue(held.endswith("two-jobs-247941-03"), held)
 
     def test_the_SETUP_SCRIPT_holds_no_run_root_literal_of_its_own(self):
         """The drift guard the owner's failure argues for.

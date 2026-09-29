@@ -1,0 +1,17 @@
+{
+  "claim": 306880,
+  "sha256": {
+    "/home/sl/baton-instances/two-jobs-247941-02/run/workspaces/.baton-review-lines/line-af2b806a16a9f325ad03304c6e2061151b04a7ecdfe39ffb55d06ab39cd37cfe/checkout/proposal/result.json": "26b1162425624292261e0d391246fb239f0a788696394aed65001a6ac70b2d04",
+    "/home/sl/baton-instances/two-jobs-247941-02/run/workspaces/.baton-review-lines/line-feab60d0887ab5150aed03731ac48d733c7a4db926e5080e29674820801cf859/checkout/proposal/result.json": "2a59c5b131b30a7ebf05532243123578bca6cb43274825ab4d6424348fd54350",
+    "/home/sl/baton-instances/two-jobs-247941-02/run/workspaces/.baton-review-lines/line-af2b806a16a9f325ad03304c6e2061151b04a7ecdfe39ffb55d06ab39cd37cfe/checkout/docs/v12-evidence-map.md": "d49b062a736ce84a198810622cca061d7036666b216cfe8371f02b4ffbd978bf",
+    "/home/sl/baton-instances/two-jobs-247941-02/run/workspaces/.baton-review-lines/line-feab60d0887ab5150aed03731ac48d733c7a4db926e5080e29674820801cf859/checkout/docs/v12-parallel-operator-notes.md": "546fc2fea171ead116355e1d0191807b94c32a6be50263e9e91c4c2a39fb6272",
+    "/home/sl/baton-instances/two-jobs-247941-02/run/outcome.json": "245f8cb8cac47002503202c97d5477f8aeb018c63ec14a3577e0195972d11ade",
+    "/home/sl/baton-instances/two-jobs-247941-02/run/launch/logs/attempt-6f3d618974f5dbe538061eb96791df62e00173763431d578cfd920a91cf40eb3/native/projects%2F-output%2Fe4be6b44-628c-4d2f-bbf9-999c31f30a9c.jsonl": "710968a4957e0ec26f261ba4cc03fc87132c9a170857512d1b67d5b4b176622d",
+    "/home/sl/baton-instances/two-jobs-247941-02/run/launch/logs/attempt-4e9c4fbb44bfee4f6331ba909ad2e9b63a02d29f8d01e769b1bdc48c4b22e6bf/native/projects%2F-output%2F595a5104-f7ab-4e23-9d8c-c3d430105f5b.jsonl": "bbe12d8436e220271c7a687a1850f89ec201d74ee0a99fcc5916ae4a76c90e95"
+  },
+  "tests": {
+    "count": 21,
+    "seconds": 0.103,
+    "result": "PASS"
+  }
+}

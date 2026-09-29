@@ -1,0 +1,71 @@
+{
+  "work": "W306614",
+  "claim": 307593,
+  "answering": "owner reroute 306698 - implement the independently accepted proposal",
+  "implemented": {
+    "cause_a": {
+      "what": "per-Job failure reporting and a stop criterion that reads the selected pipelines",
+      "where": "two_job_supervisor.supervise.should_continue, via a new _observed/_inspect pair",
+      "reuse": "baseline._attempts_of filters the status projection to ONE Job and baseline._terminal reads that Job's own stage states; both are the accepted single-Job helpers, applied once per selected Job and never to a flattened map",
+      "reports": "a report sink defaulting to stdout with flush=True; each newly observed failed pipeline named with its Job, stage states, attempts and the no-retry consequence",
+      "dedup": "by (job_id, observed states, observed attempts), so a repeat tick is silent and a later different failure is reported again",
+      "stop": "held['stop'] = 'pipelines-terminal' only when EVERY selected pipeline is terminal",
+      "unknown": "an unreadable projection drops the entry rather than remembering it, so it is never terminal and the deadline stays the backstop; the uncertainty is recorded once per distinct failure rather than once per tick",
+      "outcome": "measured['pipelines'] carries each Job's reached/states/attempts/observed_at, and an exceptional pipeline is its own held_because entry"
+    },
+    "cause_b": {
+      "what": "the expected published interruption is presented at the CLI boundary",
+      "where": "two_job_supervisor.main, except baseline.SupervisorInterrupted around supervise",
+      "prints": "the interruption, where the outcome was retained, the ORIGINAL per-Job failures, the state, the stop reason, the held-reason count and the unresolved-cleanup count",
+      "returns": 130,
+      "narrowness": "a held run still exits 1, a settled one 0, and a programming fault still raises; the lower-level publish-then-raise contract is untouched"
+    }
+  },
+  "verification": {
+    "w306614_dossier": {"checks": 9, "failures": 0, "seconds": 0.007,
+                        "files": ["test_diagnosis.py (witnesses converted to regressions)",
+                                  "test_correction.py (the acceptance matrix)"]},
+    "w247941_test_two_jobs": {"checks": 101, "failures": 0, "seconds": 43.222,
+                              "previously_seconds": 77.4,
+                              "note": "34 seconds faster because runs that used to sit in the predicate loop until their serving bound now stop when their pipelines finish"},
+    "w247941_test_useful_tasks": {"checks": 20, "failures": 0, "seconds": 0.074},
+    "flags": "-B -W error::ResourceWarning",
+    "measured_surprise": "I expected one sweep in the both-failed case and measured zero: serve asks the predicate BEFORE its first sweep, so a run whose Jobs are already terminal when serving opens ends without sweeping. In a real run the first tick finds queued stages and serving proceeds normally"
+  },
+  "matrix_covered": [
+    "both implementations failed: one prompt report per Job, serving stops before the deadline, failures named in the outcome, state held",
+    "one Job failed while the other runs: the failure is reported once and the healthy Job keeps serving until its own ending",
+    "all pipelines completed: stops promptly, and is still not a success - the missing verdicts still hold the run",
+    "unreadable projection: unknown rather than terminal, deadline backstop, uncertainty recorded once",
+    "a later different failure on the same Job is reported again",
+    "interruption: concise presentation, original failures named, exit 130, outcome untouched, handles closed",
+    "ordinary held exits 1, settled exits 0, a programming fault still raises"
+  ],
+  "w247941_cases_changed_and_why": [
+    "test_an_INTERRUPTION_through_the_command_publishes_and_still_raises asserted assertRaises out of main, which IS the defect; renamed to ..._and_REPORTS_it and now asserts status 130 and the retained-outcome line. Its docstring records what it used to assert",
+    "test_the_DOCUMENTED_COMMAND_reaches_four_attempts_and_two_verdicts asserted stopped == serving-bound-exceeded for a fully successful run; it now asserts pipelines-terminal and both pipelines completed",
+    "test_an_interruption_publishes_the_outcome_and_still_raises (the lower-level twin) is UNTOUCHED and still passes",
+    "test_the_run_stops_at_total_minus_cleanup_and_publishes still holds the deadline backstop"
+  ],
+  "coordination_consequence": {
+    "digest": {"two_job_supervisor.py": {"before": "5b3045e66bd4", "after": "fca165f70eed"}},
+    "why_it_matters": "W247941's OPERATOR-307388.md launch command for the not-yet-performed run two-jobs-247941-03 names this file by path, so launching run 03 now would run the changed supervisor",
+    "recommendation": "W247941's reviewer should revalidate the supervisor before run 03 is launched, or run 03 should be deferred until this change is accepted",
+    "not_touched": "no W247941 record, packet document or operator sheet was edited"
+  },
+  "files": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "fca165f70eed",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": "c9dc1be37d12",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_correction.py": "21713ed063f0",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_diagnosis.py": "1f3c69c5019f"
+  },
+  "candidate_306616_note": "that candidate pinned the RESEARCH state including test_diagnosis.py at e72f5a8a05b8; that file is now 1f3c69c5019f because FINDING.md required the witnesses to be converted into regressions. Everything else it pinned is unchanged",
+  "not_done": [
+    "no live run, provider, engine or deployed store read",
+    "no rerun, cleanup action or consumed-instance mutation",
+    "no new provider-text parser and no schema expansion; the failure_observation helper reuse remains an open scope choice, unneeded for these two causes",
+    "no broad supervisor redesign, no scheduler or protocol change, no baseline change",
+    "no graph mutation and no Git mutation"
+  ],
+  "ready_for": "independent review of the implementation"
+}

@@ -4605,3 +4605,161 @@ Files changed: `prepare_two_jobs.py` (f8bb627d590f), `test_two_jobs.py` (586d478
 invocation for `-02`, one `--prove`, and read-only inspection of run 01's outcome, provider logs,
 credential directories and the credential registry's structure. No setup with `--commit`, deployment,
 build, live engine or provider, retry/reuse, integration, graph or Git mutation. NOT READY.
+
+
+## Claim 306811 — run 02 diagnosed: the turn went into re-emitting the document, not into the work
+
+READ: `detail work=W247941` (claim 306811), `work-events after=306680` — my pass 306683, reviewer
+acceptance 306701, **owner reroute 306724** (successor setup completed, fresh Authority
+`417577b218ef43d685e9ae73c04712ac`), reviewer pass 306740 with `OPERATOR-306728.md`, and **owner
+reroute 306809** after run 02 ended held/interrupted — and T247941 (eight messages, `next_after:
+null`, unchanged). The owner asks what consumed the turn, what remained after the commits, how to tell
+useful work from waste from provider termination behaviour, and a bounded successor recommendation,
+with one instruction stated plainly: DO NOT ASSUME A LARGER TIMEOUT IS THE FIX.
+
+The whole diagnosis is `RUN-02-DIAGNOSIS-306811.md`. The short form:
+
+### What remained after the commits — the fact that matters most
+
+BOTH JOBS COMMITTED. `head` differs from `entry_head` in both retained proposals and each commit
+changes exactly the one path its Job owns. I ran the checker against each retained checkout rather
+than inferring from the transcripts:
+
+    job-b   docs/v12-evidence-map.md             99 lines   structural PASS, exit 0
+    job-a   docs/v12-parallel-operator-notes.md 103 lines   REFUSED, four lines over the bound
+
+So job-b's document was FINISHED AND CORRECT when the provider bound cut the turn off — it had even
+run the checker itself at 167s and got the pass. The run did not fail to produce work; it failed to
+finish the turn around work that was, in one case, already done.
+
+### What consumed it
+
+Both transcripts have the same shape: ~18s of cheap context reads, then WRITE THE WHOLE DOCUMENT,
+count afterwards, find it over 100, and RE-EMIT THE WHOLE DOCUMENT. job-b went 111 → 110 → 109 → 103 →
+99; job-a went 120 → 117 → 106 → 103. Whole-file emissions at 68s/93s/120s and 90s/117s/146s, 23–31
+seconds each — roughly 110–130 seconds of a 180-second turn spent re-emitting a 100-line file to shave
+lines off it. Two smaller wastes, both measured: job-b `cat`-ed the whole 66 kB `E1-DESIGN.md` (the
+harness answered "Output too large") and then used `sed -n '425,465p'` anyway, which is all it needed;
+and both Jobs lost a round trip to `file: command not found`, which is not in the image.
+
+### Provider termination behaviour, stated exactly
+
+`disposition: provider-failed`, `failure_reason: timeout`, `why: the provider did not finish within
+180s`, `verification: null` — AND THE CHANGE WAS STILL COMMITTED. Both runtimes destroyed,
+`cleanup: retained`, `state: absent`, `outstanding_cleanup`/`unresolved_cleanup`/`uncertainty` all
+empty. Provider stdout `finished`, stderr `partial`. ONE INCONSISTENCY, recorded and NOT touched: the
+same record carries `provider.seconds_bound: 3600` beside "did not finish within 180s"; the bound that
+fired was 180. Reporting repair is W306614's.
+
+### Why a larger timeout is not the recommendation
+
+Because the time did not go into the work. job-b produced a structurally correct 99-line document
+INSIDE 180 seconds while also spending ~120 of them re-emitting it. A larger bound buys the loop more
+room instead of removing it. The bound is not what failed; the drafting strategy is, and the brief is
+what taught it.
+
+### What I changed, and what I did not
+
+THE BRIEF, which lives in the emitted task document and NOT in the seeded set — so the owner's source
+needs no reseeding, and `useful_tasks.py --prove` still exits 0 against it at `346a809b…`. It now
+says: plan to the bound before writing; EDIT rather than re-emit; count with the checker, named with
+this Job's own operands, which is already in its checkout and writes nothing; read only the part of a
+source you need, with E1's size and the two paragraphs that are actually the input; and `file` is not
+in this image. `test_useful_tasks` holds all of it, including that the brief names each Job's OWN
+checker invocation and still never names the other Job's path.
+
+I did NOT touch `USEFUL-TASKS-305440.md` or `check_useful_tasks.py`, deliberately: they are CARRIED
+members, `present()` compares the seeded copies against them, and editing either would force the
+reseed the owner forbade.
+
+RUN 02 IS NOW CONSUMED beside run 01, so a successor is `-03`; the case covers both spent roots and
+that `-03` is still constructible.
+
+### The recommendation, for the owner to select
+
+Keep 180s and keep 600/60 — the evidence says the budget is adequate once the loop is gone, and
+changing the brief and the clock together would leave neither measured. Keep two implementations, two
+reviews, one manager, the same source and base. Run it as `two-jobs-247941-03`. And if an
+implementation still times out with the new brief, the next question is the CONTENT budget rather than
+the clock — a 99-line document with five required headings may be more than one 180-second turn can
+compose carefully — but that is a contract change needing a reseed and a fresh base, so I am not
+proposing it on one run's evidence.
+
+MEASURED: `test_two_jobs.py` **101 OK, 77.715s** and `test_useful_tasks.py` **20 OK, 0.076s**, both
+under the reviewer's ordering and `-W error::ResourceWarning`, zero warnings.
+
+ONE ROUTINE MISTAKE, fixed here: I bumped `ADOPTION-247941.md` to 102 for the new case, and the count
+case failed at 102-vs-101 — that page states `test_two_jobs`'s own loader count and my new case is in
+`test_useful_tasks`. Put back to 101.
+
+Files changed: `useful_tasks.py` (7345a95d7414), `prepare_two_jobs.py` (2c54a5d85e1d),
+`test_useful_tasks.py` (38f68a736893), `test_two_jobs.py` (30f14392dd51),
+`RUN-02-DIAGNOSIS-306811.md` (440d21b2f8f2, new), this PROGRESS. Costs: three full `test_two_jobs`
+runs (77.2s, 77.2s, 77.7s — the middle one with the count failure), three `test_useful_tasks` runs
+(~0.076s), the checker against both retained checkouts, and read-only inspection of run 02's outcome,
+proposals, custody and native transcripts. No live run, setup, reseeding, supervisor repair,
+deployment, build, retry/reuse, integration, graph or Git mutation. NOT READY.
+
+
+## Claim 307388 — the successor `-03` is prepared, and two of my own sentences are qualified
+
+READ: `detail work=W247941` (claim 307388), `work-events after=306875` — my pass 306878, reviewer
+acceptance 306893 of the bounded brief correction, and **owner reroute 307380 selecting
+`two-jobs-247941-03`** — and T247941 (eight messages, `next_after: null`, unchanged). The owner keeps
+provider/verifier 180 and total 600 including 60 cleanup for this run and states plainly that BUDGET
+ADEQUACY REMAINS UNPROVED.
+
+### The qualification, carried into my own record rather than left in the review
+
+Review 2026-09-29T15-19-17Z qualified two of my sentences and it is right. `RUN-02-DIAGNOSIS-306811.md`
+(da8902497606) now says so in its own text:
+
+    "110-130 SECONDS OF RE-EMISSION" IS AN INFERENCE. The transcript gives the interval between a tool
+    result and the next tool use, which is WALL time covering model output, harness overhead and
+    whatever else sits between them. What is MEASURED is that three or four whole-file rewrites
+    happened per turn, at which timestamps, and that both turns reached the 180-second bound.
+    "THE BRIEF IS WHAT TAUGHT IT" IS AN INFERENCE TOO. The brief did not forbid editing and named no
+    counting tool, and both Jobs independently chose write-then-count-then-rewrite; that is consistent
+    with the brief being the cause and does not prove it.
+    "FINISHED AND CORRECT" MEANS STRUCTURALLY CORRECT AND NOTHING MORE. No review has ever run on
+    job-b's document, so its CONTENT has not been judged by anybody.
+    BUDGET ADEQUACY IS UNPROVED. Recommending that 180 be kept is not a claim that it suffices.
+
+### The successor, prepared and not performed
+
+`OPERATOR-307388.md` (b4537c86387b) is the sheet: setup, foreground launch, status, stop, and what
+would not be success — the last of those written from what the two spent runs actually did rather than
+in the abstract. It supersedes `OPERATOR-306628.md` and `OPERATOR-306505.md`, which stay as the spent
+runs' records. Every path in it was DERIVED from `supported_root` and `layout`.
+
+    root            /home/sl/baton-instances/two-jobs-247941-03, derived; does not exist
+    spent roots     `-01` and `-02` both refuse as identities (CONSUMED), measured again this claim
+    source          /home/sl/baton-runs/two-jobs-247941-01-inputs at 346a809b…, `--prove` exit 0,
+                    so NO RESEEDING — it is the accepted INPUT repository, not a run root
+    limits          unchanged: total 600 including 60 cleanup, serving to 540, four admissions at
+                    most, provider 180 and verification 180 per Job
+    incarnations    two-jobs-two-jobs-247941-03 and inspect-two-jobs-247941-03
+    the uuid        minted at step 6 and printed by step 7; the sheet sends the operator there
+    the one change  the emitted BRIEF, independently accepted at 306893. Nothing else differs from
+                    run 02 — not the source, the excerpts, the contract, the checker, the pins, the
+                    supervisor, the manager count, the stage count or the limits
+
+I ran the plan form with the exact operands: every gate passed, the seven steps printed, exit 0,
+nothing performed. `--commit` is the owner's.
+
+THE STOP SECTION NAMES THE KNOWN Ctrl-C TRACEBACK as W306614's and tells the operator to read the
+retained outcome anyway rather than treating a traceback as the result.
+
+MEASURED: `test_two_jobs.py` **101 OK, 77.412s** and `test_useful_tasks.py` **20 OK, 0.078s**, both
+under the reviewer's ordering and `-W error::ResourceWarning`, zero warnings. No product or test file
+changed this claim — the suites were run to report the current tree, not because anything moved.
+
+STILL OWED: the run itself, and from it overlap, isolation, per-Job attribution, completion with exact
+producer cessation, and INDEPENDENT SEMANTIC acceptance of both proposals. No review has ever run.
+
+Files changed: `OPERATOR-307388.md` (b4537c86387b, new), `RUN-02-DIAGNOSIS-306811.md` (da8902497606,
+qualified), this PROGRESS. `prepare_two_jobs.py` (2c54a5d85e1d) and `useful_tasks.py` (7345a95d7414)
+are unchanged this claim. Costs: one `supported_root`/`layout` derivation, one `--prove`, one plan-form
+setup invocation for `-03`, one `test_two_jobs` run (77.412s) and one `test_useful_tasks` run (0.078s).
+No live execution, setup with `--commit`, reseeding, supervisor repair, validation campaign,
+deployment, build, retry/reuse, integration, graph or Git mutation. NOT READY.

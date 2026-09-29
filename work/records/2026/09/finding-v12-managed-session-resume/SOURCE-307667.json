@@ -1,0 +1,9 @@
+{
+  "v12/DESIGN.md": "ea224a281d320077e0cc906ba91672930c8975660a453c49804dea888b92cbff",
+  "v12/python/src/baton_v12/worker_manager/provider_context.py": "f7df4ff84813f6c007005cfdb509f8d667b598cfa456f67b4ef63aaebd659ee0",
+  "v12/python/src/baton_v12/worker_manager/context_delivery.py": "f17ce3c53e52e152e18da8c2900f9697bd3df67d3b9363d999c9a4215518def4",
+  "v12/python/src/baton_v12/worker_manager/store.py": "3d44991274f75e2260dc12a5b8012650256b8400a771e93dc8e4d50c5b48dbc6",
+  "v12/python/tools/single_worker.py": "12a9e6a54b25f69ef1c2970affc11c458990cd633fbec1e927514e07decff289",
+  "v12/python/tools/stage_execution.py": "38c4cf74db023733603ea88f02b0246c0b16a62afecb743b77cf502ffc5e19e6",
+  "v12/python/tests/manager/test_provider_context.py": "dca16ed25ba7e87501a3732055cf6d8194cc8a4331d6d85b29071bd26f8890c6"
+}

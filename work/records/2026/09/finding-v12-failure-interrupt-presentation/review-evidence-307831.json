@@ -1,0 +1,171 @@
+{
+  "claim": 307831,
+  "tests": 16,
+  "failures": 0,
+  "errors": 0,
+  "elapsed_seconds": 1.7014698840212077,
+  "observations": [
+    {
+      "job": "job-a",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": []
+    },
+    {
+      "job": "job-b",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": []
+    },
+    {
+      "job": "job-a",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": []
+    },
+    {
+      "job": "job-a",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": []
+    },
+    {
+      "job": "job-a",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": []
+    },
+    {
+      "job": "job-a",
+      "exchange_keys": [
+        "diagnostic",
+        "state"
+      ],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": "answered",
+      "diagnostic_locators": [
+        "artifact://logs/unproved"
+      ]
+    },
+    {
+      "job": "job-b",
+      "exchange_keys": [
+        "diagnostic",
+        "state"
+      ],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": "answered",
+      "diagnostic_locators": [
+        "artifact://logs/unproved"
+      ]
+    },
+    {
+      "job": "job-a",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": []
+    },
+    {
+      "job": "job-b",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": []
+    },
+    {
+      "job": "job-a",
+      "exchange_keys": [
+        "diagnostic",
+        "state"
+      ],
+      "terminal": null,
+      "recorded_cause": "provider-reported-oauth-session-expired-refresh-failed",
+      "recorded_exchange_state": "answered",
+      "diagnostic_locators": [
+        "artifact://logs/job-a"
+      ]
+    },
+    {
+      "job": "job-b",
+      "exchange_keys": [
+        "diagnostic",
+        "state"
+      ],
+      "terminal": null,
+      "recorded_cause": "provider-reported-oauth-session-expired-refresh-failed",
+      "recorded_exchange_state": "answered",
+      "diagnostic_locators": [
+        "artifact://logs/job-b"
+      ]
+    },
+    {
+      "job": "job-a",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": []
+    },
+    {
+      "job": "job-b",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": []
+    },
+    {
+      "job": "job-a",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": [
+        "file:///var/tmp/baton-w257624/v12-w71917-sfsqjkk7/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal"
+      ]
+    },
+    {
+      "job": "job-b",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": [
+        "file:///var/tmp/baton-w257624/v12-w71917-sfsqjkk7/storage/.baton-review-lines/line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af/custody/attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e/proposal"
+      ]
+    },
+    {
+      "job": "job-a",
+      "exchange_keys": [],
+      "terminal": null,
+      "recorded_cause": "unknown",
+      "recorded_exchange_state": null,
+      "diagnostic_locators": [
+        "file:///var/tmp/baton-w257624/v12-w71917-m5w2epd7/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal"
+      ]
+    }
+  ],
+  "candidate_sha256": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "2e580ad6402ba754a1983bf45fd195ce92b79b75828be4f5439f33a72890b12e",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": "e2a372272d72fab3f8e5e0e232307523ad1ae246222627d43d80b25e0589840c",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/ADOPTION-247941.md": "58a9c7337a8b1ee9eeb43ad88dc42011ff38bf78f7a7aad0e49937c861f4d508",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_correction.py": "acc0f41b56181b5ced0030b21c9af81a63c995ec94bdce27518af977f634fc9f",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_diagnosis.py": "1f3c69c5019f92fff284c4cd94273b5751a9ad456ceb93eba81c3e87d918a9ef"
+  },
+  "operational_note": "First probe command had IndentationError before execution; corrected command follows."
+}

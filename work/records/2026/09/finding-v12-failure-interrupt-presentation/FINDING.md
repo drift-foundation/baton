@@ -28,3 +28,48 @@ Proposal is appropriately bounded: report each selected failed episode promptly 
 Research limitation: the existing safe diagnostic helper has packet-specific identities/layout. Reuse or a minimal adapter is a later coordinated scope choice, not permission to copy the whole helper, weaken provenance or print raw provider text. Owner must select later Claude implementation and coordinate two_job_supervisor.py/test_two_jobs.py ownership with W247941; any additional helper path must be recorded then. No new dependency/adoption gate, protocol redesign, credential repair, rerun or consumed-instance mutation is introduced.
 
 Operational read note: the reviewer initially requested EVIDENCE.md, which does not exist; the handoff's actual EVIDENCE.json was then read in full and hash-verified. No required evidence remains unread. No product/test/PROGRESS edit, deployed store access, engine/provider or cleanup operation occurred. Reviewer owns only this append-only review and FINDING/PLAN checkpoint updates. Return baton.decide for later implementation selection.
+
+## 2026-09-29T17-20-22Z — owner implementation selection pinned; review requests corrections
+
+Owner306697/306698 selected bounded implementation after W247941 closure; wake
+307583 satisfied that dependency. This supersedes historical research-only and
+owner-waiting scheduling restrictions for this Work. Review review-2026-09-29T17-20-22Z.md assesses
+candidate307593. Preserve per-Job stop and narrow CLI catch as partial progress.
+R1: status-reader BaseException catches serving Ctrl-C and continues until deadline.
+R2: original safe cause/identity is not collected and later unreadable status
+erases earlier failure evidence. R3: connected failure/diagnostic matrix remains.
+Independent9PASS0.008s plus two confirming probes0.0017395629547536373s; full
+hashes and observations in review-evidence-307718.json. No live/product changes.
+Return directly baton.impl within existing scope; accepted delivery to owner.
+Run03 was already accepted and W247941 closed before implementation; author
+warning treating it as unperformed is explicitly superseded, evidence preserved.
+
+## 2026-09-29T17-33-48Z — correction review307831: accepted slices, one remaining gap
+
+review-2026-09-29T17-33-48Z.md accepts R1 serving interruption, R2 immutable failure history and R3
+connected failed/mixed pipeline behavior. Independent16PASS1.7014698840212077s;
+full candidate hashes and observations in review-evidence-307831.json.
+R2 cause consumption remains: exchange.diagnostic is supplied only by mock test,
+whereas actual structured provider diagnostics live in retained adapter reports.
+Wire bounded attributed report consumption and targeted positives/negatives;
+retain canonical terminal cause too. Explicit unknown fallback remains correct.
+Return baton.impl within scope, preserve accepted slices; no new owner gate.
+
+## 2026-09-29T17-44-50Z — retained reader wired; boundary corrections remain
+
+review-2026-09-29T17-44-50Z.md preserves accepted lifecycle slices and confirms actual report
+consumption. Independent18PASS1.6585647830506787s plus counterexamples:
+ancestor symlink escapes storage; array JSON/provider raises; nested terminal
+fault discarded. Source follow-up: late cause needs exact first-failure identity
+and a dedup-aware prompt update. Full hashes/evidence in review-evidence-307909.json.
+Return bounded corrections directly baton.impl; no scope/owner gate or live run.
+
+## 2026-09-29T17-51-34Z — independent implementation acceptance307960
+
+ACCEPT candidate307931; review-2026-09-29T17-51-34Z.md closes selected review findings.
+Independent23PASS1.6975614010589197s and original counterexamples now pass.
+Full4 hashes in review-evidence-307960.json. Reader ancestry/nonblocking/shapes,
+nested canonical cause and same-identity deduplicated supplements verified;
+prior interruption/history/mixed-Job acceptance preserved. Return baton.decide
+for owner satisfying disposition. No live/deployment/rerun/Git authority implied;
+future packet must bind new supervisor, historical run03 remains unchanged.

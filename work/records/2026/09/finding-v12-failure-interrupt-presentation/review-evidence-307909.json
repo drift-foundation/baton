@@ -1,0 +1,44 @@
+{
+  "tests": 18,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 1.6585647830506787,
+  "probes": {
+    "symlink_ancestor": {
+      "availability": "available",
+      "provider_reason": "api-error",
+      "provider_exit_status": 1,
+      "diagnostic": {
+        "schema": "baton.provider-diagnostic/1",
+        "http_status": 401,
+        "classification": "authentication_failed",
+        "explanation": "Failed to authenticate: OAuth session expired and could not be refreshed",
+        "explanation_status": "supported-constant",
+        "request_id": null,
+        "request_id_status": "unavailable"
+      },
+      "locator": "file:///tmp/review307909-96qmqt8s/storage/custody/attempt-a/proposal",
+      "why": null
+    },
+    "array_root": {
+      "raised": "AttributeError"
+    },
+    "array_provider": {
+      "raised": "AttributeError"
+    },
+    "nested_terminal": {
+      "state": "faulted",
+      "terminal_reason": null,
+      "disposition": null,
+      "fault": null,
+      "fault_code": null
+    }
+  },
+  "sha256": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "65b378b41772961b78f04b5dd52c82d46f7500d0408a28771383a8a8cc3ad700",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": "028eb272a2a4bda69010cbb0063d1b224eedbf38ef0d5171fe4ea18f197bcb01",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_correction.py": "b98669d7336d7091b280db5a2ed079c6ff2f67055c5ef7e1fcff7fcb1e28f441",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_diagnosis.py": "1f3c69c5019f92fff284c4cd94273b5751a9ad456ceb93eba81c3e87d918a9ef"
+  },
+  "scope": "deterministic fixtures only, symlink targets private test files; no engine/provider/deployed stores"
+}

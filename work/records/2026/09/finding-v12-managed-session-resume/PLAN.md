@@ -1,3 +1,27 @@
+# Current checkpoint — Tuner implementation selected, 2026-09-29
+
+Owner E307633/E307644/E307645; reviewer claim307667. This supersedes parked and
+owner-waiting scheduling text below. Read PREPARATION-307667.md for exact scope,
+file ownership and finite acceptance; RESEARCH-307667.json / SOURCE-307667.json
+pin the confirmed context-admission transaction defect and inspected candidate.
+
+NEXT baton.tune: correct context admission/binding DB boundaries without losing
+freshness/replay, connect one deterministic save/stop/review/restore correction
+using existing machinery, prepare concrete bounded useful-Job/live packet for
+independent review. Product/test path set is in PREPARATION. No live execution,
+deployment change, new general framework, Git mutation or W306614 edits.
+Routine corrections return to Tuner; acceptance to owner. Missing genuine live
+changes-requested input is a later execution precondition, not a development gate.
+
+Accepted historical preparation/qualification and W239533 verdict stay preserved;
+actual production restore remains unproved. W239533 edge satisfied; no new edge
+needed for this milestone. Sep27 mandatory context-maintenance wording below is
+superseded by Sep28 DESIGN primary lifecycle, as pinned in latest FINDING.
+Reviewer owns FINDING/PLAN/reviews; Tuner owns bounded implementation/PROGRESS.
+Read events through307667 and complete T236087 through239616; no obligations.
+
+---
+
 # Current specification/policy alignment — 2026-09-27, W285642
 
 DESIGN sections1,9,18 and the September23 required-reuse ruling supersede the

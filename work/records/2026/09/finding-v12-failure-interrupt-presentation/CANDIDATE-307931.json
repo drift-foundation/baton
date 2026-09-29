@@ -1,0 +1,68 @@
+{
+  "work": "W306614",
+  "claim": 307931,
+  "answering": "review 307909 - three findings on the retained-report reader",
+  "preserved_unchanged": [
+    "the interruption slice",
+    "the immutable failure history",
+    "the connected failed and mixed pipeline slices",
+    "the retained-report wiring"
+  ],
+  "r2a_containment_and_shape": {
+    "the_escape_was_real": "O_NOFOLLOW on the whole path protects the final name only and relative_to read the DECLARED path, so storage/custody symlinked at a sibling tree answered available with an authentication_failed cause attributed from outside the selected root",
+    "now": "_bounded_document walks every ancestor with directory descriptors and O_NOFOLLOW, as the reference _document does, and opens the file O_NONBLOCK BEFORE the regular-file check so a FIFO cannot block in open ahead of fstat",
+    "shapes": "a report that is [] at the root, or whose provider is [1], raised AttributeError outside the caught region and became serving-failed in supervise, ending healthy Jobs because a supplementary report was malformed; validation is inside the guard now and both answer an explicit unknown",
+    "proved_by": [
+      "test_an_ANCESTOR_SYMLINK_cannot_escape_the_selected_storage",
+      "test_a_SPECIAL_FILE_is_refused_without_blocking",
+      "test_a_WRONG_JSON_SHAPE_is_unknown_and_does_NOT_fail_serving (asserts serving_failure is None and the run still stops pipelines-terminal)"
+    ]
+  },
+  "r2b_nested_terminal": {
+    "was": "a scalar-only copy of the exchange, and flat terminal_reason/fault_code mocks of my own invention",
+    "actual": "worker_manager/exchange.py _terminal returns a nested document: ending, answered, disposition, fault_code, manifest_digest",
+    "now": "the exchange scalars (state, sequence_id), the nested terminal members, and the command/receipt step scalars, read where they actually live",
+    "fixture": "state faulted with terminal.ending faulted, terminal.fault_code agent and terminal.answered [open, work]"
+  },
+  "r2c_supplement_and_announcement": {
+    "misattribution": "the supplement keyed on job_id alone; it now requires the same stage_id, kind, attempt_id, episode and assignment, and a changed failure keeps its own facts",
+    "unannounced_cause": "the dedup key held only stage states and attempt names, so a cause that became known with unchanged states was retained but never reported; the validated cause is part of the key now",
+    "measured_sequence": "one line for the failure with no cause yet, one when the cause is validated, silence for the identical ticks after it",
+    "proved_by": [
+      "test_a_FOREIGN_identity_late_report_never_relabels_the_first_failure",
+      "test_a_SAME_identity_late_cause_is_reported_exactly_ONCE"
+    ]
+  },
+  "verification": {
+    "w306614_dossier": {
+      "checks": 21,
+      "failures": 0,
+      "seconds": 0.022,
+      "was": 16
+    },
+    "w247941_test_two_jobs": {
+      "checks": 103,
+      "failures": 0,
+      "seconds": 43.404
+    },
+    "w247941_test_useful_tasks": {
+      "checks": 20,
+      "failures": 0,
+      "seconds": 0.075
+    },
+    "flags": "-B -W error::ResourceWarning"
+  },
+  "files": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "c53c2778a8a3",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_correction.py": "a39e5b64f462",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": "028eb272a2a4 (unchanged this claim)",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_diagnosis.py": "1f3c69c5019f (unchanged this claim)"
+  },
+  "not_done": [
+    "no live run, provider, engine or deployed store read",
+    "no raw provider prose, credential text or generic schema change",
+    "no broad framework, shared-helper takeover, spec decision or W236087 edit",
+    "no graph or Git mutation"
+  ],
+  "ready_for": "independent review of the corrected candidate"
+}

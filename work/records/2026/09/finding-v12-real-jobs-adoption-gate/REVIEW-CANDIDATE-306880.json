@@ -1,0 +1,25 @@
+{
+  "claim": 306880,
+  "files": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/verify_247941.py": "f24ca0e7d69d28572a86e6ebefc2f3fb8356ef40d8c1637ac7ec1dee86329757",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/prepare_two_jobs.py": "2c54a5d85e1d999d051e52b5c793c9a9578b241161fa73e9a577a61a60abdc82",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_jobs.py": "83e44b9b502cefbc3897dbddea4e5fc5b0a2445caeb5409c9b21a6a7820ab937",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "5b3045e66bd46a1c2ed314c6f73d2f7425ccd7b0576b692f7d8a446fc658ee36",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/useful_tasks.py": "7345a95d74145722b4cac1368eba3a758e998d498fd8fa081518b263b14c522f",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/check_useful_tasks.py": "f6dcadba50a361ff8f3f3ccfa887ea2ef00d8952b9438fff1288fd91a7edee4f",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": "30f14392dd51858b0057754069031e8e3358926bbbef3e647786fb4a3bbf970a",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_useful_tasks.py": "38f68a736893cddb906da9638571056df3fae575247c75842f60f74018392319",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/setup-two-jobs-305532.sh": "3b980919b84bd735b0e0ed96b4134a014e79bdc95cb287bb5db5f5e982bfc976",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/SETUP-RECIPE-305440.md": "3133f16bba4021d86043bed7e283e6e90f48a8057f25cc62f110c7366fe3a890",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/PARALLEL-PACKET-305010.md": "d68a9c97800a5e7616e99229d01785362cc7a65da011b81d9fefc357f2d9ad51",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/USEFUL-TASKS-305440.md": "9751647d17084e250c1e1f4d6afcd147347ade216df276ea79b50fe621dd83f0",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/ADOPTION-247941.md": "032af1dfd154ce05644431f099fa048a547621f777346e85ed22b34835ee5ae1",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/REVIEW-CANDIDATE-306116.json": "bd53f36808e2299aa3a3db19fc9d2c0be70248697a15f3bcb4615a768cce0bb9",
+    "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/REVIEW-CANDIDATE-306333.json": "ccd9c81dff2bc2973c066b571ca87a8293de2e289e14a38873a0789c816665d4",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/OPERATOR-306628.md": "17816082a2112642ec3217df808ed3707da8dcbfc891ea3f9d163b2bd3efb6fa",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/REVIEW-CANDIDATE-306628.json": "7eb4cc454d6d2c0a04061f96e61150eea27e1283f5ff691e183a48aa5bb15ece",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/RUN-02-DIAGNOSIS-306811.md": "440d21b2f8f2fb487efcae3bafa26e7b08bf57bc5213e5f4f984299be0a36d56",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/REVIEW-CANDIDATE-306811.json": "ee277e388e7d857ba9d8b92d62d6ad985b91267f9cbedaa2e44b7e2fd72c49e6"
+  }
+}

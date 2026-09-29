@@ -1,0 +1,18 @@
+{
+  "kind": "deterministic public admission transaction-boundary observation",
+  "claim": 307667,
+  "admission_status": "admitted",
+  "filesystem_calls_in_transaction": [
+    {
+      "transaction": "provider-context.transition",
+      "operation": "context_delivery._open_absolute"
+    },
+    {
+      "transaction": "provider-context.transition",
+      "operation": "context_delivery._open_absolute"
+    }
+  ],
+  "elapsed_seconds": 0.012545002973638475,
+  "live_provider": false,
+  "live_engine": false
+}

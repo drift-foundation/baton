@@ -1,0 +1,253 @@
+{
+  "work": "W247941",
+  "claim": 307554,
+  "files": {
+    "/home/sl/baton-instances/two-jobs-247941-03/run/outcome.json": "ccecc25168aa9901ddd58247e925d246c4527a857a30713759a496fbbe18f234",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-337711a0cabfde5730faf261c562e4fbff26abee26e3a66676a24c9e06c44cdc/custody/attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674/sealed.json": "ba38f432ac42230e2a891296c1654f1283cb3d557384fa11c03fd7a5a94f1057",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-337711a0cabfde5730faf261c562e4fbff26abee26e3a66676a24c9e06c44cdc/custody/attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674/proposal/change.patch": "00380754327360de7bb18d78bbc6db7176bd5222b2ee0c94d4d9dd9872e420f5",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-337711a0cabfde5730faf261c562e4fbff26abee26e3a66676a24c9e06c44cdc/custody/attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674/proposal/objects.bundle": "22a1cd1bfb4b2ba1c2d1471424142dcb0b3bbd23ea2f5a058991e0034e93ff5d",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-337711a0cabfde5730faf261c562e4fbff26abee26e3a66676a24c9e06c44cdc/custody/attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674/proposal/result.json": "682bd72c394ed6ba9cd5ea0417b6adf1b262892b46539f3e2afb7e0ff93761cf",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-337711a0cabfde5730faf261c562e4fbff26abee26e3a66676a24c9e06c44cdc/custody/attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674/proposal/verification.txt": "1978ba04a3c725adcb458e811c5c1edb3b69c19be51f13995785a9702e4ff113",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-0e858ac84689d68d3d5d1c523c9a54c8e4e05979cd32792d9c28d1df43032547/custody/attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5/sealed.json": "385c252e6a6401cdca02d02b6e558b381813326beaa828b4362fc65656b21328",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-0e858ac84689d68d3d5d1c523c9a54c8e4e05979cd32792d9c28d1df43032547/custody/attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5/proposal/change.patch": "1f3a30057927baa03f3f657a1d2c32d17965d665ddf200bc8b947ae84a87f1a5",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-0e858ac84689d68d3d5d1c523c9a54c8e4e05979cd32792d9c28d1df43032547/custody/attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5/proposal/objects.bundle": "9221978582f9db0b7672bad8c8b92d1d7f9d725aa5856ebb959979fdfc3ff9cb",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-0e858ac84689d68d3d5d1c523c9a54c8e4e05979cd32792d9c28d1df43032547/custody/attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5/proposal/result.json": "2e41f29276b023740484f9715053eec7571d33350a4391ce01df9ee0da8e540a",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-0e858ac84689d68d3d5d1c523c9a54c8e4e05979cd32792d9c28d1df43032547/custody/attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5/proposal/verification.txt": "85972b0480c374bc64f17efbdde5b38bfc3eff9064463af97b6ef2d9da1b659a",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/custody/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/sealed.json": "40a2960cf0f3051bb0e73f66bb36f498c44d28af33cf2ede22f6c8d932650798",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/custody/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/findings/findings.txt": "98294cd3f00b257708cd0385114da754ff0640f5d9594aba5e7a5b3dae535908",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/custody/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/findings/report.json": "887d49dcfa002873f01721c2fd34983f244a2f70d64800a87f7cbc362346f6e8",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/custody/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/logs/review.json": "3b387951dd55d26e18d1f86087d556d0cd6d7045928bd0faa83a39a4fcca3078",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/custody/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/sealed.json": "2ccbd74505926041455c75d7da062511bb674834f4486f7d06eb108080e19135",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/custody/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/findings/findings.txt": "0edb1d0658dd3d27eb34f211ce6c6601e7968d6d9153ebfd56fa41e96ada4e6c",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/custody/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/findings/report.json": "89352bfcb37d9b76b571dc0fdbfe58e2f6214a2a64230d703ee079e82230effd",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/custody/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/logs/review.json": "fd59b45c23283cbe4086efac3f865ddba585265f0d6801cac88a10e8f7ee7f29",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-337711a0cabfde5730faf261c562e4fbff26abee26e3a66676a24c9e06c44cdc/checkout/docs/v12-evidence-map.md": "3572688c9ed5cca3da7cc1ed061d1af87aeb7c012de6d6ed6d99c1bc0e373b10",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/.baton-review-lines/line-0e858ac84689d68d3d5d1c523c9a54c8e4e05979cd32792d9c28d1df43032547/checkout/docs/v12-parallel-operator-notes.md": "fd21b8f4ed092f7a3ed12dc5176e9aa78148370c3d7e6a42e5e33ddd6159ff35",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/launch/logs/attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674/native/projects%2F-output%2Fed8dd1df-99fd-4507-bd55-500eb2081995.jsonl": "ceef2976b01bf839695be755af6d42dbee17e7b37182f31d16265e8416fb18e4",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/launch/logs/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/native/projects%2F-tmp-dogfood-urc4t7qm-review-room%2F41474635-5957-4397-a01b-ce0c0dc93286.jsonl": "f196ba429791867b143a4b980c103c4e90fc8b5c18d2b71e4bb8be8bab77ed86",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/launch/logs/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/native/projects%2F-tmp-dogfood-295r4k8x-review-room%2F4ec07676-5c52-467e-85f5-d485917bf066.jsonl": "d85e94ca23114311bde481fd06ddc98ec56beca27198b4a731a79c2f95435293",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/launch/logs/attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5/native/projects%2F-output%2Fec9c4bbd-3e50-4112-847e-784a4a8a1592.jsonl": "55da3481a9605b816233984e33cd548665a37b8a8281b7ab972489043ba3ade5",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674/inputs/assignment.json": "c9ff32b50b141b1f34a7e2225a8261a31a485e4deceff9d614aca3d8f3bf433d",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442/inputs/assignment.json": "1a6a713fa7933fa82e942aa3727138687fcd459d78a59c50cc1225b2b18360db",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11/inputs/assignment.json": "a18623d51bdbce8cb131e21e5b58dd21bbe9b5b517e540f63e27152b54f4d9b7",
+    "/home/sl/baton-instances/two-jobs-247941-03/run/workspaces/attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5/inputs/assignment.json": "75d875ffeccc13eda1c4c2a48c8c0ce316d87df12340eee049e63afe61d257f8"
+  },
+  "sealed_results": [
+    {
+      "participant": "baton.impl-b",
+      "result": "result-attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674",
+      "digest": "sha256:0e461c025b6be2a51f26a513e1f03f2f5d731335263b2d0affbe9524caa88e89",
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.impl-b",
+        "work_ref": {
+          "authority_uuid": "3818fb6090eb493e939a419a884756c5",
+          "work_id": "3818fb60-W2"
+        }
+      }
+    },
+    {
+      "participant": "baton.impl-a",
+      "result": "result-attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5",
+      "digest": "sha256:ed122e8d2a82bcdb85090c3407c1f1fd95c23def246f6205a6304483bb9f8726",
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.impl-a",
+        "work_ref": {
+          "authority_uuid": "3818fb6090eb493e939a419a884756c5",
+          "work_id": "3818fb60-W1"
+        }
+      }
+    },
+    {
+      "participant": "baton.review-a",
+      "result": "result-attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442",
+      "digest": "sha256:9540f639cd1df90e08f1303e3cb3a9cd17054d9690f6dab137a62a8f9b66549f",
+      "assignment": {
+        "generation": 2,
+        "participant": "baton.review-a",
+        "work_ref": {
+          "authority_uuid": "3818fb6090eb493e939a419a884756c5",
+          "work_id": "3818fb60-W1"
+        }
+      }
+    },
+    {
+      "participant": "baton.review-b",
+      "result": "result-attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11",
+      "digest": "sha256:854bc16c553a149a6d7c9e50c7d265e27c5d9c2e4cc516624830885303d4976b",
+      "assignment": {
+        "generation": 2,
+        "participant": "baton.review-b",
+        "work_ref": {
+          "authority_uuid": "3818fb6090eb493e939a419a884756c5",
+          "work_id": "3818fb60-W2"
+        }
+      }
+    }
+  ],
+  "proposals": [
+    {
+      "job": "job-b",
+      "head": "530646319a454bcfaa03aac106e2ecf3dea76071",
+      "tree": "779aa340f64b24c144a8fdac98d991c5b182d230",
+      "path": "docs/v12-evidence-map.md",
+      "sha256": "3572688c9ed5cca3da7cc1ed061d1af87aeb7c012de6d6ed6d99c1bc0e373b10",
+      "lines": 99,
+      "patch_matches_git_diff": true,
+      "structural_exit": 0
+    },
+    {
+      "job": "job-a",
+      "head": "4648b4aaeeca7713b73d808915106f4e1e8c857a",
+      "tree": "9fbf961c459c409ddd461434fde4d09cd368c713",
+      "path": "docs/v12-parallel-operator-notes.md",
+      "sha256": "fd21b8f4ed092f7a3ed12dc5176e9aa78148370c3d7e6a42e5e33ddd6159ff35",
+      "lines": 99,
+      "patch_matches_git_diff": true,
+      "structural_exit": 0
+    }
+  ],
+  "activity_intervals": {
+    "attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674": [
+      "2026-09-29T16:43:54.389Z",
+      "2026-09-29T16:45:22.641Z"
+    ],
+    "attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442": [
+      "2026-09-29T16:46:50.705Z",
+      "2026-09-29T16:49:22.303Z"
+    ],
+    "attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11": [
+      "2026-09-29T16:45:29.944Z",
+      "2026-09-29T16:47:12.875Z"
+    ],
+    "attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5": [
+      "2026-09-29T16:43:56.208Z",
+      "2026-09-29T16:46:43.421Z"
+    ]
+  },
+  "outcome": {
+    "abandoned_cleanup": [],
+    "abandonment": {},
+    "admission_closed_before_cancellation": true,
+    "admissions": {
+      "implementation": 2,
+      "review": 2
+    },
+    "admitted_attempts": [
+      "attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11",
+      "attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674",
+      "attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5",
+      "attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442"
+    ],
+    "bounds": {
+      "cleanup_seconds": 60,
+      "total_seconds": 600
+    },
+    "cancellation": {
+      "attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11": {
+        "execution_runtime": "destroyed",
+        "requested": true,
+        "runtime_id": "688a50bcabebb041398f5c8163888d13184fa8ba41344309c3d6c6837b5f1774",
+        "why": "this manager observed the runtime destroyed"
+      },
+      "attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674": {
+        "execution_runtime": "destroyed",
+        "requested": true,
+        "runtime_id": "f70bf5664a1d4b20f9e0a6e4ff2237c7c1b857f090dbeec87bc91338528abe7d",
+        "why": "this manager observed the runtime destroyed"
+      },
+      "attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5": {
+        "execution_runtime": "destroyed",
+        "requested": true,
+        "runtime_id": "797d39e9871a45c92c77f9f1e0195429630db32e7975575d34dda2c2e6a803f9",
+        "why": "this manager observed the runtime destroyed"
+      },
+      "attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442": {
+        "execution_runtime": "destroyed",
+        "requested": true,
+        "runtime_id": "a49636a685c806b3e5bc6a27d1caca565c520f8b5bea6166ed3620ae70d9495b",
+        "why": "this manager observed the runtime destroyed"
+      }
+    },
+    "caps": {
+      "implementation": 2,
+      "review": 2
+    },
+    "cleanup": {
+      "attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11": {
+        "cleanup": "retained",
+        "state": "absent",
+        "why": "the engine answered that this exact identity does not exist"
+      },
+      "attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674": {
+        "cleanup": "retained",
+        "state": "absent",
+        "why": "the engine answered that this exact identity does not exist"
+      },
+      "attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5": {
+        "cleanup": "retained",
+        "state": "absent",
+        "why": "the engine answered that this exact identity does not exist"
+      },
+      "attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442": {
+        "cleanup": "retained",
+        "state": "absent",
+        "why": "the engine answered that this exact identity does not exist"
+      }
+    },
+    "cleanup_sweeps": 0,
+    "cleanup_window_seconds": 59.82390456390567,
+    "finalization_failure": null,
+    "finished_at": "2026-09-29T16:52:44.579Z",
+    "foreign_admissions": [],
+    "gate_refusals": [],
+    "generations": {
+      "attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11": 2,
+      "attempt-7ed4c34015ec651d66ba86413a739b45b8795bb99653b80d78c1ecc64a9cd674": 1,
+      "attempt-919dfd0e0b5a345790579a9bd96b2fccd966434089125cde8ecc588cf00870a5": 1,
+      "attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442": 2
+    },
+    "held_because": [],
+    "interruptions": [],
+    "job_ids": [
+      "job-a",
+      "job-b"
+    ],
+    "outstanding_cleanup": [],
+    "schema": "baton.v12.two-job-outcome/1",
+    "serving_bound_seconds": 540,
+    "serving_failure": null,
+    "state": "settled",
+    "stopped": "serving-bound-exceeded",
+    "submitted_at": "2026-09-29T16:43:44.393Z",
+    "uncertainty": [],
+    "undeclared_cleanup": [],
+    "unresolved_cleanup": [],
+    "verdicts": {
+      "job-a": {
+        "attachment_id": "review-ec2568ff337a00378912be2139d666e4733b64632152dd4734300f16537bd777",
+        "attempt_id": "attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442",
+        "base": "346a809bf0e4c47e52d881bd46d6d62a611c9816",
+        "checkpoint_id": "checkpoint-7fbeeddd9bc293b20d6af24e8ea87a10c35cf0e0f649280eebb6f6316abeb9af",
+        "head": "4648b4aaeeca7713b73d808915106f4e1e8c857a",
+        "result_digest": "sha256:9540f639cd1df90e08f1303e3cb3a9cd17054d9690f6dab137a62a8f9b66549f",
+        "result_id": "result-attempt-ea03e292e4b584df4a6eaae442e325eba25df889af25d79c9edb6ca43cfc0442",
+        "tree": "9fbf961c459c409ddd461434fde4d09cd368c713",
+        "verdict": "accepted"
+      },
+      "job-b": {
+        "attachment_id": "review-3b6e42f568f79ee388b7ee7400463facf3dbe5b50db1cb7bb802ea13d77d1dc8",
+        "attempt_id": "attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11",
+        "base": "346a809bf0e4c47e52d881bd46d6d62a611c9816",
+        "checkpoint_id": "checkpoint-38bd58ae4fdaca8390469dafa0dcfd16dcde94d8fae796054de113c3e4d297bd",
+        "head": "530646319a454bcfaa03aac106e2ecf3dea76071",
+        "result_digest": "sha256:854bc16c553a149a6d7c9e50c7d265e27c5d9c2e4cc516624830885303d4976b",
+        "result_id": "result-attempt-6710eedccfe912a1077f3512750f5f696c24f0593807ca0d26a3753896861c11",
+        "tree": "779aa340f64b24c144a8fdac98d991c5b182d230",
+        "verdict": "accepted"
+      }
+    }
+  },
+  "status_read_limitation": "supported CLI failed unable to open database file; no raw DB access"
+}

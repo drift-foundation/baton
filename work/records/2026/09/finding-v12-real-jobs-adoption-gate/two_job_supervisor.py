@@ -31,6 +31,8 @@ nothing, and the outcome says so rather than calling it a success.
 """
 import hashlib
 import os
+import pathlib
+import stat
 import sys
 
 SIBLING = os.path.join(
@@ -555,7 +557,356 @@ _OWED = (
     ("cleanup_sweeps", 0), ("cleanup", dict), ("outstanding_cleanup", list),
     ("uncertainty", list), ("interruptions", list), ("generations", dict),
     ("verdicts", dict), ("held_because", list), ("finished_at", None),
+    # W306614: WHAT EACH SELECTED PIPELINE REACHED, so a reader of the outcome
+    # can tell a Job that failed from one that never started.
+    ("pipelines", dict),
+    # AND THE FIRST FAILURE EACH JOB WAS OBSERVED TO HAVE, kept separately
+    # because `pipelines` is CURRENT ELIGIBILITY and a later unreadable status
+    # legitimately empties it. Review 2026-09-29T17-20-22Z R2: a current unknown
+    # must not erase a confirmed failure.
+    ("failures", dict),
 )
+
+
+# THE REVIEWED PROVIDER-DIAGNOSTIC CONTRACT, closed. W306614 review R2.
+#
+# THIS IS NOT A PARSER OVER PROVIDER TEXT and it is deliberately not one. The
+# accepted `v12/testing/standalone_ab/failure_observation._supported_detail`
+# admits exactly two shapes -- the recognised OAuth constant, or an explicit
+# unknown -- and refuses everything else including any prose it has not been
+# told to expect. This is that rule, applied to what the canonical status
+# projection carries, with no schema added anywhere and no new vocabulary.
+#
+# WHY A LOCAL COPY RATHER THAN THE HELPER. `PROPOSAL.md` and the review both say
+# the helper is not drop-in: it hardcodes one packet's submission id, Job names,
+# storage layout and task-id suffix, and it is now assigned elsewhere. A bounded
+# packet-specific adaptation of its SAFE PARSING CONTRACT is the recorded
+# choice; claiming the shared helper silently is the thing not to do.
+_OAUTH_EXPLANATION = ("Failed to authenticate: OAuth session expired and could "
+                      "not be refreshed")
+_DIAGNOSTIC_KEYS = {"schema", "http_status", "classification", "explanation",
+                    "explanation_status", "request_id", "request_id_status"}
+
+
+def _supported_diagnostic(given):
+    """The reviewed adapter contract, or None. Never trusts arbitrary prose."""
+    if not isinstance(given, dict) or set(given) != _DIAGNOSTIC_KEYS:
+        return None
+    if given.get("schema") != "baton.provider-diagnostic/1":
+        return None
+    code = given["http_status"]
+    if code is not None and (type(code) is not int or not 400 <= code <= 599):
+        return None
+    if given["request_id"] is not None \
+            or given["request_id_status"] != "unavailable":
+        return None
+    recognised = (given["classification"] == "authentication_failed"
+                  and given["explanation"] == _OAUTH_EXPLANATION
+                  and given["explanation_status"] == "supported-constant")
+    unknown = (given["classification"] == "unknown"
+               and given["explanation"] is None
+               and given["explanation_status"] in ("unavailable", "withheld"))
+    if not (recognised or unknown):
+        return None
+    return {"schema": "baton.provider-diagnostic/1", "http_status": code,
+            "classification": ("authentication_failed" if recognised
+                               else "unknown"),
+            "explanation": _OAUTH_EXPLANATION if recognised else None,
+            "explanation_status": (
+                "supported-constant" if recognised
+                else ("withheld" if given["explanation_status"] == "withheld"
+                      else "unavailable")),
+            "request_id": None, "request_id_status": "unavailable"}
+
+
+# THE RETAINED ADAPTER REPORT, read through the SAME rules the accepted helper uses.
+# W306614 review 2026-09-29T17-33-48Z: my first version read `exchange["diagnostic"]`,
+# which the exchange observation does not publish -- it carries state, command, receipt and
+# terminal identity. The provider diagnostic is in the adapter's own retained report, and
+# copying the validator without its data source meant a valid published OAuth failure could
+# never reach the branch that recognises it.
+#
+# THIS IS A MINIMAL READER OWNED HERE, not the shared helper taken. It keeps the helper's
+# identity rules exactly -- one artifact row whose `artifact_id` is `<attempt>:<output>`, a
+# `file:` locator with no escaping or traversal, a path UNDER this deployment's own storage
+# whose last three parts are `custody/<attempt>/<output>`, a bounded read, duplicate members
+# refused, no JSON constants, and the report's own `schema`/`task_id` bound to THIS attempt's
+# Job -- and it takes the storage root and task id as operands instead of hardcoding one
+# packet's layout, which is why the helper is not drop-in.
+_REPORT_OF = {"implementation": ("proposal", "result.json",
+                                 "baton.dogfood-proposal/2"),
+              "review": ("logs", "review.json", "baton.review-log/1")}
+_PROVIDER_REASONS = ("api-error", "timeout", "start-error", "unclassified")
+_REPORT_BYTES = 65536
+
+
+def _unknown_report(why, locator=None):
+    return {"availability": "unavailable", "provider_reason": "unknown",
+            "provider_exit_status": None, "diagnostic": None,
+            "locator": locator, "why": why}
+
+
+def _bounded_document(place):
+    """One small JSON report, with NO SYMLINK AT ANY COMPONENT.
+
+    W306614 review 2026-09-29T17-44-50Z R2a, and the reviewer's fixture is a real escape
+    rather than hardening: my first version opened the whole path with `O_NOFOLLOW`, which
+    protects the FINAL NAME ONLY, and compared the declared path lexically -- so a symlink
+    at `storage/custody` pointing at a sibling tree answered `available` with an
+    `authentication_failed` cause attributed from OUTSIDE the selected root.
+
+    THE ANCESTRY IS WALKED with directory descriptors, exactly as the reference
+    `failure_observation._document` does, so every component is proved unfollowed. And the
+    final open is `O_NONBLOCK` BEFORE the regular-file check, because a FIFO would
+    otherwise block in `open` before `fstat` could refuse it.
+    """
+    import json as _json
+
+    descriptor = os.open(os.sep, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for part in place.parts[1:-1]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                            dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        child = os.open(place.name,
+                        os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                        dir_fd=descriptor)
+        try:
+            if not stat.S_ISREG(os.fstat(child).st_mode):
+                raise ValueError("not a regular report")
+            with os.fdopen(child, "rb", closefd=False) as stream:
+                raw = stream.read(_REPORT_BYTES + 1)
+        finally:
+            os.close(child)
+    finally:
+        os.close(descriptor)
+    if len(raw) > _REPORT_BYTES:
+        raise ValueError("oversized report")
+
+    def pairs(items):
+        held = {}
+        for key, value in items:
+            if key in held:
+                raise ValueError("duplicate report member")
+            held[key] = value
+        return held
+
+    def refused(_value):
+        raise ValueError("non-JSON constant")
+
+    return _json.loads(raw.decode("utf-8"), object_pairs_hook=pairs,
+                       parse_constant=refused)
+
+
+def _retained_report(stage, *, storage_root, task_id):
+    """The adapter's own retained report for THIS attempt, or an explicit unknown.
+
+    EVERY REFUSAL ANSWERS `unknown` WITH ITS REASON. Absent, foreign, malformed or
+    unreadable evidence is a stated unknown -- never a guess, and never a reason to
+    claim an authentication cause the report does not establish.
+    """
+    from urllib.parse import urlsplit
+
+    attempt = stage.get("attempt_id")
+    held = _REPORT_OF.get(stage.get("kind"))
+    if not attempt or held is None:
+        return _unknown_report("this stage names no attempt or no reported output")
+    output, filename, schema = held
+    rows = [one for one in (stage.get("artifacts") or ())
+            if isinstance(one, dict)
+            and one.get("output_name") == output
+            and one.get("artifact_id") == f"{attempt}:{output}"]
+    if len(rows) != 1:
+        return _unknown_report(
+            f"this attempt declares {len(rows)} retained {output} reports and a "
+            f"report is identified by exactly one")
+    locator = rows[0].get("locator")
+    if not isinstance(locator, str):
+        return _unknown_report("the retained report row carries no locator")
+    try:
+        url = urlsplit(locator)
+        place = pathlib.Path(url.path)
+        if url.scheme != "file" or url.netloc or url.query or url.fragment \
+                or "%" in url.path or ".." in place.parts:
+            return _unknown_report("the locator is not a plain local report path",
+                                   locator)
+        if storage_root is None:
+            return _unknown_report(
+                "this run knows no storage root to bind the report to", locator)
+        place.relative_to(os.path.realpath(storage_root))
+        if place.parts[-3:] != ("custody", attempt, output):
+            return _unknown_report(
+                "the locator is not this attempt's own custody path", locator)
+        given = _bounded_document(place / filename)
+        # THE SHAPES ARE VALIDATED INSIDE THE GUARD. Review R2a: a report whose root is
+        # `[]`, or whose `provider` is `[1]`, raised `AttributeError` from the `.get`
+        # calls BELOW this block -- and in `supervise` that became `serving-failed`,
+        # ending healthy Jobs because a supplementary report was malformed.
+        if not isinstance(given, dict):
+            return _unknown_report(
+                "the retained report is not an object", locator)
+        if given.get("schema") != schema:
+            return _unknown_report(
+                "the retained report is not the expected contract", locator)
+        if task_id is None or given.get("task_id") != task_id:
+            return _unknown_report(
+                "the retained report names a different task than this Job's",
+                locator)
+        provider = given.get("provider")
+        if provider is None:
+            provider = {}
+        if not isinstance(provider, dict):
+            return _unknown_report(
+                "the retained report's provider record is not an object", locator)
+    except (OSError, ValueError, TypeError, KeyError, AttributeError,
+            RecursionError) as refused:
+        return _unknown_report(
+            f"the retained report could not be read: "
+            f"{type(refused).__name__}: {refused}", locator)
+    reason = provider.get("failure_reason")
+    if reason not in _PROVIDER_REASONS:
+        return _unknown_report(
+            "the report carries no supported provider failure reason", locator)
+    code = provider.get("status")
+    if code is not None and (type(code) is not int or not -255 <= code <= 255):
+        return _unknown_report("the report's provider status is out of contract",
+                               locator)
+    # THE DIAGNOSTIC IS ONLY EVEN LOOKED AT for an api-error with a nonzero status.
+    # `api-error` alone does NOT establish authentication, which is the helper's own
+    # rule and the reason this does not classify from a status code.
+    diagnostic = (_supported_diagnostic(provider.get("diagnostic"))
+                  if reason == "api-error" and type(code) is int and code != 0
+                  else None)
+    return {"availability": "available", "provider_reason": reason,
+            "provider_exit_status": code, "diagnostic": diagnostic,
+            "locator": locator,
+            "why": None if diagnostic else
+            "the report carries no validated provider diagnostic"}
+
+
+def _locators_of(stage):
+    """The manager's OWN artifact locators, as it recorded them. Reads nothing.
+
+    A locator is safe to name and its contents are not read here: the whole
+    point of reporting one is that a reader can go and look under their own
+    authority.
+    """
+    held = []
+    for one in stage.get("artifacts") or ():
+        if isinstance(one, dict):
+            found = one.get("locator") or one.get("artifact_id")
+            if isinstance(found, str) and found:
+                held.append(found)
+        elif isinstance(one, str) and one:
+            held.append(one)
+    return sorted(set(held))
+
+
+# THE CANONICAL TERMINAL FACTS the exchange observation ACTUALLY publishes.
+#
+# W306614 review 2026-09-29T17-44-50Z R2b: my first version copied scalar members of the
+# exchange only, and the real `terminal` is a DICTIONARY -- `worker_manager/exchange.py`
+# `_terminal` returns `ending`, `answered`, `disposition`, `fault_code` and
+# `manifest_digest` -- so the whole cause was skipped and my flat `terminal_reason`
+# mocks proved nothing about the publisher's shape. These are that shape's own closed
+# members, read where they actually live.
+_EXCHANGE_SCALARS = ("state", "sequence_id")
+_TERMINAL_MEMBERS = ("ending", "disposition", "fault_code", "manifest_digest")
+_STEP_MEMBERS = ("operation", "operation_id", "sequence_id", "state", "act",
+                 "recorded_at", "digest")
+
+
+def _closed(given, members):
+    """The named members of one nested document, scalars only, copied as recorded."""
+    if not isinstance(given, dict):
+        return None
+    held = {}
+    for name in members:
+        value = given.get(name)
+        if isinstance(value, (str, int, bool)) or value is None:
+            held[name] = value
+    return held
+
+
+def _terminal_facts(exchange):
+    held = {name: exchange.get(name) for name in _EXCHANGE_SCALARS
+            if isinstance(exchange.get(name), (str, int, bool))
+            or exchange.get(name) is None}
+    terminal = _closed(exchange.get("terminal"), _TERMINAL_MEMBERS)
+    if terminal is not None:
+        answered = exchange["terminal"].get("answered")
+        if isinstance(answered, list) and all(isinstance(one, str)
+                                              for one in answered):
+            terminal["answered"] = list(answered)
+        held["terminal"] = terminal
+    for name in ("command", "receipt"):
+        step = _closed(exchange.get(name), _STEP_MEMBERS)
+        if step is not None:
+            held[name] = step
+    return held
+
+
+# WHICH FIELDS MAKE TWO OBSERVATIONS THE SAME FAILURE. Review R2c: a later cause may only
+# be attached to the first failure when it is the SAME failure -- same stage, same attempt,
+# same episode, same assignment. Anything else is a different failure that happens to be in
+# the same Job, and relabelling the first one with its cause would be a misattribution.
+_IDENTITY = ("stage_id", "kind", "attempt_id", "episode", "assignment")
+
+
+def _same_failure(first, later):
+    return all(first.get(name) == later.get(name) for name in _IDENTITY)
+
+
+def _failure_facts(job_id, stage, observed_at, *, storage_root=None,
+                   task_id=None):
+    """One IMMUTABLE attributed first-failure record, from canonical fields only.
+
+    W306614 review R2: `_attempts_of` answers attempt ids and stage states and
+    discards the exchange, the episode/assignment and the artifact locators --
+    so a report built from it cannot explain the failure it is reporting. These
+    are the identity fields the projection already publishes, plus a provider
+    cause that is either the validated closed constant or an EXPLICIT unknown
+    beside the locator where the evidence would be.
+    """
+    exchange = stage.get("exchange") if isinstance(stage.get("exchange"),
+                                                   dict) else {}
+    runtime = stage.get("runtime") if isinstance(stage.get("runtime"),
+                                                 dict) else {}
+    report = _retained_report(stage, storage_root=storage_root, task_id=task_id)
+    diagnostic = report["diagnostic"]
+    locators = _locators_of(stage)
+    return {
+        "job_id": job_id, "kind": stage.get("kind"),
+        "stage_id": stage.get("stage_id"), "work_id": stage.get("work_id"),
+        "state": stage.get("state"), "episode": stage.get("episode"),
+        "attempt_id": stage.get("attempt_id"), "offer_id": stage.get("offer_id"),
+        "assignment": runtime.get("assignment"),
+        "runtime_id": runtime.get("runtime_id"),
+        "execution_runtime": runtime.get("execution_runtime"),
+        # THE CANONICAL EXCHANGE STATE, which is a closed vocabulary, and NOT
+        # any message it may carry.
+        "exchange_state": exchange.get("state"),
+        # AND THE REST OF THE CANONICAL TERMINAL RECORD, whatever of it exists.
+        "terminal": _terminal_facts(exchange),
+        "observed_at": observed_at,
+        # WHAT THE ADAPTER'S OWN RETAINED REPORT SAID, and where it was read from.
+        "adapter_report": {name: report[name] for name in
+                           ("availability", "provider_reason",
+                            "provider_exit_status", "locator", "why")},
+        # EITHER THE VALIDATED CONSTANT OR AN EXPLICIT UNKNOWN. Never prose.
+        "provider_diagnostic": diagnostic or {
+            "schema": "baton.provider-diagnostic/1", "http_status": None,
+            "classification": "unknown", "explanation": None,
+            "explanation_status": "unavailable",
+            "request_id": None, "request_id_status": "unavailable"},
+        "provider_cause": (
+            "provider-reported-oauth-session-expired-refresh-failed"
+            if diagnostic
+            and diagnostic["classification"] == "authentication_failed"
+            else "unknown"),
+        "diagnostic_locators": locators,
+    }
 
 
 def _moment_of(clock):
@@ -601,7 +952,8 @@ def _completed(measured, gate, clock, *, finalization_failure, uncertainty,
 
 def supervise(job, control, operations, *, job_ids, bounds, outcome_path,
               deployment_path, caps=None, clock=None, sleep=None,
-              monotonic=None, termination=None, turns=None):
+              monotonic=None, termination=None, turns=None, report=None,
+              storage_root=None, task_ids=None):
     """Two Jobs, four admissions, a real stop and an outcome on every path.
 
     THE PHASES ARE SEPARATE, as they are in `baseline._supervise`: serving is
@@ -618,6 +970,15 @@ def supervise(job, control, operations, *, job_ids, bounds, outcome_path,
     import time
 
     from baton_v12.job_manager import serve
+
+    # WHERE A PROMPT FAILURE REPORT GOES. W306614, owner 306698: an operator
+    # watching the foreground terminal is owed each failed Job as it is
+    # observed, not at the end. The default writes to stdout and FLUSHES,
+    # because a report an operator cannot see until the process exits is the
+    # defect this exists to fix; a test supplies its own sink.
+    if report is None:
+        def report(line):
+            print(line, file=sys.stdout, flush=True)
     held_baseline()
     clock = baseline._moment if clock is None else clock
     sleep = time.sleep if sleep is None else sleep
@@ -640,6 +1001,151 @@ def supervise(job, control, operations, *, job_ids, bounds, outcome_path,
                 "serving_bound_seconds": serving_bound,
                 "caps": dict(gate._caps)}                     # noqa: SLF001
     held = {"stop": None}
+    # W306614 CAUSE A. `should_continue` recorded generations, optional turns,
+    # caps and the serving deadline, and never looked at whether the selected
+    # Jobs could still make progress -- so a run whose two implementations had
+    # both failed sat in `serve`'s predicate loop until the bound or an
+    # operator's Ctrl-C. `two-jobs-247941-01` spent 439.7 seconds that way.
+    #
+    # THE CLASSIFICATION IS PER JOB AND IT IS THE ACCEPTED ONE. `_attempts_of`
+    # already filters the status projection to ONE Job and `_terminal` reads
+    # that Job's own stage states; both are the single-Job supervisor's, used
+    # here once per selected Job. They are NOT applied to a flattened map of
+    # both Jobs' states -- `_terminal`'s any-exceptional rule would then end a
+    # healthy Job because the other one failed, which is the opposite of what
+    # this run has to prove.
+    pipelines = {}
+    failures = {}
+    announced = set()
+    unreadable = set()
+
+    def _selected():
+        """One canonical status read per tick, kept WHOLE.
+
+        `baseline._attempts_of` is the accepted per-Job boundary and answers
+        attempt ids and stage states -- and W306614 review R2 is right that it
+        DISCARDS the exchange, the episode/assignment and the artifact locators,
+        which are exactly the facts a failure report has to carry. So this asks
+        the same canonical `status` projection once and keeps the stage entries;
+        the per-Job classification below is still `baseline._terminal` over ONE
+        Job's states, never a flattened map of both.
+
+        AN INTERRUPTION IS NOT AN UNREADABLE STATUS. Review R1: this used to
+        catch `BaseException`, record it and carry on, so a Ctrl-C arriving in
+        the status read left admission open until the serving deadline. A
+        non-`Exception` is RE-RAISED to the serving interruption handler
+        `supervise` already installs, which closes admission and stops promptly.
+        An ordinary failure is still UNKNOWN, recorded ONCE per distinct message
+        rather than once per tick.
+        """
+        from baton_v12.job_manager import status
+
+        try:
+            document = status(job, gate, observed_at=baseline._moment())  # noqa: SLF001
+        except Exception as failure:                         # noqa: BLE001
+            said = f"{type(failure).__name__}: {failure}"
+            note = f"reading the selected Jobs' status did not complete: {said}"
+            if note not in unreadable:
+                unreadable.add(note)
+                uncertainty.append(note)
+            return None
+        held = {}
+        for entry in document.get("jobs") or ():
+            if entry.get("job_id") not in gate.job_ids:
+                continue
+            held[entry["job_id"]] = [one for one in entry.get("stages") or ()
+                                     if isinstance(one, dict)]
+        return held
+
+    def _inspect():
+        """Classify every selected pipeline, and report each failure ONCE."""
+        document = _selected()
+        if document is None:
+            # UNKNOWN IS NOT REMEMBERED AS TERMINAL and it ERASES NOTHING.
+            # `pipelines` is current eligibility, so it is cleared; `failures`
+            # is what was observed, so it stands.
+            pipelines.clear()
+            return
+        observed_at = _moment_of(clock)
+        for job_id in gate.job_ids:
+            stages = document.get(job_id)
+            if stages is None:
+                pipelines.pop(job_id, None)
+                continue
+            states = {one.get("kind"): one.get("state") for one in stages}
+            seen = {}
+            for one in stages:
+                for attempt in [one.get("attempt_id")] + [
+                        two.get("attempt_id")
+                        for two in one.get("episodes") or ()]:
+                    if attempt is not None:
+                        seen[attempt] = one.get("kind")
+            reached = baseline._terminal(states)              # noqa: SLF001
+            pipelines[job_id] = {
+                "reached": reached, "states": dict(states),
+                "attempts": dict(seen), "observed_at": observed_at}
+            if reached != "exceptional":
+                continue
+            # THE FIRST FAILURE IS RECORDED ONCE AND NEVER REWRITTEN. A later
+            # tick that reads a different state does not get to restate what
+            # this Job's original failure was.
+            failed = [one for one in stages
+                      if one.get("state") == "exceptional"]
+            supplemented = False
+            if failed:
+                facts = _failure_facts(
+                    job_id, failed[0], observed_at, storage_root=storage_root,
+                    task_id=(task_ids or {}).get(job_id))
+                if job_id not in failures:
+                    failures[job_id] = facts
+                elif (failures[job_id]["provider_cause"] == "unknown"
+                        and facts["provider_cause"] != "unknown"
+                        and _same_failure(failures[job_id], facts)):
+                    # A PROVISIONAL UNKNOWN IS NOT FINAL, AND IT IS NOT A SLOT
+                    # EITHER. The adapter's report may be retained AFTER the stage
+                    # first projects exceptional, so a later validated cause must
+                    # not be suppressed -- but review 2026-09-29T17-44-50Z R2c is
+                    # right that keying on the Job alone would attach a DIFFERENT
+                    # failure's cause to the first one. The identity has to match:
+                    # same stage, attempt, episode and assignment. A changed
+                    # failure keeps its own facts and supplements nothing.
+                    failures[job_id] = dict(
+                        failures[job_id],
+                        provider_cause=facts["provider_cause"],
+                        provider_diagnostic=facts["provider_diagnostic"],
+                        adapter_report=facts["adapter_report"],
+                        diagnostic_locators=facts["diagnostic_locators"],
+                        cause_observed_at=facts["observed_at"],
+                        cause_supplemented=True)
+                    supplemented = True
+            # DEDUPLICATED BY WHAT WAS ACTUALLY OBSERVED, so a repeat tick is
+            # silent and a Job that fails differently later is not.
+            #
+            # AND THE CAUSE IS PART OF THE OBSERVATION. Review R2c: the key held
+            # only stage states and attempt names, so a cause that became known
+            # while the states stayed the same was retained in the outcome and
+            # never reported promptly -- which is the whole point of reporting.
+            mark = (job_id, tuple(sorted(states.items())),
+                    tuple(sorted(seen)),
+                    (failures.get(job_id) or {}).get("provider_cause"))
+            if mark in announced:
+                continue
+            announced.add(mark)
+            facts = failures.get(job_id) or {}
+            report(
+                f"Job {job_id} FAILED: "
+                f"{', '.join(f'{kind} {state}' for kind, state in sorted(states.items()))}"
+                f"; stage {facts.get('kind')} attempt {facts.get('attempt_id')}"
+                f" episode {facts.get('episode')} work {facts.get('work_id')}"
+                f" assignment {facts.get('assignment')}"
+                f"; provider cause {facts.get('provider_cause')}"
+                f"; diagnostic "
+                f"{(facts.get('provider_diagnostic') or {}).get('classification')}"
+                f"; evidence "
+                f"{', '.join(facts.get('diagnostic_locators') or []) or 'no locator recorded'}"
+                f"; observed {facts.get('observed_at')}"
+                f"; this run has no retry, so its remaining stages cannot "
+                f"progress. Other selected Jobs continue.")
 
     def should_continue():
         """One tick's decision, and every reason it can end the run.
@@ -670,6 +1176,18 @@ def supervise(job, control, operations, *, job_ids, bounds, outcome_path,
                 uncertainty=uncertainty, interrupted=caught)
         if gate.refusals:
             held["stop"] = "invocation-cap-refused"
+            return False
+        # W306614: EVERY SELECTED PIPELINE TERMINAL IS A STOP, and it is the
+        # only new one. One Job failing does not end the run -- the other keeps
+        # serving until it reaches its own ending -- and a Job whose status
+        # could not be read is not counted, so an unreadable projection leaves
+        # the deadline as the backstop it was always meant to be rather than
+        # becoming a detector.
+        _inspect()
+        if (len(pipelines) == len(gate.job_ids)
+                and all(one["reached"] is not None
+                        for one in pipelines.values())):
+            held["stop"] = "pipelines-terminal"
             return False
         if monotonic() - started >= serving_bound:
             held["stop"] = "serving-bound-exceeded"
@@ -849,7 +1367,28 @@ def supervise(job, control, operations, *, job_ids, bounds, outcome_path,
         measured["generations"] = dict(gate.generations)
         measured["verdicts"] = verdicts_of(control, gate, uncertainty, caught)
 
+        # W306614: THE PER-JOB FACTS TRAVEL IN THE OUTCOME. `held_because` used
+        # to name only the missing verdicts, so a reader could not tell a Job
+        # that failed from one that never started.
+        measured["pipelines"] = {one: dict(what)
+                                 for one, what in sorted(pipelines.items())}
+        # AND THE IMMUTABLE FIRST FAILURES, which survive a later unreadable
+        # status. Review R2: the hold reasons are derived from THESE, not from
+        # current eligibility, so a status that stops answering cannot quietly
+        # turn a failed run into one that merely has no verdicts.
+        measured["failures"] = {one: dict(what)
+                                for one, what in sorted(failures.items())}
+
         held_because = []
+        for one, what in sorted(failures.items()):
+            held_because.append(
+                f"Job {one} ended exceptionally at {what.get('kind')} "
+                f"{what.get('state')} (attempt {what.get('attempt_id')}, "
+                f"episode {what.get('episode')}, work {what.get('work_id')}); "
+                f"provider cause {what.get('provider_cause')}, diagnostic "
+                f"{(what.get('provider_diagnostic') or {}).get('classification')}"
+                f"; this run has no retry, so its dependent stages could "
+                f"not run")
         for one in gate.job_ids:
             if one not in measured["verdicts"]:
                 held_because.append(
@@ -922,6 +1461,53 @@ def supervise(job, control, operations, *, job_ids, bounds, outcome_path,
         raise baseline.SupervisorInterrupted(measured["interruptions"][0],
                                              measured)
     return measured
+
+
+def _storage_root(deployment):
+    """Where THIS deployment says its workspaces live. One of its own members.
+
+    Every configured worker carries `workspace_storage`, and a run whose workers
+    disagree about it is not one this reader will bind a report to.
+    """
+    held = {(one.get("deployment") or {}).get("workspace_storage")
+            for one in deployment.get("workers") or ()}
+    held.discard(None)
+    return held.pop() if len(held) == 1 else None
+
+
+def _task_ids(deployment):
+    """Each Job's OWN task id, read from the task document the deployment names.
+
+    NOT RECONSTRUCTED FROM A CONVENTION. The accepted helper rebuilds this from
+    `<incarnation>-<last character of the job id>`, which is one packet's naming
+    rule; this reads the declaration instead, so a report is bound to the task
+    this deployment actually configured.
+    """
+    import json
+
+    # THROUGH `job_bindings`, which is the deployment's OWN statement of which worker
+    # produces which Job. My first version matched the task document's FILE NAME against
+    # the Job id, and the connected fixture measured it returning nothing at all: its
+    # documents are `task.json` and `task-b.json`, and their ids are `w119114-...` and
+    # `w130224-...`. A convention is not a binding.
+    workers = {one.get("worker_id"): (one.get("deployment") or {})
+               for one in deployment.get("workers") or ()}
+    held = {}
+    for binding in deployment.get("job_bindings") or ():
+        job_id = binding.get("job_id")
+        configured = workers.get(binding.get("source_worker_id")) or {}
+        place = configured.get("task_document")
+        if not job_id or not place:
+            continue
+        try:
+            with open(place, encoding="utf-8") as handle:
+                document = json.load(handle)
+        except (OSError, ValueError):
+            continue
+        task_id = document.get("task_id")
+        if isinstance(task_id, str):
+            held[job_id] = task_id
+    return held
 
 
 def main(argv=None, *, stream=None, credential_provider=None,
@@ -1017,7 +1603,41 @@ def main(argv=None, *, stream=None, credential_provider=None,
                     "cleanup_seconds": chosen.cleanup_seconds},
             outcome_path=chosen.outcome,
             deployment_path=chosen.deployment,
-            turns=turns, monotonic=monotonic, sleep=sleep, clock=clock)
+            turns=turns, monotonic=monotonic, sleep=sleep, clock=clock,
+            storage_root=_storage_root(deployment),
+            task_ids=_task_ids(deployment))
+    except baseline.SupervisorInterrupted as stopped:
+        # W306614 CAUSE B. `supervise` publishes the outcome, restores the
+        # handler and THEN raises -- deliberately, and the lower-level contract
+        # is preserved exactly. What was missing is the other half of it here:
+        # an operator who pressed Ctrl-C got this exception's traceback out of
+        # `main`, so the one thing they needed -- that the outcome was retained,
+        # and where -- was the one thing not printed.
+        #
+        # THE INTERRUPT IS NOT SWALLOWED. The status is 130, the report says the
+        # run did not finish, and the ORIGINAL per-Job failures are named before
+        # the interruption so the first cause survives the last event. This is
+        # the accepted single-Job presentation (`baseline.main`) at the two-Job
+        # boundary, not a new one.
+        interrupted = stopped.outcome or {}
+        print(f"interrupted: {stopped}", file=stream)
+        print(f"the outcome WAS retained at {chosen.outcome}", file=stream)
+        # FROM `failures`, NOT `pipelines`. Review R2: `pipelines` is current
+        # eligibility and an unreadable status empties it, so reporting the
+        # original cause from it would lose exactly the fact the operator needs
+        # after an interruption.
+        for one, what in sorted((interrupted.get("failures") or {}).items()):
+            print(f"Job {one} had already FAILED: {what.get('kind')} "
+                  f"{what.get('state')}, attempt {what.get('attempt_id')}, "
+                  f"provider cause {what.get('provider_cause')}, evidence "
+                  f"{', '.join(what.get('diagnostic_locators') or []) or 'no locator recorded'}",
+                  file=stream)
+        print(f"state {interrupted.get('state')!r}, stopped "
+              f"{interrupted.get('stopped')!r}; "
+              f"{len(interrupted.get('held_because') or [])} held reason(s); "
+              f"{len(interrupted.get('unresolved_cleanup') or [])} unresolved "
+              f"cleanup", file=stream)
+        return 130
     finally:
         # EVERY HANDLE THIS COMMAND OPENED IS CLOSED, on every path, newest
         # first: a composition closed after its stores would be closing over

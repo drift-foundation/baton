@@ -1,3 +1,43 @@
+# Current checkpoint — selected parallel proof accepted; owner adoption decision
+
+Reviewer307554; owner307552; events307554/thread305971. Latest review-2026-09-29T16-58-33Z.md; EXECUTION-REVIEW-307554.json. Explicitly supersedes prior adoption-unproved checkpoint for this selected fresh-context workflow: run03 completed both implementations and independent reviews with accepted exact candidates,86.433s implementation activity overlap, distinct roots/assignments/disjoint paths, positive exact-runtime cessation. Owner adoption recommendation ACCEPT. No integration or broader release/reuse acceptance implied.
+
+NEXT owner decides initial adoption and closes/passes via existing protocol. W306614 completion-stop/reporting repair remains outstanding; run settled after540.186s at serving bound, not immediate completion. Supported status read failed in reviewer environment; retained evidence independently verified, no DB/engine read workaround. Preserve spent03 and01/02, accepted manifests/reviews, separately owned residual debt and required context-reuse delivery. Reviewer records only; no graph/product/test/Git change.
+
+---
+
+# Current checkpoint — actual03 packet accepted; owner execution next
+
+Owner307442 setup complete; reviewer307444; events307444/thread305971. Latest review-2026-09-29T16-42-20Z.md; ACTUAL-PACKET-307444.json; OPERATOR-307444.md exact commands UUID3818fb6090eb493e939a419a884756c5. Supersedes awaiting03 setup/inspection checkpoint. Exact revised tasks, source/inputs/runtime/candidate and limits agree; Job/control stores and outcome absent; no concrete launch blocker.
+
+NEXT owner foreground03 execution once,600 includes60 cleanup,180/180, two implementations/two reviews under one manager. No setup repeat. Preserve outcome and per-Job artifacts for remaining independent execution and semantic acceptance. Budget sufficiency unproved; W306614 separate;01/02 preserved. Reviewer records only, other ownership unchanged.
+
+---
+
+# Current checkpoint — owner-selected03 preparation accepted
+
+Owner307380 selects03; author307414; reviewer307416. Events307416/thread305971. Latest review-2026-09-29T16-38-53Z.md; REVIEW-CANDIDATE-307416.json; OPERATOR-307388.md. Supersedes awaiting successor-selection checkpoint. Exact plan passed,03 absent, implementation/test bytes unchanged from306893 acceptance. Prior evidence retained; budget sufficiency unproved.
+
+NEXT owner setup03 with existing source/base, then generated packet/actual UUID inspection before launch. No reseed, spent-root mutation or supervisor repair. One manager/two implementations/two reviews;180/180,600 includes60 cleanup. W306614 separate. Adoption evidence/semantic acceptance still owed. Reviewer records only, author assets/PROGRESS preserved.
+
+---
+
+# Current checkpoint — run02 failed; bounded03 recommendation reviewed
+
+Owner306809; author306878; reviewer306880; events306880/thread305971. Latest review-2026-09-29T15-19-17Z.md; EVIDENCE-306880.json and REVIEW-CANDIDATE-306880.json. Supersedes02 launch-ready checkpoint:02 spent, both providers timed out180, held/interrupted, zero reviews. B99-line structural pass and A103-line refusal independently confirmed. No semantic acceptance. Brief correction accepted;21 focused checks PASS0.103s.
+
+NEXT owner considers fresh03 with revised brief and unchanged180/180,600 including60 cleanup, existing source/base. Budget adequacy is unproved; efficient drafting is a bounded hypothesis, not guaranteed cure. If selected, exact setup/launch sheet then generated packet inspection. No reseed, supervisor repair, agent live/setup, graph change or adoption acceptance. Known reporting defects stay W306614. Preserve prior evidence/costs and both spent roots. Reviewer records only; implementer assets/tests/PROGRESS ownership retained.
+
+---
+
+# Current checkpoint — actual successor02 accepted; owner launch next
+
+Owner306724 completed setup; reviewer306728 inspected actual packet. Events306728/thread305971. Latest review-2026-09-29T14-58-08Z.md; ACTUAL-PACKET-306728.json; OPERATOR-306728.md exact commands with UUID417577b218ef43d685e9ae73c04712ac. Supersedes awaiting02 setup/packet inspection checkpoint. No concrete launch blocker; source/inputs/pins/candidate agree; Job/control stores and outcome absent.
+
+NEXT owner executes agreed02 proof once, foreground supervisor,600 total including60 cleanup, two implementation/two review admissions. No setup repeat. Preserve outcome and exact attempt/proposal/runtime evidence for independent acceptance. Known W306614 presentation defects remain separate, not prerequisite. No adoption success until required overlap/isolation/attribution/completion/cessation and semantic proofs. Reviewer records only; other ownership preserved.
+
+---
+
 # Current checkpoint — successor02 preparation accepted
 
 Owner306626; author306683; reviewer306685; events306685/thread305971. Latest review-2026-09-29T14-54-05Z.md; REVIEW-CANDIDATE-306685.json; OPERATOR-306628.md. Supersedes prior01 launch-ready checkpoint:01 is spent authentication-failed/interrupted, preserved and now refused.02 root absent, exact setup plan passed, independent2PASS0.059s. Existing input repo/base unchanged; no reseeding.

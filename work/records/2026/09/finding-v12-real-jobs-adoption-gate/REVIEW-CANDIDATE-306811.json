@@ -1,0 +1,76 @@
+{
+  "claim": 306811,
+  "work": "W247941",
+  "answering": "owner reroute 306809 (baton.slaw) - diagnose run 02 and recommend a bounded successor",
+  "diagnosis": "RUN-02-DIAGNOSIS-306811.md",
+  "what_remained_after_the_commits": {
+    "both_jobs_committed": "head differs from entry_head in both retained proposals; each commit changes exactly the one path its Job owns",
+    "job-b": {"path": "docs/v12-evidence-map.md", "lines": 99,
+              "checker": "structural pass, exit 0",
+              "head": "a3584eae696d305e995bc166d71cde0788e3ccde"},
+    "job-a": {"path": "docs/v12-parallel-operator-notes.md", "lines": 103,
+              "checker": "refused - is 103 lines and the contract is UNDER 100",
+              "head": "47413ce2630df2676d625ff0454698bc057ee1f4"},
+    "method": "the checker was run against each retained checkout rather than inferred from the transcripts",
+    "conclusion": "job-b's document was finished and structurally correct when the provider bound cut the turn off; the run did not fail to produce work"
+  },
+  "what_consumed_the_turn": {
+    "shape": "read context (~18s of cheap tool calls), write the WHOLE document, count afterwards, find it over 100, re-emit the WHOLE document",
+    "job-b": {"tool_uses": 13, "whole_file_emissions_at_seconds": [68, 93, 120],
+              "line_progression": [111, 110, 109, 103, 99], "transcript_ends": 167},
+    "job-a": {"tool_uses": 10, "whole_file_emissions_at_seconds": [90, 117, 146],
+              "line_progression": [120, 117, 106, 103], "transcript_ends": 171},
+    "cost": "23-31 seconds per whole-document emission; roughly 110-130 of 180 seconds"
+  },
+  "unnecessary_activity_measured": [
+    "the re-emission loop itself, a consequence of discovering the line count only after writing",
+    "job-b cat-ed the whole 66kB E1-DESIGN.md (harness: Output too large, 65.4KB) then used sed -n '425,465p' anyway, which is all it needed",
+    "both Jobs put `file` in a verification pipeline and both got Exit code 127; it is not in the image"
+  ],
+  "provider_termination_behaviour": {
+    "disposition": "provider-failed, failure_reason timeout, why: the provider did not finish within 180s, verification null",
+    "and_yet": "the change was committed - custody captured the intended change even on a timeout",
+    "runtimes": "both destroyed; cleanup retained, state absent; outstanding_cleanup, unresolved_cleanup and uncertainty all empty",
+    "streams": "provider stdout finished; provider stderr partial - the drain ended on its own clock",
+    "inconsistency_observed_not_touched": "the same record carries provider.seconds_bound 3600 beside 'did not finish within 180s'; the bound that fired was 180. Reporting repair is W306614's"
+  },
+  "why_not_a_larger_timeout": "the time did not go into the work. job-b produced a structurally correct 99-line document INSIDE 180 seconds while spending ~120 of them re-emitting it. A larger bound buys the loop more room instead of removing it",
+  "changed_this_claim": {
+    "the_brief": "plan to the bound before writing; EDIT rather than re-emit; count with the checker named with this Job's own operands; read only the part of a source you need; `file` is not in this image",
+    "why_this_is_reseed_free": "the brief lives in the emitted task document, not in the seeded set; useful_tasks.py --prove still exits 0 against the owner's source at 346a809bf0e4c47e52d881bd46d6d62a611c9816",
+    "deliberately_not_touched": "USEFUL-TASKS-305440.md and check_useful_tasks.py are CARRIED members and present() compares the seeded copies against them; editing either would force the reseed the owner forbade",
+    "consumed": "two-jobs-247941-02 joins two-jobs-247941-01 in CONSUMED; the case covers both spent roots and that two-jobs-247941-03 is still constructible"
+  },
+  "recommendation": {
+    "keep": ["180s per provider turn", "total 600 including 60 cleanup",
+             "two implementations and two reviews, one manager",
+             "the same source and base 346a809bf0e4c47e52d881bd46d6d62a611c9816"],
+    "run_as": "two-jobs-247941-03",
+    "rationale": "the budget is adequate once the loop is gone; changing the brief and the clock together would leave neither measured",
+    "if_it_times_out_again": "the next question is the CONTENT budget rather than the clock - a 99-line document with five required headings may be more than one 180-second turn can compose carefully - but that is a contract change needing a reseed and a fresh base, so it is not proposed on one run's evidence"
+  },
+  "verification": {
+    "test_two_jobs.py": {"checks": 101, "failures": 0, "seconds": 77.715, "warnings_printed": 0},
+    "test_useful_tasks.py": {"checks": 20, "failures": 0, "seconds": 0.076, "warnings_printed": 0},
+    "flags": "-B -W error::ResourceWarning",
+    "routine_mistake_fixed_here": "ADOPTION-247941.md was bumped to 102 for the new case and the count case failed at 102-vs-101; that page states test_two_jobs's own loader count and the new case is in test_useful_tasks. Put back to 101"
+  },
+  "files": {
+    "useful_tasks.py": "7345a95d7414",
+    "prepare_two_jobs.py": "2c54a5d85e1d",
+    "test_useful_tasks.py": "38f68a736893",
+    "test_two_jobs.py": "30f14392dd51",
+    "RUN-02-DIAGNOSIS-306811.md": "440d21b2f8f2"
+  },
+  "still_owed": [
+    "a successor run that actually completes: overlap of useful model work, isolation, per-Job attribution, completion with exact producer cessation",
+    "independent SEMANTIC acceptance of both useful proposals - no review has ever run"
+  ],
+  "not_done": [
+    "no live run, no setup, no reseeding",
+    "no supervisor repair and no new validator campaign; W306614 owns reporting and interrupt repair",
+    "no deployment, build, retry, reuse or automatic integration",
+    "no graph mutation and no Git mutation of any repository; the spent roots were read only"
+  ],
+  "ready": false
+}

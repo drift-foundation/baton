@@ -672,3 +672,25 @@ and honest acceptance remain distinct.
 Coordination-only update by baton.tuner under claim285648/handoff285645;
 current execution remains in PLAN and canonical Baton state. Historical evidence
 and independent reviews are unchanged. No product/test/live execution selected.
+
+## 2026-09-29T17-14-33Z — owner-selected resumption and implementation preparation
+
+Owner E307633/E307644/E307645 explicitly supersedes the Sep25 parked scheduling
+disposition: prepare then pass directly to baton.tune for bounded implementation.
+Required reuse remains a v12 deliverable; initial parallel adoption is accepted.
+PREPARATION-307667.md pins current scope, ownership, finite acceptance and proposed
+useful development Job. No live execution/deployment selection or verdict steering.
+
+Confirmed DB-1/2/4 defect: provider_context admission and binding call _facts from
+ControlStore transaction callbacks, reaching filesystem and other-store readers.
+RESEARCH-307667.json observes two filesystem calls inside public admission's
+transaction (0.012545002973638475s excluding cleanup); SOURCE-307667.json pins
+inspected bytes. Admission/restore correction must preserve freshness and replay.
+
+Current Sep28 DESIGN also supersedes Sep27 mandatory context-maintenance wording
+for the primary path: exclusive host preparation, one leased container, confirmed
+termination, status/release; no automatic maintenance or output-validation release
+gate. Protected context generations and honest failed-save/refusal remain required.
+Accepted historical subject cannot be rewritten as changes-requested. No new graph
+gate; inherited W239533 edge remains satisfied. W306614 ownership stays separate.
+Reviewer changes only finding/plan/preparation/evidence/review; no product edits.

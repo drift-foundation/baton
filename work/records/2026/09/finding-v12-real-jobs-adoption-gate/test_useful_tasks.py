@@ -69,6 +69,31 @@ class TheSelectedTasksAreOneContract(unittest.TestCase):
             self.assertNotIn("/input/checker/check_useful_tasks.py", argv)
             self.assertIn(useful_tasks.relative("check_useful_tasks.py", "checker"), argv)
 
+    def test_the_BRIEF_tells_the_Job_how_to_spend_the_turn(self):
+        """W247941 owner reroute 306809, from run 02's own retained transcripts.
+
+        Both implementations were cut off at the provider bound, and the transcripts say where the
+        time went: write the whole document, count afterwards, find it over the bound, re-emit the
+        whole document. Three times each, 23-31s per emission. The brief now names that, gives the
+        counting tool the Job already has, and names the two wastes the transcripts show.
+        """
+        for job_id, held in sorted(useful_tasks.TASKS.items()):
+            brief = useful_tasks.task_document(
+                job_id, run_id="probe", base="0" * 40)["instructions"]
+            # THE COUNTING TOOL IS THE ONE ITS OWN VERIFICATION RUNS, named with this Job's operands.
+            argv = useful_tasks.verification(job_id)
+            self.assertIn(" ".join(argv[1:]), brief,
+                          f"{job_id}'s brief does not name its own checker invocation")
+            self.assertIn("EDIT, DO NOT RE-EMIT", brief)
+            self.assertIn("PLAN TO THE BOUND BEFORE YOU WRITE", brief)
+            # AND THE TWO MEASURED WASTES.
+            self.assertIn("`file` IS NOT IN THIS IMAGE", brief)
+            self.assertIn("READ ONLY THE PART OF A SOURCE YOU NEED", brief)
+            # THE OTHER JOB'S PATH IS STILL ABSENT, which the added text must not undo.
+            for other, one in useful_tasks.TASKS.items():
+                if other != job_id:
+                    self.assertNotIn(one["path"], brief)
+
     def test_the_verification_names_this_jobs_own_path_only(self):
         for job_id, held in useful_tasks.TASKS.items():
             argv = useful_tasks.verification(job_id)

@@ -1,0 +1,98 @@
+{
+  "work": "W306614",
+  "claim": 307757,
+  "answering": "review 307718 - changes requested (R1 high, R2 high, R3 medium)",
+  "r1_interruption_in_the_status_read": {
+    "was": "_observed caught BaseException, recorded it and continued, so a signal in the new status read left admission open until the serving deadline; the reviewer's probe measured stopped=serving-bound-exceeded",
+    "now": "a non-Exception is re-raised into the serving interruption handler supervise already installs; ordinary failures stay unknown",
+    "proved_by": "test_an_INTERRUPTION_in_the_status_read_STOPS_ADMISSION_at_once: the interruption reaches the caller, stopped == 'interrupted' and not 'serving-bound-exceeded', admission_closed_before_cancellation is true, state held"
+  },
+  "r2_attributed_and_durable_failure": {
+    "canonical_read": "status(job, gate, ...) once per tick, kept WHOLE; baseline._terminal still classifies one Job's states at a time, never a flattened map",
+    "immutable": "failures[job_id] is recorded once and never rewritten or popped; pipelines is current eligibility and is cleared when a read does not answer",
+    "derived_from_failures": [
+      "held_because",
+      "main's post-interruption report"
+    ],
+    "facts": [
+      "job_id",
+      "kind",
+      "stage_id",
+      "work_id",
+      "state",
+      "episode",
+      "attempt_id",
+      "offer_id",
+      "assignment",
+      "runtime_id",
+      "execution_runtime",
+      "exchange_state",
+      "observed_at",
+      "provider_diagnostic",
+      "provider_cause",
+      "diagnostic_locators"
+    ],
+    "safe_cause": "_supported_diagnostic is a bounded packet-specific adaptation of the reviewed failure_observation._supported_detail contract: the recognised OAuth constant or an explicit unknown, and nothing else. No parser over provider text, no schema change. When nothing validates the record says unknown and names the manager's own artifact locators, never their contents",
+    "helper_ownership": "the shared helper is assigned elsewhere and was NOT claimed; the adaptation is recorded in this dossier",
+    "proved_by": [
+      "test_the_FAILURE_FACTS_are_attributed_and_carry_a_validated_cause",
+      "test_a_MALFORMED_diagnostic_is_UNKNOWN_and_leaks_no_prose",
+      "test_an_ABSENT_diagnostic_is_explicitly_unknown_with_its_locator",
+      "test_a_LATER_unreadable_status_does_NOT_erase_a_confirmed_failure"
+    ]
+  },
+  "r3_connected_failure_evidence": {
+    "how": "W247941's connected fixture with its own provider seam (status=1, so the provider really runs and really fails) and the real adapter, ending, custody and projection",
+    "cases": {
+      "test_BOTH_implementations_FAILING_reports_each_and_stops": "each reported, stopped=pipelines-terminal, state=held, failures carries both attributions, zero review admissions, no verdicts",
+      "test_ONE_failing_Job_lets_the_OTHER_reach_its_own_verdict": "job-a reported; job-b implemented, was REVIEWED and produced its own attributed verdict - one review admission, verdicts == ['job-b'], job-b completed, job-a exceptional, run still held"
+    },
+    "still_simulated_and_said_so": "failed-read-after-failure and the R1 interruption are driven at the dossier level, where a status read can be made to fail or raise; injecting those into the connected fixture would mean mocking its projection too. Publication failure and cleanup uncertainty remain covered by W247941's existing cases"
+  },
+  "verification": {
+    "w306614_dossier": {
+      "checks": 14,
+      "failures": 0,
+      "seconds": 0.01,
+      "was": 9
+    },
+    "w247941_test_two_jobs": {
+      "checks": 103,
+      "failures": 0,
+      "seconds": 43.365,
+      "was": 101
+    },
+    "w247941_test_useful_tasks": {
+      "checks": 20,
+      "failures": 0,
+      "seconds": 0.076
+    },
+    "flags": "-B -W error::ResourceWarning",
+    "own_corrections_this_claim": [
+      "two fixtures assumed one status read per Job; the corrected read is one per tick",
+      "the interruption case had to carry `failures` rather than `pipelines`",
+      "the page-count case caught ADOPTION-247941.md at 101; it now says 103"
+    ]
+  },
+  "withdrawn": "my previous claim's run-03 warning: the reviewer states run 03 completed and was independently accepted before this implementation began and W247941 is closed. No accepted packet, operator sheet or historical digest record was touched",
+  "files": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "2e580ad6402b",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": "e2a372272d72",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/ADOPTION-247941.md": "58a9c7337a8b",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_correction.py": "acc0f41b5618",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_diagnosis.py": "1f3c69c5019f"
+  },
+  "retained": [
+    "the useful per-Job stop",
+    "the narrow main catch and exit 130",
+    "the lower-level publish-then-raise contract, untouched"
+  ],
+  "not_done": [
+    "no live run, provider, engine or deployed store read",
+    "no rerun, cleanup action or consumed-instance mutation",
+    "no broad framework, scheduler, protocol or baseline change",
+    "W236087's Tuner paths untouched",
+    "no graph or Git mutation"
+  ],
+  "ready_for": "independent review of the corrected candidate"
+}

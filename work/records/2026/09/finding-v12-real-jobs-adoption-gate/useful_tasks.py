@@ -117,6 +117,24 @@ IF YOUR STAGE IS THE IMPLEMENTATION. Write that file and nothing else. Do not ju
 verdict is a separate run by somebody else, and a turn that both writes and accepts has reviewed
 nothing.
 
+  YOUR TURN IS BOUNDED AND THE BOUND IS REAL. Run 02 of this packet ended with both implementations
+  cut off at the provider limit, and the retained transcripts say where the time went: each one wrote
+  the WHOLE document, counted the lines afterwards, found it over {bound}, and re-emitted the whole
+  document again -- three times each, at 23 to 31 seconds per emission, which is most of the turn. So:
+
+    PLAN TO THE BOUND BEFORE YOU WRITE. {bound} lines across the headings above is the budget; decide
+    each section's share first. A draft that has to be cut is the expensive failure here.
+    EDIT, DO NOT RE-EMIT. Rewriting the whole file to remove four lines costs as much as writing it.
+    Change the lines you mean to change.
+    COUNT WITH THE CHECKER, which is in your checkout and is the same one your verification runs:
+    `python3 {checker} --job {job} --root . --changed {path}`. It answers `structural: pass` or names
+    the first thing wrong. Run it whenever you like; it writes nothing.
+    READ ONLY THE PART OF A SOURCE YOU NEED. E1 is a 66 kB file and only the HOST-5 and HOST-8
+    paragraphs are the input -- they are quoted verbatim in the contract, and the file is named so
+    the quotation can be checked against it. `cat` of the whole thing costs a large read for nothing.
+    `file` IS NOT IN THIS IMAGE. Both runs lost a round trip to `file: command not found`. Use
+    `python3` or the checker.
+
 IF YOUR STAGE IS THE REVIEW. Your checkout is READ-ONLY and you have no stage in which to fix
 anything. The structural check has already run, so it is not your job: judge whether the CONTENT is
 correct against the excerpts and whether anything required is missing or overstated.
@@ -134,10 +152,11 @@ def _brief(job_id):
     # named a mount this packet never arranged and no worker could have read.
     excerpts = "\n".join(f"  {relative(name, 'excerpts')}  sha256 {one['sha256']}"
                          for name, one in sorted(EXCERPTS.items()))
-    return INSTRUCTIONS.format(path=held["path"],
+    return INSTRUCTIONS.format(path=held["path"], job=job_id,
                                bound=held["line_bound_exclusive"],
                                headings=headings, inputs=SOURCE_INPUTS,
                                contract=relative(CONTRACT, "contract"),
+                               checker=relative("check_useful_tasks.py", "checker"),
                                excerpts=excerpts)
 
 

@@ -1,0 +1,34 @@
+{
+  "claim": 307718,
+  "kind": "independent deterministic counterexamples using author localization fixture; status and lifecycle simulated",
+  "lost_failure_after_read_error": {
+    "reports": [
+      "Job job-a FAILED: implementation exceptional, review blocked; attempts attempt-job-a-implementation, attempt-job-a-review; this run has no retry, so its remaining stages cannot progress. Other selected Jobs continue."
+    ],
+    "final_pipelines": {},
+    "held_because": [
+      "Job job-a produced no attributed verdict; a two-Job review run that collected fewer than two has not done its work",
+      "Job job-b produced no attributed verdict; a two-Job review run that collected fewer than two has not done its work",
+      "no runtime was ever launched, so there is nothing this run can claim to have stopped or cleaned up",
+      "reading Job job-a's status did not complete: RuntimeError: status unavailable",
+      "reading Job job-b's status did not complete: RuntimeError: status unavailable"
+    ],
+    "stopped": "serving-bound-exceeded"
+  },
+  "interrupt_during_status": {
+    "stopped": "serving-bound-exceeded",
+    "serving_elapsed_seconds": null,
+    "interruptions": [
+      "KeyboardInterrupt: reviewer injected signal during status",
+      "KeyboardInterrupt: reviewer injected signal during status"
+    ],
+    "cleanup_window_seconds": 2
+  },
+  "candidate_sha256": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "fca165f70eeddcc20171b0cb32c721073b0de6e3ecc91ca00041559a2149bddd",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": "c9dc1be37d12cb28fb12421b9196a587f6c93af2aceefc07e6709c6c542febd7",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_correction.py": "21713ed063f0c769b51914fc179228bd80f699b9c406c861a380b6dde8311051",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_diagnosis.py": "1f3c69c5019f92fff284c4cd94273b5751a9ad456ceb93eba81c3e87d918a9ef"
+  },
+  "seconds": 0.0017395629547536373
+}

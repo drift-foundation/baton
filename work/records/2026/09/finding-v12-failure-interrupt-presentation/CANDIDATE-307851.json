@@ -1,0 +1,96 @@
+{
+  "work": "W306614",
+  "claim": 307851,
+  "answering": "review 307831 - one remaining correction: actual failure-cause consumption",
+  "preserved_unchanged": [
+    "R1 immediate status-read interruption",
+    "R2 immutable failure history",
+    "R3 connected both-failed and mixed failure/healthy-review slices"
+  ],
+  "the_remaining_defect": "_failure_facts read exchange['diagnostic'], which the exchange observation does not publish, so a valid published OAuth failure could never reach the branch that recognises it; the test that 'proved' it invented the field in a mocked projection",
+  "what_is_there_now": {
+    "reader": "_retained_report, a minimal reader owned in this supervisor",
+    "identity_rules_kept_from_the_accepted_helper": [
+      "exactly one artifact row whose artifact_id is <attempt>:<output>",
+      "a file: locator with no netloc, query, fragment, percent-encoding or traversal",
+      "a path under THIS deployment's own storage whose last three parts are custody/<attempt>/<output>",
+      "a bounded 64 KiB read with O_NOFOLLOW on a regular file",
+      "duplicate report members refused and JSON constants refused",
+      "the report's own schema and task_id bound to this Job",
+      "api-error alone does not establish authentication: the diagnostic is read only for an api-error with a nonzero in-contract status, then only through the closed validator"
+    ],
+    "why_not_the_helper": "it hardcodes one packet's submission, job names, storage layout and task-id convention; this takes the storage root and task id as operands instead",
+    "operands_from_main": {
+      "_storage_root": "the workers' agreed workspace_storage",
+      "_task_ids": "job_bindings -> source_worker_id -> that worker's task_document -> its task_id"
+    },
+    "canonical_terminal_preserved": "terminal carries the closed scalars the exchange does publish - state, terminal, terminal_reason, disposition, fault, fault_code, command, receipt",
+    "provisional_unknown_is_not_final": "a later validated cause is added beside the FIRST canonical failure with cause_supplemented and cause_observed_at; nothing is rewritten and nothing is suppressed"
+  },
+  "binding_defect_the_connected_fixture_caught": {
+    "was": "_task_ids matched the task document's FILE NAME against the job id",
+    "measured": "the connected run returned {} and every connected failure refused with 'the retained report names a different task than this Job's'; that fixture's documents are task.json and task-b.json with ids w119114-composed-lifecycle and w130224-second-job",
+    "now": "bound through job_bindings"
+  },
+  "what_the_connected_run_shows_now": {
+    "availability": "available - the reader reaches the real retained report through the real custody layout, the real locator and this deployment's own task binding",
+    "provider_cause": "unknown",
+    "why": "the report carries no validated provider diagnostic",
+    "reading": "an honest unknown about a deterministic provider that publishes no structured diagnostic, not a path that cannot reach the branch; the connected cases now assert available rather than tolerating either answer"
+  },
+  "evidence": {
+    "positive_through_the_real_boundary": "a report written where the manager writes one, declared as the manager declares it, carrying the closed OAuth diagnostic: the cause reaches the prompt report, the retained outcome and the hold reasons",
+    "through_interruption": "the same cause appears in main's 130 summary after a signal",
+    "negatives": [
+      "wrong task",
+      "foreign attempt",
+      "two rows for one output",
+      "duplicate member",
+      "non-JSON constant",
+      "absent report",
+      "unsupported provider reason",
+      "status out of contract",
+      "prose in place of the supported constant"
+    ],
+    "negative_property": "each an explicit unknown with its reason, and the prose never appears in the outcome or in any report line",
+    "supplement": "a first tick with no report and a second with one"
+  },
+  "verification": {
+    "w306614_dossier": {
+      "checks": 16,
+      "failures": 0,
+      "seconds": 0.017,
+      "was": 14
+    },
+    "w247941_test_two_jobs": {
+      "checks": 103,
+      "failures": 0,
+      "seconds": 43.419
+    },
+    "w247941_test_useful_tasks": {
+      "checks": 20,
+      "failures": 0,
+      "seconds": 0.075
+    },
+    "flags": "-B -W error::ResourceWarning",
+    "own_corrections_this_claim": [
+      "_task_ids matched a file-name convention instead of the deployment's binding",
+      "two multi-tick fixtures never reached their second tick, because a projection in which every pipeline is already terminal ends the run at once - correctly"
+    ]
+  },
+  "files": {
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/two_job_supervisor.py": "65b378b41772",
+    "work/records/2026/09/finding-v12-real-jobs-adoption-gate/test_two_jobs.py": "028eb272a2a4",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_correction.py": "b98669d7336d",
+    "work/records/2026/09/finding-v12-failure-interrupt-presentation/test_diagnosis.py": "1f3c69c5019f (unchanged this claim)"
+  },
+  "not_done": [
+    "no live run, provider, engine or deployed store read",
+    "no raw provider prose, credential text or generic schema change",
+    "no rerun, cleanup action or consumed-instance mutation",
+    "no broad framework, scheduler, protocol or baseline change",
+    "W236087 untouched",
+    "no graph or Git mutation"
+  ],
+  "ready_for": "independent review of the corrected candidate"
+}
