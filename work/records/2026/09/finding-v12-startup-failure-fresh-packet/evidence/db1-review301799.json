@@ -1,0 +1,501 @@
+{
+  "observations": [
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/control.sqlite3",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "fchmod",
+      "operand": "16",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "in_transaction": false
+    },
+    {
+      "operation": "lstat",
+      "operand": "/home/sl/src/baton/v12/python/v12-w71917-jde24hcp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "in_transaction": false
+    }
+  ],
+  "locked": [],
+  "connected_positive_completed": true
+}

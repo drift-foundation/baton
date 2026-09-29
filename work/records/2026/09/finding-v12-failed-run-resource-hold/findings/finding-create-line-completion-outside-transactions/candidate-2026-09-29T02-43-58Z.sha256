@@ -1,0 +1,5 @@
+8224b8e07aa1863f6af742e2a9be6b50e2709b067f14e786da63c1d49d01fc3a  v12/python/src/baton_v12/worker_manager/review_cycles.py
+a4e1c9b39c624d42bfa1d80d4ccf17b913fb22333d632a365a3c960e23f86f2c  v12/python/tests/manager/test_review_cycles.py
+2fdba97317dedb2797531d31e60816e00f11d5db1e0135fc107ccfe291307e38  work/records/2026/09/finding-v12-failed-run-resource-hold/findings/finding-create-line-completion-outside-transactions/PROGRESS.md
+dca3efe44d3135db790e233a7c9f93701d07656803920ae2e7de67ea5686fe68  work/records/2026/09/finding-v12-failed-run-resource-hold/findings/finding-create-line-completion-outside-transactions/review_access_boundary_301591.py
+328948c93be94b0a16ffa9eb5e1525518c8c2c9f4c41b3337338206398fb6095  work/records/2026/09/finding-v12-failed-run-resource-hold/findings/finding-create-line-completion-outside-transactions/review-2026-09-29T02-43-58Z.md

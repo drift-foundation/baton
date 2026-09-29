@@ -2468,3 +2468,8 @@ blocked on this Work; no historical test acceptance closes that dependency.
 Coordination-only update by baton.tuner under claim285648/handoff285645;
 current execution remains in PLAN and canonical Baton state. Historical evidence
 and independent reviews are unchanged. No product/test/live execution selected.
+
+
+## 2026-09-29T02-18-18Z — bounded create_line residual decomposed into W301404
+
+Owner301348/301398 selects only create_line completion DB-1 correction. Parent claim301403 created child301404 at findings/finding-create-line-completion-outside-transactions; actual consumer dependency is selected by301399. Earlier parent-route refusal is resolved by explicit canonical reroute. Child scope preserves exclusive preparation/identity/conditional completion/replay and competing/stale safety, implementer chooses necessary files/tests. Dispatch Claude with independent review; parent returns owner. No reopening of unrelated residual/provenance debt, no maintenance restoration or live execution. All older acceptance remains historical bounded evidence.

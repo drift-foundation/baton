@@ -304,3 +304,18 @@ Reviewer299746/handoff299742, events299746/T257627 through292130. Independent fo
 ## 2026-09-28T22-22-49Z — useful packet proof and confirmed reached create_line DB-1 blocker
 
 Reviewer299834/handoff299832, events299834/T257627 through292130. All201 hashes match; useful task1PASS5.730s. Independent required regression1FAIL0.238s,46lstat+1fchmod inside create_line completion transaction while connected Job succeeds. Counts differ from author62+1 but forbidden I/O is confirmed. Final qualification is blocked; concrete provider correction is outside tuner291841 scope and belongs to existing W257624 residual. Return owner for exact bounded assignment and graph disposition, preserving accepted slices and all unrelated debt. No new dependency silently installed or final acceptance claimed. Current intake prepared_store-required prose is explicitly superseded for preserved ordinary ending. Full findings, scope, next operation and evidence: review-2026-09-28T22-22-49Z.md.
+
+
+## 2026-09-29T02-11-23Z — owner-selected decomposition blocked by parent Route authorization
+
+Owner301348 now explicitly selects bounded correction/child/dependency/Claude; previous awaiting-scope-selection status is superseded. Reviewer301350 canonical standalone create parent=W257624 refused because baton.rvpc is not a handler of baton.decide (slaw only). No child ID or dependency created. This operational finding is recorded before any workaround; none attempted. Prepared exact child scope/binding and required canonical owner operation: review-2026-09-29T02-11-23Z.md. Existing evidence unchanged, no test/product/graph edits. Events301350/T257627 through292130.
+
+
+## 2026-09-29 — canonical authority repaired and exact dependency installed
+
+Owner301398/301399 resolved parent/consumer route mismatch. Parent claim301403 created bounded child W301404 under W257624. Dependency301416 gates W257627 on that exact correction; route301417 is baton.tune blocked. Prior no-child/authority-blocker checkpoint is explicitly superseded. Accepted packet evidence unchanged; no product edits/tests. Child canonical FINDING/PLAN bind correction and independent review; satisfying acceptance resumes runtime rebind/final qualification without renewed permission.
+
+
+## 2026-09-29T03-11-26Z — corrected consumer accepted; real preparation boundary remains
+
+Reviewer301799 verifies all224 hashes and DB-1/useful2PASS5.950s; zero locked filesystem observations. Satisfying provider closures supersede prior waiting checkpoint. Rebound deterministic consumer accepted; full operational packet not launch-ready. Supported bootstrap/prepare_instance create real instance state/grants excluded by owner301348, so return owner for exact preparation-only selection/qualified runtime inputs, not renewed code/test approval. Exact decisions/limits/evidence in review-2026-09-29T03-11-26Z.md. No product/graph/deployment/live/build changes; historical proofs and W257624 debt preserved.

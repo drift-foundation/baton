@@ -1,3 +1,13 @@
+# Current checkpoint — bounded child W301404; parent returns owner
+
+2026-09-29T02-18-18Z, parent claim301403, owner301398 (scope301348), events301403/T257624 through270917. Child W301404 created301404 at findings/finding-create-line-completion-outside-transactions. This explicitly selects only the reached create_line completion DB-1 residual; broader older continuation prose is not an implementation assignment.
+
+Child owns correction and independent acceptance; W257627 consumer waits on that exact child per301399, then continues Tuner packet qualification. Claude chooses necessary correction files/verification within bounded outcome. Parent remains open at baton.decide with all unrelated R3/R4/R5, provenance and residue history preserved; cannot close with open child. Current DESIGN initial host preparation applies, no mandatory maintenance-container restoration from historical text below.
+
+No product changes/tests this coordination turn. Exact baseline/acceptance/ownership in child FINDING/PLAN. Return parent to baton.decide after graph and child dispatch.
+
+---
+
 # Current specification/policy alignment — 2026-09-27, W285642
 
 Keep the accepted restoration milestone and review-2026-09-26T05-53-44Z.md with

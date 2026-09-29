@@ -1,3 +1,35 @@
+# Current checkpoint — corrected consumer accepted; operational selection required
+
+2026-09-29T03-11-26Z, reviewer301799; author301750/handoff301796; events301799/T257627 unchanged292130. Latest review-2026-09-29T03-11-26Z.md. Candidate301750 all224 hashes match; independent DB-1/useful2PASS5.950s, zero locked observations. W285465 and W301404 closed satisfying. Earlier provider/child-wait checkpoints explicitly superseded.
+
+Accepted runtime rebind and deterministic useful-task consumer slice. Full operational packet remains incomplete: qualified real runtime/source/base and fresh instance-generated identities/grants/profile/credential operands absent. OPERATIONAL-INPUTS-301750.json and QUALIFICATION-301750.md are concrete preparation decision support; fake rehearsal captures are not launch instructions.
+
+NEXT baton.decide: select bounded preparation-only operation with actual runtime/profile inputs, or supply qualified fresh instance operands; current owner301348 excludes deployment. Supported bootstrap/prepare_instance create state/grants, so no execution by reviewer/tuner under dossier-only authority. No renewed DB-1/test permission request. No start/model/build selected; exact scope/roots/limits in latest review.
+
+Preserve accepted provider/OS/useful evidence and parent/adoption graph. No remaining selected consumer code correction identified, no full Work closure claimed. Reviewer records only; tuner existing four-path/dossier authority unchanged.
+
+---
+
+# Current checkpoint — W301404 required correction; Tuner continuation blocked
+
+Owner301348/301398/301399 resolved canonical authority. Parent reviewer claim301403 created W301404 under W257624 at baton:work/records/2026/09/finding-v12-failed-run-resource-hold/findings/finding-create-line-completion-outside-transactions. Actual required dependency installed301416: W257627 waits on W301404. Consumer routed baton.tune blocked301417.
+
+This supersedes the previous authority-repair/no-child checkpoint below. Child receives Claude implementation then independent review of bounded create_line completion DB-1 correction. All accepted packet/G2/rehearsal evidence and unrelated W257624 debt remain preserved; no blanket parent gate or duplicate child.
+
+After satisfying child acceptance: Tuner rebinds complete runtime hashes, runs retained DB-1 and useful-task selectors, reuses unaffected four-schedule evidence, resolves actual operational inputs and completes final packet qualification. Existing four baseline path/dossier authority persists. No live/build/deployment or maintenance restoration selected. No tests/product changes in decomposition turn.
+
+---
+
+# Current checkpoint — owner-selected correction; canonical parent authority blocked
+
+2026-09-29T02-11-23Z, reviewer301350; owner301348; events301350/T257627 through292130. Latest operational review review-2026-09-29T02-11-23Z.md. Owner has selected bounded create_line correction under W257624, dependency and Claude implementation; previous scope-selection wait is superseded.
+
+Canonical standalone child create refused: baton.rvpc is not a handler of parent baton.decide (slaw only). No child ID, dossier or dependency created. Required next operation is owner child creation at the prepared binding or explicit parent reroute granting canonical child-creation authority. Exact scope/binding and alternatives in latest review. No source or graph workaround, no tests rerun.
+
+After authority repair: prepare child dossier, install W257627 dependency on exact child, dispatch baton.impl then independent review; consumer baton.tune after satisfying acceptance for runtime rebind/final qualification. Preserve all accepted packet/provider evidence and existing W257624 unrelated residuals. Product selection301348 remains valid; no new general permission needed. Current route return baton.decide for operational repair.
+
+---
+
 # Current checkpoint — reached create_line DB-1 blocks final qualification
 
 2026-09-28T22-22-49Z, reviewer299834; handoff299832; events299834/T257627 through292130. Latest review review-2026-09-28T22-22-49Z.md. Candidate299768 all201 hashes match. Independent useful task1PASS5.730s; required DB-1 probe1FAIL0.238s (46lstat+1fchmod inside transaction). Evidence useful-review299834 and db1-review299834.json.

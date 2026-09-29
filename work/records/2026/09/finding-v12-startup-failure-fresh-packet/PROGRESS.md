@@ -558,3 +558,23 @@ or residual ownership. B1-CHECKPOINT-299768.md requires independent provider
 correction before final qualification; no unchanged partial-success redelivery.
 Episode70.957s measured tests; author255.922s total, reviewer historical44.039s
 separate. No live engine/provider/build/deployment/graph change. Packet not launch-ready.
+
+### 2026-09-29 — baton.tuner claim301750, provider satisfying301745
+
+Consumed independently accepted W301404 correction; both source/test hashes match.
+Rebound complete runtime dependencies; only expected review_cycles.py changed.
+Retained DB-1 probe now1PASS0.227s, zero captured locked calls. Useful task on current
+runtime1PASS5.744s; current actual proposal/base bundles and emitted documents in
+evidence/claim301750-useful. No implementation/test edits or broad reruns.
+QUALIFICATION-301750.md explicitly resolves earlier B3 provider wait for this
+candidate; parent unrelated debt preserved.
+
+Completed read-only operational operand assessment. Selected fresh roots absent;
+rehearsal fake identities/credentials/runtime sentinel cannot be relabeled as live
+inputs. Existing supported bootstrap/prepare_instance effects and exact remaining
+runtime/source/instance outputs recorded in OPERATIONAL-INPUTS-301750.json. Owner
+301348 excludes deployment; no real instance creation or live/build run selected.
+Return corrected candidate for independent consumer review and bounded operational
+preparation disposition. No repeated DB-1 correction request or generic test gate.
+Episode5.971s, author261.893s cumulative; consumer reviewer historical50.007s separate.
+Packet remains not launch-ready until actual operational inputs are resolved.

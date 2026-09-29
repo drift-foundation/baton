@@ -1,0 +1,85 @@
+{
+  "claim": 301799,
+  "files": [
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/B1-CANDIDATE-301750.json",
+      "sha256": "a685d0d2ab074418bfbd2412dbb4f7d9abd57491bd435e76cf175604e2fe7cc2"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/review-2026-09-29T03-11-26Z.md",
+      "sha256": "f918a18dd7b67a20055a7035bcd6dc87ae91eb512f9e91ba4a0f2398685b2022"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/db1-review301799.json",
+      "sha256": "5e45d77bf4cab1901bbc48e2b472321a353bf6bf50c6e8964cee8e0b28017447"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-positive.json",
+      "sha256": "cd296176dacc1d985c380c054c33bd9ca34a84f62e4461f7cea73d398cb758b7"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/PACKET.json",
+      "sha256": "c3f43417691d1f7bb3d07ce40abc5f8f7c7ccce358bb6eaa6bbd7100369f47b1"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/SOURCE-EXCERPTS-20260928.md",
+      "sha256": "b4e27d5e91334f505c5f952c85bada1e2420a92b6f320673af6f60b5a8d3737e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/TASK-SINGLE-JOB-20260928.md",
+      "sha256": "6ece1c8f8cfe023f3ad36ea383c2b77581a8c13e01c2b3a4d92d4ffdb6332f6e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/adapter.json",
+      "sha256": "ea9d311cc04f5a275593a652e084ccd872eb71b92454705c9efeed466c95a87b"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/commands.json",
+      "sha256": "95d0a2a1cb4bdd97958e59c3cfbbeea9cad0c70dd49ae438323310dc7934f602"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/deployment.json",
+      "sha256": "7243b9704207185fea786f7258ec0918efd88fac11d8c80d7269e3123ed8076c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/policy.json",
+      "sha256": "70c95c2d429a58bc11c1ef152dc02a105b44bafcb27df28e9be7a939c0ad9a82"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/proposal/change.patch",
+      "sha256": "a1d2d02e9755ad9ea13cb5180d8a6d4d7cb39fcd6babc11d0f5979e8e50dd771"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/proposal/objects.bundle",
+      "sha256": "626c3f32468dae28f64095431c537c840a3f0011a96bf3b27bc2345e19fb8148"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/proposal/result.json",
+      "sha256": "dc0d8ad8e70169e0a78827af220c5d64678d4f273f325c866e73a955b9c33f8a"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/proposal/verification.txt",
+      "sha256": "522cea11a3123edfb32e722def09448e21137a3d1e36c3f4f327c2efe2d3e261"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/runtime-profile.json",
+      "sha256": "6c8ceffdb5127fcd175bf0d075f38475783991557623ecd80b66e7f21ac77903"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/source-base.bundle",
+      "sha256": "f6f7dd9a18671d7a129b7ed818e6c74bf5a6307196279a4c8279e8d6bd615b53"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/submission.json",
+      "sha256": "2f53a9a6d957bd1be4fc12f27203b1b9e812d2891e8a3a2c110542a1ebf0982f"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/task.json",
+      "sha256": "14d11727deab48dfeeed5af25d09d241298897b6086ef2a0ebea6b55e7077756"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/evidence/rebound-review301799/useful-task/verification.json",
+      "sha256": "b8c8424bffbf5651ccb182602a99aff9d1ba40bb680f03e9af3f91b289edf0c5"
+    }
+  ]
+}

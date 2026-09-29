@@ -1,0 +1,33 @@
+{
+  "adapter_name": "docker-single-worker",
+  "argv_policy": {
+    "arguments": [
+      "--print",
+      "--dangerously-skip-permissions",
+      "--output-format",
+      "json"
+    ],
+    "open": "--session-id",
+    "program": "claude",
+    "restore": "--resume"
+  },
+  "engine": "docker",
+  "entrypoint": [
+    "python3",
+    "/opt/baton/dogfood_entry.py"
+  ],
+  "environment_policy": {
+    "cwd": "/output",
+    "ephemera": "fresh-per-child",
+    "home": "/run/baton/context/home",
+    "keys": [
+      "HOME",
+      "PATH",
+      "PYTHONPYCACHEPREFIX",
+      "TMPDIR",
+      "XDG_CACHE_HOME"
+    ]
+  },
+  "network": "baton-provider-egress",
+  "schema": "baton.single-implementation-adapter/1"
+}

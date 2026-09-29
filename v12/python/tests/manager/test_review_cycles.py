@@ -978,15 +978,27 @@ class StableLineLifecycle(unittest.TestCase):
         return assignment_of(self.store, "writer-attempt-1")
 
     def test_establishing_access_is_serialized_before_idle_and_never_repeated(self):
-        """W194457: the act is `establish_line_access` now, and the property is
-        unchanged -- it happens inside the creation transaction, while the line
-        is still `materializing`, exactly once."""
+        """W194457's property, under W301404's mechanism.
+
+        The property is unchanged and is still the point: the permission act happens
+        while the line is still `materializing` -- so nothing can be granted a writer
+        over a tree whose access has not been established -- and exactly once.
+
+        WHAT CHANGED IS WHERE IT RUNS. It used to run INSIDE the creation transaction,
+        and that is the DESIGN DB-1 violation W301404 corrects: the consumer's reached
+        probe measured 46 `lstat` and one `fchmod` with `in_transaction=True`. So this
+        case now asserts the opposite of what it asserted before -- NO transaction is
+        open while the filesystem is touched -- and keeps every other assertion it
+        made. Serialization does not come from the lock; it comes from the line being
+        exclusively `materializing` until the conditional completion publishes it.
+        """
         from baton_v12.worker_manager import workspaces
         original = workspaces.establish_line_access
         calls = []
 
         def establish(place, pinned, identity):
-            self.assertTrue(self.store._connection.in_transaction)
+            self.assertFalse(self.store._connection.in_transaction,
+                             "DB-1: the permission act holds a database transaction")
             self.assertEqual(self.store._connection.execute("SELECT state FROM review_lines").fetchone()[0],
                              "materializing")
             calls.append(place)
@@ -1009,19 +1021,258 @@ class StableLineLifecycle(unittest.TestCase):
         self.assertEqual(calls, [line["path"]])
         self.assertEqual(os.stat(line["path"]).st_mode & 0o7777, 0o2775)
 
+    def test_a_COMPETING_creator_is_refused_while_this_one_holds_the_line(self):
+        """W301404 reviews 02-32-53Z then 02-43-58Z, and the second corrected the first fix.
+
+        The hole was real: a competitor admitted mid-preparation settled the line, took a
+        writer, and the first creator still permissioned the tree. My first answer put an
+        atomic re-read immediately before the permission act, and the reviewer's boundary
+        probe then switched at the actual `fchmod` -- after that read had committed -- and
+        the stale act ran anyway. AN ADJACENT READ IS NOT A CRITICAL SECTION, and no read
+        is close enough, because the effect is a syscall rather than a transaction.
+
+        SO THE COMPETITOR IS REFUSED WHILE THE FIRST PREPARATION IS LIVE, which the review
+        confirms is safe rather than a lost requirement: the historical probe admitted one
+        to EXPOSE the defect, which is not the same as requiring it be admitted.
+
+        THE FOUR FACTS: the competitor refuses while the holder is inside its own
+        preparation, the holder still completes, the line is published exactly once, and
+        the live-work entry below the root is untouched. Recovery after a death is a
+        different schedule and is `test_line_materialization_crash_resumes_only_the_
+        recorded_operands` plus the interruption case below.
+        """
+        from baton_v12.worker_manager import workspaces
+        prove = workspaces.prove_line_integrity
+        entered, refused, established = False, [], []
+
+        def interleave(*args, **kwargs):
+            """A competitor, driven at the same interval both reviewer probes use."""
+            nonlocal entered
+            if not entered:
+                entered = True
+                try:
+                    self.line()
+                except ContractRefusal as declined:
+                    refused.append(declined.message)
+            return prove(*args, **kwargs)
+
+        original = workspaces.establish_line_access
+
+        def counted(*args, **kwargs):
+            established.append(args[0])
+            return original(*args, **kwargs)
+
+        with mock.patch.object(workspaces, "prove_line_integrity", side_effect=interleave), \
+                mock.patch.object(workspaces, "establish_line_access", side_effect=counted):
+            held = self.line()
+
+        self.assertTrue(entered, "the competing schedule never ran")
+        self.assertEqual(len(refused), 1, refused)
+        self.assertIn("in flight in this manager", refused[0])
+        self.assertEqual(held["state"], "idle")
+        # PUBLISHED ONCE: one permission act, one row, one recorded creation.
+        self.assertEqual(established, [held["path"]])
+        self.assertEqual(review_cycles.line_of(self.store, held["line_id"])["state"], "idle")
+        writer = self.writer(held["line_id"], 1)
+        child = os.path.join(held["path"], "live-worker-file")
+        with open(child, "w") as stream:
+            stream.write("owned by live work")
+        os.chmod(child, 0o600)
+        self.assertEqual(os.stat(child).st_mode & 0o7777, 0o600)
+        del writer
+
+    def test_a_SECOND_HANDLE_on_the_same_store_cannot_bypass_the_exclusion(self):
+        """W301404 review 2026-09-29T02-49-10Z: the key is the DATABASE, not the handle.
+
+        My first exclusion was keyed on `id(store)`, and the reviewer opened a second
+        `ControlStore` on the same file in the same process and walked straight past it --
+        two handles, one resource, no exclusion at all. The key is now the canonical path of
+        the database the handle was opened on, which every handle on that store agrees about.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        # THE ORIGINAL IS BOUND BEFORE THE PATCH, or the hook calls itself.
+        prove = workspaces.prove_line_integrity
+        original = self.store
+        refused = []
+
+        def interleave(*args, **kwargs):
+            if not refused:
+                with ControlStore.open(self.control_path,
+                                       incarnation="second-handle",
+                                       clock=lambda: NOW) as second:
+                    self.store = second
+                    try:
+                        self.line()
+                    except ContractRefusal as declined:
+                        refused.append(declined.message)
+                    finally:
+                        self.store = original
+            return prove(*args, **kwargs)
+
+        with mock.patch.object(workspaces, "prove_line_integrity",
+                               side_effect=interleave):
+            held = self.line()
+
+        self.assertEqual(len(refused), 1, refused)
+        self.assertIn("in flight in this manager", refused[0])
+        self.assertEqual(held["state"], "idle")
+        self.assertEqual(self.profile.materialize_calls, 1)
+
+    def test_an_INDEPENDENT_line_is_not_blocked_by_another_preparation(self):
+        """The control for the exclusion, and the failure mode it must not have.
+
+        An exclusion keyed too coarsely would serialize every line in the deployment, which
+        is a worse defect than the one it fixes: a preparation of ANOTHER Authority and Work
+        touches different roots and has nothing to wait for. So while one line is held, a
+        different one completes -- and the held one still completes afterwards.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        prove = workspaces.prove_line_integrity
+        other_work = "01234567-W71919"
+        finished = {}
+
+        def interleave(*args, **kwargs):
+            # THE FLAG IS SET BEFORE THE CALL, because this hook is on the act the nested
+            # creation performs too: setting it afterwards recursed and refused the
+            # independent line against ITSELF, which measured my own probe rather than
+            # the product.
+            if "started" not in finished:
+                finished["started"] = True
+                finished["other"] = create_line(
+                    self.store, source=nominate_source(self.source),
+                    declared_base=BASE, profile=self.profile,
+                    authority_uuid=AUTHORITY, work_id=other_work)
+            return prove(*args, **kwargs)
+
+        with mock.patch.object(workspaces, "prove_line_integrity",
+                               side_effect=interleave):
+            held = self.line()
+
+        self.assertEqual(finished["other"]["state"], "idle")
+        self.assertEqual(held["state"], "idle")
+        self.assertNotEqual(finished["other"]["line_id"], held["line_id"])
+        self.assertNotEqual(finished["other"]["path"], held["path"])
+
+    def test_a_WITHDRAWN_publication_leaves_a_recoverable_materializing_line(self):
+        """W301404: what the durable state IS when the root is replaced at the instant of
+        the completion commit, which is the one instant no check outside a transaction can
+        observe.
+
+        The mismatch is detected exactly where it always was -- the post-commit object
+        validation -- and the publication it just made is WITHDRAWN rather than left
+        standing: `materializing`, with no object recorded, which no consumer treats as a
+        line. Restoring the object lets the recorded creation replay, so the state is
+        recoverable rather than terminal, and the withdrawal is conditional so it can never
+        pull back a line a writer has advanced.
+        """
+        original = self.store.transact
+        changed = {}
+
+        def interleave(operation, kind, signature, act):
+            if kind == "review-line.create" and "path" not in changed:
+                path = self.store._connection.execute(
+                    "SELECT line_path FROM review_lines").fetchone()[0]
+                changed["path"] = path
+                os.rename(path, path + "-original")
+                os.mkdir(path, 0o700)
+            return original(operation, kind, signature, act)
+
+        with mock.patch.object(self.store, "transact", side_effect=interleave):
+            with self.assertRaises(ContractRefusal):
+                self.line()
+
+        row = self.store._connection.execute(
+            "SELECT state, line_device, line_inode FROM review_lines").fetchone()
+        self.assertEqual(row["state"], "materializing")
+        # AND NO OBJECT IS RECORDED, which the SCHEMA requires rather than this test
+        # preferring it: the table's CHECK constraint is `state = 'materializing' AND
+        # line_device IS NULL AND line_inode IS NULL`. Keeping the pair raised an
+        # `IntegrityError`, so a withdrawn row carries no measurement and the recovery
+        # re-applies the RECORDED creation's own members instead.
+        self.assertIsNone(row["line_device"])
+        self.assertIsNone(row["line_inode"])
+        # THE REPLACEMENT WAS NEVER PROVISIONED, and the original is still intact.
+        self.assertEqual(os.stat(changed["path"]).st_mode & 0o7777, 0o700)
+        os.rmdir(changed["path"])
+        os.rename(changed["path"] + "-original", changed["path"])
+
+        recovered = self.line()
+
+        self.assertEqual(recovered["state"], "idle")
+        self.assertEqual(recovered["path"], changed["path"])
+
+    def test_an_INTERRUPTION_after_the_access_act_leaves_a_recoverable_line(self):
+        """W301404: the window this correction creates, and what it leaves behind.
+
+        Moving the proof and the permission pass out of `store.transact` puts them BEFORE
+        the completion commit, so a process that dies between them and the flip leaves the
+        access effect on disk with the line still unpublished. That is the honest state and
+        the one this case pins:
+
+          * the line stays `materializing`, so nothing reads it as usable;
+          * the permission effect IS present -- it is not pretended away;
+          * a re-entry completes, because both acts are idempotent over an unchanged tree,
+            and the published line validates.
+
+        The previous shape had the same exposure with the lock held -- `transact` could fail
+        after the permission pass just as easily -- so what changes here is that the effect
+        is no longer rolled back by a database that never owned it.
+        """
+        from baton_v12.worker_manager import workspaces
+        original = workspaces.establish_line_access
+        interrupted = []
+
+        def establish_then_die(place, pinned, identity):
+            answer = original(place, pinned, identity)
+            interrupted.append(place)
+            raise RuntimeError("simulated interruption after the access act")
+
+        with mock.patch.object(workspaces, "establish_line_access",
+                               side_effect=establish_then_die):
+            with self.assertRaisesRegex(RuntimeError, "after the access act"):
+                self.line()
+        place = interrupted[0]
+        self.assertEqual(self.store._connection.execute(
+            "SELECT state FROM review_lines").fetchone()[0], "materializing")
+        # THE EFFECT SURVIVED THE INTERRUPTION, asserted rather than assumed.
+        self.assertEqual(os.stat(place).st_mode & 0o7777, 0o2775)
+
+        recovered = self.line()
+
+        self.assertEqual(recovered["state"], "idle")
+        self.assertEqual(recovered["path"], place)
+        self.assertEqual(os.stat(place).st_mode & 0o7777, 0o2775)
+
     def test_late_creator_cannot_reprovision_an_admitted_line(self):
+        """W301404 review 2026-09-29T02-49-10Z moved WHEN this schedule is answered.
+
+        The property has not changed: a line is provisioned ONCE and a live worker's own
+        file is never touched by a later creator. What changed is that the later creator is
+        refused BEFORE it materializes anything, because the exclusive preparation is taken
+        ahead of the first external effect -- the reviewer measured two `materialize` calls
+        where the property is one, and a refusal that arrives after an effect has not
+        excluded it.
+
+        So the competitor here is driven at the same interval as before and now REFUSES,
+        the holder completes, and the two facts this case has always been about are
+        asserted over the holder's own line.
+        """
         from baton_v12.worker_manager import workspaces
         materialize = self.profile.materialize
         inside = False
-        saved = {}
+        refused = []
 
         def interleave(source, path, base):
             nonlocal inside
             result = materialize(source, path, base)
             if not inside:
                 inside = True
-                saved["line"] = self.line()
-                self.writer(saved["line"]["line_id"], 1)
+                try:
+                    self.line()
+                except ContractRefusal as declined:
+                    refused.append(declined.message)
                 child = os.path.join(path, "live-worker-file")
                 with open(child, "w") as stream:
                     stream.write("owned by live work")
@@ -1031,12 +1282,19 @@ class StableLineLifecycle(unittest.TestCase):
         with mock.patch.object(self.profile, "materialize", side_effect=interleave):
             with mock.patch.object(workspaces, "establish_line_access",
                                    wraps=workspaces.establish_line_access) as establish:
-                self.assertEqual(self.line(), saved["line"])
+                held = self.line()
                 self.assertEqual(establish.call_count, 1)
+
+        self.assertTrue(inside, "the late-creator schedule never ran")
+        self.assertEqual(len(refused), 1, refused)
+        self.assertIn("in flight in this manager", refused[0])
+        self.assertEqual(held["state"], "idle")
+        # ONE MATERIALIZATION, which is the count the refusal now protects.
+        self.assertEqual(self.profile.materialize_calls, 1)
         # AND THE LIVE WORKER'S OWNER-ONLY FILE IS UNTOUCHED -- which used to be
         # true because the second provisioning never ran, and is true now
         # because no permission act ever reaches an entry below the root.
-        self.assertEqual(os.stat(os.path.join(saved["line"]["path"], "live-worker-file")).st_mode & 0o7777, 0o600)
+        self.assertEqual(os.stat(os.path.join(held["path"], "live-worker-file")).st_mode & 0o7777, 0o600)
 
     def test_creating_a_line_PROVES_its_integrity_before_granting_access(self):
         """A reversal probe found this gap: removing the integrity proof from

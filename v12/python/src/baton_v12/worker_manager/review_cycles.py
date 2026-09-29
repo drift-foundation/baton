@@ -1254,6 +1254,74 @@ def _validate_line_object(line):
             "the durable development line pathname now names another object")
 
 
+# THE PREPARATIONS THIS MANAGER IS CURRENTLY PERFORMING, keyed by the store object
+# and the line. W301404 review 2026-09-29T02-32-53Z reproduced why a durable row is
+# not enough: the `materializing` row is SHARED by every creator that names the same
+# Authority and Work, so two of them proved and permissioned the same tree, one
+# completed and admitted a writer, and the other still went on to change access under
+# that live writer. The final `WHERE state = 'materializing'` arbitrates COMPLETION and
+# cannot arbitrate an effect that already happened.
+#
+# WHAT THIS EXCLUDES is a second in-process preparation while one is in flight -- the
+# reentrant and concurrent schedules a single manager can actually produce. It is held
+# for the span of the external acts and the settlement and released in a `finally`, so
+# the guarantee is exactly the one `workspaces.release_preparation` states for its own
+# window: a call stack that returns IS the cessation of an in-process writer.
+#
+# AND IT DELIBERATELY DOES NOT OUTLIVE THE PROCESS. A manager that died mid-preparation
+# leaves the row `materializing` and no live entry here, so the recorded recovery path
+# still works -- `test_line_materialization_crash_resumes_only_the_recorded_operands`
+# is that property, and a durable claim with no takeover rule would have broken it. A
+# cross-store competitor is bounded by the atomic re-read and the conditional
+# settlement below, not by this.
+_PREPARING = set()
+_PREPARING_LOCK = threading.Lock()
+
+
+def _line_resource(store, line_id):
+    """The key a preparation is exclusive over: the DATABASE, not the handle.
+
+    W301404 review 2026-09-29T02-49-10Z. My first key was `id(store)`, and the reviewer's
+    probe opened a SECOND `ControlStore` on the same file in the same process and walked
+    straight past it -- two handles, one resource, no exclusion. The key is therefore the
+    canonical path of the database this handle was opened on, which every handle on that
+    store agrees about.
+
+    A HANDLE WITH NO DATABASE PATH FALLS BACK TO ITSELF, and that is a stated limit rather
+    than a hidden one: a store constructed directly around a connection (fixtures do this)
+    names no file, so the strongest honest key available is the handle. Every supported
+    deployment opens through `ControlStore.open`, which records the path.
+    """
+    place = getattr(store, "database", None)
+    if type(place) is str and place:
+        return (os.path.realpath(place), line_id)
+    return (id(store), line_id)
+
+
+def _hold_preparation(store, line_id):
+    """Take this line's exclusive preparation, or refuse. W301404.
+
+    ATOMIC: the test-and-add happen under one lock, so two threads cannot both believe
+    they hold it. The lock guards the REGISTRY only -- it is never held across a
+    filesystem act or a transaction.
+    """
+    holding = _line_resource(store, line_id)
+    with _PREPARING_LOCK:
+        if holding in _PREPARING:
+            raise ContractRefusal(
+                "refused", "precondition",
+                "another preparation of this line is in flight in this manager; a "
+                "second creator is refused while the first holds it, and a completed "
+                "one is replayed rather than prepared again")
+        _PREPARING.add(holding)
+    return holding
+
+
+def _release_preparation(holding):
+    with _PREPARING_LOCK:
+        _PREPARING.discard(holding)
+
+
 # The three recorded members that name WHICH object a line row is about. They
 # are written once by `review-line.create` and never updated afterwards, so a
 # proof taken over them outside a transaction can be bound to the row inside one
@@ -1445,6 +1513,26 @@ def create_line(store, *, source, declared_base, profile,
     path = _line_place(storage, line_id, source.place)
     expected = (profile_name, declared_base, source.place, source.device,
                 source.inode, path)
+    # THE EXCLUSIVE PREPARATION IS TAKEN BEFORE THE FIRST EXTERNAL EFFECT, and
+    # `profile.materialize` IS one -- it creates the checkout. W301404 review
+    # 2026-09-29T02-49-10Z measured the previous placement: a competitor refused later still
+    # materialized first, two calls where the property is one, so the refusal arrived after
+    # an effect it was supposed to exclude. It is held through materialization, the proof,
+    # the permission act, the settlement AND the publication validation, and released in the
+    # `finally` below, which is also what keeps recovery after a death possible.
+    holding = _hold_preparation(store, line_id)
+    try:
+        return _reserved_line(store, line_id=line_id, path=path, expected=expected,
+                              authority_uuid=authority_uuid, work_id=work_id,
+                              profile_name=profile_name, declared_base=declared_base,
+                              source=source, profile=profile)
+    finally:
+        _release_preparation(holding)
+
+
+def _reserved_line(store, *, line_id, path, expected, authority_uuid, work_id,
+                   profile_name, declared_base, source, profile):
+    """Reserve, materialize and complete one line under a held preparation. W301404."""
     connection = store._connection
     connection.execute("BEGIN IMMEDIATE")
     try:
@@ -1495,6 +1583,65 @@ def create_line(store, *, source, declared_base, profile,
                               "line materialization returned malformed evidence")
     boundaries.text(materialized["head"], "a materialized line head")
     device, inode = _object(path, "the materialized development line")
+
+    return _completed_line(store, line_id=line_id, path=path,
+                           device=device, inode=inode,
+                           authority_uuid=authority_uuid, work_id=work_id,
+                           profile_name=profile_name,
+                           declared_base=declared_base, source=source)
+
+
+def _settled_elsewhere(store, line_id, signature):
+    """The recorded creation IF this line was settled by somebody else, or `None`.
+
+    W301404. ONE SHORT TRANSACTION, JOURNAL READS ONLY -- the state and this line's own
+    operation record -- so it is safe under DESIGN DB-1 and is still a single atomic
+    decision rather than two reads a competitor can slip between.
+
+    THREE ANSWERS, and the third is the one that matters:
+
+      the line is still `materializing`     -> `None`, this creator continues;
+      it moved and the creation is RECORDED -> the recorded result, to replay;
+      it moved and nothing is recorded      -> a refusal, because a line that left
+                                              `materializing` without a committed
+                                              creation is a state no creator may
+                                              complete over.
+    """
+    connection = store._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        row = connection.execute(
+            "SELECT state FROM review_lines WHERE line_id = ?",
+            (line_id,)).fetchone()
+        state = None if row is None else row["state"]
+        if state == "materializing":
+            return None
+        found, result = store.replay("review-line.create:" + line_id, signature,
+                                     kind="review-line.create")
+    finally:
+        try:
+            connection.execute("COMMIT")
+        except Exception:
+            pass
+    if state is None:
+        raise ContractRefusal("integrity", "schema",
+                              "this line's row disappeared during its preparation")
+    if found:
+        return result
+    raise ContractRefusal(
+        "refused", "operation-collision",
+        f"this line left 'materializing' as {name_value(state)} while this "
+        f"creator was preparing it, and no creation is recorded to replay; the "
+        f"preparation is reconciled rather than completed over")
+
+
+def _completed_line(store, *, line_id, path, device, inode, authority_uuid,
+                    work_id, profile_name, declared_base, source):
+    """Prove, permission and settle one held preparation. W301404.
+
+    Split out so the hold above is released on EVERY path out of this work,
+    including the refusals, without a `try` around half a function.
+    """
     operands = {"line_id": line_id, "authority_uuid": authority_uuid,
                 "work_id": work_id, "profile_name": profile_name,
                 "declared_base": declared_base, "source_path": source.place,
@@ -1502,26 +1649,93 @@ def create_line(store, *, source, declared_base, profile,
                 "line_path": path, "line_device": device, "line_inode": inode}
     signature = manager_signature("review-line.create", operands)
 
+    # A COMPLETION SOMEBODY ELSE ALREADY RECORDED IS REPLAYED BEFORE ANY OF THE WORK
+    # BELOW. W301404: with the filesystem acts moved out of `transact`, they would
+    # otherwise run on every replay -- `transact` skips its callback for a recorded
+    # operation, so under the old shape the proof and the permission pass were skipped
+    # with it. Measured by `test_late_creator_cannot_reprovision_an_admitted_line`,
+    # which counted two `establish_line_access` calls where the property is one. This
+    # is the same early-replay branch the non-`materializing` case above already uses,
+    # asked one moment earlier, and it keeps a replay free of effects.
+    found, replayed = store.replay("review-line.create:" + line_id, signature,
+                                   kind="review-line.create")
+    if found:
+        # A WITHDRAWN PUBLICATION IS RE-APPLIED FROM THE RECORDED CREATION. W301404: the
+        # withdrawal above returns the row to `materializing` with no members, so a
+        # recovery arriving here finds a recorded creation and a row that does not carry
+        # it yet. Re-applying the SAME members the operation recorded is idempotent and
+        # is not a second creation; the validation below is still what decides whether
+        # the object is really there.
+        _published_recorded_line(store, line_id, device, inode)
+        return _validated_publication(store, line_id, replayed)
+
+    # -- EVERY FILESYSTEM ACT HAPPENS HERE, OUTSIDE EVERY TRANSACTION -----------
+    #
+    # W301404, owner 301348/301398/301399 under W257624, DESIGN DB-1. All three of
+    # these used to run inside `store.transact`: the object re-measurement, the
+    # integrity proof and the access change. The consumer's reached probe measured
+    # 46 `lstat` and one `fchmod` with `in_transaction=True` while the connected
+    # positive still succeeded -- a violation that passes its own happy path, which
+    # is why it survived. A bounded depth walk and a permission pass hold the
+    # write lock for as long as the filesystem takes, and DB-1 exists because that
+    # is unbounded from the database's point of view.
+    #
+    # W194457's ORDER IS UNCHANGED, and it is the reason there are two acts rather
+    # than one: `prove_line_integrity` keeps every constraint the removed
+    # whole-tree provisioning pass enforced (special files, hardlinks, the
+    # entry/byte/depth ceilings, and that the tree belongs to this deployment's
+    # execution identity) and is bounded by DEPTH rather than entry count.
+    # `establish_line_access` then does the permission work, which under a shared
+    # execution identity is the ROOT's group and mode and nothing else.
+    #
+    # WHAT PROTECTS THEIR LIFETIME, since they no longer sit under the lock:
+    #
+    #   THE LINE IS EXCLUSIVELY PREPARED. This row was committed `materializing`
+    #   by the reservation above, and only a completion that still finds it in
+    #   that state may publish -- which is the conditional UPDATE below, not a
+    #   read somebody could race.
+    #   THE PUBLISHED OBJECT IS THE PROVED OBJECT. The identity is measured before
+    #   the proof and MEASURED AGAIN AFTER the access change, so the pair that
+    #   reaches the row is the pair both acts were performed against. A checkout
+    #   swapped underneath either act is refused here rather than published and
+    #   contradicted later.
+    #   AN INTERRUPTION BETWEEN THESE ACTS AND THE COMMIT IS RECOVERABLE, NOT
+    #   SILENT. The line stays `materializing`, so nothing reads it as a usable
+    #   line; both acts are idempotent over an unchanged tree, so the re-entry
+    #   re-proves and re-establishes and then completes. That is the honest state
+    #   this correction leaves, and it is the state the previous shape left too --
+    #   `transact` could fail after the permission pass just as easily.
+    identity = workspaces.configured_workspace_identity(store)
+    workspaces.prove_line_integrity(path, (device, inode), identity)
+    # AND THE SETTLEMENT IS ASKED AGAIN, ATOMICALLY, IMMEDIATELY BEFORE THE ONE ACT THAT
+    # CHANGES ANYTHING. W301404 review 2026-09-29T02-32-53Z reproduced the schedule this
+    # closes: a competitor admitted during this creator's integrity proof settled the line
+    # and granted a writer, and this creator then permissioned the tree under that live
+    # writer. The proof above only READS, so a stale prover is harmless; the permission
+    # pass is the effect, so it is the one the check has to guard.
+    #
+    # `_settled_elsewhere` reads under `BEGIN IMMEDIATE` and answers what this creator
+    # should do instead: REPLAY the recorded creation, which is what a protocol-admitted
+    # competitor leaves behind, or REFUSE when the line moved with nothing recorded.
+    # Neither answer touches the filesystem.
+    settled = _settled_elsewhere(store, line_id, signature)
+    if settled is not None:
+        _validate_line_object(line_of(store, line_id))
+        return settled
+    workspaces.establish_line_access(path, (device, inode), identity)
+    if _object(path, "the materialized development line") != (device, inode):
+        raise ContractRefusal("runtime-observation", "identity-mismatch",
+                              "the materialized development line changed before publication")
+
     def act(connection):
+        # JOURNAL READS AND ONE CONDITIONAL WRITE, and nothing else. The state
+        # read keeps the diagnostic a caller can act on; the `WHERE` clause is
+        # what actually excludes a second completion, so the two are not the
+        # same check written twice.
         current = line_of(store, line_id)
         if current["state"] != "materializing":
             raise ContractRefusal("integrity", "schema",
                                   "line materialization changed state before completion")
-        if _object(path, "the materialized development line") != (device, inode):
-            raise ContractRefusal("runtime-observation", "identity-mismatch",
-                                  "the materialized development line changed before publication")
-        # W194457: PROVE, then ESTABLISH -- and the two are different costs.
-        # `prove_line_integrity` keeps every constraint the removed
-        # whole-tree provisioning pass also enforced (special files,
-        # hardlinks, the entry/byte/depth ceilings, and that the tree belongs
-        # to this deployment's execution identity) and is bounded by DEPTH
-        # rather than by entry count. `establish_line_access` then does the
-        # permission work, which under a shared execution identity is the
-        # ROOT's group and mode and nothing else -- two acts, whatever the
-        # checkout holds.
-        identity = workspaces.configured_workspace_identity(store)
-        workspaces.prove_line_integrity(path, (device, inode), identity)
-        workspaces.establish_line_access(path, (device, inode), identity)
         connection.execute(
             "UPDATE review_lines SET line_device = ?, line_inode = ?, "
             "state = 'idle' WHERE line_id = ? AND state = 'materializing'",
@@ -1531,8 +1745,74 @@ def create_line(store, *, source, declared_base, profile,
 
     result = store.transact("review-line.create:" + line_id,
                             "review-line.create", signature, act)
-    _validate_line_object(line_of(store, line_id))
+    # AND THE PUBLICATION IS WITHDRAWN IF THE OBJECT IT NAMED IS GONE. W301404 review
+    # 2026-09-29T02-32-53Z: the root can be replaced in the instant between the last
+    # measurement and this commit, and no check outside a transaction can observe that
+    # instant -- only one inside it can, which is the DB-1 violation this Work removes.
+    # So the mismatch is DETECTED here, exactly as it always was, and the durable state
+    # it leaves is now the honest one instead of a usable-looking line:
+    #
+    #   `materializing`, which no consumer treats as a line, and which the recorded
+    #   creation can be replayed over once the object is restored -- the same recovery
+    #   the crash path uses;
+    #   CONDITIONAL, so it can only withdraw the publication THIS call just made: an
+    #   `idle` line at revision 0 with no checkpoint. A line a writer has already
+    #   advanced is never pulled back, and the refusal still propagates.
+    return _validated_publication(store, line_id, result)
+
+
+def _validated_publication(store, line_id, result):
+    """`result`, once the published row really names the object it recorded. W301404."""
+    try:
+        _validate_line_object(line_of(store, line_id))
+    except ContractRefusal:
+        _withdraw_publication(store, line_id)
+        raise
     return result
+
+
+def _published_recorded_line(store, line_id, device, inode):
+    """Apply a recorded creation's own members to a withdrawn row. DB ONLY. W301404."""
+    connection = store._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        connection.execute(
+            "UPDATE review_lines SET line_device = ?, line_inode = ?, "
+            "state = 'idle' WHERE line_id = ? AND state = 'materializing'",
+            (device, inode, line_id))
+        connection.execute("COMMIT")
+    except BaseException:
+        try:
+            connection.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+
+
+def _withdraw_publication(store, line_id):
+    """Return a just-published line to `materializing`. DB ONLY. W301404."""
+    connection = store._connection
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        # THE OBJECT MEMBERS GO WITH IT, and the SCHEMA is what settles that: the table's
+        # CHECK constraint is `state = 'materializing' AND line_device IS NULL AND
+        # line_inode IS NULL`, so a materializing line with a measurement is a row this
+        # build refuses to hold. Measured, by an `IntegrityError` from the attempt to keep
+        # them. What makes the recovery work is not a retained measurement but
+        # `_published_recorded_line` below, which re-applies the RECORDED creation's own
+        # members when the replay finds a withdrawn row.
+        connection.execute(
+            "UPDATE review_lines SET state = 'materializing', line_device = NULL, "
+            "line_inode = NULL WHERE line_id = ? AND state = 'idle' AND "
+            "revision = 0 AND current_checkpoint_id IS NULL",
+            (line_id,))
+        connection.execute("COMMIT")
+    except BaseException:
+        try:
+            connection.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
 
 
 def grant_writer(store, *, line_id, attempt_id, generation, worker_id, profile,
