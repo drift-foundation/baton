@@ -1,0 +1,24 @@
+{
+  "claim": 302029,
+  "tests": [
+    {
+      "count": 5,
+      "status": "PASS",
+      "seconds": 0.775
+    },
+    {
+      "count": 7,
+      "status": "PASS",
+      "seconds": 0.8
+    }
+  ],
+  "read_only_cli_probe": {
+    "status": "refused before effects",
+    "diagnostic": "Python subprocess Docker image inspect: permission denied at unix:///var/run/docker.sock",
+    "escalation": false
+  },
+  "real_preparation": false,
+  "live_provider": false,
+  "test_boundaries": "real frozen bootstrap, Authority, grants, composer and held_packet; mocked repository creation/read and private disposable credential registry",
+  "author_seconds_total": 263.468
+}

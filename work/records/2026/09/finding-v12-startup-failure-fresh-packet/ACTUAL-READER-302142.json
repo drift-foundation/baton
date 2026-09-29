@@ -1,0 +1,13 @@
+{
+  "held_packet": "PASS",
+  "import_origins": {
+    "baton_v12": [
+      "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12"
+    ],
+    "tools": [
+      "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools"
+    ]
+  },
+  "stores_opened": false,
+  "job_started": false
+}

@@ -1,3 +1,75 @@
+# Current checkpoint — single execution and proposal accepted
+
+Reviewer304782 / owner304779; latest review-2026-09-29T10-38-30Z.md and EXECUTION-REVIEW-304782.json. Events304782/T257627292130. Retained one-attempt settled/completed execution accepted separately from99-line one-file proposal acceptance. Base478531dd1a2ce229fa0ee80912a84126832428ce, headc6e3ab7bd4686112bfd65111c3e42d17a2347b76; sealed artifact four entry hashes and Git patch match; independent declared check PASS. No new status/store or engine observation. Owner duplicate-launch refusal remains owner-reported. Prior awaiting-execution checkpoint superseded.
+
+NEXT owner satisfying disposition for this Work; existing W247941 owns bounded two-isolated-Job proof recommendation in latest review, after explicit disposition of W257624 gate. No graph changes, integration or new live run selected. Preserve observed seconds_bound3600 default-metadata limitation versus Job180; no false timeout proof. Keep all evidence and spent identity; no rerun. Historical test totals unchanged, tiny reviewer check unmeasured; actual served167.951s separate. Reviewer record/evidence ownership only.
+
+---
+
+# Current checkpoint — actual packet accepted for owner execution
+
+Reviewer302168; latest review-2026-09-29T04-02-06Z.md; events302168/T257627292130. FINAL-CANDIDATE302142 seven files and FINAL-PACKET302142 all230 immutable hashes match before reviewer append. Actual held_packet/import-origin and shell command roundtrip PASS; clean source base478531dd1a2ce229fa0ee80912a84126832428ce; no Job/control/integration stores or outcome at inspection. Prior awaiting-final-review state superseded.
+
+NEXT owner launch once using E2E-OPERATOR-302142.md, with its exact status/Ctrl-C/outcome instructions. No repeated setup, generic permission renewal, retry, reuse or automatic integration. Preserve output for failure diagnosis or independent proposal acceptance. Readiness accepted; execution/authentication/results not yet proved. Limits180/30/300 including60 cleanup unchanged. Author263.468s, reviewer56.776s; prior evidence/graph preserved. Reviewer record ownership only.
+
+---
+
+# Current checkpoint — actual packet and E2E sheet awaiting final review
+
+Owner302138 successfully executed accepted setup; claim302142/events302142/thread292130. Prior awaiting-setup checkpoint superseded. E2E-OPERATOR-302142.md contains exact emitted launch/status and foreground Ctrl-C stop/outcome instructions. FINAL-PACKET-302142.json binds actual immutable preparation/runtime/packet inputs; FINAL-CANDIDATE-302142.json binds this delivery. All126 source/input,81 installation,eight packet,two source input hashes match, real cloned base clean, actual packet reader/import origins pass. Fresh Authority a9717c22436349f6832c7645b62d8f8f / Work a9717c22-W1. No Job/control/integration stores or outcome at inspection; no setup or start repeated.
+
+Next independent final packet review, then owner one-Job execution using exact sheet. Retain distinct preparation, real-provider execution and independent proposal acceptance. No generic authorization renewal. Existing positive/failure deterministic evidence reused; no tests rerun/source edits. Author263.468s and prior consumer reviewer56.769s unchanged. One provider turn180, verifier30, total300 includes cleanup60, no retry/reuse/auto-integration. Existing debt/graph preserved.
+
+---
+
+# Current checkpoint — reviewed operator setup ready for owner
+
+Reviewer302089; owner301930/302026. ACCEPT bounded script; latest review-2026-09-29T03-51-31Z.md. Manifest302029 eight hashes matched before reviewer append. Independent7PASS0.812s; reviewer56.769s, author263.468s. Events302089/T257627292130. Owner-operated delivery supersedes managed-policy repair wait; no generic permission renewal.
+
+NEXT owner runs the exact command in OPERATOR-SETUP-302029.md / latest review. Preserve outputs and partial roots on failure, do not retry or start Job. Then tuner inspects generated inputs/grants/runtime/packet and prepares final launch/status/stop instructions for independent review. Full packet/Work not yet accepted. Reviewer owned FINDING/PLAN/new review only; recipe/spec/tests and PROGRESS unchanged. Accepted slices and graph preserved.
+
+---
+
+# Current checkpoint — operator setup script awaiting independent review
+
+Claim302029/events302029/thread292130; owner302026/301930 authorize preparation. OPERATOR-SETUP-302029.md is complete current handoff; OPERATOR-CANDIDATE-302029.json binds script/spec/tests/evidence. New owned recipe/tests only, no baseline/product edits. Source/runtime/input126 files + historical installation81 files pinned; generated identities/grants through supported bootstrap/prepare_instance; packet composition without submission/start. Source checkout never mutated by script; owner bootstrap clones independent repositories.
+
+Final7PASS0.800s with explicit mocked repository/credential boundaries, first5PASS0.775s; author263.468s, consumer reviewer55.957s before new review. Full read-only CLI probe hit managed Docker socket permission before effects; no escalation. Both operational roots still absent. Next independent script review, then one exact owner command from setup document. After owner setup, inspect generated evidence/packet and independently review final E2E launch/status/stop sheet. Full Work remains incomplete. No renewed generic permission, policy repair, Job/model/build, graph mutation or unrelated-debt expansion.
+
+---
+
+# Current checkpoint — prepare complete owner-operated setup
+
+Owner302026 selects a reviewed operator script; policy repair wait is superseded. Claim302029/events302029/thread292130. Tuner owns new prepare_operator.py, spec/candidate, focused tests and preparation evidence in this dossier. Build one fail-closed command with freshness/candidate/source checks, supported bootstrap/repository preparation/prepare_instance and packet composition; preserve all outputs. No restricted writes or Job/model execution by tuner. Independent review then human command; after owner execution inspect outputs and finish final E2E launch/status/stop review. Existing300/60 limits, accepted runtime and debt remain unchanged.
+
+---
+
+# Current checkpoint — operational policy repair, authorization retained
+
+Reviewer claim301989; owner301930 remains sufficient preparation authority. Latest review review-2026-09-29T03-40-19Z.md. Events301989/T257627292130. This checkpoint supersedes earlier current-hash wording: preparation manifest7/7 matches; accepted candidate223/224 matches with only the attributable PROGRESS append changed. No product drift or new test run.
+
+NEXT baton.decide: arrange scoped managed write access to /home/sl/baton-instances/single-job-257627-291715 and /home/sl/baton-runs/single-job-257627-291715, or assign an allowed operator. Current reviewer policy also allows /var/tmp/baton-w257624, which does not cover either root. No attempted denial or renewed generic approval gate. After repair return to existing preparation scope using PREPARATION-CHECKPOINT-301952.md: recheck freshness, freeze source, supported bootstrap/prepare_instance and generated operands, actual packet composition, independent review, then owner execution. Full packet still incomplete; no Job/model/build selected in preparation.
+
+Ownership: reviewer FINDING/PLAN/new review only; tuner four baseline paths, PROGRESS and preparation artifacts remain unchanged. Accepted provider/consumer evidence and graph preserved. Author261.893s, consumer reviewer55.957s unchanged.
+
+---
+
+# Current checkpoint — selected preparation needs exact root write access
+
+Claim301952, owner301930 remains authorization. PREPARATION-CHECKPOINT-301952.md pins complete current handoff. Both selected roots absent; managed policy writes only repository and /tmp. Supported bootstrap/packet writes to the selected instance/artifact roots are outside that policy. No write or escalation attempted. NEXT: install narrowly scoped root access or assign an allowed operator, then resume same Work, recheck freshness, freeze real source, run validated BOOTSTRAP-INPUTS-301952.json through bootstrap, derive selections and prepare_instance, compose and independently review actual launch/status/stop packet. No renewed generic owner permission. No Job/model/build selected during preparation.
+
+All224 accepted candidate files unchanged; actual local image matches; registry selection valid/private without bearer read; task inputs match committed base478531dd1a2ce229fa0ee80912a84126832428ce. Full qualification limitations and remaining operations in checkpoint. Events301952/thread292130; latest review03-11-26. Author261.893s, consumer reviewer55.957s. No source/test/Git/graph mutation.
+
+---
+
+# Current checkpoint — owner-authorized operational preparation
+
+Owner301930, tuner claim301952. The previous preparation-selection wait is superseded. Prepare the proposed fresh instance/artifact roots through supported bootstrap/prepare_instance; qualify real corrected runtime, image, execution identity/profile and credential references; bind immutable useful task inputs and compose actual commands. Independently review before owner execution. No Job start/model/build or Git mutation selected. Preserve existing limits and evidence. Exact decision appended to FINDING.
+
+Owned paths: existing four baseline files and this dossier; FINDING/PLAN update specifically requested by owner301930. Latest accepted review03-11-26 and candidate301750 remain starting evidence. Read events through301952, thread through292130. Next: read-only operand qualification, then supported preparation if installed filesystem policy permits selected roots.
+
+---
+
 # Current checkpoint — corrected consumer accepted; operational selection required
 
 2026-09-29T03-11-26Z, reviewer301799; author301750/handoff301796; events301799/T257627 unchanged292130. Latest review-2026-09-29T03-11-26Z.md. Candidate301750 all224 hashes match; independent DB-1/useful2PASS5.950s, zero locked observations. W285465 and W301404 closed satisfying. Earlier provider/child-wait checkpoints explicitly superseded.

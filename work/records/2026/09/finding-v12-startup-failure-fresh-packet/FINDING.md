@@ -319,3 +319,111 @@ Owner301398/301399 resolved parent/consumer route mismatch. Parent claim301403 c
 ## 2026-09-29T03-11-26Z — corrected consumer accepted; real preparation boundary remains
 
 Reviewer301799 verifies all224 hashes and DB-1/useful2PASS5.950s; zero locked filesystem observations. Satisfying provider closures supersede prior waiting checkpoint. Rebound deterministic consumer accepted; full operational packet not launch-ready. Supported bootstrap/prepare_instance create real instance state/grants excluded by owner301348, so return owner for exact preparation-only selection/qualified runtime inputs, not renewed code/test approval. Exact decisions/limits/evidence in review-2026-09-29T03-11-26Z.md. No product/graph/deployment/live/build changes; historical proofs and W257624 debt preserved.
+
+
+## 2026-09-29 — owner301930 selects operational preparation only
+
+Claim301952, events through301952; T257627 unchanged292130. Owner301930 explicitly authorizes bounded fresh-instance preparation for the selected single-Job E2E test: qualify corrected runtime/image/profile/credential references, prepare proposed fresh roots and immutable task inputs through supported bootstrap/prepare_instance with identities and grants, compose and independently review the real packet. Owner executes the test; deliver exact launch/status commands, expected results and stop procedure. No Job start or live model during preparation; no consumed instance reuse, fixture operands, Git mutation or unrelated debt. Preserve300-second total/60-second cleanup reserve and one implementation invocation. Report an actual build need or missing choice precisely.
+
+This explicitly supersedes the preparation-selection wait and no-deployment interpretation in review03-11-26 and the previous PLAN checkpoint, only for the bounded preparation above. Prior consumer acceptance and limitations remain. Tuner may update FINDING/PLAN to pin this exact owner decision as expressly directed; no broader product ownership is inferred.
+
+
+## 2026-09-29 — selected preparation outside installed writable roots
+
+Claim301952 confirms both selected fresh roots absent, outside managed write roots /home/sl/src/baton and /tmp. Supported preparation needs writes there; no forbidden write or escalation attempted. This is installed-policy scope, not missing owner approval or a syscall refusal. Exact repair and executable bootstrap input: PREPARATION-CHECKPOINT-301952.md, BOOTSTRAP-INPUTS-301952.json. Image present/matching, credential reference privately validated without bearer read, committed task inputs match, all224 candidate files unchanged. Final composition remains pending permitted preparation.
+
+
+## 2026-09-29T03-40-19Z — independent preparation review / installed-policy blocker
+
+
+Verdict: preparation checkpoint accepted as partial evidence; full operational launch packet remains incomplete. Owner301930 already authorizes bounded bootstrap/prepare_instance preparation. No renewed generic approval is needed. Events read through301989; T257627 through292130, unchanged.
+
+## Verification
+
+Before reviewer documentation changes, all seven PREPARATION-MANIFEST-301952.json hashes match. The accepted B1-CANDIDATE-301750.json now matches223/224 entries: only PROGRESS.md differs, with the attributable claim301952 preparation entry. CANDIDATE-RECHECK-301952.json records the earlier all224 match before that append. This is documentation chronology, not runtime drift. The previous all224 wording must not be read as a current hash assertion. Accepted corrected-runtime and consumer evidence remains valid; no tests rerun for this qualification-only handoff. Author261.893s and consumer reviewer55.957s unchanged, provider evidence separate.
+
+OPERAND-QUALIFICATION-301952.json distinguishes image availability from actual container/access proof, credential reference validation from authentication, and committed task inputs from generated instance operands. No bearer read or live authentication is claimed. BOOTSTRAP-INPUTS-301952.json and PREPARATION-CHECKPOINT-301952.md retain the exact supported preparation continuation. Installation executable and corrected source runtime must both be honestly bound in final packet; historical binary availability is not corrected-supervision proof.
+
+## Confirmed operational blocker
+
+The selected roots /home/sl/baton-instances/single-job-257627-291715 and /home/sl/baton-runs/single-job-257627-291715 are outside the review runner writable roots /home/sl/src/baton, /tmp, and /var/tmp/baton-w257624. The extra var/tmp allowance does not cover either selected root. This confirms the installed-policy mismatch; it is not a failed syscall, auto-review rejection, or missing owner authorization. No prohibited write or escalation attempted.
+
+Required repair: provision scoped write access for these exact fresh roots in the executing managed context, or assign the already-authorized preparation to an operator whose installed policy permits them. Do not substitute fixture roots or consumed state. Return to the existing tuner preparation scope after repair. Before mutation recheck root freshness and candidate hashes, freeze real source, run the supported bootstrap argv in PREPARATION-CHECKPOINT-301952.md, retain generated identities/grants, resolve profile/credential/source/base selections through supported prepare_instance, compose actual launch/status/stop commands, then independently review the complete packet. Build or an actually missing product choice requires a specific finding; none newly established here.
+
+No Job/model start, container run, build, product/test implementation, Git or dependency change. Owner executes only after final packet review. Preserve one implementation invocation, provider180/verifier30, total300 including cleanup60, no retry/reuse/automatic integration. This is an operational repair disposition to baton.decide, not acceptance of a launch-ready packet or reopening of accepted provider slices.
+
+
+## 2026-09-29 — owner302026 selects owner-operated preparation script
+
+Claim302029, events302029/thread292130. Owner302026 supersedes policy-repair scheduling: tuner prepares one complete operator script within repository paths, using supported preparation operations, freshness/candidate/source checks, bootstrap/generated identities/grants and packet composition. Preserve outputs and fail closed. Independently review, then return one human command. Owner executes restricted writes; tuner does not change policy, start Job or invoke model. Inspect resulting outputs afterward and complete independently reviewed E2E commands. Owner301930 preparation scope remains sufficient. New owned artifacts: prepare_operator.py, OPERATOR-SPEC-302029.json, OPERATOR-CANDIDATE-302029.json, test_prepare_operator.py and evidence/checkpoint in this dossier.
+
+
+## 2026-09-29T03-51-31Z — operator preparation accepted
+
+
+ACCEPT the bounded operator setup script under owner301930/302026. This accepts preparation only, not the generated launch packet or completed Work. Reviewer claim302089; author302029, handoff302084; events through302089, T257627 unchanged292130.
+
+OPERATOR-CANDIDATE-302029.json SHA256 29cab666b3e3a6388b556d6df9481db5e19cefdb10deaba0a89ada77ba72c908 matched all eight files before reviewer record updates. Script SHA256 a7b2f376a15c47e537f253e5b0494d9af868f0cf3d32e17b042d73bf372225a4; spec SHA256 4b74cdf12cffcb4f393c056ea9f0c894660159cc87ee26ba9a7479b744745052. Independent seven focused tests PASS in0.812s with ResourceWarning errors enabled. Source/input126 and historical installation81 file checks exercised; real frozen bootstrap/Authority/grants/composer and held_packet exercised. Repository creation/read and credentials are disposable test seams; Docker/real clone/authentication remain unexecuted. No existing product/test assertions changed by this review.
+
+Read script, setup document, focused tests, current checkpoint and supported bootstrap/prepare_repositories/prepare_instance call paths. Fresh roots required before effects; instance root reserved exclusively; source bytes rechecked while freezing; loaded application modules required inside snapshot. Source checkout is read-only to this recipe. Owner-only supported repository preparer clones independent target/workspace with --no-local and proves separation; each child command has120s timeout. Generated Authority identity and supported principal/grant operations precede composition. Historical installation artifact is separately labelled, while emitted supervisor/status use corrected frozen source. No submission, engine start, model or integration call is selected or present in recipe. This review did not execute preparation at the operational roots.
+
+Failure preserves partial roots and logs and prevents whole-script retry; a killed process may lack FAILED.json, so absence of COMPLETE is not success. Tests demonstrate injected repository failure/refused retry. Retained COMPLETE only means preparation finished. File/source/image drift refuses for rebinding, not permission renewal. The previous managed root-policy blocker is resolved by the selected owner-operated delivery, not by any policy change.
+
+Exact owner command (ordinary uid/gid1000 host context):
+
+    /home/sl/.local/state/baton-v12-venv/bin/python -B /home/sl/src/baton/work/records/2026/09/finding-v12-startup-failure-fresh-packet/prepare_operator.py --prepare
+
+Output: /home/sl/baton-instances/single-job-257627-291715/preparation/COMPLETE.json or retained failure/partial evidence; packet under /home/sl/baton-runs/single-job-257627-291715. Do not rerun against partial roots. After owner setup, tuner inspects retained outputs and actual immutable bindings and returns exact E2E launch/status/stop sheet for independent review. Do not execute emitted start merely because setup succeeds. No new generic approval requested; owner performs already-selected preparation.
+
+Accepted prior provider and consumer evidence preserved. Author263.468s unchanged; consumer reviewer56.769s including this0.812s, provider evidence separate. Full Work remains open; no graph, Git, product or policy mutation by reviewer.
+
+
+## 2026-09-29 — owner setup complete; actual packet bound for final review
+
+Owner302138 successful setup explicitly supersedes awaiting-owner-setup checkpoint. Tuner claim302142 inspected COMPLETE, retained results and actual immutable bytes:126 source/input,81 installation,eight packet,two task hashes match; retained selections match accepted spec. Real repository clones succeeded; source HEAD478531dd1a2ce229fa0ee80912a84126832428ce clean. Fresh Authority a9717c22436349f6832c7645b62d8f8f/Work a9717c22-W1. Actual held_packet/import origins pass without stores. No Job/control/integration store, outcome or FAILED record. Final sheet E2E-OPERATOR-302142.md derives exact emitted start/status, foreground Ctrl-C stop and outcome/acceptance limits; FINAL-PACKET-302142.json binds actual artifacts. No setup repeated, no Job/model started. Independent final packet review precedes owner execution under existing authority. Events302142/thread292130.
+
+
+## 2026-09-29T04-02-06Z — actual packet independently accepted
+
+
+ACCEPT the actual prepared packet and exact E2E operator sheet for the already-selected owner-operated single fresh Job. This is readiness acceptance, not successful execution, proposal acceptance, parallel adoption or reuse proof. Reviewer claim302168; author302142/handoff302164; owner302138 setup report; events through302168, T257627 unchanged292130.
+
+FINAL-CANDIDATE-302142.json SHA256 4c8e065e665ace22c6eb2379b27980bce8f3183aa4282f12c752c956ccd5993d: all seven bound delivery files matched before reviewer record append. FINAL-PACKET-302142.json SHA256 c81414fe3574ad30315f5a6f1b0da33c442f27a32f61b7d993f26ee8ed7ee1b6: all230 actual immutable file hashes matched. Mutable databases intentionally excluded. Operator sheet SHA256 ce0a7c931e005af6c039978346aff5ae30044efebcf08322d9e031912385f357.
+
+Independently executed only the actual frozen-source held_packet and verify_imported_sources readers; PASS with baton_v12 and tools resolving inside selected manager-source. Parsed both shell command blocks and proved exact argv/environment equality with actual commands.json. These read checks took0.007s; no store opened and no Job or engine started. Source workspace read-only Git status clean; HEAD478531dd1a2ce229fa0ee80912a84126832428ce. COMPLETE records preparation_complete=true/job_started=false; repository results record separate target/workspace, preparation result records generated Work and four grants. Public route/scoped-grant readback limitation remains explicit; no direct database inspection was substituted.
+
+At inspection jobs.sqlite3, control.sqlite3, integration.sqlite3, FAILED.json and outcome.json absent. Authority a9717c22436349f6832c7645b62d8f8f / Work a9717c22-W1; Job job-single-job-257627-291715. Historical installation artifact remains provenance, not the selected runtime command. Existing deterministic positive/interruption/deadline/access proofs apply to unchanged source; no broad test or live run repeated. Authentication, actual provider protocol and useful model output remain the explicitly selected real-run questions.
+
+Owner next uses E2E-OPERATOR-302142.md: launch exactly once in foreground, status from second terminal after stores exist, Ctrl-C once for bounded cancellation, retain outcome and all partial state. Do not repeat setup or launch against this identity after failure. One implementation invocation, provider180/verifier30, total300 including cleanup60, cooperative deadline, no reuse/retry/automatic integration. Supervisor exit is not exact producer cessation proof; held/uncertain/missing outcomes remain unresolved. Final proposal must be independently reviewed for exact docs/v12-first-job-inspection.md scope and meaningful correctness, not merely provider exit or file existence.
+
+No generic authorization renewal required. Return accepted delivery to owner; no Work closure asserted in this review. Reviewer edited only FINDING/PLAN and this review. Author263.468s unchanged; consumer reviewer56.776s including0.007s reader check; separate provider spending and accepted history preserved. No source/test/Git/graph/policy changes.
+
+
+## 2026-09-29T10-38-30Z — single execution and proposal independently accepted
+
+
+ACCEPT retained single-Job execution evidence. Separately ACCEPT the documentation proposal against the pinned task. Recommend owner satisfying disposition for W257627; this does not establish parallel adoption, integrate any bytes or close unrelated Work. Owner304779 requested this review; events read through304782, T257627 unchanged292130. Previous awaiting-execution checkpoint is superseded.
+
+## Execution evidence
+
+Outcome SHA256 55fa41e3187de29c3d05b85464355ecf7a98d1d483521df406f9d0ca8f4e15e4 records one implementation admission/attempt, settled/completed, no holds, uncertainty, foreign admissions, shortfalls or outstanding cleanup. Attempt attempt-85a56d52601f6f2c3f5641fa30a2da876aa8fa9857a8244ed41f6865369d4c6e is attributed to Work a9717c22-W1 / Authority a9717c22436349f6832c7645b62d8f8f and selected Job. Submitted04:03:41.709Z, finished04:06:29.667Z, served167.951303711s. Retained exact-runtime accounting identifies deda7abe743905b9e23d7a1edf7a4e0c901f63691ae08716289d0d301c85b26f as destroyed, with exact identity absent at final engine observation. This is retained manager evidence, not a new current Docker observation or evidence about another Job.
+
+Supported frozen-runtime logs locators/read succeeded without stores. Provider stdout is captured4066 bytes and reports success, terminal_reason completed, is_error=false, no permission denials, duration158829ms. Provider stderr is declared/captured157 bytes (contents not needed for this verdict); verification streams are declared present/empty. Worker stdout/stderr are absent, not empty. Native session files were listed by locators but not opened; no credentials read. Real provider completion plus attributable proposal corroborates successful authentication/adapter execution for this one run, not future credential validity. Owner reports a later duplicate-submission refusal; reviewer did not reproduce or treat that statement as new independent replay proof.
+
+Operational limit: prompt reported status DB-open failure in its managed context. Reviewer consumed retained public outcome/log/artifact interfaces and read-only Git objects; did not open SQLite directly, request policy escalation or claim a new canonical status read. Retained outcome itself records final_canonical_read=true. This does not block review of the completed retained proposal.
+
+Observed metadata discrepancy, not erased: proposal result.json provider.seconds_bound=3600 is the adapter default emitted by claude_agent.py, while Job/outcome selected provider180 and the runtime invocation uses _bound(self._seen, provider_turn, PROVIDER_SECONDS). The completed run is below180 seconds; it is not a timeout enforcement test, and the proposal field must not be cited as the effective180 bound. Preserve this reporting limitation for bounded metadata follow-up; no unrelated hardening or new run is selected here.
+
+## Proposal acceptance
+
+Pinned base478531dd1a2ce229fa0ee80912a84126832428ce; headc6e3ab7bd4686112bfd65111c3e42d17a2347b76 has exactly that one parent. Read-only Git diff shows exactly one added100644 file docs/v12-first-job-inspection.md,99 lines. Its SHA256 is04b77bdd967ce440ccb00b673a062218d93cd6f25d0c8d8aa258a7880bf6bef8. No existing test or product file changed. Retained change.patch equals the base/head Git diff. All four retained artifact entry lengths/hashes match sealed.json; artifact tree digest dd8f4f2f56e6bfa9046d1b15ed8b15ab635f36a01187f95d28a51776f9266f5b. Exact locators and individual digests pinned in EXECUTION-REVIEW-304782.json, including bundle03dd4e9307a536f40df7de4290dc3625e6781b0d88125cb02c8c4cd298e485e1. No bundle import or Git mutation.
+
+Read all99 lines against full pinned task/excerpts. The note correctly covers initial host preparation and claim/identity checks, exact writer cessation, stale status unknown versus zero, missing versus empty logs, parent-option operand ordering, permission-error preservation, and the three requested distinctions. It makes no unknown outcome successful. The proposal-status and no-custody language describes the author's production of the note; it is not a manager receipt or a denial of later host evidence. Independent declared file-existence/<100-line command rerun exits0; substantive acceptance rests on content review, not that size check alone. No fabrication of review/approval receipts found in proposed bytes.
+
+## Next bounded parallel proof recommendation
+
+Use existing W247941 ownership; current canonical gate still names open W257624 and W257627. Owner should disposition this accepted Work and classify only concrete W257624 blockers versus out-of-path debt before explicitly changing any edge. No graph alteration by this reviewer.
+
+Then select a fresh two-Job packet on the accepted runtime: one Host manager per workspace/DB, two isolated task workspaces and distinct Job/attempt identities, two useful independent documentation tasks with disjoint target paths and pinned inputs, no reuse/retry/automatic integration. Require evidence of overlapping actual execution intervals, independent source/output/resource identities, exactly one attributable proposal per Job, supported status/log inspection, positive exact producer cessation and no unresolved holds. Independently review both proposals and their immutable bindings. Reuse current deterministic failure proofs; add only focused two-Job cross-attribution/isolation checks needed by the packet. If a live parallel run is selected, name the actual concurrent real-engine/provider question; do not repeat credential diagnosis or claim this single run proves parallelism. This is a recommendation, not authorization or execution of a new live run. Reuse remains a later required v12 deliverable, not this initial-adoption proof gate.
+
+Reviewer only added evidence/review/FINDING/PLAN. No integration, source/test edits, deployment, cleanup, Git mutation, new live run or reopening of accepted slices. Author263.468s and prior reviewer56.776s preserved; this turn is read-only evidence verification plus one tiny declared check, duration not separately measured. Real run duration above is separate from deterministic historical totals.

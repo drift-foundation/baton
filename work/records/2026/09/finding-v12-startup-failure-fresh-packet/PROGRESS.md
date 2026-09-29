@@ -578,3 +578,18 @@ Return corrected candidate for independent consumer review and bounded operation
 preparation disposition. No repeated DB-1 correction request or generic test gate.
 Episode5.971s, author261.893s cumulative; consumer reviewer historical50.007s separate.
 Packet remains not launch-ready until actual operational inputs are resolved.
+
+
+## Claim301952 — baton.tuner operational preparation checkpoint
+
+Pinned owner301930 in FINDING/PLAN as directed. Prepared validated BOOTSTRAP-INPUTS-301952.json; actual image/credential-reference/committed-input qualification in OPERAND-QUALIFICATION-301952.json; all224 prior candidate files unchanged in CANDIDATE-RECHECK-301952.json. Exact installed-policy root-write blocker and remaining supported operations in PREPARATION-CHECKPOINT-301952.md. No prohibited write, escalation, bootstrap/store effect, Job/model/build/source/test/Git mutation. Author261.893s unchanged; no tests rerun. Await independent operational review and scoped deployment-policy repair, not new generic authorization.
+
+
+## Claim302029 — baton.tuner owner-operated recipe
+
+Owner302026 pinned. prepare_operator.py + OPERATOR-SPEC-302029.json implement complete owner-operated freshness/candidate/source/bootstrap/repositories/identity/grants/composition sequence with preserved outputs and no Job start. OPERATOR-SETUP-302029.md contains exact one-command handoff and scope/limitations. Final7PASS0.800s after first5PASS0.775s; author total263.468s, consumer reviewer55.957s unchanged. Tests added only test_prepare_operator.py in owned dossier. No existing tests/assertions modified. Read-only full CLI probe refused by managed Docker subprocess socket access before root effects; no escalation. Real operational roots remain absent; no managed Git mutations/Job/model/deployment. Await independent script review, owner setup, then output inspection/final launch-sheet review.
+
+
+## Claim302142 — baton.tuner actual owner-prepared packet qualification
+
+Consumed owner302138 report and retained setup outputs. Actual126+81+8+2 hashes match, spec matches, source clean at selected base, public held_packet/import origins pass without stores. FINAL-PACKET-302142.json binds immutable external files; E2E-OPERATOR-302142.md renders emitted argv/environment exactly and gives foreground Ctrl-C/retained-outcome instructions, limits and real-provider question. No rerun/setup/Job/model/store effect. Tests not rerun for unchanged runtime/document-only delivery; author263.468s, reviewer56.769s retained. Await final independent packet acceptance then owner execution.

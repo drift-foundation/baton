@@ -1,0 +1,932 @@
+{
+  "work": "W257627",
+  "claim": 302142,
+  "owner_setup": 302138,
+  "authority_uuid": "a9717c22436349f6832c7645b62d8f8f",
+  "job_started": false,
+  "source_base": "478531dd1a2ce229fa0ee80912a84126832428ce",
+  "source_status": "clean at inspection",
+  "commands_roundtrip": "exact emitted argv and environment",
+  "files": [
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/authority-identity.json",
+      "sha256": "419649ce4e71fbaf9c7f26833e7a5f6375d1c4bf41823367bc222e80991a06e4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/attrs-26.1.0.dist-info/INSTALLER",
+      "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/attrs-26.1.0.dist-info/METADATA",
+      "sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/attrs-26.1.0.dist-info/RECORD",
+      "sha256": "40de9b239d81f3e4ff3b005e4749cda91549d56e10415ffce54a25c0c995df10"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/attrs-26.1.0.dist-info/REQUESTED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/attrs-26.1.0.dist-info/WHEEL",
+      "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/attrs-26.1.0.dist-info/licenses/LICENSE",
+      "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/base_library.zip",
+      "sha256": "601e7ee49b6e1bf88415c8c343ab7d0f2b750cc9d32727d8619020b4e34886aa"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/build-stamp.json",
+      "sha256": "0d1f336a27256bcb49fbb140e5e16c2e0330a1a97723f1c7c2ca47de9cf47fb9"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema/benchmarks/issue232/issue.json",
+      "sha256": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema-4.26.0.dist-info/INSTALLER",
+      "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema-4.26.0.dist-info/METADATA",
+      "sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema-4.26.0.dist-info/RECORD",
+      "sha256": "473f7af882f4287adcd1747f4f2f85ccf410f3ca3e4ff9e50a5b59e8e507abf9"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema-4.26.0.dist-info/REQUESTED",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema-4.26.0.dist-info/WHEEL",
+      "sha256": "58b82a17209f9bf2804afe161f2632d0fde933f9bb2792fd936b2474a2e2ac2f"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema-4.26.0.dist-info/entry_points.txt",
+      "sha256": "bceeeb5f816cff1215272da99c0b4a8134b17e99e8cc0550d038c29a93319d61"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema-4.26.0.dist-info/licenses/COPYING",
+      "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft201909/metaschema.json",
+      "sha256": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/applicator",
+      "sha256": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/content",
+      "sha256": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/core",
+      "sha256": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/format",
+      "sha256": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data",
+      "sha256": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/validation",
+      "sha256": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft202012/metaschema.json",
+      "sha256": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/applicator",
+      "sha256": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/content",
+      "sha256": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/core",
+      "sha256": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation",
+      "sha256": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion",
+      "sha256": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data",
+      "sha256": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated",
+      "sha256": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/validation",
+      "sha256": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft3/metaschema.json",
+      "sha256": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft4/metaschema.json",
+      "sha256": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft6/metaschema.json",
+      "sha256": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/jsonschema_specifications/schemas/draft7/metaschema.json",
+      "sha256": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libbz2.so.1.0",
+      "sha256": "0e276ebe9060dc27ccff9d08e928127a1ee194c064e88b9262beb7f3ee76f3d7"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libcrypto.so.3",
+      "sha256": "4769ffaae2d5fcb04ab023d06370ee0481f03857de88356f565a85792de39d76"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libexpat.so.1",
+      "sha256": "510dc18b54fcd0f6957974bf5019347218edc0f74a43522b6be72d686ed0a3a3"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libffi.so.8",
+      "sha256": "f9e062f25194c7f4ecf0a58469cb6ab76b8a95f522c290e47a5c9dd688e7d6be"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libgcc_s.so.1",
+      "sha256": "e21d29dd2609dff45f898b5002c9a2268a0e8eece4eff8417e5087e77d2a136c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/liblzma.so.5",
+      "sha256": "bb0cc2b52f9602da45e3a5088e156b07548a79cf4c822e321a4c119b8c8b7650"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libncursesw.so.6",
+      "sha256": "7dbbb6bea122614f846cad9e099550ce7f62b425057298da1586b2304dc79214"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libobjc.so.4",
+      "sha256": "2d64c020c448724c2f063cf61ae6fa4f4629d99ef1ba1bb73e1e68e4882c15df"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libpython3.13.so.1.0",
+      "sha256": "1b7613e0039be781d480c4613041c68efcd8be52240e3baf1e09ae21775746a2"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libreadline.so.8",
+      "sha256": "3183f28b78d21c148bd844c0b0e356ceb132de370c44591171aa7ea1488c8e60"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libsqlite3.so.0",
+      "sha256": "a19187db849e9a95b33f2e6fa6d7c3218f8de6f284865832409224bef741dd4a"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libssl.so.3",
+      "sha256": "e2f779425f91a9bbb2a5817d975b6ddb8f9fec40ad4c060ddae350c4e4986c5d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libtinfo.so.6",
+      "sha256": "51cdf4890364a45c5dea607d011caf2546f45acdfa036adaacb6a932ab641267"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libuuid.so.1",
+      "sha256": "427e04ce400955eae6a5f3d737d1f5fed6bb2f7ad4dcea9d017a6e93c0b8d1bc"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libz.so.1",
+      "sha256": "a83ec9e0fee275a2c2b1f2b3773fef6277d7d8fa57f6d50bf0806301b438e281"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/libzstd.so.1",
+      "sha256": "f501ac1465c6c254bade367fa5c079b5beb8a6f2c3e9a51da128ce7202f66ca1"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "1db37b946a0cdfe9d56b296d8616b71d8b85753001a1856769a7aa43c21796f5"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_codecs_cn.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "17f6cf505d7b35797b4886eafeba11913d53bdbbb9684f12663a614118e0486a"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_codecs_hk.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "f123c4ad45c9a845a2a73a2dd9a7ccab4ca12e53f930c696b66761f03c6396c8"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_codecs_iso2022.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "692b39a825400739b8f1dd28ad2c7ba021d9962cd1697cb8c2daef16afc3d360"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_codecs_jp.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "e65f9bdc1e9187272b57bbcbb411efb40538b1b6a7e31bcbf3de5ae445943aef"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_codecs_kr.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "6725f1d9756f0fc87107245c85662b63d2d22a005b837e146619bc3eead6b1af"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_codecs_tw.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "6b78f534cfb41ae6a75efe75e4a8941a57876b047212c5e04059a74404fd7de4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "6abe2beb3f377b5f1991deb39deeae277be17d44a0b02f8b9e1af191e3695a91"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "c7f5c03cb9fe5abc8f246dce5cef71888ea44e27f0899ffa3f57d6b1c0e1a48c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_curses.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "ae96e666f0a54a5f093f1c5e9bca3e45dcf54f7766ed1d81a1be07b999efba88"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_decimal.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "3a01f5030ca6beaa727166c8a562e859c7c955fa81625fbd7ab813fc9e159f1c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "b6b8f95a045e64adb9b862785089f688b236bd73734d0e8cc52af8bd69eed6e2"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "105d6f054f59bddd0ff06f4e5ee85ef75622bce9b319d4e4e0b629cd15fa2807"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "7caaf2b15aa6535d32cec32b9e217238630171598928fab57cd8ed61c7dd0baa"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_multiprocessing.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "8c7d5e09db92e056bbf49f40ab9aa4f7862082c9bb125cb56e22f5773ecd2c04"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_posixshmem.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "9bbce1a1112c8edb655ad63e151518e254a5fd76bcda9a2b6645fa6b196a7962"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_queue.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "e5d33dbbe1a0b977680d81f28b7dbd209bf784d75bb3eab1a491dbf229515079"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_sqlite3.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "bc47aa134738716ee4789c86907bc13aa7e46369911571df6fd5ecc3add8343d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_ssl.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "3bb0b8c0392d68b19915c0b975d39faaba2a5232fa823e2cbc406873d9f308a3"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/_uuid.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "2f41fc9f3eb1a6f63c74a91b075b0f62627be926757bd85471c65df01c16ceb4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/mmap.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "2021518293aedf55a25372a1114de3dcdccb3b96bad8affa0ddd702fbc129e9c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/readline.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "2ed5141e320395b4659086a3340ae3a5ddbd7283afee7d0b3d90bba70986441d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "ae7244a9624046d1d57ffbc79e9e8a45e566474fc49316926fce9f6c13eeff7a"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/python3.13/lib-dynload/termios.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "a32df9cb3dc03642366408fe91f48fec32b0a87327d4323ce8463e90cd13d79e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+      "sha256": "bddb35d7ceaef748a4661a73774e1ff8d5ae76969b31e1cc7f757fb424bd8ed5"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/_internal/setuptools/_vendor/jaraco/text/Lorem ipsum.txt",
+      "sha256": "37fedcffbf73c4eb9f058f47677cb33203a436ff9390e4d38a8e01c9dad28e0b"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/installation-runtime/baton-v12-stack",
+      "sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/__init__.py",
+      "sha256": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/attempt_log_format.py",
+      "sha256": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/__init__.py",
+      "sha256": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/api.py",
+      "sha256": "fbc6684f9538f0f20177add42677792fe554e709dd15d4c15156bb19d3bfdaef"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/core.py",
+      "sha256": "74aa1acb0537ff68dbfc087ae124864f1189e725051998e778a44c21a1f06991"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/errors.py",
+      "sha256": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/identity.py",
+      "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/labels.py",
+      "sha256": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/principals.py",
+      "sha256": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/schema.py",
+      "sha256": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/session.py",
+      "sha256": "9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/authority/store.py",
+      "sha256": "4d651a2a985f38c118d60be466e0c6f6e3012eea0efaa87ae80cec3a4ba0e726"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/checkpoint_profiles.py",
+      "sha256": "bcd539447066fa5e05fcf5340ec3c1b675920ccd9d859ec81d18889f2d3d4f04"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/__init__.py",
+      "sha256": "e9656898d35869eebe3f906de5ee1722339e3e22c2088f8f48cbda26452ffeb7"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/canonical.py",
+      "sha256": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/errors.py",
+      "sha256": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/frozen.py",
+      "sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/manifest.py",
+      "sha256": "77cc26266af73d490db8b3bd2514ab62a3d5a563858339d02783e661217fff8b"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/pod.py",
+      "sha256": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/secrets.py",
+      "sha256": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/contracts/validate.py",
+      "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/eventing.py",
+      "sha256": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/__init__.py",
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/admission.py",
+      "sha256": "9bf4cab3831255e341c01c2d06dc3f5ac07a817e5bb3ece197b4e365c97ea131"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/driver.py",
+      "sha256": "6b3e0ab90b0c840151df72462dbf593b03a327ffe62d5ee6935a41246b97fb19"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/execution.py",
+      "sha256": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/git_profile.py",
+      "sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/oci_delivery.py",
+      "sha256": "5c48fcfe48c0ff845a8c11413837c0efc1c2fb29c419f18ab7d3c23cc2e3adca"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/queue.py",
+      "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "5b6feb23b5991d31c564a81c6a476a2c62452708f17c5ac36650586402f2e58e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/recovery.py",
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/runtime.py",
+      "sha256": "ff027505380edd64b428c571fbd488ee950f3409efc0fd9af20acec94683d813"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/schema.py",
+      "sha256": "2ff94a4d7509545c326e94b20020f23670482d6438e064653891072fd0a41e7a"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/integration/store.py",
+      "sha256": "06936f989e13f55509b97559c7086b1019b349ab637af35de3b5979ba3bb4eec"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/__init__.py",
+      "sha256": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/documents.py",
+      "sha256": "5fcd58b57c4b89c79bea0f72ce41df3da9b2aab4926d77ee22fd65ad7d3956d1"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/ending.py",
+      "sha256": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/episodes.py",
+      "sha256": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/execution_limits.py",
+      "sha256": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "a3cd94bb9dfb23b0c364c3cef29a8588e3d406adee9f4fcdd8b3dfad73610708"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/manager.py",
+      "sha256": "cd476d66063fd1a7324408f1cba3f4168f05446e5142771cc53579961bceddbe"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "595008b9ddb06d947c3720eb5bd8928a53b65f2e7458bbd151f4a77d52fc6742"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "b148669c84af0dc87d248cee293ac48a03553f9963603161502574e201a04d47"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/scheduler.py",
+      "sha256": "4849facf1fc92be574eff4224537c6bc8e6f053a4e99dfba98beab7daa7b41e1"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/schema.py",
+      "sha256": "0f8601611257c78d4b7102938980977b5e256fa772729e70f3104ece6edd8704"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/store.py",
+      "sha256": "84141e0aab2ee45a58d7e51420c3c991802f037eeac7a51b3f4f3e686fa35c6d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/job_manager/submission.py",
+      "sha256": "204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/source_profiles/__init__.py",
+      "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/source_profiles/checkout.py",
+      "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/version.py",
+      "sha256": "8f854cd7b3e8ee5ae7216f226ce484f1a3e112c453e27e1e116fe3fb8e4ffd69"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "52540f92d50e0602f252770415ea29a9366b74492052565da6511e9757b75099"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/attempt_logs.py",
+      "sha256": "482631fcd56b1f1504b87d92c14a1f122451017f7337dbf2ffab63c887513062"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "b55045ebf7a617af662da191306f4ebc06711fe27a70b69a5a256cba11bd6bc4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/authority_port.py",
+      "sha256": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/boundaries.py",
+      "sha256": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "sha256": "f17ce3c53e52e152e18da8c2900f9697bd3df67d3b9363d999c9a4215518def4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/credentials.py",
+      "sha256": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/custody.py",
+      "sha256": "ac594cf099b4e4c65866b8c9004a598d55eaaecbc7b690c3bfeca8cc677939bf"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/deadlines.py",
+      "sha256": "acf03f24df07a1b7a6315ee0e49cd87e12f4a7c326baa798974a0f55dbe6299e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "898b8a65e99f8a289d5a460b74fca080d7cc6ede35c2bd48fe76e8d49e7a9fde"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/events.py",
+      "sha256": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/exchange.py",
+      "sha256": "50cfc38b1322196697b0d5a62fa7146a64035080ef231585ff6ee3dd6e2b6bb8"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/handshake.py",
+      "sha256": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "b79a307bfe41bd502c54adf6bd6792a431e408b88ea0479a7950d83d6346e63c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/interrogation.py",
+      "sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/lanes.py",
+      "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/launch.py",
+      "sha256": "e7503f09547fa28f181cac896c00a34bef484a24d2e0a4ba57def5771a83f4cc"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/maintenance.py",
+      "sha256": "0ce7be13f087758a67fb91c473a5249a06817920b2e2a52fef245d53461149ce"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/manifests.py",
+      "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "a56d76c4fc1e4a7427fab7b56f79ec33e29fd0e52b56a1a8eca9da92f2de4d36"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/offers.py",
+      "sha256": "57a7bfe86b13951a2612b0e1f1e1ad9b139dfe38013a103b2b116b15a9494065"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/output.py",
+      "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/posture_slots.py",
+      "sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "sha256": "f7df4ff84813f6c007005cfdb509f8d667b598cfa456f67b4ef63aaebd659ee0"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "706a2e138ea29d6d27173ebdb15077b1e99b065878ae25d57c4b7306f3358552"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/schema.py",
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/sealing.py",
+      "sha256": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/sessions.py",
+      "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/source_boundary.py",
+      "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/store.py",
+      "sha256": "3d44991274f75e2260dc12a5b8012650256b8400a771e93dc8e4d50c5b48dbc6"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "c59c5d92352cbb2b225455b0c02cb625f1b4da6e9a4cc8cd65b0bc644e1fd5b4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/worker_entry.py",
+      "sha256": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "654094848d3a2af9a5733389ae7f159ccad1ce33e5fdac3a0597c1a12643c3bf"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tests/manager/test_review_cycles.py",
+      "sha256": "c5de1d97a8faf8ab8854578534145f2d61c66997ca9f32010717853a1f4f650d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/__init__.py",
+      "sha256": "26c21454b5f7cfde863e5f615ee1cb5a33564a7026147c4ae6c8cf5446c60bf7"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/accepted_base.py",
+      "sha256": "4aad8afd093f522bbc931415cd769fbb1fe304446d4ec80e73cf0b7790583d7e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/attempt_logs_command.py",
+      "sha256": "c360591014aeafc1f3fcd39253cba38de81e88d3e5691c842553faec694372f5"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/bootstrap.py",
+      "sha256": "c1afc351110d1d58724a1f7e31208679fa75b96a65d917937974f9d70dd03c03"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/build_stamp.py",
+      "sha256": "6b4fed17742702e9dc3577d8f4a54a9bf01d7ca947c1eacf739b18cad7c91218"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/dogfood_operator.py",
+      "sha256": "a3722e436cf559d8b602259baed9ed8413b8945f4a168485b6efa184740548b1"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/environment.py",
+      "sha256": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/instance.py",
+      "sha256": "1541bc46951aef07dfddae5584f20340088b9e626611d75858e2a66d6b2a7106"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/integration_bundle.py",
+      "sha256": "1d17935c65ae5d23b9d92d132a06868d8baa18651c5c70a894f70dcd47e99bc3"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/integration_placement.py",
+      "sha256": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/integration_worker.py",
+      "sha256": "b2e9a7712a9bb83b8f4996636f094a6752bfed5978359d76f6fb1fda97aa2b14"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/job_manager.py",
+      "sha256": "83cbf5ee56b52e2696644046c7aa28c2211e9cd7db8b8c521f416f8abf3ae1ed"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/job_viewer.py",
+      "sha256": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/parallel_test.py",
+      "sha256": "ea1ef7b298f33c856b90cb73dd205d2c6cd1ee3b758bc3add063944596831085"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/pool.py",
+      "sha256": "efd71561121529c615dac8847a1bd15df48dc8bba81675b0411add606832de82"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/single_worker.py",
+      "sha256": "12a9e6a54b25f69ef1c2970affc11c458990cd633fbec1e927514e07decff289"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/stack.py",
+      "sha256": "32c92bb1b077c7858164ae2ab5bcc74e395aac0e3ee65ad81ca5651c8db5b8fe"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/stack_command.py",
+      "sha256": "26393cd3dd2c6c134d1706e520427291d04e46d7cfd094d18d95c58819fb8c43"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/stage_execution.py",
+      "sha256": "38c4cf74db023733603ea88f02b0246c0b16a62afecb743b77cf502ffc5e19e6"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/user_credentials.py",
+      "sha256": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/python/tools/worker_image.py",
+      "sha256": "6bc3f08363a13f70724001638340f21eeed21eb62ea5de9ff359fb0dcc22eeb1"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/baton_worker.py",
+      "sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/claude_agent.py",
+      "sha256": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/dogfood_entry.py",
+      "sha256": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/integration_contract.py",
+      "sha256": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/integration_entry.py",
+      "sha256": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/integration_workload.py",
+      "sha256": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/reconciliation_entry.py",
+      "sha256": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/reconciliation_task.py",
+      "sha256": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/scripted_agent.py",
+      "sha256": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/v12/worker/worker-control-1.0.schema.json",
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+      "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+      "sha256": "248e570d8f9d459550b0aa5e92d1674c3226fe540ba987cae916a4a334606771"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/work/records/2026/09/finding-v12-single-implementation-proof/baseline_bindings.py",
+      "sha256": "09fbf3c59820231b7199e24aa1cf64eee93f6ea2e60f3477fed5ca909e5fc379"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/work/records/2026/09/finding-v12-single-implementation-proof/prepare_instance.py",
+      "sha256": "d08514cbca34d1fd6993ee8fe32fdf5e7865da8f2b83c04e03a2f680cfce3749"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/work/records/2026/09/finding-v12-startup-failure-fresh-packet/BOOTSTRAP-INPUTS-301952.json",
+      "sha256": "19056a84c50b78f0d44460c22f76810ce3311ee4dad8d669c209f9a172ddf05f"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/work/records/2026/09/finding-v12-startup-failure-fresh-packet/SOURCE-EXCERPTS-20260928.md",
+      "sha256": "b4e27d5e91334f505c5f952c85bada1e2420a92b6f320673af6f60b5a8d3737e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/manager-source/work/records/2026/09/finding-v12-startup-failure-fresh-packet/TASK-SINGLE-JOB-20260928.md",
+      "sha256": "6ece1c8f8cfe023f3ad36ea383c2b77581a8c13e01c2b3a4d92d4ffdb6332f6e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/COMPLETE.json",
+      "sha256": "c74f30a46c9d715f037ddded3ee6c33562635017842f444c8d32a388156eebac"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/authority-preflight.json",
+      "sha256": "385ba10f9e0c273087694b199b8b523b438d1cb7dc88e56b96231fa865742806"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/bootstrap-inputs.json",
+      "sha256": "471c92cda64817e83f4c6d170c1e5eae7cd51e02faca54b520618682d6dfdfaa"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/bootstrap-result.json",
+      "sha256": "2a553baa89281780e4ccda8642b53106d927c9a55f45dc4338d4e0daa50ab257"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/bootstrap.log",
+      "sha256": "814b1cfc43e03dd9e926565469ebc0ac2d430b86d2c69bb5ba55164aaaa13343"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/packet-files.json",
+      "sha256": "6d53b94a6f4a195e38789d4aeac55e2531d6b779bf104f769a634793ee0c8f63"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/prepare-instance.json",
+      "sha256": "39615b45a9b8d6fd9c5f2521383d58251c4fc0a081df85f4bcd06661129cd53d"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/repositories-result.json",
+      "sha256": "e83c3bef4ba01d32c862271c76a32e5fa9fd58933efc034a986f331cc23d4331"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/repositories.log",
+      "sha256": "5db5a6b0f125d5da73662f9b3513fb330a8411ae57548ae9e8663275c9063bc1"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/repository-commands.jsonl",
+      "sha256": "8912639f5ca0ddfd5d7d1f0b10b04e6065cb47fc03e7c6202301810296c215c0"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/selected-inputs.json",
+      "sha256": "4b74cdf12cffcb4f393c056ea9f0c894660159cc87ee26ba9a7479b744745052"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/preparation/selections.json",
+      "sha256": "9676162102bc08ea95ca2d007bcbd0aafd690b61ab05648f13bc59dc716681dc"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/repo/workspace/work/records/2026/09/finding-v12-startup-failure-fresh-packet/SOURCE-EXCERPTS-20260928.md",
+      "sha256": "b4e27d5e91334f505c5f952c85bada1e2420a92b6f320673af6f60b5a8d3737e"
+    },
+    {
+      "path": "/home/sl/baton-instances/single-job-257627-291715/repo/workspace/work/records/2026/09/finding-v12-startup-failure-fresh-packet/TASK-SINGLE-JOB-20260928.md",
+      "sha256": "6ece1c8f8cfe023f3ad36ea383c2b77581a8c13e01c2b3a4d92d4ffdb6332f6e"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/PACKET.json",
+      "sha256": "cc184dc1e0937ec99948581d7a09e68864d1f3add3008500e311effac6e2332b"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/adapter.json",
+      "sha256": "cbe3bb4ade990eb5411c64a40be74a10e46a79f48343c499b5f1a8453fabc9c7"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/commands.json",
+      "sha256": "afe27928fa85a9517f1bdf575b3c75c988c73a2623b946cafc2d2797276bfb75"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/deployment.json",
+      "sha256": "12aa3f5f11eb2941f7a5d4762e41e50f84d831a80236d16bdeac3c9275de2741"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/policy.json",
+      "sha256": "70c95c2d429a58bc11c1ef152dc02a105b44bafcb27df28e9be7a939c0ad9a82"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/runtime-profile.json",
+      "sha256": "70ca07c494c9660bfaf747772f2233ccaf77b4ef3a4da90c26121b7b59ff1d34"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/submission.json",
+      "sha256": "a2ac24acc91664cc04d3ef760a8f03ba9161aee19451c2ea4e348a0b56970f0d"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/task.json",
+      "sha256": "a662b6d87dfa9c0d6e60c75b3cd3c69ca2869d8c3a10e4fe8e432c0807217855"
+    }
+  ]
+}

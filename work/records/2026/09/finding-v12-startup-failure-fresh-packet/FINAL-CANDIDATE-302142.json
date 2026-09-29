@@ -1,0 +1,34 @@
+{
+  "work": "W257627",
+  "claim": 302142,
+  "files": [
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/E2E-OPERATOR-302142.md",
+      "sha256": "ce0a7c931e005af6c039978346aff5ae30044efebcf08322d9e031912385f357"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/ACTUAL-VERIFICATION-302142.json",
+      "sha256": "11814e438d68bbbad003a11e83bd1a4aff85a10e40f49df9e86d6a5bef0987e7"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/ACTUAL-READER-302142.json",
+      "sha256": "03f0e701e33c4c8383b3330132bf1f22ae1fce12c947f9fc457ab2d4757a7699"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/FINAL-PACKET-302142.json",
+      "sha256": "c81414fe3574ad30315f5a6f1b0da33c442f27a32f61b7d993f26ee8ed7ee1b6"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/FINDING.md",
+      "sha256": "bea33bf432fd68672ea5bdec3b66f5de4b84221b4a2fa9d207a7c6b94589cad5"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/PLAN.md",
+      "sha256": "d02b48343ef10feafaf48b066258abad90755cfbf66e7eae4b487bc029e7d376"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-startup-failure-fresh-packet/PROGRESS.md",
+      "sha256": "8fe1e8dcbc0e03221f91d9b764fa5454256748a5c0f417d9b6fd370cc6a6b2d3"
+    }
+  ]
+}

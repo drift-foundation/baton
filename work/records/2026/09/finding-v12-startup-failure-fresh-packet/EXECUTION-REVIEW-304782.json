@@ -1,0 +1,37 @@
+{
+  "claim": 304782,
+  "attempt": "attempt-85a56d52601f6f2c3f5641fa30a2da876aa8fa9857a8244ed41f6865369d4c6e",
+  "base": "478531dd1a2ce229fa0ee80912a84126832428ce",
+  "head": "c6e3ab7bd4686112bfd65111c3e42d17a2347b76",
+  "document_sha256": "04b77bdd967ce440ccb00b673a062218d93cd6f25d0c8d8aa258a7880bf6bef8",
+  "document_lines": 99,
+  "patch_matches_git_diff": true,
+  "files": [
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/outcome.json",
+      "sha256": "55fa41e3187de29c3d05b85464355ecf7a98d1d483521df406f9d0ca8f4e15e4"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/workspaces/.baton-review-lines/line-5439ad73390e7218a218e6e4763494c2a52a59e1dda4b3e3e921f8ef37a024c7/custody/attempt-85a56d52601f6f2c3f5641fa30a2da876aa8fa9857a8244ed41f6865369d4c6e/sealed.json",
+      "sha256": "e74e6be31c6a8b64e09db2804d0bbe10604b88d66287ae59a29182b085e5005a"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/workspaces/.baton-review-lines/line-5439ad73390e7218a218e6e4763494c2a52a59e1dda4b3e3e921f8ef37a024c7/custody/attempt-85a56d52601f6f2c3f5641fa30a2da876aa8fa9857a8244ed41f6865369d4c6e/proposal/change.patch",
+      "sha256": "ebc7cddddaa6131d825bacfa0adb386b11a464c93c6c81b3ee39f06e5fb9c84f"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/workspaces/.baton-review-lines/line-5439ad73390e7218a218e6e4763494c2a52a59e1dda4b3e3e921f8ef37a024c7/custody/attempt-85a56d52601f6f2c3f5641fa30a2da876aa8fa9857a8244ed41f6865369d4c6e/proposal/objects.bundle",
+      "sha256": "03dd4e9307a536f40df7de4290dc3625e6781b0d88125cb02c8c4cd298e485e1"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/workspaces/.baton-review-lines/line-5439ad73390e7218a218e6e4763494c2a52a59e1dda4b3e3e921f8ef37a024c7/custody/attempt-85a56d52601f6f2c3f5641fa30a2da876aa8fa9857a8244ed41f6865369d4c6e/proposal/result.json",
+      "sha256": "05d4c5407044b9981a1c742bffa16dc413390054ae9edbd4e417f93c0f154ebe"
+    },
+    {
+      "path": "/home/sl/baton-runs/single-job-257627-291715/workspaces/.baton-review-lines/line-5439ad73390e7218a218e6e4763494c2a52a59e1dda4b3e3e921f8ef37a024c7/custody/attempt-85a56d52601f6f2c3f5641fa30a2da876aa8fa9857a8244ed41f6865369d4c6e/proposal/verification.txt",
+      "sha256": "522cea11a3123edfb32e722def09448e21137a3d1e36c3f4f327c2efe2d3e261"
+    }
+  ],
+  "sealed_entry_hashes_match": true,
+  "independent_declared_verification": "PASS; reviewer exact size/file check exit0"
+}
