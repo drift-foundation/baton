@@ -181,6 +181,34 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # on; the pass above answers for the current attempt and is the wrong
     # place to ask about a previous one.
     spoken.extend(_recover_endings(store, operations, spoken))
+    # W316918: AND THE CAPACITY IS SETTLED FROM THE STATE THIS TICK LEAVES,
+    # not from the state it began with.
+    #
+    # MEASURED BEFORE IT WAS WRITTEN. `reconcile_allocations` above runs on a
+    # `held` projection taken BEFORE the adoptions, the endings and the
+    # exchange pass -- so the tick in which a stage's cleanup axis actually
+    # becomes terminal is a tick whose reconciliation already looked. The
+    # release therefore landed on the NEXT tick, and the last stage of a Job
+    # has no next tick: a supervisor that stops when its stages are completed
+    # stops in between, and its final allocation stays `reserved` for the life
+    # of the store. That is exactly what the completed Job in
+    # STATUS-COPY-316831.json shows -- implementation `released`
+    # `cleanup-retained`, review `reserved` with `released_at` null six
+    # milliseconds later.
+    #
+    # THIS ADDS NO NEW RULE AND WEAKENS NO HOLD. It is the same
+    # reconciliation, asked once more with the projection re-derived after this
+    # tick's acts: an allocation is still released only on a release ENDING or
+    # a `complete`/`retained` cleanup with no blocker, and a running, unknown
+    # or unsettled cleanup is held exactly as before. It is idempotent by
+    # construction -- the loop only considers `LIVE_STATES`, so an allocation
+    # this tick already released is skipped rather than released twice.
+    # NOT ADDED TO THE REPORT: the sweep document's contract is closed, and a
+    # release is already visible where a reader looks for it -- the allocation
+    # projection's own `allocation_state`, `released_at` and `release_reason`,
+    # which is what a status document carries.
+    scheduler.reconcile_allocations(
+        store, projection.stage_states(store, operations))
     return documents.sweep_report(observed_at=now, recovered=recovered,
                                   observed=observed, replaced=replaced,
                                   acts=acts, started=started, spoken=spoken,

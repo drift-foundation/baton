@@ -1,3 +1,24 @@
+# Current checkpoint — recommend satisfying closure; follow-ups routed
+
+Owner E316900 accepts live restore proof. Review316903 created independent top-level Works:
+W316915 status read-only opener -> baton.impl; W316918 final reviewer allocation release -> baton.impl.
+Canonical detail verified both routes/bindings. No containment/blocking edges: independent debt,
+not prerequisites that reopen accepted W236087. Each has bounded FINDING/PLAN and review return.
+Latest review: review-2026-09-30T15-35-36Z.md. Read E316900/events316903/T236087239616.
+
+Next baton.decide: close W236087 satisfying within accepted candidate-run scope. Preserve exact
+live/deterministic proof and limitations; no production promotion/parallel-readiness inferred.
+Next delivery selection: prepare digest-bound integration preflight for final accepted proposal
+head83be025c90842e33e7bea22dd543311b0d8623d8; exact base/tree/digest/locator in review/evidence.
+Require current target/base/provenance checks; no import or Git mutation selected here.
+
+Qualification input retained; observed_model null, no cache/performance/general-production claim.
+Earlier resources remain retained and bounded-disposition gap recorded, no cleanup gate added.
+Author owns follow-up product/tests/PROGRESS after claim; reviewer records; coordinate shared paths.
+No new run, deployed mutation, integration, credential or Git action. Original accepted proofs closed.
+
+---
+
 # Current checkpoint — live candidate correction/restore ACCEPTED
 
 Owner E316829 requests read-only independent review of completed316689. Review316831 accepts

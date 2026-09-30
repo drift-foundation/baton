@@ -12,6 +12,8 @@ until told to stop -- rather than waiting for wall time to pass.
 """
 
 import io
+import stat
+import hashlib
 import json
 import os
 import sys
@@ -29,7 +31,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(
 
 from baton_v12.contracts import ContractRefusal                 # noqa: E402
 from baton_v12.worker_manager import attempts as manager_attempts  # noqa: E402
-from baton_v12.job_manager import TICK_SECONDS, serve, submit   # noqa: E402
+from baton_v12.job_manager import (JobStore, TICK_SECONDS, serve,
+                                    submit)   # noqa: E402
 
 from tools import job_manager                                  # noqa: E402
 from tools.job_manager import main                              # noqa: E402
@@ -343,6 +346,307 @@ class Reading(ToolCase):
         store = self.store()
         self.assertEqual(through_tool,
                          status(store, Unobserved(), observed_at=NOW))
+
+
+class TheStatusSurfaceOpensBothStoresReadOnly(ToolCase):
+    """W316915: `status` is advertised as observational and was not.
+
+    It reached its Job store through `_job_store` -- `JobStore.open` -- which
+    CREATES an absent store, ADOPTS or MIGRATES an existing one and REQUESTS
+    WAL, and its control store through `ControlStore.open`, which is a
+    write-capable handle. So the one command an operator runs to LOOK at a
+    pipeline was a command that could initialize or carry forward the thing it
+    was looking at.
+
+    These hold the corrected surface to the openers' own contracts, and one of
+    them records a limit that is SQLite's rather than the opener's -- see
+    `test_a_cleanly_closed_WAL_store_in_a_read_only_DIRECTORY_is_refused`.
+    """
+
+    SIDECARS = ("-wal", "-shm", "-journal")
+
+    def files(self):
+        """Every store file and sidecar under this case's root, by digest."""
+        held = {}
+        for name in sorted(os.listdir(self.root)):
+            whole = os.path.join(self.root, name)
+            if not os.path.isfile(whole):
+                continue
+            with open(whole, "rb") as handle:
+                held[name] = hashlib.sha256(handle.read()).hexdigest()
+        return held
+
+    def unchanged(self, before):
+        """Every file that existed still holds its bytes, and anything NEW is
+        a SQLite sidecar.
+
+        The distinction is the finding: a read-only connection to a WAL
+        database creates `-shm`/`-wal` when the directory allows it, which is
+        SQLite's own act and changes no store byte. Asserting "nothing at all
+        appeared" would be asserting something untrue about SQLite; asserting
+        "no store byte moved, and only sidecars appeared" is the claim this
+        correction can actually make.
+        """
+        after = self.files()
+        for name, digest in sorted(before.items()):
+            self.assertIn(name, after, name)
+            self.assertEqual(after[name], digest, name)
+        gained = sorted(set(after) - set(before))
+        self.assertTrue(all(one.endswith(self.SIDECARS) for one in gained),
+                        gained)
+        return after
+
+    def submitted(self):
+        """One store with a pipeline in it, cleanly closed."""
+        self.run_tool("--store", self.job_path, "--authority-uuid", UUID,
+                      "--incarnation", "jobs-1",
+                      "submit", "--document", self.document())
+
+    def status(self, *extra, expect=0):
+        stream = io.StringIO()
+        code = main(["--store", self.job_path, "--authority-uuid", UUID,
+                     "--incarnation", "jobs-1", "status", *extra],
+                    clock=self.clock, stream=stream)
+        self.assertEqual(code, expect)
+        return json.loads(stream.getvalue())
+
+    # -- what the surface now uses -------------------------------------------
+
+    def test_status_opens_the_job_store_through_the_NON_WRITING_opener(self):
+        """Asserted by driving it: the writable opener is replaced with one
+        that fails if called, and status still answers.
+        """
+        self.submitted()
+
+        def refuse(*arguments, **named):
+            raise AssertionError("status opened the Job store WRITABLY")
+
+        with mock.patch.object(job_manager.JobStore, "open", refuse):
+            answer = self.status()
+        self.assertEqual([one["job_id"] for one in answer["jobs"]],
+                         ["job-a", "job-b"])
+
+    def test_status_opens_the_control_store_through_the_NON_WRITING_opener(self):
+        self.control().close()
+        self.submitted()
+
+        def refuse(*arguments, **named):
+            raise AssertionError("status opened the control store WRITABLY")
+
+        with mock.patch.object(job_manager.ControlStore, "open", refuse):
+            answer = self.status("--control", self.control_path)
+        self.assertTrue(answer["canonical"])
+
+    def test_SUBMIT_still_uses_the_writable_opener(self):
+        """The other half of the scope: a command that ACTS keeps an opener
+        that may create and adopt. Without this the correction could have made
+        the tool unable to record a pipeline at all.
+        """
+        def refuse(*arguments, **named):
+            raise AssertionError("submit used the read-only opener")
+
+        with mock.patch.object(job_manager.JobStore, "open_readonly", refuse):
+            self.submitted()
+        answer = self.status()
+        self.assertEqual(len(answer["jobs"]), 2)
+
+    # -- no writes attributable to status ------------------------------------
+
+    def test_status_writes_NOTHING_to_the_store_or_its_sidecars(self):
+        """Not chmod as proof -- the bytes themselves, before and after.
+
+        The FINDING is explicit that a permission test is not evidence when the
+        runner may bypass permissions, so this measures the files: every store
+        file and every sidecar, by digest, across a status with and without a
+        control store.
+        """
+        self.control().close()
+        self.submitted()
+        before = self.files()
+        self.status()
+        self.status("--control", self.control_path)
+        after = self.files()
+        for name, digest in sorted(before.items()):
+            self.assertIn(name, after, name)
+            self.assertEqual(after[name], digest, name)
+        # AND WHAT SQLITE ITSELF ADDS IS NAMED RATHER THAN HIDDEN: a read-only
+        # connection to a WAL database creates the shared-memory and
+        # write-ahead sidecars when the directory allows it. That is a
+        # directory write attributable to status, it is SQLite's and not this
+        # opener's, and it changes no store byte -- which is what the digests
+        # above establish.
+        gained = sorted(set(after) - set(before))
+        self.assertTrue(all(one.endswith(self.SIDECARS) for one in gained),
+                        gained)
+
+    def test_a_MISSING_store_is_refused_and_no_file_is_created(self):
+        absent = os.path.join(self.root, "not-a-store.sqlite3")
+        with self.assertRaises(ContractRefusal) as caught:
+            main(["--store", absent, "--authority-uuid", UUID,
+                  "--incarnation", "jobs-1", "status"], clock=self.clock,
+                 stream=io.StringIO())
+        said = str(caught.exception)
+        self.assertIn("does not create what it was asked to read", said)
+        self.assertFalse(os.path.exists(absent))
+        for suffix in self.SIDECARS:
+            self.assertFalse(os.path.exists(absent + suffix), suffix)
+
+    def test_a_MISSING_control_store_is_refused_and_creates_nothing(self):
+        self.submitted()
+        absent = os.path.join(self.root, "not-a-control.sqlite3")
+        with self.assertRaises(ContractRefusal):
+            main(["--store", self.job_path, "--authority-uuid", UUID,
+                  "--incarnation", "jobs-1", "status", "--control", absent],
+                 clock=self.clock, stream=io.StringIO())
+        self.assertFalse(os.path.exists(absent))
+
+    def test_an_EMPTY_database_is_refused_rather_than_initialized(self):
+        empty = os.path.join(self.root, "empty.sqlite3")
+        open(empty, "wb").close()
+        before = self.files()
+        with self.assertRaises(ContractRefusal) as caught:
+            main(["--store", empty, "--authority-uuid", UUID,
+                  "--incarnation", "jobs-1", "status"], clock=self.clock,
+                 stream=io.StringIO())
+        self.assertIn("rather than initializing one", str(caught.exception))
+        self.unchanged(before)
+        # AND THE EMPTY FILE IS STILL EMPTY: no schema was written into it.
+        self.assertEqual(os.path.getsize(empty), 0)
+
+    def test_ANOTHER_AUTHORITYS_store_is_refused_without_being_touched(self):
+        self.submitted()
+        before = self.files()
+        other = "b" * 32
+        self.assertNotEqual(other, UUID)
+        with self.assertRaises(ContractRefusal):
+            main(["--store", self.job_path, "--authority-uuid", other,
+                  "--incarnation", "jobs-1", "status"], clock=self.clock,
+                 stream=io.StringIO())
+        self.unchanged(before)
+
+    def test_ANOTHER_SCHEMA_is_refused_without_migration(self):
+        """The recorded schema must be exactly this build's: a read-only open
+        carries no migration, and the store is not carried forward.
+        """
+        self.submitted()
+        store = JobStore.open(self.job_path, authority_uuid=UUID,
+                              incarnation="jobs-1", clock=self.clock)
+        store._connection.execute(
+            "UPDATE meta SET value = ? WHERE key = 'schema_version'",
+            (str(9999),))
+        store.close()
+        before = self.files()
+        with self.assertRaises(ContractRefusal) as caught:
+            main(["--store", self.job_path, "--authority-uuid", UUID,
+                  "--incarnation", "jobs-1", "status"], clock=self.clock,
+                 stream=io.StringIO())
+        said = str(caught.exception)
+        self.assertIn("carries no migration", said)
+        self.assertIn("Nothing was changed", said)
+        self.unchanged(before)
+
+    # -- the output is unchanged ---------------------------------------------
+
+    def test_BOTH_STATUS_SHAPES_are_preserved(self):
+        self.control().close()
+        self.submitted()
+        without = self.status()
+        self.assertFalse(without["canonical"])
+        self.assertEqual(without["schema"], "baton.v12.job-status/6")
+        self.assertEqual([one["job_id"] for one in without["jobs"]],
+                         ["job-a", "job-b"])
+        with_control = self.status("--control", self.control_path)
+        self.assertTrue(with_control["canonical"])
+        self.assertEqual(with_control["jobs"][0]["stages"][0]["state"],
+                         "queued")
+        # THE SAME DOCUMENT SHAPE EITHER WAY, which is the compatibility half.
+        self.assertEqual(sorted(without), sorted(with_control))
+
+    def test_OBSERVE_still_observes_and_still_acts_on_nothing(self):
+        self.control().close()
+        self.submitted()
+        before = self.files()
+        answer = self.status("--control", self.control_path,
+                             "--observe", __name__ + ":observing_factory")
+        self.assertTrue(answer["canonical"])
+        # AND IT WROTE NOTHING EITHER.
+        after = self.files()
+        for name, digest in sorted(before.items()):
+            self.assertEqual(after[name], digest, name)
+
+    # -- the limit that is SQLite's, measured -------------------------------
+
+    def test_a_cleanly_closed_WAL_store_in_a_read_only_DIRECTORY_is_refused(
+            self):
+        """AND THIS IS THE HONEST BOUNDARY OF THIS CORRECTION.
+
+        The writable openers put these stores in WAL mode, and a clean close
+        removes the `-wal`/`-shm` sidecars. A read-only connection to a WAL
+        database must CREATE the shared-memory file, which needs write access
+        to the DIRECTORY -- so on a directory this process cannot write,
+        SQLite refuses before any of this opener's own checks are reached.
+
+        THAT IS NOT FIXED BY CHOOSING A NON-WRITING OPENER, and this case
+        exists so nobody reads the correction as claiming it is. What the
+        opener does guarantee is the part that was actually wrong: the refusal
+        is HONEST -- no creation, no initialization, no migration, no WAL
+        request and explicitly NO WRITE-CAPABLE FALLBACK -- so a status that
+        cannot read says so instead of quietly opening for writing.
+
+        The measured remedy for an unwritable directory is the one the W236087
+        evidence used: read a stable COPY of the store.
+        """
+        self.submitted()
+        self.assertEqual(sorted(os.listdir(self.root)),
+                         ["jobs.sqlite3", "submission.json"])
+        before = self.files()
+        os.chmod(self.root, stat.S_IRUSR | stat.S_IXUSR)
+        self.addCleanup(os.chmod, self.root, 0o700)
+        with self.assertRaises(ContractRefusal) as caught:
+            main(["--store", self.job_path, "--authority-uuid", UUID,
+                  "--incarnation", "jobs-1", "status"], clock=self.clock,
+                 stream=io.StringIO())
+        said = str(caught.exception)
+        self.assertIn("non-writing opener", said)
+        self.assertIn("no write-capable fallback was attempted", said)
+        os.chmod(self.root, 0o700)
+        # NOTHING WAS CREATED AND NOTHING CHANGED.
+        self.assertEqual(self.files(), before)
+
+    def test_a_STABLE_COPY_of_the_same_store_reads_in_a_read_only_directory(
+            self):
+        """The other half of that boundary, and the remedy the evidence used:
+        a copy whose sidecars are present reads under a read-only directory.
+        """
+        import shutil
+
+        self.submitted()
+        # THE SIDECARS COME FROM ONE ORDINARY READ, taken while the directory
+        # is still writable -- which is exactly what copying a live store's
+        # files gives an operator.
+        self.status()
+        elsewhere = os.path.join(self.root, "copy")
+        os.makedirs(elsewhere)
+        for name in sorted(os.listdir(self.root)):
+            whole = os.path.join(self.root, name)
+            if os.path.isfile(whole) and name.startswith("jobs.sqlite3"):
+                shutil.copyfile(whole, os.path.join(elsewhere, name))
+        copied = os.path.join(elsewhere, "jobs.sqlite3")
+        os.chmod(elsewhere, stat.S_IRUSR | stat.S_IXUSR)
+        self.addCleanup(os.chmod, elsewhere, 0o700)
+        stream = io.StringIO()
+        self.assertEqual(
+            main(["--store", copied, "--authority-uuid", UUID,
+                  "--incarnation", "jobs-1", "status"], clock=self.clock,
+                 stream=stream), 0)
+        self.assertEqual([one["job_id"]
+                          for one in json.loads(stream.getvalue())["jobs"]],
+                         ["job-a", "job-b"])
+
+
+def observing_factory(job_store, control_store):
+    """A minimal observation factory for the status tests above."""
+    return _Observer()
 
 
 class TheLoop(JobManagerCase):

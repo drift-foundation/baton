@@ -1,0 +1,109 @@
+{
+  "answering": "the bound FINDING and PLAN (created by pass 316915)",
+  "claim": 316919,
+  "coordination": "the only shared path with W316918 would be tools/job_manager.py; W316918 is unclaimed and nothing in its bound dossier was touched",
+  "files": {
+    "dossier": [
+      "PROGRESS.md",
+      "MUTATIONS-316919.json",
+      "CANDIDATE-316919.json"
+    ],
+    "product": {
+      "v12/python/tools/job_manager.py": "6a374552f879615c4a8621a369525229963fe459685901688defda61e3669704"
+    },
+    "product_tests": {
+      "v12/python/tests/job_manager/test_tool.py": "cb58c4a9f347aeb6ffbf6893762f2adc8ff6109bdff8c477c8461aa913a826ea"
+    },
+    "reviewer_owns": [
+      "FINDING.md",
+      "PLAN.md"
+    ]
+  },
+  "focused_acceptance": {
+    "cases": 13,
+    "covers": [
+      "both writable openers replaced with ones that fail if called",
+      "submit still uses the writable opener",
+      "no store byte changes across both status shapes",
+      "missing Job store and missing control store refused, no file or sidecar created",
+      "empty database refused and still empty",
+      "another Authority's store refused untouched",
+      "another schema refused, no migration, nothing changed",
+      "both status shapes preserved with the same members",
+      "--observe still observational and writes nothing",
+      "the two WAL/read-only-directory cases"
+    ],
+    "permissions_are_a_condition_not_the_proof": "the proof is file digests, as the FINDING requires",
+    "where": "v12/python/tests/job_manager/test_tool.py, TheStatusSurfaceOpensBothStoresReadOnly"
+  },
+  "participant": "baton.claude",
+  "revalidated_first": {
+    "ControlStore.open_readonly": "mode=ro and marks the handle readonly, so every action on it refuses",
+    "JobStore.open_readonly": "mode=ro, no creation, no initialization, NO migration (calls _recognized, not _adopt), no WAL request, no writable fallback, Authority still proved"
+  },
+  "schema": "baton.candidate/1",
+  "subject": "status now opens both stores through the validated read-only openers; submit and serve are untouched. The one acceptance item that cannot hold -- a cleanly-closed WAL store in a read-only DIRECTORY -- is measured and reported as SQLite's shm requirement rather than claimed fixed.",
+  "the_correction": {
+    "not_done": [
+      "no raw SQL workaround",
+      "no store repair",
+      "no other product file"
+    ],
+    "tools/job_manager.py": [
+      "new _observing_job_store calling JobStore.open_readonly, used by _status",
+      "_status's control store now opens through ControlStore.open_readonly"
+    ],
+    "untouched": [
+      "_job_store",
+      "_submit",
+      "_serve",
+      "the status document shape"
+    ]
+  },
+  "the_measured_boundary": {
+    "WAL_sidecars_present_read_only_directory": "reads",
+    "a_stable_COPY_with_sidecars_read_only_directory": "reads -- the remedy the W236087 evidence already used",
+    "cleanly_closed_WAL_store_read_only_directory": "REFUSED with OperationalError -- SQLite must create the -shm and cannot; this is the deployed failure's shape and the correction does NOT remove it",
+    "read_only_FILE_writable_directory": "reads",
+    "sidecars_named_not_hidden": "a read-only connection to a WAL database creates -shm and -wal when the directory allows it. That is a directory write attributable to status; it changes no store byte, which the digests assert.",
+    "what_the_correction_does_fix": "the refusal is honest: no creation, no initialization, no migration, no WAL request, no write-capable fallback"
+  },
+  "unresolved": {
+    "owner_environment_cause": "not established by this correction; no corruption conclusion drawn",
+    "the_deployed_store_is_not_repaired": "and was not read this claim",
+    "unwritable_directory": "still requires a stable copy; that is SQLite's WAL shm requirement"
+  },
+  "verification": {
+    "adjacent": {
+      "failures": 0,
+      "seconds": 192.7,
+      "suites": [
+        "tests.job_manager.test_sweep",
+        "tests.job_manager.test_ending",
+        "tests.tools.test_stage_execution"
+      ],
+      "tests": 569
+    },
+    "credential_changes": 0,
+    "deployed_reads": 0,
+    "deployed_repairs": 0,
+    "focused": {
+      "failures": 0,
+      "seconds": 4.96,
+      "suites": [
+        "tests.job_manager.test_tool",
+        "tests.job_manager.test_status",
+        "tests.job_manager.test_recovery",
+        "tests.tools.test_stage_execution_status_hardening"
+      ],
+      "tests": 160
+    },
+    "live_runs": 0,
+    "mutations": {
+      "count": 2,
+      "evidence": "MUTATIONS-316919.json",
+      "uncaught": []
+    }
+  },
+  "work": "W316915"
+}

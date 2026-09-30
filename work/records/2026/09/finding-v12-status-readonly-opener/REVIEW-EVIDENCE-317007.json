@@ -1,0 +1,19 @@
+{
+  "claim": 317007,
+  "hashes": {
+    "v12/python/tools/job_manager.py": "6a374552f879615c4a8621a369525229963fe459685901688defda61e3669704",
+    "v12/python/tests/job_manager/test_tool.py": "cb58c4a9f347aeb6ffbf6893762f2adc8ff6109bdff8c477c8461aa913a826ea"
+  },
+  "candidate_sha256": "0224093e168ba52468830b4f1793baf0955992e6df55ffb000aa55d1fff62f71",
+  "independent_tests": {
+    "class": "TheStatusSurfaceOpensBothStoresReadOnly",
+    "count": 13,
+    "seconds": 0.053,
+    "result": "PASS"
+  },
+  "read_through": {
+    "handoff": 317004,
+    "events": 317007,
+    "thread": 316915
+  }
+}

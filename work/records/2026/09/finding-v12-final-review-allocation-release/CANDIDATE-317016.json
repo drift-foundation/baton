@@ -1,0 +1,162 @@
+{
+  "answering": "the bound FINDING and PLAN (reviewer-owned, not edited)",
+  "claim": 317016,
+  "coordination": "no shared path with W316915. W316915 owns v12/python/tools/job_manager.py and v12/python/tests/job_manager/test_tool.py; neither is touched here. The only tools/ file touched is parallel_test.py, which W316915 does not own.",
+  "files": {
+    "dossier": [
+      "PROGRESS.md",
+      "MUTATIONS-317016.json",
+      "CANDIDATE-317016.json"
+    ],
+    "product": {
+      "v12/python/src/baton_v12/job_manager/manager.py": "4c5bc31f895c0ff0d6dfe8fd4e6f54421e2b3b6cb65a0aa4abf0f9f85a248ceb"
+    },
+    "product_tests": {
+      "v12/python/tests/job_manager/test_final_allocation_release.py": "5d3bc320401cef7a6cd9fbc55b553054401cf056fc5302e2576943987ede9615",
+      "v12/python/tests/tools/test_stage_execution.py": "579b3b757f5c9d2e84b14dc5e41e54d3e679cb3991677e8badfbc3b0a59b9db2",
+      "v12/python/tools/parallel_test.py": "3ca12885d66a723b72fdee69e30e7f6fc27ffb526ad2220522d0eed833e36276"
+    },
+    "reviewer_owns": [
+      "FINDING.md",
+      "PLAN.md"
+    ]
+  },
+  "focused_acceptance": {
+    "runtime_level": {
+      "cases": 10,
+      "covers": [
+        "the tick that moves review answering->completed also releases its allocation, cleanup-retained, non-null instant",
+        "the release names the assignment the reviewer container actually ran under",
+        "no allocation of the Job is live at the moment every reader calls it completed",
+        "the accepted verdict, its sealed result and the accepted integration checkpoint survive the release; the Job still reaches integration: claimed",
+        "the retained workspace directory still exists after the release",
+        "three further ticks change neither instant nor reason; one journal row",
+        "the implementation allocation is still released on its own tick for its own cleanup (control against freeing early)",
+        "correction-then-accepted: one stage with two review episodes, each released for its own ending, all four allocations released"
+      ],
+      "seconds": 5.3,
+      "where": "v12/python/tests/tools/test_stage_execution.py, TheLastStageReturnsItsCapacityWhenItCompletes"
+    },
+    "sweep_level": {
+      "cases": 14,
+      "covers": [
+        "release once with the settling assignment, its episode, released_at and a reason matching the proven cleanup (complete and retained)",
+        "a later independent Job's admission takes the freed worker and principal",
+        "its negative: a still-held finished attempt leaves the next Job reserving nothing",
+        "no duplicate release over three further ticks, nor across a restart on a new incarnation of the same store; exactly one allocation.released journal row",
+        "a released assignment refuses re-reservation durably",
+        "held for unsettled (pending), unknown (None) and running cleanup",
+        "the hold is not widened either: a live execution axis with terminal cleanup still settles",
+        "changes-requested settles on its own cleanup, so the disposition is not the axis",
+        "the sweep report's member set is unchanged"
+      ],
+      "seconds": 0.1,
+      "where": "v12/python/tests/job_manager/test_final_allocation_release.py"
+    },
+    "why_two_levels": "the sweep fixture is the sharper proof of the ORDERING rule and its negatives; only the real composed lifecycle can prove that for the last stage the completing tick is the only tick there will be, which is what made this a residual rather than a one-tick delay"
+  },
+  "participant": "baton.claude",
+  "reproduced_before_hypothesis": {
+    "how": "a temporary probe class over the real composed runtime, since removed and replaced by the acceptance suite",
+    "observed": "after an accepted review turn, tick 1 moved review to completed with its allocation still reserved; tick 2 released it with cleanup-retained",
+    "matches_deployed": "implementation released 15:18:51.356 cleanup-retained; review reserved 15:18:51.362 with released_at null"
+  },
+  "revalidated_first": {
+    "_move": "a settled allocation answers the settled row rather than recording a second release, and refuses a changed operand through the journal",
+    "reconcile_allocations": "was never wrong and is unchanged: releases on a release ENDING, or on a complete/retained cleanup with no integration-capacity blocker; holds otherwise",
+    "reserve": "refuses re-reserving a released assignment durably, so returned capacity never reopens an episode that is over"
+  },
+  "schema": "baton.candidate/1",
+  "subject": "manager.sweep now settles scheduler capacity from the state the tick LEAVES as well as the state it began in, so proven cessation and cleanup free the final allocation in the same tick the stage completes -- with no new Job, no manual sweep and no change to the release rule itself.",
+  "the_cause": {
+    "consequence": "a deployment with one logical review worker could run exactly one Job and then queue forever behind an attempt that was over",
+    "not_the_rule": "scheduler.reconcile_allocations was correct; what was wrong was when it was asked",
+    "the_defect": "sweep reconciled capacity from a held projection taken BEFORE its own acts, and the cleanup axis becomes terminal INSIDE conclude -- so the release was owed to a tick that had already looked and landed on the next one",
+    "why_it_only_showed_at_the_end": "for every stage but the last that is a one-tick delay; the last stage of a Job has no next tick, because a supervisor stops once its stages are completed -- between the completion and the release"
+  },
+  "the_correction": {
+    "not_conflated_with_the_workspace_token": "the reason stays cleanup-retained and claims nothing about container, credential or workspace; an acceptance case asserts the retained workspace directory still exists after the release",
+    "not_done": [
+      "no change to scheduler.py",
+      "no change to the supervisor stopping boundary",
+      "no change to stage_execution.py or single_worker.py",
+      "no new sweep-report member (its contract is closed)",
+      "no scheduling redesign",
+      "no repair of the deployed Job's already-reserved allocation"
+    ],
+    "src/baton_v12/job_manager/manager.py": [
+      "one added scheduler.reconcile_allocations(store, projection.stage_states(store, operations)) at the end of sweep, after _recover_endings"
+    ],
+    "tools/parallel_test.py": [
+      "one appended PARALLEL registry entry for the new test module, with its rationale"
+    ],
+    "why_it_is_safe": [
+      "same function, same release endings, same complete/retained-with-no-blocker test, same holds for running, unknown and unsettled cleanup",
+      "idempotent by construction: the loop only considers LIVE_STATES, so an allocation released this tick is skipped",
+      "the sweep document is unchanged; a release is visible where a reader looks -- allocation_state, released_at, release_reason"
+    ]
+  },
+  "unresolved": {
+    "F1_w316915_consequence": "test_correction_packet.TheCORRECTED_OPERATOR_SEQUENCE.test_THE_STATUS_COMMAND_IS_THE_GENERATED_ONE_AND_THE_PARSER_TAKES_IT builds zero-byte store files and expects jobs: []; W316915's read-only opener refuses an empty database. The refusal is correct; the fixture relied on the old fail-open. Not repaired here -- that file is W236087's accepted dossier test and W316915 is under review.",
+    "F2_registry_debt": "17 pre-existing tracked test modules belong to no parallel_test registry; mine is registered, theirs needs a decision about what each owns",
+    "F3_adjacent_signature_failures": "test_stage_execution_hardening.ConstructionUnwindsConcreteHandles and test_quiescent_assignment_finalization both fail on handle/parameter lists, identically with this correction disabled",
+    "F4_unmeasured_suites": "tests/tools/test_managed_preparation.py and test_managed_apply.py cannot import under PYTHONPATH=src:. (they import the flat tools module integration_bundle); they run through the parallel runner",
+    "the_deployed_store_is_not_repaired": "and was not read this claim; this changes what a sweep does from now on"
+  },
+  "verification": {
+    "adjacent": {
+      "failures": "2 pre-existing (F3), identical with the correction disabled",
+      "seconds": 66.7,
+      "suites": [
+        "tests.tools.test_stage_execution_hardening",
+        "tests.tools.test_stage_execution_status_hardening",
+        "tests.tools.test_scheduler_trace",
+        "tests.tools.test_pool",
+        "tests.tools.test_quiescent_assignment_finalization",
+        "tests.tools.test_correction_restart"
+      ],
+      "tests": 256
+    },
+    "credential_changes": 0,
+    "deployed_cleanup_or_integration": 0,
+    "deployed_reads": 0,
+    "dossier_suites_w236087": {
+      "failures": "1 pre-existing (F1), a W316915 consequence",
+      "seconds": 29.6,
+      "suites": [
+        "test_correction_packet",
+        "test_connected_packet"
+      ],
+      "tests": 237
+    },
+    "focused": {
+      "failures": 0,
+      "seconds": 2.2,
+      "suites": [
+        "tests.job_manager.test_final_allocation_release",
+        "tests.job_manager.test_scheduling",
+        "tests.job_manager.test_sweep",
+        "tests.job_manager.test_status",
+        "tests.job_manager.test_managed_integration_capacity"
+      ],
+      "tests": 307
+    },
+    "git_or_graph_mutations": 0,
+    "live_runs": 0,
+    "mutations": {
+      "count": 3,
+      "evidence": "MUTATIONS-317016.json",
+      "uncaught": []
+    },
+    "owning_suites": {
+      "failures": 0,
+      "seconds": 218.8,
+      "suites": [
+        "tests/job_manager (all, 942)",
+        "tests.tools.test_stage_execution (477)"
+      ],
+      "tests": 1419
+    }
+  },
+  "work": "W316918"
+}

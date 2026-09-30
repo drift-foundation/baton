@@ -1,0 +1,112 @@
+{
+  "claim": 317016,
+  "clean_again": {
+    "caught": [],
+    "ran": [
+      "Ran 14 tests in 0.102s",
+      "Ran 10 tests in 5.293s"
+    ],
+    "verdict": [
+      "OK",
+      "OK"
+    ]
+  },
+  "measured": {
+    "M1": {
+      "caught_by": [
+        "test_a_changes_requested_ending_settles_on_its_own_cleanup",
+        "test_a_later_independent_job_takes_the_released_worker",
+        "test_a_live_runtime_with_a_terminal_cleanup_is_still_settled",
+        "test_a_restart_after_the_release_settles_nothing_further",
+        "test_a_retained_cleanup_frees_it_too_and_says_which",
+        "test_it_releases_the_assignment_the_reviewer_actually_ran",
+        "test_later_ticks_do_not_release_it_a_second_time",
+        "test_later_ticks_do_not_release_it_again",
+        "test_no_allocation_of_this_job_is_still_live_at_completion",
+        "test_the_accepted_second_round_releases_its_own_allocation",
+        "test_the_completing_tick_releases_the_review_allocation",
+        "test_the_corrected_round_leaves_every_allocation_released",
+        "test_the_corrected_round_settles_each_episode_exactly_once",
+        "test_the_release_claims_only_the_cleanup_that_was_proven",
+        "test_the_release_names_the_allocation_the_ending_settled",
+        "test_the_settled_assignment_is_never_reserved_again",
+        "test_the_tick_that_concludes_the_last_stage_releases_its_allocation"
+      ],
+      "file": "src/baton_v12/job_manager/manager.py",
+      "mutation": "the final reconciliation is removed again -- the defect: capacity is settled only from the state the tick BEGAN in, so the last stage's allocation stays reserved forever",
+      "ran": [
+        "Ran 14 tests in 0.093s",
+        "Ran 10 tests in 5.047s"
+      ]
+    },
+    "M2": {
+      "caught_by": [
+        "test_a_changes_requested_ending_settles_on_its_own_cleanup",
+        "test_a_later_independent_job_takes_the_released_worker",
+        "test_a_live_runtime_with_a_terminal_cleanup_is_still_settled",
+        "test_a_restart_after_the_release_settles_nothing_further",
+        "test_a_retained_cleanup_frees_it_too_and_says_which",
+        "test_it_releases_the_assignment_the_reviewer_actually_ran",
+        "test_later_ticks_do_not_release_it_a_second_time",
+        "test_later_ticks_do_not_release_it_again",
+        "test_no_allocation_of_this_job_is_still_live_at_completion",
+        "test_the_accepted_second_round_releases_its_own_allocation",
+        "test_the_completing_tick_releases_the_review_allocation",
+        "test_the_corrected_round_leaves_every_allocation_released",
+        "test_the_corrected_round_settles_each_episode_exactly_once",
+        "test_the_release_claims_only_the_cleanup_that_was_proven",
+        "test_the_release_names_the_allocation_the_ending_settled",
+        "test_the_settled_assignment_is_never_reserved_again",
+        "test_the_tick_that_concludes_the_last_stage_releases_its_allocation"
+      ],
+      "file": "src/baton_v12/job_manager/manager.py",
+      "mutation": "the final reconciliation is asked with the PRE-ACT projection -- proves the fix is the re-derived state and not merely one more call",
+      "ran": [
+        "Ran 14 tests in 0.092s",
+        "Ran 10 tests in 5.027s"
+      ]
+    },
+    "M3": {
+      "caught_by": [
+        "test_a_changes_requested_ending_settles_on_its_own_cleanup",
+        "test_a_later_independent_job_takes_the_released_worker",
+        "test_a_retained_cleanup_frees_it_too_and_says_which",
+        "test_a_running_cleanup_is_held",
+        "test_an_unknown_cleanup_is_held",
+        "test_an_unsettled_cleanup_is_held",
+        "test_no_allocation_of_this_job_is_still_live_at_completion",
+        "test_the_accepted_second_round_releases_its_own_allocation",
+        "test_the_completing_tick_releases_the_review_allocation",
+        "test_the_implementation_allocation_was_released_on_its_own_tick",
+        "test_the_release_claims_only_the_cleanup_that_was_proven",
+        "test_the_same_job_queued_behind_a_held_allocation_is_the_defect",
+        "test_the_tick_that_concludes_the_last_stage_releases_its_allocation"
+      ],
+      "file": "src/baton_v12/job_manager/scheduler.py",
+      "mutation": "the release rule treats an unsettled or running cleanup as proven cessation -- proves the negative cases actually hold capacity",
+      "ran": [
+        "Ran 14 tests in 0.103s",
+        "Ran 10 tests in 4.949s"
+      ]
+    }
+  },
+  "schema": "baton.final-allocation-mutation-evidence/1",
+  "suites": [
+    "tests.job_manager.test_final_allocation_release",
+    "tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes"
+  ],
+  "uncaught_mutations": [],
+  "unmutated": {
+    "caught": [],
+    "ran": [
+      "Ran 14 tests in 0.105s",
+      "Ran 10 tests in 5.269s"
+    ],
+    "verdict": [
+      "OK",
+      "OK"
+    ]
+  },
+  "what": "the corrected settlement re-broken one way at a time; a case must catch each, and the unmutated and restored runs must be clean",
+  "work": "W316918"
+}

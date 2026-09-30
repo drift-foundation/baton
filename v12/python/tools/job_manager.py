@@ -79,6 +79,32 @@ def _job_store(taken, clock):
                          incarnation=taken.incarnation, clock=clock)
 
 
+def _observing_job_store(taken, clock):
+    """The Job store a STATUS opens: existing, recognized, and never written.
+
+    W316915. `status` is advertised as observational and reached its store
+    through `_job_store` above -- which is `JobStore.open`, and that opener
+    CREATES an absent store, ADOPTS or MIGRATES an existing one and REQUESTS
+    WAL. So the one command an operator runs to look at a pipeline was the one
+    command that could initialize or carry forward the store it was looking at,
+    and on a store or directory it may not write it failed instead of reading.
+
+    `open_readonly` is the counterpart this store already had and this tool
+    never used: `mode=ro`, no creation, no initialization of an empty file, no
+    migration, no WAL request and NO WRITABLE FALLBACK -- a read that fails is
+    a refusal rather than a retry with write access. The Authority binding and
+    the schema recognition are still proved, because reading one Authority's
+    pipeline under another's name would report somebody else's work as this
+    one's.
+
+    SUBMIT AND SERVE ARE UNTOUCHED and still use `_job_store`: they act, so
+    they need an opener that may create and adopt.
+    """
+    return JobStore.open_readonly(
+        taken.store, authority_uuid=taken.authority_uuid,
+        incarnation=taken.incarnation, clock=clock)
+
+
 def _read(path):
     if path == "-":
         return sys.stdin.read()
@@ -749,15 +775,23 @@ def _status(taken, clock, stream):
             "it adopts against lives in the Worker Manager control store. "
             "Rerun with --control, or drop --observe and accept "
             "`exchange: null`, which means nobody looked.")
-    with _job_store(taken, clock) as store:
+    # THE OBSERVATIONAL OPENERS, for both stores. See `_observing_job_store`:
+    # a surface that reports what a pipeline is doing has no business being
+    # able to create, migrate or WAL-ify what it reads.
+    with _observing_job_store(taken, clock) as store:
         if taken.control is None:
             # NO CONTROL STORE IS A LEGITIMATE ANSWER, and the projection
             # marks itself as unobserved rather than reporting a pipeline
             # nobody looked at.
             return _emit(status(store, Unobserved(), observed_at=clock()),
                          stream)
-        with ControlStore.open(taken.control, incarnation=taken.incarnation,
-                               clock=clock) as control:
+        # AND THE CONTROL STORE THE SAME WAY. `ControlStore.open_readonly`
+        # additionally refuses every ACTION on the handle it returns -- "a
+        # read-only manager or read snapshot performs no action" -- so the
+        # observation branch below cannot journal anything even by mistake.
+        with ControlStore.open_readonly(taken.control,
+                                        incarnation=taken.incarnation,
+                                        clock=clock) as control:
             if taken.observe is None:
                 return _emit(status(store, _ReadOnly(control),
                                     observed_at=clock()), stream)

@@ -12990,3 +12990,261 @@ class TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld(
                                    writer=False)
         self.assertTrue(answered[0]["workspace"])
         self.assertTrue(os.path.isdir(answered[0]["workspace"]))
+
+
+class TheLastStageReturnsItsCapacityWhenItCompletes(ComposedOneJobCase):
+    """W316918: over the real composed runtime, where the completing tick is
+    the last one.
+
+    THE RESIDUAL, as the deployed instance recorded it. A completed Job whose
+    implementation allocation was `released` with reason `cleanup-retained`,
+    and whose review allocation -- reserved six milliseconds later, with no
+    runtime alive and its workspace retained -- was still `reserved` with
+    `released_at` null. Nothing was wrong with the runtime, the cleanup or the
+    verdict; the capacity was simply never given back.
+
+    WHY THIS LEVEL AND NOT ONLY THE SWEEP FIXTURE.
+    `tests/job_manager/test_final_allocation_release.py` pins the ordering
+    rule against a fake deployment whose `conclude` settles cleanup, and it is
+    the cheaper, sharper proof of the rule. It cannot prove the thing that
+    made this a residual rather than a one-tick delay: that for the LAST stage
+    of a Job, the tick which completes it is the only tick there will be. Only
+    a real composed lifecycle -- real containers through the fake engine, a
+    real reviewer verdict, the real ending, cleanup and settlement -- decides
+    where that boundary actually falls.
+
+    SO EVERY CASE HERE MEASURES ONE TICK. The stage's own completion and its
+    allocation's release must be facts of the SAME tick, because a supervisor
+    that stops when its stages are completed stops between them.
+    """
+
+    # BORROWED AND NOT SUBCLASSED, on this file's own idiom (see
+    # `OrdinaryTerminalLifecycle`): inheriting that class would silently
+    # re-run its nine cases under this name, which would make this suite's
+    # measured cost a statement about somebody else's proof.
+    REPORT = TheComposedJobTraversesReviewAndAcceptance.REPORT
+    reviewed = TheComposedJobTraversesReviewAndAcceptance.reviewed
+    only_attempt_of = TheComposedJobTraversesReviewAndAcceptance.only_attempt_of
+    deployment_of = staticmethod(
+        TheComposedJobTraversesReviewAndAcceptance.deployment_of)
+    tick = TheComposedJobTraversesReviewAndAcceptance.tick
+
+    def allocations(self, held, kind=None):
+        """Every allocation this Job's store holds, oldest reservation first.
+
+        A LIST AND NOT A MAP KEYED BY STAGE, which is a correction to how I
+        first wrote this. A correction round gives one stage TWO allocations,
+        and keying by stage silently kept whichever sorted last -- so the two
+        cases below that are about a stage carrying two episodes passed while
+        one of the two rows was never looked at at all.
+        """
+        from baton_v12.job_manager import allocation_rows
+
+        return [row for row in allocation_rows(held.job)
+                if kind is None
+                or row["stage_id"].rsplit("/", 1)[-1] == kind]
+
+    def only(self, held, kind):
+        [row] = self.allocations(held, kind)
+        return row
+
+    def live(self, held):
+        """Each live allocation as (stage kind, assignment), duplicates kept."""
+        from baton_v12.job_manager import scheduler
+
+        return sorted((row["stage_id"].rsplit("/", 1)[-1],
+                       row["assignment_id"]) for row in self.allocations(held)
+                      if row["allocation_state"] in scheduler.LIVE_STATES)
+
+    def completing(self, held):
+        """The one tick in which the review stage reaches `completed`.
+
+        Asserted rather than searched for: if it took two ticks this method
+        fails here instead of letting a later assertion measure the wrong one.
+        """
+        self.assertEqual(self.states(held.job, held.composed)["review"],
+                         "answering")
+        report = self.tick(held)
+        self.assertEqual(self.states(held.job, held.composed)["review"],
+                         "completed")
+        return report
+
+    # -- the tick that completes it is the tick that frees it ----------------
+
+    def test_the_completing_tick_releases_the_review_allocation(self):
+        held = self.reviewed()
+        self.assertEqual(self.only(held, "review")["allocation_state"],
+                         "reserved")
+        self.completing(held)
+        settled = self.only(held, "review")
+        self.assertEqual(settled["allocation_state"], "released")
+        self.assertIsNotNone(settled["released_at"])
+        self.assertEqual(settled["release_reason"], "cleanup-retained")
+
+    def test_it_releases_the_assignment_the_reviewer_actually_ran(self):
+        """The exact assignment, read back from the attempt this fixture
+        watched the container start under."""
+        from baton_v12.job_manager import allocation_of
+
+        held = self.reviewed()
+        self.completing(held)
+        settled = allocation_of(held.job, held.review)
+        self.assertIsNotNone(settled)
+        self.assertEqual(settled["allocation_state"], "released")
+        self.assertEqual(settled["stage_id"], "job-a/review")
+
+    def test_no_allocation_of_this_job_is_still_live_at_completion(self):
+        """THE WHOLE POINT, stated as the reader sees it.
+
+        At the moment every reader calls this Job's review completed, the
+        deployment's review lane holds no live allocation -- so a supervisor
+        that stops here leaves nothing behind.
+        """
+        held = self.reviewed()
+        self.assertEqual(self.live(held),
+                         [("review", self.only(held, "review")
+                           ["assignment_id"])])
+        self.completing(held)
+        self.assertEqual(self.live(held), [])
+
+    def test_the_release_claims_only_the_cleanup_that_was_proven(self):
+        """`cleanup-retained` AND NOT `cleanup-complete`, which is the
+        distinction the deployed residual also carried: the runtime ceased and
+        the workspace was deliberately KEPT for evidence. Returning logical
+        capacity says nothing about the container or the workspace, and the
+        retained material is still there to be read.
+        """
+        held = self.reviewed()
+        self.completing(held)
+        self.assertEqual(self.only(held, "review")["release_reason"],
+                         "cleanup-retained")
+        worker = self.worker_of(held.composed, "review")
+        prepared = worker.stage._prepared[held.review]
+        self.assertTrue(os.path.isdir(prepared["boundary"]["roots"]["workspace"]))
+
+    def test_the_accepted_verdict_and_its_evidence_survive_the_release(self):
+        """A settlement is not an erasure. The verdict the reviewer's own
+        container wrote, the frozen result it was sealed from, and the
+        accepted checkpoint the integration stage depends on are all exactly
+        where they were.
+        """
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.reviewed()
+        report = self.completing(held)
+        [concluded] = [one for one in report["spoken"]
+                       if one["stage_id"] == "job-a/review"]
+        self.assertEqual(concluded["detail"]["verdict"], "accepted")
+        deployment = self.deployment_of(held)
+        line = deployment.line()
+        accepted = review_cycles.integration_checkpoint(deployment.control,
+                                                        line["line_id"])
+        self.assertIsNotNone(accepted)
+        # AND THE JOB STILL GOES FORWARD from the state the release left.
+        states = self.drive(held.job, held.composed, "integration", "claimed")
+        self.assertEqual(states["integration"], "claimed")
+
+    # -- once, and once only -------------------------------------------------
+
+    def test_later_ticks_do_not_release_it_a_second_time(self):
+        held = self.reviewed()
+        self.completing(held)
+        first = self.only(held, "review")
+        for index in range(3):
+            with self.subTest(tick=index + 1):
+                self.tick(held)
+                again = self.only(held, "review")
+                self.assertEqual(again["released_at"], first["released_at"])
+                self.assertEqual(again["release_reason"],
+                                 first["release_reason"])
+        self.assertEqual(
+            [row["operation_id"] for row in held.job._connection.execute(
+                "SELECT operation_id FROM operations "
+                "WHERE kind = 'allocation.released' AND operation_id LIKE ?",
+                ("%" + held.review,))],
+            ["allocation.released:" + held.review])
+
+    def test_the_implementation_allocation_was_released_on_its_own_tick(self):
+        """The half that always worked, kept measured beside the half that did
+        not -- because a fix that made the review stage release EARLY would
+        show up here as an implementation allocation released before its
+        cleanup was proven."""
+        held = self.reviewed()
+        implementation = self.only(held, "implementation")
+        self.assertEqual(implementation["allocation_state"], "released")
+        self.assertEqual(implementation["release_reason"], "cleanup-retained")
+        self.assertNotEqual(implementation["assignment_id"], held.review)
+
+    # -- the correction path, whose review stage has a second episode --------
+
+    def corrected(self):
+        """The same Job, reviewed twice: changes-requested, then accepted.
+
+        THIS PATH IS MEASURED SEPARATELY BECAUSE ITS CODE PATH DIFFERS. A
+        correction round advances the review stage into a SECOND episode, and
+        `reconcile_allocations` keys the projection entry by stage while the
+        allocation is keyed by assignment -- so a stage carrying two
+        allocations is exactly where a settlement could name the wrong one, or
+        free the round that is still open.
+        """
+        import copy
+
+        held = self.reviewed(verdict="changes-requested")
+        self.tick(held)
+        self.drive(held.job, held.composed, "implementation", "waiting",
+                   ticks=12)
+        second = self.only_attempt_of(held.composed, "implementation",
+                                      exclude=held.attempt_id)
+        self.assertEqual(
+            self.turn(held.control, "implementation", second,
+                      self.mounted(held.composed, "implementation", second),
+                      edits={"harness.py": "print('the second harness')\n"}), 0)
+        self.drive(held.job, held.composed, "implementation", "completed",
+                   ticks=14)
+        self.drive(held.job, held.composed, "review", "waiting", ticks=14)
+        third = self.only_attempt_of(held.composed, "review",
+                                     exclude=held.review)
+        report = copy.deepcopy(self.REPORT)
+        self.assertEqual(
+            self.turn(held.control, "review", third,
+                      self.mounted(held.composed, "review", third),
+                      edits={"review-report.json": json.dumps(report)}), 0)
+        held.first_review, held.review = held.review, third
+        return held
+
+    def test_the_accepted_second_round_releases_its_own_allocation(self):
+        from baton_v12.job_manager import allocation_of
+
+        held = self.corrected()
+        self.assertEqual(
+            allocation_of(held.job, held.review)["allocation_state"],
+            "reserved")
+        self.completing(held)
+        settled = allocation_of(held.job, held.review)
+        self.assertEqual(settled["allocation_state"], "released")
+        self.assertIsNotNone(settled["released_at"])
+
+    def test_the_corrected_round_settles_each_episode_exactly_once(self):
+        """Two allocations on one stage, each released for its own ending."""
+        from baton_v12.job_manager import allocation_of
+
+        held = self.corrected()
+        self.completing(held)
+        first = allocation_of(held.job, held.first_review)
+        second = allocation_of(held.job, held.review)
+        self.assertNotEqual(first["assignment_id"], second["assignment_id"])
+        self.assertNotEqual(first["episode"], second["episode"])
+        for settled in (first, second):
+            with self.subTest(assignment=settled["assignment_id"]):
+                self.assertEqual(settled["allocation_state"], "released")
+        self.assertEqual(self.live(held), [])
+
+    def test_the_corrected_round_leaves_every_allocation_released(self):
+        """All four of them -- two implementation rounds and two review
+        rounds -- named individually, so no row can hide behind another."""
+        held = self.corrected()
+        self.completing(held)
+        rows = self.allocations(held)
+        self.assertEqual(len(rows), 4, [row["assignment_id"] for row in rows])
+        self.assertEqual(sorted(row["allocation_state"] for row in rows),
+                         ["released"] * 4)

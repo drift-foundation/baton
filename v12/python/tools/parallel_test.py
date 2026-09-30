@@ -253,6 +253,12 @@ PARALLEL_MODULES = ("tests.tools.test_stack",
                     "tests.job_manager.test_submission",
                     "tests.job_manager.test_sweep",
                     "tests.job_manager.test_tool",
+                    # W316918's final-allocation settlement. PARALLEL on the
+                    # same rule as the block above: one disposable temporary
+                    # root per case holding its own Job store, a strict
+                    # in-process fake deployment, and no container, image,
+                    # engine, network or shared artefact at all.
+                    "tests.job_manager.test_final_allocation_release",
                     # W76207's production one-worker composition. PARALLEL:
                     # real stores and filesystem material are confined to one
                     # temporary root per case; the OCI boundary is a recording

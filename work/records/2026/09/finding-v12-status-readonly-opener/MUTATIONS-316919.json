@@ -1,0 +1,43 @@
+{
+  "cases": [
+    "test_ANOTHER_AUTHORITYS_store_is_refused_without_being_touched",
+    "test_ANOTHER_SCHEMA_is_refused_without_migration",
+    "test_BOTH_STATUS_SHAPES_are_preserved",
+    "test_OBSERVE_still_observes_and_still_acts_on_nothing",
+    "test_SUBMIT_still_uses_the_writable_opener",
+    "test_a_MISSING_control_store_is_refused_and_creates_nothing",
+    "test_a_MISSING_store_is_refused_and_no_file_is_created",
+    "test_a_STABLE_COPY_of_the_same_store_reads_in_a_read_only_directory",
+    "test_a_cleanly_closed_WAL_store_in_a_read_only_DIRECTORY_is_refused",
+    "test_an_EMPTY_database_is_refused_rather_than_initialized",
+    "test_status_opens_the_control_store_through_the_NON_WRITING_opener",
+    "test_status_opens_the_job_store_through_the_NON_WRITING_opener",
+    "test_status_writes_NOTHING_to_the_store_or_its_sidecars"
+  ],
+  "claim": 316919,
+  "measured": {
+    "M1": {
+      "caught_by": [
+        "test_a_MISSING_store_is_refused_and_no_file_is_created",
+        "test_a_STABLE_COPY_of_the_same_store_reads_in_a_read_only_directory",
+        "test_a_cleanly_closed_WAL_store_in_a_read_only_DIRECTORY_is_refused",
+        "test_an_EMPTY_database_is_refused_rather_than_initialized",
+        "test_status_opens_the_job_store_through_the_NON_WRITING_opener"
+      ],
+      "mutation": "status opens the Job store through JobStore.open again -- the defect: creates an absent store, adopts or migrates an existing one, requests WAL"
+    },
+    "M2": {
+      "caught_by": [
+        "test_a_MISSING_control_store_is_refused_and_creates_nothing",
+        "test_status_opens_the_control_store_through_the_NON_WRITING_opener"
+      ],
+      "mutation": "status opens the CONTROL store through ControlStore.open again -- a write-capable handle on an observational surface"
+    },
+    "clean_again": [],
+    "unmutated_failures": []
+  },
+  "schema": "baton.status-readonly-mutation-evidence/1",
+  "uncaught_mutations": [],
+  "what": "each corrected opener re-broken one at a time; a case must catch each, and the unmutated and restored runs must be clean",
+  "work": "W316915"
+}
