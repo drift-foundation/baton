@@ -1,0 +1,109 @@
+{
+  "answering": "owner reroute 312164",
+  "changed_files": {
+    "ARGV-EVIDENCE-312166.json": "f07f5c9a698b2c833986c14202a6913fd643f3ac4eecc7926b207c68332ae240",
+    "OPERATOR-311743.md": "020108b4830deca9e77c314db1675aecbfdce3aec8cbb98c98a982bd716c7bd0",
+    "RECOVERY-312166.json": "463a50edc709d7dea2249c70deb43c89bb10fa735dc8fd9dba834f950302d959",
+    "REPLAY-SAFETY-312166.json": "472b604ed0716958afb2eba353743facdf9399dd460ac7b49e3d2a064c5a34f3",
+    "ROOT-MUTATIONS-312166.json": "cc9b1c7dfc071b63c8cd2bd91a43a1e2bdd3dc6d8dd7fbf97288893ba3000330",
+    "STAGE-BOOTSTRAP-EVIDENCE-312166.json": "c0135be9f69ea0ae2dbc72161dbfff65bf2e28f5e4ff9efee23c994d1e72dce0",
+    "STOP-ON-ERROR-EVIDENCE-312166.json": "721079dc4b93316ccf855e742759bbc316f7e977a5d5bb53e4cd0b0b5d4887ee",
+    "correction_packet.py": "ee4e3098357e27a0bf5a70f1f4a5073982991cf1fde960f33caaf66d7914db0f",
+    "staged_bootstrap_trace.py": "f1dfa8cc6459350b90255f424504d7f63bdc48771ecc1750024d94cefed3a493",
+    "test_correction_packet.py": "31ed81f16950b09294c71eea4490ebcd5361ad3df000c57ee6aed5d89b2fba10"
+  },
+  "claim": 312166,
+  "disposable_proof": {
+    "committed": "both registrations, read back with configured_workspace_storage and configured_context_storage; profile certified; qualification grant minted",
+    "docker": "not used",
+    "evidence": "STAGE-BOOTSTRAP-EVIDENCE-312166.json",
+    "negative_leg": "removing the workspace store reproduces the owner's failure, refused with the root, the rule and the step named",
+    "providers": "not run",
+    "ran": "actual baseline.prepare, nothing pre-created by a fixture"
+  },
+  "established_by": "bind, before the packet claims the instance is ready",
+  "participant": "baton.claude",
+  "preserved_untouched": {
+    "MUTATIONS-311743.json": "bda2e44b1f59d9aef44638353de12753df9e1aef556a396644318b3cf8ab979b",
+    "OPERATOR-MUTATIONS-311994.json": "2062bc75cc26490107e5a08315d270431fbe7b117b7d28ba976d93830802b088",
+    "PACKET-309356.md": "78805649a88304aa1f7c2cfea82d0c78dd02d3bfca0ab594ca4a70e62e6f19aa",
+    "PROVENANCE-309356.json": "d184b087bbac0b4512d9b9e8a272a8c1186a9d4e555ab798cd6957ec1551fc9b",
+    "RECOVERY-311743.json": "87175317f01090177e97f36b331fd089e6df34c44a7924437f409d5e70bbea2e",
+    "RUN-COMMANDS-311743.json": "9d58f45d7c767473b83ffa02e878c36d36046dfafdbb9420a66004385d286f5d",
+    "SELECTIONS-RESOLVED-311743.json": "104bd56722aa158f2d1d9f211e99493c1f64f1c6e112883b963cdb2c0efb577d",
+    "STAGE-BOOTSTRAP-EVIDENCE-311743.json": "642bb0a952f7c8406f6b7d9a8f4f458c10106a478fc6df5036f941fe13bf6f4c",
+    "STATUS-PARSER-EVIDENCE-311994.json": "878e0f4b8fc7d1045f9176dfa3141a2b0cdc3d9a0d20ddea1ae61ae943b9912c",
+    "connected_packet_trace.py": "3f73f1cc8a57a181b87c9d25d9a63538e249d11d651c7d686a3b4de4bde41d80",
+    "correction_supervisor.py": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9",
+    "test_connected_packet.py": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d"
+  },
+  "product_files_changed": [],
+  "proved_by": "held_packet -- so check and the supervisor preflight -- driving the product's own checkers; absence, a link, or a drifted mode, owner or path is refused",
+  "recovery": {
+    "commands": "RECOVERY-312166.json",
+    "document": "OPERATOR-311743.md section 1b",
+    "repairs_nothing": "no mkdir, chmod, chown, rm or cp in any step",
+    "steps": [
+      3,
+      4,
+      5
+    ]
+  },
+  "replay_safety": {
+    "deployed_bytes_written": 0,
+    "determined_with": "the product's own readers against COPIES of the three stores; both configuration readers refuse and baseline.survey reports no pre-existing Job",
+    "evidence": "REPLAY-SAFETY-312166.json",
+    "verdict": "REPLAYABLE; no new instance"
+  },
+  "reviewer_note_312066_answered": "STATUS-PARSER-EVIDENCE-311994.json's top-level generated_argv repeats the `python3 -m tools.job_manager` prefix. The document, the generator and the independent parser case are correct; the header is the only defect, it is recorded as such, and the 312166 evidence does not repeat it.",
+  "roots": {
+    "context_storage": {
+      "mode": "0o700",
+      "rule": "context_delivery.configure_context_storage -> _open_absolute, _private (refuses ANY group or other bit)"
+    },
+    "why_only_two": "launch_home and credential_home are created by the product when it uses them, and per-attempt workspace roots by workspaces.adopt_workspace_group",
+    "workspace_storage": {
+      "group": 1000,
+      "mode": "0o2770 (workspaces.WORKSPACE_DIR, read from the product)",
+      "rule": "workspaces.configure_workspace_storage -> check_workspace_storage"
+    }
+  },
+  "schema": "baton.candidate/1",
+  "subject": "the two filesystem roots `baseline.prepare` configures first were created by nothing -- the live run stopped at the first of them. `bind` establishes them with the modes the product's own rules require, `check` proves them with the product's own checkers, and the disposable proof now runs the real `baseline.prepare` with nothing pre-created by a fixture.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "credential_currency": "unverified and unverifiable from here",
+    "live_run": "the corrected recovery has NOT been run against the deployed instance by an agent; that is the owner's act",
+    "no_forced_rerun": "accepted-without-correction must not trigger one",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "operator_argv": {
+      "faults": 0,
+      "invocations": 13,
+      "sh_n": "OK"
+    },
+    "root_mutations": {
+      "count": 4,
+      "uncaught": []
+    },
+    "stop_on_first_error": {
+      "cases": 8,
+      "invocations_after_the_failure": 0,
+      "sequences": 2
+    },
+    "tests": 192,
+    "touched_nothing_live": "the deployed instance was READ and never written; no repair, cleanup, live rerun, Docker, provider, credential or version-control act"
+  },
+  "what_failed": {
+    "where": "the supervisor, inside baseline.prepare at configure_workspace_storage",
+    "why": "<instance>/run/workspaces did not exist; that call is the deployment's act and creates nothing",
+    "why_no_test_saw_it": "the accepted connected fixture creates those roots itself, so every deterministic case ran over prerequisites the operator sequence omitted"
+  },
+  "work": "W236087"
+}

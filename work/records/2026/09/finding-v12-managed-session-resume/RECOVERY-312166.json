@@ -1,0 +1,80 @@
+{
+  "answering": "owner reroute 312164",
+  "claim": 312166,
+  "if_check_refuses": "the refusal names the root, the rule that requires it and the step that establishes it. Re-run step 3; do not make the directory by hand, because the mode and the group are part of what the rules require.",
+  "recovery": {
+    "no_manual_repair": "no mkdir, chmod, chown, rm or cp appears in any step: `bind` establishes the roots with the modes the product's own rules require, and `check` proves them with the product's own checkers.",
+    "steps": [
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "bind",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-309356-packet-311743",
+          "--claim",
+          "311743",
+          "--provenance",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+        },
+        "step": 3,
+        "what": "bind the packet to what the instance ACTUALLY holds: the emitted deployment configuration, the Authority identity the bootstrap minted and the staged modules as copied. Opens no store."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "check",
+          "--packet",
+          "/home/sl/baton-instances/managed-correction-309356-packet-311743/packet.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+        },
+        "step": 4,
+        "what": "prove the packet against the tree, with the real product validators over the STAGED imports. Opens no store; refuses on any drift."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py",
+          "--packet",
+          "/home/sl/baton-instances/managed-correction-309356-packet-311743/packet.json"
+        ],
+        "environment": {
+          "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/managed-correction-309356-packet-311743/deployment.json",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+        },
+        "step": 5,
+        "what": "serve it, BOUNDED, in the foreground. This one command performs the owner acts first -- the workspace and private context storage, the candidate profile's certification and ONE qualification grant, each journalled under an identity derived from its own operands, so repeating it replays rather than composing a second grant -- and then serves. It holds the 900s total with 60s reserved INSIDE it, caps the invocations at the gate, stops on the first terminal state and retains the outcome even when interrupted."
+      }
+    ],
+    "what_it_is": "re-run the bind step for THIS instance -- it now establishes the two filesystem roots and records them in the packet -- then prove the packet, then run."
+  },
+  "replay_safety": {
+    "determined_with": "the product's own readers, against COPIES of the three stores: workspaces.configured_workspace_storage and context_delivery.configured_context_storage both refuse (nothing committed) and baseline.survey reports no pre-existing Job.",
+    "evidence": "REPLAY-SAFETY-312166.json",
+    "verdict": "REPLAYABLE. No new instance is needed.",
+    "why_opening_a_store_is_not_a_durable_act": "the failure happened at the FIRST registration, before the qualification grant -- and a grant is the thing that is spent exactly once."
+  },
+  "schema": "baton.managed-correction-recovery/1",
+  "unchanged_steps": {
+    "0_stage": "already done for this instance; re-running it is safe and re-affirms the staged tree",
+    "1_bootstrap": "already done; the instance exists and its record is at /home/sl/baton-instances/managed-correction-309356/bootstrap.json",
+    "2_prepare_work": "already done; journalled under a derived identity, so repeating it replays"
+  },
+  "what_failed": {
+    "how_far_it_got": "bootstrap, prepare-work, bind and check all succeeded; two stores were opened; the failure precedes context certification, the qualification grant and serving.",
+    "where": "the supervisor, inside baseline.prepare at configure_workspace_storage",
+    "why": "/home/sl/baton-instances/managed-correction-309356/run/workspaces did not exist, and configure_workspace_storage is the deployment's act: it creates nothing. tools.bootstrap creates stores, repository, logs, state, the state root and the destination -- not these two -- and the accepted connected fixture creates them itself, which is why no deterministic case had ever noticed."
+  },
+  "work": "W236087"
+}

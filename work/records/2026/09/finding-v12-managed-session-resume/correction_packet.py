@@ -57,11 +57,13 @@ profile resolves at launch; both are named `<OWNER ...>` in the selections and
 refused until they are resolved.
 """
 import argparse
+import errno
 import hashlib
 import json
 import os
 import pathlib
 import shutil
+import stat
 import subprocess
 import sys
 
@@ -141,7 +143,13 @@ BOUNDS = {
 _PACKET = ("schema", "run_id", "work", "claim", "note", "worker_image",
            "manager_runtime", "manager_source", "supervisor", "code_boundary",
            "deployment", "composition", "context", "submission", "fixture",
-           "bounds", "provenance", "compatibility", "outcome_path")
+           "bounds", "provenance", "compatibility", "outcome_path",
+           # OWNER REROUTE 312164: the packet was bound to stores, modules,
+           # documents and an image, and said NOTHING about the two filesystem
+           # roots `baseline.prepare` configures first -- so a packet could be
+           # proved complete over an instance that had neither, which is what
+           # the live run discovered inside the supervisor.
+           "filesystem_roots")
 # THE GENERATED COMPOSITION, bound as its own artifact. `deployment` above is
 # where this run's stores and identity live; this is the document the workers are
 # configured in and the one `stage_execution.operations_from` reads.
@@ -983,6 +991,291 @@ def staged_source(origin, destination):
             "frozen_assets": assets}
 
 
+# -- the filesystem roots the RUN needs -------------------------------------
+#
+# OWNER REROUTE 312164, measured from a LIVE run: bootstrap, `prepare-work`,
+# `bind` and `check` all succeeded and the supervisor then failed inside
+# `baseline.prepare` at `configure_workspace_storage`, because
+# `<instance>/run/workspaces` did not exist. Nothing created it. `tools.bootstrap`
+# creates `stores`, `repository`, `logs`, `state`, the state root and the
+# destination -- not these -- and the accepted CONNECTED FIXTURE creates them
+# itself (`os.makedirs(self.storage)`, `os.makedirs(producer["launch_home"])`),
+# which is exactly why no deterministic case ever noticed: the fixture supplied
+# what the operator sequence omitted.
+#
+# ONLY THESE TWO, and that is measured rather than assumed. `launch_home` and
+# `credential_home` are created BY THE PRODUCT when it uses them --
+# `launch.materialize` calls `os.makedirs(root, mode=0o700, exist_ok=False)` and
+# `credentials` its own `os.makedirs(..., mode=VOLATILE_DIR)` -- and the
+# per-attempt workspace roots are established by `workspaces` itself with
+# `adopt_workspace_group`. The two below are the ones the product requires to
+# ALREADY EXIST when it is configured, so they are the deployment's to provide.
+
+
+# WHICH RULE DECIDES EACH ROOT, in one place so a refusal reads the same
+# whether it came from the selection or from the packet's own record. The live
+# failure named a path and nothing else, and left an operator to work out which
+# of five roots it was, which rule wanted it and who was supposed to make it.
+_ROOT_RULES = {
+    "workspace_storage": {
+        "required_by": "baton_v12.worker_manager.workspaces."
+                       "configure_workspace_storage, through "
+                       "check_workspace_storage",
+        "what_the_rule_requires": "an absolute canonical path that is a real "
+                                  "directory -- asked with lstat, so a link is "
+                                  "refused -- owned by the uid the manager "
+                                  "runs as",
+        "why_it_must_pre_exist": "`configure_workspace_storage` is the "
+                                 "deployment's act and creates nothing; this "
+                                 "is where the live run stopped",
+    },
+    "context_storage": {
+        "required_by": "baton_v12.worker_manager.context_delivery."
+                       "configure_context_storage, through _open_absolute and "
+                       "_private",
+        "what_the_rule_requires": "an absolute canonical path whose whole "
+                                  "ancestry can be opened, owned by the "
+                                  "running uid, readable AND writable by the "
+                                  "owner, with no group or other permission "
+                                  "bit set at all",
+        "why_it_must_pre_exist": "the same act configures it immediately after "
+                                 "the workspace store, so a run that got past "
+                                 "the first would have stopped here",
+    },
+}
+
+
+def filesystem_roots(chosen):
+    """Each root the run needs first, with the rule that decides it.
+
+    THE MODES COME FROM THE PRODUCT. The workspace store is created with
+    `workspaces.WORKSPACE_DIR` -- the same mode `adopt_workspace_group`
+    establishes on the roots the manager itself creates inside it, so the store
+    is exactly as reachable as its contents and no more: the configured
+    workspace group may traverse it, nothing else may. The private-context store
+    is `0o700` because `context_delivery._private` refuses ANY group or other
+    bit on it.
+    """
+    from baton_v12.worker_manager import workspaces
+
+    return (
+        dict(_ROOT_RULES["workspace_storage"],
+             role="workspace_storage",
+             path=chosen["workspace_storage"],
+             mode=workspaces.WORKSPACE_DIR,
+             group=_accepted()["workspace_group"]),
+        dict(_ROOT_RULES["context_storage"],
+             role="context_storage",
+             path=chosen["context_storage"]["path"],
+             mode=0o700,
+             group=None),
+    )
+
+
+# HOW A DIRECTORY IS OPENED HERE, and it is the whole of review 312285's R1.
+# `O_NOFOLLOW` with `O_DIRECTORY` refuses a symlink at the name with ELOOP
+# instead of opening what it points at, so every component is the component and
+# not a redirection. The mode and the group are then established on the
+# DESCRIPTOR this walk opened -- `fchmod`/`fchown`, never `chmod`/`chown` by
+# name -- because a name can be something else by the time the second call
+# happens.
+_DIR_OPEN = (os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+             | getattr(os, "O_CLOEXEC", 0))
+# The mode an absent ANCESTOR is created with. Only the leaf's mode is a
+# product rule; an ancestor inside the instance is left as permissive as the
+# ones `tools.bootstrap` creates beside it, because the worker's group must be
+# able to traverse `run/` to reach the workspace store inside it.
+_ANCESTOR_DIR = 0o755
+
+
+def _open_no_follow(place, *, role, create):
+    """Walk `place` component by component, NEVER following a link.
+
+    REVIEW 312285 R1, and it was a real defect with a real effect. This used
+    `os.makedirs(exist_ok=True)` and then `os.chmod`/`os.chown` BY NAME -- all
+    three of which follow a symlink -- and verified afterwards. The reviewer
+    pointed the selected private-context root at an unrelated `0755` directory
+    and measured the consequence: creation changed THAT directory to `0700` and
+    only then did validation refuse. A refusal after the change is not a
+    refusal, and a bind the packet correctly rejects had already modified a path
+    it was never given.
+
+    So the type check comes FIRST and is structural: a link or a non-directory
+    at any component refuses here, before anything is created and before any
+    mode or group is touched. Absent components are created with `mkdir` at the
+    parent's own descriptor, which cannot be redirected between the check and
+    the creation.
+    """
+    if not os.path.isabs(place) or os.path.normpath(place) != place.rstrip("/"):
+        _refuse(f"the {role} root {place!r} is not an absolute canonical path")
+    parts = [one for one in place.split(os.sep) if one]
+    if not parts:
+        _refuse(f"the {role} root {place!r} names no directory")
+    handle = os.open(os.sep, _DIR_OPEN)
+    created = False
+    try:
+        for index, part in enumerate(parts):
+            leaf = index == len(parts) - 1
+            whole = os.sep + os.sep.join(parts[:index + 1])
+            try:
+                child = os.open(part, _DIR_OPEN, dir_fd=handle)
+            except OSError as failure:
+                # WHICH IT IS, ASKED WITH `lstat`, WHICH CHANGES NOTHING AND
+                # FOLLOWS NOTHING. `O_NOFOLLOW | O_DIRECTORY` opens the LINK
+                # rather than its target, so a link to a directory arrives here
+                # as ENOTDIR rather than ELOOP -- both are refusals, and an
+                # operator needs to be told which one they have.
+                if failure.errno in (errno.ELOOP, errno.ENOTDIR):
+                    try:
+                        found = os.lstat(whole)
+                        linked = stat.S_ISLNK(found.st_mode)
+                    except OSError:
+                        linked = failure.errno == errno.ELOOP
+                    if linked:
+                        _refuse(f"the {role} root {place!r} passes through a "
+                                f"SYMLINK at {whole!r}; a link at that name is "
+                                f"a directory somebody else chose, and this "
+                                f"step establishes the deployment's own. "
+                                f"NOTHING WAS CHANGED: no directory was "
+                                f"created and no mode or group was touched, "
+                                f"here or at whatever the link points at")
+                    _refuse(f"the {role} root {place!r} passes through "
+                            f"{whole!r}, which is not a directory. NOTHING WAS "
+                            f"CHANGED")
+                if failure.errno != errno.ENOENT:
+                    _refuse(f"the {role} root {place!r} could not be opened at "
+                            f"{whole!r} ({type(failure).__name__}: "
+                            f"{failure.strerror}). NOTHING WAS CHANGED")
+                if not create:
+                    _refuse(f"the {role} root {place!r} does not exist at "
+                            f"{whole!r}")
+                try:
+                    os.mkdir(part, 0o700 if leaf else _ANCESTOR_DIR,
+                             dir_fd=handle)
+                except OSError as making:
+                    _refuse(f"the {role} root {place!r} could not be created "
+                            f"at {whole!r} ({type(making).__name__}: "
+                            f"{making.strerror})")
+                # OPENED NO-FOLLOW IMMEDIATELY AFTER CREATING IT, so what is
+                # measured and modified below is what this call made.
+                child = os.open(part, _DIR_OPEN, dir_fd=handle)
+                created = created or leaf
+            os.close(handle)
+            handle = child
+    except BaseException:
+        os.close(handle)
+        raise
+    return handle, created
+
+
+def create_filesystem_roots(chosen):
+    """Establish the roots, EXACTLY, before anything registers them.
+
+    `os.mkdir` filters its mode through the umask -- the product says so itself
+    where it corrected the same thing -- so the mode is established with
+    `os.fchmod`, which is exact, and the group with `os.fchown(fd, -1, gid)`,
+    which an unprivileged owner may do for a group it belongs to. Both act on
+    the descriptor `_open_no_follow` pinned, so neither can be redirected to
+    something this program was not given.
+
+    Repeating this is a no-op: an existing root is re-affirmed rather than
+    replaced, and nothing is ever deleted here.
+    """
+    established = []
+    for root in filesystem_roots(chosen):
+        place, mode = root["path"], root["mode"]
+        handle, created = _open_no_follow(place, role=root["role"],
+                                          create=True)
+        try:
+            held = os.fstat(handle)
+            if held.st_uid != os.getuid():
+                _refuse(f"the {root['role']} root {place!r} is owned by uid "
+                        f"{held.st_uid} and this step runs as uid "
+                        f"{os.getuid()}; a directory this deployment does not "
+                        f"own is not one it establishes. NOTHING WAS CHANGED")
+            try:
+                os.fchmod(handle, mode)
+                if root["group"] is not None and held.st_gid != root["group"]:
+                    os.fchown(handle, -1, root["group"])
+            except OSError as failure:
+                _refuse(f"the {root['role']} root {place!r} could not be "
+                        f"established as mode {oct(mode)}"
+                        + (f" in group {root['group']}"
+                           if root["group"] is not None else "")
+                        + f": {type(failure).__name__}: {failure.strerror}. "
+                        f"{root['required_by']} requires it to exist already, "
+                        f"and this is the step that provides it")
+            measured = os.fstat(handle)
+        finally:
+            os.close(handle)
+        established.append({"role": root["role"], "path": place,
+                            "mode": oct(stat.S_IMODE(measured.st_mode)),
+                            "uid": measured.st_uid, "gid": measured.st_gid,
+                            "created": created})
+    return established
+
+
+def verify_filesystem_roots(chosen=None, *, roots=None):
+    """Hold every root to the PRODUCT'S OWN rule, not to a rule restated here.
+
+    `check_workspace_storage` and `_open_absolute`/`_private` are the functions
+    the run itself calls; driving them is the only check that cannot drift from
+    what `baseline.prepare` will decide. A refusal names the root, the rule and
+    the step that establishes it, because the live failure named a path and left
+    an operator to work out which of five roots it was and who owned it.
+    """
+    try:
+        from baton_v12.worker_manager import context_delivery, workspaces
+        from baton_v12.contracts import ContractRefusal
+    except ImportError as failure:
+        _refuse(f"the manager source is not importable, so the filesystem "
+                f"roots cannot be proved with the rules that will read them "
+                f"({failure})")
+    if roots is None:
+        wanted = filesystem_roots(chosen)
+    else:
+        # DRIVEN FROM THE PACKET'S OWN RECORD, so `check` and the supervisor's
+        # preflight prove the same roots `bind` established without needing the
+        # selection document beside them.
+        known = {one["role"]: one for one in filesystem_roots(chosen)} \
+            if chosen is not None else {}
+        wanted = []
+        for one in roots:
+            rule = dict(_ROOT_RULES.get(one["role"], {}),
+                        **known.get(one["role"], {}))
+            wanted.append(dict(rule, role=one["role"], path=one["path"]))
+    held = []
+    for root in wanted:
+        place = root["path"]
+        if root["role"] not in ("workspace_storage", "context_storage"):
+            _refuse(f"the packet binds a filesystem root of unknown role "
+                    f"{root['role']!r}; this program knows the workspace store "
+                    f"and the private-context store, and a root it cannot "
+                    f"place is one it cannot prove")
+        try:
+            if root["role"] == "workspace_storage":
+                workspaces.check_workspace_storage(place)
+            else:
+                handle, _pins = context_delivery._open_absolute(place)
+                try:
+                    context_delivery._private(handle, writable=True)
+                finally:
+                    os.close(handle)
+        except ContractRefusal as refusal:
+            _refuse(f"the {root['role']} root {place!r} is not one this run "
+                    f"can be configured with: {refusal}. The rule is "
+                    f"{root['required_by']}, which requires "
+                    f"{root['what_the_rule_requires']}. `bind` establishes it; "
+                    f"re-run the bind step for this instance rather than "
+                    f"making it by hand")
+        measured = os.stat(place)
+        held.append({"role": root["role"], "path": place,
+                     "mode": oct(stat.S_IMODE(measured.st_mode)),
+                     "uid": measured.st_uid, "gid": measured.st_gid,
+                     "proved_by": root["required_by"]})
+    return held
+
+
 def verify_nothing_unbound(staged, files):
     """The staged tree holds EXACTLY what the manifest binds, and nothing else.
 
@@ -1339,6 +1632,35 @@ def held_packet(path, *, supervisor=None):
                 f"{source['frozen_assets']} and the staged source at "
                 f"{source['path']!r} now imports a different set")
 
+    # THE FILESYSTEM ROOTS, held to the product's own rules before a store is
+    # opened. OWNER REROUTE 312164: the live run reached `baseline.prepare` and
+    # stopped at the first of these, so a packet that proved everything else and
+    # not these was a packet that could pass `check` and fail the run.
+    recorded = packet["filesystem_roots"]
+    if type(recorded) is not list or not recorded:
+        _refuse("the packet names the filesystem roots this run configures "
+                "before it registers them")
+    for one in recorded:
+        _document(one, "a bound filesystem root",
+                  ("role", "path", "mode", "uid", "gid", "proved_by"))
+    if sorted(one["role"] for one in recorded) != ["context_storage",
+                                                   "workspace_storage"]:
+        _refuse(f"the packet binds the roots "
+                f"{sorted(one['role'] for one in recorded)}; this run "
+                f"configures the workspace store and the private-context "
+                f"store, and a missing one is the failure this exists to "
+                f"refuse")
+    measured = verify_filesystem_roots(roots=recorded)
+    for was, now in zip(sorted(recorded, key=lambda one: one["role"]),
+                        sorted(measured, key=lambda one: one["role"])):
+        for name in ("path", "mode", "uid", "gid"):
+            if was[name] != now[name]:
+                _refuse(f"the packet binds the {was['role']} root with "
+                        f"{name} {was[name]!r} and it is now {now[name]!r}; a "
+                        f"root that moved, changed owner or changed mode since "
+                        f"the packet was bound is not the root the run was "
+                        f"proved against")
+
     program = _document(packet["supervisor"], "the packet's supervisor", _SELF)
     _pin(program["path"], program["sha256"], "the supervisor program")
     if supervisor is not None \
@@ -1399,7 +1721,7 @@ def held_packet(path, *, supervisor=None):
     return packet
 
 
-def packet_document(chosen, *, claim, staged, deployment, composition,
+def packet_document(chosen, *, claim, staged, roots, deployment, composition,
                     context, submission, fixture, supervisor, provenance,
                     compatibility, outcome_path):
     """Assemble, in the shape `held_packet` proves. Measures nothing itself."""
@@ -1412,6 +1734,7 @@ def packet_document(chosen, *, claim, staged, deployment, composition,
         "worker_image": dict(chosen["worker_image"]),
         "manager_runtime": dict(chosen["manager_runtime"]),
         "manager_source": staged,
+        "filesystem_roots": roots,
         "supervisor": supervisor,
         "code_boundary": staged["path"],
         "deployment": deployment,
@@ -2419,6 +2742,12 @@ def bind(chosen, destination, *, claim, provenance, compatibility):
     report = staged_report(staged_root)
     assets = verify_staged_assets(staged_root, report)
     verify_instance_outside_checkout(chosen, report)
+    # AND THE FILESYSTEM ROOTS THE RUN CONFIGURES FIRST, established here --
+    # before the packet claims the instance is ready, and long before
+    # `baseline.prepare` registers them. Owner reroute 312164: this step
+    # existed and did not do this, so the supervisor met the absence.
+    create_filesystem_roots(chosen)
+    roots = verify_filesystem_roots(chosen)
     here = os.path.realpath(
         os.path.join(os.path.dirname(os.path.realpath(__file__)),
                      "correction_supervisor.py"))
@@ -2473,6 +2802,7 @@ def bind(chosen, destination, *, claim, provenance, compatibility):
         staged={"path": staged_root, "packages": list(IMPORTED_PACKAGES),
                 "file_count": len(files), "files": files,
                 "frozen_assets": assets},
+        roots=roots,
         composition={"workers": sorted(workers),
                      "producer_schema": PRODUCER_SCHEMA,
                      "reviewer_schema": REVIEWER_SCHEMA,

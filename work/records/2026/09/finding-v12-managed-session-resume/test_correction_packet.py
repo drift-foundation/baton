@@ -23,6 +23,7 @@ import json
 import os
 import re
 import shlex
+import stat
 import sys
 import tempfile
 import unittest
@@ -1498,6 +1499,244 @@ class TheRESOLVED_SELECTION(unittest.TestCase):
         self.assertNotIn("already substituted", body)
 
 
+class TheFILESYSTEM_ROOTS_ARE_ESTABLISHED_BEFORE_THEY_ARE_REGISTERED(Fixture):
+    """OWNER REROUTE 312164, measured from a LIVE run.
+
+    Bootstrap, `prepare-work`, `bind` and `check` all succeeded and the
+    supervisor then failed inside `baseline.prepare` at
+    `configure_workspace_storage`: `<instance>/run/workspaces` did not exist.
+    Nothing created it. `tools.bootstrap` creates `stores`, `repository`,
+    `logs`, `state`, the state root and the destination -- not these -- and the
+    accepted CONNECTED FIXTURE creates them itself, which is exactly why no
+    deterministic case noticed: the fixture supplied what the operator sequence
+    omitted. THESE CASES DO NOT PRE-CREATE THEM. The bind step does, or they
+    fail.
+    """
+
+    def roots(self, chosen):
+        return {one["role"]: one for one in packets.filesystem_roots(chosen)}
+
+    def test_BIND_ESTABLISHES_BOTH_ROOTS_that_nothing_else_creates(self):
+        chosen = packets.held_selections(self.selections())
+        for one in packets.filesystem_roots(chosen).__iter__():
+            self.assertFalse(os.path.exists(one["path"]), one["path"])
+        _chosen, path = self.packet()
+        held = packets.held_packet(path)
+        recorded = {one["role"]: one for one in held["filesystem_roots"]}
+        self.assertEqual(sorted(recorded),
+                         ["context_storage", "workspace_storage"])
+        wanted = self.roots(chosen)
+        for role, one in sorted(recorded.items()):
+            self.assertTrue(os.path.isdir(one["path"]), one)
+            self.assertEqual(one["path"], wanted[role]["path"])
+            self.assertEqual(one["mode"], oct(wanted[role]["mode"]))
+            self.assertEqual(one["uid"], os.getuid())
+            self.assertTrue(one["created"] if "created" in one else True)
+        # THE PRIVATE-CONTEXT STORE HAS NO GROUP OR OTHER BIT, which is the
+        # rule `context_delivery._private` enforces and nothing else states.
+        mode = int(recorded["context_storage"]["mode"], 8)
+        self.assertEqual(mode & 0o077, 0, oct(mode))
+        # AND THE WORKSPACE STORE CARRIES THE MODE THE MANAGER ITSELF
+        # ESTABLISHES ON THE ROOTS IT CREATES INSIDE IT, read from the product.
+        from baton_v12.worker_manager import workspaces
+        self.assertEqual(int(recorded["workspace_storage"]["mode"], 8),
+                         workspaces.WORKSPACE_DIR)
+
+    def test_THE_ROOTS_ARE_PROVED_BY_THE_PRODUCTS_OWN_RULES(self):
+        """Not by a rule restated here: the functions the run itself calls."""
+        _chosen, prepared = self.staged()
+        chosen = packets.held_selections(self.selections())
+        packets.create_filesystem_roots(chosen)
+        held = {one["role"]: one for one in
+                packets.verify_filesystem_roots(chosen)}
+        self.assertIn("check_workspace_storage",
+                      held["workspace_storage"]["proved_by"])
+        self.assertIn("_private", held["context_storage"]["proved_by"])
+
+    def test_CHECK_REFUSES_THE_ABSENCE_THE_LIVE_RUN_MET(self):
+        """The live failure, caught at step 4 instead of inside the supervisor.
+
+        `configure_workspace_storage` is the deployment's act and creates
+        nothing, so an absent store is a run that opens two stores and then
+        stops. `check` refuses it before anything opens.
+        """
+        _chosen, path = self.packet()
+        held = packets.held_packet(path)
+        place = [one["path"] for one in held["filesystem_roots"]
+                 if one["role"] == "workspace_storage"][0]
+        os.rmdir(place)
+        with self.assertRaises(packets.PacketRefusal) as raised:
+            packets.held_packet(path)
+        said = str(raised.exception)
+        self.assertIn(place, said)
+        self.assertIn("workspace_storage", said)
+        self.assertIn("check_workspace_storage", said)
+        self.assertIn("re-run the bind step", said)
+
+    def test_CHECK_REFUSES_A_PRIVATE_CONTEXT_STORE_THAT_LOST_ITS_PRIVACY(self):
+        """`_private` refuses ANY group or other bit, and a mode that drifted
+        after the packet was bound is not the root it was proved against.
+        """
+        _chosen, path = self.packet()
+        held = packets.held_packet(path)
+        place = [one["path"] for one in held["filesystem_roots"]
+                 if one["role"] == "context_storage"][0]
+        os.chmod(place, 0o755)
+        with self.assertRaises(packets.PacketRefusal) as raised:
+            packets.held_packet(path)
+        self.assertIn("context_storage", str(raised.exception))
+
+    def test_CHECK_REFUSES_A_WORKSPACE_STORE_REPLACED_BY_A_LINK(self):
+        """`check_workspace_storage` asks with `lstat` on purpose: a link at
+        that name is a store somebody else chose.
+        """
+        _chosen, path = self.packet()
+        held = packets.held_packet(path)
+        place = [one["path"] for one in held["filesystem_roots"]
+                 if one["role"] == "workspace_storage"][0]
+        elsewhere = os.path.join(self.root, "somebody-elses-store")
+        os.makedirs(elsewhere)
+        os.rmdir(place)
+        os.symlink(elsewhere, place)
+        with self.assertRaises(packets.PacketRefusal) as raised:
+            packets.held_packet(path)
+        self.assertIn("workspace_storage", str(raised.exception))
+
+    def test_A_PACKET_BINDING_ONLY_ONE_ROOT_IS_REFUSED(self):
+        """A packet that named the workspace store and not the context store
+        would pass `check` and fail the run one act later.
+        """
+        _chosen, path = self.packet()
+        with open(path, encoding="utf-8") as handle:
+            packet = json.load(handle)
+        packet["filesystem_roots"] = [
+            one for one in packet["filesystem_roots"]
+            if one["role"] == "workspace_storage"]
+        _write(path, packet)
+        with self.assertRaises(packets.PacketRefusal) as raised:
+            packets.held_packet(path)
+        self.assertIn("workspace store and the private-context store",
+                      str(raised.exception))
+
+    # -- REVIEW 312285 R1: a refusal that has already changed something is
+    # -- not a refusal. `ROOT-REPRO-312285.json` pointed the selected
+    # -- private-context root at an unrelated 0755 directory and measured the
+    # -- consequence: creation chmodded THAT directory to 0700 and validation
+    # -- refused afterwards. These cases hold both roles, at the leaf and at an
+    # -- ancestor, and they assert the TARGET is untouched -- which is the part
+    # -- a later check cannot undo.
+
+    def elsewhere(self, name, mode=0o755):
+        """An unrelated directory, with witnesses this program must not move."""
+        place = os.path.join(self.root, name)
+        os.makedirs(place)
+        os.chmod(place, mode)
+        inside = os.path.join(place, "somebody-elses-file")
+        _write(inside, "not this run's\n")
+        os.chmod(inside, 0o644)
+        return {"path": place, "mode": mode, "gid": os.stat(place).st_gid,
+                "inside": inside}
+
+    def unchanged(self, held):
+        measured = os.stat(held["path"])
+        self.assertEqual(stat.S_IMODE(measured.st_mode), held["mode"],
+                         oct(stat.S_IMODE(measured.st_mode)))
+        self.assertEqual(measured.st_gid, held["gid"])
+        self.assertTrue(os.path.isfile(held["inside"]))
+        self.assertEqual(stat.S_IMODE(os.stat(held["inside"]).st_mode), 0o644)
+
+    def test_A_LEAF_SYMLINK_IS_REFUSED_WITH_THE_TARGET_UNTOUCHED(self):
+        """The reviewer's own reproduction, both roles."""
+        for role in ("workspace_storage", "context_storage"):
+            with self.subTest(role=role):
+                chosen = packets.held_selections(self.selections())
+                root = self.roots(chosen)[role]
+                target = self.elsewhere("unrelated-" + role)
+                os.makedirs(os.path.dirname(root["path"]), exist_ok=True)
+                os.symlink(target["path"], root["path"])
+                with self.assertRaises(packets.PacketRefusal) as raised:
+                    packets.create_filesystem_roots(chosen)
+                said = str(raised.exception)
+                self.assertIn("SYMLINK", said)
+                self.assertIn(root["path"], said)
+                self.assertIn("NOTHING WAS CHANGED", said)
+                # AND THE TARGET IS EXACTLY AS IT WAS.
+                self.unchanged(target)
+                os.unlink(root["path"])
+
+    def test_AN_ANCESTOR_SYMLINK_IS_REFUSED_WITH_THE_TARGET_UNTOUCHED(self):
+        """`run` itself being a link is the same defect one level up: the leaf
+        would be created INSIDE somebody else's tree and chmodded there.
+        """
+        chosen = packets.held_selections(self.selections())
+        ancestor = os.path.dirname(
+            self.roots(chosen)["workspace_storage"]["path"])
+        target = self.elsewhere("unrelated-ancestor")
+        os.makedirs(os.path.dirname(ancestor), exist_ok=True)
+        os.symlink(target["path"], ancestor)
+        with self.assertRaises(packets.PacketRefusal) as raised:
+            packets.create_filesystem_roots(chosen)
+        said = str(raised.exception)
+        self.assertIn("SYMLINK", said)
+        self.assertIn(ancestor, said)
+        self.assertIn("NOTHING WAS CHANGED", said)
+        self.unchanged(target)
+        # AND NOTHING WAS CREATED INSIDE THE TARGET EITHER.
+        self.assertEqual(sorted(os.listdir(target["path"])),
+                         ["somebody-elses-file"])
+
+    def test_A_NON_DIRECTORY_AT_THE_ROOT_IS_REFUSED_UNCHANGED(self):
+        for role in ("workspace_storage", "context_storage"):
+            with self.subTest(role=role):
+                chosen = packets.held_selections(self.selections())
+                place = self.roots(chosen)[role]["path"]
+                os.makedirs(os.path.dirname(place), exist_ok=True)
+                _write(place, "a file standing where a root belongs\n")
+                os.chmod(place, 0o644)
+                with self.assertRaises(packets.PacketRefusal) as raised:
+                    packets.create_filesystem_roots(chosen)
+                said = str(raised.exception)
+                self.assertIn("not a directory", said)
+                self.assertIn("NOTHING WAS CHANGED", said)
+                self.assertEqual(
+                    stat.S_IMODE(os.stat(place).st_mode), 0o644)
+                self.assertEqual(_read(place),
+                                 "a file standing where a root belongs\n")
+                os.unlink(place)
+
+    def test_THE_MODE_AND_GROUP_ARE_SET_ON_A_PINNED_DESCRIPTOR(self):
+        """Not by name: a name can be something else between the check and the
+        call. The observable consequence is that a root swapped for a link
+        AFTER it was established is refused rather than followed.
+        """
+        chosen = packets.held_selections(self.selections())
+        packets.create_filesystem_roots(chosen)
+        place = self.roots(chosen)["context_storage"]["path"]
+        target = self.elsewhere("swapped-in")
+        os.rmdir(place)
+        os.symlink(target["path"], place)
+        with self.assertRaises(packets.PacketRefusal) as raised:
+            packets.create_filesystem_roots(chosen)
+        self.assertIn("SYMLINK", str(raised.exception))
+        self.unchanged(target)
+
+    def test_ESTABLISHING_THEM_TWICE_IS_A_NO_OP(self):
+        """`bind` is repeatable, so this must be too, and nothing is deleted."""
+        chosen = packets.held_selections(self.selections())
+        first = packets.create_filesystem_roots(chosen)
+        witness = os.path.join(chosen["workspace_storage"], "an-allocation")
+        os.makedirs(witness)
+        again = packets.create_filesystem_roots(chosen)
+        self.assertEqual([one["path"] for one in first],
+                         [one["path"] for one in again])
+        self.assertEqual([one["mode"] for one in first],
+                         [one["mode"] for one in again])
+        self.assertTrue(all(one["created"] for one in first))
+        self.assertFalse(any(one["created"] for one in again))
+        # NOTHING WAS DELETED: an existing allocation survives re-affirmation.
+        self.assertTrue(os.path.isdir(witness))
+
+
 class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
     """Owner reroute 311736, and the two further defects running it found.
 
@@ -1678,6 +1917,86 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
                 stream=io.StringIO())
         self.assertEqual(raised.exception.code, 2)
 
+    def test_THE_RECOVERY_IS_THE_GENERATORS_OWN_STEPS_AND_REPAIRS_NOTHING(self):
+        """OWNER REROUTE 312164: minimal recovery for the EXISTING
+        installation, and no deployed repair by an agent.
+        """
+        held = self.read(os.path.join(HERE, "RECOVERY-312166.json"))
+        chosen = packets.held_selections(self.RESOLVED)
+        generated = {one["step"]: one for one in packets.commands(
+            chosen,
+            prepared={"destination": held["recovery"]["steps"][0]["command"][
+                          held["recovery"]["steps"][0]["command"].index(
+                              "--destination") + 1],
+                      "claim": 311743,
+                      "selections": self.RESOLVED,
+                      "provenance": os.path.join(HERE,
+                                                 "PROVENANCE-309356.json"),
+                      "bootstrap_inputs": "/x/b.json",
+                      "packet": held["recovery"]["steps"][1]["command"][-1]},
+            job_id=packets.job_id_of(chosen))}
+        self.assertEqual([one["step"] for one in held["recovery"]["steps"]],
+                         [3, 4, 5])
+        for one in held["recovery"]["steps"]:
+            self.assertEqual(one["command"],
+                             generated[one["step"]]["command"], one["step"])
+        # NO REPAIR, ANYWHERE: the roots are established by the bind step.
+        for one in held["recovery"]["steps"]:
+            for part in one["command"]:
+                for forbidden in ("mkdir", "chmod", "chown", "rm", "rmdir",
+                                  "cp", "mv"):
+                    self.assertNotEqual(part, forbidden, one)
+        self.assertTrue(held["replay_safety"]["verdict"].startswith(
+            "REPLAYABLE"))
+        replay = self.read(os.path.join(HERE, "REPLAY-SAFETY-312166.json"))
+        # THE PRODUCT'S OWN READERS SAID SO, and they refused -- which is the
+        # answer that makes the installation re-usable.
+        self.assertIn("refused",
+                      replay["read"]["workspaces."
+                                     "configured_workspace_storage"])
+        self.assertIn("refused",
+                      replay["read"]["context_delivery."
+                                     "configured_context_storage"])
+        self.assertEqual(
+            replay["read"]["baseline.survey"]["answered"]["preexisting_jobs"],
+            [])
+        self.assertTrue(replay["verdict"]["replayable"])
+
+    def test_THE_DISPOSABLE_PROOF_NOW_RUNS_ACTUAL_baseline_prepare(self):
+        """The reroute asked for the connected proof to be extended through
+        the real `baseline.prepare`, with no fixture precreating what the
+        operator sequence omits.
+        """
+        held = self.read(os.path.join(
+            HERE, "STAGE-BOOTSTRAP-EVIDENCE-312166.json"))
+        prepare = held["baseline_prepare"]
+        done = prepare["succeeded"]
+        self.assertEqual(done["returncode"], 0)
+        # THE ROOTS EXISTED BECAUSE THE BIND STEP MADE THEM, and the modes are
+        # the ones the product's rules require.
+        roots = {one["role"]: one
+                 for one in done["roots_the_bind_step_established"]}
+        self.assertEqual(sorted(roots),
+                         ["context_storage", "workspace_storage"])
+        for one in roots.values():
+            self.assertTrue(one["exists"], one)
+        self.assertEqual(roots["context_storage"]["mode"], "0o700")
+        self.assertEqual(roots["workspace_storage"]["mode"], "0o2770")
+        # AND THE REGISTRATIONS COMMITTED, read back with the product's own
+        # readers rather than taken from `prepare`'s return value.
+        self.assertEqual(done["configured_workspace_storage"],
+                         roots["workspace_storage"]["path"])
+        self.assertEqual(done["configured_context_storage"],
+                         roots["context_storage"]["path"])
+        self.assertTrue(done["prepared"]["qualification_run"])
+        # THE OWNER'S FAILURE, REPRODUCED on the same instance.
+        absent = prepare["refused_when_the_root_is_absent"]
+        self.assertNotEqual(absent["returncode"], 0)
+        self.assertIn("workspace_storage", absent["failure"])
+        self.assertTrue(absent["refused_by_the_packet_before_a_store_opened"])
+        self.assertEqual(held["docker"], "not used")
+        self.assertEqual(held["providers"], "not run")
+
     def test_THE_STATUS_PARSER_EVIDENCE_RECORDS_BOTH_SHAPES(self):
         """The record of the run above, so a reviewer reads the measurement
         rather than taking the case's word for it.
@@ -1737,16 +2056,24 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
         self.assertIn("set -e", body)
         self.assertIn("set -o pipefail", body)
         evidence = self.read(os.path.join(
-            HERE, "STOP-ON-ERROR-EVIDENCE-311994.json"))
+            HERE, "STOP-ON-ERROR-EVIDENCE-312305.json"))
         self.assertTrue(evidence["every_case_stopped"])
-        self.assertEqual([one["failed_at_invocation"]
-                          for one in evidence["measured"]], [1, 2, 3])
-        for one in evidence["measured"]:
-            self.assertEqual(one["invocations_after_the_failure"], 0, one)
-            self.assertNotEqual(one["sequence_returncode"], 0, one)
+        # BOTH SEQUENCES: the recovery for the existing installation and the
+        # full setup. A document with two sequences has two places to get this
+        # wrong, and every invocation of each is the failing one in turn.
+        self.assertEqual(sorted(evidence["measured"]),
+                         ["recovery (section 1b)", "setup (section 2)"])
+        for name, held in sorted(evidence["measured"].items()):
+            self.assertEqual([one["failed_at_invocation"]
+                              for one in held["cases"]],
+                             list(range(1, held[
+                                 "invocations_when_nothing_fails"] + 1)), name)
+            for one in held["cases"]:
+                self.assertEqual(one["invocations_after_the_failure"], 0, one)
+                self.assertNotEqual(one["sequence_returncode"], 0, one)
 
     def test_THE_ARGV_IS_VERIFIED_AND_STAGE_IS_IN_IT(self):
-        evidence = self.read(os.path.join(HERE, "ARGV-EVIDENCE-311994.json"))
+        evidence = self.read(os.path.join(HERE, "ARGV-EVIDENCE-312305.json"))
         self.assertEqual(evidence["faults"], [])
         self.assertEqual(evidence["sh_n"], "OK")
         self.assertEqual(evidence["returncode"], 0)
@@ -1798,6 +2125,56 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
         self.assertEqual(held["packet"]["schema"], packets.PACKET_SCHEMA)
         self.assertEqual(held["packet"]["frozen_assets"],
                          sorted(held["staged_source_report"]["assets"]))
+
+    def test_THE_HISTORICAL_INVENTORY_IS_LABELLED_AS_HISTORICAL(self):
+        """REVIEW 312285: section 1 still described the instance as ABSENT
+        while 1b described the installation that now exists. A record and a
+        current checkpoint in one document must say which is which -- and the
+        record is preserved rather than deleted, because it is the evidence
+        that the first failure left those paths untouched.
+        """
+        body = self.read(self.OPERATOR)
+        first = body[body.index("## 1. "):body.index("## 1b. ")]
+        current = body[body.index("## 1b. "):body.index("## 2. ")]
+        self.assertIn("HISTORICAL", first)
+        self.assertIn("NOT THE CURRENT STATE", first)
+        self.assertIn("EXISTS NOW", first)
+        self.assertIn("read section 1b", first)
+        # THE OLD INVENTORY IS STILL THERE.
+        self.assertIn("/home/sl/baton-instances/managed-correction-309356-source",
+                      first)
+        self.assertIn("ABSENT", first)
+        # AND 1b IS THE ONE TO ACT ON, with its checkpoint taken by readers.
+        self.assertIn("CURRENT", current)
+        self.assertIn("THIS IS THE STATE TO ACT ON", current)
+        self.assertIn("supported readers", current)
+        self.assertNotIn("ABSENT", current)
+
+    def test_THE_ROOTS_ARE_ESTABLISHED_WITHOUT_FOLLOWING_A_LINK(self):
+        """REVIEW 312285 R1, in the document and in the evidence: the first
+        version changed an unrelated directory's mode before refusing.
+        """
+        body = self.read(self.OPERATOR)
+        self.assertIn("O_NOFOLLOW", body)
+        self.assertIn("fchmod", body)
+        held = self.read(os.path.join(HERE, "ROOT-SAFETY-312305.json"))
+        self.assertTrue(held["every_link_refused_with_the_target_unchanged"])
+        self.assertEqual(sorted(held["measured"]),
+                         ["ancestor link (run/), both roots",
+                          "leaf link, private-context store",
+                          "leaf link, workspace store"])
+        for case, one in sorted(held["measured"].items()):
+            self.assertTrue(one["refused"], case)
+            self.assertTrue(one["target_unchanged"], case)
+            self.assertEqual(one["target_before"]["mode"], "0o755", case)
+            self.assertEqual(one["target_after"]["mode"], "0o755", case)
+            self.assertEqual(one["target_after"]["entries"],
+                             ["somebody-elses-file"], case)
+        # AND THE VALID PATHS STILL WORK, fresh and replayed.
+        valid = held["valid_behaviour_preserved"]
+        self.assertTrue(valid["fresh_created_both"])
+        self.assertTrue(valid["replay_created_nothing"])
+        self.assertTrue(valid["modes_identical"])
 
     def test_THE_PARTIAL_PREPARATION_IS_NAMED_AND_PRESERVED(self):
         """Read-only inspection, and paths that cannot collide with it: the

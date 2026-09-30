@@ -1,0 +1,39 @@
+{
+  "candidate_sha256": "7480af27d419be53b0952a6c6e35ea19a19c91427653b017745c62edf4fc2f48",
+  "file_matches": {
+    "ARGV-EVIDENCE-312166.json": true,
+    "OPERATOR-311743.md": true,
+    "RECOVERY-312166.json": true,
+    "REPLAY-SAFETY-312166.json": true,
+    "ROOT-MUTATIONS-312166.json": true,
+    "STAGE-BOOTSTRAP-EVIDENCE-312166.json": true,
+    "STOP-ON-ERROR-EVIDENCE-312166.json": true,
+    "correction_packet.py": true,
+    "staged_bootstrap_trace.py": true,
+    "test_correction_packet.py": true,
+    "MUTATIONS-311743.json": true,
+    "OPERATOR-MUTATIONS-311994.json": true,
+    "PACKET-309356.md": true,
+    "PROVENANCE-309356.json": true,
+    "RECOVERY-311743.json": true,
+    "RUN-COMMANDS-311743.json": true,
+    "SELECTIONS-RESOLVED-311743.json": true,
+    "STAGE-BOOTSTRAP-EVIDENCE-311743.json": true,
+    "STATUS-PARSER-EVIDENCE-311994.json": true,
+    "connected_packet_trace.py": true,
+    "correction_supervisor.py": true,
+    "test_connected_packet.py": true
+  },
+  "tests": {
+    "count": 18,
+    "seconds": 1.201,
+    "result": "PASS",
+    "classes": [
+      "TheFILESYSTEM_ROOTS_ARE_ESTABLISHED_BEFORE_THEY_ARE_REGISTERED",
+      "TheCORRECTED_OPERATOR_SEQUENCE"
+    ]
+  },
+  "disposable_proof": "REVIEW-BOOTSTRAP-312285.json: actual stage/bootstrap/prepare-work/bind/check and baseline.prepare succeeded, absent-root negative leg refused",
+  "new_defect": "ROOT-REPRO-312285.json: symlink target chmod before later refusal",
+  "deployed_actions": "none; no deployed store read or repair this review"
+}

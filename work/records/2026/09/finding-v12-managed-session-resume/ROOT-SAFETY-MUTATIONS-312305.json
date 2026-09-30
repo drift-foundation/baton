@@ -1,0 +1,44 @@
+{
+  "answering": "review 2026-09-30T04-16-34Z R1",
+  "cases": [
+    "test_AN_ANCESTOR_SYMLINK_IS_REFUSED_WITH_THE_TARGET_UNTOUCHED",
+    "test_A_LEAF_SYMLINK_IS_REFUSED_WITH_THE_TARGET_UNTOUCHED",
+    "test_A_NON_DIRECTORY_AT_THE_ROOT_IS_REFUSED_UNCHANGED",
+    "test_A_PACKET_BINDING_ONLY_ONE_ROOT_IS_REFUSED",
+    "test_BIND_ESTABLISHES_BOTH_ROOTS_that_nothing_else_creates",
+    "test_CHECK_REFUSES_A_PRIVATE_CONTEXT_STORE_THAT_LOST_ITS_PRIVACY",
+    "test_CHECK_REFUSES_A_WORKSPACE_STORE_REPLACED_BY_A_LINK",
+    "test_CHECK_REFUSES_THE_ABSENCE_THE_LIVE_RUN_MET",
+    "test_ESTABLISHING_THEM_TWICE_IS_A_NO_OP",
+    "test_THE_MODE_AND_GROUP_ARE_SET_ON_A_PINNED_DESCRIPTOR",
+    "test_THE_ROOTS_ARE_PROVED_BY_THE_PRODUCTS_OWN_RULES"
+  ],
+  "claim": 312305,
+  "measured": {
+    "SM1": {
+      "caught_by": [
+        "test_AN_ANCESTOR_SYMLINK_IS_REFUSED_WITH_THE_TARGET_UNTOUCHED",
+        "test_A_LEAF_SYMLINK_IS_REFUSED_WITH_THE_TARGET_UNTOUCHED",
+        "test_A_NON_DIRECTORY_AT_THE_ROOT_IS_REFUSED_UNCHANGED",
+        "test_ESTABLISHING_THEM_TWICE_IS_A_NO_OP",
+        "test_THE_MODE_AND_GROUP_ARE_SET_ON_A_PINNED_DESCRIPTOR"
+      ],
+      "mutation": "makedirs/chmod/chown BY NAME with validation afterwards -- the exact order review 312285 refused, which changes an unrelated target"
+    },
+    "SM2": {
+      "caught_by": [
+        "test_AN_ANCESTOR_SYMLINK_IS_REFUSED_WITH_THE_TARGET_UNTOUCHED",
+        "test_A_LEAF_SYMLINK_IS_REFUSED_WITH_THE_TARGET_UNTOUCHED",
+        "test_A_NON_DIRECTORY_AT_THE_ROOT_IS_REFUSED_UNCHANGED",
+        "test_ESTABLISHING_THEM_TWICE_IS_A_NO_OP",
+        "test_THE_MODE_AND_GROUP_ARE_SET_ON_A_PINNED_DESCRIPTOR"
+      ],
+      "mutation": "walk the path with links FOLLOWED (O_NOFOLLOW dropped)"
+    },
+    "clean_again": [],
+    "unmutated_failures": []
+  },
+  "schema": "baton.root-safety-mutation-evidence/1",
+  "uncaught_mutations": [],
+  "what": "the unsafe creation re-introduced one way at a time; a case must catch each, and the unmutated and restored runs must be clean"
+}

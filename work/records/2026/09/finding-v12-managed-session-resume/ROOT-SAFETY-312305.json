@@ -1,0 +1,115 @@
+{
+  "answering": "review 2026-09-30T04-16-34Z (pass 312301) R1",
+  "claim": 312305,
+  "every_link_refused_with_the_target_unchanged": true,
+  "measured": {
+    "ancestor link (run/), both roots": {
+      "pointed_at": "/tmp/root-safety-a6jxamxk/unrelated-workspace_storage-ancestor",
+      "refusal": "the workspace_storage root '/tmp/root-safety-a6jxamxk/instances/managed-correction-312305/run/workspaces' passes through a SYMLINK at '/tmp/root-safety-a6jxamxk/instances/managed-correction-312305/run'; a link at that name is a directory somebody else chose, and this step establishes the deployment's own. NOTHING WAS CHANGED: no directory was created and no mode or group was touched, here or at whatever the link points at",
+      "refused": true,
+      "symlink_at": "/tmp/root-safety-a6jxamxk/instances/managed-correction-312305/run",
+      "target_after": {
+        "entries": [
+          "somebody-elses-file"
+        ],
+        "gid": 1000,
+        "mode": "0o755"
+      },
+      "target_before": {
+        "entries": [
+          "somebody-elses-file"
+        ],
+        "gid": 1000,
+        "mode": "0o755"
+      },
+      "target_unchanged": true
+    },
+    "leaf link, private-context store": {
+      "pointed_at": "/tmp/root-safety-eyec42q8/unrelated-context_storage-leaf",
+      "refusal": "the context_storage root '/tmp/root-safety-eyec42q8/instances/managed-correction-312305/run/private-contexts' passes through a SYMLINK at '/tmp/root-safety-eyec42q8/instances/managed-correction-312305/run/private-contexts'; a link at that name is a directory somebody else chose, and this step establishes the deployment's own. NOTHING WAS CHANGED: no directory was created and no mode or group was touched, here or at whatever the link points at",
+      "refused": true,
+      "symlink_at": "/tmp/root-safety-eyec42q8/instances/managed-correction-312305/run/private-contexts",
+      "target_after": {
+        "entries": [
+          "somebody-elses-file"
+        ],
+        "gid": 1000,
+        "mode": "0o755"
+      },
+      "target_before": {
+        "entries": [
+          "somebody-elses-file"
+        ],
+        "gid": 1000,
+        "mode": "0o755"
+      },
+      "target_unchanged": true
+    },
+    "leaf link, workspace store": {
+      "pointed_at": "/tmp/root-safety-3zo2gt6z/unrelated-workspace_storage-leaf",
+      "refusal": "the workspace_storage root '/tmp/root-safety-3zo2gt6z/instances/managed-correction-312305/run/workspaces' passes through a SYMLINK at '/tmp/root-safety-3zo2gt6z/instances/managed-correction-312305/run/workspaces'; a link at that name is a directory somebody else chose, and this step establishes the deployment's own. NOTHING WAS CHANGED: no directory was created and no mode or group was touched, here or at whatever the link points at",
+      "refused": true,
+      "symlink_at": "/tmp/root-safety-3zo2gt6z/instances/managed-correction-312305/run/workspaces",
+      "target_after": {
+        "entries": [
+          "somebody-elses-file"
+        ],
+        "gid": 1000,
+        "mode": "0o755"
+      },
+      "target_before": {
+        "entries": [
+          "somebody-elses-file"
+        ],
+        "gid": 1000,
+        "mode": "0o755"
+      },
+      "target_unchanged": true
+    }
+  },
+  "schema": "baton.root-creation-safety/1",
+  "scope": "disposable directories only, no stores opened, nothing outside the temporary roots read or written",
+  "valid_behaviour_preserved": {
+    "fresh": [
+      {
+        "created": true,
+        "gid": 1000,
+        "mode": "0o2770",
+        "path": "/tmp/root-safety-valid-forabz27/instances/managed-correction-312305/run/workspaces",
+        "role": "workspace_storage",
+        "uid": 1000
+      },
+      {
+        "created": true,
+        "gid": 1000,
+        "mode": "0o700",
+        "path": "/tmp/root-safety-valid-forabz27/instances/managed-correction-312305/run/private-contexts",
+        "role": "context_storage",
+        "uid": 1000
+      }
+    ],
+    "fresh_created_both": true,
+    "modes_identical": true,
+    "replay_created_nothing": true,
+    "replayed": [
+      {
+        "created": false,
+        "gid": 1000,
+        "mode": "0o2770",
+        "path": "/tmp/root-safety-valid-forabz27/instances/managed-correction-312305/run/workspaces",
+        "role": "workspace_storage",
+        "uid": 1000
+      },
+      {
+        "created": false,
+        "gid": 1000,
+        "mode": "0o700",
+        "path": "/tmp/root-safety-valid-forabz27/instances/managed-correction-312305/run/private-contexts",
+        "role": "context_storage",
+        "uid": 1000
+      }
+    ]
+  },
+  "what_is_done_now": "every component is opened with O_NOFOLLOW|O_DIRECTORY from the filesystem root, so a link or a non-directory at any component refuses BEFORE anything is created; absent components are made with mkdir at the parent's own descriptor; and the mode and group are set with fchmod/fchown on the descriptor that walk pinned, never by name.",
+  "what_was_wrong": "`create_filesystem_roots` used os.makedirs(exist_ok=True), os.chmod and os.chown BY NAME -- all three follow a symlink -- and verified afterwards. The reviewer pointed the selected private-context root at an unrelated 0755 directory and measured the consequence: creation changed THAT directory to 0700, and only then did validation refuse. A refusal after the change is not a refusal."
+}

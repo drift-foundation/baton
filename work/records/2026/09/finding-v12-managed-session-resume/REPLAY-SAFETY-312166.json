@@ -1,0 +1,32 @@
+{
+  "answering": "owner reroute 312164",
+  "authority_uuid": "60856ebbfb5c42bfbb2197dc7e5ef682",
+  "claim": 312166,
+  "how": "the three stores were COPIED to a temporary directory and every reader ran against the copies. No deployed byte was written, no lock taken, nothing repaired, cleaned or created in the installation. The copies were removed.",
+  "instance": "/home/sl/baton-instances/managed-correction-309356",
+  "read": {
+    "baseline.survey": {
+      "answered": {
+        "accounting_scope": "this run accounts for Job 'job-managed-correction-309356' and for nothing else. Attempt discovery, cancellation and cleanup all read the status projection filtered to that Job, so a runtime belonging to another Job in this store is NOT covered by this outcome and its absence is NOT established by it.",
+        "preexisting_jobs": [],
+        "preexisting_stages": {},
+        "selected_job": "job-managed-correction-309356"
+      }
+    },
+    "context_delivery.configured_context_storage": {
+      "refused": "provider context: protected context storage is not configured"
+    },
+    "workspaces.configured_workspace_storage": {
+      "refused": "this manager has no configured workspace store; the deployment records the one directory attempts are allocated under before any custody act, and a store taken from a caller's operand is not a deployment's decision"
+    }
+  },
+  "schema": "baton.replay-safety/1",
+  "verdict": {
+    "context_storage_registered": false,
+    "job_already_submitted": false,
+    "replayable": true,
+    "so_the_recovery_is": "re-run the bind step for THIS instance (it establishes the two roots), then check, then the supervisor. No new instance and no deployed repair.",
+    "why": "the two registrations `baseline.prepare` makes are the only durable acts the failed run could have left, and the product's own readers say neither committed -- so `prepare` replays from the start rather than meeting a half-configured manager. Opening a store is not a durable act: the failure happened at the FIRST registration, before the qualification grant, and a grant is what is spent exactly once.",
+    "workspace_storage_registered": false
+  }
+}

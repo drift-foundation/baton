@@ -102,13 +102,15 @@ def disposable_selection(root):
     return chosen
 
 
-def _run(argv, *, tree=None, cwd, timeout=600):
+def _run(argv, *, tree=None, cwd, timeout=600, extra=None):
     """One subprocess, with the staged tree as the ONLY import path."""
     environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     if tree is None:
         environment.pop("PYTHONPATH", None)
     else:
         environment["PYTHONPATH"] = os.path.join(tree, "src") + ":" + tree
+    if extra:
+        environment.update(extra)
     return subprocess.run(argv, capture_output=True, text=True, cwd=cwd,
                           env=environment, timeout=timeout)
 
@@ -128,6 +130,95 @@ def modules_only(staged, destination):
                 removed.append(os.path.relpath(whole, destination))
                 os.unlink(whole)
     return destination, sorted(removed)
+
+
+# WHAT THE CHILD DOES, and why it is a child. `baseline.prepare` must run with
+# the STAGED tree as its import path -- the same condition the supervisor runs
+# under -- and it opens a control store, so it is given its own interpreter and
+# its own process rather than sharing this one's imports.
+_PREPARE = """
+import json, os, sys
+sys.path.insert(0, os.environ["DOSSIER"])
+import correction_packet as packets
+import correction_supervisor as supervisor
+from baton_v12.worker_manager import ControlStore, context_delivery, workspaces
+
+packet = packets.held_packet(os.environ["PACKET"],
+                             supervisor=supervisor.__file__)
+answer = {"roots_before": [
+    {"role": one["role"], "path": one["path"], "mode": one["mode"],
+     "exists": os.path.isdir(one["path"])}
+    for one in packet["filesystem_roots"]]}
+deployment = packet["deployment"]
+with ControlStore.open(deployment["control_store"],
+                       incarnation=packet["run_id"],
+                       clock=supervisor.baseline._moment) as control:
+    answer["prepared"] = supervisor.baseline.prepare(control, packet)
+    # AND THE PRODUCT'S OWN READERS AGREE, which is what makes the two
+    # registrations facts rather than a return value.
+    answer["configured_workspace_storage"] = (
+        workspaces.configured_workspace_storage(control).place)
+    answer["configured_context_storage"] = (
+        context_delivery.configured_context_storage(control).path)
+print(json.dumps(answer))
+"""
+
+
+def _prepare_leg(destination, packet_path, *, cwd):
+    """Run the real `baseline.prepare`, then try it again with a root removed.
+
+    BOTH DIRECTIONS. The positive leg proves the corrected preparation is
+    sufficient; the negative leg reproduces the owner's failure on the same
+    instance by removing one root, so the evidence shows the absence being
+    refused rather than only its presence succeeding.
+    """
+    with open(packet_path, encoding="utf-8") as handle:
+        packet = json.load(handle)
+    staged = packet["manager_source"]["path"]
+    environment = {"PACKET": packet_path, "DOSSIER": DOSSIER}
+    held = {}
+
+    done = _run([INTERPRETER, "-B", "-c", _PREPARE], tree=staged, cwd=cwd,
+                extra=environment)
+    said = (done.stdout + done.stderr).strip()
+    _held(done.returncode == 0,
+          "`baseline.prepare` failed over the corrected preparation:\n" + said)
+    answered = json.loads(done.stdout)
+    held["succeeded"] = {
+        "returncode": done.returncode,
+        "roots_the_bind_step_established": answered["roots_before"],
+        "prepared": answered["prepared"],
+        "configured_workspace_storage":
+            answered["configured_workspace_storage"],
+        "configured_context_storage": answered["configured_context_storage"],
+        "read_back_with": "workspaces.configured_workspace_storage and "
+                          "context_delivery.configured_context_storage",
+    }
+    for one in answered["roots_before"]:
+        _held(one["exists"], "the bind step left " + one["path"] + " absent")
+
+    # THE OWNER'S FAILURE, REPRODUCED on the same instance: remove the
+    # workspace store and ask again.
+    removed = [one for one in packet["filesystem_roots"]
+               if one["role"] == "workspace_storage"][0]["path"]
+    # `rmtree` AND NOT `rmdir`, because the registration above left the store's
+    # own bookkeeping inside it. This is the disposable root only: nothing
+    # outside this temporary directory is touched by this program, ever.
+    shutil.rmtree(removed)
+    done = _run([INTERPRETER, "-B", "-c", _PREPARE], tree=staged, cwd=cwd,
+                extra=environment)
+    said = (done.stdout + done.stderr).strip()
+    held["refused_when_the_root_is_absent"] = {
+        "removed": removed,
+        "returncode": done.returncode,
+        "failure": said.strip().splitlines()[-1] if said else "",
+        "refused_by_the_packet_before_a_store_opened":
+            "re-run the bind step" in said,
+    }
+    _held(done.returncode != 0,
+          "removing the workspace store did not stop `baseline.prepare`")
+    os.makedirs(removed, exist_ok=True)
+    return held
 
 
 def trace(root):
@@ -269,9 +360,22 @@ def trace(root):
             "output": said[-2500:]})
         _held(done.returncode == 0,
               "`" + step + "` failed in the disposable installation:\n" + said)
-    with open(os.path.join(destination, "packet.json"),
-              encoding="utf-8") as handle:
+    packet_path = os.path.join(destination, "packet.json")
+    with open(packet_path, encoding="utf-8") as handle:
         packet = json.load(handle)
+    # 6 -- ACTUAL `baseline.prepare`, WITH NOTHING PRE-CREATED BY A FIXTURE.
+    #
+    # OWNER REROUTE 312164. The live run reached exactly here and stopped:
+    # `configure_workspace_storage` refused because `<instance>/run/workspaces`
+    # did not exist, and the accepted connected fixture never showed it because
+    # that fixture creates the root itself. This runs the REAL
+    # `baseline.prepare` against the disposable instance's own control store,
+    # and the only thing that created those roots is the bind step above. No
+    # Docker, no provider, no engine: two registrations, a certification and
+    # one grant, inside the temporary root.
+    evidence["baseline_prepare"] = _prepare_leg(destination, packet_path,
+                                                cwd=root)
+
     submission = packet["submission"]
     evidence["packet"] = {
         "schema": packet["schema"],

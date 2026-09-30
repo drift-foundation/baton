@@ -1,0 +1,60 @@
+{
+  "answering": "owner reroute 312164",
+  "cases": [
+    "test_A_PACKET_BINDING_ONLY_ONE_ROOT_IS_REFUSED",
+    "test_BIND_ESTABLISHES_BOTH_ROOTS_that_nothing_else_creates",
+    "test_CHECK_REFUSES_A_PRIVATE_CONTEXT_STORE_THAT_LOST_ITS_PRIVACY",
+    "test_CHECK_REFUSES_A_WORKSPACE_STORE_REPLACED_BY_A_LINK",
+    "test_CHECK_REFUSES_THE_ABSENCE_THE_LIVE_RUN_MET",
+    "test_ESTABLISHING_THEM_TWICE_IS_A_NO_OP",
+    "test_THE_ROOTS_ARE_PROVED_BY_THE_PRODUCTS_OWN_RULES"
+  ],
+  "claim": 312166,
+  "measured": {
+    "RM1": {
+      "caught_by": [
+        "test_A_PACKET_BINDING_ONLY_ONE_ROOT_IS_REFUSED",
+        "test_BIND_ESTABLISHES_BOTH_ROOTS_that_nothing_else_creates",
+        "test_CHECK_REFUSES_A_PRIVATE_CONTEXT_STORE_THAT_LOST_ITS_PRIVACY",
+        "test_CHECK_REFUSES_A_WORKSPACE_STORE_REPLACED_BY_A_LINK",
+        "test_CHECK_REFUSES_THE_ABSENCE_THE_LIVE_RUN_MET",
+        "test_THE_ROOTS_ARE_PROVED_BY_THE_PRODUCTS_OWN_RULES"
+      ],
+      "mutation": "create nothing, as the sequence did when the live run failed"
+    },
+    "RM2": {
+      "caught_by": [
+        "test_A_PACKET_BINDING_ONLY_ONE_ROOT_IS_REFUSED",
+        "test_BIND_ESTABLISHES_BOTH_ROOTS_that_nothing_else_creates",
+        "test_CHECK_REFUSES_A_PRIVATE_CONTEXT_STORE_THAT_LOST_ITS_PRIVACY",
+        "test_CHECK_REFUSES_A_WORKSPACE_STORE_REPLACED_BY_A_LINK",
+        "test_CHECK_REFUSES_THE_ABSENCE_THE_LIVE_RUN_MET",
+        "test_ESTABLISHING_THEM_TWICE_IS_A_NO_OP",
+        "test_THE_ROOTS_ARE_PROVED_BY_THE_PRODUCTS_OWN_RULES"
+      ],
+      "mutation": "create the roots but leave the mode to the umask, so the private-context store keeps group and other bits"
+    },
+    "RM3": {
+      "caught_by": [
+        "test_CHECK_REFUSES_THE_ABSENCE_THE_LIVE_RUN_MET",
+        "test_THE_ROOTS_ARE_PROVED_BY_THE_PRODUCTS_OWN_RULES"
+      ],
+      "mutation": "verify the roots without driving check_workspace_storage or _private"
+    },
+    "RM4": {
+      "caught_by": [
+        "test_BIND_ESTABLISHES_BOTH_ROOTS_that_nothing_else_creates",
+        "test_CHECK_REFUSES_A_PRIVATE_CONTEXT_STORE_THAT_LOST_ITS_PRIVACY",
+        "test_CHECK_REFUSES_A_WORKSPACE_STORE_REPLACED_BY_A_LINK",
+        "test_CHECK_REFUSES_THE_ABSENCE_THE_LIVE_RUN_MET",
+        "test_THE_ROOTS_ARE_PROVED_BY_THE_PRODUCTS_OWN_RULES"
+      ],
+      "mutation": "bind only the workspace store, so the private-context store is never established or proved"
+    },
+    "clean_again": [],
+    "unmutated_failures": []
+  },
+  "schema": "baton.filesystem-root-mutation-evidence/1",
+  "uncaught_mutations": [],
+  "what": "each corrected root behaviour mutated one at a time; a case must catch each, and the unmutated and restored runs must be clean"
+}

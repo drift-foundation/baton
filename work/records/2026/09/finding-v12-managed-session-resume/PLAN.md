@@ -1,3 +1,49 @@
+# Current checkpoint — root correction ACCEPTED, review312359
+
+Candidate312305 sha2563fa432a406376e5f8ee1b7335ecc4331b7b41b33ac267a3ab3828801d202eb47;
+all20 digests match. Independent24 focused PASS1.230s. Root/ancestor no-follow opens
+and descriptor mutations resolve review312285 R1; historical/current operator labels
+resolve R2. Previous correction checkpoint superseded as resolved, history retained.
+Latest review: review-2026-09-30T04-28-04Z.md
+Evidence REVIEW-EVIDENCE-312359.json; preserve actual disposable bootstrap through
+baseline.prepare proof REVIEW-BOOTSTRAP-312285.json, no repeat. Read E312357/events312359/
+T236087239616. No remaining candidate blocker. Refusal is target-safe, not whole-bind
+filesystem rollback (first valid root may have been established before second fails).
+
+Next baton.decide: existing-installation recovery/run selection per E312164 using
+RECOVERY-312166.json, SELECTIONS-RESOLVED-311743.json and OPERATOR-311743.md section1b.
+No agent deployed repair or live execution performed. Currency unverified; historical
+boundary UNKNOWN; live restore/production comparison unproved; no forced rerun.
+Reviewer owns records only; author helper/tests/operator/PROGRESS. Accepted lifecycle
+and prior proof retained. No product/Git/graph/sibling/DESIGN/W306614 expansion.
+
+---
+
+# Current checkpoint — filesystem-root mutation ordering, review312285
+
+Owner E312164: installation succeeded; supervisor failed on absent workspaces before
+first registration. Prior setup assurance superseded, accepted lifecycle preserved.
+Candidate312166 hashes match; independent18 PASS1.201s. ACTUAL disposable full setup
+through baseline.prepare succeeds and registration readers confirm; missing-root
+negative refuses. Evidence REVIEW-BOOTSTRAP-312285.json + REVIEW-EVIDENCE-312285.json.
+Latest review: review-2026-09-30T04-16-34Z.md
+Read E312164/E312283/events312285/T236087239616.
+
+Next Claude/baton.impl: create_filesystem_roots follows symlink with chmod/chown
+BEFORE verifying. ROOT-REPRO-312285.json proves unrelated0755 target changed0700,
+then refusal. Secure no-follow root/ancestry validation/creation before mutation;
+leaf/ancestor-link negatives preserve target modes/groups, fresh/valid replay works.
+Keep successful disposable proof and existing-instance recovery; no new instance
+required. Label operator section1 ABSENT inventory historical vs current section1b.
+
+No deployed repair/read this reviewer turn; author supported-copy replay evidence
+retained (no registrations/Jobs). Only owned helper/tests/trace/docs/evidence changes;
+no product/live/Docker/credential/Git/graph/sibling/DESIGN/W306614. Historical boundary
+UNKNOWN, currency unverified, live restore/production comparison unproved, no forced
+rerun. Return review then owner recovery selection.
+
+---
+
 # Current checkpoint — recovery/operator proposal ACCEPTED, review312052
 
 Candidate311994 digest

@@ -1,0 +1,151 @@
+{
+  "baseline_prepare": {
+    "refused_when_the_root_is_absent": {
+      "failure": "correction_packet.PacketRefusal: the workspace_storage root '/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/run/workspaces' is not one this run can be configured with: the configured workspace store '/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-\u2026 is not a directory this manager can see. The rule is baton_v12.worker_manager.workspaces.configure_workspace_storage, through check_workspace_storage, which requires an absolute canonical path that is a real directory -- asked with lstat, so a link is refused -- owned by the uid the manager runs as. `bind` establishes it; re-run the bind step for this instance rather than making it by hand",
+      "refused_by_the_packet_before_a_store_opened": true,
+      "removed": "/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/run/workspaces",
+      "returncode": 1
+    },
+    "succeeded": {
+      "configured_context_storage": "/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/run/private-contexts",
+      "configured_workspace_storage": "/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/run/workspaces",
+      "prepared": {
+        "profile_digest": "sha256:4eb66e686db85ecc48aeec403c0ba0b079e748a4f8effbd3cdc6c065a774cdbe",
+        "qualification_run": "managed-correction-309356",
+        "storage_path": "/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/run/private-contexts",
+        "workspace_storage": "/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/run/workspaces"
+      },
+      "read_back_with": "workspaces.configured_workspace_storage and context_delivery.configured_context_storage",
+      "returncode": 0,
+      "roots_the_bind_step_established": [
+        {
+          "exists": true,
+          "mode": "0o2770",
+          "path": "/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/run/workspaces",
+          "role": "workspace_storage"
+        },
+        {
+          "exists": true,
+          "mode": "0o700",
+          "path": "/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/run/private-contexts",
+          "role": "context_storage"
+        }
+      ]
+    }
+  },
+  "bootstrap": {
+    "argv": [
+      "python",
+      "-m",
+      "tools.bootstrap",
+      "--inputs",
+      "/tmp/stage-bootstrap-q_3x5din/packet/bootstrap-inputs.json",
+      "--destination",
+      "/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356",
+      "--distro",
+      "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+      "--no-repositories"
+    ],
+    "inputs": "/tmp/stage-bootstrap-q_3x5din/packet/bootstrap-inputs.json",
+    "last_line": "    /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/distro/baton-v12-stack status --instance /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/instance.json",
+    "output": "repositories  not prepared: no source checkout was found or named, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\nauthority 5ac4fde0...    generated for this instance\njob   none; no Work, grant or placeholder was created\nconfiguration /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/deployment.json\ncapacity      {\"job_affinity\": {}, \"jobs\": 0, \"note\": \"this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created\", \"schema\": \"baton.v12.stage-execution-deployment/2\", \"targets\": [], \"workers_by_role\": {\"implementation\": [], \"integration\": [], \"review\": []}}\nno Job was submitted and nothing was executed\ninstance      /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/instance.json\nruntime       81 files, digest c1ef3d23394916c8...\nstores        /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/db\nrepository    /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/repo\njustfile      /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356 && just status\n    just --justfile /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/distro/baton-v12-stack status --instance /tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/instance.json",
+    "reached_the_module": true,
+    "read_its_input": true,
+    "record": {
+      "authority_uuid": "5ac4fde0d89644f9b03cee2ea4ac2a1c",
+      "bindings": {},
+      "schema": "baton.v12.stack-bootstrap-record/1"
+    },
+    "record_written": true,
+    "returncode": 0
+  },
+  "defect_reproduced": {
+    "failure": "FileNotFoundError: [Errno 2] No such file or directory: '/tmp/stage-bootstrap-q_3x5din/modules-only/src/baton_v12/contracts/schema/worker-control-1.0.schema.json'",
+    "read_at": "baton_v12.contracts.frozen, at import time",
+    "removed": [
+      "src/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "src/baton_v12/contracts/schema/worker-control-1.0.schema.json"
+    ],
+    "returncode": 1,
+    "tree": "/tmp/stage-bootstrap-q_3x5din/modules-only"
+  },
+  "disposable_root": "/tmp/stage-bootstrap-q_3x5din",
+  "disposable_root_removed": true,
+  "docker": "not used",
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "packet": {
+    "checked": "`check` proved this packet with the product validators",
+    "code_boundary": "/tmp/stage-bootstrap-q_3x5din/staging/managed-correction-309356-source/manager-source",
+    "file_count": 108,
+    "frozen_assets": [
+      "agent-session-1.0",
+      "worker-control-1.0"
+    ],
+    "input_digest": "sha256:c7d11537d345cbc91b1efa380b10eb7c079df2216536dc09ae918820e5e3c81f",
+    "job_id": "job-managed-correction-309356",
+    "schema": "baton.managed-correction-packet/1",
+    "submission_id": "submission-managed-correction-309356",
+    "work": "W236087",
+    "work_id": "5ac4fde0-W236087"
+  },
+  "providers": "not run",
+  "recovery": [
+    {
+      "last_line": "}",
+      "output": "{\n  \"authority_store\": \"/tmp/stage-bootstrap-q_3x5din/instances/managed-correction-309356/db/authority.sqlite3\",\n  \"authority_uuid\": \"5ac4fde0d89644f9b03cee2ea4ac2a1c\",\n  \"canonical_target\": \"346a809bf0e4c47e52d881bd46d6d62a611c9816\",\n  \"created\": true,\n  \"granted\": [\n    {\n      \"capability\": \"verify\",\n      \"participant\": \"baton.verifier\"\n    },\n    {\n      \"capability\": \"review\",\n      \"participant\": \"baton.approver-review\"\n    },\n    {\n      \"capability\": \"approve\",\n      \"participant\": \"baton.approver\"\n    },\n    {\n      \"capability\": \"integrate\",\n      \"participant\": \"baton.merge\"\n    }\n  ],\n  \"operands\": {\n    \"canonical_target\": \"346a809bf0e4c47e52d881bd46d6d62a611c9816\",\n    \"contract\": \"v12-assignment-1\",\n    \"receipts\": {\n      \"approval\": \"baton.approver\",\n      \"review\": \"baton.approver-review\",\n      \"verification\": \"baton.verifier\"\n    },\n    \"route_handlers\": {\n      \"impl\": \"baton.impl\",\n      \"integration\": \"baton.merge\",\n      \"rview\": \"baton.review\"\n    },\n    \"work_id\": \"5ac4fde0-W236087\"\n  },\n  \"operation_id\": \"w236087-prepare:70d366708f687fa3610796961b75dc9f\",\n  \"record\": \"/tmp/stage-bootstrap-q_3x5din/packet/prepared-work.json\",\n  \"route_handlers\": {\n    \"impl\": \"baton.impl\",\n    \"integration\": \"baton.merge\",\n    \"rview\": \"baton.review\"\n  },\n  \"scope\": \"scope:deployment\",\n  \"work_id\": \"5ac4fde0-W236087\"\n}",
+      "returncode": 0,
+      "step": "prepare-work"
+    },
+    {
+      "last_line": "}",
+      "output": "{\n  \"packet\": \"/tmp/stage-bootstrap-q_3x5din/packet/packet.json\",\n  \"proved\": true\n}",
+      "returncode": 0,
+      "step": "bind"
+    },
+    {
+      "last_line": "}",
+      "output": "{\n  \"bounds\": {\n    \"cleanup_seconds\": 60,\n    \"corrections\": 1,\n    \"implementer_invocations\": 2,\n    \"restores\": 1,\n    \"retry\": false,\n    \"review_invocations\": 2,\n    \"total_seconds\": 900,\n    \"turn_seconds\": 180,\n    \"verification_seconds\": 180\n  },\n  \"job_id\": \"job-managed-correction-309356\",\n  \"manager_source_files\": 108,\n  \"packet\": \"/tmp/stage-bootstrap-q_3x5din/packet/packet.json\",\n  \"proved\": true,\n  \"run_id\": \"managed-correction-309356\"\n}",
+      "returncode": 0,
+      "step": "check"
+    }
+  ],
+  "schema": "baton.stage-bootstrap-trace/1",
+  "stage": {
+    "documents": [
+      "bootstrap-inputs.json",
+      "context-profile.json",
+      "prepared.json",
+      "task.json"
+    ],
+    "file_count": 108,
+    "frozen_assets": [
+      "agent-session-1.0",
+      "worker-control-1.0"
+    ],
+    "returncode": 0,
+    "staged_root": "/tmp/stage-bootstrap-q_3x5din/staging/managed-correction-309356-source/manager-source"
+  },
+  "staged_source_imports": {
+    "agent_session_bytes": 48212,
+    "assets": [
+      "agent-session-1.0",
+      "worker-control-1.0"
+    ],
+    "schema": "baton.v12.stack-bootstrap/1",
+    "worker_control_bytes": 51419
+  },
+  "staged_source_report": {
+    "assets": [
+      "agent-session-1.0",
+      "worker-control-1.0"
+    ],
+    "bootstrap_schema": "baton.v12.stack-bootstrap/1",
+    "checkout": "/tmp/stage-bootstrap-q_3x5din/staging",
+    "loaded": {
+      "agent-session-1.0": 48212,
+      "worker-control-1.0": 51419
+    },
+    "package": "baton_v12",
+    "schema_directory": "contracts/schema"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "scope": "disposable directories only, no stores opened",
+  "target_mode_before": "0o755",
+  "target_mode_after": "0o700",
+  "verification_refusal": "the context_storage root '/tmp/correction-packet-b13kga62/instances/managed-correction-test/run/private-contexts' is not one this run can be configured with: provider context: directory ancestry is inaccessible or replaced. The rule is baton_v12.worker_manager.context_delivery.configure_context_storage, through _open_absolute and _private, which requires an absolute canonical path whose whole ancestry can be opened, owned by the running uid, readable AND writable by the owner, with no group or other permission bit set at all. `bind` establishes it; re-run the bind step for this instance rather than making it by hand"
+}

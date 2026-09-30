@@ -2924,3 +2924,203 @@ remains unverified, the historical boundary failure remains UNKNOWN, and
 production comparison and a live restore remain unproved.
 
 Files: `OPERATOR-311743.md` (fa919c946f59), `test_correction_packet.py` (2c1796c7c8f8), `STATUS-PARSER-EVIDENCE-311994.json` (878e0f4b8fc7), `ARGV-EVIDENCE-311994.json` (e7345428d804), `STOP-ON-ERROR-EVIDENCE-311994.json` (039095cba602), `OPERATOR-MUTATIONS-311994.json` (2062bc75cc26)
+
+## Claim 312166 (baton.claude, impl) -- the filesystem roots nothing created
+
+Owner reroute 312164, from a LIVE run of the corrected sequence: bootstrap,
+`prepare-work`, `bind` and `check` all succeeded, and the supervisor then failed
+inside `baseline.prepare` at `configure_workspace_storage` because
+`/home/sl/baton-instances/managed-correction-309356/run/workspaces` did not
+exist. THE REPORT WAS RIGHT. Two stores were opened; the failure precedes
+context certification, the qualification grant and serving.
+
+### Why nothing created it, and why no test had ever noticed
+
+`configure_workspace_storage` is the DEPLOYMENT'S act and creates nothing --
+`check_workspace_storage` asks `lstat` and refuses what is not already a
+manager-owned directory. `tools.bootstrap` creates `stores`, `repository`,
+`logs`, `state`, the state root and the destination; not these. And the accepted
+CONNECTED FIXTURE creates them itself -- `os.makedirs(self.storage)`,
+`os.makedirs(producer["launch_home"])` -- so every deterministic case ran over
+prerequisites the operator sequence omitted. A fixture that supplies what the
+delivered sequence does not is a test that cannot see this class of defect at
+all.
+
+### The correction: established by `bind`, proved by `check`
+
+TWO ROOTS, AND THAT IS MEASURED RATHER THAN ASSUMED. `launch_home` and
+`credential_home` are created BY THE PRODUCT when it uses them
+(`launch.materialize` calls `os.makedirs(root, mode=0o700, exist_ok=False)`, and
+the credential delivery its own), and per-attempt workspace roots are
+established by `workspaces.adopt_workspace_group`. The two the product requires
+to ALREADY EXIST are the deployment's to provide:
+
+    <instance>/run/workspaces         0o2770, group 1000
+      workspaces.configure_workspace_storage -> check_workspace_storage
+    <instance>/run/private-contexts   0o700
+      context_delivery.configure_context_storage -> _open_absolute, _private
+
+THE MODES COME FROM THE PRODUCT. The workspace store is created with
+`workspaces.WORKSPACE_DIR`, read from the module -- the same mode
+`adopt_workspace_group` establishes on the roots the manager creates inside it,
+so the store is exactly as reachable as its contents and no more. The
+private-context store is `0o700` because `_private` refuses ANY group or other
+bit. `os.makedirs` filters its mode through the umask, which the product itself
+notes where it corrected the same thing, so the mode is set with `os.chmod`,
+which is exact, and the group with `os.chown(-1, gid)`.
+
+`bind` establishes them and records them in the packet; `_PACKET` carries
+`filesystem_roots`; `held_packet` -- so `check` and the supervisor's own
+preflight -- drives `check_workspace_storage` and `_open_absolute`/`_private`
+and refuses a root that is absent, replaced by a link, or whose mode, owner or
+path drifted since the packet was bound. Repeating any of it is a no-op and
+deletes nothing.
+
+### The disposable proof now runs the REAL `baseline.prepare`
+
+With NOTHING pre-created by a fixture: the only thing that makes those roots is
+the bind step. `STAGE-BOOTSTRAP-EVIDENCE-312166.json`, in one temporary root,
+no Docker and no provider:
+
+- both registrations committed and READ BACK with the product's own readers --
+`workspaces.configured_workspace_storage` and
+`context_delivery.configured_context_storage` -- the candidate profile
+certified, the qualification grant minted, exit 0;
+- the roots recorded as `0o2770` and `0o700`, made by `bind` alone;
+- and THE OWNER'S FAILURE REPRODUCED on that same instance by removing the
+workspace store: refused, naming the root, the rule and the step that
+establishes it.
+
+### The existing installation is REPLAYABLE, determined through supported readers
+
+`REPLAY-SAFETY-312166.json`. The three stores were COPIED to a temporary
+directory and every reader ran against the copies, so no deployed byte was
+written and nothing was repaired, cleaned or created:
+`workspaces.configured_workspace_storage` REFUSES ("no configured workspace
+store"), `context_delivery.configured_context_storage` REFUSES ("protected
+context storage is not configured"), and `baseline.survey` reports
+`preexisting_jobs: []`. Neither registration committed, so `prepare` replays
+from the start. Opening a store is not a durable act: the failure was at the
+FIRST registration, before the qualification grant, and a grant is the thing
+spent exactly once. NO NEW INSTANCE IS NEEDED.
+
+So the recovery is three steps and no repair -- re-bind (which establishes the
+roots), check, run -- in `OPERATOR-311743.md` section 1b and
+`RECOVERY-312166.json` as argument vectors equal to the generator's. No `mkdir`,
+`chmod`, `chown`, `rm` or `cp` appears in any of them: a directory made by hand
+is a directory nobody proved.
+
+### Measured
+
+    192 deterministic cases (181 packet/roots/template/CLI/resolved/operator
+    plus 11 connected), 0 failures.
+    4 root mutations -- create nothing, let the umask decide the mode, verify
+    without the product's rules, bind only one root -- EVERY ONE caught;
+    unmutated and restored runs clean (ROOT-MUTATIONS-312166.json).
+    Stop-on-first-error, BOTH sequences now: recovery 3 invocations and setup 5,
+    every invocation the failing one in turn, 0 invocations after the failure.
+    Operator argv under stubs: sh -n OK, 13 invocations, 0 faults.
+    Real baseline.prepare in a disposable root: exit 0, both registrations read
+    back; the absence refused.
+    No deployed repair, cleanup, live rerun or version-control act; no Docker,
+    provider or credential; no sibling, DESIGN or W306614 edit.
+
+### Unchanged
+
+The deployed instance was READ and never written. The credential reference's
+currency remains unverified, the historical boundary failure remains UNKNOWN,
+production comparison and an actual live restore remain unproved, and
+accepted-without-correction must not trigger a forced rerun. The reviewer's
+minor note on `STATUS-PARSER-EVIDENCE-311994.json` stands: its top-level
+`generated_argv` repeats the `python3 -m tools.job_manager` prefix, and the
+document, the generator and the independent parser case are all correct -- the
+header is the only thing wrong with it, and the 312166 evidence does not repeat
+the mistake.
+
+Files: `correction_packet.py` (ee4e3098357e), `test_correction_packet.py` (31ed81f16950), `staged_bootstrap_trace.py` (f1dfa8cc6459), `OPERATOR-311743.md` (020108b4830d), `RECOVERY-312166.json` (463a50edc709), `REPLAY-SAFETY-312166.json` (472b604ed071), `STAGE-BOOTSTRAP-EVIDENCE-312166.json` (c0135be9f69e), `ROOT-MUTATIONS-312166.json` (cc9b1c7dfc07), `ARGV-EVIDENCE-312166.json` (f07f5c9a698b), `STOP-ON-ERROR-EVIDENCE-312166.json` (721079dc4b93)
+
+## Claim 312305 (baton.claude, impl) -- the root creation followed links, and changed something before refusing
+
+Review 312285 accepted the root correction and its disposable proof through the
+real `baseline.prepare`, and found one blocker. IT WAS REAL AND IT HAD A REAL
+EFFECT, which is the part that matters: `create_filesystem_roots` used
+`os.makedirs(exist_ok=True)`, `os.chmod` and `os.chown` BY NAME -- all three
+follow a symlink -- and verified afterwards. The reviewer pointed the selected
+private-context root at an unrelated `0755` directory and measured the
+consequence: creation changed THAT directory to `0700`, and only then did
+validation refuse. A bind the packet correctly rejects had already modified a
+path it was never given, and no later check can undo that.
+
+### The creation boundary, not the verification
+
+Every component is now opened with `O_NOFOLLOW | O_DIRECTORY` from `/`, one
+component at a time, so a link or a non-directory ANYWHERE in the path refuses
+BEFORE anything is created and before any mode or group is touched. Absent
+components are made with `mkdir` at the parent's own descriptor, which cannot be
+redirected between the check and the creation, and the mode and the group are
+set with `fchmod`/`fchown` ON THE DESCRIPTOR that walk pinned -- never by name,
+because a name can be something else by the time a second call happens. The
+refusal says `NOTHING WAS CHANGED` and means it.
+
+ONE THING I HAD TO MEASURE RATHER THAN ASSUME: `O_NOFOLLOW | O_DIRECTORY` on a
+link to a directory raises ENOTDIR, not ELOOP, because it opens the LINK. My
+first version only named a symlink on ELOOP, so the three link cases failed on a
+correct refusal. The classification now asks `lstat` -- which follows nothing
+and changes nothing -- purely to tell an operator which of the two they have.
+
+### The reviewer's own reproduction, re-measured
+
+`ROOT-SAFETY-312305.json`, in disposable directories with no store opened, in
+the reviewer's own shape: an unrelated `0755` directory with a witness file
+inside it, pointed at from a selected root.
+
+- leaf link at the workspace store: REFUSED, target still `0o755`;
+- leaf link at the private-context store: REFUSED, target still `0o755`;
+- ancestor link (`run/` itself): REFUSED, target still `0o755`, and nothing
+created inside it;
+- and the valid paths still work: fresh creation makes both roots, a replay
+creates nothing and the modes are identical.
+
+Two mutations, each the unsafe version re-introduced -- `makedirs`/`chmod`/
+`chown` by name with validation afterwards, and the same walk with `O_NOFOLLOW`
+dropped -- and every link case catches both
+(`ROOT-SAFETY-MUTATIONS-312305.json`).
+
+### The operator document says which state is which
+
+Review 312285's second point. Section 1 described the instance as ABSENT while
+1b described the installation that now exists. Section 1 is now labelled
+**HISTORICAL -- the FIRST failed staging, as it was on 2026-09-29**, says
+plainly that the instance listed ABSENT there EXISTS NOW, and points at 1b; the
+old inventory is PRESERVED rather than deleted, because it is the evidence that
+the first failure left those paths untouched. Section 1b is labelled **CURRENT**
+and says it is the state to act on, with its checkpoint taken by supported
+readers.
+
+### Measured
+
+    198 deterministic cases (187 packet/roots/template/CLI/resolved/operator
+    plus 11 connected), 0 failures.
+    2 safety mutations, both caught by all five link/replay cases; unmutated
+    and restored runs clean.
+    Link reproduction: 3 shapes, all refused, every target unchanged at 0o755.
+    Stop-on-first-error, both sequences: recovery 3 and setup 5 invocations,
+    every one the failing one in turn, 0 after the failure.
+    Operator argv under stubs: sh -n OK, 13 invocations, 0 faults.
+    No repeat of the disposable bootstrap: no product or trace behaviour
+    changed, so REVIEW-BOOTSTRAP-312285.json and
+    STAGE-BOOTSTRAP-EVIDENCE-312166.json stand as the accepted positive proof.
+    No deployed repair, cleanup, live rerun, Docker, provider, credential,
+    version-control or graph act; no product refactor; no
+    sibling/DESIGN/W306614 edit.
+
+### Unchanged
+
+The deployed instance was neither read nor written this turn. The existing
+installation remains re-usable on the supported-reader evidence already
+accepted, the credential reference's currency remains unverified, the historical
+boundary failure remains UNKNOWN, production comparison and an actual live
+restore remain unproved, and accepted-without-correction must not trigger a
+forced rerun.
+
+Files: `correction_packet.py` (b996028926e2), `test_correction_packet.py` (6351752f9f08), `OPERATOR-311743.md` (0fc13971a44e), `ROOT-SAFETY-312305.json` (5bf03e23f3a9), `ROOT-SAFETY-MUTATIONS-312305.json` (2a94bee7d45c), `ARGV-EVIDENCE-312305.json` (a8c7107e1d37), `STOP-ON-ERROR-EVIDENCE-312305.json` (0d7d4a2e08ca)
