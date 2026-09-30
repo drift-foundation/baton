@@ -2911,3 +2911,36 @@ requests a bounded missing proof when needed. Accepted READY report and owner
 satisfying disposition clear initial real development adoption; reuse follows
 as an early v12 Job. No broader hardening or automated integration gate.
 Dependency on W239533 is pending the owner route-handler block operation.
+
+## 2026-09-30 — accepted delivery milestones and relocation checkpoint
+
+Owner requested a durable milestone recap before shutting down for server
+relocation, then explicitly instructed baton.prompt to update the plan. Record
+the accepted proofs and their limits now; do not run another E2E merely to repeat
+acceptance before shutdown. A post-relocation experiment is a proposed next step
+with a concrete deployment question, not execution authority supplied by this
+documentation change.
+
+Canonical inspection confirms W247941 and W306614 closed satisfying. W236087's
+actual managed correction/restore was independently accepted in E316862 and
+closed satisfying after E316930. W316918's later allocation-release correction
+was independently accepted in E317250 (24 deterministic tests, 5.407 seconds)
+and closed satisfying. W316915 is parked with partial read-only-opener acceptance;
+the filesystem-read-only criterion and capability decision remain unresolved.
+No new live run exercised the allocation correction. These facts explicitly
+supersede older open/not-ready scheduling statements for those completed Works;
+their historical evidence and narrower acceptance boundaries remain intact.
+
+The owner checkpointed code/evidence at
+`a835cbc214fdfe00ec1209768ae1c812438a5399`. The new current section of PLAN.md
+links the independent proofs, preserves earlier retained resources and unimported
+proposal, and separates fresh parallel adoption, one real restored correction,
+deterministic allocation acceptance, and remaining qualification/parallel-reuse
+delivery. No claim of general production certification follows from one run.
+
+After relocation, inspect service/dispatch/Work state, resolve the parked status
+capability decision, and prepare any selected bounded deployment proof using
+existing machinery and fresh identities. Existing deterministic-first policy and
+specific live-run selection apply. This update changes no product specification,
+dependency graph, assignment, deployment, credential, retained evidence or Git
+state. It does not authorize cleanup, profile promotion or automatic integration.

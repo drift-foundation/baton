@@ -1,3 +1,69 @@
+# Current delivery checkpoint — 2026-09-30, server relocation
+
+Owner selects a documentation checkpoint and shutdown for relocation, without
+another pre-shutdown E2E run. This entry supersedes the older scheduling/status
+instructions below, including “W247941 remains open and NOT READY” and the
+unfinished W236087 sequence. Historical evidence and the specification in
+`v12/DESIGN.md` remain authoritative within their stated scopes. This is a v12
+milestone, not a declaration that every v12 delivery obligation is complete.
+
+Code/evidence checkpoint: `a835cbc214fdfe00ec1209768ae1c812438a5399`
+(`WIP: checkpoint allocation release and partial read-only status fix`). This
+documentation update follows that commit; Git remains owner-operated.
+
+## Accepted milestones
+
+| Work | Accepted result | Evidence and limit |
+| --- | --- | --- |
+| W247941, closed satisfying | Two independent fresh-context Jobs, accepted reviews, isolation, attribution and runtime cessation; implementation activity overlapped by 86.433 seconds. | [Independent review](../../09/finding-v12-real-jobs-adoption-gate/review-2026-09-29T16-58-33Z.md), run `two-jobs-247941-03`. Proves the selected fresh-context parallel workflow, not parallel context reuse. |
+| W306614, closed satisfying | Bounded supervisor completion/failure reporting correction. | Canonical Work and its retained review evidence. The older W247941 plan's statement that this correction remains outstanding is historical. |
+| W236087, closed satisfying | Real implementation → independent changes-requested review → restored-context correction → accepted review. Same conversation restored into a distinct worker; all four runtime identities independently absent. | [Independent review](../../09/finding-v12-managed-session-resume/review-2026-09-30T15-26-48Z.md), E316862, run `managed-correction-316689`. Natural completion in 540.938 seconds, two implementation and two review turns. One candidate-profile restore proved; no general production certification or parallel-reuse claim. |
+| W316918, closed satisfying | Final allocation reconciliation occurs before natural supervisor completion, preserving existing release/hold conditions. | [Independent review](../../09/finding-v12-final-review-allocation-release/review-2026-09-30T16-18-01Z.md), E317250: 24 deterministic tests passed in 5.407 seconds. This later fix was not exercised in the accepted live run and did not repair its retained deployment. |
+
+## Outstanding state preserved for relocation
+
+- W316915 is parked, with partial acceptance only. Validated read-only store
+  openers prevent initialization/migration, but SQLite can still require or
+  create sidecars. Full filesystem-read-only status is not delivered. The
+  capability decision and related zero-byte-store fixture follow-through remain
+  open; see its [plan](../../09/finding-v12-status-readonly-opener/PLAN.md) and
+  [review](../../09/finding-v12-status-readonly-opener/review-2026-09-30T15-46-18Z.md).
+- Earlier failed-run resources and evidence remain retained under owner E316685.
+  Retention is not cleanup or proof of current revocation. The missing bounded
+  disposition entry remains recorded; do not resume spent runs or silently
+  clean them during relocation.
+- The accepted W236087 document proposal has not been integrated. Its exact
+  head/tree/artifact bindings remain in E316862 and the linked review; any
+  selected import needs current target/base/provenance checks.
+- Production qualification and the selected parallel workflow with reuse remain
+  to be established from the existing proofs plus specifically missing evidence.
+  One serial restore does not prove parallel reuse. Model attribution, cache
+  savings and speedup were not established; broad performance/stress work stays
+  v13. Prior timeout causes and review-qualified residual reports stay preserved.
+
+## Next executable milestone after relocation
+
+1. Restore service availability and inspect canonical Work/dispatch state before
+   resuming managed execution. Preserve identities, stores and retained evidence;
+   restarting services alone is not evidence that Jobs can run correctly.
+2. Resolve W316915's explicit capability decision before assigning further work
+   on it. Keep this separate from the accepted restore and allocation milestones.
+3. Prepare a bounded post-relocation E2E proposal using the checkpointed fixes and
+   existing harness. Its question is whether the relocated deployment completes
+   the selected Job workflow and releases its final allocation. Choose fresh
+   identities, exact source/profile/configuration and limits; retain outcome and
+   obtain independent review. Use deterministic provider/engine coverage unless
+   a stated relocation/authentication/provider question needs a real provider.
+   This checkpoint proposes that step; it does not authorize execution or a
+   forced correction verdict, broaden caps, or require repeating accepted proofs.
+4. Use the retained acceptance to select qualification, parallel-reuse evidence
+   and proposal delivery without adding a broad planning or validation campaign.
+
+Dependencies and assignments remain in the Baton graph. This checkpoint creates
+no new graph edges, live-run authority, profile promotion or implementation scope.
+
+---
+
 # Current specification/policy alignment — 2026-09-27, W285642
 
 The current adoption pointer remains W247941 and v12/DESIGN.md. Its required
