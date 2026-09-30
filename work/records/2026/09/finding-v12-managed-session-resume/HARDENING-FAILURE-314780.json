@@ -1,0 +1,43 @@
+{
+  "answering": "review 2026-09-30T10-22-40Z",
+  "case": "tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle",
+  "claim": 314780,
+  "command": "cd /home/sl/src/baton/v12/python && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. python -B -m unittest tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle",
+  "digests": {
+    "mine": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+    "pristine_predating_my_edit": "38c4cf74db023733603ea88f02b0246c0b16a62afecb743b77cf502ffc5e19e6"
+  },
+  "identical_failure": true,
+  "measured": [
+    {
+      "assertion": [
+        "AssertionError: Lists differ: ['coordinator', 'authority'] != ['implementation', 'coordinator', 'authority']"
+      ],
+      "returncode": 1,
+      "tail": [
+        "Ran 1 test in 0.034s",
+        "",
+        "FAILED (failures=1)"
+      ],
+      "with": "my corrected stage_execution.py"
+    },
+    {
+      "assertion": [
+        "AssertionError: Lists differ: ['coordinator', 'authority'] != ['implementation', 'coordinator', 'authority']"
+      ],
+      "returncode": 1,
+      "tail": [
+        "Ran 1 test in 0.034s",
+        "",
+        "FAILED (failures=1)"
+      ],
+      "with": "the PRISTINE staged copy (predates my edit)"
+    }
+  ],
+  "not_touched": "I changed nothing to make it pass and nothing in the hardening suite. It is reported as a pre-existing failure, not an all-green claim.",
+  "restored": true,
+  "schema": "baton.pre-existing-failure-diagnostic/1",
+  "what_it_expects": "closed == ['implementation', 'coordinator', 'authority']",
+  "what_it_gets": "closed == ['coordinator', 'authority'] -- the 'implementation' handle is not closed",
+  "why_it_is_not_mine": "the same case fails identically against the PRISTINE copy of tools/stage_execution.py taken from the staged tree of the 309356 run, which predates every edit I made to that file"
+}

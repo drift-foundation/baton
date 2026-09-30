@@ -1,0 +1,56 @@
+{
+  "answering": "review 2026-09-30T09-31-50Z R1",
+  "cases": [
+    "test_A_RESUMED_CORRECTION_IS_TOLD_TO_PRESERVE_ITS_DOCUMENT",
+    "test_BOTH_ROLES_GET_THE_SAME_CRITERIA_AND_THE_SAME_CAP",
+    "test_IT_CITES_WHAT_THE_FIRST_RUN_ACTUALLY_SPENT",
+    "test_IT_ORDERS_THE_FIRST_ACTION_RATHER_THAN_ADVISING_A_PACE",
+    "test_THE_ACCEPTANCE_REQUIREMENTS_ARE_UNCHANGED",
+    "test_THE_CHANGED_CONTRACT_IS_A_NEW_JOB_IDENTITY",
+    "test_THE_CONTRACT_STATES_THE_TURN_BUDGET_AND_IT_IS_THE_REAL_ONE",
+    "test_THE_REVIEWER_IS_TOLD_IT_WRITES_NO_PART_OF_IT",
+    "test_THE_TASK_DOCUMENT_THE_WORKER_READS_CARRIES_IT",
+    "test_THE_THREE_SITUATIONS_ARE_SCOPED_AND_NAMED",
+    "test_WHAT_THESE_ASSERTIONS_DO_NOT_PROVE"
+  ],
+  "claim": 314414,
+  "honest_limit": "these are STRING assertions over a generated document. They protect the contract's wording. They do not show that any model obeys it -- only the experiment could, and it has not been run.",
+  "measured": {
+    "CM1": {
+      "caught_by": [
+        "test_A_RESUMED_CORRECTION_IS_TOLD_TO_PRESERVE_ITS_DOCUMENT",
+        "test_IT_ORDERS_THE_FIRST_ACTION_RATHER_THAN_ADVISING_A_PACE",
+        "test_THE_REVIEWER_IS_TOLD_IT_WRITES_NO_PART_OF_IT",
+        "test_THE_THREE_SITUATIONS_ARE_SCOPED_AND_NAMED"
+      ],
+      "mutation": "restore the UNCONDITIONAL order -- one instruction to create a skeleton first, with no situations -- which told the reviewer to write the proposal and a resumed implementer to discard its own correction"
+    },
+    "CM2": {
+      "caught_by": [
+        "test_A_RESUMED_CORRECTION_IS_TOLD_TO_PRESERVE_ITS_DOCUMENT",
+        "test_THE_THREE_SITUATIONS_ARE_SCOPED_AND_NAMED"
+      ],
+      "mutation": "drop the RESUMED CORRECTION branch, so a restored implementer is told nothing about the document it already wrote"
+    },
+    "CM3": {
+      "caught_by": [
+        "test_A_RESUMED_CORRECTION_IS_TOLD_TO_PRESERVE_ITS_DOCUMENT",
+        "test_THE_REVIEWER_IS_TOLD_IT_WRITES_NO_PART_OF_IT",
+        "test_THE_THREE_SITUATIONS_ARE_SCOPED_AND_NAMED"
+      ],
+      "mutation": "drop the REVIEWER branch, so the shared document never says the reviewer writes no part of it"
+    },
+    "CM4": {
+      "caught_by": [
+        "test_BOTH_ROLES_GET_THE_SAME_CRITERIA_AND_THE_SAME_CAP",
+        "test_THE_CONTRACT_STATES_THE_TURN_BUDGET_AND_IT_IS_THE_REAL_ONE"
+      ],
+      "mutation": "state a turn budget that is not `BOUNDS['turn_seconds']`"
+    },
+    "clean_again": [],
+    "unmutated_failures": []
+  },
+  "schema": "baton.contract-mutation-evidence/1",
+  "uncaught_mutations": [],
+  "what": "the unconditional order and each missing branch, re-introduced one at a time; a case must catch each, and the unmutated and restored runs must be clean"
+}

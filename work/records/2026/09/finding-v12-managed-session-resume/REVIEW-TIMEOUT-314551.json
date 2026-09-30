@@ -1,0 +1,79 @@
+{
+  "answering": "owner reroute 314549",
+  "claim": 314551,
+  "cleanup_sweeps_spent_on_it": 58,
+  "how_read": "read-only. The retained outcome document, the provider logs, the retained implementation transcript, and the two stores COPIED to a temporary directory and read with sqlite in read-only mode. Nothing deployed was written. The deferral is also reachable through the supported reader `projection.deferral_of`, which is what the corrected supervisor now calls.",
+  "schema": "baton.review-timeout-diagnosis/1",
+  "the_correction": {
+    "and_the_outcome_carries_the_reason": "`refused_acts` is retained in the outcome document, so an operator reads the sentence the manager was given rather than only the word for it.",
+    "classification": "`conclusion-refused` is an UNFINISHED stop: the run is held, and a verdict does not rescue it.",
+    "what": "`refused_acts` reads every stage's outstanding reasons through `projection.deferral_of` and returns the `refused` ones; the serving loop ends the run with stop `conclusion-refused` when the SAME refusal -- stage, act, attempt, code and `since` -- repeats for `baseline.STALLED_TICKS` ticks.",
+    "what_it_does_not_do": "it does not attempt the ending the product asks for. Driving the output axis to `discarded` is a manager act this run is not authorized to add, and an unresolved cleanup is reported rather than resolved.",
+    "why_it_waits_at_all": "the product calls a deferral RE-ENTERABLE, so one tick's reason may still settle. A precondition refusal that does not move is a different thing, and that is what is detected."
+  },
+  "the_implementation_stage_COMPLETED": {
+    "and_this_is_the_experiment_s_answer": "the scoped contract's first branch did what it was measured for. The worker's SECOND tool call, at 11.1 seconds, was `mkdir -p /output/docs && cat > /output/docs/v12-context-correction.md <<'EOF'` -- it created the deliverable at 11 seconds and spent the rest of the turn reading and refining. Its first call, at 2.7 seconds, checked whether the file already existed, which is the three-situation contract being followed exactly.",
+    "cleanup": {
+      "cleanup": "retained",
+      "state": "absent",
+      "why": "the engine answered that this exact identity does not exist"
+    },
+    "honest_limit": "ONE session. It shows the contract's first branch producing a file early; it does not establish that it always will, and the document's quality is the reviewer's question, which this run never answered.",
+    "output_disposition": "completed",
+    "output_frozen_at": "2026-09-30T09:45:15.634Z",
+    "runtime": "destroyed; the engine answers 'no such object' for e142ad57fcb458c0826ce60407f555a5c6e480aaaf2595d7bbc29b5c5d118963",
+    "session_entries": 104,
+    "session_span_seconds": 159.6,
+    "shell_calls": 19
+  },
+  "the_refusal_the_manager_retained": {
+    "act": "conclude",
+    "attempt_id": "attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f516e99ce829891",
+    "category": "refused",
+    "code": "precondition",
+    "episode": 1,
+    "first_seen_at": "2026-09-30T09:48:19.329Z",
+    "incarnation": "managed-correction-314263-second",
+    "last_seen_at": "2026-09-30T09:50:03.877Z",
+    "message": "preparing attempt attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f516e99ce829891's roots is refused: attempt 'attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f5\u2026's output is 'sealed' and its cleanup ended 'pending', so the worker's own material stands preserved and offered for inspection. A preparation is a WRITER inside these roots and the material is evidence while it is offered, so the offer is ENDED -- the output axis reaching 'discarded' -- rather than written beside",
+    "operation_id": null,
+    "stage_id": "job-managed-correction-314263-second/review"
+  },
+  "the_review_stage_TIMED_OUT": {
+    "attached_at": "2026-09-30T09:45:17.918Z",
+    "attachment_ended_at": null,
+    "attachment_state": "active",
+    "measured": "the reviewer was attached at 09:45:17.918 and its output was frozen `unable` at 09:48:18.283 -- 180.4 seconds, the cap exactly. Its stdout is EMPTY and its stderr is the same single CLI warning about stdin. There is no reviewer transcript to read: a review worker is configured `/4` WITHOUT `provider_context`, by design, so its session is not in the private-context store.",
+    "output_disposition": "unable",
+    "output_frozen_at": "2026-09-30T09:48:18.283Z",
+    "provider_turn_cap_seconds": 180,
+    "so": "the reviewer produced no conclusion within its turn. `unable` is the product's word for exactly that, and an unread verdict is never an acceptance.",
+    "verdicts_recorded": 0,
+    "what_is_NOT_established": "why the reviewer spent its turn without concluding. It left no transcript and no stdout, so the only honest statement is that it did not answer within 180 seconds. Whether the review task is too large for that cap, or the reviewer read for the same reason the first implementer did, is UNKNOWN from this evidence."
+  },
+  "unresolved_cleanup_reported_separately": {
+    "attempt": "attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f516e99ce829891",
+    "cleanup": {
+      "cleanup": null,
+      "why": "no committed cleanup"
+    },
+    "engine_says": "docker inspect: Running=false, Status=exited, Pid=0, ExitCode=0, FinishedAt 2026-09-30T09:48:18.103Z -- STOPPED AND RETAINED, not removed",
+    "execution_runtime": "quiescent",
+    "runtime_id": "1c3943d1fa0f14919247690f6b0de1ebcf44a063e09d715a3cca773765c59d60",
+    "statement": "the runtime is quiescent and the cleanup never committed. Those are two facts, and the second one is not resolved by the first. No removal is authorized and none was attempted."
+  },
+  "what_the_refusal_means": "to conclude a review whose output is SEALED with cleanup PENDING, the product requires the offer to be ENDED -- the output axis reaching `discarded` -- because the worker's material stands preserved and offered for inspection, and a preparation would be a WRITER inside those roots. The manager kept sending the conclusion through root preparation instead, and was refused every tick from 09:48:19.329 to 09:50:03.877.",
+  "what_the_run_did": {
+    "cleanup_sweeps": 58,
+    "finished_at": "2026-09-30T09:50:04.901Z",
+    "interrupted": "KeyboardInterrupt: signal 2",
+    "serving_seconds_spent": 397.078,
+    "stage_states": {
+      "implementation": "completed",
+      "review": "answering"
+    },
+    "stopped": "interrupted",
+    "submitted_at": "2026-09-30T09:42:27.151Z"
+  },
+  "why_the_stall_detector_missed_it": "the no-progress detector requires `not settled[\"outstanding\"]` before it counts an unchanged projection as a stall -- and the whole of this condition is that a cleanup IS outstanding. So 58 sweeps produced no stop, and the run ended only when an operator pressed Ctrl-C."
+}

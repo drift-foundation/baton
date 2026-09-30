@@ -4019,6 +4019,22 @@ def _journal_maintenance(control, assignment_id):
     return found
 
 
+def material_is_offered(control, assignment_id):
+    """Is this attempt's material PRESERVED AND OFFERED for inspection?
+
+    W236087, owner 2026-09-30T09:50:56Z. The same question
+    `_offered_material_refusal` asks, asked by the two callers that must not
+    act as writers while the answer is yes: `assignment_workspace` below, which
+    REVALIDATES the roots instead of allocating them, and
+    `single_worker._mounted`, which must not admit a preparation window over
+    them. One predicate rather than two spellings of it.
+
+    IT IS A JOURNAL READ AND NOTHING ELSE: no directory, no mode, no capacity.
+    """
+    return _offered_material_refusal(control, assignment_id,
+                                     "this reading") is not None
+
+
 def _offered_material_refusal(control, assignment_id, what):
     """The refusal a PRESERVED, OFFERED output earns a second writer, or `None`.
 
@@ -5360,6 +5376,18 @@ def assignment_workspace(workspace_group, storage, assignment_id, *,
                 # `test_the_original_shared_group_pattern_is_refused_off_thread`.
                 revalidate = _task_token_refusal(asking, assignment_id,
                                                  what) is not None
+                # W236087: AND SO DOES PRESERVED, OFFERED MATERIAL, for exactly
+                # the reason the live-task branch already gives -- proving these
+                # roots is legitimate and writing to them is not. An ending
+                # RE-ENTRY whose output is already sealed needs the pair it
+                # sealed, not a new allocation over it; without this it reached
+                # `_admitted_allocation`, which is a writer's act, and the
+                # refusal that guards this state stopped the ending from ever
+                # finishing. Measured: a review provider timed out, intake
+                # sealed its output, the cleanup axis ended `pending`, and the
+                # manager was refused every tick for 104 seconds.
+                if not revalidate:
+                    revalidate = material_is_offered(asking, assignment_id)
                 if not revalidate:
                     refuse_if_held(asking, storage, assignment_id, what,
                                    preparing=preparing)

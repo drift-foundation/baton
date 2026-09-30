@@ -1,0 +1,168 @@
+{
+  "answering": "owner reroute 314261",
+  "claim": 314263,
+  "outcome_step": {
+    "command": [
+      "python3",
+      "-c",
+      "import json,sys;print(json.dumps(json.load(open(sys.argv[1])), indent=2, sort_keys=True))",
+      "/home/sl/baton-instances/managed-correction-314263-second/run/outcome.json"
+    ],
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "step": 7,
+    "what": "the result, after the supervisor returns. The outcome document is the run's own answer."
+  },
+  "prediction_that_would_falsify_the_diagnosis": {
+    "if_the_diagnosis_is_right": "the file exists well before the cap and the run reaches a reviewer verdict, or at least a complete implementation stage.",
+    "if_the_file_still_does_not_exist": "the contract is not the binding constraint and the diagnosis is wrong; do not raise the cap on this evidence either -- measure the next session the same way.",
+    "what_would_justify_raising_the_cap": "a session that wrote the file early and was still improving it when the cap stopped it. That is a cap problem; this run was not."
+  },
+  "preserves": [
+    "/home/sl/baton-instances/managed-correction-309356 -- the spent run, its outcome document, its retained workspace, its provider logs and its retained conversation",
+    "/home/sl/baton-instances/managed-correction-309356-packet-311743 and -packet-312411 -- the packet documents of both recoveries",
+    "/home/sl/baton-staging/managed-correction-309356-source -- the staged tree the spent run ran from"
+  ],
+  "schema": "baton.next-experiment/1",
+  "status_step_pending": {
+    "resolver": [
+      "python3",
+      "-c",
+      "import json,sys;print(json.load(open(sys.argv[1]))['authority_uuid'])",
+      "/home/sl/baton-instances/managed-correction-314263-second/bootstrap.json"
+    ],
+    "step": 6,
+    "why": "needs the Authority identity `tools.bootstrap` mints at step 1; `bind` writes the complete command into commands.json"
+  },
+  "steps": [
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "stage",
+        "--selections",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-314263-SECOND.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-314263-second-packet",
+        "--claim",
+        "314263",
+        "--provenance",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python"
+      },
+      "step": 0,
+      "what": "STAGE: write the input documents and COPY the modules and frozen resources this run will import, measuring every one. Refuses before it writes, refuses a staged tree that does not import, and refuses a staging root whose parent holds the instance."
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "tools.bootstrap",
+        "--inputs",
+        "/home/sl/baton-instances/managed-correction-314263-second-packet/bootstrap-inputs.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-314263-second",
+        "--distro",
+        "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+        "--no-repositories"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-314263-second-source/manager-source/src:/home/sl/baton-staging/managed-correction-314263-second-source/manager-source"
+      },
+      "step": 1,
+      "what": "the instance, from the accepted runtime. Installs; starts nothing."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "prepare-work",
+        "--selections",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-314263-SECOND.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-314263-second-packet"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-314263-second-source/manager-source/src:/home/sl/baton-staging/managed-correction-314263-second-source/manager-source"
+      },
+      "step": 2,
+      "what": "the Authority acts this Job needs: create the Work under the assignment contract, register the impl, rview and integration route handlers, grant the four receipt capabilities in the Work's own scope, and set the canonical target. Journalled under a derived identity, so a repeat replays."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "bind",
+        "--selections",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-314263-SECOND.json",
+        "--destination",
+        "/home/sl/baton-instances/managed-correction-314263-second-packet",
+        "--claim",
+        "314263",
+        "--provenance",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-314263-second-source/manager-source/src:/home/sl/baton-staging/managed-correction-314263-second-source/manager-source"
+      },
+      "step": 3,
+      "what": "bind the packet to what the instance ACTUALLY holds: the emitted deployment configuration, the Authority identity the bootstrap minted and the staged modules as copied. Opens no store."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+        "check",
+        "--packet",
+        "/home/sl/baton-instances/managed-correction-314263-second-packet/packet.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-314263-second-source/manager-source/src:/home/sl/baton-staging/managed-correction-314263-second-source/manager-source"
+      },
+      "step": 4,
+      "what": "prove the packet against the tree, with the real product validators over the STAGED imports. Opens no store; refuses on any drift."
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py",
+        "--packet",
+        "/home/sl/baton-instances/managed-correction-314263-second-packet/packet.json"
+      ],
+      "environment": {
+        "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/managed-correction-314263-second-packet/deployment.json",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-314263-second-source/manager-source/src:/home/sl/baton-staging/managed-correction-314263-second-source/manager-source"
+      },
+      "step": 5,
+      "what": "serve it, BOUNDED, in the foreground. This one command performs the owner acts first -- the workspace and private context storage, the candidate profile's certification and ONE qualification grant, each journalled under an identity derived from its own operands, so repeating it replays rather than composing a second grant -- and then serves. It holds the 900s total with 60s reserved INSIDE it, caps the invocations at the gate, stops on the first terminal state and retains the outcome even when interrupted."
+    }
+  ],
+  "the_one_variable": {
+    "changed": "the task document's `instructions`: it states the 180-second bound, cites that the first run spent 172 of those seconds reading and wrote nothing, ORDERS the first action -- write the file immediately, before reading anything, as a skeleton with one section per requirement and what each still needs -- and says to record what could not be confirmed rather than spending the turn confirming it. It is an order about the first action rather than advice about pace, because a second measured session told only that its turn was bounded still spent its first 51.6 seconds reading and wrote nothing.",
+    "unchanged": [
+      "the provider turn cap, still 180 seconds",
+      "the total serving budget, the reserve and every other bound",
+      "the acceptance requirements, word for word",
+      "the task and the single file it may write",
+      "the source, the declared base, the image, the adapter, the profile, the credential reference, the participants and the receipts",
+      "the supervisor and the packet machinery"
+    ],
+    "why_not_the_timeout": "raising it without evidence is what the reroute forbids, and the measurement does not support it yet: a worker that wrote first would have had the same 172 seconds to improve a document that already existed."
+  },
+  "why_a_new_run_identity": {
+    "read_with": "supported readers against COPIES of the stores; nothing deployed was written",
+    "reason": "the Job identity is SPENT. The spent run's own store refuses a repeat -- baseline.survey: 'this Job store already records job-managed-correction-309356' -- and the qualification grant is spent exactly once per run id.",
+    "so": "this experiment installs a FRESH instance at /home/sl/baton-instances/managed-correction-314263-second and stages to /home/sl/baton-staging/managed-correction-314263-second-source. The spent run at /home/sl/baton-instances/managed-correction-309356 and its retained evidence are untouched."
+  },
+  "why_not_the_first_314263_identity": "I started that run by mistake while syntax-checking the document and stopped it with one SIGINT; its Job identity is spent and its outcome is published. INTERRUPTED-RUN-314263.json records what I did, how it was stopped and what it measured.",
+  "work": "W236087"
+}

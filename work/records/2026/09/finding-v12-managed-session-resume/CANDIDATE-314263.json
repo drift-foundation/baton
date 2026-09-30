@@ -1,0 +1,102 @@
+{
+  "answering": "owner reroute 314261",
+  "changed_files": {
+    "ARGV-EVIDENCE-314263-SECOND.json": "cc6d77343a98c81df6319d8ddd5766307bc84c0f334c3728bf6995502d373ab4",
+    "DIAGNOSIS-314263.json": "03e1b395f5e060511a5f0d1f524b0f116572e800ece610e563a92c23cfc0dac2",
+    "INTERRUPTED-RUN-314263.json": "a3db8168e5a98bb12136a5684a54e9e81ffbdbb61a2f10458a1144963aa079b2",
+    "NEXT-EXPERIMENT-314263-SECOND.json": "a8a8368bb2871b1cf8b8745b39b166b7d0e3420287cc43d978dbc73a89fccf03",
+    "OPERATOR-311743.md": "34f9199b2240c72f5dba17623b6d519505c95808f269bc868f074373f8407347",
+    "RECOVERY-TRANSITION-314263.json": "16371e168b3d556e1fd8552f4a5bdc177d4f49c4821b139168293bf9aca455f7",
+    "SELECTIONS-RESOLVED-314263-SECOND.json": "4de5487f1b44e61f857cfdc331b0c8a38f7bf656210692383ebf8470f87fb6fd",
+    "STAGE-BOOTSTRAP-EVIDENCE-314263.json": "feaa546abfb0e02886b4f3d6f849d71067cc29a513635f4b3eebe951ed7f969f",
+    "STOP-ON-ERROR-EVIDENCE-314263-SECOND.json": "e48b6b3b0a25c8ddf373abae96a405d59a8248d87d70b84279a25981751e6379",
+    "correction_packet.py": "d5e65adabc0c08f141606ed71cb4f08b8185cd7882313c3e575107581228e029",
+    "test_correction_packet.py": "b942df0da84b115452fae5aba52e3f8b992bb54349c93d6f9e8ed6a96bd84c40"
+  },
+  "claim": 314263,
+  "correction": {
+    "the_cap_is_untouched": true,
+    "verified_by": "focused deterministic cases, including that the stated number IS BOUNDS['turn_seconds'] and that the acceptance requirements and the judging rule are unchanged and still come first",
+    "what": "`instructions()` states the bound, cites both measured sessions, and ORDERS the first action: write the file immediately, before reading anything, as a skeleton with one section per requirement and what each still needs",
+    "what_would_justify_raising_it": "a session that wrote the file early and was still improving it when the cap stopped it",
+    "why_an_order_and_not_a_budget": "the interrupted session ran under a contract that stated the bound and asked for a file within the first quarter, and still spent its first 51.6 seconds reading with nothing written"
+  },
+  "diagnosis": {
+    "cleanup_and_context": {
+      "context_use": "held, reason invocation-unknown, revision 3",
+      "conversation_retained_bytes": 715884,
+      "read_with": "provider_context.context_use_of and context_delivery.configured_context_storage against COPIES of the stores",
+      "runtime": "destroyed; engine says the identity does not exist"
+    },
+    "evidence": "DIAGNOSIS-314263.json",
+    "manager_overhead_seconds": 5.537,
+    "of_which_stdin_wait": 3.0,
+    "provider_startup_seconds": 6.49,
+    "publication_and_cleanup_seconds": 60.078,
+    "session": {
+      "assistant_turns": 73,
+      "bytes": 715884,
+      "deliverable_written": false,
+      "entries": 216,
+      "shell_calls": 47
+    },
+    "task_execution_seconds": 172.408,
+    "verdict": "real task execution, continuous and non-repeating, that never reached the deliverable"
+  },
+  "my_error": {
+    "evidence": "INTERRUPTED-RUN-314263.json",
+    "how_stopped": "one SIGINT to the supervisor: deferred, cancelled and fenced the attempt, ran its cleanup window, published the outcome atomically. A tool-timeout SIGTERM arrived first; the outcome records both. No runtime left behind.",
+    "rule_now": "an indented line in an operator document is a command; the only supported way to check one is the stub harness. Never execute an extracted operator script directly.",
+    "spent_309356_run": "UNTOUCHED and byte-identical",
+    "what": "while syntax-checking the operator document I extracted its shell blocks and ran them DIRECTLY instead of under the stub-python3 harness, which staged, installed a fresh instance, ran prepare-work/bind/check and started the supervisor -- a live run the reroute forbade",
+    "what_exists_now": {
+      "/home/sl/baton-instances/managed-correction-314263": "installed instance, 18510 files, published outcome, Job identity spent",
+      "/home/sl/baton-instances/managed-correction-314263-packet": "10 packet documents",
+      "/home/sl/baton-staging/managed-correction-314263-source": "108 staged files"
+    }
+  },
+  "next_experiment": {
+    "document": "NEXT-EXPERIMENT-314263-SECOND.json, OPERATOR-311743.md section 1c",
+    "fresh_run_identity": "managed-correction-314263-second; both earlier Job identities are spent",
+    "one_variable": "the task document",
+    "prediction_stated": true
+  },
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "schema": "baton.candidate/1",
+  "subject": "the live turn was consumed by real task execution -- 172 of 180 seconds of continuous reading that never reached the file -- not by provider delay or manager overhead. The contract never told the worker its turn was bounded; it now orders the first action. I also started a live run by mistake and stopped it.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "credential_currency": "unverified and unverifiable from here",
+    "interrupted_run_is_inconclusive": "a stopped run cannot show what it would have done next",
+    "no_forced_rerun": "accepted-without-correction must not trigger one",
+    "production_comparison": "unproved",
+    "the_next_experiment_has_not_been_run": "that is the owner's act"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "live_runs_started": 1,
+    "live_runs_started_intentionally": 0,
+    "operator_argv": {
+      "caught": "an indented quotation of bind's refusal was being executed as a command",
+      "faults": 0,
+      "invocations": 21,
+      "sh_n": "OK"
+    },
+    "stop_on_first_error": {
+      "cases": 16,
+      "invocations_after_the_failure": 0,
+      "sequences": 3
+    },
+    "tests": 207,
+    "traces_re_run": [
+      "staged_bootstrap_trace",
+      "recovery_transition_trace"
+    ]
+  },
+  "work": "W236087"
+}

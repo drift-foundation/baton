@@ -1,0 +1,96 @@
+{
+  "MY_CORRECTION": {
+    "found_by": "the connected test I was asked to write",
+    "so": "the stage_execution change is a real hardening (an ending no longer composes a boundary it never reads) and NOT the cause",
+    "the_real_site": "single_worker._SingleWorker._mounted calls workspaces.admit_preparation with the live deferral's message word for word, and single_worker.ending calls _mounted at the top of the ending, before stage.end is reached",
+    "what_I_said": "`stage_execution.StageComposition.end`'s cache-miss `_prepare` was what the sealed-output rule refused",
+    "what_is_true": "over a real store in exactly that state `_prepare` does NOT refuse; composing a review boundary does not admit a preparation"
+  },
+  "NOT_DONE": {
+    "durable_settlement": "end_review_from_result through the pass, the retention decisions and the cleanup authorization, proving no duplicate effects -- it needs the engine half this fixture stands in for",
+    "the_live_failure_is_still_uncorrected": "the admission sits in single_worker.ending's _mounted call, and a fix there must distinguish an ending that still needs to seal, collect and retain (which genuinely writes) from a RE-ENTRY whose output is already sealed and whose remaining steps are the pass and the cleanup (which does not). A product judgement with real blast radius; not improvised at the end of this turn."
+  },
+  "answering": "review 2026-09-30T10-22-40Z (pass 314771)",
+  "claim": 314780,
+  "connected_proof": {
+    "cases": 6,
+    "proves": [
+      "the real rule really refuses this state, in its own words",
+      "where the admission happens and where it does not",
+      "a cache-empty ending reads the retained identity and composes no boundary",
+      "five repeated conclusions with a fresh cache leave the axes, outputs row, manifests, operations journal, attachment and retentions byte-identical",
+      "no verdict is invented; the offer stays sealed; the attachment stays active",
+      "the stage mount still requires a boundary"
+    ],
+    "real": [
+      "control store",
+      "Job store",
+      "line",
+      "prepare_implementation",
+      "freeze_checkpoint",
+      "prepare_review",
+      "retained result manifest",
+      "attempts axes",
+      "admit_preparation"
+    ],
+    "stands_in": "the engine and the provider: freeze, intake, retention and cleanup operations are not performed -- ComposedLifecycleCase's own stated boundary -- so the two axes they would set are written directly",
+    "where": "v12/python/tests/tools/test_stage_execution.py, TheFAILEDReviewEndingReadsRetainedFactsOverRealStores"
+  },
+  "ownership": {
+    "dossier": [
+      "test_correction_packet.py",
+      "PROGRESS.md",
+      "HARDENING-FAILURE-314780.json",
+      "CANDIDATE-314780.json"
+    ],
+    "product_code": [
+      "v12/python/tools/stage_execution.py"
+    ],
+    "product_tests": [
+      "v12/python/tests/tools/test_stage_execution.py -- ONE new class added, nothing existing altered"
+    ]
+  },
+  "participant": "baton.claude",
+  "pre_existing_failure": {
+    "assertion": "Lists differ: ['coordinator', 'authority'] != ['implementation', 'coordinator', 'authority']",
+    "case": "tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle",
+    "evidence": "HARDENING-FAILURE-314780.json",
+    "identical_against_pristine": true,
+    "mine_digest": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+    "not_touched": true,
+    "pristine_digest": "38c4cf74db023733603ea88f02b0246c0b16a62afecb743b77cf502ffc5e19e6"
+  },
+  "schema": "baton.candidate/1",
+  "subject": "the connected proof exists over real stores and it CORRECTED MY OWN DIAGNOSIS: stage_execution._prepare does not admit the preparation; single_worker.ending's _mounted call does. My stage_execution change is a real hardening and not the live cause, and the live cause is still uncorrected.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "credential_currency": "unverified",
+    "deployed_cleanup": "separately unresolved; no removal authorized or attempted",
+    "production_comparison": "unproved",
+    "timeout_cause": "UNKNOWN"
+  },
+  "vacuous_assertion_fixed": "the cache assertion read `_prepared` off a newly constructed worker; it now holds the worker that performed the read, and also asserts a cached record IS returned",
+  "verification": {
+    "deployed_writes": 0,
+    "dossier": {
+      "failures": 0,
+      "tests": 235
+    },
+    "engine_mutations": 0,
+    "live_runs": 0,
+    "operator_scripts_executed": 0,
+    "product": {
+      "tests.tools.test_stage_execution": {
+        "failures": 0,
+        "seconds": 178.2,
+        "tests": 437
+      },
+      "tests.tools.test_stage_execution_hardening": {
+        "failures": 1,
+        "pre_existing": true
+      }
+    },
+    "removals": 0
+  },
+  "work": "W236087"
+}

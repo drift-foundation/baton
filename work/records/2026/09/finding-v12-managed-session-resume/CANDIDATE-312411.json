@@ -1,0 +1,107 @@
+{
+  "answering": "owner reroute 312403",
+  "changed_files": {
+    "ARGV-EVIDENCE-312411.json": "e5d5d4896953ba1833169336639581400e6abc2a979b69dd2fa7bebc3c1d8f3f",
+    "OPERATOR-311743.md": "32e371bcd22604fa43fdaadfa054763d388d945e49a86941f7d6c2e49ad08437",
+    "RECOVERY-312411.json": "24778c51fa2c0faf0ad23b04de9ae47b0f070d06fe85891d77b53f3b1e7455a3",
+    "RECOVERY-MUTATIONS-312411.json": "6e8bad74b75b6efdb77140f8de1f4cc46ffb4ce6e316047c07dc09d10c925492",
+    "RECOVERY-TRANSITION-312411.json": "58ead4f1a6dc5500b85d1035a586ae44b0bccd16a1d53e1d3371f06b4ee6a98a",
+    "STOP-ON-ERROR-EVIDENCE-312411.json": "47e14509c749d959cc0f00908b90e9aae78863ccd84a645d7480c70ab6487f3a",
+    "recovery_transition_trace.py": "c38ac24c5f080448b46f8f4068ad21129061ea7411ebe92e7485d31a9cb5e5d7",
+    "staged_bootstrap_trace.py": "efdcc9361db35e11e691a2ee54b74969a6988eca31d58da10657049ca5ffcd7d",
+    "test_correction_packet.py": "99ce73d9e3dc14c561e1250956dc4838ec525c9b82705af68f30c430e6f9fd9e"
+  },
+  "claim": 312411,
+  "operational_finding": {
+    "consequence": "deleting or re-making those roots on an installation whose prepare has committed is a fresh instance, not a repair. It does not affect this recovery: nothing has registered yet.",
+    "found_by": "re-using the negative leg that removes the workspace store, then asking prepare again",
+    "guarded_by": "staged_bootstrap_trace.prepare_once, so a positive proof never runs after a destructive leg",
+    "what": "once baseline.prepare has committed, the workspace root's device and inode are pinned inside the context-storage signature, so a re-made directory is a different root and a second prepare is refused"
+  },
+  "participant": "baton.claude",
+  "preserved_untouched": {
+    "PACKET-309356.md": "78805649a88304aa1f7c2cfea82d0c78dd02d3bfca0ab594ca4a70e62e6f19aa",
+    "PROVENANCE-309356.json": "d184b087bbac0b4512d9b9e8a272a8c1186a9d4e555ab798cd6957ec1551fc9b",
+    "RECOVERY-312166.json": "463a50edc709d7dea2249c70deb43c89bb10fa735dc8fd9dba834f950302d959",
+    "REPLAY-SAFETY-312166.json": "472b604ed0716958afb2eba353743facdf9399dd460ac7b49e3d2a064c5a34f3",
+    "ROOT-MUTATIONS-312166.json": "cc9b1c7dfc071b63c8cd2bd91a43a1e2bdd3dc6d8dd7fbf97288893ba3000330",
+    "ROOT-SAFETY-312305.json": "5bf03e23f3a98c35b3870a6906d0302f5b682dd8822b7c787e2a4b45b4e58b15",
+    "ROOT-SAFETY-MUTATIONS-312305.json": "2a94bee7d45ceb1dbebc9b5d4ecc05cf6112a6ce6b70ecd46892cbd6fbcc723f",
+    "RUN-COMMANDS-311743.json": "9d58f45d7c767473b83ffa02e878c36d36046dfafdbb9420a66004385d286f5d",
+    "SELECTIONS-RESOLVED-311743.json": "104bd56722aa158f2d1d9f211e99493c1f64f1c6e112883b963cdb2c0efb577d",
+    "STAGE-BOOTSTRAP-EVIDENCE-312166.json": "c0135be9f69ea0ae2dbc72161dbfff65bf2e28f5e4ff9efee23c994d1e72dce0",
+    "connected_packet_trace.py": "3f73f1cc8a57a181b87c9d25d9a63538e249d11d651c7d686a3b4de4bde41d80",
+    "correction_packet.py": "b996028926e28912252334da2c235f172e687313328fc7c298da51b10ebfc959",
+    "correction_supervisor.py": "e73b0aa96cac3d5d3a14e974e2b044c484941610c602eff3945183bcfed1bbd9",
+    "test_connected_packet.py": "2ab121fa7f2dbd60f131a72395e3345fef2910c0935d8cefc3d7370e7fe5a06d"
+  },
+  "product_files_changed": [],
+  "proof": {
+    "bind_refused": "exit 2, naming the module, refusing to re-sign",
+    "deployed_reads": 1,
+    "deployed_writes": 0,
+    "docker": "not used",
+    "evidence": "RECOVERY-TRANSITION-312411.json",
+    "preserved": "the old destination's ten documents, the instance record and all 108 staged files byte-identical",
+    "providers": "not run",
+    "recovery_ran": "stage, prepare-work, bind, check -- all exit 0",
+    "started_from": "an installation built through `check` as the owner's was (trace(prepare=False)), with its retained manifest set to THE REAL HISTORICAL helper digest read from the deployed document",
+    "then_ran": "baseline.prepare over the recovered packet: exit 0, both registrations read back with the product's own readers"
+  },
+  "recovery": {
+    "bootstrap_not_re_run": true,
+    "commands": "RECOVERY-312411.json",
+    "document": "OPERATOR-311743.md section 1b",
+    "into": "a FRESH destination, so the old packet documents stay as the failed recovery left them",
+    "nothing_disabled": "no drift check is disabled, no manifest is edited and no directory is made by hand",
+    "steps": [
+      0,
+      2,
+      3,
+      4,
+      5
+    ],
+    "supersedes": "RECOVERY-312166.json"
+  },
+  "schema": "baton.candidate/1",
+  "subject": "the recovery began at `bind` and `bind` correctly refused the changed helper. `stage` is the transition, and the sequence is proved from the OLD manifest over an EXISTING installation rather than from a freshly staged fixture.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "credential_currency": "unverified and unverifiable from here",
+    "live_run": "the corrected recovery has NOT been run against the deployed instance by an agent; that is the owner's act",
+    "no_forced_rerun": "accepted-without-correction must not trigger one",
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "bootstrap_repeated": false,
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "errors": 0,
+    "failures": 0,
+    "operator_argv": {
+      "faults": 0,
+      "invocations": 15,
+      "sh_n": "OK",
+      "stage_invocations": 2
+    },
+    "recovery_mutations": {
+      "count": 2,
+      "uncaught": []
+    },
+    "stop_on_first_error": {
+      "cases": 10,
+      "invocations_after_the_failure": 0,
+      "sequences": 2
+    },
+    "tests": 201,
+    "touched_nothing_live": "one deployed READ (the old manifest) and no deployed write; no repair, cleanup, live execution, Docker, provider, credential or version-control act"
+  },
+  "what_was_wrong": {
+    "failure": "bind: the preparation module 'correction_packet.py' has CHANGED since `stage` reviewed it; `bind` refuses drift rather than re-signing it",
+    "measured_read_only": "0 of 108 staged product files differ; the supervisor and descriptor supplier digests still match. The only drift is the helper.",
+    "what_the_proposal_omitted": "the `stage` that re-records the manifest",
+    "why_correct": "the retained manifest binds the helper digest measured under claim 311743 (7e8d33b06b84...) and the corrected helper is b996028926e2...; a bind that re-signed it would bind a packet to code nobody reviewed together"
+  },
+  "work": "W236087"
+}

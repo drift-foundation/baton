@@ -1,0 +1,70 @@
+{
+  "NOT_DONE": {
+    "durable_settlement": "end_review_from_result through the pass, the retention decisions and the cleanup authorization with no duplicate effects -- it needs the engine half ComposedLifecycleCase stands in for",
+    "what_IS_proved": "the re-entry no longer asks to write and changes nothing, which is the refusal loop's cause"
+  },
+  "answering": "review 2026-09-30T10-33-31Z (pass 314852), continued after owner release 315113",
+  "claim": 315116,
+  "fix": {
+    "assignment_workspace": "REVALIDATES instead of allocating when the material is offered, which is the path the module already takes for a live task: prove the roots, write nothing",
+    "predicate": "workspaces.material_is_offered -- one public question, a journal read, asked by both callers",
+    "single_worker_mounted": "opens NO preparation window in that state; a window says a writer may be running, and an ending re-entry writes nothing in those roots. `_released` has nothing to close, and a LAUNCH still admits its window",
+    "unchanged": [
+      "mount still requires a boundary",
+      "every disposal, retention and cleanup act",
+      "the sealed bytes"
+    ]
+  },
+  "ownership": {
+    "note": "one class extended in the product suite; nothing existing altered; no other product file touched",
+    "product_code": {
+      "src/baton_v12/worker_manager/workspaces.py": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+      "tools/single_worker.py": "db05be6078d523bb1b0fb2057bf9fbd3b8e6bd0ecb7c654e9bb41168ba19342c",
+      "tools/stage_execution.py": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d"
+    },
+    "product_tests": {
+      "tests/tools/test_stage_execution.py": "dfef198759eeec1b33e1a24020f95f236ebfa031b23c202be3b89a39699e2b5c"
+    }
+  },
+  "participant": "baton.claude",
+  "recovered_claim": {
+    "partial_changes": "all intact and re-verified before editing",
+    "released": "claim 314855, after a connectivity loss (incident 73)",
+    "surviving_processes": "none -- no test runner, no supervisor, no engine"
+  },
+  "schema": "baton.candidate/1",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "cap": "unchanged",
+    "credential_currency": "unverified",
+    "deployed_cleanup": "separately unresolved; no removal attempted",
+    "production_comparison": "unproved",
+    "timeout_cause": "UNKNOWN"
+  },
+  "verification": {
+    "deployed_writes": 0,
+    "dossier": {
+      "failures": 0,
+      "tests": 235
+    },
+    "engine_mutations": 0,
+    "live_runs": 0,
+    "operator_scripts_executed": 0,
+    "pre_existing_failure": {
+      "case": "tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle",
+      "evidence": "HARDENING-FAILURE-314780.json",
+      "identical_against_pristine": true,
+      "re_measured_this_turn": true
+    },
+    "product": {
+      "tests.tools.test_stage_execution + tests.manager.test_workspaces + tests.tools.test_single_worker": {
+        "failures": 0,
+        "seconds": 195.8,
+        "tests": 821
+      }
+    },
+    "removals": 0
+  },
+  "what_the_proof_found": "the mutation case does NOT refuse: with the predicate forced False, `assignment_workspace` ADMITS AN ALLOCATION over offered material, because the offered-material guard lives on `admit_preparation`, which that entry never calls. The unpatched path WRITES -- which is why the correction routes it to revalidation rather than merely dropping the preparation window.",
+  "work": "W236087"
+}

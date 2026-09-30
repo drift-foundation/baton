@@ -1930,7 +1930,7 @@ class _SingleWorker:
         except ContractRefusal:
             return None
 
-    def _mounted(self, stage, attempt_id, *, checkpoint=True):
+    def _mounted(self, stage, attempt_id, *, checkpoint=True, writer=True):
         """This attempt's two roots and the mount custody composed over them.
 
         W103083. THE ALLOCATION HAPPENS FIRST FOR EVERY ROLE, and that is not
@@ -1974,21 +1974,57 @@ class _SingleWorker:
         # now is presenting the object the opening admission answered -- and this
         # composition holds it for exactly as long as it is preparing.
         held = self._preparations.get(attempt_id)
-        preparing = workspaces.admit_preparation(
+        # W236087, owner 2026-09-30T09:50:56Z: NO PREPARATION WINDOW OVER
+        # PRESERVED, OFFERED MATERIAL.
+        #
+        # A preparation window says a writer may be running inside these roots,
+        # and `admit_preparation` refuses to open one once the output is sealed
+        # and the cleanup has not completed -- because the worker's material
+        # stands offered for inspection and a preparation is a WRITER inside it.
+        # THAT REFUSAL IS RIGHT. What was wrong is that an ending RE-ENTRY asked
+        # for the window at all: its seal, collect and intake are already
+        # journalled, and what it has left -- the retention decisions, the
+        # Authority pass and the cleanup authorization -- writes nothing in
+        # those roots. Measured: a review provider timed out, intake sealed its
+        # output, the cleanup axis ended `pending`, and the manager was refused
+        # every tick for 104 seconds and 58 sweeps until an operator
+        # interrupted it.
+        #
+        # SO THE ROOTS ARE REVALIDATED INSTEAD. `assignment_workspace` takes the
+        # same revalidation path it already takes for a live task: it PROVES the
+        # pair and refuses missing or replaced material rather than repairing
+        # it, and it writes nothing. `mount` still composes a boundary and a
+        # LAUNCH still admits its window, because a container really is a writer.
+        # AND THE CALLER'S INTENT DECIDES, NOT THE STATE ALONE. Review
+        # 2026-09-30T11:24:20Z: my first cut skipped the window whenever the
+        # material was offered, for EVERY caller of this shared helper -- so a
+        # launch, a task publication or a credential writer reaching this state
+        # would have lost the protection instead of being refused by it. Only a
+        # RE-ENTRY THAT WRITES NOTHING passes `writer=False`, and the skip
+        # needs both that and the offered state. Every other caller keeps the
+        # admission and keeps the refusal.
+        offered = not writer and workspaces.material_is_offered(
+            self.control, attempt_id)
+        preparing = None if offered else workspaces.admit_preparation(
             self.control, attempt_id,
             f"preparing attempt {attempt_id}'s roots", attempt_id,
             holding=held)
-        self._preparations[attempt_id] = preparing
+        if preparing is not None:
+            self._preparations[attempt_id] = preparing
         # AND THE WINDOW IS RELEASED WHEN THIS WRITER RETURNS. W285464 review
         # 2026-09-27T17-26-12Z: an unfinished window is held because somebody may
         # still be writing, and the one party that can say otherwise is the writer
         # itself -- so the composition that opened it closes it on its way out unless
         # the completion already did. A process that DIES mid-write runs no `finally`,
         # which is why that case stays held and is reported UNKNOWN.
-        self._releasing = (attempt_id, preparing)
+        # NOTHING TO RELEASE WHEN NOTHING WAS ADMITTED. `_released` reads this
+        # to close a window whose writer returned without completing; a
+        # revalidated ending opened no window, so there is no window to close.
+        self._releasing = None if preparing is None else (attempt_id, preparing)
         roots = workspaces.assignment_workspace(
             self.group, given["workspace_storage"], attempt_id,
-            control=self.control, preparing=preparing.ordinal)
+            control=self.control,
+            preparing=None if preparing is None else preparing.ordinal)
         if checkpoint:
             self.checkpoint("workspace")
         if self.stage is not None:
@@ -2815,7 +2851,12 @@ class _SingleWorker:
         # and for a private line that tree is the LINE rather than a fresh
         # workspace -- so an ending that recomposed the ordinary pair here
         # would be taking custody of an empty directory beside the work.
-        roots = self._mounted(stage, attempt_id, checkpoint=False)[0]
+        # `writer=False`: THIS RE-ENTRY WRITES NOTHING IN THOSE ROOTS. Its
+        # seal, collect and intake are already journalled, and the retention
+        # decisions, the Authority pass and the cleanup authorization touch the
+        # journal rather than the tree. See `_mounted`.
+        roots = self._mounted(stage, attempt_id, checkpoint=False,
+                              writer=False)[0]
         delivery, orphan = self._credential(attempt_id, state, roots, launched)
         adapter = self._adapter(roots, delivery, orphan, launched)
         if self.stage is not None:

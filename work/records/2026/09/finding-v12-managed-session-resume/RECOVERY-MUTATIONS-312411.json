@@ -1,0 +1,28 @@
+{
+  "answering": "owner reroute 312403",
+  "cases": [
+    "test_THE_RECOVERY_STARTS_AT_STAGE_BECAUSE_THE_HELPER_CHANGED",
+    "test_THE_TRANSITION_IS_PROVED_FROM_THE_OLD_MANIFEST",
+    "test_THE_INODE_PIN_IS_RECORDED_AS_WHAT_THE_RECOVERY_MUST_NOT_DO"
+  ],
+  "claim": 312411,
+  "measured": {
+    "TM1": {
+      "caught_by": [
+        "test_THE_RECOVERY_STARTS_AT_STAGE_BECAUSE_THE_HELPER_CHANGED"
+      ],
+      "mutation": "begin the recovery at `bind` with no `stage` -- the proposal that failed at its first command, because nothing had re-recorded the manifest"
+    },
+    "TM2": {
+      "caught_by": [
+        "test_THE_RECOVERY_STARTS_AT_STAGE_BECAUSE_THE_HELPER_CHANGED"
+      ],
+      "mutation": "recover into the OLD destination, overwriting the packet documents the failed recovery left as evidence"
+    },
+    "clean_again": [],
+    "unmutated_failures": []
+  },
+  "schema": "baton.recovery-transition-mutation-evidence/1",
+  "uncaught_mutations": [],
+  "what": "the failed recovery proposal re-introduced in COPIES of the delivered documents; a case must catch each, and the unmutated and restored runs must be clean. The delivered documents are never modified."
+}

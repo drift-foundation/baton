@@ -1,0 +1,21 @@
+{
+  "claim": 314467,
+  "candidate_sha256": "45be9eac3599d6728979e9d1485334cec3042957a30aea82674cd97d119d99f4",
+  "verified_hashes": {
+    "CONTRACT-MUTATIONS-314414.json": "165b649d3d8fa1c8c6c98727e53cda283485b3adb25b8fac5105dda441703902",
+    "DIAGNOSIS-314263.json": "6bf498ecd77a2c7d74db7dd2e1e931fafc94d7405617a1387e1e45c9ff597ec3",
+    "INTERRUPTED-RUN-314263.json": "a73dfa2d821c9c00bde1223efefd0c1534f9699bae040e80c763e14c4214fe03",
+    "RECOVERY-TRANSITION-314263-SECOND.json": "72c0575cc64010cf1a8290b13ed732ed023f1d8bc078de6a8d9c9d3c46858601",
+    "correction_packet.py": "af405618646bd9dfa29538571a4292222db25e497e35b7ba204afbf9ecad2e64",
+    "test_correction_packet.py": "95c5253ff35dd8af2ee02f2e4d7f81c70e0a192731021ff5d35ca6aa62d49727"
+  },
+  "independent_tests": {
+    "count": 29,
+    "seconds": 0.76,
+    "result": "PASS",
+    "scope": "contract and operator sequence"
+  },
+  "live_runs": 0,
+  "deployed_writes": 0,
+  "prior_engine_evidence": "REVIEW-EVIDENCE-314389.json"
+}

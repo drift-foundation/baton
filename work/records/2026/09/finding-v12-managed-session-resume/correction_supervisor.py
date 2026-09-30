@@ -323,6 +323,62 @@ def _verdict_for(control, attachment):
         return None
 
 
+def refusal_fingerprint(refused):
+    """The IDENTITY of a refusal, which is what has to repeat.
+
+    Stage, act, attempt, code and `since` -- not the message, which carries
+    timestamps, and not `observed`, which advances on every tick by design. Two
+    ticks showing the same fingerprint are the same condition being met twice;
+    a moved `since` is a NEW condition and starts the count again.
+    """
+    return sorted((one.get("stage"), one.get("act"), one.get("attempt_id"),
+                   one.get("code"), one.get("since"))
+                  for one in (refused or []))
+
+
+def blocked_by(refused, blocked):
+    """Has the SAME refusal now stood for `STALLED_TICKS` ticks?
+
+    REVIEW 314636 R2 asked for this to be the code that runs rather than a
+    shape a test rebuilds, so the counter lives here and the serving loop calls
+    it. `blocked` is the caller's memory and is mutated: `at` is the last
+    fingerprint seen and `count` how many ticks it has held.
+
+    A TRANSIENT REFUSAL CLEARS. The product calls a deferral RE-ENTERABLE -- an
+    ending that finishes next tick, an offer not yet accepted -- so one tick's
+    reason is not a verdict on the run. A refusal that does not move is a
+    different thing, and it is the only thing that stops it.
+    """
+    fingerprint = refusal_fingerprint(refused)
+    if fingerprint and fingerprint == blocked.get("at"):
+        blocked["count"] = blocked.get("count", 0) + 1
+    else:
+        blocked["count"] = 0
+    blocked["at"] = fingerprint
+    return blocked["count"] >= baseline.STALLED_TICKS
+
+
+def refused_acts(job, job_id):
+    """Every owed act this run's stages cannot complete, and why.
+
+    READ THROUGH THE PRODUCT'S OWN EVIDENCE SURFACE. `projection.deferral_of`
+    is the reader that answers "which act, for which attempt, why, since when,
+    and whether it is still happening" -- the sentence the manager retained
+    when it refused, rather than an inference from a state. Only `refused`
+    entries are returned: `unavailable` says the reason could not be read,
+    which is not a reason, and every other category is a condition that can
+    still settle.
+    """
+    from baton_v12.job_manager.projection import deferral_of
+
+    held = []
+    for kind in ("implementation", "review"):
+        for one in deferral_of(job, f"{job_id}/{kind}") or ():
+            if (one or {}).get("category") == "refused":
+                held.append(dict(one, stage=kind))
+    return held
+
+
 def classify(*, stop, disposition, implementations, reviews, continuity,
              cleanup_outstanding, interrupted):
     """The result, from what the run PRODUCED. Total, with no fall-through.
@@ -345,7 +401,12 @@ def classify(*, stop, disposition, implementations, reviews, continuity,
     # get to finish: the bound elapsed, an operator interrupted it, or the
     # serving loop faulted. Those are unaffected below.
     UNFINISHED = ("timed-out", "overall-bound-exceeded", "interrupted",
-                  "serving-failed", "invocation-cap-refused", "unknown")
+                  "serving-failed", "invocation-cap-refused",
+                  # OWNER REROUTE 314549: an owed act the manager is being
+                  # refused, tick after tick, for a reason asking again cannot
+                  # satisfy. The run did not finish; it stopped because it
+                  # could not proceed.
+                  "conclusion-refused", "unknown")
     reasons = []
     if interrupted is not None:
         reasons.append(f"the run was interrupted: {interrupted}")
@@ -449,6 +510,10 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     serving_seconds = bounds["total_seconds"] - bounds["cleanup_seconds"]
     deadline = started + serving_seconds
     uncertainty, caught = [], []
+    # THE SAME REFUSAL, TICK AFTER TICK, is what makes an owed act hopeless
+    # rather than pending; `blocked` remembers it the way `unchanged` remembers
+    # an unmoving projection.
+    blocked = {"at": None, "count": 0}
     measured = {"submitted_at": clock(), "job_id": job_id,
                 "serving_seconds": serving_seconds,
                 "reserved_seconds": bounds["cleanup_seconds"]}
@@ -529,6 +594,34 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
         else:
             unchanged["count"] = 0
         unchanged["at"] = now
+        # AN OWED ACT THAT IS BEING REFUSED IS NOT A CONDITION TO WAIT OUT.
+        #
+        # OWNER REROUTE 314549, and this is what the second live experiment
+        # spent its last 104 seconds on. The review provider timed out, its
+        # output was frozen `unable`, and the manager then tried to CONCLUDE
+        # the review episode every tick. The product refused every time, with
+        # the reason it retained as a deferral: "attempt ...'s output is
+        # 'sealed' and its cleanup ended 'pending', so the worker's own
+        # material stands preserved and offered for inspection. A preparation
+        # is a WRITER inside these roots and the material is evidence while it
+        # is offered, so the offer is ENDED ... rather than written beside".
+        #
+        # The stall detector could not see it: it requires
+        # `not settled["outstanding"]`, and the whole point of this condition
+        # is that a cleanup IS outstanding. So the loop swept 58 times and
+        # stopped only when an operator pressed Ctrl-C. A precondition refusal
+        # does not become satisfiable by asking again, so it ends the run --
+        # after `STALLED_TICKS` of the SAME refusal, because the product calls
+        # a deferral re-enterable and a single tick's reason may still settle.
+        refused = baseline._guarded(
+            lambda: refused_acts(job, job_id), [],
+            what="the outstanding-act read", uncertainty=uncertainty,
+            interrupted=caught)
+        if blocked_by(refused, blocked):
+            held["stop"] = "conclusion-refused"
+            held["refused_acts"] = list(refused or [])
+            return False
+
         if gate.refusals:
             # A CAP REFUSAL IS THE END OF THIS RUN, not a condition to wait
             # out. The invocations this packet declares are spent, so spinning
@@ -683,6 +776,10 @@ def _supervise(job, control, operations, packet, *, clock, sleep, monotonic,
     measured["final_canonical_read"] = final_read
     measured["stage_states"] = dict(held["states"])
     measured["intruders"] = sorted(set(intruders))
+    # WHAT THE RUN WAS BEING REFUSED WHEN IT STOPPED, retained in the outcome
+    # rather than only in the store: an operator reading this document is owed
+    # the sentence the manager was given, not just the word for it.
+    measured["refused_acts"] = list(held.get("refused_acts") or [])
 
     # THE ATTEMPTS, IN RECORDED ORDER AND NOT IN SPELLING ORDER. R3: the
     # opening and restored uses are selected from the store's own episode
@@ -851,13 +948,91 @@ def main(argv=None, *, stream=None, compose=None, image_inspect=None):
     return 0 if outcome["state"] == "settled" else 1
 
 
+def interruption_reason(stopped):
+    """Why the run was interrupted, read from where the exception KEEPS it.
+
+    OWNER REROUTE 314549, and it is a defect that cost an operator the report
+    of a real run. `baseline.SupervisorInterrupted.__init__(why, outcome)` calls
+    `super().__init__(why)` and sets `self.outcome`; IT SETS NO `self.why`. This
+    module asked for `stopped.why`, so the very act of reporting an interruption
+    raised `AttributeError` -- after the outcome had been printed and before the
+    exit status was set. The accounting was on disk and correct, and the last
+    thing the operator saw was a traceback from the reporter.
+
+    So the reason comes from `args`, which is where `BaseException` puts what it
+    was constructed with, and from the retained outcome as a cross-check. The
+    accepted machinery is NOT changed: `baseline.py` is pinned by digest and its
+    contract here is `args` plus `.outcome`.
+    """
+    said = stopped.args[0] if stopped.args else None
+    if said is None or said == "":
+        # THE OUTCOME IS THE SECOND WITNESS. `supervise` writes `interrupted`
+        # into it before raising, so a reason is still available even if the
+        # exception was constructed without one.
+        held = getattr(stopped, "outcome", None) or {}
+        said = held.get("interrupted") or "interrupted, with no reason recorded"
+    return said
+
+
+def unresolved_cleanup(outcome):
+    """Every attempt whose cleanup this run could NOT prove, by identity.
+
+    REPORTED SEPARATELY, on the reroute's own instruction. A run that ends
+    interrupted can leave a runtime the engine reports quiescent and a cleanup
+    that never committed, and those are two different facts: the operator needs
+    the second one named, because a stopped runtime is not a proved cleanup.
+    """
+    held = []
+    for attempt, one in sorted((outcome.get("cleanup") or {}).items()):
+        if not isinstance(one, dict) or one.get("cleanup") is None:
+            cancelled = (outcome.get("cancellation") or {}).get(attempt) or {}
+            held.append({
+                "attempt_id": attempt,
+                "cleanup": None,
+                "why": (one or {}).get("why", "no committed cleanup"),
+                "execution_runtime": cancelled.get("execution_runtime"),
+                "runtime_id": cancelled.get("runtime_id"),
+                "stage_state": cancelled.get("stage_state"),
+            })
+    return held
+
+
+def report_interruption(stopped, *, stream=None, out=None):
+    """Print the retained outcome, the reason and any unresolved cleanup.
+
+    A FUNCTION RATHER THAN A BLOCK UNDER `if __name__ == "__main__"`, and that
+    is the second half of the correction. The defect above lived in a block
+    marked `pragma: no cover` -- unreachable by every test in this dossier --
+    which is exactly why a one-word attribute error survived to a live run. It
+    is callable and covered now.
+    """
+    stream = sys.stderr if stream is None else stream
+    out = sys.stdout if out is None else out
+    outcome = getattr(stopped, "outcome", None)
+    if outcome is not None:
+        print(json.dumps(outcome, indent=2, sort_keys=True), file=out)
+    print(f"interrupted: {interruption_reason(stopped)}", file=stream)
+    if outcome is not None:
+        print(f"outcome {outcome.get('outcome')!r}, state "
+              f"{outcome.get('state')!r}; the result is retained",
+              file=stream)
+        pending = unresolved_cleanup(outcome)
+        if pending:
+            print(f"UNRESOLVED CLEANUP for {len(pending)} attempt(s); a "
+                  f"quiescent runtime is not a proved cleanup:", file=stream)
+            for one in pending:
+                print(f"  {one['attempt_id']}: runtime "
+                      f"{one['execution_runtime']!r} "
+                      f"({one['runtime_id']}), stage "
+                      f"{one['stage_state']!r} -- {one['why']}", file=stream)
+    return 130
+
+
 if __name__ == "__main__":                                   # pragma: no cover
     try:
         raise SystemExit(main())
     except baseline.SupervisorInterrupted as stopped:
-        print(json.dumps(stopped.outcome, indent=2, sort_keys=True))
-        print(f"interrupted: {stopped.why}", file=sys.stderr)
-        raise SystemExit(130)
+        raise SystemExit(report_interruption(stopped))
     except PacketRefusal as refusal:
         print(f"refused: {refusal}", file=sys.stderr)
         raise SystemExit(2)

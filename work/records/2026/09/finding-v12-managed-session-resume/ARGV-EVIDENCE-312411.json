@@ -1,0 +1,144 @@
+{
+  "claim": 312411,
+  "document": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/OPERATOR-311743.md",
+  "faults": [],
+  "honest_limit": "the status step's $(...) resolver expands to EMPTY under the stub because no bootstrap.json exists to read. That is the stub's limit rather than a document defect: with a real instance it yields the minted identity.",
+  "invocation_count": 15,
+  "invocations": [
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+      "stage",
+      "--selections",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+      "--destination",
+      "/home/sl/baton-instances/managed-correction-309356-packet-312411",
+      "--claim",
+      "312411",
+      "--provenance",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+    ],
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+      "prepare-work",
+      "--selections",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+      "--destination",
+      "/home/sl/baton-instances/managed-correction-309356-packet-312411"
+    ],
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+      "bind",
+      "--selections",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+      "--destination",
+      "/home/sl/baton-instances/managed-correction-309356-packet-312411",
+      "--claim",
+      "312411",
+      "--provenance",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+    ],
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+      "check",
+      "--packet",
+      "/home/sl/baton-instances/managed-correction-309356-packet-312411/packet.json"
+    ],
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py",
+      "--packet",
+      "/home/sl/baton-instances/managed-correction-309356-packet-312411/packet.json"
+    ],
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+      "stage",
+      "--selections",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+      "--destination",
+      "/home/sl/baton-instances/managed-correction-309356-packet-311743",
+      "--claim",
+      "311743",
+      "--provenance",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+    ],
+    [
+      "-m",
+      "tools.bootstrap",
+      "--inputs",
+      "/home/sl/baton-instances/managed-correction-309356-packet-311743/bootstrap-inputs.json",
+      "--destination",
+      "/home/sl/baton-instances/managed-correction-309356",
+      "--distro",
+      "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+      "--no-repositories"
+    ],
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+      "prepare-work",
+      "--selections",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+      "--destination",
+      "/home/sl/baton-instances/managed-correction-309356-packet-311743"
+    ],
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+      "bind",
+      "--selections",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+      "--destination",
+      "/home/sl/baton-instances/managed-correction-309356-packet-311743",
+      "--claim",
+      "311743",
+      "--provenance",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+    ],
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+      "check",
+      "--packet",
+      "/home/sl/baton-instances/managed-correction-309356-packet-311743/packet.json"
+    ],
+    [
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py",
+      "--packet",
+      "/home/sl/baton-instances/managed-correction-309356-packet-311743/packet.json"
+    ],
+    [
+      "-c",
+      "import json,sys;print(json.load(open(sys.argv[1]))['authority_uuid'])",
+      "/home/sl/baton-instances/managed-correction-309356/bootstrap.json"
+    ],
+    [
+      "-m",
+      "tools.job_manager",
+      "--store",
+      "/home/sl/baton-instances/managed-correction-309356/db/jobs.sqlite3",
+      "--authority-uuid",
+      "--incarnation",
+      "managed-correction-309356",
+      "status",
+      "--control",
+      "/home/sl/baton-instances/managed-correction-309356/db/control.sqlite3"
+    ],
+    [
+      "-c",
+      "import json,sys;print(json.dumps(json.load(open(sys.argv[1]))['commands'], indent=2))",
+      "/home/sl/baton-instances/managed-correction-309356-packet-311743/commands.json"
+    ],
+    [
+      "-c",
+      "import json,sys;print(json.dumps(json.load(open(sys.argv[1])), indent=2, sort_keys=True))",
+      "/home/sl/baton-instances/managed-correction-309356/run/outcome.json"
+    ]
+  ],
+  "nothing_live": "a stub python3 records argv and exits 0; nothing is installed, no store is opened, no provider runs",
+  "returncode": 0,
+  "schema": "baton.operator-argv-evidence/2",
+  "sh_n": "OK",
+  "stops_on_first_error": true,
+  "subcommand_invocations": {
+    "bind": 2,
+    "check": 2,
+    "prepare-work": 2,
+    "stage": 2
+  }
+}

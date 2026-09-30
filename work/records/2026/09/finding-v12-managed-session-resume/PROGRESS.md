@@ -3124,3 +3124,927 @@ restore remain unproved, and accepted-without-correction must not trigger a
 forced rerun.
 
 Files: `correction_packet.py` (b996028926e2), `test_correction_packet.py` (6351752f9f08), `OPERATOR-311743.md` (0fc13971a44e), `ROOT-SAFETY-312305.json` (5bf03e23f3a9), `ROOT-SAFETY-MUTATIONS-312305.json` (2a94bee7d45c), `ARGV-EVIDENCE-312305.json` (a8c7107e1d37), `STOP-ON-ERROR-EVIDENCE-312305.json` (0d7d4a2e08ca)
+
+## Claim 312411 (baton.claude, impl) -- the transition the recovery omitted
+
+Owner reroute 312403: the reviewed recovery failed at its FIRST command. `bind`
+refused `correction_packet.py` because it changed since the retained stage
+manifest was written. THE REFUSAL WAS CORRECT and the recovery proposal was
+wrong: it began at `bind`, and nothing in it re-recorded the manifest.
+
+### What was actually true, measured read-only
+
+The deployed `<destination>/prepared.json` binds `correction_packet.py` at
+`7e8d33b06b84...`, which is what `stage` measured under claim 311743; the
+corrected helper digests `b996028926e2...`. NOTHING ELSE HAS MOVED: 0 of the 108
+staged product files differ, and `correction_supervisor.py` and the descriptor
+supplier still match their recorded digests. So the only drift is the helper
+module -- and a `bind` that re-signed it would bind a packet to code nobody
+reviewed together.
+
+### The transition, which is a `stage`
+
+`stage` is the only thing that records digests, and it records what it measures.
+So the recovery begins at step 0, into a FRESH destination -- which re-records
+the manifest, re-affirms the staged tree byte for byte, and touches nothing in
+the instance -- then the Authority acts (which replay), `bind`, `check` and the
+run. Step 1 is not in the list: the instance exists and `tools.bootstrap` is not
+re-run. No drift check is disabled, no manifest is edited, and no directory is
+made by hand.
+
+### Proved from the OLD manifest, not from a fresh fixture
+
+`recovery_transition_trace.py` (`RECOVERY-TRANSITION-312411.json`), one
+disposable root, no Docker, no provider, ZERO deployed writes and exactly one
+deployed READ -- the old manifest, for its historical digest:
+
+- a disposable installation built through `check` exactly as the owner's was,
+with the supervisor never reaching `prepare` (`trace(prepare=False)`), which is
+the state `REPLAY-SAFETY-312166.json` measured the deployed one to be in;
+- its retained manifest set to THE REAL HISTORICAL helper digest read from the
+deployed document -- no invented digest, and nothing edits a manifest after
+that;
+- `bind` REFUSING it, exit 2, naming the module and refusing to re-sign;
+- then `stage` into a fresh destination, `prepare-work`, `bind`, `check` -- ALL
+EXIT 0, and the manifest then records the corrected helper;
+- the old destination's TEN documents, the instance record and all 108 staged
+files byte-identical afterwards;
+- and `baseline.prepare` over the recovered packet: exit 0, both registrations
+read back with the product's own readers.
+
+### An operational finding, found by running it
+
+Once `baseline.prepare` has COMMITTED, the workspace root's DEVICE AND INODE are
+pinned inside the context-storage signature -- `configure_context_storage` adds
+that root to its own excluded set -- so a workspace directory deleted and
+re-made is a DIFFERENT root to the journal, and a second `prepare` is refused:
+"already recorded with a different kind or signature". I met this by re-using
+the negative leg that removes the workspace store and then asking `prepare`
+again. IT DOES NOT AFFECT THIS RECOVERY -- the deployed installation has
+registered nothing, so its roots were never pinned -- but it does mean deleting
+or re-making those roots on an installation whose `prepare` has committed is a
+FRESH INSTANCE, not a repair. The operator document says so, and
+`staged_bootstrap_trace.prepare_once` exists so a positive proof never runs
+after a destructive leg.
+
+### Measured
+
+    201 deterministic cases (190 packet/roots/template/CLI/resolved/operator
+    plus 11 connected), 0 failures.
+    2 recovery mutations -- begin at `bind` with no `stage`, and recover into
+    the OLD destination -- both caught, in COPIES of the delivered documents;
+    unmutated and restored runs clean (RECOVERY-MUTATIONS-312411.json).
+    Stop-on-first-error, both sequences: recovery 5 invocations now and setup 5,
+    every one the failing one in turn, 0 after the failure.
+    Operator argv under stubs: sh -n OK, 15 invocations, 0 faults, `stage`
+    present in BOTH sequences with its own operands.
+    No deployed repair, cleanup, live execution or version-control act; no
+    Docker, provider or credential; no product change; no
+    sibling/DESIGN/W306614 edit.
+
+### Unchanged
+
+`REVIEW-BOOTSTRAP-312285.json` and `STAGE-BOOTSTRAP-EVIDENCE-312166.json` stand
+as the accepted positive proof and were not repeated. The deployed instance was
+read once and never written. The credential reference's currency remains
+unverified, the historical boundary failure remains UNKNOWN, production
+comparison and an actual live restore remain unproved, and
+accepted-without-correction must not trigger a forced rerun.
+
+Files: `recovery_transition_trace.py` (c38ac24c5f08), `staged_bootstrap_trace.py` (efdcc9361db3), `test_correction_packet.py` (99ce73d9e3dc), `OPERATOR-311743.md` (32e371bcd226), `RECOVERY-312411.json` (24778c51fa2c), `RECOVERY-TRANSITION-312411.json` (58ead4f1a6dc), `RECOVERY-MUTATIONS-312411.json` (6e8bad74b75b), `ARGV-EVIDENCE-312411.json` (e5d5d4896953), `STOP-ON-ERROR-EVIDENCE-312411.json` (47e14509c749)
+
+## Claim 314263 (baton.claude, impl) -- where the live turn went, and a run I started by mistake
+
+Owner reroute 314261: the live run finished naturally with outcome
+`failed-or-unknown`, state `held`, implementation `exceptional`, review
+`blocked`. This turn diagnoses it from the retained evidence, corrects the defect
+the measurement points at, and reports an error of my own.
+
+### I STARTED A LIVE RUN BY MISTAKE, AND STOPPED IT
+
+Read this first, because it changed the deployed state. While syntax-checking the
+operator document I extracted its shell blocks to a file and RAN THAT FILE
+DIRECTLY instead of running it under the stub-`python3` harness that exists for
+exactly this purpose. That staged, installed a fresh instance at
+`/home/sl/baton-instances/managed-correction-314263`, ran `prepare-work`, `bind`
+and `check`, and started the supervisor -- a live run the reroute forbade me to
+start.
+
+I stopped it the supported way, once: SIGINT to the supervisor, which deferred the
+signal, cancelled and FENCED the attempt, ran its cleanup window and published
+its outcome atomically. A SIGTERM from a tool timeout had arrived first, and the
+outcome records both. No worker runtime is left behind. What now exists: that
+instance (18,510 files), 10 packet documents, 108 staged files, and a published
+`outcome.json` -- `stopped: interrupted`, `serving_seconds_spent: 116.269`, no
+provable cleanup for either attempt, Job identity SPENT. THE SPENT 309356 RUN IS
+UNTOUCHED: different paths entirely, and its outcome, workspace, provider logs
+and retained conversation are byte-identical.
+
+The process defect is mine and the rule is now explicit: an indented line in an
+operator document is a command an operator would run, so the ONLY way to check
+one here is the stub harness, which puts a recording `python3` on PATH and never
+executes the real one. Never execute an extracted operator script directly.
+`INTERRUPTED-RUN-314263.json` records all of it.
+
+### Where the 244 seconds actually went
+
+`DIAGNOSIS-314263.json`, read-only from the outcome document, the retained
+provider logs, the retained session transcript and the product's own readers
+against COPIES of the stores:
+
+    provider startup          6.5s   container to first session entry, of which
+                                     3.0s was the CLI waiting for stdin the
+                                     adapter never sends
+    task execution          172.4s   216 session entries, 73 assistant turns,
+                                     47 shell commands -- grep 14, sed 13, ls 6,
+                                     cat 4 -- none repeated, no error loop
+    manager overhead          5.5s   admission, launch, cancellation, 59 sweeps
+    publication and cleanup  60.1s   after serving, inside the reserve
+
+NOT provider delay and NOT manager overhead. The prompt ARRIVED -- the first user
+message is the task, word for word -- and the worker worked the whole time,
+reading the repository continuously, and NEVER CREATED THE FILE. The runtime was
+destroyed and the allocation released; the retained conversation is 715,884 bytes
+on disk and `provider_context.context_use_of` answers `held` with reason
+`invocation-unknown`, because the provider was stopped before it could declare a
+result.
+
+### The defect the measurement points at, and what it is not
+
+The task document -- the human contract this packet generates -- told the worker
+WHAT to write and WHAT WOULD BE ACCEPTED, and never told it that the turn was
+BOUNDED. An agent that does not know it is on a clock reads until the clock ends.
+
+IT IS NOT THE TIMEOUT, and the cap is untouched. Raising 180s on this evidence is
+what the reroute forbids and the measurement does not support: a worker that
+wrote first would have had the same 172 seconds to improve a document that
+already existed. What WOULD justify raising it is a session that wrote the file
+early and was still improving it when the cap stopped it. Neither measured
+session was that.
+
+### And the accidental run corrected my correction
+
+My first fix stated the bound and asked for the file "within the first quarter of
+the turn". The interrupted session ran under exactly that text -- and spent its
+first 51.6 seconds on 15 more reads with nothing written. Telling an agent it is
+on a clock does not change what it does first. So the contract now ORDERS THE
+FIRST ACTION: write the file immediately, before reading anything, as a skeleton
+with one section per numbered requirement and, under each, what still needs
+confirming; then read and rewrite each section. That reading of the interrupted
+run is INCONCLUSIVE about the ending -- a stopped run cannot show what it would
+have done next -- and it is recorded as such; what it does show is the first 51
+seconds.
+
+### The smallest justified next experiment
+
+`NEXT-EXPERIMENT-314263-SECOND.json` and `OPERATOR-311743.md` section 1c. ONE
+variable: the task document. The cap, every other bound, the acceptance
+requirements word for word, the task, the single file, the source, the base, the
+image, the adapter, the profile, the credential reference, the participants, the
+receipts, the supervisor and the packet machinery are all unchanged. A fresh run
+identity, because both earlier Job identities are spent. The falsifiable
+prediction is stated with it, and so is what would justify raising the cap later.
+
+### Measured
+
+    207 deterministic cases (196 packet/contract/roots/operator plus 11
+    connected), 28.742s and 28.785s on two runs, 0 failures.
+    Operator argv under stubs: sh -n OK, 21 invocations, 0 faults -- and THIS
+    HARNESS CAUGHT A REAL DEFECT: an indented quotation of `bind`'s refusal was
+    being executed as a command, which is what aborted the check at 6
+    invocations until I quoted it as prose.
+    Stop-on-first-error: three sequences now (next experiment 6, recovery 5,
+    setup 5), every invocation the failing one in turn, 0 after the failure.
+    Both disposable traces re-run after the helper changed: stage-to-check and
+    the recovery transition, every step exit 0.
+    No Git act, no product change, no deployed cleanup, no credential read. ONE
+    LIVE RUN STARTED AND STOPPED BY MISTAKE, reported above.
+
+### Unchanged
+
+The credential reference's currency remains unverified, the historical boundary
+failure remains UNKNOWN, production comparison and an actual live restore remain
+unproved, and accepted-without-correction must not trigger a forced rerun.
+
+Files: `correction_packet.py` (d5e65adabc0c), `test_correction_packet.py` (b942df0da84b), `OPERATOR-311743.md` (34f9199b2240), `DIAGNOSIS-314263.json` (03e1b395f5e0), `INTERRUPTED-RUN-314263.json` (a3db8168e5a9), `NEXT-EXPERIMENT-314263-SECOND.json` (a8a8368bb287), `SELECTIONS-RESOLVED-314263-SECOND.json` (4de5487f1b44), `STAGE-BOOTSTRAP-EVIDENCE-314263.json` (feaa546abfb0), `RECOVERY-TRANSITION-314263.json` (16371e168b3d), `ARGV-EVIDENCE-314263-SECOND.json` (cc6d77343a98), `STOP-ON-ERROR-EVIDENCE-314263-SECOND.json` (e48b6b3b0a25)
+
+## Claim 314414 (baton.claude, impl) -- the shared contract was not the implementer's alone
+
+Review 314389 requested changes on three things, and all three were right.
+
+### R1 -- an unconditional order in a SHARED document
+
+`instructions()` is the task document BOTH stages receive, and a resumed
+implementer receives it again with its own earlier document already on disk. My
+"your FIRST action creates the file" therefore told the REVIEWER to write the
+proposal and told a RESTORED IMPLEMENTER to reset its own correction to a
+skeleton -- the opposite of what this Job exists to prove.
+
+The contract now names the three situations and scopes what to do first to each:
+
+- IMPLEMENTER, file absent -- create it first, before reading anything beyond
+the instructions, as a skeleton with one section per numbered requirement and
+what each still needs. This is the branch the measurements argue for.
+- IMPLEMENTER, file present (resuming after feedback) -- READ IT FIRST AND
+PRESERVE IT, correct what the feedback identified and improve what is weak, IN
+PLACE. Do not reset it, do not restart it, do not discard a section for being
+differently written now: those bytes are the work the review was given.
+- REVIEWER -- writes no part of it. Read and judge against the requirements and
+the current implementation; creating or rewriting the proposal is not review.
+
+The criteria, the single-file scope and the 180-second cap stay identical for
+both roles, and the skeleton is stated to be the FLOOR rather than a pass.
+
+FOUR MUTATIONS, each caught (`CONTRACT-MUTATIONS-314414.json`): the
+unconditional order restored, the resumed branch dropped, the reviewer branch
+dropped, and a budget stated that the supervisor does not enforce. WITH THE
+LIMIT STATED IN THE EVIDENCE ITSELF: these are STRING assertions over a
+generated document. They protect its wording. They do not show that any model
+obeys it -- only the experiment could, and it has not been run.
+
+### R2 -- observation is not causation, and a residual is not a measurement
+
+`DIAGNOSIS-314263.json` now separates what was MEASURED from what is INFERRED
+and from what is PROPOSED:
+
+- measured: the transcript span of 172.408s, its first and last timestamps, 47
+shell calls, 73 assistant turns, `serving_seconds_spent` 184.435, the wall clock
+244.513, and the CLI's 3-second stdin warning;
+- the 5.537s I called manager overhead is relabelled **a RESIDUAL** --
+`serving_seconds_spent` minus the span minus startup -- an attribution by
+subtraction, not exclusive measured manager execution;
+- NOT established: the split between model latency, service queueing and tool
+execution inside the span; that the missing time reminder CAUSED the failure;
+that an early skeleton resolves completion within 180s. Provider delay and
+manager overhead are not ruled out by arithmetic, only BOUNDED by it;
+- the defect section is now an explicit HYPOTHESIS plus a PROPOSED experiment,
+and it names my superseded "first quarter" wording as superseded rather than
+leaving it described as current.
+
+AND THE CONTEXT STATE IS CORRECTED: a transcript on disk is RETAINED EVIDENCE,
+not a committed saved generation and not permission to restore. The use reads
+`held` / `invocation-unknown` at generation 0 -- an invocation that was never
+declared. I had written that the transcript "is what a restore would consume";
+that claim is gone.
+
+### The incident: my "no runtime left behind" was inaccurate
+
+It is only true if it means "still running". Review 314389 inspected the exact
+runtime and I have independently confirmed it: container `b93155adbe76...`
+EXISTS -- `Running=false`, `Status=exited`, `Pid=0`, `ExitCode=143` (the
+tool-timeout SIGTERM), created 09:19:18.638Z, finished 09:21:10.997Z. THE
+ACCURATE STATEMENT is that the runtime is STOPPED AND RETAINED and has NOT been
+removed, and the outcome's "no committed cleanup" stands: a stopped container is
+not a proved cleanup. No removal is authorized and none was attempted. The old
+claim is preserved in the record as corrected history.
+
+For contrast, and it is what makes the correction meaningful: the FIRST run's
+runtime really is gone -- `docker inspect` answers "no such object" -- exactly as
+its own outcome document says.
+
+### Exact remaining state, for the owner's decision
+
+From the accidental `managed-correction-314263` run: the installed instance
+(18,510 files, spent Job identity, published `outcome.json` -- interrupted, held,
+116.269s served, no committed cleanup), 10 packet documents, 108 staged files,
+the 168,402-byte retained conversation whose use is held with
+`invocation-unknown`, and the stopped retained container. From the authorized
+`managed-correction-309356` run: everything byte-identical, its runtime gone, its
+Job identity spent. I removed nothing, cleaned nothing, wrote nothing to the
+309356 run, ran no experiment and performed no version-control act. What needs an
+owner decision: the disposition of the retained container and the accidental
+paths, and whether the proposed SECOND experiment runs at all.
+
+### Measured
+
+    214 deterministic cases (203 packet/contract/roots/operator plus 11
+    connected), 0 failures, two runs.
+    4 contract mutations, every one caught; unmutated and restored runs clean.
+    The recovery-transition trace re-run after the helper changed: every step
+    exit 0.
+    Runtime state read with `docker inspect --format`, read-only; no engine
+    mutation, no removal.
+    No live run this turn, no deployed write, no product change, no Git or graph
+    act.
+
+Files: `correction_packet.py` (af405618646b), `test_correction_packet.py` (95c5253ff35d), `DIAGNOSIS-314263.json` (6bf498ecd77a), `INTERRUPTED-RUN-314263.json` (a73dfa2d821c), `CONTRACT-MUTATIONS-314414.json` (165b649d3d8f), `RECOVERY-TRANSITION-314263-SECOND.json` (72c0575cc640)
+
+## Claim 314551 (baton.claude, impl) -- the report that crashed, and the refusal nobody stopped for
+
+Owner reroute 314549. The second experiment ran: **the implementation stage
+COMPLETED**, the review provider timed out, the manager was then refused every
+tick for 104 seconds, and when the operator interrupted it the interruption
+REPORT ITSELF crashed.
+
+### FIRST, THE EXPERIMENT'S ANSWER: the scoped contract did what it was for
+
+The implementation worker's SECOND tool call, at 11.1 seconds, was
+`mkdir -p /output/docs && cat > /output/docs/v12-context-correction.md <<'EOF'`.
+Its FIRST call, at 2.7 seconds, checked whether the file already existed --
+which is the three-situation contract being followed exactly. It then read and
+refined for the rest of its turn, its output froze `completed`, and its runtime
+is gone. HONEST LIMIT: one session. It shows the first branch producing a file
+early; it does not establish that it always will, and the document's quality was
+the reviewer's question, which this run never answered.
+
+### The reporting defect, and why it survived
+
+`baseline.SupervisorInterrupted.__init__(why, outcome)` calls
+`super().__init__(why)` and sets `self.outcome`. IT SETS NO `self.why`. This
+module asked for `stopped.why`, so reporting an interruption raised
+`AttributeError` -- after the outcome had been printed, before the exit status
+was set. The accounting was on disk and correct; the last thing the operator saw
+was a traceback from the reporter.
+
+IT LIVED IN A BLOCK UNDER `if __name__ == "__main__"` MARKED `pragma: no cover`,
+unreachable by every test in this dossier. That is why a one-word attribute
+error reached a live run, and it is the part worth remembering: the reporting of
+a failure is a path, and an untested path is where this kind of defect goes to
+wait. It is three functions now -- `interruption_reason`, `unresolved_cleanup`,
+`report_interruption` -- and seven cases drive them over the REAL retained
+outcome. The reason comes from `args`, with the retained outcome's own
+`interrupted` field as a second witness. `baseline.py` is untouched.
+
+### The refusal the manager retained, and the stop condition that was missing
+
+From the run's own job store (`REVIEW-TIMEOUT-314551.json`): the reviewer was
+attached at 09:45:17.918 and its output was frozen **`unable`** at 09:48:18.283
+-- 180.4 seconds, the cap exactly. Then a `deferrals` row, `act: conclude`,
+`category: refused`, `code: precondition`, first seen 09:48:19.329 and still
+observed at 09:50:03.877:
+
+    preparing attempt ...'s roots is refused: attempt's output is 'sealed' and
+    its cleanup ended 'pending', so the worker's own material stands preserved
+    and offered for inspection. A preparation is a WRITER inside these roots and
+    the material is evidence while it is offered, so the offer is ENDED -- the
+    output axis reaching 'discarded' -- rather than written beside
+
+58 sweeps of that. AND THE STALL DETECTOR COULD NOT SEE IT: it requires
+`not settled["outstanding"]` before an unchanged projection counts as a stall,
+and the whole of this condition is that a cleanup IS outstanding. So the loop
+stopped only when an operator pressed Ctrl-C.
+
+`refused_acts` now reads every stage's outstanding reasons through the product's
+own `projection.deferral_of` and returns the `refused` ones; the serving loop
+ends the run with stop `conclusion-refused` when the SAME refusal -- stage, act,
+attempt, code and `since` -- repeats for `baseline.STALLED_TICKS` ticks. It
+waits that long because the product calls a deferral RE-ENTERABLE, so one tick's
+reason may still settle; a precondition refusal that does not move is a
+different thing. `conclusion-refused` is an UNFINISHED stop, so the run is held
+and a verdict does not rescue it, and the refusal's own sentence is retained in
+the outcome rather than only in the store.
+
+WHAT IT DELIBERATELY DOES NOT DO: attempt the ending the product asks for.
+Driving the output axis to `discarded` is a manager act this run is not
+authorized to add, so the unresolved cleanup is REPORTED rather than resolved.
+
+### Unresolved cleanup, reported separately as instructed
+
+The review attempt's runtime `1c3943d1fa0f...` is quiescent -- `docker inspect`
+read-only: `Running=false`, `exited`, `Pid=0`, `ExitCode=0`, finished
+09:48:18.103 -- and its cleanup NEVER COMMITTED. Two facts, and the second is
+not resolved by the first. The implementation attempt's runtime is genuinely
+gone and its cleanup was proved. No removal is authorized and none was
+attempted. `report_interruption` now prints this section by identity, so an
+operator reading the last lines of a stopped run is told.
+
+### Measured
+
+    226 deterministic cases (215 packet/supervisor/contract/operator plus 11
+    connected), 0 failures.
+    3 supervisor mutations -- read `.why` off the exception, report no
+    unresolved cleanup, treat every deferral as a refusal -- all caught;
+    unmutated and restored runs clean (SUPERVISOR-MUTATIONS-314551.json).
+    Stores read on COPIES in read-only mode; runtimes read with
+    `docker inspect --format`. No deployed write, no engine mutation, no live
+    run, no removal, no Git act, and no operator script executed -- checked
+    through stubs only, on the reroute's own instruction.
+
+### Next steps, and what they depend on
+
+The supervisor and the packet helper have both changed, so the retained
+manifests of every existing packet are stale by design: any next run starts from
+`stage` into a fresh destination, exactly as the accepted transition path
+describes. The review timeout itself is UNDIAGNOSED beyond "did not answer in
+180 seconds": a review worker is `/4` without `provider_context` by design, so
+it leaves no transcript, and the honest next experiment would have to make the
+reviewer's turn observable before concluding anything about its cap.
+
+Files: `correction_supervisor.py` (015d7982ff4e), `test_correction_packet.py` (0b195833c84b), `REVIEW-TIMEOUT-314551.json` (9fef177f85da), `SUPERVISOR-MUTATIONS-314551.json` (fb060019d4a1)
+
+## Claim 314654 (baton.claude, impl) -- the ending asked to write in roots it only needed to read
+
+Review 314636: my `conclusion-refused` guard stops the defect sooner and does
+NOT fulfil what owner E314549 selected, and the review's authority covers the
+concrete product correction. Both points taken.
+
+### R1 -- the product correction, and it is one line's worth of cause
+
+`tools/stage_execution.py`, `StageComposition.end`, was:
+
+    prepared = self._prepared.get(attempt_id) or self._prepare(stage)
+
+A review provider timed out, its output was frozen `unable`, intake SEALED it
+and the cleanup axis ended `pending` -- so the worker's material stood preserved
+and offered for inspection, exactly as DESIGN ART-7 intends. The manager asked
+`conclude` again; `end` found its `_prepared` cache EMPTY and called `_prepare`,
+which recovers the record AND COMPOSES A BOUNDARY. A boundary is admitted
+through `workspaces.admit_preparation`, and `_offered_material_refusal` refuses
+precisely that state, saying so exactly: a preparation is a WRITER inside those
+roots, and the offer is ENDED rather than written beside.
+
+THE REFUSAL WAS RIGHT AND THE CALLER WAS WRONG. `end` reads `writer_id`,
+`generation` and `attachment_id` -- and NOTHING else. It never reads
+`boundary`: I checked every line of it. So the identity it needs is one journal
+read of rows that do not move.
+
+`_recovered` takes `boundary=True` and composes one only when asked; a new
+`_retained` answers the identity with `boundary=False` and does NOT cache the
+result, because `mount` refuses a record without a boundary in as many words and
+caching one would break a later mount for an unrelated reason; and `end` calls
+`_retained`. `mount` is untouched -- a container IS started over a boundary, an
+ending is not. Nothing disposes the output, nothing writes in the roots, and no
+sealed byte moves: the correction is that the ending stops ASKING to.
+
+### R2 -- the guard's counter is now the code that runs
+
+The previous case rebuilt the fingerprint and never exercised the production
+counter. `refusal_fingerprint` and `blocked_by` are functions the serving loop
+calls, and four cases drive them: a transient refusal clears and never stops; the
+same refusal stops exactly at `baseline.STALLED_TICKS`; a moved `since` RESETS
+the count while an advancing `observed` does not (it advances every tick by
+design, so keying on it would mean the run never stopped); and an empty read --
+what `_guarded` answers when the read itself failed -- is not a refusal.
+
+### Measured
+
+    234 dossier cases (223 packet/supervisor/ending/contract/operator plus 11
+    connected), 0 failures.
+    THE PRODUCT'S OWN SUITES over the corrected file: tests.tools
+    test_stage_execution 431 PASS (177s), test_stage_execution_status_hardening
+    + test_single_worker 245 PASS, test_stage_execution_hardening 1 PRE-EXISTING
+    FAILURE -- `test_worker_construction_failure_closes_every_acquired_handle`
+    -- which I verified is NOT mine: I restored the pristine staged copy of
+    `stage_execution.py` (digest 38c4cf74db02, from before my edit), ran that
+    case against it, and it fails identically. Reported, not touched.
+    Five cases prove the ending composes no boundary, with the boundary
+    composers replaced by ones that FAIL IF CALLED, for both roles, plus that a
+    cached record is used as-is and that `mount` still requires one.
+
+### Product and test ownership, stated as the review asked
+
+I changed ONE product file: `tools/stage_execution.py` (`_recovered`'s
+`boundary` parameter, the new `_retained`, and `end`'s call). Its digest is
+below. The deterministic proof lives in THIS dossier's
+`test_correction_packet.py`, driving the real product class; the product's own
+`tests/tools` suites are unmodified and were run as-is. If the owner wants the
+proof to live under `tests/tools/`, that placement is theirs to direct -- I did
+not add a file to the product's suite.
+
+### What is still NOT proved, and it is the honest remainder
+
+The connected end-to-end demonstration the review describes -- a timeout and
+failed review driven over real stores, through repeated conclusion, a restart
+and the cache miss, proving the sealed bytes preserved AND the durable failure
+ending committed with no false verdict and the token and retention guarantees
+retained -- IS NOT DONE. What exists is the unit proof that the ending no longer
+asks for a preparation, plus the product's own 676 passing cases over the
+corrected file. Closing that gap needs a fixture that can seal an output and
+leave a cleanup pending, which is the accepted World's territory rather than
+something I should improvise at the end of a long turn.
+
+The review timeout's own cause also remains UNKNOWN: a `/4` reviewer leaves no
+transcript by design, and the cap is unchanged.
+
+Files: `correction_supervisor.py` (e9b2369bf527), `test_correction_packet.py` (fff84e3d00b0), and product `v12/python/tools/stage_execution.py` (bad0a355abcc).
+
+## Claim 314780 (baton.claude, impl) -- the connected proof, and it corrected my own diagnosis
+
+Review 314636 asked me to finish the connected failed-review ending proof over
+real stores. I wrote it, in the product's own suite, and IT FOUND THAT I HAD
+NAMED THE WRONG SITE.
+
+### THE CORRECTION TO MY LAST HANDOFF
+
+I reported that `stage_execution.StageComposition.end`'s cache-miss call to
+`_prepare` was what the sealed-output rule refused. Over a real control store in
+exactly that state, `_prepare` DOES NOT REFUSE: composing a review boundary does
+not admit a preparation. The case now asserts that directly, both halves from
+the same store.
+
+THE ADMISSION IS `single_worker._SingleWorker._mounted`, which calls
+`workspaces.admit_preparation(self.control, attempt_id, f"preparing attempt
+{attempt_id}'s roots", attempt_id, holding=held)` -- the live deferral's message
+WORD FOR WORD -- and `single_worker.ending` calls `self._mounted(stage,
+attempt_id, checkpoint=False)` at the top of the ending, BEFORE `stage.end` is
+reached at all. The case names both sites from the source rather than from my
+memory.
+
+So the `stage_execution` change I made last turn is a REAL HARDENING -- an
+ending no longer composes a boundary it never reads, and six cases hold it,
+including that `mount` still requires one -- but it is NOT the live refusal's
+cause, and I should not have said it was.
+
+### The connected proof that now exists
+
+`v12/python/tests/tools/test_stage_execution.py`,
+`TheFAILEDReviewEndingReadsRetainedFactsOverRealStores`, six cases over
+`ComposedLifecycleCase`'s real control store, real Job store, real line, real
+`prepare_implementation`/`freeze_checkpoint`/`prepare_review`, a really retained
+result manifest, and the real `admit_preparation` rule:
+
+- the real rule REALLY REFUSES this state, with its own words (`'sealed'`,
+`cleanup ended 'pending'`, `preserved and offered for inspection`, `output axis
+reaching 'discarded'`);
+- where the admission actually happens, and where it does not (above);
+- a cache-empty ending reads the retained identity -- attachment, checkpoint and
+generation -- composes no boundary, and does not cache the record;
+- FIVE repeated conclusions with a fresh cache each time (the restart case)
+leave the attempt axes, the `outputs` row, the manifests, the operations
+journal, the review attachment and the retentions BYTE-IDENTICAL, and the
+sealed manifest digest is the one the round retained;
+- no verdict is invented, the offer stays `sealed`, and the attachment stays
+`active` with `ended_at` null;
+- and the stage mount still requires a boundary.
+
+WHAT STANDS IN, named rather than implied: the engine and the provider. The
+freeze, intake, retention and cleanup OPERATIONS are not performed -- that is
+`ComposedLifecycleCase`'s own stated boundary -- so the two axes they would set
+are written directly, which is how the state under test is reached at all. The
+durable failed/held SETTLEMENT and the token/retention/cleanup transitions are
+therefore still NOT proved end to end, and the honest reason is that they need
+the ending's engine half.
+
+### The pre-existing hardening failure, with the comparison you asked for
+
+`HARDENING-FAILURE-314780.json` runs the case twice and records both:
+`test_worker_construction_failure_closes_every_acquired_handle` fails
+IDENTICALLY -- `AssertionError: Lists differ: ['coordinator', 'authority'] !=
+['implementation', 'coordinator', 'authority']` -- against my corrected file
+(digest bad0a355abcc) and against the PRISTINE staged copy (digest
+38c4cf74db02) that predates every edit I made. Same assertion, same exit code.
+The file was restored afterwards and the digest re-checked. I changed nothing to
+make it pass; it is reported as a pre-existing failure, not an all-green claim.
+
+### The vacuous assertion, fixed
+
+My cache assertion read `_prepared` off a NEWLY CONSTRUCTED worker, so it could
+not have failed whatever the code did. It now holds the worker that performed
+the read, and also asserts that a cached record IS returned from the cache -- so
+the absence is the recovery's choice rather than a cache that never fills.
+
+### Ownership, exactly
+
+Product code changed: `v12/python/tools/stage_execution.py` (bad0a355abcc) --
+`_recovered`'s `boundary` parameter, `_retained`, and `end`'s call. Product
+tests changed: `v12/python/tests/tools/test_stage_execution.py` (92455f826e25) -- ONE
+new class added, nothing existing altered. Dossier: `test_correction_packet.py`
+(094c9c80f194) and this record. No other product file is touched.
+
+### Measured
+
+    dossier 235 cases, 0 failures.
+    product tests.tools.test_stage_execution 437 PASS in 178s (431 before, plus
+    my six).
+    tests.tools.test_stage_execution_hardening: the ONE pre-existing failure
+    above, reproduced against the pristine file.
+    No live run, no deployed write, no engine mutation, no removal, no operator
+    script executed, no credential, Git or graph act.
+
+### What remains, precisely
+
+The durable failed/held settlement over real stores -- `end_review_from_result`
+through the pass, the retention decisions and the cleanup authorization, proving
+no duplicate effects -- is NOT proved, because it needs the engine half this
+fixture explicitly stands in for. AND THE ACTUAL LIVE FAILURE IS STILL
+UNCORRECTED: the admission sits in `single_worker.ending`'s `_mounted` call, and
+the fix there has to distinguish an ending that still needs to seal, collect and
+retain (which genuinely writes) from a RE-ENTRY whose output is already sealed
+and whose remaining steps are the pass and the cleanup (which does not). That is
+a product judgement with real blast radius, and I am not going to improvise it
+at the end of this turn.
+
+Files: `test_correction_packet.py` (094c9c80f194), `HARDENING-FAILURE-314780.json` (b7c5635df66d)
+
+## Claim 315116 (baton.claude, impl) -- the owning seam, corrected
+
+Owner release 315113 recovered claim 314855 after a connectivity loss (incident
+73) and asked me to inspect surviving processes, preserve the partial changes
+and continue. NO PROCESS SURVIVED -- no test runner, no supervisor, no engine --
+and every partial change was intact and re-verified before I touched anything.
+This entry records the work that claim did, which its own turn ended before
+writing down.
+
+### The fix, at the seam that actually refused
+
+Two changes, both in the direction the module already goes.
+
+`workspaces.material_is_offered(control, assignment_id)` -- ONE public
+predicate for the question `_offered_material_refusal` already asks: is this
+attempt's material preserved and offered for inspection? It is a journal read
+and nothing else. Two callers now ask it rather than spelling it twice.
+
+`workspaces.assignment_workspace` REVALIDATES instead of allocating when the
+answer is yes. That path already exists for a live task, and its own comment is
+the argument: "proving them is legitimate and writing to them is not, so
+nothing below runs and missing or replaced material refuses rather than being
+repaired." An ending re-entry whose output is already sealed needs the pair it
+sealed, not a new allocation over it.
+
+`single_worker._SingleWorker._mounted` OPENS NO PREPARATION WINDOW in that
+state. A window says a writer may be running inside those roots, and
+`admit_preparation` refuses to open one over offered material -- correctly. What
+was wrong is that an ending RE-ENTRY asked for one at all: its seal, collect and
+intake are already journalled, and what remains -- the retention decisions, the
+Authority pass, the cleanup authorization -- writes nothing there. `_released`
+now has nothing to close when nothing was opened, and a LAUNCH still admits its
+window, because a container really is a writer.
+
+### What the proof found that I had not expected
+
+`v12/python/tests/tools/test_stage_execution.py`,
+`TheFAILEDReviewEndingReadsRetainedFactsOverRealStores`, ten cases over
+`ComposedLifecycleCase`'s real stores. The mutation case -- the predicate forced
+to False -- does NOT refuse: `assignment_workspace` ADMITS AN ALLOCATION over
+offered material, because the offered-material guard lives on
+`admit_preparation`, which that entry never calls. So the unpatched path WRITES.
+That is why the correction routes it to revalidation instead of just removing
+the preparation window, and the case now asserts exactly that: the journal
+moves, an `allocation` operation appears, and the sealed `outputs` row and axes
+survive -- which is why the live defect was a refusal loop rather than lost
+bytes.
+
+The other nine hold: the real rule really refuses this state in its own words;
+where the admission happens and where it does not; the predicate is a question
+and not a constant (false for an ordinary attempt, false for a `complete`
+cleanup); the roots are revalidated with the journal unmoved; a cache-empty
+ending reads the retained identity and composes no boundary; five repeated
+conclusions with a fresh cache leave axes, outputs, manifests, operations,
+attachment and retentions byte-identical; no verdict is invented and the offer
+stays sealed; and the stage mount still requires a boundary.
+
+### Measured
+
+    product tests.tools.test_stage_execution + tests.manager.test_workspaces +
+    tests.tools.test_single_worker: 821 PASS in 195.8s.
+    dossier: 235 PASS.
+    tests.tools.test_stage_execution_hardening: the ONE pre-existing failure,
+    re-measured this turn against my file AND the pristine staged copy --
+    identical assertion, identical exit code, file restored and digest
+    re-checked (HARDENING-FAILURE-314780.json).
+    No live run, no deployed write, no engine mutation, no removal, no operator
+    script executed, no credential, Git or graph act.
+
+### Ownership, exactly
+
+Product code: `src/baton_v12/worker_manager/workspaces.py` (d4fea18eab1d),
+`tools/single_worker.py` (db05be6078d5), `tools/stage_execution.py`
+(bad0a355abcc, unchanged this turn). Product tests:
+`tests/tools/test_stage_execution.py` (dfef198759ee) -- one class, extended; nothing
+existing altered. No other product file is touched.
+
+### Still not proved, and I am not claiming it
+
+The durable failed/held SETTLEMENT end to end -- `end_review_from_result`
+through the pass, the retention decisions and the cleanup authorization, with no
+duplicate effects -- needs the engine half `ComposedLifecycleCase` explicitly
+stands in for. What is proved is that the re-entry no longer asks to write and
+changes nothing, which is the refusal loop's cause. The review timeout's own
+cause remains UNKNOWN, the deployed cleanup remains separately unresolved with
+no removal attempted, and the cap is unchanged.
+
+## Claim 315206 (baton.claude, impl) -- the skip is the ending's alone
+
+Review 315198 raised a safety concern about my own change and it was right, so
+that is what this claim fixed first.
+
+### THE HOLE I OPENED, AND HOW IT IS CLOSED
+
+`_mounted` is SHARED: a launch, an abandonment and the ending all call it. My
+first cut skipped the preparation window whenever the material was offered --
+FOR EVERY CALLER. A launch, a task publication or a credential writer reaching
+that state would then have lost the protection instead of being refused by it.
+
+The skip now needs the offered state AND `writer=False`, which only a re-entry
+that writes nothing passes. `_mounted(self, stage, attempt_id, *,
+checkpoint=True, writer=True)` -- the default keeps the admission and keeps the
+refusal -- and `ending` is the one call site that passes `writer=False`. THE
+CALLER'S INTENT DECIDES, NOT THE STATE ALONE.
+
+Four cases hold it, and they are about exclusion rather than about the happy
+path: a writer caller over offered material is still REFUSED, with the rule's
+own words; `writer` defaults to True and EXACTLY ONE of the three call sites
+passes False, asserted by counting them in the source and naming the function
+that contains it (`abandon_attempt` does not); a MISSING root under
+revalidation refuses and IS NOT REPAIRED -- the root stays gone and the journal
+does not move, because repairing a tree whose material is offered for
+inspection would destroy the evidence it protects; and a REPLACED root, a link
+at the name, refuses too and the link is still there afterwards.
+
+### What I established about the settlement proof, so the next claim does not search
+
+The review pointed at the runtime-capable fixture, and the missing piece was how
+to make a REAL review answer `unable`. It is in the worker itself:
+`worker/claude_agent.py` returns `{"disposition": "unable", ...,
+"recap": "unable: the review produced no usable report (...)"}` when `report is
+None` -- a turn whose provider leaves no usable `review-report.json`. And
+`tests/tools/test_stage_execution.py`'s
+`TheComposedJobTraversesReviewAndAcceptance.reviewed()` drives a real review
+turn through `turn(control, "review", attempt, mounted(...), edits={...})`,
+which is where that report is written.
+
+So the scenario is: `implemented()`, `drive(..., "review", "waiting")`, then
+`turn(...)` WITHOUT a usable report -- a real `unable` terminal -- then the real
+ending through seal and intake to `sealed`/`pending`, then a recreated execution
+and a re-entered ending, then the settlement assertions. That is a recipe rather
+than a result, and it is written down here because it is what the next claim
+should start from.
+
+### Measured
+
+    product tests.tools.test_stage_execution + tests.manager.test_workspaces +
+    tests.tools.test_single_worker: 825 PASS in 194.7s (821 before, plus the
+    four exclusion cases).
+    No live run, no deployed write, no engine mutation, no removal, no operator
+    script executed, no credential, Git or graph act.
+
+### Ownership
+
+Product code: `tools/single_worker.py` (f634e02296ff),
+`src/baton_v12/worker_manager/workspaces.py` (d4fea18eab1d, unchanged this
+claim). Product tests: `tests/tools/test_stage_execution.py` (21b2b71556ab) -- the
+same one class, extended; nothing existing altered.
+
+### Still not proved
+
+The durable failed/held SETTLEMENT -- `end_review_from_result` through
+retention, the pass and the cleanup authorization, over a recreated execution,
+with no duplicate effects and no false verdict -- is NOT proved. The recipe
+above is what it needs. The review timeout's cause remains UNKNOWN, the
+deployed cleanup remains separately unresolved with no removal attempted, the
+cap is unchanged, currency is unverified, and the live restore is unproved.
+
+## Claim 315275 (baton.claude, impl) -- the scenario, EXECUTED
+
+No recipe this time. `TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld`, six
+cases driving one submitted Job through the actual serving path with this
+suite's fake engine and the real worker code.
+
+### What ran
+
+`implemented()`, then the review stage to `waiting`, then a real review turn
+with `edits={}` -- NO USABLE REPORT, so `claude_agent` answers `unable` for the
+reason its own code gives (`report is None`). Then ordinary sweeps.
+
+    implementation completed | review answering | integration blocked
+    output 'sealed' | cleanup 'pending' | worker_disposition 'unable'
+
+The ending did its work getting there: the output frozen `unable` with a real
+manifest digest, the intake recorded `accepted` ("collected under the live
+assignment this attempt is fixed to"), and the retention decision taken
+(`retain`). NO ACT WAS DEFERRED -- the correction working in the real scenario.
+NO VERDICT was recorded, and the review attachment is still `active` with
+`ended_at` null: nothing was ended behind the reviewer's back.
+
+`answering` with a pending cleanup IS the correct rest state, not a stall. The
+ending's own contract says a held review settles nothing: the obligation stays
+owed, the operator keeps the frozen evidence, and no correction is opened on a
+verdict nobody gave. The case asserts that shape rather than a completion the
+product does not promise.
+
+### The counterfactual, in the same fixture
+
+With `material_is_offered` forced False -- the code as it was -- the manager's
+`conclude` act is DEFERRED with `refused`/`precondition` every tick. WHICH
+root-protection reason answers first depends on the token: here the execution's
+own workspace token has not been returned, so the governed-ownership refusal
+fires; in the live run the token HAD been returned and the offered-material
+refusal is what the deferral recorded. Same act, same kind of reason -- these
+roots are not a writer's to take -- and WITH THE CORRECTION NEITHER FIRES.
+
+### The recreated execution, and a finding I did not expect
+
+A second composition over the SAME stores -- the process restart -- re-enters
+and DUPLICATES NOTHING: operations, outputs, intakes, retentions, artifacts,
+verdict count and attachments are all byte-identical, and the sealed result
+manifest and its artifact rows are unchanged.
+
+BUT THE RESTART MEETS GOVERNANCE, and that is a different condition from the one
+this Work corrects: the first execution's workspace token was never returned --
+the run it belonged to is gone -- so the new composition is refused when it
+tries to ADOPT those roots: "a live governed execution owns these roots, and
+ownership is transferred after that token is returned rather than beside it".
+That refusal is about ownership ACROSS EXECUTIONS rather than about preserved
+material, the case asserts it explicitly (and asserts the offered-material
+sentence is NOT what fires), and I did not bypass it. It is the next real
+question for this path, and it is not mine to decide.
+
+### The writer paths, proved through the actual caller
+
+Not a source string this time: the review worker's own `_mounted` with the
+launch's default intent (`writer=True`) over this exact state RAISES the
+offered-material refusal, and the journal is byte-identical afterwards -- so it
+refused BEFORE any task publication or credential materialization. The same
+worker, same state, `writer=False` answers the roots it sealed, and the
+workspace directory is really there.
+
+### Measured
+
+    product tests.tools.test_stage_execution + tests.manager.test_workspaces +
+    tests.tools.test_single_worker: 841 PASS in 202.4s (825 before, plus these
+    sixteen cases, of which six are the scenario and ten the earlier
+    diagnostics).
+    No live run, no deployed write, no engine mutation, no removal, no operator
+    script executed, no credential, Git or graph act.
+
+### Ownership
+
+Product tests: `tests/tools/test_stage_execution.py` (b5ad1eac4cbb) -- the probe
+class I used to learn the shape is gone; what remains is the scenario class and
+the earlier diagnostic class. No product code changed this claim.
+
+### What is now true, and what is still open
+
+The durable failed-review settlement over the runtime-capable World is
+EXECUTED: sealed/pending reached with no refusal, retention and intake taken, no
+false verdict, no duplicates on re-entry, sealed bytes unchanged, and the writer
+paths still refused before they can write. STILL OPEN: an ending that must
+proceed after a process restart is blocked by the unreturned workspace token of
+the execution that died -- a governance condition this claim deliberately did
+not touch. The review timeout's cause remains UNKNOWN, the deployed cleanup
+remains separately unresolved with no removal attempted, and the cap is
+unchanged.
+
+## Claim 315369 (baton.claude, impl) -- a restart that is actually a restart
+
+Review 315364's R1 was right and it is the whole of this claim: my earlier
+"recreated execution" opened a second composition while the FIRST WAS STILL
+ALIVE, with a fresh fake engine. That proves refusal safety and says nothing
+about old-process death or recovery. I had also read the resulting ownership
+refusal as an owner policy question, which was inferring a finding from two live
+objects.
+
+### What a restart actually is, modelled
+
+`restarted()` closes the first composition through the factory's own `close`,
+then opens the SAME store files again on a LATER CLOCK -- which is what a
+restart really has, and which is what makes the dead execution's token overdue
+-- and reuses the SAME fake engine object, so the runtime state the first
+process left is the state this one finds. The stores require the frozen
+millisecond grammar, so the later instant is built in it.
+
+### The recovery, through the entry production calls
+
+`tools/job_manager.py`'s restart pass selects overdue governed candidates and
+calls `intake.reclaim_expired_resource` with its own lean `_ReclaimAdapter`.
+`reclaimed()` builds that adapter the same way -- the engine and its runner,
+nothing else -- so the four acts are the product's own: REVOKE, permitted only
+because the generation is overdue; STOP the exact container; POSITIVELY CONFIRM
+what it now is; SETTLE. NO TOKEN IS BYPASSED AND NO EXPIRY IS FAKED: the clock
+moved, `overdue` answers with `expired` true and `returned` false, and the
+revocation's own precondition is what permits it.
+
+Measured after it: the generation is `revoked`, and the sealed output, the
+intake, the retention, the artifacts, the verdict count and the attachments are
+EXACTLY what the first process left. The attempt's axes are unchanged too --
+still `sealed`, still `pending`, still `unable` -- because a reclaim is not a
+settlement of the review. Then the recovered process re-enters the ending and
+comes to rest in the same place: review `answering`, output `sealed`, and the
+freeze, intake and retention are the same journalled acts rather than second
+ones. No verdict was invented by any of it.
+
+### And the old case is relabelled rather than deleted
+
+`test_a_SECOND_LIVE_COMPOSITION_IS_REFUSED_BY_OWNERSHIP` says what it really
+proves: two live compositions, the first still holding its token, and the second
+refused. That is refusal safety, it is worth keeping, and it is not recovery.
+
+The counterfactual case now labels its refusal too: THE LIVE RUN recorded the
+OFFERED-MATERIAL refusal because its token had been returned; THIS FIXTURE
+records the OWNERSHIP refusal because the token is still held. Two different
+rules refusing the same `conclude` act, and the correction makes the ending stop
+asking, so neither is reached.
+
+### Measured
+
+    product tests.tools.test_stage_execution + tests.manager.test_workspaces +
+    tests.tools.test_single_worker: 843 PASS in 204.2s (841 before, plus the
+    two restart-recovery cases). The runtime-world class is 18 cases.
+    No live run, no deployed write, no engine mutation, no removal, no operator
+    script executed, no credential, Git or graph act. No product code changed
+    this claim.
+
+### Ownership
+
+Product tests: `tests/tools/test_stage_execution.py` (0d9ea1e07825). Nothing else
+touched.
+
+### What is still not settled, stated narrowly
+
+Nothing about the failed-review path is now unproved by this fixture: the
+same-execution ending, the writer refusals, the restart after expiry, the
+reclaim, the recovered ending, the immutable evidence and the absence of
+duplicates all run. What remains outside it is what it has always been -- the
+deployed cleanup of the two earlier live runs, still separately unresolved with
+no removal attempted; the review timeout's own cause, still UNKNOWN; the cap,
+unchanged; the credential currency, unverified; and a live restore, unproved.

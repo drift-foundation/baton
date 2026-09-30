@@ -18,6 +18,7 @@ test; the manager beneath it is not, and its accepted behaviour is not
 re-litigated here.
 """
 import contextlib
+import hashlib
 import io
 import json
 import os
@@ -1499,6 +1500,698 @@ class TheRESOLVED_SELECTION(unittest.TestCase):
         self.assertNotIn("already substituted", body)
 
 
+class TheINTERRUPTION_REPORT_IS_ITSELF_A_TESTED_PATH(unittest.TestCase):
+    """OWNER REROUTE 314549, and this defect cost an operator the report of a
+    real run.
+
+    `baseline.SupervisorInterrupted.__init__(why, outcome)` calls
+    `super().__init__(why)` and sets `self.outcome`. IT SETS NO `self.why`.
+    This module asked for `stopped.why`, so reporting an interruption raised
+    AttributeError -- after the outcome had been printed and before the exit
+    status was set. The accounting was on disk and correct; the last thing the
+    operator saw was a traceback from the reporter.
+
+    IT LIVED IN A BLOCK UNDER `if __name__ == "__main__"` MARKED
+    `pragma: no cover`, unreachable by every test here, which is exactly why a
+    one-word attribute error survived to a live run. The reporting is a
+    function now, and these drive it.
+    """
+
+    RETAINED = ("/home/sl/baton-instances/managed-correction-314263-second/"
+                "run/outcome.json")
+
+    def retained(self):
+        """The REAL outcome of the interrupted second experiment."""
+        with open(self.RETAINED, encoding="utf-8") as handle:
+            return json.load(handle)
+
+    def stopped(self, why="KeyboardInterrupt: signal 2", outcome=None):
+        return supervisor.baseline.SupervisorInterrupted(
+            why, self.retained() if outcome is None else outcome)
+
+    def test_THE_EXCEPTION_REALLY_HAS_NO_why_ATTRIBUTE(self):
+        """The product contract this module got wrong, asserted so that a
+        future reader does not have to take my word for it.
+        """
+        stopped = self.stopped()
+        self.assertFalse(hasattr(stopped, "why"))
+        # WHAT IT DOES HAVE: args, and the retained outcome.
+        self.assertEqual(stopped.args[0], "KeyboardInterrupt: signal 2")
+        self.assertEqual(stopped.outcome["run_id"],
+                         "managed-correction-314263-second")
+
+    def test_THE_REASON_IS_READ_FROM_ARGS(self):
+        self.assertEqual(
+            supervisor.interruption_reason(self.stopped()),
+            "KeyboardInterrupt: signal 2")
+
+    def test_THE_RETAINED_OUTCOME_IS_THE_SECOND_WITNESS(self):
+        """Constructed with no reason, the report still says what happened,
+        because `supervise` writes `interrupted` into the outcome before it
+        raises.
+        """
+        stopped = supervisor.baseline.SupervisorInterrupted(None,
+                                                            self.retained())
+        self.assertEqual(supervisor.interruption_reason(stopped),
+                         "KeyboardInterrupt: signal 2")
+        # AND WITH NEITHER, it says that rather than inventing one.
+        empty = supervisor.baseline.SupervisorInterrupted(None, {})
+        self.assertIn("no reason recorded",
+                      supervisor.interruption_reason(empty))
+
+    def test_REPORTING_PRINTS_THE_OUTCOME_THE_REASON_AND_EXITS_130(self):
+        """The whole path, over the real retained outcome. It must not raise."""
+        err, out = io.StringIO(), io.StringIO()
+        code = supervisor.report_interruption(self.stopped(), stream=err,
+                                              out=out)
+        self.assertEqual(code, 130)
+        # THE OUTCOME ITSELF, ON STDOUT, parseable.
+        printed = json.loads(out.getvalue())
+        self.assertEqual(printed["state"], "held")
+        self.assertEqual(printed["stopped"], "interrupted")
+        said = err.getvalue()
+        self.assertIn("interrupted: KeyboardInterrupt: signal 2", said)
+        self.assertIn("outcome 'failed-or-unknown', state 'held'", said)
+
+    def test_THE_UNRESOLVED_CLEANUP_IS_REPORTED_SEPARATELY(self):
+        """The reroute's own instruction. The second experiment left the review
+        attempt's runtime QUIESCENT with NO COMMITTED CLEANUP -- two different
+        facts, and the operator needs the second one named.
+        """
+        pending = supervisor.unresolved_cleanup(self.retained())
+        self.assertEqual(len(pending), 1, pending)
+        one = pending[0]
+        self.assertTrue(one["attempt_id"].startswith("attempt-fc0b0a1a"))
+        self.assertIsNone(one["cleanup"])
+        self.assertEqual(one["execution_runtime"], "quiescent")
+        self.assertEqual(one["stage_state"], "answering")
+        self.assertEqual(one["why"], "no committed cleanup")
+        err, out = io.StringIO(), io.StringIO()
+        supervisor.report_interruption(self.stopped(), stream=err, out=out)
+        said = err.getvalue()
+        self.assertIn("UNRESOLVED CLEANUP for 1 attempt(s)", said)
+        self.assertIn("a quiescent runtime is not a proved cleanup", said)
+        self.assertIn(one["runtime_id"], said)
+        self.assertIn("'answering'", said)
+
+    def test_A_PROVED_CLEANUP_IS_NOT_REPORTED_AS_UNRESOLVED(self):
+        """The other half: the implementation attempt of that same run HAD its
+        cleanup proved, so it must not appear -- or the warning would cry wolf
+        on every interrupted run.
+        """
+        held = self.retained()
+        proved = [name for name, one in held["cleanup"].items()
+                  if one.get("cleanup") is not None]
+        self.assertEqual(len(proved), 1, proved)
+        self.assertTrue(proved[0].startswith("attempt-355079c6"))
+        pending = {one["attempt_id"]
+                   for one in supervisor.unresolved_cleanup(held)}
+        self.assertNotIn(proved[0], pending)
+        # AND A RUN WITH NOTHING OUTSTANDING PRINTS NO WARNING AT ALL.
+        settled = dict(held, cleanup={
+            name: {"cleanup": "retained", "state": "absent",
+                   "why": "the engine answered that this exact identity does "
+                          "not exist"}
+            for name in held["cleanup"]})
+        self.assertEqual(supervisor.unresolved_cleanup(settled), [])
+        err, out = io.StringIO(), io.StringIO()
+        supervisor.report_interruption(self.stopped(outcome=settled),
+                                       stream=err, out=out)
+        self.assertNotIn("UNRESOLVED CLEANUP", err.getvalue())
+
+    def test_THE_FAILED_REVIEW_FINALISATION_HOLDS_AND_SAYS_WHY(self):
+        """The second experiment's shape, driven through the classifier: the
+        implementation COMPLETED, the review was left ANSWERING with no
+        verdict, and an operator interrupted it. That must hold, and it must
+        name each reason rather than reporting one.
+        """
+        held = self.retained()
+        outcome, held_because = supervisor.classify(
+            stop="interrupted", disposition=None, implementations=1, reviews=1,
+            continuity={"continued": False, "why": "no correction round "
+                                                   "happened"},
+            cleanup_outstanding=[one["attempt_id"] for one
+                                 in supervisor.unresolved_cleanup(held)],
+            interrupted="KeyboardInterrupt: signal 2")
+        self.assertEqual(outcome, supervisor.FAILED)
+        self.assertEqual(outcome, "failed-or-unknown")
+        answer = {"outcome": outcome, "held_because": held_because}
+        reasons = " | ".join(held_because)
+        self.assertIn("the run was interrupted", reasons)
+        self.assertIn("rather than completing its stages", reasons)
+        self.assertIn("cannot prove positive cleanup", reasons)
+        self.assertIn("an unread verdict is never an acceptance", reasons)
+        # AND IT IS THE SHAPE THE REAL RUN PUBLISHED.
+        self.assertEqual(sorted(answer["held_because"]),
+                         sorted(held["held_because"]))
+        self.assertEqual(held["stage_states"],
+                         {"implementation": "completed",
+                          "review": "answering"})
+
+
+# THE REFUSAL THE SECOND EXPERIMENT RETAINED, word for word from its own job
+# store's `deferrals` row. Used as the fixture's answer so these cases are
+# driven by what actually happened rather than by a plausible shape.
+RETAINED_DEFERRAL = {
+    "act": "conclude",
+    "episode": 1,
+    "attempt_id": "attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f"
+                  "516e99ce829891",
+    "operation_id": None,
+    "category": "refused",
+    "code": "precondition",
+    "message": "preparing attempt attempt-fc0b0a1a...'s roots is refused: "
+               "attempt's output is 'sealed' and its cleanup ended 'pending', "
+               "so the worker's own material stands preserved and offered for "
+               "inspection. A preparation is a WRITER inside these roots and "
+               "the material is evidence while it is offered, so the offer is "
+               "ENDED -- the output axis reaching 'discarded' -- rather than "
+               "written beside",
+    "since": "2026-09-30T09:48:19.329Z",
+    "observed": "2026-09-30T09:50:03.877Z",
+    "incarnation": "managed-correction-314263-second",
+}
+
+
+class TheREFUSED_ACT_ENDS_THE_RUN(unittest.TestCase):
+    """OWNER REROUTE 314549: the run spent its last 104 seconds and 58 sweeps
+    being refused.
+
+    The review provider timed out, its output was frozen `unable`, and the
+    manager then tried to CONCLUDE the review episode on every tick. The
+    product refused every time, and retained the reason. The stall detector
+    could not see it -- it requires `not settled["outstanding"]`, and the whole
+    point of this condition is that a cleanup IS outstanding -- so the loop
+    stopped only when an operator pressed Ctrl-C.
+    """
+
+    def deferrals(self, rows):
+        """A job store stand-in whose projection answers `rows`."""
+        class Store:
+            def __init__(self):
+                self._connection = self
+
+            def execute(self, _sql, _args):
+                return self
+
+            def fetchall(self):
+                return list(rows)
+        return Store()
+
+    def test_ONLY_REFUSED_ENTRIES_ARE_RETURNED(self):
+        """`unavailable` says the reason could not be read, which is not a
+        reason; every other category is a condition that can still settle.
+        """
+        from baton_v12.job_manager import projection
+
+        rows = [dict(RETAINED_DEFERRAL),
+                dict(RETAINED_DEFERRAL, category="pending",
+                     act="end", code=None),
+                dict(RETAINED_DEFERRAL, category="unavailable",
+                     code="unreadable")]
+        with mock.patch.object(projection, "deferral_of",
+                               lambda store, stage_id, settled=(): [
+                                   dict(one, stage=stage_id) for one in rows]
+                               if stage_id.endswith("review") else None):
+            held = supervisor.refused_acts(object(), "job-x")
+        self.assertEqual(len(held), 1, held)
+        self.assertEqual(held[0]["act"], "conclude")
+        self.assertEqual(held[0]["code"], "precondition")
+        self.assertEqual(held[0]["stage"], "review")
+
+    def test_BOTH_STAGES_ARE_ASKED(self):
+        from baton_v12.job_manager import projection
+
+        asked = []
+
+        def reader(store, stage_id, settled=()):
+            asked.append(stage_id)
+            return None
+
+        with mock.patch.object(projection, "deferral_of", reader):
+            self.assertEqual(supervisor.refused_acts(object(), "job-x"), [])
+        self.assertEqual(asked,
+                         ["job-x/implementation", "job-x/review"])
+
+    def test_conclusion_refused_IS_AN_UNFINISHED_STOP(self):
+        """It holds the run and says the run did not finish -- it is not an
+        ending a verdict could be read out of.
+        """
+        outcome, reasons = supervisor.classify(
+            stop="conclusion-refused", disposition=None, implementations=1,
+            reviews=1, continuity={"continued": False, "why": "no correction "
+                                                              "round happened"},
+            cleanup_outstanding=[RETAINED_DEFERRAL["attempt_id"]],
+            interrupted=None)
+        self.assertEqual(outcome, supervisor.FAILED)
+        said = " | ".join(reasons)
+        self.assertIn("the run stopped 'conclusion-refused' rather than "
+                      "completing its stages", said)
+        self.assertIn("cannot prove positive cleanup", said)
+        # AND A VERDICT DOES NOT RESCUE IT: the run could not finish, so it has
+        # nothing to report even if a reviewer had spoken.
+        outcome, _reasons = supervisor.classify(
+            stop="conclusion-refused", disposition="accepted",
+            implementations=1, reviews=1,
+            continuity={"continued": True, "why": "x"},
+            cleanup_outstanding=[], interrupted=None)
+        self.assertEqual(outcome, supervisor.FAILED)
+
+    # -- REVIEW 314636 R2: the PRODUCTION counter, not a shape rebuilt here.
+    # `blocked_by` is what the serving loop calls; these drive it.
+
+    def ticks(self, rows):
+        """Feed `blocked_by` one tick at a time, collecting its answers."""
+        blocked, answers = {"at": None, "count": 0}, []
+        for one in rows:
+            answers.append(supervisor.blocked_by(one, blocked))
+        return answers, blocked
+
+    def test_A_TRANSIENT_REFUSAL_CLEARS_AND_DOES_NOT_STOP(self):
+        """The product calls a deferral RE-ENTERABLE -- an ending that finishes
+        next tick, an offer not yet accepted -- so one tick's reason is not a
+        verdict on the run.
+        """
+        one = [dict(RETAINED_DEFERRAL, stage="review")]
+        answers, blocked = self.ticks([one, [], one, [], one])
+        self.assertEqual(answers, [False] * 5)
+        self.assertEqual(blocked["count"], 0)
+
+    def test_THE_SAME_REFUSAL_STOPS_AT_STALLED_TICKS(self):
+        """And not before: the count is the production one."""
+        ticks = supervisor.baseline.STALLED_TICKS
+        self.assertGreaterEqual(ticks, 2)
+        one = [dict(RETAINED_DEFERRAL, stage="review")]
+        answers, blocked = self.ticks([one] * (ticks + 1))
+        # THE FIRST SIGHTING IS NOT A REPEAT, so the stop lands on the tick
+        # after `STALLED_TICKS` further identical readings.
+        self.assertEqual(answers[:ticks], [False] * ticks)
+        self.assertTrue(answers[ticks])
+        self.assertEqual(blocked["count"], ticks)
+
+    def test_A_CHANGED_FINGERPRINT_RESETS_THE_COUNT(self):
+        """A moved `since` is a NEW condition, so the count starts again rather
+        than accumulating across different refusals.
+        """
+        ticks = supervisor.baseline.STALLED_TICKS
+        one = [dict(RETAINED_DEFERRAL, stage="review")]
+        moved = [dict(RETAINED_DEFERRAL, stage="review",
+                      since="2026-09-30T09:49:00.000Z")]
+        answers, blocked = self.ticks([one] * ticks + [moved])
+        self.assertEqual(answers[-1], False)
+        self.assertEqual(blocked["count"], 0)
+        self.assertEqual(blocked["at"], supervisor.refusal_fingerprint(moved))
+        # AND `observed` ADVANCING IS NOT A CHANGE: it advances every tick by
+        # design, so keying on it would mean the run never stopped.
+        advancing = [dict(RETAINED_DEFERRAL, stage="review",
+                          observed="2026-09-30T09:59:59.999Z")]
+        answers, _blocked = self.ticks([one] + [advancing] * ticks)
+        self.assertTrue(answers[-1])
+
+    def test_AN_EMPTY_READ_IS_NOT_A_REFUSAL(self):
+        """`_guarded` answers `[]` when the read itself failed, and a failed
+        read is not evidence that an act is being refused.
+        """
+        answers, blocked = self.ticks([[], [], [], [], []])
+        self.assertEqual(answers, [False] * 5)
+        self.assertEqual(blocked["at"], [])
+        self.assertIsNone(supervisor.blocked_by(None, {"at": [], "count": 99})
+                          or None)
+
+    def test_THE_RETAINED_RUN_IS_THE_CASE_THIS_EXISTS_FOR(self):
+        """Read from the deployed job store, on a copy: one refused `conclude`
+        deferral for the review stage, first seen 09:48:19 and still being
+        observed at 09:50:03 -- 104 seconds and 58 sweeps later.
+        """
+        with open(os.path.join(HERE, "REVIEW-TIMEOUT-314551.json"),
+                  encoding="utf-8") as handle:
+            held = json.load(handle)
+        one = held["the_refusal_the_manager_retained"]
+        self.assertEqual(one["act"], "conclude")
+        self.assertEqual(one["category"], "refused")
+        self.assertEqual(one["code"], "precondition")
+        self.assertIn("sealed", one["message"])
+        self.assertIn("cleanup ended 'pending'", one["message"])
+        self.assertEqual(one["first_seen_at"], "2026-09-30T09:48:19.329Z")
+        self.assertEqual(one["last_seen_at"], "2026-09-30T09:50:03.877Z")
+        self.assertEqual(held["cleanup_sweeps_spent_on_it"], 58)
+        # AND THE STALL DETECTOR IS EXPLAINED, not hand-waved.
+        self.assertIn("not settled[\"outstanding\"]",
+                      held["why_the_stall_detector_missed_it"])
+
+
+class TheENDING_READS_RETAINED_FACTS_AND_ADMITS_NO_PREPARATION(
+        unittest.TestCase):
+    """OWNER REROUTE 314549 R1, corrected in the PRODUCT under review 314636's
+    explicit authority.
+
+    A review provider timed out, its output was frozen `unable`, intake SEALED
+    it, and the cleanup axis ended `pending` -- so the worker's material stood
+    preserved and offered for inspection, exactly as DESIGN ART-7 intends.
+    `stage_execution.StageComposition.end` then found its `_prepared` cache empty
+    and called `_prepare`, which recovers the record AND COMPOSES A BOUNDARY;
+    a boundary is admitted through `workspaces.admit_preparation`, which
+    refuses precisely that state. THE REFUSAL WAS RIGHT AND THE CALLER WAS
+    WRONG: `end` reads `writer_id`, `generation` and `attachment_id` and never
+    reads `boundary`.
+
+    So `_retained` answers the identity from rows that do not move and composes
+    nothing, and `end` uses it. These cases hold that: the boundary composers
+    are replaced with ones that FAIL IF CALLED.
+    """
+
+    def worker(self, role, *, cached=None):
+        from tools import stage_execution
+
+        held = stage_execution.StageComposition.__new__(
+            stage_execution.StageComposition)
+        held.role = role
+        held.worker_id = role + "-worker"
+        held._prepared = dict(cached or {})
+
+        class Deployment:
+            control = object()
+            profile = {"name": "profile"}
+
+            def generation_of(self, _attempt_id):
+                return 2
+
+            def line_for(self, _job_id):
+                raise AssertionError("a new preparation was composed")
+
+        held.deployment = Deployment()
+        return held
+
+    def test_THE_REVIEW_ENDING_COMPOSES_NO_BOUNDARY(self):
+        from tools import stage_execution
+        from tools.stage_execution import review_cycles
+
+        attempt = RETAINED_DEFERRAL["attempt_id"]
+        attachment = {"attachment_id": "review-b094749fff85", "state": "active",
+                      "checkpoint_id": "checkpoint-96ff7a02"}
+
+        def explode(*_a, **_k):
+            raise AssertionError("review_boundary was composed by the ending")
+
+        with mock.patch.object(review_cycles, "review_for_attempt",
+                               lambda control, attempt_id, generation:
+                               attachment), \
+                mock.patch.object(review_cycles, "review_boundary", explode):
+            held = self.worker("review")._retained({"attempt_id": attempt,
+                                                    "job_id": "job-x"})
+        self.assertEqual(held["attachment_id"], "review-b094749fff85")
+        self.assertEqual(held["generation"], 2)
+        self.assertIsNone(held["boundary"])
+
+    def test_THE_RECOVERED_RECORD_IS_NOT_CACHED_ON_THE_SAME_WORKER(self):
+        """REVIEW 314759: my previous assertion read `_prepared` off a NEWLY
+        CONSTRUCTED worker, so it could not have failed whatever the code did.
+        This holds the worker that actually performed the read.
+
+        It matters because the recovered record carries NO boundary and `mount`
+        refuses a record without one -- so caching it would make a later mount
+        fail for a reason that has nothing to do with the mount.
+        """
+        from tools.stage_execution import review_cycles
+
+        attempt = RETAINED_DEFERRAL["attempt_id"]
+        attachment = {"attachment_id": "review-b094749fff85", "state": "active",
+                      "checkpoint_id": "checkpoint-96ff7a02"}
+        held = self.worker("review")
+        self.assertEqual(held._prepared, {})
+        with mock.patch.object(review_cycles, "review_for_attempt",
+                               lambda control, attempt_id, generation:
+                               attachment), \
+                mock.patch.object(
+                    review_cycles, "review_boundary",
+                    lambda *a, **k: (_ for _ in ()).throw(
+                        AssertionError("composed"))):
+            answered = held._retained({"attempt_id": attempt,
+                                       "job_id": "job-x"})
+        self.assertIsNone(answered["boundary"])
+        # THE SAME WORKER, AFTER ITS OWN READ.
+        self.assertEqual(held._prepared, {})
+        self.assertNotIn(attempt, held._prepared)
+        # AND A CACHED RECORD IS STILL RETURNED FROM THE CACHE, so the absence
+        # above is the recovery's choice rather than a cache that never fills.
+        held._prepared[attempt] = {"attachment_id": "a", "generation": 2,
+                                   "checkpoint_id": "c", "boundary": "held"}
+        again = held._retained({"attempt_id": attempt, "job_id": "job-x"})
+        self.assertEqual(again["boundary"], "held")
+
+    def test_THE_IMPLEMENTATION_ENDING_COMPOSES_NO_BOUNDARY_EITHER(self):
+        from tools.stage_execution import review_cycles
+
+        attempt = "attempt-355079c6"
+        writer = {"writer_id": "writer-1", "state": "active",
+                  "line_id": "line-9e77351", "based_checkpoint_id": None}
+
+        def explode(*_a, **_k):
+            raise AssertionError("writer_boundary was composed by the ending")
+
+        with mock.patch.object(review_cycles, "writer_for_attempt",
+                               lambda control, attempt_id, generation: writer), \
+                mock.patch.object(review_cycles, "writer_boundary", explode):
+            held = self.worker("implementation")._retained(
+                {"attempt_id": attempt, "job_id": "job-x"})
+        self.assertEqual(held["writer_id"], "writer-1")
+        self.assertIsNone(held["boundary"])
+
+    def test_A_CACHED_RECORD_IS_USED_AS_IT_IS(self):
+        """The ordinary tick, where launch already granted and cached one: no
+        read at all, and the boundary it carries is untouched.
+        """
+        attempt = "attempt-cached"
+        cached = {attempt: {"attachment_id": "a", "generation": 2,
+                            "checkpoint_id": "c", "boundary": "the-boundary"}}
+        held = self.worker("review", cached=cached)._retained(
+            {"attempt_id": attempt, "job_id": "job-x"})
+        self.assertEqual(held["boundary"], "the-boundary")
+
+    def test_MOUNT_STILL_COMPOSES_ONE(self):
+        """The correction is scoped to the ENDING. A container IS started over
+        a boundary, and `mount` must still require one -- so `_recovered`
+        composes it by default.
+        """
+        from tools import stage_execution
+        import inspect
+
+        said = inspect.signature(stage_execution.StageComposition._recovered)
+        self.assertEqual(said.parameters["boundary"].default, True)
+        source = inspect.getsource(stage_execution.StageComposition.mount)
+        self.assertIn("_prepare(stage, preparing=preparing)", source)
+        self.assertIn("boundary", source)
+
+    def test_END_USES_THE_RETAINED_READ(self):
+        from tools import stage_execution
+        import inspect
+
+        source = inspect.getsource(stage_execution.StageComposition.end)
+        self.assertIn("prepared = self._retained(stage)", source)
+        self.assertNotIn("self._prepared.get(attempt_id) or self._prepare",
+                         source)
+
+
+class TheCONTRACT_TELLS_THE_WORKER_IT_IS_ON_A_CLOCK(Fixture):
+    """OWNER REROUTE 314261, and it is what the first live run measured.
+
+    The run reached the provider and spent 172.4 of its 180 allowed seconds
+    READING -- 216 session entries, 73 assistant turns, 47 shell commands, no
+    repetition and no error -- and was stopped with the file never created. The
+    contract had told it what to write and what would be accepted. It had never
+    told it that the turn was BOUNDED, and an agent that does not know it is on
+    a clock reads until the clock ends.
+
+    These hold the corrected contract to saying so. They do NOT raise the
+    timeout: the cap is untouched, and the next experiment changes this one
+    thing.
+    """
+
+    def instructions(self):
+        return packets.instructions()
+
+    def test_THE_CONTRACT_STATES_THE_TURN_BUDGET_AND_IT_IS_THE_REAL_ONE(self):
+        said = self.instructions()
+        self.assertIn("YOUR TURN IS BOUNDED", said)
+        # THE NUMBER IS THE BOUND, read from the bounds rather than typed twice:
+        # a contract that named a different budget than the supervisor enforces
+        # would be worse than one that named none.
+        self.assertIn(str(packets.BOUNDS["turn_seconds"]) + " SECONDS", said)
+        self.assertIn("stopped at that point whether or not the file exists",
+                      said)
+
+    def test_IT_CITES_WHAT_THE_FIRST_RUN_ACTUALLY_SPENT(self):
+        """Not an exhortation: the measurement, because the number is the
+        argument. 172 seconds of 180, and no deliverable."""
+        said = self.instructions()
+        self.assertIn(packets.FIRST_RUN_READING, said)
+        self.assertIn("172", packets.FIRST_RUN_READING)
+        self.assertIn("wrote nothing", said)
+
+    def test_THE_THREE_SITUATIONS_ARE_SCOPED_AND_NAMED(self):
+        """REVIEW 314389 R1, and it was a real defect in the contract.
+
+        This document is the SHARED task: the implementation stage and the
+        review stage receive these same bytes, and a resumed implementer
+        receives them again with its own earlier document on disk. An
+        unconditional "create a skeleton first" told the REVIEWER to write the
+        proposal and told a RESTORED implementer to throw its own correction
+        away -- which is the opposite of what this Job exists to prove.
+        """
+        said = self.instructions()
+        self.assertIn("WHICH OF THREE SITUATIONS YOU ARE IN", said)
+        fresh = said.index("IF YOU ARE THE IMPLEMENTER AND `")
+        resumed = said.index("IF YOU ARE THE IMPLEMENTER AND THE FILE ALREADY "
+                             "EXISTS")
+        reviewing = said.index("IF YOU ARE THE REVIEWER")
+        # THE ORDER MATTERS: the skeleton order is inside the FRESH branch, so
+        # it cannot be read as advice to everyone.
+        self.assertLess(fresh, resumed)
+        self.assertLess(resumed, reviewing)
+        self.assertIn("DOES NOT EXIST YET", said[fresh:resumed])
+        self.assertIn("your FIRST action creates it", said[fresh:resumed])
+
+    def test_A_RESUMED_CORRECTION_IS_TOLD_TO_PRESERVE_ITS_DOCUMENT(self):
+        """The managed-correction case this whole Job is about: a restored
+        implementer improves what it wrote, in place.
+        """
+        said = self.instructions()
+        resumed = said[said.index("IF YOU ARE THE IMPLEMENTER AND THE FILE "
+                                  "ALREADY EXISTS"):
+                       said.index("IF YOU ARE THE REVIEWER")]
+        self.assertIn("READ IT FIRST AND PRESERVE IT", resumed)
+        self.assertIn("in place", resumed)
+        self.assertIn("Do NOT reset it to a skeleton", resumed)
+        self.assertIn("the bytes already there are the work the review was "
+                      "given", resumed)
+        # AND THE SKELETON ORDER IS NOT REPEATED INSIDE THIS BRANCH.
+        self.assertNotIn("your FIRST action creates it", resumed)
+
+    def test_THE_REVIEWER_IS_TOLD_IT_WRITES_NO_PART_OF_IT(self):
+        said = self.instructions()
+        reviewing = said[said.index("IF YOU ARE THE REVIEWER"):]
+        self.assertIn("you write no part of it", reviewing)
+        self.assertIn("Creating or rewriting the proposal is not review",
+                      reviewing)
+        self.assertNotIn("your FIRST action creates it", reviewing)
+        # THE JUDGING RULE STILL STANDS SEPARATELY.
+        self.assertIn("JUDGING IS NOT THIS STAGE", said)
+
+    def test_BOTH_ROLES_GET_THE_SAME_CRITERIA_AND_THE_SAME_CAP(self):
+        """The requirements are given to both parties in the same words, and
+        the bound is one bound: a contract that scoped those per role would be
+        a different defect.
+        """
+        said = self.instructions()
+        for one in packets.CRITERIA:
+            self.assertEqual(said.count(one), 1, one[:40])
+        self.assertEqual(said.count("YOUR TURN IS BOUNDED"), 1)
+        self.assertIn(str(packets.BOUNDS["turn_seconds"]) + " SECONDS", said)
+        # THE SINGLE-FILE SCOPE IS STILL STATED ONCE, FOR BOTH.
+        self.assertEqual(
+            said.count("is the only file this Job may add or alter"), 1)
+
+    def test_WHAT_THESE_ASSERTIONS_DO_NOT_PROVE(self):
+        """REVIEW 314389, stated as a case so it cannot be forgotten: these are
+        STRING assertions over a generated document. They prove the contract
+        SAYS these things. They do not prove any model obeys them, that an
+        early skeleton leads to acceptance, or that the diagnosis was right.
+        The experiment is what would test that, and it has not been run.
+        """
+        with open(os.path.join(HERE, "DIAGNOSIS-314263.json"),
+                  encoding="utf-8") as handle:
+            held = json.load(handle)
+        self.assertIn("proposed", json.dumps(held["the_defect_this_points_at"]
+                                             ).lower())
+        self.assertIn("HYPOTHESIS",
+                      held["the_defect_this_points_at"]["hypothesis"])
+        # THE RESIDUAL IS LABELLED A RESIDUAL.
+        self.assertIn("manager_overhead_seconds_is_a_RESIDUAL",
+                      held["where_the_time_went"])
+        self.assertIn("ATTRIBUTION BY SUBTRACTION",
+                      held["where_the_time_went"][
+                          "how_the_residual_was_computed"])
+        # AND THE SUPERSEDED FIRST ATTEMPT IS NAMED AS SUPERSEDED.
+        self.assertIn("SUPERSEDED", held["the_defect_this_points_at"][
+            "superseded_first_attempt"])
+        # AND THE RETAINED TRANSCRIPT IS NOT A RESTORABLE GENERATION.
+        said = held["cleanup_and_context_state"]["conversation_retained"]["so"]
+        self.assertIn("NOT proof of a committed saved generation", said)
+        self.assertIn("NOT permission to restore", said)
+        limits = held["what_these_measurements_do_not_establish"]
+        for one in ("partition", "caused", "guarantee"):
+            self.assertTrue(any(one in str(value).lower()
+                                for value in limits.values()), one)
+
+    def test_IT_ORDERS_THE_FIRST_ACTION_RATHER_THAN_ADVISING_A_PACE(self):
+        """The correction the SECOND measured session forced: a contract that
+        stated the bound and asked for a file "within the first quarter" still
+        met a worker that spent its first 51.6 seconds reading. Telling an agent
+        it is on a clock does not change what it does first.
+        """
+        said = self.instructions()
+        self.assertIn("your FIRST action creates it", said)
+        self.assertIn("before reading anything beyond the instructions", said)
+        self.assertIn("one section per numbered requirement", said)
+        self.assertIn("what you still need to confirm", said)
+        # AND IT IS THE FLOOR, NOT A PASS.
+        self.assertIn("An early skeleton is not acceptance", said)
+        # AND THE SECOND SESSION'S MEASUREMENT IS THE ARGUMENT FOR IT.
+        self.assertIn(packets.SECOND_RUN_READING, said)
+        self.assertIn("51", packets.SECOND_RUN_READING)
+        self.assertIn("rather than advice about your pace", said)
+        # AND WHAT TO DO WITH WHAT IT COULD NOT CONFIRM, which is the honest
+        # alternative to spending the turn confirming it.
+        self.assertIn("WRITE DOWN WHAT YOU DID NOT CONFIRM", said)
+        self.assertIn("READ WITH A BUDGET", said)
+
+    def test_THE_ACCEPTANCE_REQUIREMENTS_ARE_UNCHANGED(self):
+        """The budget is guidance about HOW to spend the turn. It must not
+        quietly become a requirement, because the criteria are given to the
+        reviewer in these same words.
+        """
+        said = self.instructions()
+        for one in packets.CRITERIA:
+            self.assertIn(one, said)
+        # THE JUDGING RULE IS STILL THERE TOO.
+        self.assertIn("JUDGING IS NOT THIS STAGE", said)
+        # AND THE BUDGET IS NOT PART OF WHAT IS JUDGED: it appears AFTER the
+        # requirements and the judging rule.
+        self.assertLess(said.index("JUDGING IS NOT THIS STAGE"),
+                        said.index("YOUR TURN IS BOUNDED"))
+        for one in packets.CRITERIA:
+            self.assertLess(said.index(one), said.index("YOUR TURN IS BOUNDED"))
+
+    def test_THE_TASK_DOCUMENT_THE_WORKER_READS_CARRIES_IT(self):
+        """The contract is not a comment in this module: it is the task
+        document's `instructions`, which is what reaches the worker.
+        """
+        chosen = packets.held_selections(self.selections())
+        document = packets.task_document(chosen,
+                                         job_id=packets.job_id_of(chosen))
+        self.assertEqual(document["instructions"], self.instructions())
+        self.assertIn("YOUR TURN IS BOUNDED", document["instructions"])
+
+    def test_THE_CHANGED_CONTRACT_IS_A_NEW_JOB_IDENTITY(self):
+        """The spent run's Job identity cannot be re-submitted -- its own store
+        refuses it -- and the corrected contract digests differently anyway, so
+        the next experiment is a new run identity rather than a repeat.
+        """
+        chosen = packets.held_selections(self.selections())
+        document = packets.task_document(chosen,
+                                         job_id=packets.job_id_of(chosen))
+        body = json.dumps(document, indent=2, sort_keys=True) + "\n"
+        # THE DIGEST THE SPENT RUN CARRIED, recorded in this dossier's
+        # diagnosis, differs from what the corrected contract produces.
+        with open(os.path.join(HERE, "DIAGNOSIS-314263.json"),
+                  encoding="utf-8") as handle:
+            held = json.load(handle)
+        self.assertNotEqual(held["spent_run"]["task_digest"],
+                            "sha256:" + hashlib.sha256(
+                                body.encode("utf-8")).hexdigest())
+        self.assertIn("already records", held["spent_run"]["job_identity"])
+
+
 class TheFILESYSTEM_ROOTS_ARE_ESTABLISHED_BEFORE_THEY_ARE_REGISTERED(Fixture):
     """OWNER REROUTE 312164, measured from a LIVE run.
 
@@ -1917,6 +2610,117 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
                 stream=io.StringIO())
         self.assertEqual(raised.exception.code, 2)
 
+    def test_THE_RECOVERY_STARTS_AT_STAGE_BECAUSE_THE_HELPER_CHANGED(self):
+        """OWNER REROUTE 312403: the reviewed recovery began at `bind`, and
+        `bind` refused -- correctly -- because `correction_packet.py` changed
+        since the retained manifest was written. `stage` is the only thing that
+        records digests, so the transition is a `stage` into a fresh
+        destination, and the drift check is never disabled.
+        """
+        held = self.read(os.path.join(HERE, "RECOVERY-312411.json"))
+        self.assertEqual([one["step"] for one in held["recovery"]["steps"]],
+                         [0, 2, 3, 4, 5])
+        self.assertEqual(held["supersedes"], "RECOVERY-312166.json")
+        # STEP 1 IS ABSENT: the instance exists and bootstrap is not re-run.
+        self.assertNotIn(1, [one["step"] for one in held["recovery"]["steps"]])
+        # A FRESH DESTINATION, so the old packet documents stay as they are.
+        destinations = {one["command"][one["command"].index("--destination")
+                                       + 1]
+                        for one in held["recovery"]["steps"]
+                        if "--destination" in one["command"]}
+        self.assertEqual(len(destinations), 1, destinations)
+        self.assertNotIn(
+            "/home/sl/baton-instances/managed-correction-309356-packet-311743",
+            destinations)
+        # AND THEY ARE THE GENERATOR'S OWN ARGV.
+        chosen = packets.held_selections(self.RESOLVED)
+        destination = destinations.pop()
+        generated = {one["step"]: one for one in packets.commands(
+            chosen,
+            prepared={"destination": destination, "claim": held["claim"],
+                      "selections": self.RESOLVED,
+                      "provenance": os.path.join(HERE,
+                                                 "PROVENANCE-309356.json"),
+                      "bootstrap_inputs": destination
+                      + "/bootstrap-inputs.json",
+                      "packet": destination + "/packet.json"},
+            job_id=packets.job_id_of(chosen))}
+        for one in held["recovery"]["steps"]:
+            self.assertEqual(one["command"],
+                             generated[one["step"]]["command"], one["step"])
+        # NO REPAIR AND NO RE-SIGNING, ANYWHERE.
+        for one in held["recovery"]["steps"]:
+            for part in one["command"]:
+                for forbidden in ("mkdir", "chmod", "chown", "rm", "rmdir",
+                                  "cp", "mv"):
+                    self.assertNotEqual(part, forbidden, one)
+        self.assertIn("no_drift_check_is_disabled_and_no_digest_is_re_signed",
+                      held["recovery"])
+
+    def test_THE_TRANSITION_IS_PROVED_FROM_THE_OLD_MANIFEST(self):
+        """Not from a freshly staged fixture, which is what the reroute asked:
+        an installation built through `check` as the owner's was, its retained
+        manifest set to THE REAL HISTORICAL digest, `bind` refusing, and then
+        the recovery succeeding over the same installation.
+        """
+        held = self.read(os.path.join(HERE,
+                                      "RECOVERY-TRANSITION-314263-SECOND.json"))
+        # THE REPRODUCTION USED THE HISTORICAL DIGEST, not an invented one.
+        self.assertEqual(held["reproduced"]["module"], "correction_packet.py")
+        self.assertEqual(len(held["reproduced"]["now"]), 64)
+        self.assertNotEqual(held["reproduced"]["now"],
+                            held["reproduced"]["was"])
+        self.assertEqual(held["reproduced"]["was"],
+                         packets.digest_of(os.path.join(
+                             HERE, "correction_packet.py")))
+        self.assertTrue(all(one in "0123456789abcdef"
+                            for one in held["reproduced"]["now"]))
+        # `bind` REFUSED, naming the module and refusing to re-sign.
+        refused = held["bind_over_the_old_manifest"]
+        self.assertEqual(refused["returncode"], 2)
+        self.assertTrue(refused["names_the_module"])
+        self.assertTrue(refused["refuses_rather_than_re_signing"])
+        # THE RECOVERY RAN, in order, all exit 0.
+        self.assertEqual([one["step"] for one in held["recovery"]["steps"]],
+                         ["stage", "prepare-work", "bind", "check"])
+        for one in held["recovery"]["steps"]:
+            self.assertEqual(one["returncode"], 0, one)
+        self.assertFalse(held["recovery"]["bootstrap_re_run"])
+        self.assertTrue(held["recovery"]["equals_the_corrected_helper"])
+        self.assertEqual(held["recovery"]["staged_file_count"], 108)
+        # AND NOTHING THAT MUST BE PRESERVED MOVED.
+        kept = held["preserved"]
+        self.assertTrue(kept["old_destination_unchanged"])
+        self.assertTrue(kept["instance_record_unchanged"])
+        self.assertTrue(kept["staged_tree_unchanged"])
+        self.assertEqual(kept["staged_tree_file_count"], 108)
+        self.assertEqual(len(kept["old_destination_documents"]), 10)
+        # THEN THE RECOVERED PACKET RUNS.
+        ran = held["baseline_prepare_after_recovery"]
+        self.assertEqual(ran["returncode"], 0)
+        self.assertTrue(ran["configured_workspace_storage"])
+        self.assertTrue(ran["configured_context_storage"])
+        self.assertEqual(held["deployed_writes"], 0)
+
+    def test_THE_INODE_PIN_IS_RECORDED_AS_WHAT_THE_RECOVERY_MUST_NOT_DO(self):
+        """Found by running it: once `prepare` has committed, the workspace
+        root's device and inode are pinned inside the context-storage
+        signature, so a re-made directory is a different root and a second
+        `prepare` is refused. It does not affect this recovery, and it is the
+        reason the recovery never deletes or re-makes a root.
+        """
+        held = self.read(os.path.join(HERE,
+                                      "RECOVERY-TRANSITION-314263-SECOND.json"))
+        finding = held["operational_finding"]
+        self.assertIn("DEVICE AND INODE", finding["what"])
+        self.assertIn("already recorded with a different kind or signature",
+                      finding["what"])
+        self.assertIn("registered NOTHING",
+                      finding["why_it_does_not_affect_this_recovery"])
+        body = self.read(self.OPERATOR)
+        self.assertIn("device and inode are", body)
+        self.assertIn("a fresh instance, not a repair", body)
+
     def test_THE_RECOVERY_IS_THE_GENERATORS_OWN_STEPS_AND_REPAIRS_NOTHING(self):
         """OWNER REROUTE 312164: minimal recovery for the EXISTING
         installation, and no deployed repair by an agent.
@@ -1968,7 +2772,7 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
         operator sequence omits.
         """
         held = self.read(os.path.join(
-            HERE, "STAGE-BOOTSTRAP-EVIDENCE-312166.json"))
+            HERE, "STAGE-BOOTSTRAP-EVIDENCE-314263.json"))
         prepare = held["baseline_prepare"]
         done = prepare["succeeded"]
         self.assertEqual(done["returncode"], 0)
@@ -2056,13 +2860,14 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
         self.assertIn("set -e", body)
         self.assertIn("set -o pipefail", body)
         evidence = self.read(os.path.join(
-            HERE, "STOP-ON-ERROR-EVIDENCE-312305.json"))
+            HERE, "STOP-ON-ERROR-EVIDENCE-314263-SECOND.json"))
         self.assertTrue(evidence["every_case_stopped"])
         # BOTH SEQUENCES: the recovery for the existing installation and the
         # full setup. A document with two sequences has two places to get this
         # wrong, and every invocation of each is the failing one in turn.
         self.assertEqual(sorted(evidence["measured"]),
-                         ["recovery (section 1b)", "setup (section 2)"])
+                         ["next experiment (section 1c)",
+                          "recovery (section 1d)", "setup (section 2)"])
         for name, held in sorted(evidence["measured"].items()):
             self.assertEqual([one["failed_at_invocation"]
                               for one in held["cases"]],
@@ -2073,16 +2878,21 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
                 self.assertNotEqual(one["sequence_returncode"], 0, one)
 
     def test_THE_ARGV_IS_VERIFIED_AND_STAGE_IS_IN_IT(self):
-        evidence = self.read(os.path.join(HERE, "ARGV-EVIDENCE-312305.json"))
+        evidence = self.read(os.path.join(HERE, "ARGV-EVIDENCE-314263-SECOND.json"))
         self.assertEqual(evidence["faults"], [])
         self.assertEqual(evidence["sh_n"], "OK")
         self.assertEqual(evidence["returncode"], 0)
         self.assertTrue(evidence["stops_on_first_error"])
+        # TWICE NOW: the recovery sequence begins with `stage` as well, which
+        # is the transition the reviewed recovery omitted. Each invocation must
+        # carry its own operands in its own command.
         named = [argv for argv in evidence["invocations"] if "stage" in argv]
-        self.assertEqual(len(named), 1, named)
-        for operand in ("--selections", "--destination", "--claim",
-                        "--provenance"):
-            self.assertIn(operand, named[0])
+        self.assertEqual(len(named), 3, named)
+        for argv in named:
+            for operand in ("--selections", "--destination", "--claim",
+                            "--provenance"):
+                self.assertIn(operand, argv)
+        self.assertEqual(evidence["subcommand_invocations"]["stage"], 3)
 
     def test_THE_STAGE_TO_BOOTSTRAP_PATH_WAS_DRIVEN_AND_THE_DEFECT_SHOWN(self):
         """The reroute asked for the actual path to be proved in a disposable
@@ -2126,6 +2936,54 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
         self.assertEqual(held["packet"]["frozen_assets"],
                          sorted(held["staged_source_report"]["assets"]))
 
+    def test_THE_INCIDENT_RECORD_CORRECTS_THE_RUNTIME_CLAIM(self):
+        """REVIEW 314389: I wrote "no worker runtime is left behind", which is
+        only true if it means "still running". The container EXISTS -- stopped,
+        exit 143, not removed -- and the outcome still records no committed
+        cleanup. A stopped container is not a proved cleanup.
+        """
+        held = self.read(os.path.join(HERE, "INTERRUPTED-RUN-314263.json"))
+        fixed = held["CORRECTION_after_review_314389"]
+        # THE OLD CLAIM IS PRESERVED AS CORRECTED HISTORY, not deleted.
+        self.assertIn("No worker runtime is left behind",
+                      fixed["what_I_claimed"])
+        measured = fixed["measured"]
+        self.assertEqual(measured["Running"], False)
+        self.assertEqual(measured["Pid"], 0)
+        self.assertEqual(measured["ExitCode"], 143)
+        self.assertEqual(measured["Status"], "exited")
+        self.assertTrue(measured["container"].startswith("b93155adbe76"))
+        self.assertIn("read-only", measured["read_with"])
+        self.assertIn("STOPPED AND RETAINED", fixed["the_accurate_statement"])
+        self.assertIn("not a proved cleanup", fixed["the_accurate_statement"])
+        self.assertIn("no removal is authorized",
+                      fixed["not_removed_and_not_removable_here"].lower())
+        # AND THE OTHER RUN'S RUNTIME IS GENUINELY GONE, which is the contrast
+        # that makes the correction meaningful rather than pedantic.
+        self.assertIn("no such object", fixed["the_other_run_for_contrast"])
+
+    def test_THE_EXACT_REMAINING_STATE_IS_SPELLED_OUT_FOR_THE_OWNER(self):
+        """The reroute's own requirement after an incident: the owner is told
+        precisely what remains, including what needs their decision.
+        """
+        held = self.read(os.path.join(HERE, "INTERRUPTED-RUN-314263.json"))
+        state = held["exact_remaining_state_for_the_owner"]
+        accidental = state["from_the_accidental_run_at_"
+                           "managed-correction-314263"]
+        self.assertEqual(accidental["instance"]["files"], 18510)
+        self.assertIn("SPENT", accidental["instance"]["job_identity"])
+        self.assertIn("STOPPED AND RETAINED", accidental["runtime"])
+        self.assertIn("held with reason invocation-unknown",
+                      accidental["retained_conversation"])
+        authorized = state["from_the_authorized_run_at_"
+                           "managed-correction-309356"]
+        self.assertIn("byte-identical", authorized["state"])
+        self.assertIn("no such object", authorized["runtime"])
+        # WHAT I DID NOT DO, AND WHAT IS THEIRS TO DECIDE.
+        self.assertIn("remove any container", state["what_I_did_NOT_do"])
+        self.assertTrue(any("disposition" in one
+                            for one in state["what_needs_an_owner_decision"]))
+
     def test_THE_HISTORICAL_INVENTORY_IS_LABELLED_AS_HISTORICAL(self):
         """REVIEW 312285: section 1 still described the instance as ABSENT
         while 1b described the installation that now exists. A record and a
@@ -2135,20 +2993,39 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
         """
         body = self.read(self.OPERATOR)
         first = body[body.index("## 1. "):body.index("## 1b. ")]
-        current = body[body.index("## 1b. "):body.index("## 2. ")]
+        ran = body[body.index("## 1b. "):body.index("## 1c. ")]
+        current = body[body.index("## 1c. "):body.index("## 1d. ")]
+        delivered = body[body.index("## 1d. "):body.index("## 2. ")]
+        # EACH SECTION SAYS WHICH IT IS, because this document now carries a
+        # record of two failures, the run that happened, and one live decision.
         self.assertIn("HISTORICAL", first)
         self.assertIn("NOT THE CURRENT STATE", first)
         self.assertIn("EXISTS NOW", first)
-        self.assertIn("read section 1b", first)
         # THE OLD INVENTORY IS STILL THERE.
         self.assertIn("/home/sl/baton-instances/managed-correction-309356-source",
                       first)
         self.assertIn("ABSENT", first)
-        # AND 1b IS THE ONE TO ACT ON, with its checkpoint taken by readers.
+        # 1b IS THE RUN THAT HAPPENED, with its measurement.
+        self.assertIn("HISTORICAL", ran)
+        self.assertIn("DIAGNOSIS-314263.json", ran)
+        self.assertIn("failed-or-unknown", ran)
+        self.assertIn("172", ran)
+        self.assertIn("never created the file", ran)
+        for reader in ("held", "invocation-unknown"):
+            self.assertIn(reader, ran)
+        # 1c IS THE ONE TO ACT ON.
         self.assertIn("CURRENT", current)
-        self.assertIn("THIS IS THE STATE TO ACT ON", current)
-        self.assertIn("supported readers", current)
-        self.assertNotIn("ABSENT", current)
+        self.assertIn("ONE VARIABLE", current.upper())
+        self.assertIn("THE CAP IS NOT RAISED", current)
+        self.assertIn("NEXT-EXPERIMENT-314263-SECOND.json", current)
+        self.assertIn("managed-correction-314263-second", current)
+        # AND IT SAYS WHY THIS IS THE SECOND IDENTITY: I started the first by
+        # mistake and stopped it. A document that hid that would be lying about
+        # the state an operator is about to act on.
+        self.assertIn("BY MISTAKE", current)
+        self.assertIn("INTERRUPTED-RUN-314263.json", current)
+        # AND THE DELIVERED RECOVERY IS KEPT FOR REFERENCE, not as the action.
+        self.assertIn("kept for reference", delivered)
 
     def test_THE_ROOTS_ARE_ESTABLISHED_WITHOUT_FOLLOWING_A_LINK(self):
         """REVIEW 312285 R1, in the document and in the evidence: the first

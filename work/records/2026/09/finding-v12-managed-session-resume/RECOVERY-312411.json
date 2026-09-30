@@ -1,0 +1,127 @@
+{
+  "answering": "owner reroute 312403",
+  "claim": 312411,
+  "if_a_step_refuses": "read the refusal: each names the artifact, the rule and the step that establishes it. Re-run from step 0; do not edit a manifest and do not make a directory by hand.",
+  "operational_finding": {
+    "found_by": "this trace, by removing the workspace store between two `prepare` calls",
+    "what": "once `baseline.prepare` has committed, the workspace root's DEVICE AND INODE are pinned inside the context-storage signature -- `configure_context_storage` adds that root to its excluded set -- so a workspace directory deleted and re-made is a DIFFERENT root to the journal, and a second `prepare` is refused: 'already recorded with a different kind or signature'.",
+    "what_it_forbids": "deleting or re-making run/workspaces or run/private-contexts on an installation whose prepare has committed -- that is a fresh instance, not a repair",
+    "why_it_does_not_affect_this_recovery": "the deployed installation has registered nothing, so its roots were never pinned. `bind` creates them once and never removes them."
+  },
+  "proved": {
+    "bind_over_the_old_manifest": "exit 2, naming the module",
+    "deployed_writes": 0,
+    "evidence": "RECOVERY-TRANSITION-312411.json",
+    "how": "recovery_transition_trace.py, in one disposable root, starting from the OLD manifest and an EXISTING installation rather than from a freshly staged fixture: the disposable installation is built through `check` (where the owner's stopped), its retained manifest is set to THE REAL HISTORICAL helper digest read from the deployed document, and then the sequence above is run.",
+    "preserved": "the old destination's ten documents, the instance record and all 108 staged files are byte-identical afterwards",
+    "recovery_steps": "stage, prepare-work, bind, check -- all exit 0, and the manifest then records the corrected helper",
+    "then_runs": "`baseline.prepare` over the recovered packet: exit 0, both registrations read back with the product's own readers"
+  },
+  "recovery": {
+    "bootstrap_is_not_re_run": "the instance exists and is re-used; REPLAY-SAFETY-312166 established that with the product's own readers",
+    "no_drift_check_is_disabled_and_no_digest_is_re_signed": "`stage` is the only thing that records digests, and it records what it measures. Nothing edits a manifest.",
+    "old_evidence_is_preserved": "the previous destination /home/sl/baton-instances/managed-correction-309356-packet-311743 is not written to; its ten documents keep their digests",
+    "steps": [
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "stage",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-309356-packet-312411",
+          "--claim",
+          "312411",
+          "--provenance",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python"
+        },
+        "step": 0,
+        "what": "STAGE: write the input documents and COPY the modules and frozen resources this run will import, measuring every one. Refuses before it writes, refuses a staged tree that does not import, and refuses a staging root whose parent holds the instance."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "prepare-work",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-309356-packet-312411"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+        },
+        "step": 2,
+        "what": "the Authority acts this Job needs: create the Work under the assignment contract, register the impl, rview and integration route handlers, grant the four receipt capabilities in the Work's own scope, and set the canonical target. Journalled under a derived identity, so a repeat replays."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "bind",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-311743.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-309356-packet-312411",
+          "--claim",
+          "312411",
+          "--provenance",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+        },
+        "step": 3,
+        "what": "bind the packet to what the instance ACTUALLY holds: the emitted deployment configuration, the Authority identity the bootstrap minted and the staged modules as copied. Opens no store."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "check",
+          "--packet",
+          "/home/sl/baton-instances/managed-correction-309356-packet-312411/packet.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+        },
+        "step": 4,
+        "what": "prove the packet against the tree, with the real product validators over the STAGED imports. Opens no store; refuses on any drift."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py",
+          "--packet",
+          "/home/sl/baton-instances/managed-correction-309356-packet-312411/packet.json"
+        ],
+        "environment": {
+          "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/managed-correction-309356-packet-312411/deployment.json",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-309356-source/manager-source/src:/home/sl/baton-staging/managed-correction-309356-source/manager-source"
+        },
+        "step": 5,
+        "what": "serve it, BOUNDED, in the foreground. This one command performs the owner acts first -- the workspace and private context storage, the candidate profile's certification and ONE qualification grant, each journalled under an identity derived from its own operands, so repeating it replays rather than composing a second grant -- and then serves. It holds the 900s total with 60s reserved INSIDE it, caps the invocations at the gate, stops on the first terminal state and retains the outcome even when interrupted."
+      }
+    ],
+    "what_it_is": "`stage` into a FRESH destination -- which re-records the manifest, re-affirms the staged tree and establishes nothing in the instance -- then the Authority acts (which replay), then `bind`, `check` and the run."
+  },
+  "schema": "baton.managed-correction-recovery/2",
+  "supersedes": "RECOVERY-312166.json",
+  "why_the_reviewed_recovery_failed": {
+    "at": "its first command, `bind`",
+    "measured_read_only": "the staged product tree has NOT moved (0 of 108 files differ) and the supervisor and descriptor supplier digests still match; the ONLY drift is the helper module",
+    "refusal": "the preparation module 'correction_packet.py' has CHANGED since `stage` reviewed it; `bind` refuses drift rather than re-signing it",
+    "what_the_proposal_omitted": "the step that makes the transition legitimate: `stage` re-records the manifest. The reviewed recovery began at `bind`.",
+    "why_that_is_correct": "the retained manifest at /home/sl/baton-instances/managed-correction-309356-packet-311743/prepared.json binds the helper digest `stage` measured under claim 311743, and the helper has been corrected three times since (311994, 312166, 312305). A bind that re-signed it would be binding a packet to code nobody reviewed together."
+  },
+  "work": "W236087"
+}

@@ -1,0 +1,80 @@
+{
+  "claim": 312411,
+  "document": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/OPERATOR-311743.md",
+  "every_case_stopped": true,
+  "measured": {
+    "recovery (section 1b)": {
+      "cases": [
+        {
+          "failed_at_invocation": 1,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 1,
+          "sequence_returncode": 2
+        },
+        {
+          "failed_at_invocation": 2,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 2,
+          "sequence_returncode": 2
+        },
+        {
+          "failed_at_invocation": 3,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 3,
+          "sequence_returncode": 2
+        },
+        {
+          "failed_at_invocation": 4,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 4,
+          "sequence_returncode": 2
+        },
+        {
+          "failed_at_invocation": 5,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 5,
+          "sequence_returncode": 2
+        }
+      ],
+      "invocations_when_nothing_fails": 5
+    },
+    "setup (section 2)": {
+      "cases": [
+        {
+          "failed_at_invocation": 1,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 1,
+          "sequence_returncode": 2
+        },
+        {
+          "failed_at_invocation": 2,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 2,
+          "sequence_returncode": 2
+        },
+        {
+          "failed_at_invocation": 3,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 3,
+          "sequence_returncode": 2
+        },
+        {
+          "failed_at_invocation": 4,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 4,
+          "sequence_returncode": 2
+        },
+        {
+          "failed_at_invocation": 5,
+          "invocations_after_the_failure": 0,
+          "invocations_run": 5,
+          "sequence_returncode": 2
+        }
+      ],
+      "invocations_when_nothing_fails": 5
+    }
+  },
+  "nothing_live": "a stub python3 records argv; nothing is installed, no store is opened, no provider runs",
+  "schema": "baton.operator-stop-on-error-evidence/2",
+  "what_this_proves": "each sequence STOPS at its first failing step. A stub python3 fails the Nth invocation on purpose; no invocation follows it and the sequence exits non-zero. Both the recovery sequence and the full setup are tested."
+}

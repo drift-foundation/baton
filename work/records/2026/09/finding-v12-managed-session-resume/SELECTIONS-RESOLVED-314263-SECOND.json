@@ -1,0 +1,96 @@
+{
+  "context_profile": {
+    "adapter_digest": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+    "argv_policy_digest": "sha256:19ddb1ba068487202f1d80c28b1dc68a0760f13cc53f7ae8336459e05de0f167",
+    "cli_build": "2.1.247",
+    "cwd": "/output",
+    "environment_policy_digest": "sha256:22c5b6d5c9d853dedcdabdb9da554de43300f6a7243f8d822dcabdaa9cc9ab69",
+    "evidence_digest": "sha256:1609a7707a7e8ed36e76f47182b5dcc49e4e5531e01bed18c5f6fa51c1467c3d",
+    "image_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "layout_version": "claude-context-layout/2",
+    "max_bytes": 67108864,
+    "max_entries": 4096,
+    "model": "opus",
+    "qualification": "candidate",
+    "reported_model": "opus",
+    "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+    "runtime_profile_digest": "sha256:42761d4b3a8f881dec78eb8b76e162466ed34bc7427cf78e4bba4732277e72a4",
+    "schema": "baton.claude-context-profile/2",
+    "state_paths": [
+      ".claude/projects/-output/{conversation_id}.jsonl"
+    ]
+  },
+  "context_storage": {
+    "excluded": [
+      "/home/sl/baton-runs/two-jobs-247941-01-inputs",
+      "/home/sl/baton-instances/managed-correction-314263-second/run/workspaces"
+    ],
+    "path": "/home/sl/baton-instances/managed-correction-314263-second/run/private-contexts"
+  },
+  "credential_delivery": {
+    "provider": "operator-file",
+    "slots": [
+      "claude"
+    ],
+    "sources": "/home/sl/.baton/credential-sources.json"
+  },
+  "credential_reference": "w202663-development",
+  "instance_root": "/home/sl/baton-instances/managed-correction-314263-second",
+  "manager_runtime": {
+    "build_commit": "1e576ff2186db69e8b44da9d38874ff7e99ebbe3",
+    "executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+    "path": "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro"
+  },
+  "manager_source_origin": "/home/sl/src/baton/v12/python",
+  "participants": {
+    "implementation": "baton.impl",
+    "integration": "baton.merge",
+    "review": "baton.review"
+  },
+  "receipts": {
+    "approval": "baton.approver",
+    "review": "baton.approver-review",
+    "verification": "baton.verifier"
+  },
+  "review_route": {
+    "implementation": "rview",
+    "review": "integration"
+  },
+  "run_id": "managed-correction-314263-second",
+  "runtime_uid": 1000,
+  "schema": "baton.managed-correction-selections/1",
+  "source": {
+    "declared_base": "346a809bf0e4c47e52d881bd46d6d62a611c9816",
+    "files": [
+      "docs/EFFECTIVE-BATON.md",
+      "docs/BATON-WORK.md"
+    ],
+    "root": "/home/sl/baton-runs/two-jobs-247941-01-inputs"
+  },
+  "staging_root": "/home/sl/baton-staging/managed-correction-314263-second-source",
+  "stores": {
+    "authority": "/home/sl/baton-instances/managed-correction-314263-second/db/authority.sqlite3",
+    "control": "/home/sl/baton-instances/managed-correction-314263-second/db/control.sqlite3",
+    "integration": "/home/sl/baton-instances/managed-correction-314263-second/db/integration.sqlite3",
+    "job": "/home/sl/baton-instances/managed-correction-314263-second/db/jobs.sqlite3",
+    "state_root": "/home/sl/baton-instances/managed-correction-314263-second/deployment-state"
+  },
+  "work": "W236087",
+  "worker_image": {
+    "adapter_descriptor": "sha256:5f2ef38f05ed7a9aecd11dd7e23e9cfbe1f0243fe27bd2c9aa1b004580fcdef1",
+    "config_digest": "sha256:c862c055c6430addc918ca078a9e4d55f6bd8173ed9c9878a8ad9d6cad334ca2",
+    "policy_descriptor": "sha256:19ddb1ba068487202f1d80c28b1dc68a0760f13cc53f7ae8336459e05de0f167",
+    "profile_descriptor": "sha256:42761d4b3a8f881dec78eb8b76e162466ed34bc7427cf78e4bba4732277e72a4",
+    "reference": "baton-v12-claude-worker:w239528-244216",
+    "worker_files": {
+      "opt/baton/attempt_log_format.py": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+      "opt/baton/baton_worker.py": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34",
+      "opt/baton/claude_agent.py": "18c34ff52faa150237df0c8d0206b805801ee71cb9e7a4ec6e84e4379d7f9d8d",
+      "opt/baton/dogfood_entry.py": "8012e5d8581e43fbfbef245c60901501e588f1dbc8a0a57b9ca2cdcdae2369c2",
+      "opt/baton/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "opt/baton/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "opt/baton/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    }
+  },
+  "workspace_storage": "/home/sl/baton-instances/managed-correction-314263-second/run/workspaces"
+}

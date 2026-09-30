@@ -95,44 +95,96 @@ moved or written to, and the paths this sequence uses are NEW:
 No manual file copying is asked for anywhere in this document, and nothing
 deployed is deleted. The recovery is a re-run into fresh paths.
 
-## 1b. CURRENT -- the installation that already exists, and its recovery
+## 1b. HISTORICAL -- the recovery that ran, and what it produced
 
-THIS IS THE STATE TO ACT ON. The owner's run installed the instance at `$ROOT`
-and got as far as the supervisor -- so, unlike the inventory in section 1,
-`$ROOT` exists, its stores exist, and `$DEST` holds a complete bound packet.
-What is still absent is only the two filesystem roots of defect D, and the
-checkpoint below is taken with supported readers rather than asserted. THAT INSTALLATION IS RE-USABLE: the two registrations
-`baseline.prepare` makes are the only durable acts the failed run could have
-left, and the product's own readers say neither committed --
-`workspaces.configured_workspace_storage` and
-`context_delivery.configured_context_storage` both refuse, and
-`baseline.survey` reports no pre-existing Job. Opening a store is not a durable
-act; the failure was at the FIRST registration, before the qualification grant,
-and a grant is the thing that is spent exactly once.
-`REPLAY-SAFETY-312166.json` records those reads, taken against COPIES of the
-three stores so nothing deployed was written.
+The recovery in this section RAN, on 2026-09-30 at 09:05Z, and the run finished
+naturally: outcome `failed-or-unknown`, state `held`, implementation
+`exceptional`, review `blocked`. It is kept here as the record of what was
+done; the state to act on now is section 1c.
 
-So the recovery is three steps, and no repair:
+`DIAGNOSIS-314263.json` is the measurement, taken read-only from the retained
+evidence. Where the 244 seconds went:
+
+| phase | seconds | what it was |
+| --- | --- | --- |
+| provider startup | 6.5 | container to first session entry, of which **3.0 was the CLI waiting for stdin the adapter never sends** |
+| task execution | **172.4** | 216 session entries, 73 assistant turns, **47 shell commands** -- all reads, none repeated, no error loop |
+| manager overhead | 5.5 | admission, launch, cancellation, 59 cleanup sweeps |
+| publication and cleanup | 60.1 | after serving, inside the reserve |
+
+The prompt ARRIVED and the worker worked the whole time. It read the repository
+continuously for 172 of its 180 seconds -- `grep` 14, `sed` 13, `ls` 6, `cat` 4
+-- and **never created the file**. The runtime was destroyed, the allocation
+released, and the retained conversation (715,884 bytes) is on disk; the context
+use reads `held` with reason `invocation-unknown`, because the provider was
+stopped before it could declare a result.
+
+SO THE DEFECT WAS IN THE CONTRACT, NOT THE CLOCK. The task document told the
+worker what to write and what would be accepted, and never told it that the turn
+was bounded. An agent that does not know it is on a clock reads until the clock
+ends.
+
+## 1c. CURRENT -- the next experiment, with ONE variable changed
+
+`NEXT-EXPERIMENT-314263-SECOND.json`. The corrected task document states the
+180-second bound, cites that the first run spent 172 of those seconds reading
+and wrote nothing, and **orders the first action**: write the file immediately,
+before reading anything, as a skeleton with one section per numbered requirement
+and, under each, what still needs confirming. Then read and rewrite each section.
+
+IT IS AN ORDER ABOUT THE FIRST ACTION RATHER THAN ADVICE ABOUT PACE, and that is
+measured rather than preferred. A second session, under a contract that stated
+the bound and asked for a file "within the first quarter", still spent its first
+51.6 seconds on 15 more reads and had written nothing
+(`INTERRUPTED-RUN-314263.json`). Telling an agent it is on a clock did not change
+what it did first; telling it what to do first is testable.
+
+**THE CAP IS NOT RAISED.** What would justify raising it is a session that wrote
+the file early and was still improving it when the cap stopped it. Neither
+measured session was that.
+
+A NOTE ON WHY THIS RUN IDENTITY IS THE SECOND ONE. I started a run at
+`managed-correction-314263` BY MISTAKE while syntax-checking this document -- I
+extracted its shell blocks and ran them directly instead of under the stub
+harness that exists for that -- and stopped it with one SIGINT, which cancelled
+and fenced the attempt and published its outcome. That Job identity is spent, so
+this experiment uses a fresh one. `INTERRUPTED-RUN-314263.json` records exactly
+what happened, what now exists and what it measured. The spent
+`managed-correction-309356` run is untouched.
 
     set -e
     set -o pipefail
 
     export DOSSIER=/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume
-    export SEL=$DOSSIER/SELECTIONS-RESOLVED-311743.json
-    export DEST=/home/sl/baton-instances/managed-correction-309356-packet-311743
-    export ROOT=/home/sl/baton-instances/managed-correction-309356
-    export STAGED=/home/sl/baton-staging/managed-correction-309356-source/manager-source
+    export SEL=$DOSSIER/SELECTIONS-RESOLVED-314263-SECOND.json
+    export DEST=/home/sl/baton-instances/managed-correction-314263-second-packet
+    export ROOT=/home/sl/baton-instances/managed-correction-314263-second
+    export STAGED=/home/sl/baton-staging/managed-correction-314263-second-source/manager-source
+    export ORIGIN=/home/sl/src/baton/v12/python
     export IMPORT=$STAGED/src:$STAGED
     export PYTHONDONTWRITEBYTECODE=1
 
-    # 3. RE-BIND. This is what establishes the two filesystem roots, with the
-    #    modes and the group the product's rules require, and records them in
-    #    the packet.
-    PYTHONPATH=$IMPORT python3 $DOSSIER/correction_packet.py bind \
-        --selections $SEL --destination $DEST --claim 311743 \
+    # 0. STAGE: the documents, the modules and the frozen resources.
+    PYTHONPATH=$ORIGIN/src:$ORIGIN python3 $DOSSIER/correction_packet.py stage \
+        --selections $SEL --destination $DEST --claim 314263 \
         --provenance $DOSSIER/PROVENANCE-309356.json
 
-    # 4. PROVE the packet, including the roots.
+    # 1. INSTALL the fresh instance. Installs; starts nothing.
+    PYTHONPATH=$IMPORT python3 -m tools.bootstrap \
+        --inputs $DEST/bootstrap-inputs.json --destination $ROOT \
+        --distro /home/sl/baton-runs/managed-correction-236087/build/stack/out/distro \
+        --no-repositories
+
+    # 2. THE AUTHORITY ACTS for this run's Work.
+    PYTHONPATH=$IMPORT python3 $DOSSIER/correction_packet.py prepare-work \
+        --selections $SEL --destination $DEST
+
+    # 3. BIND, which also establishes the two filesystem roots.
+    PYTHONPATH=$IMPORT python3 $DOSSIER/correction_packet.py bind \
+        --selections $SEL --destination $DEST --claim 314263 \
+        --provenance $DOSSIER/PROVENANCE-309356.json
+
+    # 4. PROVE the packet, the staged bytes and the roots.
     PYTHONPATH=$IMPORT python3 $DOSSIER/correction_packet.py check \
         --packet $DEST/packet.json
 
@@ -140,17 +192,115 @@ So the recovery is three steps, and no repair:
     BATON_V12_STAGE_EXECUTION_CONFIG=$DEST/deployment.json PYTHONPATH=$IMPORT \
         python3 $DOSSIER/correction_supervisor.py --packet $DEST/packet.json
 
-NO `mkdir`, NO `chmod`, NO `chown`, NO `rm` AND NO `cp`. The roots are
-established by the step that binds the packet, because the mode and the group
-are part of what the rules require and a directory made by hand is a directory
-nobody proved. If `check` refuses, its refusal names the root, the rule that
-requires it and the step that establishes it -- re-run step 3.
+WHAT TO READ AFTERWARDS, AND WHAT EACH ANSWER MEANS. If the file exists early,
+the diagnosis was right and the experiment has done its job whatever the verdict.
+If it still does not exist, the contract is not the binding constraint -- measure
+that session the same way (`DIAGNOSIS-314263.json` is the template: the retained
+transcript under the private-context store, the provider logs, the outcome
+document) and do not raise the cap on that evidence either.
 
-Steps 0, 1 and 2 are already done for this instance. Re-running any of them is
-safe: `stage` re-affirms the staged tree, `bootstrap` reuses an Authority that
-exists, and `prepare-work` is journalled under an identity derived from its
-operands, so it replays. `RECOVERY-312166.json` carries these three steps as
-argument vectors, equal to what the generator emits.
+## 1d. The recovery sequence as it was delivered (kept for reference)
+
+THIS IS THE STATE TO ACT ON. The owner's run installed the instance at `$ROOT`
+and got as far as the supervisor -- so, unlike the inventory in section 1,
+`$ROOT` exists, its stores exist, and the previous destination holds a complete
+bound packet. The installation is RE-USABLE: the two registrations
+`baseline.prepare` makes are the only durable acts the failed run could have
+left, and the product's own readers say neither committed --
+`workspaces.configured_workspace_storage` and
+`context_delivery.configured_context_storage` both refuse, and
+`baseline.survey` reports no pre-existing Job (`REPLAY-SAFETY-312166.json`,
+taken against COPIES of the three stores so nothing deployed was written).
+
+### Why the previous recovery proposal failed at its first command
+
+It began at `bind`, and `bind` refused: *the preparation module
+`correction_packet.py` has CHANGED since `stage` reviewed it; `bind` refuses
+drift rather than re-signing it.* (Quoted as prose, not as a command block: an
+indented line in this document is a command an operator would run, and the argv
+harness refuses one that is not.)
+
+THAT REFUSAL IS CORRECT AND MUST NOT BE BYPASSED. The retained manifest in the
+previous destination binds the helper digest `stage` measured under claim
+311743; the helper has been corrected three times since (311994, 312166,
+312305). A `bind` that re-signed it would bind a packet to code nobody reviewed
+together. What the proposal omitted was the step that makes the transition
+legitimate: **`stage` is the only thing that records digests, and it records
+what it measures.** So the recovery starts at step 0, into a FRESH destination.
+
+Measured read-only: the staged product tree has NOT moved -- 0 of its 108 files
+differ -- and the supervisor and the descriptor supplier still match. The only
+drift is the helper module.
+
+### The recovery, five steps
+
+    set -e
+    set -o pipefail
+
+    export DOSSIER=/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume
+    export SEL=$DOSSIER/SELECTIONS-RESOLVED-311743.json
+    export DEST=/home/sl/baton-instances/managed-correction-309356-packet-312411
+    export ROOT=/home/sl/baton-instances/managed-correction-309356
+    export STAGED=/home/sl/baton-staging/managed-correction-309356-source/manager-source
+    export ORIGIN=/home/sl/src/baton/v12/python
+    export IMPORT=$STAGED/src:$STAGED
+    export PYTHONDONTWRITEBYTECODE=1
+
+    # 0. STAGE into a FRESH destination. This is the transition: it re-records
+    #    the manifest with the corrected helper's digest, re-affirms the staged
+    #    tree byte for byte, and touches nothing in the instance. The previous
+    #    destination is left exactly as it is.
+    PYTHONPATH=$ORIGIN/src:$ORIGIN python3 $DOSSIER/correction_packet.py stage \
+        --selections $SEL --destination $DEST --claim 312411 \
+        --provenance $DOSSIER/PROVENANCE-309356.json
+
+    # 2. THE AUTHORITY ACTS, which REPLAY: journalled under an identity derived
+    #    from their operands, so repeating them over the existing Authority
+    #    finishes the preparation rather than composing a second one.
+    PYTHONPATH=$IMPORT python3 $DOSSIER/correction_packet.py prepare-work \
+        --selections $SEL --destination $DEST
+
+    # 3. BIND. This also establishes the two filesystem roots of defect D, with
+    #    the modes the product's rules require, without following a link.
+    PYTHONPATH=$IMPORT python3 $DOSSIER/correction_packet.py bind \
+        --selections $SEL --destination $DEST --claim 312411 \
+        --provenance $DOSSIER/PROVENANCE-309356.json
+
+    # 4. PROVE the packet, the staged bytes and the roots.
+    PYTHONPATH=$IMPORT python3 $DOSSIER/correction_packet.py check \
+        --packet $DEST/packet.json
+
+    # 5. RUN.
+    BATON_V12_STAGE_EXECUTION_CONFIG=$DEST/deployment.json PYTHONPATH=$IMPORT \
+        python3 $DOSSIER/correction_supervisor.py --packet $DEST/packet.json
+
+STEP 1 IS NOT IN THIS LIST. The instance exists; `tools.bootstrap` is not
+re-run, and nothing here repairs, cleans or deletes anything. No `mkdir`,
+`chmod`, `chown`, `rm` or `cp` appears in any step, and no manifest is edited: a
+directory made by hand is a directory nobody proved, and a digest written by
+hand is a signature over code nobody reviewed.
+
+`RECOVERY-312411.json` carries these five steps as argument vectors equal to
+what the generator emits, and `RECOVERY-TRANSITION-312411.json` is the proof:
+in one disposable root, an installation built through `check` exactly as the
+owner's was, its retained manifest set to THE REAL HISTORICAL helper digest read
+from the deployed document, `bind` refusing it with exit 2, and then these steps
+all exiting 0 -- after which the old destination's ten documents, the instance
+record and all 108 staged files are byte-identical, and `baseline.prepare` runs
+over the recovered packet with both registrations read back.
+
+### One thing this recovery must never become
+
+Once `baseline.prepare` has COMMITTED, the workspace root's device and inode are
+pinned inside the context-storage signature -- `configure_context_storage` adds
+that root to its own excluded set -- so a workspace directory that is deleted
+and re-made is a DIFFERENT root to the journal, and a second `prepare` is
+refused with "already recorded with a different kind or signature". That is
+correct, and it means **deleting or re-making `$ROOT/run/workspaces` or
+`$ROOT/run/private-contexts` on an installation whose `prepare` has committed is
+a fresh instance, not a repair.** It does not affect this recovery: nothing has
+registered yet, so those roots have never been pinned, and `bind` creates them
+once and never removes them.
 
 ## 2. Setup, which STOPS AT THE FIRST ERROR
 

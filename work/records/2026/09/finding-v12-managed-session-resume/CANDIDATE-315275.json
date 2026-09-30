@@ -1,0 +1,70 @@
+{
+  "answering": "review 2026-09-30T11-33-49Z (pass 315270)",
+  "claim": 315275,
+  "counterfactual": {
+    "which_reason_fires": "depends on the token: in the fixture the execution's workspace token is unreturned so the governed-ownership refusal answers first; in the live run the token had been returned and the offered-material refusal is what the deferral recorded. Same act, same kind of reason.",
+    "with_material_is_offered_forced_False": "the `conclude` act is deferred refused/precondition every tick",
+    "with_the_correction": "neither fires"
+  },
+  "executed": {
+    "fixture": "tests/tools/test_stage_execution.py, TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld (6 scenario cases)",
+    "how_unable_was_real": "a review turn with edits={} leaves no usable report, and claude_agent answers `unable` because `report is None`",
+    "no_act_deferred": true,
+    "no_false_verdict": "0 verdicts; the attachment is still active with ended_at null",
+    "rest_state": {
+      "cleanup": "pending",
+      "implementation": "completed",
+      "output": "sealed",
+      "review": "answering",
+      "worker_disposition": "unable"
+    },
+    "the_ending_did_its_work": [
+      "output frozen `unable` with a real manifest digest",
+      "intake recorded `accepted`",
+      "retention decided `retain`"
+    ],
+    "why_answering_is_correct": "the ending's own contract: a held review settles nothing, the obligation stays owed, the operator keeps the frozen evidence, and no correction is opened on a verdict nobody gave"
+  },
+  "ownership": {
+    "note": "the probe class used to learn the shape is gone; the scenario class and the earlier diagnostic class remain",
+    "product_code_changed_this_claim": [],
+    "product_tests": {
+      "tests/tools/test_stage_execution.py": "b5ad1eac4cbbeccd143e91f5636eaeaee781230419403a7d7c920be5f198edb1"
+    }
+  },
+  "participant": "baton.claude",
+  "recreated_execution": {
+    "UNEXPECTED_FINDING": "the restart is REFUSED by governance: the first execution's workspace token was never returned, so the new composition cannot adopt those roots -- 'a live governed execution owns these roots, and ownership is transferred after that token is returned rather than beside it'. That is about ownership ACROSS EXECUTIONS rather than preserved material; the case asserts it explicitly and I did not bypass it.",
+    "duplicates_nothing": "operations, outputs, intakes, retentions, artifacts, verdict count and attachments all byte-identical",
+    "sealed_bytes_unchanged": "the sealed result manifest and its artifact rows are identical after the re-entry"
+  },
+  "schema": "baton.candidate/1",
+  "still_open": {
+    "actual_live_restore": "unproved",
+    "cap": "unchanged",
+    "credential_currency": "unverified",
+    "deployed_cleanup": "separately unresolved; no removal attempted",
+    "restart_governance": "an ending that must proceed after a process restart is blocked by the unreturned workspace token of the execution that died. Deliberately not touched.",
+    "timeout_cause": "UNKNOWN"
+  },
+  "subject": "the scenario is EXECUTED over the runtime-capable World: a real `unable` review turn, the real ending to sealed/pending with no refusal, retention and intake taken, no false verdict, a recreated execution that duplicates nothing, sealed bytes unchanged, and the writer paths refused through the actual caller. One unexpected finding: a restart is blocked by the dead execution's unreturned workspace token.",
+  "verification": {
+    "deployed_writes": 0,
+    "engine_mutations": 0,
+    "live_runs": 0,
+    "operator_scripts_executed": 0,
+    "product": {
+      "tests.tools.test_stage_execution + tests.manager.test_workspaces + tests.tools.test_single_worker": {
+        "failures": 0,
+        "seconds": 202.4,
+        "tests": 841
+      }
+    },
+    "removals": 0
+  },
+  "work": "W236087",
+  "writer_paths_through_the_actual_caller": {
+    "writer_False": "the same worker and state answers the roots it sealed, and the workspace directory is really there",
+    "writer_True": "the review worker's own `_mounted` with the launch's default intent RAISES the offered-material refusal, and the journal is byte-identical afterwards -- it refused before any task publication or credential materialization"
+  }
+}

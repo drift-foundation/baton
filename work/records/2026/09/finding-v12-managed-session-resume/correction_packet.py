@@ -651,6 +651,17 @@ def task_document(chosen, *, job_id):
     }
 
 
+# WHAT THE FIRST LIVE RUN SPENT ON READING, measured from the retained session
+# transcript rather than estimated: 216 entries, 73 assistant turns and 47 shell
+# commands between 09:05:36.852Z and 09:08:29.260Z. Stated in the contract
+# because the number is the argument.
+FIRST_RUN_READING = "172 seconds"
+# AND WHAT A SECOND, INTERRUPTED SESSION SPENT BEFORE WRITING ANYTHING, under a
+# contract that stated the bound and asked for a file "within the first
+# quarter": 15 further reads and no file (INTERRUPTED-RUN-314263.json).
+SECOND_RUN_READING = "51 seconds"
+
+
 def instructions():
     """The task and the complete criteria, as the bytes the worker reads.
 
@@ -674,6 +685,76 @@ def instructions():
         "principal, checks this document against the requirements above and "
         "against the supported CLI and the current implementation. Do not "
         "grade your own work and do not assume a verdict.",
+        "",
+        # WHAT THE FIRST LIVE RUN MEASURED, AND WHAT IT COST. Owner reroute
+        # 312164/312403 delivered a run that reached the provider; it then spent
+        # 172.4 of its 180 allowed seconds READING -- 47 shell commands, 73
+        # turns, no repetition and no error -- and was stopped with the file
+        # never created. The contract had told it what to write and what would
+        # be accepted, and had never told it that the turn was BOUNDED. An agent
+        # that does not know it is on a clock reads until the clock ends.
+        "YOUR TURN IS BOUNDED AT " + str(BOUNDS["turn_seconds"]) + " SECONDS "
+        "OF WALL TIME, and it is stopped at that point whether or not the file "
+        "exists. The first run of this Job spent " + FIRST_RUN_READING + " of "
+        "its " + str(BOUNDS["turn_seconds"]) + " seconds reading the "
+        "repository, wrote nothing, and was stopped with no deliverable at "
+        "all.",
+        "",
+        # WHOSE INSTRUCTION THIS IS. Review 314389 R1: this document is the
+        # SHARED task -- the implementation stage and the review stage both
+        # receive these same bytes, and a resumed implementer receives them
+        # again with its own earlier document already on disk. An unconditional
+        # "create a skeleton first" told the reviewer to write the proposal and
+        # told a restored implementer to throw its own correction away. So the
+        # order is scoped to the one situation it was measured against, and the
+        # other two are stated instead of left to inference.
+        "WHAT TO DO FIRST DEPENDS ON WHICH OF THREE SITUATIONS YOU ARE IN, and "
+        "you can tell from the repository in front of you:",
+        "",
+        "IF YOU ARE THE IMPLEMENTER AND `" + TASK_PATH + "` DOES NOT EXIST "
+        "YET, your FIRST action creates it -- before reading anything beyond "
+        "the instructions you were given -- as a skeleton with one section per "
+        "numbered requirement above and, under each, a sentence saying what you "
+        "still need to confirm. Then read, and rewrite each section as you "
+        "learn. Every later minute improves a document that already exists.",
+        "",
+        "IF YOU ARE THE IMPLEMENTER AND THE FILE ALREADY EXISTS -- you are "
+        "resuming after review feedback -- then READ IT FIRST AND PRESERVE IT. "
+        "Your work is to correct exactly what the feedback identified and to "
+        "improve what is weak, in place. Do NOT reset it to a skeleton, do not "
+        "start it again from nothing, and do not discard a section because you "
+        "would now write it differently: the bytes already there are the work "
+        "the review was given.",
+        "",
+        "IF YOU ARE THE REVIEWER, you write no part of it. Read the document "
+        "and judge it against the numbered requirements above and against the "
+        "current implementation, and say what is wrong with what is there. "
+        "Creating or rewriting the proposal is not review and is not this "
+        "stage's work.",
+        "",
+        # WHY THE INSTRUCTION IS AN ORDER AND NOT A BUDGET. A SECOND measured
+        # session, under an earlier version of this contract that stated the
+        # bound and said "write within the first quarter", spent its first 51.6
+        # seconds on 15 more reads and had still written nothing. Telling an
+        # agent it is on a clock does not change what it does first; telling it
+        # what to do first does.
+        "A ROUGH COMPLETE DOCUMENT THAT NAMES WHAT IT IS UNSURE OF IS WORTH "
+        "EVERYTHING; a perfect understanding with no file is worth nothing, and "
+        "is what the first run delivered. A second measured session, told only "
+        "that its turn was bounded, still spent its first "
+        + SECOND_RUN_READING + " reading and had written nothing -- which is "
+        "why the first situation above is an order about your first action "
+        "rather than advice about your pace. An early skeleton is not "
+        "acceptance and guarantees nothing: it is the floor, and the numbered "
+        "requirements are still the whole of what is judged.",
+        "",
+        "READ WITH A BUDGET, not until you are satisfied. Every requirement "
+        "above is checkable against a handful of places, and the requirements "
+        "are the whole of what is judged: nothing rewards breadth beyond them. "
+        "If something cannot be confirmed in the time you have, WRITE DOWN "
+        "WHAT YOU DID NOT CONFIRM rather than spending the turn confirming it "
+        "-- an honest gap in a delivered document is a fact a reviewer can act "
+        "on.",
     ))
 
 

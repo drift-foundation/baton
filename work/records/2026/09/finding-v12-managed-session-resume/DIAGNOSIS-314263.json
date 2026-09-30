@@ -1,0 +1,136 @@
+{
+  "answering": "owner reroute 314261",
+  "claim": 314263,
+  "cleanup_and_context_state": {
+    "cleanup": "retained",
+    "configured_context_storage": "/home/sl/baton-instances/managed-correction-309356/run/private-contexts",
+    "configured_workspace_storage": "answered only by the deployed control store: a COPY is refused by the workspace root's own token journal, which is itself the confirmation that the registration committed against the real store",
+    "context_use_of_reader": {
+      "generation": 0,
+      "read_with": "provider_context.context_use_of(control, attempt_id) against a COPY of the control store",
+      "reason": "invocation-unknown",
+      "revision": 3,
+      "status": "held"
+    },
+    "conversation_retained": {
+      "bytes": 715884,
+      "last_written": "2026-09-30T09:08:29Z",
+      "so": "the transcript is RETAINED EVIDENCE on disk. It is NOT proof of a committed saved generation and NOT permission to restore anything: the context use reads `held` with reason `invocation-unknown` at generation 0, which is a use whose invocation was never declared. A restorable generation is a committed save this manager can name; this is not one.",
+      "where": "<private-contexts>/<context>/uses/<use>/home/.claude/projects/-output/<conversation>.jsonl"
+    },
+    "engine_says": "the engine answered that this exact identity does not exist",
+    "review_attempt_never_launched": "this manager answers that it holds no attempt row for this identity and this run never launched it, so no runtime was allocated for it. That is not a claim that nothing is running anywhere.",
+    "runtime": "destroyed",
+    "runtime_id": "0e154e288035b4d6f305bd1d293d2cff2a5e590ff123da491c55c9ffcf8c6d39",
+    "what_is_not_established": "that this conversation is reusable. Production reuse and an actual live restore remain unproved, and the qualification remains `candidate`."
+  },
+  "how_read": "read-only. The outcome document, the retained provider logs, the retained session transcript in the private-context store, directory timestamps, and the product's own readers against COPIES of the stores. Nothing deployed was written.",
+  "provider_logs": {
+    "note": "the CLI's own warning shows it waited 3 seconds for stdin that the adapter never sends and then proceeded; the prompt arrives another way, and the session proves it arrived. 3 seconds of every turn are spent on that wait. The adapter is product code and is NOT changed here; it is recorded as a measured cost.",
+    "stderr_status": {
+      "declared": "partial",
+      "reason": "the drain ended on its own clock rather than at end of file, so this is a prefix of the stream rather than the stream"
+    },
+    "stderr_whole": "Warning: no stdin data received in 3s, proceeding without it. If piping from a slow command, redirect stdin explicitly: < /dev/null to skip, or wait longer.",
+    "stdout_bytes": 0,
+    "stdout_status": {
+      "declared": "finished",
+      "reason": "the writer saw this stream to its end"
+    }
+  },
+  "runtime_state_correction": {
+    "what_I_wrote_before": "the first run's cancellation records the runtime as destroyed and the engine answering that the identity does not exist -- that part is confirmed: `docker inspect 0e154e288035b4d6f305bd1d293d2cff2a5e590ff123da491c55c9ffcf8c6d39` answers 'no such object'.",
+    "what_was_wrong": "my separate claim that the ACCIDENTAL run left 'no runtime left behind' -- review 314389 measured otherwise and it is corrected in INTERRUPTED-RUN-314263.json."
+  },
+  "schema": "baton.live-run-diagnosis/1",
+  "spent_run": {
+    "held_because": [
+      "the run stopped 'exceptional'; the stages were not all completed",
+      "this manager cannot prove positive cleanup for attempt-0566779cdfd595f8973e29bc9798f8c566a27b9b7eecc9bddf63ae1bf2a3b773",
+      "the reviewer's disposition could not be read, so this run has no verdict; an unread verdict is never an acceptance"
+    ],
+    "job_id": "job-managed-correction-309356",
+    "job_identity": "baseline.survey refuses a repeat: this Job store already records 'job-managed-correction-309356', submitted by 'submission-managed-correction-309356'",
+    "outcome": "failed-or-unknown",
+    "run_id": "managed-correction-309356",
+    "stage_states": {
+      "implementation": "exceptional",
+      "review": "blocked"
+    },
+    "state": "held",
+    "stopped": "exceptional",
+    "task_digest": "c9f8ada20c305ff314e611d21fdbc86f0193f63c13203c1bf77b5e3aa55f725f"
+  },
+  "the_defect_this_points_at": {
+    "current_correction": "the contract now scopes what to do first to three named situations -- fresh implementation with the file absent orders the skeleton first; a RESUMED correction reads and PRESERVES its existing document and corrects it in place; the REVIEWER writes no part of it -- with the same criteria, the same single-file scope and the same 180-second cap for both roles. Review 314389 R1 required that scoping: the unconditional order told the reviewer to write the proposal and told a restored implementer to discard its own correction.",
+    "hypothesis": "the task document told the worker WHAT to write and WHAT WOULD BE ACCEPTED and never told it the turn was BOUNDED, and an agent that does not know it is on a clock reads until the clock ends. This is a HYPOTHESIS the observations support, not a demonstrated cause.",
+    "not_the_timeout": "the cap is untouched. What would justify raising it is a session that wrote the file early and was still improving it when the cap stopped it. Neither measured session was that.",
+    "proposed_experiment": "change that one thing and measure the next session the same way. NEXT-EXPERIMENT-314263-SECOND.json carries it; it has NOT been run and is not authorized here.",
+    "superseded_first_attempt": "AN EARLIER VERSION OF THIS CORRECTION stated the bound and asked for the file 'within the first quarter of the turn'. That text is SUPERSEDED: the interrupted session ran under it and spent its first 51.6 seconds reading with nothing written (INTERRUPTED-RUN-314263.json).",
+    "verified": "focused deterministic cases per situation in test_correction_packet.py. They are STRING assertions over a generated document: they prove the contract says these things, not that a model obeys them."
+  },
+  "what_the_provider_actually_did": {
+    "assistant_turns": 73,
+    "deliverable_written": false,
+    "entry_kinds": {
+      "ai-title": 17,
+      "assistant": 73,
+      "atis-latch": 17,
+      "attachment": 43,
+      "last-prompt": 16,
+      "queue-operation": 2,
+      "user": 48
+    },
+    "first_entry": "2026-09-30T09:05:36.852Z",
+    "last_command_at_seconds": 172.4,
+    "last_entry": "2026-09-30T09:08:29.260Z",
+    "prompt_arrived": true,
+    "prompt_first_line": "Write docs/v12-context-correction.md -- an operator guide for the managed context-correction workflow",
+    "reading_not_thrashing": "the 47 commands are 47 DIFFERENT reads -- ls, grep, sed, cat, wc over the checkout -- with no repetition and no error loop. The worker was making steady progress at understanding, and had produced nothing to deliver.",
+    "result_root_entries": [],
+    "session_bytes": 715884,
+    "session_entries": 216,
+    "session_span_seconds": 172.408,
+    "shell_command_verbs": {
+      "cat": 4,
+      "cd": 7,
+      "git": 1,
+      "grep": 14,
+      "head": 2,
+      "ls": 6,
+      "sed": 13
+    },
+    "tool_calls": {
+      "Bash": 47
+    }
+  },
+  "what_these_measurements_do_not_establish": {
+    "no_causation": "nothing here proves the missing time reminder CAUSED the failure; it shows a session that read continuously and wrote nothing under a contract that never mentioned the bound",
+    "no_guarantee_from_the_fix": "writing an early skeleton does not guarantee completion within 180 seconds, and an early skeleton is not acceptance",
+    "no_partition_of_latency": "the transcript does not partition model or service latency from tool execution inside the session span",
+    "one_session_each": "two sessions, one of them interrupted at 51.6 seconds. Two runs are not a distribution."
+  },
+  "where_the_time_went": {
+    "cleanup_sweeps": 59,
+    "how_the_residual_was_computed": "serving_seconds_spent minus the transcript span minus the startup interval. It is an ATTRIBUTION BY SUBTRACTION, not directly measured exclusive manager execution: anything happening inside that window that the transcript does not timestamp falls into it.",
+    "manager_overhead_seconds_is_a_RESIDUAL": 5.537,
+    "of_which_waiting_for_stdin_that_never_came": 3.0,
+    "provider_startup_seconds": 6.49,
+    "provider_turn_cap_seconds": 180,
+    "publication_and_cleanup_after_serving_seconds": 60.078,
+    "serving_seconds_spent": 184.435,
+    "task_execution_seconds": 172.408,
+    "verdict": "OBSERVED: the prompt arrived, the session ran 172.4 seconds, made 47 reads and produced no deliverable. NOT ESTABLISHED by these numbers: which part was model latency, which was tool execution, or that the absent time reminder CAUSED the failure. The manager-overhead figure is a residual. Provider delay and manager overhead are not RULED OUT by arithmetic -- they are bounded by it: neither can exceed the small intervals outside the session span.",
+    "wall_clock_seconds": 244.513,
+    "what_is_INFERRED": "that the session span is time the provider spent working rather than waiting. The transcript timestamps entries, not the split between model latency, service queueing and tool execution, so this measurement does NOT partition those.",
+    "what_is_directly_MEASURED": {
+      "assistant_turns": 73,
+      "serving_seconds_spent": 184.435,
+      "session_entry_timestamps": "first 09:05:36.852Z, last 09:08:29.260Z",
+      "shell_tool_calls": 47,
+      "stderr_line": "the CLI's 3-second stdin warning, timestamped by the log file's own mtime",
+      "transcript_span_seconds": 172.408,
+      "wall_clock_seconds": 244.513
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "answering": "owner reroute 314549",
+  "claim": 314551,
+  "measured": {
+    "SM1": {
+      "caught_by": [
+        "test_A_PROVED_CLEANUP_IS_NOT_REPORTED_AS_UNRESOLVED",
+        "test_REPORTING_PRINTS_THE_OUTCOME_THE_REASON_AND_EXITS_130",
+        "test_THE_REASON_IS_READ_FROM_ARGS",
+        "test_THE_RETAINED_OUTCOME_IS_THE_SECOND_WITNESS",
+        "test_THE_UNRESOLVED_CLEANUP_IS_REPORTED_SEPARATELY"
+      ],
+      "mutation": "read the reason from `stopped.why`, the attribute `SupervisorInterrupted` never sets -- the defect that raised AttributeError while reporting a real interrupted run"
+    },
+    "SM2": {
+      "caught_by": [
+        "test_THE_FAILED_REVIEW_FINALISATION_HOLDS_AND_SAYS_WHY",
+        "test_THE_UNRESOLVED_CLEANUP_IS_REPORTED_SEPARATELY"
+      ],
+      "mutation": "return no unresolved cleanup, so a quiescent runtime with an uncommitted cleanup is never named"
+    },
+    "SM3": {
+      "caught_by": [
+        "test_ONLY_REFUSED_ENTRIES_ARE_RETURNED"
+      ],
+      "mutation": "treat EVERY deferral as a refusal -- including `pending` and `unavailable` -- which would end a run over a condition that was about to settle"
+    },
+    "clean_again": [],
+    "unmutated_failures": []
+  },
+  "schema": "baton.supervisor-mutation-evidence/1",
+  "uncaught_mutations": [],
+  "what": "the reporting defect and the missing stop condition, re-introduced one at a time; a case must catch each, and the unmutated and restored runs must be clean"
+}

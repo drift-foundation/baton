@@ -1,0 +1,32 @@
+{
+  "claim": 315435,
+  "candidate_sha256": "791c6f9c0cfb947f5ed2ecf3874fcf7efbdbe4ab59496490daf94532263e1e68",
+  "test_sha256": "0d9ea1e078256888eb105dc60b27779e514846ea7c1be8e9a4dfd9f310ef720b",
+  "independent_class": {
+    "tests": 18,
+    "seconds": 8.594,
+    "exit": 0
+  },
+  "additional_probe": {
+    "tests": 1,
+    "seconds": 0.738,
+    "exit": 0,
+    "steps": "unable_review; ticks; restarted; reclaimed; ticks; assert deferrals == []",
+    "reclaim": {
+      "reclaimed": "held",
+      "state": "absent",
+      "why": "no writer-absence proof exists yet, so the revoked generation keeps the resource"
+    },
+    "states": {
+      "implementation": "completed",
+      "review": "answering",
+      "integration": "blocked"
+    },
+    "deferrals": []
+  },
+  "read_through": {
+    "work_events": 315435,
+    "handoff": 315432,
+    "thread": 239616
+  }
+}

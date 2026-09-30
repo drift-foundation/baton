@@ -1,0 +1,17 @@
+{
+  "claim": 314759,
+  "candidate_sha256": "ab5126cb7713a24f7c2f5ae09213b8c8ff5b99a286c0d1a3036dcf4050455996",
+  "reviewed_files": {
+    "v12/python/tools/stage_execution.py": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+    "work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py": "e9b2369bf527450f55a8539378aa95b0d2cdd62544cfe80d8d7e854d08ee2694",
+    "work/records/2026/09/finding-v12-managed-session-resume/test_correction_packet.py": "fff84e3d00b0b7ccb8d69b94f9ec5e297538b4cfbe3192fbb6d6a8dbe0d41708"
+  },
+  "independent_tests": {
+    "count": 20,
+    "seconds": 0.14,
+    "result": "PASS"
+  },
+  "limitation": "No connected timeout/sealed pending cleanup/restart finalization proof delivered; candidate explicitly acknowledges gap.",
+  "deployed_writes": 0,
+  "live_runs": 0
+}

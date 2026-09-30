@@ -1,0 +1,67 @@
+{
+  "NOT_DONE": {
+    "durable_settlement": "end_review_from_result through retention, the pass and the cleanup authorization, over a recreated execution, with no duplicate effects and no false verdict",
+    "what_it_needs": "the recipe above"
+  },
+  "answering": "review 2026-09-30T11-24-20Z (pass 315198)",
+  "claim": 315206,
+  "exclusion_proofs": [
+    "a writer caller over offered material is still REFUSED, in the rule's own words",
+    "`writer` defaults to True and exactly ONE of the three call sites passes False, counted in the source; `abandon_attempt` does not",
+    "a MISSING root under revalidation refuses and is NOT repaired -- the root stays gone and the journal does not move",
+    "a REPLACED root (a link at the name) refuses and the link remains"
+  ],
+  "ownership": {
+    "note": "the same one class, extended; nothing existing altered",
+    "product_code": {
+      "src/baton_v12/worker_manager/workspaces.py": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+      "tools/single_worker.py": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5"
+    },
+    "product_tests": {
+      "tests/tools/test_stage_execution.py": "21b2b71556ab0bb3108b241d26729e1a0a67556f4e8a7c7a98bf491614ec0753"
+    }
+  },
+  "participant": "baton.claude",
+  "schema": "baton.candidate/1",
+  "settlement_recipe_for_the_next_claim": {
+    "fixture": "tests/tools/test_stage_execution.py, TheComposedJobTraversesReviewAndAcceptance.reviewed(), which drives a real review turn through turn(control, 'review', attempt, mounted(...), edits={...})",
+    "how_a_real_review_answers_unable": "worker/claude_agent.py returns disposition 'unable' with recap 'unable: the review produced no usable report (...)' when `report is None` -- a turn whose provider leaves no usable review-report.json",
+    "scenario": [
+      "implemented()",
+      "drive(..., 'review', 'waiting')",
+      "turn(...) WITHOUT a usable report -> real `unable` terminal",
+      "the real ending through seal and intake -> sealed/pending",
+      "recreate the execution and re-enter the ending",
+      "assert the durable failed/held settlement, the journal, assignment, retention, cleanup and replay effects"
+    ],
+    "status": "a recipe, not a result"
+  },
+  "subject": "the safety concern was right and is fixed: the window skip now needs the caller's intent (`writer=False`) as well as the offered state, and four cases prove the writer paths and the repair paths stay excluded. The settlement proof is still not done, and the recipe for it is recorded.",
+  "the_hole_I_opened": {
+    "closed": "`_mounted(..., writer=True)` by default; the skip needs the offered state AND writer=False; `ending` is the only call site that passes it",
+    "risk": "a launch, task publication or credential writer reaching that state would have lost the protection instead of being refused",
+    "what": "`_mounted` is shared by a launch, an abandonment and the ending; my first cut skipped the preparation window whenever the material was offered, for every caller"
+  },
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "cap": "unchanged",
+    "credential_currency": "unverified",
+    "deployed_cleanup": "separately unresolved; no removal attempted",
+    "timeout_cause": "UNKNOWN"
+  },
+  "verification": {
+    "deployed_writes": 0,
+    "engine_mutations": 0,
+    "live_runs": 0,
+    "operator_scripts_executed": 0,
+    "product": {
+      "tests.tools.test_stage_execution + tests.manager.test_workspaces + tests.tools.test_single_worker": {
+        "failures": 0,
+        "seconds": 194.7,
+        "tests": 825
+      }
+    },
+    "removals": 0
+  },
+  "work": "W236087"
+}

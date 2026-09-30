@@ -1,3 +1,236 @@
+# Current checkpoint — failed-review correction ACCEPTED; owner disposition next
+
+Review315435 accepts candidate315369 restart-to-held correction. Independent18 PASS8.594s,
+plus probe1 PASS0.738s verifies recovered ending has no deferrals. Candidate hash matches.
+Latest review: review-2026-09-30T11-58-44Z.md; REVIEW-EVIDENCE-315435.json.
+Read E315432/events315435/T236087239616. Supersedes prior next-action fixture correction.
+
+Important evidence limit: reclaim returns HELD with runtime ABSENT and missing writer-absence
+proof, not resource returned. Author four-step settlement wording is corrected by review.
+Correct held review remains answering/sealed/pending with retained immutable evidence and no
+invented verdict. This satisfies bounded failed-review recovery, not full cleanup/live acceptance.
+Preserve prior accepted reporter/counter/lifecycle slices and baseline hardening failure.
+
+Next baton.decide: existing live/deployed disposition and next selected workflow. No new live
+run or cleanup authorized by this review. Actual live restore unproved; timeout UNKNOWN;
+credential currency unverified, cap unchanged, no forced rerun. No deployed/engine/credential/
+operator-script/Git/graph action. Reviewer records; author product/tests/PROGRESS.
+
+---
+
+# Current checkpoint — same-execution proof ACCEPTED; fix restart model
+
+Review315338: runtime-world16 PASS7.350s (six new plus ten inherited), test hash matches
+candidate315275. Real unable turn -> sealed/pending/accepted intake/retain, no deferral,
+no invented verdict; actual writer refusal verified. This slice accepted. Held review
+need not force pass/cleanup; previous requirement clarified, no false-success waiver.
+Latest review: review-2026-09-30T11-45-12Z.md; REVIEW-EVIDENCE-315338.json.
+Read E315336/events315338/T236087239616.
+
+Next baton.impl: restart tests currently open second composition before closing first;
+serving also replaces fake engine. This does not prove old execution dead or restart bug.
+Model supported manager stop/release or explicit crash recovery, preserve engine state,
+then recovered ending with correct held state/immutable evidence/no duplicate effects.
+No token-force bypass; if genuine recovery blocker remains, show exact supported path.
+Do not equate refusal/no journal change with successful replay. Preserve same-execution
+acceptance; focused proof next, no broad suite substitute. No new owner gate selected.
+
+No live/deployed repair/removal/credential/engine mutation/operator scripts/Git/graph.
+Existing cleanup separate, baseline failure preserved, timeout UNKNOWN, currency
+unverified, live restore unproved, no forced rerun. Author tests/product/PROGRESS;
+reviewer records. Return independent review then owner.
+
+---
+
+# Current checkpoint — execute the remaining scenario next, review315259
+
+Candidate315206 declared3 hashes match; independent14 diagnostic PASS0.362s.
+Ending-only writer=False scope reviewed; component/source checks are not real caller proof.
+Latest review: review-2026-09-30T11-33-49Z.md; REVIEW-EVIDENCE-315259.json.
+Read E315256/events315259/T236087239616. Settlement explicitly NOT_DONE.
+
+Next baton.impl executable action: TheComposedJobTraversesReviewAndAcceptance fixture,
+implemented -> review waiting -> turn without usable report -> actual unable ending ->
+sealed/pending cut -> recreate -> real ending through correct durable failed/held
+retention/pass/cleanup and replay. Assert immutable sealed bytes/no duplicates/false verdict.
+Exercise writer/launch exclusion through real caller before writes/credentials. Fix concrete
+blockers and complete this scenario, not another broad-suite/recipe-only handoff. Routine
+fixture work already authorized E314549, no owner decision blocks it. If interrupted preserve
+exact executed step/failure, not just recipe. Author product/tests/PROGRESS; reviewer records.
+
+Prior reporter/counter evidence preserved; baseline hardening failure separately retained.
+No live/deployed repair/removal/provider/credentials/engine mutation/operator scripts/Git/
+graph. Existing cleanup separate, timeout UNKNOWN/cap unchanged, currency unverified,
+live restore unproved, no forced rerun. Return review with executed proof then owner.
+
+---
+
+# Current checkpoint — actual seam candidate, connected settlement pending
+
+Review315186: candidate315116 all4 product/test hashes match; independent10 diagnostic
+PASS0.264s. _mounted now skips preparation for offered material; assignment_workspace
+revalidates. Actual durable failure settlement still explicitly NOT_DONE, not accepted.
+Latest review: review-2026-09-30T11-24-20Z.md; REVIEW-EVIDENCE-315186.json.
+Read recovery E315113, handoff E315151/events315186/T236087239616.
+
+Next baton.impl: runtime-capable deterministic fake-engine/provider full review failure
+through seal/intake/pending cleanup -> restart -> real ending -> correct durable held/
+failure settlement, retention/pass/cleanup/replay, unchanged sealed evidence/no duplicates.
+Also prove shared _mounted shortcut cannot enable launch/task/credential writers or repair
+missing/replaced offered roots; narrow to ending read-only recovery if necessary. Preserve
+token/governance. Fixture extension already authorized, not an owner gate. No further
+broad-suite substitute for this scenario. Coordinate exact product/test paths in PROGRESS.
+
+Reporter/counter and prior evidence preserved; baseline hardening failure remains reported.
+No live/deployed repair/removal/operator scripts/credential/engine mutation/Git/graph.
+Existing cleanup separate, timeout UNKNOWN, currency unverified, live restore unproved,
+no forced rerun. Return review after proof, then owner exact next steps.
+
+---
+
+# Current checkpoint — actual admission site confirmed, review314840
+
+SUPERSEDES prior causal claim: stage_execution._prepare does NOT cause live admission
+refusal. single_worker.ending -> _mounted -> admit_preparation is the actual site before
+stage.end. Candidate314780 admits live defect still unfixed. Independent6 diagnostic
+fixture tests PASS0.167s. REVIEW-EVIDENCE-314840.json.
+Latest review: review-2026-09-30T10-33-31Z.md. Read E314838/events314840/T236087239616.
+
+Next baton.impl: already-authorized actual ending re-entry correction in single_worker,
+coordinate exact product/test ownership in PROGRESS; preserve sealed evidence and recover
+retained identities/roots without preparation writer. Real driver deterministic fake-engine/
+provider timeout/unable -> sealed pending -> restart -> repeated ending -> correct durable
+failure/held settlement, retention/pass/cleanup, no false verdict or duplicate effects.
+Existing direct-axis fixture and repeated _retained reads are diagnostic, not that proof.
+Extend accepted runtime-capable World; no owner gate for normal fixture work or late turn.
+Keep focused; preserve reporter/counter acceptance and baseline hardening failure evidence.
+Stage boundary change is partial candidate only; justify minimal scope with actual fix.
+
+No deployed repair/removal/live/provider/credential/engine mutation/operator-script/Git/graph
+act. Existing cleanup unresolved separately; timeout UNKNOWN, currency unverified, live
+restore unproved, no forced rerun. Return review with fix/proof then owner exact next steps.
+
+---
+
+# Current checkpoint — one connected proof remains, review314759
+
+Partial product correction preserved: end reads retained identity without boundary
+composition; counter now tested via production helper; reporter accepted. Independent20
+PASS0.140s, product digest matches candidate314654. REVIEW-EVIDENCE-314759.json.
+Latest review: review-2026-09-30T10-22-40Z.md. Read E314757/events314759/T236087239616.
+
+Next baton.impl: finish explicitly NOT_DONE connected deterministic failed-review proof:
+real stores, accepted fake provider/engine, unable/timeout sealed output + pending cleanup,
+cache-empty restart and repeated conclusion; unchanged sealed bytes/no preparation writer,
+correct durable failure/held settlement, token/retention/cleanup facts, no false verdict,
+replay without duplicate effects. Extend accepted World/product tests as appropriate;
+placement needs no owner gate. Record exact owned test paths in PROGRESS/handoff.
+Preserve existing assertions; no broad refactor. Return independent review, not owner
+approval merely because the turn ended. Author baseline hardening failure remains reported
+with exact diagnostic/comparison; not independently verified here, never all-green claim.
+
+No deployed repair/removal/live rerun/operator scripts/credentials/engine mutation/Git/graph.
+Timeout cause UNKNOWN, existing deployed cleanup unresolved separately. Prior acceptance
+preserved; currency unverified, live restore unproved; no forced rerun. Reviewer records,
+author product/test/progress under current authority.
+
+---
+
+# Current checkpoint — continue failed-review finalization, review314636
+
+Owner E314549 explicitly selects reporting mismatch AND failed-review finalization fix.
+Reporter args/outcome correction accepted; independent22 focused PASS0.120s, candidate
+314551 all4 hashes match. Faster conclusion-refused stop is NOT finalization repair.
+Latest review: review-2026-09-30T10-04-54Z.md; REVIEW-EVIDENCE-314636.json.
+Read E314549/E314629/events314636/T236087239616. Prior slices/evidence preserved.
+
+Next baton.impl: exact sealed-unable/pending-cleanup re-entry through root preparation;
+inspect stage_execution stage.end cache-miss _prepare and worker ending. Owner authority
+covers concrete product fix; no new gate merely because product code is needed. Preserve
+sealed evidence, held-review semantics, tokens, retention and no false verdict. Coordinate
+owned product/tests in PROGRESS/handoff. Connected deterministic timeout/failed review,
+repeated conclusion/restart/cache miss, unchanged sealed bytes and correct durable ending.
+If stop guard remains, exercise actual supervise repeated/cleared/changed refusal behavior;
+current fingerprint-only test does not prove counter or stop branch.
+
+No deployed repair/removal/live rerun/credential/Git/graph act. Existing cleanup remains
+unresolved and separately recorded; prior accidental container/path disposition owner-only.
+Review timeout cause unknown, cap unchanged. Return independent review before owner next
+experiment. Currency unverified, historical boundary UNKNOWN, live restore unproved,
+no forced rerun. Reviewer FINDING/PLAN/review/evidence, author implementation/PROGRESS.
+
+---
+
+# Current checkpoint — scoped prompt/proposal ACCEPTED, review314467
+
+Candidate314414 sha25645be9eac3599d6728979e9d1485334cec3042957a30aea82674cd97d119d99f4; all6 digests
+match; independent29 focused PASS0.760s. Prior R1 role/resume prompt conflict resolved;
+R2 hypothesis/residual/context-save caveats recorded; incident corrected to STOPPED
+RETAINED container, not removed. Latest review: review-2026-09-30T09-41-14Z.md
+Evidence REVIEW-EVIDENCE-314467.json; prior engine REVIEW-EVIDENCE-314389.json.
+Read E314465/events314467/T236087239616. Previous correction checkpoint superseded.
+
+Author diagnosis phrase bounding provider delay outside session span is explicitly
+NOT accepted: latency inside span unpartitioned. Current scoped generated task governs,
+superseding old unscoped NEXT-EXPERIMENT prose. No claim model follows string tests.
+
+Next baton.decide: decide disposition of accidental314263 retained container/instance/
+packet/staging; separately select or decline proposed314263-second experiment using
+NEXT-EXPERIMENT-314263-SECOND.json / OPERATOR-311743.md1c and reviewed helper. No cleanup
+or live run authorized/performed here. Both prior identities spent. Prior acceptance
+preserved; no remaining bounded candidate correction. Currency unverified, boundary
+UNKNOWN, live restore/production comparison unproved; no forced rerun. Reviewer records
+only; author implementation. No Git/graph/product/sibling scope change.
+
+---
+
+# Current checkpoint — diagnosis/prompt corrections, review314389
+
+Owner E314261: original309356 timed out, held; preserve spent run, diagnose, propose
+smallest next experiment; no live rerun/deployed mutation. Author E314387 discloses
+unauthorized314263 run from executing operator text. Reviewer verified exact container
+EXISTS exited/Running=false/PID0; no committed cleanup per outcome. No cleanup here.
+Latest review: review-2026-09-30T09-31-50Z.md
+Evidence REVIEW-EVIDENCE-314389.json; candidate314263 hashes all11 match;22 focused
+PASS0.775s. Read E314261/E314387/events314389/T236087239616.
+
+Next baton.impl: scope skeleton-first to fresh implementation/absent file after
+required instructions; preserve existing correction document; review only evaluates.
+Keep criteria/cap unchanged. Correct incident wording (stopped retained, not removed).
+Separate observed read activity from hypothesis about cause; residual timing not exact
+manager latency. Supersede DIAGNOSIS first-quarter text explicitly. HELD/invocation-
+unknown plus retained transcript is NOT saved/restorable context acceptance.
+Return independent review then owner with exact proposed SECOND experiment commands.
+No live/deployed/cleanup/provider/engine mutation/Git/graph/product/sibling changes.
+Author helper/tests/operator/evidence/PROGRESS; reviewer records. Prior acceptance
+preserved; historical boundary UNKNOWN, currency unverified, live restore unproved,
+no forced rerun. Previous recovery checkpoint historical:309356 now spent.
+
+---
+
+# Current checkpoint — retained-manifest recovery ACCEPTED, review312471
+
+Owner E312403 supersedes earlier bind-first recovery assurance: old stage manifest
+correctly rejects corrected helper. Accepted root/lifecycle evidence preserved.
+Candidate312411 sha256ee1769567e43962f9fcb3944ef73cd2f2c97d2b0a56488bf567a48f6c4431d9f;
+all23 digests match; independent27 focused PASS1.191s. Independent real disposable
+stale-manifest refusal -> stage/prepare-work/bind/check -> baseline.prepare succeeds;
+old10 documents/bootstrap record/108 staged files unchanged. Historical digest injected
+only into disposable manifest, not execution of old helper. Existing missing-root proof
+retained. REVIEW-TRANSITION-312471.json + REVIEW-EVIDENCE-312471.json.
+Latest review: review-2026-09-30T04-41-10Z.md
+Read E312403/E312468/events312471/T236087239616.
+
+Next baton.decide: exact RECOVERY-312411.json / OPERATOR-311743.md section1b, stage into
+fresh packet-312411 then prepare-work/bind/check/run; no bootstrap of existing instance.
+RECOVERY-312166 sequence superseded, preserved as history. Preserve registered roots;
+no cleanup/reconstruction selected. No remaining bounded candidate blocker. One deployed
+manifest read for historical digest, zero deployed writes. No live/provider/Docker/Git/
+graph/product/sibling/DESIGN/W306614. Currency unverified, boundary UNKNOWN, live restore/
+production comparison unproved; no forced rerun. Reviewer records; author implementation.
+
+---
+
 # Current checkpoint — root correction ACCEPTED, review312359
 
 Candidate312305 sha2563fa432a406376e5f8ee1b7335ecc4331b7b41b33ac267a3ab3828801d202eb47;

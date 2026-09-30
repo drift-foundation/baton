@@ -1,0 +1,14 @@
+{
+  "claim": 315338,
+  "candidate_sha256": "67b508976f40deb3fbe72a0ef833f7212424ae3ffb4d8745030c817b983a8b1a",
+  "test_file_sha256": "b5ad1eac4cbbeccd143e91f5636eaeaee781230419403a7d7c920be5f198edb1",
+  "independent_tests": {
+    "class": "TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld",
+    "count": 16,
+    "seconds": 7.35,
+    "result": "PASS",
+    "note": "includes ten inherited cases plus six new scenarios"
+  },
+  "live_runs": 0,
+  "deployed_writes": 0
+}

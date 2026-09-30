@@ -1,0 +1,18 @@
+{
+  "claim": 314636,
+  "candidate_sha256": "64840a9786cb270c7740363dd5c186a26d179d1316de49bc7be6ccb356c9eb7b",
+  "verified_hashes": {
+    "REVIEW-TIMEOUT-314551.json": "9fef177f85da444e32e63eee42b7fe96f5d988d5fec30104682b65ace16b3a2c",
+    "SUPERVISOR-MUTATIONS-314551.json": "fb060019d4a1c52d473724b656a770089d655b4928fb53ce09ed8ed69b09c79e",
+    "correction_supervisor.py": "015d7982ff4efbaeeddd55ee18ca79f24c7b2d7b04da5268c0fec887ad1b4013",
+    "test_correction_packet.py": "0b195833c84b2a0262aef7925d9b05f21accfe62723e504931283ce906c864b0"
+  },
+  "independent_tests": {
+    "count": 22,
+    "seconds": 0.12,
+    "result": "PASS"
+  },
+  "coverage_limit": "refusal tests mock projection or repeat fingerprint construction, not supervisor repeated-tick transition or product failed-review ending",
+  "deployed_writes": 0,
+  "live_runs": 0
+}

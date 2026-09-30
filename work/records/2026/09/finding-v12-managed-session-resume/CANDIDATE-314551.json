@@ -1,0 +1,76 @@
+{
+  "answering": "owner reroute 314549",
+  "changed_files": {
+    "REVIEW-TIMEOUT-314551.json": "9fef177f85da444e32e63eee42b7fe96f5d988d5fec30104682b65ace16b3a2c",
+    "SUPERVISOR-MUTATIONS-314551.json": "fb060019d4a1c52d473724b656a770089d655b4928fb53ce09ed8ed69b09c79e",
+    "correction_supervisor.py": "015d7982ff4efbaeeddd55ee18ca79f24c7b2d7b04da5268c0fec887ad1b4013",
+    "test_correction_packet.py": "0b195833c84b2a0262aef7925d9b05f21accfe62723e504931283ce906c864b0"
+  },
+  "claim": 314551,
+  "missing_stop_condition": {
+    "classification": "an UNFINISHED stop: held, and a verdict does not rescue it",
+    "fixed": "`refused_acts` reads the product's own `projection.deferral_of` and returns the refused entries; the loop stops with `conclusion-refused` when the same refusal repeats for baseline.STALLED_TICKS ticks",
+    "not_done": "it does not attempt the ending the product asks for; driving the output axis to `discarded` is a manager act this run is not authorized to add",
+    "what_happened": "a `conclude` deferral, refused with `precondition` from 09:48:19.329 to 09:50:03.877 -- 58 sweeps -- because a sealed output with cleanup pending was being sent through root preparation",
+    "why_it_waits": "the product calls a deferral RE-ENTERABLE, so one tick's reason may still settle",
+    "why_the_stall_detector_missed_it": "it requires `not settled['outstanding']`, and the whole of this condition is that a cleanup IS outstanding"
+  },
+  "next_steps": {
+    "owner_decisions_still_pending": [
+      "the disposition of the retained runtimes and the accidental 314263 paths",
+      "whether a further experiment runs"
+    ],
+    "packets_are_stale_by_design": "the supervisor and the helper both changed, so any next run starts from `stage` into a fresh destination, as the accepted transition path describes",
+    "the_review_timeout_is_undiagnosed": "a /4 review worker leaves no transcript, so the honest next experiment would have to make the reviewer's turn observable before concluding anything about its cap"
+  },
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "reporting_defect": {
+    "cases": 7,
+    "fixed": "three callable functions -- interruption_reason, unresolved_cleanup, report_interruption -- with the reason read from args and the retained outcome as a second witness. baseline.py untouched.",
+    "what": "SupervisorInterrupted sets `.outcome` and args, never `.why`; this module read `stopped.why` and raised AttributeError while reporting a real interrupted run",
+    "why_it_survived": "it lived under the module's __main__ guard with `pragma: no cover`, unreachable by every test here"
+  },
+  "review_timeout": {
+    "evidence": "REVIEW-TIMEOUT-314551.json",
+    "measured": "attached 09:45:17.918, output frozen `unable` at 09:48:18.283 -- 180.4s, the cap exactly; stdout empty; no transcript, because a review worker is /4 without provider_context by design",
+    "not_established": "why it did not conclude. The only honest statement is that it did not answer within 180 seconds."
+  },
+  "schema": "baton.candidate/1",
+  "subject": "the implementation stage COMPLETED -- the scoped contract produced the file at 11 seconds -- the review provider timed out, the manager was refused every tick for 104 seconds with no stop condition for it, and the interruption report itself crashed on an attribute the exception never sets.",
+  "the_experiment_answered": {
+    "honest_limit": "one session; it does not establish that it always will, and the document's quality was the reviewer's question, which this run never answered",
+    "implementation": "completed; second tool call at 11.1s created the deliverable, first call at 2.7s checked whether it existed"
+  },
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "credential_currency": "unverified and unverifiable from here",
+    "no_forced_rerun": "accepted-without-correction must not trigger one",
+    "production_comparison": "unproved"
+  },
+  "unresolved_cleanup": {
+    "attempt": "attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f516e99ce829891",
+    "cleanup": "never committed",
+    "reported_by": "report_interruption, by identity, on stderr",
+    "runtime": "1c3943d1fa0f14919247690f6b0de1ebcf44a063e09d715a3cca773765c59d60 -- Running=false, exited, Pid=0, ExitCode=0, finished 09:48:18.103; STOPPED AND RETAINED",
+    "statement": "two facts; the second is not resolved by the first. No removal authorized or attempted."
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "deployed_writes": 0,
+    "engine_mutations": 0,
+    "errors": 0,
+    "failures": 0,
+    "live_runs_this_turn": 0,
+    "operator_scripts_executed": 0,
+    "removals": 0,
+    "supervisor_mutations": {
+      "count": 3,
+      "uncaught": []
+    },
+    "tests": 226
+  },
+  "work": "W236087"
+}

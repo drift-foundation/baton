@@ -1,0 +1,115 @@
+{
+  "answering": "owner reroute 312403",
+  "baseline_prepare_after_recovery": {
+    "configured_context_storage": "/tmp/recovery-transition-ke0eanc6/instances/managed-correction-309356/run/private-contexts",
+    "configured_workspace_storage": "/tmp/recovery-transition-ke0eanc6/instances/managed-correction-309356/run/workspaces",
+    "prepared": {
+      "profile_digest": "sha256:4eb66e686db85ecc48aeec403c0ba0b079e748a4f8effbd3cdc6c065a774cdbe",
+      "qualification_run": "managed-correction-309356",
+      "storage_path": "/tmp/recovery-transition-ke0eanc6/instances/managed-correction-309356/run/private-contexts",
+      "workspace_storage": "/tmp/recovery-transition-ke0eanc6/instances/managed-correction-309356/run/workspaces"
+    },
+    "read_back_with": "workspaces.configured_workspace_storage and context_delivery.configured_context_storage",
+    "returncode": 0,
+    "roots_the_bind_step_established": [
+      {
+        "exists": true,
+        "mode": "0o2770",
+        "path": "/tmp/recovery-transition-ke0eanc6/instances/managed-correction-309356/run/workspaces",
+        "role": "workspace_storage"
+      },
+      {
+        "exists": true,
+        "mode": "0o700",
+        "path": "/tmp/recovery-transition-ke0eanc6/instances/managed-correction-309356/run/private-contexts",
+        "role": "context_storage"
+      }
+    ]
+  },
+  "bind_over_the_old_manifest": {
+    "names_the_module": true,
+    "refusal": "refused: the preparation module 'correction_packet.py' has CHANGED since `stage` reviewed it; `bind` refuses drift rather than re-signing it",
+    "refuses_rather_than_re_signing": true,
+    "returncode": 2
+  },
+  "claim": 312411,
+  "deployed_reads": [
+    "/home/sl/baton-instances/managed-correction-309356-packet-311743/prepared.json"
+  ],
+  "deployed_writes": 0,
+  "disposable_root": "/tmp/recovery-transition-ke0eanc6",
+  "disposable_root_removed": true,
+  "docker": "not used",
+  "existing_installation": {
+    "baseline_prepare_then": "not run: this leg reproduces an installation whose supervisor never reached `prepare`",
+    "bootstrap_returncode": 0,
+    "instance": "/tmp/recovery-transition-ke0eanc6/instances/managed-correction-309356",
+    "recovery_steps_then": [
+      "prepare-work",
+      "bind",
+      "check"
+    ],
+    "staged_file_count": 108
+  },
+  "operational_finding": {
+    "how_it_was_found": "this trace hit it by re-using the negative leg that removes the workspace store, then asking `prepare` again",
+    "what": "once `baseline.prepare` has committed, the workspace root's DEVICE AND INODE are pinned inside the context-storage signature -- `configure_context_storage` adds that root to its excluded set -- so a workspace directory that is deleted and re-made is a DIFFERENT root to the journal and a second `prepare` is refused: \"already recorded with a different kind or signature\".",
+    "what_it_forbids": "deleting or re-making `run/workspaces` or `run/private-contexts` on an installation whose `prepare` has committed. That is a fresh instance, not a repair.",
+    "why_it_does_not_affect_this_recovery": "the deployed installation has registered NOTHING -- REPLAY-SAFETY-312166 records both product readers refusing -- so its roots have never been pinned. The recovery creates them once, with `bind`, and never removes them."
+  },
+  "preserved": {
+    "instance_record_unchanged": true,
+    "old_destination_documents": [
+      "bootstrap-inputs.json",
+      "commands.json",
+      "context-profile.json",
+      "deployment.json",
+      "input-manifest.json",
+      "packet.json",
+      "prepared-work.json",
+      "prepared.json",
+      "submission.json",
+      "task.json"
+    ],
+    "old_destination_unchanged": true,
+    "staged_tree_file_count": 108,
+    "staged_tree_unchanged": true
+  },
+  "providers": "not run",
+  "recovery": {
+    "bootstrap_re_run": false,
+    "destination": "/tmp/recovery-transition-ke0eanc6/packet-recovered",
+    "equals_the_corrected_helper": true,
+    "helper_digest_now_recorded": "d5e65adabc0c08f141606ed71cb4f08b8185cd7882313c3e575107581228e029",
+    "staged_file_count": 108,
+    "steps": [
+      {
+        "last_line": "}",
+        "returncode": 0,
+        "step": "stage"
+      },
+      {
+        "last_line": "}",
+        "returncode": 0,
+        "step": "prepare-work"
+      },
+      {
+        "last_line": "}",
+        "returncode": 0,
+        "step": "bind"
+      },
+      {
+        "last_line": "}",
+        "returncode": 0,
+        "step": "check"
+      }
+    ]
+  },
+  "reproduced": {
+    "manifest": "/tmp/recovery-transition-ke0eanc6/packet/prepared.json",
+    "module": "correction_packet.py",
+    "now": "7e8d33b06b84c40fb24176553fbef35682bc2cf2f59dbd56fc2d3dbfad8e7fef",
+    "was": "d5e65adabc0c08f141606ed71cb4f08b8185cd7882313c3e575107581228e029"
+  },
+  "schema": "baton.recovery-transition/1"
+}

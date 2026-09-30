@@ -1,0 +1,81 @@
+{
+  "R1": {
+    "defect": "`instructions()` is the SHARED task document; an unconditional 'your FIRST action creates the file' told the reviewer to write the proposal and told a resumed implementer to reset its own correction",
+    "fixed": "three named situations -- implementer with the file absent (create first), implementer with the file present (read, PRESERVE, correct in place), reviewer (writes no part of it) -- with the criteria, the single-file scope and the 180-second cap identical for both roles",
+    "honest_limit": "STRING assertions over a generated document: they protect its wording, not any model's obedience to it",
+    "mutations": {
+      "count": 4,
+      "evidence": "CONTRACT-MUTATIONS-314414.json",
+      "uncaught": []
+    }
+  },
+  "R2": {
+    "context_state_corrected": "a transcript on disk is retained evidence, NOT a committed saved generation and NOT permission to restore; the use is held with reason invocation-unknown at generation 0",
+    "measured_vs_inferred": "the diagnosis now lists what was directly measured, what is inferred, and what is proposed",
+    "not_established": [
+      "the split of model latency, queueing and tool execution inside the span",
+      "that the missing time reminder CAUSED the failure",
+      "that an early skeleton resolves completion in 180s"
+    ],
+    "residual_relabelled": "the 5.537s 'manager overhead' is a RESIDUAL by subtraction, not exclusive measured manager execution",
+    "superseded_wording_named": "my 'within the first quarter' text is marked SUPERSEDED rather than described as current"
+  },
+  "answering": "review 2026-09-30T09-31-50Z (pass 314410)",
+  "changed_files": {
+    "CONTRACT-MUTATIONS-314414.json": "165b649d3d8fa1c8c6c98727e53cda283485b3adb25b8fac5105dda441703902",
+    "DIAGNOSIS-314263.json": "6bf498ecd77a2c7d74db7dd2e1e931fafc94d7405617a1387e1e45c9ff597ec3",
+    "INTERRUPTED-RUN-314263.json": "a73dfa2d821c9c00bde1223efefd0c1534f9699bae040e80c763e14c4214fe03",
+    "RECOVERY-TRANSITION-314263-SECOND.json": "72c0575cc64010cf1a8290b13ed732ed023f1d8bc078de6a8d9c9d3c46858601",
+    "correction_packet.py": "af405618646bd9dfa29538571a4292222db25e497e35b7ba204afbf9ecad2e64",
+    "test_correction_packet.py": "95c5253ff35dd8af2ee02f2e4d7f81c70e0a192731021ff5d35ca6aa62d49727"
+  },
+  "claim": 314414,
+  "exact_remaining_state": "INTERRUPTED-RUN-314263.json, exact_remaining_state_for_the_owner",
+  "incident_correction": {
+    "accurate": "STOPPED AND RETAINED, not removed; the outcome's 'no committed cleanup' stands because a stopped container is not a proved cleanup",
+    "first_run_runtime": "genuinely gone; docker inspect answers 'no such object', as its outcome says",
+    "measured": {
+      "ExitCode": 143,
+      "FinishedAt": "2026-09-30T09:21:10.997467969Z",
+      "Pid": 0,
+      "Running": false,
+      "Status": "exited",
+      "container": "b93155adbe765ac5e0a7e9bbff195e7ce48a8668b4a82193f04ab0af27c8cfb9",
+      "read_with": "docker inspect --format, read-only"
+    },
+    "no_removal_attempted": true,
+    "old_claim_preserved": "as corrected history in INTERRUPTED-RUN-314263.json",
+    "what_I_claimed": "no worker runtime is left behind"
+  },
+  "participant": "baton.claude",
+  "product_files_changed": [],
+  "schema": "baton.candidate/1",
+  "subject": "all three requested changes were right: the shared contract's unconditional order is now scoped to three named situations, the diagnosis separates measurement from hypothesis and relabels the residual, and my inaccurate 'no runtime left behind' is corrected to a stopped retained container.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN, no cause claimed, not waived",
+    "credential_currency": "unverified and unverifiable from here",
+    "no_forced_rerun": "accepted-without-correction must not trigger one",
+    "owner_decisions_pending": [
+      "the disposition of the retained container and the accidental instance, packet and staging paths",
+      "whether the SECOND experiment runs"
+    ],
+    "production_comparison": "unproved",
+    "the_proposed_experiment_is_not_authorized": "and has not been run"
+  },
+  "verification": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=<checkout>/v12/python/src:<checkout>/v12/python python -B -m unittest test_correction_packet test_connected_packet",
+    "contract_mutations": {
+      "count": 4,
+      "uncaught": []
+    },
+    "cwd": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume",
+    "deployed_writes_this_turn": 0,
+    "engine_mutations": 0,
+    "errors": 0,
+    "failures": 0,
+    "live_runs_this_turn": 0,
+    "tests": 214
+  },
+  "work": "W236087"
+}

@@ -1396,7 +1396,8 @@ class StageComposition:
         self._prepared[attempt_id] = held
         return held
 
-    def _recovered(self, attempt_id, generation, preparing=None):
+    def _recovered(self, attempt_id, generation, preparing=None,
+                   boundary=True):
         """This attempt's already-granted record, or absence before there is
         one.
 
@@ -1419,37 +1420,37 @@ class StageComposition:
                 control, attempt_id=attempt_id, generation=generation)
             if writer is None:
                 return None
-            boundary = None
-            if writer["state"] == "active":
+            composed = None
+            if boundary and writer["state"] == "active":
                 # W285465 review 2026-09-28T04-52-30Z: THIS IS NOT OBSERVATION-ONLY. I
                 # called every stage `writer_boundary` an observation; `_recovered` is
                 # reached through `mount` and `_prepare`, so the acting preparation's own
                 # capability travels here too. It is validated at the adoption entry, which
                 # owns that rule, and an absent one refuses exactly as before.
-                boundary = review_cycles.writer_boundary(
+                composed = review_cycles.writer_boundary(
                     control, writer_id=writer["writer_id"],
                     generation=generation, preparing=preparing)
             return {"writer_id": writer["writer_id"],
                     "line_id": writer["line_id"], "generation": generation,
                     "based_checkpoint_id": writer["based_checkpoint_id"],
-                    "boundary": boundary}
+                    "boundary": composed}
         attachment = review_cycles.review_for_attempt(
             control, attempt_id=attempt_id, generation=generation)
         if attachment is None:
             return None
-        boundary = None
-        if attachment["state"] == "active":
+        composed = None
+        if boundary and attachment["state"] == "active":
             # W285465 review 2026-09-28T08-35-38Z: THE RECOVERED REVIEW LINE FORWARDS IT
             # TOO. `_prepare` passes the capability into this recovery and the writer branch
             # above uses it; this branch DROPPED it, so every tick after the first that
             # recomposes an active review mount while the preparation window stands was
             # refused by that window. Validated at the adoption entry, which owns the rule.
-            boundary = review_cycles.review_boundary(
+            composed = review_cycles.review_boundary(
                 control, attachment_id=attachment["attachment_id"],
                 profile=self.deployment.profile, preparing=preparing)
         return {"attachment_id": attachment["attachment_id"],
                 "checkpoint_id": attachment["checkpoint_id"],
-                "generation": generation, "boundary": boundary}
+                "generation": generation, "boundary": composed}
 
     # -- the obligation this ending is under ---------------------------------
 
@@ -1526,6 +1527,50 @@ class StageComposition:
 
     # -- the ending ----------------------------------------------------------
 
+    def _retained(self, stage, preparing=None):
+        """This attempt's already-granted identity, WITH NO BOUNDARY composed.
+
+        W236087, owner 2026-09-30T09:50:56Z. THE ENDING DOES NOT WRITE IN THE
+        ROOTS AND MUST NOT ASK TO. A live run measured what it cost: a review
+        provider timed out, its output was frozen `unable`, intake SEALED it,
+        and the cleanup axis ended `pending` -- so the worker's material stood
+        preserved and offered for inspection, exactly as DESIGN ART-7 intends.
+        The manager then asked `conclude` again every tick; `end` below found
+        its `_prepared` cache empty and called `_prepare`, which recovers the
+        record and COMPOSES A BOUNDARY -- and a boundary is admitted through
+        `workspaces.admit_preparation`, which refuses precisely this state:
+
+            attempt ...'s output is 'sealed' and its cleanup ended 'pending',
+            so the worker's own material stands preserved and offered for
+            inspection. A preparation is a WRITER inside these roots and the
+            material is evidence while it is offered, so the offer is ENDED --
+            the output axis reaching 'discarded' -- rather than written beside
+
+        That refusal is RIGHT, and the caller was wrong. `end` uses
+        `writer_id`, `generation` and `attachment_id` and NOTHING ELSE from the
+        record -- it never reads `boundary` -- so the identity it needs is one
+        journal read of rows that do not move. `mount` still composes a
+        boundary, because a container IS started over one; an ending is not.
+
+        THE RECOVERED RECORD IS NOT CACHED. It carries no boundary, and `mount`
+        refuses a record without one in as many words -- so caching it here
+        would make a later mount fail for a reason that has nothing to do with
+        the mount.
+        """
+        attempt_id = stage["attempt_id"]
+        held = self._prepared.get(attempt_id)
+        if held is not None:
+            return held
+        generation = self.deployment.generation_of(attempt_id)
+        recovered = self._recovered(attempt_id, generation, boundary=False)
+        if recovered is not None:
+            return recovered
+        # NO RECORD AT ALL is not this correction's case: the launch that
+        # started this attempt granted one, and an ending that finds none is a
+        # different fault. `_prepare` is the honest path for it and refuses
+        # whatever it refuses.
+        return self._prepare(stage, preparing=preparing)
+
     def end(self, worker, stage, job, context):
         """This role's accepted ending, in the ORDER its obligation requires.
 
@@ -1556,7 +1601,11 @@ class StageComposition:
         attempt_id = context["attempt_id"]
         assignment = context["assignment"]
         self.registered(stage, assignment, context)
-        prepared = self._prepared.get(attempt_id) or self._prepare(stage)
+        # THE RETAINED IDENTITY, NOT A NEW PREPARATION. See `_retained`: a
+        # cache miss here used to admit a preparation, which a sealed output
+        # with a pending cleanup refuses -- so a failed review could never
+        # reach its own durable ending and the manager asked forever.
+        prepared = self._retained(stage)
         if self.role == "implementation":
             answered = review_driver.end_implementation(
                 deployment.control, worker.port, context["adapter"],

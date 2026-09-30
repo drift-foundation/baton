@@ -1,0 +1,90 @@
+{
+  "NOT_DONE": {
+    "connected_end_to_end": "a timeout and failed review driven over real stores, through repeated conclusion, a restart and the cache miss, proving the sealed bytes preserved AND the durable failure ending committed with no false verdict and the token and retention guarantees retained. What exists is the unit proof that the ending no longer asks for a preparation, plus the product's own 676 passing cases over the corrected file.",
+    "review_timeout_cause": "UNKNOWN; a /4 reviewer leaves no transcript by design and the cap is unchanged",
+    "why": "it needs a fixture that can seal an output and leave a cleanup pending -- the accepted World's territory, not something to improvise at the end of a long turn"
+  },
+  "R1_product_correction": {
+    "change": [
+      "`_recovered(..., boundary=True)` composes one only when asked",
+      "`_retained` answers the identity with boundary=False and does not cache it, because `mount` requires a boundary",
+      "`end` calls `_retained`"
+    ],
+    "digest": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+    "file": "v12/python/tools/stage_execution.py",
+    "untouched": [
+      "`mount`, which must still require a boundary",
+      "every disposal, cleanup and retention act",
+      "the sealed bytes"
+    ],
+    "what_was_wrong": "`StageComposition.end` did `self._prepared.get(attempt_id) or self._prepare(stage)`; on a cache miss `_prepare` recovers the record AND composes a boundary, which `workspaces.admit_preparation` refuses when an output is sealed with cleanup pending",
+    "why_the_caller_was_wrong": "`end` reads writer_id, generation and attachment_id and never reads `boundary`",
+    "why_the_refusal_was_right": "a preparation is a WRITER inside roots whose material is preserved and offered for inspection (DESIGN ART-7)"
+  },
+  "R2_the_counter_is_the_code_that_runs": {
+    "cases": [
+      "a transient refusal clears and never stops",
+      "the same refusal stops exactly at baseline.STALLED_TICKS",
+      "a moved `since` resets the count; an advancing `observed` does not",
+      "an empty read is not a refusal"
+    ],
+    "functions": [
+      "refusal_fingerprint",
+      "blocked_by"
+    ]
+  },
+  "answering": "review 2026-09-30T10-04-54Z (pass 314649)",
+  "claim": 314654,
+  "ownership": {
+    "for_the_owner_to_direct": "whether the proof should also live under tests/tools/",
+    "product_files_changed": [
+      "v12/python/tools/stage_execution.py"
+    ],
+    "product_tests_changed": [],
+    "proof_location": "this dossier's test_correction_packet.py, driving the real product class"
+  },
+  "participant": "baton.claude",
+  "schema": "baton.candidate/1",
+  "subject": "the failed-review ending asked for a preparation it did not need: `end` reads only writer_id/generation/attachment_id and never the boundary, so it now reads the retained identity and composes nothing. The guard's counter is now the code that runs. The connected end-to-end proof is NOT done and is stated as the remainder.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "boundary_failure": "UNKNOWN",
+    "credential_currency": "unverified",
+    "deployed_cleanup": "the review attempt's cleanup never committed; its runtime is stopped and retained. No removal authorized or attempted.",
+    "owner_disposition_pending": [
+      "the retained runtimes",
+      "the accidental 314263 paths"
+    ],
+    "production_comparison": "unproved"
+  },
+  "verification": {
+    "deployed_writes": 0,
+    "dossier": {
+      "command": "python -B -m unittest test_correction_packet test_connected_packet",
+      "failures": 0,
+      "tests": 234
+    },
+    "engine_mutations": 0,
+    "live_runs": 0,
+    "operator_scripts_executed": 0,
+    "product_suites_over_the_corrected_file": {
+      "tests.tools.test_stage_execution": {
+        "failures": 0,
+        "seconds": 177.3,
+        "tests": 431
+      },
+      "tests.tools.test_stage_execution_hardening": {
+        "failures": 1,
+        "how_established": "restored the pristine staged copy (digest 38c4cf74db02, predating my edit), ran the case against it, identical failure. Reported, not touched.",
+        "pre_existing": true,
+        "which": "test_worker_construction_failure_closes_every_acquired_handle"
+      },
+      "tests.tools.test_stage_execution_status_hardening + tests.tools.test_single_worker": {
+        "failures": 0,
+        "tests": 245
+      }
+    },
+    "removals": 0
+  },
+  "work": "W236087"
+}

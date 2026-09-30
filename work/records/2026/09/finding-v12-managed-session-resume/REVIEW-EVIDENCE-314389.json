@@ -1,0 +1,36 @@
+{
+  "claim": 314389,
+  "candidate_sha256": "4c36fba5a143ac23f45d1de6363da70e643a4dcff289929da46864053be753d3",
+  "verified_hashes": {
+    "ARGV-EVIDENCE-314263-SECOND.json": "cc6d77343a98c81df6319d8ddd5766307bc84c0f334c3728bf6995502d373ab4",
+    "DIAGNOSIS-314263.json": "03e1b395f5e060511a5f0d1f524b0f116572e800ece610e563a92c23cfc0dac2",
+    "INTERRUPTED-RUN-314263.json": "a3db8168e5a98bb12136a5684a54e9e81ffbdbb61a2f10458a1144963aa079b2",
+    "NEXT-EXPERIMENT-314263-SECOND.json": "a8a8368bb2871b1cf8b8745b39b166b7d0e3420287cc43d978dbc73a89fccf03",
+    "OPERATOR-311743.md": "34f9199b2240c72f5dba17623b6d519505c95808f269bc868f074373f8407347",
+    "RECOVERY-TRANSITION-314263.json": "16371e168b3d556e1fd8552f4a5bdc177d4f49c4821b139168293bf9aca455f7",
+    "SELECTIONS-RESOLVED-314263-SECOND.json": "4de5487f1b44e61f857cfdc331b0c8a38f7bf656210692383ebf8470f87fb6fd",
+    "STAGE-BOOTSTRAP-EVIDENCE-314263.json": "feaa546abfb0e02886b4f3d6f849d71067cc29a513635f4b3eebe951ed7f969f",
+    "STOP-ON-ERROR-EVIDENCE-314263-SECOND.json": "e48b6b3b0a25c8ddf373abae96a405d59a8248d87d70b84279a25981751e6379",
+    "correction_packet.py": "d5e65adabc0c08f141606ed71cb4f08b8185cd7882313c3e575107581228e029",
+    "test_correction_packet.py": "b942df0da84b115452fae5aba52e3f8b992bb54349c93d6f9e8ed6a96bd84c40"
+  },
+  "tests": {
+    "count": 22,
+    "seconds": 0.775,
+    "result": "PASS",
+    "scope": "contract and corrected operator sequence"
+  },
+  "independent_engine_read": {
+    "runtime": "b93155adbe765ac5e0a7e9bbff195e7ce48a8668b4a82193f04ab0af27c8cfb9",
+    "Status": "exited",
+    "Running": false,
+    "Pid": 0,
+    "ExitCode": 143,
+    "FinishedAt": "2026-09-30T09:21:10.997467969Z"
+  },
+  "outcomes_read": [
+    "managed-correction-309356",
+    "managed-correction-314263"
+  ],
+  "deployed_writes": 0
+}

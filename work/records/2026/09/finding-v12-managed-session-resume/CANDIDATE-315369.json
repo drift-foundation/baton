@@ -1,0 +1,60 @@
+{
+  "R1_taken": {
+    "modelled_now": "the factory's own `close`, then the SAME store files reopened on a LATER CLOCK (in the frozen millisecond grammar), reusing the SAME fake engine so the runtime state survives",
+    "what_was_wrong": "my earlier restart case opened a second composition while the first was still alive, with a fresh fake engine -- refusal safety, not recovery -- and I read the resulting ownership refusal as an owner policy question, which was inferring a finding from two live objects"
+  },
+  "answering": "review 2026-09-30T11-45-12Z (pass 315364) R1",
+  "claim": 315369,
+  "ownership": {
+    "product_tests": {
+      "tests/tools/test_stage_execution.py": "0d9ea1e078256888eb105dc60b27779e514846ea7c1be8e9a4dfd9f310ef720b"
+    }
+  },
+  "participant": "baton.claude",
+  "recovery": {
+    "after": {
+      "axes": "unchanged -- sealed/pending/unable; a reclaim is not a settlement of the review",
+      "evidence": "sealed output, intake, retention, artifacts, verdict count and attachments exactly as the first process left them",
+      "generation": "revoked"
+    },
+    "entry": "intake.reclaim_expired_resource with tools/job_manager.py's own lean _ReclaimAdapter -- the entry the production restart pass calls",
+    "four_acts": [
+      "revoke, permitted only because the generation is overdue",
+      "stop the exact container",
+      "positively confirm",
+      "settle"
+    ],
+    "no_bypass": "no token bypassed and no expiry faked: the clock moved, `overdue` answers with expired true and returned false",
+    "recovered_ending": "re-enters and rests in the same place: review answering, output sealed, and the freeze, intake and retention are the same journalled acts rather than second ones. No verdict invented."
+  },
+  "relabelled": {
+    "the_counterfactual": "labels which refusal is which: the live run recorded the OFFERED-MATERIAL refusal (its token had been returned); this fixture records the OWNERSHIP refusal (the token is still held). Two rules, one act, and the correction means neither is reached.",
+    "the_two_live_objects_case": "test_a_SECOND_LIVE_COMPOSITION_IS_REFUSED_BY_OWNERSHIP -- says what it really proves, kept because refusal safety is worth proving, and named as not-recovery"
+  },
+  "schema": "baton.candidate/1",
+  "still_open": {
+    "actual_live_restore": "unproved",
+    "cap": "unchanged",
+    "credential_currency": "unverified",
+    "deployed_cleanup": "the two earlier live runs, separately unresolved; no removal attempted",
+    "timeout_cause": "UNKNOWN"
+  },
+  "subject": "the restart is now a real restart: the first composition is closed, the stores are reopened on a later clock, the dead execution's token is overdue, and the product's own reclaim recovers it. The recovered ending reaches the same held state with immutable evidence and no duplicates.",
+  "verification": {
+    "deployed_writes": 0,
+    "engine_mutations": 0,
+    "live_runs": 0,
+    "operator_scripts_executed": 0,
+    "product": {
+      "tests.tools.test_stage_execution + tests.manager.test_workspaces + tests.tools.test_single_worker": {
+        "failures": 0,
+        "seconds": 204.2,
+        "tests": 843
+      }
+    },
+    "product_code_changed_this_claim": [],
+    "removals": 0,
+    "runtime_world_class": 18
+  },
+  "work": "W236087"
+}

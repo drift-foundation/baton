@@ -221,7 +221,39 @@ def _prepare_leg(destination, packet_path, *, cwd):
     return held
 
 
-def trace(root):
+def prepare_once(destination, packet_path, *, cwd):
+    """The POSITIVE leg only: `baseline.prepare`, once, and nothing removed.
+
+    SEPARATE FROM `_prepare_leg` FOR A MEASURED REASON. That function's negative
+    leg deletes the workspace store and re-creates it, and
+    `configure_context_storage` pins the workspace root's DEVICE AND INODE
+    inside its own signature (it adds that root to the excluded set). So once
+    the registration has committed, a re-created workspace directory is a
+    DIFFERENT root to the store's journal, and a second `prepare` is refused --
+    "already recorded with a different kind or signature". That refusal is
+    right, and it is why a recovery must never delete and re-make these roots.
+    """
+    with open(packet_path, encoding="utf-8") as handle:
+        packet = json.load(handle)
+    done = _run([INTERPRETER, "-B", "-c", _PREPARE],
+                tree=packet["manager_source"]["path"], cwd=cwd,
+                extra={"PACKET": packet_path, "DOSSIER": DOSSIER})
+    said = (done.stdout + done.stderr).strip()
+    _held(done.returncode == 0,
+          "`baseline.prepare` failed over the recovered packet:\n" + said)
+    answered = json.loads(done.stdout)
+    return {"returncode": done.returncode,
+            "roots_the_bind_step_established": answered["roots_before"],
+            "prepared": answered["prepared"],
+            "configured_workspace_storage":
+                answered["configured_workspace_storage"],
+            "configured_context_storage":
+                answered["configured_context_storage"],
+            "read_back_with": "workspaces.configured_workspace_storage and "
+                              "context_delivery.configured_context_storage"}
+
+
+def trace(root, *, prepare=True):
     evidence = {"schema": "baton.stage-bootstrap-trace/1",
                 "disposable_root": root,
                 "interpreter": INTERPRETER,
@@ -373,8 +405,16 @@ def trace(root):
     # and the only thing that created those roots is the bind step above. No
     # Docker, no provider, no engine: two registrations, a certification and
     # one grant, inside the temporary root.
-    evidence["baseline_prepare"] = _prepare_leg(destination, packet_path,
-                                                cwd=root)
+    if prepare:
+        evidence["baseline_prepare"] = _prepare_leg(destination, packet_path,
+                                                    cwd=root)
+    else:
+        # STOPPED WHERE THE OWNER'S RUN STOPPED. `prepare=False` leaves the
+        # control store with NOTHING registered, which is the state the
+        # deployed installation is actually in.
+        evidence["baseline_prepare"] = "not run: this leg reproduces an "
+        evidence["baseline_prepare"] += "installation whose supervisor never "
+        evidence["baseline_prepare"] += "reached `prepare`"
 
     submission = packet["submission"]
     evidence["packet"] = {

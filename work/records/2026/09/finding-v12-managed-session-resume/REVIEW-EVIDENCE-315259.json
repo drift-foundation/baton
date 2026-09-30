@@ -1,0 +1,17 @@
+{
+  "claim": 315259,
+  "candidate_sha256": "e76df158b06210d6f870560e01c7a5769440950eac6905afe707010c04c89a95",
+  "verified_hashes": {
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+    "v12/python/tools/single_worker.py": "f634e02296ff05fd0f17c51b87a917252d61f9156eaaa83f5145b3ac46bfbcd5",
+    "v12/python/tests/tools/test_stage_execution.py": "21b2b71556ab0bb3108b241d26729e1a0a67556f4e8a7c7a98bf491614ec0753"
+  },
+  "independent_tests": {
+    "count": 14,
+    "seconds": 0.362,
+    "result": "PASS"
+  },
+  "limit": "diagnostic fixture only; no durable ending/replay result",
+  "live_runs": 0,
+  "deployed_writes": 0
+}

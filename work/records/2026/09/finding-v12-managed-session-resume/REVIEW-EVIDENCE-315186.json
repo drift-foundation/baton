@@ -1,0 +1,19 @@
+{
+  "claim": 315186,
+  "candidate_sha256": "4f727cc9a7ae92b88e9cda70184aa56a16ebb19eb8ab8edd0a26633f7e9cd0ac",
+  "verified_product_hashes": {
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "d4fea18eab1d0f0e1ee8e197a006dc97274c021ed4dd6c548660a2e17ff08a03",
+    "v12/python/tools/single_worker.py": "db05be6078d523bb1b0fb2057bf9fbd3b8e6bd0ecb7c654e9bb41168ba19342c",
+    "v12/python/tools/stage_execution.py": "bad0a355abccf7838f2f4c3948947ace93ff7105a625ae2a866e74eec40d606d",
+    "v12/python/tests/tools/test_stage_execution.py": "dfef198759eeec1b33e1a24020f95f236ebfa031b23c202be3b89a39699e2b5c"
+  },
+  "independent_test": {
+    "class": "TheFAILEDReviewEndingReadsRetainedFactsOverRealStores",
+    "count": 10,
+    "seconds": 0.264,
+    "result": "PASS"
+  },
+  "limitation": "durable settlement explicitly not delivered",
+  "live_runs": 0,
+  "deployed_writes": 0
+}

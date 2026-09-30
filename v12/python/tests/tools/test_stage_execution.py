@@ -956,6 +956,503 @@ class TheRECOVEREDReviewLineCarriesItsOwnCapability(unittest.TestCase):
 
 
 
+class TheFAILEDReviewEndingReadsRetainedFactsOverRealStores(
+        ComposedLifecycleCase):
+    """W236087, owner 2026-09-30T09:50:56Z and review 2026-09-30T10:22:40Z.
+
+    A live run measured the defect. A review provider timed out, its output was
+    frozen `unable`, intake SEALED it, and the cleanup axis ended `pending` --
+    so the worker's material stood preserved and offered for inspection,
+    exactly as DESIGN ART-7 intends. The manager then asked `conclude` again
+    every tick; `StageComposition.end` found its `_prepared` cache EMPTY (a
+    restart, or simply a later tick) and called `_prepare`, which recovers the
+    record AND COMPOSES A BOUNDARY. A boundary is admitted through
+    `workspaces.admit_preparation`, whose `_offered_material_refusal` refuses
+    precisely that state -- and it is right to: a preparation is a WRITER
+    inside those roots. The run was refused for 104 seconds and 58 sweeps and
+    ended only when an operator interrupted it.
+
+    WHAT IS REAL HERE: the control store, the Job store, the line, the
+    checkpoint, the real `prepare_review`, the really retained result manifest,
+    the real `attempts` axes, and the real `admit_preparation` rule. WHAT
+    STANDS IN, named: the engine and the provider -- the freeze, intake,
+    retention and cleanup OPERATIONS are not performed, which is
+    `ComposedLifecycleCase`'s own stated boundary; the axes they would set are
+    written directly, which is how the state under test is reached at all.
+    """
+
+    def sealed_review(self, number=1):
+        """One real review attempt whose output is SEALED with cleanup PENDING.
+
+        Reached through the accepted operations as far as they go -- a real
+        implementation preparation, a real publication, a real
+        `freeze_checkpoint`, a real `prepare_review` over it -- and then the
+        two axes the engine would have set are written, because the engine is
+        this fixture's stated stand-in.
+        """
+        from baton_v12.worker_manager import freeze_checkpoint
+
+        writer_attempt = self.attempt(f"writer-attempt-{number}", number,
+                                      WRITER, f"writer-principal-{number}")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, writer_attempt))
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=writer_attempt, generation=number,
+            worker_id=f"impl-worker-{number}", profile=self.profile,
+            based_checkpoint_id=None)
+        self.completed(writer_attempt)
+        result_digest, document = self.frozen(writer_attempt, number)
+        self.seam.publish(
+            attempt_id=writer_attempt, result_id=document["result_id"],
+            manifest_digest=result_digest, artifacts=[],
+            proposal={"target": self.publisher.target})
+        checkpoint = freeze_checkpoint(
+            self.control, writer_id=writer["writer_id"], generation=number,
+            profile=self.profile, port=self.port(WRITER))
+
+        review_attempt = self.attempt(f"review-attempt-{number}", number,
+                                      REVIEWER, f"review-principal-{number}")
+        self.control._connection.execute(
+            "UPDATE attempts SET authority_uuid = ? WHERE "
+            "runtime_attempt_id = ?", (self.AUTHORITY, review_attempt))
+        attached = review_driver.prepare_review(
+            self.control, checkpoint_id=checkpoint["checkpoint_id"],
+            attempt_id=review_attempt, generation=number,
+            reviewer_worker_id=f"review-worker-{number}",
+            profile=self.profile)
+        # THE TIMEOUT'S OWN STATE, as the live run recorded it: the provider
+        # answered nothing, so the worker's disposition is `unable`, the output
+        # axis is `sealed` -- intake's terminal state, whose only successor is
+        # `discarded` -- and the cleanup axis ended `pending`.
+        self.control._connection.execute(
+            "UPDATE attempts SET output = 'sealed', cleanup = 'pending', "
+            "worker_disposition = 'unable' WHERE runtime_attempt_id = ?",
+            (review_attempt,))
+        self.control._connection.execute(
+            "INSERT INTO outputs (runtime_attempt_id, result_id, disposition, "
+            "manifest_digest, freeze_operation_id, frozen_at) VALUES (?, ?, "
+            "'unable', ?, ?, ?)",
+            (review_attempt, "result-" + review_attempt, result_digest,
+             "freeze-" + review_attempt, NOW))
+        return {"attempt_id": review_attempt,
+                "attachment_id": attached["attachment_id"],
+                "checkpoint_id": checkpoint["checkpoint_id"],
+                "generation": number, "result_digest": result_digest}
+
+    def composition(self, role="review"):
+        class Deployment:
+            control = self.control
+            profile = self.profile
+
+            def generation_of(self, _attempt_id):
+                return 1
+
+            def line_for(self, _job_id):
+                raise AssertionError("a NEW preparation was composed")
+
+        return stage_execution.StageComposition(
+            Deployment(), role=role, worker_id="review-worker-1")
+
+    def prepared_roots(self, attempt_id):
+        """The pair this attempt's roots ALREADY are, allocated once.
+
+        Allocated before the axes are moved to the offered state, which is the
+        real order: a worker cannot have written material into roots that were
+        never created.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        self.control._connection.execute(
+            "UPDATE attempts SET output = 'open', cleanup = 'pending' "
+            "WHERE runtime_attempt_id = ?", (attempt_id,))
+        held = workspaces.assignment_workspace(
+            workspaces.configured_workspace_group(self.control), self.storage,
+            attempt_id, control=self.control)
+        self.control._connection.execute(
+            "UPDATE attempts SET output = 'sealed', cleanup = 'pending' "
+            "WHERE runtime_attempt_id = ?", (attempt_id,))
+        return held
+
+    def evidence(self, attempt_id):
+        """Everything the sealed offer consists of, as one comparable value."""
+        control = self.control._connection
+        return {
+            "attempt": dict(control.execute(
+                "SELECT output, cleanup, worker_disposition FROM attempts "
+                "WHERE runtime_attempt_id = ?", (attempt_id,)).fetchone()),
+            "outputs": [dict(one) for one in control.execute(
+                "SELECT * FROM outputs WHERE runtime_attempt_id = ?",
+                (attempt_id,))],
+            "manifests": sorted(one[0] for one in control.execute(
+                "SELECT digest FROM manifests")),
+            "operations": sorted(one[0] for one in control.execute(
+                "SELECT operation_id FROM operations")),
+            "review_attachments": [dict(one) for one in control.execute(
+                "SELECT * FROM review_attachments")],
+            "retentions": [dict(one) for one in control.execute(
+                "SELECT * FROM retentions")],
+        }
+
+    # -- the state itself ----------------------------------------------------
+
+    def test_THE_REAL_RULE_REALLY_REFUSES_THIS_STATE(self):
+        """The premise, over the real store: this is the refusing state, so
+        everything below is about the state the live run was actually in.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.admit_preparation(
+                self.control, held["attempt_id"],
+                f"preparing attempt {held['attempt_id']}'s roots")
+        said = str(caught.exception)
+        self.assertEqual(caught.exception.category, "refused")
+        self.assertEqual(caught.exception.code, "precondition")
+        self.assertIn("'sealed'", said)
+        self.assertIn("cleanup ended 'pending'", said)
+        self.assertIn("preserved and offered for inspection", said)
+        self.assertIn("output axis reaching 'discarded'", said)
+
+    def test_WHERE_THE_ADMISSION_ACTUALLY_HAPPENS_AND_WHERE_IT_DOES_NOT(self):
+        """A CORRECTION TO MY OWN DIAGNOSIS, and this case is how I found it.
+
+        I reported that `stage_execution._prepare` was the site, because `end`
+        called it on a cache miss and `_prepare` composes a boundary. Over this
+        real store it DOES NOT REFUSE: composing a review boundary does not
+        admit a preparation.
+
+        The admission is `single_worker._mounted`, which calls
+        `workspaces.admit_preparation(..., f"preparing attempt {attempt_id}'s
+        roots", ...)` -- the live deferral's message WORD FOR WORD -- and
+        `single_worker.ending` calls it at the top of the ending, before
+        `stage.end` is reached at all. So the `stage_execution` change is a
+        real hardening (an ending no longer composes a boundary it never
+        reads) and NOT the live refusal's cause.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        composed = self.composition()
+        # NO REFUSAL HERE: this is the part I had wrong.
+        prepared = composed._prepare({"attempt_id": held["attempt_id"],
+                                      "job_id": "job-a"})
+        self.assertEqual(prepared["attachment_id"], held["attachment_id"])
+        # AND THE REFUSAL IS HERE, at the admission the ending performs before
+        # it reaches the stage, with the message the live run retained.
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.admit_preparation(
+                self.control, held["attempt_id"],
+                f"preparing attempt {held['attempt_id']}'s roots",
+                held["attempt_id"])
+        said = str(caught.exception)
+        self.assertIn("preparing attempt", said)
+        self.assertIn("'s roots is refused", said)
+        self.assertIn("preserved and offered for inspection", said)
+        # THE SITE, NAMED FROM THE SOURCE rather than from memory.
+        import inspect
+
+        from tools import single_worker
+        ending = inspect.getsource(single_worker._SingleWorker.ending)
+        self.assertIn("self._mounted(stage, attempt_id, checkpoint=False,",
+                      ending)
+        mounted = inspect.getsource(single_worker._SingleWorker._mounted)
+        self.assertIn("workspaces.admit_preparation", mounted)
+        self.assertIn("preparing attempt ", mounted)
+
+    # -- the correction ------------------------------------------------------
+
+    def test_THE_ENDING_READS_THE_RETAINED_IDENTITY_WITH_AN_EMPTY_CACHE(self):
+        """The corrected path: a cache-empty ending answers from rows that do
+        not move, and admits no preparation at all.
+        """
+        held = self.sealed_review()
+        composed = self.composition()
+        self.assertEqual(composed._prepared, {})
+        answered = composed._retained({"attempt_id": held["attempt_id"],
+                                       "job_id": "job-a"})
+        self.assertEqual(answered["attachment_id"], held["attachment_id"])
+        self.assertEqual(answered["checkpoint_id"], held["checkpoint_id"])
+        self.assertEqual(answered["generation"], held["generation"])
+        self.assertIsNone(answered["boundary"])
+        # NOT CACHED: `mount` refuses a record without a boundary.
+        self.assertEqual(composed._prepared, {})
+
+    def test_REPEATED_CONCLUSION_CHANGES_NOTHING_AT_ALL(self):
+        """The 58 sweeps, as a property: reading the identity again and again
+        leaves the sealed evidence, the journal and every axis identical.
+        """
+        held = self.sealed_review()
+        before = self.evidence(held["attempt_id"])
+        for _tick in range(5):
+            composed = self.composition()          # a fresh cache every time,
+            answered = composed._retained(          # which is the restart case
+                {"attempt_id": held["attempt_id"], "job_id": "job-a"})
+            self.assertEqual(answered["attachment_id"],
+                             held["attachment_id"])
+        after = self.evidence(held["attempt_id"])
+        self.assertEqual(before, after)
+        # AND SPECIFICALLY: no operation was journalled by the reads, so no
+        # preparation, admission, allocation or adoption happened.
+        self.assertEqual(before["operations"], after["operations"])
+        # THE SEALED BYTES ARE THE SAME BYTES.
+        self.assertEqual(after["outputs"][0]["manifest_digest"],
+                         held["result_digest"])
+        self.assertEqual(after["attempt"],
+                         {"output": "sealed", "cleanup": "pending",
+                          "worker_disposition": "unable"})
+
+    def test_NO_VERDICT_IS_INVENTED_AND_THE_OFFER_IS_NOT_DISPOSED(self):
+        """What the correction must NOT do: it reads, and that is all. The
+        offer stays sealed -- disposing it is an operator's act -- and no
+        verdict appears from an ending that never had one.
+        """
+        held = self.sealed_review()
+        for _tick in range(3):
+            self.composition()._retained(
+                {"attempt_id": held["attempt_id"], "job_id": "job-a"})
+        control = self.control._connection
+        self.assertEqual(control.execute(
+            "SELECT count(*) FROM checkpoint_verdicts").fetchone()[0], 0)
+        self.assertEqual(control.execute(
+            "SELECT output FROM attempts WHERE runtime_attempt_id = ?",
+            (held["attempt_id"],)).fetchone()[0], "sealed")
+        # THE ATTACHMENT IS UNTOUCHED TOO: reading an identity does not end a
+        # review cycle.
+        [attachment] = [dict(one) for one in control.execute(
+            "SELECT * FROM review_attachments WHERE runtime_attempt_id = ?",
+            (held["attempt_id"],))]
+        self.assertEqual(attachment["state"], "active")
+        self.assertIsNone(attachment["ended_at"])
+
+    # -- THE CORRECTION AT THE OWNING SEAM ----------------------------------
+    #
+    # `single_worker._mounted` admitted a preparation window unconditionally and
+    # `assignment_workspace` then allocated, both of which are WRITERS' acts
+    # over material that stands offered for inspection. The window is now not
+    # opened in that state and the roots are REVALIDATED -- the same path the
+    # module already takes for a live task, which proves the pair and writes
+    # nothing.
+
+    def test_THE_PREDICATE_IS_THE_SAME_QUESTION_THE_RULE_ASKS(self):
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        self.assertTrue(workspaces.material_is_offered(self.control,
+                                                       held["attempt_id"]))
+        # AND IT IS FALSE FOR AN ORDINARY ATTEMPT, so it is a question and not
+        # a constant: the implementation attempt of the same round is
+        # `completed`, not `sealed`.
+        other = self.attempt("ordinary-attempt", 9, WRITER, "ordinary")
+        self.assertFalse(workspaces.material_is_offered(self.control, other))
+        # A `complete` CLEANUP IS NOT OFFERED MATERIAL EITHER -- the tree is
+        # gone, so there is nothing to protect.
+        self.control._connection.execute(
+            "UPDATE attempts SET output = 'sealed', cleanup = 'complete' "
+            "WHERE runtime_attempt_id = ?", (other,))
+        self.assertFalse(workspaces.material_is_offered(self.control, other))
+
+    def test_THE_ROOTS_ARE_REVALIDATED_AND_NOTHING_IS_ADMITTED(self):
+        """The corrected re-entry, over the real store and the real rule: the
+        pair is answered, no window is opened, and the journal does not move.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        roots = self.prepared_roots(attempt)
+        before = self.evidence(attempt)
+
+        answered = workspaces.assignment_workspace(
+            workspaces.configured_workspace_group(self.control), self.storage,
+            attempt, control=self.control, preparing=None)
+        self.assertEqual(answered["inputs"], roots["inputs"])
+        self.assertEqual(answered["workspace"], roots["workspace"])
+        after = self.evidence(attempt)
+        # NO OPERATION AT ALL: no allocation admitted, no adoption, no window.
+        self.assertEqual(before["operations"], after["operations"])
+        self.assertEqual(before, after)
+
+    def test_WITHOUT_THE_CORRECTION_THE_SAME_CALL_ADMITS_AN_ALLOCATION(self):
+        """The mutation, so the case above cannot pass by accident: with the
+        predicate answering False the same call takes the allocating path and
+        the journal MOVES.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        self.prepared_roots(attempt)
+        before = self.evidence(attempt)
+        with mock.patch.object(workspaces, "material_is_offered",
+                               lambda control, assignment_id: False):
+            workspaces.assignment_workspace(
+                workspaces.configured_workspace_group(self.control),
+                self.storage, attempt, control=self.control, preparing=None)
+        after = self.evidence(attempt)
+        # AND WHAT IT DOES IS WORSE THAN REFUSING: it ADMITS AN ALLOCATION over
+        # material that stands offered for inspection. The offered-material
+        # guard lives on `admit_preparation`, which this entry does not call --
+        # so without the predicate this path WRITES. That is the whole reason
+        # the correction routes it to revalidation rather than simply removing
+        # the preparation window.
+        self.assertNotEqual(before["operations"], after["operations"])
+        gained = set(after["operations"]) - set(before["operations"])
+        self.assertTrue(any("allocation" in one for one in gained), gained)
+        # THE SEALED EVIDENCE ITSELF IS STILL THERE -- this is an allocation
+        # admitted, not a tree destroyed -- which is why the defect was a
+        # refusal loop rather than lost bytes.
+        self.assertEqual(after["outputs"], before["outputs"])
+        self.assertEqual(after["attempt"], before["attempt"])
+
+    def test_THE_ENDING_SEAM_OPENS_NO_WINDOW_OVER_OFFERED_MATERIAL(self):
+        """`single_worker._mounted`'s own decision, asserted from the source and
+        from the predicate it calls.
+        """
+        import inspect
+
+        from tools import single_worker
+
+        source = inspect.getsource(single_worker._SingleWorker._mounted)
+        self.assertIn("workspaces.material_is_offered", source)
+        self.assertIn("None if offered else workspaces.admit_preparation",
+                      source)
+        # AND THE WINDOW IS STILL OPENED WHEN THE MATERIAL IS NOT OFFERED, so
+        # a LAUNCH -- which really is a writer -- is unaffected.
+        self.assertIn("admit_preparation", source)
+        released = inspect.getsource(single_worker._SingleWorker._released)
+        self.assertIn("if naming is None:", released)
+
+    # -- THE SKIP IS THE ENDING'S ALONE -------------------------------------
+    #
+    # REVIEW 2026-09-30T11:24:20Z, and it caught a hole I opened. `_mounted` is
+    # SHARED -- a launch, an abandonment and the ending all call it -- and my
+    # first cut skipped the preparation window whenever the material was
+    # offered, for every caller. A launch or a credential writer reaching this
+    # state would then have LOST the protection instead of being refused by it.
+    # The skip now needs the offered state AND `writer=False`, which only a
+    # re-entry that writes nothing passes.
+
+    def test_A_WRITER_CALLER_IS_STILL_REFUSED_OVER_OFFERED_MATERIAL(self):
+        """The default is `writer=True`, so every caller that has not said
+        otherwise keeps the admission and keeps the refusal.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        self.assertTrue(workspaces.material_is_offered(self.control, attempt))
+        # THE ADMISSION A WRITER PERFORMS, with the default intent.
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.admit_preparation(
+                self.control, attempt,
+                f"preparing attempt {attempt}'s roots", attempt)
+        self.assertIn("preserved and offered for inspection",
+                      str(caught.exception))
+
+    def test_ONLY_writer_False_SKIPS_AND_THE_SOURCE_SAYS_WHO_PASSES_IT(self):
+        """The intent is a parameter, not a state read -- and exactly one
+        caller passes it.
+        """
+        import inspect
+
+        from tools import single_worker
+
+        said = inspect.signature(single_worker._SingleWorker._mounted)
+        self.assertEqual(said.parameters["writer"].default, True)
+        source = inspect.getsource(single_worker._SingleWorker._mounted)
+        self.assertIn("offered = not writer and workspaces."
+                      "material_is_offered", source)
+        # THE THREE CALLERS, and which one asks for the read-only recovery.
+        whole = inspect.getsource(single_worker._SingleWorker)
+        # THE CALL SITES, each with the line that follows it, because the
+        # ending's call wraps and a line-by-line scan would miss its operand.
+        lines = whole.splitlines()
+        calls = [" ".join(one.strip() for one in lines[index:index + 2])
+                 for index, one in enumerate(lines)
+                 if "self._mounted(" in one]
+        self.assertEqual(len(calls), 3, calls)
+        self.assertEqual(len([one for one in calls if "writer=False" in one]),
+                         1, calls)
+        # AND IT IS THE ENDING, named from the function that contains it.
+        ending = inspect.getsource(single_worker._SingleWorker.ending)
+        self.assertIn("writer=False", ending)
+        abandoning = inspect.getsource(
+            single_worker._SingleWorker.abandon_attempt)
+        self.assertNotIn("writer=False", abandoning)
+
+    def test_A_MISSING_ROOT_IS_REFUSED_AND_NEVER_REPAIRED(self):
+        """The revalidation proves the pair and refuses what is not there. It
+        must not re-create a root it finds missing: repairing a tree whose
+        material is offered for inspection would destroy the evidence it is
+        protecting.
+        """
+        import shutil
+
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        roots = self.prepared_roots(attempt)
+        shutil.rmtree(roots["workspace"])
+        before = self.evidence(attempt)
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.assignment_workspace(
+                workspaces.configured_workspace_group(self.control),
+                self.storage, attempt, control=self.control, preparing=None)
+        self.assertEqual(caught.exception.category, "refused")
+        # NOT REPAIRED: the root is still gone and the journal has not moved.
+        self.assertFalse(os.path.exists(roots["workspace"]))
+        self.assertEqual(before, self.evidence(attempt))
+
+    def test_A_REPLACED_ROOT_IS_REFUSED_TOO(self):
+        """A link at the name is a tree somebody else chose, and revalidation
+        refuses it rather than adopting it.
+        """
+        import shutil
+
+        from baton_v12.worker_manager import workspaces
+
+        held = self.sealed_review()
+        attempt = held["attempt_id"]
+        roots = self.prepared_roots(attempt)
+        elsewhere = os.path.join(self.root, "somebody-elses-tree")
+        os.makedirs(elsewhere, exist_ok=True)
+        shutil.rmtree(roots["workspace"])
+        os.symlink(elsewhere, roots["workspace"])
+        before = self.evidence(attempt)
+        with self.assertRaises(ContractRefusal):
+            workspaces.assignment_workspace(
+                workspaces.configured_workspace_group(self.control),
+                self.storage, attempt, control=self.control, preparing=None)
+        self.assertTrue(os.path.islink(roots["workspace"]))
+        self.assertEqual(before, self.evidence(attempt))
+
+    def test_THE_STAGE_MOUNT_STILL_REQUIRES_A_BOUNDARY(self):
+        """The scope of the `stage_execution` change, as a negative control: it
+        must not have made `mount` accept a record without one.
+
+        `mount` composes a boundary through `_prepare` and refuses when the
+        record carries none -- an ACTIVE attachment composes one here, which is
+        why this asserts the requirement from the code rather than by breaking
+        the store's state.
+        """
+        held = self.sealed_review()
+        composed = self.composition()
+        answered = composed._recovered(held["attempt_id"], 1)
+        self.assertIsNotNone(answered["boundary"])
+        # AND WITH boundary=False -- the ending's read -- there is none, so
+        # `mount` would refuse it. Both halves from the same store.
+        self.assertIsNone(composed._recovered(held["attempt_id"], 1,
+                                              boundary=False)["boundary"])
+        import inspect
+
+        source = inspect.getsource(stage_execution.StageComposition.mount)
+        self.assertIn('if held["boundary"] is None:', source)
+
+
 class TheComposedLifecycleRunsOverRealStores(ComposedLifecycleCase):
     """Item 3's own cases, over the harness above."""
 
@@ -11942,3 +12439,399 @@ class TheDeploymentRoutesACancellationToItsOwner(ServingCase):
                                         reason="overall bound")
         self.assertIn("this deployment does not compose",
                       caught.exception.message)
+
+
+class TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld(
+        TheComposedJobTraversesReviewAndAcceptance):
+    """W236087, owner E314549 and review 2026-09-30T11:33:49Z: the scenario
+    EXECUTED, not described.
+
+    One submitted Job through the actual serving path with this suite's fake
+    engine and real worker code: the implementation completes, the review turn
+    produces NO USABLE REPORT so the worker really answers `unable`, the real
+    ending seals and collects it, and the attempt comes to rest at
+    `output='sealed'`, `cleanup='pending'`. Then the execution is RECREATED
+    over the same stores and the ending is re-entered.
+
+    WHAT THE CORRECTION IS FOR, measured in both directions here: with
+    `material_is_offered` answering truthfully the ending proceeds and NO act
+    is deferred; with it forced False -- the code as it was -- the manager's
+    `conclude` is refused with `precondition` every tick, which is the live
+    defect that cost 104 seconds and 58 sweeps.
+
+    AND `answering` WITH A PENDING CLEANUP IS THE CORRECT REST STATE, not a
+    stall: `end`'s own contract says a held review settles nothing, the
+    obligation stays owed, the operator keeps the frozen evidence, and no
+    correction is opened on a verdict nobody gave. These cases assert that
+    shape rather than a completion the product does not promise.
+    """
+
+    def unable_review(self):
+        """One real review turn that leaves no usable report."""
+        held = self.implemented()
+        self.drive(held.job, held.composed, "review", "waiting")
+        attempt = self.only_attempt(held.composed, "review")
+        roots = self.mounted(held.composed, "review", attempt)
+        # NO USABLE REPORT. `claude_agent` answers `unable` when `report is
+        # None`, which is the failure this whole Work is about.
+        self.assertEqual(
+            self.turn(held.control, "review", attempt, roots, edits={}), 0)
+        held.review = attempt
+        return held
+
+    def ticks(self, held, count=8):
+        from baton_v12.job_manager import sweep as tick
+        from tests.job_manager import fixtures
+
+        for _ in range(count):
+            tick(held.job, held.composed, now=fixtures.NOW)
+        return self.states(held.job, held.composed)
+
+    def axes(self, held, attempt):
+        return dict(held.control._connection.execute(
+            "SELECT output, cleanup, worker_disposition FROM attempts WHERE "
+            "runtime_attempt_id = ?", (attempt,)).fetchone())
+
+    def journal(self, held):
+        """Every durable effect this run has, as one comparable value."""
+        control = held.control._connection
+        return {
+            "operations": sorted(one[0] for one in control.execute(
+                "SELECT operation_id FROM operations")),
+            "outputs": sorted(tuple(one) for one in control.execute(
+                "SELECT runtime_attempt_id, disposition, manifest_digest, "
+                "freeze_operation_id FROM outputs")),
+            "intakes": sorted(tuple(one) for one in control.execute(
+                "SELECT runtime_attempt_id, receipt_digest, custody, "
+                "intake_operation_id FROM intakes")),
+            "retentions": sorted(tuple(one) for one in control.execute(
+                "SELECT runtime_attempt_id, artifact_id, disposition, "
+                "retain_operation_id FROM retentions")),
+            "artifacts": sorted(tuple(one) for one in control.execute(
+                "SELECT runtime_attempt_id, artifact_id, content_digest, "
+                "bytes FROM output_artifacts")),
+            "verdicts": control.execute(
+                "SELECT count(*) FROM checkpoint_verdicts").fetchone()[0],
+            "attachments": sorted(tuple(one) for one in control.execute(
+                "SELECT attachment_id, state, ended_at FROM "
+                "review_attachments")),
+        }
+
+    def deferrals(self, held):
+        return [tuple(one) for one in held.job._connection.execute(
+            "SELECT act, category, code, message FROM deferrals")]
+
+    # -- the scenario --------------------------------------------------------
+
+    def test_the_failed_review_reaches_sealed_pending_and_is_not_refused(self):
+        held = self.unable_review()
+        states = self.ticks(held)
+        # THE REST STATE, as the ending's own contract describes it.
+        self.assertEqual(states["implementation"], "completed")
+        self.assertEqual(states["review"], "answering")
+        self.assertEqual(self.axes(held, held.review),
+                         {"output": "sealed", "cleanup": "pending",
+                          "worker_disposition": "unable"})
+        # THE ENDING GOT THERE BY DOING ITS WORK: the output is frozen
+        # `unable`, the intake is recorded under the live assignment, and the
+        # retention decision is taken.
+        journal = self.journal(held)
+        [frozen] = [one for one in journal["outputs"]
+                    if one[0] == held.review]
+        self.assertEqual(frozen[1], "unable")
+        self.assertTrue(frozen[2].startswith("sha256:"))
+        [taken] = [one for one in journal["intakes"]
+                   if one[0] == held.review]
+        self.assertEqual(taken[2], "accepted")
+        self.assertTrue(any(one[0] == held.review and one[2] == "retain"
+                            for one in journal["retentions"]),
+                        journal["retentions"])
+        # AND NOTHING WAS DEFERRED. This is the correction: the conclude act is
+        # not being refused.
+        self.assertEqual(self.deferrals(held), [])
+        # NO FALSE VERDICT, and the review cycle is not ended behind the
+        # reviewer's back.
+        self.assertEqual(journal["verdicts"], 0)
+        self.assertEqual([one[1] for one in journal["attachments"]],
+                         ["active"])
+        self.assertEqual([one[2] for one in journal["attachments"]], [None])
+
+    def test_WITHOUT_the_correction_the_conclude_act_is_refused_every_tick(self):
+        """The live defect, reproduced in this fixture: the same scenario with
+        `material_is_offered` forced False -- the code as it was.
+
+        WHICH REFUSAL THIS IS, LABELLED, because review 2026-09-30T11:45:12Z is
+        right that they must not be conflated. THE LIVE RUN recorded the
+        OFFERED-MATERIAL refusal: its execution's token had been returned, so
+        what remained was the rule protecting preserved evidence. THIS FIXTURE
+        records the OWNERSHIP refusal: the execution's workspace token is still
+        held here, so governed ownership answers first. They are two different
+        rules refusing the same `conclude` act, and only the first is the one
+        this Work corrects -- the correction makes the ending stop asking, so
+        NEITHER is reached.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.unable_review()
+        with mock.patch.object(workspaces, "material_is_offered",
+                               lambda control, assignment_id: False):
+            self.ticks(held)
+            deferred = self.deferrals(held)
+        self.assertEqual(len(deferred), 1, deferred)
+        act, category, code, message = deferred[0]
+        self.assertEqual((act, category, code),
+                         ("conclude", "refused", "precondition"))
+        self.assertIn("is refused", message)
+        self.assertIn(held.review[:32], message)
+        # WHICH ROOT-PROTECTION REASON FIRES FIRST DEPENDS ON THE TOKEN, and
+        # saying so is more honest than forcing one sentence. Here the
+        # execution's own workspace token has not been returned yet, so the
+        # governed-ownership refusal answers first; in the live run the token
+        # HAD been returned and the offered-material refusal is what the
+        # deferral recorded. They are the same act being refused for the same
+        # reason -- these roots are not a writer's to take -- and WITH THE
+        # CORRECTION NEITHER OF THEM FIRES, which the scenario case asserts by
+        # an empty deferral set.
+        self.assertTrue(
+            "preserved and offered for inspection" in message
+            or "a live governed execution owns these roots" in message,
+            message)
+
+    def test_a_SECOND_LIVE_COMPOSITION_IS_REFUSED_BY_OWNERSHIP(self):
+        """NOT a restart, and review 2026-09-30T11:45:12Z was right to say so:
+        both compositions are alive here and the first still holds its token.
+        What this proves is REFUSAL SAFETY -- a second live manager cannot take
+        roots the first one owns -- which is worth keeping and is not recovery.
+        The recovery is
+        `test_a_RESTART_AFTER_EXPIRY_RECOVERS_THROUGH_THE_SUPPORTED_RECLAIM`.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+        axes = self.axes(held, held.review)
+        deferred_before = self.deferrals(held)
+
+        # A SECOND COMPOSITION OVER THE SAME STORES. `serving` opens the same
+        # store names, so this is the process restart rather than a new world.
+        job, control, composed = self.serving()
+        restarted = SimpleNamespace(job=job, control=control,
+                                    composed=composed, review=held.review)
+        states = self.ticks(restarted)
+        self.assertEqual(states["review"], "answering")
+        self.assertEqual(self.axes(restarted, held.review), axes)
+        after = self.journal(restarted)
+        # NO DUPLICATE EFFECTS: not one new operation, output, intake,
+        # retention or artifact, and still no verdict.
+        self.assertEqual(before, after)
+
+        # AND WHAT THE RESTART DOES MEET IS GOVERNANCE, WHICH IS A DIFFERENT
+        # CONDITION AND NOT MINE TO BYPASS. The first execution's workspace
+        # token was never returned -- the run it belonged to is gone -- so the
+        # new composition is refused when it tries to ADOPT those roots: "a
+        # live governed execution owns these roots, and ownership is
+        # transferred after that token is returned rather than beside it".
+        # That refusal is right, it is about ownership across executions rather
+        # than about preserved material, and the correction this Work makes
+        # neither removes it nor should.
+        deferred = self.deferrals(restarted)
+        self.assertEqual(len(deferred), 1, deferred)
+        act, category, code, message = deferred[0]
+        self.assertEqual((act, category, code),
+                         ("conclude", "refused", "precondition"))
+        self.assertIn("a live governed execution owns these roots", message)
+        self.assertNotIn("preserved and offered for inspection", message)
+        # AND IT APPEARED ONLY AFTER THE RESTART: the original composition ran
+        # the same ticks with nothing deferred, which is what makes the token
+        # the operative difference rather than the re-entry itself. (One store,
+        # one deferrals table -- so this is captured before, not read after.)
+        self.assertEqual(deferred_before, [])
+
+    def test_the_SEALED_BYTES_are_unchanged_across_the_re_entry(self):
+        """The evidence the whole refusal exists to protect."""
+        from baton_v12.worker_manager import load_manifest
+
+        held = self.unable_review()
+        self.ticks(held)
+        [digest] = [one[2] for one in self.journal(held)["outputs"]
+                    if one[0] == held.review]
+        sealed = load_manifest(held.control, digest, "resultManifest")
+        self.assertIsNotNone(sealed)
+        before = json.dumps(sealed, sort_keys=True)
+
+        job, control, composed = self.serving()
+        restarted = SimpleNamespace(job=job, control=control,
+                                    composed=composed, review=held.review)
+        self.ticks(restarted)
+        again = load_manifest(control, digest, "resultManifest")
+        self.assertEqual(json.dumps(again, sort_keys=True), before)
+        # AND THE ARTIFACT ROWS STILL MEASURE THE SAME BYTES.
+        self.assertEqual(self.journal(restarted)["artifacts"],
+                         self.journal(held)["artifacts"])
+
+    def restarted(self, held):
+        """The FIRST PROCESS ENDS and a later one opens the same stores.
+
+        REVIEW 2026-09-30T11:45:12Z, and it was right: my earlier restart case
+        opened a second composition while the first was still alive, which
+        proves refusal safety and nothing about recovery. This closes the first
+        composition through the factory's own `close`, and opens the stores
+        again on a LATER CLOCK -- which is what a restart really has, and which
+        is what makes the dead execution's token overdue. The fake engine is
+        the SAME object, so the runtime state the first process left is the
+        state this one finds.
+        """
+        import datetime
+
+        from baton_v12.job_manager import JobStore
+        from baton_v12.worker_manager import ControlStore
+        from baton_v12.worker_manager import tokens
+        from tests.job_manager import fixtures
+
+        from .test_single_worker import AUTHORITY_UUID
+
+        held.composed.close()
+        later = (datetime.datetime.fromisoformat(
+            fixtures.NOW.replace("Z", "+00:00"))
+            + datetime.timedelta(seconds=tokens.LIFETIME_SECONDS + 60))
+        # THE FROZEN GRAMMAR THE STORES REQUIRE: milliseconds, always.
+        stamp = later.strftime("%Y-%m-%dT%H:%M:%S.") + \
+            "%03dZ" % (later.microsecond // 1000)
+        job = JobStore.open(self.job_path, authority_uuid=AUTHORITY_UUID,
+                            incarnation="restarted", clock=lambda: stamp)
+        control = ControlStore.open(self.control_path,
+                                    incarnation="restarted",
+                                    clock=lambda: stamp)
+        self.addCleanup(job.close)
+        self.addCleanup(control.close)
+        composed = stage_execution.operations_from(
+            self.composed_document(line_declared_base=self.base), job, control,
+            engine_run=self.engine,
+            credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: stamp, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        return SimpleNamespace(job=job, control=control, composed=composed,
+                               review=held.review, now=stamp)
+
+    def reclaimed(self, restarted):
+        """The supported recovery, through the entry production calls.
+
+        `tools/job_manager.py`'s restart pass selects overdue governed
+        candidates and calls `intake.reclaim_expired_resource` with its own
+        lean `_ReclaimAdapter`. This builds that adapter the same way -- the
+        engine and its runner, nothing else -- so the four acts are the
+        product's: REVOKE (permitted only because the generation is overdue),
+        STOP the exact container, POSITIVELY CONFIRM what it now is, SETTLE.
+        No token is bypassed and no expiry is faked: the clock moved.
+        """
+        from baton_v12.worker_manager import attempts as A
+        from baton_v12.worker_manager import intake, tokens
+
+        from tools import job_manager as manager
+
+        row = dict(A._attempt_row(restarted.control, restarted.review))
+        governance = tokens.workspace_governance()
+        operation = A._start_operation_id(row)
+        overdue = governance.overdue(restarted.control, row,
+                                     operation=operation)
+        self.assertIsNotNone(overdue, "the generation is not overdue")
+        self.assertTrue(overdue["expired"])
+        self.assertFalse(overdue["returned"])
+        adapter = manager._ReclaimAdapter(self.engine.engine
+                                          if hasattr(self.engine, "engine")
+                                          else "docker", self.engine)
+        return intake.reclaim_expired_resource(
+            restarted.control, adapter, attempt_id=restarted.review,
+            govern=governance), overdue
+
+    def test_a_RESTART_AFTER_EXPIRY_RECOVERS_THROUGH_THE_SUPPORTED_RECLAIM(self):
+        """The recovery, not merely the refusal: first process closed, token
+        overdue, the product's own reclaim, then the ending re-entered.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+        axes = self.axes(held, held.review)
+
+        restarted = self.restarted(held)
+        outcome, overdue = self.reclaimed(restarted)
+        self.assertEqual(outcome["attempt_id"], held.review)
+        # THE ENTITLEMENT IS WITHDRAWN, whatever the cessation turned out to be.
+        from baton_v12.worker_manager import tokens
+        from baton_v12.worker_manager import attempts as A
+
+        row = dict(A._attempt_row(restarted.control, restarted.review))
+        governance = tokens.workspace_governance()
+        domain = tokens.domain_of(governance.resource_kind,
+                                  governance.identity(row))
+        token = tokens.token_of(restarted.control, domain,
+                                overdue["generation"])
+        self.assertTrue(token["revoked"], token)
+
+        # AND THE EVIDENCE IS IMMUTABLE ACROSS ALL OF IT: the sealed output,
+        # the intake, the retention, the artifacts and the verdict count are
+        # exactly what the first process left.
+        after = self.journal(restarted)
+        for key in ("outputs", "intakes", "retentions", "artifacts",
+                    "verdicts", "attachments"):
+            self.assertEqual(before[key], after[key], key)
+        # THE ATTEMPT'S OWN AXES ARE UNCHANGED TOO: still sealed, still
+        # pending, still `unable`. A reclaim is not a settlement of the review.
+        self.assertEqual(self.axes(restarted, held.review), axes)
+        # AND NO VERDICT WAS INVENTED BY ANY OF IT.
+        self.assertEqual(after["verdicts"], 0)
+
+    def test_THE_RECOVERED_ENDING_REACHES_THE_SAME_HELD_STATE(self):
+        """After the reclaim, the recovered process re-enters the ending and
+        comes to rest in the same place, with no duplicate effects.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+
+        restarted = self.restarted(held)
+        self.reclaimed(restarted)
+        states = self.ticks(restarted)
+        self.assertEqual(states["review"], "answering")
+        self.assertEqual(self.axes(restarted, held.review)["output"], "sealed")
+        after = self.journal(restarted)
+        # NO DUPLICATES: the freeze, the intake and the retention are the same
+        # journalled acts, not second ones.
+        for key in ("outputs", "intakes", "retentions", "artifacts"):
+            self.assertEqual(before[key], after[key], key)
+        self.assertEqual(after["verdicts"], 0)
+
+    def test_a_WRITER_CALLER_IS_REFUSED_BEFORE_IT_CAN_WRITE(self):
+        """The actual caller, not a source string: the launch's own intent --
+        `writer=True`, the default -- over this exact state.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+        worker = [one["operations"]._worker for one in held.composed.workers
+                  if one["role"] == "review"][0]
+        stage = {"attempt_id": held.review, "job_id": "job-a",
+                 "kind": "review"}
+        with self.assertRaises(ContractRefusal) as caught:
+            worker._mounted(stage, held.review, checkpoint=False)
+        said = str(caught.exception)
+        self.assertIn("preserved and offered for inspection", said)
+        # AND IT REFUSED BEFORE WRITING ANYTHING: no operation was journalled,
+        # so no task publication and no credential materialization happened.
+        self.assertEqual(before, self.journal(held))
+
+    def test_the_ENDING_INTENT_is_the_only_one_that_skips(self):
+        """The same worker, the same state, the two intents: one refuses and
+        one answers the roots it sealed.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        worker = [one["operations"]._worker for one in held.composed.workers
+                  if one["role"] == "review"][0]
+        stage = {"attempt_id": held.review, "job_id": "job-a",
+                 "kind": "review"}
+        with self.assertRaises(ContractRefusal):
+            worker._mounted(stage, held.review, checkpoint=False)
+        answered = worker._mounted(stage, held.review, checkpoint=False,
+                                   writer=False)
+        self.assertTrue(answered[0]["workspace"])
+        self.assertTrue(os.path.isdir(answered[0]["workspace"]))
