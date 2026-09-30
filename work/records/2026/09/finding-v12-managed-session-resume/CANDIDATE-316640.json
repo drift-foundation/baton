@@ -1,0 +1,74 @@
+{
+  "THE_BOUNDED_ENTRY_GAP": {
+    "gap": "no supported command performs the reclaim or the revoked-resource settlement for one named attempt",
+    "no_implementation_proposed": true,
+    "searched": [
+      "tools/job_manager.py is the only tools/ file mentioning either function, and only via persistent serve",
+      "the only --attempt operand in tools/ belongs to attempt_logs_command.py, which reads logs",
+      "dogfood_operator --abandon is attempt-scoped but is W44716's abandonment ending and calls neither"
+    ]
+  },
+  "THE_CUSTODIAN_GAP_STANDS": "--custodian-image has no configured source in this campaign, so even a bounded entry would reach HELD",
+  "WITHDRAWN": {
+    "and_once_still_omits_the_reclaim": true,
+    "confirmed_from_source_myself": [
+      "serve = reconcile once, then per tick sleep -> ORDINARY SWEEP (the launch pass) -> reclaim; it can resume normal Job action outside every selected bound and is scoped to no attempt",
+      "it answers only the LAST report after the loop stops, so the stopping instruction was circular",
+      "a reclaim refusal ends the run",
+      "the template left PYTHONPATH provenance and --custodian-image unresolved"
+    ],
+    "the_claim": "`tools.job_manager serve` as THE supported disposition, 'runnable today', with 'stop it once its pass has reported'"
+  },
+  "answering": "review 2026-09-30T14-56-02Z (pass 316635) R2",
+  "claim": 316640,
+  "owner_decision_requested": {
+    "A": "leave both held and retained -- no command, no risk, nothing lost; what I would choose",
+    "B": "select a broader serve execution deliberately",
+    "C": "commission a bounded entry as separate work; not proposed here"
+  },
+  "ownership": {
+    "author": [
+      "DISPOSITION-316512.json",
+      "PROGRESS.md",
+      "CANDIDATE-316640.json"
+    ],
+    "product_files_changed": [],
+    "product_tests_changed": [],
+    "reviewer": [
+      "FINDING.md",
+      "PLAN.md",
+      "the review records"
+    ]
+  },
+  "participant": "baton.claude",
+  "schema": "baton.candidate/1",
+  "serve_as_unselected_alternative": "recorded with its order, effects beyond the disposition, observability limit, failure mode and unresolved operands",
+  "subject": "I withdraw the runnable-today disposition. `serve` is not bounded, not target-specific, reports only after it stops, and ends its run on a reclaim refusal; there is NO bounded operator entry for the reclaim or the settlement, and that is now recorded as a gap beside the custodian-configuration gap.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "cap": "unchanged",
+    "credential_currency": "unverified",
+    "experiment": "PROPOSED only",
+    "observability_recommendation": "mine, not required scope",
+    "timeout_cause": "UNKNOWN"
+  },
+  "verification": {
+    "deployed_reads": 0,
+    "deployed_writes": 0,
+    "live_runs": 0,
+    "prior_state_stands": {
+      "failures": 0,
+      "focused": 22,
+      "product": 847
+    },
+    "read_only_this_claim": [
+      "manager.serve and _serve in source",
+      "the tools/ tree searched for a bounded entry",
+      "dogfood_operator's abandon operand"
+    ],
+    "removals": 0,
+    "tests_run_this_claim": 0,
+    "why": "documentation only; no product or test file changed and no repeat was directed"
+  },
+  "work": "W236087"
+}

@@ -2446,6 +2446,8 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
     """
 
     OPERATOR = os.path.join(HERE, "OPERATOR-311743.md")
+    EXPERIMENT = os.path.join(HERE, "OPERATOR-316689.md")
+    NEXT = os.path.join(HERE, "SELECTIONS-RESOLVED-316689.json")
     RESOLVED = os.path.join(HERE, "SELECTIONS-RESOLVED-311743.json")
     SUPERSEDED = os.path.join(HERE, "SELECTIONS-RESOLVED-311606.json")
 
@@ -2983,6 +2985,82 @@ class TheCORRECTED_OPERATOR_SEQUENCE(unittest.TestCase):
         self.assertIn("remove any container", state["what_I_did_NOT_do"])
         self.assertTrue(any("disposition" in one
                             for one in state["what_needs_an_owner_decision"]))
+
+    def test_THE_PREPARED_EXPERIMENT_IS_COMPLETE_AND_HONEST(self):
+        """OWNER REROUTE 316685: retention selected, the next experiment
+        PREPARED with resolved operands and provenance, caps unchanged, and no
+        correction verdict forced.
+        """
+        held = self.read(os.path.join(HERE, "EXPERIMENT-316689.json"))
+        self.assertIn("PREPARED ONLY", held["status"])
+        # THE FOUR COMMAND GROUPS THE OWNER ASKED FOR.
+        self.assertEqual([one["step"] for one in held["PREPARATION"]["steps"]],
+                         [0, 1, 2, 3, 4])
+        self.assertEqual(held["EXECUTION"]["step"]["step"], 5)
+        self.assertEqual(held["STATUS"]["step"], 6)
+        self.assertEqual(held["OUTCOME"]["step"]["step"], 7)
+        # AND THEY ARE THE GENERATOR'S OWN ARGV for this selection.
+        chosen = packets.held_selections(self.NEXT)
+        generated = {one["step"]: one for one in packets.commands(
+            chosen,
+            prepared={"destination": held["identities_are_FRESH"][
+                          "destination"],
+                      "claim": held["claim"], "selections": self.NEXT,
+                      "provenance": os.path.join(HERE,
+                                                 "PROVENANCE-309356.json"),
+                      "bootstrap_inputs": held["identities_are_FRESH"][
+                          "destination"] + "/bootstrap-inputs.json",
+                      "packet": held["identities_are_FRESH"]["destination"]
+                      + "/packet.json"},
+            job_id=packets.job_id_of(chosen))}
+        for one in held["PREPARATION"]["steps"]:
+            self.assertEqual(one["command"],
+                             generated[one["step"]]["command"], one["step"])
+        for one in (held["EXECUTION"]["step"], held["OUTCOME"]["step"]):
+            self.assertEqual(one["command"],
+                             generated[one["step"]]["command"], one["step"])
+        # THE CAPS ARE THE PACKET'S OWN AND UNCHANGED.
+        self.assertEqual(held["what_this_experiment_tests"]["caps_unchanged"],
+                         {"provider_turn_seconds":
+                          packets.BOUNDS["turn_seconds"],
+                          "total_seconds": packets.BOUNDS["total_seconds"],
+                          "cleanup_seconds": packets.BOUNDS["cleanup_seconds"],
+                          "implementer_invocations":
+                          packets.BOUNDS["implementer_invocations"],
+                          "review_invocations":
+                          packets.BOUNDS["review_invocations"]})
+        # THE LIMIT IS STATED AND NO VERDICT IS FORCED.
+        limit = held["what_this_experiment_tests"]["the_limit_stated_first"]
+        self.assertIn("MAY FAIL THE SAME WAY", limit)
+        self.assertIn("not forcing a correction verdict", limit.lower()
+                      .replace("i am ", ""))
+        # AND RETENTION IS DESCRIBED HONESTLY.
+        retention = held["the_owner_selected_RETENTION"]
+        self.assertIn("proves neither cleanup nor deployed revocation",
+                      retention["what_retention_does_NOT_prove"])
+        self.assertIn("storage cost",
+                      retention["what_retention_does_NOT_prove"])
+        self.assertIn("stays recorded as a gap",
+                      retention["what_retention_does_NOT_prove"])
+
+    def test_THE_EXPERIMENTS_IDENTITIES_ARE_FRESH_AND_TOUCH_NOTHING(self):
+        held = self.read(os.path.join(HERE, "EXPERIMENT-316689.json"))
+        fresh = held["identities_are_FRESH"]
+        for name in ("instance", "staging", "destination"):
+            self.assertIn("316689", fresh[name])
+            # NOT AN EARLIER RUN'S PATH.
+            for earlier in ("309356", "314263"):
+                self.assertNotIn(earlier, fresh[name])
+        self.assertEqual(fresh["job_id"], "job-managed-correction-316689")
+        # AND THE OPERATOR DOCUMENT AGREES WITH THE PACKAGE.
+        body = self.read(self.EXPERIMENT)
+        self.assertIn("PREPARED ONLY", body)
+        self.assertIn(fresh["instance"], body)
+        self.assertIn("RETENTION PROVES NEITHER CLEANUP NOR DEPLOYED "
+                      "REVOCATION", body)
+        self.assertIn("MAY FAIL THE SAME WAY", body)
+        self.assertIn("set -e", body)
+        self.assertIn("set -o pipefail", body)
 
     def test_THE_HISTORICAL_INVENTORY_IS_LABELLED_AS_HISTORICAL(self):
         """REVIEW 312285: section 1 still described the instance as ABSENT

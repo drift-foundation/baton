@@ -12743,6 +12743,161 @@ class TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld(
             restarted.control, adapter, attempt_id=restarted.review,
             govern=governance), overdue
 
+    def settled(self, restarted):
+        """The SECOND HALF of the same restart pass, which is the release.
+
+        OWNER REROUTE 316504 asked whether the reclaim's `held` answer -- "the
+        runtime observed absent and no writer-absence proof exists yet, so the
+        revoked generation keeps the resource" -- is a product gap or missing
+        evidence. IT IS MISSING EVIDENCE, and production says so in its own
+        words: `tools/job_manager.py` runs `intake.settle_revoked_resource`
+        whenever the reclaim answers `held` OR `returned`, because "the revoked
+        settlement no longer performs or requires any custody act -- it
+        observes the exact container's termination, records the execution
+        status, PRESERVES THE WORKSPACE AS IS and releases the exact gate".
+
+        So the release does not need the normalization the held answer was
+        waiting for. It needs the settlement to be RUN, which my earlier case
+        never did.
+        """
+        from baton_v12.worker_manager import intake, tokens
+
+        from tools import job_manager as manager
+
+        adapter = manager._ReclaimAdapter(
+            "docker", self.engine,
+            custodian_image_digest="sha256:" + "c" * 64)
+        return intake.settle_revoked_resource(
+            restarted.control, adapter, attempt_id=restarted.review,
+            govern=tokens.workspace_governance())
+
+    def token(self, restarted, generation=1):
+        from baton_v12.worker_manager import attempts as A
+        from baton_v12.worker_manager import tokens
+
+        row = dict(A._attempt_row(restarted.control, restarted.review))
+        governance = tokens.workspace_governance()
+        domain = tokens.domain_of(governance.resource_kind,
+                                  governance.identity(row))
+        return tokens.token_of(restarted.control, domain, generation)
+
+    def test_THE_SETTLEMENT_RELEASES_THE_GATE_AND_PRESERVES_THE_WORKSPACE(self):
+        """The cessation-to-release path, completed with the product's own act.
+
+        The reclaim withdraws the entitlement and answers `held` because it
+        establishes no writer cessation of its own. The settlement is what
+        returns the resource, and it preserves the workspace rather than
+        normalizing it -- which is exactly right for material that stands
+        offered for inspection.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        before = self.journal(held)
+
+        restarted = self.restarted(held)
+        reclaimed, _overdue = self.reclaimed(restarted)
+        # THE RECLAIM'S OWN ANSWER, stated rather than glossed: absent runtime,
+        # no writer-absence proof, resource still held.
+        self.assertEqual(reclaimed["reclaimed"], "held")
+        self.assertEqual(reclaimed["state"], "absent")
+        self.assertIn("no writer-absence proof exists yet", reclaimed["why"])
+        self.assertTrue(self.token(restarted)["revoked"])
+        self.assertFalse(self.token(restarted)["returned"])
+
+        # AND THEN THE SETTLEMENT, which production runs in the same pass.
+        answer = self.settled(restarted)
+        self.assertEqual(answer["attempt_id"], held.review)
+        token = self.token(restarted)
+        self.assertTrue(token["returned"], token)
+        self.assertTrue(token["revoked"], token)
+
+        # THE WORKSPACE IS PRESERVED AS IS: every piece of sealed evidence is
+        # exactly what the first process left, and the attempt's axes have not
+        # moved -- the offer is still sealed and still offered.
+        after = self.journal(restarted)
+        for key in ("outputs", "intakes", "retentions", "artifacts",
+                    "verdicts", "attachments"):
+            self.assertEqual(before[key], after[key], key)
+        self.assertEqual(self.axes(restarted, held.review),
+                         {"output": "sealed", "cleanup": "pending",
+                          "worker_disposition": "unable"})
+
+    def test_WITHOUT_A_CUSTODIAN_IMAGE_THE_HOLD_IS_CORRECT(self):
+        """The other half of the owner's question, and it is not a gap.
+
+        OWNER REROUTE 316504 asked whether the reclaim's `held` answer is a
+        product gap or missing evidence. IT IS MISSING EVIDENCE, in two
+        distinct pieces, and this case pins the second: the release requires
+        HELPER ABSENCE to be established, and establishing it requires a
+        configured CUSTODIAN IMAGE so the engine can be asked. An adapter
+        without one cannot ask, and the manager says so in its own words rather
+        than inferring an absence it did not establish -- for both governed
+        roots, named individually. Holding there is correct behaviour.
+        """
+        from baton_v12.worker_manager import intake, tokens
+
+        from tools import job_manager as manager
+
+        held = self.unable_review()
+        self.ticks(held)
+        restarted = self.restarted(held)
+        self.reclaimed(restarted)
+        # THE SAME SETTLEMENT, WITH NO CUSTODIAN IMAGE CONFIGURED.
+        answer = intake.settle_revoked_resource(
+            restarted.control, manager._ReclaimAdapter("docker", self.engine),
+            attempt_id=restarted.review,
+            govern=tokens.workspace_governance())
+        self.assertEqual(answer["settled"], "held")
+        self.assertEqual(answer["state"], "absent")
+        self.assertIn("configures no custodian image", answer["why"])
+        self.assertIn("the engine was NOT asked", answer["why"])
+        self.assertIn("helper absence is not established", answer["why"])
+        self.assertEqual(sorted(one["root"] for one in answer["surviving"]),
+                         ["result", "workspace"])
+        # AND THE RESOURCE STAYS HELD, which is the point: revoked, not
+        # returned.
+        token = self.token(restarted)
+        self.assertTrue(token["revoked"])
+        self.assertFalse(token["returned"])
+
+    def test_AFTER_THE_RELEASE_THE_ENDING_STILL_RESTS_HELD(self):
+        """The release frees the RESOURCE and settles nothing about the review:
+        no verdict appears, the offer is still sealed, and the stage is still
+        answering. A released gate is not an accepted Job.
+        """
+        held = self.unable_review()
+        self.ticks(held)
+        restarted = self.restarted(held)
+        self.reclaimed(restarted)
+        self.settled(restarted)
+        before = self.journal(restarted)
+        states = self.ticks(restarted)
+        self.assertEqual(states["review"], "answering")
+        self.assertEqual(self.axes(restarted, held.review)["output"], "sealed")
+        self.assertEqual(self.journal(restarted), before)
+        self.assertEqual(before["verdicts"], 0)
+        self.assertEqual([one[1] for one in before["attachments"]], ["active"])
+
+    def test_THE_OFFERED_MATERIAL_RULE_STILL_EXCLUDES_A_WRITER_AFTER_RELEASE(self):
+        """The release must not weaken the exclusion: the material is still
+        preserved and offered, so a writer is still refused over it.
+        """
+        from baton_v12.worker_manager import workspaces
+
+        held = self.unable_review()
+        self.ticks(held)
+        restarted = self.restarted(held)
+        self.reclaimed(restarted)
+        self.settled(restarted)
+        self.assertTrue(workspaces.material_is_offered(restarted.control,
+                                                       held.review))
+        with self.assertRaises(ContractRefusal) as caught:
+            workspaces.admit_preparation(
+                restarted.control, held.review,
+                f"preparing attempt {held.review}'s roots", held.review)
+        self.assertIn("preserved and offered for inspection",
+                      str(caught.exception))
+
     def test_a_RESTART_AFTER_EXPIRY_RECOVERS_THROUGH_THE_SUPPORTED_RECLAIM(self):
         """The recovery, not merely the refusal: first process closed, token
         overdue, the product's own reclaim, then the ending re-entered.

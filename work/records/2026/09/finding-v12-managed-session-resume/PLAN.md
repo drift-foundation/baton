@@ -1,3 +1,113 @@
+# Current checkpoint — live candidate correction/restore ACCEPTED
+
+Owner E316829 requests read-only independent review of completed316689. Review316831 accepts
+actual open->restore in fresh attempts, independent changes-requested->corrected->accepted,
+matching proposal bindings, and independent absence of all four runtime IDs. Supersedes prior
+live-restore-unproved statement only for this run/profile. No general production/parallel claim.
+Latest review: review-2026-09-30T15-26-48Z.md; REVIEW-EVIDENCE-316831.json;
+STATUS-COPY-316831.json. Read E316829/events316831/T236087239616.
+
+Next baton.decide: qualification/delivery disposition and remaining v12 workflow obligations.
+Final proposal head83be025c90842e33e7bea22dd543311b0d8623d8, tree151824e9e26a9c83c97e72edaeac0398bfc88308,
+artifact sha256:1d01cf5f7aa88339d26ed0752d623f65ddeac28d2a8a64f2201d512efea6181b. Not integrated.
+Two concrete follow-up findings: advertised read-only status uses writable opener and fails
+against deployment (copies succeed); final reviewer allocation remains reserved despite runtime
+absence/cleanup retained. Preserve these, do not claim all resource accounting released.
+Temporary inspection copies /tmp/baton-review316831 retained, no raw SQL or deployed repair.
+
+Remaining limits: candidate one restore only; observed_model null, no cache/performance/parallel
+reuse proof; production qualification and selected integration/delivery remain separate. Prior
+timeout cause UNKNOWN. Earlier resources remain retained under E316685; bounded disposition gap
+not expanded. No rerun, cleanup, integration, credentials, product/test or Git/graph mutation.
+Reviewer records; author product/PROGRESS ownership unchanged.
+
+---
+
+# Current checkpoint — fresh316689 experiment instructions ACCEPTED, execution unselected
+
+Owner E316685 selects retention without mutation and instruction preparation only. Review316727
+accepts candidate316689 with reviewer self-contained status supplement (separate terminal lacks
+ROOT/IMPORT). Use OPERATOR-316689.md + EXPERIMENT-316689.json + latest review together.
+Latest review: review-2026-09-30T15-10-14Z.md; REVIEW-EVIDENCE-316727.json binds hashes.
+Independent2 instruction tests PASS plus real resolver on temporary JSON; helper hashes match;
+new instance/packet/staging absent. No live execution or deployment mutation.
+Read E316685/E316724/events316727/T236087239616.
+
+Next baton.decide: select or decline fresh managed-correction-316689 execution. Preparation,
+supervisor, status and outcome commands reviewed; UUID resolved after bootstrap. Caps unchanged,
+no forced verdict/rerun. Prior22-test settlement and disposition-gap acceptance remain accepted.
+Retain earlier resources/evidence; no bounded-disposition implementation expansion. Live restore
+unproved, timeout UNKNOWN, credentials unverified. No cleanup/engine/credential/Git/graph action.
+Reviewer records/status supplement; author packet/PROGRESS/product ownership unchanged.
+
+---
+
+# Current checkpoint — disposition documentation ACCEPTED; owner decision next
+
+Review316662 accepts candidate316640 as operational-gap report. R1 identity and R2 withdrawal
+complete; all prior product/test acceptance retained, including independent22 PASS10.755s.
+Latest review: review-2026-09-30T15-00-41Z.md; REVIEW-EVIDENCE-316662.json.
+Read E316660/events316662/T236087239616. No tests repeated for documentation.
+
+Confirmed gap: no demonstrated bounded target-specific operator entry for reclaim/settlement;
+no configured custodian digest in reported deployment. Persistent serve is broader/unselected,
+not a release command. Its per-attempt refusals can be collected rather than terminating the loop;
+review explicitly qualifies author prose. Retention is not cleanup or proof of current revocation.
+
+Next baton.decide: retain evidence/resources; separately select broader execution with provenance,
+configuration/effects/stopping resolved; or commission bounded operator entry. No new work or graph
+mutation selected here. Current retained targets314263-second/review and314263/implementation;
+original309356 distinct. No routine correction remains in this slice.
+
+Experiment proposed only, live restore unproved, timeout UNKNOWN, currency unverified, cap unchanged,
+no forced rerun. No live/deployed repair/removal/credential/engine/operator-script/Git/graph action.
+Reviewer records; author product/tests/PROGRESS/disposition/candidate.
+
+---
+
+# Current checkpoint — identity fixed; bounded disposition entry unresolved
+
+Review316625 accepts R1 runtime identity correction; all prior product/test acceptance preserved.
+Latest review: review-2026-09-30T14-56-02Z.md; REVIEW-EVIDENCE-316625.json.
+Read E316622/events316625/T236087239616. No tests needed for documentation-only review.
+
+Next baton.impl R2 only: withdraw runnable-today release claim. Persistent serve composes full
+operations, reconciles and sweeps before reclaim, and emits only its last report after stopping.
+Thus stop-after-report is circular and this is not target-specific bounded disposition. --once
+omits reclaim. Template also lacks staged provenance and custodian digest. Record missing bounded
+operator entry explicitly, preserve broader serve alternative as unselected, and propose concrete
+owner next decision. No new helper/product implementation or live proof selected. If an existing
+bounded supported entry exists, establish it from source and bind provenance instead.
+
+Author disposition/candidate/PROGRESS; reviewer records. No product/test reopen, broad test repeat,
+live/deployed repair/removal/credential/engine/Git/graph action. Experiment proposed only; timeout
+UNKNOWN, currency unverified, live restore unproved. Return review, then owner.
+
+---
+
+# Current checkpoint — settlement proof ACCEPTED; disposition packet correction
+
+Owner E316504 scope pinned in review. Candidate316512 test hash matches; independent focused
+class22 PASS10.755s. Missing settlement act plus configured custodian digest closes deterministic
+resource-release question; no product gap demonstrated. E315449 and all accepted slices preserved.
+Latest review: review-2026-09-30T14-50-19Z.md; REVIEW-EVIDENCE-316582.json.
+Read E316504/E316573/events316582/T236087239616.
+
+Next baton.impl, documents only: R1 fix DISPOSITION target: runtime1c3943... is314263-second,
+not309356 (REVIEW-TIMEOUT-314551.json binds exact attempt/stage/runtime). Preserve older309356
+history separately. R2 supply actual supported disposition commands with exact instance/config/
+attempt, custodian-digest source, execution provenance and preconditions; or record exact missing
+operator entry as operational gap. Function names/prose are not executable disposition.
+No live/deployed validation. No product/test reopen or broad suite repeat for this correction.
+Author owns PROGRESS/disposition/selections/candidate; reviewer FINDING/PLAN/review/evidence.
+
+Next experiment remains proposed, not selected. Timeout UNKNOWN, credential currency unverified,
+live restore unproved; observability recommendation is not a new owner gate. Token release is not
+accepted review or completed cleanup. No deployed repair/removal, live engine/provider, credential,
+operator-script execution, Git or graph action. Return independent review, then owner.
+
+---
+
 # Current checkpoint — failed-review correction ACCEPTED; owner disposition next
 
 Review315435 accepts candidate315369 restart-to-held correction. Independent18 PASS8.594s,

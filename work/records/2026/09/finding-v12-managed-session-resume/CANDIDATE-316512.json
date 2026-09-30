@@ -1,0 +1,66 @@
+{
+  "answer": {
+    "piece_one": "tools/job_manager.py runs intake.settle_revoked_resource whenever the reclaim answers held OR returned; the reclaim's `held` is the first half of a two-act pass and my earlier case stopped there",
+    "piece_two": "without the deployment's custodian image digest the manager cannot ask the engine about helpers, so it holds and says so for both governed roots rather than inferring an absence it did not establish",
+    "product_code_changed": [],
+    "proved_both_ways": {
+      "exclusion_after_release": "the offered-material rule still refuses a writer over the material",
+      "no_custodian": "settled 'held', state 'absent', revoked and not returned",
+      "with_custodian": "settled 'returned', token returned, workspace preserved, evidence and axes unchanged, no verdict invented"
+    },
+    "verdict": "missing fixture evidence, not a product gap"
+  },
+  "answering": "owner reroute 316504",
+  "claim": 316512,
+  "disposition": "DISPOSITION-316512.json -- the same two acts for both outstanding deployed runtimes, both requiring an operator; if the deployment configures no custodian image the resource stays held by design. Removing anything by hand is not a disposition.",
+  "next_experiment": {
+    "document": "DISPOSITION-316512.json",
+    "selections": "SELECTIONS-RESOLVED-316512.json",
+    "stated_limit": "the review timeout's cause is UNKNOWN and this may fail the same way; making the reviewer's turn observable is the prerequisite I would want first",
+    "what_it_tests": "a review that ANSWERS, so the correction round opens and the retained conversation is restored -- which no run has reached"
+  },
+  "ownership": {
+    "dossier": [
+      "PROGRESS.md",
+      "DISPOSITION-316512.json",
+      "SELECTIONS-RESOLVED-316512.json",
+      "CANDIDATE-316512.json"
+    ],
+    "product_code": [],
+    "product_tests": {
+      "tests/tools/test_stage_execution.py": "183765b80f0e9a9c4477a9b3461a3544e27a08650aa0a76365b65b3664c9527d"
+    },
+    "reviewer_owns": [
+      "FINDING.md",
+      "PLAN.md",
+      "the review records"
+    ]
+  },
+  "participant": "baton.claude",
+  "schema": "baton.candidate/1",
+  "subject": "the settlement question is answered: MISSING FIXTURE EVIDENCE in two pieces, not a product gap. The settlement must be run, and the adapter must carry the deployment's custodian image digest; with both, the gate is released and the workspace preserved. No product change was needed or made.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "cap": "unchanged",
+    "credential_currency": "unverified",
+    "deployed_resources": "two stopped retained runtimes; released only by the supported reclaim + settlement, which needs an operator and a configured custodian image",
+    "timeout_cause": "UNKNOWN -- and it gates the next experiment's value"
+  },
+  "verification": {
+    "credential_changes": 0,
+    "deployed_removals": 0,
+    "deployed_writes": 0,
+    "engine_mutations": 0,
+    "live_runs": 0,
+    "operator_scripts_executed": 0,
+    "product": {
+      "tests.tools.test_stage_execution + tests.manager.test_workspaces + tests.tools.test_single_worker": {
+        "failures": 0,
+        "seconds": 204.7,
+        "tests": 847
+      }
+    },
+    "runtime_world_class": 22
+  },
+  "work": "W236087"
+}

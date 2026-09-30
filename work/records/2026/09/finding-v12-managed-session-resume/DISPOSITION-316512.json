@@ -1,0 +1,253 @@
+{
+  "CORRECTION_after_review_316582": {
+    "and_309356_HAS_NO_OUTSTANDING_RUNTIME": "its implementation runtime 0e154e288035... is GONE (docker inspect: 'no such object') and its cleanup is `retained`; its review attempt never launched, so it holds no runtime identity at all. Its evidence stays distinct and is not part of this disposition.",
+    "re_measured_this_claim": "each retained runtime was matched to its own run by reading every deployed outcome.json's `cancellation` map and asking `docker inspect` for each identity, read-only.",
+    "what_I_wrote": "\"the review runtime of managed-correction-309356\" -- I attributed runtime 1c3943d1fa0f... to the 309356 run.",
+    "why_it_was_WRONG": "that runtime belongs to managed-correction-314263-second's REVIEW attempt attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f516e99ce829891, as REVIEW-TIMEOUT-314551.json already bound it."
+  },
+  "QUALIFICATIONS_after_review_316662": {
+    "one": {
+      "corrected": "a refused attempt is REPORTED in the pass's answer and the pass continues over the others; the run ends only if the reclaim pass itself raises.",
+      "too_strong": "that is the LIBRARY's rule for a pass that RAISES -- `manager.serve` does not swallow a refusal -- but the lean pass `tools/job_manager.py` supplies COLLECTS per-attempt refusals into its own `refused` list and answers them, precisely so 'one attempt's refusal does not end the pass'. Its own comment says so. So a refusal from ONE attempt does not stop serving; what would end the run is a pass that raised, which this one is written not to do.",
+      "what_I_wrote": "\"A RECLAIM REFUSAL ENDS THE RUN. One refused attempt stops the whole serving process.\""
+    },
+    "the_owner_selected_retention_anyway": "reroute 316685, with these costs stated rather than implied.",
+    "two": {
+      "corrected": "retention keeps the evidence inspectable and takes no risk, and that is its whole claim. It is a deliberate choice to carry an outstanding state, not a settlement and not a costless one.",
+      "too_strong": "retention is not free and does not settle anything. The resources stay in an OUTSTANDING state with a real storage cost -- two instances, their workspaces, the retained conversations and two stopped containers, all still on disk -- and it proves NEITHER cleanup NOR deployed revocation. The missing bounded disposition entry also stays a gap.",
+      "what_I_wrote": "\"leave both held and retained ... losing nothing, because the workspaces are preserved either way\""
+    }
+  },
+  "WITHDRAWAL_after_review_316625": {
+    "WITHDRAWN": "all of it. The reviewer read the source and every objection is correct; I have re-read the same source and confirmed each one rather than taking it on trust.",
+    "and_--once_still_omits_the_reclaim": "confirmed again: `_serve` returns `reconcile(...)` for `--once` and wires `_reclaiming(...)` only on the persistent path.",
+    "what_I_claimed": "\"the command is runnable today and, run as it stands, reaches the HELD outcome\", with `tools.job_manager serve` presented as THE supported disposition and \"stop it with ONE Ctrl-C once its pass has reported\".",
+    "why_it_was_wrong": [
+      "IT IS NOT BOUNDED OR TARGET-SPECIFIC. `manager.serve` runs `reconcile(...)` once and then, every tick, `sleep(interval)`, `sweep(...)` and only THEN the reclaim -- the source says so and says why: 'once per tick, AFTER the ordinary sweep, so a reclaim never races the launch pass in the same tick'. The ordinary sweep IS that launch pass. So this entry can resume normal Job action -- offers, claims, starts -- outside any supervisor limit this campaign selected, on an instance whose Job is spent and whose review is held. Nothing about it is scoped to one attempt.",
+      "THE STOPPING INSTRUCTION WAS CIRCULAR. `serve` answers only its LAST report, after the loop stops -- 'Answers the LAST report rather than every one of them'. So an operator cannot see whether the reclaim ran, let alone what it answered, until after deciding to stop; 'stop once its pass has reported' asks for an observation the entry does not provide until it has already ended.",
+      "A RECLAIM REFUSAL ENDS THE RUN. The source is explicit -- 'its refusals are not swallowed ... and ends the run' -- so one refused attempt stops the whole serving process, which is a further effect an operator is owed in advance.",
+      "THE TEMPLATE LEFT TWO OPERANDS UNRESOLVED. `PYTHONPATH=<staged>/src:<staged>` names no actual tree -- each run staged its own, and the current helper digests no longer match those retained manifests -- and `--custodian-image` had no value at all."
+    ]
+  },
+  "answering": "owner reroute 316504",
+  "claim": 316512,
+  "next_context_reuse_experiment": {
+    "honest_limit": "the review stage timed out at 180 seconds with no transcript to read, and that cause is still UNKNOWN. A reviewer that cannot answer means no correction round, so THIS experiment may fail the same way. Making the reviewer's turn observable is the prerequisite I would want before spending another live run.",
+    "outcome_step": {
+      "command": [
+        "python3",
+        "-c",
+        "import json,sys;print(json.dumps(json.load(open(sys.argv[1])), indent=2, sort_keys=True))",
+        "/home/sl/baton-instances/managed-correction-316512/run/outcome.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "step": 7,
+      "what": "the result, after the supervisor returns. The outcome document is the run's own answer."
+    },
+    "preserves": [
+      "every earlier run's instance, packet, staging and retained evidence -- this uses new paths throughout"
+    ],
+    "selections": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-316512.json",
+    "status_step_pending": {
+      "step": 6,
+      "why": "needs the Authority identity tools.bootstrap mints at step 1; `bind` writes the complete command into commands.json"
+    },
+    "steps": [
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "stage",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-316512.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-316512-packet",
+          "--claim",
+          "316512",
+          "--provenance",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python"
+        },
+        "step": 0,
+        "what": "STAGE: write the input documents and COPY the modules and frozen resources this run will import, measuring every one. Refuses before it writes, refuses a staged tree that does not import, and refuses a staging root whose parent holds the instance."
+      },
+      {
+        "command": [
+          "python3",
+          "-m",
+          "tools.bootstrap",
+          "--inputs",
+          "/home/sl/baton-instances/managed-correction-316512-packet/bootstrap-inputs.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-316512",
+          "--distro",
+          "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+          "--no-repositories"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316512-source/manager-source/src:/home/sl/baton-staging/managed-correction-316512-source/manager-source"
+        },
+        "step": 1,
+        "what": "the instance, from the accepted runtime. Installs; starts nothing."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "prepare-work",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-316512.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-316512-packet"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316512-source/manager-source/src:/home/sl/baton-staging/managed-correction-316512-source/manager-source"
+        },
+        "step": 2,
+        "what": "the Authority acts this Job needs: create the Work under the assignment contract, register the impl, rview and integration route handlers, grant the four receipt capabilities in the Work's own scope, and set the canonical target. Journalled under a derived identity, so a repeat replays."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "bind",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-316512.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-316512-packet",
+          "--claim",
+          "316512",
+          "--provenance",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316512-source/manager-source/src:/home/sl/baton-staging/managed-correction-316512-source/manager-source"
+        },
+        "step": 3,
+        "what": "bind the packet to what the instance ACTUALLY holds: the emitted deployment configuration, the Authority identity the bootstrap minted and the staged modules as copied. Opens no store."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "check",
+          "--packet",
+          "/home/sl/baton-instances/managed-correction-316512-packet/packet.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316512-source/manager-source/src:/home/sl/baton-staging/managed-correction-316512-source/manager-source"
+        },
+        "step": 4,
+        "what": "prove the packet against the tree, with the real product validators over the STAGED imports. Opens no store; refuses on any drift."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py",
+          "--packet",
+          "/home/sl/baton-instances/managed-correction-316512-packet/packet.json"
+        ],
+        "environment": {
+          "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/managed-correction-316512-packet/deployment.json",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316512-source/manager-source/src:/home/sl/baton-staging/managed-correction-316512-source/manager-source"
+        },
+        "step": 5,
+        "what": "serve it, BOUNDED, in the foreground. This one command performs the owner acts first -- the workspace and private context storage, the candidate profile's certification and ONE qualification grant, each journalled under an identity derived from its own operands, so repeating it replays rather than composing a second grant -- and then serves. It holds the 900s total with 60s reserved INSIDE it, caps the invocations at the gate, stops on the first terminal state and retains the outcome even when interrupted."
+      }
+    ],
+    "what_changed_since_the_last_experiment": [
+      "the task contract now orders the first action for a fresh implementation and preserves an existing document on a resumed correction, which is what produced the completed implementation",
+      "the ending no longer asks for a preparation over sealed material, so a failed review no longer spins until an operator interrupts",
+      "the supervisor stops on a repeated refusal and reports unresolved cleanup by identity"
+    ],
+    "what_it_would_test": "the thing this whole Work exists for and which no run has yet reached: a REVIEW THAT ANSWERS, so the correction round opens and the producer's retained conversation is restored into a fresh worker. Both live runs died before a verdict -- the first with no deliverable, the second with an `unable` review -- so context reuse has never been exercised live."
+  },
+  "schema": "baton.supported-disposition/1",
+  "the_settlement_question_ANSWERED": {
+    "answer": "MISSING FIXTURE EVIDENCE, in two distinct pieces. Neither is a product gap, and the product states both refusals in its own words rather than inferring anything.",
+    "no_product_change_was_needed_or_made": true,
+    "piece_one": "THE SETTLEMENT MUST BE RUN. `tools/job_manager.py`'s restart pass calls `intake.settle_revoked_resource` whenever the reclaim answers `held` OR `returned` -- its own comment says the settlement 'no longer performs or requires any custody act ... preserves the workspace as is and releases the exact gate'. My earlier case stopped at the reclaim, so the path was never followed to its end.",
+    "piece_two": "THE ADAPTER MUST CARRY THE DEPLOYMENT'S CUSTODIAN IMAGE DIGEST. Without one the manager cannot identify a helper an earlier configuration may have launched under the same derived names, so -- in its own words -- 'the engine was NOT asked and helper absence is not established', for both governed roots, named individually. It holds rather than inferring an absence it did not establish. That is correct.",
+    "proved_both_ways": {
+      "where": "tests/tools/test_stage_execution.py, TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld (22 cases)",
+      "with_one": "settled 'returned', the token returned, the workspace PRESERVED as is, the sealed evidence and every axis unchanged, no verdict invented",
+      "without_a_custodian_image": "settled 'held', state 'absent', resource revoked and NOT returned"
+    },
+    "question": "production reclaim reports runtime absent but holds the revoked generation for missing writer-absence proof -- missing fixture evidence or a concrete product gap?"
+  },
+  "the_supported_disposition_for_the_deployed_runs": {
+    "THERE_IS_NO_BOUNDED_OPERATOR_ENTRY": {
+      "gap": "no supported command performs the reclaim or the revoked-resource settlement for ONE named attempt.",
+      "how_I_searched": [
+        "`tools/job_manager.py` is the ONLY file in `tools/` that mentions `reclaim_expired_resource` or `settle_revoked_resource`, and it reaches them only through the persistent `serve` pass.",
+        "no operator CLI takes an attempt operand for either act: the one `--attempt` argument in `tools/` belongs to `attempt_logs_command.py`, which reads delivered logs.",
+        "`dogfood_operator --abandon` IS attempt-scoped and bounded, but it is a DIFFERENT act -- W44716's abandonment ending for an attempt whose supervising process died -- and it calls neither the reclaim nor the settlement. I am not presenting it as this path."
+      ],
+      "no_implementation_requested_or_offered": "review 316625 asked for no new product or helper work, and I am proposing none here.",
+      "so": "the disposition cannot be expressed as a bounded command today. That is the gap, recorded as a gap."
+    },
+    "THE_CUSTODIAN_CONFIGURATION_GAP_STANDS": {
+      "consequence": "even a bounded entry would reach the HELD outcome without one -- revoked, stopped, roots not accounted for -- which is correct behaviour and proved deterministically both ways.",
+      "gap": "`--custodian-image` has no configured source in this campaign: neither instance's `deployment.json`, neither packet's stage-execution configuration, nor any worker deployment carries a custodian image digest.",
+      "what_I_will_not_do": "invent a digest. One chosen to satisfy an operand is not evidence about a helper."
+    },
+    "THE_OWNER_DECISION_I_AM_ASKING_FOR": [
+      "A -- LEAVE BOTH HELD AND RETAINED. No command, no risk, nothing lost: the workspaces are preserved either way, the resources are revoked-or-held rather than leaking, and the evidence stays inspectable. This is what I would choose.",
+      "B -- SELECT A BROADER `serve` EXECUTION DELIBERATELY, accepting the sweep's effects on a spent Job, naming a custodian image digest the deployment can honestly claim, and accepting that the reclaim's answer is visible only after the loop is stopped.",
+      "C -- COMMISSION A BOUNDED ENTRY as separate work. Not requested here, not proposed here, and named only so the option is not invisible."
+    ],
+    "serve_AS_AN_UNSELECTED_BROADER_ALTERNATIVE": {
+      "effects_beyond_the_disposition": "the sweep may offer, claim and start work on that instance outside any bound this campaign selected; the supervisor's own limits do not apply to it.",
+      "failure_mode": "a reclaim refusal ends the run.",
+      "observability_limit": "only the LAST report is answered, after the loop stops, so the reclaim's answer is not visible while it runs.",
+      "status": "NOT a recommendation and NOT selected. Recorded so the owner can weigh it against doing nothing.",
+      "unresolved_operands": [
+        "the staged import provenance (`PYTHONPATH`), which no retained manifest now matches",
+        "`--custodian-image`, which has no configured source"
+      ],
+      "what_it_would_do_in_order": [
+        "construct the FULL deployment operations through `tools.stage_execution:factory`",
+        "`reconcile(...)` once",
+        "then per tick: sleep, ORDINARY SWEEP (the launch pass), then the reclaim",
+        "and after the reclaim, the revoked-resource settlement in the same pass"
+      ]
+    },
+    "targets": [
+      {
+        "attempt_id": "attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f516e99ce829891",
+        "authority_uuid": "a28b760799e445b0bf5a27ba26f527c2",
+        "cleanup": "None -- never committed",
+        "engine_now": "Running=false, Status=exited, ExitCode=0 (docker inspect, read-only)",
+        "instance": "/home/sl/baton-instances/managed-correction-314263-second",
+        "provenance": "the REVIEW attempt of the second experiment -- the run whose reviewer timed out. Read from that run's own outcome.json and bound in REVIEW-TIMEOUT-314551.json.",
+        "run_id": "managed-correction-314263-second",
+        "runtime_id": "1c3943d1fa0f14919247690f6b0de1ebcf44a063e09d715a3cca773765c59d60",
+        "stage_execution_config": "/home/sl/baton-instances/managed-correction-314263-second-packet/deployment.json",
+        "stage_state_at_the_end": "answering"
+      },
+      {
+        "attempt_id": "attempt-76c61bb447be0565d97c1286eec2d0b5fcb4579652660619a79f5db816c7c285",
+        "authority_uuid": "7cc37d534c1440c5820619a6fc08abf8",
+        "cleanup": "None -- never committed",
+        "engine_now": "Running=false, Status=exited, ExitCode=143 (docker inspect, read-only)",
+        "instance": "/home/sl/baton-instances/managed-correction-314263",
+        "provenance": "the IMPLEMENTATION attempt of the run I started by mistake and stopped with one SIGINT; recorded in INTERRUPTED-RUN-314263.json.",
+        "run_id": "managed-correction-314263",
+        "runtime_id": "b93155adbe765ac5e0a7e9bbff195e7ce48a8668b4a82193f04ab0af27c8cfb9",
+        "stage_execution_config": "/home/sl/baton-instances/managed-correction-314263-packet/deployment.json",
+        "stage_state_at_the_end": "running"
+      }
+    ],
+    "what_is_NOT_a_disposition": "removing a container or a path by hand, or writing to a store directly. No removal is authorized, none was attempted, and a stopped container is not a proved cleanup."
+  }
+}

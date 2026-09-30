@@ -1,0 +1,104 @@
+{
+  "R1_supersession": {
+    "309356": "NO outstanding runtime: implementation runtime gone ('no such object') with cleanup `retained`, review attempt never launched. Its evidence stays distinct.",
+    "correct": "runtime 1c3943d1fa0f... belongs to managed-correction-314263-second's REVIEW attempt attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f516e99ce829891",
+    "re_measured": "every deployed outcome.json's cancellation map read and every runtime identity put to docker inspect, read-only",
+    "the_two_outstanding": {
+      "managed-correction-314263": {
+        "attempt": "attempt-76c61bb4...",
+        "cleanup": "never committed",
+        "engine": "exited, ExitCode 143",
+        "runtime": "b93155adbe76",
+        "stage": "running"
+      },
+      "managed-correction-314263-second": {
+        "attempt": "attempt-fc0b0a1a...",
+        "cleanup": "never committed",
+        "engine": "exited, ExitCode 0",
+        "runtime": "1c3943d1fa0f",
+        "stage": "answering"
+      }
+    },
+    "what_I_wrote": "the review runtime of managed-correction-309356"
+  },
+  "R2_executable_disposition": {
+    "entry": "tools.job_manager serve -- its restart-recovery pass performs the reclaim and then the revoked-resource settlement; there is no narrower command",
+    "honest_outcomes": {
+      "either_way": "no sealed byte moves, no verdict invented, exclusion intact",
+      "with_a_digest": "settled 'returned', gate released, workspace preserved",
+      "without_one": "held -- revoked, stopped, roots not accounted for; correct behaviour"
+    },
+    "operands_per_target": [
+      "BATON_V12_STAGE_EXECUTION_CONFIG",
+      "--store",
+      "--incarnation",
+      "--authority-uuid",
+      "--control",
+      "--operations tools.stage_execution:factory",
+      "--engine",
+      "--custodian-image",
+      "--interval"
+    ],
+    "preflight_read_only": [
+      "docker inspect for positive absence",
+      "the run's own outcome document for the attempt binding",
+      "the token state via supported readers on COPIES; the generation must be OVERDUE"
+    ],
+    "why_once_is_not_the_entry": "`serve --once` returns reconcile(...) and does NOT wire the expiry pass, so a bounded single pass performs no reclaim and no settlement"
+  },
+  "THE_OPERATIONAL_GAP": {
+    "consequence": "the command is runnable today and reaches HELD; reaching `returned` needs the owner to name a digest this deployment never configured",
+    "owner_choice": [
+      "leave both held and retained as evidence, losing nothing because the workspaces are preserved either way",
+      "supply a custodian digest this deployment can honestly claim and run the entry per target"
+    ],
+    "what": "--custodian-image has NO configured source in this campaign: neither instance deployment.json, neither packet stage-execution configuration, nor any worker deployment carries a custodian image digest",
+    "what_I_will_not_do": "invent one -- a digest chosen to satisfy an operand is not evidence about a helper"
+  },
+  "answering": "review 2026-09-30T14-50-19Z (pass 316596) R1 and R2",
+  "claim": 316599,
+  "ownership": {
+    "author": [
+      "DISPOSITION-316512.json",
+      "PROGRESS.md",
+      "CANDIDATE-316599.json"
+    ],
+    "product_files_changed": [],
+    "product_tests_changed": [],
+    "reviewer": [
+      "FINDING.md",
+      "PLAN.md",
+      "the review records"
+    ]
+  },
+  "participant": "baton.claude",
+  "schema": "baton.candidate/1",
+  "subject": "documentation corrections, both accepted as right: the retained runtime 1c3943d1fa0f belongs to managed-correction-314263-second's review attempt and NOT to 309356, and the disposition is now an executable `tools.job_manager serve` invocation per target -- with the exact operational gap recorded, because `--custodian-image` has no configured source in this campaign.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "cap": "unchanged",
+    "credential_currency": "unverified",
+    "experiment": "remains PROPOSED only",
+    "observability_recommendation": "mine, not required scope",
+    "timeout_cause": "UNKNOWN"
+  },
+  "verification": {
+    "deployed_writes": 0,
+    "last_measured_state_stands": {
+      "failures": 0,
+      "product": 847
+    },
+    "live_runs": 0,
+    "read_only_this_claim": [
+      "docker inspect on three runtime identities",
+      "four deployed outcome documents",
+      "two bootstrap records",
+      "two instance deployment configurations",
+      "two packet configurations"
+    ],
+    "removals": 0,
+    "tests_run_this_claim": 0,
+    "why": "documentation corrections only; the reviewer directed no broad repeat and no product or test file changed"
+  },
+  "work": "W236087"
+}

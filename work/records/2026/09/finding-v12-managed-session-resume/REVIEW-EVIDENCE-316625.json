@@ -1,0 +1,12 @@
+{
+  "claim": 316625,
+  "candidate_sha256": "b26f5cd33e83dc7a7d3e5a85545ea5fb77cbad6a52082868bd1632bcd170f3f9",
+  "disposition_sha256": "014d1500fe6a5af4be0087bfc88e70c4683e44aabb6878d519fc2f9a2cff8991",
+  "tests_run": 0,
+  "validation": "read-only source review and JSON parsing",
+  "read_through": {
+    "handoff": 316622,
+    "events": 316625,
+    "thread": 239616
+  }
+}

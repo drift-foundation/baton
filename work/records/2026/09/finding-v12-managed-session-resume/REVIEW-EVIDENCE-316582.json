@@ -1,0 +1,17 @@
+{
+  "claim": 316582,
+  "candidate_sha256": "24827d87e2508d07a0113f98c7895e56819d66f064b57aace6260dac5bbc9d17",
+  "test_sha256": "183765b80f0e9a9c4477a9b3461a3544e27a08650aa0a76365b65b3664c9527d",
+  "independent_verification": {
+    "class": "TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld",
+    "tests": 22,
+    "seconds": 10.755,
+    "exit": 0
+  },
+  "read_through": {
+    "owner": 316504,
+    "handoff": 316573,
+    "events": 316582,
+    "thread": 239616
+  }
+}

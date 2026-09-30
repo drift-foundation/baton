@@ -1,0 +1,98 @@
+{
+  "answering": "owner reroute 316685",
+  "claim": 316689,
+  "corrections": {
+    "reclaim_refusal": "a refused attempt is REPORTED in the lean pass's own `refused` list and the pass continues; the run ends only if the pass itself raises. My 'ends the run' was the library's rule for a raising pass.",
+    "retention_cost": "retention keeps evidence inspectable and takes no risk -- that is its whole claim. It is not costless and settles nothing."
+  },
+  "experiment": {
+    "caps_unchanged": true,
+    "command_groups": [
+      "PREPARATION steps 0-4",
+      "EXECUTION step 5",
+      "STATUS step 6 (pending on the minted identity, with its read-only resolver)",
+      "OUTCOME step 7"
+    ],
+    "documents": [
+      "EXPERIMENT-316689.json",
+      "OPERATOR-316689.md",
+      "SELECTIONS-RESOLVED-316689.json"
+    ],
+    "identities": {
+      "earlier_runs_untouched": true,
+      "fresh": true,
+      "job_id": "job-managed-correction-316689",
+      "run_id": "managed-correction-316689"
+    },
+    "limit_stated_first": "the review timeout's cause is UNKNOWN and this may fail the same way; the honest next step would then be observability, not a bigger cap",
+    "provenance_given_for": [
+      "source root and declared base",
+      "runtime distro path and digest, re-measured this claim",
+      "image, adapter and profile digests",
+      "participants and receipts",
+      "credential reference, currency UNVERIFIED",
+      "helper digests stage records and bind refuses drift against"
+    ],
+    "status": "PREPARED ONLY -- nothing executed",
+    "verdict_forced": false
+  },
+  "ownership": {
+    "author": [
+      "EXPERIMENT-316689.json",
+      "SELECTIONS-RESOLVED-316689.json",
+      "OPERATOR-316689.md",
+      "ARGV-EVIDENCE-316689.json",
+      "STOP-ON-ERROR-EVIDENCE-316689.json",
+      "DISPOSITION-316512.json",
+      "test_correction_packet.py",
+      "PROGRESS.md",
+      "CANDIDATE-316689.json"
+    ],
+    "reviewer": [
+      "FINDING.md",
+      "PLAN.md",
+      "the review records"
+    ]
+  },
+  "participant": "baton.claude",
+  "retention": {
+    "honoured": "nothing deployed was read, written, removed or mutated this claim; every path in the experiment is new",
+    "selected_by": "owner reroute 316685",
+    "what_it_does_not_prove": "neither cleanup nor deployed revocation; the resources stay outstanding with a real storage cost and the missing bounded entry stays a gap"
+  },
+  "schema": "baton.candidate/1",
+  "subject": "retention selected and honoured without mutation; the next managed context-reuse experiment is PREPARED with fresh identities, four command groups, resolved operands and provenance, caps unchanged and no forced verdict; and the two over-strong statements the reviewer qualified are corrected.",
+  "unresolved": {
+    "actual_live_restore": "unproved",
+    "bounded_disposition_entry": "still missing, still recorded",
+    "cap": "unchanged",
+    "credential_currency": "unverified",
+    "the_experiment_is_not_run": "that is the owner's act",
+    "timeout_cause": "UNKNOWN"
+  },
+  "verification": {
+    "credential_changes": 0,
+    "deployed_reads": 0,
+    "deployed_writes": 0,
+    "dossier": {
+      "failures": 0,
+      "tests": 237
+    },
+    "live_runs": 0,
+    "operator_argv": {
+      "faults": 0,
+      "invocations": 9,
+      "sh_n": "OK"
+    },
+    "product_files_changed": [],
+    "product_tests_changed": [],
+    "removals": 0,
+    "settlement_proof": "stands unrepeated, as directed",
+    "stop_on_first_error": {
+      "cases": 5,
+      "invocations_after_the_failure": 0,
+      "sequences": 1
+    }
+  },
+  "work": "W236087"
+}

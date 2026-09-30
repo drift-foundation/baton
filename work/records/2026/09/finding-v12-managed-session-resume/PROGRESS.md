@@ -4048,3 +4048,318 @@ duplicates all run. What remains outside it is what it has always been -- the
 deployed cleanup of the two earlier live runs, still separately unresolved with
 no removal attempted; the review timeout's own cause, still UNKNOWN; the cap,
 unchanged; the credential currency, unverified; and a live restore, unproved.
+
+## Claim 316512 (baton.claude, impl) -- the settlement question, answered
+
+Owner reroute 316504 asked one question: the production reclaim reports the
+runtime absent but holds the revoked generation for missing writer-absence proof
+-- is that MISSING FIXTURE EVIDENCE or a CONCRETE PRODUCT GAP? I traced it
+through the deterministic scenario and the answer is **missing evidence, in two
+distinct pieces**. Neither is a gap, no product code changed, and the product
+states both refusals in its own words rather than inferring anything.
+
+### Piece one: the settlement has to be RUN
+
+`tools/job_manager.py`'s restart pass calls `intake.settle_revoked_resource`
+whenever the reclaim answers `held` OR `returned`, and its own comment says why
+that is not conditional: the settlement "no longer performs or requires any
+custody act -- it observes the exact container's termination, records the
+execution status, PRESERVES THE WORKSPACE AS IS and releases the exact gate".
+The reclaim's `held` is the first half of a two-act pass; my earlier case
+stopped at the first act, so the path was never followed to its end. That was
+my omission, not the product's.
+
+### Piece two: the adapter has to carry the deployment's custodian image digest
+
+Run without one, the settlement answers `held` and names exactly what is
+missing, for BOTH governed roots individually: "this deployment configures no
+custodian image, so this manager cannot identify a helper an earlier
+configuration may have launched under the same derived names; the engine was NOT
+asked and helper absence is not established". It holds rather than inferring an
+absence it did not establish. THAT IS CORRECT BEHAVIOUR, and a case pins it.
+
+Run with one -- `_ReclaimAdapter(engine, run, custodian_image_digest=...)`,
+which production composes the same way -- the settlement answers
+`settled: 'returned'`: the token is returned, the workspace is PRESERVED as is,
+every piece of sealed evidence and every attempt axis is unchanged, and no
+verdict is invented. A released gate is not an accepted Job: the review is still
+`answering`, the offer is still `sealed`, and the offered-material rule STILL
+refuses a writer over it afterwards -- which a case also pins, because a release
+that weakened the exclusion would be worse than the hold.
+
+### Scope and ownership, pinned
+
+Product code: NONE changed this claim. Product tests:
+`tests/tools/test_stage_execution.py` (183765b80f0e) -- the same class, now 22
+cases. Dossier: this record, `DISPOSITION-316512.json` and
+`SELECTIONS-RESOLVED-316512.json`. FINDING and PLAN are the reviewer's to pin;
+this is my side of it.
+
+### The exact supported disposition, and the next experiment
+
+`DISPOSITION-316512.json`. The two outstanding deployed resources -- the review
+runtime of `managed-correction-309356` and the runtime of the run I started by
+mistake -- would be released by the SAME two acts in the same order, and both
+need an operator because neither is an agent act here: the reclaim over the
+overdue token (overdue by many hours), then `settle_revoked_resource` with an
+adapter carrying the deployment's custodian image digest. If the deployment
+configures none, the resource stays held BY DESIGN and the honest disposition is
+to leave it held and keep the evidence. Removing a container or a path by hand
+is not a disposition: no removal is authorized, none was attempted, and a
+stopped container is not a proved cleanup.
+
+The next context-reuse experiment is written out with its commands, and with the
+limit that matters stated first: it would test the thing this Work exists for
+and which NO run has reached -- a review that ANSWERS, so the correction round
+opens and the producer's retained conversation is restored into a fresh worker.
+Both live runs died before a verdict. The review stage timed out at 180 seconds
+with no transcript to read and that cause is still UNKNOWN, so this experiment
+may fail the same way; making the reviewer's turn observable is the prerequisite
+I would want before spending another live run, and I say so in the document
+rather than selling the run.
+
+### Measured
+
+    product tests.tools.test_stage_execution + tests.manager.test_workspaces +
+    tests.tools.test_single_worker: 847 PASS in 204.7s (843 before, plus the
+    four settlement cases).
+    No live run, no deployed repair or removal, no credential change, no engine
+    mutation, no operator script executed, no Git or graph act, and no broad
+    suite beyond the three that own the code I touched.
+
+## Claim 316599 (baton.claude, impl) -- SUPERSESSION: the runtime attribution, and a disposition that runs
+
+Review 316596 accepted the settlement proof and asked for two documentation
+corrections. Both were right.
+
+### SUPERSEDING MY OWN CLAIM 316512 ATTRIBUTION
+
+`DISPOSITION-316512.json` said "the review runtime of
+managed-correction-309356". THAT IS WRONG and it is superseded here. Runtime
+`1c3943d1fa0f...` belongs to **managed-correction-314263-second**'s REVIEW
+attempt `attempt-fc0b0a1a7dd59f645b3e01e3aebf357354093a3821a0d2c11f516e99ce8298
+91`, exactly as `REVIEW-TIMEOUT-314551.json` already bound it.
+
+Re-measured this claim rather than re-asserted: every deployed `outcome.json`'s
+`cancellation` map was read and every runtime identity in it was put to `docker
+inspect`, read-only. The two outstanding runtimes are
+
+    managed-correction-314263-second  attempt-fc0b0a1a...  1c3943d1fa0f
+        stage `answering`, cleanup NEVER COMMITTED, engine: exited, ExitCode 0
+    managed-correction-314263         attempt-76c61bb4...  b93155adbe76
+        stage `running`,   cleanup NEVER COMMITTED, engine: exited, ExitCode 143
+
+AND 309356 HAS NO OUTSTANDING RUNTIME AT ALL: its implementation runtime
+`0e154e288035...` is gone ("no such object") with cleanup `retained`, and its
+review attempt never launched, so it holds no runtime identity. Its evidence
+stays distinct and is not part of this disposition.
+
+### A disposition that is a command, not prose
+
+The reviewer is right that naming `intake.settle_revoked_resource` is naming an
+internal function. THE SUPPORTED ENTRY IS `tools.job_manager serve`: its
+restart-recovery pass performs the reclaim and then the revoked-resource
+settlement, and there is no narrower command for either act. The document now
+carries the exact invocation per target -- `BATON_V12_STAGE_EXECUTION_CONFIG`,
+`--store`, `--incarnation`, `--authority-uuid`, `--control`, `--operations
+tools.stage_execution:factory`, `--engine`, `--custodian-image`, `--interval` --
+with each target's own instance, authority uuid and stage-execution
+configuration, and the note that they are not interchangeable.
+
+AND `--once` IS NOT THE ENTRY, which is the kind of detail a prose disposition
+hides: `serve --once` returns `reconcile(...)` and does NOT wire the expiry
+pass, so a bounded single pass performs no reclaim and no settlement. Measured
+by reading `_serve`.
+
+Preflight is all read-only and named: `docker inspect` for positive absence,
+the run's own outcome document for the attempt binding, and the token state
+through supported readers on COPIES of the stores -- the generation must be
+OVERDUE, because only an expired generation may be revoked. Both expired hours
+ago against a 900-second lifetime.
+
+### THE EXACT OPERATIONAL GAP, recorded rather than papered over
+
+`--custodian-image` HAS NO CONFIGURED SOURCE IN THIS CAMPAIGN. I searched all
+three places for both targets -- each instance's `deployment.json`, each
+packet's stage-execution configuration, and every worker deployment -- and every
+answer was empty.
+
+So the command is runnable today and, run as it stands, reaches the HELD
+outcome: revoked, stopped, roots not accounted for, resource not returned. That
+is correct behaviour and not a failure. Reaching `returned` requires the owner
+to NAME a custodian image digest this deployment never configured. I am not
+inventing one: a digest chosen to satisfy an operand is not evidence about a
+helper.
+
+The owner's choice is therefore between leaving both resources held and retained
+as evidence -- which loses nothing, because the workspaces are preserved either
+way -- and supplying a custodian digest this deployment can honestly claim.
+Removing a container or a path by hand is not a disposition.
+
+### Measured
+
+    No test run this claim and none needed: these are documentation
+    corrections, the reviewer directed no broad repeat, and no product or test
+    file changed. The last measured state stands -- product 847 PASS across
+    tests.tools.test_stage_execution, tests.manager.test_workspaces and
+    tests.tools.test_single_worker.
+    Read-only this claim: `docker inspect` on three runtime identities, four
+    deployed outcome documents, two bootstrap records, two instance deployment
+    configurations and two packet configurations. No deployed write, no
+    removal, no live run, no credential, engine, Git or graph act.
+
+Files: `DISPOSITION-316512.json` (014d1500fe6a), `CANDIDATE-316599.json`
+(b26f5cd33e83).
+
+## Claim 316640 (baton.claude, impl) -- WITHDRAWN: there is no bounded entry, and I said there was
+
+Review 316635 accepted the R1 identity correction and rejected my R2
+disposition. It read the source; I have re-read the same source and every
+objection is correct.
+
+### What I withdraw
+
+I claimed `tools.job_manager serve` was THE supported disposition, that it was
+"runnable today", and that an operator should "stop it with ONE Ctrl-C once its
+pass has reported". All of that is withdrawn, for four reasons I can now state
+from the source rather than from the review:
+
+IT IS NOT BOUNDED OR TARGET-SPECIFIC. `manager.serve` runs `reconcile(...)`
+once and then, every tick, `sleep(interval)`, `sweep(...)`, and only THEN the
+reclaim -- and the source says why in as many words: "once per tick, AFTER the
+ordinary sweep, so a reclaim never races the launch pass in the same tick". The
+ordinary sweep IS that launch pass. So this entry can resume normal Job action
+on an instance whose Job is spent and whose review is held, outside every bound
+this campaign selected. Nothing about it is scoped to one attempt.
+
+THE STOPPING INSTRUCTION WAS CIRCULAR. `serve` "answers the LAST report rather
+than every one of them", after the loop stops. An operator cannot see whether
+the reclaim ran, or what it answered, until after deciding to stop -- so "stop
+once its pass has reported" asks for an observation the entry does not give
+until it has already ended.
+
+A RECLAIM REFUSAL ENDS THE RUN. "Its refusals are not swallowed ... and ends the
+run." One refused attempt stops the whole serving process, which an operator is
+owed in advance.
+
+AND THE TEMPLATE LEFT TWO OPERANDS UNRESOLVED: `PYTHONPATH=<staged>/src:<staged>`
+named no actual tree -- each run staged its own and the current helper digests no
+longer match those retained manifests -- and `--custodian-image` had no value at
+all.
+
+### The gap I should have recorded instead
+
+THERE IS NO BOUNDED OPERATOR ENTRY for the reclaim or the revoked-resource
+settlement of one named attempt, and I searched before saying so:
+`tools/job_manager.py` is the only file in `tools/` that mentions either
+function and reaches them only through the persistent `serve` pass; the one
+`--attempt` operand anywhere in `tools/` belongs to `attempt_logs_command.py`,
+which reads delivered logs; and `dogfood_operator --abandon` IS attempt-scoped
+and bounded but is a DIFFERENT act -- W44716's abandonment ending -- that calls
+neither, so I am not presenting it as this path.
+
+That is now recorded as a gap alongside the custodian-configuration gap, which
+stands: `--custodian-image` has no configured source in this campaign, so even a
+bounded entry would reach the HELD outcome. I am proposing no new product or
+helper work; review 316635 asked for none.
+
+### `serve` kept only as an unselected broader alternative
+
+With its order, its effects beyond the disposition, its observability limit, its
+failure mode and its two unresolved operands all stated, so the owner can weigh
+it against doing nothing rather than discovering those properties afterwards.
+
+### The decision I am asking the owner for
+
+A -- LEAVE BOTH HELD AND RETAINED. No command, no risk, nothing lost: the
+workspaces are preserved either way, the resources are revoked-or-held rather
+than leaking, and the evidence stays inspectable. **This is what I would
+choose.**
+B -- select a broader `serve` execution deliberately, accepting the sweep's
+effects on a spent Job and naming a custodian digest the deployment can honestly
+claim.
+C -- commission a bounded entry as separate work; named only so the option is
+not invisible.
+
+### Measured
+
+    No tests run this claim and none needed: documentation only, no product or
+    test file changed, and the reviewer directed no repeat. Prior 22 PASS and
+    the settlement acceptance stand.
+    Read-only this claim: `manager.serve` and `_serve` in source, the `tools/`
+    tree searched for a bounded entry, and `dogfood_operator`'s abandon operand
+    read to rule it out. No deployed read, write, removal or live act.
+
+Files: `DISPOSITION-316512.json` (c0087c11cf0d), `CANDIDATE-316640.json`
+(556707f7e040).
+
+## Claim 316689 (baton.claude, impl) -- retention selected, and the next experiment PREPARED
+
+Owner reroute 316685 selected RETENTION of the existing deployed resources and
+evidence, without mutation, and asked for the next bounded managed
+context-reuse experiment to be PREPARED. That is what this claim delivers, and
+nothing in it was executed.
+
+### Two statements of mine the reviewer qualified, corrected
+
+I wrote "a reclaim refusal ends the run". Too strong: that is the LIBRARY's rule
+for a pass that RAISES, and the lean pass `tools/job_manager.py` supplies
+COLLECTS per-attempt refusals into its own `refused` list precisely so one
+attempt's refusal does not end the pass -- its own comment says so. A refused
+attempt is reported and the pass continues; the run ends only if the pass itself
+raises.
+
+I also wrote that retention loses "nothing". Too strong again: retention keeps
+the evidence inspectable and takes no risk, and that is its whole claim. The
+resources stay in an OUTSTANDING state with a real storage cost -- two
+instances, their workspaces, the retained conversations and two stopped
+containers, all still on disk -- and it proves NEITHER cleanup NOR deployed
+revocation. The missing bounded disposition entry stays a gap. Both corrections
+are in `DISPOSITION-316512.json`, and the operator document says the same in its
+own section 0 rather than burying it.
+
+### The experiment, prepared
+
+`EXPERIMENT-316689.json` and `OPERATOR-316689.md`. Fresh identities throughout --
+run `managed-correction-316689`, Job `job-managed-correction-316689`, a new
+instance, staging root and packet destination, all verified free -- so every
+earlier run's instance, packet, staging tree and evidence is untouched.
+
+FOUR COMMAND GROUPS, as asked, all with resolved operands: PREPARATION (stage,
+bootstrap, prepare-work, bind, check), EXECUTION (the bounded supervisor),
+STATUS (step 6, pending on the identity `tools.bootstrap` mints, with its
+read-only resolver and the note that `bind` writes the complete command into
+`commands.json`), and OUTCOME. Each is the generator's own argv, which a case
+asserts member for member.
+
+PROVENANCE FOR EVERY OPERAND, including what it does not prove: the source
+checkout and declared base from the accepted record and re-checked on disk; the
+distro digest RE-MEASURED this claim and matching the selection byte for byte;
+the image, adapter and profile digests from the accepted deployment record; the
+helper digests `stage` will record and `bind` will refuse drift against; and the
+credential reference, whose CURRENCY REMAINS UNVERIFIED and unverifiable from
+here.
+
+CAPS UNCHANGED and asserted against `BOUNDS`: 900 total, 60 reserve, 180 per
+provider turn, 180 per verification command, two implementation and two review
+invocations. NO CORRECTION VERDICT IS FORCED.
+
+AND THE LIMIT IS STATED FIRST, in both documents: the review stage timed out at
+180 seconds with no transcript to read and that cause is still UNKNOWN, so this
+experiment MAY FAIL THE SAME WAY. If it does, the honest next step is making the
+reviewer's turn observable -- not raising a cap. What to measure afterwards is
+written down either way.
+
+### Measured
+
+    dossier 237 cases, 0 failures (235 before, plus two cases for the prepared
+    experiment).
+    Operator argv under stubs: sh -n OK, 9 invocations, 0 faults.
+    Stop-on-first-error: the preparation sequence, 5 invocations, every one the
+    failing one in turn, 0 after the failure.
+    No product or test-suite file outside this dossier changed, so the accepted
+    settlement proof and its 22 cases stand unrepeated.
+    No live execution, no deployed cleanup or mutation, no credential change,
+    no engine act, no Git or graph act.
+
+Files: `EXPERIMENT-316689.json` (216744cc42d9), `SELECTIONS-RESOLVED-316689.json` (190809beb884), `OPERATOR-316689.md` (314aa26c9bd7), `ARGV-EVIDENCE-316689.json` (3217e30923a8), `STOP-ON-ERROR-EVIDENCE-316689.json` (3d6446591ec6), `DISPOSITION-316512.json` (6124779a645d), `test_correction_packet.py` (84e0e52a5ec4)

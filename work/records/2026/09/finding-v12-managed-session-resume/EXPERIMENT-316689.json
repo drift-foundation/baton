@@ -1,0 +1,261 @@
+{
+  "EXECUTION": {
+    "step": {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_supervisor.py",
+        "--packet",
+        "/home/sl/baton-instances/managed-correction-316689-packet/packet.json"
+      ],
+      "environment": {
+        "BATON_V12_STAGE_EXECUTION_CONFIG": "/home/sl/baton-instances/managed-correction-316689-packet/deployment.json",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316689-source/manager-source/src:/home/sl/baton-staging/managed-correction-316689-source/manager-source"
+      },
+      "step": 5,
+      "what": "serve it, BOUNDED, in the foreground. This one command performs the owner acts first -- the workspace and private context storage, the candidate profile's certification and ONE qualification grant, each journalled under an identity derived from its own operands, so repeating it replays rather than composing a second grant -- and then serves. It holds the 900s total with 60s reserved INSIDE it, caps the invocations at the gate, stops on the first terminal state and retains the outcome even when interrupted."
+    },
+    "stop": "ONE Ctrl-C in the serving terminal. The supervisor defers the signal, closes admission, asks the composition to stop, runs the cleanup window inside the reserve, publishes the outcome atomically and re-raises, exiting 130."
+  },
+  "OUTCOME": {
+    "how_to_read_it": "the four endings and what each means are in PACKET-309356.md section 7; an unread verdict is never an acceptance",
+    "step": {
+      "command": [
+        "python3",
+        "-c",
+        "import json,sys;print(json.dumps(json.load(open(sys.argv[1])), indent=2, sort_keys=True))",
+        "/home/sl/baton-instances/managed-correction-316689/run/outcome.json"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "step": 7,
+      "what": "the result, after the supervisor returns. The outcome document is the run's own answer."
+    },
+    "where": "/home/sl/baton-instances/managed-correction-316689/run/outcome.json"
+  },
+  "PREPARATION": {
+    "steps": [
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "stage",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-316689.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-316689-packet",
+          "--claim",
+          "316689",
+          "--provenance",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python"
+        },
+        "step": 0,
+        "what": "STAGE: write the input documents and COPY the modules and frozen resources this run will import, measuring every one. Refuses before it writes, refuses a staged tree that does not import, and refuses a staging root whose parent holds the instance."
+      },
+      {
+        "command": [
+          "python3",
+          "-m",
+          "tools.bootstrap",
+          "--inputs",
+          "/home/sl/baton-instances/managed-correction-316689-packet/bootstrap-inputs.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-316689",
+          "--distro",
+          "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro",
+          "--no-repositories"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316689-source/manager-source/src:/home/sl/baton-staging/managed-correction-316689-source/manager-source"
+        },
+        "step": 1,
+        "what": "the instance, from the accepted runtime. Installs; starts nothing."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "prepare-work",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-316689.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-316689-packet"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316689-source/manager-source/src:/home/sl/baton-staging/managed-correction-316689-source/manager-source"
+        },
+        "step": 2,
+        "what": "the Authority acts this Job needs: create the Work under the assignment contract, register the impl, rview and integration route handlers, grant the four receipt capabilities in the Work's own scope, and set the canonical target. Journalled under a derived identity, so a repeat replays."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "bind",
+          "--selections",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/SELECTIONS-RESOLVED-316689.json",
+          "--destination",
+          "/home/sl/baton-instances/managed-correction-316689-packet",
+          "--claim",
+          "316689",
+          "--provenance",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/PROVENANCE-309356.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316689-source/manager-source/src:/home/sl/baton-staging/managed-correction-316689-source/manager-source"
+        },
+        "step": 3,
+        "what": "bind the packet to what the instance ACTUALLY holds: the emitted deployment configuration, the Authority identity the bootstrap minted and the staged modules as copied. Opens no store."
+      },
+      {
+        "command": [
+          "python3",
+          "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-session-resume/correction_packet.py",
+          "check",
+          "--packet",
+          "/home/sl/baton-instances/managed-correction-316689-packet/packet.json"
+        ],
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/home/sl/baton-staging/managed-correction-316689-source/manager-source/src:/home/sl/baton-staging/managed-correction-316689-source/manager-source"
+        },
+        "step": 4,
+        "what": "prove the packet against the tree, with the real product validators over the STAGED imports. Opens no store; refuses on any drift."
+      }
+    ],
+    "what_each_does": {
+      "0": "stage: the documents, the modules and the frozen resources, all measured",
+      "1": "bootstrap: install the fresh instance; installs, starts nothing",
+      "2": "prepare-work: the Authority acts, journalled under a derived identity so a repeat replays",
+      "3": "bind: bind the packet to what the instance holds, and establish the two filesystem roots",
+      "4": "check: prove the packet, the staged bytes and the roots; opens no store"
+    }
+  },
+  "STATUS": {
+    "read_only_resolver": [
+      "python3",
+      "-c",
+      "import json,sys;print(json.load(open(sys.argv[1]))['authority_uuid'])",
+      "/home/sl/baton-instances/managed-correction-316689/bootstrap.json"
+    ],
+    "shape": [
+      "python3",
+      "-m",
+      "tools.job_manager",
+      "--store",
+      "/home/sl/baton-instances/managed-correction-316689/db/jobs.sqlite3",
+      "--authority-uuid",
+      null,
+      "--incarnation",
+      "managed-correction-316689",
+      "status",
+      "--control",
+      "/home/sl/baton-instances/managed-correction-316689/db/control.sqlite3"
+    ],
+    "step": 6,
+    "why_it_is_pending": "it needs the Authority identity `tools.bootstrap` mints at step 1; `bind` writes the complete command into /home/sl/baton-instances/managed-correction-316689-packet/commands.json once it has read it"
+  },
+  "answering": "owner reroute 316685",
+  "claim": 316689,
+  "identities_are_FRESH": {
+    "destination": "/home/sl/baton-instances/managed-correction-316689-packet",
+    "instance": "/home/sl/baton-instances/managed-correction-316689",
+    "job_id": "job-managed-correction-316689",
+    "run_id": "managed-correction-316689",
+    "staging": "/home/sl/baton-staging/managed-correction-316689-source",
+    "verified_free": "no path above exists yet; every earlier run's instance, packet, staging tree and evidence is untouched by this preparation",
+    "why_a_new_identity": "both earlier Job identities are SPENT -- their own stores refuse a repeat -- and a qualification grant is spent exactly once per run id"
+  },
+  "resolved_operands_and_their_provenance": {
+    "credential_reference": {
+      "provenance": "the configured reference; ITS CURRENCY IS UNVERIFIED and unverifiable from here, which is unchanged and stated again",
+      "value": "w202663-development"
+    },
+    "helper provenance": {
+      "correction_packet.py": "af405618646bd9dfa29538571a4292222db25e497e35b7ba204afbf9ecad2e64",
+      "correction_supervisor.py": "e9b2369bf527450f55a8539378aa95b0d2cdd62544cfe80d8d7e854d08ee2694",
+      "provenance": "the digests `stage` will record in prepared.json's `preparation_modules`; `bind` compares them and refuses drift rather than re-signing it"
+    },
+    "manager_runtime.path": {
+      "executable_sha256": "04aa459aed61704971e98b9260929b19953c41caad906e28551aae0ba457a58a",
+      "provenance": "the built distro of this campaign; its digest was RE-MEASURED this claim and matches the selection byte for byte",
+      "value": "/home/sl/baton-runs/managed-correction-236087/build/stack/out/distro"
+    },
+    "manager_source_origin": {
+      "provenance": "the working checkout the staged tree is copied FROM; `stage` measures all 108 files and both frozen schema assets from it",
+      "value": "/home/sl/src/baton/v12/python"
+    },
+    "participants and receipts": {
+      "provenance": "the same accepted record",
+      "value": {
+        "participants": {
+          "implementation": "baton.impl",
+          "integration": "baton.merge",
+          "review": "baton.review"
+        },
+        "receipts": {
+          "approval": "baton.approver",
+          "review": "baton.approver-review",
+          "verification": "baton.verifier"
+        }
+      }
+    },
+    "source.declared_base": {
+      "provenance": "the accepted declared base of that checkout",
+      "value": "346a809bf0e4c47e52d881bd46d6d62a611c9816"
+    },
+    "source.root": {
+      "provenance": "the accepted two-Jobs input checkout, unchanged since claim 311606; present on disk and re-checked this claim",
+      "value": "/home/sl/baton-runs/two-jobs-247941-01-inputs"
+    },
+    "worker_image / adapter / profile digests": {
+      "provenance": "the accepted deployment record of single-implementation-244216, carried unchanged since claim 311606"
+    }
+  },
+  "schema": "baton.context-reuse-experiment/1",
+  "status": "PREPARED ONLY. Nothing here was executed: no live run, no deployed cleanup, no credential change, no engine act, no version-control act.",
+  "the_owner_selected_RETENTION": {
+    "retained_targets": [
+      "managed-correction-314263-second, review attempt attempt-fc0b0a1a..., runtime 1c3943d1fa0f -- cleanup never committed",
+      "managed-correction-314263, implementation attempt attempt-76c61bb4..., runtime b93155adbe76 -- cleanup never committed",
+      "managed-correction-309356 -- distinct, no outstanding runtime"
+    ],
+    "what_retention_does_NOT_prove": "it proves neither cleanup nor deployed revocation. The resources remain in an OUTSTANDING state with a real storage cost -- instances, workspaces, retained conversations and stopped containers all still on disk -- and the missing bounded disposition entry stays recorded as a gap. Retention is a deliberate choice to keep evidence, not a settlement.",
+    "what_that_means_here": "the two retained runtimes and every run's evidence stay exactly as they are. This experiment touches NONE of it: every path below is new."
+  },
+  "what_this_experiment_tests": {
+    "caps_unchanged": {
+      "cleanup_seconds": 60,
+      "implementer_invocations": 2,
+      "provider_turn_seconds": 180,
+      "review_invocations": 2,
+      "total_seconds": 900
+    },
+    "the_limit_stated_first": "the review stage timed out at 180 seconds with NO transcript to read, and that cause is still UNKNOWN. A reviewer that cannot answer means no correction round, so THIS EXPERIMENT MAY FAIL THE SAME WAY. I am not forcing a correction verdict and the caps are unchanged; if it fails the same way, the honest next step is making the reviewer's turn observable rather than raising a cap.",
+    "the_question": "whether a review that ANSWERS opens the correction round, so the producer's retained conversation is restored into a fresh worker -- the thing this Work exists for and which no run has reached.",
+    "what_is_different_now": [
+      "the task contract orders the first action for a fresh implementation and PRESERVES an existing document on a resumed correction, which is what produced the completed implementation",
+      "the ending no longer asks for a preparation over sealed material, so a failed review no longer spins until an operator interrupts",
+      "the supervisor stops on a repeated refusal and reports unresolved cleanup by identity, and its interruption report no longer crashes"
+    ],
+    "why_it_has_not_been_reached": [
+      "the first live run produced no deliverable at all",
+      "the second produced a completed implementation and a reviewer that timed out `unable`, so there was no verdict to correct against"
+    ]
+  },
+  "what_to_measure_afterwards_whatever_happens": [
+    "the retained implementation transcript under the instance's private-context store -- entries, span, tool calls, and whether the deliverable was written and when",
+    "the review attempt's provider logs and output disposition",
+    "the outcome document's stage_states, held_because and refused_acts",
+    "and if the review times out again: DIAGNOSIS-314263.json is the template, and the honest conclusion is that the reviewer's turn needs to be observable before any cap is reconsidered"
+  ],
+  "work": "W236087"
+}

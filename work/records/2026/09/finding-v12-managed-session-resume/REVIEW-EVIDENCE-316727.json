@@ -1,0 +1,24 @@
+{
+  "claim": 316727,
+  "sha256": {
+    "CANDIDATE-316689.json": "a39add9e1ed387d03bed4836d4783c43b74a7856947c0b28ee4b394ff48eef91",
+    "EXPERIMENT-316689.json": "216744cc42d92128e530733c15c37f833903741f7b85747a91d673060696f17c",
+    "OPERATOR-316689.md": "314aa26c9bd75096bf4a3275221f7015946e7ba9166e9a44b57262d8a52b1aa8",
+    "SELECTIONS-RESOLVED-316689.json": "190809beb884c2203fcdb205c474ba8bfc822284f69f372b3e84223872c46489",
+    "correction_packet.py": "af405618646bd9dfa29538571a4292222db25e497e35b7ba204afbf9ecad2e64",
+    "correction_supervisor.py": "e9b2369bf527450f55a8539378aa95b0d2cdd62544cfe80d8d7e854d08ee2694"
+  },
+  "verification": {
+    "focused_instruction_tests": 2,
+    "seconds_reported": 0.0,
+    "status_resolver": "PASS with temporary JSON via real Python",
+    "fresh_paths": "instance, packet, staging absent",
+    "helper_hashes": "match experiment"
+  },
+  "read_through": {
+    "owner": 316685,
+    "handoff": 316724,
+    "events": 316727,
+    "thread": 239616
+  }
+}
